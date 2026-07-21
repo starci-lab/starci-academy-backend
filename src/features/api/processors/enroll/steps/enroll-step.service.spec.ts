@@ -24,6 +24,7 @@ import {
     JobActionService,
     TransactionActionService,
     UserService,
+    VoucherService,
 } from "@modules/bussiness"
 import {
     WinstonService,
@@ -152,6 +153,7 @@ describe("EnrollStepService",
         let courseStatsProjectionService: jest.Mocked<Pick<CourseStatsProjectionService, "recompute">>
         let userService: jest.Mocked<Pick<UserService, "invalidateEnrolledCourses">>
         let enqueueSendMailJobService: jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
+        let voucherService: jest.Mocked<Pick<VoucherService, "markUsed">>
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
@@ -181,6 +183,9 @@ describe("EnrollStepService",
             enqueueSendMailJobService = {
                 enqueue: jest.fn(),
             } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
+            voucherService = {
+                markUsed: jest.fn(),
+            } as unknown as jest.Mocked<Pick<VoucherService, "markUsed">>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -212,6 +217,10 @@ describe("EnrollStepService",
                     {
                         provide: EnqueueSendMailJobService,
                         useValue: enqueueSendMailJobService,
+                    },
+                    {
+                        provide: VoucherService,
+                        useValue: voucherService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),

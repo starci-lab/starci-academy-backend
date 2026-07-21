@@ -20,6 +20,9 @@ import {
 import {
     Locale,
 } from "@modules/databases"
+import {
+    ConsultantContactGateService,
+} from "@modules/bussiness"
 
 describe("HeadhuntingCompanyHandler",
     () => {
@@ -28,6 +31,9 @@ describe("HeadhuntingCompanyHandler",
         let elasticsearch: jest.Mocked<Pick<ElasticsearchService, "indicateName">> & {
             client: { get: jest.Mock; search: jest.Mock }
         }
+        let consultantContactGateService: jest.Mocked<
+            Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultants">
+        >
 
         beforeEach(async () => {
             elasticsearch = {
@@ -40,12 +46,25 @@ describe("HeadhuntingCompanyHandler",
                 client: { get: jest.Mock; search: jest.Mock }
             }
 
+            consultantContactGateService = {
+                getBestCvScore: jest.fn().mockResolvedValue(0),
+                // this suite's fixtures never populate `consultants`, so the
+                // gate branch is never entered — mock kept minimal on purpose
+                gateConsultants: jest.fn(),
+            } as unknown as jest.Mocked<
+                Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultants">
+            >
+
             module = await Test.createTestingModule({
                 providers: [
                     HeadhuntingCompanyHandler,
                     {
                         provide: ElasticsearchService,
                         useValue: elasticsearch,
+                    },
+                    {
+                        provide: ConsultantContactGateService,
+                        useValue: consultantContactGateService,
                     },
                 ],
             }).compile()

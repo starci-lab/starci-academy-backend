@@ -38,9 +38,16 @@ const COURSES_MOUNT_ROOT = path.join(
     ".mount/data/courses",
 )
 
-/** Relative path to the legacy (V1) M0 L1 lesson `request-response-lifecycle`. */
-const LIFECYCLE_RELATIVE_PATH =
-    "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/1-request-response-lifecycle"
+/**
+ * Relative path to a still-legacy (V1, inline `# body`) DevOps lesson.
+ *
+ * The original fixture here (`0-fullstack-mastery` M0 L1 `request-response-lifecycle`) has since
+ * been migrated to the V2 `bodies/<N>-<lang>/` shape (it now carries a `# verified` marker and no
+ * inline `# body` field), so it no longer exercises {@link ContentLegacyParserService}. DevOps
+ * content is the last course still on the legacy inline-body format.
+ */
+const LEGACY_RELATIVE_PATH =
+    "2-devops-mastery/modules/17-docker-and-oci-deep-dive/contents/3-buildkit-and-multi-arch"
 
 describe("ContentLegacyParserService",
     () => {
@@ -104,14 +111,14 @@ describe("ContentLegacyParserService",
         describe("parse",
             () => {
                 it(
-                    "parses the legacy 1-request-response-lifecycle lesson vi.md + en.md",
+                    "parses the legacy 3-buildkit-and-multi-arch lesson vi.md + en.md",
                     async () => {
                         const parsed = await service.parse({
                             paths: [
                                 {
-                                    relativePath: LIFECYCLE_RELATIVE_PATH,
+                                    relativePath: LEGACY_RELATIVE_PATH,
                                     orderIndex: 1,
-                                    displayId: "request-response-lifecycle",
+                                    displayId: "buildkit-and-multi-arch",
                                 },
                             ],
                             courseIndex: 0,
@@ -119,16 +126,16 @@ describe("ContentLegacyParserService",
                             contentIndex: 1,
                         })
 
-                        expect(parsed.displayId).toBe("request-response-lifecycle")
+                        expect(parsed.displayId).toBe("buildkit-and-multi-arch")
                         expect(parsed.orderIndex).toBe(1)
                         expect(parsed.defaultLocale).toBe(Locale.En)
-                        expect(parsed.title).toBe("The request/response lifecycle")
+                        expect(parsed.title).toBe("BuildKit & Multi-Arch")
                         expect(typeof parsed.description).toBe("string")
                         expect(parsed.description?.length ?? 0).toBeGreaterThan(0)
                         // legacy body is the inline `# body` Markdown blob (not a bodies/ folder)
                         expect(parsed.body).toContain("## 1. Opening")
-                        expect(parsed.minutesRead).toBe(18)
-                        expect(parsed.isPremium).toBe(false)
+                        expect(parsed.minutesRead).toBe(26)
+                        expect(parsed.isPremium).toBe(true)
 
                         // root translations carry title/description/body for every locale
                         expect(parsed.translations).toEqual(
@@ -137,7 +144,7 @@ describe("ContentLegacyParserService",
                                     contentId: parsed.id,
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Vòng đời request/response",
+                                    value: "BuildKit & Multi-Arch",
                                 },
                                 expect.objectContaining({
                                     locale: Locale.Vi,

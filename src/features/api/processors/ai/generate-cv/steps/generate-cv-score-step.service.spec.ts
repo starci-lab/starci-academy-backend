@@ -212,7 +212,7 @@ describe("GenerateCvScoreStepService",
                         jobActionService.loadExecutionResult.mockResolvedValueOnce(null)
 
                         await expect(service.process(makeContext())).rejects.toThrow(
-                            "Missing compose execution result for CV score step",
+                            "Missing an upstream execution result for this CV generation step.",
                         )
 
                         expect(jobActionService.failJob).toHaveBeenCalledTimes(1)

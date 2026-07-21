@@ -1,0 +1,30 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "../../../..",
+  "testEnvironment": "node",
+  "testRegex": "\\.e2e-spec\\.ts$",
+  "roots": [
+    "<rootDir>/apps/core/test/e2e"
+  ],
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "diagnostics": false
+      }
+    ]
+  },
+  "transformIgnorePatterns": [],
+  "moduleNameMapper": {
+    "^@modules/(.*)$": "<rootDir>/src/modules/$1",
+    "^@features/(.*)$": "<rootDir>/src/features/$1"
+  },
+  "globalSetup": "<rootDir>/apps/core/test/e2e/setup.ts",
+  "globalTeardown": "<rootDir>/apps/core/test/e2e/teardown.ts",
+  "testTimeout": 120000,
+  "maxWorkers": 1
+}

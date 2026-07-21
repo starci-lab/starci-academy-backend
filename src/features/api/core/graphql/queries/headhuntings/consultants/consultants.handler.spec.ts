@@ -23,6 +23,12 @@ import {
 import {
     Locale,
 } from "@modules/databases"
+import type {
+    ConsultantEntity,
+} from "@modules/databases"
+import {
+    ConsultantContactGateService,
+} from "@modules/bussiness"
 
 /** Build an ES search response with hit rows + a total count. */
 const buildSearchResponse = (
@@ -44,6 +50,9 @@ describe("ConsultantsHandler",
         let elasticsearch: jest.Mocked<Pick<ElasticsearchService, "indicateName">> & {
             client: { search: jest.Mock }
         }
+        let consultantContactGateService: jest.Mocked<
+            Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultants">
+        >
 
         beforeEach(async () => {
             elasticsearch = {
@@ -55,12 +64,25 @@ describe("ConsultantsHandler",
                 client: { search: jest.Mock }
             }
 
+            consultantContactGateService = {
+                getBestCvScore: jest.fn().mockResolvedValue(0),
+                // pass the list through untouched — contact-gating logic is
+                // covered by consultant-contact-gate.service.spec.ts
+                gateConsultants: jest.fn((consultants: Array<ConsultantEntity>) => consultants),
+            } as unknown as jest.Mocked<
+                Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultants">
+            >
+
             module = await Test.createTestingModule({
                 providers: [
                     ConsultantsHandler,
                     {
                         provide: ElasticsearchService,
                         useValue: elasticsearch,
+                    },
+                    {
+                        provide: ConsultantContactGateService,
+                        useValue: consultantContactGateService,
                     },
                 ],
             }).compile()

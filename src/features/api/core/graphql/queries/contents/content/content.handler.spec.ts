@@ -30,6 +30,13 @@ import {
     Locale,
 } from "@modules/databases"
 import {
+    createIoRedisKey,
+    IoRedisInstanceKey,
+} from "@modules/native"
+import {
+    WinstonService,
+} from "@modules/winston"
+import {
     makeEntityManagerMock,
 } from "@modules/tests"
 import type {
@@ -83,6 +90,11 @@ describe("ContentHandler",
         let s3ReadService: jest.Mocked<Pick<S3ReadService, "json">>
         let s3NameResolverService: jest.Mocked<Pick<S3NameResolverService, "content">>
         let userService: jest.Mocked<Pick<UserService, "checkEnrollment">>
+        let redis: {
+            incr: jest.Mock
+            expire: jest.Mock
+            ttl: jest.Mock
+        }
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
@@ -98,6 +110,13 @@ describe("ContentHandler",
             userService = {
                 checkEnrollment: jest.fn(),
             } as unknown as jest.Mocked<Pick<UserService, "checkEnrollment">>
+
+            // scrape-rate guard: every hit starts a fresh window under the limit
+            redis = {
+                incr: jest.fn(async () => 1),
+                expire: jest.fn(async () => 1),
+                ttl: jest.fn(async () => 3600),
+            }
 
             module = await Test.createTestingModule({
                 providers: [
@@ -117,6 +136,16 @@ describe("ContentHandler",
                     {
                         provide: UserService,
                         useValue: userService,
+                    },
+                    {
+                        provide: createIoRedisKey(IoRedisInstanceKey.Cache),
+                        useValue: redis,
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
                     },
                 ],
             }).compile()

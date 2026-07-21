@@ -78,10 +78,13 @@ describe("CourseEnrollmentStatusHandler",
                 expect(entityManager.findOne).not.toHaveBeenCalled()
             })
 
-        it("reports enrolled with the row when a matching enrollment exists",
+        it("reports enrolled with the row when a matching real-enrollment row exists",
             async () => {
+                // `isEnrolled` reflects the row's own flag (see handler comment), so the
+                // mock row must carry `isEnrolled: true` to represent a real enrollment.
                 const enrollment = {
                     id: "enr-1",
+                    isEnrolled: true,
                 }
                 entityManager.findOne.mockResolvedValueOnce(enrollment)
 
@@ -95,6 +98,29 @@ describe("CourseEnrollmentStatusHandler",
                 )
 
                 expect(result.isEnrolled).toBe(true)
+                expect(result.enrollment).toBe(enrollment)
+            })
+
+        it("reports not-enrolled with the row when a trial/preview row exists",
+            async () => {
+                // A trial/preview row exists (is_enrolled = false) so the FE should still
+                // show the enroll / buy CTA, even though a row was returned.
+                const enrollment = {
+                    id: "enr-2",
+                    isEnrolled: false,
+                }
+                entityManager.findOne.mockResolvedValueOnce(enrollment)
+
+                const result = await handler.execute(
+                    new CourseEnrollmentStatusQuery({
+                        request: {
+                            courseId: "course-1",
+                        },
+                        user: fakeUser("u1"),
+                    }),
+                )
+
+                expect(result.isEnrolled).toBe(false)
                 expect(result.enrollment).toBe(enrollment)
             })
 

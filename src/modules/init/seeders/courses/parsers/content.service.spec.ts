@@ -32,6 +32,7 @@ import type {
 import {
     ContentIdFactoryService,
     ContentBodyIdFactoryService,
+    ContentLearningOutcomeIdFactoryService,
     CourseIdFactoryService,
     ModuleIdFactoryService,
 } from "../id-factories"
@@ -151,6 +152,25 @@ describe("ContentParserService",
                         relativePath: string,
                     ): Promise<Array<ResolvedFilePath>> => listIndexedMountDirs(relativePath),
                 ),
+                // real service reads `.e2e/<lang>/flow-*.md`; the fixture lesson has no `.e2e/`
+                // folder, so mirror the real "absent directory" contract (`[]`) rather than stub blind.
+                listRaw: jest.fn(
+                    async (
+                        _baseDir: string,
+                        relativePath: string,
+                    ): Promise<Array<string>> => {
+                        try {
+                            return await fs.readdir(
+                                path.join(
+                                    COURSES_MOUNT_ROOT,
+                                    relativePath,
+                                ),
+                            )
+                        } catch {
+                            return []
+                        }
+                    },
+                ),
             }
 
             module = await Test.createTestingModule({
@@ -164,6 +184,7 @@ describe("ContentParserService",
                     ModuleIdFactoryService,
                     ContentIdFactoryService,
                     ContentBodyIdFactoryService,
+                    ContentLearningOutcomeIdFactoryService,
                     {
                         provide: ContextLoaderService,
                         useValue: contextLoaderService,

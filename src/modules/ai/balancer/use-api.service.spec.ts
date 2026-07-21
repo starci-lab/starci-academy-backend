@@ -51,7 +51,9 @@ describe("UseApiService",
         let aiPingCacheService: jest.Mocked<
             Pick<AiPingCacheService, "getProviderMap" | "recordKeySuccess" | "recordKeyCooldown">
         >
-        let keyStoreService: jest.Mocked<Pick<KeyStoreService, "ensureLoaded" | "getPool">>
+        let keyStoreService: jest.Mocked<
+            Pick<KeyStoreService, "ensureLoaded" | "getPool" | "listProviders">
+        >
         let aiModelLatencyCacheService: { getAll: jest.Mock }
 
         beforeEach(async () => {
@@ -91,7 +93,10 @@ describe("UseApiService",
                         value: "sk-aaaa",
                     },
                 ]),
-            } as unknown as jest.Mocked<Pick<KeyStoreService, "ensureLoaded" | "getPool">>
+                listProviders: jest.fn(() => []),
+            } as unknown as jest.Mocked<
+                Pick<KeyStoreService, "ensureLoaded" | "getPool" | "listProviders">
+            >
 
             module = await Test.createTestingModule({
                 providers: [
@@ -256,6 +261,255 @@ describe("UseApiService",
                         // no eligible key was ever acquired
                         expect(aiBalancerService.acquire).not.toHaveBeenCalled()
                     })
+
+                it("surfaces a NonKey fault immediately without trying another key",
+                    async () => {
+                        // an aborted request is a prompt/content fault, not a bad key —
+                        // another key would fail the exact same way, so the chain must
+                        // stop and surface the ORIGINAL error unwrapped
+                        const abortErr = new Error("the request was aborted")
+
+                        await expect(
+                            service.useApi<string>({
+                                lane: "chain",
+                                action: async () => {
+                                    throw abortErr
+                                },
+                            }),
+                        ).rejects.toBe(abortErr)
+                        // only the single (failed) attempt was made
+                        expect(aiBalancerService.acquire).toHaveBeenCalledTimes(1)
+                        // a NonKey fault must NOT penalize the key
+                        expect(aiPingCacheService.recordKeyCooldown).not.toHaveBeenCalled()
+                    })
+
+                it("hard-disables the key with a zero cooldown on an Auth fault",
+                    async () => {
+                        // an invalid/revoked key never recovers on its own — disable it
+                        // outright instead of a timed cooldown
+                        const authErr = new Error("Invalid API Key provided")
+
+                        await expect(
+                            service.useApi<string>({
+                                lane: "chain",
+                                action: async () => {
+                                    throw authErr
+                                },
+                            }),
+                        ).rejects.toBeInstanceOf(AllModelsExhaustedException)
+                        expect(aiPingCacheService.recordKeyCooldown).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                cooldownMs: 0,
+                                disabled: true,
+                            }),
+                        )
+                    })
+
+                it("honors the provider's Retry-After header on a rate-limit fault",
+                    async () => {
+                        // provider sent a 5s delta-seconds Retry-After — the cooldown
+                        // must use that instead of the class default (60s)
+                        const rateLimitErr = Object.assign(
+                            new Error("Too Many Requests"),
+                            {
+                                status: 429,
+                                headers: {
+                                    "retry-after": "5",
+                                },
+                            },
+                        )
+
+                        await expect(
+                            service.useApi<string>({
+                                lane: "chain",
+                                action: async () => {
+                                    throw rateLimitErr
+                                },
+                            }),
+                        ).rejects.toBeInstanceOf(AllModelsExhaustedException)
+                        expect(aiPingCacheService.recordKeyCooldown).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                cooldownMs: 5_000,
+                                disabled: false,
+                            }),
+                        )
+                    })
+
+                it("falls back to the 60s default cooldown on a rate-limit fault with no header",
+                    async () => {
+                        const rateLimitErr = Object.assign(
+                            new Error("rate limit exceeded"),
+                            {
+                                status: 429,
+                            },
+                        )
+
+                        await expect(
+                            service.useApi<string>({
+                                lane: "chain",
+                                action: async () => {
+                                    throw rateLimitErr
+                                },
+                            }),
+                        ).rejects.toBeInstanceOf(AllModelsExhaustedException)
+                        expect(aiPingCacheService.recordKeyCooldown).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                cooldownMs: 60_000,
+                                disabled: false,
+                            }),
+                        )
+                    })
+
+                it("cools down with the 20s Transient default on an unrecognized error",
+                    async () => {
+                        // classifyAiError falls through to Transient for anything that
+                        // isn't Auth/RateLimit/NonKey — the class default is 20s, not
+                        // hard-disabled and no Retry-After lookup
+                        await expect(
+                            service.useApi<string>({
+                                lane: "chain",
+                                action: async () => {
+                                    throw new Error("boom")
+                                },
+                            }),
+                        ).rejects.toBeInstanceOf(AllModelsExhaustedException)
+                        expect(aiPingCacheService.recordKeyCooldown).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                cooldownMs: 20_000,
+                                disabled: false,
+                            }),
+                        )
+                    })
+
+                it("excludes a model whose supportedTasks does not include the requested task",
+                    async () => {
+                        // chat-only vs grade-only model — requesting `chatting` must
+                        // filter the grade-only row out of the fallback chain entirely
+                        aiModelCatalogService.enabledModels.mockResolvedValue([
+                            {
+                                ...buildModelRow("chat-model"),
+                                supportedTasks: [
+                                    AiModelTask.Chatting,
+                                ],
+                            },
+                            {
+                                ...buildModelRow("grade-model"),
+                                supportedTasks: [
+                                    AiModelTask.Grading,
+                                ],
+                            },
+                        ] as Array<AiModelEntity>)
+
+                        const result = await service.useApi<string>({
+                            lane: "chain",
+                            task: AiModelTask.Chatting,
+                            action: async () => "ok",
+                        })
+
+                        expect(result.model).toBe("chat-model")
+                    })
+
+                it("climbs to the next category once the lower category has no eligible key",
+                    async () => {
+                        // Free tier has zero keys loaded; Economy's key is healthy — the
+                        // chain must climb past the exhausted Free row without ever
+                        // trying to acquire a Free-provider key
+                        const freeRow = {
+                            ...buildModelRow("free-model",
+                                ModelProvider.OpenAI),
+                            category: AiModelCategory.Free,
+                            weight: 0,
+                        } as AiModelEntity
+                        const ecoRow = {
+                            ...buildModelRow("eco-model",
+                                ModelProvider.Gemini),
+                            category: AiModelCategory.Economy,
+                            weight: 0,
+                        } as AiModelEntity
+                        aiModelCatalogService.enabledModels.mockResolvedValue([
+                            freeRow,
+                            ecoRow,
+                        ])
+                        keyStoreService.getPool.mockImplementation((provider) => (
+                            provider === ModelProvider.Gemini
+                                ? [
+                                    {
+                                        value: "sk-eco",
+                                    },
+                                ]
+                                : []
+                        ) as never)
+                        aiBalancerService.acquire.mockResolvedValue({
+                            value: "sk-eco",
+                            handle: {
+                                provider: ModelProvider.Gemini,
+                                keySuffix: "eco",
+                            },
+                        })
+
+                        const result = await service.useApi<string>({
+                            lane: "chain",
+                            categories: [
+                                AiModelCategory.Free,
+                                AiModelCategory.Economy,
+                            ],
+                            action: async () => "ok",
+                        })
+
+                        expect(result.model).toBe("eco-model")
+                        expect(result.provider).toBe(ModelProvider.Gemini)
+                        // the Free row was skipped before ever acquiring a key for it
+                        expect(aiBalancerService.acquire).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                provider: ModelProvider.Gemini,
+                            }),
+                        )
+                    })
+
+                it("skips catalog rows that do not match a model+provider pin inside the chain",
+                    async () => {
+                        // the `model`/`provider` fields on the Auto params pin the chain
+                        // to one exact row — every other row must be skipped via `continue`
+                        const modelA = buildModelRow("model-a",
+                            ModelProvider.OpenAI)
+                        const modelB = buildModelRow("model-b",
+                            ModelProvider.Gemini)
+                        aiModelCatalogService.enabledModels.mockResolvedValue([
+                            modelA,
+                            modelB,
+                        ])
+                        keyStoreService.getPool.mockImplementation((provider) => (
+                            provider === ModelProvider.Gemini
+                                ? [
+                                    {
+                                        value: "sk-b",
+                                    },
+                                ]
+                                : [
+                                    {
+                                        value: "sk-a",
+                                    },
+                                ]
+                        ) as never)
+                        aiBalancerService.acquire.mockResolvedValue({
+                            value: "sk-b",
+                            handle: {
+                                provider: ModelProvider.Gemini,
+                                keySuffix: "b",
+                            },
+                        })
+
+                        const result = await service.useApi<string>({
+                            lane: "chain",
+                            model: "model-b",
+                            provider: ModelProvider.Gemini,
+                            action: async () => "ok",
+                        })
+
+                        expect(result.model).toBe("model-b")
+                        expect(result.provider).toBe(ModelProvider.Gemini)
+                        expect(aiBalancerService.acquire).toHaveBeenCalledTimes(1)
+                    })
             })
 
         describe("premium lane",
@@ -351,6 +605,64 @@ describe("UseApiService",
                                 action: async () => "ok",
                             }),
                         ).rejects.toBeInstanceOf(AllModelsExhaustedException)
+                    })
+
+                it("resolves a pinned model by name only when provider is omitted",
+                    async () => {
+                        // (model, provider) branch requires BOTH — a name-only pin falls
+                        // into the name-only `find`, still resolving the right row
+                        aiModelCatalogService.enabledModels.mockResolvedValue([
+                            buildModelRow("gpt-4o", ModelProvider.OpenAI),
+                        ])
+
+                        const result = await service.useApi<string>({
+                            lane: "pinned",
+                            category: "balanced" as never,
+                            model: "gpt-4o",
+                            action: async () => "ok",
+                        })
+
+                        expect(result.provider).toBe(ModelProvider.OpenAI)
+                    })
+
+                it("throws Unsupported when a name-only pinned model is not in the catalog",
+                    async () => {
+                        aiModelCatalogService.enabledModels.mockResolvedValue([
+                            buildModelRow("gpt-4o", ModelProvider.OpenAI),
+                        ])
+
+                        await expect(
+                            service.useApi<string>({
+                                lane: "pinned",
+                                category: "balanced" as never,
+                                model: "ghost-model",
+                                action: async () => "x",
+                            }),
+                        ).rejects.toBeInstanceOf(UnsupportedAiProviderException)
+                    })
+
+                it("surfaces a NonKey fault immediately without trying another key",
+                    async () => {
+                        // same short-circuit rule as the Auto lane: a prompt/content
+                        // fault is not the key's fault, so stop and surface it raw
+                        aiModelCatalogService.enabledModels.mockResolvedValue([
+                            buildModelRow("gpt-4o"),
+                        ])
+                        const abortErr = new Error("the request was aborted")
+
+                        await expect(
+                            service.useApi<string>({
+                                lane: "pinned",
+                                category: "balanced" as never,
+                                model: "gpt-4o",
+                                provider: ModelProvider.OpenAI,
+                                action: async () => {
+                                    throw abortErr
+                                },
+                            }),
+                        ).rejects.toBe(abortErr)
+                        expect(aiBalancerService.acquire).toHaveBeenCalledTimes(1)
+                        expect(aiPingCacheService.recordKeyCooldown).not.toHaveBeenCalled()
                     })
             })
 
@@ -450,6 +762,68 @@ describe("UseApiService",
                     },
                 )
 
+                it("reads a string-shaped `error` field on a non-2xx",
+                    async () => {
+                        stubAcquire()
+                        fetchSpy = jest
+                            .spyOn(global,
+                                "fetch")
+                            .mockResolvedValue(
+                                fakeResponse(400,
+                                    {
+                                        error: "plain string reason",
+                                    }),
+                            )
+
+                        const result = await service.probeModel({
+                            provider: ModelProvider.OpenAI,
+                            model: "gpt-4o",
+                            timeoutMs: 5_000,
+                        })
+
+                        expect(result.errorMessage).toBe("[400] plain string reason")
+                    })
+
+                it("falls back to a top-level `message` field when `error` is absent",
+                    async () => {
+                        stubAcquire()
+                        fetchSpy = jest
+                            .spyOn(global,
+                                "fetch")
+                            .mockResolvedValue(
+                                fakeResponse(400,
+                                    {
+                                        message: "top-level message",
+                                    }),
+                            )
+
+                        const result = await service.probeModel({
+                            provider: ModelProvider.OpenAI,
+                            model: "gpt-4o",
+                            timeoutMs: 5_000,
+                        })
+
+                        expect(result.errorMessage).toBe("[400] top-level message")
+                    })
+
+                it("falls back to the HTTP status text when the body is not JSON",
+                    async () => {
+                        stubAcquire()
+                        fetchSpy = jest
+                            .spyOn(global,
+                                "fetch")
+                            // no `body` arg → `.json()` rejects, exercising the catch path
+                            .mockResolvedValue(fakeResponse(500))
+
+                        const result = await service.probeModel({
+                            provider: ModelProvider.OpenAI,
+                            model: "gpt-4o",
+                            timeoutMs: 5_000,
+                        })
+
+                        expect(result.errorMessage).toBe("[500] status 500")
+                    })
+
                 it.each([
                     "TimeoutError",
                     "AbortError",
@@ -517,6 +891,32 @@ describe("UseApiService",
                         expect(body.max_completion_tokens).toBe(16)
                         expect(body.max_tokens).toBeUndefined()
                         expect(body.model).toBe("gpt-4o")
+                    })
+
+                it("builds the OpenRouter request with max_completion_tokens",
+                    async () => {
+                        stubAcquire("openrouter-key")
+                        fetchSpy = jest
+                            .spyOn(global,
+                                "fetch")
+                            .mockResolvedValue(fakeResponse(200))
+
+                        await service.probeModel({
+                            provider: ModelProvider.OpenRouter,
+                            model: "qwen/qwen-2.5-coder-32b-instruct",
+                            timeoutMs: 5_000,
+                        })
+
+                        const [url,
+                            init] = fetchSpy.mock.calls[0]
+                        expect(url).toContain("/chat/completions")
+                        const headers = (init as RequestInit).headers as Record<string, string>
+                        expect(headers.Authorization).toBe("Bearer openrouter-key")
+                        const body = JSON.parse((init as RequestInit).body as string)
+                        // reasoning-family OpenRouter routes reject `max_tokens` the same
+                        // way native OpenAI does — same 16-token reasoning-headroom floor
+                        expect(body.max_completion_tokens).toBe(16)
+                        expect(body.max_tokens).toBeUndefined()
                     })
 
                 it("builds the Local request with max_tokens",
@@ -747,6 +1147,73 @@ describe("UseApiService",
                             "eco-hi",
                             "eco-lo",
                         ])
+                    })
+            })
+
+        describe("availableProviders",
+            () => {
+                it("includes only providers with at least one eligible key",
+                    async () => {
+                        // two loaded providers; OpenAI's key is healthy, Gemini's is
+                        // still cooling down → only OpenAI should come back usable
+                        keyStoreService.listProviders.mockReturnValue([
+                            {
+                                provider: ModelProvider.OpenAI,
+                                keysFilePath: "openai.key",
+                            },
+                            {
+                                provider: ModelProvider.Gemini,
+                                keysFilePath: "gemini.key",
+                            },
+                        ])
+                        keyStoreService.getPool.mockImplementation((provider) => (
+                            provider === ModelProvider.OpenAI
+                                ? [
+                                    {
+                                        value: "sk-openai",
+                                    },
+                                ]
+                                : [
+                                    {
+                                        value: "sk-gemini",
+                                    },
+                                ]
+                        ) as never)
+                        aiPingCacheService.getProviderMap.mockImplementation(async (provider) => (
+                            provider === ModelProvider.Gemini
+                                ? {
+                                    "sk-gemini": {
+                                        status: false,
+                                        lastPing: new Date().toISOString(),
+                                        cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
+                                    },
+                                }
+                                : {
+                                }
+                        ) as never)
+
+                        const usable = await service.availableProviders()
+
+                        expect(usable.has(ModelProvider.OpenAI)).toBe(true)
+                        expect(usable.has(ModelProvider.Gemini)).toBe(false)
+                    })
+
+                it("loads keys before checking eligibility",
+                    async () => {
+                        keyStoreService.listProviders.mockReturnValue([])
+
+                        await service.availableProviders()
+
+                        expect(keyStoreService.ensureLoaded).toHaveBeenCalledTimes(1)
+                    })
+
+                it("returns an empty set when no provider is loaded",
+                    async () => {
+                        keyStoreService.listProviders.mockReturnValue([])
+
+                        const usable = await service.availableProviders()
+
+                        expect(usable.size).toBe(0)
                     })
             })
     })

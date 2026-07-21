@@ -10,13 +10,11 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    BadRequestException,
-} from "@nestjs/common"
-import {
     PaymentType,
 } from "@modules/databases"
 import {
     CourseAlreadyEnrolledError,
+    UnsupportedPaymentTypeException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -229,7 +227,7 @@ describe("CourseEnrollHandler",
                 })
             })
 
-        it("throws BadRequest for an unsupported payment type",
+        it("throws UnsupportedPaymentTypeException for an unsupported payment type",
             async () => {
                 await expect(
                     handler.execute(
@@ -241,7 +239,7 @@ describe("CourseEnrollHandler",
                             user: fakeUser("user-1"),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(UnsupportedPaymentTypeException)
 
                 // no provider matches an unknown payment type
                 expect(payos.execute).not.toHaveBeenCalled()

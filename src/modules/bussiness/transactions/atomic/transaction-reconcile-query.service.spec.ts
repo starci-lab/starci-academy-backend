@@ -53,7 +53,7 @@ describe("TransactionReconcileQueryService",
         let payos: { paymentRequests: { get: jest.Mock } }
         let stripe: { checkout: { sessions: { retrieve: jest.Mock } } }
         let sepay: { order: { retrieve: jest.Mock } }
-        let paypalClient: jest.Mocked<Pick<PaypalClient, "retrieveOrder">>
+        let paypalClient: jest.Mocked<Pick<PaypalClient, "retrieveOrder" | "captureOrder">>
         let nowPaymentsClient: jest.Mocked<Pick<NowPaymentsClient, "getInvoiceStatus">>
 
         beforeEach(async () => {
@@ -80,10 +80,11 @@ describe("TransactionReconcileQueryService",
                 },
             }
 
-            // PayPal client wrapper: order retrieve by id
+            // PayPal client wrapper: order retrieve by id + APPROVED-order capture fallback
             paypalClient = {
                 retrieveOrder: jest.fn(),
-            } as unknown as jest.Mocked<Pick<PaypalClient, "retrieveOrder">>
+                captureOrder: jest.fn(),
+            } as unknown as jest.Mocked<Pick<PaypalClient, "retrieveOrder" | "captureOrder">>
 
             // NOWPayments client wrapper: invoice status by id
             nowPaymentsClient = {
@@ -368,22 +369,14 @@ describe("TransactionReconcileQueryService",
                         expect(result).toBe("unknown")
                     })
 
-                it("maps COMPLETED and APPROVED to paid",
+                it("maps a COMPLETED order to paid without attempting a capture",
                     async () => {
-                        paypalClient.retrieveOrder
-                            .mockResolvedValueOnce({
-                                status: "COMPLETED",
-                            } as never)
-                            .mockResolvedValueOnce({
-                                status: "APPROVED",
-                            } as never)
+                        // funds already taken → no fallback capture needed
+                        paypalClient.retrieveOrder.mockResolvedValueOnce({
+                            status: "COMPLETED",
+                        } as never)
 
-                        const completed = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Paypal,
-                            }),
-                        )
-                        const approved = await service.resolve(
+                        const result = await service.resolve(
                             buildTransaction({
                                 paymentType: PaymentType.Paypal,
                             }),
@@ -392,8 +385,49 @@ describe("TransactionReconcileQueryService",
                         expect(paypalClient.retrieveOrder).toHaveBeenCalledWith({
                             orderId: "provider-1",
                         })
-                        expect(completed).toBe("paid")
-                        expect(approved).toBe("paid")
+                        expect(paypalClient.captureOrder).not.toHaveBeenCalled()
+                        expect(result).toBe("paid")
+                    })
+
+                it("captures an APPROVED order and maps a successful capture to paid",
+                    async () => {
+                        // approved-but-not-captured → the fallback capture must run
+                        paypalClient.retrieveOrder.mockResolvedValueOnce({
+                            status: "APPROVED",
+                        } as never)
+                        paypalClient.captureOrder.mockResolvedValueOnce({
+                            captured: true,
+                        } as never)
+
+                        const result = await service.resolve(
+                            buildTransaction({
+                                paymentType: PaymentType.Paypal,
+                            }),
+                        )
+
+                        expect(paypalClient.captureOrder).toHaveBeenCalledWith({
+                            orderId: "provider-1",
+                        })
+                        expect(result).toBe("paid")
+                    })
+
+                it("maps an APPROVED order whose capture did not complete to unknown",
+                    async () => {
+                        // capture ran but PayPal did not report the funds as taken
+                        paypalClient.retrieveOrder.mockResolvedValueOnce({
+                            status: "APPROVED",
+                        } as never)
+                        paypalClient.captureOrder.mockResolvedValueOnce({
+                            captured: false,
+                        } as never)
+
+                        const result = await service.resolve(
+                            buildTransaction({
+                                paymentType: PaymentType.Paypal,
+                            }),
+                        )
+
+                        expect(result).toBe("unknown")
                     })
 
                 it("maps a VOIDED order to unpaid",

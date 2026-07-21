@@ -29,6 +29,8 @@
     "test:ci": "jest --selectProjects unit --ci --passWithNoTests",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/core/test/jest-e2e.json --runInBand",
+    "test:e2e:docker": "jest --config ./apps/core/test/e2e/jest-e2e-docker.json --runInBand",
+    "harness": "jest --config ./apps/core/test/harness/jest-harness.json --runInBand",
     "migrate:primary": "node -r ts-node/register -r tsconfig-paths/register scripts/run-primary-migrations.ts"
   },
   "dependencies": {
@@ -139,6 +141,7 @@
     "winston-loki": "^6.1.4"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.112.4",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@heroui/react": "^3.1.0",

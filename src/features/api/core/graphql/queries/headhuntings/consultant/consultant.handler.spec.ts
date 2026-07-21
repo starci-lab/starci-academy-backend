@@ -20,6 +20,12 @@ import {
 import {
     Locale,
 } from "@modules/databases"
+import type {
+    ConsultantEntity,
+} from "@modules/databases"
+import {
+    ConsultantContactGateService,
+} from "@modules/bussiness"
 
 describe("ConsultantHandler",
     () => {
@@ -28,6 +34,9 @@ describe("ConsultantHandler",
         let elasticsearch: jest.Mocked<Pick<ElasticsearchService, "indicateName">> & {
             client: { get: jest.Mock; search: jest.Mock }
         }
+        let consultantContactGateService: jest.Mocked<
+            Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultant">
+        >
 
         beforeEach(async () => {
             elasticsearch = {
@@ -40,12 +49,25 @@ describe("ConsultantHandler",
                 client: { get: jest.Mock; search: jest.Mock }
             }
 
+            consultantContactGateService = {
+                getBestCvScore: jest.fn().mockResolvedValue(0),
+                // pass the consultant through untouched — contact-gating logic
+                // is covered by consultant-contact-gate.service.spec.ts
+                gateConsultant: jest.fn((consultant: ConsultantEntity) => consultant),
+            } as unknown as jest.Mocked<
+                Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultant">
+            >
+
             module = await Test.createTestingModule({
                 providers: [
                     ConsultantHandler,
                     {
                         provide: ElasticsearchService,
                         useValue: elasticsearch,
+                    },
+                    {
+                        provide: ConsultantContactGateService,
+                        useValue: consultantContactGateService,
                     },
                 ],
             }).compile()

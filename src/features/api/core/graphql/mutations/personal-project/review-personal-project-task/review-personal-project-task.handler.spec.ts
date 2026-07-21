@@ -10,9 +10,6 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    BadRequestException,
-} from "@nestjs/common"
-import {
     EnqueueReviewPersonalProjectTaskJobService,
 } from "@modules/bussiness"
 import {
@@ -23,6 +20,8 @@ import {
 } from "@modules/vaildators"
 import {
     NoPersonalProjectTasksFoundException,
+    PersonalProjectGithubUrlMissingException,
+    PersonalProjectInvalidBranchNameException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -254,7 +253,7 @@ describe("ReviewPersonalProjectTaskHandler",
                             user: fakeUser("user-1"),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(PersonalProjectGithubUrlMissingException)
 
                 // url validation and enqueue never run without a url
                 expect(urlValidatorService.isParsable).not.toHaveBeenCalled()
@@ -281,7 +280,7 @@ describe("ReviewPersonalProjectTaskHandler",
                             user: fakeUser("user-1"),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(PersonalProjectInvalidBranchNameException)
 
                 expect(enqueueService.enqueue).not.toHaveBeenCalled()
             })

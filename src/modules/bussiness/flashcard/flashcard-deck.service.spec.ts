@@ -25,6 +25,9 @@ import {
 import type {
     EntityManagerMock,
 } from "@modules/tests"
+import {
+    FlashcardReviewService,
+} from "./flashcard-review.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -83,6 +86,14 @@ describe("FlashcardDeckReadService",
                         provide: FlashcardDeckResolverService,
                         useValue: {
                             transform: jest.fn(),
+                        },
+                    },
+                    {
+                        // SM-2 preview is only reached when a userId is passed, which none
+                        // of these cases do; a no-op stub satisfies the constructor.
+                        provide: FlashcardReviewService,
+                        useValue: {
+                            previewIntervals: jest.fn(),
                         },
                     },
                 ],

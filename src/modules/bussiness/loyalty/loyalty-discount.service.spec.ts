@@ -20,6 +20,9 @@ import {
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"
+import {
+    UserXpProjectionService,
+} from "../projections/user-xp/user-xp-projection.service"
 import type {
     LoyaltyContext,
 } from "./types"
@@ -36,14 +39,19 @@ describe("LoyaltyDiscountService",
         let service: LoyaltyDiscountService
         let entityManager: EntityManagerMock
         let userStatsProjectionService: jest.Mocked<UserStatsProjectionService>
+        let userXpProjectionService: jest.Mocked<UserXpProjectionService>
 
         beforeEach(async () => {
-            // fresh entity-manager mock per test (query = COUNT enrollments, findOne = user row)
+            // fresh entity-manager mock per test (query = COUNT enrollments)
             entityManager = makeEntityManagerMock()
             // stub the projection read the diligence check depends on
             userStatsProjectionService = {
                 getStats: jest.fn(),
             } as unknown as jest.Mocked<UserStatsProjectionService>
+            // stub the XP projection read the diligence check's points fallback depends on
+            userXpProjectionService = {
+                getXp: jest.fn(),
+            } as unknown as jest.Mocked<UserXpProjectionService>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -55,6 +63,10 @@ describe("LoyaltyDiscountService",
                     {
                         provide: UserStatsProjectionService,
                         useValue: userStatsProjectionService,
+                    },
+                    {
+                        provide: UserXpProjectionService,
+                        useValue: userXpProjectionService,
                     },
                 ],
             }).compile()
@@ -91,10 +103,14 @@ describe("LoyaltyDiscountService",
             userStatsProjectionService.getStats.mockResolvedValue({
                 streak,
             } as unknown as Awaited<ReturnType<UserStatsProjectionService["getStats"]>>)
-            // isDiligent fallback → materialized total points on the user row
-            entityManager.findOne.mockResolvedValue({
-                id: USER_ID,
+            // isDiligent fallback → global totalPoints from the XP projection
+            userXpProjectionService.getXp.mockResolvedValue({
+                challengeXp: 0,
+                milestoneXp: 0,
+                codingXp: 0,
+                lessonXp: 0,
                 totalPoints,
+                coinBalance: 0,
             })
         }
 
@@ -130,8 +146,8 @@ describe("LoyaltyDiscountService",
                         const context = await service.computeLoyaltyContext(USER_ID)
 
                         expect(context.diligent).toBe(true)
-                        // streak alone satisfied diligence → the user-row points read is skipped
-                        expect(entityManager.findOne).not.toHaveBeenCalled()
+                        // streak alone satisfied diligence → the XP-projection points read is skipped
+                        expect(userXpProjectionService.getXp).not.toHaveBeenCalled()
                     })
 
                 it("is diligent when total points meet the threshold despite a low streak",

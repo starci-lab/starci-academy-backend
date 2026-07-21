@@ -65,6 +65,10 @@ const buildSubscription = (
     windowWeekResetAt: futureDate(),
     credit5hUsed: 0,
     creditWeekUsed: 0,
+    // Coin-shop aiCredit top-up counters — default to 0 so the allowance math
+    // (limit + bonus) never degrades to NaN when a test omits them
+    bonusCredit5h: 0,
+    bonusCreditWeek: 0,
     ...overrides,
 }) as AiSubscriptionEntity
 

@@ -1,0 +1,30 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "../../../..",
+  "testEnvironment": "node",
+  "testRegex": "\\.harness-spec\\.ts$",
+  "roots": [
+    "<rootDir>/apps/core/test/harness"
+  ],
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "diagnostics": false
+      }
+    ]
+  },
+  "transformIgnorePatterns": [],
+  "moduleNameMapper": {
+    "^@modules/(.*)$": "<rootDir>/src/modules/$1",
+    "^@features/(.*)$": "<rootDir>/src/features/$1"
+  },
+  "globalSetup": "<rootDir>/apps/core/test/harness/setup.ts",
+  "globalTeardown": "<rootDir>/apps/core/test/harness/teardown.ts",
+  "testTimeout": 300000,
+  "maxWorkers": 1
+}

@@ -6,14 +6,16 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    BadRequestException,
-} from "@nestjs/common"
-import {
     EnqueueEnrollJobService,
+    EnqueueSendMailJobService,
+    NotificationService,
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
 } from "@modules/ai"
+import {
+    MembershipService,
+} from "@modules/membership"
 import {
     ActionType,
     AiSubTier,
@@ -22,7 +24,7 @@ import {
 import {
     AiSubscriptionTierNotAvailableException,
     TransactionCourseNotFoundException,
-    TransactionNotFoundException,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -92,7 +94,7 @@ describe("PayosWebhookHandler",
         let handler: PayosWebhookHandler
         let entityManager: EntityManagerMock
         let payos: { webhooks: { verify: jest.Mock } }
-        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
         let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "grantTier">>
 
         beforeEach(async () => {
@@ -106,10 +108,14 @@ describe("PayosWebhookHandler",
                 },
             }
 
-            // enroll worker hand-off — assert it is enqueued on the Enroll path
+            // enroll worker hand-off — assert it is enqueued on the Enroll path. Default
+            // to a single successful fan-out; individual tests override for the
+            // malformed-transaction (enqueuedCount: 0) case.
             enqueueEnrollJobService = {
-                enqueue: jest.fn(),
-            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+                enqueueForTransaction: jest.fn().mockResolvedValue({
+                    enqueuedCount: 1,
+                }),
+            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
             // entitlement grant — assert it fires on the subscription path
             aiEntitlementService = {
@@ -134,6 +140,26 @@ describe("PayosWebhookHandler",
                         useValue: aiEntitlementService,
                     },
                     {
+                        // MembershipPurchase path is not exercised by these tests — a
+                        // bare stub is enough to satisfy DI (mirrors the sibling
+                        // reconcile-transaction.worker.spec.ts style).
+                        provide: MembershipService,
+                        useValue: {
+                            grantMembership: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: EnqueueSendMailJobService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: NotificationService,
+                        useValue: {
+                            createNotification: jest.fn(),
+                        },
+                    },
+                    {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
                     },
@@ -150,9 +176,8 @@ describe("PayosWebhookHandler",
         it("enqueues the enroll job for a valid enrollment webhook",
             async () => {
                 // a matching pending enrollment transaction exists
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction(),
-                )
+                const transaction = buildTransaction()
+                entityManager.findOne.mockResolvedValueOnce(transaction)
 
                 await handler.execute(
                     new PayosWebhookCommand(
@@ -162,11 +187,10 @@ describe("PayosWebhookHandler",
 
                 // signature verification ran before any mutation
                 expect(payos.webhooks.verify).toHaveBeenCalled()
-                // enroll worker received the hand-off
-                expect(enqueueEnrollJobService.enqueue).toHaveBeenCalledWith({
-                    userId: "user-1",
-                    courseId: "course-1",
-                    transactionId: "txn-1",
+                // enroll worker received the hand-off — the handler now fans out
+                // per-transaction (single- or multi-course) via enqueueForTransaction
+                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
+                    transaction,
                 })
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
             })
@@ -194,7 +218,7 @@ describe("PayosWebhookHandler",
                     tier: AiSubTier.Plus,
                     transactionId: "txn-1",
                 })
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("rejects an invalid signature without touching the DB",
@@ -215,11 +239,14 @@ describe("PayosWebhookHandler",
                 // never looked up or mutated a transaction
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
-        it("throws when no pending transaction matches the order code",
+        it("acks (no throw) when no pending transaction matches the order code",
             async () => {
+                // PayOS also probes the webhook URL with a sample orderCode to validate
+                // it — the handler now acks unmatched callbacks instead of throwing, so
+                // a stray/probe delivery never trips PayOS's "inactive URL" retry logic.
                 // findOne default resolves null → no pending row
                 await expect(
                     handler.execute(
@@ -227,11 +254,11 @@ describe("PayosWebhookHandler",
                             buildBody(),
                         ),
                     ),
-                ).rejects.toBeInstanceOf(TransactionNotFoundException)
+                ).resolves.toBeUndefined()
 
                 // no side effects when the reference is unknown
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("rejects a subscription webhook that carries no tier",
@@ -258,12 +285,17 @@ describe("PayosWebhookHandler",
 
         it("rejects an enrollment webhook that carries no course",
             async () => {
-                // enrollment transaction missing its courseId
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction({
-                        courseId: null,
-                    }),
-                )
+                // enrollment transaction missing its courseId — the handler now
+                // delegates the items-vs-course resolution to
+                // EnqueueEnrollJobService.enqueueForTransaction, which reports the
+                // malformed row back as `enqueuedCount: 0` (no items, no course)
+                const transaction = buildTransaction({
+                    courseId: null,
+                })
+                entityManager.findOne.mockResolvedValueOnce(transaction)
+                enqueueEnrollJobService.enqueueForTransaction.mockResolvedValueOnce({
+                    enqueuedCount: 0,
+                })
 
                 await expect(
                     handler.execute(
@@ -273,10 +305,12 @@ describe("PayosWebhookHandler",
                     ),
                 ).rejects.toBeInstanceOf(TransactionCourseNotFoundException)
 
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
+                    transaction,
+                })
             })
 
-        it("throws BadRequest for an unsupported action type",
+        it("throws for an unsupported action type",
             async () => {
                 // transaction with an action the switch does not handle
                 entityManager.findOne.mockResolvedValueOnce(
@@ -291,9 +325,9 @@ describe("PayosWebhookHandler",
                             buildBody(),
                         ),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(UnsupportedTransactionActionException)
 
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
     })

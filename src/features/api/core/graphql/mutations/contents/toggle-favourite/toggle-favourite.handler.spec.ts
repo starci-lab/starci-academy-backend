@@ -10,6 +10,9 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
+    UserService,
+} from "@modules/bussiness"
+import {
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -48,14 +51,26 @@ describe("ToggleFavouriteHandler",
         let module: TestingModule
         let handler: ToggleFavouriteHandler
         let entityManager: EntityManagerMock
+        let userService: jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
 
+            // the enrollment anchor: resolves (or creates) the trial enrollment the
+            // re-keyed user_contents row is stamped with; unused unless the content
+            // resolves to a course
+            userService = {
+                resolveOrCreateTrialEnrollment: jest.fn(),
+            } as unknown as jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
+
             module = await Test.createTestingModule({
                 providers: [
                     ToggleFavouriteHandler,
+                    {
+                        provide: UserService,
+                        useValue: userService,
+                    },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,

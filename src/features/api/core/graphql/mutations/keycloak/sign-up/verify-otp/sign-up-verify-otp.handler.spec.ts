@@ -14,6 +14,7 @@ import {
 } from "@nestjs/jwt"
 import {
     EmailBloomFilterService,
+    EnqueueSendMailJobService,
 } from "@modules/bussiness"
 import {
     OtpChallengeService,
@@ -65,6 +66,7 @@ describe("SignUpVerifyOtpHandler",
         let keycloakTokenService: jest.Mocked<Pick<KeycloakTokenService, "exchangePasswordForToken">>
         let keycloakUserService: jest.Mocked<Pick<KeycloakUserService, "setUserEmailVerified">>
         let emailBloomFilterService: jest.Mocked<Pick<EmailBloomFilterService, "add">>
+        let enqueueSendMailJobService: jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
@@ -98,6 +100,11 @@ describe("SignUpVerifyOtpHandler",
                 add: jest.fn(),
             } as unknown as jest.Mocked<Pick<EmailBloomFilterService, "add">>
 
+            // welcome-email hand-off on first-time registration
+            enqueueSendMailJobService = {
+                enqueue: jest.fn(),
+            } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
+
             module = await Test.createTestingModule({
                 providers: [
                     SignUpVerifyOtpHandler,
@@ -120,6 +127,10 @@ describe("SignUpVerifyOtpHandler",
                     {
                         provide: EmailBloomFilterService,
                         useValue: emailBloomFilterService,
+                    },
+                    {
+                        provide: EnqueueSendMailJobService,
+                        useValue: enqueueSendMailJobService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -162,6 +173,12 @@ describe("SignUpVerifyOtpHandler",
                 // a local user row is created and the email recorded in the bloom filter
                 expect(entityManager.save).toHaveBeenCalled()
                 expect(emailBloomFilterService.add).toHaveBeenCalledWith("new@example.com")
+                // first-time registration queues a welcome email
+                expect(enqueueSendMailJobService.enqueue).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        template: "welcome",
+                    }),
+                )
                 // the new tokens are returned
                 expect(result).toEqual({
                     data: {
@@ -196,6 +213,8 @@ describe("SignUpVerifyOtpHandler",
                 // no save / bloom-filter write when the user is already present
                 expect(entityManager.save).not.toHaveBeenCalled()
                 expect(emailBloomFilterService.add).not.toHaveBeenCalled()
+                // no welcome email either — this is not a first-time registration
+                expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
             })
 
         it("throws on an OTP mismatch (no token exchange)",

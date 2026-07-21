@@ -82,6 +82,7 @@ describe("SubmitChallengeSubmissionHandler",
         let advisoryLock: jest.Mocked<
             Pick<PostgreSqlAdvisoryLockService, "acquireUserChallengeSubmissionXactLock">
         >
+        let userService: jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager — `transaction` runs callbacks inline
@@ -112,6 +113,13 @@ describe("SubmitChallengeSubmissionHandler",
             } as unknown as jest.Mocked<
                 Pick<PostgreSqlAdvisoryLockService, "acquireUserChallengeSubmissionXactLock">
             >
+
+            // best-effort trial-enrollment resolution — resolves null by default so
+            // tests that never reach the enrollment step stay inert; tests that do
+            // reach it override with mockResolvedValueOnce per-case
+            userService = {
+                resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue(null),
+            } as unknown as jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -149,12 +157,8 @@ describe("SubmitChallengeSubmissionHandler",
                         },
                     },
                     {
-                        // best-effort trial-enrollment resolution — a bare stub keeps the
-                        // (try/catch-wrapped) capstone-attempt path inert for these specs
                         provide: UserService,
-                        useValue: {
-                            resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue(null),
-                        },
+                        useValue: userService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -241,25 +245,27 @@ describe("SubmitChallengeSubmissionHandler",
                         id: "chal-1",
                         verified: false,
                     })
-                    // 3. inside the upsert tx: existing user submission with a url
+                    // 3. ContentEntity (ownerContent premium-lock check) — no owning content found
+                    .mockResolvedValueOnce(null)
+                    // 4. CourseEntity lookup
+                    .mockResolvedValueOnce({
+                        id: "course-1",
+                    })
+                    // 5. inside the upsert tx: existing user submission with a url
                     .mockResolvedValueOnce({
                         id: "ucs-1",
                         submissionUrl: "https://github.com/me/repo",
                     })
-                    // 4. re-load after the tx
+                    // 6. re-load after the tx
                     .mockResolvedValueOnce({
                         id: "ucs-1",
                         submissionUrl: "https://github.com/me/repo",
                         selectedLang: null,
                     })
-                    // 5. CourseEntity lookup
-                    .mockResolvedValueOnce({
-                        id: "course-1",
-                    })
-                    // 6. EnrollmentEntity lookup
-                    .mockResolvedValueOnce({
-                        id: "enroll-1",
-                    })
+                // trial enrollment is resolved via UserService, not entityManager.findOne
+                userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce({
+                    id: "enroll-1",
+                } as never)
 
                 const result = await handler.execute(
                     new SubmitChallengeSubmissionCommand({
@@ -301,21 +307,27 @@ describe("SubmitChallengeSubmissionHandler",
                         id: "chal-1",
                         verified: true,
                     })
+                    // ContentEntity (ownerContent premium-lock check) — no owning content found
+                    .mockResolvedValueOnce(null)
+                    // CourseEntity lookup
+                    .mockResolvedValueOnce({
+                        id: "course-1",
+                    })
+                    // inside the upsert tx: existing user submission with a url
                     .mockResolvedValueOnce({
                         id: "ucs-1",
                         submissionUrl: "https://github.com/me/repo",
                     })
+                    // re-load after the tx
                     .mockResolvedValueOnce({
                         id: "ucs-1",
                         submissionUrl: "https://github.com/me/repo",
                         selectedLang: "typescript",
                     })
-                    .mockResolvedValueOnce({
-                        id: "course-1",
-                    })
-                    .mockResolvedValueOnce({
-                        id: "enroll-1",
-                    })
+                // trial enrollment is resolved via UserService, not entityManager.findOne
+                userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce({
+                    id: "enroll-1",
+                } as never)
 
                 const result = await handler.execute(
                     new SubmitChallengeSubmissionCommand({

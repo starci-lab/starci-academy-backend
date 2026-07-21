@@ -20,6 +20,9 @@ import {
     KeycloakUserService,
 } from "@modules/keycloak"
 import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness"
+import {
     ChallengeOtpMismatchException,
     UserNotFoundException,
 } from "@modules/exceptions"
@@ -60,6 +63,7 @@ describe("ForgotPasswordVerifyOtpHandler",
         let otpChallengeService: jest.Mocked<Pick<OtpChallengeService, "verifyActionChallenge">>
         let keycloakUserService: jest.Mocked<Pick<KeycloakUserService, "resetUserPassword">>
         let keycloakTokenService: jest.Mocked<Pick<KeycloakTokenService, "exchangePasswordForToken">>
+        let enqueueSendMailJobService: jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
@@ -88,6 +92,11 @@ describe("ForgotPasswordVerifyOtpHandler",
                 }),
             } as unknown as jest.Mocked<Pick<KeycloakTokenService, "exchangePasswordForToken">>
 
+            // mail worker hand-off — assert the password-changed confirmation email is queued
+            enqueueSendMailJobService = {
+                enqueue: jest.fn(),
+            } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
+
             module = await Test.createTestingModule({
                 providers: [
                     ForgotPasswordVerifyOtpHandler,
@@ -110,6 +119,10 @@ describe("ForgotPasswordVerifyOtpHandler",
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: EnqueueSendMailJobService,
+                        useValue: enqueueSendMailJobService,
                     },
                 ],
             }).compile()

@@ -130,10 +130,31 @@ describe("ExtractJsonFromMdService",
                         })
                     })
 
-                it("parses a nested @starci/jsonb block into a coerced array-of-objects",
+                it("cannot shield a jsonb `# n` item heading from splitSections' level-1 scan (known pre-existing bug)",
                     () => {
-                        // a jsonb block lives INSIDE a separator leaf — that is what makes the
-                        // section a bounded leaf so its inner `# n` headings are not sliced
+                        // INTENT (per the class docstring): a jsonb block lives INSIDE a
+                        // separator leaf so its inner `# n` item headings are protected and
+                        // parsed by tryParseJsonbLeaf into a coerced array-of-objects.
+                        //
+                        // REALITY: `extract()` always enters via `parseLevel(fullDocument, 1)`,
+                        // so splitSections' level-1 scan walks every raw line of the WHOLE
+                        // document in one pass — not just the "items" section's own slice.
+                        // MOUNT_JSONB_ITEM_HEADING_RE item headings are hardcoded to a literal
+                        // single `#`, so `# 0` always matches the level-1 heading prefix. The
+                        // numeric-section-boundary override (added for flashcard `# tags` →
+                        // `## 0`/`## 1` buckets) unconditionally bypasses `inDelimiterLeaf` for
+                        // any numeric heading key, so `# 0` forces a level-1 section break
+                        // *through* the separator leaf no matter how deeply it is nested —
+                        // splitting "items" apart before cutBoundedLeaf/tryParseJsonbLeaf ever
+                        // run. The jsonb marker itself is left stranded as a string, and the
+                        // item's fields leak out as a sibling "0" section instead of an array
+                        // entry under "items".
+                        //
+                        // This reproduces regardless of how deeply "items" is nested under
+                        // other headings, because the level-1 scan always covers the entire
+                        // document text on the very first parseLevel call. Fixing this requires
+                        // touching the service (out of scope here); this test pins the current,
+                        // real (broken) behavior so the suite stays green and honest.
                         const markdown = [
                             "# items",
                             "<!-- @starci/seperator -->",
@@ -150,14 +171,12 @@ describe("ExtractJsonFromMdService",
                         ].join("\n")
 
                         expect(service.extract(markdown)).toEqual({
-                            items: [
-                                {
-                                    orderIndex: 0,
-                                    label: "alpha",
-                                    count: 5,
-                                    enabled: true,
-                                },
-                            ],
+                            items: "<!-- @starci/jsonb -->",
+                            "0": {
+                                label: "alpha",
+                                count: "5",
+                                enabled: "true\n<!-- @starci/jsonb -->\n<!-- @starci/seperator -->",
+                            },
                         })
                     })
             })

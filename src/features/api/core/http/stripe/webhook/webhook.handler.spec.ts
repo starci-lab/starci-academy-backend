@@ -6,14 +6,16 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    BadRequestException,
-} from "@nestjs/common"
-import {
     EnqueueEnrollJobService,
+    EnqueueSendMailJobService,
+    NotificationService,
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
 } from "@modules/ai"
+import {
+    MembershipService,
+} from "@modules/membership"
 import {
     ActionType,
     AiSubTier,
@@ -23,6 +25,7 @@ import {
     AiSubscriptionTierNotAvailableException,
     TransactionCourseNotFoundException,
     TransactionNotFoundException,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -65,14 +68,18 @@ const WEBHOOK_PARAMS = {
 /**
  * Build a Stripe checkout.session.completed event with the given reference id
  * on the session object. Pass `referenceId: null` to model a missing id.
+ * `payment_status` defaults to "paid" — the handler ignores any completed
+ * session whose funds have not cleared yet (e.g. a pending async payment).
  */
 const buildCompletedEvent = (
     referenceId: string | null = REFERENCE_ID,
+    paymentStatus: string = "paid",
 ): Record<string, unknown> => ({
     type: "checkout.session.completed",
     data: {
         object: {
             client_reference_id: referenceId,
+            payment_status: paymentStatus,
         },
     },
 })
@@ -103,8 +110,11 @@ describe("StripeWebhookHandler",
         let handler: StripeWebhookHandler
         let entityManager: EntityManagerMock
         let stripe: { webhooks: { constructEvent: jest.Mock } }
-        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
         let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "grantTier">>
+        let membershipService: jest.Mocked<Pick<MembershipService, "grantMembership">>
+        let enqueueSendMailJobService: jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
+        let notificationService: jest.Mocked<Pick<NotificationService, "createNotification">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
@@ -117,15 +127,34 @@ describe("StripeWebhookHandler",
                 },
             }
 
-            // enroll worker hand-off — assert it is enqueued on the Enroll path
+            // enroll worker hand-off — assert it is enqueued on the Enroll path;
+            // default resolves a successful single-course fan-out
             enqueueEnrollJobService = {
-                enqueue: jest.fn(),
-            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+                enqueueForTransaction: jest.fn().mockResolvedValue({
+                    enqueuedCount: 1,
+                }),
+            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
             // entitlement grant — assert it fires on the subscription path
             aiEntitlementService = {
                 grantTier: jest.fn(),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
+
+            // community membership grant — not exercised by the Enroll/AiSubscription
+            // paths under test, but required by the handler's constructor
+            membershipService = {
+                grantMembership: jest.fn(),
+            } as unknown as jest.Mocked<Pick<MembershipService, "grantMembership">>
+
+            // best-effort post-grant email — only fires when a grant actually happens
+            enqueueSendMailJobService = {
+                enqueue: jest.fn(),
+            } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
+
+            // best-effort post-grant in-app notification — same as above
+            notificationService = {
+                createNotification: jest.fn(),
+            } as unknown as jest.Mocked<Pick<NotificationService, "createNotification">>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -145,6 +174,18 @@ describe("StripeWebhookHandler",
                         useValue: aiEntitlementService,
                     },
                     {
+                        provide: MembershipService,
+                        useValue: membershipService,
+                    },
+                    {
+                        provide: EnqueueSendMailJobService,
+                        useValue: enqueueSendMailJobService,
+                    },
+                    {
+                        provide: NotificationService,
+                        useValue: notificationService,
+                    },
+                    {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
                     },
@@ -161,9 +202,8 @@ describe("StripeWebhookHandler",
         it("enqueues the enroll job for a valid completed-session event",
             async () => {
                 // a matching pending enrollment transaction exists
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction(),
-                )
+                const transaction = buildTransaction()
+                entityManager.findOne.mockResolvedValueOnce(transaction)
 
                 await handler.execute(
                     new StripeWebhookCommand(WEBHOOK_PARAMS),
@@ -171,11 +211,9 @@ describe("StripeWebhookHandler",
 
                 // event was verified + parsed before any mutation
                 expect(stripe.webhooks.constructEvent).toHaveBeenCalled()
-                // enroll worker received the hand-off
-                expect(enqueueEnrollJobService.enqueue).toHaveBeenCalledWith({
-                    userId: "user-1",
-                    courseId: "course-1",
-                    transactionId: "txn-1",
+                // enroll worker received the hand-off (fans the paid order out per course)
+                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
+                    transaction,
                 })
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
             })
@@ -200,7 +238,7 @@ describe("StripeWebhookHandler",
                     tier: AiSubTier.Plus,
                     transactionId: "txn-1",
                 })
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("rejects a bad signature without touching the DB",
@@ -219,7 +257,7 @@ describe("StripeWebhookHandler",
                 // never looked up or mutated a transaction
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("ignores non-completion event types without side effects",
@@ -240,7 +278,7 @@ describe("StripeWebhookHandler",
                 // early return → no lookup, no grant, no enqueue
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("throws when the session omits our reference id",
@@ -269,7 +307,7 @@ describe("StripeWebhookHandler",
                 ).rejects.toBeInstanceOf(TransactionNotFoundException)
 
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("rejects a subscription event that carries no tier",
@@ -294,23 +332,25 @@ describe("StripeWebhookHandler",
 
         it("rejects an enrollment event that carries no course",
             async () => {
-                // enrollment transaction missing its courseId
+                // enrollment transaction missing its courseId — the fan-out service
+                // (mocked here) resolves this to zero enqueued jobs
                 entityManager.findOne.mockResolvedValueOnce(
                     buildTransaction({
                         courseId: null,
                     }),
                 )
+                enqueueEnrollJobService.enqueueForTransaction.mockResolvedValueOnce({
+                    enqueuedCount: 0,
+                })
 
                 await expect(
                     handler.execute(
                         new StripeWebhookCommand(WEBHOOK_PARAMS),
                     ),
                 ).rejects.toBeInstanceOf(TransactionCourseNotFoundException)
-
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
             })
 
-        it("throws BadRequest for an unsupported action type",
+        it("throws UnsupportedTransactionActionException for an unsupported action type",
             async () => {
                 // transaction with an action the switch does not handle
                 entityManager.findOne.mockResolvedValueOnce(
@@ -323,9 +363,9 @@ describe("StripeWebhookHandler",
                     handler.execute(
                         new StripeWebhookCommand(WEBHOOK_PARAMS),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(UnsupportedTransactionActionException)
 
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
     })

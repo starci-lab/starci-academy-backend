@@ -7,6 +7,12 @@ import type {
     TestingModule,
 } from "@nestjs/testing"
 import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
+    makeEntityManagerMock,
+} from "@modules/tests"
+import {
     Locale,
 } from "@modules/databases"
 import {
@@ -36,9 +42,9 @@ const COURSES_MOUNT_ROOT = path.join(
     ".mount/data/courses",
 )
 
-/** Relative path to the M0 `project-initialization-configuration` milestone mount folder. */
+/** Relative path to the M0 `project-foundation` milestone mount folder. */
 const PROJECT_INIT_RELATIVE_PATH =
-    "0-fullstack-mastery/milestones/0-project-initialization-configuration"
+    "0-fullstack-mastery/milestones/0-project-foundation"
 
 describe("MilestoneParserService",
     () => {
@@ -87,6 +93,12 @@ describe("MilestoneParserService",
                             warn: jest.fn(),
                         },
                     },
+                    {
+                        // parse() never touches the DB, but the parser injects the primary
+                        // entity manager (used by milestonesFromDatabase) → DI needs it
+                        provide: getEntityManagerToken("primary"),
+                        useValue: makeEntityManagerMock(),
+                    },
                 ],
             }).compile()
 
@@ -107,7 +119,7 @@ describe("MilestoneParserService",
                                 {
                                     relativePath: PROJECT_INIT_RELATIVE_PATH,
                                     orderIndex: 0,
-                                    displayId: "project-initialization-configuration",
+                                    displayId: "project-foundation",
                                 },
                             ],
                             courseIndex: 0,
@@ -116,7 +128,7 @@ describe("MilestoneParserService",
 
                         expect(parsed.orderIndex).toBe(0)
                         expect(parsed.defaultLocale).toBe(Locale.En)
-                        expect(parsed.title).toBe("Project Initialization & Configuration")
+                        expect(parsed.title).toBe("Project Foundation")
                         expect(typeof parsed.description).toBe("string")
                         expect(parsed.description?.length ?? 0).toBeGreaterThan(0)
 
@@ -126,7 +138,7 @@ describe("MilestoneParserService",
                                 expect.objectContaining({
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Khởi tạo & Cấu hình dự án",
+                                    value: "Nền Tảng Dự Án",
                                 }),
                             ]),
                         )

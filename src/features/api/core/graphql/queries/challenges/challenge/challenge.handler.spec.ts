@@ -7,6 +7,9 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
     ChallengeHandler,
 } from "./challenge.handler"
 import {
@@ -14,6 +17,7 @@ import {
 } from "./challenge.query"
 import {
     ChallengeNotFoundException,
+    ChallengePremiumLockedException,
 } from "@modules/exceptions"
 import {
     S3NameResolverService,
@@ -22,9 +26,18 @@ import {
 import {
     Locale,
 } from "@modules/databases"
+import {
+    makeEntityManagerMock,
+} from "@modules/tests"
+import type {
+    EntityManagerMock,
+} from "@modules/tests"
 import type {
     ChallengeEntity,
 } from "@modules/databases"
+
+/** Connection name used by the primary PostgreSQL data source. */
+const POSTGRESQL_PRIMARY = "primary"
 
 /** Minimal challenge entity stand-in — only the id matters for assertions. */
 const fakeChallenge = (
@@ -37,10 +50,16 @@ describe("ChallengeHandler",
     () => {
         let module: TestingModule
         let handler: ChallengeHandler
+        let entityManager: EntityManagerMock
         let s3ReadService: jest.Mocked<Pick<S3ReadService, "json">>
         let s3NameResolverService: jest.Mocked<Pick<S3NameResolverService, "challenge">>
 
         beforeEach(async () => {
+            // primary entity manager resolves the challenge's owning content —
+            // defaults to "no owner row found" so the premium-lock branch is skipped
+            // unless a test programs it explicitly.
+            entityManager = makeEntityManagerMock()
+
             // S3 read returns the JSON document the test programs (rejects → not found)
             s3ReadService = {
                 json: jest.fn(),
@@ -61,6 +80,10 @@ describe("ChallengeHandler",
                     {
                         provide: S3NameResolverService,
                         useValue: s3NameResolverService,
+                    },
+                    {
+                        provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
+                        useValue: entityManager,
                     },
                 ],
             }).compile()
@@ -120,5 +143,24 @@ describe("ChallengeHandler",
                         }),
                     ),
                 ).rejects.toBeInstanceOf(ChallengeNotFoundException)
+            })
+
+        it("throws when the owning content is premium (challenge locked behind enrollment)",
+            async () => {
+                s3ReadService.json.mockResolvedValueOnce(fakeChallenge("ch-1"))
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "c1",
+                    isPremium: true,
+                })
+
+                await expect(
+                    handler.execute(
+                        new ChallengeQuery({
+                            request: {
+                                id: "ch-1",
+                            },
+                        }),
+                    ),
+                ).rejects.toBeInstanceOf(ChallengePremiumLockedException)
             })
     })

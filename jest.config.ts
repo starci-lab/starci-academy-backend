@@ -43,8 +43,9 @@ const sharedProjectConfig = {
 /**
  * Two projects:
  * - **unit** — pure jest-mocked specs (`*.spec.ts`), no infrastructure. This is
- *   what `npm test` / CI runs. E2E specs (`*.e2e-spec.ts`) and integration specs
- *   (`*.int-spec.ts`) are excluded; e2e has its own config under `apps/core/test`.
+ *   what `npm test` / CI runs. E2E specs (`*.e2e-spec.ts`), integration specs
+ *   (`*.int-spec.ts`), and LLM-eval harness specs (`*.harness-spec.ts`) are
+ *   excluded — each of those has its own config under `apps/core/test`.
  * - **integration** — `*.int-spec.ts` specs that need real infra (Testcontainers).
  *   Opt-in via `npm run test:int`; never part of the default fast unit run.
  */
@@ -59,6 +60,7 @@ const config: Config = {
             testPathIgnorePatterns: [
                 "\\.int-spec\\.ts$",
                 "\\.e2e-spec\\.ts$",
+                "\\.harness-spec\\.ts$",
             ],
         },
         {

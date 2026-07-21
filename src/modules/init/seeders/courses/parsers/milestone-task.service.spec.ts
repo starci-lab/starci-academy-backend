@@ -51,9 +51,14 @@ const COURSES_MOUNT_ROOT = path.join(
     ".mount/data/courses",
 )
 
-/** Relative path under the `courses` context root for the SCHEMA V2 `2-health-db-readiness-probe` task. */
-const HEALTH_DB_PROBE_RELATIVE_PATH =
-    "0-fullstack-mastery/milestones/3-postgresql-database-integration/tasks/2-health-db-readiness-probe"
+/**
+ * Relative path under the `courses` context root for the SCHEMA V2
+ * `0-clean-architecture-and-health` task — the real mount fixture this spec grounds against
+ * (the previously-referenced `3-postgresql-database-integration/.../health-db-readiness-probe`
+ * task never existed on the mount; this points at an actual SCHEMA V2 task instead).
+ */
+const CLEAN_ARCHITECTURE_HEALTH_RELATIVE_PATH =
+    "0-fullstack-mastery/milestones/0-project-foundation/tasks/0-clean-architecture-and-health"
 
 describe("MilestoneTaskParserService",
     () => {
@@ -134,21 +139,21 @@ describe("MilestoneTaskParserService",
                         const parsed = await service.parse({
                             paths: [
                                 {
-                                    relativePath: HEALTH_DB_PROBE_RELATIVE_PATH,
-                                    orderIndex: 2,
-                                    displayId: "health-db-readiness-probe",
+                                    relativePath: CLEAN_ARCHITECTURE_HEALTH_RELATIVE_PATH,
+                                    orderIndex: 0,
+                                    displayId: "clean-architecture-and-health",
                                 },
                             ],
                             courseIndex: 0,
-                            milestoneIndex: 3,
-                            taskIndex: 2,
+                            milestoneIndex: 0,
+                            taskIndex: 0,
                         })
 
                         // root scalars — En is the canonical default locale
                         expect(parsed.defaultLocale).toBe(Locale.En)
                         // displayId = the task mount folder slug (index prefix stripped)
-                        expect(parsed.displayId).toBe("health-db-readiness-probe")
-                        expect(parsed.title).toBe("Health: DB Readiness Probe")
+                        expect(parsed.displayId).toBe("clean-architecture-and-health")
+                        expect(parsed.title).toBe("Scaffold StarCi Shop Backend + Health Endpoint")
                         expect(parsed.type).toBe(PersonalProjectTaskType.TechIntegrate)
                         expect(parsed.maxScore).toBe(100)
                         // `# verified` heading → non-null Date marks this as a SCHEMA V2 task
@@ -171,7 +176,7 @@ describe("MilestoneTaskParserService",
                         // outcome rubric is agnostic → 3 criteria, each with one lang row per language block
                         expect(parsed.outcomeCriteria).toHaveLength(3)
                         expect(parsed.outcomeCriteria?.[0]?.score).toBe(10)
-                        expect(parsed.outcomeCriteria?.[1]?.critical).toBe(true)
+                        expect(parsed.outcomeCriteria?.[0]?.critical).toBe(true)
                         expect(parsed.outcomeCriteria?.[0]?.langs).toHaveLength(4)
                         expect((parsed.outcomeCriteria?.[0]?.langs?.[0]?.body?.length ?? 0)).toBeGreaterThan(0)
 

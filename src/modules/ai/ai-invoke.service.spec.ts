@@ -7,27 +7,46 @@ import {
     ModelProvider,
 } from "@modules/databases"
 import {
+    AiModeNotEntitledException,
+    UnsupportedAiProviderException,
+} from "@modules/exceptions"
+import {
     AiInvokeService,
 } from "./ai-invoke.service"
 import {
     AiModelCatalogService,
     UseApiService,
 } from "./balancer"
+import type {
+    UseApiActionContext,
+    UseApiParams,
+} from "./balancer"
 import {
     AiEntitlementService,
 } from "./ai-entitlement.service"
+import type {
+    StreamActionResult,
+} from "./types"
 
 /**
- * Tests the lane-routing logic of {@link AiInvokeService.invoke}. The
- * underlying {@link UseApiService.useApi} is mocked so the LangChain client
- * build / network invoke (a thin SDK wrapper) never runs — only the
- * premium/auto branch + result mapping is under test.
+ * Tests the lane-routing logic of {@link AiInvokeService.invoke} and
+ * {@link AiInvokeService.stream}, plus {@link AiInvokeService.run}'s success
+ * mapping + error propagation. {@link UseApiService.useApi} is mocked so the
+ * LangChain client build / network invoke (a thin SDK wrapper) never runs for
+ * the happy-path cases — only the premium/auto branch + result mapping is
+ * under test. The `UnsupportedAiProviderException` cases are the one
+ * exception: they let the mock run the real caller-supplied action, but the
+ * private `buildClient` throws before touching any LangChain client or the
+ * network, so this stays fully offline.
  */
 describe("AiInvokeService",
     () => {
         let module: TestingModule
         let service: AiInvokeService
         let useApiService: jest.Mocked<Pick<UseApiService, "useApi">>
+        let aiEntitlementService: jest.Mocked<
+            Pick<AiEntitlementService, "resolveTierCategories" | "assertCanUsePaidModels">
+        >
 
         const messages = [
             {
@@ -35,6 +54,15 @@ describe("AiInvokeService",
                 content: "hi",
             },
         ]
+
+        // a rotator context whose `provider` matches no `buildClient` branch —
+        // simulates a catalog/config value drifting ahead of the enum switch.
+        // Cast through `unknown` because the real union type has no such member.
+        const unsupportedProviderContext = {
+            provider: "unsupported-provider",
+            key: "key",
+            model: "some-model",
+        } as unknown as UseApiActionContext
 
         beforeEach(async () => {
             // useApi echoes a canned success without running the supplied action
@@ -51,6 +79,14 @@ describe("AiInvokeService",
                 })),
             } as unknown as jest.Mocked<Pick<UseApiService, "useApi">>
 
+            aiEntitlementService = {
+                resolveTierCategories: jest.fn(async () => []),
+                // happy-path default: paid/enrolled gate passes
+                assertCanUsePaidModels: jest.fn(async () => undefined),
+            } as unknown as jest.Mocked<
+                Pick<AiEntitlementService, "resolveTierCategories" | "assertCanUsePaidModels">
+            >
+
             module = await Test.createTestingModule({
                 providers: [
                     AiInvokeService,
@@ -61,11 +97,7 @@ describe("AiInvokeService",
                     {
                         // only used by run() (not the low-level invoke/stream under test)
                         provide: AiEntitlementService,
-                        useValue: {
-                            resolveTierCategories: jest.fn(async () => []),
-                            resolve: jest.fn(async () => ({
-                            })),
-                        },
+                        useValue: aiEntitlementService,
                     },
                     {
                         provide: AiModelCatalogService,
@@ -151,6 +183,103 @@ describe("AiInvokeService",
                             }),
                         )
                     })
+
+                it("propagates UnsupportedAiProviderException from an unrecognized provider",
+                    async () => {
+                        // this time let useApi actually run the caller-supplied action
+                        // against a context whose provider has no `buildClient` branch —
+                        // the throw happens before any LangChain client is touched, so
+                        // this stays network-free.
+                        useApiService.useApi.mockImplementationOnce(
+                            async (
+                                params: UseApiParams<StreamActionResult>,
+                            ) => params.action(unsupportedProviderContext),
+                        )
+
+                        await expect(
+                            service.invoke({
+                                messages,
+                            }),
+                        ).rejects.toBeInstanceOf(UnsupportedAiProviderException)
+                    })
+            })
+
+        // stream() mirrors invoke() lane-for-lane; onChunk itself is exercised
+        // by the balancer/action internals, out of scope for this lane-routing
+        // + result-mapping test (useApi is mocked, so the real streamAction never runs).
+        describe("stream",
+            () => {
+                const onChunk = jest.fn()
+
+                it("maps the useApi result into the stream result shape",
+                    async () => {
+                        const result = await service.stream({
+                            messages,
+                            onChunk,
+                        })
+
+                        expect(result).toEqual({
+                            text: "graded",
+                            model: "gpt-4o",
+                            provider: ModelProvider.OpenAI,
+                            attempts: 2,
+                            promptTokens: 0,
+                            completionTokens: 0,
+                        })
+                    })
+
+                it("routes a non-Economy category onto the Premium lane",
+                    async () => {
+                        await service.stream({
+                            messages,
+                            onChunk,
+                            category: AiModelCategory.Balanced,
+                            model: "gpt-4o",
+                            provider: ModelProvider.OpenAI,
+                        })
+
+                        expect(useApiService.useApi).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                lane: "pinned",
+                                category: AiModelCategory.Balanced,
+                                model: "gpt-4o",
+                                provider: ModelProvider.OpenAI,
+                            }),
+                        )
+                    })
+
+                it("routes a category-less request onto the Auto lane",
+                    async () => {
+                        // no category → balancer-driven Auto fallback chain
+                        await service.stream({
+                            messages,
+                            onChunk,
+                        })
+
+                        expect(useApiService.useApi).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                lane: "chain",
+                            }),
+                        )
+                    })
+
+                it("propagates UnsupportedAiProviderException from an unrecognized provider",
+                    async () => {
+                        // same network-free path as invoke(): buildClient throws before
+                        // the stream ever touches the underlying LangChain client.
+                        useApiService.useApi.mockImplementationOnce(
+                            async (
+                                params: UseApiParams<StreamActionResult>,
+                            ) => params.action(unsupportedProviderContext),
+                        )
+
+                        await expect(
+                            service.stream({
+                                messages,
+                                onChunk,
+                            }),
+                        ).rejects.toBeInstanceOf(UnsupportedAiProviderException)
+                    })
             })
 
         // run() is the high-level entry every surface uses. These prove the
@@ -190,6 +319,28 @@ describe("AiInvokeService",
                                 messages,
                             }),
                         ).rejects.toThrow("all models exhausted")
+                    })
+
+                it("propagates AiModeNotEntitledException for premium-only content without entitlement",
+                    async () => {
+                        // allowFreeAuto: false → resolveGradingInvokeOptions requires the
+                        // paid/enrolled gate; an unentitled user must reject, not silently
+                        // downgrade to the free lane.
+                        aiEntitlementService.assertCanUsePaidModels.mockRejectedValueOnce(
+                            new AiModeNotEntitledException({
+                                reason: "no active paid subscription or enrollment",
+                            }),
+                        )
+
+                        await expect(
+                            service.run({
+                                userId: "user-1",
+                                messages,
+                                allowFreeAuto: false,
+                            }),
+                        ).rejects.toBeInstanceOf(AiModeNotEntitledException)
+                        // the balancer must never be reached when the gate rejects
+                        expect(useApiService.useApi).not.toHaveBeenCalled()
                     })
             })
     })

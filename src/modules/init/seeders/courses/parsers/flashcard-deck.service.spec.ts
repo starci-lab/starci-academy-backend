@@ -42,9 +42,9 @@ const COURSES_MOUNT_ROOT = path.join(
     ".mount/data/courses",
 )
 
-/** Relative path to the NestJS core & lifecycle flashcard deck (themed deck 0). */
+/** Relative path to the Module 1 (backend foundations) flashcard deck (themed deck 0). */
 const NESTJS_WARMUP_DECK_RELATIVE_PATH =
-    "0-fullstack-mastery/flashcard-decks/0-nestjs-core-and-lifecycle"
+    "0-fullstack-mastery/flashcard-decks/0-module-1"
 
 describe("FlashcardDeckParserService",
     () => {

@@ -6,14 +6,16 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    BadRequestException,
-} from "@nestjs/common"
-import {
     EnqueueEnrollJobService,
+    EnqueueSendMailJobService,
+    NotificationService,
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
 } from "@modules/ai"
+import {
+    MembershipService,
+} from "@modules/membership"
 import {
     ActionType,
     AiSubTier,
@@ -23,6 +25,7 @@ import {
     AiSubscriptionTierNotAvailableException,
     TransactionCourseNotFoundException,
     TransactionNotFoundException,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -75,32 +78,46 @@ describe("SepayWebhookHandler",
         let handler: SepayWebhookHandler
         let entityManager: EntityManagerMock
         let sepay: { order: { retrieve: jest.Mock } }
-        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
         let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "grantTier">>
+        let membershipService: jest.Mocked<Pick<MembershipService, "grantMembership">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
 
-            // SePay PG client: order.retrieve is the authoritative verification call
+            // SePay PG client: order.retrieve is the authoritative verification call.
+            // The handler unwraps `data` (falling back to a single nest) to read the
+            // paid flag/status — resolve a plain "paid" status by default so the
+            // paid-guard added alongside the verification hardening passes.
             sepay = {
                 order: {
                     retrieve: jest.fn().mockResolvedValue({
                         data: {
+                            status: "paid",
                         },
                     }),
                 },
             }
 
-            // enroll worker hand-off — assert it is enqueued on the Enroll path
+            // enroll worker hand-off — assert it is enqueued on the Enroll path.
+            // enqueueForTransaction fans a paid order out to one job per course and
+            // reports back how many it enqueued (0 → the handler rejects the IPN).
             enqueueEnrollJobService = {
-                enqueue: jest.fn(),
-            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+                enqueueForTransaction: jest.fn().mockResolvedValue({
+                    enqueuedCount: 1,
+                }),
+            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
             // entitlement grant — assert it fires on the subscription path
             aiEntitlementService = {
                 grantTier: jest.fn(),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
+
+            // membership grant — assert it fires on the MembershipPurchase path
+            membershipService = {
+                grantMembership: jest.fn(),
+            } as unknown as jest.Mocked<Pick<MembershipService, "grantMembership">>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -120,6 +137,24 @@ describe("SepayWebhookHandler",
                         useValue: aiEntitlementService,
                     },
                     {
+                        provide: MembershipService,
+                        useValue: membershipService,
+                    },
+                    // neither path under test grants a subscription/membership, so
+                    // these two are never invoked — stub them to satisfy DI
+                    {
+                        provide: EnqueueSendMailJobService,
+                        useValue: {
+                            enqueue: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: NotificationService,
+                        useValue: {
+                            createNotification: jest.fn(),
+                        },
+                    },
+                    {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
                     },
@@ -136,9 +171,8 @@ describe("SepayWebhookHandler",
         it("enqueues the enroll job for a valid enrollment IPN",
             async () => {
                 // a matching pending enrollment transaction exists
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction(),
-                )
+                const transaction = buildTransaction()
+                entityManager.findOne.mockResolvedValueOnce(transaction)
 
                 await handler.execute(
                     new SepayWebhookCommand({
@@ -148,11 +182,9 @@ describe("SepayWebhookHandler",
 
                 // authoritative server-to-server verification happened first
                 expect(sepay.order.retrieve).toHaveBeenCalledWith(INVOICE)
-                // enroll worker received the hand-off
-                expect(enqueueEnrollJobService.enqueue).toHaveBeenCalledWith({
-                    userId: "user-1",
-                    courseId: "course-1",
-                    transactionId: "txn-1",
+                // enroll worker received the hand-off, fanned out per transaction
+                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
+                    transaction,
                 })
                 // subscription path must not run for an enrollment
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
@@ -181,7 +213,7 @@ describe("SepayWebhookHandler",
                     tier: AiSubTier.Plus,
                     transactionId: "txn-1",
                 })
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("throws when the invoice number is missing (no mutation)",
@@ -196,7 +228,7 @@ describe("SepayWebhookHandler",
                 // never reached the DB or the grant/enqueue path
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("throws when no pending transaction matches the invoice",
@@ -212,7 +244,7 @@ describe("SepayWebhookHandler",
 
                 // no side effects when the reference is unknown
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("rejects a subscription IPN that carries no tier",
@@ -240,12 +272,15 @@ describe("SepayWebhookHandler",
 
         it("rejects an enrollment IPN that carries no course",
             async () => {
-                // enrollment transaction missing its courseId
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction({
-                        courseId: null,
-                    }),
-                )
+                // enrollment transaction missing its courseId — the real enroll
+                // service fans this out to zero jobs (nothing to enroll into)
+                const transaction = buildTransaction({
+                    courseId: null,
+                })
+                entityManager.findOne.mockResolvedValueOnce(transaction)
+                enqueueEnrollJobService.enqueueForTransaction.mockResolvedValueOnce({
+                    enqueuedCount: 0,
+                })
 
                 await expect(
                     handler.execute(
@@ -255,11 +290,13 @@ describe("SepayWebhookHandler",
                     ),
                 ).rejects.toBeInstanceOf(TransactionCourseNotFoundException)
 
-                // nothing enqueued without a course to enroll into
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                // the fan-out was attempted; it just enrolled nobody
+                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
+                    transaction,
+                })
             })
 
-        it("throws BadRequest for an unsupported action type",
+        it("throws UnsupportedTransactionActionException for an unsupported action type",
             async () => {
                 // transaction with an action the switch does not handle
                 entityManager.findOne.mockResolvedValueOnce(
@@ -268,16 +305,18 @@ describe("SepayWebhookHandler",
                     }),
                 )
 
+                // the switch's default branch throws the typed AbstractException
+                // directly — it is not NestJS's BadRequestException
                 await expect(
                     handler.execute(
                         new SepayWebhookCommand({
                             order_invoice_number: INVOICE,
                         }),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(UnsupportedTransactionActionException)
 
                 // neither grant path ran for an unknown action
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
     })

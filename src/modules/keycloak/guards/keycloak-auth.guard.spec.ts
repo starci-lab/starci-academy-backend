@@ -9,6 +9,12 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
+    GraphQLContextMissingRequestException,
+    KeycloakAuthHeaderInvalidFormatException,
+    KeycloakAuthHeaderMissingException,
+    KeycloakTokenInactiveException,
+} from "@modules/exceptions"
+import {
     KeycloakJwksService,
 } from "../jwks.service"
 import {
@@ -224,7 +230,7 @@ describe("Keycloak auth guards",
                                     },
                                 }),
                             ),
-                        ).rejects.toBeInstanceOf(UnauthorizedException)
+                        ).rejects.toBeInstanceOf(KeycloakAuthHeaderMissingException)
                         // verification is never attempted without a token
                         expect(keycloakJwksService.verifyAccessToken).not.toHaveBeenCalled()
                     })
@@ -240,7 +246,7 @@ describe("Keycloak auth guards",
                                     },
                                 }),
                             ),
-                        ).rejects.toBeInstanceOf(UnauthorizedException)
+                        ).rejects.toBeInstanceOf(KeycloakAuthHeaderInvalidFormatException)
                     })
 
                 it("throws when introspection reports an inactive token",
@@ -258,7 +264,7 @@ describe("Keycloak auth guards",
                                     },
                                 }),
                             ),
-                        ).rejects.toBeInstanceOf(UnauthorizedException)
+                        ).rejects.toBeInstanceOf(KeycloakTokenInactiveException)
                     })
 
                 it("propagates a superseded-session rejection",
@@ -310,7 +316,7 @@ describe("Keycloak auth guards",
                             graphqlGuard.canActivate(
                                 buildGqlContext(undefined),
                             ),
-                        ).rejects.toBeInstanceOf(UnauthorizedException)
+                        ).rejects.toBeInstanceOf(GraphQLContextMissingRequestException)
                     })
             })
 
@@ -366,7 +372,7 @@ describe("Keycloak auth guards",
                                     },
                                 }),
                             ),
-                        ).rejects.toBeInstanceOf(UnauthorizedException)
+                        ).rejects.toBeInstanceOf(KeycloakAuthHeaderInvalidFormatException)
                     })
 
                 it("rejects a present-but-inactive token",
@@ -384,7 +390,7 @@ describe("Keycloak auth guards",
                                     },
                                 }),
                             ),
-                        ).rejects.toBeInstanceOf(UnauthorizedException)
+                        ).rejects.toBeInstanceOf(KeycloakTokenInactiveException)
                     })
 
                 it("throws when the GraphQL context has no HTTP request",
@@ -393,7 +399,7 @@ describe("Keycloak auth guards",
                             optionalGuard.canActivate(
                                 buildGqlContext(undefined),
                             ),
-                        ).rejects.toBeInstanceOf(UnauthorizedException)
+                        ).rejects.toBeInstanceOf(GraphQLContextMissingRequestException)
                     })
             })
     })

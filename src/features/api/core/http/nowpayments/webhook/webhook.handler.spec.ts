@@ -6,15 +6,16 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    BadRequestException,
-    UnauthorizedException,
-} from "@nestjs/common"
-import {
     EnqueueEnrollJobService,
+    EnqueueSendMailJobService,
+    NotificationService,
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
 } from "@modules/ai"
+import {
+    MembershipService,
+} from "@modules/membership"
 import {
     ActionType,
     AiSubTier,
@@ -22,8 +23,10 @@ import {
 } from "@modules/databases"
 import {
     AiSubscriptionTierNotAvailableException,
+    InvalidNowpaymentsWebhookSignatureException,
     TransactionCourseNotFoundException,
     TransactionNotFoundException,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -93,8 +96,11 @@ describe("NowPaymentsWebhookHandler",
         let handler: NowPaymentsWebhookHandler
         let entityManager: EntityManagerMock
         let nowPaymentsClient: jest.Mocked<Pick<NowPaymentsClient, "verifySignature">>
-        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
         let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "grantTier">>
+        let membershipService: jest.Mocked<Pick<MembershipService, "grantMembership">>
+        let enqueueSendMailJobService: jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
+        let notificationService: jest.Mocked<Pick<NotificationService, "createNotification">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
@@ -105,15 +111,35 @@ describe("NowPaymentsWebhookHandler",
                 verifySignature: jest.fn(() => true),
             } as unknown as jest.Mocked<Pick<NowPaymentsClient, "verifySignature">>
 
-            // enroll worker hand-off — assert it is enqueued on the Enroll path
+            // enroll worker hand-off — assert it is enqueued on the Enroll path.
+            // default to a successful single-course fan-out; the no-course test
+            // overrides this to `{ enqueuedCount: 0 }` per-call.
             enqueueEnrollJobService = {
-                enqueue: jest.fn(),
-            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+                enqueueForTransaction: jest.fn().mockResolvedValue({
+                    enqueuedCount: 1,
+                }),
+            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
             // entitlement grant — assert it fires on the subscription path
             aiEntitlementService = {
                 grantTier: jest.fn(),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
+
+            // membership grant — only reached by the MembershipPurchase branch,
+            // which none of these cases exercise; a plain mock satisfies DI.
+            membershipService = {
+                grantMembership: jest.fn(),
+            } as unknown as jest.Mocked<Pick<MembershipService, "grantMembership">>
+
+            // transactional email + in-app notification hand-offs — only reached
+            // when a grant call above resolves truthy, which the mocks above never
+            // do by default; a plain mock satisfies DI.
+            enqueueSendMailJobService = {
+                enqueue: jest.fn(),
+            } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
+            notificationService = {
+                createNotification: jest.fn(),
+            } as unknown as jest.Mocked<Pick<NotificationService, "createNotification">>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -133,6 +159,18 @@ describe("NowPaymentsWebhookHandler",
                         useValue: aiEntitlementService,
                     },
                     {
+                        provide: MembershipService,
+                        useValue: membershipService,
+                    },
+                    {
+                        provide: EnqueueSendMailJobService,
+                        useValue: enqueueSendMailJobService,
+                    },
+                    {
+                        provide: NotificationService,
+                        useValue: notificationService,
+                    },
+                    {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
                     },
@@ -149,9 +187,8 @@ describe("NowPaymentsWebhookHandler",
         it("enqueues the enroll job for a valid finished IPN",
             async () => {
                 // a matching pending enrollment transaction exists
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction(),
-                )
+                const transaction = buildTransaction()
+                entityManager.findOne.mockResolvedValueOnce(transaction)
 
                 await handler.execute(
                     new NowPaymentsWebhookCommand(
@@ -161,11 +198,10 @@ describe("NowPaymentsWebhookHandler",
 
                 // signature was verified before any mutation
                 expect(nowPaymentsClient.verifySignature).toHaveBeenCalled()
-                // enroll worker received the hand-off
-                expect(enqueueEnrollJobService.enqueue).toHaveBeenCalledWith({
-                    userId: "user-1",
-                    courseId: "course-1",
-                    transactionId: "txn-1",
+                // enroll worker received the whole transaction — it resolves the
+                // per-course fan-out (single- or multi-course) internally
+                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
+                    transaction,
                 })
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
             })
@@ -195,7 +231,7 @@ describe("NowPaymentsWebhookHandler",
                     tier: AiSubTier.Plus,
                     transactionId: "txn-1",
                 })
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("rejects an invalid signature without touching the DB",
@@ -209,12 +245,12 @@ describe("NowPaymentsWebhookHandler",
                             buildParams(),
                         ),
                     ),
-                ).rejects.toBeInstanceOf(UnauthorizedException)
+                ).rejects.toBeInstanceOf(InvalidNowpaymentsWebhookSignatureException)
 
                 // never looked up or mutated a transaction
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("ignores intermediate payment statuses without side effects",
@@ -232,7 +268,7 @@ describe("NowPaymentsWebhookHandler",
                 // early return → no lookup, no grant, no enqueue
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("throws when the IPN omits our order id",
@@ -263,7 +299,7 @@ describe("NowPaymentsWebhookHandler",
                 ).rejects.toBeInstanceOf(TransactionNotFoundException)
 
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
         it("rejects a subscription IPN that carries no tier",
@@ -290,12 +326,16 @@ describe("NowPaymentsWebhookHandler",
 
         it("rejects an enrollment IPN that carries no course",
             async () => {
-                // enrollment transaction missing its courseId
+                // enrollment transaction missing its courseId, and no
+                // transaction_items rows either → the fan-out enqueues nothing
                 entityManager.findOne.mockResolvedValueOnce(
                     buildTransaction({
                         courseId: null,
                     }),
                 )
+                enqueueEnrollJobService.enqueueForTransaction.mockResolvedValueOnce({
+                    enqueuedCount: 0,
+                })
 
                 await expect(
                     handler.execute(
@@ -305,10 +345,10 @@ describe("NowPaymentsWebhookHandler",
                     ),
                 ).rejects.toBeInstanceOf(TransactionCourseNotFoundException)
 
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalled()
             })
 
-        it("throws BadRequest for an unsupported action type",
+        it("throws UnsupportedTransactionActionException for an unsupported action type",
             async () => {
                 // transaction with an action the switch does not handle
                 entityManager.findOne.mockResolvedValueOnce(
@@ -323,9 +363,9 @@ describe("NowPaymentsWebhookHandler",
                             buildParams(),
                         ),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(UnsupportedTransactionActionException)
 
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
     })

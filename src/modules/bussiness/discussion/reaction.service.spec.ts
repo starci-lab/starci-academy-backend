@@ -15,6 +15,9 @@ import type {
     ContentEngagementSummary,
 } from "../projections"
 import {
+    UserService,
+} from "../user"
+import {
     ReactionType,
 } from "@modules/databases"
 import type {
@@ -99,6 +102,9 @@ describe("ReactionService",
         let contentEngagementProjectionService: jest.Mocked<
             Pick<ContentEngagementProjectionService, "getSummary" | "recompute">
         >
+        let userService: {
+            resolveOrCreateTrialEnrollment: jest.Mock
+        }
 
         const contentId = "content-1"
         const commentId = "comment-1"
@@ -126,6 +132,11 @@ describe("ReactionService",
             } as unknown as jest.Mocked<
                 Pick<ContentEngagementProjectionService, "getSummary" | "recompute">
             >
+            // trial-enrollment resolver stub: content reactions rarely need it,
+            // so default to null (no enrollment resolved); program per-test
+            userService = {
+                resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue(null),
+            }
 
             module = await Test.createTestingModule({
                 providers: [
@@ -141,6 +152,10 @@ describe("ReactionService",
                     {
                         provide: ContentEngagementProjectionService,
                         useValue: contentEngagementProjectionService,
+                    },
+                    {
+                        provide: UserService,
+                        useValue: userService,
                     },
                 ],
             }).compile()

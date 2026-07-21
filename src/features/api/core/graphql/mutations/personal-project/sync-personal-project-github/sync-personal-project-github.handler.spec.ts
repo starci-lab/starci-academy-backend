@@ -10,14 +10,17 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    BadRequestException,
-} from "@nestjs/common"
-import {
+    PersonalProjectGithubSyncInputMissingException,
+    PersonalProjectGithubUrlMissingException,
+    PersonalProjectInvalidBranchNameException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
     UrlValidatorService,
 } from "@modules/vaildators"
+import {
+    EncryptionService,
+} from "@modules/crypto"
 import {
     makeEntityManagerMock,
 } from "@modules/tests"
@@ -55,6 +58,7 @@ describe("SyncPersonalProjectGithubHandler",
         let handler: SyncPersonalProjectGithubHandler
         let entityManager: EntityManagerMock
         let urlValidatorService: jest.Mocked<Pick<UrlValidatorService, "isParsable">>
+        let encryptionService: jest.Mocked<Pick<EncryptionService, "encrypt">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager — `transaction` runs the callback inline
@@ -67,12 +71,21 @@ describe("SyncPersonalProjectGithubHandler",
                 isParsable: jest.fn(),
             } as unknown as jest.Mocked<Pick<UrlValidatorService, "isParsable">>
 
+            // token-encryption hook used only when a githubToken is supplied
+            encryptionService = {
+                encrypt: jest.fn(),
+            } as unknown as jest.Mocked<Pick<EncryptionService, "encrypt">>
+
             module = await Test.createTestingModule({
                 providers: [
                     SyncPersonalProjectGithubHandler,
                     {
                         provide: UrlValidatorService,
                         useValue: urlValidatorService,
+                    },
+                    {
+                        provide: EncryptionService,
+                        useValue: encryptionService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -181,7 +194,7 @@ describe("SyncPersonalProjectGithubHandler",
                             user: fakeUser("user-1"),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(PersonalProjectGithubSyncInputMissingException)
 
                 // nothing is persisted for an empty sync
                 expect(entityManager.save).not.toHaveBeenCalled()
@@ -206,7 +219,7 @@ describe("SyncPersonalProjectGithubHandler",
                             user: fakeUser("user-1"),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(PersonalProjectGithubUrlMissingException)
 
                 expect(entityManager.save).not.toHaveBeenCalled()
             })
@@ -230,7 +243,7 @@ describe("SyncPersonalProjectGithubHandler",
                             user: fakeUser("user-1"),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(PersonalProjectInvalidBranchNameException)
 
                 expect(entityManager.save).not.toHaveBeenCalled()
             })

@@ -8,6 +8,12 @@ import {
 import {
     ModelProvider,
 } from "@modules/databases"
+import type {
+    AiModelEntity,
+} from "@modules/databases"
+import {
+    NoActiveBalancerKeyException,
+} from "@modules/exceptions"
 import {
     AiBalancerService,
 } from "./ai-balancer.service"
@@ -142,6 +148,22 @@ describe("AiBalancerService",
                             provider: ModelProvider.OpenAI,
                         })
                     })
+
+                it("propagates NoActiveBalancerKeyException when the rotator has no eligible key",
+                    async () => {
+                        // rotator throws when every key in the pool is disabled/cooling —
+                        // acquire is a thin wrapper and must not swallow it
+                        keyRotatorService.next.mockRejectedValueOnce(
+                            new NoActiveBalancerKeyException({
+                                provider: ModelProvider.OpenAI,
+                                totalKeysCount: 1,
+                            }),
+                        )
+
+                        await expect(service.acquire({
+                            provider: ModelProvider.OpenAI,
+                        })).rejects.toBeInstanceOf(NoActiveBalancerKeyException)
+                    })
             })
 
         describe("healthSnapshot",
@@ -180,6 +202,31 @@ describe("AiBalancerService",
                         // a failed ping is surfaced as a non-zero fail count
                         expect(provider.keys[0].failCount).toBe(1)
                     })
+
+                it("masks long key values and stamps disabledAt from lastUsedAt when disabled",
+                    async () => {
+                        const longKey = buildKeyState("sk-1234567890abcdef")
+                        longKey.lastUsedAt = new Date("2026-07-01T00:00:00.000Z")
+                        keyStoreService.getPool.mockReturnValueOnce([
+                            longKey,
+                        ])
+                        aiPingCacheService.getMap.mockResolvedValueOnce({
+                            [ModelProvider.OpenAI]: {
+                                [longKey.value]: {
+                                    status: false,
+                                    lastPing: new Date().toISOString(),
+                                },
+                            },
+                        })
+
+                        const snapshot = await service.healthSnapshot()
+                        const key = snapshot.providers[0].keys[0]
+
+                        // first 3 + last 3 chars of the raw value — never the raw value itself
+                        expect(key.keyMask).toBe("sk-...def")
+                        // no separate disabled-timestamp field — mirrors the key's lastUsedAt
+                        expect(key.disabledAt).toEqual(longKey.lastUsedAt)
+                    })
             })
 
         describe("modelKeyHealth",
@@ -198,6 +245,42 @@ describe("AiBalancerService",
                         expect(group.totalKeys).toBe(1)
                         expect(group.activeKeys).toBe(1)
                         expect(group.keys[0].status).toBe(KeyStatus.Active)
+                    })
+
+                it("splits one provider's pool into separate groups per source file",
+                    async () => {
+                        const fileAKey = buildKeyState("sk-aaaa")
+                        const fileBKey: KeyState = {
+                            ...buildKeyState("sk-bbbb"),
+                            keysFilePath: "/mnt/openai-2.keys",
+                        }
+                        keyStoreService.getPool.mockReturnValueOnce([
+                            fileAKey,
+                            fileBKey,
+                        ])
+                        // catalog only names a model for file A; file B has no
+                        // enabled model pointing at it → its group falls back to []
+                        aiModelCatalogService.enabledModels.mockResolvedValueOnce([
+                            {
+                                name: "gpt-test",
+                                provider: ModelProvider.OpenAI,
+                                keysFilePath: "/mnt/openai.keys",
+                            } as AiModelEntity,
+                        ])
+
+                        const result = await service.modelKeyHealth()
+
+                        expect(result.groups).toHaveLength(2)
+                        const byFile = new Map(
+                            result.groups.map((group) => [
+                                group.keysFilePath,
+                                group,
+                            ]),
+                        )
+                        expect(byFile.get("/mnt/openai.keys")?.models).toEqual([
+                            "gpt-test",
+                        ])
+                        expect(byFile.get("/mnt/openai-2.keys")?.models).toEqual([])
                     })
             })
 

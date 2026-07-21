@@ -174,7 +174,7 @@ describe("EmbeddingModelService",
                         expect(() => service.get({
                             model: "x",
                             provider: ModelProvider.Anthropic,
-                        })).toThrow(/Unsupported provider/)
+                        })).toThrow(/Unsupported embedding provider/)
                     })
             })
 

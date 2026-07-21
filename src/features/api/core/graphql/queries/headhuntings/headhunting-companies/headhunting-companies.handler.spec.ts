@@ -17,6 +17,12 @@ import {
 import {
     Locale,
 } from "@modules/databases"
+import type {
+    HeadhuntingCompanyEntity,
+} from "@modules/databases"
+import {
+    ConsultantContactGateService,
+} from "@modules/bussiness"
 
 /** Build an ES search response whose hits carry the given `_source` rows. */
 const buildSearchResponse = (
@@ -36,6 +42,9 @@ describe("HeadhuntingCompaniesHandler",
         let elasticsearch: jest.Mocked<Pick<ElasticsearchService, "indicateName">> & {
             client: { search: jest.Mock }
         }
+        let consultantContactGateService: jest.Mocked<
+            Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultants">
+        >
 
         beforeEach(async () => {
             elasticsearch = {
@@ -47,12 +56,25 @@ describe("HeadhuntingCompaniesHandler",
                 client: { search: jest.Mock }
             }
 
+            consultantContactGateService = {
+                getBestCvScore: jest.fn().mockResolvedValue(0),
+                // pass the consultants through untouched — contact-gating logic
+                // is covered by consultant-contact-gate.service.spec.ts
+                gateConsultants: jest.fn((consultants: HeadhuntingCompanyEntity["consultants"]) => consultants),
+            } as unknown as jest.Mocked<
+                Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultants">
+            >
+
             module = await Test.createTestingModule({
                 providers: [
                     HeadhuntingCompaniesHandler,
                     {
                         provide: ElasticsearchService,
                         useValue: elasticsearch,
+                    },
+                    {
+                        provide: ConsultantContactGateService,
+                        useValue: consultantContactGateService,
                     },
                 ],
             }).compile()

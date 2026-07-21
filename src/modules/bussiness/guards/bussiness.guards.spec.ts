@@ -3,13 +3,14 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    BadRequestException,
-    ForbiddenException,
-    UnauthorizedException,
-} from "@nestjs/common"
-import {
     MountStorageService,
 } from "@modules/filesystem"
+import {
+    AdminApiKeyRequiredException,
+    CourseIdRequiredException,
+    EnrollmentNotFoundException,
+    InvalidAdminApiKeyException,
+} from "@modules/exceptions"
 import {
     AdminAccessGuard,
 } from "./admin-access.guard"
@@ -122,7 +123,7 @@ describe("AdminAccessGuard",
                 expect(allowed).toBe(true)
             })
 
-        it("throws Unauthorized when the header is absent",
+        it("throws AdminApiKeyRequiredException when the header is absent",
             () => {
                 // a missing key is an authentication failure (401)
                 expect(() =>
@@ -131,10 +132,10 @@ describe("AdminAccessGuard",
                             headers: {
                             },
                         }),
-                    )).toThrow(UnauthorizedException)
+                    )).toThrow(AdminApiKeyRequiredException)
             })
 
-        it("throws Forbidden when the header is present but wrong",
+        it("throws InvalidAdminApiKeyException when the header is present but wrong",
             () => {
                 // a wrong key is an authorization failure (403)
                 expect(() =>
@@ -144,7 +145,7 @@ describe("AdminAccessGuard",
                                 "x-admin-api-key": "wrong-key",
                             },
                         }),
-                    )).toThrow(ForbiddenException)
+                    )).toThrow(InvalidAdminApiKeyException)
             })
     })
 
@@ -198,7 +199,7 @@ describe("GraphQLMustEnrolledGuard",
                 )
             })
 
-        it("throws BadRequest when the course id header is missing",
+        it("throws CourseIdRequiredException when the course id header is missing",
             async () => {
                 // no course id → cannot evaluate enrollment (400)
                 await expect(
@@ -211,12 +212,12 @@ describe("GraphQLMustEnrolledGuard",
                             },
                         }),
                     ),
-                ).rejects.toBeInstanceOf(BadRequestException)
+                ).rejects.toBeInstanceOf(CourseIdRequiredException)
                 // enrollment is never queried without a course id
                 expect(userService.checkEnrollment).not.toHaveBeenCalled()
             })
 
-        it("throws Forbidden when the user is not enrolled",
+        it("throws EnrollmentNotFoundException when the user is not enrolled",
             async () => {
                 // enrollment check fails → access denied (403)
                 userService.checkEnrollment.mockResolvedValueOnce(false)
@@ -232,7 +233,7 @@ describe("GraphQLMustEnrolledGuard",
                             },
                         }),
                     ),
-                ).rejects.toBeInstanceOf(ForbiddenException)
+                ).rejects.toBeInstanceOf(EnrollmentNotFoundException)
             })
 
         it("normalizes an array-valued course id header to its first element",

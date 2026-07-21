@@ -180,10 +180,13 @@ describe("ContentsHandler",
                     ]),
                 )
                 entityManager.findOne
-                    // module row → owning course
+                    // module row → owning course (loaded via the `course` relation,
+                    // not the virtual @RelationId `courseId` column)
                     .mockResolvedValueOnce({
                         id: "m1",
-                        courseId: "course-1",
+                        course: {
+                            id: "course-1",
+                        },
                     })
                     // no enrollment for this viewer
                     .mockResolvedValueOnce(null)
@@ -224,10 +227,13 @@ describe("ContentsHandler",
                     ]),
                 )
                 entityManager.findOne
-                    // module row → owning course
+                    // module row → owning course (loaded via the `course` relation,
+                    // not the virtual @RelationId `courseId` column)
                     .mockResolvedValueOnce({
                         id: "m1",
-                        courseId: "course-1",
+                        course: {
+                            id: "course-1",
+                        },
                     })
                     // an active enrollment grants full access
                     .mockResolvedValueOnce({

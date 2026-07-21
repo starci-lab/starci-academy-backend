@@ -3,9 +3,6 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    UnauthorizedException,
-} from "@nestjs/common"
-import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
@@ -16,7 +13,11 @@ import {
     CookieService,
 } from "@modules/cookie"
 import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness"
+import {
     LoginSessionNotFoundException,
+    SessionSupersededException,
 } from "@modules/exceptions"
 import {
     SessionService,
@@ -59,6 +60,7 @@ describe("SessionService",
         let redis: jest.Mocked<Pick<Redis, "hgetall" | "hset" | "hdel" | "hlen" | "hexists" | "hkeys" | "pexpire" | "del">>
         let entityManager: jest.Mocked<Pick<EntityManager, "find" | "findOne" | "create" | "save" | "update">>
         let cookieService: jest.Mocked<Pick<CookieService, "attachHttpOnlyCookie" | "clearCookie" | "getCookie">>
+        let enqueueSendMailJobService: jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
 
         beforeEach(async () => {
             redis = {
@@ -87,6 +89,10 @@ describe("SessionService",
                 getCookie: jest.fn(),
             } as unknown as jest.Mocked<typeof cookieService>
 
+            enqueueSendMailJobService = {
+                enqueue: jest.fn(),
+            } as unknown as jest.Mocked<typeof enqueueSendMailJobService>
+
             module = await Test.createTestingModule({
                 providers: [
                     SessionService,
@@ -101,6 +107,10 @@ describe("SessionService",
                     {
                         provide: CookieService,
                         useValue: cookieService,
+                    },
+                    {
+                        provide: EnqueueSendMailJobService,
+                        useValue: enqueueSendMailJobService,
                     },
                 ],
             }).compile()
@@ -231,7 +241,7 @@ describe("SessionService",
                                 userId: "user-1",
                                 sessionId: "evicted-session",
                             }),
-                        ).rejects.toBeInstanceOf(UnauthorizedException)
+                        ).rejects.toBeInstanceOf(SessionSupersededException)
                     })
 
                 it("fails open when no managed session exists",

@@ -7,6 +7,12 @@ import type {
     TestingModule,
 } from "@nestjs/testing"
 import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
+    makeEntityManagerMock,
+} from "@modules/tests"
+import {
     Locale,
 } from "@modules/databases"
 import {
@@ -93,6 +99,12 @@ describe("ModuleParserService",
                             warn: jest.fn(),
                         },
                     },
+                    {
+                        // parse() never touches the DB, but the parser injects the primary
+                        // entity manager (used by modulesFromDatabase) → DI needs it
+                        provide: getEntityManagerToken("primary"),
+                        useValue: makeEntityManagerMock(),
+                    },
                 ],
             }).compile()
 
@@ -127,7 +139,7 @@ describe("ModuleParserService",
                             "Backend foundations: Frameworks, request lifecycle, configuration and logging",
                         )
 
-                        expect(parsed.previewContents).toHaveLength(4)
+                        expect(parsed.previewContents).toHaveLength(5)
                         expect(typeof parsed.previewContents?.[0]?.text).toBe("string")
                         expect(parsed.previewContents?.[0]?.text?.length ?? 0).toBeGreaterThan(0)
                         expect(parsed.previewContents?.[0]?.translations).toEqual(

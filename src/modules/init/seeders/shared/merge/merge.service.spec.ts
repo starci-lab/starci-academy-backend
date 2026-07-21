@@ -16,14 +16,16 @@ import {
     MergeJsonService,
 } from "./merge.service"
 
-/** Repo-root extracts for `1-custom-provider-dynamic-module-medium` (M0 challenge). */
+/** Fixture extracts for `1-custom-provider-dynamic-module-medium` (M0 challenge). */
 const CHALLENGE_MEDIUM_EN_JSON = path.join(
-    process.cwd(),
-    "en.json",
+    __dirname,
+    "__fixtures__",
+    "challenge-medium.en.json",
 )
 const CHALLENGE_MEDIUM_VI_JSON = path.join(
-    process.cwd(),
-    "vi.json",
+    __dirname,
+    "__fixtures__",
+    "challenge-medium.vi.json",
 )
 
 /** Same `translateFields` + `langBucketSections` as {@link ChallengeParserService}. */

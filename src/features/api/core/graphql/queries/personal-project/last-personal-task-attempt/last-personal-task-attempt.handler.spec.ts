@@ -9,15 +9,13 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    ForbiddenException,
-} from "@nestjs/common"
-import {
     LastPersonalTaskAttemptHandler,
 } from "./last-personal-task-attempt.handler"
 import {
     LastPersonalTaskAttemptQuery,
 } from "./last-personal-task-attempt.query"
 import {
+    PersonalTaskAttemptAccessDeniedException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -106,7 +104,7 @@ describe("LastPersonalTaskAttemptHandler",
                             ]),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(ForbiddenException)
+                ).rejects.toBeInstanceOf(PersonalTaskAttemptAccessDeniedException)
             })
 
         it("allows staff roles to read another user's attempt",

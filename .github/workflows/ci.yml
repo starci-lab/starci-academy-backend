@@ -47,23 +47,18 @@ jobs:
       - name: Unit tests
         run: npm run test:ci
 
-  e2e:
-    runs-on: ubuntu-latest
-    # only run the (slower, Docker-backed) e2e suite once unit/lint/build are green
-    needs: verify
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "25.2.1"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      # ubuntu-latest ships Docker, so Testcontainers boots Postgres natively
-      - name: E2E tests (Testcontainers)
-        run: npm run test:e2e
+  # E2E + harness are LOCAL-ONLY lanes now: e2e needs a Docker daemon and harness
+  # needs Docker + Anthropic credentials, neither of which belongs in CI. CI stays
+  # unit-only (lint -> build -> unit). Run e2e/harness on a dev machine:
+  #   npm run test:e2e:docker   (Docker Desktop up)
+  #   npm run harness           (Docker up + `ant auth login` / ANTHROPIC_API_KEY)
+  #
+  # e2e:
+  #   runs-on: ubuntu-latest
+  #   needs: verify
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with: { node-version: "25.2.1", cache: npm }
+  #     - run: npm ci
+  #     - run: npm run test:e2e

@@ -24,6 +24,9 @@ import {
     UrlValidatorService,
 } from "@modules/vaildators"
 import {
+    UserService,
+} from "@modules/bussiness"
+import {
     makeEntityManagerMock,
 } from "@modules/tests"
 import type {
@@ -103,6 +106,14 @@ describe("SyncSubmissionHandler",
                     {
                         provide: GradingLaneValidationService,
                         useValue: gradingLaneValidationService,
+                    },
+                    {
+                        // best-effort trial-enrollment resolution — a bare stub keeps the
+                        // enrollment-lookup path inert for these specs
+                        provide: UserService,
+                        useValue: {
+                            resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue(null),
+                        },
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),

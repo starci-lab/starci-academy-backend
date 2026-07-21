@@ -16,6 +16,7 @@ import {
     IoRedisInstanceKey,
 } from "@modules/native"
 import {
+    WinstonLog,
     WinstonService,
 } from "@modules/winston"
 import {
@@ -162,6 +163,57 @@ describe("KeyRotatorService",
                         expect(result.state.keySuffix).toBe("bbbb")
                     })
 
+                it("breaks failCount and lastUsedAt ties by keySuffix (stable order)",
+                    async () => {
+                        // pool listed bbbb-before-aaaa on purpose: a naive "first in array"
+                        // pick would return bbbb, but the tiebreak must fall through to
+                        // localeCompare on keySuffix once failCount/lastUsedAt are equal.
+                        keyStoreService.getPool.mockReturnValueOnce([
+                            buildKeyState("sk-bbbb"),
+                            buildKeyState("sk-aaaa"),
+                        ])
+                        const sameUsedAt = new Date().toISOString()
+                        aiPingCacheService.getProviderMap.mockResolvedValueOnce({
+                            "sk-aaaa": {
+                                status: true,
+                                lastPing: sameUsedAt,
+                                lastUsedAt: sameUsedAt,
+                                failCount: 0,
+                            },
+                            "sk-bbbb": {
+                                status: true,
+                                lastPing: sameUsedAt,
+                                lastUsedAt: sameUsedAt,
+                                failCount: 0,
+                            },
+                        })
+
+                        const result = await service.next({
+                            provider: ModelProvider.OpenAI,
+                        })
+
+                        // "aaaa" sorts before "bbbb" lexicographically → deterministic tiebreak
+                        expect(result.state.keySuffix).toBe("aaaa")
+                    })
+
+                it("logs the pick with provider, suffix and eligible-pool size",
+                    async () => {
+                        const winstonService = module.get<WinstonService>(WinstonService)
+
+                        const result = await service.next({
+                            provider: ModelProvider.OpenAI,
+                        })
+
+                        expect(winstonService.log).toHaveBeenCalledWith(
+                            WinstonLog.AiBalancerKeyPicked,
+                            {
+                                provider: ModelProvider.OpenAI,
+                                keySuffix: result.state.keySuffix,
+                                activeKeysCount: result.activeKeysCount,
+                            },
+                        )
+                    })
+
                 it("persists the pick time in Redis (shared LRU)",
                     async () => {
                         await service.next({
@@ -244,6 +296,113 @@ describe("KeyRotatorService",
                                 provider: ModelProvider.OpenAI,
                             }),
                         ).rejects.toBeInstanceOf(NoActiveBalancerKeyException)
+                    })
+
+                it("logs the exhaustion with provider and total pool size before throwing",
+                    async () => {
+                        const winstonService = module.get<WinstonService>(WinstonService)
+                        aiPingCacheService.getProviderMap.mockResolvedValueOnce({
+                            "sk-aaaa": {
+                                status: false,
+                                lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
+                            },
+                            "sk-bbbb": {
+                                status: false,
+                                lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
+                            },
+                        })
+
+                        await expect(
+                            service.next({
+                                provider: ModelProvider.OpenAI,
+                            }),
+                        ).rejects.toBeInstanceOf(NoActiveBalancerKeyException)
+
+                        expect(winstonService.log).toHaveBeenCalledWith(
+                            WinstonLog.AiBalancerNoActiveKey,
+                            {
+                                provider: ModelProvider.OpenAI,
+                                totalKeysCount: 2,
+                            },
+                        )
+                    })
+
+                it("excludes a hard-disabled key even without an active cooldown",
+                    async () => {
+                        // `disabled` is a distinct eligibility branch from `cooldownUntil`
+                        aiPingCacheService.getProviderMap.mockResolvedValueOnce({
+                            "sk-aaaa": {
+                                status: false,
+                                lastPing: new Date().toISOString(),
+                                disabled: true,
+                            },
+                        })
+
+                        const result = await service.next({
+                            provider: ModelProvider.OpenAI,
+                        })
+
+                        // only sk-bbbb remained eligible
+                        expect(result.state.keySuffix).toBe("bbbb")
+                        expect(result.activeKeysCount).toBe(1)
+                    })
+
+                it("treats a key with an expired cooldown as eligible again",
+                    async () => {
+                        // cooldownUntil already in the past → auto-recovered, not excluded
+                        aiPingCacheService.getProviderMap.mockResolvedValueOnce({
+                            "sk-aaaa": {
+                                status: false,
+                                lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() - 60_000).toISOString(),
+                                failCount: 5,
+                            },
+                            "sk-bbbb": {
+                                status: true,
+                                lastPing: new Date().toISOString(),
+                                failCount: 5,
+                            },
+                        })
+
+                        const result = await service.next({
+                            provider: ModelProvider.OpenAI,
+                        })
+
+                        // both keys eligible + tied failCount → keySuffix tiebreak picks aaaa
+                        expect(result.activeKeysCount).toBe(2)
+                        expect(result.state.keySuffix).toBe("aaaa")
+                    })
+
+                it("propagates a ping-cache read failure instead of swallowing it",
+                    async () => {
+                        // upstream Redis outage while loading the provider's ping snapshots
+                        aiPingCacheService.getProviderMap.mockRejectedValueOnce(
+                            new Error("ECONNREFUSED"),
+                        )
+
+                        await expect(
+                            service.next({
+                                provider: ModelProvider.OpenAI,
+                            }),
+                        ).rejects.toThrow("ECONNREFUSED")
+                        // no pick should have been recorded once the read itself failed
+                        expect(aiPingCacheService.recordKeyPicked).not.toHaveBeenCalled()
+                    })
+
+                it("propagates a failure to persist the pick instead of swallowing it",
+                    async () => {
+                        // the key was already chosen, but the shared-LRU write failed
+                        aiPingCacheService.recordKeyPicked.mockRejectedValueOnce(
+                            new Error("write failed"),
+                        )
+
+                        await expect(
+                            service.next({
+                                provider: ModelProvider.OpenAI,
+                            }),
+                        ).rejects.toThrow("write failed")
                     })
             })
 

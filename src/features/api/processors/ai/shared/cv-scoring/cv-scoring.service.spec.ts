@@ -216,7 +216,7 @@ describe("CvScoringService",
                                 userId: "user-1",
                             }),
                         ).rejects.toThrow(
-                            "CV scoring requires either structuredData or cvText — both were empty",
+                            "CV scoring requires either structuredData or cvText.",
                         )
 
                         // never reached the AI — content build fails first
@@ -277,7 +277,7 @@ describe("CvScoringService",
                                     fullName: "Jane Doe",
                                 },
                             }),
-                        ).rejects.toThrow(/Failed to parse CV score JSON/)
+                        ).rejects.toThrow(/Failed to parse CV model output JSON/)
                     })
 
                 it("writes feedback in the requested locale's target language instruction",
