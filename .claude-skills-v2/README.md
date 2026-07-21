@@ -4,6 +4,14 @@
 >
 > Thầy đổi máy mở file này ra là viết tiếp được: phần 1-4 là phân tích đã chốt, phần 5 là việc còn phải làm.
 
+> ## ⭐ ĐÃ CHỐT & BUILD 2026-07-22 (thay khung §3–§5)
+> Thầy quyết clean-slate + đổi hình dạng so với dự tính §3 ("4 playbook SKILL + 1 nền"):
+> - **Dời hết sang legacy:** 20 skill `starci-*` → `.claude/skills/_legacy/pre-v2/`; toàn bộ canon `.claude/fe`+`.claude/be` → `.claude/_legacy/`. Chỉ GIỮ `.claude/patterns/{fe,be}` (code pattern) + `.claude/docs` + `.claude/workflows`.
+> - **4 discipline KHÔNG thành skill** (thầy: skill phải *nhớ gõ* mới chạy = đúng cái "vụng"). Chúng thành **nền luôn-bật** ở `.claude/patterns/discipline/` (INDEX + verify-empirically · diagnose-before-fix · safe-bulk-edit · multi-session-git). 4 nguyên tắc thuần (self-critique...) để ở memory `feedback-*`.
+> - **Chỉ 1 SKILL thật:** `starci-fe-story-audit` (chấm render story → codify canon lean surface-in-surface + màu nổi/chìm ở `.claude/fe` sạch → thước audit full UI áp web).
+> - Xương sống = **discipline mỏng (nền) + gate**, KHÔNG prose 20 skill. Chi tiết: memory `v2-skills-canon-migration`.
+> - CÒN LẠI (§5 chưa làm): gate máy check:stories→husky · lint pattern div-giống-card · chạy thật story-audit để đẻ canon.
+
 ---
 
 ## 1. Câu gốc
