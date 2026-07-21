@@ -48,4 +48,13 @@ export class ContentAiSessionsRequest {
         },
     )
         offset?: number
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "Include archived conversations in the list. Defaults to false. (Ignored when searching — search always spans archived.)",
+        },
+    )
+        includeArchived?: boolean
 }

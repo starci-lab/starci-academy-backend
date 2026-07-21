@@ -72,6 +72,9 @@ describe("ContentRagIndexService",
         let winstonService: {
             log: jest.Mock
         }
+        let translationResolver: {
+            resolve: jest.Mock
+        }
         const embeddingModel = {
         }
         const fromDocuments = QdrantVectorStore.fromDocuments as unknown as jest.Mock
@@ -123,6 +126,12 @@ describe("ContentRagIndexService",
             winstonService = {
                 log: jest.fn(),
             }
+            // foundation indexing (collectFoundationDocs) resolves EAV translations
+            // through this; the content/code test path never hits it, so an unstubbed
+            // resolve is fine (foundation docs fall back to base columns anyway).
+            translationResolver = {
+                resolve: jest.fn(),
+            }
             service = new ContentRagIndexService(
                 qdrantClient as never,
                 entityManager as never,
@@ -130,6 +139,7 @@ describe("ContentRagIndexService",
                 s3ReadService as never,
                 s3NameResolverService as never,
                 winstonService as never,
+                translationResolver as never,
             )
             fromDocuments.mockReset()
             fromDocuments.mockResolvedValue(undefined)

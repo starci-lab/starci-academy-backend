@@ -86,4 +86,18 @@ export class ContentAiSessionEntity extends UuidAbstractEntity {
         nullable: true,
     })
         title: string | null
+
+    /**
+     * When the conversation was archived; null = active. Archived sessions drop
+     * out of the default history list but are still returned by search (that is
+     * exactly when a learner wants to dig one back up). Selection-passage sessions
+     * are born-archived (set to `now()` at creation) so they never clutter the
+     * list yet stay searchable.
+     */
+    @Column({
+        name: "archived_at",
+        type: "timestamptz",
+        nullable: true,
+    })
+        archivedAt: Date | null
 }

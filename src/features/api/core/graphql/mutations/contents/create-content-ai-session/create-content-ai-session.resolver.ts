@@ -67,6 +67,8 @@ export class CreateContentAiSessionResolver {
         const id = await this.contentAiService.createSession({
             userId: user.id,
             contentId: request.contentId,
+            taskId: request.taskId,
+            foundationId: request.foundationId,
         })
         return {
             id,

@@ -41,10 +41,29 @@ export class AskContentAiRequest {
     @Field(
         () => ID,
         {
-            description: "Content the question is about.",
+            nullable: true,
+            description: "Lesson content the question is about (lesson scope). Omitted on a task/foundation page.",
         },
     )
-        contentId: string
+        contentId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Capstone / personal-project task the question is about (task scope).",
+        },
+    )
+        taskId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Global foundation-library doc the question is about (foundation scope).",
+        },
+    )
+        foundationId?: string
 
     @Field(
         () => String,

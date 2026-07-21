@@ -24,6 +24,7 @@ import {
     ChallengeEntity,
     ContentEntity,
     FlashcardDeckEntity,
+    FoundationEntity,
     InjectPrimaryPostgreSQLEntityManager,
     InjectQdrantClient,
     Locale,
@@ -245,6 +246,21 @@ export class ContentRagIndexService {
                 },
             )
             : []
+        // foundations (2026-07-21) are NOT course-scoped — they hang off a
+        // foundation-category, not a course — so their documents carry no
+        // `courseId`. Content lives in Postgres (the `foundation_translations`
+        // EAV table, per-locale field/value), not a MinIO snapshot, so the
+        // translations relation is eager-loaded here for the collector.
+        const foundations = envConfig().services.contentRag.indexFoundations
+            ? await this.entityManager.find(
+                FoundationEntity,
+                {
+                    relations: {
+                        translations: true,
+                    },
+                },
+            )
+            : []
 
         // one uniform "item" per enumerated row (any of the 4 kinds), each already
         // knowing its own id/courseId/collector — lets the diff+embed pipeline
@@ -288,6 +304,12 @@ export class ContentRagIndexService {
                 id: task.id,
                 collect: () => this.collectMilestoneTaskDocs(task.id,
                     courseId),
+            })
+        }
+        for (const foundation of foundations) {
+            items.push({
+                id: foundation.id,
+                collect: () => Promise.resolve(this.collectFoundationDocs(foundation)),
             })
         }
 
@@ -376,6 +398,7 @@ export class ContentRagIndexService {
                         challenges: challenges.length,
                         flashcardDecks: flashcardDecks.length,
                         milestoneTasks: milestoneTasks.length,
+                        foundations: foundations.length,
                         chunks: 0,
                         unchanged: unchangedCount,
                         removed: removedContentIds.length,
@@ -446,6 +469,7 @@ export class ContentRagIndexService {
                     challenges: challenges.length,
                     flashcardDecks: flashcardDecks.length,
                     milestoneTasks: milestoneTasks.length,
+                    foundations: foundations.length,
                     chunks: chunks.length,
                     changed: dirtyContentIds.length,
                     unchanged: unchangedCount,
@@ -753,6 +777,71 @@ export class ContentRagIndexService {
                     contentId: taskId,
                     courseId,
                     kind: "milestone",
+                    filePath: "",
+                    lang: locale,
+                },
+            }))
+        }
+        return docs
+    }
+
+    /**
+     * Assemble a foundation's title + description + value for each locale, one
+     * document per non-empty locale — pure Postgres (foundations have no MinIO
+     * snapshot; their localized text lives in the `foundation_translations` EAV
+     * table as per-field/locale rows), resolved directly via
+     * {@link TranslationResolverService} off the eager-loaded `translations`
+     * relation, falling back to the base column when a locale/field is missing.
+     *
+     * Foundations are NOT course-scoped (they belong to a foundation-category),
+     * so the emitted document carries `kind: "content"` with NO `courseId` — the
+     * foundation-grounding rail (slice 2) filters these by `contentId` alone.
+     *
+     * @param foundation - The foundation, eager-loaded with `translations`.
+     * @returns The foundation's documents (one per non-empty locale).
+     */
+    private collectFoundationDocs(
+        foundation: FoundationEntity,
+    ): Array<Document> {
+        const docs: Array<Document> = []
+        const fallback = foundation.defaultLocale ?? Locale.En
+        for (const locale of [
+            Locale.Vi,
+            Locale.En,
+        ]) {
+            const title = this.translationResolver.resolve({
+                translations: foundation.translations,
+                field: "title",
+                locale,
+                fallbackLocale: fallback,
+            }) || foundation.title
+            const description = this.translationResolver.resolve({
+                translations: foundation.translations,
+                field: "description",
+                locale,
+                fallbackLocale: fallback,
+            }) || foundation.description || ""
+            const value = this.translationResolver.resolve({
+                translations: foundation.translations,
+                field: "value",
+                locale,
+                fallbackLocale: fallback,
+            }) || foundation.value || ""
+            const text = [
+                title,
+                description,
+                value,
+            ]
+                .filter((part) => Boolean(part?.trim()))
+                .join("\n\n")
+            if (!text.trim()) {
+                continue
+            }
+            docs.push(new Document({
+                pageContent: text,
+                metadata: {
+                    contentId: foundation.id,
+                    kind: "content",
                     filePath: "",
                     lang: locale,
                 },

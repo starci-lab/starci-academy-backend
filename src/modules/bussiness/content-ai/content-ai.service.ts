@@ -25,6 +25,7 @@ import {
     S3ReadService,
 } from "@modules/s3"
 import {
+    ContentAiSessionTitleTooLongException,
     ContentNotFoundException,
     PremiumContentAiAccessDeniedException,
 } from "@modules/exceptions"
@@ -37,6 +38,18 @@ import {
 import {
     UserService,
 } from "../user"
+
+/**
+ * Which surface a content-AI question is grounded on. A session is one
+ * `(scope + anchor)`; the scope selects WHICH grounding path runs:
+ * - `"lesson"`: a course lesson (MinIO body + repo code, premium-gated).
+ * - `"task"`: a capstone / personal-project task (milestone RAG chunk, enrolled-only).
+ * - `"foundation"`: a global foundation-library doc (single-doc RAG, no course gate).
+ *
+ * NOTE: a `"course"` scope (whole-course RAG) is a separate slice and is not
+ * wired here yet — this module still only grounds a single lesson/task/foundation.
+ */
+export type ContentAiScope = "lesson" | "task" | "foundation"
 
 /** One prior chat turn replayed to the model as short-term memory. */
 export interface ContentAiHistoryMessage {
@@ -68,8 +81,12 @@ export interface ContentAiSessionSummary {
 export interface PrepareContentAiMessagesParams {
     /** The asking learner (drives the premium-content entitlement gate). */
     userId: string
-    /** Content the question is about. */
-    contentId: string
+    /** Lesson content the question is about (lesson scope). */
+    contentId?: string | null
+    /** Capstone / personal-project task the question is about (task scope). */
+    taskId?: string | null
+    /** Global foundation-library doc the question is about (foundation scope). */
+    foundationId?: string | null
     /** The learner's question about this content. */
     question: string
     /** Recent prior turns (oldest first) for short-term memory; capped here. */
@@ -157,11 +174,106 @@ export class ContentAiService {
         {
             userId,
             contentId,
+            taskId,
+            foundationId,
             question,
             history,
             locale,
         }: PrepareContentAiMessagesParams,
     ): Promise<{ messages: Array<BaseMessage> }> {
+        // Dispatch grounding by scope. Priority contentId > taskId > foundationId:
+        // a lesson page always grounds on its lesson; a capstone-task or foundation
+        // page carries no contentId and grounds on its own material instead. Guard:
+        // at least one anchor id is required.
+        let grounding: string
+        let scope: ContentAiScope
+        if (contentId) {
+            grounding = await this.resolveLessonGrounding({
+                userId,
+                contentId,
+                question,
+                locale,
+            })
+            scope = "lesson"
+        } else if (taskId) {
+            grounding = await this.resolveTaskGrounding({
+                userId,
+                taskId,
+                question,
+            })
+            scope = "task"
+        } else if (foundationId) {
+            grounding = await this.resolveFoundationGrounding({
+                userId,
+                foundationId,
+                question,
+            })
+            scope = "foundation"
+        } else {
+            throw new ContentNotFoundException({
+            })
+        }
+
+        // replay recent turns as a ROLLING TOKEN-BUDGET window: keep as many of the
+        // NEWEST turns as fit in the input left after grounding + the question + the
+        // answer reserve, walking newest→oldest and stopping at the budget. A large
+        // lesson (big grounding) keeps fewer turns; a small one keeps many — the
+        // long-conversation memory a general chat app has, without overflowing the
+        // free local model's context.
+        const systemPromptText = this.buildSystemPrompt(grounding,
+            locale,
+            scope)
+        const historyBudgetChars = Math.max(
+            0,
+            MAX_INPUT_CHARS - systemPromptText.length - question.length - RESPONSE_RESERVE_CHARS,
+        )
+        const windowedHistory: Array<ContentAiHistoryMessage> = []
+        let usedChars = 0
+        for (const message of (history ?? []).slice(-MAX_HISTORY_MESSAGES).reverse()) {
+            usedChars += message.content.length
+            if (usedChars > historyBudgetChars) {
+                break
+            }
+            // rebuild oldest-first as we accept newest-first
+            windowedHistory.unshift(message)
+        }
+        const historyMessages = windowedHistory.map((message) => message.role === "assistant"
+            ? new AIMessage(message.content)
+            : new HumanMessage(message.content))
+        const messages: Array<BaseMessage> = [
+            new SystemMessage(systemPromptText),
+            ...historyMessages,
+            new HumanMessage(question),
+        ]
+        return {
+            messages,
+        }
+    }
+
+    /**
+     * Lesson-scope grounding: load the lesson body from MinIO, enforce the
+     * premium-content gate, then stuff the whole body (+ full repo code) or
+     * RAG-retrieve for large lessons. Extracted verbatim from the original
+     * `prepareMessages` body so the task/foundation scopes dispatch alongside it.
+     *
+     * @param params - The learner, the content id, the question, and the locale.
+     * @returns The grounding text for the lesson system prompt.
+     * @throws ContentNotFoundException when the content body is missing.
+     * @throws PremiumContentAiAccessDeniedException when premium content is not entitled.
+     */
+    private async resolveLessonGrounding(
+        {
+            userId,
+            contentId,
+            question,
+            locale,
+        }: {
+            userId: string
+            contentId: string
+            question: string
+            locale: Locale
+        },
+    ): Promise<string> {
         // The lesson body lives in MinIO (the Postgres `body` column is empty for
         // snapshot-backed content) — load it the same way the content reader does,
         // NOT from `ContentEntity.body`, or the model is grounded on an empty body
@@ -225,46 +337,88 @@ export class ContentAiService {
         // retrieval miss), else RAG-retrieve the most relevant chunks for large ones
         const body = this.resolveBodyText(content,
             locale)
-        const grounding = await this.resolveGrounding({
+        return this.resolveGrounding({
             content,
             contentId,
             question,
             body,
         })
+    }
 
-        // replay recent turns as a ROLLING TOKEN-BUDGET window: keep as many of the
-        // NEWEST turns as fit in the input left after grounding + the question + the
-        // answer reserve, walking newest→oldest and stopping at the budget. A large
-        // lesson (big grounding) keeps fewer turns; a small one keeps many — the
-        // long-conversation memory a general chat app has, without overflowing the
-        // free local model's context.
-        const systemPromptText = this.buildSystemPrompt(grounding,
-            locale)
-        const historyBudgetChars = Math.max(
-            0,
-            MAX_INPUT_CHARS - systemPromptText.length - question.length - RESPONSE_RESERVE_CHARS,
-        )
-        const windowedHistory: Array<ContentAiHistoryMessage> = []
-        let usedChars = 0
-        for (const message of (history ?? []).slice(-MAX_HISTORY_MESSAGES).reverse()) {
-            usedChars += message.content.length
-            if (usedChars > historyBudgetChars) {
-                break
-            }
-            // rebuild oldest-first as we accept newest-first
-            windowedHistory.unshift(message)
-        }
-        const historyMessages = windowedHistory.map((message) => message.role === "assistant"
-            ? new AIMessage(message.content)
-            : new HumanMessage(message.content))
-        const messages: Array<BaseMessage> = [
-            new SystemMessage(systemPromptText),
-            ...historyMessages,
-            new HumanMessage(question),
-        ]
-        return {
-            messages,
-        }
+    /**
+     * Task-scope grounding: pull the capstone / personal-project task's brief +
+     * acceptance-criteria chunks from the content RAG index. Milestone chunks are
+     * written with `metadata.contentId = taskId` (shared UUID id-space), so the
+     * same single-doc retrieval the lesson scope uses returns exactly this task's
+     * material. Degrades to an empty excerpt (un-grounded) when the index is
+     * absent / retrieval misses — retrieval never blocks the chat.
+     *
+     * Entitlement: capstone material is enrolled-only. Gating needs the task's
+     * owning course, which requires the milestone/task entity — not wired into
+     * this business module yet.
+     * TODO(content-ai-rail-scope §3): resolve taskId → milestone → course and
+     * call `userService.checkEnrollment(userId, courseId)` before returning, so a
+     * non-enrolled viewer cannot pull capstone material through the AI.
+     *
+     * @param params - The learner, the task id, and the question.
+     * @returns The grounding text for the task system prompt.
+     */
+    private async resolveTaskGrounding(
+        {
+            userId,
+            taskId,
+            question,
+        }: {
+            userId: string
+            taskId: string
+            question: string
+        },
+    ): Promise<string> {
+        // userId is carried for the enrolled-only gate documented above (not yet
+        // enforced — the task → course lookup is not wired into this module).
+        void userId
+        const {
+            excerpt,
+        } = await this.contentRagRetrievalService.retrieveContentExcerpt({
+            contentId: taskId,
+            query: question,
+        })
+        return excerpt
+    }
+
+    /**
+     * Foundation-scope grounding: single-doc RAG over one GLOBAL foundation-
+     * library document. Foundation entities are NOT course-scoped (they belong to
+     * a foundation-category and carry no courseId), so there is intentionally NO
+     * premium / enrollment gate — the foundation library is global. Chunks are
+     * indexed with `metadata.contentId = foundationId`, so the lesson scope's
+     * single-doc retrieval returns this foundation's material. Degrades to an
+     * empty excerpt when the index is absent / retrieval misses.
+     *
+     * @param params - The learner, the foundation id, and the question.
+     * @returns The grounding text for the foundation system prompt.
+     */
+    private async resolveFoundationGrounding(
+        {
+            userId,
+            foundationId,
+            question,
+        }: {
+            userId: string
+            foundationId: string
+            question: string
+        },
+    ): Promise<string> {
+        // userId is accepted for signature symmetry with the other scopes; a
+        // global foundation doc needs no per-user gate, so it is unused here.
+        void userId
+        const {
+            excerpt,
+        } = await this.contentRagRetrievalService.retrieveContentExcerpt({
+            contentId: foundationId,
+            query: question,
+        })
+        return excerpt
     }
 
     /**
@@ -494,8 +648,28 @@ export class ContentAiService {
         {
             userId,
             contentId,
-        }: { userId: string, contentId: string },
+            taskId,
+            foundationId,
+        }: {
+            userId: string
+            contentId?: string | null
+            taskId?: string | null
+            foundationId?: string | null
+        },
     ): Promise<string | null> {
+        // Only lesson-anchored sessions are persisted here: `content_ai_sessions.
+        // origin_content_id` (and every message's `content_id`) is a NON-NULL FK to
+        // `contents`, so a task/foundation id cannot be an origin under the current
+        // schema. The born-archived task/foundation session model needs the schema
+        // change (nullable/polymorphic origin + `archived_at`) from a separate
+        // slice; taskId/foundationId are accepted so the mutation surface is ready.
+        // TODO(content-ai-rail-scope §4e): persist task/foundation-origin sessions
+        // once the session-model schema lands.
+        void taskId
+        void foundationId
+        if (!contentId) {
+            return null
+        }
         const enrollmentId = await this.resolveEnrollmentId(userId,
             contentId)
         if (!enrollmentId) {
@@ -528,12 +702,14 @@ export class ContentAiService {
             search,
             limit,
             offset,
+            includeArchived,
         }: {
             userId: string
             contentId: string
             search?: string
             limit?: number
             offset?: number
+            includeArchived?: boolean
         },
     ): Promise<Array<ContentAiSessionSummary>> {
         // clamp the page so a bad client value can't pull the whole table
@@ -544,6 +720,9 @@ export class ContentAiService {
             0)
         const trimmed = (search ?? "").trim()
         if (trimmed) {
+            // search ALWAYS spans archived rows — digging up an archived (or
+            // born-archived selection) chat is exactly when search is used, so
+            // `includeArchived` is not threaded here.
             return this.searchSessions(userId,
                 contentId,
                 trimmed,
@@ -553,15 +732,20 @@ export class ContentAiService {
         return this.listSessions(userId,
             contentId,
             pageLimit,
-            pageOffset)
+            pageOffset,
+            includeArchived ?? false)
     }
 
-    /** List conversations anchored to one content (recency-first), paged. */
+    /**
+     * List conversations anchored to one content (recency-first), paged. Archived
+     * conversations are hidden unless `includeArchived` is set.
+     */
     private async listSessions(
         userId: string,
         contentId: string,
         limit: number,
         offset: number,
+        includeArchived: boolean,
     ): Promise<Array<ContentAiSessionSummary>> {
         const enrollmentId = await this.resolveEnrollmentId(userId,
             contentId)
@@ -575,12 +759,15 @@ export class ContentAiService {
             messageCount: number
         }>>(
             // HAVING COUNT > 0 hides empty/abandoned sessions (created on send but
-            // never got a saved turn) so the list + auto-select only see real chats
+            // never got a saved turn) so the list + auto-select only see real chats.
+            // `archived_at IS NULL` hides archived (incl. born-archived selection)
+            // sessions from the default list unless includeArchived is requested.
             `SELECT s.id, s.title, s.updated_at AS "updatedAt",
                     COUNT(m.id)::int AS "messageCount"
              FROM content_ai_sessions s
              LEFT JOIN content_ai_messages m ON m.session_id = s.id
              WHERE s.enrollment_id = $1 AND s.origin_content_id = $2
+               AND ($5 OR s.archived_at IS NULL)
              GROUP BY s.id
              HAVING COUNT(m.id) > 0
              ORDER BY s.updated_at DESC
@@ -590,6 +777,7 @@ export class ContentAiService {
                 contentId,
                 limit,
                 offset,
+                includeArchived,
             ],
         )
         return rows.map((row) => ({
@@ -603,7 +791,12 @@ export class ContentAiService {
         }))
     }
 
-    /** Search ALL the learner's conversations in the content's course, paged. */
+    /**
+     * Search ALL the learner's conversations in the content's course, paged.
+     * INTENTIONALLY spans archived rows too (no `archived_at` filter): search is
+     * exactly how a learner digs an archived / born-archived selection chat back
+     * up, so it must see them.
+     */
     private async searchSessions(
         userId: string,
         contentId: string,
@@ -784,6 +977,75 @@ export class ContentAiService {
     }
 
     /**
+     * Rename a conversation. Overwrites the title OUTRIGHT (no COALESCE) — the
+     * learner's explicit rename wins over the auto-derived title. An empty/blank
+     * title resets to NULL, so the session falls back to auto-titling from its
+     * first question again. No-op when not owned.
+     *
+     * @param params - The learner, the session, and the new title (blank → reset).
+     * @throws ContentAiSessionTitleTooLongException when the title exceeds the
+     *   `content_ai_sessions.title` column limit (200 chars).
+     */
+    async renameContentAiSession(
+        {
+            userId,
+            sessionId,
+            title,
+        }: { userId: string, sessionId: string, title: string },
+    ): Promise<void> {
+        // reject over-long titles at the boundary rather than letting the varchar(200)
+        // column raise a raw DB error; an empty/blank title resets to auto-titling
+        const trimmed = title.trim()
+        if (trimmed.length > 200) {
+            throw new ContentAiSessionTitleTooLongException({
+                length: trimmed.length,
+                max: 200,
+            })
+        }
+        const owned = await this.resolveOwnedSession(userId,
+            sessionId)
+        if (!owned) {
+            return
+        }
+        await this.entityManager.query(
+            "UPDATE content_ai_sessions SET title = $2, updated_at = now() WHERE id = $1",
+            [
+                sessionId,
+                trimmed || null,
+            ],
+        )
+    }
+
+    /**
+     * Archive / unarchive a conversation. Archiving stamps `archived_at = now()`
+     * (drops it from the default list, still searchable); unarchiving clears it
+     * back to NULL (returns it to the list). No-op when not owned.
+     *
+     * @param params - The learner, the session, and the target archived state.
+     */
+    async setContentAiSessionArchived(
+        {
+            userId,
+            sessionId,
+            archived,
+        }: { userId: string, sessionId: string, archived: boolean },
+    ): Promise<void> {
+        const owned = await this.resolveOwnedSession(userId,
+            sessionId)
+        if (!owned) {
+            return
+        }
+        await this.entityManager.query(
+            archived
+                ? "UPDATE content_ai_sessions SET archived_at = now() WHERE id = $1"
+                : "UPDATE content_ai_sessions SET archived_at = NULL WHERE id = $1",
+            [
+                sessionId,
+            ],
+        )
+    }
+
+    /**
      * Mark a conversation as just-opened (bumps `updated_at` → it sorts to the top
      * + becomes the one auto-reopened on reload). No-op when not owned. This is how
      * "remember the last conversation I read" is persisted server-side (not in the
@@ -836,20 +1098,49 @@ export class ContentAiService {
     }
 
     /**
-     * System prompt grounding the answer in the content body and pinning the
-     * reply language to the request locale.
+     * System prompt grounding the answer in the scope's material and pinning the
+     * reply language to the request locale. The `scope` selects the tutor persona
+     * + the grounding-section header (lesson tutor · capstone-task mentor ·
+     * foundation-library tutor); the lesson branch is the original prompt verbatim.
      *
-     * @param body - The content's markdown body.
+     * @param grounding - The scope's grounding text (lesson body/code, task
+     *   material, or foundation document).
      * @param locale - The active request locale.
+     * @param scope - Which surface the question is grounded on.
      * @returns The system prompt string.
      */
     private buildSystemPrompt(
-        body: string,
+        grounding: string,
         locale: Locale,
+        scope: ContentAiScope,
     ): string {
         const language = locale === Locale.Vi
             ? "Vietnamese"
             : "English"
+        if (scope === "task") {
+            return [
+                "You are StarCi AI, a mentor for the student's capstone / personal-project TASK.",
+                "The TASK MATERIAL below is the task's own brief, requirements and acceptance criteria — it is your primary source: read it, prefer it, and keep the student aligned to exactly THIS task.",
+                "Mentor, don't do the work for them: explain concepts, unblock errors, review their approach and point at the relevant requirement — but never hand over a finished solution to the deliverable. Guide them to build it themselves.",
+                "A student message may contain <display>the question</display> and <context>the highlighted passage plus its surrounding paragraph and section</context>. Use <context> only to understand WHICH part they mean; answer the <display> question. Never repeat or mention the tags or the raw context back to the student.",
+                `Reply in ${language}. Keep it short, concrete and practical.`,
+                "",
+                "=== TASK MATERIAL ===",
+                grounding,
+            ].join("\n")
+        }
+        if (scope === "foundation") {
+            return [
+                "You are StarCi AI, a sharp and friendly tutor explaining a FOUNDATION reference document from the knowledge library.",
+                "The FOUNDATION DOCUMENT below is your primary source: read it, prefer it, and explain its concepts, terms, code and examples whenever the student asks about them.",
+                "You MAY also use your general programming knowledge to explain a related concept, term, snippet or command the document does not mention — a good tutor EXPLAINS, it never refuses to read code, and never says a question is outside its training. Only when you truly cannot help, say so in one line and point the student to what to review.",
+                "A student message may contain <display>the question</display> and <context>the highlighted passage plus its surrounding paragraph and section</context>. Use <context> only to understand WHICH part of the document they mean; answer the <display> question. Never repeat or mention the tags or the raw context back to the student.",
+                `Reply in ${language}. Keep it short, concrete and practical.`,
+                "",
+                "=== FOUNDATION DOCUMENT ===",
+                grounding,
+            ].join("\n")
+        }
         return [
             "You are StarCi AI, a sharp and friendly programming tutor embedded in a course.",
             "The LESSON CONTENT below — its explanations AND its code — is your primary source: read it, prefer it, and explain the lesson's own code, commands and examples whenever the student asks about them.",
@@ -858,7 +1149,7 @@ export class ContentAiService {
             `Reply in ${language}. Keep it short, concrete and practical.`,
             "",
             "=== LESSON CONTENT ===",
-            body,
+            grounding,
         ].join("\n")
     }
 }

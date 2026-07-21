@@ -20,6 +20,12 @@ import {
     TouchContentAiSessionSingleMutationModule,
 } from "./touch-content-ai-session"
 import {
+    RenameContentAiSessionSingleMutationModule,
+} from "./rename-content-ai-session"
+import {
+    SetContentAiSessionArchivedSingleMutationModule,
+} from "./set-content-ai-session-archived"
+import {
     ConfigurableModuleClass
 } from "./contents.module-definition"
 
@@ -41,6 +47,12 @@ import {
             isGlobal: true,
         }),
         TouchContentAiSessionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        RenameContentAiSessionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        SetContentAiSessionArchivedSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

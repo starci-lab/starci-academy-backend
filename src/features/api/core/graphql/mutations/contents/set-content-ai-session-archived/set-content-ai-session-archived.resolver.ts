@@ -1,6 +1,6 @@
 import {
     Args,
-    Query,
+    Mutation,
     Resolver,
 } from "@nestjs/graphql"
 import {
@@ -27,54 +27,51 @@ import {
     ContentAiService,
 } from "@modules/bussiness"
 import {
-    ContentAiSessionsRequest,
-    ContentAiSessionsResponse,
+    SetContentAiSessionArchivedRequest,
+    SetContentAiSessionArchivedResponse,
 } from "./graphql-types"
 import type {
-    ContentAiSessionsData,
+    SetContentAiSessionArchivedData,
 } from "./graphql-types"
 
 @Resolver()
-export class ContentAiSessionsResolver {
+export class SetContentAiSessionArchivedResolver {
     constructor(
         private readonly contentAiService: ContentAiService,
     ) { }
 
     /**
-     * List the current user's content-AI conversations for a content (recency
-     * first), or search ALL their conversations in the course when `search` is
-     * given. Requires authentication.
+     * Archive / unarchive one of the current user's content-AI conversations.
+     * Archived conversations leave the default list but stay searchable. Requires
+     * authentication.
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
-        [Locale.En]: "Conversations loaded successfully",
-        [Locale.Vi]: "Đã tải danh sách hội thoại",
+        [Locale.En]: "Conversation updated",
+        [Locale.Vi]: "Đã cập nhật hội thoại",
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)
-    @Query(
-        () => ContentAiSessionsResponse,
+    @Mutation(
+        () => SetContentAiSessionArchivedResponse,
         {
-            name: "contentAiSessions",
-            description: "The current user's content-AI conversations (list or search).",
+            name: "setContentAiSessionArchived",
+            description: "Archive / unarchive one of the current user's content-AI conversations.",
         },
     )
     async execute(
         @Args("request")
-            request: ContentAiSessionsRequest,
+            request: SetContentAiSessionArchivedRequest,
         @KeycloakGraphQLUser()
             user: UserEntity,
-    ): Promise<ContentAiSessionsData> {
-        const sessions = await this.contentAiService.sessions({
+    ): Promise<SetContentAiSessionArchivedData> {
+        await this.contentAiService.setContentAiSessionArchived({
             userId: user.id,
-            contentId: request.contentId,
-            search: request.search,
-            limit: request.limit,
-            offset: request.offset,
-            includeArchived: request.includeArchived,
+            sessionId: request.sessionId,
+            archived: request.archived,
         })
         return {
-            sessions,
+            archived: request.archived,
         }
     }
 }

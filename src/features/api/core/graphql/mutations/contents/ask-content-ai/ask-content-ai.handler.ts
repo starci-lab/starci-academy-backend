@@ -50,6 +50,8 @@ export class AskContentAiHandler
         const {
             request: {
                 contentId,
+                taskId,
+                foundationId,
                 question,
                 history,
             },
@@ -62,13 +64,15 @@ export class AskContentAiHandler
             })
         }
 
-        // ground the question in the lesson body + enforce the premium gate
-        // (shared with the streaming `/content_ai` socket gateway)
+        // ground the question by scope (lesson body + premium gate, or task /
+        // foundation RAG) — shared with the streaming `/content_ai` socket gateway
         const {
             messages,
         } = await this.contentAiService.prepareMessages({
             userId: user.id,
             contentId,
+            taskId,
+            foundationId,
             question,
             history,
             locale: locale ?? Locale.En,

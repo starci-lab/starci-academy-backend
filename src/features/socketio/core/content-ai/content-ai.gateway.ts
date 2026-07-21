@@ -108,6 +108,8 @@ export class ContentAiGateway {
             streamId,
             sessionId,
             contentId,
+            taskId,
+            foundationId,
             question,
             history,
             model,
@@ -151,12 +153,15 @@ export class ContentAiGateway {
         this.inFlight.set(key,
             controller)
         try {
-            // ground the question in the lesson body + enforce the premium gate
+            // ground the question by scope (lesson body + premium gate, or task /
+            // foundation RAG) — the service dispatches on which anchor id is present
             const {
                 messages,
             } = await this.contentAiService.prepareMessages({
                 userId,
                 contentId,
+                taskId,
+                foundationId,
                 question,
                 history,
                 locale: payload.locale,
@@ -211,21 +216,26 @@ export class ContentAiGateway {
 
             // persist the completed (question → answer) turn under the learner's
             // enrollment — best-effort: a save failure must NOT turn a successful
-            // answer into an error for the user.
-            try {
-                await this.contentAiService.saveTurn({
-                    userId,
-                    sessionId,
-                    contentId,
-                    question,
-                    answer,
-                })
-            } catch (saveError) {
-                this.logger.error(
-                    `content-ai saveTurn ${streamId} failed: ${
-                        saveError instanceof Error ? saveError.message : String(saveError)
-                    }`,
-                )
+            // answer into an error for the user. Only LESSON turns are persisted:
+            // `content_ai_messages.content_id` is a non-null FK to `contents`, so a
+            // task/foundation turn has no valid content anchor under the current
+            // schema (born-archived task/foundation sessions are a separate slice).
+            if (contentId) {
+                try {
+                    await this.contentAiService.saveTurn({
+                        userId,
+                        sessionId,
+                        contentId,
+                        question,
+                        answer,
+                    })
+                } catch (saveError) {
+                    this.logger.error(
+                        `content-ai saveTurn ${streamId} failed: ${
+                            saveError instanceof Error ? saveError.message : String(saveError)
+                        }`,
+                    )
+                }
             }
 
             // terminal chunk: no new text, just the done flag

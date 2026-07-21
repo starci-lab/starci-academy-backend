@@ -16,8 +16,12 @@ export type AskContentAiSocketIoPayload = SocketIoPayload<{
     streamId: string
     /** Conversation (session) this turn belongs to — the completed turn is saved under it. */
     sessionId: string
-    /** Content the question is grounded on (recorded per turn; a session can span lessons). */
-    contentId: string
+    /** Lesson content the question is grounded on (lesson scope; recorded per turn — a session can span lessons). Omitted on a task/foundation page. */
+    contentId?: string | null
+    /** Capstone / personal-project task the question is grounded on (task scope). */
+    taskId?: string | null
+    /** Global foundation-library doc the question is grounded on (foundation scope). */
+    foundationId?: string | null
     /** The learner's question about this content. */
     question: string
     /** Recent prior turns (oldest first) for short-term memory; capped server-side. */

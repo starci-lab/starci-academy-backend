@@ -1,6 +1,6 @@
 import {
     Args,
-    Query,
+    Mutation,
     Resolver,
 } from "@nestjs/graphql"
 import {
@@ -27,54 +27,50 @@ import {
     ContentAiService,
 } from "@modules/bussiness"
 import {
-    ContentAiSessionsRequest,
-    ContentAiSessionsResponse,
+    RenameContentAiSessionRequest,
+    RenameContentAiSessionResponse,
 } from "./graphql-types"
 import type {
-    ContentAiSessionsData,
+    RenameContentAiSessionData,
 } from "./graphql-types"
 
 @Resolver()
-export class ContentAiSessionsResolver {
+export class RenameContentAiSessionResolver {
     constructor(
         private readonly contentAiService: ContentAiService,
     ) { }
 
     /**
-     * List the current user's content-AI conversations for a content (recency
-     * first), or search ALL their conversations in the course when `search` is
-     * given. Requires authentication.
+     * Rename one of the current user's content-AI conversations. A blank title
+     * resets it to auto-titling. Requires authentication.
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
-        [Locale.En]: "Conversations loaded successfully",
-        [Locale.Vi]: "Đã tải danh sách hội thoại",
+        [Locale.En]: "Conversation renamed",
+        [Locale.Vi]: "Đã đổi tên hội thoại",
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)
-    @Query(
-        () => ContentAiSessionsResponse,
+    @Mutation(
+        () => RenameContentAiSessionResponse,
         {
-            name: "contentAiSessions",
-            description: "The current user's content-AI conversations (list or search).",
+            name: "renameContentAiSession",
+            description: "Rename one of the current user's content-AI conversations.",
         },
     )
     async execute(
         @Args("request")
-            request: ContentAiSessionsRequest,
+            request: RenameContentAiSessionRequest,
         @KeycloakGraphQLUser()
             user: UserEntity,
-    ): Promise<ContentAiSessionsData> {
-        const sessions = await this.contentAiService.sessions({
+    ): Promise<RenameContentAiSessionData> {
+        await this.contentAiService.renameContentAiSession({
             userId: user.id,
-            contentId: request.contentId,
-            search: request.search,
-            limit: request.limit,
-            offset: request.offset,
-            includeArchived: request.includeArchived,
+            sessionId: request.sessionId,
+            title: request.title,
         })
         return {
-            sessions,
+            renamed: true,
         }
     }
 }

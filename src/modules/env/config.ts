@@ -723,6 +723,10 @@ export const envConfig = () => ({
                 key: "CONTENT_RAG_INDEX_MILESTONE_TASKS_ENABLED",
                 defaultValue: true,
             }),
+            indexFoundations: parseEnvBoolean({
+                key: "CONTENT_RAG_INDEX_FOUNDATIONS_ENABLED",
+                defaultValue: true,
+            }),
         },
         /** Cdn Synchronizer service configuration. */
         cdnSynchronizer: {
