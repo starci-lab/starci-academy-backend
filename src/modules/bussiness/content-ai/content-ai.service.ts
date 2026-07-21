@@ -13,6 +13,7 @@ import type {
     BaseMessage,
 } from "@langchain/core/messages"
 import {
+    ChallengeEntity,
     ContentAiMessageEntity,
     ContentAiSessionEntity,
     ContentEntity,
@@ -48,7 +49,7 @@ import {
  * - `"foundation"`: a global foundation-library doc (single-doc RAG, no course gate).
  * - `"course"`: the whole course (course-wide RAG, enrolled-only).
  */
-export type ContentAiScope = "content" | "task" | "foundation" | "course"
+export type ContentAiScope = "content" | "task" | "challenge" | "foundation" | "course"
 
 /** One prior chat turn replayed to the model as short-term memory. */
 export interface ContentAiHistoryMessage {
@@ -86,6 +87,8 @@ export interface PrepareContentAiMessagesParams {
     contentId?: string | null
     /** Capstone / personal-project task the question is about (task scope). */
     taskId?: string | null
+    /** Hands-on challenge the question is about (challenge scope, enrolled-only). */
+    challengeId?: string | null
     /** Global foundation-library doc the question is about (foundation scope). */
     foundationId?: string | null
     /** Course the question is about when no lesson/task/foundation is open (course scope, enrolled-only). */
@@ -178,6 +181,7 @@ export class ContentAiService {
             userId,
             contentId,
             taskId,
+            challengeId,
             foundationId,
             courseId,
             question,
@@ -206,6 +210,13 @@ export class ContentAiService {
                 question,
             })
             scope = "task"
+        } else if (challengeId) {
+            grounding = await this.resolveChallengeGrounding({
+                userId,
+                challengeId,
+                question,
+            })
+            scope = "challenge"
         } else if (foundationId) {
             grounding = await this.resolveFoundationGrounding({
                 userId,
@@ -396,6 +407,50 @@ export class ContentAiService {
             excerpt,
         } = await this.contentRagRetrievalService.retrieveContentExcerpt({
             contentId: taskId,
+            query: question,
+        })
+        return excerpt
+    }
+
+    /**
+     * Challenge-scope grounding: pull a hands-on challenge's brief + steps + test
+     * cases from the content RAG index. Challenge chunks are written with
+     * `metadata.contentId = challengeId` (shared UUID id-space, `kind = "challenge"`),
+     * so the same single-doc retrieval the lesson scope uses returns exactly this
+     * challenge's material.
+     *
+     * Entitlement: ENROLLED-ONLY, mirroring the task scope. We resolve the
+     * challenge's owning course (challenge → content → module → course) and gate on
+     * enrollment; a non-enrolled viewer gets an empty excerpt (no leak), so the
+     * model never reveals a challenge's brief / test cases through the AI.
+     *
+     * @param params - The learner, the challenge id, and the question.
+     * @returns The grounding text, or empty when the viewer is not enrolled.
+     */
+    private async resolveChallengeGrounding(
+        {
+            userId,
+            challengeId,
+            question,
+        }: {
+            userId: string
+            challengeId: string
+            question: string
+        },
+    ): Promise<string> {
+        // resolve the challenge's owning course so we can enforce the enrolled-only gate
+        const courseId = await this.resolveCourseIdOfChallenge(challengeId)
+        const entitled = courseId
+            ? await this.userService.checkEnrollment(userId,
+                courseId)
+            : false
+        if (!entitled) {
+            return ""
+        }
+        const {
+            excerpt,
+        } = await this.contentRagRetrievalService.retrieveContentExcerpt({
+            contentId: challengeId,
             query: question,
         })
         return excerpt
@@ -732,6 +787,46 @@ export class ContentAiService {
             },
         )
         return task?.milestone?.course?.id ?? null
+    }
+
+    /**
+     * Resolve a challenge's owning course (challenge → content → module → course),
+     * so a challenge session can be anchored to the right enrollment / gated.
+     *
+     * @param challengeId - The hands-on challenge.
+     * @returns The owning course id, or `null` when the challenge / course is unknown.
+     */
+    private async resolveCourseIdOfChallenge(
+        challengeId: string,
+    ): Promise<string | null> {
+        const challenge = await this.entityManager.findOne(
+            ChallengeEntity,
+            {
+                where: {
+                    id: challengeId,
+                },
+                relations: {
+                    content: {
+                        module: {
+                            course: true,
+                        },
+                    },
+                },
+                select: {
+                    id: true,
+                    content: {
+                        id: true,
+                        module: {
+                            id: true,
+                            course: {
+                                id: true,
+                            },
+                        },
+                    },
+                },
+            },
+        )
+        return challenge?.content?.module?.course?.id ?? null
     }
 
     /**
@@ -1536,6 +1631,18 @@ export class ContentAiService {
                 `Reply in ${language}. Keep it short, concrete and practical.`,
                 "",
                 "=== TASK MATERIAL ===",
+                grounding,
+            ].join("\n")
+        }
+        if (scope === "challenge") {
+            return [
+                "You are StarCi AI, a coach for the student's hands-on CHALLENGE.",
+                "The CHALLENGE MATERIAL below is the challenge's own brief, steps and test cases — it is your primary source: read it, prefer it, and keep the student aligned to exactly THIS challenge.",
+                "Coach, don't solve it for them: explain the concept, unblock an error, or clarify what a step / test case is asking — but never hand over the finished solution. Nudge them to write it and run the tests themselves.",
+                "A student message may contain <display>the question</display> and <context>the highlighted passage plus its surrounding paragraph and section</context>. Use <context> only to understand WHICH part they mean; answer the <display> question. Never repeat or mention the tags or the raw context back to the student.",
+                `Reply in ${language}. Keep it short, concrete and practical.`,
+                "",
+                "=== CHALLENGE MATERIAL ===",
                 grounding,
             ].join("\n")
         }

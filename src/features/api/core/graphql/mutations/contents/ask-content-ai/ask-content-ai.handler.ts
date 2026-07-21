@@ -51,6 +51,7 @@ export class AskContentAiHandler
             request: {
                 contentId,
                 taskId,
+                challengeId,
                 foundationId,
                 courseId,
                 question,
@@ -73,6 +74,7 @@ export class AskContentAiHandler
             userId: user.id,
             contentId,
             taskId,
+            challengeId,
             foundationId,
             courseId,
             question,

@@ -60,6 +60,15 @@ export class AskContentAiRequest {
         () => ID,
         {
             nullable: true,
+            description: "Hands-on challenge the question is about (challenge scope, enrolled-only).",
+        },
+    )
+        challengeId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
             description: "Global foundation-library doc the question is about (foundation scope).",
         },
     )
