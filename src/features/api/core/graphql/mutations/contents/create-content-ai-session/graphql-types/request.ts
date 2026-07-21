@@ -9,14 +9,23 @@ import {
  * conversation (session) anchored to a content.
  */
 @InputType({
-    description: "Start a new content-AI conversation for a content.",
+    description: "Start a new content-AI conversation for a scope (content / task / foundation / course).",
 })
 export class CreateContentAiSessionRequest {
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Which surface the conversation grounds on: 'content' | 'task' | 'foundation' | 'course'. Omitted → derived from whichever anchor id is present (priority content > task > foundation > course).",
+        },
+    )
+        scope?: string
+
     @Field(
         () => ID,
         {
             nullable: true,
-            description: "Lesson content the conversation starts in (lesson scope). Omitted on a task/foundation page.",
+            description: "Lesson content the conversation starts in (content scope). Omitted on a task/foundation/course page.",
         },
     )
         contentId?: string
@@ -38,4 +47,13 @@ export class CreateContentAiSessionRequest {
         },
     )
         foundationId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Course the conversation starts in when no lesson/task/foundation is open (course scope, enrolled-only).",
+        },
+    )
+        courseId?: string
 }

@@ -467,4 +467,193 @@ describe("ContentAiService",
                             .toContain("FOUNDATION-DOC-CHUNK")
                     })
             })
+
+        // ── SESSION PERSISTENCE PER SCOPE — the anchor + ownership surface ───────
+        // The session-per-scope model persists task/foundation/course conversations
+        // alongside content ones. These lock (1) which anchor column each scope
+        // writes, (2) that a foundation session keys off the raw USER (no
+        // enrollment), and (3) that a turn only persists under a session the caller
+        // OWNS — the security invariant that stops writing into someone else's chat.
+        describe("session persistence per scope",
+            () => {
+                const taskId = "task-1"
+                const foundationId = "foundation-1"
+                const courseId = "course-9"
+                const enrollmentId = "enr-1"
+                const sessionId = "session-1"
+
+                /** A milestone-task row joined to its owning course (task→course anchor). */
+                const taskRow = {
+                    id: taskId,
+                    milestone: {
+                        id: "milestone-1",
+                        course: {
+                            id: courseId,
+                        },
+                    },
+                }
+
+                /** `insert` is not part of the shared mock — wire it per test. */
+                let insert: jest.Mock
+                beforeEach(() => {
+                    insert = jest.fn().mockResolvedValue({
+                    })
+                    ;(entityManager as unknown as { insert: jest.Mock }).insert = insert
+                })
+
+                it("createSession CONTENT → anchors on origin_content_id + enrollment",
+                    async () => {
+                        // resolveEnrollmentId: content → owning course, then enrollment row
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: contentId,
+                            module: {
+                                id: "module-1",
+                                course: {
+                                    id: "course-1",
+                                },
+                            },
+                        })
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: enrollmentId,
+                            },
+                        ])
+
+                        await service.createSession({
+                            userId,
+                            scope: "content",
+                            contentId,
+                        })
+
+                        expect(entityManager.save).toHaveBeenCalled()
+                        const created = entityManager.create.mock.calls[0][1]
+                        expect(created).toMatchObject({
+                            scope: "content",
+                            enrollmentId,
+                            originContentId: contentId,
+                        })
+                    })
+
+                it("createSession TASK → resolves task→course→enrollment, anchors on origin_task_id",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(taskRow)
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: enrollmentId,
+                            },
+                        ])
+
+                        await service.createSession({
+                            userId,
+                            scope: "task",
+                            taskId,
+                        })
+
+                        const created = entityManager.create.mock.calls[0][1]
+                        expect(created).toMatchObject({
+                            scope: "task",
+                            enrollmentId,
+                            originTaskId: taskId,
+                        })
+                    })
+
+                it("createSession TASK · not enrolled → null, NO row created",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(taskRow)
+                        // no enrollment row for this (user, course)
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        const id = await service.createSession({
+                            userId,
+                            scope: "task",
+                            taskId,
+                        })
+
+                        expect(id).toBeNull()
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
+                it("createSession FOUNDATION → GLOBAL: anchors on the USER, no enrollment lookup",
+                    async () => {
+                        const id = await service.createSession({
+                            userId,
+                            scope: "foundation",
+                            foundationId,
+                        })
+
+                        // global doc → never resolves an enrollment
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                        expect(id).not.toBeNull()
+                        const created = entityManager.create.mock.calls[0][1]
+                        expect(created).toMatchObject({
+                            scope: "foundation",
+                            userId,
+                            originFoundationId: foundationId,
+                        })
+                        expect(created.enrollmentId).toBeUndefined()
+                    })
+
+                it("createSession COURSE · not enrolled → null, NO row created",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        const id = await service.createSession({
+                            userId,
+                            scope: "course",
+                            courseId,
+                        })
+
+                        expect(id).toBeNull()
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
+                it("saveTurn FOUNDATION → owned via USER: writes user_id, null enrollment + content",
+                    async () => {
+                        entityManager.query
+                            // resolveOwnedSession → owned via user (no enrollment)
+                            .mockResolvedValueOnce([
+                                {
+                                    enrollmentId: null,
+                                    userId,
+                                },
+                            ])
+                            // auto-title UPDATE
+                            .mockResolvedValueOnce([])
+
+                        await service.saveTurn({
+                            userId,
+                            sessionId,
+                            question: "Explain this",
+                            answer: "Here is the explanation.",
+                        })
+
+                        expect(insert).toHaveBeenCalled()
+                        const rows = insert.mock.calls[0][1] as Array<Record<string, unknown>>
+                        expect(rows[0]).toMatchObject({
+                            sessionId,
+                            userId,
+                            enrollmentId: null,
+                            contentId: null,
+                            role: "user",
+                        })
+                        expect(rows[1]).toMatchObject({
+                            role: "assistant",
+                        })
+                    })
+
+                it("saveTurn · session NOT owned → no insert (cannot write into another's chat)",
+                    async () => {
+                        // resolveOwnedSession → no owned row
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        await service.saveTurn({
+                            userId,
+                            sessionId: "someone-elses-session",
+                            question: "q",
+                            answer: "a",
+                        })
+
+                        expect(insert).not.toHaveBeenCalled()
+                    })
+            })
     })

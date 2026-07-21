@@ -382,29 +382,7 @@ export class ContentAiService {
         },
     ): Promise<string> {
         // resolve the task's owning course so we can enforce the enrolled-only gate
-        const task = await this.entityManager.findOne(
-            MilestoneTaskEntity,
-            {
-                where: {
-                    id: taskId,
-                },
-                relations: {
-                    milestone: {
-                        course: true,
-                    },
-                },
-                select: {
-                    id: true,
-                    milestone: {
-                        id: true,
-                        course: {
-                            id: true,
-                        },
-                    },
-                },
-            },
-        )
-        const courseId = task?.milestone?.course?.id
+        const courseId = await this.resolveCourseIdOfTask(taskId)
         const entitled = courseId
             ? await this.userService.checkEnrollment(userId,
                 courseId)
@@ -691,6 +669,24 @@ export class ContentAiService {
         if (!courseId) {
             return null
         }
+        return this.resolveEnrollmentByCourse(userId,
+            courseId)
+    }
+
+    /**
+     * Resolve the enrollment id for `(user, course)` directly. Trial rows
+     * (`is_enrolled = false`) count — an enrollment row exists whether or not the
+     * learner has paid. Used to anchor task / course sessions (whose course is
+     * known without a content lookup).
+     *
+     * @param userId - The asking learner.
+     * @param courseId - The course to resolve the enrollment against.
+     * @returns The enrollment id, or `null` when the learner has no enrollment row.
+     */
+    private async resolveEnrollmentByCourse(
+        userId: string,
+        courseId: string,
+    ): Promise<string | null> {
         const rows = await this.entityManager.query<Array<{ id: string }>>(
             "SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2 LIMIT 1",
             [
@@ -699,6 +695,41 @@ export class ContentAiService {
             ],
         )
         return rows[0]?.id ?? null
+    }
+
+    /**
+     * Resolve a task's owning course (task → milestone → course), so a task session
+     * can be anchored to the right enrollment.
+     *
+     * @param taskId - The capstone / personal-project task.
+     * @returns The owning course id, or `null` when the task / course is unknown.
+     */
+    private async resolveCourseIdOfTask(
+        taskId: string,
+    ): Promise<string | null> {
+        const task = await this.entityManager.findOne(
+            MilestoneTaskEntity,
+            {
+                where: {
+                    id: taskId,
+                },
+                relations: {
+                    milestone: {
+                        course: true,
+                    },
+                },
+                select: {
+                    id: true,
+                    milestone: {
+                        id: true,
+                        course: {
+                            id: true,
+                        },
+                    },
+                },
+            },
+        )
+        return task?.milestone?.course?.id ?? null
     }
 
     /**
@@ -717,48 +748,120 @@ export class ContentAiService {
     }
 
     /**
-     * Create a new (empty) conversation anchored to a content. Auto-titled later
-     * from its first question.
+     * Create a new (empty) conversation anchored to one of the four scopes —
+     * content / task / foundation / course (the SESSION-PER-SCOPE model). The
+     * scope is taken explicitly when given, else derived by anchor priority
+     * (content > task > foundation > course), mirroring `prepareMessages`.
+     * Auto-titled later from its first question.
      *
-     * @param params - The learner + the content the conversation starts in.
-     * @returns The new session id, or `null` when no enrollment resolves.
+     * Anchoring + entitlement per scope:
+     * - **content**: keys off the lesson's enrollment (trial rows count). The
+     *   premium-content gate still fires at answer time in `prepareMessages`.
+     * - **task**: resolves the task → owning course → enrollment (trial rows
+     *   count). Capstone material stays enrolled-gated at answer time.
+     * - **course**: keys off the course's enrollment (trial rows count).
+     * - **foundation**: GLOBAL — no course, no enrollment; keys off the raw user.
+     *
+     * @param params - The learner, the (optional) scope, and the anchor ids.
+     * @returns The new session id, or `null` when no valid anchor / enrollment resolves.
      */
     async createSession(
         {
             userId,
+            scope,
             contentId,
             taskId,
             foundationId,
+            courseId,
         }: {
             userId: string
+            scope?: ContentAiScope | null
             contentId?: string | null
             taskId?: string | null
             foundationId?: string | null
+            courseId?: string | null
         },
     ): Promise<string | null> {
-        // Only lesson-anchored sessions are persisted here: `content_ai_sessions.
-        // origin_content_id` (and every message's `content_id`) is a NON-NULL FK to
-        // `contents`, so a task/foundation id cannot be an origin under the current
-        // schema. The born-archived task/foundation session model needs the schema
-        // change (nullable/polymorphic origin + `archived_at`) from a separate
-        // slice; taskId/foundationId are accepted so the mutation surface is ready.
-        // TODO(content-ai-rail-scope §4e): persist task/foundation-origin sessions
-        // once the session-model schema lands.
-        void taskId
-        void foundationId
-        if (!contentId) {
+        // derive scope by anchor priority when the caller did not pin one
+        const resolvedScope: ContentAiScope | null = scope
+            ?? (contentId
+                ? "content"
+                : taskId
+                    ? "task"
+                    : foundationId
+                        ? "foundation"
+                        : courseId
+                            ? "course"
+                            : null)
+        if (!resolvedScope) {
             return null
         }
-        const enrollmentId = await this.resolveEnrollmentId(userId,
-            contentId)
-        if (!enrollmentId) {
-            return null
+
+        // resolve the row to persist per scope; a missing anchor / enrollment → null
+        // (no session created) so a non-entitled or malformed request is a silent
+        // no-op rather than an orphan row.
+        let toCreate: Partial<ContentAiSessionEntity> | null = null
+        if (resolvedScope === "content") {
+            if (!contentId) {
+                return null
+            }
+            const enrollmentId = await this.resolveEnrollmentId(userId,
+                contentId)
+            if (!enrollmentId) {
+                return null
+            }
+            toCreate = {
+                scope: "content",
+                enrollmentId,
+                originContentId: contentId,
+            }
+        } else if (resolvedScope === "task") {
+            if (!taskId) {
+                return null
+            }
+            const taskCourseId = await this.resolveCourseIdOfTask(taskId)
+            const enrollmentId = taskCourseId
+                ? await this.resolveEnrollmentByCourse(userId,
+                    taskCourseId)
+                : null
+            if (!enrollmentId) {
+                return null
+            }
+            toCreate = {
+                scope: "task",
+                enrollmentId,
+                originTaskId: taskId,
+            }
+        } else if (resolvedScope === "course") {
+            if (!courseId) {
+                return null
+            }
+            const enrollmentId = await this.resolveEnrollmentByCourse(userId,
+                courseId)
+            if (!enrollmentId) {
+                return null
+            }
+            toCreate = {
+                scope: "course",
+                enrollmentId,
+            }
+        } else {
+            // foundation: GLOBAL library doc — no course, no enrollment; anchor on
+            // the raw user (course-agnostic side of the enrollment-centric model)
+            if (!foundationId) {
+                return null
+            }
+            toCreate = {
+                scope: "foundation",
+                userId,
+                originFoundationId: foundationId,
+            }
         }
+
         const session = this.entityManager.create(
             ContentAiSessionEntity,
             {
-                enrollmentId,
-                originContentId: contentId,
+                ...toCreate,
                 title: null,
             },
         )
@@ -968,12 +1071,15 @@ export class ContentAiService {
     }
 
     /**
-     * Persist one `(question → answer)` turn under a conversation. Each turn also
-     * records the content it was grounded on (so a conversation can span lessons).
-     * Auto-titles the session from its first question + bumps its recency.
-     * No-op when the answer is empty or the session is not owned.
+     * Persist one `(question → answer)` turn under a conversation, for ANY scope.
+     * The turn inherits the session's owner anchors (enrollment for a course-scoped
+     * session, user for a foundation session). A content-scope turn also records
+     * the content it was grounded on (`contentId`) so that conversation can span
+     * lessons; task/foundation/course turns pass no content (the anchor lives on
+     * the session). Auto-titles the session from its first question + bumps its
+     * recency. No-op when the answer is empty or the session is not owned.
      *
-     * @param params - The learner, the session, the grounding content, the Q + A.
+     * @param params - The learner, the session, the (optional) grounding content, the Q + A.
      */
     async saveTurn(
         {
@@ -985,7 +1091,7 @@ export class ContentAiService {
         }: {
             userId: string
             sessionId: string
-            contentId: string
+            contentId?: string | null
             question: string
             answer: string
         },
@@ -999,20 +1105,25 @@ export class ContentAiService {
         if (!owned) {
             return
         }
+        // a turn keys off whichever owner the session carries: enrollment for a
+        // course-scoped session, user for a foundation session. content_id is set
+        // only when the turn was grounded on a specific lesson (content scope).
+        const anchor = {
+            sessionId,
+            enrollmentId: owned.enrollmentId,
+            userId: owned.userId,
+            contentId: contentId ?? null,
+        }
         await this.entityManager.insert(
             ContentAiMessageEntity,
             [
                 {
-                    sessionId,
-                    enrollmentId: owned.enrollmentId,
-                    contentId,
+                    ...anchor,
                     role: "user",
                     message: question,
                 },
                 {
-                    sessionId,
-                    enrollmentId: owned.enrollmentId,
-                    contentId,
+                    ...anchor,
                     role: "assistant",
                     message: trimmedAnswer,
                 },
@@ -1152,21 +1263,28 @@ export class ContentAiService {
     }
 
     /**
-     * Resolve the owning enrollment of a session IF it belongs to the user.
+     * Resolve the owner anchors of a session IF it belongs to the user. Ownership
+     * holds either way of the enrollment-centric split: a course-scoped session
+     * (content / task / course) is owned via `enrollments.user_id`; a
+     * course-agnostic foundation session is owned via the session's own `user_id`.
+     * A LEFT JOIN keeps foundation rows (null enrollment) matchable.
      *
      * @param userId - The asking learner.
      * @param sessionId - The session to check.
-     * @returns `{ enrollmentId }` when owned, else `null`.
+     * @returns `{ enrollmentId, userId }` (either may be null) when owned, else `null`.
      */
     private async resolveOwnedSession(
         userId: string,
         sessionId: string,
-    ): Promise<{ enrollmentId: string } | null> {
-        const rows = await this.entityManager.query<Array<{ enrollmentId: string }>>(
-            `SELECT s.enrollment_id AS "enrollmentId"
+    ): Promise<{ enrollmentId: string | null, userId: string | null } | null> {
+        const rows = await this.entityManager.query<Array<{
+            enrollmentId: string | null
+            userId: string | null
+        }>>(
+            `SELECT s.enrollment_id AS "enrollmentId", s.user_id AS "userId"
                FROM content_ai_sessions s
-               JOIN enrollments e ON e.id = s.enrollment_id
-              WHERE s.id = $1 AND e.user_id = $2
+               LEFT JOIN enrollments e ON e.id = s.enrollment_id
+              WHERE s.id = $1 AND (e.user_id = $2 OR s.user_id = $2)
               LIMIT 1`,
             [
                 sessionId,

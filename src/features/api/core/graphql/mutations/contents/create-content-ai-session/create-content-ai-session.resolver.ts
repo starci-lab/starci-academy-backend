@@ -26,6 +26,9 @@ import {
 import {
     ContentAiService,
 } from "@modules/bussiness"
+import type {
+    ContentAiScope,
+} from "@modules/bussiness"
 import {
     CreateContentAiSessionRequest,
     CreateContentAiSessionResponse,
@@ -66,9 +69,11 @@ export class CreateContentAiSessionResolver {
     ): Promise<CreateContentAiSessionData> {
         const id = await this.contentAiService.createSession({
             userId: user.id,
+            scope: request.scope as ContentAiScope | undefined,
             contentId: request.contentId,
             taskId: request.taskId,
             foundationId: request.foundationId,
+            courseId: request.courseId,
         })
         return {
             id,

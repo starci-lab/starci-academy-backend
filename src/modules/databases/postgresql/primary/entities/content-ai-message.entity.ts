@@ -16,18 +16,22 @@ import {
     ContentEntity,
 } from "./content.entity"
 import {
+    UserEntity,
+} from "./user.entity"
+import {
     ContentAiSessionEntity,
 } from "./content-ai-session.entity"
 
 /**
  * One persisted content-AI chat turn, belonging to a
- * {@link ContentAiSessionEntity} (a named conversation). Each turn also records
- * the **content it was grounded on** (`content`) — so one conversation can span
- * lessons. Rows are loaded oldest-first to rebuild the thread on reopen.
+ * {@link ContentAiSessionEntity} (a named conversation). A content-scope turn also
+ * records the **content it was grounded on** (`content`) — so one conversation can
+ * span lessons. Rows are loaded oldest-first to rebuild the thread on reopen.
  *
- * Course-scoped data keys off the **enrollment** (the enrollment-centric model),
- * not the raw user. No AI-usage / credit ledger is written for these — content-AI
- * runs on the free local tier.
+ * Anchoring mirrors the session: a course-scoped turn (content / task / course)
+ * keys off the **enrollment**; a course-agnostic (foundation) turn keys off the
+ * raw **user** — so `enrollment` and `content` are both nullable. No AI-usage /
+ * credit ledger is written for these — content-AI runs on the free local tier.
  */
 @Index(["session"])
 @Index(["enrollment", "content"])
@@ -61,53 +65,90 @@ export class ContentAiMessageEntity extends UuidAbstractEntity {
     )
         sessionId: string | null
 
-    /** Enrollment (learner ↔ course) the conversation belongs to. */
+    /**
+     * Enrollment (learner ↔ course) the conversation belongs to. NULL for a
+     * course-agnostic foundation turn (which keys off {@link user} instead).
+     */
     @ManyToOne(
         () => EnrollmentEntity,
         {
             onDelete: "CASCADE",
-            nullable: false,
+            nullable: true,
         },
     )
     @JoinColumn({
         name: "enrollment_id",
         foreignKeyConstraintName: "fk_enrollment_id_content_ai_messages_enrollments",
     })
-        enrollment: EnrollmentEntity
+        enrollment: EnrollmentEntity | null
 
-    /** Owning enrollment id. */
+    /** Owning enrollment id (null for a foundation turn). */
     @Column({
         name: "enrollment_id",
         type: "uuid",
+        nullable: true,
     })
     @RelationId(
         (message: ContentAiMessageEntity) => message.enrollment,
     )
-        enrollmentId: string
+        enrollmentId: string | null
 
-    /** Content (lesson) the conversation is about. */
+    /**
+     * Owner of a course-agnostic (foundation) turn, which has no enrollment. NULL
+     * for a course-scoped turn (content / task / course), whose owner resolves
+     * through {@link enrollment}.
+     */
+    @ManyToOne(
+        () => UserEntity,
+        {
+            onDelete: "CASCADE",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "user_id",
+        foreignKeyConstraintName: "fk_user_id_content_ai_messages_users",
+    })
+        user: UserEntity | null
+
+    /** Owning user id (set only for a foundation turn). */
+    @Column({
+        name: "user_id",
+        type: "uuid",
+        nullable: true,
+    })
+    @RelationId(
+        (message: ContentAiMessageEntity) => message.user,
+    )
+        userId: string | null
+
+    /**
+     * Content (lesson) the turn was grounded on (content scope). NULL for a
+     * task/foundation/course turn.
+     */
     @ManyToOne(
         () => ContentEntity,
         {
             onDelete: "CASCADE",
-            nullable: false,
+            nullable: true,
         },
     )
     @JoinColumn({
         name: "content_id",
         foreignKeyConstraintName: "fk_content_id_content_ai_messages_contents",
     })
-        content: ContentEntity
+        content: ContentEntity | null
 
-    /** Owning content id. */
+    /** Owning content id (null unless the turn is content-scoped). */
     @Column({
         name: "content_id",
         type: "uuid",
+        nullable: true,
     })
     @RelationId(
         (message: ContentAiMessageEntity) => message.content,
     )
-        contentId: string
+        contentId: string | null
 
     /** Author of the turn: `"user"` or `"assistant"`. */
     @Column({

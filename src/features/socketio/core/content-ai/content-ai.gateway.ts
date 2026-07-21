@@ -216,13 +216,14 @@ export class ContentAiGateway {
                 attempts,
             })
 
-            // persist the completed (question → answer) turn under the learner's
-            // enrollment — best-effort: a save failure must NOT turn a successful
-            // answer into an error for the user. Only LESSON turns are persisted:
-            // `content_ai_messages.content_id` is a non-null FK to `contents`, so a
-            // task/foundation turn has no valid content anchor under the current
-            // schema (born-archived task/foundation sessions are a separate slice).
-            if (contentId) {
+            // persist the completed (question → answer) turn under its session —
+            // best-effort: a save failure must NOT turn a successful answer into an
+            // error for the user. Any scope persists now (content / task / foundation
+            // / course); `saveTurn` inherits the session's owner anchor and no-ops
+            // when the session is not owned, so a stray/absent sessionId is safe.
+            // `contentId` is passed through for the content-scope cross-lesson span
+            // and is null on a task/foundation/course turn.
+            if (sessionId) {
                 try {
                     await this.contentAiService.saveTurn({
                         userId,
