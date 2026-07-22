@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarCi FE — Lane sửa render block</title>
+<style>
+  :root{
+    --bg:#0e0e10; --surface:#17171a; --surface2:#1e1e22; --line:#2c2c31;
+    --fg:#ececed; --muted:#9a9aa2; --faint:#6b6b73;
+    --accent:#e0609a; --accent-bg:#2a1620; --accent-fg:#f4b8d2;
+    --warn:#e0a83a; --warn-bg:#2a2110; --warn-fg:#f5d089;
+    --ok:#57c08a; --bad:#e06d6d;
+    --code:#c9c9d4;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f3f0; --surface:#fff; --surface2:#faf9f7; --line:#e4e2dc;
+      --fg:#1d1d1f; --muted:#6a6a72; --faint:#9a9aa2; --accent:#c2437c; --accent-bg:#fbe9f1; --accent-fg:#8f2d57;
+      --warn:#b8791a; --warn-bg:#faf1dd; --warn-fg:#7a4e0c; --ok:#2f8b5e; --bad:#c23b3b; --code:#3a3a42; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 120px}
+  header.top{padding:44px 0 22px;border-bottom:1px solid var(--line);margin-bottom:8px}
+  .kick{color:var(--accent);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px}
+  h1{font-size:30px;margin:.25em 0 .1em;letter-spacing:-.01em}
+  .sub{color:var(--muted);max-width:70ch}
+  nav.toc{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);display:flex;flex-wrap:wrap;gap:6px;padding:12px 0;border-bottom:1px solid var(--line);z-index:5;margin-bottom:30px}
+  nav.toc a{font-size:12.5px;color:var(--muted);text-decoration:none;padding:4px 10px;border:1px solid var(--line);border-radius:999px}
+  nav.toc a:hover{color:var(--fg);border-color:var(--accent)}
+  section{margin:44px 0;scroll-margin-top:70px}
+  h2{font-size:21px;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+  h2 .n{font-size:12px;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:1px 8px;font-weight:700}
+  h3{font-size:15.5px;margin:26px 0 8px;color:var(--fg)}
+  p{margin:.5em 0}
+  .lead{color:var(--muted);margin-top:2px}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;background:var(--surface2);border:1px solid var(--line);padding:1px 5px;border-radius:5px;color:var(--code)}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .card h4{margin:0 0 6px;font-size:14px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;padding:2px 9px;border-radius:999px;text-transform:uppercase}
+  .t-block{background:var(--accent-bg);color:var(--accent-fg)}
+  .t-prim{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px}
+  .flow .step{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .flow .step b{display:block;font-size:13px}
+  .flow .step small{color:var(--muted);font-size:12px}
+  .arrow{align-self:center;color:var(--faint);font-size:20px}
+  .list{margin:0;padding:0;list-style:none}
+  .list li{padding:8px 0;border-top:1px solid var(--line);display:flex;gap:10px}
+  .list li:first-child{border-top:0}
+  .list .s{color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 34px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:620px){.ba{grid-template-columns:1fr}}
+  .ba .col{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface)}
+  .ba .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+  .ba .lbl.no{color:var(--bad)} .ba .lbl.yes{color:var(--ok)}
+  /* mini card mockup */
+  .cc{background:var(--surface2);border:2px solid var(--accent);border-radius:14px;padding:12px;position:relative;overflow:hidden}
+  .cc .title{font-weight:600;font-size:14px;margin:0 0 8px}
+  .cc .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--faint);margin-bottom:10px}
+  .cc .bar{height:4px;border-radius:4px;background:var(--line);margin-bottom:10px;overflow:hidden}
+  .cc .bar>span{display:block;height:100%;background:var(--accent)}
+  .cc .cta{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;background:var(--accent);color:#fff;padding:6px 13px;border-radius:11px}
+  .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:8px}
+  .chip.neu{background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+  .chip.warn{background:var(--warn-bg);color:var(--warn-fg)}
+  .cap{font-size:12px;color:var(--muted);margin-top:9px}
+  /* tree */
+  .tree{font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.9;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow:auto}
+  .tree .v{color:var(--accent);font-weight:700}
+  .tree .sc{color:var(--warn)}
+  .tree .st{color:var(--fg)}
+  .tree .cm{color:var(--faint)}
+  /* spacing scale */
+  .sp{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .sp .u{text-align:center}
+  .sp .box{background:var(--accent);border-radius:4px;width:34px}
+  .sp .u b{display:block;font-size:12px;margin-top:6px}
+  .sp .u small{display:block;color:var(--muted);font-size:11px;max-width:80px}
+  .pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:6px;background:var(--surface2);border:1px solid var(--line);color:var(--muted)}
+  .note{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 15px;margin:14px 0}
+  .kbd{font-family:ui-monospace,monospace;font-size:11.5px;background:var(--surface2);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  footer{border-top:1px solid var(--line);margin-top:60px;padding-top:18px;color:var(--faint);font-size:12.5px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="kick">StarCi · Frontend · Storybook-driven</div>
+  <h1>Lane sửa render 1 block — <span style="color:var(--accent)">plan → apply</span></h1>
+  <p class="sub">Toàn bộ luật &amp; quy trình 2 skill <code>starci-fe-story-fix-block-plan</code> / <code>-apply</code>, kèm ví dụ thật từ <b>ContinueCard</b> (template chuẩn). Thước SSOT: <code>.claude/fe/principles.md</code> + spacing (source-first).</p>
+</header>
+
+<nav class="toc">
+  <a href="#lane">1 · Lane</a>
+  <a href="#bp">2 · Block vs Primitive</a>
+  <a href="#tax">3 · Taxonomy</a>
+  <a href="#p1">4 · §1 Surface</a>
+  <a href="#p2">5 · §2 · §2d Màu</a>
+  <a href="#p4">6 · §4 Ownership</a>
+  <a href="#sp">7 · Spacing</a>
+  <a href="#ana">8 · Anatomy · Group</a>
+  <a href="#miss">9 · Thiếu → 3–5 widget</a>
+  <a href="#steps">10 · Steps</a>
+</nav>
+
+<!-- 1 LANE -->
+<section id="lane">
+  <h2><span class="n">1</span> Lane 2 pha</h2>
+  <p class="lead">Human-in-loop: brainstorm bằng <b>Opus</b>, code bằng <b>Sonnet 5</b>, thầy duyệt 2 chốt.</p>
+  <div class="flow" style="margin-top:14px">
+    <div class="step"><b>PLAN <span class="pill">Opus high</span></b><small>audit → liệt kê thiếu → 3–5 widget/cái</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>Thầy CHỌN</b><small>primitive nào · fix nào</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>APPLY <span class="pill">Sonnet 5</span></b><small>dựng primitive → sửa block → render states</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>Thầy SOI</b><small>tsc/eslint xanh · refresh :6006</small></div>
+  </div>
+  <div class="note"><b>🛡️ Chống hallucination</b> (luôn): đọc/grep file THẬT (không đoán) · màu &amp; phân-lớp phải NHÌN render hoặc ĐO DOM (cấm đọc class) · không bịa state/anatomy/option · chỉ làm cái thầy đã chốt · gate cứng tsc+eslint.</div>
+</section>
+
+<!-- 2 BLOCK VS PRIMITIVE -->
+<section id="bp">
+  <h2><span class="n">2</span> Block vs Primitive</h2>
+  <p class="lead"><b>1 block = tập hợp primitives/blocks.</b> Thiếu element → plan phải LIỆT KÊ + đề xuất, không hand-roll ngầm.</p>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card">
+      <span class="tag t-block">block = chức năng</span>
+      <p style="margin-top:10px">Phục vụ 1 feature, có tên nghiệp vụ.</p>
+      <p><code>ContinueCard</code> · <code>CourseCard</code> · <code>DeadlineCallout</code></p>
+    </div>
+    <div class="card">
+      <span class="tag t-prim">primitive = gốc rễ</span>
+      <p style="margin-top:10px">Generic, không mang feature, tái dùng khắp nơi.</p>
+      <p><code>StatusChip</code> · <code>MetaRow</code> · <code>Button</code> · <code>ButtonGroup</code> · <code>Typography</code></p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 TAXONOMY -->
+<section id="tax">
+  <h2><span class="n">3</span> Taxonomy <span style="color:var(--accent)">variant / scenario / state</span></h2>
+  <div class="grid g3" style="margin:12px 0">
+    <div class="card"><h4 style="color:var(--accent)">variant</h4><p class="lead">Hình thái do <b>PROP</b> lái.</p><code>variant="item"|"hero"</code></div>
+    <div class="card"><h4 style="color:var(--warn)">scenario = SHAPE</h4><p class="lead">Khác ở <b>COMPOSITION</b> — part NÀO render → anatomy khác. Tách theo SHAPE, <b>không theo tone</b>.</p><code>Progress</code> (có bar) vs <code>No-progress</code></div>
+    <div class="card"><h4>state</h4><p class="lead">Cùng shape, khác <b>data / tone / lifecycle</b>.</p><code>không gấp · gấp · loading · error</code></div>
+  </div>
+  <p>Nest thêm tầng <code>&lt;scenario&gt;</code> <b>chỉ khi ≥2 shape</b>; 1 shape → state phẳng thẳng dưới variant (vd <code>Item</code>). Title: <code>Block/&lt;cat&gt;/&lt;Component&gt;/&lt;Variant&gt;/&lt;Scenario&gt;</code>, 1 file = 1 scenario.</p>
+  <h3>Ví dụ thật — ContinueCard</h3>
+  <div class="tree">
+ContinueCard
+├─ <span class="v">Hero</span>            <span class="cm">← variant (prop)</span>
+│  ├─ <span class="sc">No-progress</span>   <span class="cm">← scenario · SHAPE không thanh</span>
+│  │  ├─ <span class="st">Chưa có tiến độ</span>   <span class="cm">state · loaded</span>
+│  │  ├─ <span class="st">Đang tải</span>          <span class="cm">state · skeleton KHÔNG thanh</span>
+│  │  └─ <span class="st">Lỗi tải</span>           <span class="cm">state · error</span>
+│  └─ <span class="sc">Progress</span>      <span class="cm">← scenario · SHAPE có thanh</span>
+│     ├─ <span class="st">Không gấp</span>         <span class="cm">state · chip time NEUTRAL</span>
+│     ├─ <span class="st">Gấp</span>               <span class="cm">state · chip time WARNING (urgent)</span>
+│     ├─ <span class="st">Đang tải</span>          <span class="cm">state · skeleton CÓ thanh</span>
+│     └─ <span class="st">Lỗi tải</span>
+└─ <span class="v">Item</span>            <span class="cm">← variant (1 shape → phẳng)</span>
+   ├─ <span class="st">Mục</span> · <span class="st">Đang tải</span> · <span class="st">Lỗi tải</span>
+  </div>
+  <p class="cap">⭐ <b>urgent nằm TRONG shape Progress</b> (là state, khác tone), KHÔNG phải scenario riêng — vì urgent vẫn có thanh, cùng bộ part.</p>
+</section>
+
+<!-- 4 §1 -->
+<section id="p1">
+  <h2><span class="n">4</span> §1 — Surface-in-surface</h2>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h4>Tách lớp</h4><p class="lead">Card ngoài = <b>shadow</b>; surface LỒNG = <b>border</b> (dark mode shadow chết). Không double-fill.</p></div>
+    <div class="card"><h4>Radius</h4><p class="lead">surface-card nested giữ <code>3xl</code>; chỉ media/field bước xuống <code>2xl</code>/<code>xl</code>.</p></div>
+  </div>
+</section>
+
+<!-- 5 §2 §2d -->
+<section id="p2">
+  <h2><span class="n">5</span> §2 Color-prominence · §2d Đồng bộ element</h2>
+  <p class="lead">Đúng <b>1 thứ nổi</b>/vùng; meta chìm. Thang: <span class="pill">muted</span> → <span class="pill">accent</span> → <span class="pill">chip</span> → <span class="pill">button</span>. Đếm điểm nổi &gt;2 = cờ.</p>
+  <h3>§2d — cùng info-type → cùng element; nhấn bằng TONE (không đổi element)</h3>
+  <div class="ba">
+    <div class="col">
+      <div class="lbl no">✗ Sai — 2 element cho cùng info</div>
+      <div class="cc">
+        <p class="title">Mock interview: Design a rate limiter</p>
+        <div class="meta" style="color:var(--warn-fg)">Question 2/8 · Middle · 40 minutes left</div>
+        <div class="bar"><span style="width:28%"></span></div>
+        <span class="cta">Continue →</span>
+      </div>
+      <p class="cap">"40 minutes" là <b>text</b>… nhưng "2 minutes" chỗ khác lại là <b>chip</b>. Cùng loại (time) mà 2 element → sai. Warning còn sơn cả dòng meta trung tính.</p>
+    </div>
+    <div class="col">
+      <div class="lbl yes">✓ Đúng — 1 element, đổi TONE</div>
+      <div class="cc">
+        <p class="title">Mock interview: Design a rate limiter</p>
+        <div class="meta"><span class="chip neu">🕒 40 minutes left</span> Question 2/8 · Middle</div>
+        <div class="bar"><span style="width:28%"></span></div>
+        <span class="cta">Continue →</span>
+      </div>
+      <div class="cc" style="margin-top:10px">
+        <p class="title">Mock interview: Design a rate limiter</p>
+        <div class="meta"><span class="chip warn">🕒 2 minutes left</span> Question 7/8 · Middle</div>
+        <div class="bar"><span style="width:88%"></span></div>
+        <span class="cta">Continue →</span>
+      </div>
+      <p class="cap"><code>timeLeft</code> = StatusChip mọi scenario. <code>urgent</code> chỉ leo tone <b>neutral → warning</b>. Meta luôn muted.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 §4 -->
+<section id="p4">
+  <h2><span class="n">6</span> §4 — Primitive sở hữu sizing nội bộ</h2>
+  <p class="lead">Consumer truyền children/icon <b>TRẦN</b>; primitive tự lo size/màu. Muốn khác → sửa primitive, không vá call-site.</p>
+  <div class="ba" style="margin-top:12px">
+    <div class="col"><div class="lbl no">✗ Consumer vá size</div><pre style="margin:0;color:var(--code);font-size:12.5px;white-space:pre-wrap">&lt;StatusChip icon={
+  &lt;ClockIcon <span class="bad">className="size-5"</span> /&gt;
+}&gt;…</pre></div>
+    <div class="col"><div class="lbl yes">✓ Icon trần — primitive ép</div><pre style="margin:0;color:var(--code);font-size:12.5px;white-space:pre-wrap">&lt;StatusChip icon={<span class="ok">&lt;ClockIcon/&gt;</span>}&gt;…
+<span class="cm">// StatusChip: [&_svg]:size-4 (chốt 1 nơi)</span></pre></div>
+  </div>
+</section>
+
+<!-- 7 SPACING -->
+<section id="sp">
+  <h2><span class="n">7</span> Spacing — thang <code>0 · 2 · 3 · 6 · 8</code></h2>
+  <p class="lead"><b>SOURCE là chuẩn</b> (SectionCard globals <code>p-3</code>); legacy <code>gap.md</code> chỉ tham khảo (có thể stale — nó ghi <code>px-4 py-3</code> là sai).</p>
+  <div class="card" style="margin-top:12px">
+    <div class="sp">
+      <div class="u"><div class="box" style="height:2px"></div><b>0</b><small>dính / no-gap</small></div>
+      <div class="u"><div class="box" style="height:12px"></div><b>2</b><small>cụm con</small></div>
+      <div class="u"><div class="box" style="height:20px"></div><b>3</b><small>trong khối</small></div>
+      <div class="u"><div class="box" style="height:38px"></div><b>6</b><small>giữa khối</small></div>
+      <div class="u"><div class="box" style="height:52px"></div><b>8</b><small>vùng rộng</small></div>
+    </div>
+    <p style="margin-top:16px">Ngoại lệ có tên: header→content <code>10</code> · landing <code>16</code> · divider-trong-card <code>3</code> hai bên. Card padding <code>p-3</code>. <span class="bad">CẤM</span> ngoài thang <code>1 / 1.5 / 4 / 5 / 7 / 9</code>.</p>
+  </div>
+  <div class="two" style="margin-top:14px">
+    <div>
+      <h3>Ví dụ — khối giá = <span class="ok">no-gap (0)</span></h3>
+      <div class="card">
+        <div style="display:flex;gap:8px;align-items:baseline"><b style="font-size:17px">1.341.000đ</b> <s style="color:var(--faint)">2.990.000đ</s> <span class="chip" style="background:var(--accent-bg);color:var(--accent-fg)">−55%</span></div>
+        <div style="color:var(--muted);font-size:13px">Tiết kiệm 1.649.000đ</div>
+        <div style="color:var(--faint);font-size:12px">≈ $58.99 khi thanh toán quốc tế</div>
+      </div>
+      <p class="cap">3 dòng giá xếp SÁT (gap-0) — 1 cụm thông tin.</p>
+    </div>
+    <div>
+      <h3>Quan hệ → nấc</h3>
+      <ul class="list">
+        <li><span class="s">0</span><span>số ↔ đơn vị · icon ↔ label · dòng giá</span></li>
+        <li><span class="s">2</span><span>title ↔ desc · chip ↔ chip · label ↔ input</span></li>
+        <li><span class="s">3</span><span>hàng trong card · khối-con cùng cấp · card padding</span></li>
+        <li><span class="s">6</span><span>giữa 2 vùng khác chức năng (khối BỰ)</span></li>
+        <li><span class="s">8</span><span>phân tách vùng rộng</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ANATOMY -->
+<section id="ana">
+  <h2><span class="n">8</span> Anatomy đúng-leaf · Button group</h2>
+  <p class="lead">Anatomy MỖI leaf chỉ kể part <b>chính leaf đó render</b> — loaded KHÔNG kể Skeleton/Error. Leaf khác composition → anatomy riêng.</p>
+  <div class="ba" style="margin-top:12px">
+    <div class="col">
+      <div class="lbl no">✗ Union + kể ké</div>
+      <ul class="list" style="font-size:13px">
+        <li><span>SectionCard · MetaRow · StatusChip · ProgressMeter</span></li>
+        <li><span class="bad">Skeleton <span class="pill">chỉ state: Đang tải</span></span></li>
+        <li><span class="bad">ErrorState <span class="pill">chỉ state: Lỗi</span></span></li>
+        <li><span class="bad">Button ×2</span></li>
+      </ul>
+    </div>
+    <div class="col">
+      <div class="lbl yes">✓ Đúng leaf + group</div>
+      <ul class="list" style="font-size:13px">
+        <li><span>SectionCard <span class="pill">primitive</span></span></li>
+        <li><span>MetaRow · StatusChip · ProgressMeter</span></li>
+        <li><span class="ok">ButtonGroup · nút chính + nút phụ</span></li>
+      </ul>
+      <p class="cap">Cụm ≥2 element đồng vai = 1 <b>GROUP</b> (sở hữu gap con), không <code>Button ×2</code>.</p>
+    </div>
+  </div>
+  <div class="cc" style="margin-top:12px;max-width:360px">
+    <span style="display:inline-flex;gap:8px">
+      <span class="cta">Tiếp tục học →</span>
+      <span class="cta" style="background:transparent;color:var(--fg);border:1px solid var(--line)">Xem khóa học</span>
+    </span>
+    <p class="cap" style="margin-top:8px">= 1 <code>ButtonGroup</code> (nút chính hồng + nút phụ viền), gap-2 do group sở hữu.</p>
+  </div>
+</section>
+
+<!-- 9 MISSING -->
+<section id="miss">
+  <h2><span class="n">9</span> Thiếu element → 3–5 widget cho thầy chọn</h2>
+  <p class="lead">Áp cho <b>cả</b> primitive/block thiếu <b>lẫn</b> cách-fix. Không tự chốt 1 hình rồi hỏi yes/no.</p>
+  <div class="flow" style="margin-top:12px">
+    <div class="step"><b>Grep kho</b><small>có sẵn gần → reuse</small></div><div class="arrow">→</div>
+    <div class="step"><b>Thiếu thật?</b><small>vd ButtonGroup chưa có</small></div><div class="arrow">→</div>
+    <div class="step"><b>3–5 hướng khác THẬT</b><small>loại/vị trí/độ-trừu-tượng — không đổi màu</small></div><div class="arrow">→</div>
+    <div class="step"><b>Thầy chọn</b><small>gốc rễ trước, fix sau</small></div>
+  </div>
+  <p class="cap" style="margin-top:10px">Neo thật: <code>MetaRow</code> render P1–P5 → chốt P1 · fix render A/B/C → chốt A. Mỗi hướng nêu được TÊN trục khác biệt.</p>
+</section>
+
+<!-- 10 STEPS -->
+<section id="steps">
+  <h2><span class="n">10</span> Steps 2 skill</h2>
+  <div class="two">
+    <div>
+      <h3><code>-plan</code> · Opus high · read-only</h3>
+      <ul class="list">
+        <li><span class="s">S1</span><span><b>Ground</b> — principle + component/story + spacing (source-first)</span></li>
+        <li><span class="s">S2</span><span><b>Audit</b> — NHÌN/ĐO 7 chiều (màu·surface·text·§4·spacing·anatomy·matrix)</span></li>
+        <li><span class="s">S3</span><span><b>Liệt kê thiếu</b> — grep kho → primitives/blocks</span></li>
+        <li><span class="s">S4</span><span><b>3–5 widget/cái</b> → thầy chọn (gốc rễ trước)</span></li>
+        <li><span class="s">S5</span><span><b>Xuất plan</b> + STOP</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3><code>-apply</code> · Sonnet 5</h3>
+      <ul class="list">
+        <li><span class="s">S0</span><span><b>Gate</b> — có plan duyệt + phương án chốt, không thì route <code>-plan</code></span></li>
+        <li><span class="s">S1</span><span><b>Dựng primitive thiếu</b> — gốc rễ TRƯỚC, reuse</span></li>
+        <li><span class="s">S2</span><span><b>Apply fix</b> — compose · §4 · §2d · spacing</span></li>
+        <li><span class="s">S3</span><span><b>Render states</b> — cây variant/scenario/state · anatomy-đúng-leaf · base+delta</span></li>
+        <li><span class="s">S4</span><span><b>Verify</b> — tsc/eslint XANH → báo thầy soi</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="note" style="margin-top:18px">Mỗi skill = <code>SKILL.md</code> (index: chống-hallucination · luật nền · bảng step) + mỗi step 1 file <code>sN-*.md</code> (chi tiết, đọc khi tới). SSOT nội dung: <code>.claude/fe/principles.md</code>.</div>
+</section>
+
+<footer>
+  StarCi FE knowledge · lane <code>starci-fe-story-fix-block-{plan,apply}</code> · template neo <b>ContinueCard</b> · 2026-07-22. Thước: principles.md §1 surface · §2/§2d color · §4 ownership · spacing 0·2·3·6·8.
+</footer>
+</div>
+</body>
+</html>

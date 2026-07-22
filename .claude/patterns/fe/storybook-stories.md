@@ -219,11 +219,72 @@ render: () => {
 }
 ```
 
-## 10. Verify = `tsc` + `eslint`, KHÔNG browser
+## 10. Block presentational + `AsyncContent` — taxonomy `variant / scenario / state`
+
+Block story dựng theo cây **`variant / scenario / state`** (chi tiết ở skill `starci-fe-story-fix-block-apply`). Ánh xạ 3 tầng vào CODE — **KHÔNG bắt block phình 3 props**:
+
+- **variant** = **prop** hình thái (`variant="item" | "hero"`).
+- **scenario = SHAPE** = **prop discriminator** quyết COMPOSITION (part nào render). Dùng **discriminated union** để data ↔ shape KHÔNG lệch:
+  ```tsx
+  type Props = { variant: Variant; title: ReactNode; meta?: ReactNode[]; timeLeft?: ReactNode; urgent?: boolean; ctaLabel?: ReactNode } & (
+      | { scenario: "progress"; value: number; max?: number }   // progress ⇒ BẮT BUỘC value
+      | { scenario: "no-progress" }                              // no-progress ⇒ CẤM value
+  )
+  // component: {scenario === "progress" && <ProgressMeter value={value} max={max} />}
+  ```
+- **state (loading / error / empty)** = **KHÔNG phải prop của block** — block chỉ render **LOADED**. State do wrapper **`AsyncContent`** lo (switch ưu tiên `error → loading → empty → content`). API thật (`blocks/async/AsyncContent`):
+  - `isLoading` + `skeleton` = cây `Skeleton.*` MIRROR đúng shape (per-scenario — vd No-progress skeleton KHÔNG có thanh).
+  - `error` + `errorContent={{ title, onRetry, retryLabel }}` (props, không phải node).
+  - `isEmpty` + `emptyContent={{…}}` — CHỈ khi consumer có nhánh empty.
+  - `children` = block loaded.
+
+**Story render "các loại ra":**
+```tsx
+// loaded leaves — render block TRỰC TIẾP (variant × scenario × tone)
+export const NotUrgent: Story = { name: "Không gấp",
+    render: () => <ContinueCard variant="hero" scenario="progress" value={2} max={8} /> }
+export const Urgent: Story = { name: "Gấp",
+    render: () => <ContinueCard variant="hero" scenario="progress" value={7} max={8} timeLeft="2 minutes left" urgent /> }
+export const NotStarted: Story = { name: "Chưa có tiến độ",
+    render: () => <ContinueCard variant="hero" scenario="no-progress" /> }
+
+// state leaves — QUA AsyncContent THẬT (đừng hand-roll <SectionCard><Skeleton/>)
+export const Loading: Story = { name: "Đang tải",
+    render: () => (
+        <AsyncContent isLoading skeleton={<HeroProgressSkeleton />}>
+            <ContinueCard variant="hero" scenario="progress" value={2} max={8} />
+        </AsyncContent>
+    ) }
+export const LoadError: Story = { name: "Lỗi tải (mạng rớt)",
+    render: () => (
+        <AsyncContent isLoading={false} error={new Error("network")}
+            errorContent={{ title: "Mất kết nối", retryLabel: "Thử lại", onRetry: () => {} }}>
+            <ContinueCard variant="hero" scenario="progress" value={2} max={8} />
+        </AsyncContent>
+    ) }
+```
+
+- **Skeleton MIRROR shape (§7) → 1 skeleton per SCENARIO** (Progress có thanh · No-progress không), KHÔNG nhân theo tone.
+- **Anatomy leaf (U1):** loaded leaf kể part của BLOCK; state leaf render qua `AsyncContent` → composition RIÊNG (AsyncContent · Skeleton · ErrorContent), không kể part block ở đó.
+- ⚠️ `ContinueCard` (template) đang được nắn về chuẩn này (`scenario` prop tường minh + loading/error qua `AsyncContent`, thay cho `value===undefined` ngầm + `<SectionCard><Skeleton/>` hand-roll).
+
+## 11. Verify = `tsc` + `eslint`, KHÔNG browser
 
 Story là code khai báo. Sau khi sửa/thêm story: chạy `tsc --noEmit` + `eslint --max-warnings=0` cho file đụng vào. KHÔNG drive Storybook qua browser để "verify" — chậm và không phải việc của lane này; thầy tự soi UI trên Storybook đang mở (HMR tự áp). Story phải sạch: no unused import, no `any`, 4-space, double-quote, no-semi.
 
+## 12. Test — smoke (`test-runner`) + Chromatic + axe; `play` CHỈ cho tương tác
+
+⛔ **KHÔNG viết test cross-product (nCn) cho primitive presentational** — over-engineer (boilerplate lớn × nhiều primitive, chỉ assert lại Tailwind class mà Chromatic đã bắt). Regression của primitive tĩnh là VISUAL → Chromatic lo. Bộ ĐỦ:
+
+- **`test-runner` smoke** (`@storybook/test-runner`, Playwright): tự động chạy MỌI story → fail nếu crash/không render. Enforce coverage **KHÔNG cần viết `play`**. Cần Storybook chạy + `npx playwright install chromium` (1 lần); `npm run test-storybook`.
+- **Chromatic**: visual regression snapshot mỗi story → bắt "sửa prop-mapping → nhìn khác" (size/màu/layout).
+- **axe** (`@storybook/addon-a11y`): a11y fail-on-error.
+- **`play` (`storybook/test`)**: CHỈ viết khi có HÀNH VI tương tác thật cần assert — click→onPress, mở/đóng overlay, validate form (neo `PriceTag` play mở dialog). KHÔNG dùng assert size/count của primitive tĩnh.
+
+→ Story = trình bày state (Variants/Sizes/Loading…) + thầy soi mắt · regression = Chromatic + smoke · behavior = `play` khi CẦN. Đừng đẻ story `⚙ Test` cross-product.
+
 ## Liên quan
 - [[imports-and-format]] — 4-space · double-quote · no-semi · thứ tự import (áp cho cả story).
-- [[loading-and-skeleton]] · [[async-data]] — mirror-shape skeleton + wrapper async (nguồn của §7).
+- [[loading-and-skeleton]] · [[async-data]] — mirror-shape skeleton + wrapper async (nguồn của §7 · §10).
 - [[props-and-types]] · [[type-safety]] — `WithClassNames`, no-any (component mà story demo).
+- Skill `starci-fe-story-fix-block-apply` (S3 render-states) — cây `variant/scenario/state` mà §10 code theo; block `AsyncContent` (`src/components/blocks/async/AsyncContent`) — switch state thật.
