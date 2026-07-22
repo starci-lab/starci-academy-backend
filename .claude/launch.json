@@ -87,6 +87,13 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "D:/Repositories/starci-agency/frontend", "run", "dev"],
       "port": 5005
+    },
+    {
+      "name": "content-ai-proto",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8899", "--directory", "D:/Repositories/starci-academy/.artifacts/prototypes/content-ai-chat"],
+      "port": 8899,
+      "autoPort": false
     }
   ]
 }

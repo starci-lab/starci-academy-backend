@@ -11,6 +11,7 @@
 - **Vùng fetch dữ liệu = `error → loading → empty → content`**, đủ cả 4 nhánh. Section có NHÃN trên trang user chủ động mở → rỗng PHẢI render empty-state có nghĩa (icon+title+hint), KHÔNG `return null` tự ẩn.
 - **CTA chỉ hiện khi CÓ TÁC DỤNG** — "Tiếp tục/Resume" ẩn khi đã đang ở đúng vị trí đó (nút no-op không được render).
 - **Đừng giả-loading:** không dùng timer/hold nhân tạo để "cho thấy đang tải" — skeleton chỉ hiện đúng thời gian load thật.
+- **Hành động của user KHÔNG được thất bại IM LẶNG** — một handler `.catch(() => undefined)` rồi `if (!x) return` là bẫy: người dùng bấm mà không thấy gì, tưởng nút hỏng. Nhánh lỗi PHẢI để lại dấu vết nhìn thấy (bong bóng ⚠️, toast, hoặc inline error). *Ca 2026-07-21 (`ContentAiChat/index.tsx` `onSend`):* bấm "Giải thích đoạn này" / gõ chat khi BE cũ reject field `archived` → `createContentAiSession` fail → `sessionId` null → `return` câm → cả rail "chết" không lý do. Fix: khi tạo hội thoại fail, đẩy bong bóng câu-hỏi + `⚠️ contentAi.sendFailed` thay vì return câm. (Gốc rễ ca này là BE lệch version, nhưng UI vẫn phải NÓI ra để không thành bí ẩn.)
 
 > Đã áp: [[interactive-needs-hover]] + [[hover-style-matches-clickable-nature]] (hover bắt buộc + đúng kiểu theo bản chất) · [[labeled-section-render-empty-not-self-hide]] (rỗng = empty-state, không tự ẩn) · [[resume-cta-only-when-away]] (CTA ẩn khi vô tác dụng) · [[asynccontent-remove-debug-hold]] (bỏ 3s-hold giả-loading).
 
