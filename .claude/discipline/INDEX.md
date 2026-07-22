@@ -1,8 +1,8 @@
-# INDEX — discipline patterns (kỷ luật làm việc, domain-agnostic)
+# INDEX — discipline (kỷ luật làm việc, domain-agnostic)
 
-> **Nền LUÔN-BẬT, KHÔNG phải skill.** Không ai gõ `/verify-empirically` — 4 file dưới phải NGẤM và tự áp mọi lượt, mọi domain. Đặt cùng nhà code-pattern (thầy chốt 2026-07-22: "fe be giờ chỉ còn pattern code, principle dời legacy hết" → discipline đi thẳng vào `.claude/patterns`).
+> **Nền LUÔN-BẬT, KHÔNG phải skill.** Không ai gõ `/verify-empirically` — 4 file dưới phải NGẤM và tự áp mọi lượt, mọi domain.
 >
-> Khác `patterns/{fe,be}` (cách VIẾT CODE — idiom, import, style) ở chỗ: đây là cách **LÀM VIỆC** (verify / chẩn đoán / sweep / git). Không gắn ngôn ngữ hay framework.
+> **Nhà riêng `.claude/discipline/`** (thầy chốt 2026-07-22: `.claude/patterns` = **CODE convention THÔI**; discipline là cách LÀM VIỆC, không phải code → không nằm trong patterns). Khác `patterns/{fe,be}` (cách VIẾT CODE — idiom, import, style) ở chỗ: đây là cách **LÀM VIỆC** (verify / chẩn đoán / sweep / git). Không gắn ngôn ngữ hay framework.
 >
 > **Vì sao tồn tại:** skill v1 DẶN nhưng không CHẶN/ĐO → biết luật mà vẫn phạm. Bằng chứng: memory `feedback-self-critique-before-presenting` — lỗi CourseCard "sửa <1s SAU khi thầy chỉ; thiếu tự soát, không thiếu kiến thức". Prose-không-gate = lỗi hệ thống lặp. 4 file dưới biến 4 "câu dặn" mơ hồ thành quy trình **ĐO được**.
 

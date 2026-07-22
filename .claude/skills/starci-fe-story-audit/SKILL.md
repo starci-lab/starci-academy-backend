@@ -5,7 +5,7 @@ description: >
   dựng UI** thành canon lean, rồi **chấm từng story** theo canon đó. Hai trục: **surface-in-surface** (phân
   lớp bề mặt lồng nhau — shadow→border→flat, radius bước vào) và **màu nổi/chìm** (phân cấp chú ý — đúng MỘT
   thứ nổi mỗi vùng; meta phải chìm, không lạm dụng chip/accent). Sinh ra: (1) canon MỚI ở `.claude/fe`
-  (`principles/surface-in-surface.md` + `foundations/color-prominence.md`) làm THƯỚC, (2) report chấm story ở
+  (1 file `.claude/fe/principles.md` — §1 surface-in-surface, §2 color-prominence) làm THƯỚC, (2) report chấm story ở
   `$FE_SOURCE/.artifacts/audits/`. Mục đích cuối: thầy lấy thước này **audit full UI app thật** rồi áp web.
   Chạy human-in-loop, thầy chủ động gõ. Dùng khi thầy gõ `/starci-fe-story-audit` (toàn bộ) hoặc
   `/starci-fe-story-audit <họ>` (1 họ block, vd `cards`), "audit render story", "chấm surface / màu nổi chìm",
@@ -15,7 +15,7 @@ description: >
 
 # /starci-fe-story-audit — chấm render story → codify canon nổi/chìm + surface-in-surface
 
-> **Nền luôn-bật áp cho skill này:** [`patterns/discipline/verify-empirically.md`](../../patterns/discipline/verify-empirically.md) (màu nổi/chìm + phân lớp là VISUAL → phải **NHÌN** qua browser/screenshot, không chấm bằng đọc class) · `ground-in-source` (distill từ story THẬT + `.claude/_legacy/fe/foundations/{elevation,color}.md`, **đừng chế**) · `feedback-canon-multisession-fetch-before-write` (fetch trước khi ghi `.claude/fe`).
+> **Nền luôn-bật áp cho skill này:** [`discipline/verify-empirically.md`](../../discipline/verify-empirically.md) (màu nổi/chìm + phân lớp là VISUAL → phải **NHÌN** qua browser/screenshot, không chấm bằng đọc class) · `ground-in-source` (distill từ story THẬT + `.claude/_legacy/fe/foundations/{elevation,color}.md`, **đừng chế**) · `feedback-canon-multisession-fetch-before-write` (fetch trước khi ghi `.claude/fe`).
 
 ## Skill làm gì (và KHÔNG làm gì)
 
@@ -36,9 +36,10 @@ Bề mặt lồng bề mặt phải ĐỔI TÍN HIỆU mỗi lớp, không lặp
 | Surface LỒNG trong card | `border border-default`, **KHÔNG shadow** | shadow vô hình trên nền surface → phải dùng viền |
 | Vùng phẳng trong cùng | flat / chỉ divider | hết bước để nổi |
 
-- Radius **bước vào**: inner < outer (`rounded-2xl` trong `rounded-3xl`).
-- ✅ neo THẬT: `CrossListCard bordered` trong `CourseCard` (value-props) · cover `rounded-2xl` trong card `rounded-3xl`.
-- ❌ bắt lỗi: surface lồng vẫn xài `shadow` (vô hình) · 2 lớp cùng radius (không thấy bước) · card lồng card lồng card không đổi tín hiệu.
+- Radius: **surface-card nested GIỮ `rounded-3xl`** (đừng hạ 2xl vì nested); CHỈ media/field nested mới bước xuống (`2xl`/`xl`/`full`). Luật đầy đủ ở `.claude/fe/principles.md` §1b — skill KHÔNG lặp, canon đổi thì theo.
+- ✅ neo THẬT: `CrossListCard bordered rounded-3xl` trong `CourseCard` (value-props) · cover `rounded-2xl` (media) trong card `rounded-3xl`.
+- ❌ bắt lỗi: surface lồng vẫn xài `shadow` (vô hình ở dark) · hộp vừa border vừa shadow (double-fill) · hạ surface-card nested xuống 2xl · 2 bordered kề nhau dọc.
+- **SSOT:** `.claude/fe/principles.md` §1 (skill chấm THEO checklist §"Đo được" của nó).
 
 ### Trục 2 — Màu nổi / chìm (phân cấp chú ý)
 Mỗi vùng nhìn chỉ được có **ĐÚNG MỘT thứ nổi**. Lạm dụng nổi = không còn gì nổi.
@@ -54,7 +55,7 @@ Mỗi vùng nhìn chỉ được có **ĐÚNG MỘT thứ nổi**. Lạm dụng 
 ## Quy trình (human-in-loop)
 
 1. **Scope** — `args` rỗng = toàn bộ; `args=<họ>` (vd `cards`, `feed`) = 1 họ block. Liệt kê story trong scope (`curl :6006/index.json` hoặc glob `*.stories.tsx`) — biết con số.
-2. **Distill canon** (nếu chưa có / cần refresh) — đọc `.claude/_legacy/fe/foundations/{elevation,color}.md` + `principles/visual-hierarchy.md` + neo thật trong story → viết **lean** `.claude/fe/principles/surface-in-surface.md` + `.claude/fe/foundations/color-prominence.md` theo 2 bảng trên. `git fetch` trước khi ghi. Ngắn, mỗi rule 1 ✅ + 1 ❌ neo file thật.
+2. **Distill canon** (nếu chưa có / cần refresh) — đọc `.claude/_legacy/fe/foundations/{elevation,color}.md` + `principles/visual-hierarchy.md` + neo thật trong story → cập nhật **lean** các §section trong 1 file `.claude/fe/principles.md` (§1 surface-in-surface · §2 color-prominence) theo 2 bảng trên. `git fetch` trước khi ghi. Ngắn, mỗi rule 1 ✅ + 1 ❌ neo file thật.
 3. **Chấm** — mỗi story mở qua browser (Storybook :6006), **NHÌN** render (screenshot vùng), chấm 2 trục: `PASS` / `WARN` / `FAIL` + 1 câu lý do neo class/vùng. VISUAL không chấm bằng đọc code (verify-empirically). Block-level nổi/chìm + surface layering NHÌN được ở Storybook; nhưng "mượt cả màn" (composition) là điểm mù Storybook → ghi rõ "cần verify ở app thật".
 4. **Report** — `$FE_SOURCE/.artifacts/audits/story-render-audit.md`: bảng story × 2 trục + danh sách FAIL/WARN (để thầy quyết fix). Tổng kết pattern lặp (vd "5 block lạm dụng chip meta").
 5. **Bàn giao** — báo thầy: canon đã dựng ở đâu, report ở đâu, top vi phạm. Thầy dùng canon làm **thước audit full UI app thật** (lớp composition — verify browser trên app, không Storybook) rồi áp web.
