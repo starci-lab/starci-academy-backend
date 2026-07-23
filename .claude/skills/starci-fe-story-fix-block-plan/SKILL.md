@@ -22,7 +22,7 @@ Vai: **PLAN (read-only)**. Ra *cách fix + primitive cần thêm* để `-apply`
 ## 🛡️ Chống hallucination (LUÔN — mọi step)
 - **Đọc/grep file THẬT trước khi khẳng định** — không nhớ tên prop/component, không đoán; neo `file:line`.
 - **Màu + phân lớp = VISUAL → NHÌN** render (:6006) hoặc **ĐO DOM** (computed style). CẤM chấm bằng đọc class.
-- **Không bịa:** state khớp logic consumer thật; anatomy khớp JSX thật của LEAF; option widget KHÁC nhau thật.
+- **Không bịa:** state khớp logic consumer thật; **anatomy = ĐÚNG cây DOM thật của LEAF** (mọi part render có mặt — kể cả cấu trúc `AsyncContent`/wrapper — nesting khớp DOM, dùng primitive THẬT không stub inline; không sót/dư/curate); option widget KHÁC nhau thật.
 - **Không tự chốt** — mọi lựa chọn để THẦY quyết. Không có luật principle phủ → ghi *đề xuất luật mới*, KHÔNG tự chế.
 
 ## Luật nền (STRICT)

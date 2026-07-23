@@ -17,7 +17,7 @@
 [C-responsive] Xử lý bề rộng hẹp (stack/wrap/@app-sm). Áp cho layout ngang.
 [§4-own] Tự ép sizing/style nội bộ (`[&_svg]:size-*`); consumer truyền children TRẦN.
 [§5-icon] Icon-size theo TEXT-size (xs→4·sm→5·base→6). CARET/CHEVRON điều hướng = size-3 CỐ ĐỊNH + phosphor CaretRightIcon + muted. Interaction: CHỈ arrow (→) trượt hover (translate-x-1); CARET KHÔNG trượt (caret có translate-x = GAP). Icon lib mặc định @phosphor-icons/react (gravity đã bỏ, quá đậm). Rotate/refresh spin; chevron mở/đóng rotate-180.
-[C-anatomy] Anatomy MỖI leaf chỉ kể part leaf đó (nếu blockShell). Loaded KHÔNG kể Skeleton/Error.
+[C-anatomy] Anatomy = ĐÚNG cây DOM THẬT, per-leaf: mỗi leaf bọc `BlockAnatomy` riêng (KHÔNG story `Anatomy` gom, KHÔNG blockShell); `parts` KHỚP cây DOM/JSX (mọi part render — kể cả `AsyncContent`/wrapper — nesting đúng, KHÔNG sót/dư/curate); dùng primitive THẬT (stub inline hand-roll = GAP); `name` khớp tag part; badge do panel ĐO `data-anat-part`.
 [C-cluster] Cụm ≥2 element đồng-vai → 1 GROUP primitive (ButtonGroup…), không itemize rời.
 [C-spacing] gap/padding thang `0·2·3·6·8`; card `p-3`; cấm ngoài thang (1/1.5/4/5/7/9).
 [C-fixture] Story demo ô "content" (slot/children nhận NODE tự do) phải đổ mock = ProfileCard (Card + avatar + title + description), neo AsyncContent.stories.tsx; text trần/lorem/ad-hoc = GAP med. Bỏ qua nếu slot nhận shape CỐ ĐỊNH hoặc primitive display-tĩnh.

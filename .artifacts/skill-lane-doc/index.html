@@ -270,35 +270,55 @@ ContinueCard
 
 <!-- 8 ANATOMY -->
 <section id="ana">
-  <h2><span class="n">8</span> Anatomy đúng-leaf · Button group</h2>
-  <p class="lead">Anatomy MỖI leaf chỉ kể part <b>chính leaf đó render</b> — loaded KHÔNG kể Skeleton/Error. Leaf khác composition → anatomy riêng.</p>
-  <div class="ba" style="margin-top:12px">
+  <h2><span class="n">8</span> Anatomy = ĐÚNG cây DOM thật · per-leaf · group</h2>
+  <p class="lead">⭐ Luật vàng (thầy chốt 2026-07-23): anatomy <b>phản ánh ĐÚNG cây DOM/JSX</b> mà leaf đó render — MỌI part render thật đều có mặt (kể cả part <b>cấu trúc</b> như <code>AsyncContent</code>/wrapper), <b>nesting khớp DOM</b>, thứ tự top-to-bottom. Không sót, không dư, không "curate cho gọn". Mỗi leaf tự mang 1 <code>BlockAnatomy</code> RIÊNG — <b>KHÔNG</b> story "Anatomy" gom, <b>KHÔNG</b> <code>blockShell</code> (đã bỏ).</p>
+
+  <div class="ba" style="margin-top:14px">
     <div class="col">
-      <div class="lbl no">✗ Union + kể ké</div>
+      <div class="lbl no">✗ Curate · stub · union</div>
       <ul class="list" style="font-size:13px">
-        <li><span>SectionCard · MetaRow · StatusChip · ProgressMeter</span></li>
-        <li><span class="bad">Skeleton <span class="pill">chỉ state: Đang tải</span></span></li>
-        <li><span class="bad">ErrorState <span class="pill">chỉ state: Lỗi</span></span></li>
-        <li><span class="bad">Button ×2</span></li>
+        <li><span class="bad">Bỏ <code>AsyncContent</code>/wrapper "cho gọn" → THIẾU part</span></li>
+        <li><span class="bad">Tự viết <code>if(isLoading)…</code> fragment thay <code>AsyncContent</code> port → cây DOM GIẢ</span></li>
+        <li><span class="bad">Union kể ké: loaded kể Skeleton/Error <span class="pill">chỉ state</span></span></li>
+        <li><span class="bad">Nesting phẳng dù DOM lồng nhau · <code>Button ×2</code> rời</span></li>
       </ul>
     </div>
     <div class="col">
-      <div class="lbl yes">✓ Đúng leaf + group</div>
+      <div class="lbl yes">✓ DOM-faithful · primitive thật · group</div>
       <ul class="list" style="font-size:13px">
-        <li><span>SectionCard <span class="pill">primitive</span></span></li>
-        <li><span>MetaRow · StatusChip · ProgressMeter</span></li>
-        <li><span class="ok">ButtonGroup · nút chính + nút phụ</span></li>
+        <li><span class="ok">Mọi part render THẬT có mặt, <code>children</code> = nesting DOM</span></li>
+        <li><span class="ok">Dùng primitive THẬT (import port) — cấm stub inline hand-roll</span></li>
+        <li>Leaf khác composition → <code>*_PARTS</code> RIÊNG; cùng composition → share 1 hằng</li>
+        <li><span class="ok">Cụm ≥2 đồng vai = 1 <b>GROUP</b> (ButtonGroup)</span></li>
       </ul>
-      <p class="cap">Cụm ≥2 element đồng vai = 1 <b>GROUP</b> (sở hữu gap con), không <code>Button ×2</code>.</p>
     </div>
   </div>
-  <div class="cc" style="margin-top:12px;max-width:360px">
+
+  <h3>Ví dụ — cây DOM → parts (RelatedContentList, leaf "Nhiều kết quả")</h3>
+  <div class="tree">cây DOM THẬT trong code          → part (tier)
+<span class="v">LabeledCard</span>                       <span class="cm">nhãn section frameless · primitive</span>
+└ <span class="v">AsyncContent</span>                   <span class="cm">switch loading→content · primitive ← CẤU TRÚC, VẪN PHẢI KỂ</span>
+  └ <span class="v">SurfaceListCard</span>              <span class="cm">khung bordered · primitive</span>
+    └ <span class="sc">EntityResultRow</span> ×N            <span class="cm">mỗi hàng kết quả · design (lặp cùng số)</span></div>
+  <p class="cap"><code>AsyncContent</code> vô hình về mặt "đẹp" nhưng LÀ một node DOM thật → phải kể. Component phải <code>import</code> <code>AsyncContent</code> port, KHÔNG tự viết fragment — có vậy cây mới trung thực và part mới neo badge được.</p>
+
+  <h3>Cách bày — panel 2 tab, badge KHÔNG đè nội dung</h3>
+  <div class="grid g2" style="margin-top:10px">
+    <div class="card"><h4>Tab · Sơ đồ</h4><p class="cap" style="margin:0">Render leaf SẠCH + badge số bé ở góc mỗi part (panel <b>ĐO</b> <code>data-anat-part</code> gắn thẳng element, hoặc marker <code>inset-0</code> do <code>AnatomyOverlay</code> nhả khi <code>showAnatomy</code>). Bảng legend dưới map số → tên · tier · role. <b>Pill/label KHÔNG đè chữ.</b></p></div>
+    <div class="card"><h4>Tab · Cây</h4><p class="cap" style="margin:0">Bỏ render, chỉ vẽ quan hệ lồng nhau (cái gì chứa cái gì) — thứ overlay phẳng không diễn tả được. Số khớp tab Sơ đồ.</p></div>
+  </div>
+  <div class="note" style="margin-top:12px"><b>Tương tác:</b> <b>bấm</b> badge (hoặc hàng legend) → <b>tụ sáng</b>: part đó + tổ tiên giữ sáng, phần còn lại mờ đi; bấm lại để bỏ chọn. <code>name</code> trong spec phải <b>KHỚP</b> tag/label part thật thì badge mới neo đúng. Tier: <span class="tag t-block">block</span> <span class="tag t-prim" style="background:var(--accent-bg);color:var(--accent-fg);border:0">design</span> <span class="tag t-prim">primitive</span>.</div>
+
+  <h3>Button group — cụm đồng vai</h3>
+  <div class="cc" style="margin-top:6px;max-width:360px">
     <span style="display:inline-flex;gap:8px">
       <span class="cta">Tiếp tục học →</span>
       <span class="cta" style="background:transparent;color:var(--fg);border:1px solid var(--line)">Xem khóa học</span>
     </span>
-    <p class="cap" style="margin-top:8px">= 1 <code>ButtonGroup</code> (nút chính hồng + nút phụ viền), gap-2 do group sở hữu.</p>
+    <p class="cap" style="margin-top:8px">= 1 <code>ButtonGroup</code> (nút chính hồng + nút phụ viền), gap-2 do group sở hữu — anatomy kể <b>ButtonGroup</b>, KHÔNG <code>Button ×2</code>.</p>
   </div>
+
+  <div class="note"><b>Khi audit (S2):</b> chấm anatomy = <b>đối chiếu cây DOM THẬT</b> (ĐO DOM / đọc JSX) — dư · thiếu · curate · nesting sai · stub-thay-primitive đều là <span class="bad">lỗi</span>. Part chưa trỏ được về primitive nào → đẩy sang S3 (missing-primitive).</div>
 </section>
 
 <!-- 9 MISSING -->

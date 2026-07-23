@@ -34,7 +34,7 @@ Vai: **AUDIT (report-only)**. Ra BẢN ĐỒ gap + đề xuất **batch để s�
 5. **Responsive** — xử lý bề rộng hẹp.
 6. **§4 Ownership** — primitive TỰ ép sizing/style nội bộ; consumer truyền children TRẦN.
 7. **§5 Icon** — icon-size theo TEXT-size (xs→4·sm→5·base→6); **caret/chevron điều hướng = `size-3` phosphor `CaretRightIcon` muted**; interaction: **CHỈ arrow trượt** hover (`translate-x-1`), **caret KHÔNG trượt**; icon lib mặc định phosphor (gravity đã bỏ).
-8. **Anatomy per-leaf** — anatomy mỗi leaf chỉ kể part leaf đó (nếu dùng `blockShell`).
+8. **Anatomy = ĐÚNG cây DOM thật, per-leaf** — mỗi leaf bọc `BlockAnatomy` riêng (KHÔNG story `Anatomy` gom, KHÔNG `blockShell`); `parts` KHỚP cây DOM/JSX thật (mọi part render — kể cả `AsyncContent`/wrapper — nesting đúng, không sót/dư/curate); dùng **primitive THẬT** không stub inline; badge do panel ĐO `data-anat-part`, hover tụ sáng.
 9. **Cluster→group** — cụm ≥2 element đồng-vai → 1 GROUP primitive.
 10. **Spacing** — thang `0·2·3·6·8`; card padding `p-3`.
 > ⛔ KHÔNG chấm "thiếu nCn test" — coverage = **test-runner smoke + Chromatic**, không phải play cross-product (over-engineer, đã bỏ).

@@ -265,8 +265,26 @@ export const LoadError: Story = { name: "Lỗi tải (mạng rớt)",
 ```
 
 - **Skeleton MIRROR shape (§7) → 1 skeleton per SCENARIO** (Progress có thanh · No-progress không), KHÔNG nhân theo tone.
-- **Anatomy leaf (U1):** loaded leaf kể part của BLOCK; state leaf render qua `AsyncContent` → composition RIÊNG (AsyncContent · Skeleton · ErrorContent), không kể part block ở đó.
 - ⚠️ `ContinueCard` (template) đang được nắn về chuẩn này (`scenario` prop tường minh + loading/error qua `AsyncContent`, thay cho `value===undefined` ngầm + `<SectionCard><Skeleton/>` hand-roll).
+
+## 10b. Anatomy = ĐÚNG cây DOM thật, PER-LEAF (`BlockAnatomy`)
+
+Mỗi **leaf** (mỗi story state/scenario) bọc render của nó trong **`BlockAnatomy` RIÊNG** — mỗi leaf tự mang trục anatomy (Sơ đồ + Cây). **KHÔNG** story `Anatomy` gom, **KHÔNG** `blockShell` (đã bỏ).
+
+```tsx
+export const Loading: Story = { name: "Đang tải",
+    render: () => frame(
+        <BlockAnatomy name="FlashcardDeckList" tier="block" leaf="Đang tải" parts={LOADING_PARTS}
+            note="AsyncContent nhánh loading → lưới skeleton mirror.">
+            <FlashcardDeckList decks={[]} isLoading showAnatomy onOpenDeck={() => {}} />
+        </BlockAnatomy>) }
+```
+
+- ⭐ **`parts` PHẢN ÁNH ĐÚNG cây DOM/JSX mà leaf đó render.** MỌI primitive/sub-block render thật đều CÓ MẶT — kể cả part **cấu trúc** (`AsyncContent`, wrapper switch) — **nesting khớp DOM** (dùng `children` cho part con), thứ tự top-to-bottom. Đối chiếu JSX THẬT: **không sót, không dư, không "curate" cho gọn**.
+- ⭐ **Dùng primitive THẬT** (import bản port), **CẤM stub inline hand-roll** — vd phải dùng `AsyncContent` thật chứ không tự viết fragment `if(isLoading)…`; có vậy cây DOM mới trung thực và part mới hiện badge được.
+- **Part gắn `tier`** (`block` / `design` / `primitive`). Cụm ≥2 element ĐỒNG VAI = **1 GROUP** (`ButtonGroup · nút chính + phụ`, KHÔNG `Button ×2`).
+- **Leaf khác composition → `parts` riêng**; leaf CÙNG composition (chỉ khác tone/data) → share 1 hằng `*_PARTS`. `reason` (đầy đủ) chỉ ở leaf chính; các leaf khác dùng `note` một dòng.
+- **Cơ chế badge:** panel **ĐO** `[data-anat-part]` (gắn thẳng element THẬT, hoặc marker `inset-0` do `AnatomyOverlay` nhả khi `showAnatomy`) rồi vẽ badge — **pill/label KHÔNG đè nội dung**. `name` trong spec phải **KHỚP** label/tag của part thật thì badge mới neo đúng. Hover = **tụ sáng** (mờ part không liên quan, giữ part + tổ tiên), badge nảy + hàng legend sáng.
 
 ## 11. Verify = `tsc` + `eslint`, KHÔNG browser
 

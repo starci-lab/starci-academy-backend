@@ -8,9 +8,9 @@ Mỗi state = **1 LEAF riêng** (KHÔNG stack + `<Label>` trên 1 canvas). Cây 
 
 **Render mỗi leaf:**
 - 1 `export const` + `name:` = nhãn (tên leaf CHÍNH LÀ nhãn, KHÔNG `<Label>` inline). 1 state = 1 canvas `layout:"fullscreen"`.
-- Content → `blockShell(<div className="w-*">…</div>, ANATOMY)`; loading/error (SectionCard-based) render plain + `p-3`/`p-8` wrapper.
+- **Mỗi leaf bọc render trong `BlockAnatomy` RIÊNG:** `frame(<BlockAnatomy name tier leaf parts={<LEAF>_PARTS} note|reason>{render}</BlockAnatomy>)`. **KHÔNG** story `Anatomy` gom, **KHÔNG** `blockShell` (đã bỏ). `frame = (n) => <div className="mx-auto max-w-4xl p-8">{n}</div>`.
 
-**⭐ Anatomy ĐÚNG LEAF (U1):** anatomy mỗi leaf CHỈ kể part CHÍNH LEAF ĐÓ render — loaded KHÔNG kể Skeleton/ErrorState; leaf khác composition → anatomy RIÊNG (leaf cùng composition share 1 object). CẤM tag `state:` "kể ké". Part gắn `tier` (`block`/`primitive`). **Cụm ≥2 element ĐỒNG VAI = 1 GROUP** (`ButtonGroup · nút chính + nút phụ`, KHÔNG `Button ×2`). Đối chiếu JSX THẬT — không sót không dư.
+**⭐ Anatomy = ĐÚNG cây DOM THẬT (U1):** `parts` mỗi leaf PHẢN ÁNH ĐÚNG cây DOM/JSX leaf đó render — **MỌI primitive/sub-block render thật đều có mặt**, kể cả part **cấu trúc** (`AsyncContent`, wrapper); **nesting khớp DOM** (`children` cho part con); thứ tự top-to-bottom. Đối chiếu JSX THẬT: **không sót, không dư, không curate**. **Dùng primitive THẬT** (import), CẤM stub inline (vd `AsyncContent` thật, không tự viết fragment). Leaf khác composition → `parts` riêng; leaf cùng composition share 1 hằng `*_PARTS`. Part gắn `tier` (`block`/`design`/`primitive`); cụm ≥2 element ĐỒNG VAI = **1 GROUP** (`ButtonGroup · nút chính + phụ`, KHÔNG `Button ×2`). Badge = panel ĐO `data-anat-part` (element thật / marker `AnatomyOverlay` khi `showAnatomy`) → **pill KHÔNG đè nội dung**; `name` phải KHỚP tag part thật; hover = tụ sáng.
 
 **⭐ Skeleton/Error = 1 per SCENARIO, MIRROR đúng shape** (No-progress skeleton KHÔNG thanh; Progress CÓ thanh). Lặp theo scenario là ĐÚNG; KHÔNG nhân theo tone; KHÔNG accent-sweep.
 
