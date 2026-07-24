@@ -14,10 +14,12 @@
 | 3 | Reading-flow — từ trái, hạn chế giữa | ⏳ DRAFT (chờ 3 câu) |
 | 4 | Element-compliance — primitive sở hữu sizing/style nội bộ | ✅ CHỐT |
 | 5 | Icon — size theo text · interaction theo ngữ nghĩa · lib phosphor mặc định | ✅ CHỐT |
-| 6 | Granularity — foundational primitives · PROP thay vì component mới | ✅ CHỐT |
+| 6 | Granularity — foundational primitives · PROP thay vì component mới · **§6c BỐN TẦNG** (primitive·design·block·layout/overlay) | ✅ CHỐT |
 | 7 | Press feedback — pressable lún khi nhấn (`active:scale-[0.97]`) | ✅ CHỐT |
 | 8 | Loading = card THẬT + skeleton nội dung bên trong | ✅ CHỐT |
 | 9 | Typography — foreground/muted + weight · đi qua Typography atom | ✅ CHỐT |
+| 10 | Spacing — 1 seam = 1 chủ (padding=container · gap=parent · margin CẤM) · nhịp theo tier | ✅ CHỐT |
+| 11 | Layouts & Overlays — decompose top-down theo CHỨC NĂNG, block-first | ✅ CHỐT |
 
 ---
 
@@ -187,15 +189,25 @@ TRƯỚC khi đẻ 1 component MỚI, cân nhắc: nó có thể là **1 PROP** 
 - ❓ cân nhắc: `FloatingActionButton` → `<Button variant="fab" iconOnly>`? `ElementCloseButton` → `<Button iconOnly>` + close-affordance? — gộp thành prop TRƯỚC khi quyết giữ riêng.
 - ❌ anti: đẻ 1 component cho MỖI biến thể nhỏ → nổ số component, drift, khó bảo trì.
 
-### 6c. Primitive vs Block — tier theo CẤU TRÚC vs NỘI DUNG (thầy chốt 2026-07-23)
-Phân tier theo BẢN CHẤT, không theo "có phải card không":
-- **PRIMITIVE = CHỈ chứa CẤU TRÚC** — shell/surface/container với slot content-**AGNOSTIC** (children/rows/cells/frame). Consumer nhét GÌ vào cũng được; primitive không áp đặt "vai nội dung". VD: `SurfaceCard` (surface), `PressableCard` (press-shell), `GroupPressableCard` (grid), `SurfaceListCard`/`CrossListCard` (list container), `SurfaceAccordionCard` (accordion mechanism), `NestedCard` (nested container: header-label + sections trơ), `HighlightCard` (wrapper).
-- **BLOCK = áp đặt VAI NỘI DUNG** — render một pattern cụ thể với **prop có nghĩa nội dung** (metric/media/section-header) map tới data thật. VD: `SummaryCard` (value/label/hint = metric), `MediaCard` (cover/title/meta/description = media object), `SectionCard` (title/icon/**action** = section-header pattern). Story title = `Block/Cards/*`, KHÔNG `Primitives/*`.
-- **Ranh SectionCard (block) vs NestedCard (primitive):** SectionCard áp header có **action** + accent (pattern nội dung); NestedCard chỉ là container lồng (header-label trơ + sections agnostic) → primitive (thầy chốt 2026-07-23).
-- **Lens 2 — GENERIC vs DOMAIN (thầy chốt 2026-07-23):** UI generic tái dùng MỌI feature (render slot/thông điệp bất kỳ) = **primitive**; render **nội dung DOMAIN cụ thể** hoặc compose 1 **pattern feature** = **block**.
+### 6c. BỐN TẦNG — primitive · design · block · layout/overlay — ✅ CHỐT (thầy chốt 2026-07-24, siết từ bản 2026-07-23)
+Phân tier theo BẢN CHẤT, không theo "có phải card không". ⚠️ Bản 2026-07-23 chỉ có primitive-vs-block nên gọi "component mang vai nội dung" là *block*; bản này **tách rõ `design`** — thứ đó giờ là **DESIGN**, còn **BLOCK** dành cho VÙNG CHỨC NĂNG.
+
+| Tầng | Bản chất | Test nhận biết | Neo |
+|---|---|---|---|
+| **PRIMITIVE** | **Hình dạng thuần, slot-AGNOSTIC** — chỉ định nghĩa khung/shape, nhét GÌ vào cũng được; tự sở hữu sizing/spacing/tone nội bộ (§4). | props là **slot trơ** (children/rows/title/frame) | `Typography` · `Button` · `TitledText` · `InlineIconLabel` · `PricePoint` · `NestedCard` · `SurfaceCard` · `PressableCard` · `CrossListCard` · `Skeleton` |
+| **DESIGN** | **MỘT component mang VAI NỘI DUNG** — prop có nghĩa nội dung map tới data thật; có state của chính nó. | props là **vai nội dung có tên** (value/label · cover/title/meta · item) | `SummaryCard` (metric) · `MediaCard` (media object) · `SectionCard` (section-header + action) · `EntityResultRow` · `CourseCard` |
+| **BLOCK** | **MỘT VÙNG CHỨC NĂNG** — ghép từ (block · design · primitive) và **render theo STATE** của chức năng đó. 1 chức năng = 1 block = 1 story. | phục vụ **1 chức năng người dùng** + có **bộ state riêng** (empty/loading/error/content…) | `ChatThread` · `ChatHistory` · `ChatComposer` · `ChatToolResult` · `FlashcardDeckList` |
+| **LAYOUT / OVERLAY** | **Nơi GHÉP block** thành màn (page) hoặc vùng nổi (drawer/modal). KHÔNG tự vẽ chi tiết — chỉ bố trí. | chỉ compose block + bố cục; tự vẽ primitive chi tiết = **sai tầng** | trang `Flashcards` · `ContentAiChatDrawer` · `PaymentModal` |
+
+- ⛔ **ĐỪNG ép lên block khi chỉ là primitive rời** — vùng chỉ gồm vài nguyên tử cạnh nhau, không có chức năng composite (vd header drawer = `Typography` tiêu đề + switcher chế độ) → render **primitive THẲNG**, không đẻ block giả (xem §11c).
+- **Ranh SectionCard (design) vs NestedCard (primitive):** SectionCard áp header có **action** + accent (pattern nội dung) → design; NestedCard chỉ là container lồng (header-label trơ + sections agnostic) → primitive (thầy chốt 2026-07-23).
+- **Lens 2 — GENERIC vs DOMAIN (thầy chốt 2026-07-23):** UI generic tái dùng MỌI feature (render slot/thông điệp bất kỳ) = **primitive**; render **nội dung DOMAIN cụ thể** hoặc compose 1 **pattern feature** = **design/block**.
   - **Feedback = PRIMITIVE** (generic: `Callout`/`EmptyState`/`SimpleEmptyState`/`ErrorState`/`ErrorPageState`/`InfoTooltip`/`ConfirmDialog` — alert/empty/error/tooltip/confirm dùng ở mọi feature). NGOẠI LỆ: `ReadinessChecklist` compose ListRow/IconTile thành pattern feature → **Block/Feedback**.
-  - **Code = BLOCK** (domain code/testing: `CodeConsole` console-thực-thi, `IOExampleCard` input→output, `TestCaseResultGrid` kết-quả-test). Story title `Block/Code/*`, KHÔNG Primitives (thầy chốt 2026-07-23).
-- **Đo được:** props của nó là *slot trơ* (children…) hay *vai nội dung có tên* (value/title/cover/description)? Vai nội dung → block. Nó chỉ dựng khung, hay tự vẽ 1 sub-UI cụ thể (header row, metric layout)? Tự vẽ → block.
+  - **Code = domain** (`CodeConsole` console-thực-thi, `IOExampleCard` input→output, `TestCaseResultGrid` kết-quả-test) → KHÔNG Primitives (thầy chốt 2026-07-23).
+- **Đo được (thang 3 câu, theo thứ tự):**
+  1. Props là *slot trơ* (children/rows) → **PRIMITIVE**. Là *vai nội dung có tên* (value/title/cover/item) → xuống câu 2.
+  2. Nó là MỘT component hiển thị 1 mẩu dữ liệu → **DESIGN**. Nó là một VÙNG phục vụ 1 CHỨC NĂNG, có bộ state (empty/loading/error/content) → **BLOCK**.
+  3. Nó chỉ GHÉP các block thành màn/vùng nổi → **LAYOUT/OVERLAY**.
 
 ### ✅ Audit lens (§6)
 - [ ] Gặp component tách riêng: hỏi "gộp thành PROP của foundational (`Button`/…) được không?"
@@ -270,3 +282,100 @@ Chữ là một cây nhỏ: **`Typography` atom sở hữu màu + đậm**; mọ
 - [ ] Chữ phụ = `color="muted"` (prop), không phải `text-muted` className rải?
 - [ ] Nhấn = `weight="medium"` qua prop, không `font-medium` className?
 - [ ] Không còn token sai (`text-muted-foreground`/`text-default`)?
+
+---
+
+## 10. Spacing — 1 seam = 1 chủ · nhịp giãn theo tier — ✅ CHỐT (thầy chốt 2026-07-24)
+
+Spacing là một cây: khoảng ở MỖI ranh giới (seam) của `primitive → design → block → page` do ĐÚNG MỘT chủ sở hữu. Không hand-roll `gap-*` rải call-site; đổi nhịp = đổi ở 1 chủ, cả cây theo (giống PricePoint/TitledText — spacing cũng là đơn-vị-thiết-kế).
+
+### 10a. Nguyên tắc gốc — 1 seam = 1 chủ (padding · gap · margin)
+| Property | Là gì | CHỦ SỞ HỮU |
+|---|---|---|
+| **padding** | khoảng TRONG một surface/container tới nội dung | **CONTAINER** (card·section·field tự inset). Con NHẬN, không tự thêm. |
+| **gap** | khoảng GIỮA các con anh-em (flex/grid) — 1 nguồn cho cả hàng/cột | **PARENT** (người compose). Con không biết khoảng của mình. |
+| **margin** | con TỰ đẩy khoảng của mình | ⛔ **CẤM** — con tự quyết = 2 chủ cùng 1 khoảng → drift + margin-collapse. |
+
+- **Hệ quả (trụ của cả §10):** MỌI khoảng đến từ **padding của container** HOẶC **gap của parent** — KHÔNG bao giờ margin của con. Đây chính là "spacing sở hữu bởi primitive/block".
+- **Ngoại lệ margin DUY NHẤT (whitelist):** `mt-auto` (đẩy footer xuống đáy flex-col), `ml-auto`/`ms-auto` (đẩy trailing về phải), `-mx-*/-mt-*` **bleed** (kéo mép ra sát cạnh container, vd cover full-bleed). Ngoài 3 ca này, margin = SAI → chuyển sang gap của parent hoặc padding của container.
+- ❌ neo: `<Chip className="mt-1">` (con tự đẩy) → SAI; đúng là parent bọc `flex flex-col gap-2`. `<Icon className="mr-2">` → SAI; đúng là row `flex items-center gap-2`.
+
+### 10b. Ma trận seam — token theo tier (nhịp giãn dần khi lên tier)
+Càng xuống primitive càng KHÍT, càng lên block/page càng RỘNG. Mỗi seam 1 token + 1 chủ:
+
+| Seam | Token | Property | Chủ |
+|---|---|---|---|
+| **Trong primitive** | `flush 0` / `tight 1` + `p-3` | padding + gap nội bộ | **primitive** |
+| **primitive ↔ primitive** (cụm ngang) | `related` = `gap-2` | gap | **design** (parent) |
+| **primitive ↔ primitive** (hàng dọc) | `grouped` = `gap-3` | gap | **design** (parent) |
+| **design ↔ design** (trong block) | `section` = `gap-6` | gap | **block** (parent) |
+| **block ↔ block** (page) | `section 6` / `page 8` | gap + padding trang | **page** / PageContainer |
+
+- **Trong primitive:** card padding = `p-3` (xem [[fe-card-padding-p3-rule]]); text-stack (TitledText) = `flush gap-0`; icon+label (InlineIconLabel) = `tight gap-1`. Primitive tự lo, KHÔNG nhận padding/margin từ ngoài.
+- **related vs grouped:** `related`(gap-2) = phần tử CÙNG cụm (chip row · meta · nút cạnh nút); `grouped`(gap-3) = hàng/khối xếp trong 1 card (list rows · card content stack). Hai bậc phân biệt theo QUAN HỆ, không lẫn — cấm chọn 2 hay 3 theo cảm tính.
+- **section:** vùng KHÁC nhau trong 1 block (header ↔ body ↔ footer, design ↔ design) = `gap-6`. Giữa các block ở page = `gap-6`, hoặc `gap-8` cho trang lớn.
+
+### 10c. Thang token — CHỈ `0 · 1 · 2 · 3 · 6 · 8`
+`flush(0) · tight(1) · related(2) · grouped(3) · section(6) · page(8)`. Off-scale bị XOÁ: `gap-4`→grouped(3)/section(6) tuỳ quan hệ, `gap-10/12`→page(8), fractional (0.5/1.5) đã bị lint chặn. (Thang là *từ vựng* — định nghĩa số ở `patterns/fe`; §10 định nghĩa LUẬT dùng.)
+
+### ✅ Checklist đo (§10)
+- [ ] Mọi khoảng đến từ **padding container** hoặc **gap parent** — KHÔNG margin con (trừ whitelist `mt-auto`/`ml-auto`/bleed)?
+- [ ] gap đúng token theo seam: cụm ngang `gap-2` · hàng dọc `gap-3` · vùng/section `gap-6` · page `gap-8`?
+- [ ] KHÔNG gap off-scale (`gap-4/5/7/9/10/11/12`)?
+- [ ] Padding do container sở hữu (card `p-3`), con không tự set padding/margin?
+- [ ] Primitive tự lo spacing nội bộ (flush/tight), không nhận từ ngoài?
+
+---
+
+## 11. Layouts & Overlays — decompose top-down theo CHỨC NĂNG, block-first — ✅ CHỐT (thầy chốt 2026-07-24)
+
+Cây tier nối lên trên: `primitive → design → block → **layout(page)** / **overlay(modal·drawer)**`. Một layout/overlay được đọc bằng cách **bẻ theo CHỨC NĂNG**, ưu tiên tier CAO nhất — giống mở một app: nhìn ra các VÙNG chức năng trước, không xé ngay xuống nguyên tử.
+
+### 11a. Decompose block-first: BLOCK → design → primitive
+- Ở tầng layout/overlay, mỗi vùng chức năng gom về tier **CAO nhất phù hợp**: là composite chức năng → **BLOCK**; chưa tới → design; nguyên tử → primitive. **KHÔNG drill xuống primitive ở tầng đỉnh.**
+- Anatomy của layout/overlay = các **BLOCK node** (vùng chức năng); mỗi block ĐÀO SÂU ở **story riêng** của nó (nội dung design/primitive nằm ở đó, không phơi ở tầng overlay).
+- ✅ neo (ContentAiChatDrawer 2026-07-24): overlay = `ChatHistory` · `ChatThread` · `ChatComposer` (3 block chức năng) + header 2 primitive — KHÔNG hiện từng ChatBubble/Typography ở tầng overlay.
+
+### 11b. CHỨC NĂNG khác nhau → BLOCK khác nhau (đừng over-group)
+- Mỗi **chức năng độc lập = 1 block riêng (1 story riêng)**. CẤM gộp hai chức năng không liên quan vào một block cho "gọn".
+- ✅ neo: "lịch sử hội thoại" (đổi/chọn cuộc trò chuyện) ≠ "luồng tin nhắn" (thread) → **2 block** `ChatHistory` và `ChatThread`, không nhét history vào trong ChatThread. ❌ bài học 2026-07-24: đã lỡ gộp → sai.
+
+### 11c. ĐỪNG ép thành block khi chỉ là primitive
+- Vùng chỉ gồm nguyên tử rời (vd header = tiêu đề + nút) → render **primitive THẲNG** (`Typography` + `Button`), KHÔNG bọc một "block" giả (`ChatDrawerHeader`) chỉ để có tên. Block chỉ khi có **composite/chức năng thật đáng tái dùng**.
+- ❌ bài học 2026-07-24: đã lỡ bọc title+mode thành `ChatDrawerHeader` block → sai; đúng là 2 primitive tại chỗ.
+
+### 11d. Overlay = render NỘI DUNG dạng leaf, KHÔNG render portal
+- Design-system review một overlay = render **NỘI DUNG** (Header + Body content) dạng **leaf tĩnh y như block**, KHÔNG dựng portal sống (`Modal`/`Drawer` + backdrop). Portal/placement/backdrop = việc tích hợp của app, ngoài scope.
+- **Drawer = surface VUÔNG** (`<div className="surface">` — sheet `bg-surface`), KHÔNG phải rounded floating card. Bỏ `Drawer.Body`/`Modal.Body` content vào một surface bounded. (Modal → dialog-surface tương ứng.)
+- ✅ neo: ContentAiChatDrawer render `bg-surface shadow-surface` bo mép trong (side-drawer), không `rounded-3xl` card nổi.
+
+### 11e. Extract vùng chức năng thành BLOCK thật + ĐỦ STATES
+- Mỗi vùng chức năng ở 11a phải là **block component riêng (file riêng) + story riêng phủ ĐỦ STATES** của chức năng đó (không chỉ đánh dấu data-anat-part rồi thôi).
+- ✅ neo: `ChatThread` story = rỗng+gợi ý · có tin nhắn · đang soạn · quota-error · có ChatToolResult; `ChatHistory` = switcher · loading · rỗng · danh sách · inline-rename; `ChatComposer` = idle · đang gửi · skill-menu · selection-banner.
+
+### 11f. ⭐ LEAF chia theo CẤU TRÚC — STATE sống TRONG block (thầy chốt 2026-07-24)
+Luật cốt lõi tách "leaf" khỏi "state" ở tầng layout/overlay:
+- **LEAF = một CẤU TRÚC (composition) riêng biệt.** Đổi/mất một vùng, đổi nút điều hướng, mất composer… → **cấu trúc khác → LEAF khác**.
+- **STATE = cùng cấu trúc, khác NỘI DUNG/tình huống** → KHÔNG đẻ leaf mới; render bằng **state bên trong block**.
+- ⛔ **empty · loading/skeleton · error KHÔNG BAO GIỜ là leaf** của layout/overlay — chúng luôn là **state của block** bên trong.
+
+✅ neo THẬT (chat AI drawer 2026-07-24) — overlay có ĐÚNG **2 leaf**:
+| Leaf | Cấu trúc |
+|---|---|
+| **Phiên chat** | header + nút *xem lịch sử* + `ChatThread` + `ChatComposer` |
+| **Lịch sử phiên chat** | header + nút *về phiên chat* + `ChatHistory` — **KHÔNG có composer** |
+
+"Phiên rỗng" vs "có tin nhắn" **cùng cấu trúc** → **CÙNG 1 leaf**, khác nhau là **state của `ChatThread`** (rỗng · có tin · đang chat · ra nested card · skeleton · lỗi).
+
+❌ neo SAI (bài học 2026-07-24): để `Default`/`Empty`/`Thinking` thành **3 leaf** của overlay dù cả ba cùng cấu trúc → sai; **dấu hiệu bỏ lỡ: anatomy của 3 leaf GIỐNG HỆT nhau** (cùng bộ block) — đó là smell "đây chỉ là 1 leaf". Đồng thời **thiếu hẳn leaf 'Lịch sử'** — thứ thực sự khác cấu trúc.
+
+> **Smell test:** hai leaf có `parts` (anatomy) trùng nhau → gần như chắc chắn chúng là **1 leaf + 2 state**, gộp lại.
+
+### ✅ Checklist đo (§11)
+- [ ] Anatomy layout/overlay là **BLOCK node** (vùng chức năng), KHÔNG phơi primitive ở tầng đỉnh?
+- [ ] Chức năng khác nhau tách **block khác nhau** (không over-group)?
+- [ ] KHÔNG bọc block giả cho vùng chỉ-là-primitive (header = primitive thẳng)?
+- [ ] Overlay render nội dung **leaf tĩnh** (không portal); drawer là **surface vuông** không rounded card?
+- [ ] Mỗi block chức năng có **file + story riêng phủ đủ states**?
+- [ ] **Leaf chia theo CẤU TRÚC** — empty/loading/error KHÔNG thành leaf, mà là state của block?
+- [ ] Không có 2 leaf nào **trùng `parts`** (nếu trùng → gộp thành 1 leaf + state)?
