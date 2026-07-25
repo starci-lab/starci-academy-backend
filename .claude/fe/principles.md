@@ -22,6 +22,7 @@
 | 11 | Layouts & Overlays — decompose top-down theo CHỨC NĂNG, block-first | ✅ CHỐT |
 | 12 | **ATOM LAYER** — phần tử web · namespace `X.Base` · **cấm children** · isSkeleton co-located · size↔icon | ✅ CHỐT |
 | 13 | **LAYOUT TIER** — bộ khung (tên cũ "primitive") · namespace `X.<Member>` · slot `header/body/footer` · danh sách = `items` | ✅ CHỐT |
+| 14 | **MÔ HÌNH TƯ DUY** — block=chức năng · ISOLATED · design mang WHY · **STATE 2 loại (đệ quy)** · leaf chỉ đổi theo block | ✅ CHỐT |
 
 > ### ⚠️ ĐỔI TÊN TẦNG (2026-07-25) — đọc TOÀN BỘ canon theo ánh xạ này
 > Cây 5 tầng: **`atom`(§12) → `layout`(§13) → `design` → `block` → `screen`** (§6c).
@@ -510,3 +511,82 @@ Sau khi có atom layer, khung nào chỉ là "atom mặc áo" thì **xoá**, con
 - [ ] Danh sách lặp dùng **`items`** (không children)? Khung bọc có slot `header`/`body`/`footer`?
 - [ ] Không có khung nào **trùng chức năng atom** (trùng ⇒ xoá, dùng atom)?
 - [ ] Story title `Layouts/…` (KHÔNG còn `Primitives/…`)?
+
+
+---
+
+## 14. MÔ HÌNH TƯ DUY — block=chức năng · design mang WHY · STATE hai loại — ✅ CHỐT (thầy giảng 2026-07-25)
+
+§6c/§12/§13 nói mỗi tầng LÀ GÌ. Mục này nói cả hệ **VẬN HÀNH thế nào** — đọc mục này trước khi dựng bất cứ thứ gì.
+
+### 14a. Screen là DANH SÁCH CHỨC NĂNG — mỗi block = một chức năng
+- **Block represent chức năng của screen.** Đọc tên các block là đọc được trang làm gì.
+- Screen chỉ quyết định **block nào CÓ MẶT**; không chạm atom, không gọi khung layout, không tự vẽ chi tiết (§11).
+- ✅ neo `CourseContents`: `CourseBrief`(khoá này là gì) · `ContinueCard`(quay lại chỗ dở) · `LearnNudges`(hôm nay làm gì) · `KeepGoingPath`(đi tiếp trong chương).
+
+### 14b. Block ISOLATED — không block nào biết block khác tồn tại
+- Giao tiếp **MỘT CHIỀU**: `screen → block` qua props. **KHÔNG có `block ↔ block`.**
+- Block nhận **DỮ LIỆU**, không nhận node dựng sẵn — nhận node = phụ thuộc thứ caller đã dựng ⇒ phá isolation.
+  ✅ neo: `CourseBrief` nhận `breadcrumbItems` (mảng crumb), KHÔNG nhận `breadcrumb?: ReactNode`.
+- Cờ phụ thuộc **ngữ cảnh cha** (`bordered`, `tone`, `size`) phải là **PROP** — block không biết cha nó là gì. Hard-code = mùi sai.
+  ❌ bài học 2026-07-25: `KeepGoingPath` hard-code `bordered` (bê từ code cũ) → vẽ viền trên nền trang trần, sai luật §1.
+- **Phép thử isolation:** story của một block phải render được **MỘT MÌNH**. Phải dựng cả màn mới ra hình ⇒ block đó đang ăn state hàng xóm.
+- ⚠️ Mô tả tài liệu phải khớp: viết "block tự ẩn khi paid" là mô tả một block **biết state của screen** — cấm. Sự CÓ MẶT do screen quyết.
+
+### 14c. Block dựng trên `layout + atom + design` — chỉ LẮP, không sáng tạo
+- Cần một quyết định thẩm mỹ mới ⇒ **đẻ ở tầng design** rồi block dùng lại. Block tự chọn vỏ/nhịp/màu = **lấn quyền tầng design**.
+  ❌ bài học: `KeepGoingPath` tự vẽ `div.rounded-2xl.border` + tự chọn nhịp — không phải "chế thêm cách render", mà là block ra quyết định thẩm mỹ.
+
+### 14d. Design mang kèm MỤC ĐÍCH (WHY) — phân theo WHY, KHÔNG theo hình
+Mỗi component tầng design tồn tại vì **một mục đích**. Hai loại đã chốt:
+| WHY | Ví dụ |
+|---|---|
+| **CTA** — đẩy người dùng hành động | `ContinueCard` · `PricingCard` · `PlaygroundCard` |
+| **Render nội dung** — trình bày để đọc/nhìn | `CourseCard` · `MediaCard` · `SummaryCard` · `FlipCard` |
+- Cùng WHY, khác hình ⇒ **gộp**. Khác WHY, giống hình ⇒ **tách**. Hình là hệ quả, WHY là gốc.
+- Component không có WHY riêng (`SectionCard`/`SurfaceCard`/`HighlightCard`) là **khung trung tính** ⇒ thuộc tầng **layout**, không phải design.
+- ⏳ **CHỜ THẦY**: tầng sáng tạo vẫn phải **tuân thủ hệ màu/token** — ranh giới "sáng tạo tới đâu" thầy feedback sau (2026-07-25).
+
+### 14e. Dựng block = TÁI SỬ DỤNG — đừng đẻ khái niệm mới
+Thứ tự BẮT BUỘC trước khi dựng bất kỳ block/design nào:
+1. Cái này phục vụ **WHY** gì?
+2. Hệ **đã có** design/block nào phục vụ WHY đó chưa?
+3. Có rồi → **dùng lại** (thêm prop nếu thiếu). Chưa có → mới dựng.
+- ❌ bài học 2026-07-25: dựng `KeepGoingPath` mà bỏ qua bước 1–2; hệ đã sẵn `UpNextCard` cùng họ WHY "đưa người học tới mục kế tiếp".
+- Dấu hiệu hệ đang đẻ khái niệm thừa: **một việc có ≥2 đường làm**. Ví dụ đã đo: 4 cách đặt nhãn cho một khối (`Page.Header` · `eyebrow` riêng của ContinueCard · `SurfaceCardHeader` · `Section.Header` **0 consumer**).
+- ⚠️ Khái niệm dựng xong **không ai dùng** nguy hiểm hơn drift đang chạy: drift là hai đường đang đi, còn nó là đường thứ ba **đang chờ** người vô tình đi vào.
+
+### 14f. STATE — hai loại, lặp lại ở MỌI tầng (⭐ xương sống)
+Mỗi tầng đều tách đôi theo cùng một hình: state **đổi cấu trúc của chính tầng đó** thì đẻ ra một đơn vị; state **chỉ lan xuống tầng dưới** thì mãi chỉ là một prop.
+
+| Tầng | ① đổi cấu trúc tầng đó ⇒ **đẻ đơn vị** | ② lan xuống / nội bộ ⇒ **chỉ prop** |
+|---|---|---|
+| **screen** | nội dung KHÁC (`paid`/`unpaid`, từng tab, `empty`) ⇒ **story screen riêng** | state của block ⇒ không đẻ gì |
+| **block** | đổi theo block (`variant` item·hero·plain) ⇒ **leaf riêng** | lan xuống phần tử (`isSkeleton`) ⇒ không đẻ leaf |
+| **phần tử** | — | mỗi atom tự sở hữu skeleton của mình (§12) |
+
+- **LEAF chỉ thay đổi theo BLOCK.** State lan xuống KHÔNG sinh leaf.
+- `<A isSkeleton>` → mọi phần tử bên trong tự skeleton; **cấu trúc A không đổi một mảnh nào** ⇒ prop, không leaf.
+
+### 14g. Phép thử phân loại state
+> **Chụp cây block HAI LẦN ở hai state cần so.**
+> Danh sách block **KHÁC** ⇒ loại ① ⇒ đẻ đơn vị (story screen / leaf).
+> Danh sách **GIỐNG** ⇒ loại ② ⇒ chỉ là prop.
+
+Câu hỏi là **"trang còn cụm đó không"**, KHÔNG phải "ai viết đoạn code ẩn nó" — block tự ẩn hay screen `? null` đều cho ra cùng một cây ⇒ cùng một loại.
+
+**Luật suy ra được (không phải ý thích):**
+| Quyết định | Suy ra từ |
+|---|---|
+| Bỏ story `Skeleton`, giữ `Empty` | `loading` lan xuống ⇒ ②; `empty` thay trọn spine ⇒ ① |
+| `Unpaid`/`Paid` là 2 story, không phải 1 prop | rụng hẳn 2 block ⇒ danh sách khác ⇒ ① |
+| Trạng thái bài `done/active/todo` không đẻ story screen | vẫn 3 hàng, chỉ đổi icon ⇒ ② |
+
+### ✅ Checklist đo (§14)
+- [ ] Đọc tên block trên screen có ra được **trang làm gì** không?
+- [ ] Block có render được **một mình** trong story không (isolation)?
+- [ ] Block nhận **dữ liệu** hay nhận node dựng sẵn?
+- [ ] Cờ phụ thuộc ngữ cảnh cha là **prop** hay bị hard-code?
+- [ ] Trước khi dựng mới, đã hỏi **WHY** và tra hệ có sẵn chưa (§14e)?
+- [ ] State đã chạy qua **phép thử §14g** chưa — đẻ đơn vị hay chỉ prop?
+- [ ] Có việc nào đang có **≥2 đường làm** không? Có khái niệm nào **0 consumer** không?

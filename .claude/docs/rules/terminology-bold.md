@@ -64,6 +64,7 @@ Câu hỏi gốc (spoken test): **"Một senior VN ngồi họp sẽ nói từ n
    - §1 Opening: vai phỏng vấn `**Senior Engineer**` / `**Mid-level Developer**`; bridge bullet `- **Phần 2.1**: **thực hành** …` / `- **Phần 2.2**: **lý thuyết** …`; slogan §2 `**Thực hành dẫn dắt Lý thuyết**`.
    - §3.1 phỏng vấn: nhãn `**Câu hỏi N: …?**` — bold ĐỒNG NHẤT cả 3 câu (không để câu bold câu không).
    - Nhãn edge-case/giải pháp (lý thuyết §2.2.2): `**Giải pháp:**`, `**Trade-off:**`, `**Cơ chế:**`, `**Lưu ý:**`.
+   - §2.1.x flow (thực hành, intro accordion): nhãn `**Luồng N:**` / `**Luồng N — \`route\`:**` — bold ĐỒNG NHẤT (convention đã có ở FS + SD, xác nhận 2026-07-24). Title trong `:::panel{title="..."}` để PLAIN (không bold).
    - Challenge: step label `**Bước N:**`; tên mục README `**Smoke Test**`, `**Code Execution Trace**`, `**Design Decisions**`, `**Architecture / Stack**`.
 
 ### 3B. CẤM bold

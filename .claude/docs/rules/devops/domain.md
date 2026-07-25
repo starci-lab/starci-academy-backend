@@ -6,7 +6,8 @@
 - **Outcome:** DevOps/SRE thực chiến — vận hành hạ tầng production đa cloud.
 - **Trục domain (meta khóa):** Linux & Networking cho SRE → **Terraform IaC** → đào sâu **4 cloud** (AWS/GCP/Azure/DO) **terraform-first** (mỗi component giải thích TỪNG argument, grounded **Terraform Registry** thật) → Docker/K8s → CI-CD/GitOps → Observability/SRE → production topics. **Học qua LAB THẬT:** `terraform apply` lên cloud account thật rồi `destroy` sạch; Linux lab trong container disposable.
 
-## 2. Bản đồ giáo trình (35 module — grounded)
+## 2. Bản đồ giáo trình (25 module: 0–24 — grounded)
+> **2026-07-24:** module 17–34 cũ (18 module mỏng, Docker → Backup-DR) đã **gộp thành 8 module** (17–24) — giữ trọn 73 lesson. Map dưới là bản SAU gộp. Không còn module 25–34.
 | Cụm | Module |
 |---|---|
 | **Nền tảng** | 0 linux-fundamentals · 1 terraform-fundamentals |
@@ -14,10 +15,23 @@
 | **DigitalOcean** | 6 do-foundations · 7 do-compute · 8 do-managed-services |
 | **GCP** | 9 gcp-foundations · 10 gcp-compute · 11 gcp-managed-services · 12 gcp-iam-security-deep |
 | **Azure** | 13 azure-foundations · 14 azure-compute · 15 azure-managed-services · 16 azure-iam-security-deep |
-| **Container + K8s** | 17 docker-and-oci-deep-dive · 18 kubernetes-core · 19 kubernetes-internals · 20 kubernetes-on-cloud-eks · 33 helm-and-kustomize |
-| **CI/CD + GitOps** | 21 github-actions · 22 jenkins · 23 argocd · 24 gitlab-ci · 32 progressive-delivery |
-| **Security** | 25 cloud-identity-and-secrets · 26 devsecops-and-supply-chain |
-| **Observability + SRE** | 27 metrics-prometheus-grafana · 28 logging-aggregation · 29 distributed-tracing-otel · 30 alerting-slo-oncall · 31 autoscaling-capacity · 34 backup-dr-business-continuity |
+| **Container + K8s** | 17 containers-and-oci · 18 kubernetes-core-and-internals · 19 managed-kubernetes-and-helm |
+| **CI/CD + GitOps** | 20 cicd-pipelines · 21 gitops-and-progressive-delivery |
+| **Security** | 22 identity-secrets-and-supply-chain-security |
+| **Observability + SRE** | 23 observability · 24 reliability-alerting-autoscale-and-backup-dr |
+
+### 2a. Tên repo GitHub CHÍNH DANH mỗi module (SSOT — off-by-one: folder slot N → `devops-mastery-module-<N+1>-<slug mới>`)
+> **BẮT BUỘC** khi gen/audit sinh clone URL. KHÔNG được bịa tên cũ (`github-actions`, `jenkins`, `argocd`, `kubernetes-internals`, `docker-and-oci-deep-dive`…). Mỗi module chỉ có ĐÚNG 1 repo:
+| Module (folder) | Repo GitHub chính danh |
+|---|---|
+| 17-containers-and-oci | `devops-mastery-module-18-containers-and-oci` |
+| 18-kubernetes-core-and-internals | `devops-mastery-module-19-kubernetes-core-and-internals` |
+| 19-managed-kubernetes-and-helm | `devops-mastery-module-20-managed-kubernetes-and-helm` |
+| 20-cicd-pipelines | `devops-mastery-module-21-cicd-pipelines` |
+| 21-gitops-and-progressive-delivery | `devops-mastery-module-22-gitops-and-progressive-delivery` |
+| 22-identity-secrets-and-supply-chain-security | `devops-mastery-module-23-identity-secrets-and-supply-chain-security` |
+| 23-observability | `devops-mastery-module-24-observability` |
+| 24-reliability-alerting-autoscale-and-backup-dr | `devops-mastery-module-25-reliability-alerting-autoscale-and-backup-dr` |
 
 ## 3. Quy ước RIÊNG domain (khác FS/SD — đề xuất, chốt khi soạn contents.md)
 - **Lang = agnostic infra:** HCL (Terraform) · YAML (k8s/CI/compose) · bash/shell. KHÔNG 4-lang (ts/java/csharp/go) — DevOps không có "backend stack" per-lang.
