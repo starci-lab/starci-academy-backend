@@ -358,7 +358,9 @@
       "Bash(python -c \"import json; print\\('actionable', len\\(json.load\\(open\\('scratch/_mount_todo.json'\\)\\)\\)\\)\")",
       "Bash(node -e \"const a=require\\('./.artifacts/interview-audit/mount-scripts/_mount_todo_705_skipped.json'\\); console.log\\('entries:', a.length\\); const by={}; a.forEach\\(x=>by[x.course]=\\(by[x.course]||0\\)+1\\); console.log\\(by\\); const byk={}; a.forEach\\(x=>byk[x.kind]=\\(byk[x.kind]||0\\)+1\\); console.log\\(byk\\);\")",
       "Bash(git fetch *)",
-      "Bash(git rev-list *)"
+      "Bash(git rev-list *)",
+      "Read(//c/Repositories/starci-academy/**)",
+      "Bash(wait)"
     ]
   }
 }
