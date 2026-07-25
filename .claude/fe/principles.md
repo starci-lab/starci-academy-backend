@@ -20,7 +20,7 @@
 | 9 | Typography — foreground/muted + weight · đi qua Typography atom | ✅ CHỐT |
 | 10 | Spacing — 1 seam = 1 chủ (padding=container · gap=parent · margin CẤM) · nhịp theo tier | ✅ CHỐT |
 | 11 | Layouts & Overlays — decompose top-down theo CHỨC NĂNG, block-first | ✅ CHỐT |
-| 12 | **ATOM LAYER** — phần tử web · namespace `X.Base` · **cấm children** · isSkeleton co-located · size↔icon | ✅ CHỐT |
+| 12 | **ATOM LAYER** — phần tử web · root callable = `Base` (member theo hình thái thật) · **cấm children** · isSkeleton co-located · size↔icon | ✅ CHỐT |
 | 13 | **LAYOUT TIER** — bộ khung (tên cũ "primitive") · namespace `X.<Member>` · slot `header/body/footer` · danh sách = `items` | ✅ CHỐT |
 | 14 | **MÔ HÌNH TƯ DUY** — block=chức năng · ISOLATED · design mang WHY · **STATE 2 loại (đệ quy)** · leaf chỉ đổi theo block | ✅ CHỐT |
 
@@ -142,6 +142,27 @@ Block/consumer compose primitive bằng cách truyền **children TRẦN**; **pr
 ---
 
 ## 5. Icon — size theo TEXT, interaction theo NGỮ NGHĨA — ✅ CHỐT (thầy chốt 2026-07-22)
+
+### 5⃣0. ⭐ BỘ ICON = **`@phosphor-icons/react`**, MỘT BỘ DUY NHẤT (thầy chốt 2026-07-26)
+Trước đó dùng **CẢ HAI** — atom đi gravity, block/screen đi Phosphor — nên nét và ngữ vựng icon lệch nhau ngay trong một màn. **Đó mới là cái sai**, không phải "bộ nào đẹp hơn". Một bộ, không ngoại lệ.
+
+**Vì sao Phosphor (đã thử gravity rồi quay lại — đừng thử lại):**
+1. **Có trục `weight`** → giữ được nét ĐỒNG ĐỀU QUANG HỌC giữa các cỡ (xem §5⃣0a). Gravity một-nét-cố-định nên **không có cách nào** khắc phục lệch nét ~33% giữa `size-5` và cỡ chip.
+2. **Phủ nghĩa rộng hơn.** Ép sang gravity phải hạ 3 icon và cả 3 **mất nghĩa**: "ôn thẻ ghi nhớ" → `Copy` (đọc ra "sao chép") · "hạng" → `Medal` · "chồng nội dung" → `Layers`. Icon là NGHĨA, không phải trang trí.
+
+### 5⃣0a. ⭐ WEIGHT THEO SIZE — icon nhỏ thì nét NẶNG hơn (thầy chốt 2026-07-26)
+Bề dày nét **co giãn theo size**, nên cùng một weight ở hai cỡ khác nhau ra hai độ dày quang học khác nhau. Muốn nét TRÔNG bằng nhau thì phải bù bằng weight:
+
+| Size icon | Weight | Vì sao |
+|---|---|---|
+| **`size-5`** (20px) | `regular` (mặc định) | cỡ chuẩn, nét vừa |
+| **nhỏ hơn `size-5`** | `bold` | thu nhỏ làm nét mảnh đi → nặng weight lên để bù |
+
+**Số đo thật** (lưới Phosphor 256): `regular` = 16 đơn vị, `bold` = 24. Ở 32px nét regular ra **2.0px**; ở 16px nét bold ra **1.5px** — gần bằng nhau. Cùng weight ở hai cỡ đó thì lệch **~33%**.
+
+- Chỉ HAI nấc. Không mở thêm `thin`/`light`/`duotone` — nhiều nấc là mở lối cho mỗi người chọn một kiểu.
+- ⚠️ Icon **cùng một hàng phải cùng KHUÔN**: ❌ neo — `KeepGoingPath` từng để `PlayIcon` (tam giác trần) cạnh `CheckCircleIcon`/`CircleIcon` (tròn) → gãy nhịp hàng. Sửa: `PlayCircleIcon`.
+- ✅ Kiểu prop icon ở layout phải là **`ComponentType<SVGProps<SVGSVGElement>>`**, KHÔNG khai `Icon` của một thư viện — khai chặt là khoá cả cây vào một nhà cung cấp (neo: `AsyncContent` từng khai `icon?: PhosphorIcon`).
 
 ### 5a. Size icon = ĐỐI CHIẾU text-size đứng cạnh (KHÔNG theo line-height)
 Icon cạnh chữ phải khớp **cỡ CHỮ THẬT (font-size)**, không phải chiều cao dòng (line-height). Thang cặp:
@@ -388,6 +409,10 @@ Ranh giới giữa "gom thành 1 component" và "để primitive rời" KHÔNG p
 - ✅ neo: `ChatThread` story = rỗng+gợi ý · có tin nhắn · đang soạn · quota-error · có ChatToolResult; `ChatHistory` = switcher · loading · rỗng · danh sách · inline-rename; `ChatComposer` = idle · đang gửi · skill-menu · selection-banner.
 
 ### 11f. ⭐ LEAF chia theo CẤU TRÚC — STATE sống TRONG block (thầy chốt 2026-07-24)
+
+> ⚠️ **PHẠM VI: từ LAYOUT trở lên.** Ở tầng **ATOM** luật NGƯỢC LẠI — **1 prop = 1 leaf** (§12g).
+> Đây là chỗ hay áp nhầm nhất: xem bảng hai tầng ở đầu §12g trước khi tách leaf.
+
 Luật cốt lõi tách "leaf" khỏi "state" ở tầng layout/overlay:
 - **LEAF = một CẤU TRÚC (composition) riêng biệt.** Đổi/mất một vùng, đổi nút điều hướng, mất composer… → **cấu trúc khác → LEAF khác**.
 - **STATE = cùng cấu trúc, khác NỘI DUNG/tình huống** → KHÔNG đẻ leaf mới; render bằng **state bên trong block**.
@@ -432,10 +457,12 @@ Luật cốt lõi tách "leaf" khỏi "state" ở tầng layout/overlay:
 ## 12. ATOM LAYER — PHẦN TỬ web, bọc HeroUI, API khoá chặt — ✅ CHỐT (thầy chốt 2026-07-25)
 Tầng thấp nhất của cây (dưới tầng `layout` §13). **Atom = MỘT component HeroUI được bọc lại** với API thu hẹp; primitive/design/block compose atom thay vì gọi HeroUI trực tiếp. Sống ở `.storybook/components/atoms/<cat>/<Atom>/`, story `Atoms/<Cat>/<Family>/<Family>.<Member>`.
 
-### 12a. ⭐ Namespace `X.Base` — KHÔNG export component trần
-**MỌI atom** phải là namespace object, kể cả khi chỉ có một hình thái: `export const Menu = { Base: MenuBase }`. Thành viên phân theo **hình thái/kiểu**, không theo biến thể thị giác (biến thể = PROP, §6b).
-- Neo: `Chip = {Base, Dot}` · `Button = {Base, Icon, Group}` · `Input = {Text, Textarea, Number, Date…}` · `Typography = {Xs, Sm, Base, Lg}` · `Image = {Base}` · `Tooltip = {Base}`.
-- ❌ neo (2026-07-25): `Menu`/`Popover`/`Tabs`/`Toast`… export trần → thầy bắt "phải là `Menu.Base`".
+### 12a. ⭐ `Base` = mặc định GỌI ĐƯỢC — member đặt theo HÌNH THÁI THẬT (thầy sửa 2026-07-25)
+Root export **gọi thẳng được** (`<Menu …/>`), và chính nó *là* `Base` — kỹ thuật `Object.assign(MenuBase, {…})`. **KHÔNG bắt buộc** có member `Base`: atom một hình thái thì thôi, đừng đẻ `{ Base: X }` rỗng cho đủ luật. Member CHỈ mở khi có **hình thái/kiểu khác thật sự**, không theo biến thể thị giác (biến thể = PROP, §6b).
+- Neo CÓ member (hình thái thật): `Chip {Base, Dot}` · `Button {Base, Icon, Group}` · `Input {Text, Textarea, Number, Date…}` · `Typography {Xs, Sm, Base, Lg}` · `Progress {Bar, Circle, Meter}`.
+- Neo KHÔNG cần member: `Menu` · `UserCell` · `Tooltip` · `Image` — root callable là đủ. `.Base` còn lại chỉ là **alias tuỳ chọn** (được phép giữ cho call-site cũ, không phải nghĩa vụ).
+- Vẫn giữ: root phải là **callable-namespace**, không phải object khai báo trần mất khả năng gọi.
+- 🕰️ Ghi chú lịch sử: neo 2026-07-25 *"`Menu`/`Popover`/`Tabs`/`Toast` export trần → phải là `Menu.Base`"* đã **THU HỒI** — đó là ép namespace rỗng, chính cái luật này bỏ.
 
 ### 12b. ⭐⭐ CẤM `children` — mọi thứ đi bằng PROP DỮ LIỆU
 Consumer **không được truyền structure**. children là NHÃN → prop `label`/`triggerLabel`; children là DANH SÁCH con → **`items`/`options` dữ liệu**, atom tự dựng member con.
@@ -444,8 +471,23 @@ Consumer **không được truyền structure**. children là NHÃN → prop `la
 - ✅ VẪN cho `ReactNode` ở prop **THÂN nội dung** (`content`/`action`/`title`/`label`/`hint`/`errorMessage`) — chỉ cấm `children`.
 - ❌ neo: `<Button.Group><Button.Base/>…</Button.Group>` → sai; phải `items={[…]}`.
 
-### 12c. `isSkeleton` CO-LOCATED (hybrid C) — atom tự sở hữu skeleton LÁ
-Atom tự vẽ skeleton của chính nó (`HeroSkeleton` đúng hình/size), **KHÔNG** gọi `Skeleton.*`. `Skeleton.*` chỉ còn giữ **scaffold structural** (Card/Table/ListRow…). Cluster truyền `isSkeleton` xuống → mỗi item tự mirror (giữ footprint, không nhảy layout, §8).
+### 12c. ⭐⭐ `isSkeleton` CO-LOCATED — CHỦ CỦA HÌNH LÀ CHỦ CỦA SKELETON, ở MỌI TẦNG (thầy chốt 2026-07-25)
+**Component nào sở hữu HÌNH thì sở hữu SKELETON của hình đó** — atom, design, block, layout, screen, không trừ tầng nào. Tự vẽ bằng `HeroSkeleton` đúng hộp/size của chính mình. Cluster truyền `isSkeleton` xuống → mỗi item tự mirror (giữ footprint, không nhảy layout, §8).
+
+**KHÔNG có component skeleton dùng chung.** Compound `Skeleton.*` (29 member soi gương từng component) đã **XOÁ HẲN 2026-07-25** — nó là bản sao thứ hai của mọi hình, nên luôn trôi khỏi bản gốc.
+- ❌ neo trôi có thật: `Skeleton.Accordion` vẽ **dư một ô caret** mà `TruthList` thật đã bỏ Indicator — không ai phát hiện vì hình loading sống ngoài chủ.
+- Viên gạch KHÔNG phải của nhà: dùng thẳng `Skeleton as HeroSkeleton` của HeroUI. Không bọc lại.
+
+**KHUNG KHÔNG CÓ SKELETON** (thầy chốt: *"Card đâu có skeleton?"*). Container render **THẬT** — giữ nguyên `rounded-3xl` + `bg-surface` + shadow + separator + gap — chỉ **node NỘI DUNG** mới thành gạch. Bịa "hình thẻ giả" là sai: thẻ vẫn là thẻ, chỉ ruột nó chưa có chữ.
+
+**Nội dung là OPTIONAL khi `isSkeleton`.** Prop nội dung (`text`/`label`/`value`) ép bằng union chứ không hạ xuống optional đại trà — giữ lưới an toàn §12b:
+```ts
+type XProps = XOwnProps &
+    ({ isSkeleton: true; text?: ReactNode } | { isSkeleton?: false; text: ReactNode })
+```
+Đã áp: `Typography` · `Chip.Base` · `Button.Base` · `Input.*` · `Progress.Meter`.
+
+- ⚠️ Nhánh `isSkeleton` phải xét **TRƯỚC** mọi nhánh rẽ hình. ❌ neo: `Typography` để check dưới nhánh heading → `size="h3" isSkeleton` render heading RỖNG, tsc/eslint không bắt.
 
 ### 12d. ⭐ `variant` và `size` là HAI TRỤC ĐỘC LẬP — icon là HÀM của `size`
 `variant` = **ý nghĩa** (primary/danger…) · `size` = **tỉ lệ** (box + font + icon). **KHÔNG có prop icon-size** — atom tự suy từ `size` (§4 ownership). Naming size map thẳng HeroUI: `sm · md · lg` (md default). Cluster đặt `size` ở **CẤP CỤM** (hàng nút luôn đồng cỡ), item chỉ mang vai trò/hành vi.
@@ -462,10 +504,47 @@ Story chỉ render state **SINH RA TỪ CHÍNH component đó**. State đã có 
 - ❌ neo ngược chiều: `Choice.Radio` (radio lẻ **không sống độc lập**, phải nằm trong RadioGroup) ôm `hint`/`errorMessage`/`isRequired` của NHÓM → đẩy lên `Choice.RadioGroup`.
 - Test: "state này do prop của CHÍNH nó sinh ra, hay chỉ chuyển tiếp xuống con?" — chuyển tiếp ⇒ không phải state của nó.
 
+### 12g. ⭐⭐ TẦNG ATOM: **1 PROP = 1 LEAF** (ngược với §14d.2 ở tầng trên)
+Thầy chốt 2026-07-26. Ở tầng **atom**, story tách leaf theo **PROP**, không theo cấu trúc:
+mỗi prop có hình = **một leaf**, và leaf đó render **ĐỦ MỌI GIÁ TRỊ** của prop đó.
+
+| Tầng | Leaf tách theo | Lý do |
+|---|---|---|
+| **atom** | **PROP** (§12g) | atom là bảng tra: người dùng đến để xem "prop này làm được gì" |
+| design · block · screen | **CẤU TRÚC** (§14d.2) | ở trên, state không được đẻ leaf — cùng cây DOM ⇒ cùng leaf |
+
+Hai luật này **không mâu thuẫn** — chúng trả lời hai câu hỏi khác nhau. Ở atom: "prop `variant`
+có những giá trị nào?" Ở block: "vùng chức năng này có mấy hình?".
+
+**Bộ leaf của một atom** = `Default` (trần, chưa bật prop nào) + một leaf cho mỗi prop CÓ HÌNH.
+Bỏ qua prop không sinh hình: `onPress`/`className`/`showAnatomy`/`anatPart`.
+- `variant` → leaf `Variants` — render ĐỦ mọi giá trị union, thiếu một giá trị là giá trị đó
+  sẽ mọc thành leaf lạc chỗ (neo: `danger` không có trong mảng `VARIANTS` nên đẻ ra story
+  `Danger` riêng — gộp 2026-07-26).
+- `size` → `Sizes` · `icon` → `Icon` (đủ các thế: leading · trailing · trượt hover)
+- `isDisabled` → `Disabled` · `isPending` → `Pending` · `isSkeleton` → `Skeleton`
+
+**TRONG một leaf: render ĐỦ MỌI STATE CÓ THỂ CÓ của prop đó** (thầy siết 2026-07-26).
+Không chỉ đủ giá trị của union — mà đủ **tổ hợp còn quan sát được**: leaf `isSkeleton` phải
+render skeleton của ĐỦ 3 `size`, leaf `isDisabled` phải đủ mọi `variant`, leaf `icon` phải
+có cả ca dùng kèm `suffixIcon`.
+
+⚠️ **Ba ô nhìn y hệt nhau = LỖI ATOM, không phải cớ để bớt ô.** Neo 2026-07-26: leaf
+`isSkeleton` của `Button.Base` render 3 size ra 3 pill gần như giống nhau — truy ra atom
+dùng `w-24` CỨNG cho cả ba bậc (chỉ khác chiều cao 4px), tức footprint skeleton SAI so với
+nút thật ⇒ layout nhảy khi dữ liệu về. Sửa atom (thêm bảng `SKELETON_W` theo size), KHÔNG
+sửa story cho đỡ lộ. Story render đủ chính là cái BẮT được lỗi này.
+
+⚠️ **§12g KHÔNG phá §12f**: leaf chỉ mở cho prop của CHÍNH atom đó. Prop chuyển tiếp xuống con
+thì vẫn thuộc về con (`Button.Group` không có leaf `Pending` — đó là prop của `Button.Base`).
+
 ### ✅ Checklist đo (§12)
-- [ ] Atom export **namespace `X.Base`** (không component trần)?
+- [ ] Root atom **callable** (= `Base`)? Member chỉ mở cho **hình thái thật**, không có `{ Base: X }` rỗng (§12a)?
+- [ ] **Mỗi prop có hình = một leaf**, leaf render ĐỦ giá trị của prop đó (§12g)? Không có leaf nào là một giá trị lẻ?
 - [ ] **KHÔNG `children`** (trừ atom-wrapper Tooltip/Badge có ghi lý do)? Cụm dùng `items`/`options` dữ liệu?
-- [ ] `isSkeleton` **co-located** trong atom (không gọi `Skeleton.*`)?
+- [ ] `isSkeleton` **co-located** ở CHÍNH chủ của hình (mọi tầng)? Không có component skeleton dùng chung?
+- [ ] Khung render **THẬT** (surface/radius/shadow/separator giữ nguyên), chỉ nội dung thành gạch?
+- [ ] Prop nội dung optional-khi-skeleton bằng **union**, và nhánh `isSkeleton` xét **TRƯỚC** mọi nhánh hình?
 - [ ] `size` là trục riêng; **icon suy từ size** (không có prop icon-size)? Cluster đặt `size` ở cấp cụm?
 - [ ] Form atom tự mang `label`/`hint`/`errorMessage`/`isRequired`; story `Error` hiện đủ **nhãn + message + viền**?
 - [ ] Control compound có **accessible name** (aria-label từ label) khi không nối được `htmlFor`?
@@ -546,6 +625,48 @@ Mỗi component tầng design tồn tại vì **một mục đích**. Hai loại
 - Cùng WHY, khác hình ⇒ **gộp**. Khác WHY, giống hình ⇒ **tách**. Hình là hệ quả, WHY là gốc.
 - Component không có WHY riêng (`SectionCard`/`SurfaceCard`/`HighlightCard`) là **khung trung tính** ⇒ thuộc tầng **layout**, không phải design.
 - ⏳ **CHỜ THẦY**: tầng sáng tạo vẫn phải **tuân thủ hệ màu/token** — ranh giới "sáng tạo tới đâu" thầy feedback sau (2026-07-25).
+
+#### 14d.1 ⛔⛔ TỪ DESIGN TRỞ LÊN — KHÔNG MỞ LỐI "CUSTOM" (thầy chốt 2026-07-26)
+`design` · `block` · `screen` nhận **DỮ LIỆU**, và **SỞ HỮU** hình lẫn chữ của chính mình. **CẤM** prop cho caller đè lên phần trình bày:
+- ❌ nhãn tự đặt (`label?` đè nhãn mặc định) · ❌ trục hình (`variant?` kiểu `bare`/`pill`) · ❌ đổi icon · ❌ `className` để restyle.
+- ✅ vẫn được: prop **DỮ LIỆU** (`difficulty`, `items`, `title`) · `className` **CHỈ để đặt chỗ** (`mb-4`, `flex-1`) · `isSkeleton` · `anatPart`/`showAnatomy`.
+
+**Lý do**: hở một lối là caller lách được, và bản chuẩn hết còn chuẩn — component thôi mang VAI NGHĨA, tụt xuống thành "một cái chip/thẻ". Muốn tự do hình thì gọi **thẳng atom/layout**, đừng bẻ design.
+
+- ❌ neo (2026-07-26): `VariantChip.Difficulty` từng mở `label?` + `variant?: "pill"|"bare"` → thầy bắt. Sửa: `difficulty` là trục DUY NHẤT, quyết cả nhãn lẫn màu; hình luôn `pill`.
+- ❌ neo cùng ngày: `CourseTeamGate` mở `actionLabel?` → xoá, nhãn nút do block sở hữu.
+#### 14d.3 ⛔ BLOCK KHÔNG BỊA CASE (thầy chốt 2026-07-26)
+Chỉ dựng biến thể mà app **THẬT SỰ dùng**. Không mở prop, không render thêm bản, không đẻ story chỉ để "cho đủ bộ".
+
+- ❌ neo: `KeepGoingPath`/`LearnNudges` từng có `bordered` cho ca "surface-in-surface" — **app không có ca đó**. Prop bịa, và story còn render bản thứ hai chỉ để khoe nó. Đã xoá cả prop lẫn bản render.
+- ⚠️ **Ngoại lệ `bordered` từng ghi ở §14d.1 nay VÔ HIỆU** — đừng dựa vào nó để mở prop. Trò từng viết nó vào canon rồi bảo vệ suốt mấy lượt; sai vì lý lẽ "ngữ cảnh cha" chỉ đúng khi ngữ cảnh đó CÓ THẬT.
+- Phép thử: *"màn nào trong app đang cần case này?"* — không chỉ ra được một màn ⇒ **không dựng**.
+
+**Ba hệ quả thầy siết thêm 2026-07-26:**
+
+1. ⛔ **KHÔNG nhận `heading`/tiêu đề.** Câu dẫn là phần TRÌNH BÀY ⇒ block sở hữu. Caller chỉ đưa **dữ liệu miền**; block tự ghép câu.
+   - ❌ `<LearnNudges heading="Việc nên làm hôm nay"/>` → block tự đặt, cụm này luôn trả lời một câu hỏi nên câu dẫn là HẰNG SỐ.
+   - ❌ `<KeepGoingPath heading="Tiếp tục · Chương 2 · Container hoá"/>` → nhận `moduleTitle="Chương 2 · Container hoá"`, block ghép `Tiếp tục · {moduleTitle}`.
+
+2. ⛔ **KHÔNG truyền GENERIC / chuỗi đã format.** Prop phải là **dữ liệu có kiểu**, không phải nội dung đã trình bày sẵn.
+   - ❌ neo: `<CourseBrief meta="8 chương · ~14 giờ học · 2,481 học viên"/>` — caller quyết luôn đơn vị, dấu ngăn, phân tách hàng nghìn ⇒ **phá cấu trúc**, block hết sở hữu hình.
+   - ✅ `moduleCount={8} hours={14} learnerCount={2481}` — số rời, block tự ghép dải muted. Danh sách thì truyền **mảng dữ liệu**, không truyền chuỗi nối sẵn.
+   - Hệ quả: prop nội dung ở tầng này nên là `string`/`number`/mảng có kiểu, **hạn chế `ReactNode`** (ReactNode = caller nhét được hình vào).
+
+3. 📛 **THUẬT NGỮ MIỀN: `contents`, KHÔNG phải `lessons`.** Strict ở MỌI chỗ — tên type, tên prop, biến, chú thích.
+   - ⚠️ **ĐỪNG TIN CODE CŨ**: `src/` đang gọi `lessons` (`MyCourseOutlineModule.lessons`), đó là chỗ SAI, không phải chuẩn để bê theo.
+   - ❌ neo: `KeepGoingLesson`/`lessons` → `KeepGoingContent`/`contents`.
+
+#### 14d.2 ⭐ STORY: LEAF = CẤU TRÚC · mỗi leaf render ĐỦ VARIANT (thầy siết 2026-07-26)
+
+> ⚠️ **PHẠM VI: DESIGN · BLOCK · SCREEN.** Tầng **ATOM** dùng luật ngược — **1 prop = 1 leaf** (§12g).
+> ❌ neo (2026-07-26): `Button.Base` từng viện §14d.2 để nhồi `variant`+`isDisabled`+`isSkeleton`
+> vào chung leaf `Default` — áp nhầm luật tầng trên xuống atom. Tách lại thành 7 leaf theo prop.
+
+Nhắc lại §11f ở tầng story vì hay bị làm sai: **leaf tách khi CẤU TRÚC đổi** (mất/thêm node). Cùng cây DOM, khác nội dung ⇒ **STATE**, phải nằm TRONG một leaf, KHÔNG tách story riêng.
+- ❌ **skeleton KHÔNG phải leaf** — cùng cấu trúc, chỉ thay chữ bằng gạch. (Prop `isSkeleton` thì VẪN có ở design, §12c — hai chuyện khác nhau.)
+- ❌ neo: `VariantChip.Difficulty` từng có 4 story `Levels`/`Bare`/`CustomLabel`/`Skeleton` → gộp còn **MỘT** leaf render đủ 4 bậc + hàng skeleton.
+- ✅ leaf THẬT là khi node biến mất: `PhaseScarcityNote` bỏ `Separator`+`PriceRiseClause` · `CourseBrief` bỏ `Breadcrumbs` · block tự ẩn (render rỗng).
 
 ### 14e. Dựng block = TÁI SỬ DỤNG — đừng đẻ khái niệm mới
 Thứ tự BẮT BUỘC trước khi dựng bất kỳ block/design nào:

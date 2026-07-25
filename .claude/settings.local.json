@@ -360,7 +360,9 @@
       "Bash(git fetch *)",
       "Bash(git rev-list *)",
       "Read(//c/Repositories/starci-academy/**)",
-      "Bash(wait)"
+      "Bash(wait)",
+      "Bash(git -C \"D:/Repositories/starci-academy-backend\" status -sb)",
+      "Bash(git -C \"D:/Repositories/starci-academy\" status -sb)"
     ]
   }
 }
