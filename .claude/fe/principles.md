@@ -14,12 +14,20 @@
 | 3 | Reading-flow — từ trái, hạn chế giữa | ⏳ DRAFT (chờ 3 câu) |
 | 4 | Element-compliance — primitive sở hữu sizing/style nội bộ | ✅ CHỐT |
 | 5 | Icon — size theo text · interaction theo ngữ nghĩa · lib phosphor mặc định | ✅ CHỐT |
-| 6 | Granularity — foundational primitives · PROP thay vì component mới · **§6c BỐN TẦNG** (primitive·design·block·layout/overlay) | ✅ CHỐT |
+| 6 | Granularity — PROP thay vì component mới · **§6c NĂM TẦNG** (atom·**layout**·design·block·**screen**) | ✅ CHỐT |
 | 7 | Press feedback — pressable lún khi nhấn (`active:scale-[0.97]`) | ✅ CHỐT |
 | 8 | Loading = card THẬT + skeleton nội dung bên trong | ✅ CHỐT |
 | 9 | Typography — foreground/muted + weight · đi qua Typography atom | ✅ CHỐT |
 | 10 | Spacing — 1 seam = 1 chủ (padding=container · gap=parent · margin CẤM) · nhịp theo tier | ✅ CHỐT |
 | 11 | Layouts & Overlays — decompose top-down theo CHỨC NĂNG, block-first | ✅ CHỐT |
+| 12 | **ATOM LAYER** — phần tử web · namespace `X.Base` · **cấm children** · isSkeleton co-located · size↔icon | ✅ CHỐT |
+| 13 | **LAYOUT TIER** — bộ khung (tên cũ "primitive") · namespace `X.<Member>` · slot `header/body/footer` · danh sách = `items` | ✅ CHỐT |
+
+> ### ⚠️ ĐỔI TÊN TẦNG (2026-07-25) — đọc TOÀN BỘ canon theo ánh xạ này
+> Cây 5 tầng: **`atom`(§12) → `layout`(§13) → `design` → `block` → `screen`** (§6c).
+> - Chữ **"primitive"** xuất hiện ở §4/§6/§10/§11 (viết trước 2026-07-25) = tầng **LAYOUT** bây giờ — luật vẫn đúng, chỉ đổi TÊN (bỏ "primitive" vì nguyên tử giờ là `atom`).
+> - §11 "Layouts & Overlays" = tầng **SCREEN**, KHÔNG phải tầng `layout` §13.
+> - Năng lực nào **đẩy được xuống atom** thì đẩy (§6a.1) — khung chỉ giữ việc bố trí.
 
 ---
 
@@ -137,11 +145,18 @@ Block/consumer compose primitive bằng cách truyền **children TRẦN**; **pr
 ### 5a. Size icon = ĐỐI CHIẾU text-size đứng cạnh (KHÔNG theo line-height)
 Icon cạnh chữ phải khớp **cỡ CHỮ THẬT (font-size)**, không phải chiều cao dòng (line-height). Thang cặp:
 
-| text đứng cạnh | font-size | icon |
-|---|---|---|
-| `text-xs` | 12px | **`size-4`** (16px) |
-| `text-sm` | 14px | **`size-5`** (20px) |
-| `text-base` | 16px | **`size-6`** (24px) |
+**⚠️ HAI THANG theo LIB — đừng trộn (thầy siết 2026-07-25):**
+
+| text đứng cạnh | font-size | icon PHOSPHOR (app `src/`, block port cũ) | icon **GRAVITY** (ATOM LAYER §12, code mới) |
+|---|---|---|---|
+| `text-xs` | 12px | `size-4` (16px) | **`size-3`** (12px) |
+| `text-sm` | 14px | `size-5` (20px) | **`size-3.5`** (14px) |
+| `text-base` | 16px | `size-6` (24px) | **`size-4`** (16px) |
+| `text-lg` | 18px | — | **`size-[18px]`** |
+
+- **GRAVITY = 1:1 với font-size** (glyph gravity dày/đặc hơn nên bằng cỡ chữ là vừa mắt); **PHOSPHOR = font-size + 1 nấc** (glyph mảnh nên phải to hơn mới cân). Chọn thang theo **lib đang dùng ở file đó** (§5c).
+- ❌ neo (2026-07-25): lấy `size-4` cho chữ 14px ở atom gravity (quen tay HeroUI/phosphor) → thầy bắt "14 thì phải `size-3.5`". Đối chiếu `Typography` ICON_CLS trước khi đặt thang mới.
+- ⚠️ **Bẫy specificity** khi ép icon trong HeroUI Button: HeroUI có `.button svg:not(…) { size-5 sm:size-4 }` = **(0,2,2)** > class Tailwind thường (0,1,1) → phải `[&_svg]:!size-3.5` (có `!`) và đặt trên **span bọc icon** (không trên button, kẻo đụng `<Spinner>`). Không ép thì icon âm thầm rơi về thang HeroUI mà nhìn vẫn "hợp lý".
 
 - **Button**: icon co theo **text-size CỦA button đó** (button dùng `text-sm` → icon `size-5`…). Đối chiếu text thật của mỗi size, đừng đoán theo `h-*`.
 - **Ai ép size?** — chính primitive (§4): consumer truyền icon TRẦN, primitive map text→icon (vd `StatusChip` `size-4` cho chip nhỏ; `ButtonGroup` map size nút → icon).
@@ -157,8 +172,17 @@ Icon mang ý nghĩa hành động → có **micro-interaction riêng khi tương
 - **Chevron mở/đóng (accordion, dropdown)** → **xoay 180°** khi mở: `transition-transform data-[open]:rotate-180` (đây là ROTATE, không phải trượt).
 - **Owner:** micro-interaction thuộc **primitive/affordance**, consumer chỉ chọn icon; không hand-roll animation ở call-site.
 
-### 5c. Icon lib — MẶC ĐỊNH `@phosphor-icons/react` (phosphor)
-Thầy chốt 2026-07-23 (đảo lại gravity): **phosphor là lib icon chính** — gravity **quá ĐẬM** so với hệ, đã bỏ. `import { CaretRightIcon, ArrowRightIcon, CheckCircleIcon } from "@phosphor-icons/react"`. **Caret điều hướng = phosphor `CaretRightIcon` `size-3` muted, không trượt.** (Đã revert mọi icon gravity 2026-07-23: ChevronRight→CaretRightIcon, ArrowRight→ArrowRightIcon, CircleCheck→CheckCircleIcon.)
+### 5c. Icon lib — PHÂN VÙNG: app/block cũ = phosphor · ATOM LAYER = gravity (thầy chốt 2026-07-25)
+**Chọn lib theo TẦNG, không phải theo sở thích:**
+
+| Vùng | Lib | Lý do |
+|---|---|---|
+| **Atom layer §12** (`.storybook/components/atoms/**`) + mọi thứ compose atom | **`@gravity-ui/icons`** | hợp khối HeroUI v3; thang icon **1:1 font-size** (§5a) |
+| App `src/` + block/design port cũ | `@phosphor-icons/react` | giữ nguyên, KHÔNG migrate hàng loạt |
+
+- ⚠️ **gravity KHÔNG có prop `weight`** (khác phosphor) — đừng truyền. Ưu tiên bản **outline** (`CircleCheck`, không `CircleCheckFill`); `CircleFill` dùng làm **dot** (`width={6}`).
+- ⚠️ Verify tên export trước khi dùng: `grep 'as <Name>' node_modules/@gravity-ui/icons/esm/index.js`.
+- Lịch sử: 2026-07-23 từng đảo gravity→phosphor cho app vì gravity **quá ĐẬM**; `import { CaretRightIcon, ArrowRightIcon, CheckCircleIcon } from "@phosphor-icons/react"`. **Caret điều hướng = phosphor `CaretRightIcon` `size-3` muted, không trượt.** (Đã revert mọi icon gravity 2026-07-23: ChevronRight→CaretRightIcon, ArrowRight→ArrowRightIcon, CircleCheck→CheckCircleIcon.)
 
 ### ✅ Checklist đo (§5)
 - [ ] Icon cạnh text: size khớp **font-size** (xs→4 · sm→5 · base→6), không theo line-height?
@@ -189,15 +213,18 @@ TRƯỚC khi đẻ 1 component MỚI, cân nhắc: nó có thể là **1 PROP** 
 - ❓ cân nhắc: `FloatingActionButton` → `<Button variant="fab" iconOnly>`? `ElementCloseButton` → `<Button iconOnly>` + close-affordance? — gộp thành prop TRƯỚC khi quyết giữ riêng.
 - ❌ anti: đẻ 1 component cho MỖI biến thể nhỏ → nổ số component, drift, khó bảo trì.
 
-### 6c. BỐN TẦNG — primitive · design · block · layout/overlay — ✅ CHỐT (thầy chốt 2026-07-24, siết từ bản 2026-07-23)
+### 6c. NĂM TẦNG — atom · **layout** · design · block · **screen** — ✅ CHỐT (thầy ĐỔI TÊN TẦNG 2026-07-25)
+> **⚠️ ĐỔI TÊN (2026-07-25):** bỏ chữ **"primitive"** (sai nghĩa — "nguyên tử" giờ là **atom**). Tầng đó tên mới = **LAYOUT** (bộ khung). Tầng ghép-block-thành-màn đổi từ "layout/overlay" → **SCREEN**. Thầy: *"atom là phần tử web; primitives là layout web, kiểu bộ khung, như PageHeader — để hình dung sự tương tác của phần tử, không mang chức năng"*.
+> Bảng cũ (4 tầng) đọc theo ánh xạ: `primitive → layout` · `layout/overlay → screen`.
 Phân tier theo BẢN CHẤT, không theo "có phải card không". ⚠️ Bản 2026-07-23 chỉ có primitive-vs-block nên gọi "component mang vai nội dung" là *block*; bản này **tách rõ `design`** — thứ đó giờ là **DESIGN**, còn **BLOCK** dành cho VÙNG CHỨC NĂNG.
 
 | Tầng | Bản chất | Test nhận biết | Neo |
 |---|---|---|---|
-| **PRIMITIVE** | **Hình dạng thuần, slot-AGNOSTIC** — chỉ định nghĩa khung/shape, nhét GÌ vào cũng được; tự sở hữu sizing/spacing/tone nội bộ (§4). | props là **slot trơ** (children/rows/title/frame) | `Typography` · `Button` · `TitledText` · `InlineIconLabel` · `PricePoint` · `NestedCard` · `SurfaceCard` · `PressableCard` · `CrossListCard` · `Skeleton` |
+| **ATOM** (§12) | **PHẦN TỬ web** — 1 component HeroUI bọc lại, API khoá chặt, tự lo `isSkeleton`. Tầng THẤP NHẤT. | 1 phần tử người dùng chạm được (nút/ô nhập/chip/ảnh) | `Button.Base` · `Input.Text` · `Chip.Dot` · `Image.Base` · `Menu.Base` · `Typography.Sm` |
+| **LAYOUT** *(tên cũ: primitive)* | **BỘ KHUNG, slot-AGNOSTIC** — sắp đặt phần tử, cho thấy chúng bố trí/tương tác ra sao; **KHÔNG mang chức năng**; tự sở hữu sizing/spacing/tone nội bộ (§4). | props là **slot trơ** (header/body/footer · items · frame) | `SurfaceCard.*` · `PageHeader` · `AsyncContent` · `ModalShell` · `ListRow` · `Callout` · `Skeleton` |
 | **DESIGN** | **MỘT component mang VAI NỘI DUNG** — prop có nghĩa nội dung map tới data thật; có state của chính nó. | props là **vai nội dung có tên** (value/label · cover/title/meta · item) | `SummaryCard` (metric) · `MediaCard` (media object) · `SectionCard` (section-header + action) · `EntityResultRow` · `CourseCard` |
 | **BLOCK** | **MỘT VÙNG CHỨC NĂNG** — ghép từ (block · design · primitive) và **render theo STATE** của chức năng đó. 1 chức năng = 1 block = 1 story. | phục vụ **1 chức năng người dùng** + có **bộ state riêng** (empty/loading/error/content…) | `ChatThread` · `ChatHistory` · `ChatComposer` · `ChatToolResult` · `FlashcardDeckList` |
-| **LAYOUT / OVERLAY** | **Nơi GHÉP block** thành màn (page) hoặc vùng nổi (drawer/modal). KHÔNG tự vẽ chi tiết — chỉ bố trí. | chỉ compose block + bố cục; tự vẽ primitive chi tiết = **sai tầng** | trang `Flashcards` · `ContentAiChatDrawer` · `PaymentModal` |
+| **SCREEN** *(tên cũ: layout/overlay)* | **Nơi GHÉP block** thành màn (page) hoặc vùng nổi (drawer/modal). KHÔNG tự vẽ chi tiết — chỉ bố trí. | chỉ compose block + bố cục; tự vẽ chi tiết = **sai tầng** | trang `Flashcards` · `ContentAiChatDrawer` · `PaymentModal` |
 
 - ⛔ **ĐỪNG ép lên block khi chỉ là primitive rời** — vùng chỉ gồm vài nguyên tử cạnh nhau, không có chức năng composite (vd header drawer = `Typography` tiêu đề + switcher chế độ) → render **primitive THẲNG**, không đẻ block giả (xem §11c).
 - **Ranh SectionCard (design) vs NestedCard (primitive):** SectionCard áp header có **action** + accent (pattern nội dung) → design; NestedCard chỉ là container lồng (header-label trơ + sections agnostic) → primitive (thầy chốt 2026-07-23).
@@ -327,22 +354,28 @@ Càng xuống primitive càng KHÍT, càng lên block/page càng RỘNG. Mỗi s
 
 ---
 
-## 11. Layouts & Overlays — decompose top-down theo CHỨC NĂNG, block-first — ✅ CHỐT (thầy chốt 2026-07-24)
+## 11. SCREENS & Overlays — decompose top-down theo CHỨC NĂNG, block-first — ✅ CHỐT (thầy chốt 2026-07-24; đổi tên "Layouts"→"Screens" 2026-07-25 để không đụng tầng LAYOUT §13)
 
 Cây tier nối lên trên: `primitive → design → block → **layout(page)** / **overlay(modal·drawer)**`. Một layout/overlay được đọc bằng cách **bẻ theo CHỨC NĂNG**, ưu tiên tier CAO nhất — giống mở một app: nhìn ra các VÙNG chức năng trước, không xé ngay xuống nguyên tử.
 
-### 11a. Decompose block-first: BLOCK → design → primitive
-- Ở tầng layout/overlay, mỗi vùng chức năng gom về tier **CAO nhất phù hợp**: là composite chức năng → **BLOCK**; chưa tới → design; nguyên tử → primitive. **KHÔNG drill xuống primitive ở tầng đỉnh.**
-- Anatomy của layout/overlay = các **BLOCK node** (vùng chức năng); mỗi block ĐÀO SÂU ở **story riêng** của nó (nội dung design/primitive nằm ở đó, không phơi ở tầng overlay).
-- ✅ neo (ContentAiChatDrawer 2026-07-24): overlay = `ChatHistory` · `ChatThread` · `ChatComposer` (3 block chức năng) + header 2 primitive — KHÔNG hiện từng ChatBubble/Typography ở tầng overlay.
+### 11a. Mỗi tầng CHỈ badge con TRỰC TIẾP ở TIER CAO NHẤT — mỗi node = cửa vào story riêng (⭐ áp MỌI tầng, thầy siết 2026-07-24)
+Luật này KHÔNG chỉ cho overlay — áp cho **mọi component compose** (layout · overlay · block):
+- Khi phơi anatomy, một component **chỉ badge con TRỰC TIẾP mà nó compose, ở TIER CAO NHẤT** — rồi **DỪNG**. Nội bộ của con đó là việc của **story riêng của con** (bấm node để đào sâu). ⛔ KHÔNG drill xuyên qua một component để badge cháu-nội của nó.
+- Mỗi vùng gom về tier **CAO nhất phù hợp**: composite-chức-năng → BLOCK · component-vai-nội-dung → DESIGN · pattern-slot-agnostic → PRIMITIVE. Không hạ xuống primitive khi đã có node cao hơn ôm.
+- ✅ neo (CourseContents 2026-07-24): layout badge **`PageHeader` = 1 node** — KHÔNG badge `Breadcrumb`/`HighlightChips` bên trong nó (đó là nội bộ PageHeader, đào ở story PageHeader). ❌ bài học: đã lỡ khai `PageHeader` kèm `children:[Breadcrumb, HighlightChips]` + component tự badge riêng 2 con → **drill sai tầng**, sửa: gỡ children + gỡ `data-anat-part` con.
+- ✅ neo (ContentAiChatDrawer): overlay badge `ChatThread`/`ChatComposer` (block) — không phơi ChatBubble/ChatToolResult bên trong.
+- **Bậc thang (mỗi tầng chỉ 1 nấc):** layout `CourseContents` → PageHeader·EnrollGate·ContinueCard… (KHÔNG breadcrumb/meta) · block `ChatThread` → ChatBubble·ChatToolResult (KHÔNG Typography/NestedCard) · block `ChatToolResult` → NestedCard·EntityResultRow·SeeMoreLink.
 
 ### 11b. CHỨC NĂNG khác nhau → BLOCK khác nhau (đừng over-group)
 - Mỗi **chức năng độc lập = 1 block riêng (1 story riêng)**. CẤM gộp hai chức năng không liên quan vào một block cho "gọn".
 - ✅ neo: "lịch sử hội thoại" (đổi/chọn cuộc trò chuyện) ≠ "luồng tin nhắn" (thread) → **2 block** `ChatHistory` và `ChatThread`, không nhét history vào trong ChatThread. ❌ bài học 2026-07-24: đã lỡ gộp → sai.
 
-### 11c. ĐỪNG ép thành block khi chỉ là primitive
-- Vùng chỉ gồm nguyên tử rời (vd header = tiêu đề + nút) → render **primitive THẲNG** (`Typography` + `Button`), KHÔNG bọc một "block" giả (`ChatDrawerHeader`) chỉ để có tên. Block chỉ khi có **composite/chức năng thật đáng tái dùng**.
-- ❌ bài học 2026-07-24: đã lỡ bọc title+mode thành `ChatDrawerHeader` block → sai; đúng là 2 primitive tại chỗ.
+### 11c. Gom-hay-không: hỏi "cụm này có LẶP thành PATTERN CÓ TÊN không?" (thầy siết 2026-07-24)
+Ranh giới giữa "gom thành 1 component" và "để primitive rời" KHÔNG phải "nhiều atom hay ít atom" — mà là **cụm đó có lặp thành một pattern có tên, đáng tái dùng không**:
+- **CÓ lặp thành pattern có tên → 1 COMPONENT** (dù làm từ primitive). VD: breadcrumb + tiêu đề + mô tả + meta = **`PageHeader`** (lặp gần MỌI page) → 1 node, không xé rời. Cùng lẽ: `PricePoint`/`TitledText`/`InlineIconLabel` (composite lặp → gom, §6a).
+- **KHÔNG lặp, chỉ atom rời tình cờ ở đúng 1 chỗ → PRIMITIVE RỜI.** VD: header drawer chat = tiêu đề + nút chế độ (chrome riêng của 1 drawer, không lặp) → render `Typography` + `ModeSwitch` thẳng, KHÔNG bọc `ChatDrawerHeader` giả.
+- **Test:** cụm này xuất hiện ở ≥2 surface như một khối có tên? → component. Chỉ ở đây, ghép cho tiện? → rời. (Nối [[feedback-semantic-unit-primitive-and-vertical-rhythm]]: composite lặp → gom.)
+- ❌ bài học 2026-07-24: (a) lỡ bọc title+mode thành `ChatDrawerHeader` (không lặp) → SAI, để rời; (b) lỡ để breadcrumb/title/meta của `CourseContents` thành 3 node rời (LÀ pattern PageHeader) → SAI, gom thành 1 `PageHeader`.
 
 ### 11d. Overlay = render NỘI DUNG dạng leaf, KHÔNG render portal
 - Design-system review một overlay = render **NỘI DUNG** (Header + Body content) dạng **leaf tĩnh y như block**, KHÔNG dựng portal sống (`Modal`/`Drawer` + backdrop). Portal/placement/backdrop = việc tích hợp của app, ngoài scope.
@@ -371,6 +404,18 @@ Luật cốt lõi tách "leaf" khỏi "state" ở tầng layout/overlay:
 
 > **Smell test:** hai leaf có `parts` (anatomy) trùng nhau → gần như chắc chắn chúng là **1 leaf + 2 state**, gộp lại.
 
+### 11g. ⭐ Bộ STATE chuẩn phải render ĐỦ — liệt kê TRƯỚC khi build (thầy chốt 2026-07-25: "sao thầy dặn mà thiếu/quên hoài")
+"Đủ states" (§11e) KHÔNG được mơ hồ — mỗi TẦNG có **bộ state chuẩn phải render HẾT** (mỗi state 1 story). Gen happy-path (chỉ `Default` + `Loading`) rồi dừng = **sai kỷ luật**, không phải thiếu info.
+
+| Tầng | Bộ state BẮT BUỘC (mỗi cái 1 story) |
+|---|---|
+| **Atom form-control** (Input.* · Select.* · Choice.*) — atom TỰ mang label/error (§12e), KHÔNG còn tầng Field riêng | `Default`(trần) · `WithLabel` · `Required`(*) · `Filled`/`Selected`/`Checked` · **`Disabled`** · **`Error`**(nhãn + message + viền) · `Loading`(skeleton) |
+| **Async/interactive block** | `empty`(+CTA) · `loading`/skeleton · **`error`** (chung + domain) · `content`(biến thể) · `pending`/streaming |
+
+- Trước khi code: **VIẾT RA bộ state** → build HẾT → **self-critique + grep đếm `export const`** đối chiếu bảng trên, RỒI mới báo xong.
+- ⚠️ Giao **WORKFLOW/agent**: spec PHẢI **liệt kê đủ bộ state trong prompt** — đừng ghi "Default + Loading" (agent build thiếu y hệt).
+- ❌ neo (2026-07-25): dựng 17 form atom mà story chỉ `Default`+`Loading`; thầy phải chỉ "thiếu Filled/Disabled/Invalid" → **lỗi enumerate kỷ luật** (xem memory `feedback-enumerate-full-state-set-before-gen`).
+
 ### ✅ Checklist đo (§11)
 - [ ] Anatomy layout/overlay là **BLOCK node** (vùng chức năng), KHÔNG phơi primitive ở tầng đỉnh?
 - [ ] Chức năng khác nhau tách **block khác nhau** (không over-group)?
@@ -379,3 +424,89 @@ Luật cốt lõi tách "leaf" khỏi "state" ở tầng layout/overlay:
 - [ ] Mỗi block chức năng có **file + story riêng phủ đủ states**?
 - [ ] **Leaf chia theo CẤU TRÚC** — empty/loading/error KHÔNG thành leaf, mà là state của block?
 - [ ] Không có 2 leaf nào **trùng `parts`** (nếu trùng → gộp thành 1 leaf + state)?
+- [ ] Render **ĐỦ bộ state chuẩn** của tầng (§11g: atom form = Default/Filled/Disabled/Invalid/Loading · field = +WithHint/Required/Error · block = empty/loading/error/content/pending)? **grep đếm `export const` khớp bảng**?
+
+---
+
+## 12. ATOM LAYER — PHẦN TỬ web, bọc HeroUI, API khoá chặt — ✅ CHỐT (thầy chốt 2026-07-25)
+Tầng thấp nhất của cây (dưới tầng `layout` §13). **Atom = MỘT component HeroUI được bọc lại** với API thu hẹp; primitive/design/block compose atom thay vì gọi HeroUI trực tiếp. Sống ở `.storybook/components/atoms/<cat>/<Atom>/`, story `Atoms/<Cat>/<Family>/<Family>.<Member>`.
+
+### 12a. ⭐ Namespace `X.Base` — KHÔNG export component trần
+**MỌI atom** phải là namespace object, kể cả khi chỉ có một hình thái: `export const Menu = { Base: MenuBase }`. Thành viên phân theo **hình thái/kiểu**, không theo biến thể thị giác (biến thể = PROP, §6b).
+- Neo: `Chip = {Base, Dot}` · `Button = {Base, Icon, Group}` · `Input = {Text, Textarea, Number, Date…}` · `Typography = {Xs, Sm, Base, Lg}` · `Image = {Base}` · `Tooltip = {Base}`.
+- ❌ neo (2026-07-25): `Menu`/`Popover`/`Tabs`/`Toast`… export trần → thầy bắt "phải là `Menu.Base`".
+
+### 12b. ⭐⭐ CẤM `children` — mọi thứ đi bằng PROP DỮ LIỆU
+Consumer **không được truyền structure**. children là NHÃN → prop `label`/`triggerLabel`; children là DANH SÁCH con → **`items`/`options` dữ liệu**, atom tự dựng member con.
+- Neo: `Button.Group items={[{key,label?,icon?,variant?,…}]}` (item có `label` → dựng `Button.Base`, không có → `Button.Icon`) · `Select options` · `Menu sections` · `Choice.RadioGroup options`.
+- ⚠️ **NGOẠI LỆ CÓ TÊN — atom-WRAPPER**: giữ `children` **khi và chỉ khi BUỘC PHẢI bọc phần tử khác** — `Tooltip.Base` (bọc trigger bất kỳ), `Badge.Base` (neo lên anchor bất kỳ). Phải **ghi lý do trong doc header**. Atom khác cấm tuyệt đối.
+- ✅ VẪN cho `ReactNode` ở prop **THÂN nội dung** (`content`/`action`/`title`/`label`/`hint`/`errorMessage`) — chỉ cấm `children`.
+- ❌ neo: `<Button.Group><Button.Base/>…</Button.Group>` → sai; phải `items={[…]}`.
+
+### 12c. `isSkeleton` CO-LOCATED (hybrid C) — atom tự sở hữu skeleton LÁ
+Atom tự vẽ skeleton của chính nó (`HeroSkeleton` đúng hình/size), **KHÔNG** gọi `Skeleton.*`. `Skeleton.*` chỉ còn giữ **scaffold structural** (Card/Table/ListRow…). Cluster truyền `isSkeleton` xuống → mỗi item tự mirror (giữ footprint, không nhảy layout, §8).
+
+### 12d. ⭐ `variant` và `size` là HAI TRỤC ĐỘC LẬP — icon là HÀM của `size`
+`variant` = **ý nghĩa** (primary/danger…) · `size` = **tỉ lệ** (box + font + icon). **KHÔNG có prop icon-size** — atom tự suy từ `size` (§4 ownership). Naming size map thẳng HeroUI: `sm · md · lg` (md default). Cluster đặt `size` ở **CẤP CỤM** (hàng nút luôn đồng cỡ), item chỉ mang vai trò/hành vi.
+
+### 12e. Form atom TỰ MANG label/hint/errorMessage/required — KHÔNG có tầng Field riêng
+Thầy chốt 2026-07-25: **xoá `Field.*` primitive**; `Input.*`/`Select.*`/`Choice.*` tự mang `label` · `hint` · `errorMessage` · `isRequired` qua scaffold nội bộ **`FieldFrame`** (`atoms/forms/_field/`, self-contained chỉ HeroUI — atom là tầng thấp nhất, KHÔNG import `blocks/`). Bỏ hết 4 prop → atom trở lại ô TRẦN.
+- `errorMessage` set → control `isInvalid` (viền lỗi) + dòng đỏ. Story `Error` phải hiện **ĐỦ nhãn + dòng lỗi + viền** (❌ neo: chỉ có viền → thầy bắt).
+- Anatomy: FieldFrame badge `Label`/`Description`/`Error`; control con tự badge `Field`/`Skeleton` — **không** badge wrapper Control (tránh nest 2 tầng, §11a).
+- **a11y**: input đơn nối `id`↔`htmlFor`; control COMPOUND (Number/Date/Otp) không nối được → helper `fieldName(label, fallback)` đổ label-string vào `aria-label` (nếu không sẽ **mất accessible name** — tsc/eslint KHÔNG bắt).
+
+### 12f. ⭐ STATE THUỘC VỀ AI — story không lặp state của thành viên khác
+Story chỉ render state **SINH RA TỪ CHÍNH component đó**. State đã có "nhà" ở component khác thì KHÔNG lặp lại.
+- ❌ neo (2026-07-25): `Button.Group` có `WithIcons`/`Pending`/`Disabled` — đều là state của `Button.Base` → xoá, chỉ giữ `Default` (mapping items) · `Sizes` (size cấp cụm) · `Loading` (skeleton cả cụm).
+- ❌ neo ngược chiều: `Choice.Radio` (radio lẻ **không sống độc lập**, phải nằm trong RadioGroup) ôm `hint`/`errorMessage`/`isRequired` của NHÓM → đẩy lên `Choice.RadioGroup`.
+- Test: "state này do prop của CHÍNH nó sinh ra, hay chỉ chuyển tiếp xuống con?" — chuyển tiếp ⇒ không phải state của nó.
+
+### ✅ Checklist đo (§12)
+- [ ] Atom export **namespace `X.Base`** (không component trần)?
+- [ ] **KHÔNG `children`** (trừ atom-wrapper Tooltip/Badge có ghi lý do)? Cụm dùng `items`/`options` dữ liệu?
+- [ ] `isSkeleton` **co-located** trong atom (không gọi `Skeleton.*`)?
+- [ ] `size` là trục riêng; **icon suy từ size** (không có prop icon-size)? Cluster đặt `size` ở cấp cụm?
+- [ ] Form atom tự mang `label`/`hint`/`errorMessage`/`isRequired`; story `Error` hiện đủ **nhãn + message + viền**?
+- [ ] Control compound có **accessible name** (aria-label từ label) khi không nối được `htmlFor`?
+- [ ] Story KHÔNG lặp state đã có nhà ở component khác (§12f)?
+
+---
+
+## 13. LAYOUT TIER — BỘ KHUNG (tên cũ: "primitive") — ✅ CHỐT (thầy chốt 2026-07-25)
+Tầng trên `atom` (§12), dưới `design`. **Khung sắp đặt phần tử** — cho thấy các atom bố trí/tương tác ra sao. **KHÔNG mang chức năng, KHÔNG mang nội dung domain** (có nội dung domain ⇒ tụt xuống `design`/`block`, §6c).
+
+> Thầy: *"atom là phần tử web; layout là bộ khung, như PageHeader — để hình dung sự tương tác của phần tử, không mang chức năng"*. Chữ **"primitive" bị bỏ** vì nguyên tử giờ là atom.
+
+### 13a. Namespace theo HỌ KHUNG — `X.<Member>`
+Gom các khung **cùng họ** vào một namespace; member = **hình thái khung**, không phải biến thể thị giác (biến thể = prop, §6b). Gom **RỘNG** (thầy chốt): mọi khung mặt-thẻ về `SurfaceCard.*` thay vì tách nhiều namespace nhỏ.
+- Neo: `SurfaceCard = { Base, Nested, Pressable, PressableGroup, List, Accordion, CrossList, Placeholder }`.
+- Story title: `Layouts/<Cat>/<Family>/<Family>.<Member>`.
+
+### 13b. ⭐ API khung — slot CÓ TÊN là chính · `children` được phép · **danh sách BẮT BUỘC `items`**
+Khác atom (§12b cấm children tuyệt đối): khung **tồn tại để bọc nội dung**, nên children hợp lệ — nhưng có thứ tự ưu tiên:
+
+| Loại khung | API |
+|---|---|
+| Khung **BỌC** (`.Base`/`.Nested`/`.Pressable`, ModalShell, PageContainer) | slot **có tên** `header`/`body`/`footer` là đường CHÍNH; `children` = shorthand của `body` |
+| Khung **DANH SÁCH LẶP** (`.List`/`.Accordion`/`.CrossList`/`.PressableGroup`, LabeledList) | **BẮT BUỘC `items` dữ liệu — CẤM children** (giống `Button.Group items` §12b) |
+
+- Test: "nội dung có phải N phần tử CÙNG KIỂU lặp lại không?" — có ⇒ `items`; không ⇒ slot/children.
+
+### 13d. ⭐ Khung BỐ CỤC = nơi THI HÀNH §10 — `gap` là UNION LITERAL, SSOT một chỗ
+Thang §10c (`0·1·2·3·6·8`) trước đây chỉ là *lời khuyên* — rà tay mới bắt được `gap-4`/`gap-5`. Từ 2026-07-25 nó được **ép bằng TYPE**: khung bố cục nhận `gap: SpaceScale` (union literal), off-scale là **lỗi tsc tại call-site**, không phải phát hiện lúc review. Đây chính là LÝ DO tầng khung sở hữu `gap` (§10a: seam thuộc PARENT).
+- Khung bố cục nền: **`Stack.{V,H}`** (xếp dọc/ngang) · **`Split.Base`** (trái↔phải) · **`Cluster.Base`** (hàng wrap) · **`Grid.Base`** (lưới responsive).
+- ⚠️ **SSOT: `blocks/_spacing.ts`** — `SpaceScale` + `GAP_CLASS` + `ALIGN_CLASS` khai **ĐÚNG MỘT CHỖ**. Khung khác import, **CẤM khai lại tại chỗ** dù giá trị giống hệt.
+- ❌ neo (2026-07-25): 4 agent song song đẻ 4 tên cho cùng thang (`SpaceScale`/`SectionGap`/`SpacingStep`/`KeyValueGap`) + 4 bản sao `GAP_CLASS` → 4 nguồn sự thật ngay lúc mới sinh. Đã gom về 1. **Khi fan-out nhiều agent: chỉ định SẴN file SSOT dùng chung trong spec**, đừng để mỗi agent tự khai.
+- Class Tailwind phải là **literal** (`gap-3`), KHÔNG nội suy `gap-${n}` (JIT không emit ra).
+
+### 13c. Khung KHÔNG lặp lại atom — trùng thì XOÁ, dùng atom thẳng
+Sau khi có atom layer, khung nào chỉ là "atom mặc áo" thì **xoá**, consumer dùng atom trực tiếp.
+- ❌ Đã xoá: `Field.*` (atom form tự mang label/error §12e) · `navigation/Pagination` · `ResponsiveBreadcrumb` · `TabsCard` (đã có `Pagination.Base`/`Breadcrumbs.Base`/`Tabs.Base`) · `AvatarGroup` → thành member atom `Avatar.Group`.
+- Giữ khung CHỈ KHI nó thêm khái niệm khung thật (bố cục/nhóm/trạng thái khung), không phải đổi tên atom.
+
+### ✅ Checklist đo (§13)
+- [ ] Khung nằm đúng tier: **không** mang nội dung domain / chức năng (nếu có ⇒ design/block)?
+- [ ] Gom **namespace theo họ** (`SurfaceCard.*`), không rải component rời cùng loại?
+- [ ] Danh sách lặp dùng **`items`** (không children)? Khung bọc có slot `header`/`body`/`footer`?
+- [ ] Không có khung nào **trùng chức năng atom** (trùng ⇒ xoá, dùng atom)?
+- [ ] Story title `Layouts/…` (KHÔNG còn `Primitives/…`)?
