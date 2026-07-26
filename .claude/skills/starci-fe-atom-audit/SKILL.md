@@ -31,6 +31,19 @@ description: Audit + dựng lại MỘT atom trong Storybook design-system theo 
 | **CÓ HÌNH** (variant, size, icon, isDisabled, isSkeleton…) | mỗi cái = **một leaf** (§12g) |
 | **KHÔNG hình** (onPress, className, showAnatomy, anatPart, key) | KHÔNG có leaf |
 
+**Phép thử "có hình" = ĐỔI PIXEL** (§12g.1, thầy chốt 2026-07-26): đổi giá trị prop này,
+màn hình có khác một pixel nào không? Không ⇒ KHÔNG leaf, dù nó là prop thật.
+- ❌ prop chỉ chạy vào `aria-*`: `label` (Spinner) · `ariaLabel` · `removeLabel` · `aria-label`
+  nút hiện/ẩn mật khẩu. Mở leaf cho chúng thì leaf render ra **hai ô y hệt** — chính là dấu
+  hiệu LỖI ATOM mà luật này đang bắt.
+- a11y vẫn phải ĐÚNG (§12e), chỉ là kiểm bằng đọc code/eslint, không bằng một leaf.
+
+**Prop nội dung** (§12g.2, thầy chốt 2026-07-26) — chia hai loại:
+- `items`/`options` (dữ liệu dựng ra N phần tử con) ⇒ **CÓ leaf, và leaf đó CHÍNH LÀ `Default`**.
+  Đừng đẻ thêm leaf `Items`. Neo: `Button.Group` → `Default` ghi *"Prop `items`"*.
+- `text`/`amount`/`title` (một chuỗi/số) ⇒ **KHÔNG leaf riêng** — mọi leaf khác đều phải truyền
+  nó nên nó không phải một trục. Neo: `Chip.Base` → `Default` ghi *"Bare chip"*.
+
 Với mỗi prop có hình, ghi **ĐỦ TẬP GIÁ TRỊ**:
 - union → liệt kê hết. ⚠️ *Thiếu một giá trị là giá trị đó sẽ mọc thành leaf lạc chỗ ở
   nơi khác* (neo: `danger` không có trong mảng `VARIANTS` nên đẻ ra story `Danger` riêng).
@@ -153,18 +166,27 @@ Sau đó **restart Storybook** (watcher Windows kẹt khi thêm/xoá/đổi tên
 
 ---
 
-## PANEL ANATOMY — 3 TAB (thầy chốt 2026-07-26)
+## PANEL ANATOMY — 2 TAB (thầy chốt 2026-07-26, RÚT GỌN cùng ngày sau khi soi thật)
 
-Mỗi leaf có một panel dưới khung render, chia **ba tab**:
+Mỗi leaf có một panel dưới khung render, chia **hai tab**:
 
 | Tab | Nội dung | Luật |
 |---|---|---|
-| **States** | bảng PHỦ của prop sở hữu leaf | ⛔ **KHÔNG vẽ lại hình** — khung trên render rồi. Mỗi giá trị một ô: xanh = đã render · **đỏ = union có mà leaf chưa render**. Header ghi `n/N state`. |
-| **Deps** | cây phụ thuộc | Chỉ component CÓ story riêng, bấm nhảy được. Rỗng thì nói thẳng "no deps". |
-| **Code** | snippet gọi | Đủ mọi giá trị ở tab States, + nút Copy. |
+| **Deps** | cây phụ thuộc | Chỉ component **CÓ `storyId` thật** — bấm nhảy được. Entry không `storyId` KHÔNG được tính là dep (không vào cây). Rỗng ⇒ **tab không mọc ra** (không còn dòng "no deps"). |
+| **Code** | snippet gọi | Snippet đủ mọi giá trị đang được leaf này minh hoạ, + nút Copy. |
 
-Panel là **công cụ bắt lỗi**, không phải chú thích: ô đỏ chính là thứ đáng lẽ bắt được
-`danger` sót khỏi mảng `VARIANTS` trước khi nó mọc thành story lạc chỗ.
+⚠️ **Tab States đã BỎ** (thầy chốt 2026-07-26, lần 2 — qua soi thật trên Storybook: nó chỉ
+lặp lại bằng CHỮ đúng thứ khung render bên trên đã hiện bằng HÌNH, một tab riêng cho việc
+đó là dư). Prop `states`/type `AnatomyStateCell` đã xoá khỏi `BlockAnatomy` — ĐỪNG viết lại.
+Kỷ luật "render ĐỦ mọi giá trị của prop, đừng để giá trị nào rớt ra ngoài" (§12g) **vẫn còn
+nguyên** — chỉ là không còn ô đỏ tự động nhắc nữa, tác giả story phải tự đối chiếu union khi
+viết leaf.
+
+Deps giờ NGHIÊM khắc hơn: một entry `annotate`/`parts` thiếu `storyId` (không bấm đi đâu
+được) sẽ bị BlockAnatomy tự lọc bỏ, không hiện trong cây — nên tác giả không cần tự nhớ
+"chỉ khai component có story riêng", component tự gạt phần khai sai. Atom lá bọc thẳng
+HeroUI mà lỡ tự khai một part TRỎ VÀO CHÍNH NÓ (neo: `Spinner.Base` bản cũ khai part
+"Spinner" không `storyId`, dùng `parts` deprecated) coi như KHÔNG có deps — đúng bản chất.
 
 ### ✍️ NGÔN NGỮ — chữ trên panel viết **TIẾNG ANH**
 

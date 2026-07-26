@@ -9,6 +9,7 @@
 ## Mục lục
 | § | Principle | Trạng thái |
 |---|---|---|
+| **0** | **NƠI KẺ BẢN VẼ** — `.storybook` = bản vẽ · `src` = công trình (THẦY restructure) | ✅ CHỐT |
 | 1 | Surface-in-surface — phân lớp bề mặt | ✅ CHỐT |
 | 2 | Color-prominence — nổi/chìm · chip vs accent (+ §2d đồng bộ element) | ⏳ DRAFT (§2d ✅ CHỐT) |
 | 3 | Reading-flow — từ trái, hạn chế giữa | ⏳ DRAFT (chờ 3 câu) |
@@ -29,6 +30,29 @@
 > - Chữ **"primitive"** xuất hiện ở §4/§6/§10/§11 (viết trước 2026-07-25) = tầng **LAYOUT** bây giờ — luật vẫn đúng, chỉ đổi TÊN (bỏ "primitive" vì nguyên tử giờ là `atom`).
 > - §11 "Layouts & Overlays" = tầng **SCREEN**, KHÔNG phải tầng `layout` §13.
 > - Năng lực nào **đẩy được xuống atom** thì đẩy (§6a.1) — khung chỉ giữ việc bố trí.
+
+---
+
+## 0. NƠI KẺ BẢN VẼ — `.storybook` là BẢN VẼ, `src` là CÔNG TRÌNH — ✅ CHỐT (thầy chốt 2026-07-26)
+Thầy: *"ý là kẻ code, trò hiểu không? thầy design xong sẽ restructure source code"*. Đây là luật **đứng trước mọi § khác**: nó quyết định được phép GHI VÀO ĐÂU, nên vi phạm nó thì mọi principle bên dưới làm đúng cũng vô nghĩa.
+
+| Cây | Vai | Ai được sửa |
+|---|---|---|
+| `starci-academy/.storybook` | **BẢN VẼ** — atom · layout · design · block · screen + story | **AGENT kẻ ở đây** |
+| `starci-academy/src` | **CÔNG TRÌNH** — app thật đang chạy | **THẦY** restructure, sau khi duyệt bản vẽ |
+
+- ⛔ **CẤM codemod `src/`** trong lane design/audit. Cấm cả "sync cho khớp", cả "đổi import cho đỡ vỡ". Muốn đụng `src` phải có câu thầy nói thẳng ở lượt đó.
+- ⛔ **CẤM đòi sync.** Spec lệch app là **TRẠNG THÁI BÌNH THƯỜNG** — file port ghi sẵn *"synced to `src` later"*. Báo "spec và app là hai cây khác nhau" như một sự cố là đọc sai vai.
+- ✅ **Số liệu `src` = CHỨNG CỨ, không phải việc phải làm.** Đếm trong `src` để **chọn mặc định cho bản vẽ** thì đúng (neo: `max-w-3xl` xuất hiện 72 lần ⇒ đó là default hợp lý cho container). Đếm rồi kết luận "phải sửa 111 file" là sai vai.
+- ✅ Xoá/gộp component thì chỉ dọn call-site **trong `.storybook`** (kể cả `_legacy/`), để bản vẽ tự đứng vững.
+- ⭐ **Gom họ · dời tầng · đặt lại category = DESIGN, thầy chốt.** Agent chỉ **kẻ bản vẽ + chỉ ra chỗ đá nhau**, không tự quyết. Neo 2026-07-26: 5 atom cùng làm "chọn 1 trong N" (`Tabs`/`ExtendedTabs`/`SegmentedToggle`/`FlexWrapButtonRadio`/`SelectableCardGroup`) — trò bày ba phương án, thầy chọn.
+- ⚠️ Khi cắm **Workflow**: chặn cứng ngay trong spec của agent (*"KHÔNG đụng `…/src/`"*). Agent Sonnet chạy nền không tự suy ra ranh giới này. Neo: run `wf_8baf829a-5a1`.
+
+### ✅ Checklist đo (§0)
+- [ ] Mọi file ghi trong lượt đều nằm dưới `.storybook/` (trừ khi thầy chỉ đích danh `src`)?
+- [ ] Số liệu `src` chỉ xuất hiện ở mục **chứng cứ / chọn default**, không nằm trong danh sách "phải sửa"?
+- [ ] Quyết định gom họ / dời tầng đã **hỏi thầy**, chưa tự thi hành?
+- [ ] Spec agent của Workflow có câu chặn `src` chưa?
 
 ---
 
@@ -535,6 +559,31 @@ dùng `w-24` CỨNG cho cả ba bậc (chỉ khác chiều cao 4px), tức footp
 nút thật ⇒ layout nhảy khi dữ liệu về. Sửa atom (thêm bảng `SKELETON_W` theo size), KHÔNG
 sửa story cho đỡ lộ. Story render đủ chính là cái BẮT được lỗi này.
 
+#### 12g.1 ⭐ "CÓ HÌNH" = ĐỔI PIXEL. Prop chỉ đổi a11y thì KHÔNG có leaf (thầy chốt 2026-07-26)
+Phép thử: *đổi giá trị prop này, màn hình có khác một pixel nào không?* Không ⇒ **không có hình
+⇒ không leaf**, bất kể nó là prop thật và có giá trị mặc định.
+- ❌ **KHÔNG leaf**: `label` của `Spinner.Base` · `ariaLabel` của `Progress`/`Choice.RadioGroup`/
+  `Input.{Date,Time,Search,Tags}` · `removeLabel` · `aria-label` của nút hiện/ẩn mật khẩu.
+  Chúng chỉ chạy vào `aria-*` — screen reader nghe khác, MẮT không thấy gì.
+- **Vì sao**: mở leaf cho chúng thì leaf đó render ra hai ô **y hệt nhau**, mà y hệt nhau chính là
+  dấu hiệu LỖI ATOM ở đoạn trên ⇒ tự tay đẻ ra thứ luật khác đang bắt lỗi.
+- ⚠️ Vẫn phải ĐÚNG a11y (§12e: control compound thiếu `aria-label` là mất accessible name) —
+  chỉ là kiểm bằng đọc code/eslint, KHÔNG kiểm bằng một leaf trong Storybook.
+
+#### 12g.2 ⭐ Prop nội dung: SINH CẤU TRÚC thì có leaf, chỉ là CHỮ thì không (thầy chốt 2026-07-26)
+Cả hai đều "chở nội dung", nhưng khác nhau ở chỗ có đẻ ra HÌNH riêng hay không:
+
+| Prop | Có leaf? | Vì sao |
+|---|---|---|
+| `items` / `options` (dữ liệu dựng ra N phần tử con) | ✅ **CÓ** — và leaf đó **chính là `Default`** | *"`items` bản thân là một prop rồi"* (lời thầy). Việc map dữ liệu ra cả cụm LÀ hình đáng soi: item có `label` ra nút thường, không có ra nút chỉ-icon. |
+| `text` / `amount` / `title` (một chuỗi/số) | ❌ **KHÔNG** | Mọi leaf khác đều buộc phải truyền nó, nên nó không phải một TRỤC — tách leaf riêng sẽ trùng hệt `Default`. |
+
+- Neo ĐÚNG (giữ nguyên, không sửa): `Button.Group` → `Default` ghi *"Prop `items`"* ·
+  `Chip.Base` → `Default` ghi *"Bare chip"*. Hai file mẫu nói khác nhau là **hợp lệ**, vì
+  prop nội dung của chúng thuộc hai loại khác nhau ở bảng trên.
+- Hệ quả cho số đếm leaf: cụm dữ liệu (`*.Group`) có `Default` **là** leaf của `items` ⇒ đừng
+  đẻ thêm một leaf `Items` nữa.
+
 **DEPS TREE = story KHÁC mà leaf này dựa vào** (thầy chốt 2026-07-26). Cây phụ thuộc
 CHỈ khai component **CÓ story riêng** — bấm vào là nhảy sang được. Span nội bộ (`Label`,
 `Icon`, `Spinner`, `SuffixIcon`) KHÔNG phải deps: chúng không có nhà để nhảy tới, khai
@@ -550,6 +599,8 @@ thì vẫn thuộc về con (`Button.Group` không có leaf `Pending` — đó l
 ### ✅ Checklist đo (§12)
 - [ ] Root atom **callable** (= `Base`)? Member chỉ mở cho **hình thái thật**, không có `{ Base: X }` rỗng (§12a)?
 - [ ] **Mỗi prop có hình = một leaf**, leaf render ĐỦ giá trị của prop đó (§12g)? Không có leaf nào là một giá trị lẻ?
+- [ ] Prop chỉ đổi **a11y** (`label`/`ariaLabel`/`removeLabel`) đã bị loại khỏi bộ leaf (§12g.1)?
+- [ ] Cụm dữ liệu: `Default` **chính là** leaf của `items`, không đẻ thêm leaf `Items`; prop chữ (`text`/`amount`) không có leaf riêng (§12g.2)?
 - [ ] **KHÔNG `children`** (trừ atom-wrapper Tooltip/Badge có ghi lý do)? Cụm dùng `items`/`options` dữ liệu?
 - [ ] `isSkeleton` **co-located** ở CHÍNH chủ của hình (mọi tầng)? Không có component skeleton dùng chung?
 - [ ] Khung render **THẬT** (surface/radius/shadow/separator giữ nguyên), chỉ nội dung thành gạch?
