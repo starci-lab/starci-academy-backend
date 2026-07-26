@@ -535,6 +535,15 @@ dùng `w-24` CỨNG cho cả ba bậc (chỉ khác chiều cao 4px), tức footp
 nút thật ⇒ layout nhảy khi dữ liệu về. Sửa atom (thêm bảng `SKELETON_W` theo size), KHÔNG
 sửa story cho đỡ lộ. Story render đủ chính là cái BẮT được lỗi này.
 
+**DEPS TREE = story KHÁC mà leaf này dựa vào** (thầy chốt 2026-07-26). Cây phụ thuộc
+CHỈ khai component **CÓ story riêng** — bấm vào là nhảy sang được. Span nội bộ (`Label`,
+`Icon`, `Spinner`, `SuffixIcon`) KHÔNG phải deps: chúng không có nhà để nhảy tới, khai
+vào chỉ làm nhiễu.
+- Atom lá bọc thẳng HeroUI ⇒ **deps RỖNG**, bỏ hẳn prop `parts` (neo: `Button.Base`,
+  `Button.Icon`).
+- Cụm/khối ⇒ khai đúng cái nó **dựng lại** (neo: `Button.Group` → `Button.Base` +
+  `Button.Icon`, kèm `storyId`).
+
 ⚠️ **§12g KHÔNG phá §12f**: leaf chỉ mở cho prop của CHÍNH atom đó. Prop chuyển tiếp xuống con
 thì vẫn thuộc về con (`Button.Group` không có leaf `Pending` — đó là prop của `Button.Base`).
 
