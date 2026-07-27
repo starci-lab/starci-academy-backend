@@ -3,7 +3,7 @@
 > Phase 3 của workflow. Gồm **S6 · S7**. `pipeline` theo COMPONENT — không cần chờ nhau,
 > component nào xong leaf thì đi tiếp sang hình luôn.
 > Luật cần đọc: [`rules/2-leaf-states.md`](../rules/2-leaf-states.md) ·
-> [`rules/3-design-tier.md`](../rules/3-design-tier.md).
+> [`rules/3-shape-tier.md`](../rules/3-shape-tier.md).
 
 ---
 

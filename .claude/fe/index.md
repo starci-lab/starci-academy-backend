@@ -4,6 +4,12 @@
 > **`steps/` = TRÌNH TỰ** (làm gì trước, đo gì rồi mới qua bước sau, dùng để CHẠY).
 > Workflow dài cần cả hai: mỗi step nạp đúng file rules nó cần.
 > Luật đầy đủ vẫn ở `principles.md`; bộ này là **cách NGHĨ** + chỗ dễ sai + số đo thật.
+>
+> ⚠️ **`principles.md` LẠC HẬU ở ba điểm** (2026-07-28) và KHÔNG được sửa (thầy chốt: canon
+> mới ghi vào `rules/` + `steps/`). Đọc nó thì tự dịch: **tầng `design` đã XOÁ** ⇒ đọc thành
+> `composite` · **tầng `layout` đổi tên** ⇒ `frame` · **namespace đã bỏ** ⇒ `X.Base` đọc là
+> `X`, `X.Member` đọc là `XMember`. Năm tầng hiện tại + vendor:
+> `heroui · atom · frame · composite · block · screen`.
 
 ---
 
@@ -13,7 +19,7 @@
 |---|---|---|
 | [`rules/1-decompose.md`](rules/1-decompose.md) | tách một màn thành cây component (screen → atom), ai được import gì | S3 · S5 |
 | [`rules/2-leaf-states.md`](rules/2-leaf-states.md) | bao nhiêu leaf, mỗi leaf vét đủ state nào | S4 · S6 |
-| [`rules/3-design-tier.md`](rules/3-design-tier.md) | gap · padding · chọn khung · chọn component · điều cấm | S7 |
+| [`rules/3-shape-tier.md`](rules/3-shape-tier.md) | gap · padding · chọn khung · chọn component · điều cấm | S7 |
 | [`rules/4-organization.md`](rules/4-organization.md) | đặt ở đâu · gọi tên gì · khuôn file 7 phần · comment · dao gác | S1 · S5 · S8 · S9 · S10 |
 
 ## `steps/` — TRÌNH TỰ
@@ -36,7 +42,7 @@ Mỗi bước có 5 ô cố định: **VÀO · LÀM · CỔNG ĐO · RA · DỪN
 1. **Mỗi tầng sở hữu MỘT thứ** — tranh chấp quyền là sai tầng, không phải "tuỳ ca".
 2. **Đi xuống là DỮ LIỆU** — `ReactNode` chỉ mở ở tầng layout (slot).
 3. **Leaf tách khi HÌNH component tự vẽ đổi.** Phép thử: **caller bật ⇒ leaf · dữ liệu về ⇒ state trong cùng leaf.**
-4. **Đọc seam theo QUAN HỆ, không theo TẦNG** — hai design mà một là caption của cái kia thì cùng một cụm.
+4. **Đọc seam theo QUAN HỆ, không theo TẦNG** — hai composite mà một là caption của cái kia thì cùng một cụm.
 
 ---
 
@@ -52,13 +58,13 @@ Nhóm **A** đổi **số story mỗi screen** (sai là nhân lên mọi screen)
 | **C6** | Leaf `isSkeleton` ở screen có nhân theo device? (hiện 3 device × skeleton = 3 story) | rules/2 |
 | **C7** | Tên leaf skeleton: `Skeleton` hay `Prop \`isSkeleton\``? | rules/2 |
 | **C1** | Screen có được gọi thẳng `AsyncContent.Empty`/`.Error` (layout) hay phải qua block? | rules/1 |
-| **C8** | §10b có thêm nấc **`caption`** để câu "design ↔ design = 6" không bị áp máy móc? | rules/3 |
+| **C8** | §10b có thêm nấc **`caption`** để câu "composite ↔ composite = 6" không bị áp máy móc? | rules/3 |
 
 ### B · Đổi cách viết code
 
 | # | Câu | Ở file |
 |---|---|---|
-| **C11** | 22 file namespace `export const X = { Base }` → `Object.assign` (§12a) hay đổi §12a? | rules/4 |
+| ~~**C11**~~ | ~~namespace `export const X = { Base }`~~ **ĐÓNG 2026-07-28: bỏ CẢ HAI đường** — không còn namespace, xem rules/4 §3b | rules/4 |
 | **C12** | Luật `XLike` áp cả **story fixture** hay chỉ `components/`? (+~17 mảng) | rules/4 |
 | **C13** | Helper cục bộ không export có phải theo `XProps`? (agent bắt thêm 22 chỗ) | rules/4 |
 | **C14** | File >800 dòng tách sổ quyết định ra `<Component>.decisions.md`? (`SurfaceCard.tsx` 2063 dòng) | rules/4 |

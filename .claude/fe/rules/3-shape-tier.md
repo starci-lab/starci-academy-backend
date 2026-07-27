@@ -1,6 +1,6 @@
-# TƯ DUY 3 — DỰNG HÌNH ở tầng DESIGN / BLOCK: gap · padding · chọn component
+# TƯ DUY 3 — DỰNG HÌNH ở tầng COMPOSITE / BLOCK: gap · padding · chọn component
 
-> Một trong 4 file tư duy. File này trả lời: **đứng trong một design/block, quyết định
+> Một trong 4 file tư duy. File này trả lời: **đứng trong một composite/block, quyết định
 > khoảng cách bao nhiêu, dùng khung nào, đệm bao nhiêu.**
 > Đây là phần dễ làm đúng-luật-mà-sai-mắt nhất, nên mỗi luật kèm neo ĐO ĐƯỢC.
 
@@ -9,6 +9,11 @@
 ## 0. THANG: KHÔNG CÓ NGOẠI LỆ (thầy chốt 2026-07-27)
 
 Thang là `0 · 1 · 2 · 3 · 6 · 8`. Không có bậc nào khác. Ngoại lệ CHỈ tồn tại khi thầy cho phép.
+
+> ⚠️ **Cập nhật 2026-07-27/28: API là CHỮ, không phải số.** `gap: SeamScale`
+> (`flush·tight·related·grouped·section·page`) và `padding: InsetScale`
+> (`flush·cozy·roomy·airy`). Cùng thang px, nhưng caller chọn QUAN HỆ chứ không chọn bậc —
+> xem `rules/1-decompose.md` §B2. Mọi câu `gap={3}` dưới đây đọc thành `gap="grouped"`.
 
 **Vì sao thang nhảy `12 -> 24`:** mỗi bậc phải phân biệt được VỀ Ý. Cho phép `16` và `20`
 nghĩa là mỗi người gõ một số theo cảm giác, thang mất tác dụng ngay.
@@ -104,15 +109,15 @@ giữ thay (viết `padding={6}` là lỗi biên dịch, khỏi cần cổng soi
 
 **Luật quan trọng nhất của mục này — và là chỗ con đã sai một lần:**
 
-> Ma trận §10b ghi *"design ↔ design = section(6)"*. **Đừng áp câu đó máy móc.**
-> Hỏi **QUAN HỆ**, không hỏi tầng: hai design mà một cái là **caption của cái kia** thì
+> Ma trận §10b ghi *"composite ↔ composite = section(6)"*. **Đừng áp câu đó máy móc.**
+> Hỏi **QUAN HỆ**, không hỏi tầng: hai composite mà một cái là **caption của cái kia** thì
 > chúng là **một cụm** ⇒ seam là `grouped(3)`, còn `section(6)` dành cho seam **quanh** cụm đó.
 
 Neo đo thật (`TrialConversionStrip`, khổ card 512px):
 
 | Nhịp | Đọc ra gì |
 |---|---|
-| `24 / 12 / 24 / 24` (áp máy móc "design↔design = 6") | **4 dải trôi** — dòng "Còn 12 suất" xa cụm giá đúng bằng khoảng cách tới CTA ⇒ **mất cha**. §10 cấm nhịp đều chính vì thế |
+| `24 / 12 / 24 / 24` (áp máy móc "composite↔composite = 6") | **4 dải trôi** — dòng "Còn 12 suất" xa cụm giá đúng bằng khoảng cách tới CTA ⇒ **mất cha**. §10 cấm nhịp đều chính vì thế |
 | `24 / 12 / 12 / 24` (đọc theo quan hệ) | **2 nhóm** — [cụm đầu] · [khối giá ⊃ giá + caption] · [CTA] |
 
 **Kiểm nhanh nhịp:** liệt kê các seam của một khung theo thứ tự dọc. Nếu dãy số **gần như đều nhau**, gần chắc là sai — nhịp phải kể ra được nhóm.
@@ -172,17 +177,17 @@ Hai chỗ hay chọn sai:
 ## 4. CHỌN COMPONENT — thứ tự bắt buộc trước khi đẻ cái mới
 
 1. Cái này phục vụ **WHY** gì? (CTA đẩy hành động · trình bày để đọc)
-2. Hệ **đã có** design/block nào phục vụ WHY đó chưa?
+2. Hệ **đã có** composite/block nào phục vụ WHY đó chưa?
 3. Có rồi ⇒ **dùng lại** (thêm prop **dữ liệu** nếu thiếu). Chưa có ⇒ mới dựng.
 
 - Cùng WHY, khác hình ⇒ **gộp**. Khác WHY, giống hình ⇒ **tách member**. Hình là hệ quả, WHY là gốc.
-- Component **không có WHY riêng** (`SurfaceCard`, `HighlightCard`, `SectionCard`) là **khung trung tính** ⇒ thuộc tầng **layout**, không phải design.
+- Component **không có WHY riêng** (`SurfaceCard`, `HighlightCard`, `SectionCard`) là **khung trung tính** ⇒ thuộc tầng **frame**, không phải composite.
 - Dấu hiệu hệ đang đẻ khái niệm thừa: **một việc có ≥2 đường làm**. Đã đo: 4 cách đặt nhãn cho một khối (`Page.Header` · `eyebrow` của ContinueCard · `SurfaceCardHeader` · `Section.Header` với **0 consumer**).
 - Khái niệm dựng xong **0 consumer** nguy hiểm hơn drift đang chạy: drift là hai đường đang đi, còn nó là đường thứ ba **đang chờ** người vô tình đi vào.
 
 ---
 
-## 5. CẤM ở tầng design/block — không có ngoại lệ
+## 5. CẤM ở tầng composite/block — không có ngoại lệ
 
 | Cấm | Vì sao |
 |---|---|
@@ -204,7 +209,7 @@ node scripts/check-seams.mjs
 ```
 
 Kiểm 3 việc, đều là **sự thật đo được** chứ không phải phán đoán:
-1. **bố cục viết TAY** ở tầng design/block/screen (`flex`/`grid` + `gap-*` trong className) — vì spacing viết tay **vô hình với type `SpaceScale`**, là lối duy nhất còn lọt off-scale.
+1. **bố cục viết TAY** ở tầng composite/block/screen (`flex`/`grid` + `gap-*` trong className) — vì spacing viết tay **vô hình với type `SeamScale`**, là lối duy nhất còn lọt off-scale.
 2. **`gap` truyền vào khung tự sở hữu nhịp** — hai chủ một seam (cảnh báo, không chặn: bảng số liệu dày là ca thật).
 3. **bậc off-scale** ngoài `0·1·2·3·6·8`; file nào **tự khai ngoại lệ** bằng `eslint-disable no-fractional-spacing` thì được tôn trọng và **đếm riêng** cho khỏi mất dấu.
 
@@ -214,6 +219,6 @@ Nó **KHÔNG** chấm "bậc này đúng chưa" — cái đó cần biết **qua
 
 ## 7. Chờ thầy chốt
 
-- **C8** — §10b có nên thêm nấc **`caption`** (một design là chú thích của design kia) để câu "design ↔ design = 6" không còn bị áp máy móc? Hiện con xử bằng cách đọc quan hệ, nhưng luật viết trong canon vẫn là câu cũ.
+- **C8** — §10b có nên thêm nấc **`caption`** (một composite là chú thích của composite kia) để câu "composite ↔ composite = 6" không còn bị áp máy móc? Hiện con xử bằng cách đọc quan hệ, nhưng luật viết trong canon vẫn là câu cũ.
 - **C9** — `Stack.H.PriceRow` cần **631px** mà card thật chỉ có **488px** ⇒ CTA **luôn** xuống dòng, `wrap` không phải phòng xa mà là trạng thái thường trực. Để nút xuống dòng full-width có chủ ý, hay thu nút nhỏ để nằm cạnh giá?
 - **C10** — 6 chỗ `gap-1.5`/`gap-4` còn lại ở `Input` · `FieldFrame` · `TabsBase`: sửa về thang, hay khai ngoại lệ như `BlockAnatomy` đã làm?

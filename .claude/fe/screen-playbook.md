@@ -8,7 +8,7 @@
 ## 0. Nguyên tắc trục — nhớ đúng ba câu
 
 1. **Mỗi tầng sở hữu một thứ.** atom sở hữu glyph/nét · layout sở hữu khoảng cách/khung ·
-   design+block sở hữu HÌNH và CHỮ của chính nó · screen sở hữu DANH SÁCH CHỨC NĂNG.
+   composite+block sở hữu HÌNH và CHỮ của chính nó · screen sở hữu DANH SÁCH CHỨC NĂNG.
 2. **Đi xuống là DỮ LIỆU, không phải hình.** Prop truyền xuống là `string`/`number`/mảng
    có kiểu. `ReactNode` là cửa để caller nhét hình vào — hạn chế tối đa (§14d.1).
 3. **Trạng thái nghỉ là CỜ chảy xuống, không phải cây thứ hai.** `isSkeleton` ở cả 5 tầng
@@ -26,9 +26,9 @@ Chưa vẽ, chưa chọn card hay list.
 ### B2 — Dựng KHUNG bằng tầng layout, KHÔNG bằng `div`
 | Cần | Dùng | ⛔ Đừng |
 |---|---|---|
-| khổ trang căn giữa | `Container.Base size padding` | `mx-auto max-w-3xl p-6` |
+| khổ trang căn giữa | `Container size padding` | `mx-auto max-w-3xl p-6` |
 | cột dọc / hàng ngang | `Stack.V` / `Stack.H` (`gap: SpaceScale`) | `flex flex-col gap-10` |
-| lưới | `Grid.Base columns gap` | `grid grid-cols-*` |
+| lưới | `Grid columns gap` | `grid grid-cols-*` |
 
 Vì sao bắt buộc: `gap`/`padding` khai kiểu `SpaceScale` (union `0·1·2·3·6·8`), nên
 **off-scale là LỖI TYPE tại call-site** — đây là chỗ §10c được thi hành bằng máy, không
@@ -42,7 +42,7 @@ bằng review. `max-w-3xl` bằng `--container-app-md` *hôm nay* nhưng là NGU
 - Cần hai hình khác nhau? Hỏi **KHÁC WHY hay chỉ khác vẻ ngoài**:
   - khác WHY ⇒ **tách member** (`ContinueCard.Hero` vs `.Item`, `PriceTag.Prominent` vs `.Inline`)
   - cùng WHY ⇒ **gộp một hình**
-  - ⛔ TUYỆT ĐỐI không mở `variant`/`size` cho caller chọn ở tầng design/block.
+  - ⛔ TUYỆT ĐỐI không mở `variant`/`size` cho caller chọn ở tầng composite/block.
 
 ### B4 — Nối trạng thái
 | Trạng thái | Cách làm |
@@ -80,7 +80,7 @@ Bốn phép quét đã bắt được lỗi thật, nên chạy lại khi đụn
 |---|---|
 | icon `size-*` + `weight` | glyph nhỏ hơn `size-5` mà thiếu `bold`; `size-5` mà thừa `bold` |
 | nhánh `isSkeleton` vs trục hình | skeleton không rẽ theo `variant`/`collapseFrom` ⇒ layout nhảy |
-| prop cấm ở design/block | `variant`/`ctaLabel`/`icon`/`ReactNode` lọt vào tầng trên |
+| prop cấm ở composite/block | `variant`/`ctaLabel`/`icon`/`ReactNode` lọt vào tầng trên |
 | leaf thiếu `code` | panel trống |
 
 ⚠️ **RESTART Storybook** sau mọi lần **thêm/xoá/đổi tên/di chuyển** file story — watcher
@@ -104,5 +104,5 @@ Windows luôn kẹt, index giữ bản cũ và story mới báo *"Couldn't find 
 6. **Cái "ngoại lệ" tự phong.** JSDoc có thể tự khai mình là ngoại lệ hợp lệ và sai
    (`ExtendedTabs`), mà cũng có thể ĐÚNG trong khi audit gọi nó là nợ. Phán bằng
    **consumer thật**, đừng phán bằng lời file tự viết về mình.
-7. **Gom namespace là công cụ PHÁT HIỆN.** `gap-1` vs `gap-2`, hover mờ vs gạch chân —
+7. **Gom theo HỌ là công cụ PHÁT HIỆN** (namespace đã bỏ 2026-07-28, nhưng phép so vẫn dùng).** `gap-1` vs `gap-2`, hover mờ vs gạch chân —
    chỉ lộ khi hai component bị đặt cạnh nhau trong một `Link.*`.

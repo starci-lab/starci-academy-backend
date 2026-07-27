@@ -27,9 +27,9 @@ Phép thử này nhất quán ở cả 5 tầng: `viewer="paid"` và `isEmpty` l
 |---|---|---|---|
 | boolean bật hình (`divider`, `wrap`) | có | trạng thái **BẬT** (tắt đã là `Default`) | `Stack.H` leaf `Wrap` |
 | **`isSkeleton`** | **có, ở CẢ 5 TẦNG** | hình nghỉ | thầy chốt 2026-07-27 |
-| union (`tone`, `size`, `variant`) | có, **1 leaf** | **đủ union** trong một khung | `Chip.Base` leaf `Tones` = 5 viên |
+| union (`tone`, `size`, `variant`) | có, **1 leaf** | **đủ union** trong một khung | `Chip` leaf `Tones` = 5 viên |
 | string/number nội dung (`text`, `title`, `amount`) | không | — | §12g.2 |
-| function làm mọc node / đổi thẻ bọc (`onRemove`, `onPress`, `href`) | có | trạng thái có handler | `Chip.Base` `Removable` · `List.Row` `LinkRow` |
+| function làm mọc node / đổi thẻ bọc (`onRemove`, `onPress`, `href`) | có | trạng thái có handler | `Chip` `Removable` · `ListRow` `LinkRow` |
 | function không đổi hình (`onValueChange`) | không | — | |
 | prop chỉ vào `aria-*` (`ariaLabel`, `removeLabel`) | không | — | §12g.1 |
 
@@ -116,7 +116,7 @@ Bản `_legacy` từng có đủ bậc (`--many-seats` · `--few-seats` · `--on
 | `principles.md` §14g bảng | *"Bỏ story `Skeleton`, giữ `Empty`"* | cả hai đẻ đơn vị: `Empty` vì cây khác, `Skeleton` vì component tự vẽ hình nghỉ |
 | `screen-playbook.md` B5 | *"`Skeleton` là leaf riêng"* | **giữ nguyên** — playbook đang đúng, principles đang sai |
 
-Nợ đo được của luật này: **33 file** đang vẽ skeleton lồng trong leaf khác — atom 11 · layout 17 · design 1 · block 1 · screen 3.
+Nợ đo được của luật này: **33 file** đang vẽ skeleton lồng trong leaf khác — atom 11 · frame 17 · composite 1 · block 1 · screen 3.
 Riêng `VariantChip.Difficulty` là **neo của luật CŨ** trong §14d.2, nên nó đảo chiều.
 
 ---
@@ -139,7 +139,7 @@ tác giả xếp tay: panel không biết có mấy state, không chỗ giải t
 
 ```tsx
 <BlockAnatomy
-    name="PhaseScarcityNote.Base"  tier="design"  leaf="Default"
+    name="PhaseScarcityNote"  tier="block"  leaf="Default"
     renderClassName="mx-auto max-w-xl"
     reason="Bất biến của CẢ leaf, viết một lần."
     states={[

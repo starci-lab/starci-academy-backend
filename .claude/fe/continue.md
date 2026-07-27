@@ -1,9 +1,9 @@
-# TIẾP TỤC — Storybook design-system (chốt 2026-07-27)
+# TIẾP TỤC — Storybook design-system (chốt 2026-07-28)
 
 > Đọc file này TRƯỚC khi làm tiếp. Nó ghi **đang ở đâu · cổng máy nào đang giữ luật gì · còn chờ
 > thầy chốt gì · nợ gì**.
 >
-> **Repo:** FE `C:\Repositories\starci-academy` · BE `C:\Repositories\ac\starci-academy-backend`,
+> **Repo:** FE `D:\Repositories\starci-academy` · BE `D:\Repositories\starci-academy-backend`,
 > cùng branch `mtp`. Code design-system nằm ở `starci-academy/.storybook`.
 >
 > **Canon SSOT** ở BE, không ở FE:
@@ -12,18 +12,24 @@
 > | `.claude/fe/principles.md` | **§0** `.storybook`=BẢN VẼ · `src`=CÔNG TRÌNH. Đọc §0 trước khi động vào FE |
 > | `.claude/fe/rules/1-decompose.md` | tách cây screen → atom |
 > | `.claude/fe/rules/2-leaf-states.md` | chia leaf · vét states · **§8** API `states[]` · **§8a** tên state |
-> | `.claude/fe/rules/3-design-tier.md` | **§1.0** gap bằng CHỮ · §1.0a padding · chọn khung · padding |
-> | `.claude/fe/rules/4-organization.md` | tổ chức file · typesafe · **§4a** văn xuôi |
+> | `.claude/fe/rules/3-shape-tier.md` | **§1.0** gap bằng CHỮ · §1.0a padding · chọn khung · padding |
+> | `.claude/fe/rules/4-organization.md` | tổ chức file · typesafe · **§3b KHÔNG namespace** · **§4a** văn xuôi |
 > | `.claude/fe/steps/0..5-*.md` | TRÌNH TỰ chạy workflow, mỗi bước có cổng đo |
+> | `.claude/fe/steps/7-bo-namespace.md` | **đã xong** — bỏ namespace, 4 cái bẫy codemod |
+> | `.claude/fe/steps/8-tinh-gon-trung-lap.md` | **đã xong** — dọn trùng + 2 việc chờ thầy chốt |
 >
 > ⚠️ `starci-academy/.storybook/NEXT-STEPS.md` (2026-07-26) là bàn giao **cũ hơn** file này. Chỗ
 > nào hai bên đá nhau thì **file này đúng** — xem mục 5.
 
 ---
 
-## 1. Sáu tầng, không phải năm
+## 1. NĂM tầng + vendor (design đã XOÁ 2026-07-28)
 
-`AnatomyTier = atom · frame · composite · design · block · screen`.
+`AnatomyTier = heroui · atom · frame · composite · block · screen`.
+
+> Tầng `design` bị xoá vì phép thử của nó trùng với composite: cả hai đều "biết nội dung,
+> không biết miền". Câu cũ "đẻ ở tầng design" nay đọc thành **composite**; block ĐƯỢC import
+> block, nhưng phải kiếm được tầng của nó (`check-passthrough-block`).
 
 `layouts` cũ đã tách làm hai theo phép thử **"khung có biết nội dung của nó không"**:
 
@@ -51,7 +57,7 @@ cuộn, đổi cỡ), không thuần quyết trục/seam/canh nên không phải
 
 ```tsx
 <BlockAnatomy
-    name="PhaseScarcityNote.Base" tier="design" leaf="Default"
+    name="PhaseScarcityNote" tier="block" leaf="Default"
     renderClassName="mx-auto max-w-xl"
     reason="Bất biến của CẢ leaf, viết MỘT lần."
     states={[
@@ -99,10 +105,14 @@ Chọn bậc = **sáu câu hỏi** (`rules/3` §1.0), dừng ở câu đúng đ�
 | Cổng | Giữ luật gì | Trạng thái |
 |---|---|---|
 | `scripts/check-story-ids.mjs` | `storyId` trỏ tới story thật (sai thì **gãy câm**, không lỗi build) | ✅ xanh · **đã cắm `.husky/pre-commit`** |
-| `scripts/check-seams.mjs` | bố cục gõ tay từ tầng design lên · `gap` vào khung tự sở hữu nhịp · off-scale · `numeric-seam` | ✅ xanh |
+| `scripts/check-seams.mjs` | bố cục gõ tay từ tầng frame lên · `gap` vào khung tự sở hữu nhịp · off-scale · `numeric-seam` | ✅ xanh |
 | `scripts/check-inline-types.mjs` | hình dữ liệu không tên (`{ a: x }` trong prop/generic/param) | ✅ xanh |
-| `scripts/check-padding.mjs` | ~~padding off-scale~~ (nay compiler giữ, `InsetScale` là union chữ — xem `rules/3` §1.0a) · **margin của con** | 🔴 **ĐỎ 20** (9+11, đều tầng composite) · **CHƯA cắm husky** |
+| `scripts/check-padding.mjs` | ~~padding off-scale~~ (nay compiler giữ, `InsetScale` là union chữ — xem `rules/3` §1.0a) · **margin của con** | ✅ **XANH 0** (Stepper sửa bằng cấu trúc 2026-07-28) |
 | `scripts/check-one-instance-per-state.mjs` | luật **MỘT STATE = MỘT INSTANCE**. Phép thử phân biệt: mảng `.map` chứa **CHUỖI** ⇒ đó là giá trị prop (union dump, phải tách state); chứa **OBJECT** ⇒ đó là dữ liệu thật (nhiều hàng, hợp lệ) | ✅ xanh · **đã cắm `.husky/pre-commit`** |
+| `scripts/check-no-namespace.mjs` | **KHÔNG namespace** — bắt cả `Object.assign` lẫn `export const X = { … }`; có `--control` | ✅ **0** |
+| `scripts/check-member-as-state.mjs` | một state phải là ĐIỀU KIỆN DỮ LIỆU, không phải tên member | ✅ xanh |
+| `scripts/check-orphan-parts.mjs` | part có badge mà không khai trong cây | ✅ **0** |
+| `scripts/check-passthrough-block.mjs` | block bọc đúng một con mà không thêm quyết định **hay câu chữ** | ✅ **0** · có `--control` hai chiều |
 
 **Luật CHƯA có cổng nào giữ** (biết trước để không tưởng là sạch):
 - ngoại lệ §11a.1 *"cha dựng rồi đặt vào slot của con thì vẫn khai"* — chỉ đọc JXS mới trả lời được.
@@ -129,14 +139,14 @@ Chọn bậc = **sáu câu hỏi** (`rules/3` §1.0), dừng ở câu đúng đ�
 | # | Việc | Vì sao cần thầy |
 |---|---|---|
 | 1 | **Cắm `check-padding` vào husky?** | đang đỏ 20 chỗ ⇒ cắm bây giờ là chặn mọi commit sau. Dọn trước rồi cắm? (phần scale nay compiler giữ, chỉ còn margin cần dọn) |
-| 2 | ~~**Đặt tên thang `padding`?**~~ **ĐÃ CHỐT 2026-07-27** | `InsetScale = flush · cozy · roomy · airy`, xem `rules/3-design-tier.md` §1.0a |
+| 2 | ~~**Đặt tên thang `padding`?**~~ **ĐÃ CHỐT 2026-07-27** | `InsetScale = flush · cozy · roomy · airy`, xem `rules/3-shape-tier.md` §1.0a |
 | 3 | **Cây "Deps" thực chất là cây DOM** | *"nằm trong" ≠ "phụ thuộc vào"*. Popover render qua portal ⇒ `KeyValue.List` khai đúng vẫn không hiện. (a) đổi tên tab thành `Anatomy` · (b) deps lấy từ **import tĩnh**. Nghiêng **(b)** |
 | 4 | **Panel gom node THEO TÊN** | `Stack.V.Page`, `Stack.H.PriceRow` không phải tên component, là id bịa để né va chạm |
 | 5 | ~~**`Container.gap` vô hiệu im lặng**~~ **ĐÃ CHỐT 2026-07-27** | bỏ hẳn `gap`/`header`/`footer` khỏi `Container` — nó chỉ còn khổ đọc + padding; `Stack` nhận `padding` |
 | 6 | **`ContinueLearning` là block chỉ để ghép chuỗi** | câu hỏi thật: prop `ContinueCard` sai từ đầu? Design nhận `meta: string[]` thì **buộc** ai đó ghép chuỗi |
 | 7 | **`Cluster` vs `Stack.H`** có phải một khung? | cùng "hàng ngang", khác đường vào (`items` vs `children`) |
 | 8 | **F3 — 5 atom cùng trả lời "chọn 1 trong N"** | `Tabs` `ExtendedTabs` `SegmentedToggle` `FlexWrapButtonRadio` `SelectableCardGroup`. 3/5 tự khai là block cũ bê thẳng vào `atoms/` |
-| 9 | **F4 — atom mang nội dung DOMAIN** (§6c) | `PricePoint` (biết tiền + kỳ) · `UserCell` (biết user, lại là cụm) ⇒ phải tụt xuống `design` |
+| 9 | **F4 — atom mang nội dung DOMAIN** (§6c) | `PricePoint` (biết tiền + kỳ) · `UserCell` (biết user, lại là cụm) ⇒ phải tụt xuống `composite` |
 | 10 | **§4a vs ca `baseline` là hai tiền lệ ngược** | *thêm giá trị vào union* (additive, compiler bắt khai đủ) khác *đổi giá trị đã ghim* (mọi call-site đổi hình). Cần viết thành một câu trong §4a |
 
 ---
