@@ -158,10 +158,27 @@ Block/consumer compose primitive bằng cách truyền **children TRẦN**; **pr
 - ✅ neo THẬT (2026-07-22): `StatusChip` tự ép icon `[&_svg]:size-4` **bất kể caller** → `ContinueCard` truyền `icon={<ClockIcon/>}` TRẦN, không kèm `size-*`. ❌ consumer thêm `className="size-5"` cho icon chip (vá call-site).
 - Cần khác sizing/style → **sửa PRIMITIVE** (đổi luật chung), KHÔNG vá 1 call-site. Đây là mặt kia của "không hand-roll": đã có primitive thì để nó CHỦ, đừng override từ ngoài.
 
+### 4a. ⛔⛔ KHÔNG tuỳ tiện đổi THANG CỠ của atom để chữa hình ở MỘT chỗ (thầy chốt 2026-07-27)
+§4 nói "cần khác sizing → sửa PRIMITIVE". Mục này chặn cách hiểu ngược: **"sửa primitive" KHÔNG
+phải giấy phép hạ/nâng nấc cỡ đã ghim của atom mỗi khi nó trông lệch ở một khung.**
+
+- Atom ghim **MỘT** nấc cỡ dùng chung. Đổi nấc ấy là **đổi hình của MỌI call-site trong hệ** —
+  bán kính ảnh hưởng toàn cây, để chữa đúng một chỗ người ta đang nhìn.
+- Thấy atom "bự/nhỏ" ở một khung ⇒ mặc định là **khung đó đặt nó sai ngữ cảnh**, không phải cả
+  hệ sai. Hỏi "chỗ này có nên chứa atom này không?" TRƯỚC khi hỏi "atom có nên nhỏ lại không?".
+- Muốn đổi thật thì đó là **quyết định của thầy**, kèm rà toàn bộ consumer — không phải một
+  edit tiện tay giữa lượt.
+- ❌ neo (2026-07-27): chip `−33%` trong `PriceTag` trông phình (chữ `text-xs` 12px nhưng hộp
+  24px, cạnh dòng chữ 14px/hộp 20px). Trò hạ `Chip.Base` từ `md`→`sm` + đắp `px-2` **cho cả hệ**,
+  và phải kéo theo `SKELETON_H` `h-6`→`h-5`. Thầy chặn: *"render như Chip.Base gốc. rules không
+  tuỳ tiện thay đổi size nhé"* → revert. Dấu hiệu nhận ra sớm: **một sửa đổi kéo theo phải chỉnh
+  hằng số thứ hai (skeleton) mới khỏi vỡ** ⇒ đang đụng vào trục nền, không phải vá một chỗ.
+
 ### ✅ Checklist đo (§4)
 - [ ] Consumer truyền icon/children TRẦN cho primitive (không kèm `size-*`/màu nội bộ)?
 - [ ] Sizing phần nội bộ (vd icon chip = size-4) do CHÍNH primitive ép, không phải call-site?
 - [ ] Muốn khác → sửa primitive, không vá ngoài?
+- [ ] **KHÔNG** đổi nấc cỡ đã ghim của atom chỉ vì nó trông lệch ở một khung (§4a)? Atom render **y như story gốc của chính nó**?
 
 ---
 
@@ -209,10 +226,20 @@ Icon cạnh chữ phải khớp **cỡ CHỮ THẬT (font-size)**, không phải
 - ❌ neo THẬT: lấy `size-5/6` theo `h-5/h-6` (line-height) trong khi glyph chỉ 14/16px → icon TO. Đúng: đối chiếu font-size.
 - **NGOẠI LỆ — caret/chevron điều hướng (`>` trailing) = `size-3` (12px) CỐ ĐỊNH** (thầy chốt 2026-07-22), KHÔNG theo text-size. Caret là affordance phụ "còn nữa / đi tiếp", nên nhỏ + chìm (muted); to bằng icon nội dung là lấn át. Neo: `SurfaceListCardItem`, pager `GroupPressableCard`.
 
+#### 5a.1 ⭐ KHOẢNG CÁCH chữ ↔ icon trong một text-link = **`gap-2`** (thầy chốt 2026-07-26)
+Text-link có mũi tên (`Link.Back` "← Back", `Link.SeeMore` "See more →", back link của `Breadcrumbs`) dùng **`gap-2` (8px)**, không phải `gap-1`. Cùng một họ mà mỗi member chừa một khoảng là drift — người đọc thấy hai thứ *gần giống nhau* thay vì *cùng một thứ*.
+
+- ❌ neo THẬT (2026-07-26): `SeeMoreLink` để `gap-1` còn `BackLink` để `gap-2` suốt thời gian hai cái nằm ở **hai thư mục rời**. Gom vào một namespace `Link` xong mới lộ — đó chính là lý do gom.
+- Đi kèm bộ ba BẮT BUỘC của một arrow-link, cả ba phải khớp nhau, thiếu một là lệch: **`gap-2`** · **cỡ mũi tên = HÀM của `size`** + **`weight="bold"`** (§5.0a — mọi nấc đều nhỏ hơn `size-5`) · **`transition-[translate]`** (§5b — không phải `transition-transform`).
+- ⭐ **Atom có trục `size` thì mũi tên phải CO THEO, bằng BẢNG đặt cạnh bảng cỡ chữ** (§12d: icon là hàm của size, caller không chỉnh riêng). `text-sm` → `size-3.5` · `text-xs` → `size-3` (thang §5a, 1:1 với font-size).
+  - ❌ neo THẬT (2026-07-26): `LinkSeeMore` khoá cứng `size-3.5` cho CẢ `sm` lẫn `xs` → leaf `Size` render hai chữ khác cỡ mà **mũi tên y hệt nhau** — đúng dấu hiệu "hai ô nhìn giống nhau = LỖI ATOM" (§12g). Sửa ATOM (thêm bảng `ARROW_CLASS`), KHÔNG sửa story cho đỡ lộ. Atom một-cỡ (`Link.Back`, chỉ `text-sm`) thì hằng số `size-3.5` là đúng, không tính khoá cứng.
+- **Tín hiệu hover cũng phải một kiểu**: nhãn **gạch chân** (`group-hover:underline` trên span NHÃN, không trên cả cụm, kẻo mũi tên bị gạch theo). ❌ `opacity-60` — mờ đi dễ đọc nhầm thành *đang bị vô hiệu*. Neo: `LinkSeeMore` đổi từ opacity sang underline 2026-07-26.
+
 ### 5b. Interaction đặc thù THEO NGỮ NGHĨA icon (special-case)
 Icon mang ý nghĩa hành động → có **micro-interaction riêng khi tương tác** (hover/press). ⚠️ **ARROW ≠ CARET** — hai thứ KHÁC nhau, đừng gộp (thầy chốt 2026-07-22):
 
-- **CHỈ ARROW (`→`, `ArrowRight`, CTA "Xem thêm →")** → **trượt phải** khi hover: `transition-transform group-hover:translate-x-1`. Đây là icon HÀNH ĐỘNG/CTA, trượt để mời nhấn. Neo THẬT: `SeeMoreLink`.
+- **CHỈ ARROW (`→`, `ArrowRight`, CTA "Xem thêm →")** → **trượt phải** khi hover: `transition-[translate] group-hover:translate-x-1`. Đây là icon HÀNH ĐỘNG/CTA, trượt để mời nhấn. Neo THẬT: `Link.SeeMore` (trượt →) · `Link.Back` / `Breadcrumbs` (trượt ←).
+  - ⚠️ **`transition-transform` KHÔNG ăn ở Tailwind v4** — v4 tách `translate` thành **property riêng**, không còn gộp trong `transform`. Ghi `transition-transform` thì mũi tên **nhảy giật** thay vì trượt, và không có gì báo lỗi. Phải là `transition-[translate]`. ❌ neo (2026-07-26): cả `LinkBack` lẫn `LinkSeeMore` đều dính, chỉ `Breadcrumbs` viết đúng — tức lỗi này lây bằng copy-paste, không tự lộ.
 - **CARET/CHEVRON điều hướng (`>`, `CaretRightIcon`) → KHÔNG trượt khi hover.** Caret chỉ là affordance "đi tiếp" tĩnh (list-row, pager, disclosure), giữ NGUYÊN vị trí; thêm `translate-x` cho caret là SAI. (Bài học 2026-07-22: đã lỡ cho caret `SummaryCard` trượt → sửa.)
 - **Rotate / refresh / retry / sync icon** → **QUAY** khi bấm (đang xử lý → `animate-spin`; hoặc rotate on click).
 - **Chevron mở/đóng (accordion, dropdown)** → **xoay 180°** khi mở: `transition-transform data-[open]:rotate-180` (đây là ROTATE, không phải trượt).
@@ -412,6 +439,35 @@ Luật này KHÔNG chỉ cho overlay — áp cho **mọi component compose** (la
 - ✅ neo (ContentAiChatDrawer): overlay badge `ChatThread`/`ChatComposer` (block) — không phơi ChatBubble/ChatToolResult bên trong.
 - **Bậc thang (mỗi tầng chỉ 1 nấc):** layout `CourseContents` → PageHeader·EnrollGate·ContinueCard… (KHÔNG breadcrumb/meta) · block `ChatThread` → ChatBubble·ChatToolResult (KHÔNG Typography/NestedCard) · block `ChatToolResult` → NestedCard·EntityResultRow·SeeMoreLink.
 
+#### 11a.1 ⭐⭐ CƠ CHẾ giữ một-nấc: `anatPart` TRUYỀN XUỐNG, `showAnatomy` **KHÔNG** (thầy chốt 2026-07-27)
+§11a nói *cái gì* được badge; mục này nói *bằng cách nào* — vì đây là chỗ luật bị phá trong im lặng.
+Hai prop anatomy có **hai chủ khác nhau**, đừng truyền lẫn:
+
+| Prop | Ai đặt | Nghĩa |
+|---|---|---|
+| `anatPart` | **CHA** đặt cho con | *"Trong cây của tao, mày tên là X"* → con phát MỘT node |
+| `showAnatomy` | **CHÍNH component đó**, chỉ ở **story của nó** | *"Mở ruột tao ra"* → mọi part NỘI BỘ cùng phát |
+
+- ⛔ **Cha KHÔNG bao giờ chuyền `showAnatomy={showAnatomy}` xuống con.** Chuyền = tự tay mở ruột con
+  ⇒ cháu-nội rò ra thành **anh em ngang hàng** với con (DOM phẳng, panel không biết ai của ai).
+- ⛔ **Story của cha KHÔNG khai `children` cho một node ĐÃ CÓ `storyId`.** Node đó là **cửa** —
+  bấm vào nhảy sang story của nó, ở đó mới thấy con. Khai lồng ở đây là **chép nội bộ của con
+  ra ngoài**: con đổi cấu trúc thì cây của cha nói dối, và không ai nhớ đi sửa.
+- ❌ neo (`TrialConversionStrip` 2026-07-27): khai `TitledText` **kèm `children:[Title, Subtitle]`**
+  + chuyền `showAnatomy` cho `TitledText`/`PriceTag`/`PhaseScarcityNote`. Hậu quả đo được trên DOM:
+  16 part cho một block **7 dep** — `Typography.Amount`·`Text`×2·`Popover.Trigger`·`StatusChip`
+  (ruột `PriceTag`) và `WarningCircleIcon`·`SeatCountLine`·`Separator`·`PriceRiseClause`
+  (ruột `PhaseScarcityNote`) đều rò ra. Sửa = **gỡ passthrough + gỡ `children`**, KHÔNG phải đi
+  khai thêm 9 node.
+- 🧭 **Test một câu — "AI DỰNG ra node này?"**
+  | Node do… | Khai không? |
+  |---|---|
+  | **CON tự dựng** trong thân nó (`TitledText` đẻ `Title`/`Subtitle`) | ❌ KHÔNG — đó là ruột con, đào ở story con |
+  | **CHA tự dựng** rồi **đặt vào SLOT của con** (`ContinueCard` dựng `StatusChip` → slot `chip` của `List.Meta`) | ✅ CÓ — nó là con của CHA, DOM chỉ tình cờ lồng nó vào |
+  Nói cách khác: `storyId` chặn việc chép **ruột** con ra, KHÔNG chặn khai thứ chính cha
+  truyền vào. Cây phải soi đúng DOM, mà DOM thì lồng theo nơi node **đứng**, không theo nơi
+  nó **sinh ra** — nên node slot vẫn nằm dưới node con trong cây, và điều đó là ĐÚNG.
+
 ### 11b. CHỨC NĂNG khác nhau → BLOCK khác nhau (đừng over-group)
 - Mỗi **chức năng độc lập = 1 block riêng (1 story riêng)**. CẤM gộp hai chức năng không liên quan vào một block cho "gọn".
 - ✅ neo: "lịch sử hội thoại" (đổi/chọn cuộc trò chuyện) ≠ "luồng tin nhắn" (thread) → **2 block** `ChatHistory` và `ChatThread`, không nhét history vào trong ChatThread. ❌ bài học 2026-07-24: đã lỡ gộp → sai.
@@ -468,6 +524,7 @@ Luật cốt lõi tách "leaf" khỏi "state" ở tầng layout/overlay:
 
 ### ✅ Checklist đo (§11)
 - [ ] Anatomy layout/overlay là **BLOCK node** (vùng chức năng), KHÔNG phơi primitive ở tầng đỉnh?
+- [ ] KHÔNG chỗ nào chuyền `showAnatomy={showAnatomy}` xuống con, và KHÔNG node nào vừa có `storyId` vừa có `children` (§11a.1)?
 - [ ] Chức năng khác nhau tách **block khác nhau** (không over-group)?
 - [ ] KHÔNG bọc block giả cho vùng chỉ-là-primitive (header = primitive thẳng)?
 - [ ] Overlay render nội dung **leaf tĩnh** (không portal); drawer là **surface vuông** không rounded card?
@@ -559,6 +616,65 @@ dùng `w-24` CỨNG cho cả ba bậc (chỉ khác chiều cao 4px), tức footp
 nút thật ⇒ layout nhảy khi dữ liệu về. Sửa atom (thêm bảng `SKELETON_W` theo size), KHÔNG
 sửa story cho đỡ lộ. Story render đủ chính là cái BẮT được lỗi này.
 
+#### 12g.0 ⭐⭐ KHUÔN CHUẨN CỦA SKELETON — **đi theo TRỤC HÌNH của chính component** (thầy chốt 2026-07-27)
+Skeleton là **chỗ giữ chỗ**: nó phải chiếm ĐÚNG khoảng mà nội dung thật sắp chiếm. Sai
+footprint ⇒ dữ liệu về là trang GIẬT, và không có test nào bắt được.
+
+**Phép thử hai bước:**
+1. Component có trục hình nào (`size`/`variant`/`shape`/`collapseFrom`…)?
+2. Trục đó caller **BIẾT TRƯỚC** lúc đang tải, hay **CHÍNH LÀ dữ liệu đang chờ**?
+
+| Loại trục | Ví dụ | Skeleton phải làm gì |
+|---|---|---|
+| **Biết trước** — cấu hình tĩnh caller viết sẵn | `size`, `variant`, `collapseFrom`, `columns` | **PHẢI rẽ nhánh theo nó** |
+| **Do dữ liệu quyết** — chưa có lúc tải | `totalPages` của `Pagination` | vẽ MỘT hình chung là đúng; bịa thêm hình là sai |
+
+- ❌ neo (2026-07-27): `Breadcrumbs` có `if (isSkeleton) return <3 thanh>` đặt **TRƯỚC** logic
+  `collapseFrom`/`collapseOnMobile`. Hai prop đó đổi hẳn hình (dãy crumb dài ⟷ một back-link
+  ngắn) và caller biết trước — nên mọi cấu hình ra cùng ba thanh, rồi co lại khi dữ liệu tới.
+- ❌ neo cùng ngày: `Tabs.Base` skeleton bỏ qua `variant` — `secondary` (underline mảnh) vẫn vẽ
+  pill đặc của `primary`.
+- ✅ neo NGƯỢC: `Pagination` **cố ý** giữ một hình. Trục windowing do `totalPages` quyết, mà đó
+  chính là giá trị chưa biết ⇒ không preview được. **Không bịa hình cho đủ ô.**
+
+**Ba dạng "đúng" dễ bị chấm nhầm là vi phạm** (quét bằng grep sẽ báo nhầm cả ba):
+1. Trục đi qua **biến trung gian** — `Avatar` dùng `box`, `Typography` dùng `SKEL_H[bodySize]`.
+2. Khung render **THẬT**, chỉ chữ thành gạch — `Alert` giữ tint/icon/khung, nên `tone` đã ăn vào
+   khung ở NGOÀI nhánh skeleton.
+3. Cờ **chảy xuống con** (§12c) — không có nhánh riêng, `SurfaceCard.Nested` truyền
+   `isSkeleton` vào `Typography.Base`; con tự vẽ shimmer của nó.
+
+⚠️ Dạng 3 là ĐƯỜNG ƯU TIÊN: **truyền cờ xuống atom đã có `isSkeleton`, đừng dựng cây shimmer
+song song.** Chỉ tự vẽ `HeroSkeleton` khi phần đó do CHÍNH component render trực tiếp (icon tự
+tra bảng, thanh tiến độ…) hoặc con chưa có cờ.
+
+#### 12g.0a ⭐⭐ `isSkeleton` LÀ MỘT NGÔN NGỮ DUY NHẤT CHO CẢ 5 TẦNG (thầy chốt 2026-07-27)
+`atom` · `layout` · `design` · `block` · `screen` — **mọi tầng** dùng CÙNG một tên prop
+`isSkeleton`, và **mọi tầng** đều có **leaf `Skeleton` riêng trong story, có `code`**.
+
+| Điều | Bắt buộc |
+|---|---|
+| Tên prop | `isSkeleton` ở MỌI tầng. Tầng trên cùng cũng vậy — screen KHÔNG được đẻ ngôn ngữ riêng |
+| Story | **LEAF RIÊNG** tên `Skeleton`, không phải "render kèm trong leaf Default" |
+| Panel | leaf đó phải có `code` (tab Code) như mọi leaf khác |
+| Anatomy | dùng CHÍNH cây part của bản thật — `isSkeleton` đổi STATE, không đổi CẤU TRÚC (§11f) |
+
+- ❌ neo (2026-07-27): `CourseContents` (screen) dùng `state: "content"|"loading"|"empty"` trong
+  khi bốn tầng dưới đã nói `isSkeleton` ⇒ đọc qua ranh giới tầng phải DỊCH. Sửa: `isSkeleton` +
+  `isEmpty`.
+- ❌ neo cùng ngày: `LearnNudges` có `isPending`/`pendingRows` — đúng cơ chế, sai tên. Đổi thành
+  `isSkeleton`/`skeletonRows`.
+- ❌ neo cùng ngày: `_shared.tsx` của screen khai `LOADING_PARTS` = cây anatomy **một node** cho
+  trạng thái nghỉ ⇒ khai một CẤU TRÚC KHÁC cây thật, đúng cái sai mà việc gỡ
+  `CourseContentsLoading` vừa chữa. Xoá; trạng thái nghỉ dùng chính cây content.
+
+⚠️ **PHÂN BIỆT với ba prop KHÁC KHÁI NIỆM** (đừng đổi tên chúng cho "đồng bộ"):
+| Prop | Nghĩa | Khác gì |
+|---|---|---|
+| `isSkeleton` | **chưa có dữ liệu**, giữ chỗ đúng footprint | — |
+| `isPending` (`Button`) | **BUSY** — spinner thay glyph, khoá press | đã có nội dung, đang xử lý HÀNH ĐỘNG |
+| `isLoading` (`SearchAutocomplete`) | spinner thay danh sách gợi ý | đang fetch theo QUERY, không phải lần tải đầu |
+
 #### 12g.1 ⭐ "CÓ HÌNH" = ĐỔI PIXEL. Prop chỉ đổi a11y thì KHÔNG có leaf (thầy chốt 2026-07-26)
 Phép thử: *đổi giá trị prop này, màn hình có khác một pixel nào không?* Không ⇒ **không có hình
 ⇒ không leaf**, bất kể nó là prop thật và có giá trị mặc định.
@@ -592,6 +708,28 @@ vào chỉ làm nhiễu.
   `Button.Icon`).
 - Cụm/khối ⇒ khai đúng cái nó **dựng lại** (neo: `Button.Group` → `Button.Base` +
   `Button.Icon`, kèm `storyId`).
+
+#### 12g.3 ⭐⭐ MỌI leaf PHẢI có `code` — tab Code không được rỗng (thầy chốt 2026-07-27)
+Panel có hai tab, và chúng mọc theo dữ liệu: **Deps** cần `annotate` có `storyId` thật, **Code**
+cần prop `code`. Thiếu `code` ⇒ panel trống trơn, leaf không nói được *"gọi thế nào"*.
+
+| Tab | Điều kiện mọc | Rỗng thì |
+|---|---|---|
+| **Code** | có `code` | ❌ LỖI — mọi leaf đều gọi được, nên luôn viết được snippet |
+| **Deps** | `annotate` có entry `storyId` thật | ✅ HỢP LỆ khi atom lá bọc thẳng HeroUI — bỏ hẳn prop |
+
+- Snippet là **lời gọi tối thiểu thể hiện đúng prop leaf đó minh hoạ**, dữ liệu dài rút thành
+  `items={[…]}`. Người đọc cần thấy HÌNH DẠNG lời gọi, không cần bãi dữ liệu.
+- ⚠️ ESLint repo bắt **doublequote**: một dòng thì `code={"<X a=\"b\" />"}` (escape); backtick
+  CHỈ khi snippet nhiều dòng. Sai chỗ này là lỗi lint, không phải thẩm mỹ.
+- ⚠️ `storyId` là **chuỗi tự do, KHÔNG có gì kiểm** — sai thì link Deps gãy CÂM (không lỗi
+  build, chỉ bấm không nhảy). Phải **đối chiếu `index.json`**, đừng suy từ title.
+  ❌ neo (2026-07-27): `Link.SeeMore` kebab-hoá thành `link-seemore`, KHÔNG phải `link-see-more`
+  — trò suy từ title, ghi nhầm, và tự xác nhận "đã nhảy đúng" bằng cách đọc `href` thay vì kiểm
+  id có tồn tại.
+- ❌ neo cùng ngày (quét 911 leaf): **458 leaf thiếu `code`** — `_legacy` 378 · `layouts` 51 ·
+  `designs` 16 · `blocks` 5. Tức luật này chưa bao giờ được áp bằng máy. **Quét, đừng vá lẻ**
+  chỗ nào bị chỉ ra.
 
 ⚠️ **§12g KHÔNG phá §12f**: leaf chỉ mở cho prop của CHÍNH atom đó. Prop chuyển tiếp xuống con
 thì vẫn thuộc về con (`Button.Group` không có leaf `Pending` — đó là prop của `Button.Base`).
@@ -653,6 +791,26 @@ Sau khi có atom layer, khung nào chỉ là "atom mặc áo" thì **xoá**, con
 
 
 ---
+
+### 13z. ⭐⭐ "Bố cục đi qua KHUNG" áp TỪ TẦNG LAYOUT TRỞ LÊN — atom thì KHÔNG (thầy hỏi 2026-07-27)
+Luật "không tự dựng `div` + class bố cục, phải dùng `Stack`/`Cluster`/`Split`/`Grid`" áp cho
+**layout · design · block · screen**. Ở **ATOM thì NGƯỢC LẠI**: atom PHẢI viết flex bằng tay.
+
+**Vì sao — chiều phụ thuộc chỉ đi MỘT hướng.** Đo trên cây bản vẽ 2026-07-27:
+
+| Chiều | Số file |
+|---|---|
+| `atoms/` → `layouts/` | **0** |
+| `layouts/` → `atoms/` | **25** (`Stack` tự nó import `Divider.Base`) |
+
+Khung được DỰNG TRÊN atom. Cho một atom dùng khung là tạo `Button → Stack → Divider → …`:
+atom phụ thuộc khung, khung phụ thuộc atom ⇒ **vòng lặp tier**, và là vòng lặp import thật
+chứ không phải chuyện lý thuyết.
+
+- ✅ `<button className="inline-flex items-center gap-1.5">` bên trong atom `Button` là **ĐÚNG**.
+  Tầng đáy không còn gì bên dưới để mượn.
+- ⛔ Đừng "dọn" flex trong atom cho đồng bộ với tầng trên — đó là kéo đổ chiều phụ thuộc.
+- 🧭 Test: *"dưới component này còn tầng nào không?"* Còn → đi qua khung. Không còn → viết tay.
 
 ## 14. MÔ HÌNH TƯ DUY — block=chức năng · design mang WHY · STATE hai loại — ✅ CHỐT (thầy giảng 2026-07-25)
 
