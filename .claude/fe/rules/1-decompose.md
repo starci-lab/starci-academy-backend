@@ -118,3 +118,33 @@ cây phụ thuộc THẬT thì đó là một tab KHÁC đọc từ import, khô
 - **C1** — screen có được gọi `AsyncContent.Empty`/`.Error` (layout tier) trực tiếp không, hay phải qua một block `EmptyState`? Hiện đang gọi trực tiếp.
 - **C2** — trục THIẾT BỊ (Desktop/Tablet/Mobile) có phải trục story không? Đo được: `Container size="md"` chặn 768px ⇒ **Tablet ≡ Desktop về cấu trúc**, chỉ khác lề trắng. Nếu giữ thì chọn width theo token `--container-app-*`, không phải số magic (768 nằm đúng trên mốc `@app-md` = giá trị tệ nhất).
 - **C3** — closure còn **28 chuỗi tiếng Việt** là copy sản phẩm nằm rải trong 5 block, kèm `toLocaleString("vi-VN")` hard-code. Biên i18n đặt ở đâu?
+
+---
+
+## 4a. PANEL: CỬA VÀO CÂY LÀ storyId THẬT HOẶC tier: heroui (thầy chốt 2026-07-27)
+
+Panel chỉ nhận một part vào cây Structure khi part đó khai `storyId` trỏ tới một story có thật,
+hoặc khai `tier: "heroui"`. Thiếu cả hai, part vẫn render ra DOM (`data-anat-part` vẫn có mặt),
+nhưng nó vô hình trong cây: không tsc lỗi, không eslint báo, không gate nào đỏ. Đo được ngày
+2026-07-27: **153 part / 56 file** dùng ngoài cây kiểu này.
+
+BA LOẠI part, BA CÁCH XỬ:
+
+1. **Component thật** (có file impl riêng) ⇒ khai `storyId` trỏ đúng story của nó.
+2. **Part nội bộ của một atom** (không đứng một mình, không có story riêng) ⇒ khai `storyId`
+   của CHÍNH atom cha, hoặc bỏ badge luôn.
+3. **Slot của caller** (`Body`, `Action`, `Content`...) ⇒ bỏ badge. Node bên trong slot thuộc về
+   người TRUYỀN VÀO, không thuộc về component đang khai slot đó.
+
+Đừng nhầm hai câu hỏi. Câu "import gì mà không khai" dễ hơn, số nhỏ hơn nhiều (**9**). Câu
+"badge gì mà rơi ngoài cây" khó hơn, số lớn hơn hẳn (**153/56**). Gate xanh câu này không nói
+gì về câu kia.
+
+TÊN node = TÊN COMPONENT THẬT, không phải tên vai trò nó đang đóng. Vai trò đi vào field `role`,
+không đi vào tên. Trùng tên là vô hại, vì panel gom node theo phần tử DOM thật đang render, không
+theo tên.
+
+MEMBER của một namespace (`.Base`, `.Inline`, `.Prominent`...) LÀ LEAF, không phải STATE. Caller
+gọi hai tên khác nhau nghĩa là hai cửa vào khác nhau, không phải hai nhánh dữ liệu của cùng một
+cửa. Neo sai đã cắn: `PriceTag.Inline` và `PriceTag.Prominent` từng bị gộp chung thành hai state
+trong MỘT leaf, trong khi đúng ra là hai leaf riêng.

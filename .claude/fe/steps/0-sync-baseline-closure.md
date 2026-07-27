@@ -36,9 +36,16 @@ npx eslint .storybook                      # KHÔNG dùng glob trong ngoặc ké
 node scripts/check-story-ids.mjs
 node scripts/check-seams.mjs
 node scripts/check-story-coverage.mjs
+node scripts/check-orphan-parts.mjs        # part có storyId thật hoặc tier: "heroui" chưa
+node scripts/check-deps-coverage.mjs       # import đã khai badge chưa
 ```
 
 Neo thật: `npx eslint ".storybook/**/*.{ts,tsx}"` exit 0 không in gì; `npx eslint .storybook` ra **11 error**. Và 5 bộ đếm sai trong một phiên: 8188→305 · 49→6 · 154→73 · 993→2 · 663→156.
+
+`check-orphan-parts` và `check-deps-coverage` hỏi hai câu KHÁC NHAU, chạy CẢ HAI, không chạy
+một cái rồi coi cái kia cũng xanh. Neo đo được: `check-deps-coverage` (câu "import gì mà không
+khai") báo **9**, trong khi `check-orphan-parts` (câu "badge gì mà rơi ngoài cây") báo
+**153 part / 56 file**. Xem `rules/1-decompose.md` §4a.
 
 ---
 

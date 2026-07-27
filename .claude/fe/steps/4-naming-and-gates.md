@@ -53,8 +53,14 @@ comm -13 /tmp/scanner.txt /tmp/live.txt    # live CÓ mà scanner KHÔNG = id b�
 | dep trỏ story thật | `node scripts/check-story-ids.mjs` | live gãy 0 |
 | seam | `node scripts/check-seams.mjs` | 0 bố cục tay · 0 off-scale mới |
 | block có story | `node scripts/check-story-coverage.mjs` | 0 thiếu |
+| part rơi ngoài cây | `node scripts/check-orphan-parts.mjs` | 0 part thiếu `storyId` thật/`tier: "heroui"` |
+| import đã khai badge | `node scripts/check-deps-coverage.mjs` | 0 import không khai |
 | id live == id tĩnh | `curl :6006/index.json` + `comm` | lệch 0 cả hai chiều |
 | hình | đo `getComputedStyle` | khớp cây khai |
+
+**`check-orphan-parts` và `check-deps-coverage` hỏi hai câu KHÁC NHAU** (`rules/1-decompose.md`
+§4a): xanh cái này không nói gì về cái kia, luôn chạy CẢ HAI. Neo đo được 2026-07-27: câu "import
+gì mà không khai" chỉ báo **9**, câu "badge gì mà rơi ngoài cây" báo **153 part / 56 file**.
 
 ### Negative control — khuôn làm
 
@@ -73,7 +79,8 @@ Neo thật: `check-story-ids` lần đầu báo **"✅ sạch"** trong khi đang
 
 ## Ra khỏi Phase 4 khi
 
-- [ ] 6 dao xanh, lệnh eslint không có glob
+- [ ] 8 dao xanh, lệnh eslint không có glob
 - [ ] `comm` hai tập id lệch **0 cả hai chiều**
+- [ ] `check-orphan-parts` VÀ `check-deps-coverage` đều đã chạy, cả hai đều xanh
 - [ ] mỗi gate mới đã đỏ đúng một lần khi bị thử
 - [ ] bảng trước/sau có đủ số, mỗi số truy được về một lệnh

@@ -63,8 +63,8 @@ Neo: `Container.tsx` (file mới nhất, sạch nhất).
 3. union export  export type ContainerSize = "sm" | "md" | ...
 4. class map     const SIZE_CLASS: Record<ContainerSize, string>   (21 file dùng khuôn này)
 5. props         export interface XProps — MỖI prop một JSDoc, ghi cả default
-6. component     const XBase = ({ size = "md", ... }: XProps) => ...
-7. namespace     export const X = Object.assign(XBase, { Base: XBase })
+6. component     const X = ({ size = "md", ... }: XProps) => ...
+7. export        export { X, XGroup }      ← KHÔNG namespace (§3b)
 ```
 
 | Luật | Trạng thái đo được |
@@ -73,8 +73,46 @@ Neo: `Container.tsx` (file mới nhất, sạch nhất).
 | `type XProps = A & B` (**hợp thành**, để union loại trừ nhau) là **hợp lệ** | `ChipBaseProps` dùng union cho icon/dot loại trừ — ép `interface` là **phá** cơ chế |
 | **cấm type object lồng inline** — xem §3a | **73 chỗ / 44 file** (41 tham số hàm · 30 generic · 2 prop) |
 | `React.FC` / `forwardRef` | 0 / 0 — sạch |
-| **một đường namespace**: `Object.assign` | 43 file đúng · **22 file** dùng `export const X = { Base }` (gọi trần vỡ tsc, trái §12a) |
-| `_probe.tsx` — file thử gọi-trần **đã bị commit** | rác, xoá |
+| **KHÔNG namespace** (§3b) | ✅ 0 — 65 namespace / 111 member đã phẳng 2026-07-28, cổng `check-no-namespace` canh |
+| `_probe.tsx` — file thử gọi-trần **đã bị commit** | ✅ đã xoá |
+
+---
+
+## 3b. KHÔNG NAMESPACE — component gọi bằng TÊN của nó
+
+> **P0 · `X.Base` → `X` · `X.Member` → `XMember`. Không `Object.assign`, không
+> `export const X = { … }`.** Thầy chốt 2026-07-28. Cổng: `check-no-namespace.mjs`.
+
+**Vì sao.** Dấu chấm đọc như một BIẾN THỂ và thực ra là một THƯ MỤC. Đo trước khi xoá: chỉ
+**1/10** namespace có các member dùng chung chữ ký prop (`ContinueCard`); chín cái còn lại gom
+những component API khác hẳn nhau dưới một cái tên. Nó còn làm bảng anatomy nhập nhằng —
+`Avatar.Base` (của ta) và `Avatar` (HeroUI) là hai node mà tên chỉ hơn nhau một hậu tố.
+
+**Ngoại lệ có thật:** khi các member **chỉ dùng cùng nhau** (`Dialog.Root` vô nghĩa nếu không
+có `.Trigger`) thì namespace hợp lý — đó là lý do Radix giữ, MUI và shadcn bỏ. Hệ này không
+rơi vào ca đó: `ButtonGroup` dùng độc lập với `Button`.
+
+### Bốn cái bẫy — mỗi cái đã suýt làm hỏng một lần
+
+| Bẫy | Triệu chứng | Cách canh |
+|---|---|---|
+| **CRLF** | regex viết theo `\n` khớp **không gì** mà vẫn báo thành công (kiểm kê ra 66 thay vì 111) | làm việc theo DÒNG, không theo `\n` |
+| **compound của vendor** | `Tabs.Base` của ta, `Tabs.Tab` của HeroUI — cùng repo, đôi khi **cùng file** | khớp theo **CẶP**, không theo tiền tố; 0 cặp thuộc cả hai |
+| **alias nội bộ** | `Typography as TypographyAtom` — đổi theo tên chính tắc là bỏ sót | đọc import của TỪNG file |
+| **tên phẳng đâm nhau** | đổi vào tên đã bị chiếm ⇒ **âm thầm** trỏ sang component khác, chỉ lộ khi kiểu prop tình cờ lệch | giữ alias, và coi mỗi lần đụng là **một trùng lặp cần dọn** |
+
+Bẫy thứ tư là thứ có giá trị nhất: 14 chỗ phải giữ alias chính là danh sách component trùng
+(`Progress.Meter` vs composite `ProgressMeter`, `Button.Group` vs composite `ButtonGroup`).
+**Làm phẳng tên là cách rẻ nhất để lộ trùng lặp** — dấu chấm che chúng đi.
+
+### Đổi tên KHÔNG được đổi ngữ nghĩa
+
+`PriceTag.Prominent`/`.Inline` chỉ set `emphasis`, trông rất giống một prop bị bọc lại. Nhưng
+doc của chính nó viện §14d.1: `emphasis` **cố ý không phơi ra**, người gọi chọn COMPONENT chứ
+không chọn cỡ. Nên nó tách thành hai anh em ngang hàng, không gộp về prop.
+
+> Bỏ namespace là đổi CÁCH GỌI. Nếu một bước "tinh gọn" nhân tiện lật một ruling đã có, đó là
+> hai thay đổi bị trộn làm một.
 
 ---
 
@@ -183,7 +221,11 @@ Mỗi chỗ khó ghi đủ 4 thứ: **(a)** WHY tồn tại · **(b)** trước 
 
 ## 7. Chờ thầy chốt
 
-- **C11** — 22 file namespace kiểu `export const X = { Base }` sửa hết sang `Object.assign` (để gọi trần được, §12a) hay đổi luật §12a?
+- ~~**C11** — 22 file namespace kiểu `export const X = { Base }` sửa sang `Object.assign` hay đổi §12a?~~
+  **ĐÃ TRẢ LỜI 2026-07-28: cả hai đường đều bỏ.** Câu hỏi giả định phải chọn MỘT dạng
+  namespace, trong khi câu trả lời là không dùng namespace nữa (§3b). Con số "22 file" cũng
+  sai: bộ quét sinh ra nó viết theo `\n` trong repo CRLF nên bỏ sót một nửa — thực tế
+  **65 namespace / 111 member**.
 - **C12** — luật `XLike` áp cả **story fixture** (`const TONES: Array<{ tone; hint }>`) hay chỉ `components/`? Nếu cả story thì thêm ~17 mảng cần đặt tên.
 - **C13** — helper cục bộ trong file (không export) có phải theo luật `XProps` không? Agent bắt thêm **22 chỗ** dạng `({ className }: { className?: string })`.
 - **C14** — file >800 dòng tách sổ quyết định ra `.decisions.md`?
