@@ -10,14 +10,43 @@
 
 ## 1. Danh sách chức năng (B1 — chưa nghĩ hình)
 
-> *"bài này là gì · xem bài dưới dạng nào · đọc bài · mở khoá để đọc tiếp · nói cảm nhận ·
-> bàn luận · đọc gì tiếp · lùi/tới bài · xem kết quả e2e"*
+> **PHẠM VI: đúng những gì `page.tsx` dựng lên, không hơn.** `page.tsx` render duy nhất
+> `<LessonReader />`, nên màn này = cây con của `LessonReader`.
 
-Chín câu. Đọc lên ra được trang làm gì ⇒ đạt.
+> *"bài này là gì · xem bài dưới dạng nào · đọc bài · nói cảm nhận · bàn luận · đọc gì tiếp ·
+> lùi/tới bài"*
 
-`AdBanner` và `SelectionHintCallout` **không** vào danh sách: một cái là doanh thu chèn vào,
-một cái là mách dùng tính năng — cả hai là **lớp phủ lên** việc đọc, không phải một việc người
-học tới đây để làm. Chúng đi kèm block khác chứ không đứng thành chức năng riêng.
+**BẢY** câu.
+
+### ⚠️ Bản đầu trò kê CHÍN — thầy bắt đúng hai chỗ thừa
+
+| Trò từng kê | Thật ra là gì |
+|---|---|
+| *"mở khoá để đọc tiếp"* | **STATE của "đọc bài"**, không phải chức năng. Paywall chỉ hiện khi `locked`, và nằm NGAY TRONG thẻ đọc — chính cây của trò ở §3 đã đặt `ContentPaywall` làm con của `ContentArticle`. Kê nó thành chức năng là **tự đá cây của mình**. |
+| *"xem kết quả e2e"* | **TRIGGER của một overlay.** `E2eResultButton` chỉ gọi `open()` từ store để bật `@/components/drawers/E2eResultDrawer` — một drawer TOÀN CỤC mount ở chỗ khác. Trang này không sở hữu nó. |
+
+Dấu hiệu lộ ra ngay trong chính tài liệu: danh sách ghi **9 chức năng** nhưng mục dựng ghi
+**7 block**. Hai con số không khớp là bằng chứng danh sách bị độn, không cần đọc thêm gì.
+
+> **Luật rút ra:** một dòng chỉ là CHỨC NĂNG khi nó là việc người học tới trang này để làm.
+> Nếu nó chỉ xuất hiện ở một điều kiện của việc khác ⇒ **state**. Nếu nó chỉ MỞ một thứ nằm
+> ngoài trang ⇒ **trigger của overlay**, thuộc tầng overlay.
+
+### Trong cây con nhưng KHÔNG phải chức năng
+
+Ghi ra để không bị âm thầm bỏ quên khi dựng:
+
+| | Vì sao không phải chức năng |
+|---|---|
+| `SelectionHintCallout` | mách cách dùng tính năng, đi kèm `ContentArticle` |
+| `AdBanner` | doanh thu chèn vào, không phải việc người học tới đây để làm |
+| `E2eResultButton` | trigger overlay (xem trên) |
+
+### Ngoài phạm vi — do LAYOUT sở hữu
+
+`learn/layout.tsx` dựng `LearnShell` · `ResizableRail` · `ContentMap` · `OnThisPage` ·
+`MilestoneOutline` · `ContentAiFab` · `ContentAiSelectionAsk` + các gate. Hai `layout.tsx` gần
+hơn (`modules/`, `modules/[moduleId]/`) đều **pass-through**. Không đụng gì trong số này.
 
 ---
 
@@ -32,7 +61,7 @@ chi phối cả cây lẫn bảng state:
 | Challenges | khổ đọc, **phẳng** (không thẻ) | thân nó vốn đã là một danh sách thẻ ⇒ thẻ trong thẻ |
 | Content | khổ đọc, **trong thẻ giấy** | đây mới là "trang để đọc" |
 
-Và phần chân (cảm nhận · thảo luận · lùi/tới · e2e) **chỉ hiện khi `!isLocked && !isFullWidth`**.
+Và phần chân (cảm nhận · thảo luận · lùi/tới) **chỉ hiện khi `!isLocked && !isFullWidth`**.
 
 > ⚠️ Vậy `Content` **không phải một screen có vài state**, nó là một screen mà **cấu trúc cây
 > đổi theo tab**. Bảng state ở §5 phải vét theo TAB trước, rồi mới tới loading/locked.
@@ -68,13 +97,14 @@ ContentScreen                                        screen
       │     ContentRelatedList                        block  │  ← tự ẩn khi không có gì
       │     ContentDiscussion                         block  │  ← bàn luận
       │     ContentPager                              block  │  ← lùi/tới bài
-      │     ContentE2eLink                            block  │  ← chỉ khi bài có e2e
       └──────────────────────────────────────────────────────┘
+        (E2eResultButton: TRIGGER overlay — không phải block của màn này)
 ```
 
 **Bảy block dựng lượt này:** `ContentHeader` · `ContentTabBar` · `ContentArticle` ·
 `ContentReaction` · `ContentRelatedList` · `ContentDiscussion` · `ContentPager`.
-**Hai block hoãn:** `ContentUpNext` · `ContentE2eLink` (đều là ca điều kiện, xem §6).
+**Một block hoãn:** `ContentUpNext` (xem §6).
+**Bỏ hẳn khỏi màn:** `ContentE2eLink` — nó là trigger của drawer toàn cục, thuộc tầng overlay.
 **Ba block chưa bàn:** `ContentSandbox` · `ContentAiLab` · `ContentChallengeList` — chúng là
 công cụ, không phải việc đọc; xứng một lượt riêng.
 
@@ -154,13 +184,15 @@ ghi ở `rules/1` §B2.
 
 ---
 
-## 6. Hai block hoãn — vì cả hai là ca ĐIỀU KIỆN, không phải hình
+## 6. Một block hoãn, một block BỎ HẲN
 
 - **`ContentUpNext`** chỉ hiện **trên mobile** (`@app-lg:hidden`), vì desktop đã có rail phải
-  làm đúng việc đó; hiện cả hai là **hai CTA nhấn cùng lúc**. Đây là quyết định bố cục cấp
-  màn, không quyết được khi rail phải chưa dựng.
-- **`ContentE2eLink`** chỉ hiện khi bài có e2e. Một nút lặng ⇒ chưa đáng một block riêng cho
-  tới khi biết nó còn xuất hiện ở màn nào khác.
+  làm đúng việc đó — mà **rail đó do LAYOUT sở hữu, không phải màn này**. Nên nó là bản gương
+  mobile của một thứ nằm ngoài trang; quyết được hình của nó chỉ sau khi biết layout vẽ rail
+  ra sao. Hoãn, không bỏ.
+- ~~`ContentE2eLink`~~ **KHÔNG hoãn — bỏ hẳn.** Nó không phải "một nút lặng chưa đáng block",
+  nó là **trigger của một drawer toàn cục**. Xếp nó vào màn là đặt sai tầng, không phải đặt
+  sai thứ tự.
 
 ---
 
