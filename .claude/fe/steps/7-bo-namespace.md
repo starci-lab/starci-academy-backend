@@ -71,8 +71,7 @@ tức phải đọc binding của từng file — không phải kiểm tra sau.
 
 ## 5. Còn lại
 
-- `Stepper` 3 margin của con — điểm đỏ duy nhất của `check-padding`, cần tách sub-row
-  `items-center` chứ không đổi class.
+- ~~`Stepper` 3 margin của con~~ — **xong** (bước 8 §1c), `check-padding` 3 → 0.
 - `_legacy`: 5 storyId gãy (nợ đã ghi sổ), 378 leaf thiếu `code`.
 - eslint 17 (15 `no-unused-vars` + 2 `no-adjacent-chip`) — đều có từ trước.
-- Dọn 14 chỗ trùng ở §3 — đang điều tra, xem `8-tinh-gon-trung-lap.md`.
+- Dọn 14 chỗ trùng ở §3 — **xong**, xem `8-tinh-gon-trung-lap.md`.
