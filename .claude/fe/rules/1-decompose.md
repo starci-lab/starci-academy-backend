@@ -100,10 +100,16 @@ Closure đo được: **38 file** — 1 screen · 6 block · 4 design · 15 layo
 
 ## 4. Bốn chỗ sai đã cắn thật khi làm cây này
 
-1. **Screen gọi thẳng design.** `ContinueCard` (design) từng nằm ngay trong screen, và screen tự ghép chuỗi `"Đã đọc 8/23 bài"`. Dấu hiệu lộ ra ngay trên cây Deps: năm node là `block`, một node lẻ là `design`. Sửa: thêm block `ContinueLearning` sở hữu câu chữ.
+1. **Screen gọi thẳng design.** `ContinueCard` (design) từng nằm ngay trong screen, và screen tự ghép chuỗi `"Đã đọc 8/23 bài"`. Dấu hiệu lộ ra ngay trên cây Structure: năm node là `block`, một node lẻ là `design`. Sửa: thêm block `ContinueLearning` sở hữu câu chữ.
 2. **Gọi tên FRAME thay vì tên BLOCK.** Header screen ghi `Feedback.Callout` trong khi block thật là `CourseTeamGate`. Tên sai ⇒ node không vào được cây (DOM phát `CourseTeamGate`), và tầng cũng sai.
 3. **Cái khung đội tên của thứ nằm trong nó.** State rỗng gắn `anatPart="AsyncContent.Empty"` lên `Container` ⇒ node duy nhất trong cây là **cái khung** mang tên + link của nội dung, còn `Container` biến mất khỏi state đó.
 4. **`gap` viết mà không có ai nhận.** `Container.Base` chỉ áp `gap` khi dùng slot `header`/`footer`; truyền `children` thẳng thì prop bị **bỏ im lặng**. Đo được: seam header→thẻ đúng **0px** trong khi code ghi `gap={8}`. Viết `gap` mà không ai nhận **tệ hơn không viết**, vì đọc code tưởng đã có nhịp.
+
+**Đổi tên "Deps" thành "Structure" (thầy chốt 2026-07-27):** cây này suy từ DOM nên nó tả CẤU
+TRÚC (cái gì lồng trong cái gì), không phải phụ thuộc (cái gì cần cái gì, đọc từ import).
+Bằng chứng: `KeyValue.List` khai đúng vẫn không hiện vì `Popover.Content` render qua portal;
+`Popover.Trigger`/`Popover.Content` hiện thành ANH EM dù logic lồng nhau. Nếu sau này muốn
+cây phụ thuộc THẬT thì đó là một tab KHÁC đọc từ import, không phải sửa cái này.
 
 ---
 

@@ -61,9 +61,10 @@ Liệt kê seam theo thứ tự dọc. Dãy **gần như đều nhau** ⇒ gần
 | `24 / 12 / 24 / 24` | 4 dải trôi — caption xa cụm cha đúng bằng khoảng cách tới CTA |
 | `24 / 12 / 12 / 24` | 2 nhóm — đúng cấu trúc thật |
 
-Kiểm thêm 2 thứ hay chết im lặng:
+Kiểm thêm 3 thứ hay chết im lặng:
 1. **prop `gap` có ai nhận không** — `Container.Base` chỉ áp `gap` khi dùng slot `header`/`footer`; truyền `children` thẳng thì **bỏ im lặng** (đo được seam **0px** trong khi code ghi `gap={8}`).
 2. **hàng có wrap thường trực không** — đo `cột + gap + nút` so với bề rộng thật. Neo: cần **631px** mà card chỉ **488px** ⇒ CTA **luôn** xuống dòng, `wrap` không phải phòng xa.
+3. **sau mỗi lần chuyển `margin` lên `gap`/`padding` phải chạy LẠI cả `check-seams` và `check-padding`.** Sửa một cổng có thể làm đỏ cổng kia: dồn margin của con vào `gap` của parent có thể sinh `numeric-seam`/off-scale mới ở `check-seams`, còn dồn vào `padding` của container có thể lộ margin thừa ở một call-site khác mà `check-padding` chưa từng bắt được vì lúc đó nó còn nằm ở con. Chỉ chạy một cổng rồi báo xong là báo XANH GIẢ.
 
 ---
 
@@ -74,6 +75,7 @@ Kiểm thêm 2 thứ hay chết im lặng:
 - [ ] `check-seams` 0 bố cục tay · 0 off-scale mới
 - [ ] có bảng đo DOM trước/sau, và nhịp không gần-đều
 - [ ] mọi prop `gap`/`padding` đều có người nhận
+- [ ] mọi lần chuyển `margin` lên `gap`/`padding` đã chạy LẠI cả `check-seams` VÀ `check-padding`, không chỉ cổng vừa sửa
 
 ---
 
@@ -83,7 +85,7 @@ Kiểm thêm 2 thứ hay chết im lặng:
 |---|---|
 | **VÀO** | leaf đã đúng bộ leaf (S6) |
 | **LÀM** | mỗi state trong `children` tách thành một phần tử `states[]` với `name` (điều kiện dữ liệu) · `why` (2 câu văn xuôi) · `code` (snippet riêng). Bất biến của cả leaf dồn vào `reason`. Bề ngang chủ thể đi qua `renderClassName`, KHÔNG bọc `BlockAnatomy` trong `div.max-w-*` |
-| **CỔNG ĐO** | mở story, đếm tab state khớp số state trong source · bấm state render rỗng thì mục `deps of this state` phải **biến mất** · nhãn phải là `why this state`, không phải `note (whole leaf)` |
+| **CỔNG ĐO** | mở story, đếm tab state khớp số state trong source · bấm state render rỗng thì mục `structure of this state` (đổi tên từ `deps of this state`, xem `rules/1-decompose.md` §4) phải **biến mất** · nhãn phải là `why this state`, không phải `note (whole leaf)` |
 | **RA** | leaf mà LLM đọc được: đủ điều kiện, đủ cây, đủ giọng, đủ vạch cấm |
 | **DỪNG KHI** | không suy ra được **điều kiện dữ liệu** của một state (tức không biết vì sao nó tồn tại) ⇒ hỏi thầy, đừng đặt nhãn cảm tính cho xong |
 

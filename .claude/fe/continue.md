@@ -29,11 +29,19 @@
 
 | Tầng | Là gì | Số |
 |---|---|---|
-| `frame` | **không biết nội dung**, chỉ quyết trục · seam · canh | 7 (`Container` `Grid` `Cluster` `Split` `Stack` `Flex` `DragScrollArea`/`ResizableRail`) |
+| `frame` | **không biết nội dung**, chỉ quyết trục · seam · canh | 5 (`Cluster` `Container` `Grid` `Split` `Stack`) |
 | `composite` | **biết nội dung**, dựng bằng frame (`SurfaceCard` `Section` `KeyValue` `Form` `ModalShell`…) | 37 |
 
 Phép thử là **"sở hữu nội dung"**, không phải "đếm import" — một khung 0 import vẫn có thể biết
 nội dung của nó.
+
+**`frames` còn 5 hộc, không phải 7 (thầy chốt 2026-07-27):** `cluster` `container` `grid` `split`
+`stack`. `DragScrollArea`/`ResizableRail` đã tách sang `behaviors/` — chúng thêm HÀNH VI (kéo,
+cuộn, đổi cỡ), không thuần quyết trục/seam/canh nên không phải frame. `Flex` là tầng cài đặt
+**NỘI BỘ** mà các frame khác dùng chung bên dưới, không export ra ngoài `frames/`.
+
+`Container` đã bỏ `gap`/`header`/`footer`, chỉ còn giữ **khổ đọc** và **padding**. `Stack` nhận
+`padding` (trước đây chỉ `Container` nhận).
 
 ---
 
@@ -75,8 +83,11 @@ của **chính state đó** · `reason` = bất biến của cả leaf. **Không
 `.storybook/components/frames/_spacing.ts`. Số chỉ còn sống trong bảng `GAP_CLASS`. Đo DOM 6
 state: **0 · 4 · 8 · 12 · 24 · 32px**.
 
-`padding` **giữ SỐ** (`SpaceScale = 0|1|2|3|6|8`) cố ý: nó là **lòng của một mặt**, không phải
-seam giữa hai thứ, nên `padding="related"` không phát biểu gì.
+`padding` **cũng viết bằng CHỮ** (thầy chốt 2026-07-27, đảo lại quyết định cũ "giữ SỐ"):
+`InsetScale = flush(p-0) · cozy(p-3) · roomy(p-6) · airy(p-8)`, SSOT cùng file
+`_spacing.ts`. Nó vẫn là **lòng của một mặt** chứ không phải seam giữa hai thứ, nên không dùng
+chung bộ từ với `SeamScale` — `padding="related"` vẫn là câu vô nghĩa, nhưng lòng của một mặt
+giờ có bộ từ RIÊNG của nó thay vì giữ số.
 
 Chọn bậc = **sáu câu hỏi** (`rules/3` §1.0), dừng ở câu đúng đầu tiên. Chỗ hay lẫn nhất
 `related` vs `grouped` có phép thử: **đổi chỗ hai con** — vẫn hiểu là đồng hạng, lú là có thứ tự.
@@ -90,7 +101,8 @@ Chọn bậc = **sáu câu hỏi** (`rules/3` §1.0), dừng ở câu đúng đ�
 | `scripts/check-story-ids.mjs` | `storyId` trỏ tới story thật (sai thì **gãy câm**, không lỗi build) | ✅ xanh · **đã cắm `.husky/pre-commit`** |
 | `scripts/check-seams.mjs` | bố cục gõ tay từ tầng design lên · `gap` vào khung tự sở hữu nhịp · off-scale · `numeric-seam` | ✅ xanh |
 | `scripts/check-inline-types.mjs` | hình dữ liệu không tên (`{ a: x }` trong prop/generic/param) | ✅ xanh |
-| `scripts/check-padding.mjs` | padding off-scale · **margin của con** | 🔴 **ĐỎ 20** (9+11, đều tầng composite) · **CHƯA cắm husky** |
+| `scripts/check-padding.mjs` | ~~padding off-scale~~ (nay compiler giữ, `InsetScale` là union chữ — xem `rules/3` §1.0a) · **margin của con** | 🔴 **ĐỎ 20** (9+11, đều tầng composite) · **CHƯA cắm husky** |
+| `scripts/check-one-instance-per-state.mjs` | luật **MỘT STATE = MỘT INSTANCE**. Phép thử phân biệt: mảng `.map` chứa **CHUỖI** ⇒ đó là giá trị prop (union dump, phải tách state); chứa **OBJECT** ⇒ đó là dữ liệu thật (nhiều hàng, hợp lệ) | ✅ xanh · **đã cắm `.husky/pre-commit`** |
 
 **Luật CHƯA có cổng nào giữ** (biết trước để không tưởng là sạch):
 - ngoại lệ §11a.1 *"cha dựng rồi đặt vào slot của con thì vẫn khai"* — chỉ đọc JXS mới trả lời được.
@@ -106,17 +118,21 @@ Chọn bậc = **sáu câu hỏi** (`rules/3` §1.0), dừng ở câu đúng đ�
 > **negative control**: cắm lỗi giả → thấy đỏ → gỡ ra. Cổng `check-story-ids` từng báo "sạch"
 > trong khi mù 10 `storyId` nằm ở `_shared.tsx`; chỉ negative control mới lộ.
 
+**Kết quả đo `check-one-instance-per-state.mjs` lượt đầu:** union dump `11 → 0`, states
+`789 → 805`. 4/11 báo động ban đầu là **báo động giả** — agent đọc mảng `.map` thấy chứa OBJECT
+(dữ liệu thật, nhiều hàng hợp lệ) nên **tự chối tách**, thay vì tách bừa theo cổng.
+
 ---
 
 ## 4. Chờ THẦY chốt
 
 | # | Việc | Vì sao cần thầy |
 |---|---|---|
-| 1 | **Cắm `check-padding` vào husky?** | đang đỏ 20 chỗ ⇒ cắm bây giờ là chặn mọi commit sau. Dọn trước rồi cắm? |
-| 2 | **Đặt tên thang `padding`?** | muốn thành chữ thì phải nghĩ từ vựng khác hẳn — padding tả *độ thoáng của một mặt*, không tả quan hệ |
+| 1 | **Cắm `check-padding` vào husky?** | đang đỏ 20 chỗ ⇒ cắm bây giờ là chặn mọi commit sau. Dọn trước rồi cắm? (phần scale nay compiler giữ, chỉ còn margin cần dọn) |
+| 2 | ~~**Đặt tên thang `padding`?**~~ **ĐÃ CHỐT 2026-07-27** | `InsetScale = flush · cozy · roomy · airy`, xem `rules/3-design-tier.md` §1.0a |
 | 3 | **Cây "Deps" thực chất là cây DOM** | *"nằm trong" ≠ "phụ thuộc vào"*. Popover render qua portal ⇒ `KeyValue.List` khai đúng vẫn không hiện. (a) đổi tên tab thành `Anatomy` · (b) deps lấy từ **import tĩnh**. Nghiêng **(b)** |
 | 4 | **Panel gom node THEO TÊN** | `Stack.V.Page`, `Stack.H.PriceRow` không phải tên component, là id bịa để né va chạm |
-| 5 | **`Container.gap` vô hiệu im lặng** | khi không dùng slot `header`/`footer` thì `gap` bị bỏ (đo được **0px** trong khi code ghi `gap="page"`). Sửa cho nó luôn `flex flex-col` sẽ đổi hình MỌI consumer (§4a). Cách nhẹ: **bỏ hẳn prop** |
+| 5 | ~~**`Container.gap` vô hiệu im lặng**~~ **ĐÃ CHỐT 2026-07-27** | bỏ hẳn `gap`/`header`/`footer` khỏi `Container` — nó chỉ còn khổ đọc + padding; `Stack` nhận `padding` |
 | 6 | **`ContinueLearning` là block chỉ để ghép chuỗi** | câu hỏi thật: prop `ContinueCard` sai từ đầu? Design nhận `meta: string[]` thì **buộc** ai đó ghép chuỗi |
 | 7 | **`Cluster` vs `Stack.H`** có phải một khung? | cùng "hàng ngang", khác đường vào (`items` vs `children`) |
 | 8 | **F3 — 5 atom cùng trả lời "chọn 1 trong N"** | `Tabs` `ExtendedTabs` `SegmentedToggle` `FlexWrapButtonRadio` `SelectableCardGroup`. 3/5 tự khai là block cũ bê thẳng vào `atoms/` |
@@ -138,6 +154,9 @@ Chọn bậc = **sáu câu hỏi** (`rules/3` §1.0), dừng ở câu đúng đ�
   `.ts` nên rule (chỉ soi className trong JSX) **không thấy** — lỗ đã ghi trong `_skeleton-bar.ts`.
 - **`CourseBrief` nhận 5 scalar rời của cùng một thực thể** — gom thành `course={{…}}`?
 - **Cổng đếm state thiếu `why`/`code`** — nay đếm được vì `states[]` đã là API, chưa viết.
+- **`ModalShell` có prop `bodyStartsWithTabs`** — gốc bệnh: khung phải HỎI nội dung bên trong nó
+  là loại gì (có tab ở đầu body hay không) để tự chỉnh khoảng cách. Đây là mẫu **con-treo**: chưa
+  gặp ca cần thì prop ấy **BIẾN MẤT**, không phải khai sẵn cho tương lai.
 
 ---
 
@@ -162,11 +181,22 @@ cd C:/Repositories/starci-academy && npm run storybook
    (`frames-cluster-cluster-base--gaps`), đoán theo title là trượt.
 4. **Đừng tin đọc mắt, cũng đừng tin báo cáo agent.** Mọi phát biểu "đã sạch" phải từ cổng hoặc
    số đo DOM. Lỗi tầng layout **không làm vỡ tsc**: class Tailwind sai tên thì im lặng không sinh
-   CSS. Sau mỗi lượt: `npx tsc --noEmit` + `npx eslint .storybook` + 4 cổng.
+   CSS. Sau mỗi lượt: `npx tsc --noEmit` + `npx eslint .storybook` + 5 cổng.
 
-**Codemod — 3 lỗi tự cắn trong lượt này, đừng lặp:**
+**Codemod — lỗi tự cắn, đừng lặp (vòng `gap` 2026-07-27):**
 - regex thay `gap={N}` **ăn cả trong chuỗi prose** ⇒ nháy lồng nháy, vỡ 7 file. Phải biết vị trí
   đang nằm trong chuỗi nháy kép hay không rồi mới quyết escape.
 - regex `[\s\S]*?` trong sửa import **nhảy qua dòng** ⇒ xoá 12 import của một file.
 - `\bgap = ([0-9])\b` ăn số `0` của `0.1` (three.js) ⇒ để lại `.1`, vỡ cú pháp.
-⇒ Codemod xong **đọc `tsc` rồi đọc DIFF**, và chạy `--dry` trước.
+
+**Codemod — bài học CŨ tái phạm ở vòng `padding` 2026-07-27, ba lần liên tiếp:**
+- `padding={0}` sống ở **BA ngữ cảnh khác nhau** trong cùng file: JSX attribute (thay được) ·
+  chuỗi prose (phải để yên) · JSX attribute **BÊN TRONG một chuỗi** (phải escape). Một regex
+  không phân biệt được ba cái đó — đây đúng là bài học `gap={N}` ở trên, chỉ khác prop, và lượt
+  này vấp lại ba lần liên tiếp vì rút kinh nghiệm chưa đủ sâu.
+- lỗi **PHẠM VI**: chạy codemod chỉ trên file có nhắc tên KIỂU (`SpaceScale`/`InsetScale`), trong
+  khi nhiều call-site dùng thẳng `padding={0}` mà không nhắc tên kiểu nào cả ⇒ **trượt cả một
+  file**.
+
+⇒ Codemod xong **đọc `tsc` rồi đọc DIFF**, và chạy `--dry` trước. Đây là lần thứ hai cùng một
+lớp lỗi (context-blindness của regex) cắn — ghi cả hai vòng lại một chỗ để lần ba không lặp nữa.

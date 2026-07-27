@@ -6,9 +6,32 @@
 
 ---
 
+## 0. THANG: KHÔNG CÓ NGOẠI LỆ (thầy chốt 2026-07-27)
+
+Thang là `0 · 1 · 2 · 3 · 6 · 8`. Không có bậc nào khác. Ngoại lệ CHỈ tồn tại khi thầy cho phép.
+
+**Vì sao thang nhảy `12 -> 24`:** mỗi bậc phải phân biệt được VỀ Ý. Cho phép `16` và `20`
+nghĩa là mỗi người gõ một số theo cảm giác, thang mất tác dụng ngay.
+
+**NEO 1 (`ProgressMeter`):** `mt-5` = 20px tồn tại lâu vì 20px ĐÚNG BẰNG chiều cao cái pill
+(`h-5`), nên nó trông như một PHÉP ĐO chứ không phải một lựa chọn, và cái vỏ đo đó làm nó qua
+mặt mọi lần review. Nó vẫn là một lựa chọn. Clearance lấy BẬC ĐẦU TIÊN VƯỢT QUA vật cản, tức
+là 24. Sửa thành `pt-6`: đổi cả `mt` thành `pt` (khoảng này thuộc BÊN TRONG hộp, vì nhãn nói
+trên mép trên của chính hộp đó) và `5` thành `6` (lên thang).
+
+**NEO 2:** agent được giao "giữ nguyên pixel" đã chọn giữ pixel bằng cách PHÁ THANG (`gap-7`
+cộng `pt-5`), đổi một vi phạm lấy hai. Ràng buộc nói thiếu một vế thì agent tối ưu đúng vế
+được nói. Giao việc phải nói CẢ HAI: giữ pixel VÀ bậc phải trên thang; không đạt được cả hai
+thì DỪNG LẠI và báo.
+
+**Cảnh báo:** mọi lần định mở ngoại lệ đều bắt đầu bằng câu "cái này đặc biệt vì...". Trong
+một phiên đã suýt mở hai lần: `-m-3` của StatRibbon, `mt-5` của ProgressMeter.
+
+---
+
 ## 1. GAP — đọc theo QUAN HỆ, không đọc theo TẦNG
 
-Thang: `flush(0) · tight(1) · related(2) · grouped(3) · section(6) · page(8)`. Ngoài thang là sai (§10c).
+Thang: `flush(0) · tight(1) · related(2) · grouped(3) · section(6) · page(8)`. Ngoài thang là sai (§10c, xem §0 luật KHÔNG NGOẠI LỆ).
 
 ### 1.0 Prop `gap` viết bằng CHỮ, không viết bằng SỐ (thầy chốt 2026-07-27)
 
@@ -40,11 +63,35 @@ trang. Đổi sang chữ tức là **dời chỗ sai từ khâu đo pixel về k
 **Phép thử tách `related` với `grouped` (chỗ hay lẫn nhất):** thử **đổi chỗ hai con**. Đổi mà
 người đọc vẫn hiểu ⇒ đồng hạng ⇒ `related`. Đổi mà người đọc lú ⇒ có thứ tự ⇒ `grouped`.
 
-### 1.0a `padding` vẫn là SỐ — cố ý
+### 1.0a `padding` viết bằng CHỮ, không phải bằng SỐ (thầy chốt 2026-07-27)
 
-`padding` **không phải seam giữa hai thứ**, nó là **lòng** của một mặt. Từ vựng quan hệ không
-tả được nó: `padding="related"` không phát biểu gì cả. Nên `SpaceScale = 0|1|2|3|6|8` giữ
-nguyên số, và **đặt tên cho thang lòng là quyết định riêng, còn để mở.**
+```tsx
+<Container.Base padding="roomy">   // ✅ nói MẶT này ôm nội dung chật tới đâu
+<Container.Base padding={6}>       // ❌ compile error — số không còn nằm trong type
+```
+
+`InsetScale = "flush" | "cozy" | "roomy" | "airy"`, SSOT ở
+`.storybook/components/frames/_spacing.ts`.
+
+| Bậc | class | Dùng khi |
+|---|---|---|
+| `flush` | `p-0` | nội dung chạm mép (ảnh cover, bảng cuộn ngang) |
+| `cozy` | `p-3` | ruột một thẻ, luật nhà |
+| `roomy` | `p-6` | khổ trang, container |
+| `airy` | `p-8` | hero, empty state |
+
+**BỐN bậc chữ, không phải sáu:** đo trên cây trước khi đặt tên — 46 call-site chỉ dùng
+0/3/6/8, KHÔNG một chỗ nào dùng 1 hay 2. Hai bậc chưa ai vói tới là hai cách nữa để tuỳ tiện.
+Một thang giành được bậc bằng cách **ĐƯỢC CHỌN**, không phải bằng cách tồn tại trong Tailwind.
+
+**Vì sao tách khỏi `SeamScale`, không dùng chung một bộ từ:** từ-seam trả lời "hai thứ này
+là gì với nhau" — nói QUAN HỆ giữa hai thứ, không nói về bên trong MỘT mặt, nên
+`padding="related"` là câu vô nghĩa. Từ-inset trả lời câu khác: mặt này ôm nội dung chật tới
+đâu. Hai câu hỏi khác nhau thì không thể dùng chung một bộ từ.
+
+**Hệ quả cho cổng:** phần "padding lệch thang" của `check-padding.mjs` nay **THUA** — compiler
+giữ thay (viết `padding={6}` là lỗi biên dịch, khỏi cần cổng soi). Phần "margin của con" thì
+**vẫn cần cổng**, vì không kiểu nào cấm được một chuỗi `className` tuỳ tiện.
 
 | Quan hệ giữa hai thứ cạnh nhau | Bậc | Ai sở hữu |
 |---|---|---|
@@ -85,7 +132,7 @@ cổng **vẫn báo xanh trong khi không còn kiểm gì cả** — nó tìm m�
 từ vựng, cộng luật mới `numeric-seam`: số trên khung của mình = chưa di trú.
 
 Phân biệt để không báo oan:
-- Khung nhận **children/slot của caller** (`Stack.*` · `Cluster` · `Grid` · `Container`) ⇒ truyền `gap` vào là **ĐÚNG**, vì seam giữa các con là của parent.
+- Khung nhận **children/slot của caller** (`Stack.*` · `Cluster` · `Grid`) ⇒ truyền `gap` vào là **ĐÚNG**, vì seam giữa các con là của parent. `Container` đã **bỏ hẳn `gap`** (2026-07-27) — nó chỉ còn khổ đọc + padding, không nằm trong danh sách này nữa.
 - Khung tự render **hàng lặp từ `items`** (`KeyValue.List` · `SurfaceCard.List`) ⇒ nhịp hàng là **nội bộ**, truyền `gap` vào là ghi đè.
 
 ---
@@ -94,11 +141,13 @@ Phân biệt để không báo oan:
 
 | Chỗ | Bậc | Ghi chú |
 |---|---|---|
-| card / surface | `p-3` | card sở hữu; nội dung không tự thêm |
-| khổ trang (`Container`) | `padding={6}` | mặc định của web measure |
+| card / surface | `padding="cozy"` (`p-3`) | card sở hữu; nội dung không tự thêm |
+| khổ trang (`Container`) | `padding="roomy"` (`p-6`) | mặc định của web measure |
+| ảnh cover / bảng cuộn ngang | `padding="flush"` (`p-0`) | nội dung chạm mép |
+| hero / empty-state | `padding="airy"` (`p-8`) | |
 | trong field / control | do atom tự lo | caller không truyền vào |
 
-**Bẫy đã cắn:** `Container.Base` chỉ áp `gap` khi dùng slot `header`/`footer`. Truyền `children` thẳng thì `gap` bị **bỏ im lặng** — đo được seam **0px** trong khi code ghi `gap={8}`. Viết một prop mà không ai nhận **tệ hơn không viết**, vì đọc code tưởng đã có nhịp.
+**Bẫy ĐÃ SỬA (2026-07-27):** `Container.Base` từng chỉ áp `gap` khi dùng slot `header`/`footer` — truyền `children` thẳng thì `gap` bị **bỏ im lặng** (đo được seam **0px** trong khi code ghi `gap="page"`). Viết một prop mà không ai nhận **tệ hơn không viết**, vì đọc code tưởng đã có nhịp. Đã bỏ hẳn `gap`/`header`/`footer` khỏi `Container`; nó chỉ còn giữ **khổ đọc** và **padding** (xem `continue.md` §1).
 
 ---
 

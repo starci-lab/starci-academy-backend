@@ -133,8 +133,9 @@ Riêng `VariantChip.Difficulty` là **neo của luật CŨ** trong §14d.2, nên
 ## 8. API `states[]` — panel biết leaf có bao nhiêu state (thầy chốt 2026-07-27)
 
 Trước đó `BlockAnatomy` nhận một khối `children` + MỘT `note` + MỘT `code`, nên state chỉ là JSX
-tác giả xếp tay: panel không biết có mấy state, không chỗ giải thích từng cái, và **cây deps suy
-từ DOM của cả khối nên không đúng với state nào**. Nay:
+tác giả xếp tay: panel không biết có mấy state, không chỗ giải thích từng cái, và **cây Structure
+(trước gọi "Deps", nay đổi vì cây tả CẤU TRÚC DOM chứ không phải phụ thuộc import, xem
+`rules/1-decompose.md` §4) suy từ DOM của cả khối nên không đúng với state nào**. Nay:
 
 ```tsx
 <BlockAnatomy
