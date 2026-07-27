@@ -233,6 +233,38 @@ Mỗi chỗ khó ghi đủ 4 thứ: **(a)** WHY tồn tại · **(b)** trước 
 
 ---
 
+## 4b. TÊN NHÓM phải PHÂN BIỆT được — cấm gọi theo cơ chế (thầy chốt 2026-07-28)
+
+> **Một cái tên chỉ đáng tồn tại khi nó LOẠI TRỪ được thứ khác.** Tên gọi theo cơ chế mà mọi
+> component đều có thì nó không phân biệt gì cả.
+
+Neo: `composites/rendering/` → **`composites/viewers/`**. `rendering` sai vì **mọi** component
+đều render — nó gọi tên CƠ CHẾ, không gọi tên TRÁCH NHIỆM. Cùng cái bẫy với
+`rules/3-design-tier.md`: đặt tên theo một tầng, tầng chết thì tên thành rác.
+
+**Phép thử của `viewers`, và nó sắc:**
+
+| | |
+|---|---|
+| mọi composite khác | **biết trước hình của mình** — thẻ có nhãn + hàng, header có tiêu đề + meta |
+| viewer | **không đoán được hình của chính nó** — hình do PAYLOAD quyết định, không do prop |
+
+Viewer nhận một thứ **soạn ở nơi khác** (chuỗi markdown, định nghĩa flow, file PDF, payload
+graph) rồi vẽ lại trung thực **mà không hiểu nội dung**. Thành viên: `MarkdownContent` ·
+`RichText` · `FlowDiagram` · `PDFView` · `RagSourceGraph`.
+
+**Cách kiểm một tên nhóm trước khi đặt:** viết ra thứ nó LOẠI TRỪ. Không viết ra được thì cái
+tên đang mô tả cơ chế hoặc vị trí, không mô tả trách nhiệm.
+
+- ❌ `rendering` `helpers` `common` `shared` `misc` — không loại trừ gì
+- ❌ `CourseContentsPageHeader` — gọi theo VỊ TRÍ, khoá vào một màn (§neo `CourseBrief`)
+- ✅ `viewers` (hình do payload quyết) · `frames` (không biết nội dung) · `stats` (đo lường)
+
+⚠️ Đổi tên nhóm là đổi `storyId` cho cả nhóm. Đo blast radius bằng **import**, không bằng grep
+tên (§3b bẫy 4) — lượt này đo ra đúng **3 import**, nên rẻ, làm ngay trước khi nhóm đông thêm.
+
+---
+
 ## 4a. VĂN XUÔI — chữ hiện ra màn hình viết thành CÂU (thầy chốt 2026-07-27)
 
 Áp cho mọi chuỗi panel đọc được: `why` · `reason` · `role` của node · `leaf`.

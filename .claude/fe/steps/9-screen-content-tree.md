@@ -114,7 +114,7 @@ công cụ, không phải việc đọc; xứng một lượt riêng.
 |---|---|---|
 | `ContentHeader` | `PageHeader` · `Breadcrumbs` · `Chip` · `Typography` | ✅ đủ |
 | `ContentTabBar` | `TabsExtended` (atom) | ✅ có atom, **thiếu** biến thể tab-phải (chọn ngôn ngữ) |
-| `ContentArticle` | `SurfaceCard` · `MarkdownContent` · `FeedbackCallout` · `ContentPaywall` | ⚠️ **`MarkdownContent` chỉ có ở `_legacy`** ⇒ phải dựng lại ở composite |
+| `ContentArticle` | `SurfaceCard` · `MarkdownContent` (viewer) · `FeedbackCallout` · `ContentPaywall` | ⚠️ **`MarkdownContent` chỉ có ở `_legacy`** ⇒ dựng lại ở `composites/viewers/` |
 | `ContentPaywall` | `IconTile` · `Typography` · `PriceTag` · `PhaseScarcityNote` · `Button` | ✅ **`PriceTag` + `PhaseScarcityNote` đã là block** — tái dùng nguyên |
 | `ContentReaction` | `Button` (nhóm) · `Typography` | ✅ đủ |
 | `ContentRelatedList` | `SurfaceCardList` · `ListRow` | ✅ đủ |
@@ -126,8 +126,8 @@ công cụ, không phải việc đọc; xứng một lượt riêng.
 > ("bán khoá") tái dùng được ở hai màn khác nhau.
 
 > Chỗ đáng lo: `MarkdownContent` là thứ nặng nhất màn này (accordion directive, code block,
-> bảng, ảnh) và **đang nằm ở `_legacy`**. Nó là **composite**, không phải block — nó vẽ nội
-> dung nhưng không biết "bài học" là gì.
+> bảng, ảnh) và **đang nằm ở `_legacy`**. Nó là **viewer** (`composites/viewers/`): vẽ nội
+> dung mà không biết "bài học" là gì, và **không đoán được hình của chính nó**.
 
 ---
 
