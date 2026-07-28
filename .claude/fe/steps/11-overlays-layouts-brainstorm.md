@@ -1,7 +1,14 @@
-# BƯỚC 11 — BRAINSTORM: MODAL · DRAWER · LAYOUT WRAPPER
+# BƯỚC 11 — MODAL · DRAWER · LAYOUT WRAPPER ✅ CẤU TRÚC ĐÃ CHỐT
 
-> **CHƯA CHỐT, CHƯA CODE.** Thầy dặn "brainstorm thêm để chốt" — tài liệu này là kết quả quét
-> thật + đề xuất, không phải quyết định. Đọc trực tiếp `src`, không suy đoán.
+> Bắt đầu là brainstorm, thầy chốt cấu trúc ngay trong buổi:
+>
+> ```
+> <app>/<pages | layouts | overlays/{modals,drawers}>
+> ```
+>
+> §1–§5 dưới đây là phần khảo sát dẫn tới quyết định đó — giữ nguyên làm căn cứ. §7 là việc
+> còn phải làm để cây khớp quyết định (namely: `screens/` → `pages/`, đang HOÃN vì workflow
+> đang ghi).
 
 ---
 
@@ -73,30 +80,64 @@ hai trước khi build cái nào tên "premium gate" mới** — đúng bài h�
 
 ---
 
-## 4. Layout wrapper — không phải tầng mới, nó LÀ SCREEN
+## 4. Layout wrapper — ~~không phải tầng mới, nó LÀ SCREEN~~ SAI, đã sửa
 
-10 file `layout.tsx` trong toàn app, **6 cái rỗng** (chỉ pass `{children}`), **4 cái có hình thật**:
+> ⚠️ **Kết luận đầu của trò sai — thầy bắt đúng.** Trò xếp `InnerLayout`/`LearnShell` vào tầng
+> `screen` vì nó GIỐNG screen về HÌNH (gọi block + frame, có khe `children`). Nhưng phép thử của
+> `screen` không phải hình dạng — là **NGỮ NGHĨA**: *"người dùng tới TRANG NÀY để làm gì"*.
+> Navbar không đổi khi người dùng chuyển trang; chức năng của nó (search, giỏ hàng, tài khoản)
+> không phải lý do người dùng vào bất kỳ route cụ thể nào. Nó là cái BỌC QUANH mọi screen, không
+> phải một screen. Nhét sai chỗ vì bám hình, bỏ qua nghĩa — đúng loại lỗi `ContentTabBar` đã mắc
+> (bám atom trần vì tiện, bỏ qua composite đã có sẵn), chỉ khác nằm ở tầng phân loại.
 
-| File | Dựng gì |
-|---|---|
-| `[locale]/layout.tsx` (gốc) | `InnerLayout` — nơi 26 overlay ở mục 2A mount |
-| `learn/layout.tsx` | `LearnShell` + `ResizableRail` + `ContentMap` + `OnThisPage` + `MilestoneOutline` + `LeaderboardCategoryRail` + 3 gate (`EnrollGate`/`GithubLinkGate`/`PersonalProjectGatePreview`) + 2 trigger AI (`ContentAiFab`/`ContentAiSelectionAsk`) |
-| `headhunting-companies/layout.tsx` | `LearnSidebar` |
-| `personal-project/layout.tsx` | `PersonalProjectWorkspace` |
-| `playground/[slug]/layout.tsx` | `PlaygroundSessionProvider` (context, không hình) |
-| `profile/[username]/layout.tsx` | `PublicProfile` |
-| `profile/settings/layout.tsx` | `SettingsLayout` |
+**Thầy chốt: tách hai phần — `pages` và `layouts`.** Đúng khớp quy ước có sẵn của chính
+Next.js trong `src/app`: `page.tsx` = nội dung một route (đã là tầng `screen`, KHÔNG đổi gì) ·
+`layout.tsx` = khung bọc quanh N route con (tầng MỚI, tên `layout`).
 
-**Phép thử canon không quan tâm "sống bao lâu"**, chỉ quan tâm "sở hữu cái gì": screen = gọi
-block + frame, đưa dữ liệu có kiểu. `LearnShell` làm ĐÚNG việc đó — khác đúng MỘT điểm: nó có
-một khe `{children}` để nhét screen con vào, thay vì cây block cố định.
+### Phép thử phân biệt
 
-⇒ **Đề xuất: không đẻ tầng thứ sáu.** Một layout có hình thật là **screen bình thường**, với
-đúng MỘT ngoại lệ đã có tiền lệ (`Container` cũng nhận `children`): `children: ReactNode` là chỗ
-duy nhất `ReactNode` hợp lệ ở tầng này, vì việc của nó là làm khung chứa trang con.
+| | `screen` (pages) | `layout` (layouts) |
+|---|---|---|
+| Trả lời câu gì | "người dùng tới TRANG NÀY làm gì" | "cái gì BỌC QUANH mọi trang trong PHẠM VI này" |
+| Sống bao lâu | Unmount khi rời route | Mount khi vào phạm vi, sống qua nhiều route con |
+| Có khe `children`? | Không | CÓ — bắt buộc, đây là chỗ duy nhất `ReactNode` hợp lệ trên tầng frame |
+| Chức năng của nó | Chức năng CỦA route đó | Chức năng CHUNG cho mọi route con (nav, search, overlay-mount) |
+
+Luật cấu trúc giống `screen`: chỉ gọi `block` + `frame`, không gọi thẳng atom/composite. Khác
+đúng một điểm: BẮT BUỘC có prop `children: ReactNode`.
+
+### 10 file `layout.tsx` trong toàn app — 6 rỗng (chỉ pass `{children}`), 4 có hình thật
+
+| File | Dựng gì | Phạm vi |
+|---|---|---|
+| `[locale]/layout.tsx` (gốc) → `InnerLayout` | `Navbar` (8 block con) + `Footer` có điều kiện + mount 26 overlay (mục 2A) + `ContentAiChatRail` | **TOÀN APP** — layout gốc duy nhất |
+| `learn/layout.tsx` → `LearnShell` | `ResizableRail` (vỏ) chứa `ContentMap`/`OnThisPage`/`MilestoneOutline`/`LeaderboardCategoryRail` + 3 gate (`EnrollGate`/`GithubLinkGate`/`PersonalProjectGatePreview`) + 2 trigger AI | mọi route `/learn/**` |
+| `headhunting-companies/layout.tsx` | `LearnSidebar` | route `headhunting-companies/**` |
+| `profile/settings/layout.tsx` → `SettingsLayout` | (chưa đọc kỹ — cần xác nhận có phải vỏ+rail không) | `profile/settings/**` |
+
+**Chưa xếp được, cần đọc riêng trước khi xây:** `personal-project/layout.tsx`
+(`PersonalProjectWorkspace`) và `profile/[username]/layout.tsx` (`PublicProfile`) — cả hai
+`page.tsx` tương ứng RỖNG (stub trống, đã ghi ở bước 10 khảo sát learn), nên rất có thể toàn bộ
+nội dung thật đang nằm Ở LAYOUT thay vì ở page — tức đây có thể là **screen bị đặt nhầm chỗ**
+(dùng `layout.tsx` làm nơi chứa nội dung vì route không có sub-route nào khác), không phải layout
+thật theo nghĩa "bọc N route con". Phải đọc `PersonalProjectWorkspace`/`PublicProfile` xem chúng
+có khe `children` thật không — có thì là layout, không thì đó là SCREEN, chỉ đặt sai file.
 
 `ContentAiFab`/`ContentAiSelectionAsk` trong `learn/layout.tsx` không phải block nội dung —
 chúng chỉ gọi `open()` cho `contentAiChat` (mục 2A). Đúng dạng trigger đã gặp ở `E2eResultButton`.
+
+### Quy ước thư mục đề xuất
+
+Khớp cây đã tách theo app (`blocks · screens · overlays`), thêm `layouts` làm nhóm thứ tư:
+
+```
+components/starci/
+  blocks/ · screens/ · layouts/ · overlays/
+```
+
+`screens/` giữ nguyên tên (không đổi thành `pages/` — tránh đổi tên giữa lúc workflow `learn/`
+đang ghi vào đó); "pages" chỉ là cách GỌI khi nói chuyện, khớp thuật ngữ Next.js, không phải tên
+thư mục.
 
 ---
 
@@ -150,14 +191,34 @@ dung — mỗi block chỉ dựng lúc screen sở hữu nó được dựng, kh
 
 ---
 
-## 6. Việc chưa làm — chờ thầy chốt
+## 6. Ba câu còn treo (không chặn việc dựng `pages`)
 
 1. **Overlay nào dựng trước?** Đề xuất bắt đầu bằng nhóm learn-domain (10 cái) vì đang dở màn
    `learn/`, để lại 15 cái toàn-app cho lượt riêng.
 2. **`PremiumGateModal` vs `ContentPaywall`** — đọc kỹ để xác định trùng lặp thật hay hai tình
    huống khác nhau, TRƯỚC khi build bất kỳ overlay "premium" nào.
-3. **`LearnShell` có dựng thành screen ngay không?** Nó là điều kiện để `ContentScreen` (và mọi
-   screen `learn/` khác) đứng đúng trong ngữ cảnh thật — hiện các screen đang dựng standalone,
-   chưa có khung `LearnShell` bọc ngoài.
-4. **Tên gọi:** `overlays/` (đã có khung thư mục rỗng từ hôm tách app) hay tên khác? Và pattern B
-   (mount cục bộ) có đứng chung thư mục `overlays/` với pattern A không, hay tách riêng?
+3. **`personal-project/layout.tsx`/`profile/[username]/layout.tsx`** — `page.tsx` tương ứng
+   RỖNG, nghi là screen bị đặt nhầm vào file layout (§4). Đọc `PersonalProjectWorkspace`/
+   `PublicProfile` xem có khe `children` thật không trước khi xếp tầng.
+
+---
+
+## 7. ✅ ĐÃ CHỐT — việc phải làm để cây khớp quyết định
+
+Thầy chốt cấu trúc `<app>/<pages|layouts|overlays/{modals,drawers}>` (2026-07-28) ngay trong
+buổi bàn. Đã làm được NGAY (an toàn, không đụng chỗ đang ghi):
+
+- [x] `components/<app>/layouts/` + `stories/<app>/layouts/` — 3 app.
+- [x] `components/<app>/overlays/{modals,drawers}/` + `stories/…` — 3 app (trước đó `overlays/`
+      là một thư mục phẳng, giờ tách đúng theo cách `src` tự tách thật).
+- [x] `components/README.md` cập nhật bảng cây + luật `layouts`/`overlays` con.
+
+**HOÃN có chủ đích — 1 việc:**
+
+- [ ] `screens/` → `pages/` (đổi tên + `git mv` + remap 100+ `storyId` + sửa `title:`/import).
+  Lý do hoãn: lúc chốt, workflow `build-all-learn-screens` đang **ghi trực tiếp** vào
+  `.storybook/components/starci/screens/**`. Đổi tên thư mục khi agent đang mở file để ghi là
+  mất việc — cùng loại rủi ro `feedback-parallel-agents-shared-worktree-race` đã ghi vào memory.
+  **Việc ĐẦU TIÊN sau khi workflow báo xong**: `git mv screens pages` cho cả `components/` và
+  `stories/` của cả 3 app, chạy lại `restoryid-moved.mjs` kiểu, sửa `@sb-components/*/screens/`
+  → `.../pages/`, `title: "…/Screens/…"` → `"…/Pages/…"`, rồi chạy đủ cổng trước khi commit.
