@@ -100,7 +100,57 @@ chúng chỉ gọi `open()` cho `contentAiChat` (mục 2A). Đúng dạng trigge
 
 ---
 
-## 5. Việc chưa làm — chờ thầy chốt
+## 5. Navbar/Sidebar — soi kỹ ra đúng hai hình dạng, không phải một khối
+
+Đọc `InnerLayout.tsx` (nơi mount `Navbar`) và họ sidebar/rail thì thấy đây **không phải một câu
+hỏi**, mà là hai câu hỏi khác hẳn nhau — đúng kiểu "trông giống nhau, chỗ đứng khác nhau" đã gặp
+ở mục 2.
+
+### 5a. Navbar — DUY NHẤT, gắn cứng vào screen NGOÀI CÙNG
+
+`InnerLayout.tsx` (bọc TOÀN app, không rẽ theo route) mount đúng **một** `Navbar`, luôn hiện,
+`sticky top-0`. Theo khung ở mục 4 (layout = screen có khe `children`), `InnerLayout` CHÍNH LÀ
+screen ngoài cùng nhất — "AppShellScreen" — và `Navbar` là một **block** của nó, y hệt cách
+`ContentHeader` là block của `ContentScreen`.
+
+`Navbar` tự nó lại ghép từ **8 block con**: `Logo` · `NavLinks` · `SearchButton` ·
+`LanguageDropdown` · `DarkLightModeSwitch` · `CartButton` · `NotificationBell` ·
+`AccountMenuDropdown`. Và nó mang theo MỘT drawer riêng (menu mobile) — `isDrawerOpen` là
+`useState` cục bộ, **không** qua overlay store ⇒ đúng dạng D ở mục 2, không phải overlay tier.
+
+⚠️ **Rác đã thấy khi quét, không sửa vội:** `components/blocks/layout/shell/Navbar/` là bản
+**không ai import** — trùng tên với bản thật (`features/navbar/Navbar`), có vẻ là bản cũ bỏ sót.
+Ghi lại để dọn sau, không phải việc của brainstorm này.
+
+Một cơ chế đáng chú ý thêm: `useNavbarBottomLayerStore` cho một TRANG đẩy thêm một lớp (vd tab
+profile) vào NGAY DƯỚI navbar dùng chung. Đây là hướng NGƯỢC với khe `children` — screen CON
+đóng góp NGƯỢC LÊN cho screen NGOÀI. Ghi nhận, chưa cần xếp tầng ngay.
+
+### 5b. Sidebar/Rail — KHÔNG có "cái sidebar", chỉ có VỎ dùng chung + 11 NỘI DUNG khác nhau
+
+Quét ra 11 thứ tên có "Sidebar"/"Rail": `LearnSidebar` · `ResizableRail` · `OutlineRail` ·
+`ArchitectureRail` · `CoursePricingRail` · `ContentAiChatRail` · `FlashcardStudyRail` ·
+`LeaderboardCategoryRail` · `MindMapRail` · `ResumeRail` · `PracticeRail`.
+
+Đọc hai cái được dùng lại nhiều nhất thì lộ ra khuôn:
+
+- **`CollapsibleSidebar`** (`blocks/navigation/`) — nhận `title` + `children` + `storageKey`,
+  tự lo mở/thu/animate/nhớ trạng thái. **Không biết nội dung là gì.**
+- **`ResizableRail`** (`blocks/layout/`) — nhận `children` + `storageKey` + biên độ rộng, tự lo
+  kéo-giãn/nhớ độ rộng. **Cũng không biết nội dung.**
+
+Hai cái này đúng nghĩa **composite/frame** (§13c cũ) — vỏ chung, không biết miền. 11 cái còn lại
+(`LearnSidebar`, `MindMapRail`, `ArchitectureRail`, `PracticeRail`, `CoursePricingRail`…) là NỘI
+DUNG nhét vào một trong hai vỏ đó — đúng nghĩa **block**, mỗi cái thuộc về ĐÚNG MỘT screen/section
+mà nó phục vụ, giống cách `learn/layout.tsx` nhét `MilestoneOutline`/`ContentMap`/`OnThisPage`
+vào khe của `ResizableRail`.
+
+⇒ **Không có "sidebar tier".** Chỉ có: 1-2 vỏ dùng chung ở tầng composite/frame, và N block nội
+dung — mỗi block chỉ dựng lúc screen sở hữu nó được dựng, không dựng "cả họ sidebar" một lượt.
+
+---
+
+## 6. Việc chưa làm — chờ thầy chốt
 
 1. **Overlay nào dựng trước?** Đề xuất bắt đầu bằng nhóm learn-domain (10 cái) vì đang dở màn
    `learn/`, để lại 15 cái toàn-app cho lượt riêng.
