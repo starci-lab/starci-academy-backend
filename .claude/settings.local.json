@@ -362,7 +362,12 @@
       "Read(//c/Repositories/starci-academy/**)",
       "Bash(wait)",
       "Bash(git -C \"D:/Repositories/starci-academy-backend\" status -sb)",
-      "Bash(git -C \"D:/Repositories/starci-academy\" status -sb)"
+      "Bash(git -C \"D:/Repositories/starci-academy\" status -sb)",
+      "Bash(git -C \"D:/Repositories/starci-academy-backend\" pull)",
+      "Bash(git -C \"D:/Repositories/starci-academy-backend\" status --short --branch)",
+      "Bash(git -C \"D:/Repositories/starci-academy-backend\" log --oneline -3)",
+      "Bash(git -C \"D:/Repositories/starci-academy\" status --short --branch)",
+      "Bash(git -C \"D:/Repositories/starci-academy\" log --oneline -3)"
     ]
   }
 }
