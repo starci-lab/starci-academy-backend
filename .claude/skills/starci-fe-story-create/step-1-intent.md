@@ -3,8 +3,10 @@
 > **Trục nạp:** [`reading-flow`](../../fe/principles/reading-flow/context.md) ·
 > [`prominence`](../../fe/principles/prominence/context.md) ·
 > [`async`](../../fe/principles/async/context.md)
-> **Nghiệp vụ nạp:** [`domain/INDEX.md`](../../fe/domain/INDEX.md) rồi mở **đúng miền** màn này
-> chạm. Đừng nạp cả chín miền.
+> **Nghiệp vụ nạp:** `D:/Repositories/starci-academy/.artifacts/domain/INDEX.md` rồi mở **đúng
+> miền** màn này chạm. Đừng nạp cả chín miền.
+> ⚠️ Nó nằm ở `.artifacts/` chứ không phải `.claude/` vì nó là **ảnh chụp rút từ code, có hạn
+> sử dụng** — canon là thứ thầy quyết, artifact là thứ rút từ code.
 > **Phạm vi:** cả màn, một lần. Read-only, chưa nghĩ tới pixel nào.
 
 Bước này **chưa từng có trong luồng cũ** — không chỗ nào hỏi *"trên màn này cái gì quan trọng
