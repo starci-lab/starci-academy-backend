@@ -1,68 +1,135 @@
-# TIẾP TỤC — Storybook design-system (chốt 2026-07-28, cập nhật 2026-07-29)
+# TIẾP TỤC — Storybook design-system (cập nhật 2026-07-29, cuối phiên)
 
-> ⚠️ **§0-6 dưới đây đã CŨ (chốt 2026-07-28)** — giữ lại vì nhiều mục §4 vẫn còn giá trị tham
-> khảo, nhưng bản đồ 5 tầng/cổng máy ở đó là ảnh chụp NGÀY ĐÓ. **Trạng thái THẬT hiện tại nằm ở
-> `.claude/fe/steps/13-feedback-anatomy-registry.md`** (nhật ký feedback dạng batch, tới
-> §3a tính đến 2026-07-29) — đọc file đó để biết chuyện gì vừa xảy ra, KHÔNG đọc lại §1-§6 dưới
-> đây như hiện trạng.
+> ⚠️ **§1-6 phía dưới đã CŨ (ảnh chụp 2026-07-28)** — giữ vì vài mục còn tham khảo được, nhưng
+> bản đồ tầng và danh sách cổng ở đó KHÔNG còn đúng. Trạng thái thật đọc §0 ngay dưới, rồi
+> `principles/INDEX.md`.
 
-## 0. TRẠNG THÁI 2026-07-29 — đọc mục này trước khi làm tiếp
+## 0. TRẠNG THÁI — đọc mục này trước khi làm tiếp
 
-**Việc lớn vừa xong trong ngày** (chi tiết đủ ở `steps/13-...md` §2g→§3a):
-- Skill mới `/starci-fe-story-feedback` (2 lượt QA cho feedback CODE thầy đưa khi soi Storybook)
-  + luật "kiểm tồn đọng trước khi trả lời" (chống lặp lỗi rơi mất fix đã chốt).
-- `SurfaceCard.Pressable` gộp vào `.Base` (`isPressable` suy nội bộ, đúng khuôn `List.Row`).
-- Layout khung MỚI `frames/SplitWorkspace/` (read-column + sticky-aside, đúng CSS thật
-  `ChallengeView`/`PersonalProjectWorkspace`) — áp cho `ChallengePage` + `PersonalProjectTaskPage`.
-- Bug THẬT tìm ra ở `Container.tsx`: `@container` + `padding` chung 1 element khiến
-  `@app-xl:` KHÔNG BAO GIỜ fire khi `size="xl"` (cap trùng đúng ngưỡng breakpoint) — đã fix tách
-  2 lớp. **Luật rút ra: `tsc`/9-gate/eslint sạch KHÔNG chứng minh container-query render đúng —
-  phải đo `getComputedStyle` trên browser thật.**
-- `Typography` thêm `parseInlineCode` (backtick→`<code>` span-only, cho chỗ không lồng được
-  `MarkdownContent` như accordion title trong `<button>`) + fix `decoration-[1.5px]` khớp
-  HeroUI `Link` thật.
-- `InputText` thêm prop `variant` (khớp `InputTextarea` đã có sẵn).
-- Batch `isSkeleton` cho 24 composite còn thiếu + leaf `Skeleton` cho story tương ứng.
-- Dọn `*Screen` → `*Page` khớp thư mục `pages/` (17 tên).
+### 0a. Canon đã đổi KIẾN TRÚC, không chỉ đổi nội dung
 
-**Đã push lên `mtp` cả 2 repo** (commit `cb01d7d0` FE, `34006466` BE) — mọi thứ trên đây đã lên
-nhánh chung, không còn nằm working-tree cục bộ.
+`principles.md` **đã chết**. Nó còn 81 dòng và chỉ là **bản đồ chuyển hướng**. Đừng đọc nó để
+lấy luật, đừng thêm luật vào đó. Ba lý do giết nó, đo được chứ không phải ý kiến: nó **nói
+ngược code** (§12a liệt namespace là mẫu đúng trong khi gate cấm hẳn), nó **trích sai chính
+nguồn nó viện dẫn** (§9d nói Tier A "luôn bold", dẫn 2 file đang `semibold` làm bằng chứng), và
+nó dài tới mức luật trong đó chỉ được trích lẻ tẻ chứ không được thi hành.
 
-**Đang treo, chưa xong**:
-1. `ChallengePage` — 2 điểm feedback ảnh chụp ("vàng phải lệch" / "vàng trái render đàng hoàng
-   hơn") — đo DOM thật (`ProgressMeterTargetMark`) không thấy bug, đang chờ thầy gửi ảnh crop
-   sát hơn hoặc mô tả cụ thể hơn.
-2. **Đang chạy 3 workflow Sonnet audit Foundations** (`FoundationsCategoryPage` /
-   `FoundationsGridPage` / `FoundationResourcePage`, theo quy trình 4 trục: ranh giới import ·
-   khung bố cục · cây deps · chữ hiện UI) — chạy nền, kết quả CHƯA có khi ghi dòng này. Việc
-   TIẾP THEO khi phiên sau mở lên: đọc `/workflows` hoặc hỏi lại xem 3 audit này đã xong chưa,
-   rồi review + verify + commit riêng (đừng coi output workflow là đã verify — luôn tự chạy lại
-   tsc/9-gate/eslint trước khi tin).
+Thay bằng **15 trục** trong `principles/`, mỗi trục trả lời ĐÚNG MỘT câu "chọn giá trị nào" và
+có đúng hai file:
 
-⚠️ **Repo `starci-academy` (FE) đang có NHIỀU PHIÊN CHAT SONG SONG cùng ghi** — trước khi
-`git stash`/`git reset`/bất kỳ lệnh nào có thể mất việc người khác, LUÔN `git status` trước và
-KHÔNG BAO GIỜ stash để "so sánh nợ cũ" (dùng cách khác, vd đọc kỹ mô tả lỗi) — 1 lần stash có
-thể làm biến mất hàng trăm file người khác đang sửa dở.
+| File | Cho ai | Nội dung |
+|---|---|---|
+| `context.md` | **LLM đọc để QUYẾT** | thang · cây quyết định · vét cạn ca dễ lẫn · bẫy · vạch cấm |
+| `example.html` | **mắt người soi** | render thật ca SAI cạnh ca ĐÚNG, kèm phép phân định và nguyên lý |
+
+Chia theo NGƯỜI ĐỌC nên hai file không trùng nội dung, do đó **không lệch nhau được**.
+
+**Bắt đầu ở [`principles/INDEX.md`](principles/INDEX.md)** — ngắn có chủ đích, có bảng "đang
+phân vân về gì thì mở file nào". Nạp file đó mỗi lượt; chỉ mở trục nào đang chạm tới. Nạp cả
+15 trục mỗi lượt là quay lại đúng bệnh của `principles.md`.
+
+Xem `example.html`: cấu hình `principles` trong `.claude/launch.json`, cổng **8083**.
+
+### 0b. Tên tầng — CHỐT 2026-07-29, đĩa là trọng tài
+
+Trước đó **năm nguồn khai năm danh sách khác nhau**. Chốt lấy tên thư mục thật, vì đĩa là thứ
+duy nhất không nói dối được. Danh sách đầy đủ ở `principles/INDEX.md`.
+
+Dùng chung ở gốc: `atoms` · `behaviors` · `frames` · `composites`.
+Theo app dưới `<app>/`: `blocks` · `layouts` · `overlays` · `pages`. Cộng `heroui` là tầng
+vendor không có thư mục.
+
+**`designs` và `screens` đã CHẾT.** Hai gate từng đi tìm chúng, và đó chính là lý do gate bỏ
+sót 54% cây.
+
+### 0c. Hai cổng gác đã siết, và cái giá của nó
+
+| Cổng | Trước | Sau |
+|---|---|---|
+| `check-seams` phủ sóng | **46%** (118/258 file) | **97%** |
+| `check-seams` hit | 91 | **0** |
+| `check-padding` hit | 34 | **0** (7 ngoại lệ khai kèm lý do) |
+
+`InsetScale` thêm bậc **`snug`** (`p-2`). `Flex`/`Stack` nhận **`as`** và **`inline`**.
+
+Cơ chế ngoại lệ mới: khai `// inset-exception: <lý do>` **theo DÒNG**, và **bắt buộc có lý do**
+— khai suông vẫn bị bắt, đã kiểm bằng negative control. Ngoại lệ **hiện ra chứ không im**: con
+số đó bò lên nghĩa là thang lại thiếu bậc.
+
+### 0d. Đã push, cả hai repo `0 0` với origin
+
+`bff8fbb2` + `f9b8201e` (FE) · `82b002fb3` + `ecf62e8b9` (canon).
 
 ---
->
-> **Repo:** FE `C:\Repositories\starci-academy` · BE `C:\Repositoriesc\starci-academy-backend`,
-> cùng branch `mtp`. Code design-system nằm ở `starci-academy/.storybook`.
->
-> **Canon SSOT** ở BE, không ở FE:
-> | File | Giữ gì |
-> |---|---|
-> | [`.claude/fe/rules/0-boundary.md`](rules/0-boundary.md) | **§0** `.storybook`=BẢN VẼ · `src`=CÔNG TRÌNH. Đọc §0 trước khi động vào FE |
-> | `.claude/fe/rules/1-decompose.md` | tách cây screen → atom |
-> | `.claude/fe/rules/2-leaf-states.md` | chia leaf · vét states · **§8** API `states[]` · **§8a** tên state |
-> | `.claude/fe/rules/3-shape-tier.md` | **§1.0** gap bằng CHỮ · §1.0a padding · chọn khung · padding |
-> | `.claude/fe/rules/4-organization.md` | tổ chức file · typesafe · **§3b KHÔNG namespace** · **§4a** văn xuôi |
-> | `.claude/fe/steps/0..5-*.md` | TRÌNH TỰ chạy workflow, mỗi bước có cổng đo |
-> | `.claude/fe/steps/7-bo-namespace.md` | **đã xong** — bỏ namespace, 4 cái bẫy codemod |
-> | `.claude/fe/steps/8-tinh-gon-trung-lap.md` | **đã xong** — dọn trùng + 2 việc chờ thầy chốt |
->
-> ⚠️ `starci-academy/.storybook/NEXT-STEPS.md` (2026-07-26) là bàn giao **cũ hơn** file này. Chỗ
-> nào hai bên đá nhau thì **file này đúng** — xem mục 5.
+
+## 0e. VIỆC CÒN LẠI, xếp theo thứ tự nên làm
+
+**1 — Caret trong control: `size-4` hay `size-5`?**
+Bảng `§1c` của trục `icon` nói vị trí `DIV` tra theo line-height ⇒ `size-5`, nhưng `Select`
+đang `size-4` và `Accordion` thì vendor tự áp `size-4`. Nếu bảng đúng thì **mọi caret trong
+control toàn app đang nhỏ hơn một bậc**; nếu sai thì phải sửa bảng.
+⇒ **Đo trên browser rồi mới chốt.** Bảng dựng 2026-07-29, chưa thử lửa.
+
+**2 — Bốn câu thật sự cần mắt thầy.** Tìm bằng `grep -rn "CHỜ THẦY CHỐT" principles/`.
+
+⚠️ Grep ra **11 nhãn** nhưng chỉ **4 câu riêng biệt** — một câu hay xuất hiện ở cả `context.md`
+lẫn `example.html`, và vài nhãn là câu đã ĐÓNG còn kể lại lịch sử ("nhãn CHỜ THẦY CHỐT nay đã
+đóng"). Đếm nhãn rồi báo là đếm sai; đọc từng nhãn mới ra số thật.
+
+| Trục | Câu |
+|---|---|
+| `async` | screen được gọi thẳng `AsyncContent` hay phải qua block — chọn (a) hay (b) |
+| `frame` | ranh giới `Stack.H` ↔ `Cluster`, soát lại 2026-07-29 vẫn chưa chốt |
+| `reading-flow` | một ngoại lệ căn lề còn áp dụng không, hay đã lỗi thời |
+| `surface` | thu hẹp phạm vi một luật bề mặt |
+
+Cả bốn đúng loại cần người: hai đường ra hai kết quả **nhìn khác nhau**, hoặc là quyết định về
+sản phẩm chứ không phải về sự thật.
+
+**3 — 44 gate chưa viết.** Mỗi trục tự liệt ra vạch cấm nào **viết script được mà chưa ai
+viết** (đánh dấu ⬜ trong `context.md`). Nặng nhất là `icon` và `skeleton`.
+Đây là thứ phân tích 40 vòng feedback chỉ ra: **50% số lần thầy phải feedback thuộc loại máy
+bắt được**. Giờ nó là danh sách đếm được, không còn là cảm giác.
+
+**4 — Một mâu thuẫn CHỦ Ý còn đứng.** `rules/1-decompose.md` §2 cấm screen import composite,
+§5 lại liệt cùng câu đó là "chờ chốt". `git blame` cho thấy hai dòng sửa trong **CÙNG một
+commit** — nên đây không phải sót do quên dọn.
+
+---
+
+## 0f. BA BÀI HỌC của phiên — thứ dễ mất nhất khi hết phiên
+
+**Thấy neo lệch luật thì nghi CÁI NEO trước, đừng nghi cái luật.**
+Trò từng treo câu "Tier A dùng `bold` hay `semibold`" và đi hỏi thầy, trong khi §3b của chính
+file đó đã trả lời. Cái tưởng là mâu thuẫn chỉ là canon **trích neo nhầm** — lấy 2 file trong
+`src` đang `semibold` ra minh hoạ cho luật `bold`, mà `src` là CÔNG TRÌNH, được phép lệch bản vẽ.
+
+**Code trả lời câu "CÓ LÀM ĐƯỢC KHÔNG", không trả lời câu "CÓ NÊN KHÔNG".**
+Tài liệu cũ nói chip cấm icon; đọc code thấy `ChipBase` có `icon` nên kết luận ngược lại là
+chip nhận icon. **Cả hai đều sai một nửa.** Ranh giới thật (icon trạng thái được, icon miền
+không) không nằm trong type, không grep ra được — phải người chốt. Một prop TỒN TẠI không phải
+là một luật CHO PHÉP.
+
+**Một phép đếm phủ một cách viết mà bỏ cách kia thì luôn báo thiếu.**
+Thang `InsetScale` dựng trên phép đếm chỉ đếm prop `padding=` mà bỏ class viết tay, nên kết
+luận "không ai dùng `2`" trong khi 34 call-site đang dùng. Cùng lỗi ở chỗ khác: "5/5 caret đều
+`size-4`" đếm ĐÚNG nhưng đọc SAI, vì năm chỗ đó **không cùng một loại**.
+
+---
+
+## 0g. Phiên song song — bốn lần chạm mặt, cách xử
+
+Suốt ngày có một phiên khác ghi cùng repo. Cả bốn lần **chờ hoặc nhường đều đúng**:
+
+| Lúc | Xử |
+|---|---|
+| `SeamScale` đầu phiên | chờ, họ tự hoàn tất |
+| `InlineIconLabel` 7 lỗi tsc | không đụng, họ sửa xong thì `tsc` tự xanh |
+| `Flex`/`Stack` cùng lúc | dừng tay. Bản của họ dùng union hẹp hơn, **đúng hơn bản mình**, lấy bản họ |
+| rebase canon cuối phiên | đụng THẬT ở `principles.md`. Không lấy đại một bên: mở diff, tìm thấy **3 bài học** họ thêm vào file vừa khai tử, chuyển từng cái về nhà mới |
+
+**Push lần đầu bị từ chối ở CẢ HAI repo** vì behind origin. Đó là may — push thẳng được thì đã
+đè mất việc của người khác. Luôn `git fetch` + đếm lệch trước khi push.
 
 ---
 
