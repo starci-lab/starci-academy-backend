@@ -8,9 +8,13 @@
 
 ## 1. THANG — không phải số, là KHUÔN tên cho từng LOẠI artefact
 
-Trục này không có một thang có thứ tự. Có **8 LOẠI thứ cần đặt tên** trong repo, xếp theo
-đúng thứ tự một component đi qua từ lúc sinh ra tới lúc dùng. Mỗi loại một khuôn cố định.
-**Tiêu chí vét cạn: liệt kê đủ 8 loại artefact có tên trong repo — không còn loại thứ 9.**
+Trục này không có một thang có thứ tự. Có **8 LOẠI ĐỊNH DANH** trong repo, xếp theo đúng thứ
+tự một component đi qua từ lúc sinh ra tới lúc dùng, cộng **1 LOẠI VĂN XUÔI** (loại 9) không
+phải định danh mà là chữ đọc thành câu. Mỗi loại một khuôn cố định.
+**Tiêu chí vét cạn: đủ 8 loại định danh, cộng loại 9 cho chữ không định danh.**
+
+Loại 9 đứng ngoài phép đếm cặp ở §3, cố ý: nó là VĂN XUÔI, không phải tên, nên không thể lẫn
+với tám loại kia. Phép đếm `C(8,2)` ở §3 vẫn giữ nguyên mẫu số 28.
 
 | # | Loại | Khuôn | Class/token thật | Ý nghĩa |
 |---|---|---|---|---|
@@ -22,6 +26,7 @@ Trục này không có một thang có thứ tự. Có **8 LOẠI thứ cần đ
 | 6 | **Type/interface** | hậu tố theo VAI: `XProps` (props) · `XLike` (thực thể miền truyền vào) · `XItem` (phần tử của `items`) · `XStyle`/`XConfig` (giá trị bảng tra) | `ChipBaseProps`, `InputButtonLike`, `AvatarGroupItem`, `AvatarSizeStyle` | không phải chỗ dùng quyết định hậu tố, mà VAI của hình dữ liệu quyết định |
 | 7 | **Prop trong interface** | camelCase, đối xứng với prop anh em cùng vai (`isLoading`/`isDisabled`, không đổi `label` cũ khi nghĩa khác) | `isSkeleton`, `onRetry` | rút từ ca `Button` 2026-07-26: đặt tên prop đối xứng, không tự chế tên riêng |
 | 8 | **Biến cục bộ** | camelCase mô tả nghĩa, không viết tắt, không Hungarian | — | **THANG CHƯA CÓ GATE** — không tìm thấy rule `naming-convention` trong `eslint.config.mjs`; đây là kỷ luật, không phải máy kiểm |
+| 9 | **Chuỗi văn xuôi hiện panel** (KHÔNG phải định danh) | **CÂU đầy đủ có chủ ngữ và động từ.** Cấm `—` làm dấu nối, cấm `↔` `->` `=>` | `why` · `reason` · `role` của node · `leaf` trong `BlockAnatomy` | thầy chốt 2026-07-27, xem §4.7. Ngoại lệ: bảng markdown trong JSDoc, neo `§`, và mũi tên trong sơ đồ cây (`→ Page.Header`) vẫn giữ, vì ở đó chúng là CẤU TRÚC chứ không phải câu |
 
 SSOT tầng (Tier ở dòng 4): **ĐÃ CHỐT 2026-07-29** — `INDEX.md` mục "Tên tầng chính thức",
 đĩa làm trọng tài. 9 tầng: `heroui · atom · behavior · frame · composite · block · layout ·
@@ -42,6 +47,7 @@ Xem §6 vạch cấm cuối, mục trước từng "CHỜ THẦY CHỐT" nay đ�
 | 6 | Đây là `interface`/`type`? | Loại 6 — hỏi: hình này là props của 1 component? `XProps`. Là thực thể miền truyền vào? `XLike`. Là phần tử của mảng `items`? `XItem`. Là giá trị của `Record<Enum, …>`? `XStyle`/`XConfig` |
 | 7 | Đây là field trong `interface Props`? | Loại 7 — camelCase, so với prop anh em cùng interface để giữ đối xứng |
 | 8 | Còn lại (khai báo trong thân hàm)? | Loại 8 — camelCase, không viết tắt |
+| 9 | **Hỏi TRƯỚC cả câu 1:** chuỗi này có HIỆN LÊN PANEL cho người đọc không (`why`/`reason`/`role`/`leaf`)? | Có ⇒ **Loại 9, dừng ngay tại đây** — đây không phải việc đặt tên, đây là viết câu. Không ⇒ đi tiếp từ câu 1 |
 
 **Trước khi tin cây: nếu loại 4 (story title) đã có 3+ file cùng Component nhưng khác state
 (`ContinueCardHero.Progress` / `ContinueCardHero.NoProgress`), dừng lại — đây là dấu hiệu của
@@ -110,6 +116,24 @@ không phải chọn sai khuôn. Quay lại cây §2, xác định lại loại 
 6. **Tier trong bài viết không khớp tier trên đĩa.** ĐÃ CHỐT 2026-07-29 (`INDEX.md` mục "Tên
    tầng chính thức", đĩa làm trọng tài) — đừng lấy VÍ DỤ path từ tài liệu cũ (`designs`,
    `screens`) rồi coi là neo, hai tên đó đã CHẾT.
+7. **Viết chuỗi panel như ĐẶT TÊN thay vì như VIẾT CÂU** (loại 9, thầy chốt 2026-07-27).
+   Đây là bẫy về LOẠI, không phải về khuôn chữ: người viết đang ở tâm thế đặt định danh nên
+   nén ý bằng ký hiệu, trong khi ô đó là chỗ đọc thành câu.
+
+   | | |
+   |---|---|
+   | ❌ trước | `lead row — icon ↔ text cluster, center-aligned` |
+   | ✅ sau | `lead row where the icon sits beside the text cluster, both centred on the same line` |
+
+   Ba lý do, không phải khẩu vị. **Panel là cột hẹp** nên chữ xuống dòng ở bất kỳ đâu; ký hiệu
+   bị tách khỏi hai đầu của nó thì mất nghĩa, còn câu thì vẫn đọc được. **Người đọc cuối là LLM
+   dựng lại UI**, gặp `A ↔ B` thì phải đoán quan hệ, mà đoán chính là chỗ nó bịa. Và ký hiệu
+   **không dịch được**: `↔` mỗi người hiểu một nghĩa (đối xứng, chuyển đổi, hay chỉ là cạnh nhau).
+
+   ⚠️ Luật này từng **mất tích**: nó sinh ra ở `rules/4-organization.md` §4a, và khi canon rã
+   thành 15 trục thì không trục nào nhận, vì nó không phải một lựa chọn giá trị mà là một ràng
+   buộc cách viết. Nhặt về đây 2026-07-29. Bài học chung: **luật không vừa khuôn trục là luật
+   sắp rơi** — gặp ca như vậy thì phải nói ra, đừng để nó tự tìm chỗ.
 
 ---
 
@@ -138,6 +162,7 @@ Neo cụ thể từng loại: [`example.html`](example.html).
 | 6 | Thư mục họ đặt số ít khi gom LOẠI phần tử nhân bản được | ⬜ **CHƯA — cần viết**: cần danh sách domain-noun cố định (`learn`, `commerce`, `ai`…) để loại trừ, phần còn lại kiểm plural bằng heuristic đuôi `s` |
 | 7 | Suy tên loại 6/7 (type/prop) theo CHỖ DÙNG thay vì theo VAI của hình dữ liệu | ⛔ không gate được — kỷ luật, cần đọc hiểu ngữ nghĩa hình |
 | 8 | Viết tắt/Hungarian cho biến cục bộ (loại 8) | ⛔ không gate được — không có rule `naming-convention` trong `eslint.config.mjs` |
+| 9 | **Ký hiệu nối trong chuỗi panel** (loại 9): `—` làm dấu nối, `↔`, `->`, `=>` trong `why`/`reason`/`role`/`leaf` | ⬜ **CHƯA — viết được, nên viết sớm**: quét mọi `.stories.tsx` lấy giá trị bốn khoá đó, báo đỏ nếu chứa `—` `↔` `->` `=>`. KHÔNG quét JSDoc, comment, hay sơ đồ cây (ngoại lệ đã khai ở loại 9) |
 
 **✅ ĐÃ CHỐT 2026-07-29 — TÊN TIER, xem `INDEX.md` mục "Tên tầng chính thức":**
 - Trước ngày này có NĂM nguồn khai năm danh sách khác nhau (thư mục trên đĩa,

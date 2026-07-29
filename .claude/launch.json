@@ -43,7 +43,7 @@
     {
       "name": "storybook",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "C:/Repositories/starci-academy", "run", "storybook"],
+      "runtimeArgs": ["--prefix", "D:/Repositories/starci-academy", "run", "storybook"],
       "port": 6006
     },
     {
@@ -106,7 +106,7 @@
     {
       "name": "decompose-proto",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8081", "--directory", "C:/Repositories/starci-academy/.artifacts/decompose"],
+      "runtimeArgs": ["-m", "http.server", "8081", "--directory", "D:/Repositories/starci-academy/.artifacts/decompose"],
       "port": 8081,
       "url": "http://localhost:8081/",
       "autoPort": false
@@ -114,7 +114,7 @@
     {
       "name": "principles",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8083", "--directory", "C:/Repositories/ac/starci-academy-backend/.claude/fe/principles"],
+      "runtimeArgs": ["-m", "http.server", "8083", "--directory", "D:/Repositories/starci-academy-backend/.claude/fe/principles"],
       "port": 8083,
       "url": "http://localhost:8083/",
       "autoPort": false

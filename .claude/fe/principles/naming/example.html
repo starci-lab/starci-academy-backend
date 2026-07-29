@@ -114,7 +114,7 @@
   <h1>NAMING — đặt tên component/story/type/file thế nào, vét cạn 8 loại artefact</h1>
   <p class="sub">Trục này không có thang px như seam. Có 8 LOẠI thứ cần đặt tên trong repo, xếp theo đúng trình tự pipeline một component đi qua. Mỗi ca dưới đây là cây sidebar Storybook giả hoặc khối code trước/sau dựng thật, không phải mô tả bằng chữ.</p>
 
-  <h2>0. Tám loại artefact — khuôn tên theo đúng trình tự pipeline</h2>
+  <h2>0. Tám loại định danh + một loại văn xuôi — khuôn theo đúng trình tự pipeline</h2>
   <div class="rules">
     <table>
       <thead><tr><th style="width:4%">#</th><th style="width:15%">Loại</th><th style="width:34%">Khuôn</th><th style="width:26%">Class/token thật</th><th>Ý nghĩa</th></tr></thead>
@@ -127,6 +127,7 @@
         <tr><td class="numc">6</td><td><b>Type/interface</b></td><td>hậu tố theo VAI: <code>XProps</code> · <code>XLike</code> · <code>XItem</code> · <code>XStyle</code>/<code>XConfig</code></td><td class="mono">ChipBaseProps</td><td>VAI của hình dữ liệu quyết định, không phải chỗ dùng</td></tr>
         <tr><td class="numc">7</td><td><b>Prop trong interface</b></td><td>camelCase, đối xứng với anh em cùng vai</td><td class="mono">isSkeleton / isDisabled</td><td>không tự chế tên riêng, so với prop cùng interface</td></tr>
         <tr><td class="numc">8</td><td><b>Biến cục bộ</b></td><td>camelCase mô tả nghĩa, không viết tắt, không Hungarian</td><td class="mono">—</td><td><b>chưa có gate</b> — không có rule <code>naming-convention</code></td></tr>
+        <tr><td class="numc">9</td><td><b>Chuỗi văn xuôi hiện panel</b><br><span class="note">KHÔNG phải định danh</span></td><td><b>CÂU đầy đủ</b> có chủ ngữ và động từ. Cấm <code>—</code> làm dấu nối, cấm <code>↔</code> <code>-&gt;</code> <code>=&gt;</code></td><td class="mono">why · reason · role · leaf</td><td>thầy chốt 2026-07-27, xem bẫy 7. Đứng NGOÀI phép đếm cặp vì văn xuôi không lẫn được với định danh</td></tr>
       </tbody>
     </table>
     <div class="pipe">
@@ -392,7 +393,7 @@
     <div class="prin"><b>Nguyên lý:</b> đối xứng là luật riêng của PROP vì props sống chung trong 1 interface cho người đọc so sánh cạnh nhau; biến cục bộ sống một mình trong thân hàm nên chỉ cần rõ nghĩa, không cần đối xứng.</div>
   </div>
 
-  <h2>3. Sáu bẫy cấu trúc — chọn đúng loại nhưng vẫn sai vì đọc sai cấu trúc</h2>
+  <h2>3. Bảy bẫy cấu trúc — chọn đúng loại nhưng vẫn sai vì đọc sai cấu trúc</h2>
 
   <div class="case">
     <div class="case-h"><h3>Bẫy 1 · namespace đọc như biến thể, thực ra là thư mục giả</h3><span class="pair">1/10 namespace thật sự chung chữ ký, 9/10 khác API</span></div>
@@ -524,6 +525,27 @@ Layouts/Header/Header.stories.tsx
     </div>
     <p class="why"><b>Vì sao:</b> tài liệu quyết định trước (<code>4-organization.md</code>) và đề bài giao việc mô tả 2 danh sách tier khác nhau, còn thư mục thật trên đĩa lại là một danh sách thứ ba. Lấy ví dụ path từ tài liệu cũ rồi coi là "neo" là tự tạo ra một nguồn sự thật thứ tư không ai xác nhận.</p>
     <div class="prin"><b>Nguyên lý:</b> khi nguồn tài liệu và đĩa thật đá nhau, đĩa thật luôn thắng làm VÍ DỤ — nhưng thắng làm QUY ĐỊNH chính thức thì phải chờ người có thẩm quyền chốt, hai việc khác nhau.</div>
+  </div>
+
+  <div class="case">
+    <div class="case-h"><h3>Bẫy 7 · viết chuỗi panel như ĐẶT TÊN thay vì như VIẾT CÂU</h3><span class="pair">loại 9 — thầy chốt 2026-07-27, nhặt về trục này 2026-07-29</span></div>
+    <div class="split">
+      <div class="side">
+        <span class="lbl bad">✕ nén ý bằng ký hiệu</span>
+        <pre class="codebox mono">role: <span class="bad">"lead row — icon ↔ text cluster, center-aligned"</span></pre>
+        <p class="note" style="margin:8px 0 0">Cột panel hẹp. Khi xuống dòng đúng chỗ ký hiệu, đọc còn <code>lead row —</code> rồi <code>icon ↔ text</code>: hai đầu bị tách khỏi dấu nối, câu mất nghĩa hoàn toàn.</p>
+      </div>
+      <div class="side">
+        <span class="lbl good">✓ viết thành câu có chủ ngữ và động từ</span>
+        <pre class="codebox mono">role: <span class="good">"lead row where the icon sits beside
+      the text cluster, both centred
+      on the same line"</span></pre>
+        <p class="note" style="margin:8px 0 0">Xuống dòng ở bất kỳ đâu vẫn đọc được, vì mỗi mảnh còn là một mệnh đề.</p>
+      </div>
+    </div>
+    <p class="why"><b>Vì sao:</b> ba lý do, không phải khẩu vị. <b>Panel là cột hẹp</b> nên chữ ngắt dòng bất kỳ đâu, ký hiệu bị tách khỏi hai đầu là mất nghĩa còn câu thì không. <b>Người đọc cuối là LLM dựng lại UI</b>, gặp <code>A ↔ B</code> thì phải đoán quan hệ, mà đoán chính là chỗ nó bịa. Và ký hiệu <b>không dịch được</b>: <code>↔</code> mỗi người hiểu một nghĩa, đối xứng hay chuyển đổi hay chỉ là cạnh nhau.</p>
+    <p class="why"><b>Ngoại lệ:</b> bảng markdown trong JSDoc, neo <code>§</code>, và mũi tên trong sơ đồ cây (<code>→ Page.Header</code>) vẫn giữ nguyên, vì ở đó chúng là <b>CẤU TRÚC</b> chứ không phải câu. Trang này và <code>context.md</code> cũng nằm ngoài phạm vi, vì tài liệu không phải chuỗi panel.</p>
+    <div class="prin"><b>Nguyên lý:</b> luật này từng <b>mất tích</b>. Nó sinh ra ở <code>rules/4-organization.md</code> §4a, và khi canon rã thành 15 trục thì không trục nào nhận, vì nó không phải một lựa chọn giá trị mà là một ràng buộc cách viết. Bài học rộng hơn con số: <b>luật không vừa khuôn trục là luật sắp rơi</b> — gặp ca như vậy phải nói ra ngay, đừng để nó tự tìm chỗ.</div>
   </div>
 
   <h2>4. Năm lỗi thật đã cắn — điều chỉ lộ ra khi xếp cạnh nhau</h2>
