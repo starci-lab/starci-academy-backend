@@ -55,7 +55,7 @@ Kèm: `npx tsc --noEmit` sạch · `npx eslint .storybook` 0 error.
 ### Cổng thứ 11 đang CHẾT — đừng chạy, đừng sửa cho xanh
 
 `check-story-coverage.mjs` so `src/components/blocks` với `.storybook/stories/blocks`, tức đòi
-**bản vẽ phải soi gương công trình** — đúng cái [`rules/0-boundary.md`](rules/0-boundary.md) đã
+**bản vẽ phải soi gương công trình** — đúng cái [`boundary.md`](boundary.md) đã
 bãi bỏ (xem [`boundary.md`](boundary.md)). Đo 2026-07-29: thiếu 162/162, luôn đỏ nên không mang
 tin gì. Xử nó (sửa phạm vi hay xoá) phải hỏi thầy, không quyết trong một lượt dựng màn.
 

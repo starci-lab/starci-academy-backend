@@ -17,4 +17,4 @@
 
 `self-critique` · `honest-report` · `ground-in-source` · `ask-vs-default` — đã là memory `feedback-self-critique-before-presenting`, `feedback-analyze-and-approve-before-editing`, `feedback-canon-multisession-fetch-before-write`. Chúng là NGUYÊN TẮC thuần (không có quy trình đo riêng) → để ở memory. 4 file trên là phần **có quy trình đo cụ thể**.
 
-Gốc phân tích: [`.claude-skills-v2/README.md`](../../../.claude-skills-v2/README.md) §2–§4.
+Gốc phân tích: `.claude-skills-v2` (repo cũ, đã bỏ) §2–§4.
