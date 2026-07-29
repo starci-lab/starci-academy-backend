@@ -3,6 +3,8 @@
 > **Trục nạp:** [`reading-flow`](../../fe/principles/reading-flow/context.md) ·
 > [`prominence`](../../fe/principles/prominence/context.md) ·
 > [`async`](../../fe/principles/async/context.md)
+> **Nghiệp vụ nạp:** [`domain/INDEX.md`](../../fe/domain/INDEX.md) rồi mở **đúng miền** màn này
+> chạm. Đừng nạp cả chín miền.
 > **Phạm vi:** cả màn, một lần. Read-only, chưa nghĩ tới pixel nào.
 
 Bước này **chưa từng có trong luồng cũ** — không chỗ nào hỏi *"trên màn này cái gì quan trọng
@@ -44,9 +46,17 @@ không · có quãng **đang tải** không. Chức năng nào có thì ghi rõ 
 
 | Nhánh | Làm gì ở bước này |
 |---|---|
-| **A · từ source** | đọc `src/app/**/page.tsx` + `src/components/features/**` của đúng màn, rút ra bốn mục trên. ⛔ chỉ ĐỌC |
-| **B · sáng tạo** | viết BIZ SPEC trước (màn làm gì · switch giữa cấu trúc nào · dữ liệu gì), rồi mới rút bốn mục |
+| **A · từ source** | mở miền tương ứng trong `domain/`, rồi đọc `src/app/**/page.tsx` + `src/components/features/**` của đúng màn. ⛔ chỉ ĐỌC |
+| **B · sáng tạo** | **mở `domain/` TRƯỚC** — thực thể và trạng thái đã có sẵn ở đó, đừng bắt thầy kể lại. Chỉ hỏi thầy phần `domain/` chưa có (màn mới phục vụ việc gì chưa từng có) |
 | **C · soi** | đọc màn đã dựng, **rút ngược** bốn mục, rồi trình thầy: *"em đọc màn này ra ý định thế này, đúng không"* |
+
+⚠️ **`domain/` là bản đồ, không phải cổng.** Nó cho biết thực thể nào, trạng thái nào, màn nào
+có thật — nó KHÔNG đòi Storybook phải soi gương `src`. Bản vẽ lệch công trình vẫn là trạng thái
+bình thường.
+
+⚠️ **Gặp chỗ `domain/INDEX.md` đã ghi là backend-với-FE-nói-ngược-nhau** (mười lăm chỗ, mục
+riêng ở cuối INDEX) thì **đừng tự chọn bên nào** khi vẽ state. Ghi cả hai vào bảng, nêu ra cho
+thầy. Chọn một bên là âm thầm chốt một quyết định sản phẩm.
 
 Nhánh C mà **không rút ngược được ý định** thì đó là **một phát hiện**, không phải một trở ngại
 — ghi vào `session.md`. Màn không rút ra được trọng tâm nghĩa là nó chưa có trọng tâm.
