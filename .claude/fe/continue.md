@@ -1,7 +1,50 @@
-# TIẾP TỤC — Storybook design-system (chốt 2026-07-28)
+# TIẾP TỤC — Storybook design-system (chốt 2026-07-28, cập nhật 2026-07-29)
 
-> Đọc file này TRƯỚC khi làm tiếp. Nó ghi **đang ở đâu · cổng máy nào đang giữ luật gì · còn chờ
-> thầy chốt gì · nợ gì**.
+> ⚠️ **§0-6 dưới đây đã CŨ (chốt 2026-07-28)** — giữ lại vì nhiều mục §4 vẫn còn giá trị tham
+> khảo, nhưng bản đồ 5 tầng/cổng máy ở đó là ảnh chụp NGÀY ĐÓ. **Trạng thái THẬT hiện tại nằm ở
+> `.claude/fe/steps/13-feedback-anatomy-registry.md`** (nhật ký feedback dạng batch, tới
+> §3a tính đến 2026-07-29) — đọc file đó để biết chuyện gì vừa xảy ra, KHÔNG đọc lại §1-§6 dưới
+> đây như hiện trạng.
+
+## 0. TRẠNG THÁI 2026-07-29 — đọc mục này trước khi làm tiếp
+
+**Việc lớn vừa xong trong ngày** (chi tiết đủ ở `steps/13-...md` §2g→§3a):
+- Skill mới `/starci-fe-story-feedback` (2 lượt QA cho feedback CODE thầy đưa khi soi Storybook)
+  + luật "kiểm tồn đọng trước khi trả lời" (chống lặp lỗi rơi mất fix đã chốt).
+- `SurfaceCard.Pressable` gộp vào `.Base` (`isPressable` suy nội bộ, đúng khuôn `List.Row`).
+- Layout khung MỚI `frames/SplitWorkspace/` (read-column + sticky-aside, đúng CSS thật
+  `ChallengeView`/`PersonalProjectWorkspace`) — áp cho `ChallengePage` + `PersonalProjectTaskPage`.
+- Bug THẬT tìm ra ở `Container.tsx`: `@container` + `padding` chung 1 element khiến
+  `@app-xl:` KHÔNG BAO GIỜ fire khi `size="xl"` (cap trùng đúng ngưỡng breakpoint) — đã fix tách
+  2 lớp. **Luật rút ra: `tsc`/9-gate/eslint sạch KHÔNG chứng minh container-query render đúng —
+  phải đo `getComputedStyle` trên browser thật.**
+- `Typography` thêm `parseInlineCode` (backtick→`<code>` span-only, cho chỗ không lồng được
+  `MarkdownContent` như accordion title trong `<button>`) + fix `decoration-[1.5px]` khớp
+  HeroUI `Link` thật.
+- `InputText` thêm prop `variant` (khớp `InputTextarea` đã có sẵn).
+- Batch `isSkeleton` cho 24 composite còn thiếu + leaf `Skeleton` cho story tương ứng.
+- Dọn `*Screen` → `*Page` khớp thư mục `pages/` (17 tên).
+
+**Đã push lên `mtp` cả 2 repo** (commit `cb01d7d0` FE, `34006466` BE) — mọi thứ trên đây đã lên
+nhánh chung, không còn nằm working-tree cục bộ.
+
+**Đang treo, chưa xong**:
+1. `ChallengePage` — 2 điểm feedback ảnh chụp ("vàng phải lệch" / "vàng trái render đàng hoàng
+   hơn") — đo DOM thật (`ProgressMeterTargetMark`) không thấy bug, đang chờ thầy gửi ảnh crop
+   sát hơn hoặc mô tả cụ thể hơn.
+2. **Đang chạy 3 workflow Sonnet audit Foundations** (`FoundationsCategoryPage` /
+   `FoundationsGridPage` / `FoundationResourcePage`, theo quy trình 4 trục: ranh giới import ·
+   khung bố cục · cây deps · chữ hiện UI) — chạy nền, kết quả CHƯA có khi ghi dòng này. Việc
+   TIẾP THEO khi phiên sau mở lên: đọc `/workflows` hoặc hỏi lại xem 3 audit này đã xong chưa,
+   rồi review + verify + commit riêng (đừng coi output workflow là đã verify — luôn tự chạy lại
+   tsc/9-gate/eslint trước khi tin).
+
+⚠️ **Repo `starci-academy` (FE) đang có NHIỀU PHIÊN CHAT SONG SONG cùng ghi** — trước khi
+`git stash`/`git reset`/bất kỳ lệnh nào có thể mất việc người khác, LUÔN `git status` trước và
+KHÔNG BAO GIỜ stash để "so sánh nợ cũ" (dùng cách khác, vd đọc kỹ mô tả lỗi) — 1 lần stash có
+thể làm biến mất hàng trăm file người khác đang sửa dở.
+
+---
 >
 > **Repo:** FE `D:\Repositories\starci-academy` · BE `D:\Repositories\starci-academy-backend`,
 > cùng branch `mtp`. Code design-system nằm ở `starci-academy/.storybook`.
