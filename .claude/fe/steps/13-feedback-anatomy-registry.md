@@ -1593,3 +1593,63 @@ tự phát hiện phần nào đã xong, chỉ bổ sung phần thiếu).
 Verify: tsc sạch, 9/9 gate xanh (chạy lại lần cuối sau khi gộp cả 3 workflow, không riêng từng
 cái), eslint 0 lỗi mới ở tất cả file đã sửa/tạo. KHÔNG restart Storybook trong lượt audit này —
 để dành cho lượt verify bằng mắt sau.
+
+### 3c. Thầy: "ok làm đi" — gộp 3 block trial-nudge thành 1, bắt thêm 1 bug hydration thật khi build leaf Skeleton mới
+
+Thầy chốt cả 2 việc treo ở §3b cùng lúc: gộp `TrialEnrollNudge`/`FoundationTrialEnrollBanner`/
+`TrialEnrollBanner` thành **1 block duy nhất**, và điều đó tự động giải quyết luôn việc treo #1
+(`FoundationResourcePage` không cần "migrate sang `FoundationTrialEnrollBanner`" nữa vì block đó
+không còn tồn tại — nó vốn đã dùng đúng cái SỐNG SÓT).
+
+✅ **Chọn `TrialEnrollBanner` làm bản sống sót** (không phải tự đoán — `LeaderboardPage.tsx` đã
+tự ghi nhận đúng vấn đề này TRƯỚC audit, dòng comment `⭐ TrialEnrollBanner, NOT A NEW
+EnrollNudgeBanner... Building a fourth near-duplicate of an already-tripled block would compound
+the exact parallel-agent drift`). API hợp nhất lấy ĐÚNG phần tốt nhất từng bản, không phải giữ
+nguyên bản có sẵn:
+- `description` (2 dòng) từ `FoundationTrialEnrollBanner` — bản `TrialEnrollBanner` cũ tự nhận
+  "one sentence only" là SAI, real `TrialEnrollHook`'s `Callout` luôn có cả `hookTitle` VÀ
+  `hookDesc`.
+- CTA compose `Button` làm CHILD THẬT (không phải `FeedbackCallout`'s `actionLabel`/`onAction`
+  shorthand) từ `TrialEnrollNudge` — xác minh bằng cách đọc thẳng `Feedback.tsx:157`: nút dựng
+  từ `actionLabel` KHÔNG hề gắn `data-anat-part`, vô hình với cây deps BlockAnatomy — bằng chứng
+  thật, không phải theo lời file header cũ.
+- `isSkeleton` từ `FoundationTrialEnrollBanner` — copy cố định (không gì để shimmer VỀ CHỮ),
+  nhưng check enrollment nuôi `isVisible` vẫn có thể đang chạy dở.
+
+✅ **Migrate 4 consumer thật**: `FoundationResourcePage`/`LeaderboardPage` đổi `isKnown`+
+`isEnrolled` → tự tính `isVisible = isEnrollmentKnown && !isEnrolled` (API bên ngoài của SCREEN
+giữ nguyên, chỉ đổi cách gọi block bên trong); `FoundationsGridPage` đổi tên import/JSX;
+`FoundationsCategoryPage` bỏ hẳn `trialNudgeTitle`/`trialNudgeDescription`/`trialNudgeCtaLabel`
+khỏi props màn (copy giờ cố định trong block, không còn lý do truyền qua nữa) + đơn giản hoá
+`isVisible={isSkeleton?false:...}` cũ thành 2 prop riêng biệt (`isVisible`+`isSkeleton`), để
+block tự quyết cái nào thắng. Xoá hẳn `FoundationTrialEnrollBanner/` + `TrialEnrollNudge/`
+(component+story, 4 file).
+
+⚠️ **Bug hydration THẬT bắt được khi build leaf `Skeleton` mới cho story** (chưa từng lộ ra vì
+`FoundationTrialEnrollBanner` gốc CHƯA TỪNG có leaf riêng test đúng nhánh này bằng
+`showAnatomy`/render thật): copy y nguyên nhánh skeleton cũ (`FeedbackCallout title={<Typography
+isSkeleton/>} description={<Typography isSkeleton/>}`) → console báo `<p> cannot contain <div>`
+— `FeedbackCallout`'s `title`/`description` render trong `<AlertTitle>`/`<AlertDescription>`
+(thẻ `<p>` thật của HeroUI Alert), còn `Typography isSkeleton` phát ra `<div>` (skeleton bar) —
+lồng `<div>` trong `<p>` là HTML không hợp lệ, gây hydration error thật (không phải cảnh báo
+suông). **Fix đúng đã có sẵn tiền lệ**: `CourseTeamGate.tsx` từng đụng ĐÚNG lỗ hổng này
+("`FeedbackCallout` chưa có `isSkeleton` riêng — nhưng atom `Alert` bên dưới nó ĐÃ CÓ") và gọi
+thẳng `Alert isSkeleton` thay vì dựng `Typography` tay — áp lại đúng tiền lệ đó cho
+`TrialEnrollBanner`, xoá hẳn import `Typography` khỏi file.
+
+✅ **Verify bằng browser thật, bắt thêm 1 bài học công cụ**: sau khi fix, tab Browser CŨ (đã mở
+từ trước khi kill+restart Storybook) vẫn báo lỗi y hệt — hoá ra webpack HMR serve nhầm 1 chunk
+CŨ (`ReferenceError: Typography is not defined`, đúng dấu vết của bản TRƯỚC fix) dù server đã
+restart thật. Mở TAB MỚI HOÀN TOÀN (`tabs_create`, không phải navigate lại tab cũ) mới thấy bản
+đúng, 0 lỗi console. **Bài học**: kill+restart server KHÔNG đủ để xoá cache phía browser tab khi
+HMR bị kẹt — cần tab mới để chắc chắn đang xem bản build mới nhất.
+
+Verify cuối: tsc sạch, 9/9 gate xanh, eslint 0 lỗi mới, render thật (tab mới) xác nhận cả 3 leaf
+`TrialEnrollBanner` (Banner/Hidden/Skeleton) lẫn `FoundationsGridPage` (dùng block đã gộp) đều
+sạch console.
+
+**Bài học phương pháp**: (1) 1 refactor "gộp N bản trùng thành 1" phải CHỌN được phần tốt nhất
+từ mỗi bản bằng bằng chứng đo được (`Feedback.tsx:157` không gắn `data-anat-part`), không phải
+giữ nguyên bản đang có sẵn hoặc bản mới nhất; (2) build 1 leaf/state MỚI (ở đây: `Skeleton`)
+thường là lúc lộ ra bug đã nằm im từ trước vì chưa ai từng test render thật nhánh đó — không
+"copy nguyên code cũ vì nó chắc đã chạy được" khi chưa có bằng chứng nhánh đó THỰC SỰ đã chạy.

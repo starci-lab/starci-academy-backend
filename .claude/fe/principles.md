@@ -462,6 +462,29 @@ Phân tier theo BẢN CHẤT, không theo "có phải card không". ⚠️ Bản
     `SurfaceCardAccordion` consumer) + `ChallengeDeliverableList`'s trigger (đã tự viết
     `<span>` tay thay vì qua `Typography`, phải sửa riêng — 1 fix ở atom không tự lan tới chỗ
     lách qua atom).
+- ⭐⭐ **Gộp N bản port trùng của 1 real component thành 1 — CHỌN phần tốt nhất từng bản bằng
+  BẰNG CHỨNG ĐO ĐƯỢC, không giữ nguyên bản có sẵn/mới nhất** (neo `TrialEnrollBanner`, thầy
+  2026-07-29: real `src`'s `TrialEnrollHook` từng bị port thành 3 block —
+  `TrialEnrollNudge`/`FoundationTrialEnrollBanner`/`TrialEnrollBanner` — mỗi bản 1 quyết định
+  khác nhau về description/isSkeleton/cách dựng CTA). Ví dụ quyết định thật: chọn "CTA compose
+  `Button` làm child thật" thay vì `FeedbackCallout`'s `actionLabel` shorthand — không phải vì
+  "nhìn gọn hơn", mà vì đọc thẳng `Feedback.tsx:157` xác nhận nút dựng từ `actionLabel` KHÔNG
+  gắn `data-anat-part`, vô hình với cây deps BlockAnatomy. `LeaderboardPage.tsx` đã tự phát
+  hiện đúng vấn đề "3 bản trùng" này TRƯỚC audit (ghi trong file header của chính nó khi build)
+  — dấu hiệu đáng tin để bắt đầu 1 lượt gộp là chính CODE đã tự cảnh báo, không cần đợi audit.
+  - ⚠️ **Build 1 leaf/state MỚI cho story thường lộ ra bug đã nằm im từ trước** — copy y nguyên
+    nhánh `isSkeleton` cũ (chưa từng có leaf riêng test bằng render thật) sang bản gộp lộ ra lỗi
+    HTML thật: `FeedbackCallout`'s `title`/`description` render trong `<p>`
+    (`Alert.Title`/`Alert.Description` của HeroUI), còn `Typography isSkeleton` phát ra `<div>`
+    — lồng `<div>` trong `<p>` là HTML không hợp lệ, React báo hydration error thật (không phải
+    cảnh báo suông). Fix đúng: `FeedbackCallout` KHÔNG có `isSkeleton` riêng, nhưng atom `Alert`
+    bên dưới nó ĐÃ CÓ — gọi `Alert isSkeleton` trực tiếp (tiền lệ đã có sẵn ở `CourseTeamGate.tsx`,
+    đúng đoạn comment tự giải thích lý do). Đừng "copy code cũ vì nó chắc chạy được" khi chưa có
+    bằng chứng nhánh đó THỰC SỰ đã render qua browser thật.
+  - ⚠️ **Kill+restart server KHÔNG đủ để xoá cache HMR phía browser TAB** — 1 tab đã mở từ
+    TRƯỚC lúc restart có thể tiếp tục serve nhầm 1 webpack chunk CŨ (lỗi `ReferenceError` đúng
+    dấu vết bản TRƯỚC fix) dù server đã chạy bản mới. Mở TAB MỚI HOÀN TOÀN (không navigate lại
+    tab cũ) mới chắc chắn đang xem đúng build mới nhất.
 - **Lens 2 — GENERIC vs DOMAIN (thầy chốt 2026-07-23):** UI generic tái dùng MỌI feature (render slot/thông điệp bất kỳ) = **primitive**; render **nội dung DOMAIN cụ thể** hoặc compose 1 **pattern feature** = **design/block**.
   - **Feedback = PRIMITIVE** (generic: `Callout`/`EmptyState`/`SimpleEmptyState`/`ErrorState`/`ErrorPageState`/`InfoTooltip`/`ConfirmDialog` — alert/empty/error/tooltip/confirm dùng ở mọi feature). NGOẠI LỆ: `ReadinessChecklist` compose ListRow/IconTile thành pattern feature → **Block/Feedback**.
   - **Code = domain** (`CodeConsole` console-thực-thi, `IOExampleCard` input→output, `TestCaseResultGrid` kết-quả-test) → KHÔNG Primitives (thầy chốt 2026-07-23).
