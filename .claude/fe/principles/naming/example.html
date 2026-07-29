@@ -142,16 +142,16 @@
   </div>
 
   <div class="watch">
-    <b>⚠️ CHỜ THẦY CHỐT — tên TIER (đoạn đầu loại 4) đang có BA nguồn tự đá nhau, trang này không tự chọn:</b>
+    <b>✅ ĐÃ CHỐT 2026-07-29 — tên TIER (đoạn đầu loại 4), xem <code>INDEX.md</code> mục "Tên tầng chính thức". Đĩa làm trọng tài:</b>
     <table style="margin-top:8px">
-      <thead><tr><th>Nguồn</th><th>Danh sách tier</th></tr></thead>
+      <thead><tr><th>Nguồn (trước khi chốt)</th><th>Danh sách tier</th><th>Kết quả</th></tr></thead>
       <tbody>
-        <tr><td><code>4-organization.md</code> §1</td><td class="mono">atoms · frames · composites · designs · blocks · screens</td></tr>
-        <tr><td>đề bài giao việc này</td><td class="mono">heroui · atom · frame · composite · block · screen</td></tr>
-        <tr><td>đĩa thật (<code>ls .storybook/components</code>)</td><td class="mono">atoms · behaviors · composites · frames + [app]/{blocks, layouts, overlays, pages}</td></tr>
+        <tr><td><code>4-organization.md</code> §1</td><td class="mono">atoms · frames · composites · designs · blocks · screens</td><td><code>designs</code>/<code>screens</code> CHẾT</td></tr>
+        <tr><td>đề bài giao việc cũ</td><td class="mono">heroui · atom · frame · composite · block · screen</td><td>đúng 6/9, thiếu <code>behavior/layout/overlay/page</code></td></tr>
+        <tr><td>đĩa thật (<code>ls .storybook/components</code>)</td><td class="mono">atoms · behaviors · composites · frames + [app]/{blocks, layouts, overlays, pages}</td><td>✅ chuẩn chốt</td></tr>
       </tbody>
     </table>
-    <p style="margin:8px 0 0">Không có thư mục <code>designs</code> lẫn <code>screens</code> trên đĩa — <code>screens</code> gọi là <code>pages</code> thật. Không có thư mục <code>heroui</code> riêng (HeroUI thô chỉ tồn tại dưới dạng <code>import</code>). Trang này chỉ dùng tên thư mục THẬT làm ví dụ, không chốt danh sách chính thức.</p>
+    <p style="margin:8px 0 0"><b>9 tầng chính thức:</b> <code>heroui</code> (không có thư mục, chỉ badge trong <code>ANNOTATE</code>) · <code>atom</code> · <code>behavior</code> (primitive KHÔNG HÌNH) · <code>frame</code> · <code>composite</code> · <code>block</code> · <code>layout</code> · <code>overlay</code> · <code>page</code>. Không còn <code>designs</code> lẫn <code>screens</code> — <code>screens</code> gọi là <code>page</code>/<code>pages</code> trên đĩa. Tầng và app là HAI TRỤC VUÔNG GÓC: tầng dùng chung nằm ở gốc, tầng theo app nằm dưới <code>&lt;app&gt;/</code>.</p>
   </div>
 
   <h2>1. Nguyên lý vét cạn — C(8,2) = 28, phân theo KHOẢNG CÁCH trong pipeline</h2>
@@ -506,7 +506,7 @@
   </div>
 
   <div class="case">
-    <div class="case-h"><h3>Bẫy 6 · tên tier trong bài viết không khớp tên tier trên đĩa</h3><span class="pair">xem khối ⚠️ CHỜ THẦY CHỐT ở mục 0</span></div>
+    <div class="case-h"><h3>Bẫy 6 · tên tier trong bài viết không khớp tên tier trên đĩa</h3><span class="pair">ĐÃ CHỐT 2026-07-29 — xem khối ✅ ở mục 0</span></div>
     <div class="split">
       <div class="side">
         <span class="lbl bad">✕ nếu lấy path VÍ DỤ từ tài liệu cũ</span>
@@ -599,7 +599,7 @@ grep -n "naming-convention\|camelcase" eslint.config.mjs</pre>
     </table>
   </div>
 
-  <p class="note">Tổng: 7 cặp kề nhau render đủ (6 cặp hai chiều sai + 1 cặp không có ca sai, giải thích rõ vì sao) · 6 cặp cách một loại giải thích không render · 15 cặp cách xa cố ý loại · 6 bẫy cấu trúc render · 5 lỗi thật · 8 neo <code>src</code> đã đọc lại · 1 điểm CHỜ THẦY CHỐT hiện rõ, không tự quyết. <b>28/28 cặp có chỗ đứng</b>, không cặp nào bị bỏ quên.</p>
+  <p class="note">Tổng: 7 cặp kề nhau render đủ (6 cặp hai chiều sai + 1 cặp không có ca sai, giải thích rõ vì sao) · 6 cặp cách một loại giải thích không render · 15 cặp cách xa cố ý loại · 6 bẫy cấu trúc render · 5 lỗi thật · 8 neo <code>src</code> đã đọc lại · 1 điểm tên TIER ĐÃ CHỐT 2026-07-29 (từng CHỜ THẦY CHỐT, nay đóng bằng <code>INDEX.md</code>). <b>28/28 cặp có chỗ đứng</b>, không cặp nào bị bỏ quên.</p>
 
 </div>
 </body>

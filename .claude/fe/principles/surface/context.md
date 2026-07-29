@@ -24,16 +24,38 @@ dùng cho ngữ cảnh chật (chat bubble). Cơ số thật: `--radius: 0.5rem`
 `src/app/globals.css:215`, `rounded-3xl = 3×radius = 24px`, `rounded-xl = 1.5×radius = 12px`,
 `rounded-2xl = 2×radius = 16px` (đọc lại tại đúng file, không phải số Tailwind mặc định gõ tay).
 
-### 1c. ⚠️ NỢ — phần còn lại KHÔNG có union type, chỉ là class rời từng file
+### 1c. ✅ ĐÃ CHỐT phần lớn 2026-07-29 — tokenize `SurfaceRadiusRole`, GIỮ `shadow-lg`, `shadow-sm` CHỜ (thu hẹp)
 Grep tần suất toàn `.storybook/components` (`rounded-*`: 120 `rounded-full` · 46 `rounded-2xl` ·
 44 `rounded-3xl` · 34 `rounded-xl`; `shadow-*`: 29 `shadow-surface` · 6 `shadow-field` · 6
 `shadow-none` · 5 `shadow-lg` · 4 `shadow-sm`) — các giá trị này lặp đi lặp lại theo VAI TRÒ
-rõ ràng (media→2xl, field→xl, pill→full, tile-restyle→`shadow-field`) nhưng **KHÔNG có
-`SurfaceRadiusRole`/`SurfaceShadowRole` nào gom chúng thành union** như `SurfaceCardVariant` đã
-làm. `shadow-lg`/`shadow-sm` là Tailwind thô, rơi ngoài từ vựng thiết kế (khả năng là DRIFT).
-**Đề xuất (CHỜ THẦY CHỐT):** tokenize `SurfaceRadiusRole = "frame" | "media" | "field" | "pill"`
-map cứng `{3xl, 2xl, xl, full}`, và xoá `shadow-lg`/`shadow-sm` khỏi vùng surface. Đưa vào
-`choThayChot`.
+rõ ràng (media→2xl, field→xl, pill→full, tile-restyle→`shadow-field`).
+
+**Tokenize `SurfaceRadiusRole = "frame" | "media" | "field" | "pill"`: LÀM.** Luật đã trả lời —
+áp đúng luật vừa dùng để chốt `InsetScale` thêm `snug` và `h6` KHÔNG thêm (cùng ngày 2026-07-29):
+**một bậc/token chỉ sinh ra khi có người CHỌN nó vì nó KHÁC, không phải vì thư viện có sẵn.** Ba
+vai trên không lẫn nhau (không chỗ nào media dùng `xl`, field dùng `2xl`) — 200 call-site chia
+đúng 3 vai tách bạch là cùng loại bằng chứng với 34 call-site `p-2` từng đòi `snug` (khác biệt
+thật), không phải như 8 chỗ `h6` (bị từ chối vì CÙNG vai `h5`, không phải bậc riêng).
+
+**Xoá `shadow-lg` khỏi vùng surface: KHÔNG xoá — đây là VAI RIÊNG ("floating"), không phải
+drift.** Đọc lại cả 3 chỗ sống (`FloatingActionButton.tsx:54`, `ContentAiSelectionAsk.tsx:91`,
+`MindMapContinueButton.tsx:128,138`) — cả ba đều là mặt NỔI TRÊN nội dung khác (FAB cố định, chip
+nổi, panel nổi trên canvas ReactFlow), không phải card nằm phẳng trên trang. Chính
+`MindMapContinueButton.tsx:39-45` đã ghi rõ đây là JUDGEMENT CALL: *"the shadow is what tells the
+eye this is on top of the canvas, not part of it"* — `shadow-lg` được CHỌN vì nó khác
+`shadow-surface` (mặt phẳng), đúng điều kiện luật đòi hỏi để giữ một bậc riêng, không phải tiện
+tay dùng số Tailwind có sẵn.
+
+**`shadow-sm`: VẪN CHỜ, nhưng thu hẹp bằng đo lại.** Đếm `4` ở trên gộp cả code chết — 2/4 chỗ
+(`_legacy/designs/rendering/RagSourceGraph/RagSourceGraph.tsx:70,93`) nằm trong `_legacy`, quy
+ước đã dùng ở trục `press`/`reading-flow`: không tính là nguồn sống. Chỉ còn **2 chỗ sống thật**:
+`QRCode.tsx:37` (viền quanh logo giữa mã QR, một biến thể pill nhỏ) và `FlowDiagram.tsx:55` (node
+sơ đồ, đã có `border` cùng lúc — nghi double-fill giống Vạch cấm #2). Hai chỗ này KHÔNG rõ chung
+một vai (badge nhỏ vs. node sơ đồ) và không có comment giải thích chủ ý như `shadow-lg` — chưa đủ
+bằng chứng để tokenize thành role riêng, cũng chưa đủ để khẳng định là drift cần xoá. **Câu thật
+cần mắt thầy:** (a) migrate 2 chỗ này về `shadow-field` (vai đã có, đơn giản từ vựng, nhưng
+`field` vốn nghĩa input/button, dùng cho badge/diagram-node hơi lệch ngữ nghĩa) hay (b) giữ
+nguyên, không tokenize (đúng ngữ cảnh hơn nhưng để 2 call-site trôi ngoài từ vựng)?
 
 ---
 
@@ -107,33 +129,45 @@ trị. Dừng, vẽ lại cây cha-con trước khi chọn tiếp.
    mặt cha hay không** trước khi tới bước chọn giá trị (câu 1 của cây §2 chưa được hỏi thật).
 
 3. **Ring chọn không tắt bóng đi kèm ⇒ hai lớp box-shadow không cộng dồn, một cái BIẾN MẤT.**
+   ✅ **ĐÃ XÁC NHẬN 2026-07-29 bằng đọc code trực tiếp — không còn là nghi vấn.**
    `.shadow-surface` biên dịch thành `box-shadow: var(--shadow-surface)` — literal, KHÔNG đi qua
    chuỗi biến `--tw-shadow`/`--tw-ring-shadow` mà Tailwind dùng để cộng dồn ring+shadow. Hai
    utility cùng đặt `box-shadow` trên một phần tử thì một cái NUỐT cái kia theo thứ tự trong
-   stylesheet, không theo thứ tự viết trong `className`. `.SelectableGroup` đã xử lý đúng
-   (`!shadow-none` đi kèm `outline` chọn, `SurfaceCard.tsx:1136-1140`, có comment giải thích rõ
-   lý do) nhưng `.Base`'s `isSelected && "ring-2 ring-accent"` (dòng 369/389/439) **không** kèm
-   `!shadow-none` — nghi vấn cùng lỗi, CHƯA xác nhận bằng đo DOM, cần thầy chốt.
+   stylesheet, không theo thứ tự viết trong `className`. `.SelectableGroup` xử lý đúng — dùng
+   `outline` (không phải Tailwind `ring-*`) VÀ `!shadow-none` đi kèm lúc chọn
+   (`SurfaceCard.tsx:1153`, comment tại dòng 1110-1113 giải thích đúng cơ chế trên). Đọc lại cả 3
+   nhánh của `.Base` (`SurfaceCard.tsx:370, 390, 440` — nhánh không-pressable / link-pressable /
+   actions-pressable) xác nhận **cả 3** ghép `surfaceFrame(variant)` (⇒ `shadow-surface` khi
+   variant mặc định) với `isSelected && "ring-2 ring-accent"` mà KHÔNG có `!shadow-none` đi kèm —
+   đúng công thức `.SelectableGroup` từng mắc trước khi sửa. Đây là BUG THẬT (không phải suy
+   đoán), nhưng fix nằm ở `.storybook` — ngoài phạm vi trục này, không tự sửa ở đây (LUẬT CỨNG
+   #2). Câu hỏi của CANON đến đây là hết; phần còn lại là backlog code.
 
-4. **⚠️ CHỜ THẦY CHỐT — `Nested` tự vẽ lại frame thay vì gọi `surfaceFrame()`, và LỆCH nền khi
-   `nested`.** Helper dùng chung `surfaceFrame()` (`surface-card-header.tsx:135-136`) LUÔN giữ
-   `bg-surface` bất kể `variant`, chỉ đổi viền/bóng. Nhưng `Nested` (`SurfaceCard.tsx:677`)
-   không gọi helper này — tự viết `variant === "nested" ? "border border-default bg-transparent"
-   : "bg-surface shadow-surface"`, tức khi `nested` thì BỎ LUÔN nền (`bg-transparent`) thay vì
-   giữ `bg-surface`. Hai đường code cho "cùng một khái niệm nested" cho ra 2 kết quả nền khác
-   nhau. Chưa rõ đây là chủ ý (để border "trong suốt" lộ màu mặt cha) hay là copy-paste lệch.
+4. **✅ ĐÃ CHỐT 2026-07-29 — `Nested` không gọi `surfaceFrame()` là CHỦ Ý, không phải copy-paste
+   lệch.** Helper dùng chung `surfaceFrame()` (`surface-card-header.tsx:135-136`) LUÔN giữ
+   `bg-surface` bất kể `variant` — nhưng helper này phục vụ `.Base` (thẻ ĐỘC LẬP, không có ràng
+   buộc phải nằm trong mặt cha đã tô màu), nên cần giữ nền để tự đứng vững ở bất cứ đâu. `Nested`
+   (`SurfaceCard.tsx:648-680`, docblock dòng 640-644) là một component KHÁC — "card-inside-card"
+   — với hợp đồng sử dụng ghi thẳng trong JSDoc của chính nó: *"Parent context drives the shell:
+   any filled parent surface → variant="nested""*, tức component này CHỈ được gọi khi mặt cha ĐÃ
+   là một mặt tô màu sẵn. Với ràng buộc đó, `bg-transparent` là lựa chọn ĐÚNG: tránh chồng hai lớp
+   `bg-surface` vô nghĩa (cùng một màu), viền vẫn đủ để phân định ranh giới trên nền cha đã có.
+   Hai hàm cho hai KẾT QUẢ khác nhau vì phục vụ hai HỢP ĐỒNG sử dụng khác nhau (`.Base` không đảm
+   bảo có cha tô màu, `Nested` đảm bảo có) — không phải một lỗi lặp code cần hợp nhất.
 
-5. **⚠️ CHỜ THẦY CHỐT — công thức đồng tâm (`radius trong = radius ngoài − padding`) và luật
-   §1b của canon [`principles/surface/context.md`](../surface/context.md) (chính trục này —
-   nested surface GIỮ 3xl, chỉ media/field bước xuống) TRẢ LỜI HAI CÂU
-   KHÁC NHAU nhưng dễ áp nhầm chỗ.** Số đo thật: `surface` mặc định `rounded-3xl` (24px) +
-   padding `cozy` (`p-3` = 12px, `PADDING_CLASS.cozy`, `_spacing.ts:129`) ⇒ công thức cho
-   `24 − 12 = 12px = rounded-xl` — KHỚP ĐÚNG với field/input thật (`Input.tsx:687`
-   `rounded-xl`). Nhưng padding `flush` (`p-0`) ⇒ công thức cho `24 − 0 = 24px = rounded-3xl`,
-   trong khi `CoverImage.tsx:49,56` LUÔN cố định `rounded-2xl` (16px) bất kể padding. Công thức
-   đúng cho field, SAI (không khớp thực tế) cho media. Không được áp công thức đồng tâm cho
-   KHUNG mặt lồng (đó là luật riêng biệt §1b: giữ 3xl) — công thức chỉ có bằng chứng khớp cho
-   PHẦN TỬ field bên trong, chưa có bằng chứng khớp cho media.
+5. **✅ ĐÃ CHỐT — công thức đồng tâm (`radius trong = radius ngoài − padding`) và luật §1b (nested
+   GIỮ 3xl) TRẢ LỜI HAI CÂU KHÁC NHAU, không mâu thuẫn — chỉ cần đọc đúng đối tượng đang hỏi.**
+   Số đo thật: `surface` mặc định `rounded-3xl` (24px) + padding `cozy` (`p-3` = 12px,
+   `PADDING_CLASS.cozy`, `_spacing.ts:129`) ⇒ công thức cho `24 − 12 = 12px = rounded-xl` — KHỚP
+   ĐÚNG với field/input thật (`Input.tsx:687` `rounded-xl`). Nhưng padding `flush` (`p-0`) ⇒ công
+   thức cho `24 − 0 = 24px = rounded-3xl`, trong khi `CoverImage.tsx:49,56` LUÔN cố định
+   `rounded-2xl` (16px) bất kể padding — công thức đúng cho field, SAI cho media. **Luật:** công
+   thức đồng tâm chỉ áp cho PHẦN TỬ (field) lồng bên trong một khung; KHÔNG áp cho KHUNG MẶT
+   (nested card giữ 3xl theo §1b riêng biệt) và KHÔNG áp cho media (`CoverImage` cố định theo
+   vai, không theo phép toán). Ba loại đối tượng, ba câu trả lời khác nhau — không phải một công
+   thức chung bị lệch. **⬜ NỢ còn lại (công cụ, không phải quyết định):** chưa có gate tự động
+   phân biệt "đang tính cho phần tử field" hay "đang tính cho khung mặt/media" trước khi áp công
+   thức — thêm vào bảng §6 vạch cấm.
 
 ---
 
@@ -164,3 +198,4 @@ Neo cụ thể từng nhánh: [`example.html`](example.html).
 | 4 | Thêm ring/outline chọn mà không tắt bóng đi kèm (§4.3) | ⬜ **CHƯA** — gate cần viết: quét mọi `isSelected &&`/`isFocusVisible &&` cạnh `ring-`/`outline-` mà nhánh đó thiếu `shadow-none` |
 | 5 | ROW (`NestedSection`, `SurfaceCardListItem`) tự thêm `rounded-*`/`border`/`shadow-*` riêng (vi phạm §7b ROW≠CARD) | ⬜ **CHƯA** |
 | 6 | Truyền `className` restyle mặt thẻ vào wrapper ngoài thay vì `contentClassName` (§4.1) | ⬜ **CHƯA thường trực** — từng có script Node MỘT LẦN bắt bug này (`steps/13` §2p, quét 88 file gọi `SurfaceCard.*`), nhưng chưa đưa vào `scripts/*.mjs` sống |
+| 7 | Áp công thức đồng tâm (`radius trong = ngoài − padding`, §4.5) cho KHUNG mặt lồng hoặc media thay vì chỉ PHẦN TỬ field | ⬜ **CHƯA** — chưa có gate phân biệt loại đối tượng trước khi áp công thức |

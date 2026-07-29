@@ -23,8 +23,10 @@ Trục này không có một thang có thứ tự. Có **8 LOẠI thứ cần đ
 | 7 | **Prop trong interface** | camelCase, đối xứng với prop anh em cùng vai (`isLoading`/`isDisabled`, không đổi `label` cũ khi nghĩa khác) | `isSkeleton`, `onRetry` | rút từ ca `Button` 2026-07-26: đặt tên prop đối xứng, không tự chế tên riêng |
 | 8 | **Biến cục bộ** | camelCase mô tả nghĩa, không viết tắt, không Hungarian | — | **THANG CHƯA CÓ GATE** — không tìm thấy rule `naming-convention` trong `eslint.config.mjs`; đây là kỷ luật, không phải máy kiểm |
 
-SSOT tầng (Tier ở dòng 4): `4-organization.md` §1. ⚠️ **Tier đang TỰ ĐÁ NHAU giữa hai nguồn —
-xem §6 vạch cấm cuối và mục "CHỜ THẦY CHỐT" trước khi dùng tên tier trong bài nào khác.**
+SSOT tầng (Tier ở dòng 4): **ĐÃ CHỐT 2026-07-29** — `INDEX.md` mục "Tên tầng chính thức",
+đĩa làm trọng tài. 9 tầng: `heroui · atom · behavior · frame · composite · block · layout ·
+overlay · page`. `designs` và `screens` đã CHẾT (`screens` gọi là `page`/`pages` trên đĩa).
+Xem §6 vạch cấm cuối, mục trước từng "CHỜ THẦY CHỐT" nay đã đóng.
 
 ---
 
@@ -105,8 +107,9 @@ không phải chọn sai khuôn. Quay lại cây §2, xác định lại loại 
 5. **Type ẩn danh không có tên để import.** Gate `check-inline-types.mjs` từng đếm nhầm
    154 vì lẫn VỊ TRÍ TYPE với VỊ TRÍ GIÁ TRỊ (const map). Bẫy thật: hai call-site cùng mô tả
    tay một hình không tên sẽ lệch nhau — đặt tên (loại 6) chặn đứng lỗi này từ gốc.
-6. **Tier trong bài viết không khớp tier trên đĩa.** Xem §6 dòng cuối — nguồn tài liệu và thư
-   mục thật đang nói hai bộ tên khác nhau; đừng lấy VÍ DỤ path từ tài liệu cũ rồi coi là neo.
+6. **Tier trong bài viết không khớp tier trên đĩa.** ĐÃ CHỐT 2026-07-29 (`INDEX.md` mục "Tên
+   tầng chính thức", đĩa làm trọng tài) — đừng lấy VÍ DỤ path từ tài liệu cũ (`designs`,
+   `screens`) rồi coi là neo, hai tên đó đã CHẾT.
 
 ---
 
@@ -136,17 +139,16 @@ Neo cụ thể từng loại: [`example.html`](example.html).
 | 7 | Suy tên loại 6/7 (type/prop) theo CHỖ DÙNG thay vì theo VAI của hình dữ liệu | ⛔ không gate được — kỷ luật, cần đọc hiểu ngữ nghĩa hình |
 | 8 | Viết tắt/Hungarian cho biến cục bộ (loại 8) | ⛔ không gate được — không có rule `naming-convention` trong `eslint.config.mjs` |
 
-**⚠️ CHỜ THẦY CHỐT — hai nguồn tự đá nhau về TÊN TIER:**
-- `4-organization.md` §1 ghi tier ∈ `atoms · frames · composites · designs · blocks · screens`
-  (6 tier, số nhiều, có `designs`).
-- Đề bài giao việc này ghi tầng hiện tại là `heroui · atom · frame · composite · block ·
-  screen` (6 tên, số ít, có `heroui`, không có `designs`).
-- Thư mục thật trên đĩa (`ls .storybook/components`): `atoms · behaviors · composites · frames`
-  ở gốc, cộng `[app]/{blocks, layouts, overlays, pages}` cho từng app (`starci`, `nivo`,
-  `miamia`). **Không có thư mục `designs` lẫn `screens`** — `screens` gọi là `pages` trên đĩa;
-  không có thư mục `heroui` (component HeroUI thô chỉ tồn tại dưới dạng `import` từ
-  `@heroui/react`, không có folder riêng). `behaviors` cũng không nằm trong danh sách 6 tên ở
-  cả hai nguồn văn bản.
-- Trò KHÔNG tự chọn một trong ba danh sách này — file này dùng tên thư mục THẬT trên đĩa làm
-  neo cho ví dụ, nhưng việc chốt DANH SÁCH TIER chính thức để các trục khác dùng chung phải
-  chờ thầy.
+**✅ ĐÃ CHỐT 2026-07-29 — TÊN TIER, xem `INDEX.md` mục "Tên tầng chính thức":**
+- Trước ngày này có NĂM nguồn khai năm danh sách khác nhau (thư mục trên đĩa,
+  `check-seams.mjs`, `check-padding.mjs`, `4-organization.md` §1, trường `tier` trong
+  `ANNOTATE`). Chốt lấy **tên thư mục thật trên đĩa** làm chuẩn — đĩa là thứ duy nhất không nói
+  dối được.
+- 9 tầng chính thức: `heroui` (không có thư mục, chỉ badge trong `ANNOTATE`) · `atom`
+  (`atoms/`) · `behavior` (`behaviors/`, primitive KHÔNG HÌNH) · `frame` (`frames/`) ·
+  `composite` (`composites/`) · `block` (`<app>/blocks/`) · `layout` (`<app>/layouts/`) ·
+  `overlay` (`<app>/overlays/`) · `page` (`<app>/pages/`).
+- `designs` (từ `4-organization.md` §1 cũ) và `screens` (từ đề bài giao việc cũ) đã CHẾT —
+  `screens` gọi là `page`/`pages` trên đĩa, `designs` không tồn tại ở tầng nào.
+- Tầng và app là HAI TRỤC VUÔNG GÓC: tầng dùng chung (`heroui, atom, behavior, frame,
+  composite`) nằm ở gốc; tầng theo app (`block, layout, overlay, page`) nằm dưới `<app>/`.

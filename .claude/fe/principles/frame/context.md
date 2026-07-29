@@ -77,10 +77,23 @@ không theo khoảng cách vật lý (trục này là CÂY rẽ nhánh, không p
 | **`Stack.V` ↔ `Container`** | Câu hỏi đang trả lời là **QUAN HỆ giữa các con** hay **bề rộng+đệm của chính khối**? Quan hệ giữa con ⇒ `Stack`. Bề rộng đọc, không quan tâm bên trong ⇒ `Container`. | ✅ 1 lần, đã sửa |
 | **`Cluster` ↔ `Grid`** | Các dòng sau có cần **THẲNG CỘT** với dòng trước không (dòng 2 cột 1 phải khớp dưới dòng 1 cột 1)? Cần thẳng cột thật, số cột đổi theo bề rộng ⇒ `Grid`. Chỉ cần tràn dòng như chữ ⇒ `Cluster`. | Neo dùng cả hai đúng việc, chưa ghi nhận lẫn |
 
-**⚠️ CHỜ THẦY CHỐT (`Stack.H` ↔ `Cluster`):** `continue.md` mục 7 và `rules/3-shape-tier.md` §3
-tự liệt chính câu này là **CHƯA CHỐT** — *"cùng 'hàng ngang', khác đường vào (`items` vs
-`children`)"*. Phép phân định ở bảng trên là quy ước ĐANG VẬN HÀNH (đọc từ `QuotaBar.tsx:131-134`,
-xem `example.html`), không phải luật đã thầy duyệt.
+**⚠️ CHỜ THẦY CHỐT (`Stack.H` ↔ `Cluster`) — đã soát lại 2026-07-29, VẪN CHƯA CÓ LUẬT TRẢ LỜI:**
+đọc lại `rules/3-shape-tier.md` §3 (SSOT, file này không được sửa từ trục `frame`) — dòng đó tự
+liệt chính cặp này là **CHƯA CHỐT**. Đo thêm call-site thật (`grep items={` trên toàn bộ
+`Cluster` trong `.storybook`, 2026-07-29) không lật ra phản ví dụ nào phá phép phân định ở bảng
+trên — mọi nơi đang dùng `Cluster` đều đúng dạng "N chip cùng loại" — nhưng cũng không đủ để tự
+đóng câu này, vì đó chỉ là 1 quy ước đọc ra từ đúng 1 dòng comment (`QuotaBar.tsx:131-134`), chưa
+phải luật thầy duyệt. Câu hỏi gọn lại còn hai lựa chọn:
+
+- **(A) Chốt phép phân định trên thành luật cứng** — hệ quả: viết được gate đo (đếm kiểu phần tử
+  bên trong `items`/`children`), nhưng phải chốt luôn ranh giới biên: đúng 2 phần tử cùng kiểu có
+  đủ điều kiện `Cluster` không, hay 2 phần tử luôn nghi ngờ là 2-vai-trò (giống case nhãn↔số ở
+  trên) nên mặc định `Stack.H` trừ khi ≥3?
+- **(B) Không chốt, giữ đọc ngữ cảnh từng ca** — hệ quả: linh hoạt cho ca lạ, nhưng không gate
+  được bằng tool, và đúng như đang xảy ra: mỗi call-site tự viết comment giải thích lựa chọn của
+  mình (`QuotaBar.tsx:131-134`) thay vì tra một luật chung.
+
+Neo đo: `example.html` mục "Cặp 1".
 
 **`Stack.H`↔`Split` "đã cắn" dù không phải một crash:** 21 call-site cần đúng hợp đồng `Split`
 vẫn tự viết `min-w-0`/`shrink-0` bằng `StackH`, trong khi `Split` có **0 người dùng thật** ngoài

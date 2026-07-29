@@ -511,7 +511,7 @@ const pct = (value ?? 0) / 100;</span></pre>
   </div>
 
   <div class="watch">
-    <b>⚠️ CHỜ THẦY CHỐT:</b> leaf skeleton của <code>Typography</code> hiện tên là <code>Loading</code> (<code>_leaves.tsx:164</code>, <code>Typography.stories.tsx:31</code>) trong khi <code>CoverImage.stories.tsx:86</code> đặt đúng tên <code>Skeleton</code> theo §12g.0a ("Story LEAF RIÊNG tên <code>Skeleton</code> ở MỌI tầng"). Đây là DRIFT SỐNG, chưa sửa — cần một lượt đổi tên riêng, trang này KHÔNG tự quyết đổi tên hộ.
+    <b>✅ ĐÃ CHỐT:</b> đây không phải câu hỏi chờ thầy chọn — luật §12g.0a ("Story LEAF RIÊNG tên <code>Skeleton</code> ở MỌI tầng") đã trả lời rồi. <code>CoverImage.stories.tsx:86</code> đặt ĐÚNG tên <code>Skeleton</code>. <code>Typography</code> đặt tên <code>Loading</code> (<code>_leaves.tsx:164</code>, <code>Typography.stories.tsx:31</code>) là DRIFT CODE vi phạm luật đã có sẵn, không phải một lựa chọn tên còn treo. Việc còn lại là THỰC THI — đổi <code>Loading</code> → <code>Skeleton</code> ở 2 chỗ trên — nằm ngoài phạm vi sửa của 2 file canon này (chỉ đọc/đo `.storybook`, không sửa code), nên vẫn ghi CHƯA SỬA ở bảng trên, nhưng KHÔNG còn là câu hỏi chờ quyết định.
   </div>
 
   <h2>5. Mười bốn cặp không render — vì sao</h2>
@@ -581,7 +581,7 @@ const pct = (value ?? 0) / 100;</span></pre>
     <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted)">So <code>w</code>/<code>h</code> giữa leaf <code>Default</code> và leaf <code>Skeleton</code> cùng <code>size</code>/<code>variant</code> — lệch quá 1-2px là skeleton sai footprint, dữ liệu về sẽ giật layout.</p>
   </div>
 
-  <p class="note">Tổng: 7 cặp kề nhau render đủ (4 hai chiều, 3 một chiều) · 5 cặp cùng nhánh cha giải thích không render · 9 cặp cách xa cố ý loại · 7 bẫy cấu trúc render (bao gồm 3 mini-đối-chiếu sai hàng/chiều cao/icon rò rỉ) · 4 lỗi thật (1 còn sống, chờ thầy chốt) · 7 neo hình + 6 neo union đã đọc lại tận nơi. <b>21/21 cặp có chỗ đứng</b>, không cặp nào bị bỏ quên.</p>
+  <p class="note">Tổng: 7 cặp kề nhau render đủ (4 hai chiều, 3 một chiều) · 5 cặp cùng nhánh cha giải thích không render · 9 cặp cách xa cố ý loại · 7 bẫy cấu trúc render (bao gồm 3 mini-đối-chiếu sai hàng/chiều cao/icon rò rỉ) · 4 lỗi thật (1 luật đã chốt bằng §12g.0a, còn nợ THỰC THI đổi tên) · 7 neo hình + 6 neo union đã đọc lại tận nơi. <b>21/21 cặp có chỗ đứng</b>, không cặp nào bị bỏ quên.</p>
 
 </div>
 </body>

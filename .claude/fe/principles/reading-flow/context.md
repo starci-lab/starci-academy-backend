@@ -1,8 +1,15 @@
-# READING-FLOW — chữ và khối căn theo lề nào, đọc theo dòng nào (⏳ DRAFT — kế thừa từ `principles.md` §3, CHƯA CHỐT)
+# READING-FLOW — chữ và khối căn theo lề nào, đọc theo dòng nào
 
-> ⏳ Nguồn gốc (`principles.md` dòng 146-161) tự ghi `⏳ DRAFT — chờ thầy chốt`. Trục này CHỈ dựng lại
-> khuôn + verify bằng code thật, KHÔNG tự chốt hộ. Mọi chỗ còn treo được giữ nguyên trạng thái treo,
-> liệt kê ở cuối và trong `choThayChot`.
+> Nguồn gốc là `principles.md` §3 **bản LỊCH SỬ** (`git show 34006466b:.claude/fe/principles.md`
+> dòng 146-161), nơi nó tự ghi `⏳ DRAFT — chờ thầy chốt`. Neo cũ "principles.md dòng 146-161" đã
+> CHẾT: file đó bị rã ngày 2026-07-29 thành bản đồ chuyển hướng 82 dòng, không còn nội dung §3 ở
+> đó nữa — đây là chính pattern "canon trích neo NHẦM" cần cảnh giác, chỉ khác là neo chết nằm ở
+> CHÍNH câu trích dẫn nguồn gốc của trục này.
+>
+> Rà lại từng câu ngày 2026-07-29: **3/4 câu treo cũ đã tự đóng được** bằng luật/đo code trực
+> tiếp (xem §1, §5) — DRAFT không có nghĩa MỌI câu trong trục đều cần thầy. Còn ĐÚNG **1** câu
+> thật sự treo: ngoại lệ "modal xác nhận 1 nút" (xem §5 example.html) — vì KHÔNG có component
+> sống nào để đo, không phải vì thiếu công sức đọc.
 > Neo code thật: [`example.html`](example.html).
 
 ---
@@ -38,9 +45,21 @@ prop khác nhau** tuỳ track chạy hướng nào (`frames/_spacing.ts:95-114`)
 `ml-auto` tay trên **một** con là lối thứ ba, KHÔNG nằm trong prop track nào — đẩy đúng một phần tử
 về cuối mà không đổi `justify` của cả track. Xem BẪY 4.
 
-**"Hạn chế giữa" = có 4 ngoại lệ được cho phép trên CẢ hai thang** (kế thừa nguyên văn từ draft cũ,
-CHƯA CHỐT phạm vi chính xác — xem `choThayChot`): empty-state/lỗi, **1** hero focal, modal xác nhận
-1 nút (⚠️ CHƯA tìm được neo sống rõ ràng cho ca này, xem §5 example.html), loading/spinner.
+**"Hạn chế giữa" = có 4 ngoại lệ được cho phép trên CẢ hai thang** (kế thừa nguyên văn từ draft cũ).
+**ĐÃ CHỐT phạm vi cho 3/4 (đo code 2026-07-29, không cần thầy):**
+- empty-state/lỗi → `Feedback.tsx:280,305,330` dùng CẢ `text-center` (dòng 305, Thang A) LẪN
+  `items-center justify-center` (dòng 280/330, Thang B) cho cùng một ca toàn trang.
+- **1** hero focal → `EnrollGate.tsx:156,193` dùng CẢ `text-align:center` (qua `Typography`) LẪN
+  `align="center"` (Thang B) cho cùng một card.
+- loading/spinner → `LearnShell.tsx:201-202` — `StackV align="center" justify="center"` (Thang B)
+  bọc `Spinner` khi rail đang tải.
+
+Cả ba đều có neo sống xác nhận áp dụng cho CẢ hai thang, đúng như draft cũ khẳng định — không
+cần hỏi thầy nữa cho 3 ngoại lệ này.
+
+**Còn treo ĐÚNG 1:** modal xác nhận 1 nút — ⚠️ CHƯA tìm được neo sống nào (grep toàn
+`.storybook/components`, không chỉ `overlays/**`, ra 0 component `ConfirmDialog`/`ConfirmModal`
+độc lập — xem §5 example.html). CHỜ THẦY CHỐT: ngoại lệ này còn áp dụng không, hay đã lỗi thời?
 
 ---
 
@@ -132,11 +151,15 @@ Năm bẫy dưới đây đều có neo code thật, render ở `example.html` �
    đừng tự áp lại cây quyết định từ đầu.
 3. Cây quyết định §2 — chỉ dùng khi (1) và (2) không tồn tại.
 
-⚠️ **Neo cũ trong `principles.md` §3 (dòng 159) đã CHẾT**: "dòng ≈ $58.99 khi thanh toán quốc tế
-(CourseCard) căn giữa" trỏ vào `CourseCard.tsx` — file đó nay nằm ở
-`.storybook/components/_legacy/designs/cards/CourseCard/CourseCard.tsx`, không còn ca sống. Đã
-grep thay thế sống (`PriceTag.tsx`) và xác nhận **không còn** dòng hint đó, cũng không còn
-center-align nào ở đó — không dùng lại neo cũ này, và CHƯA tìm neo mới thay thế cùng ý.
+✅ **ĐÃ CHỐT — neo cũ trong `principles.md` §3 bản lịch sử (dòng 159) đã CHẾT, và KHÔNG CẦN neo
+thay thế 1-1**: "dòng ≈ $58.99 khi thanh toán quốc tế (CourseCard) căn giữa" trỏ vào
+`CourseCard.tsx` — file đó nay nằm ở
+`.storybook/components/_legacy/designs/cards/CourseCard/CourseCard.tsx`, không còn ca sống. Đo
+lại 2026-07-29 (`grep -n "text-align|justify|align=" PriceTag.tsx`, file thay thế sống) xác nhận
+**không còn** dòng hint đó, cũng không còn center-align nào ở đó. Không dùng lại neo cũ — nhưng
+nguyên lý nó minh hoạ (số/giá không nên center) đã có neo SỐNG mạnh hơn NGAY trong tài liệu này:
+`Table.tsx` `TableAlign` (§3a Cặp 2) cố ý không định nghĩa `center` cho dữ liệu số. Mất VÍ DỤ cụ
+thể, không mất tính hợp lệ của luật — không phải câu cần thầy.
 
 Neo cụ thể từng nhánh: [`example.html`](example.html) §6.
 

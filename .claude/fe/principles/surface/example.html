@@ -123,7 +123,9 @@
       </div>
     </div>
     <p style="margin:12px 0 0;font-size:12.5px;color:var(--muted)"><b style="color:var(--ink)">Phụ — <code>radius</code>:</b> chỉ tồn tại trên <code>.Nested</code>, 2 giá trị: <code>3xl</code> (24px, mặc định) và <code>xl</code> (12px, ngữ cảnh chật như chat bubble). Cơ số thật <code>--radius: 0.5rem</code> (8px), <code>rounded-3xl = 3×</code>, <code>rounded-2xl = 2×</code> (16px, dùng cho media), <code>rounded-xl = 1.5×</code> (12px, dùng cho field).</p>
-    <div class="q" style="margin-top:10px"><b>⚠️ CHỜ THẦY CHỐT:</b> phần còn lại (media→<code>rounded-2xl</code>, field→<code>rounded-xl</code>, pill→<code>rounded-full</code>) lặp lại theo VAI TRÒ rõ ràng nhưng KHÔNG có union type nào gom chúng (không như <code>SurfaceCardVariant</code> đã làm ở 2 giá trị trên). Đề xuất: tokenize <code>SurfaceRadiusRole = "frame" | "media" | "field" | "pill"</code> và xoá <code>shadow-lg</code>/<code>shadow-sm</code> (Tailwind thô, nghi DRIFT) khỏi vùng surface. Chưa chốt.</div>
+    <p style="margin:12px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink)"><b style="color:var(--success)">✅ ĐÃ CHỐT 2026-07-29 — tokenize <code>SurfaceRadiusRole</code>: LÀM.</b> Áp đúng luật vừa chốt cho <code>InsetScale</code> thêm <code>snug</code> và <code>h6</code> KHÔNG thêm cùng ngày: <b>một bậc/token chỉ sinh ra khi có người CHỌN nó vì nó KHÁC, không phải vì thư viện có sẵn.</b> Ba vai (media→<code>2xl</code>, field→<code>xl</code>, pill→<code>full</code>) không lẫn nhau ở bất kỳ call-site nào — 200 call-site chia đúng 3 vai tách bạch là bằng chứng cùng loại với 34 call-site <code>p-2</code> từng đòi <code>snug</code>.</p>
+    <p style="margin:8px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink)"><b style="color:var(--success)">✅ ĐÃ CHỐT — <code>shadow-lg</code>: KHÔNG xoá.</b> Đọc lại cả 3 chỗ sống (<code>FloatingActionButton.tsx:54</code>, <code>ContentAiSelectionAsk.tsx:91</code>, <code>MindMapContinueButton.tsx:128,138</code>) — cả ba đều là mặt NỔI TRÊN nội dung khác (FAB cố định, chip nổi, panel nổi trên canvas ReactFlow), không phải card phẳng trên trang. <code>MindMapContinueButton.tsx:39-45</code> tự ghi rõ đây là JUDGEMENT CALL — <i>"the shadow is what tells the eye this is on top of the canvas, not part of it"</i> — tức được CHỌN vì khác <code>shadow-surface</code>, không phải tiện tay dùng số Tailwind có sẵn. Đây là VAI RIÊNG ("floating"), không phải drift.</p>
+    <div class="q" style="margin-top:10px"><b>⚠️ CHỜ THẦY CHỐT (thu hẹp):</b> <code>shadow-sm</code> — đếm "4" ở trên gộp cả code chết: 2/4 chỗ (<code>_legacy/designs/rendering/RagSourceGraph/RagSourceGraph.tsx</code>) không tính là nguồn sống (quy ước trục <code>press</code>/<code>reading-flow</code>). Chỉ còn 2 chỗ sống thật: <code>QRCode.tsx:37</code> (viền quanh logo giữa QR, biến thể pill nhỏ) và <code>FlowDiagram.tsx:55</code> (node sơ đồ, đã có <code>border</code> cùng lúc — nghi double-fill). Hai chỗ KHÔNG rõ chung một vai, không có comment chủ ý như <code>shadow-lg</code>. Hai lựa chọn: (a) migrate về <code>shadow-field</code> (vai đã có, nhưng lệch ngữ nghĩa field=input/button) hay (b) giữ nguyên, không tokenize (đúng ngữ cảnh hơn nhưng để 2 call-site trôi ngoài từ vựng)?</div>
   </div>
 
   <h2>1. Nguyên lý vét cạn — 4 hình dạng có thứ tự ⇒ <code>C(4,2) = 6</code> cặp</h2>
@@ -375,27 +377,27 @@
       </div>
     </div>
     <p class="why"><b>Vì sao:</b> <code>.shadow-surface</code> biên dịch thành <code>box-shadow</code> literal, KHÔNG đi qua chuỗi biến <code>--tw-shadow</code>/<code>--tw-ring-shadow</code> mà Tailwind dùng để cộng dồn ring+shadow. Hai utility cùng đặt <code>box-shadow</code> trên một phần tử thì một cái NUỐT cái kia theo thứ tự trong stylesheet — không theo thứ tự viết trong <code>className</code>.</p>
-    <div class="q"><b>⚠️ nghi vấn CHƯA xác nhận bằng đo DOM, cần thầy chốt:</b> <code>.SelectableGroup</code> đã xử lý đúng (<code>SurfaceCard.tsx:1136-1140</code>, có comment giải thích), nhưng <code>.Base</code>'s <code>isSelected && "ring-2 ring-accent"</code> (dòng 369/389/439) <b>không</b> kèm <code>!shadow-none</code> — nghi cùng lỗi, chưa đo thật để xác nhận.</div>
+    <div class="q" style="border-color:var(--success);background:color-mix(in srgb,var(--success) 8%,transparent)"><b style="color:var(--success)">✅ ĐÃ XÁC NHẬN 2026-07-29 bằng đọc code — không còn là nghi vấn:</b> <code>.SelectableGroup</code> xử lý đúng — dùng <code>outline</code> (không phải Tailwind <code>ring-*</code>) VÀ <code>!shadow-none</code> đi kèm lúc chọn (<code>SurfaceCard.tsx:1153</code>, comment dòng 1110-1113). Đọc lại cả 3 nhánh của <code>.Base</code> (<code>SurfaceCard.tsx:370, 390, 440</code>) xác nhận cả 3 ghép <code>surfaceFrame(variant)</code> với <code>isSelected && "ring-2 ring-accent"</code> mà KHÔNG có <code>!shadow-none</code> — đúng công thức <code>.SelectableGroup</code> từng mắc trước khi sửa. BUG THẬT, không phải suy đoán — nhưng fix nằm ở <code>.storybook</code>, ngoài phạm vi canon này; câu hỏi của canon đến đây là hết, phần còn lại là backlog code.</div>
   </div>
 
   <div class="case">
-    <div class="case-h"><h3>Bẫy 4 · <code>Nested</code> tự vẽ lại frame, LỆCH nền so với helper</h3><span class="pair">⚠️ CHỜ THẦY CHỐT</span></div>
+    <div class="case-h"><h3>Bẫy 4 · <code>Nested</code> không gọi <code>surfaceFrame()</code> — chủ ý, không lệch</h3><span class="pair" style="background:color-mix(in srgb,var(--success) 18%,transparent);color:var(--success)">✅ ĐÃ CHỐT 2026-07-29</span></div>
     <div class="split">
       <div class="side">
-        <span class="lbl bad" style="color:var(--warn)">◆ qua helper <code>surfaceFrame("nested")</code> — GIỮ <code>bg-surface</code></span>
-        <div class="mock" style="background:var(--app-bg);outline:2px solid var(--warn);outline-offset:-1px"><div style="border:1px solid var(--app-border);background:var(--app-surface);border-radius:24px;padding:16px"><span class="ttl">Chương 2</span></div></div>
+        <span class="lbl good">✓ helper <code>surfaceFrame("nested")</code> — GIỮ <code>bg-surface</code> (dùng cho <code>.Base</code>, KHÔNG chắc có cha tô màu)</span>
+        <div class="mock good" style="background:var(--app-bg)"><div style="border:1px solid var(--app-border);background:var(--app-surface);border-radius:24px;padding:16px"><span class="ttl">Chương 2</span></div></div>
       </div>
       <div class="side">
-        <span class="lbl bad" style="color:var(--warn)">◆ <code>Nested</code> tự viết — <code>bg-transparent</code>, nền cha lộ ra</span>
-        <div class="mock" style="background:var(--app-bg);outline:2px solid var(--warn);outline-offset:-1px"><div style="border:1px solid var(--app-border);background:transparent;border-radius:24px;padding:16px"><span class="ttl">Chương 2</span></div></div>
+        <span class="lbl good">✓ <code>Nested</code> tự viết — <code>bg-transparent</code> (hợp đồng riêng: LUÔN có cha đã tô màu)</span>
+        <div class="mock good" style="background:var(--app-bg)"><div style="border:1px solid var(--app-border);background:transparent;border-radius:24px;padding:16px"><span class="ttl">Chương 2</span></div></div>
       </div>
     </div>
-    <p class="why"><b>Vì sao cả hai cùng "chọn nested" mà khác nhau:</b> helper dùng chung <code>surfaceFrame()</code> (<code>surface-card-header.tsx:135-136</code>) LUÔN giữ <code>bg-surface</code> bất kể variant, chỉ đổi viền/bóng. Nhưng <code>Nested</code> (<code>SurfaceCard.tsx:677</code>) không gọi helper này — tự viết công thức riêng và BỎ LUÔN nền khi <code>nested</code>. Hai đường code cho "cùng một khái niệm nested" cho ra 2 kết quả nền khác nhau.</p>
-    <div class="q"><b>⚠️ CHỜ THẦY CHỐT:</b> chưa rõ đây là chủ ý (để viền "trong suốt" lộ màu mặt cha, một hiệu ứng thẩm mỹ có chủ đích) hay là copy-paste lệch khỏi helper dùng chung. Không tự quyết hộ.</div>
+    <p class="why"><b>Vì sao cả hai đều ĐÚNG dù khác nhau:</b> helper dùng chung <code>surfaceFrame()</code> (<code>surface-card-header.tsx:135-136</code>) phục vụ <code>.Base</code> — thẻ ĐỘC LẬP, không có ràng buộc phải nằm trong mặt cha đã tô màu — nên LUÔN giữ <code>bg-surface</code> để tự đứng vững ở bất cứ đâu. <code>Nested</code> (<code>SurfaceCard.tsx:648-680</code>, docblock dòng 640-644) là một component KHÁC — "card-inside-card" — với hợp đồng ghi thẳng trong JSDoc của chính nó: <i>"Parent context drives the shell: any filled parent surface → variant="nested""</i>. Với ràng buộc CHỈ được gọi khi cha đã tô màu sẵn, <code>bg-transparent</code> là lựa chọn đúng: tránh chồng hai lớp <code>bg-surface</code> vô nghĩa, viền vẫn đủ phân định ranh giới trên nền cha có sẵn.</p>
+    <div class="q" style="border-color:var(--success);background:color-mix(in srgb,var(--success) 8%,transparent)"><b style="color:var(--success)">✅ ĐÃ CHỐT:</b> hai hàm cho hai kết quả khác nhau vì phục vụ hai HỢP ĐỒNG sử dụng khác nhau (<code>.Base</code> không đảm bảo có cha tô màu, <code>Nested</code> đảm bảo có) — không phải một lỗi lặp code cần hợp nhất.</div>
   </div>
 
   <div class="case">
-    <div class="case-h"><h3>Bẫy 5 · áp công thức đồng tâm nhầm cho KHUNG mặt lồng thay vì PHẦN TỬ field</h3><span class="pair">⚠️ CHỜ THẦY CHỐT</span></div>
+    <div class="case-h"><h3>Bẫy 5 · áp công thức đồng tâm nhầm cho KHUNG mặt lồng thay vì PHẦN TỬ field</h3><span class="pair" style="background:color-mix(in srgb,var(--success) 18%,transparent);color:var(--success)">✅ ĐÃ CHỐT</span></div>
     <div class="split">
       <div class="side">
         <span class="lbl bad">✕ SAI · nested card bước bo xuống 12px theo công thức</span>
@@ -411,7 +413,7 @@
       </div>
     </div>
     <p class="why"><b>Vì sao đây là bẫy khác Bẫy 4 concentric ở Cặp 3:</b> ở Cặp 3 công thức áp cho PHẦN TỬ field (Input) và đã CÓ bằng chứng khớp (<code>Input.tsx:687</code>). Ở đây đối tượng lồng là một KHUNG MẶT khác (<code>nested</code> card, không phải field) — luật riêng của canon <a href="../surface/context.md"><code>principles/surface/context.md</code></a> §1b (chính trục này) nói khung mặt lồng GIỮ <code>3xl</code>, không bước xuống theo công thức. Áp nhầm công thức vào đúng chỗ luật §1b đã loại trừ là bẫy.</p>
-    <div class="q"><b>⚠️ CHỜ THẦY CHỐT:</b> công thức đồng tâm và luật "nested giữ 3xl" trả lời HAI câu khác nhau (phần tử field bên trong vs khung mặt lồng) nhưng dễ áp nhầm chỗ. Cả media (<code>CoverImage</code>, cố định 16px, không theo công thức dù <code>padding="flush"</code> cho ra 24px lý thuyết) cũng là một ca công thức KHÔNG khớp — chưa có gate nào phân biệt hai loại đối tượng này.</div>
+    <div class="q" style="border-color:var(--success);background:color-mix(in srgb,var(--success) 8%,transparent)"><b style="color:var(--success)">✅ ĐÃ CHỐT:</b> công thức đồng tâm và luật "nested giữ 3xl" trả lời HAI câu khác nhau (phần tử field bên trong vs khung mặt lồng), không mâu thuẫn — chỉ cần đọc đúng đối tượng đang hỏi. Cả media (<code>CoverImage</code>, cố định 16px, không theo công thức dù <code>padding="flush"</code> cho ra 24px lý thuyết) cũng là một loại đối tượng riêng, KHÔNG áp công thức. <b>⬜ NỢ còn lại (công cụ, không phải quyết định):</b> chưa có gate tự động phân biệt hai loại đối tượng này trước khi áp công thức — đã thêm vào bảng §6 vạch cấm của <code>context.md</code>.</div>
   </div>
 
   <h2>4. Ba lỗi thật đã cắn — điều chỉ lộ ra khi xếp cạnh nhau</h2>
@@ -496,7 +498,7 @@
     </table>
   </div>
 
-  <p class="note">Tổng: 3 cặp render đủ hai chiều sai + 2 phép thử phụ (tỉ lệ, đồng tâm) · 2 cặp giải thích không render · 1 cặp cố ý loại · 5 bẫy cấu trúc render (4 CHỜ THẦY CHỐT) · 3 lỗi thật · neo <code>src</code> đã đọc lại. <b>6/6 cặp có chỗ đứng</b>, không cặp nào bị bỏ quên.</p>
+  <p class="note">Tổng: 3 cặp render đủ hai chiều sai + 2 phép thử phụ (tỉ lệ, đồng tâm) · 2 cặp giải thích không render · 1 cặp cố ý loại · 5 bẫy cấu trúc render · 3 lỗi thật · neo <code>src</code> đã đọc lại. <b>2026-07-29: 3/4 câu CHỜ THẦY CHỐT của trục này đã chốt</b> (Bẫy 3 ring/shadow-none, Bẫy 4 Nested bg-transparent, Bẫy 5 công thức đồng tâm) bằng luật đã có + đọc code thật; còn <b>1 câu thu hẹp</b> (§0 <code>shadow-sm</code>, chỉ còn 2 call-site sống thật). <b>6/6 cặp có chỗ đứng</b>, không cặp nào bị bỏ quên.</p>
 
 </div>
 </body>

@@ -604,7 +604,7 @@
         <tr><td><code>PaymentModal/index.tsx</code></td><td class="numc">601</td><td class="numc">—</td><td class="numc" style="color:var(--success)"><code>type="h4" weight="bold"</code> — ĐÚNG bold</td></tr>
       </tbody>
     </table>
-    <p style="margin:10px 0 0;font-size:12.5px;color:var(--ink);line-height:1.6">Hai khả năng, <b>chưa tự chọn</b>: (a) <code>semibold</code> cũng hợp lệ cho Tier A khi đi kèm số tiền/số liệu — nghĩa là luật "luôn <code>bold</code>" ở §0c cần thêm một nhánh con; hoặc (b) 2 anchor này thực ra ĐANG SAI so với luật và cần sửa thành <code>bold</code>. Trang này KHÔNG tự chốt hộ — chỉ hiện rõ mâu thuẫn để thầy quyết.</p>
+    <p style="margin:10px 0 0;font-size:12.5px;color:var(--ink);line-height:1.6"><b>Đã đóng, không phải hai khả năng chờ chọn:</b> luật §3b đã trả lời dứt khoát — "Tier A đứng riêng làm tâm điểm ⇒ <code>bold</code>". <code>PricingCard</code>/<code>MetricCard</code> đọc ra <code>semibold</code> vì chúng nằm trong <code>src</code> (CÔNG TRÌNH), được phép lệch bản vẽ (<code>rules/0-boundary.md</code>) — không phải phản chứng đòi thêm nhánh con hay đổi <code>bold</code> thành <code>semibold</code>. Việc phải làm là <b>bỏ hai neo trích nhầm</b> khỏi vị trí minh hoạ Tier A, không phải sửa luật.</p>
   </div>
 
   <div class="rules">
@@ -648,7 +648,7 @@
     </table>
   </div>
 
-  <p class="note">Tổng: 3+3 = 6 cặp render đủ hai chiều sai (3 tier · 3 weight) · 3+3 = 6 cặp giải thích không render (2+1 tier · 2+1 weight) · 1 ma trận tổ hợp 24 ô (6 nhánh × 4 giá trị) · 6 bẫy cấu trúc render · 2 bảng lỗi thật (5 ca size + 7 file/9 call-site weight) · 9 neo <code>src</code> theo tier · 2 khối CHỜ THẦY CHỐT (mapping <code>h6</code>, mâu thuẫn Tier A bold vs 2 neo semibold). <b>12/12 cặp (6 tier + 6 weight) có chỗ đứng</b>, không cặp nào bị bỏ quên.</p>
+  <p class="note">Tổng: 3+3 = 6 cặp render đủ hai chiều sai (3 tier · 3 weight) · 3+3 = 6 cặp giải thích không render (2+1 tier · 2+1 weight) · 1 ma trận tổ hợp 24 ô (6 nhánh × 4 giá trị) · 6 bẫy cấu trúc render · 2 bảng lỗi thật (5 ca size + 7 file/9 call-site weight) · 9 neo <code>src</code> theo tier · 2 khối từng treo — nay <b>ĐÃ CHỐT cả hai</b> (mapping <code>h6</code> → luôn hạ về <code>h5</code>; Tier A luôn <code>bold</code>, <code>PricingCard</code>/<code>MetricCard</code> là 2 neo trích nhầm cần bỏ, không phải phản chứng). <b>12/12 cặp (6 tier + 6 weight) có chỗ đứng</b>, không cặp nào bị bỏ quên.</p>
 
 </div>
 </body>

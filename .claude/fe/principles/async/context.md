@@ -95,11 +95,23 @@ nên không có khái niệm "vùng đang tải/lỗi/rỗng" để tự quyết
    screen, rồi gọi `AsyncContentEmpty` bên trong — nhìn giống "đã tách block riêng" nhưng vẫn
    là code TẦNG SCREEN (không nằm trong `blocks/**`, không có story riêng). `steps/13-feedback-
    anatomy-registry.md` dòng 1574-1579 ghi rằng hướng fix ĐÚNG là "tách BLOCK MỚI
-   `FoundationResourceEmpty` … + story riêng", nhưng grep toàn repo (`FoundationResourceEmpty`)
-   chỉ ra ĐÚNG 1 file — chính `FoundationResourcePage.tsx`. Fix đã ghi sổ là đã làm nhưng CHƯA
-   lên tới đĩa thật. ⚠️ CHỜ THẦY CHỐT (cả việc `isEmpty` ở đây đang thay MỘT PHẦN màn — identity+
-   body — trái với luật "chỉ khi thay TOÀN BỘ" mà chính `QuizPage`/`PlaygroundPreparePage` tự
-   phát biểu, VÀ việc bản ghi nhật ký không khớp code trên đĩa).
+   `FoundationResourceEmpty` … + story riêng", nhưng grep toàn repo lại ngày 2026-07-29
+   (`grep -rl "FoundationResourceEmpty" .storybook/components`) vẫn chỉ ra ĐÚNG 1 file — chính
+   `FoundationResourcePage.tsx`.
+
+   **ĐÃ CHỐT (đo code, không cần thầy):** đọc thẳng `FoundationResourcePage.tsx` dòng 34-36 và
+   156-193 xác nhận HAI việc, không phải một nghi vấn: (a) fix đã ghi sổ là đã làm nhưng CHƯA
+   lên tới đĩa thật; (b) chính comment file header của nó TRÍCH SAI hành vi thật của
+   `CourseContents` — tự nhận "same idiom `CourseContents` uses … scoped to the part", trong
+   khi `CourseContents.tsx` dòng 115-117 (`if (isEmpty) return <CourseContentsEmpty />`) thật sự
+   return sớm TOÀN BỘ render, không hề "scoped". `isEmpty` ở `FoundationResourcePage` chỉ thay
+   MỘT PHẦN màn (dòng 159-165: `TrialEnrollBanner` đứng NGOÀI switch `isEmpty`) — đây là VI PHẠM
+   xác nhận được bằng đo code, không phải nghi vấn cần hỏi thầy. Neo trích nhầm nằm NGAY TRONG
+   SRC (comment của chính file đó), không phải trong canon trục này.
+
+   Câu THẬT SỰ còn treo (screen có được gọi thẳng composite hay không, kể cả khi thay TOÀN BỘ
+   màn) đã dồn về §6 câu **C1** — viết lại ở đó cho gọn, kèm hai lựa chọn cụ thể; không lặp lại
+   ở đây.
 
 2. **`error`/`isEmpty` = true mà thiếu props kèm theo bị rơi xuống nhánh dưới, không báo gì.**
    `error` truthy nhưng thiếu `errorContent` ⇒ dòng 200 `if (error && errorContent)` false ⇒
@@ -147,10 +159,23 @@ Neo cụ thể từng nhánh: [`example.html`](example.html).
 
 **Câu hỏi CHƯA CÓ ĐÁP ÁN CHÍNH THỨC (đưa lên thầy):**
 
-- **C1** (`index.md` dòng 60): Screen có được gọi thẳng `AsyncContent.Empty`/`.Error` hay phải
-  qua block? Code hiện tại có 6 tiền lệ gọi thẳng `AsyncContentEmpty` ở tầng screen/layout
-  (`CourseContents`, `ModulePage`, `MindMapPage`, `PlaygroundPreparePage`, `FoundationResourcePage`,
-  `HeadhuntingCompaniesLayout`), nhưng KHÔNG ĐỒNG NHẤT phạm vi — một số tự phát biểu luật "chỉ
-  khi thay TOÀN BỘ màn" (`QuizPage`/`PlaygroundPreparePage`), một ca (`FoundationResourcePage`)
-  đang thay MỘT PHẦN dù nhật ký nói đã sửa. Chưa từng có ca nào gọi thẳng `AsyncContentError`
-  ở tầng screen. ⚠️ CHỜ THẦY CHỐT.
+- **C1** — nguồn tra đúng như được chỉ: `rules/1-decompose.md` §2 "bảng cứng" (dòng 100-106,
+  cập nhật 2026-07-28) cấm TUYỆT ĐỐI screen import composite, không ghi ngoại lệ nào. Nhưng
+  §5 (dòng 155) của CHÍNH file đó — SỬA CÙNG một commit `8c191396bb`, cùng ngày — liệt lại
+  ĐÚNG câu hỏi này là "Chờ thầy chốt" và tự ghi "Hiện đang gọi trực tiếp". Tức là đây KHÔNG phải
+  canon của trục này trích neo sai — rules tự mâu thuẫn với chính nó, và mâu thuẫn đó vẫn đứng
+  nguyên tới hôm nay.
+
+  Đo code 2026-07-29: **6/6 tiền lệ trên đĩa đều import thẳng** `AsyncContentEmpty` ở tầng
+  `pages/**`/`layouts/**` (`CourseContents`, `ModulePage`, `MindMapPage`, `PlaygroundPreparePage`,
+  `FoundationResourcePage`, `HeadhuntingCompaniesLayout`) — không ca nào tách qua block. 5/6 ca
+  tuân theo một ngưỡng CHUNG dù chưa được ghi vào §2: chỉ gọi thẳng khi thay TOÀN BỘ hàm render
+  bằng return sớm (chuẩn: `CourseContents.tsx:115-117`); riêng `FoundationResourcePage` lệch
+  ngưỡng đó — đã đóng riêng ở bẫy #1 trên bằng đo code, KHÔNG phải phần đang hỏi ở đây. Chưa
+  từng có ca nào gọi thẳng `AsyncContentError` ở tầng screen.
+
+  Hai lựa chọn RA HÌNH KHÁC NHAU thật trên đĩa: **(a)** viết thêm một dòng ngoại lệ vào §2
+  ("trừ khi thay TOÀN BỘ render bằng return sớm") — giữ nguyên 5 tiền lệ, chỉ sửa riêng
+  `FoundationResourcePage` cho khớp ngưỡng đó; ít file đổi nhất. **(b)** bỏ hẳn ngoại lệ, ép cả
+  6 tiền lệ tách thành block `<Screen>EmptyState` riêng (đúng nghĩa đen §2) — 6 block + 6 story
+  mới, đổi cây import của cả 6 screen/layout. ⚠️ CHỜ THẦY CHỐT: chọn (a) hay (b)?

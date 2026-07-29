@@ -22,11 +22,14 @@
 | `h3`/`h4`/`h5` | heading (bọc `HeroTypography.Heading`) | `level={3,4,5}` | A |
 | `code` | wrap `HeroTypography type="code"` | — | không thuộc tier nào, `weight` bị LỜ (xem §4.1) |
 
-⚠️ **`h6` KHÔNG tồn tại trong `TypographySize`** (`HEADING_LEVEL` trong `Typography.tsx` dừng ở
-`h5`, dòng 48) dù HeroUI gốc có `h6` (`typography.styles.ts:39`) và `src` thật dùng nó
-(`CourseCard/index.tsx:285` là `type="h6"`). Quy ước: port `h6` thật → dùng nấc gần nhất
-`size="h5"` của atom. Việc ánh xạ này mới ghi 1 dòng ví dụ trong canon, CHƯA thành luật chính
-thức — xem §6 mục cần thầy chốt.
+✅ **ĐÃ CHỐT 2026-07-29 — `h6` KHÔNG tồn tại trong `TypographySize`** (`HEADING_LEVEL` trong
+`Typography.tsx` dừng ở `h5`, dòng 48) dù HeroUI gốc có `h6` (`typography.styles.ts:39`) và
+`src` thật dùng nó (`CourseCard/index.tsx:285` là `type="h6"`). Luật: port `h6` thật → LUÔN hạ
+về nấc gần nhất `size="h5"` của atom, KHÔNG thêm bậc `h6` riêng vào atom. Căn cứ: đếm thật
+trong `src` — `h6` dùng 8 lần so với `h5` 14 lần, cả 8 đều cùng vai "tiêu đề thẻ trong lưới"
+như `h5`, không phải một bậc riêng (áp cùng luật đã dùng cho `InsetScale`: một bậc chỉ sinh ra
+khi có người chọn nó vì nó KHÁC, không phải vì thư viện có sẵn). Neo quyết định:
+[`example.html`](example.html) §0 khối "✅ ĐÃ CHỐT".
 
 ### 1b. WEIGHT — 4 giá trị hiệu lực (type chỉ khai 3, giá trị thứ 4 là KHÔNG khai)
 `weight?: "medium" | "semibold" | "bold"` (`Typography.tsx` dòng 178). Bậc thứ 4 là **không

@@ -99,7 +99,7 @@
 <body>
 <div class="wrap">
   <h1>READING-FLOW — hai thang vuông góc, render thật SAI cạnh ĐÚNG</h1>
-  <p class="sub">Mọi khung dưới đây là HTML render thật, kể cả bẫy CSS-layer ở §3 (dùng đúng cơ chế <code>@layer</code> mà Tailwind v4 dùng thật, không phải ảnh chụp). ⏳ Nguồn <code>principles.md</code> §3 tự ghi DRAFT — trục này giữ nguyên tình trạng treo, không tự chốt hộ.</p>
+  <p class="sub">Mọi khung dưới đây là HTML render thật, kể cả bẫy CSS-layer ở §3 (dùng đúng cơ chế <code>@layer</code> mà Tailwind v4 dùng thật, không phải ảnh chụp). Nguồn <code>principles.md</code> §3 <b>bản lịch sử</b> tự ghi DRAFT (neo dòng số hiện đã chết — file đó bị rã 2026-07-29 thành bản đồ chuyển hướng, xem <code>context.md</code>). Rà lại từng câu 2026-07-29: 3/4 câu treo cũ đã tự đóng bằng luật/đo code (§1, §5) — chỉ còn 1 câu thật sự cần thầy (modal xác nhận 1 nút, §5).</p>
 
   <h2>0. Hai thang</h2>
   <div class="rules">
@@ -342,17 +342,18 @@
       <thead><tr><th style="width:30%">Chỗ</th><th style="width:24%">Hiện trạng</th><th>Ghi chú</th></tr></thead>
       <tbody>
         <tr><td>vật lý vs logic override <code>&lt;button&gt;</code></td><td class="numc" style="color:var(--warn)">drift, chưa sửa</td><td><code>SurfaceCard.tsx</code>×7 + <code>Stepper.tsx</code>×1 dùng <code>text-left</code>; <code>SettingsSidebarNav.tsx</code> + <code>ChipButtonList.tsx</code> dùng <code>text-start</code> cho CÙNG mục đích — Bẫy 2</td></tr>
-        <tr><td><code>principles.md</code> §3 dòng 159 — neo "CourseCard $58.99"</td><td class="numc" style="color:var(--danger)">CHẾT</td><td>File đã dọn sang <code>_legacy/designs/cards/CourseCard/</code>; thay thế sống <code>PriceTag.tsx</code> KHÔNG còn dòng hint đó, cũng không center-align nào ở đó. Không dùng lại, chưa có neo mới thay thế cùng ý.</td></tr>
+        <tr><td><code>principles.md</code> §3 dòng 159 (bản lịch sử) — neo "CourseCard $58.99"</td><td class="numc" style="color:var(--success)">✅ ĐÃ CHỐT: CHẾT, không cần thay 1-1</td><td>File đã dọn sang <code>_legacy/designs/cards/CourseCard/</code>; thay thế sống <code>PriceTag.tsx</code> KHÔNG còn dòng hint đó, cũng không center-align nào ở đó (đo lại 2026-07-29). Không dùng lại neo cũ — nguyên lý nó minh hoạ (số/giá không center) đã có neo sống mạnh hơn ngay trong tài liệu này: <code>Table.tsx</code> <code>TableAlign</code> (§1 Cặp 2). Mất ví dụ, không mất luật.</td></tr>
       </tbody>
     </table>
     <p style="margin:12px 0 0;color:var(--muted);font-size:12.5px"><b style="color:var(--ink)">Khác biệt với trục <code>seam</code>:</b> trục đó có 4 lỗi "chọn SAI bậc" ghi sổ. Trục này, grep trực tiếp <code>.storybook/components</code> KHÔNG lộ ra ca "chọn sai center/start/end" nào — phần lớn <code>text-center</code>/<code>justify-center</code> sống (16/29 chỗ, sau khi loại <code>_legacy</code>) đều rơi đúng 1 trong 4 ngoại lệ. Lỗi thật duy nhất tìm được là DRIFT VỐN TỪ (Bẫy 2), không phải chọn sai giá trị — ghi trung thực, không bịa thêm ca cho đủ khuôn.</p>
   </div>
 
-  <h2>5. Sáu cặp còn lại — vì sao không render</h2>
+  <h2>5. Sáu cặp còn lại — vì sao không render — và 1 ngoại lệ còn treo</h2>
   <div class="rules">
     <p style="margin:0 0 10px"><b>Thang A · <code>start</code> ↔ <code>end</code>:</b> chưa cắn — 2 bậc này hiếm lẫn vì mô tả 2 hướng ngược nhau rõ ràng (đầu hàng vs cuối hàng của 1 hàng có ≥2 field); không có ca thật nào lẫn.</p>
     <p style="margin:0 0 10px"><b>Thang B · <code>start</code>↔<code>between</code> · <code>end</code>↔<code>between</code>:</b> không render riêng vì cùng một câu hỏi đã trả lời ở Cặp 3/5 rồi ("có phần tử nào cần đứng yên trong khi phần khác bị đẩy không") — thêm ví dụ chỉ lặp lại phép thử, không thêm thông tin.</p>
-    <p style="margin:0"><b>Ngoại lệ "modal xác nhận 1 nút"</b> (kế thừa nguyên văn từ <code>principles.md</code> §3): grep <code>.storybook/components</code> KHÔNG tìm được component <code>ConfirmDialog</code>/<code>ConfirmModal</code> độc lập nào để đọc neo — hệ compose confirm-dialog từ <code>ButtonGroup</code>+<code>Button</code> (ghi trong memory canon), không phải 1 file riêng có pattern center rõ ràng để render. Giữ nguyên như DRAFT, KHÔNG bịa neo, đưa vào <code>choThayChot</code>: ngoại lệ này còn áp dụng không, hay đã lỗi thời cùng lúc component thay đổi kiến trúc?</p>
+    <p style="margin:0 0 10px"><b>3/4 ngoại lệ ở §0/§1 (empty-state/lỗi, hero focal, loading/spinner):</b> ✅ ĐÃ CHỐT phạm vi bằng đo code 2026-07-29 — <code>Feedback.tsx:280,305,330</code>, <code>EnrollGate.tsx:156,193</code>, <code>LearnShell.tsx:201-202</code> đều cho thấy ngoại lệ áp dụng cho CẢ hai thang, đúng như draft cũ khẳng định. Không cần hỏi thầy cho 3 cái này nữa.</p>
+    <p style="margin:0"><b>⚠️ Còn treo đúng 1 — ngoại lệ "modal xác nhận 1 nút"</b> (kế thừa nguyên văn từ <code>principles.md</code> §3 bản lịch sử): grep lại 2026-07-29 trên TOÀN <code>.storybook/components</code> (không chỉ <code>overlays/**</code>) vẫn KHÔNG tìm được component <code>ConfirmDialog</code>/<code>ConfirmModal</code> độc lập nào để đọc neo — hệ compose confirm-dialog từ <code>ButtonGroup</code>+<code>Button</code> (ghi trong memory canon), không phải 1 file riêng có pattern center rõ ràng để render. Đây KHÔNG đo được vì THIẾU đối tượng để đo, không phải vì thiếu công đọc — giữ nguyên nhãn treo, viết lại câu hỏi cho gọn: <b>ngoại lệ này còn áp dụng khi component thật được dựng, hay nên bỏ khỏi danh sách 4 vì chưa từng có ca sống?</b></p>
   </div>
 
   <h2>6. Neo code thật — đã đọc lại tận nơi</h2>
@@ -400,7 +401,7 @@
     </table>
   </div>
 
-  <p class="note">Tổng: 5 cặp render đủ hai chiều sai · 6 cặp giải thích không render · 5 bẫy cấu trúc render (kể cả 1 demo CSS <code>@layer</code> THẬT) · 2 lỗi thật (1 drift đang sống, 1 neo cũ đã chết) · 14 neo <code>src</code> đã đọc lại. <b>11/11 cặp có chỗ đứng</b>, không cặp nào bị bỏ quên. ⏳ Trục còn DRAFT — ngoại lệ "modal 1 nút" chưa có neo, xem §5.</p>
+  <p class="note">Tổng: 5 cặp render đủ hai chiều sai · 6 cặp giải thích không render · 5 bẫy cấu trúc render (kể cả 1 demo CSS <code>@layer</code> THẬT) · 2 lỗi thật (1 drift đang sống, 1 neo cũ đã chết — nay ĐÃ CHỐT không cần thay) · 14 neo <code>src</code> đã đọc lại. <b>11/11 cặp có chỗ đứng</b>, không cặp nào bị bỏ quên. Rà lại 2026-07-29: 3/4 câu treo cũ ĐÃ CHỐT bằng luật/đo code; chỉ còn 1 câu thật sự treo — ngoại lệ "modal 1 nút" chưa có component sống để đo, xem §5.</p>
 
 </div>
 </body>

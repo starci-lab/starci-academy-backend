@@ -392,20 +392,20 @@
   </div>
 
   <div class="case">
-    <div class="case-h"><h3>Bẫy 2 · caret/chevron điều hướng — canon cũ ghi <code>size-3</code>, code thật toàn <code>size-4</code></h3><span class="qtag">⚠️ CHỜ THẦY CHỐT</span></div>
-    <div class="watch"><b>Chưa tự quyết:</b> quét lại 2026-07-29 cho thấy 5/5 anchor còn sống (<code>SurfaceCard.trailingIcon</code>, <code>ContentPager</code>, <code>Disclosure</code>, <code>FlashcardDeckList</code>, <code>PersonalProjectTaskPage</code>) đều dùng <code>size-4</code>+<code>bold</code>. Chỉ 2 anchor <code>size-3</code> còn lại nằm ở <code>_legacy</code> (đã superseded) hoặc ngữ cảnh khác (dấu nối sơ đồ, không phải trailing affordance). Trang này KHÔNG tự chốt cái nào đúng — chỉ hiện số liệu.</div>
+    <div class="case-h"><h3>Bẫy 2 · caret/chevron điều hướng — KHÔNG có hằng số, tra theo VỊ TRÍ như mọi icon khác</h3><span class="qtag" style="background:color-mix(in srgb,var(--success) 26%,transparent);color:var(--success)">✅ ĐÃ CHỐT 2026-07-29</span></div>
+    <div class="test"><b>Thầy chốt:</b> "caret thì trùng size text". Lỗi của canon cũ không nằm ở con số <code>size-3</code> hay <code>size-4</code> — nằm ở việc biến caret thành MỘT HẰNG SỐ. Tách lại theo VỊ TRÍ (§0b) rồi tra bảng §0a như mọi icon khác: <code>Disclosure.tsx</code> caret cạnh nhãn là vị trí <code>TEXT</code> cạnh <code>text-sm</code> ⇒ đúng ra <code>size-3.5</code>, không phải hằng số <code>size-4</code> đang có. <code>Select.tsx</code> caret trong <code>Indicator</code> là vị trí <code>DIV</code> (nằm trong control) ⇒ phải tra hàng DIV, không phải hàng TEXT — hai caret này không cùng công thức dù cùng tên "caret".</div>
     <div class="split">
       <div class="side">
-        <span class="lbl" style="color:var(--warn)">◆ canon cũ — caret cố định <span class="measure">size-3 · 12px</span></span>
-        <div class="mock" style="outline:2px solid var(--warn);outline-offset:-1px"><div class="row" style="display:flex;align-items:center;justify-content:space-between"><span>Bài 9 · Xác thực</span><i class="ph-bold ph-caret-right" style="font-size:12px;color:var(--app-muted)"></i></div></div>
+        <span class="lbl bad">✕ SAI · coi caret là HẰNG SỐ chung cho mọi ngữ cảnh <span class="measure">size-4 mọi nơi</span></span>
+        <div class="mock bad"><div class="row" style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:var(--app-fg)">Bài 9 · Xác thực</span><i class="ph-bold ph-caret-right" style="font-size:16px;color:var(--app-muted)"></i></div></div>
       </div>
       <div class="side">
-        <span class="lbl" style="color:var(--warn)">◆ 5/5 code sống hiện tại <span class="measure">size-4 · 16px</span></span>
-        <div class="mock" style="outline:2px solid var(--warn);outline-offset:-1px"><div class="row" style="display:flex;align-items:center;justify-content:space-between"><span>Bài 9 · Xác thực</span><i class="ph-bold ph-caret-right" style="font-size:16px;color:var(--app-muted)"></i></div></div>
+        <span class="lbl good">✓ ĐÚNG · tra vị trí trước — <code>Disclosure</code> là TEXT cạnh text-sm <span class="measure">size-3.5</span></span>
+        <div class="mock good"><div class="row" style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:var(--app-fg)">Bài 9 · Xác thực</span><i class="ph-bold ph-caret-right" style="font-size:14px;color:var(--app-muted)"></i></div></div>
       </div>
     </div>
-    <p class="why"><b>Vì sao chưa chốt được:</b> nếu <code>size-4</code> đúng, canon §5a phải cập nhật và 2 anchor <code>_legacy</code> coi như đã chết đúng lúc. Nếu <code>size-3</code> đúng, cả 5 nơi đang sống đều sai cùng một kiểu — khó tin trùng hợp đến vậy mà không ai phát hiện qua nhiều lần review khác nhau.</p>
-    <div class="prin"><b>Nguyên lý:</b> khi 100% code sống lệch khỏi canon prose theo cùng một hướng, câu hỏi đúng không phải "sửa code cho khớp canon" mà là "canon có còn đúng không" — và đó là quyết định của thầy, không phải suy luận đa số thắng.</div>
+    <p class="why"><b>Vì sao:</b> "5/5 anchor sống đều dùng <code>size-4</code>" (bảng §6 dưới) là phép đếm ĐÚNG nhưng đọc SAI — năm chỗ đó không cùng vị trí (<code>Disclosure</code>/<code>ContentPager</code>/<code>FlashcardDeckList</code>/<code>PersonalProjectTaskPage</code> là TEXT, <code>Select</code> là DIV), nên sự đồng nhất của con số không chứng minh được gì. ⬜ Việc còn lại: sửa các call-site vị trí TEXT từ <code>size-4</code> về <code>size-3.5</code> — chưa làm vì <code>.storybook</code> đang có phiên khác ghi (2026-07-29), không sửa chồng.</p>
+    <div class="prin"><b>Nguyên lý:</b> đếm mà không tách theo trục quyết định (ở đây là VỊ TRÍ) thì con số càng lớn càng dễ dẫn tới kết luận sai — neo: <code>context.md</code> §4.2.</div>
   </div>
 
   <div class="case">
@@ -562,7 +562,7 @@
       </tbody>
     </table>
 
-    <h3 style="margin:16px 0 6px">Caret ⚠️ CHỜ THẦY CHỐT — 5 anchor sống, 2 legacy</h3>
+    <h3 style="margin:16px 0 6px">Caret ✅ ĐÃ CHỐT 2026-07-29 — 5 anchor sống, 2 legacy (xem §3, Bẫy 2)</h3>
     <table>
       <thead><tr><th style="width:50%">File</th><th style="width:20%">Size+weight</th><th>Còn sống?</th></tr></thead>
       <tbody>
@@ -610,12 +610,12 @@ grep -rhoE 'weight="[a-z]+"' .storybook/components --include="*.tsx" | sort -u</
       <thead><tr><th style="width:34%">Kiểm gì</th><th>Dấu hiệu hỏng</th></tr></thead>
       <tbody>
         <tr><td>weight có đổi theo size trong CÙNG một bảng không</td><td>đọc <code>Record&lt;Size,Weight&gt;</code>, mọi value <b>giống nhau</b> ⇒ nghi ngay (bẫy 3/<code>StepBadge</code>) — quét từng key riêng lẻ không bắt được ca này</td></tr>
-        <tr><td>icon trailing lấy size từ PRIMITIVE hay hand-roll ở call-site</td><td>call-site tự viết <code>className="size-3"</code> cho <code>CaretRightIcon</code> thay vì qua prop <code>trailingIcon</code> ⇒ đã lệch khỏi nguồn chung, và là chỉ dấu cho bẫy 2 (⚠️ chờ chốt)</td></tr>
+        <tr><td>icon trailing lấy size từ PRIMITIVE hay hand-roll ở call-site</td><td>call-site tự viết <code>className="size-3"</code> cho <code>CaretRightIcon</code> thay vì qua prop <code>trailingIcon</code> ⇒ đã lệch khỏi nguồn chung, và là chỉ dấu cho bẫy 2 (nay ✅ đã chốt — tra theo vị trí, xem §3)</td></tr>
       </tbody>
     </table>
   </div>
 
-  <p class="note">Tổng: 2 ca GATE + 4 cặp size kề nhau + 1 cặp vị trí + 1 cặp weight = 8 cặp/ca render đủ hai chiều sai · 6 cặp size giải thích không render · 6 bẫy cấu trúc render (1 bẫy còn ⚠️ CHỜ THẦY CHỐT) · 4 lỗi thật · toàn bộ neo <code>src</code> đã đọc lại 2026-07-29. Mỗi thang con trong bốn thang đều có chỗ đứng, không thang nào bị bỏ quên.</p>
+  <p class="note">Tổng: 2 ca GATE + 4 cặp size kề nhau + 1 cặp vị trí + 1 cặp weight = 8 cặp/ca render đủ hai chiều sai · 6 cặp size giải thích không render · 6 bẫy cấu trúc render (2026-07-29 đóng nốt bẫy 2 caret — ✅ cả 6 bẫy đều đã chốt) · 4 lỗi thật · toàn bộ neo <code>src</code> đã đọc lại 2026-07-29. Mỗi thang con trong bốn thang đều có chỗ đứng, không thang nào bị bỏ quên.</p>
 
 </div>
 </body>
