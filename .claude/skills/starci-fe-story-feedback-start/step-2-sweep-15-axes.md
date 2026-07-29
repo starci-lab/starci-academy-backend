@@ -69,7 +69,12 @@ Hai ràng buộc đã trả giá mới rút ra, **cấm đảo**:
 |---|---|---|
 | **ĐẠT** | giá trị hiện tại đi qua cây quyết định của trục và ra đúng nó | số đo thật + giá trị cây ra |
 | **LỆCH** | cây ra một giá trị khác | bốn thứ ở dưới |
-| **N/A** | trục không áp cho vùng này | **lý do** — không bao giờ để trống suông |
+| **CÂM** | trục ÁP ĐƯỢC, nhưng đi hết cây mà **không nhánh nào nhận ca này** | sang [B4 tra cứu](step-4-research-when-silent.md) |
+| **N/A** | trục **không áp** cho vùng này | **lý do** — không bao giờ để trống suông |
+
+⚠️ **`CÂM` khác `N/A`, đừng gộp.** `N/A` là *"vùng này không có thứ đó"* (nhãn tĩnh thì không có
+đường async). `CÂM` là *"vùng này CÓ thứ đó mà canon không nói phải chọn giá trị nào"* — tức là
+một lỗ hổng của canon, và lỗ hổng thì phải hiện ra chứ không được giấu dưới nhãn `N/A`.
 
 Mỗi ô **LỆCH** phải mang đủ bốn thứ, thiếu một là chưa đủ để trình thầy:
 

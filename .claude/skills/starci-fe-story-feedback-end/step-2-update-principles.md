@@ -21,7 +21,7 @@ phiên:
 | Ca | Dấu hiệu nhận ra | Xử |
 |---|---|---|
 | **Canon ĐÚNG, code sai** | mở `context.md` của trục, cây quyết định ra đúng đáp án đã sửa | **KHÔNG đụng canon.** Sửa code là xong |
-| **Canon CÂM** | đi hết cây quyết định mà không nhánh nào nhận ca này | **BỔ SUNG** — thêm nhánh vào §2, thêm cặp vào §3 |
+| **Canon CÂM** | đi hết cây quyết định mà không nhánh nào nhận ca này | **BỔ SUNG** — nội dung lấy từ khối đề xuất mà `feedback-start/B4` đã tra và thầy đã duyệt, xem §5 dưới |
 | **Canon SAI** | canon ra một đáp án, đo thực tế ra đáp án khác, và đo mới đúng | **SỬA**, kèm neo ngày và before/after |
 
 ⚠️ **Ca một là ca hay gặp nhất, và ra kết quả "không sửa gì" là hợp lệ.** Ép mỗi phiên phải đẻ
@@ -37,6 +37,19 @@ phép lệch bản vẽ.
 
 🧭 Phép thử: luật nói một đằng, còn thứ nó **dẫn ra làm bằng chứng** nói một nẻo ⇒ sửa dẫn
 chứng, giữ luật.
+
+**2b. Ca CÂM: nội dung luật mới đến TỪ ĐÂU.**
+
+Không tự nghĩ ra. Ca `CÂM` phải đã đi qua
+[`feedback-start/B4`](../starci-fe-story-feedback-start/step-4-research-when-silent.md) trong
+lúc phiên chạy, tức là đã có khối đề xuất kèm **hai nguồn ngành độc lập** và bản dịch sang thang
+nhà mình. Bước này chỉ **chép khối đó vào đúng mục** của trục.
+
+Chưa qua B4 mà ô vẫn ghi `CÂM` ⇒ **đừng ghi canon**. Ghi vào mục `còn treo`, nói rõ là chưa tra,
+và để phiên sau. Bịa một luật cho đủ bộ là cách nhanh nhất biến canon thành thứ không tin được.
+
+⚠️ Nếu B4 phân loại ca đó là **quyết định sản phẩm** (internet không trả lời được) thì canon
+**không câm** — nó im lặng ĐÚNG. Đừng ép một quyết định sản phẩm thành luật kỹ thuật.
 
 **3. Kiểm đủ hai nguồn độc lập trước khi nâng thành luật chung.**
 

@@ -39,7 +39,8 @@ vòng**. Skill không bao giờ tự kết luận là xong.
 | [B1 · chọn vùng](step-1-select-regions.md) | thầy khoanh vùng cần làm, mỗi vùng một id bền | mọi vùng có id + một dòng ý định |
 | [B2 · quét 15 trục](step-2-sweep-15-axes.md) | với TỪNG vùng, đi đủ **mười lăm trục**, phán quyết từng trục, đề xuất sửa | ma trận vùng × trục **không còn ô trống** |
 | [B3 · áp + lặp lại](step-3-apply-and-reloop.md) | thầy phản hồi, sửa cái đã duyệt, verify, ghi sổ vòng | ⛔ thầy quyết: còn vòng nữa → quay lại B2 |
-| B4 | thầy gọi dừng | bàn giao `starci-fe-story-feedback-end` |
+| [B4 · tra khi canon câm](step-4-research-when-silent.md) | **chỉ khi B2 ra ô `CÂM`**: tra ngành, mang về ĐỀ XUẤT có dẫn nguồn | thầy đã thấy đề xuất |
+| B5 | thầy gọi dừng | bàn giao `starci-fe-story-feedback-end` |
 
 B2 và B3 lặp. **Không có hạn mức vòng** — chỉ lời thầy mới thoát vòng lặp.
 

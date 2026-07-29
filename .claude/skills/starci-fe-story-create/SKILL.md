@@ -105,6 +105,12 @@ Không rõ nhánh nào ⇒ **hỏi thầy**, đừng đoán.
 - **Tin số đo, không tin báo cáo agent.** Mọi phát biểu "đã xong / đã sạch" phải kèm output cổng
   hoặc số đo DOM. Lỗi tầng layout **không làm vỡ `tsc`**: class Tailwind sai tên thì im lặng
   không sinh CSS.
+- **Canon CÂM thì TRA, đừng chọn đại.** Đi hết cây quyết định của một trục mà không nhánh nào
+  nhận ca đang gặp ⇒ đó là lỗ hổng canon, không phải cớ để tự chọn một giá trị. Chạy
+  [`feedback-start/B4`](../starci-fe-story-feedback-start/step-4-research-when-silent.md): phân
+  loại câm-tra-được với câm-vì-quyết-định-sản-phẩm, tra ngành đủ hai nguồn độc lập, dịch sang
+  thang nhà mình, rồi trình ĐỀ XUẤT cho thầy. Tự chọn rồi đi tiếp là biến một quyết định thành
+  tiền lệ giả mà không ai biết.
 - **Đừng lái browser để soi mắt.** Đo DOM thì được; mở Storybook ra nhìn thì chậm và hay treo.
 
 ## Model
