@@ -17,7 +17,9 @@ description: >
 
 # /starci-fe-story-feedback-start — mở phiên feedback, chạy theo vòng
 
+> ⛔ **Quyền ghi, đọc TRƯỚC mọi thứ:** [`fe/boundary.md`](../../fe/boundary.md)
 > **Luật đúng/sai:** [`fe/principles/INDEX.md`](../../fe/principles/INDEX.md) — 15 trục
+> **Môi trường (repo · 10 cổng · bẫy máy):** [`fe/environment.md`](../../fe/environment.md)
 > **Code:** `D:/Repositories/starci-academy/.storybook`, branch `mtp`
 > **Chỗ lưu phiên:** `D:/Repositories/starci-academy/.artifacts/feedback/`
 

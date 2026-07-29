@@ -1,8 +1,11 @@
 # MÔI TRƯỜNG — repo · cổng · máy · bẫy
 
-> Ô thứ tư của canon. Ba ô kia trả lời *đúng/sai* (`principles/`), *làm việc thế nào*
-> (`discipline/`), *thứ tự* (skill). Ô này trả lời **chạy ở đâu, bằng lệnh gì, máy này hay
-> gãy chỗ nào** — thứ không thuộc trục thiết kế nào cả.
+> ⛔ **Đọc [`boundary.md`](boundary.md) TRƯỚC file này.** Nó quyết định được phép GHI vào đâu;
+> biết chạy lệnh gì mà ghi nhầm cây thì vô nghĩa.
+>
+> File này trả lời **chạy ở đâu, bằng lệnh gì, máy này hay gãy chỗ nào** — thứ không thuộc trục
+> thiết kế nào cả. Ba ô kia của canon: *đúng/sai* (`principles/`), *quyền ghi* (`boundary.md`),
+> *làm việc thế nào* (`discipline/`); còn *thứ tự* thì thuộc skill.
 >
 > Dựng 2026-07-29 vì nó **chưa từng có nhà**: bốn skill mỗi cái tự chép một bản, và cả bốn
 > bản đều ghi sai đường dẫn repo suốt nhiều phiên. Một dữ kiện không có nhà là một dữ kiện
@@ -53,8 +56,8 @@ Kèm: `npx tsc --noEmit` sạch · `npx eslint .storybook` 0 error.
 
 `check-story-coverage.mjs` so `src/components/blocks` với `.storybook/stories/blocks`, tức đòi
 **bản vẽ phải soi gương công trình** — đúng cái [`rules/0-boundary.md`](rules/0-boundary.md) đã
-bãi bỏ. Đo 2026-07-29: thiếu 162/162, luôn đỏ nên không mang tin gì. Xử nó (sửa phạm vi hay xoá)
-phải hỏi thầy, không quyết trong một lượt dựng màn.
+bãi bỏ (xem [`boundary.md`](boundary.md)). Đo 2026-07-29: thiếu 162/162, luôn đỏ nên không mang
+tin gì. Xử nó (sửa phạm vi hay xoá) phải hỏi thầy, không quyết trong một lượt dựng màn.
 
 ### Cổng cũng nói dối được
 

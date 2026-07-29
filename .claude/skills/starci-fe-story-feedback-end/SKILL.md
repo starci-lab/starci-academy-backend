@@ -17,8 +17,13 @@ description: >
 
 # /starci-fe-story-feedback-end — đóng phiên, và sửa canon nếu canon sai
 
+> ⛔ **Quyền ghi, đọc TRƯỚC mọi thứ:** [`fe/boundary.md`](../../fe/boundary.md)
 > **Canon:** [`fe/principles/INDEX.md`](../../fe/principles/INDEX.md) — 15 trục
 > **Chỗ lưu phiên:** `D:/Repositories/starci-academy/.artifacts/feedback/`
+>
+> ⚠️ Canon ở `.claude/` là thứ thầy QUYẾT (không hạn sử dụng); artifact ở `.artifacts/` là thứ
+> RÚT TỪ CODE (code đổi là lạc hậu). Bước này ghi canon, nên đừng ghi nhầm sang artifact và
+> ngược lại.
 
 ## Vì sao skill này tồn tại
 

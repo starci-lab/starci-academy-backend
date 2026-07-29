@@ -1,10 +1,15 @@
-# RULE 0 — RANH GIỚI: `.storybook` là BẢN VẼ, `src` là CÔNG TRÌNH
+# BOUNDARY — `.storybook` là BẢN VẼ, `src` là CÔNG TRÌNH
 
 > **Luật này đứng TRƯỚC mọi luật khác.** Nó quyết định được phép GHI VÀO ĐÂU, nên vi phạm nó thì
-> mọi thứ bên dưới làm đúng cũng vô nghĩa.
+> mọi thứ bên dưới làm đúng cũng vô nghĩa. Đọc file này trước `principles/`.
 >
 > Thầy chốt 2026-07-26: *"ý là kẻ code, trò hiểu không? thầy design xong sẽ restructure source code"*.
-> Di trú vào `rules/` ngày 2026-07-29 khi rã `principles.md` §0 — file cũ bị xoá, luật thì không.
+>
+> ⚠️ Luật này suýt mất. Nó ở `rules/0-boundary.md`, và khi canon rã thành 15 trục thì không trục
+> nào nhận — vì nó **không phải một lựa chọn giá trị**, nó là một ràng buộc quyền ghi. Nó chỉ còn
+> sống trong hai file `example.html` (tầng cho mắt người), tức là **không nằm trên đường LLM đi
+> qua**. Nhặt về làm file riêng 2026-07-29. Cùng bài học với ca `§4a văn xuôi`: **luật không vừa
+> khuôn trục là luật sắp rơi.**
 
 ---
 
@@ -15,7 +20,8 @@
 | `starci-academy/.storybook` | **BẢN VẼ** — atom · behavior · frame · composite · block · layout · overlay · page, cùng story của chúng | **AGENT kẻ ở đây** |
 | `starci-academy/src` | **CÔNG TRÌNH** — app thật đang chạy | **THẦY** restructure, sau khi duyệt bản vẽ |
 
-Tên tầng đầy đủ: [`principles/INDEX.md`](../principles/INDEX.md).
+Tên tầng đầy đủ: [`principles/INDEX.md`](principles/INDEX.md). Đường dẫn thật, cổng, bẫy máy:
+[`environment.md`](environment.md).
 
 ---
 
@@ -76,15 +82,5 @@ khi coi một component có sẵn là "đã port xong".
 - [ ] Trước khi báo "không có bản gốc", đã thử ≥2 cách gọi tên khác nhau?
 - [ ] Trước khi coi một component là bản port, đã đối chiếu hành vi chứ không chỉ tên?
 
----
-
-## 6. Kill và restart server KHÔNG đủ để xem đúng bản mới
-
-Neo 2026-07-29. Một tab đã mở TỪ TRƯỚC lúc restart có thể tiếp tục phục vụ một webpack chunk
-CŨ — dấu vết là một `ReferenceError` trỏ đúng vào bản trước khi fix, trong khi server đã chạy
-bản mới từ lâu. Navigate lại chính tab đó cũng không chắc thoát.
-
-**Mở một TAB MỚI HOÀN TOÀN** mới chắc chắn đang xem đúng build mới nhất.
-
-Đây là biến thể của cùng một lỗi đã ghi ở nhiều nơi trong canon: tin một thông báo thay vì đo
-trạng thái thật. "Server đã restart" là thông báo; "tab này đang chạy chunk nào" mới là trạng thái.
+> Mục "kill và restart server không đủ để xem đúng bản mới" đã chuyển sang
+> [`environment.md`](environment.md) §4 — đó là bẫy của MÁY, không phải luật về quyền ghi.
