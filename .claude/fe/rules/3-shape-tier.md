@@ -200,6 +200,27 @@ Hai chỗ hay chọn sai:
 
 Neo thật: `VariantChip.Difficulty` từng mở `label?` + `variant?: "pill"|"bare"` → bị bắt, sửa lại còn `difficulty` là trục duy nhất quyết cả nhãn lẫn màu. `KeepGoingPath`/`LearnNudges` từng có `bordered` cho ca "surface-in-surface" mà **app không có ca đó** → xoá cả prop lẫn story.
 
+**Neo mới (2026-07-28) — "className để restyle" cụ thể hoá cho CSS PHỨC TẠP:** `ContentRelatedList`
+(block) viết tay `className="underline-offset-4 decoration-[var(--separator-tertiary)]
+group-hover:underline"` lên một `Typography` để mô phỏng "cả hàng hover thì title gạch chân" —
+đúng loại vi phạm hàng "className để restyle" đã cấm, chỉ là dạng CSS arbitrary-value/pseudo
+phức tạp thay vì `bg-red-500` đơn giản nên dễ lọt mắt hơn. **Luật**: CSS phức tạp (arbitrary
+value `[...]`, pseudo-class `group-hover:`/`peer-*`) chỉ được viết ở tầng **atom**,
+**frame ("layouts")**, hoặc **composite** — nơi nó được ĐÓNG GÓI thành một PROP có tên
+(state), không phải tầng block/screen tự tay ráp chuỗi Tailwind. Sửa đúng: thêm prop
+`underlineOnGroupHover` cho atom `Typography` (atom tự giữ chuỗi CSS bên trong nó), block chỉ
+gọi `<Typography underlineOnGroupHover />`. Xem `atoms/text/Typography/Typography.tsx`.
+
+**Neo mới (2026-07-28) — route qua 1 `className` prop CÓ SẴN không miễn trừ vi phạm.** Khi
+build `ContentCommentThread`, đường viền thụt lề reply (`border-l pl-3 @app-sm:pl-4`) được
+chuyển từ `<div className={cn(...)}>` sang truyền y hệt vào khe `className` sẵn có của
+`StackH` — thầy vẫn bắt: "sao cái này trò không render kiểu container hay gì? mà phải viết
+thô vậy?". Một prop `className` passthrough đã tồn tại ở khung KHÔNG biến CSS phức tạp
+truyền vào nó thành hợp lệ — cái khung phải sở hữu nó bằng 1 PROP RIÊNG có tên (ở đây:
+`nested?: boolean` thêm vào `StackBaseProps`, `frames/Stack/Stack.tsx`), không phải nhận hộ
+qua cổng chung. Lý do thầy nêu: tối thiểu code trùng (nhiều nơi cần "thụt lề 1 bậc" sẽ viết
+lại đúng 3 class đó) + strict rules phải đồng bộ CHO CẢ APP hiểu, không chỉ 1 chỗ workaround.
+
 ---
 
 ## 6. Chỗ audit — dao đã dựng

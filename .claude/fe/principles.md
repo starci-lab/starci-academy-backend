@@ -47,6 +47,18 @@ Thầy: *"ý là kẻ code, trò hiểu không? thầy design xong sẽ restruct
 - ✅ Xoá/gộp component thì chỉ dọn call-site **trong `.storybook`** (kể cả `_legacy/`), để bản vẽ tự đứng vững.
 - ⭐ **Gom họ · dời tầng · đặt lại category = DESIGN, thầy chốt.** Agent chỉ **kẻ bản vẽ + chỉ ra chỗ đá nhau**, không tự quyết. Neo 2026-07-26: 5 atom cùng làm "chọn 1 trong N" (`Tabs`/`ExtendedTabs`/`SegmentedToggle`/`FlexWrapButtonRadio`/`SelectableCardGroup`) — trò bày ba phương án, thầy chọn.
 - ⚠️ Khi cắm **Workflow**: chặn cứng ngay trong spec của agent (*"KHÔNG đụng `…/src/`"*). Agent Sonnet chạy nền không tự suy ra ranh giới này. Neo: run `wf_8baf829a-5a1`.
+- ⭐ **"Không tìm thấy real `src`" là kết luận YẾU nếu chỉ grep 1 cái tên** (thầy 2026-07-29,
+  `ChallengeResultPage`: *"có trang này mà"* — báo "chưa có bản gốc" SAI, chỉ vì grep đúng tên
+  component `ChallengeResultPage` mà không thử tên KHÁI NIỆM khác. Grep lại theo domain
+  (`SubmissionResult`/`attempt`/`finding`) ra ngay `src/components/features/learn/Challenge/
+  SubmissionResult/index.tsx`). Trước khi báo "no real src" — thử ≥2-3 cách gọi tên khác nhau
+  (tên component, tên khái niệm domain, tên route/file) chứ không dừng ở 1 lần grep trượt.
+- ⭐ **1 component Storybook có TÊN gần giống thật KHÔNG đồng nghĩa nó LÀ port của thật.** Neo:
+  `SubmissionAttemptsDrawer` (đã có sẵn) nhìn giống `SubmissionResultHistoryDrawer` thật (cùng
+  domain, tên gần giống) nhưng SAI hẳn tương tác khi đọc kỹ (2 nút "xem chi tiết"/"xem bài nộp"
+  so với thật: bấm 1 dòng = chọn + đóng luôn; phân trang controlled-từ-caller so với thật: tự
+  phân trang nội bộ). Phải đối chiếu HÀNH VI (ai bấm gì, xảy ra gì), không chỉ tên biến/prop
+  hao hao, trước khi coi 1 component có sẵn là "đã port xong".
 
 ### ✅ Checklist đo (§0)
 - [ ] Mọi file ghi trong lượt đều nằm dưới `.storybook/` (trừ khi thầy chỉ đích danh `src`)?
@@ -205,25 +217,34 @@ Bề dày nét **co giãn theo size**, nên cùng một weight ở hai cỡ khá
 - ⚠️ Icon **cùng một hàng phải cùng KHUÔN**: ❌ neo — `KeepGoingPath` từng để `PlayIcon` (tam giác trần) cạnh `CheckCircleIcon`/`CircleIcon` (tròn) → gãy nhịp hàng. Sửa: `PlayCircleIcon`.
 - ✅ Kiểu prop icon ở layout phải là **`ComponentType<SVGProps<SVGSVGElement>>`**, KHÔNG khai `Icon` của một thư viện — khai chặt là khoá cả cây vào một nhà cung cấp (neo: `AsyncContent` từng khai `icon?: PhosphorIcon`).
 
-### 5a. Size icon = ĐỐI CHIẾU text-size đứng cạnh (KHÔNG theo line-height)
-Icon cạnh chữ phải khớp **cỡ CHỮ THẬT (font-size)**, không phải chiều cao dòng (line-height). Thang cặp:
+### 5a. Size icon — CHỌN THEO VỊ TRÍ icon: "icon=TEXT" (khớp glyph) hay "icon=DIV" (khớp Ô/control) — sửa 2026-07-29
 
-**⚠️ HAI THANG theo LIB — đừng trộn (thầy siết 2026-07-25):**
+⚠️ **Bảng cũ ở đây từng chia theo LIB (Phosphor vs Gravity) — SAI, đã bỏ.** Gravity đã dẹp hoàn
+toàn từ §5⃣0 (2026-07-26, xem neo ở đó); trục quyết định thật KHÔNG PHẢI lib (chỉ còn 1 lib) mà
+là **icon đang nằm ở đâu**:
 
-| text đứng cạnh | font-size | icon PHOSPHOR (app `src/`, block port cũ) | icon **GRAVITY** (ATOM LAYER §12, code mới) |
-|---|---|---|---|
-| `text-xs` | 12px | `size-4` (16px) | **`size-3`** (12px) |
-| `text-sm` | 14px | `size-5` (20px) | **`size-3.5`** (14px) |
-| `text-base` | 16px | `size-6` (24px) | **`size-4`** (16px) |
-| `text-lg` | 18px | — | **`size-[18px]`** |
+| Icon nằm ở đâu | Khớp với | Vì sao |
+|---|---|---|
+| **TRẦN cạnh chữ chạy** (`Typography.prefixIcon`/`suffixIcon`, không Ô bọc riêng) | **font-size** (1:1, "icon=TEXT") | Icon là 1 phần của DÒNG CHỮ, phải bằng đúng glyph mới không lấn dòng. |
+| **BÊN TRONG 1 Ô/control có nhịp riêng** (tab, button, chip — Ô có padding/line-height của chính nó) | **line-height mặc định của text-size đó** (to hơn font-size, "icon=DIV") | Icon phải lấp ĐỦ chiều cao Ô để không "lửng" giữa khoảng trống trên/dưới — Ô cao hơn glyph vì có line-height/padding riêng. |
 
-- **GRAVITY = 1:1 với font-size** (glyph gravity dày/đặc hơn nên bằng cỡ chữ là vừa mắt); **PHOSPHOR = font-size + 1 nấc** (glyph mảnh nên phải to hơn mới cân). Chọn thang theo **lib đang dùng ở file đó** (§5c).
-- ❌ neo (2026-07-25): lấy `size-4` cho chữ 14px ở atom gravity (quen tay HeroUI/phosphor) → thầy bắt "14 thì phải `size-3.5`". Đối chiếu `Typography` ICON_CLS trước khi đặt thang mới.
+**Số đo thật** (đo trực tiếp `tailwindcss/theme.css`, không phải quy ước bịa — line-height mặc
+định Tailwind LUÔN đi kèm mỗi bậc `text-*`):
+
+| text-size | font-size | line-height mặc định | icon = TEXT (1:1 font-size) | icon = DIV (khớp Ô, = line-height) |
+|---|---|---|---|---|
+| `text-xs` | 12px | 16px | `size-3` (12px) | `size-4` (16px) |
+| `text-sm` | 14px | 20px | `size-3.5` (14px) | `size-5` (20px) |
+| `text-base` | 16px | 24px | `size-4` (16px) | `size-6` (24px) |
+| `text-lg` | 18px | 28px | `size-[18px]` | `size-[28px]` (chưa có ca thật xác nhận) |
+
+- **Neo icon=TEXT**: `Typography.tsx` `ICON_CLS = { xs:size-3, sm:size-3.5, base:size-4, lg:size-[18px] }` — `prefixIcon`/`suffixIcon` luôn TRẦN cạnh chữ, đúng 1:1 font-size.
+- **Neo icon=DIV**: HeroUI `Tabs.Tab` (`tabs.css:47`, `.apply ... text-sm ...`) — Ô tab cao đúng line-height 20px của `text-sm`.
+- ❌ **neo BUG THẬT (2026-07-29)**: `ContentModeNav.tsx` để icon trong `Tabs.Tab` (ca icon=DIV) nhưng lấy `size-4` — nhầm sang bảng icon=TEXT của `text-xs`, trong khi tab dùng `text-sm`. Icon nhìn hụt so với hàng chữ. Sửa: `size-5`.
+- ⚠️ **CÙNG 1 `text-sm` ra 2 kết quả khác nhau tuỳ ngữ cảnh** — đừng tra bảng trước khi biết icon đang trần hay trong Ô: `prefixIcon` trên Typography (icon=text) → `size-3.5` + `bold` (§5⃣0a, nhỏ hơn size-5); icon trong Tab/Button/Chip (icon=div) → `size-5` + `regular`.
+- ❌ neo cũ (2026-07-25, vẫn còn giá trị dù đổi khung): lấy `size-4` cho chữ 14px khi đáng lẽ `size-3.5` (ca icon=TEXT) — đối chiếu `Typography` ICON_CLS trước khi đặt thang mới.
 - ⚠️ **Bẫy specificity** khi ép icon trong HeroUI Button: HeroUI có `.button svg:not(…) { size-5 sm:size-4 }` = **(0,2,2)** > class Tailwind thường (0,1,1) → phải `[&_svg]:!size-3.5` (có `!`) và đặt trên **span bọc icon** (không trên button, kẻo đụng `<Spinner>`). Không ép thì icon âm thầm rơi về thang HeroUI mà nhìn vẫn "hợp lý".
-
-- **Button**: icon co theo **text-size CỦA button đó** (button dùng `text-sm` → icon `size-5`…). Đối chiếu text thật của mỗi size, đừng đoán theo `h-*`.
 - **Ai ép size?** — chính primitive (§4): consumer truyền icon TRẦN, primitive map text→icon (vd `StatusChip` `size-4` cho chip nhỏ; `ButtonGroup` map size nút → icon).
-- ❌ neo THẬT: lấy `size-5/6` theo `h-5/h-6` (line-height) trong khi glyph chỉ 14/16px → icon TO. Đúng: đối chiếu font-size.
 - **NGOẠI LỆ — caret/chevron điều hướng (`>` trailing) = `size-3` (12px) CỐ ĐỊNH** (thầy chốt 2026-07-22), KHÔNG theo text-size. Caret là affordance phụ "còn nữa / đi tiếp", nên nhỏ + chìm (muted); to bằng icon nội dung là lấn át. Neo: `SurfaceListCardItem`, pager `GroupPressableCard`.
 
 #### 5a.1 ⭐ KHOẢNG CÁCH chữ ↔ icon trong một text-link = **`gap-2`** (thầy chốt 2026-07-26)
@@ -231,9 +252,55 @@ Text-link có mũi tên (`Link.Back` "← Back", `Link.SeeMore` "See more →", 
 
 - ❌ neo THẬT (2026-07-26): `SeeMoreLink` để `gap-1` còn `BackLink` để `gap-2` suốt thời gian hai cái nằm ở **hai thư mục rời**. Gom vào một namespace `Link` xong mới lộ — đó chính là lý do gom.
 - Đi kèm bộ ba BẮT BUỘC của một arrow-link, cả ba phải khớp nhau, thiếu một là lệch: **`gap-2`** · **cỡ mũi tên = HÀM của `size`** + **`weight="bold"`** (§5.0a — mọi nấc đều nhỏ hơn `size-5`) · **`transition-[translate]`** (§5b — không phải `transition-transform`).
-- ⭐ **Atom có trục `size` thì mũi tên phải CO THEO, bằng BẢNG đặt cạnh bảng cỡ chữ** (§12d: icon là hàm của size, caller không chỉnh riêng). `text-sm` → `size-3.5` · `text-xs` → `size-3` (thang §5a, 1:1 với font-size).
+- ⭐ **Atom có trục `size` thì mũi tên phải CO THEO, bằng BẢNG đặt cạnh bảng cỡ chữ** (§12d: icon là hàm của size, caller không chỉnh riêng). `text-sm` → `size-3.5` · `text-xs` → `size-3` (thang §5a, 1:1 với font-size — ca icon=TEXT vì mũi tên luôn TRẦN cạnh chữ link).
   - ❌ neo THẬT (2026-07-26): `LinkSeeMore` khoá cứng `size-3.5` cho CẢ `sm` lẫn `xs` → leaf `Size` render hai chữ khác cỡ mà **mũi tên y hệt nhau** — đúng dấu hiệu "hai ô nhìn giống nhau = LỖI ATOM" (§12g). Sửa ATOM (thêm bảng `ARROW_CLASS`), KHÔNG sửa story cho đỡ lộ. Atom một-cỡ (`Link.Back`, chỉ `text-sm`) thì hằng số `size-3.5` là đúng, không tính khoá cứng.
 - **Tín hiệu hover cũng phải một kiểu**: nhãn **gạch chân** (`group-hover:underline` trên span NHÃN, không trên cả cụm, kẻo mũi tên bị gạch theo). ❌ `opacity-60` — mờ đi dễ đọc nhầm thành *đang bị vô hiệu*. Neo: `LinkSeeMore` đổi từ opacity sang underline 2026-07-26.
+- ⚠️ **Ranh giới của `gap-2` này: chỉ áp khi icon gắn với ĐÚNG 1 DÒNG chữ** (text-link 1 dòng).
+  Khi icon gắn với cả 1 KHỐI nhiều dòng (vd nhãn + tiêu đề 2 dòng của 1 thẻ pager) thì đó là quan
+  hệ icon↔cột-nội-dung, không phải icon↔text-link — dùng `grouped` (gap-3), cùng hạng với
+  Avatar↔cột-nội-dung, KHÔNG áp `gap-2` này. Neo THẬT (2026-07-29): `ContentPager.tsx` từng lấy
+  nhầm `gap-2` cho caret↔khối-2-dòng — sửa lại `gap-3`.
+
+### 5a.2 ⭐ Icon "quốc dân" — CHỈ giữ icon ai nhìn cũng hiểu ngay, bỏ icon cần liên tưởng (thầy chốt 2026-07-29)
+
+Icon trang trí cạnh 1 fact đã tự đủ nghĩa bằng chữ (vd "2 phút đọc", "N phản hồi") **CHỈ được
+giữ nếu icon đó là ký hiệu "quốc dân"** — ai nhìn cũng đọc ra ngay không cần liên tưởng (vd
+`✓ check` = xong/đúng, `🔒 lock` = khoá). Icon cần một bước LIÊN TƯỞNG mới ra nghĩa (đồng hồ ⇒
+thời gian, lửa ⇒ độ khó, bong bóng chat ⇒ trả lời) → **BỎ**, để chữ tự đứng.
+
+- Phép thử: icon có tự đứng làm 1 KÝ HIỆU BÁO HIỆU (không cần đọc chữ mới hiểu) không, hay chỉ là
+  minh hoạ cho chữ bên cạnh? Ký hiệu báo hiệu → giữ. Minh hoạ → bỏ.
+- ❌ neo THẬT: `ContentHeader.tsx` — `ClockIcon` trước "N phút đọc", `FlameIcon` trước "N thử
+  thách" → bỏ cả hai, giữ nguyên `CheckCircleIcon` trên chip "Đã đọc". `QaQuestionThread.tsx` +
+  `QaConversationHeader.tsx` — `ChatCircleIcon` trước "N phản hồi" → bỏ (chữ đã tự đủ nghĩa).
+- ✅ Giữ lại: `LockSimpleIcon` (`ContentRelatedList.tsx`, dòng cảnh báo "vào học để mở") — ổ khoá
+  là ký hiệu trực tiếp cho trạng thái khoá, không phải liên tưởng, cùng hạng với check.
+- Luật này KHÔNG áp cho icon trong `Button`/`Link` tương tác (search, refresh, play, back…) —
+  đó là icon CHỨC NĂNG (áp §5b), không phải icon trang trí cho 1 fact tĩnh.
+
+### 5a.3 ⭐ Icon MANG NGHĨA TRẠNG THÁI dùng lại `AlertStatus`, KHÔNG tự chế bảng màu riêng (thầy chốt 2026-07-29)
+
+Icon như checkmark của 1 checklist ("bạn sẽ học được gì") hay pass/fail của 1 hàng chấm điểm
+**mang Ý NGHĨA TRẠNG THÁI**, khác hẳn icon trang trí ở §5a.2 — màu của nó phải PHẢN ÁNH ĐÚNG
+trạng thái (thành công/lỗi/cảnh báo), không được để mặc định theo màu label (rule cũ của
+`SurfaceCard.leadingIcon`, vẫn đúng cho icon THUẦN TRANG TRÍ, chỉ sai khi icon có nghĩa trạng thái).
+
+- **Dùng lại `AlertStatus`** (`Alert.tsx`, `"default" | "accent" | "success" | "warning" |
+  "danger"`) cho MỌI prop màu-trạng-thái mới, KHÔNG tự chế 1 enum hẹp hơn (vd chỉ
+  `"default"|"success"|"danger"`) — kể cả khi ca đang sửa chỉ cần đúng 1-2 giá trị. Lý do: đây
+  đã là từ vựng trạng thái DUY NHẤT của hệ thống (chính `Alert.Base` gộp `FeedbackCallout` +
+  `Toast` lại để tránh 2 bảng trùng nhau, 2026-07-25) — mở thêm 1 bảng hẹp hơn song song là lặp
+  lại đúng lỗi mà `Alert.Base` từng được tạo ra để sửa.
+- Verify bằng quét THẬT (đừng suy diễn theo cảm tính): `CheckCircleIcon` màu tường minh trong
+  `.storybook/components/**` → LUÔN `text-success-soft-foreground`; `XCircleIcon` màu tường
+  minh → LUÔN `text-danger-soft-foreground` (0 ca "X trung tính" tìm được — icon đen từng thấy
+  đều là nút đóng/xoá — chức năng khác, áp §5b, không phải trạng thái).
+- ❌ neo THẬT: `SurfaceCard.leadingIcon` (outcomes list `ContentHeader`) từng khoá cứng theo màu
+  label → checkmark ra màu đen thay vì xanh. Fix: thêm `leadingIconColor?: AlertStatus` (composite
+  `SurfaceCard`), mặc định `undefined` = giữ hành vi cũ (theo label), set `"success"` mới ép
+  `text-success-soft-foreground`. Bảng màu (`LEADING_ICON_COLOR_CLASS`) đặt NGAY CẠNH khai báo
+  prop, không lặp lại `Alert`'s `STATUS_CLOSE_TONE` (bảng đó có `hover:` cho nút ×, không hợp icon
+  tĩnh) — table riêng nhưng CÙNG type `AlertStatus`, không CÙNG bảng class.
 
 ### 5b. Interaction đặc thù THEO NGỮ NGHĨA icon (special-case)
 Icon mang ý nghĩa hành động → có **micro-interaction riêng khi tương tác** (hover/press). ⚠️ **ARROW ≠ CARET** — hai thứ KHÁC nhau, đừng gộp (thầy chốt 2026-07-22):
@@ -245,20 +312,28 @@ Icon mang ý nghĩa hành động → có **micro-interaction riêng khi tương
 - **Chevron mở/đóng (accordion, dropdown)** → **xoay 180°** khi mở: `transition-transform data-[open]:rotate-180` (đây là ROTATE, không phải trượt).
 - **Owner:** micro-interaction thuộc **primitive/affordance**, consumer chỉ chọn icon; không hand-roll animation ở call-site.
 
-### 5c. Icon lib — PHÂN VÙNG: app/block cũ = phosphor · ATOM LAYER = gravity (thầy chốt 2026-07-25)
-**Chọn lib theo TẦNG, không phải theo sở thích:**
+### 5c. ⛔ SUPERSEDED bởi §5⃣0 (2026-07-26) — Icon lib PHÂN VÙNG theo tầng — KHÔNG còn hiệu lực
 
-| Vùng | Lib | Lý do |
-|---|---|---|
-| **Atom layer §12** (`.storybook/components/atoms/**`) + mọi thứ compose atom | **`@gravity-ui/icons`** | hợp khối HeroUI v3; thang icon **1:1 font-size** (§5a) |
-| App `src/` + block/design port cũ | `@phosphor-icons/react` | giữ nguyên, KHÔNG migrate hàng loạt |
+> Giữ lại làm lịch sử, ĐỪNG đọc như luật đang áp dụng. §5⃣0 (ra sau §5c đúng 1 ngày) đảo ngược
+> hẳn: *"Trước đó dùng CẢ HAI — atom đi gravity, block/screen đi Phosphor... Đó mới là cái sai...
+> Một bộ, không ngoại lệ."* Verify code thật 2026-07-29: `grep -rl "@gravity-ui/icons"
+> .storybook/components` ra **0 file** (kể cả `_legacy`) — migration đã xong, chỉ còn
+> `@gravity-ui/icons` nằm trong `package.json` (chưa gỡ dependency). Bảng "2 thang theo lib" ở
+> §5a cũng bị dẹp theo — trục quyết định giờ là **vị trí icon** (icon=TEXT vs icon=DIV, xem
+> §5a), không phải lib.
 
-- ⚠️ **gravity KHÔNG có prop `weight`** (khác phosphor) — đừng truyền. Ưu tiên bản **outline** (`CircleCheck`, không `CircleCheckFill`); `CircleFill` dùng làm **dot** (`width={6}`).
-- ⚠️ Verify tên export trước khi dùng: `grep 'as <Name>' node_modules/@gravity-ui/icons/esm/index.js`.
-- Lịch sử: 2026-07-23 từng đảo gravity→phosphor cho app vì gravity **quá ĐẬM**; `import { CaretRightIcon, ArrowRightIcon, CheckCircleIcon } from "@phosphor-icons/react"`. **Caret điều hướng = phosphor `CaretRightIcon` `size-3` muted, không trượt.** (Đã revert mọi icon gravity 2026-07-23: ChevronRight→CaretRightIcon, ArrowRight→ArrowRightIcon, CircleCheck→CheckCircleIcon.)
+**(Nội dung cũ, chỉ để tham khảo lịch sử — đã dẹp):** Chọn lib theo tầng — Atom layer từng dùng
+`@gravity-ui/icons` (1:1 font-size), app/block dùng `@phosphor-icons/react`. Lý do gravity từng
+được chọn: hợp khối HeroUI v3. Lý do bị bỏ: nét/ngữ vựng lệch nhau giữa atom và block trong cùng
+1 màn (xem §5⃣0).
+
+- Lịch sử: 2026-07-23 từng đảo gravity→phosphor cho app vì gravity **quá ĐẬM**; 2026-07-26 bỏ
+  hẳn gravity khỏi atom layer luôn, về lại MỘT bộ Phosphor cho toàn hệ thống.
 
 ### ✅ Checklist đo (§5)
-- [ ] Icon cạnh text: size khớp **font-size** (xs→4 · sm→5 · base→6), không theo line-height?
+- [ ] Icon TRẦN cạnh chữ chạy (`prefixIcon`/`suffixIcon`): size khớp **font-size 1:1** (xs→3 · sm→3.5 · base→4), đúng ca icon=TEXT?
+- [ ] Icon BÊN TRONG 1 Ô/control (tab, button, chip): size khớp **line-height của Ô đó** (xs→4 · sm→5 · base→6), đúng ca icon=DIV — KHÔNG lấy nhầm bảng icon=TEXT?
+- [ ] Icon trang trí cạnh 1 fact tĩnh: có phải ký hiệu "quốc dân" (check, lock…) không cần liên tưởng? Không → bỏ icon, để chữ tự đứng (§5a.2)?
 - [ ] Caret/chevron điều hướng = **`size-3`** (không theo text-size), muted, dùng phosphor `CaretRightIcon`?
 - [ ] **ARROW** trailing có `group-hover:translate-x-1`; **CARET** thì KHÔNG trượt (chỉ đứng yên)?
 - [ ] Rotate-icon quay khi bấm? Chevron mở/đóng có `rotate-180`?
@@ -285,6 +360,43 @@ TRƯỚC khi đẻ 1 component MỚI, cân nhắc: nó có thể là **1 PROP** 
 - ✅ neo THẬT (2026-07-22): skeleton → prop **`isSkeleton`** trên `Button` (KHÔNG đẻ `SkeletonButton` riêng). Time-remaining → prop `timeLeft`+`urgent` trên `ContinueCard` (không component riêng).
 - ❓ cân nhắc: `FloatingActionButton` → `<Button variant="fab" iconOnly>`? `ElementCloseButton` → `<Button iconOnly>` + close-affordance? — gộp thành prop TRƯỚC khi quyết giữ riêng.
 - ❌ anti: đẻ 1 component cho MỖI biến thể nhỏ → nổ số component, drift, khó bảo trì.
+- ⭐ **`isPressable` = SUY RA từ `onPress`/`href`, không phải prop caller tự truyền** (thầy
+  2026-07-29: "sao còn `.Pressable`, thành `isPressable` là prop hết rồi mà?"). `List.Row`
+  đã làm đúng từ trước (`const isPressable = Boolean(onPress || href)`, nội bộ, không phải
+  API công khai) — `SurfaceCard.Pressable` là 1 component RIÊNG song song `SurfaceCard.Base`
+  suốt 1 thời gian dài, đúng loại "biến thể đáng lẽ là prop" §6b cấm. Fix: gộp
+  `onPress`/`href`/`actions`/`ariaLabel`/`isSelected`/`isDisabled` thẳng vào
+  `SurfaceCardBaseProps`, `Base` tự suy `isPressable` NỘI BỘ rồi chọn render
+  `<div>`/`<button>`/`<a>` — xoá hẳn component `Pressable` (và export `SurfaceCardPressable`),
+  `PressableGroup` (grid, vẫn giữ vì `items` = REPEATING LIST là hình khác thật, §13b) gọi
+  thẳng `Base` cho từng ô thay vì gọi 1 sibling riêng.
+  - ⚠️ **Bẫy khi gộp**: `isSkeleton` của `Base` (thuần) và của `Pressable` (cũ) mang 2 NGHĨA
+    KHÁC NHAU — thuần chỉ shimmer phần frame SỞ HỮU (label/description), `children` chảy
+    thật xuống; pressable cũ thay `children` bằng 1 MIRROR CHUNG cố định (khối icon + 2
+    thanh chữ) bất kể `children` là gì. Gộp app 1 tên prop cho 2 nghĩa khác nhau phải giữ
+    NHÁNH RIÊNG (`isSkeleton && Boolean(onPress||href)` → mirror cũ) — không xoá nhánh mirror
+    chỉ vì "đằng nào cũng có prop isSkeleton của Base rồi", 2 consumer thật
+    (`FlashcardDeckList`, `_legacy/SummaryCard`) đang sống nhờ đúng nhánh mirror đó.
+  - ⭐ **`href` = LINK, `onPress` = ACTION — 2 NGÔN NGỮ HOVER khác nhau, không dùng chung 1
+    hiệu ứng** (thầy 2026-07-29, bắt qua `ContentPager`: *"hover ref bài là card mà có group
+    underline mà"* — vì `Base` gộp cả 2 nhánh vào chung ripple+`active:scale`, mất phân biệt).
+    Trong nhánh press đơn giản (`!actions`): `const isLink = Boolean(href) && !isDisabled`.
+    `isLink` → card chỉ nhận class `"group"`, KHÔNG ripple/KHÔNG `active:scale-[0.97]`, nội
+    dung tự chọn `Typography.underlineOnGroupHover` để đọc như 1 link trầm (đúng convention
+    `SurfaceCardListItem.hover="underline"` có từ trước). Không `isLink` (chỉ `onPress`, hành
+    động tại chỗ) → giữ ripple+`active:scale-[0.97]`, không hover-hiệu-ứng-nghỉ, cú bấm là
+    phản hồi duy nhất. Áp cho `ContentPager` (2 card đều `href`, thêm
+    `underlineOnGroupHover` cho title).
+  - ⭐ **`SurfaceCard.Base` có 2 prop className TÁCH TẦNG, đừng lẫn** (thầy 2026-07-29, bắt qua
+    ảnh "quái lạ có cái card gì đằng sau nhỉ?"): `className` luôn rơi vào `<section>` NGOÀI
+    CÙNG (bọc khi có `label`/`description`, KHÔNG có nền) — `contentClassName` mới rơi vào
+    khung thẻ THẬT (`<a>`/`<button>`/`<div>` mang `rounded-3xl`/`shadow-surface`). Muốn RESTYLE
+    mặt thẻ (đổi radius/shadow) PHẢI dùng `contentClassName`; truyền nhầm qua `className` không
+    báo lỗi (cả 2 đều hợp lệ kiểu string) nhưng vô hiệu về mặt style — hoặc tệ hơn, nếu class đó
+    có `shadow-*` (box-shadow vẽ được dù không có nền) sẽ lộ ra như **1 card ma nấp sau thẻ
+    thật** (bo góc khác nhau ở 2 lớp, lộ 4 góc). Bug thật: `PressableGroup`'s tile builder
+    (sau vụ gộp §6b ở trên) truyền `TILE_CHROME` qua `className` thay vì `contentClassName` —
+    sửa lại đúng prop là hết ngay, không cần đổi giá trị class.
 
 ### 6c. NĂM TẦNG — atom · **layout** · design · block · **screen** — ✅ CHỐT (thầy ĐỔI TÊN TẦNG 2026-07-25)
 > **⚠️ ĐỔI TÊN (2026-07-25):** bỏ chữ **"primitive"** (sai nghĩa — "nguyên tử" giờ là **atom**). Tầng đó tên mới = **LAYOUT** (bộ khung). Tầng ghép-block-thành-màn đổi từ "layout/overlay" → **SCREEN**. Thầy: *"atom là phần tử web; primitives là layout web, kiểu bộ khung, như PageHeader — để hình dung sự tương tác của phần tử, không mang chức năng"*.
@@ -294,13 +406,62 @@ Phân tier theo BẢN CHẤT, không theo "có phải card không". ⚠️ Bản
 | Tầng | Bản chất | Test nhận biết | Neo |
 |---|---|---|---|
 | **ATOM** (§12) | **PHẦN TỬ web** — 1 component HeroUI bọc lại, API khoá chặt, tự lo `isSkeleton`. Tầng THẤP NHẤT. | 1 phần tử người dùng chạm được (nút/ô nhập/chip/ảnh) | `Button.Base` · `Input.Text` · `Chip.Dot` · `Image.Base` · `Menu.Base` · `Typography.Sm` |
-| **LAYOUT** *(tên cũ: primitive)* | **BỘ KHUNG, slot-AGNOSTIC** — sắp đặt phần tử, cho thấy chúng bố trí/tương tác ra sao; **KHÔNG mang chức năng**; tự sở hữu sizing/spacing/tone nội bộ (§4). | props là **slot trơ** (header/body/footer · items · frame) | `SurfaceCard.*` · `PageHeader` · `AsyncContent` · `ModalShell` · `ListRow` · `Callout` · `Skeleton` |
+| **LAYOUT** *(tên cũ: primitive)* | **BỘ KHUNG, slot-AGNOSTIC** — sắp đặt phần tử, cho thấy chúng bố trí/tương tác ra sao; **KHÔNG mang chức năng**; tự sở hữu sizing/spacing/tone nội bộ (§4). | props là **slot trơ** (header/body/footer · items · frame) | `SurfaceCard.*` · `PageHeader` · `AsyncContent` · `ModalShell` · `ListRow` · `Callout` · `Skeleton` · `SplitWorkspace` |
 | **DESIGN** | **MỘT component mang VAI NỘI DUNG** — prop có nghĩa nội dung map tới data thật; có state của chính nó. | props là **vai nội dung có tên** (value/label · cover/title/meta · item) | `SummaryCard` (metric) · `MediaCard` (media object) · `SectionCard` (section-header + action) · `EntityResultRow` · `CourseCard` |
 | **BLOCK** | **MỘT VÙNG CHỨC NĂNG** — ghép từ (block · design · primitive) và **render theo STATE** của chức năng đó. 1 chức năng = 1 block = 1 story. | phục vụ **1 chức năng người dùng** + có **bộ state riêng** (empty/loading/error/content…) | `ChatThread` · `ChatHistory` · `ChatComposer` · `ChatToolResult` · `FlashcardDeckList` |
 | **SCREEN** *(tên cũ: layout/overlay)* | **Nơi GHÉP block** thành màn (page) hoặc vùng nổi (drawer/modal). KHÔNG tự vẽ chi tiết — chỉ bố trí. | chỉ compose block + bố cục; tự vẽ chi tiết = **sai tầng** | trang `Flashcards` · `ContentAiChatDrawer` · `PaymentModal` |
 
 - ⛔ **ĐỪNG ép lên block khi chỉ là primitive rời** — vùng chỉ gồm vài nguyên tử cạnh nhau, không có chức năng composite (vd header drawer = `Typography` tiêu đề + switcher chế độ) → render **primitive THẲNG**, không đẻ block giả (xem §11c).
 - **Ranh SectionCard (design) vs NestedCard (primitive):** SectionCard áp header có **action** + accent (pattern nội dung) → design; NestedCard chỉ là container lồng (header-label trơ + sections agnostic) → primitive (thầy chốt 2026-07-23).
+- ⭐ **1 pattern lặp lại ở ≥2 nguồn `src` ĐỘC LẬP (cùng byte-for-byte CSS) + ≥2 nơi Storybook tự
+  thú "chưa có khung riêng" ⇒ đủ điều kiện dựng 1 LAYOUT KHUNG mới, không phải vá từng screen**
+  (neo `SplitWorkspace`, thầy 2026-07-29: *"desktop là phải render flex chứ nhỉ?"* — bắt ra
+  `ChallengePage`'s `StackH gap="section" wrap` KHÔNG BAO GIỜ thực sự stack ở mobile/tablet, vì
+  `StackH` là 1 trong 2 trục CỐ ĐỊNH của `Stack.*` §13, không tự đổi trục theo bề rộng; `wrap`
+  vô hiệu vì cột chính `min-w-0 flex-1` co vô hạn, không bao giờ tràn để kích hoạt). Real `src`
+  có đúng shape này (`flex-col` mobile/tablet → `@app-xl:flex-row` desktop) Ở 2 NƠI KHÁC NHAU
+  byte-for-byte giống hệt (`ChallengeView`, `PersonalProjectWorkspace`), và cả 2 Storybook
+  screen tương ứng đều tự ghi sẵn đúng câu "best-available substitute, no dedicated frame yet"
+  — 2 nguồn độc lập hội tụ là đủ bằng chứng để dựng khung MỚI (không phải thêm prop đổi-trục
+  vào `Stack.*`, việc đó sẽ làm mờ đúng nghĩa "2 member = 2 trục" của nó).
+  - **Số đo HARD-OWNED khi mọi nguồn thật đồng ý y hệt** (§6c "tự sở hữu sizing nội bộ") — không
+    biến thành prop configurable chỉ vì "có thể sau này cần khác" (YAGNI); thêm prop CHỈ khi có
+    ca thứ 3 thật sự lệch số.
+  - **Khe nội dung do CALLER truyền (`main`/`aside`) KHÔNG tự badge `data-anat-part`** — đúng
+    loại-3 trong luật `check-orphan-parts` ("CALLER SLOT: node bên trong thuộc về người truyền
+    nó"), y hệt `Container.body` không tự badge nội dung nó bọc. Prop `showAnatomy` cũng bị bỏ
+    hẳn khỏi khung nếu khung không có gì của riêng nó để gate theo cờ đó — giữ lại "cho đủ bộ"
+    là 1 prop chết, tự ăn lỗi `no-unused-vars`.
+- ⭐⭐ **`@container` KHÔNG BAO GIỜ đứng chung 1 element với `padding` của chính element đó**
+  (thầy 2026-07-29, sau khi bắt kill+restart Storybook lộ ra `SplitWorkspace` kẹt cứng
+  `flex-col` dù resize browser lên 1920px). Nguyên do đo được bằng browser thật (không phải suy
+  luận CSS): `@container` đo theo **content-box** của chính element mở nó — padding trên CÙNG
+  element đó bị TRỪ khỏi số đo trước khi so ngưỡng. `Container.tsx`'s bug gốc:
+  `className="@container mx-auto w-full max-w-app-xl p-6"` — `size="xl"` cap ĐÚNG BẰNG token
+  của `@app-xl` (80rem), nên content-box (đã trừ `p-6`=48px) KHÔNG BAO GIỜ đủ chạm `@app-xl`, ở
+  BẤT KỲ viewport nào — không phải vấn đề "chưa đủ rộng", mà chính `Container` tự cắt cụt số đo
+  của MÌNH trước khi con kịp hỏi. Fix: tách 2 lớp — lớp NGOÀI giữ `@container`+`max-w-*` (không
+  padding, đo đủ trọn cap), lớp TRONG giữ `padding` riêng. **Luật chung**: bất kỳ frame nào tự
+  mở `@container` VÀ tự có padding phải tách 2 element, không gộp — không chỉ riêng `Container`.
+  - **`tsc sạch + 9/9 gate xanh + eslint 0 lỗi` KHÔNG chứng minh container-query render đúng** —
+    không gate nào đo hành vi CSS thực tế lúc chạy. Fix liên quan responsive/breakpoint/
+    container-query BẮT BUỘC đo bằng `getComputedStyle(...)` trên browser thật (kill+restart
+    Storybook nếu cần, đừng né) trước khi báo "đã verify" — dừng ở gate tĩnh là báo sớm.
+  - ⚠️ **Kiểm `document.hidden`/`window.innerWidth` TRƯỚC KHI TIN 1 số đo DOM bất thường**
+    (thầy 2026-07-29, ca "vàng phải lệch" đo ra 0 width khắp nơi — tưởng bug thật, hoá ra tab
+    Browser pane phía client chưa hiển thị nên không compositing frame, MỌI
+    `getBoundingClientRect()` trả 0 giống hệt triệu chứng "layout vỡ"). `resize_window` vẫn ép
+    được viewport ra số thật dù screenshot vẫn lỗi "pane not displayed" — dùng nó để đo tiếp
+    thay vì kết luận vội có bug từ 1 lần đo đầu tiên bất thường.
+  - ⭐ **`Typography` thêm `parseInlineCode`** — tách `` `code` `` (CHỈ cú pháp backtick, không
+    phải markdown đầy đủ) thành `<code>` span-only, dùng cho text PHẢI nằm trong 1 element
+    không nhận block-level markup (accordion title trong `<button>`/`Accordion.Trigger` — full
+    `MarkdownContent` lồng vào đó là HTML không hợp lệ). Cùng công thức inline-code với
+    `MarkdownContent` nhưng cỡ TƯƠNG ĐỐI (`text-[0.9em]`, không `text-sm` cố định) vì
+    `Typography` chạy mọi size. Neo: `SurfaceCard.Accordion`'s trigger title (cascades mọi
+    `SurfaceCardAccordion` consumer) + `ChallengeDeliverableList`'s trigger (đã tự viết
+    `<span>` tay thay vì qua `Typography`, phải sửa riêng — 1 fix ở atom không tự lan tới chỗ
+    lách qua atom).
 - **Lens 2 — GENERIC vs DOMAIN (thầy chốt 2026-07-23):** UI generic tái dùng MỌI feature (render slot/thông điệp bất kỳ) = **primitive**; render **nội dung DOMAIN cụ thể** hoặc compose 1 **pattern feature** = **design/block**.
   - **Feedback = PRIMITIVE** (generic: `Callout`/`EmptyState`/`SimpleEmptyState`/`ErrorState`/`ErrorPageState`/`InfoTooltip`/`ConfirmDialog` — alert/empty/error/tooltip/confirm dùng ở mọi feature). NGOẠI LỆ: `ReadinessChecklist` compose ListRow/IconTile thành pattern feature → **Block/Feedback**.
   - **Code = domain** (`CodeConsole` console-thực-thi, `IOExampleCard` input→output, `TestCaseResultGrid` kết-quả-test) → KHÔNG Primitives (thầy chốt 2026-07-23).
@@ -369,13 +530,163 @@ Chữ là một cây nhỏ: **`Typography` atom sở hữu màu + đậm**; mọ
 
 ### 9b. Đậm (weight)
 - **normal = body dài / mô tả** = mặc định, KHÔNG khai báo.
-- **medium = mức nhấn LÀM VIỆC**: nhãn, phần "giá trị", tiêu đề cỡ-body, từ trọng tâm → `weight="medium"`.
-- **semibold / bold = heading / display / số lớn** (ngoài triad, dùng theo type heading).
+- **medium = mức nhấn LÀM VIỆC**: nhãn, phần "giá trị", tiêu đề cỡ-body, từ trọng tâm, **tên/danh
+  tính** (tên tác giả bình luận, người hỏi…) → `weight="medium"`.
+- **bold = heading / display / số lớn** (dùng ở cỡ heading `h1`-`h5`).
+- ⚠️ **`semibold` CHỈ có nghĩa RIÊNG ở cỡ heading** (`h1`-`h5`, đi qua `HeroTypography.Heading`
+  của HeroUI — thang weight ở đó khác cỡ body). **Ở cỡ body (`xs`/`sm`/`base`/`lg`), `semibold`
+  GẬP về `medium`** (thầy chốt 2026-07-25) — KHÔNG phải bậc thứ 3 riêng ở body. Neo bug
+  2026-07-29: luật này đã ghi sẵn trong comment `Typography.tsx` nhưng code KHÔNG thực thi —
+  cả 2 nhánh render body-scale rơi `weight === "semibold"` vào `null` (mất đậm hoàn toàn) thay
+  vì fold về `font-medium`, âm thầm sai ở 7 file/9 chỗ (`ContentPaywall`,
+  `MindMapContinueButton`, `ModuleContinueBand`, `PersonalProjectDashboard`,
+  `PersonalProjectResultScreen`, `QuizProgressPanel`, `TaskBriefBody`×3) trước khi bắt được qua
+  feedback tên tác giả `ContentCommentThread` thiếu đậm. Đã vá `Typography.tsx` (2 nhánh weight
+  thêm fold `semibold`→`font-medium`) — luật đúng từ đầu, chỉ thiếu 1 dòng thực thi.
+- **Khi nghi ngờ dùng weight gì cho 1 vai trò mới (vd tên người) — tra quy ước NỘI BỘ đã có
+  trước khi copy class của `src` thật.** Neo: `src`'s `EntityLink` bake `font-semibold` cho tên
+  trong feed/activity, nhưng hệ thống Storybook đã có 98 call-site `weight="medium"` cho đúng
+  vai "tên/nhãn cỡ body" (kể cả sibling `askerName` ở `CourseQaQuestionList`) — quy ước nội bộ
+  đã có sẵn thắng, không bịa bậc mới để khớp 1 class riêng lẻ của `src`.
+
+### 9a.1. Con số cạnh 1 hành động — 2 lớp câu hỏi, KHÔNG gộp chung 1 rổ "phụ" (thầy sửa lưng 2026-07-29)
+
+Phép thử cũ (SAI, đã dùng để kết luận nhầm) chỉ hỏi 1 câu: "con số có phải LÝ DO người đọc nhìn
+vào hàng không, hay chỉ là sự kiện phụ đi kèm 1 hành động khác đã là trọng tâm?" — công thức này
+gộp NHẦM mọi con số đứng cạnh 1 icon/nút vào chung 1 rổ "phụ" (vd coi số lượt-react và số
+lượt-xem là CÙNG loại). Thầy chỉ ra đây là 2 loại số khác nhau, cần 2 lớp câu hỏi:
+
+1. **Con số có mang GIÁ TRỊ THÔNG TIN thật** người đọc cần cân nhắc, hay chỉ là số liệu
+   nền/trivia không ảnh hưởng quyết định gì? (128 lượt reaction = bằng chứng xã hội, ảnh hưởng
+   cảm nhận "nội dung có đáng đọc"; lượt xem = trivia, xem nhiều/ít không nói lên chất lượng)
+2. **Con số có DÍNH LIỀN về cấu trúc với 1 control đang active không** — nếu nằm NGAY CẠNH/cùng
+   1 khối với 1 nút bấm, nó phải "ăn theo" trọng lượng thị giác của nút đó (mờ đi cạnh 1 nút rõ
+   ràng = lệch tông, đọc rời rạc); nếu đứng RIÊNG không gắn control nào, được phép mờ độc lập.
+
+✅ **Neo bug đã sửa (2026-07-29)** — `ReactionButton.tsx` (cụm reaction: nút "Thích" + emoji +
+số "128"): trước đây build theo `src` thật (`ReactionBar.tsx:60,79` — cả nút lẫn số đều
+`xs`/`muted` khi chưa reaction) và bị đánh giá "đã đúng theo src". Thầy chốt **"src không quan
+trọng"** ở case này — cụm reaction đổi hẳn theo phép thử 2 lớp trên: nút bỏ `size="sm"` (về
+`md`), `variant` cố định `tertiary` (không đổi theo trạng thái reaction — khác `src`), icon
+trong nút + icon cụm tóm tắt lên `size-5`, chữ trong nút + số "128" lên `text-sm` và bỏ hẳn
+`color="muted"` — vì 128 dính liền cấu trúc với nút VÀ mang giá trị bằng-chứng-xã-hội thật.
+`"lượt xem"` (`ContentReaction.tsx`) đứng RIÊNG, không gắn control nào, thuần trivia →
+**giữ nguyên** `xs`+`muted`, KHÔNG đổi. Render + phép thử đầy đủ: `color-system.html` (8080).
 
 ### 9c. Cơ chế — SSOT qua Typography atom (đúng cây)
 - Chữ đi qua **`Typography`** + prop `color`/`weight` = MỘT nguồn. ❌ CẤM rải `text-muted`/`font-medium` className trên `span`/`div` khi Typography diễn đạt được.
 - className `text-*`/`font-*` **chỉ chấp nhận** khi element KHÔNG phải Typography (ép icon `[&_svg]:text-muted`, element thô không đáng bọc Typography).
 - ❌ Token sai phải dọn: `text-muted-foreground` → `muted`; `text-default` → bỏ; `color="default"`/`text-foreground` trên Typography → bỏ.
+- **Mở rộng 2026-07-28 — luật này áp dụng cho MỌI CSS phức tạp, không chỉ màu/đậm.** Neo:
+  `ContentRelatedList` (block) từng tự viết
+  `className="underline-offset-4 decoration-[var(--separator-tertiary)] group-hover:underline"`
+  lên một `Typography` để mô phỏng "cả hàng hover thì title gạch chân" — đúng dạng vi phạm
+  trên, chỉ là arbitrary-value/pseudo-class thay vì `text-*`/`font-*`. Sửa đúng: thêm PROP mới
+  (`underlineOnGroupHover`) cho chính `Typography`, atom tự giữ chuỗi CSS bên trong nó — block
+  chỉ gọi prop. **CSS phức tạp (`[...]` arbitrary value, `group-hover:`/`peer-*` pseudo-class)
+  chỉ được viết ở tầng atom/frame ("layouts")/composite, không bao giờ ở block/screen.** Route
+  qua 1 prop `className` CÓ SẴN ở khung KHÔNG miễn trừ luật này — khung phải sở hữu nó bằng 1
+  PROP RIÊNG có tên (neo: `Stack.nested`, `frames/Stack/Stack.tsx`, 2026-07-28), không nhận hộ
+  qua cổng chung — mục đích là tối thiểu code trùng + strict rules đồng bộ cho cả app.
+- ⭐ **Copy className của `src` KHÔNG đủ nếu `src` đi qua component HeroUI thật — phải soi cả
+  class NỀN (inherited), không chỉ chuỗi override nhìn thấy** (thầy 2026-07-29: *"sao kích
+  thước underline không đều nhỉ? lấy css của Link underline của heroui mà?"*). Bug thật: chuỗi
+  "quiet link" (`underline-offset-4 decoration-[var(--separator-tertiary)]`) chép từ
+  `CommentItem.tsx` — nhưng `CommentItem` render qua `<Link>` THẬT của `@heroui/react`, có base
+  class `.link` (`@heroui/styles/.../link.css`) bake sẵn `decoration-[1.5px]` — className ở
+  call-site chỉ override offset/color, KHÔNG BAO GIỜ cần khai lại thickness vì đã có sẵn. Chép
+  y hệt chuỗi className đó lên `Typography` (không phải `HeroLink`, không có class nền nào) làm
+  mất `decoration-[1.5px]`, để lại `text-decoration-thickness: auto` (trình duyệt tự tính, mỏng/
+  không đều). Fix: `GROUP_HOVER_UNDERLINE_CLS`/`SELF_HOVER_UNDERLINE_CLS` (`Typography.tsx`)
+  thêm `decoration-[1.5px]` tường minh. **Luật chung**: khi 1 câu feedback bảo "lấy CSS của
+  component HeroUI X" — phải mở CSS THẬT của X (`node_modules/@heroui/styles/...`), không chỉ
+  đọc className string ở 1 call-site đã dùng X, vì call-site đó có thể đang ĂN THEO base class
+  không hiện trong className.
+
+### 9d. ⭐ Cỡ chữ (size) — LUÔN đối chiếu `src` thật, đừng đoán theo "nhìn card cần to hơn" (thầy chốt 2026-07-29)
+
+- **`size` mặc định (không khai) = `base` (16px) = `type="body"` mặc định của HeroUI Typography.**
+  Khi porting 1 component từ `src` thật, nếu `src` KHÔNG khai `type` cho 1 dòng chữ (hoặc dùng
+  `<div>`/`<span>` trần không class size) → phải map về `size="base"`, KHÔNG được tự nâng lên
+  `lg` "cho card có vẻ nổi bật hơn".
+- **Vai trò quyết định cỡ, không phải cảm giác "cần to hơn"**: `xs`=meta/caption/timestamp/nhãn
+  phụ · `sm`=nội dung CHÍNH của 1 hàng/card DÀY ĐẶC (dashboard, list) — cỡ tường minh phổ biến
+  nhất hệ thống (281 call-site, quét 2026-07-29) · `base`=tiêu đề/đoạn văn ĐỘC LẬP trong khối
+  rộng rãi, MẶC ĐỊNH khi porting · `lg`=nhấn mạnh THẬT SỰ, hiếm (chỉ 5 call-site Typography thật
+  trong toàn hệ thống — số 26 đếm nhầm ban đầu gộp cả `size` của `Button`/`Avatar`/`Container`/
+  `ModalShell`/`IconTile`, xem bài học đếm-chuỗi-không-đếm-import ở dưới).
+- **Chuỗi `text-xl font-semibold` (hoặc tương đương) ở `src` thật = `size="h4"` (heading, 20px),
+  KHÔNG PHẢI `size="lg"` body (18px)** — 2 thang khác nhau, dễ lẫn vì cả hai đều "to hơn sm".
+  Neo: `EnrollGate` (`src`: `type="h4"`), `ContentPaywall` (`src`: `text-xl font-semibold` viết
+  trần, không qua Typography) — cả 2 từng bị hạ nhầm xuống `lg`.
+- ❌ **neo bug THẬT (2026-07-29), phát hiện qua 1 câu feedback rồi lan ra round-2 quét cả hệ
+  thống**: `MilestoneUpNextCard` (`size="lg" weight="bold"` → đúng `size="base" weight="medium"`,
+  `src` không khai `type` + `semibold` gập §9b) · `EnrollGate` (`lg`→`h4`) · `LeaderboardBoard`
+  số hạng trên bục (`lg`→`base`, `src` là div trần không Typography, chỉ `font-bold`) ·
+  `ContentPaywall` (`lg`→`h4`) · `VoiceHero` transcript (`lg`→`base`, `src` không khai `type`).
+  5/5 sai đều là TỰ Ý NÂNG CỠ so với `src`, không có ca nào hạ nhầm — dấu hiệu bản năng chung khi
+  build "card cần nổi bật hơn" mà quên verify.
+- ⚠️ **Tự kiểm chứng lại chính bảng audit của mình trước khi báo xong** (bài học 2026-07-29):
+  lần đầu đọc `Podium/index.tsx` nhầm dòng `type="body-sm"` (của TÊN người chơi) tưởng là của SỐ
+  HẠNG — đọc lại kỹ mới thấy số hạng là 1 div trần khác, không Typography, kế thừa `base`. Trích
+  đúng DÒNG, không chỉ đúng FILE.
+- Bảng đầy đủ + tần suất đo thật (`xs`=151 · `sm`=281 · `base`=176 · `lg`=5 thật) + render so
+  sánh: `text-size-system.html` (8080, `.artifacts/decompose/`).
+
+**Nâng cấp 2026-07-29 (deep research ~70 file `src` thật, Explore agent) — bảng vai trò → `type`
+HeroUI đầy đủ, thay cho suy diễn:**
+
+| Vai trò | `type` thật | Neo |
+|---|---|---|
+| Tiêu đề card ĐỘC LẬP trong lưới | `h6` + bold | `CourseCard/index.tsx:285` |
+| Tên/tiêu đề trong hàng DÀY ĐẶC (list/table) | `body-sm` + `medium` | `ListRow/index.tsx:78` · `UserCell/index.tsx:62` |
+| Tên người trong hero/modal ĐỘC LẬP | `h3`/`h4` | `HeadhunterModal/index.tsx:80` |
+| Số liệu/thống kê nổi bật | `h3`/`h4` + bold | `MetricCard/index.tsx:67` · `DeadlineCallout/index.tsx:57` |
+| Nhãn/label | `body-xs` | `DifficultyChip/index.tsx:48` |
+| Mô tả tầng 1 (dưới title) | `body-sm color="muted"` | `CourseCard/index.tsx:222` |
+| Caption tầng 2 (hint dưới mô tả) | `body-xs color="muted"` | |
+| Timestamp | `body-xs color="muted"` | `FeedItem/index.tsx:51` — **nhất quán TUYỆT ĐỐI**, mọi file soi đều vậy |
+| Giá tiền phụ ("/tháng", giá gạch) | `body-xs` | `PricingCard/index.tsx:121` |
+| Giá tiền CHÍNH | `h3`/`h4` + bold | `PricingCard/index.tsx:108` |
+| ⭐ **Tiêu đề Modal** | `body` + `weight="semibold"` — **KHÔNG BAO GIỜ `h*`** | `CookieConsentModal/index.tsx:45` · `PaymentModal/index.tsx:460` — luật RIÊNG, dễ lẫn với heading nhất |
+
+**Ví dụ ĐÚNG/SAI để tự chấm khi porting — bẫy hay gặp nhất là tiêu đề Modal:**
+
+| ✅ / ❌ | Chữ đang port | Chọn | Vì sao |
+|---|---|---|---|
+| ❌ SAI (hay gặp) | Tiêu đề đầu 1 Modal, chữ to đậm | `size="h4"` | Nhìn "to đậm" ⇒ theo bản năng chọn heading — nhưng modal header trong `src` KHÔNG BAO GIỜ dùng `h*`, xem đúng ✅ bên dưới |
+| ✅ ĐÚNG | Tiêu đề đầu 1 Modal, chữ to đậm | `size="base" weight="semibold"` | Neo `PaymentModal/index.tsx:460`, `CookieConsentModal/index.tsx:45` — cả 2 đều `type="body"` + `semibold`, không phải heading |
+| ❌ SAI | Tên hiển thị trong 1 hàng list dày đặc | `size="base"` | Hàng list đặc thường dùng `body-sm`, không phải `base` — `base` dành cho khối RỘNG RÃI, không phải hàng chật |
+| ✅ ĐÚNG | Tên hiển thị trong 1 hàng list dày đặc | `size="sm" weight="medium"` | Neo `UserCell/index.tsx:62` — `body-sm` + `medium`, đúng vai "nổi hơn xung quanh nhưng không phải heading riêng" |
+| ❌ SAI | Tiêu đề card game/khoá học ĐỘC LẬP trong lưới (không phải hàng list) | `size="base"` | Card độc lập trong lưới cần nổi hơn 1 hàng list — dùng heading nhỏ nhất, không phải body |
+| ✅ ĐÚNG | Tiêu đề card game/khoá học ĐỘC LẬP trong lưới | `size="h5"` (Storybook nấc gần nhất `h6` thật) `weight="bold"` | Neo `CourseCard/index.tsx:285` — `type="h6"` + bold |
+
+**Xương sống thật của toàn app: `body-sm` (541 call-site) + `body-xs` (431)** — áp đảo tuyệt
+đối. `h1`/`h2` gần như KHÔNG dùng (1 lần MỖI loại, cả hai đều là ca đặc biệt: mã lỗi trang,
+skeleton) — đừng suy diễn "trang cần 1 h1", thực tế app không làm vậy.
+
+**Weight — 4 quy tắc phân biệt rõ theo cỡ đi kèm:**
+- Không khai (regular) — văn xuôi dài, hoặc đã có `color="muted"` làm điểm nhấn riêng.
+- `medium` — tên/nhãn CHÍNH trong 1 hàng DÀY ĐẶC, nổi hơn xung quanh nhưng KHÔNG phải heading
+  riêng. Neo: `UserCell/index.tsx:62`, `DiffViewer/index.tsx:142`.
+- `semibold` — tiêu đề CẤP KHỐI (modal header, tổng tiền, verdict), luôn đi với `type="body"`
+  hoặc `h3`. Neo: `PaymentModal/index.tsx:554`, `VerdictHeroCard/index.tsx:103`.
+- `bold` — CHỈ đi với heading (`h1`/`h3`-`h5`), số liệu/giá/tiêu đề gây chú ý mạnh nhất trang.
+  KHÔNG BAO GIỜ đi với `body-sm`/`body-xs`.
+
+**1 chỗ KHÔNG nhất quán thật, ghi rõ không tự gộp**: tên người trong hàng bình luận —
+`CommunityPostCard/index.tsx:71` (cấp 1) dùng `body-sm`, `CommunityCommentRow/index.tsx:57`
+(reply lồng sâu hơn) dùng `body-xs` — quy ước "càng lồng sâu, chữ càng nhỏ dần", không phải lỗi,
+nhưng cần biết ĐANG Ở ĐỘ SÂU NÀO trước khi chọn size cho 1 comment-row mới.
+
+Render đầy đủ + so sánh trực quan: `text-size-system.html` (bản nâng cấp, 8080).
+- **Neo mới (2026-07-29) — đường nối cong (thread connector) cũng đi qua atom riêng, không viết
+  tay trong block.** Tính năng MỚI "nested avatar khi trả lời kiểu Facebook" (không có trong
+  `src` thật) cần 1 đường viền bo góc nối 2 avatar — đóng gói thành atom
+  `ThreadConnector` (`atoms/display/ThreadConnector/`, `border-l`+`border-b`+`rounded-bl-2xl`),
+  CÙNG HỌ kỹ thuật với `Stack.nested` (bẻ cong thay vì đường thẳng) chứ không hand-roll lại từ
+  đầu trong `ContentCommentThread`. Quy ước chung: bất kỳ "đường dẫn hướng thị giác" nào (thẳng
+  hay cong) đều là 1 khả năng atom/frame có tên, không phải className rải ở block.
 
 ### ✅ Checklist đo (§9)
 - [ ] Chữ chính để MẶC ĐỊNH (không `text-foreground`/`color="default"`)?
@@ -414,6 +725,61 @@ Càng xuống primitive càng KHÍT, càng lên block/page càng RỘNG. Mỗi s
 - **Trong primitive:** card padding = `p-3` (xem [[fe-card-padding-p3-rule]]); text-stack (TitledText) = `flush gap-0`; icon+label (InlineIconLabel) = `tight gap-1`. Primitive tự lo, KHÔNG nhận padding/margin từ ngoài.
 - **related vs grouped:** `related`(gap-2) = phần tử CÙNG cụm (chip row · meta · nút cạnh nút); `grouped`(gap-3) = hàng/khối xếp trong 1 card (list rows · card content stack). Hai bậc phân biệt theo QUAN HỆ, không lẫn — cấm chọn 2 hay 3 theo cảm tính.
 - **section:** vùng KHÁC nhau trong 1 block (header ↔ body ↔ footer, design ↔ design) = `gap-6`. Giữa các block ở page = `gap-6`, hoặc `gap-8` cho trang lớn.
+
+### 10b'. ⭐ Neo 2026-07-29 — "related vs tight" phải neo real-src RIÊNG từng component, không suy diễn từ tên-hình
+
+Bảng §10b là **ước lượng bước 1** (đếm mark-vs-peer: tight = mark gắn liền 1 chủ DUY NHẤT, vd
+icon+nhãn/số+đơn vị; related = ≥2 phần tử tự đứng độc lập được, chỉ đang xếp cạnh nhau — neo
+`ChallengeDeliverableList.tsx:209`, `ChallengeScoreCard.tsx:94-95`) — **KHÔNG phải hằng số cố
+định cho MỌI hình cùng tên**. Bài học (thầy chốt "khách quan tư duy", sau khi đưa ảnh Facebook
+phản bác 1 đề xuất): đo trực tiếp GitHub Primer (`getComputedStyle`, hàng byline tên+giờ thật)
+ra `gap-1`/4px — chứng minh không có 1 số đúng cho MỌI hàng byline trên toàn ngành, nó phụ
+thuộc cấu trúc câu cụ thể (có động từ/dấu nối hay không).
+
+**Luật đúng**: (1) đếm mark-vs-peer để có ước lượng → (2) nếu component có real-src riêng (ghi
+trong file header "ported from…"), **LUÔN đo lại đúng file đó** và ưu tiên số đo được, dù 2
+component "nhìn giống nhau" bên ngoài → (3) ví dụ ngoài ngành (Facebook, GitHub…) chỉ là DỮ
+LIỆU THAM KHẢO xem ngành có hội tụ hay không, không thay được real-src của chính app.
+
+Neo cụ thể: `ContentCommentThread` (nguồn `CommentItem.tsx`) và `QaQuestionThread` (nguồn
+`QuestionRow/index.tsx`) có CÙNG hình avatar+byline+content, nhưng đo real-src ra 2 số KHÁC
+nhau cho đúng 1 vị trí (byline→body): `CommentItem.tsx:99` = `gap-2`/related,
+`QuestionRow/index.tsx:172` = `gap-1`/tight — cả hai ĐÚNG cho chính component của nó, không
+phải 1 cái sai theo cái kia. Đừng ép 2 sibling "nhìn giống nhau" phải dùng cùng 1 số.
+
+### 10b''. ⭐ Thuật toán hệ thống hoá gap (thầy chốt 2026-07-29 — "chưa hệ thống hoá, còn cảm tính")
+
+Sửa đúng 1 điểm thầy chỉ không phải là hệ thống — quy trình BẮT BUỘC áp cho MỌI block, không
+chỉ chỗ đang bị feedback:
+
+1. **Vẽ cây tổ hợp.** Mọi vùng UI phân rã thành 1 cây; mỗi nút có ≥2 con là 1 **seam** cần
+   quyết định gap (nút 1 con hoặc leaf → không có seam). Mỗi seam là 1 quyết định ĐỘC LẬP
+   (§10a) — không suy ra seam này từ seam khác, không giả định nested phải nhỏ dần đều.
+2. **Phân loại quan hệ từng seam**, hỏi TỪ TRÊN XUỐNG, dừng ở câu đầu tiên YES:
+   | # | Câu hỏi | Bậc gợi ý |
+   |---|---|---|
+   | 1 | Xoá 1 phần tử, phần còn lại MẤT NGHĨA? (số+đơn vị, icon+nhãn) | flush/tight |
+   | 2 | Phần tử CÙNG LOẠI lặp lại, không cái nào là "chủ"? (chip row) | related |
+   | 3 | Phần tử KHÁC VAI nhưng cùng tạo 1 dòng nhận diện? (byline) | related (mặc định) |
+   | 4 | Phần tử là NHIỀU VÙNG khác nhau trong 1 đơn vị lớn hơn? | grouped |
+   | 5 | Phần tử là CÁC KHỐI chức năng riêng, tự đứng được? | section/page |
+3. **Neo real-src, ghi đè heuristic** — nếu component có nguồn thật (§10b'), đo lại ĐÚNG seam
+   đó, luôn ưu tiên số đo được.
+4. **Áp cho MỌI seam trong cây, không chỉ seam bị feedback** — 1 điểm sai là dấu hiệu cần soát
+   lại CẢ CÂY, không suy đoán "chắc chỉ chỗ đó sai".
+5. **⭐ 1 chốt trước khi thấy render là TẠM, không phải chung thẩm (neo 2026-07-29,
+   `IdentityContentRow`)** — thầy chốt "cả 3 seam tight" (kể cả qua `AskUserQuestion` rõ ràng),
+   nhưng sau khi soi ĐÚNG render thật đó, tự sửa lại seam avatar↔cột thành `grouped` vì nhìn quá
+   khít. Verify-empirically áp dụng cho CẢ quyết định gap, không chỉ cho việc đo màu/DOM — một
+   con số hợp lý trên giấy vẫn phải soát lại khi đã thật sự lên màn hình.
+
+Đã áp thử nghiệm ĐẦY ĐỦ lên `ContentCommentThread` (5/5 seam, 4 khớp sẵn + 1 đã sửa) và cross-
+check độc lập lên `QaQuestionThread` (2 component khác nhau, seam "byline" ra CÙNG kết luận vì
+real-src cùng `gap-2`, seam "cột nội dung" ra 2 kết luận KHÁC nhau vì real-src khác nhau thật —
+bằng chứng thuật toán tổng-quát-hoá được, không áp đặt 1 số cứng theo tên-hình).
+
+Trang review đầy đủ (thuật toán + bảng phân loại + cây áp đầy đủ + cross-check + ví dụ render +
+case study before/after): `starci-academy/.artifacts/decompose/gap-system.html`.
 
 ### 10c. Thang token — CHỈ `0 · 1 · 2 · 3 · 6 · 8`
 `flush(0) · tight(1) · related(2) · grouped(3) · section(6) · page(8)`. Off-scale bị XOÁ: `gap-4`→grouped(3)/section(6) tuỳ quan hệ, `gap-10/12`→page(8), fractional (0.5/1.5) đã bị lint chặn. (Thang là *từ vựng* — định nghĩa số ở `patterns/fe`; §10 định nghĩa LUẬT dùng.)
@@ -566,9 +932,26 @@ Consumer **không được truyền structure**. children là NHÃN → prop `la
 type XProps = XOwnProps &
     ({ isSkeleton: true; text?: ReactNode } | { isSkeleton?: false; text: ReactNode })
 ```
-Đã áp: `Typography` · `Chip.Base` · `Button.Base` · `Input.*` · `Progress.Meter`.
+Đã áp: `Typography` · `Chip.Base` · `Button.Base` · `Input.*` · `Progress.Meter` ·
+`MarkdownContent` (neo 2026-07-29: thầy bắt 1 call-site (`MockInterviewScorecard`) giả skeleton
+bằng `Typography isSkeleton` thay vì `MarkdownContent` tự có — "sao không pass isSkeleton vào
+MarkdownContent luôn?"; thêm thẳng vào atom, call-site chỉ còn `<MarkdownContent isSkeleton />`).
+
+⭐⭐ **Quét chủ động "giai đoạn 2" (2026-07-29)** — thầy: *"kiếm chỗ nào không có isSkeleton rồi
+fix... đừng để thầy feedback kiểu này"*. Quét TOÀN `.storybook/components/**` (246 file) →
+77 ứng viên (không có `isSkeleton`, không phải re-export thuần) → phân loại genuine gap vs
+exempt → **24 gap thật**, đã thêm union `isSkeleton` (§12b) + shimmer đúng khuôn (§12g.0) +
+leaf `Skeleton` trong story (§12g.0a) cho cả 24: `CoverImage` · `HighlightChip` ·
+`KeyValue.Row`/`.List` · `Page.Header` · `CourseProgressBar` · `Legend` · `MetricCard` ·
+`ProgressMeter` · `ProgressRing` · `SegmentBar` · `StatPair` · `StatRibbon` · `FlowDiagram` ·
+`RichText` · `PhaseScarcityNote` · `QaMessageBubble` · `WorkSessionHeader` ·
+`AiQuotaSubscriptionPanel` · `QuizRecapList` · `ContentModal` · `PDFView` ·
+`PlaygroundConnectSheet` · `PlaygroundStepGuide` · `E2eResultDrawer`. Chi tiết per-file (khuôn
+shimmer, quyết định union vs độc lập, chuyền cờ xuống con theo §12g.0 mục 3) ghi ở
+`steps/13-feedback-anatomy-registry.md` §2r.
 
 - ⚠️ Nhánh `isSkeleton` phải xét **TRƯỚC** mọi nhánh rẽ hình. ❌ neo: `Typography` để check dưới nhánh heading → `size="h3" isSkeleton` render heading RỖNG, tsc/eslint không bắt.
+- ⚠️ **Nếu component có HOOK thật (`useState`/`useMemo`/`useRef`…), nhánh `isSkeleton` phải nằm SAU khi mọi hook đã gọi** — early-return trước 1 hook là vi phạm Rules of Hooks (hook bị gọi có điều kiện), tsc/eslint không luôn bắt được ngay. Khác với component không hook (Typography — "trước mọi nhánh rẽ hình" chỉ cần đứng đầu hàm); có hook thì "đầu tiên sau khi khai hook xong", không phải "đầu hàm". Neo: `MarkdownContent.tsx` (2026-07-29) — tự đặt sai 2 lần liên tiếp (trước cả `useRef`/`useMemo`, rồi vẫn còn 1 `useMemo` kẹt sau nhánh) trước khi sửa đúng.
 
 ### 12d. ⭐ `variant` và `size` là HAI TRỤC ĐỘC LẬP — icon là HÀM của `size`
 `variant` = **ý nghĩa** (primary/danger…) · `size` = **tỉ lệ** (box + font + icon). **KHÔNG có prop icon-size** — atom tự suy từ `size` (§4 ownership). Naming size map thẳng HeroUI: `sm · md · lg` (md default). Cluster đặt `size` ở **CẤP CỤM** (hàng nút luôn đồng cỡ), item chỉ mang vai trò/hành vi.
@@ -929,3 +1312,75 @@ Câu hỏi là **"trang còn cụm đó không"**, KHÔNG phải "ai viết đo�
 - [ ] Trước khi dựng mới, đã hỏi **WHY** và tra hệ có sẵn chưa (§14e)?
 - [ ] State đã chạy qua **phép thử §14g** chưa — đẻ đơn vị hay chỉ prop?
 - [ ] Có việc nào đang có **≥2 đường làm** không? Có khái niệm nào **0 consumer** không?
+
+## 15. Button variant — khi nào secondary / tertiary / ghost / outline (deep research 2026-07-29)
+
+Trước khi có mục này, atom `Button` (Storybook, `button-tokens.ts`) chỉ khai **5** variant:
+`primary`/`secondary`/`ghost`/`danger`/`danger-soft`. HeroUI thật (`node_modules/@heroui/styles/
+dist/components/button/button.styles.d.ts`) khai **7**: thêm `tertiary` và `outline`. Nghĩa là
+atom đang THIẾU 2 variant mà `src` thật dùng khá nhiều (`tertiary`=77 call-site, `outline`=6).
+
+### 15a. Giả thuyết thầy đưa ra, đã KIỂM CHỨNG bằng agent đọc ~35 file `src` thật — BỊ BÁC BỎ
+
+> "button secondary chỉ đi kèm primary. còn lại thì tertiary."
+
+**Bằng chứng ngược lại**: ≥8 cụm nút `secondary` đứng **MỘT MÌNH**, không có `primary` bên cạnh.
+
+| ✅ / ❌ | Ca | Neo | Vì sao |
+|---|---|---|---|
+| ❌ bác bỏ giả thuyết | `secondary` đứng một mình, KHÔNG có `primary` cạnh | `SystemStatus/index.tsx:67-75` — nút refresh đơn độc | Giả thuyết đòi `secondary` luôn cần `primary` kèm — ca này không có |
+| ❌ bác bỏ giả thuyết | 3 nút icon-only reorder dùng `secondary` (+1 `danger`), không `primary` | `ManagePinnedProjectsModal/PinnedProjectCard/index.tsx:90-129` | Cụm hành động phụ trong 1 card, tự đứng, không kèm CTA chính nào |
+| ✅ đúng 1 phần giả thuyết | `secondary` đứng CẠNH `primary` (2 nút cùng hàng) | ví dụ điển hình: dialog Huỷ(secondary)/Xác nhận(primary) | Đây là mô hình PHỔ BIẾN nhất của `secondary`, nhưng không phải DUY NHẤT |
+
+**Kết luận thật**: `secondary` là 1 mức nhấn TRUNG BÌNH độc lập (không phải "vệ tinh của primary")
+— dùng được cả khi đứng cạnh `primary` LẪN khi đứng một mình cho 1 hành động không nổi bật bằng
+CTA chính của trang nhưng vẫn quan trọng hơn hành động lặt vặt. `tertiary` mới là mức "hành động
+lặt vặt, không cần nổi bật" — không phải "mọi nút KHÔNG có primary kèm".
+
+### 15b. `ghost` vs `tertiary` — ✅ CHỐT (thầy chốt 2026-07-29): mô hình 4 TẦNG nhấn giảm dần
+
+`src` thật tự nó KHÔNG nhất quán (2 file làm cùng 1 pattern nhưng chọn variant khác nhau — bằng
+chứng ở `button-variant-system.html §4`), nên không đi tìm "đúng theo src". Thầy chốt 1 luật
+RIÊNG cho Storybook, không cố khớp từng case lẻ của `src`:
+
+> **`primary` → `secondary` → `tertiary` → `ghost`, 4 TẦNG nhấn mạnh giảm dần — `ghost` KHÔNG
+> phải "cùng cấp, khác hình" với `tertiary` mà là 1 TẦNG THẤP HƠN NỮA.**
+> - Dùng `ghost` khi 1 cụm có **≥3 nút cần phân bậc rõ** — nút yếu nhất của cụm xuống `ghost`.
+>   Neo mẫu ĐÚNG (giữ nguyên, không sửa): `MockInterviewScorecard.tsx:357-383` — 1 hàng 3 nút
+>   `primary` ("Ôn lại phần yếu") → `secondary` ("Làm dự án cá nhân") → `ghost` ("Phỏng vấn lại"),
+>   đọc gradient rất rõ.
+> - Dùng `tertiary` khi cụm chỉ có **2 mức** (chính + phụ) nhưng nút phụ vẫn cần RÕ RÀNG là 1
+>   nút (không muốn nó gần như tàng hình). Đây là tầng mặc định cho "hành động phụ" khi không có
+>   tầng thứ 3 nào thấp hơn nó trong cùng cụm.
+
+⚠️ **Luật áp dụng CHO CÔNG VIỆC VỀ SAU** (build/sửa block mới) — KHÔNG kích hoạt 1 đợt quét lại
+toàn bộ `ghost`/`secondary` hiện có trên diện rộng. Đã fix ĐÚNG 1 va chạm cụ thể lộ ra ngay khi
+đối chiếu luật này (xem `steps/13-feedback-anatomy-registry.md` §2w):
+`SubmissionAttemptsDrawer.tsx` có 2 nút "Xem chi tiết"/"Xem bài nộp" đứng CẠNH NHAU trong cùng 1
+footer — dòng "Xem chi tiết" vừa đổi `tertiary` ở đợt audit §15d, còn "Xem bài nộp" vẫn `ghost`
+từ trước → cùng vai trò, cùng cụm, lệch variant → đồng bộ cả hai về `tertiary`.
+
+✅ **ĐÃ SỬA (thầy chốt "ok cả 2 là tertiary", 2026-07-29)**: pattern "Huỷ cạnh nút Gửi/primary"
+từng có 2 cách làm khác nhau ngay trong Storybook — `ContentCommentComposer.tsx:158` (`ghost`) và
+`CourseQaComposer.tsx:220` (`secondary`) — cả hai là cụm 2 nút, đúng luật 4 tầng phải là
+`tertiary`. Đã đổi cả hai. Verify: `tsc --noEmit` sạch (0 output), `eslint --fix` sạch.
+
+### 15c. Bảng vai trò 7 variant thật (để tham chiếu khi chọn)
+
+| Variant | Khi nào | Neo |
+|---|---|---|
+| `primary` | CTA chính DUY NHẤT của 1 khối/trang | phổ biến khắp nơi |
+| `secondary` | Hành động quan trọng thứ 2 — đứng cạnh `primary` HOẶC đứng một mình khi là hành động chính của 1 cụm nhỏ | `SystemStatus/index.tsx:67-75`, `PinnedProjectCard/index.tsx:90-129` |
+| `tertiary` | Hành động phụ, không cần nổi — phổ biến NHẤT trong 7 loại (77 call-site) | `RepeatableItemCard.tsx:52-71` |
+| `outline` | Hiếm (6 call-site) — viền rõ nhưng nền trong suốt, dùng khi cần phân biệt khỏi nền nhưng không muốn nặng như `secondary` | |
+| `ghost` | Không viền không nền, chỉ hiện khi hover — nút rất nhẹ, thường icon-only cạnh nội dung khác | |
+| `danger` | Hành động phá huỷ, nổi bật (nền đỏ) | |
+| `danger-soft` | Hành động phá huỷ, nhẹ hơn (chưa chắc-chắn / cần xác nhận thêm) | |
+
+### 15d. ✅ ĐÃ LÀM (thầy chốt 2026-07-29 — "cắm workflows sửa hết đi")
+- ✅ Thêm `"tertiary"` + `"outline"` vào `ButtonVariant` type + `HERO_VARIANT` trong `button-tokens.ts` (mechanical, làm trực tiếp — HeroUI thật khai đủ 7, kể cả `danger-soft` sẵn có, comment cũ nói "HeroUI không có `danger-soft`" đã lỗi thời nhưng KHÔNG đổi cách mượn `secondary` của `danger-soft` — ngoài phạm vi lần này).
+- ✅ Audit 20 call-site `variant="secondary"` thật của Button (loại trừ prop `variant` trùng tên của Tabs/Select/Input/TextField/InputGroup — không liên quan), qua workflow 16 agent song song đọc ngữ cảnh + áp §15c. Kết quả: **11 đổi sang `tertiary`**, **9 giữ `secondary`** — mỗi quyết định có lý do bám đúng nhánh (a)/(b) của §15c, xem đầy đủ ở `steps/13-feedback-anatomy-registry.md` §2w.
+- ✅ Verify: `tsc --noEmit` sạch, 9/9 gate script không phát sinh lỗi mới, `eslint --fix` sạch trên toàn bộ 17 file đụng tới.
+- [ ] Thầy chốt 1 luật RIÊNG cho ghost-vs-tertiary trong Storybook (§15b) — vẫn CHƯA làm, vì `src` thật tự nó lệch, không có "đáp án đúng" để copy — cần thầy quyết, không tự chốt thay.
+
+Render đầy đủ + bảng tần suất + mock nút cả 7 variant: `button-variant-system.html` (8080, `.artifacts/decompose/`).

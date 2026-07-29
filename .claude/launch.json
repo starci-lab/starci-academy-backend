@@ -94,6 +94,14 @@
       "runtimeArgs": ["-m", "http.server", "8899", "--directory", "D:/Repositories/starci-academy/.artifacts/prototypes/content-ai-chat"],
       "port": 8899,
       "autoPort": false
+    },
+    {
+      "name": "nivo-dash-proto",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8086", "--directory", "D:/Repositories/nivo-expert-app/.prototype"],
+      "port": 8086,
+      "url": "http://localhost:8086/",
+      "autoPort": false
     }
   ]
 }
