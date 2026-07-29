@@ -1534,3 +1534,62 @@ xin ảnh crop sát hơn hoặc mô tả cụ thể hơn thay vì đoán mù —
 do tab không compositing. LUÔN kiểm `document.hidden`/`window.innerWidth` TRƯỚC khi tin bất kỳ
 số đo DOM nào bất thường (0, âm, NaN) — nếu hidden, `resize_window` (dù không hiện được
 screenshot) vẫn ép viewport ra số thật, dùng số đó để đo tiếp thay vì kết luận vội "bug thật".
+
+### 3b. Audit Foundations (3 màn) — 3 workflow Sonnet song song, 1 bug templating hạ tầng + 14 file sửa thật
+
+Thầy: *"chạy 3 foundations o day"* — 3 workflow song song, mỗi cái audit 1 màn
+(`FoundationsCategoryPage`/`FoundationsGridPage`/`FoundationResourcePage`) theo 4 trục (ranh
+giới import · khung bố cục · cây deps · chữ hiện UI), quy trình Understand→Diagnose→Fix→Verify.
+
+⚠️ **Bug hạ tầng bắt được ngay lượt đầu**: cả 3 workflow dùng CHUNG 1 script text (chỉ khác
+`args.page`), bắn song song trong 1 message — 2/3 workflow nhận `args.page = undefined` (path
+ra `pages/undefined/undefined.tsx`). Cả 2 agent bị ảnh hưởng đều tự phát hiện đúng (không bịa
+lỗi cho có việc, đúng luật đã dặn trong prompt), báo lại rõ ràng, không tự chế screen giả để
+"có việc làm". Chạy lại riêng từng workflow (không dùng `resumeFromRunId`, gọi `Workflow` mới
+hoàn toàn) thì bind đúng. **Bài học: script Workflow giống hệt nhau chạy song song trong CÙNG 1
+message có rủi ro lẫn args — an toàn hơn nếu chạy tuần tự hoặc script có sai khác nhỏ.**
+
+✅ **Riêng lượt ĐẦU (`FoundationsCategoryPage`, dính bug "undefined") không dừng lại** — agent tự
+suy luận đúng cả 3 page ứng viên từ gợi ý domain trong prompt, audit LUÔN cả 3, tìm ra + fix 6
+file thật (không phải suy đoán, có bằng chứng file:line + đối chiếu `vi.json`):
+- `FoundationTrialEnrollBanner.tsx`/`TrialEnrollBanner.tsx`/`FoundationsCategoryPage.stories.tsx`
+  — phát hiện **1 real component (`TrialEnrollHook`) bị port thành 3 block khác nhau, 3 câu chữ
+  bịa khác nhau**, không cái nào khớp đúng `enrollGate.hookTitle/hookDesc/hookCta` thật — đồng
+  bộ cả 3 về đúng copy.
+- `FoundationSearchBar.tsx` — placeholder + đếm kết quả bịa chữ, sửa khớp
+  `foundations.searchResourcesPlaceholder`/`foundations.count`.
+- `FoundationResourcePage.tsx`/`.stories.tsx` — `anatPart` lệch so với 2 page anh em, empty-state
+  copy bịa.
+
+✅ **2 workflow chạy lại (`FoundationsGridPage`, `FoundationResourcePage`) — mỗi cái tự đọc lại
+state HIỆN TẠI (không dùng cache/báo cáo cũ), phát hiện đúng phần đã được workflow #1 sửa rồi
+(KHÔNG sửa đè, chỉ bổ sung phần còn thiếu) — xác nhận qua `git diff` trước khi commit**:
+
+- `FoundationsGridPage`: **bug logic THẬT** (không chỉ copy) — `resolveThumbnail` trong
+  `FoundationCategoryList.tsx` đảo ngược thứ tự ưu tiên ảnh (real: `logoSrc` luôn thắng
+  `thumbnailUrl`; Storybook làm ngược). + seam sai (`FoundationsGridPage.tsx` gap="grouped" phải
+  là gap="section", đo trực tiếp real `gap-6` bị gán nhầm seam khác trong real cũng gap-3). +
+  `FoundationCategorySearchBar.tsx` thiếu bọc `data-anat-part` cho `SearchAutocomplete` (cây deps
+  thiếu 1 node). + bỏ icon bịa thêm ở trial banner (real `Callout` không truyền icon nào).
+- `FoundationResourcePage`: **vi phạm ranh giới import thật** — `FoundationResourcePage.tsx`
+  import thẳng composite `AsyncContentEmpty` để thay 1 PHẦN màn (identity+body), phá đúng luật
+  "screen never composite trực tiếp, trừ swap TOÀN màn" mà chính `QuizPage`/`MockInterviewPage`/
+  `FlashcardReviewPage` (cùng batch commit) đã tự đặt ra cho chính mình — inconsistency thật,
+  không suy diễn. Fix: tách block mới `FoundationResourceEmpty` (bọc `AsyncContentEmpty` bên
+  trong, đúng khuôn `MockInterviewAnswerAction` đã làm để né chính lỗi này) + story riêng.
+
+**Tổng: 14 file sửa (2 file mới), tsc sạch, 9/9 gate xanh toàn repo sau khi gộp cả 3 workflow,
+không có xung đột/sửa đè giữa các workflow** (mỗi Fix-agent tự Read lại file trước khi sửa nên
+tự phát hiện phần nào đã xong, chỉ bổ sung phần thiếu).
+
+⚠️ **2 việc còn treo, cần thầy xác nhận (KHÔNG tự chốt)**:
+1. `FoundationResourcePage` vẫn gọi `TrialEnrollBanner` generic cũ, chưa migrate sang
+   `FoundationTrialEnrollBanner` (block mới, có `isSkeleton` riêng) như 2 page kia đã dùng — có
+   thể là việc dở dang chưa tới lượt, chưa chắc là lỗi.
+2. Câu hỏi kiến trúc lớn hơn: real `TrialEnrollHook` đã bị port thành **3 block khác nhau**
+   (`TrialEnrollNudge` ở `commerce/`, `FoundationTrialEnrollBanner` + `TrialEnrollBanner` ở
+   `learn/`) — nên gộp lại 1 hay giữ 3 bản khác nhau theo ngữ cảnh? Chưa quyết, chỉ ghi nhận.
+
+Verify: tsc sạch, 9/9 gate xanh (chạy lại lần cuối sau khi gộp cả 3 workflow, không riêng từng
+cái), eslint 0 lỗi mới ở tất cả file đã sửa/tạo. KHÔNG restart Storybook trong lượt audit này —
+để dành cho lượt verify bằng mắt sau.
