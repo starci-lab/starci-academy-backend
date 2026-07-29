@@ -6,14 +6,15 @@
 > — chưa dựng, tạm đọc `rules/3-shape-tier.md` §2). Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — sáu khung (2026-07-29: thêm `ResponsiveRow`), không có khung thứ bảy
 
-SSOT đếm cũ: `continue.md` dòng 81 — *"frame: không biết nội dung, chỉ quyết trục · seam · canh
-— 5 (`Cluster` `Container` `Grid` `Split` `Stack`)"*. Số đã lên 6 cùng ngày `Stack`/`Flex` học
-`as`/`inline` (xem dưới) và `ResponsiveRow` ra đời — `continue.md` CHƯA cập nhật con số, đọc
-bảng này làm nguồn thật. Đây KHÔNG phải một union type (mỗi khung là một component riêng), nên
-"thang" ở đây đọc từ props THẬT quyết định hợp đồng của từng khung.
+2026-07-29: số khung lên 6 (`ResponsiveRow` ra đời cùng ngày `Stack`/`Flex` học `as`/`inline`,
+xem dưới); `continue.md` dòng 81 còn ghi 5 và CHƯA cập nhật con số — đọc bảng này làm nguồn thật.
+Đây KHÔNG phải một union type (mỗi khung là một component riêng), nên "thang" ở đây đọc từ props
+THẬT quyết định hợp đồng của từng khung.
 
 | Khung | File | Props THẬT quyết định hợp đồng | Ý nghĩa |
 |---|---|---|---|
@@ -61,6 +62,21 @@ bất kể cây trên nói gì.
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Viết bố cục TAY (`flex`/`grid` + `gap-*` trong `className`) ở tầng composite/block/screen thay vì gọi khung | ✅ `check-seams.mjs` |
+| 2 | `gap` ngoài thang `0·1·2·3·6·8` (6 bậc `SeamScale`) hoặc `padding` ngoài thang `0·3·6·8` (4 bậc `InsetScale`) | ✅ compiler (union literal) · viết class tay thì ✅ `check-seams.mjs` (gap) và ✅ `check-padding.mjs` (padding + margin của con) |
+| 3 | Truyền `gap` vào khung tự sở hữu nhịp hàng (`SurfaceCard.List` và họ hàng — KHÔNG áp cho `Stack`/`Cluster`/`Grid`/`Split`/`Container`, 5 khung này nhận `gap` từ caller là ĐÚNG) | ✅ `check-seams.mjs` (bảng `LIST_FRAMES`) |
+| 4 | Chọn SAI khung nhưng vẫn biên dịch được (`StackH`+`justify="between"` thay `Split`; `Cluster` thay `Stack.H` hoặc ngược lại) | ⛔ không gate được — cần đọc ngữ nghĩa. Bằng chứng: 21/21 call-site cần hợp đồng `Split` hiện đều đi vòng qua `StackH` (§3a, §4.2) |
+| 5 | Dựng khung MỚI mà chưa grep xác nhận **≥2 ca thật độc lập** dùng đúng comment "chưa có khung cho ca này" | ⛔ không gate được — kỷ luật. Neo LÀM ĐÚNG: `SplitWorkspace` grep ra `ChallengePage` + `PersonalProjectTaskPage` trước khi dựng (§4.4). **Neo NGOẠI LỆ có chủ đích:** `ResponsiveRow` (2026-07-29) dựng với đúng 1 call-site (`StatRibbon`) — không đạt bar `≥2`, nhưng thầy tự chốt sau khi nghe rõ ràng buộc thật (`Grid` cố định cột để trống ô, `Flex` không đổi display-type theo breakpoint, ép vào 1 trong 2 sẽ vỡ hình hoặc phải viết `basis-[calc(...)]` tay — chính thứ canon chống). Ghi lại để lần sau KHÔNG lấy đây làm tiền lệ "1 ca là đủ" — đây là thầy chốt tay từng ca, không phải hạ bar chung. |
+| 6 | Khung MỚI tự mở `@container` và đặt `padding` trên CÙNG một element (bẫy §4.3) | ⬜ **CHƯA — gate cần viết**: quét mọi file `frames/*.tsx` khai `"@container"` trong cùng chuỗi `className` với `PADDING_CLASS[...]`/`p-*` trên cùng một node JSX |
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — đủ `C(5,2) = 10` cặp
 
 Thang 5 khung ⇒ `C(5,2) = 10` cặp: `Stack↔Cluster` · `Stack↔Grid` · `Stack↔Split` ·
@@ -101,19 +117,11 @@ story của chính nó — cắn âm thầm hơn crash, xem §4.2.
 
 ### 3b. Bốn cặp — câu hỏi CẤP TRÊN chưa trả lời, không viết phép thử riêng
 
-| Cặp | Câu cấp trên chưa trả lời |
-|---|---|
-| `Grid` ↔ `Split` | §2.3/§2.4: "N Ô LẶP cần thẳng cột, hay ĐÚNG 2 VAI TRÒ cố định?" |
-| `Grid` ↔ `Container` | §2.1: "đang SẮP NHIỀU CON hay đang BỌC KHỔ ĐỌC một khối?" |
-| `Cluster` ↔ `Container` | Cùng câu §2.1 — `Cluster` sắp nhiều, `Container` bọc một. |
-| `Cluster` ↔ `Split` | §2.2/§2.3: "N phần tử LẶP CÙNG KIỂU, hay ĐÚNG 2 VAI TRÒ khác kiểu?" |
+`Grid`↔`Split` · `Grid`↔`Container` · `Cluster`↔`Container` · `Cluster`↔`Split` — câu hỏi cấp trên ở §2 đã tách xong, không viết phép thử riêng.
 
 ### 3c. Hai cặp CÁCH XA — cố ý không có phép phân định
 
-`Stack` ↔ `Grid` · `Split` ↔ `Container`. **Phân vân ở đây là dấu hiệu CÂY VẼ SAI, không phải
-chọn sai.** `Stack` trả lời "1 trục, con tuỳ ý"; `Grid` trả lời "lưới 2 chiều đều nhau" — hai câu
-hỏi khác hẳn nhau. `Split` (2 vai trò một hàng) và `Container` (khổ đọc bọc một khối) cũng không
-cùng loại câu hỏi. Viết phép phân định cho hai cặp này là hợp thức hoá một lỗi đọc cấu trúc.
+`Stack`↔`Grid` · `Split`↔`Container`. Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -166,16 +174,3 @@ cùng loại câu hỏi. Viết phép phân định cho hai cặp này là hợp
    nhất lại là chỗ nó đang thế chỗ một khung khác đáng lẽ đúng hơn.
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Viết bố cục TAY (`flex`/`grid` + `gap-*` trong `className`) ở tầng composite/block/screen thay vì gọi khung | ✅ `check-seams.mjs` |
-| 2 | `gap` ngoài thang `0·1·2·3·6·8` (6 bậc `SeamScale`) hoặc `padding` ngoài thang `0·3·6·8` (4 bậc `InsetScale`) | ✅ compiler (union literal) · viết class tay thì ✅ `check-seams.mjs` (gap) và ✅ `check-padding.mjs` (padding + margin của con) |
-| 3 | Truyền `gap` vào khung tự sở hữu nhịp hàng (`SurfaceCard.List` và họ hàng — KHÔNG áp cho `Stack`/`Cluster`/`Grid`/`Split`/`Container`, 5 khung này nhận `gap` từ caller là ĐÚNG) | ✅ `check-seams.mjs` (bảng `LIST_FRAMES`) |
-| 4 | Chọn SAI khung nhưng vẫn biên dịch được (`StackH`+`justify="between"` thay `Split`; `Cluster` thay `Stack.H` hoặc ngược lại) | ⛔ không gate được — cần đọc ngữ nghĩa. Bằng chứng: 21/21 call-site cần hợp đồng `Split` hiện đều đi vòng qua `StackH` (§3a, §4.2) |
-| 5 | Dựng khung MỚI mà chưa grep xác nhận **≥2 ca thật độc lập** dùng đúng comment "chưa có khung cho ca này" | ⛔ không gate được — kỷ luật. Neo LÀM ĐÚNG: `SplitWorkspace` grep ra `ChallengePage` + `PersonalProjectTaskPage` trước khi dựng (§4.4). **Neo NGOẠI LỆ có chủ đích:** `ResponsiveRow` (2026-07-29) dựng với đúng 1 call-site (`StatRibbon`) — không đạt bar `≥2`, nhưng thầy tự chốt sau khi nghe rõ ràng buộc thật (`Grid` cố định cột để trống ô, `Flex` không đổi display-type theo breakpoint, ép vào 1 trong 2 sẽ vỡ hình hoặc phải viết `basis-[calc(...)]` tay — chính thứ canon chống). Ghi lại để lần sau KHÔNG lấy đây làm tiền lệ "1 ca là đủ" — đây là thầy chốt tay từng ca, không phải hạ bar chung. |
-| 6 | Khung MỚI tự mở `@container` và đặt `padding` trên CÙNG một element (bẫy §4.3) | ⬜ **CHƯA — gate cần viết**: quét mọi file `frames/*.tsx` khai `"@container"` trong cùng chuỗi `className` với `PADDING_CLASS[...]`/`p-*` trên cùng một node JSX |

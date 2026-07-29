@@ -131,19 +131,37 @@ chưa nơi nào định nghĩa. Một từ nhà làm mà không có dòng địn
 | **leaf** | một story, tức một HÌNH mà component tự vẽ ra | tách leaf khi hình đổi, không tách khi chỉ dữ liệu đổi |
 | **state** | một giá trị dữ liệu trong cùng một leaf | caller bật thì thành leaf, dữ liệu về thì là state |
 
-## Khuôn bắt buộc của mỗi `context.md`
+## Khuôn bắt buộc của mỗi `context.md` — SÁU MỤC, XẾP LÀM HAI TẦNG ĐỌC
 
-Sáu phần, đúng thứ tự. Thiếu phần 2 thì trang đó chỉ là mô tả, không làm LLM quyết đoán được;
-thiếu phần 3 thì LLM vẫn sẽ lẫn ở đúng chỗ hay lẫn.
+Sáu mục vẫn giữ nguyên số hiệu §1..§6, nhưng từ 2026-07-29 chúng **xếp lại làm hai tầng** để
+một lượt quét không phải nạp cả bộ. Số hiệu không đổi nên mọi chỗ trỏ `§4`, `§6`… vẫn đúng.
 
-| # | Phần | Trả lời |
+**PHẦN A · NHẬN BIẾT** — đủ để PHÁT HIỆN một giá trị có lệch hay không:
+
+| # | Mục | Trả lời |
 |---|---|---|
 | 1 | **THANG** | có bao nhiêu lựa chọn, hữu hạn, không có giá trị ngoài thang |
 | 2 | **CÂY QUYẾT ĐỊNH** | hỏi từ trên xuống, dừng ở câu YES đầu tiên, ra ĐÚNG 1 đáp án |
+| 6 | **VẠCH CẤM** | thứ không bao giờ được làm; mỗi dòng là một gate script viết được |
+
+**PHẦN B · TRA KHI ĐÃ THẤY LỆCH** — chỉ mở của ĐÚNG trục đang lệch:
+
+| # | Mục | Trả lời |
+|---|---|---|
 | 3 | **VÉT CẠN CA DỄ LẪN** | mọi CẶP giá trị có thể lẫn + phép phân định dứt khoát cho từng cặp |
 | 4 | **BẪY CẤU TRÚC** | lỗi không nằm ở chọn giá trị mà ở đọc sai cấu trúc |
 | 5 | **NEO THẬT** | thứ tự ưu tiên khi hai nguồn đá nhau; neo cụ thể nằm ở `example.html` |
-| 6 | **VẠCH CẤM** | thứ không bao giờ được làm — mỗi dòng ở đây là một gate script viết được |
+
+**Vì sao tách.** Lane feedback phải quét cả 15 trục một lượt. Đo 2026-07-29: cả bộ là **2 580
+dòng**, dài hơn `principles.md` đã bị khai tử vì quá dài (1 408 dòng) — nạp hết là tái lập đúng
+bệnh đó. Riêng Phần A của 15 trục là **1 243 dòng**, vừa sức nạp trọn.
+
+⚠️ Tách này **đổi thứ tự nạp, không cắt thông tin quyết định**. Đo lại sau khi tách: số vạch
+cấm và số bẫy của cả 15 trục **không đổi một dòng nào**. Thứ đã bỏ chỉ là các bảng "cặp cách từ
+2 bậc trở lên", vì kết luận của chúng chính là luật xuyên trục 3 ở ngay trang này.
+
+⛔ **Mục 4 không bao giờ được rút gọn.** Nó là mục ghi rủi ro ĐÃ TỪNG xảy ra, khác hẳn mục 3 vốn
+phần lớn là rủi ro lý thuyết. Đo trên trục `naming`: 7 cặp từng cắn thật, 13 cặp ghi "chưa".
 
 **Tiêu chí "vét cạn" phải KHÁCH QUAN, không tuỳ hứng.** Với thang N giá trị, số cặp là
 `C(N,2)`; liệt kê đủ từng đó cặp rồi phân nhóm, đó là lúc được phép dừng. Liệt kê "vài ví dụ

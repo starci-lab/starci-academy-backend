@@ -10,6 +10,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — bốn cơ chế, không có cơ chế thứ năm
 
@@ -70,6 +72,25 @@ câu 1. Xem BẪY #1.
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Tự thêm `onClick`/`onPress` thẳng lên `Chip` để giả làm nút (thay vì bọc `Popover.Trigger`/tách hẳn ra `Button`) | ✅ `tsc` — `ChipBaseProps` không khai `onClick`/`onPress`, chỉ có `onRemove` |
+| 2 | Nhiều điểm nổi cùng lúc trong một vùng (accent-flood, §2c) | ⛔ không gate được — kỷ luật, phán đoán theo VÙNG không theo 1 phần tử |
+| 3 | Cặp trái–phải có phân cấp thật nhưng render đồng bậc màu (§2b), trừ peer-row | ⛔ không gate được — kỷ luật, cần biết đây có phải phân cấp thật hay peer |
+| 4 | Đổi CƠ CHẾ (element) của cùng một info-type giữa các state thay vì đổi TONE (§2d) | ⛔ không gate được — kỷ luật, cần đọc hiểu ngữ nghĩa info-type xuyên state |
+| 5 | Chép câu chữ cũ ở bẫy #6/#7 (§4 tài liệu này) vào code/tài liệu mới mà chưa grep lại `ChipBase.tsx`/`chip.css` | ⛔ không gate được — kỷ luật |
+| 6 | Viết class màu tay (`text-accent`, `bg-*-soft`) ngoài 3 atom `Typography`/`Chip`/`Button` để giả một trong bốn cơ chế | ⬜ CHƯA — trùng gate còn thiếu của `color/context.md` §6 dòng 1, chưa viết script riêng cho trục này |
+
+**Việc chưa xong, ghi rõ để không rơi:** dòng 6 cần một gate AST đếm theo VÙNG (bao nhiêu
+điểm `accent`/`chip`/`button` cùng xuất hiện trong một node cha), phức tạp hơn regex đơn —
+tương tự việc `button/context.md` §6 dòng 2/3 đang thiếu vì cùng lý do "phải đọc theo cụm".
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — đủ 6 cặp
 
 Thang 4 giá trị ⇒ `C(4,2) = 6` cặp. Thứ tự dùng để chia nhóm: `muted → accent → chip →
@@ -83,21 +104,7 @@ button` (chìm nhất → nổi nhất, đúng thứ tự 4 câu hỏi của câ
 | **`accent` ↔ `chip`** *(cặp NẶNG NHẤT — dễ lẫn nhất)* | Ý nghĩa này có **BỊ RÀNG BUỘC vào một tập giá trị cố định** (enum/status/category) cần TÁCH KHỎI dòng chữ để mắt nhận ngay "đây là một NHÃN", hay nó chỉ là MỘT CHỮ đọc liền trong câu? Ràng buộc + cần tách ⇒ `chip`. Đọc liền trong câu, không phải danh mục ⇒ `accent`. | `SurfaceCard.tsx:1398` `CheckCircleIcon` accent (tín hiệu "đã chọn", KHÔNG đóng khung) ↔ `PriceTag.tsx:141` `Chip tone="success"` (nhãn khuyến mãi, đóng khung, enum "có giảm giá") |
 | **`chip` ↔ `button`** | Bấm vào có tạo ra một **HÀNH ĐỘNG THẬT** không (không phải chỉ mở thêm chi tiết của chính token đó), và hình vẽ có phải **hình nút** không? Cả hai đúng ⇒ `button`. Chỉ mở popover XEM THÊM về chính nó, hình vẫn là pill mềm ⇒ `chip`. | `PriceTag` `−X%` chip bọc `Popover.Trigger` (vẫn là `chip`, xem BẪY #1) ↔ `ReactionButton.tsx:153` `HeroButton variant="tertiary"` (đổi state thật, hình là nút) |
 
-### 3b. Hai cặp CÁCH MỘT BẬC (distance 2) — chỉ ra câu hỏi cấp trên chưa trả lời
-
-| Cặp | Đọc thế nào |
-|---|---|
-| `muted` ↔ `chip` | Phân vân ở đây nghĩa là câu 2-3 (có phải token cố định hay tín hiệu tương tác) chưa được trả lời — quay lại §3a, đừng nhảy cóc thẳng từ "trung tính" sang "đóng khung". |
-| `accent` ↔ `button` | Phân vân nghĩa là câu 1 (có hành động thật + hình nút) chưa dứt khoát — nếu chữ chỉ đang MANG tín hiệu inline (không có hành động), `button` không còn là ứng viên. |
-
-### 3c. Một cặp CÁCH XA (distance 3) — không có phép phân định, và cố ý không có
-
-`muted` ↔ `button`
-
-**Phân vân giữa hai đầu mút của thang là dấu hiệu ĐANG BỎ QUA 2 câu hỏi liên tiếp**,
-không phải chọn nhầm. Một chữ trung tính không thể nhảy thẳng thành một nút hành động
-mà không đi qua "có phải tín hiệu?" rồi "có phải token cố định?" trước. Viết phép phân
-định cho cặp này là hợp thức hoá việc bỏ qua toàn bộ cây.
+Các cặp cách từ 2 bậc trở lên (`muted` ↔ `chip` · `accent` ↔ `button` · `muted` ↔ `button`): phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -166,20 +173,3 @@ mà không đi qua "có phải tín hiệu?" rồi "có phải token cố địn
    chữ cũ mà không grep lại code.
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Tự thêm `onClick`/`onPress` thẳng lên `Chip` để giả làm nút (thay vì bọc `Popover.Trigger`/tách hẳn ra `Button`) | ✅ `tsc` — `ChipBaseProps` không khai `onClick`/`onPress`, chỉ có `onRemove` |
-| 2 | Nhiều điểm nổi cùng lúc trong một vùng (accent-flood, §2c) | ⛔ không gate được — kỷ luật, phán đoán theo VÙNG không theo 1 phần tử |
-| 3 | Cặp trái–phải có phân cấp thật nhưng render đồng bậc màu (§2b), trừ peer-row | ⛔ không gate được — kỷ luật, cần biết đây có phải phân cấp thật hay peer |
-| 4 | Đổi CƠ CHẾ (element) của cùng một info-type giữa các state thay vì đổi TONE (§2d) | ⛔ không gate được — kỷ luật, cần đọc hiểu ngữ nghĩa info-type xuyên state |
-| 5 | Chép câu chữ cũ ở bẫy #6/#7 (§4 tài liệu này) vào code/tài liệu mới mà chưa grep lại `ChipBase.tsx`/`chip.css` | ⛔ không gate được — kỷ luật |
-| 6 | Viết class màu tay (`text-accent`, `bg-*-soft`) ngoài 3 atom `Typography`/`Chip`/`Button` để giả một trong bốn cơ chế | ⬜ CHƯA — trùng gate còn thiếu của `color/context.md` §6 dòng 1, chưa viết script riêng cho trục này |
-
-**Việc chưa xong, ghi rõ để không rơi:** dòng 6 cần một gate AST đếm theo VÙNG (bao nhiêu
-điểm `accent`/`chip`/`button` cùng xuất hiện trong một node cha), phức tạp hơn regex đơn —
-tương tự việc `button/context.md` §6 dòng 2/3 đang thiếu vì cùng lý do "phải đọc theo cụm".

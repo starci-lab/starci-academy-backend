@@ -6,6 +6,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — bốn nhánh, không có nhánh thứ năm
 
@@ -50,6 +52,44 @@ nên không có khái niệm "vùng đang tải/lỗi/rỗng" để tự quyết
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Tự viết if/else khác thứ tự `error → loading → empty → content` (vd để `empty` đè `error`) | ⛔ không gate được — kỷ luật, đọc code |
+| 2 | Screen import `AsyncContent` (switch) hoặc `AsyncContentError` trực tiếp | ⬜ CHƯA — gate cần viết: quét import trong `pages/**` + `layouts/**`, báo đỏ nếu thấy 2 tên đó (`AsyncContentEmpty` vẫn có tiền lệ, chờ **C1** chốt) |
+| 3 | `AsyncContentEmpty`/`Error` gọi ở tầng screen chỉ thay MỘT PHẦN cây thay vì return sớm TOÀN BỘ | ⬜ CHƯA — gate cần viết: nếu `pages/**` có `isEmpty` mà JSX của `AsyncContentEmpty` không nằm ở nhánh return-sớm bọc toàn hàm render, báo đỏ (bẫy #1) |
+| 4 | Block bọc `AsyncContent`/`AsyncContentEmpty` mà không thêm domain gì (chỉ đổi tên) | ✅ `check-passthrough-block.mjs` |
+| 5 | `error`/`isEmpty` = true mà không kèm `errorContent`/`emptyContent`, tưởng nhánh tự hiện | ⛔ không gate được — hành vi runtime (bẫy #2) |
+| 6 | Tin nhật ký "đã fix" mà không đối chiếu lại code thật trên đĩa | ⛔ không gate được — kỷ luật quy trình (bẫy #1) |
+
+**Câu hỏi CHƯA CÓ ĐÁP ÁN CHÍNH THỨC (đưa lên thầy):**
+
+- **C1** — nguồn tra đúng như được chỉ: `rules/1-decompose.md` §2 "bảng cứng" (dòng 100-106,
+  cập nhật 2026-07-28) cấm TUYỆT ĐỐI screen import composite, không ghi ngoại lệ nào. Nhưng
+  §5 (dòng 155) của CHÍNH file đó — SỬA CÙNG một commit `8c191396bb`, cùng ngày — liệt lại
+  ĐÚNG câu hỏi này là "Chờ thầy chốt" và tự ghi "Hiện đang gọi trực tiếp". Tức là đây KHÔNG phải
+  canon của trục này trích neo sai — rules tự mâu thuẫn với chính nó, và mâu thuẫn đó vẫn đứng
+  nguyên tới hôm nay.
+
+  Đo code 2026-07-29: **6/6 tiền lệ trên đĩa đều import thẳng** `AsyncContentEmpty` ở tầng
+  `pages/**`/`layouts/**` (`CourseContents`, `ModulePage`, `MindMapPage`, `PlaygroundPreparePage`,
+  `FoundationResourcePage`, `HeadhuntingCompaniesLayout`) — không ca nào tách qua block. 5/6 ca
+  tuân theo một ngưỡng CHUNG dù chưa được ghi vào §2: chỉ gọi thẳng khi thay TOÀN BỘ hàm render
+  bằng return sớm (chuẩn: `CourseContents.tsx:115-117`); riêng `FoundationResourcePage` lệch
+  ngưỡng đó — đã đóng riêng ở bẫy #1 trên bằng đo code, KHÔNG phải phần đang hỏi ở đây. Chưa
+  từng có ca nào gọi thẳng `AsyncContentError` ở tầng screen.
+
+  Hai lựa chọn RA HÌNH KHÁC NHAU thật trên đĩa: **(a)** viết thêm một dòng ngoại lệ vào §2
+  ("trừ khi thay TOÀN BỘ render bằng return sớm") — giữ nguyên 5 tiền lệ, chỉ sửa riêng
+  `FoundationResourcePage` cho khớp ngưỡng đó; ít file đổi nhất. **(b)** bỏ hẳn ngoại lệ, ép cả
+  6 tiền lệ tách thành block `<Screen>EmptyState` riêng (đúng nghĩa đen §2) — 6 block + 6 story
+  mới, đổi cây import của cả 6 screen/layout. ⚠️ CHỜ THẦY CHỐT: chọn (a) hay (b)?
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN — bốn nhánh có THỨ TỰ (không phải thang vô hướng) + trục thứ hai ai sở hữu
 
 ### 3a. Sáu cặp trạng thái — `C(4,2) = 6`, tính theo KHOẢNG CÁCH trong chuỗi ưu tiên `error(1)·loading(2)·empty(3)·content(4)`
@@ -62,18 +102,7 @@ nên không có khái niệm "vùng đang tải/lỗi/rỗng" để tự quyết
 | `loading` ↔ `empty` | **`isLoading` đã chắc chắn về `false` chưa?** Mảng rỗng KHÔNG tự động là "rỗng thật" nếu request đầu vẫn đang chạy — phải đợi `isLoading=false` rồi mới tin `isEmpty`. Caller tự rút gọn điều kiện, `AsyncContent` không tự suy. | neo: JSDoc dòng 133-136 "Pass an already-reduced condition, e.g. `isLoading && items.length === 0`" |
 | `empty` ↔ `content` | **Đếm `length` thật, không suy từ giá trị falsy khác.** `undefined` (chưa fetch xong) KHÔNG PHẢI `isEmpty=true`; chỉ mảng đã fetch xong và dài 0 mới là `isEmpty`. | neo: `emptyContent` optional, "Left empty → the empty branch renders null" (dòng 146-148) — thiếu cấu hình bị hiểu nhầm là "rỗng nhưng không nói gì", không phải "chưa biết" |
 
-**Hai cặp cách 1 bậc (khoảng cách 2) — chỉ ghi câu hỏi cấp trên chưa trả lời:**
-
-| Cặp | Đọc thế nào |
-|---|---|
-| `error` ↔ `empty` | Phân vân ở đây nghĩa là chưa trả lời được "request có thất bại không" (câu của cặp `error`↔`loading`) — quay lại đó trước. |
-| `loading` ↔ `content` | Phân vân ở đây nghĩa là chưa trả lời được "phản hồi đã về chưa" (câu của cặp `loading`↔`empty` / `empty`↔`content`) — quay lại đó trước. |
-
-**Một cặp cách xa nhất (khoảng cách 3) — cố ý không có phép thử:**
-
-`error` ↔ `content` — phân vân ở đây là dấu hiệu **chưa trả lời được CẢ HAI câu cấp trên**
-(request thất bại hay thành công, đã về hay chưa). Dừng chọn nhánh, đọc lại toàn chuỗi
-ưu tiên từ đầu, đừng cố phân định trực tiếp cặp này.
+Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 Đếm lại: 3 + 2 + 1 = 6 = `C(4,2)`. Đủ.
 
@@ -143,39 +172,3 @@ nên không có khái niệm "vùng đang tải/lỗi/rỗng" để tự quyết
    trên (xem `example.html` §1 cho neo đủ).
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Tự viết if/else khác thứ tự `error → loading → empty → content` (vd để `empty` đè `error`) | ⛔ không gate được — kỷ luật, đọc code |
-| 2 | Screen import `AsyncContent` (switch) hoặc `AsyncContentError` trực tiếp | ⬜ CHƯA — gate cần viết: quét import trong `pages/**` + `layouts/**`, báo đỏ nếu thấy 2 tên đó (`AsyncContentEmpty` vẫn có tiền lệ, chờ **C1** chốt) |
-| 3 | `AsyncContentEmpty`/`Error` gọi ở tầng screen chỉ thay MỘT PHẦN cây thay vì return sớm TOÀN BỘ | ⬜ CHƯA — gate cần viết: nếu `pages/**` có `isEmpty` mà JSX của `AsyncContentEmpty` không nằm ở nhánh return-sớm bọc toàn hàm render, báo đỏ (bẫy #1) |
-| 4 | Block bọc `AsyncContent`/`AsyncContentEmpty` mà không thêm domain gì (chỉ đổi tên) | ✅ `check-passthrough-block.mjs` |
-| 5 | `error`/`isEmpty` = true mà không kèm `errorContent`/`emptyContent`, tưởng nhánh tự hiện | ⛔ không gate được — hành vi runtime (bẫy #2) |
-| 6 | Tin nhật ký "đã fix" mà không đối chiếu lại code thật trên đĩa | ⛔ không gate được — kỷ luật quy trình (bẫy #1) |
-
-**Câu hỏi CHƯA CÓ ĐÁP ÁN CHÍNH THỨC (đưa lên thầy):**
-
-- **C1** — nguồn tra đúng như được chỉ: `rules/1-decompose.md` §2 "bảng cứng" (dòng 100-106,
-  cập nhật 2026-07-28) cấm TUYỆT ĐỐI screen import composite, không ghi ngoại lệ nào. Nhưng
-  §5 (dòng 155) của CHÍNH file đó — SỬA CÙNG một commit `8c191396bb`, cùng ngày — liệt lại
-  ĐÚNG câu hỏi này là "Chờ thầy chốt" và tự ghi "Hiện đang gọi trực tiếp". Tức là đây KHÔNG phải
-  canon của trục này trích neo sai — rules tự mâu thuẫn với chính nó, và mâu thuẫn đó vẫn đứng
-  nguyên tới hôm nay.
-
-  Đo code 2026-07-29: **6/6 tiền lệ trên đĩa đều import thẳng** `AsyncContentEmpty` ở tầng
-  `pages/**`/`layouts/**` (`CourseContents`, `ModulePage`, `MindMapPage`, `PlaygroundPreparePage`,
-  `FoundationResourcePage`, `HeadhuntingCompaniesLayout`) — không ca nào tách qua block. 5/6 ca
-  tuân theo một ngưỡng CHUNG dù chưa được ghi vào §2: chỉ gọi thẳng khi thay TOÀN BỘ hàm render
-  bằng return sớm (chuẩn: `CourseContents.tsx:115-117`); riêng `FoundationResourcePage` lệch
-  ngưỡng đó — đã đóng riêng ở bẫy #1 trên bằng đo code, KHÔNG phải phần đang hỏi ở đây. Chưa
-  từng có ca nào gọi thẳng `AsyncContentError` ở tầng screen.
-
-  Hai lựa chọn RA HÌNH KHÁC NHAU thật trên đĩa: **(a)** viết thêm một dòng ngoại lệ vào §2
-  ("trừ khi thay TOÀN BỘ render bằng return sớm") — giữ nguyên 5 tiền lệ, chỉ sửa riêng
-  `FoundationResourcePage` cho khớp ngưỡng đó; ít file đổi nhất. **(b)** bỏ hẳn ngoại lệ, ép cả
-  6 tiền lệ tách thành block `<Screen>EmptyState` riêng (đúng nghĩa đen §2) — 6 block + 6 story
-  mới, đổi cây import của cả 6 screen/layout. ⚠️ CHỜ THẦY CHỐT: chọn (a) hay (b)?

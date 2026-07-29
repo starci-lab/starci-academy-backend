@@ -5,6 +5,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — năm bậc, không có bậc thứ sáu
 
@@ -42,6 +44,22 @@ link · chip`.
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | ROW hoặc phần tử không viền/bo riêng dùng `active:scale`/ripple | ⛔ không gate được — kỷ luật (§7b) |
+| 2 | Card bấm được mang `hover:bg-*` ở trạng thái nghỉ (trừ khi nó đang ở nhánh `underline`-link) | ⛔ không gate được — kỷ luật |
+| 3 | Hand-roll `<div cursor-pointer>` cho card/row bấm được thay vì native `<button>`/`<a>` | ⛔ không gate được — kỷ luật (a11y) |
+| 4 | Dùng react-aria `data-[pressed]` thay vì `:active` native cho card/row tự viết | ⛔ không gate được — kỷ luật |
+| 5 | `transition-all`/`transition-transform` cho hiệu ứng scale thay vì liệt kê đúng `transition-[scale]` (Tailwind v4: `scale` là property riêng, thiếu liệt kê ⇒ giật) | ⛔ không gate được — kỷ luật |
+| 6 | Giá trị ngoài union `hover?: "fill" \| "underline"` của `SurfaceCardListItem` | ✅ `tsc` — union literal |
+| 7 | Thêm `active:scale`/ripule thủ công vào `ButtonBase` (đè lên press vendor của HeroUI) | ⛔ không gate được — kỷ luật |
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — đủ 10 cặp
 
 Thang 5 bậc (`none · fill · underline · scale · ripple`, đúng thứ tự trong §1) ⇒
@@ -66,9 +84,7 @@ Thang 5 bậc (`none · fill · underline · scale · ripple`, đúng thứ tự
 
 ### 3c. Ba cặp CÁCH ≥2 BẬC — cố ý không có phép thử
 
-`none`↔`scale` · `fill`↔`ripple` · `none`↔`ripple`. Phân vân giữa hai bậc cách xa nhau như
-vậy là dấu hiệu **chọn sai LOẠI PHẦN TỬ** ở câu 2-6 của cây, không phải chọn sai bậc. Viết phép
-phân định cho các cặp này là hợp thức hoá việc bỏ qua bước nhận diện phần tử.
+`none`↔`scale` · `fill`↔`ripple` · `none`↔`ripple`. Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -99,23 +115,8 @@ phân định cho các cặp này là hợp thức hoá việc bỏ qua bước 
 1. **`src` thật của chính component đang sửa** — ĐO nó trước.
 2. Cây quyết định §2 — chỉ khi (1) không tồn tại.
 3. Canon [`principles/press/context.md`](../press/context.md) (trước đây `principles.md`
-   §7/§7a/§7b) — **CHỈ tham khảo, đã LẠC HẬU một phần.** §7 (chốt 2026-07-22/23)
-   viết "CARD bấm được luôn `active:scale-[0.97]`+ripple, không hover" như MỘT LUẬT DUY NHẤT cho
-   mọi card — nhưng bản thân file cũ, ở mục 6b (ghi ngày **2026-07-29**, MỚI HƠN §7), đã tách
-   `href`(link) ra khỏi luật đó: card+`href` (không `actions`) giờ là `underline`, không
-   `scale`/`ripple`. Trục này theo bản MỚI + code thật (`SurfaceCard.tsx:384`), không theo câu mở
-   đầu §7 nữa. Neo cụ thể: [`example.html`](example.html) §6.
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | ROW hoặc phần tử không viền/bo riêng dùng `active:scale`/ripple | ⛔ không gate được — kỷ luật (§7b) |
-| 2 | Card bấm được mang `hover:bg-*` ở trạng thái nghỉ (trừ khi nó đang ở nhánh `underline`-link) | ⛔ không gate được — kỷ luật |
-| 3 | Hand-roll `<div cursor-pointer>` cho card/row bấm được thay vì native `<button>`/`<a>` | ⛔ không gate được — kỷ luật (a11y) |
-| 4 | Dùng react-aria `data-[pressed]` thay vì `:active` native cho card/row tự viết | ⛔ không gate được — kỷ luật |
-| 5 | `transition-all`/`transition-transform` cho hiệu ứng scale thay vì liệt kê đúng `transition-[scale]` (Tailwind v4: `scale` là property riêng, thiếu liệt kê ⇒ giật) | ⛔ không gate được — kỷ luật |
-| 6 | Giá trị ngoài union `hover?: "fill" \| "underline"` của `SurfaceCardListItem` | ✅ `tsc` — union literal |
-| 7 | Thêm `active:scale`/ripule thủ công vào `ButtonBase` (đè lên press vendor của HeroUI) | ⛔ không gate được — kỷ luật |
+   §7/§7a/§7b) — **CHỈ tham khảo, đã LẠC HẬU một phần.** §7 (chốt 2026-07-22/23) viết "CARD bấm
+   được luôn `active:scale-[0.97]`+ripple, không hover" cho mọi card; mục 6b (**2026-07-29**, MỚI
+   HƠN §7) đã tách `href` ra: card+`href` (không `actions`) là `underline`, không `scale`/`ripple`.
+   Trục này theo bản MỚI + code thật (`SurfaceCard.tsx:384`). Neo cụ thể:
+   [`example.html`](example.html) §6.

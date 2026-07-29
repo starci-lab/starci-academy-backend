@@ -5,6 +5,8 @@
 > chưa dựng). Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — ba tầng, không có tầng thứ tư
 
@@ -46,6 +48,21 @@ gì cũng được), không phải một field-1-tầng mà trục này phân x�
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Field `title` nằm trong 1 control có ràng buộc HTML (button/header nén) nhận kiểu `ReactNode` thay vì `string` | ⬜ **CHƯA — gate cần viết**: quét mọi prop tên `title` trong type khai trong `.storybook/components/**`, cảnh báo nếu type là `ReactNode`/`JSX.Element` VÀ component đó render nó bên trong `<button>`/`Accordion.Trigger` |
+| 2 | Render `MarkdownContent` (block-level) bên trong bất kỳ element nào có ràng buộc HTML (`<button>`, `<summary>`, `<a>`, phần tử inline) | ⬜ **CHƯA — gate cần viết**: quét JSX, tìm `<MarkdownContent` mà tổ tiên JSX gần nhất trong cùng file là 1 trong danh sách thẻ cấm |
+| 3 | Field khai kiểu `string` đúng tầng `richtext nhỏ` nhưng render qua `Typography` trần thay vì composite `RichText` | ⛔ không gate được tự động (cần biết Ý ĐỊNH tác giả field, không suy được từ type) — kỷ luật: mỗi field `description`/`caption`/`subtitle` mới phải tự hỏi "cần bold/link không, hay Typography trần là đủ" |
+| 4 | Composite tầng giữa (`RichText`) tồn tại nhưng không có consumer thật ngoài story của chính nó, kéo dài qua nhiều đợt sửa | ⬜ **CHƯA — gate cần viết**: đối chiếu `check-deps-coverage.mjs` hiện có (bắt "component compose gì mà Deps tab không khai") — mở rộng để bắt luôn "component ĐƯỢC XÂY mà 0 ai import ngoài chính story nó" |
+| 5 | Đổi kiểu 1 field markdown ở 1 consumer mà không `tsc` toàn repo để bắt các consumer khác cùng field name | ✅ có thể bắt gián tiếp qua `tsc --noEmit` toàn repo (đã dùng đúng cách này ở đợt 2026-07-29, bắt ra `SubmissionFindingsList` là consumer thứ 3) |
+| 6 | Đánh giá "an toàn" chỉ bằng quét DỮ LIỆU story (cú pháp markdown literal trong field), bỏ qua quét KIỂU component | ⛔ không gate được — kỷ luật: quét dữ liệu KHÔNG thay được đọc kiểu, xem bẫy #5 |
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN — hai trục riêng, cả hai đều phải vét cạn
 
 ### 3a. Trục TẦNG: thang 3 giá trị ⇒ `C(3,2) = 3` cặp — đủ cả 3
@@ -56,8 +73,11 @@ trung gian vì không đủ bậc để tạo nhóm đó.**
 | Cặp | Phép phân định DỨT KHOÁT | Đã cắn thật |
 |---|---|---|
 | **`title` ↔ `richtext nhỏ`** | Dùng cây §2 câu 1. Field có nằm trong ràng buộc HTML (button/header nén) VÀ là định danh không? YES ⇒ `title`. Nếu định dạng (bold/link) MANG THÔNG TIN thay vì chỉ tô đậm tên ⇒ `richtext nhỏ`. | ✅ 3 lần — xem §3b bảng dưới |
-| **`richtext nhỏ` ↔ `bài viết`** | Dùng cây §2 câu 2. Cần HEADING/LIST/CODE-FENCE/BẢNG/MERMAID/DIRECTIVE (cấu trúc nhiều dòng, nhiều khối) không? YES ⇒ `bài viết`. Chỉ cần 1 dòng có thể có bold/link/backtick ⇒ `richtext nhỏ`. | chưa (chưa ghi nhận ca lẫn thật, `RichText` chưa có consumer thật để mà lẫn — xem §4 bẫy #2) |
-| **`title` ↔ `bài viết`** | **CỐ Ý KHÔNG CÓ phép thử riêng.** Phân vân ở đây nghĩa là đang đọc sai field: một field không thể vừa là identifier-trong-button vừa là thân tài liệu nhiều khối. Dừng lại, xác định field đó thực sự là gì (tên hay nội dung), đừng chọn giữa hai đầu thang. | ✅ 1 lần — `SubmissionFindingsList.tsx`'s `message`, xem §3b |
+
+Hai cặp còn lại, nén lại: **`richtext nhỏ` ↔ `bài viết`** chưa cắn thật (rủi ro lý thuyết);
+**`title` ↔ `bài viết`** ✅ đã cắn 1 lần — `SubmissionFindingsList.tsx`'s `message`, xem §3b.
+Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá
+trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ### 3b. Ba lỗi thật đã cắn — cặp `title ↔ richtext nhỏ`/`title ↔ bài viết`
 
@@ -133,16 +153,3 @@ không tồn tại trong code là bịa, nên dừng ở đây.
    component thật (artifact có thể lệch số dòng theo thời gian).
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Field `title` nằm trong 1 control có ràng buộc HTML (button/header nén) nhận kiểu `ReactNode` thay vì `string` | ⬜ **CHƯA — gate cần viết**: quét mọi prop tên `title` trong type khai trong `.storybook/components/**`, cảnh báo nếu type là `ReactNode`/`JSX.Element` VÀ component đó render nó bên trong `<button>`/`Accordion.Trigger` |
-| 2 | Render `MarkdownContent` (block-level) bên trong bất kỳ element nào có ràng buộc HTML (`<button>`, `<summary>`, `<a>`, phần tử inline) | ⬜ **CHƯA — gate cần viết**: quét JSX, tìm `<MarkdownContent` mà tổ tiên JSX gần nhất trong cùng file là 1 trong danh sách thẻ cấm |
-| 3 | Field khai kiểu `string` đúng tầng `richtext nhỏ` nhưng render qua `Typography` trần thay vì composite `RichText` | ⛔ không gate được tự động (cần biết Ý ĐỊNH tác giả field, không suy được từ type) — kỷ luật: mỗi field `description`/`caption`/`subtitle` mới phải tự hỏi "cần bold/link không, hay Typography trần là đủ" |
-| 4 | Composite tầng giữa (`RichText`) tồn tại nhưng không có consumer thật ngoài story của chính nó, kéo dài qua nhiều đợt sửa | ⬜ **CHƯA — gate cần viết**: đối chiếu `check-deps-coverage.mjs` hiện có (bắt "component compose gì mà Deps tab không khai") — mở rộng để bắt luôn "component ĐƯỢC XÂY mà 0 ai import ngoài chính story nó" |
-| 5 | Đổi kiểu 1 field markdown ở 1 consumer mà không `tsc` toàn repo để bắt các consumer khác cùng field name | ✅ có thể bắt gián tiếp qua `tsc --noEmit` toàn repo (đã dùng đúng cách này ở đợt 2026-07-29, bắt ra `SubmissionFindingsList` là consumer thứ 3) |
-| 6 | Đánh giá "an toàn" chỉ bằng quét DỮ LIỆU story (cú pháp markdown literal trong field), bỏ qua quét KIỂU component | ⛔ không gate được — kỷ luật: quét dữ liệu KHÔNG thay được đọc kiểu, xem bẫy #5 |

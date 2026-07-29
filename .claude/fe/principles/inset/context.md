@@ -5,6 +5,8 @@
 > xem `seam/context.md` §6). Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — năm bậc (2026-07-29: thêm `snug`), không có bậc thứ sáu
 
@@ -20,13 +22,12 @@ SSOT của thang: `InsetScale` trong `.storybook/components/frames/_spacing.ts`.
 `PADDING_CLASS: Record<InsetScale, string>` cùng file.
 
 **Vì sao thêm `snug` (2026-07-29, xem JSDoc `_spacing.ts`)**: đếm lần đầu chỉ nhìn PROP
-`padding` (46 call-site, đúng `0·3·6·8`, không cái nào `1`/`2`) nên thang chốt 4 bậc. Đếm đó
-BỎ SÓT cách viết tay CLASS (`p-2`) — 34 call-site thật đã ổn định trên `p-2`, toàn bộ đều là
-chrome nhỏ gọn, và gate lúc đó (§4.4 cũ, đã sửa — xem dưới) tình cờ kiểm tra nhầm thang 6 bậc
-của `SeamScale` nên không bắt được. Khi gate được sửa đúng thang `InsetScale`, 34 chỗ đó đỏ
-đồng loạt — bằng chứng nói thang thiếu 1 bậc, không phải 34 chỗ sai. Bài học: đếm chỉ phủ MỘT
-cách viết (prop) mà bỏ cách viết kia (class) sẽ báo thiếu; một gate kiểm tra SAI thang còn tệ
-hơn không có gate, vì im lặng đọc như đồng ý.
+`padding` (46 call-site, đúng `0·3·6·8`) nên thang chốt 4 bậc, BỎ SÓT 34 call-site viết tay
+CLASS `p-2` — toàn bộ đều là chrome nhỏ gọn, và gate lúc đó (§4.4) kiểm nhầm thang 6 bậc của
+`SeamScale` nên im lặng; sửa gate về đúng `InsetScale` thì 34 chỗ đỏ đồng loạt: thang thiếu 1
+bậc, không phải 34 chỗ sai. Bài học: đếm chỉ phủ MỘT cách viết (prop) mà bỏ cách viết kia
+(class) sẽ báo thiếu; một gate kiểm tra SAI thang còn tệ hơn không có gate, vì im lặng đọc như
+đồng ý.
 
 Viết số trực tiếp (`padding={3}`) là **lỗi biên dịch** ở bất cứ khung nào gõ prop
 `padding?: InsetScale` (`Container`, `Stack`/`Flex`, `SurfaceCard`, `DoubleTabsCard`) — nhưng
@@ -54,6 +55,22 @@ hai bậc khác nhau ở hai tầng khác nhau, không phải chọn 1 trong 2 c
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Viết SỐ ngoài thang cho `p-*`/`p[trblxy]-*` (`p-4`, `p-5`, `p-1.5`…) ở tầng `frame`/`composite`/`viewer`/`block`/`layout`/`overlay`/`page`, KHÔNG khai `// inset-exception: <lý do>` | ✅ `check-padding.mjs` — sửa 2026-07-29, `SCALE` giờ đúng 5 giá trị `InsetScale` (§4.4 cũ SUPERSEDED); có khai exception hợp lệ thì HIỆN nhưng không đánh trượt (§4.5) |
+| 2 | Con mang `margin` để tự đẩy khoảng thay vì nhận `padding` từ container (trừ whitelist `mt-auto`/`ms-auto`/bleed `-m-*`) | ✅ `check-padding.mjs` (rule `child-margin`) |
+| 3 | Mở `@container` và có `padding` trên CÙNG một element (§4.2) | ⛔ không gate được — chỉ lộ khi đo DOM ở đúng viewport cap; kỷ luật: tách 2 lớp mỗi khi một khung tự mở `@container` |
+| 4 | Viết `p-*` thô ở tầng `composite`/`block`/`layout`/`overlay`/`page` thay vì dùng prop `padding` của khung (`Container`/`Stack`/`Flex`/`SurfaceCard`) dù giá trị đúng thang | ⬜ **CHƯA — gate cần viết**: quét mọi `className` chứa `p[trblxy]?-(0\|2\|3\|6\|8)` ở tầng `GUARDED` mà KHÔNG đi qua object `PADDING_CLASS`/prop `padding` đã biết — hiện `check-padding.mjs` chỉ chặn SAI THANG, không chặn ĐÚNG THANG NHƯNG hand-roll |
+| 5 | Làm tròn padding bất đối xứng của `src` thật về một bậc `InsetScale` đối xứng mà KHÔNG ghi chú lệch tại chỗ port (§4.3) | ⛔ không gate được — kỷ luật, ví dụ đã làm đúng: comment tại chỗ trong `EnrollGate.tsx` |
+| 6 | Khai `// inset-exception:` mà không nêu LÝ DO, hoặc khai cho một chỗ KHÔNG PHẢI vendor-geometry/optical-nudge (§4.5) | ✅ `check-padding.mjs` bắt thiếu lý do bằng regex `/inset-exception:\s*\S/` (không có `\S` sau dấu `:` thì không khớp, vẫn tính là finding thường); đúng loại thì kỷ luật đọc — không có gate phân biệt "lý do hợp lý" |
+| 7 | Áp `InsetScale` xuống tầng `atom` (đè lên hình học nội bộ atom tự sở hữu, vd `pr-9` của `Input`) | ⛔ không cần gate — atom được miễn có chủ đích (13z), xem §4.8 |
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — đủ 6 cặp
 
 Thang 4 bậc ⇒ `C(4,2) = 6` cặp. Liệt kê đủ 6, không chọn lọc.
@@ -66,22 +83,10 @@ Thang 4 bậc ⇒ `C(4,2) = 6` cặp. Liệt kê đủ 6, không chọn lọc.
 | **`cozy` ↔ `roomy`** | Đây là **mặt của ĐÚNG MỘT card/tile** (biên card chính là biên padding) hay là **measure/container bao NHIỀU thứ con** (trong đó có thể có nhiều card khác)? Một card ⇒ `cozy`. Khung đo bao ngoài ⇒ `roomy`. |
 | **`roomy` ↔ `airy`** | Đây là nội dung/trang **BÌNH THƯỜNG** hay một khu vực **cố ý nhấn không gian** để tạo cảm giác trống/sang trọng (hero bán hàng, empty-state, trạng thái khoá)? Bình thường ⇒ `roomy`. Cố ý nhấn ⇒ `airy`. |
 
-### 3b. Hai cặp CÁCH MỘT BẬC — hiếm, đọc lại câu hỏi cấp trên
+### 3b. Các cặp còn lại — `flush` ↔ `roomy`, `cozy` ↔ `airy`, `flush` ↔ `airy`
 
-| Cặp | Đọc thế nào |
-|---|---|
-| `flush` ↔ `roomy` | Phân vân ở đây nghĩa là câu hỏi §2.1 ("nội dung có tự vẽ mép cần chạm viền không") chưa được trả lời dứt khoát. Trả lời câu đó trước, đừng nhảy thẳng vào so `flush` với `roomy`. |
-| `cozy` ↔ `airy` | Phân vân ở đây nghĩa là câu hỏi §2.2 ("đây có phải MẶT card thường không") chưa xong. Một card thường không bao giờ nhảy thẳng lên `airy` — phải qua việc xác định nó có phải khu vực "cố ý nhấn không gian" hay không trước. |
-
-### 3c. Một cặp CÁCH ≥2 BẬC — cố ý không có phép thử
-
-`flush` ↔ `airy`
-
-**Phân vân giữa hai giá trị cách nhau ≥2 bậc là dấu hiệu CÂY VẼ SAI, không phải chọn sai.**
-Một nội dung chạm-viền và một khu vực-thở-rộng không bao giờ là cùng một quyết định — nếu đang
-so hai cái này, ngữ cảnh đang bị đọc sai (có thể đang so hai TẦNG khác nhau: nội dung bên
-trong một card `airy` chính nó lại có 1 vùng media `flush` — đó là 2 padding của 2 element
-khác nhau, không phải 1 lựa chọn).
+Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá
+trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -165,17 +170,3 @@ khác nhau, không phải 1 lựa chọn).
    chưa từng có trong `src`).
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Viết SỐ ngoài thang cho `p-*`/`p[trblxy]-*` (`p-4`, `p-5`, `p-1.5`…) ở tầng `frame`/`composite`/`viewer`/`block`/`layout`/`overlay`/`page`, KHÔNG khai `// inset-exception: <lý do>` | ✅ `check-padding.mjs` — sửa 2026-07-29, `SCALE` giờ đúng 5 giá trị `InsetScale` (§4.4 cũ SUPERSEDED); có khai exception hợp lệ thì HIỆN nhưng không đánh trượt (§4.5) |
-| 2 | Con mang `margin` để tự đẩy khoảng thay vì nhận `padding` từ container (trừ whitelist `mt-auto`/`ms-auto`/bleed `-m-*`) | ✅ `check-padding.mjs` (rule `child-margin`) |
-| 3 | Mở `@container` và có `padding` trên CÙNG một element (§4.2) | ⛔ không gate được — chỉ lộ khi đo DOM ở đúng viewport cap; kỷ luật: tách 2 lớp mỗi khi một khung tự mở `@container` |
-| 4 | Viết `p-*` thô ở tầng `composite`/`block`/`layout`/`overlay`/`page` thay vì dùng prop `padding` của khung (`Container`/`Stack`/`Flex`/`SurfaceCard`) dù giá trị đúng thang | ⬜ **CHƯA — gate cần viết**: quét mọi `className` chứa `p[trblxy]?-(0\|2\|3\|6\|8)` ở tầng `GUARDED` mà KHÔNG đi qua object `PADDING_CLASS`/prop `padding` đã biết — hiện `check-padding.mjs` chỉ chặn SAI THANG, không chặn ĐÚNG THANG NHƯNG hand-roll |
-| 5 | Làm tròn padding bất đối xứng của `src` thật về một bậc `InsetScale` đối xứng mà KHÔNG ghi chú lệch tại chỗ port (§4.3) | ⛔ không gate được — kỷ luật, ví dụ đã làm đúng: comment tại chỗ trong `EnrollGate.tsx` |
-| 6 | Khai `// inset-exception:` mà không nêu LÝ DO, hoặc khai cho một chỗ KHÔNG PHẢI vendor-geometry/optical-nudge (§4.5) | ✅ `check-padding.mjs` bắt thiếu lý do bằng regex `/inset-exception:\s*\S/` (không có `\S` sau dấu `:` thì không khớp, vẫn tính là finding thường); đúng loại thì kỷ luật đọc — không có gate phân biệt "lý do hợp lý" |
-| 7 | Áp `InsetScale` xuống tầng `atom` (đè lên hình học nội bộ atom tự sở hữu, vd `pr-9` của `Input`) | ⛔ không cần gate — atom được miễn có chủ đích (13z), xem §4.8 |

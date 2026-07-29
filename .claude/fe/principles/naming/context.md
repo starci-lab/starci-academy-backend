@@ -5,6 +5,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — không phải số, là KHUÔN tên cho từng LOẠI artefact
 
@@ -55,6 +57,35 @@ bẫy §4.2, không phải câu hỏi 5 trả lời được ngay.**
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Namespace `X.Member` trong file component (`Object.assign`, `export const X = { Base }`) | ✅ `check-no-namespace.mjs` |
+| 2 | Type object literal ẩn danh ở prop/generic/tham số hàm | ✅ `check-inline-types.mjs` |
+| 3 | Story export đặt tên như MEMBER (`Foo.Bar` PascalCase, không `=`/số/chữ thường) thay vì điều kiện dữ liệu | ✅ `check-member-as-state.mjs` |
+| 4 | `storyId` trỏ sang story không tồn tại (đổi tên quên sửa neo) | ✅ `check-story-ids.mjs` |
+| 5 | Tên hiển thị trong `title:`/`export const` có khoảng trắng hoặc prose (`"No progress"`) | ⬜ **CHƯA — cần viết**: quét đoạn cuối mọi `title:` và mọi `export const <Name>`, báo đỏ nếu chứa dấu cách hoặc ký tự thường ở đầu |
+| 6 | Thư mục họ đặt số ít khi gom LOẠI phần tử nhân bản được | ⬜ **CHƯA — cần viết**: cần danh sách domain-noun cố định (`learn`, `commerce`, `ai`…) để loại trừ, phần còn lại kiểm plural bằng heuristic đuôi `s` |
+| 7 | Suy tên loại 6/7 (type/prop) theo CHỖ DÙNG thay vì theo VAI của hình dữ liệu | ⛔ không gate được — kỷ luật, cần đọc hiểu ngữ nghĩa hình |
+| 8 | Viết tắt/Hungarian cho biến cục bộ (loại 8) | ⛔ không gate được — không có rule `naming-convention` trong `eslint.config.mjs` |
+| 9 | **Ký hiệu nối trong chuỗi panel** (loại 9): `—` làm dấu nối, `↔`, `->`, `=>` trong `why`/`reason`/`role`/`leaf` | ⬜ **CHƯA — viết được, nên viết sớm**: quét mọi `.stories.tsx` lấy giá trị bốn khoá đó, báo đỏ nếu chứa `—` `↔` `->` `=>`. KHÔNG quét JSDoc, comment, hay sơ đồ cây (ngoại lệ đã khai ở loại 9) |
+
+**✅ ĐÃ CHỐT 2026-07-29 — TÊN TIER, xem `INDEX.md` mục "Tên tầng chính thức":**
+- Trước ngày này năm nguồn khai năm danh sách khác nhau; chuẩn là **tên thư mục thật trên đĩa**.
+- 9 tầng chính thức: `heroui` (không có thư mục, chỉ badge trong `ANNOTATE`) · `atom`
+  (`atoms/`) · `behavior` (`behaviors/`, primitive KHÔNG HÌNH) · `frame` (`frames/`) ·
+  `composite` (`composites/`) · `block` (`<app>/blocks/`) · `layout` (`<app>/layouts/`) ·
+  `overlay` (`<app>/overlays/`) · `page` (`<app>/pages/`).
+- `designs` (từ `4-organization.md` §1 cũ) và `screens` (từ đề bài giao việc cũ) đã CHẾT —
+  `screens` gọi là `page`/`pages` trên đĩa, `designs` không tồn tại ở tầng nào.
+- Tầng và app là HAI TRỤC VUÔNG GÓC: tầng dùng chung (`heroui, atom, behavior, frame,
+  composite`) nằm ở gốc; tầng theo app (`block, layout, overlay, page`) nằm dưới `<app>/`.
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — 8 loại, đếm theo trình tự pipeline, không phải theo thứ bậc số
 
 8 loại không phải một thang có thứ tự tuyến tính theo giá trị, nên phép đếm `C(8,2) = 28`
@@ -64,15 +95,15 @@ story export → type → prop → biến cục bộ.**
 
 ### 3a. Bảy cặp KỀ NHAU trong pipeline — đây là toàn bộ trận đánh
 
+Bốn cặp chưa cắn thật (rủi ro lý thuyết, bỏ cột phép phân định): **thư mục ↔ file impl** ·
+**file impl ↔ file story** (⛔ không lẫn) · **story export ↔ type suffix** · **prop ↔ biến cục
+bộ**. Ba cặp đã cắn thật giữ nguyên:
+
 | Cặp | Phép phân định DỨT KHOÁT | Đã cắn thật |
 |---|---|---|
-| **thư mục ↔ file impl** | Thư mục có chứa NHIỀU file cùng họ không? Có ⇒ thư mục, đặt plural/domain-noun. Chỉ 1 file trong đó ⇒ đang đặt tên FILE, theo khuôn loại 2 | chưa |
-| **file impl ↔ file story** | File có đuôi `.stories.tsx` không? Đây là phép thử máy 100%, không bao giờ lẫn thật | ⛔ không lẫn — chỉ ghi vì liền kề trong pipeline |
 | **file story ↔ story title** | Tên FILE có nhất thiết = đoạn CUỐI của `title:` không? Không nhất thiết — file gộp nhiều state vẫn 1 title; nhưng file TÁCH theo state cho MỘT title có 2 đường dẫn (`Hero/Progress`, `Hero/No progress`) ⇒ đang lẫn STATE với MEMBER, xem cặp kế | ✅ 1 lần (`ContinueCardHero` — 2 file, chưa gộp) |
 | **story title ↔ story export** | Đoạn cuối `title:` có đọc như MỘT ĐIỀU KIỆN DỮ LIỆU hay như MỘT CỬA GỌI KHÁC? Đường dẫn khác nhau (`Hero/Progress` vs `Hero/No progress`) = 2 CỬA GỌI KHÁC ⇒ đúng là 2 MEMBER, không gộp làm state của 1 export. Nhưng nếu 1 title có nhiều `export const` bên trong đọc được như tên component (`export const SurfaceCardList`) thì đó là STATE giả trang MEMBER ⇒ sai, tách file | ✅ gate `check-member-as-state.mjs` viết ra đúng vì ca này |
-| **story export ↔ type suffix** | State đang đặt tên có phải NHÃN của một GIÁ TRỊ enum dùng làm prop không (`tone: "warn"` ⇒ export `Warn`)? Có ⇒ tên export nên khớp giá trị enum, không tự sáng tác tên khác | chưa |
 | **type suffix ↔ prop** | Đang đặt tên cho HÌNH DỮ LIỆU (đi kèm `interface`) hay cho MỘT FIELD bên trong hình đó? Field ⇒ prop, camelCase. Cả hình ⇒ type, hậu tố theo vai | ✅ 73/44 chỗ trước gate — lẫn ở CHỖ để hình chứ không lẫn TÊN, xem `example.html` |
-| **prop ↔ biến cục bộ** | Field này có nằm trong `interface`/`type` export không? Có ⇒ prop, phải đối xứng với anh em. Không, chỉ khai trong thân hàm ⇒ biến cục bộ, không cần đối xứng nhưng vẫn không viết tắt | chưa — không có gate, kỷ luật |
 
 ### 3b. Sáu cặp CÁCH MỘT LOẠI — câu hỏi cấp trên chưa trả lời
 
@@ -87,9 +118,8 @@ story export → type → prop → biến cục bộ.**
 
 ### 3c. Mười lăm cặp CÁCH XA — cố ý không có phép thử
 
-Mọi cặp còn lại của `C(8,2) = 28 − 7 − 6 = 15` (vd thư mục ↔ story export, file impl ↔ prop,
-story title ↔ biến cục bộ…): **phân vân ở đây là dấu hiệu đang đọc SAI LOẠI đang đặt tên**,
-không phải chọn sai khuôn. Quay lại cây §2, xác định lại loại trước khi chọn khuôn.
+`C(8,2) = 28 − 7 − 6 = 15`. Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ
+sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -147,33 +177,3 @@ không phải chọn sai khuôn. Quay lại cây §2, xác định lại loại 
    không còn tồn tại từ 2026-07-28). Chỉ lấy phần khuôn chữ, bỏ mọi ví dụ path của nó.
 
 Neo cụ thể từng loại: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Namespace `X.Member` trong file component (`Object.assign`, `export const X = { Base }`) | ✅ `check-no-namespace.mjs` |
-| 2 | Type object literal ẩn danh ở prop/generic/tham số hàm | ✅ `check-inline-types.mjs` |
-| 3 | Story export đặt tên như MEMBER (`Foo.Bar` PascalCase, không `=`/số/chữ thường) thay vì điều kiện dữ liệu | ✅ `check-member-as-state.mjs` |
-| 4 | `storyId` trỏ sang story không tồn tại (đổi tên quên sửa neo) | ✅ `check-story-ids.mjs` |
-| 5 | Tên hiển thị trong `title:`/`export const` có khoảng trắng hoặc prose (`"No progress"`) | ⬜ **CHƯA — cần viết**: quét đoạn cuối mọi `title:` và mọi `export const <Name>`, báo đỏ nếu chứa dấu cách hoặc ký tự thường ở đầu |
-| 6 | Thư mục họ đặt số ít khi gom LOẠI phần tử nhân bản được | ⬜ **CHƯA — cần viết**: cần danh sách domain-noun cố định (`learn`, `commerce`, `ai`…) để loại trừ, phần còn lại kiểm plural bằng heuristic đuôi `s` |
-| 7 | Suy tên loại 6/7 (type/prop) theo CHỖ DÙNG thay vì theo VAI của hình dữ liệu | ⛔ không gate được — kỷ luật, cần đọc hiểu ngữ nghĩa hình |
-| 8 | Viết tắt/Hungarian cho biến cục bộ (loại 8) | ⛔ không gate được — không có rule `naming-convention` trong `eslint.config.mjs` |
-| 9 | **Ký hiệu nối trong chuỗi panel** (loại 9): `—` làm dấu nối, `↔`, `->`, `=>` trong `why`/`reason`/`role`/`leaf` | ⬜ **CHƯA — viết được, nên viết sớm**: quét mọi `.stories.tsx` lấy giá trị bốn khoá đó, báo đỏ nếu chứa `—` `↔` `->` `=>`. KHÔNG quét JSDoc, comment, hay sơ đồ cây (ngoại lệ đã khai ở loại 9) |
-
-**✅ ĐÃ CHỐT 2026-07-29 — TÊN TIER, xem `INDEX.md` mục "Tên tầng chính thức":**
-- Trước ngày này có NĂM nguồn khai năm danh sách khác nhau (thư mục trên đĩa,
-  `check-seams.mjs`, `check-padding.mjs`, `4-organization.md` §1, trường `tier` trong
-  `ANNOTATE`). Chốt lấy **tên thư mục thật trên đĩa** làm chuẩn — đĩa là thứ duy nhất không nói
-  dối được.
-- 9 tầng chính thức: `heroui` (không có thư mục, chỉ badge trong `ANNOTATE`) · `atom`
-  (`atoms/`) · `behavior` (`behaviors/`, primitive KHÔNG HÌNH) · `frame` (`frames/`) ·
-  `composite` (`composites/`) · `block` (`<app>/blocks/`) · `layout` (`<app>/layouts/`) ·
-  `overlay` (`<app>/overlays/`) · `page` (`<app>/pages/`).
-- `designs` (từ `4-organization.md` §1 cũ) và `screens` (từ đề bài giao việc cũ) đã CHẾT —
-  `screens` gọi là `page`/`pages` trên đĩa, `designs` không tồn tại ở tầng nào.
-- Tầng và app là HAI TRỤC VUÔNG GÓC: tầng dùng chung (`heroui, atom, behavior, frame,
-  composite`) nằm ở gốc; tầng theo app (`block, layout, overlay, page`) nằm dưới `<app>/`.

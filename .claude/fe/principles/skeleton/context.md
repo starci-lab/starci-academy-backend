@@ -7,6 +7,10 @@
 
 ---
 
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+
+---
+
 ## 1. THANG — 7 HÌNH shimmer, không có hình thứ tám
 
 Đây **không phải thang có thứ tự** (không có "giữa hình 1 và hình 3"). Thang là một tập
@@ -46,6 +50,26 @@ phải đứng **SAU khi mọi hook đã gọi xong** (§4 mục 2). Xem §4 B�
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Component sở hữu HÌNH thật (không phải slot thuần/re-export) mà THIẾU `isSkeleton` | ⬜ **CHƯA** — gate cần viết: liệt kê `.storybook/components/**` (loại `_legacy`/`frames`), loại file re-export/namespace thuần, báo file còn lại KHÔNG có chuỗi `isSkeleton` trong props (chính là script Node đã chạy thủ công ở `steps/13` §2r — 246 file quét → 24 gap thật — đề xuất bake cố định) |
+| 2 | Nhánh `isSkeleton` không đứng TRƯỚC mọi nhánh rẽ hình khác | ⬜ **CHƯA** — gate cần viết: parse từng file, nếu có `if (isSkeleton)` thì mọi `if` khác test một prop hình (`size`/`variant`/`shape`) không được đứng ở dòng NHỎ HƠN nó |
+| 3 | Component CÓ HOOK đặt nhánh `isSkeleton` TRƯỚC khi mọi hook đã gọi (vi phạm Rules of Hooks) | ⬜ **CHƯA** — `eslint.config.mjs` dòng 41 đã đăng ký plugin `react-hooks` nhưng CHỈ tắt `exhaustive-deps`, KHÔNG bật `rules-of-hooks` — gate khả thi ngay: bật `"react-hooks/rules-of-hooks": "error"` |
+| 4 | Bỏ qua trục hình "biết trước" khi vẽ skeleton (vẽ 1 hình chung cho mọi `size`/`variant`/`collapseFrom`) | ⛔ không gate được — cần hiểu ngữ nghĩa "trục nào caller biết trước", kỷ luật đọc lại §12g.0 mỗi lần thêm skeleton |
+| 5 | Tự dựng cây shimmer song song cho component con ĐÃ CÓ `isSkeleton` riêng, thay vì chuyền cờ xuống | ⬜ **CHƯA** — gate cần viết: đối chiếu Deps tab (đã khai import component con) với việc `<HeroSkeleton` xuất hiện NGOÀI lời gọi component con đó, trong cùng nhánh `isSkeleton` |
+| 6 | Dựng lại compound `Skeleton.*` dùng chung (soi gương 1-1 từng component, sống ngoài chủ) | ⬜ **CHƯA** — gate cần viết: cấm bất kỳ export dạng `Skeleton.<PascalCase>` ánh xạ tới tên một component khác trong `.storybook/components/**` |
+| 7 | Prop nội dung (`text`/`items`/`value`…) hạ xuống OPTIONAL đại trà thay vì ép bằng UNION theo `isSkeleton` (§12b) | ⬜ **CHƯA** — `check-inline-types.mjs` hiện chỉ bắt shape vô danh, không kiểm discriminated union; gate riêng cần viết |
+| 8 | Thiếu leaf `Skeleton` riêng trong story (chỉ thêm prop ở component, không thêm leaf, §12g.0a) | ⬜ **CHƯA** — `check-story-coverage.mjs` chỉ kiểm TỒN TẠI file story theo block, không kiểm ĐỦ leaf bên trong |
+| 9 | Báo xong khi chưa `tsc --noEmit` sau khi thêm union (bỏ sót narrow-fallback ở nhánh `false`) | ⛔ không gate được trước — chỉ `tsc` bắt được SAU khi đã viết sai; kỷ luật luôn chạy `tsc` ngay sau mỗi union mới |
+
+---
+
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — 7 giá trị ⇒ `C(7,2) = 21` cặp
 
 Thang không có thứ tự tuyến tính nên "kề nhau" được định nghĩa lại: hai giá trị **kề nhau**
@@ -54,14 +78,12 @@ quyết định). Liệt kê đủ 21 cặp, không chọn lọc.
 
 ### 3a. Bảy cặp KỀ NHAU trên cây — mỗi cặp một phép phân định dứt khoát
 
+Bốn cặp CHƯA từng cắn (rủi ro mới ở mức lý thuyết), không giữ phép phân định riêng: `0 ↔ 1` · `1 ↔ 2` · `2 ↔ 4` · `3 ↔ 5`. Ba cặp còn lại đã cắn hoặc suýt cắn thật:
+
 | Cặp | Phép phân định DỨT KHOÁT | Đã cắn thật |
 |---|---|---|
-| **0 ↔ 1** | Bỏ hết slot/children ra, phần XƯƠNG còn lại của chính component này có tự vẽ pixel nào không (ảnh/chữ/icon)? Không còn gì ⇒ `0`. Còn một hình ⇒ `1`. | chưa |
-| **1 ↔ 2** | Nội dung thật là MỘT đơn vị đọc (nhãn, ảnh) hay một TÀI LIỆU nhiều dòng LUÔN cố định kết cấu? Một đơn vị ⇒ `1`. Nhiều dòng cố định không phụ thuộc dữ liệu ⇒ `2`. | chưa |
-| **2 ↔ 4** | Số node shimmer đó là một THAM SỐ consumer truyền (`skeletonRows`/`skeletonCount`) hay LUÔN một hằng số viết chết trong code? Hằng số ⇒ `2`. Có prop đếm mặc định ⇒ `4`. | chưa |
 | **1 ↔ 5** | Phần tử trong nhánh skeleton có phải một COMPONENT KHÁC đã có sẵn `isSkeleton` của chính nó không? Có ⇒ `5` (chỉ chuyền cờ). Chưa ai định nghĩa hình đó ⇒ tự vẽ (`1`). | ⚠️ suýt cắn: `SegmentBar` từng tự bọc thêm `<div data-anat-part="Legend">` NGOÀI `Legend` con thay vì chuyền thẳng badge, sửa lại §2s |
 | **2 ↔ 5** | Cùng phép thử trên, áp cho "nhiều node cố định": phần đó có phải 1 composite con đã có `isSkeleton` không? | như trên |
-| **3 ↔ 5** | Cùng phép thử trên, áp cho "trục biết trước": trục đó có đang được DELEGATE cho 1 component con (thay vì tự tra bảng size/variant) không? | chưa |
 | **3 ↔ 6** | Trục hình đó, giá trị của nó caller có VIẾT SẴN trong code TRƯỚC khi request chạy không (`size`, `collapseFrom`), hay chỉ biết SAU khi dữ liệu resolve (`totalPages`)? Biết trước ⇒ `3`, PHẢI rẽ nhánh. Do dữ liệu ⇒ `6`, cố ý một hình. | ✅ 2 lần: `Breadcrumbs` từng để `isSkeleton` bỏ qua `collapseFrom`/`collapseOnMobile`; `Tabs.Base` bỏ qua `variant` (secondary vẫn vẽ pill của primary) |
 
 ### 3b. Năm cặp CÙNG NHÁNH CHA — câu hỏi cấp trên chưa trả lời, không có phép thử riêng
@@ -76,11 +98,7 @@ quyết định). Liệt kê đủ 21 cặp, không chọn lọc.
 
 ### 3c. Chín cặp CÁCH XA — không có phép thử, và cố ý không có
 
-`0↔3` · `0↔5` · `0↔6` · `1↔4` · `1↔6` · `2↔3` · `2↔6` · `4↔5` · `5↔6`
-
-**Phân vân giữa hai giá trị ở nhóm này là dấu hiệu ĐỌC SAI Q1 hoặc Q2 ngay từ đầu**, không
-phải chọn nhầm hình. Dừng lại, trả lời lại Q1 ("có tự vẽ hình không") và Q2 ("có đang compose
-1 component con đã có sẵn isSkeleton không") trước khi chọn tiếp.
+`0↔3` · `0↔5` · `0↔6` · `1↔4` · `1↔6` · `2↔3` · `2↔6` · `4↔5` · `5↔6` — Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -142,19 +160,3 @@ phải chọn nhầm hình. Dừng lại, trả lời lại Q1 ("có tự vẽ h
    chỉ vì "nhìn giống" (đúng luật xuyên trục #2 ở `INDEX.md`).
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Component sở hữu HÌNH thật (không phải slot thuần/re-export) mà THIẾU `isSkeleton` | ⬜ **CHƯA** — gate cần viết: liệt kê `.storybook/components/**` (loại `_legacy`/`frames`), loại file re-export/namespace thuần, báo file còn lại KHÔNG có chuỗi `isSkeleton` trong props (chính là script Node đã chạy thủ công ở `steps/13` §2r — 246 file quét → 24 gap thật — đề xuất bake cố định) |
-| 2 | Nhánh `isSkeleton` không đứng TRƯỚC mọi nhánh rẽ hình khác | ⬜ **CHƯA** — gate cần viết: parse từng file, nếu có `if (isSkeleton)` thì mọi `if` khác test một prop hình (`size`/`variant`/`shape`) không được đứng ở dòng NHỎ HƠN nó |
-| 3 | Component CÓ HOOK đặt nhánh `isSkeleton` TRƯỚC khi mọi hook đã gọi (vi phạm Rules of Hooks) | ⬜ **CHƯA** — `eslint.config.mjs` dòng 41 đã đăng ký plugin `react-hooks` nhưng CHỈ tắt `exhaustive-deps`, KHÔNG bật `rules-of-hooks` — gate khả thi ngay: bật `"react-hooks/rules-of-hooks": "error"` |
-| 4 | Bỏ qua trục hình "biết trước" khi vẽ skeleton (vẽ 1 hình chung cho mọi `size`/`variant`/`collapseFrom`) | ⛔ không gate được — cần hiểu ngữ nghĩa "trục nào caller biết trước", kỷ luật đọc lại §12g.0 mỗi lần thêm skeleton |
-| 5 | Tự dựng cây shimmer song song cho component con ĐÃ CÓ `isSkeleton` riêng, thay vì chuyền cờ xuống | ⬜ **CHƯA** — gate cần viết: đối chiếu Deps tab (đã khai import component con) với việc `<HeroSkeleton` xuất hiện NGOÀI lời gọi component con đó, trong cùng nhánh `isSkeleton` |
-| 6 | Dựng lại compound `Skeleton.*` dùng chung (soi gương 1-1 từng component, sống ngoài chủ) | ⬜ **CHƯA** — gate cần viết: cấm bất kỳ export dạng `Skeleton.<PascalCase>` ánh xạ tới tên một component khác trong `.storybook/components/**` |
-| 7 | Prop nội dung (`text`/`items`/`value`…) hạ xuống OPTIONAL đại trà thay vì ép bằng UNION theo `isSkeleton` (§12b) | ⬜ **CHƯA** — `check-inline-types.mjs` hiện chỉ bắt shape vô danh, không kiểm discriminated union; gate riêng cần viết |
-| 8 | Thiếu leaf `Skeleton` riêng trong story (chỉ thêm prop ở component, không thêm leaf, §12g.0a) | ⬜ **CHƯA** — `check-story-coverage.mjs` chỉ kiểm TỒN TẠI file story theo block, không kiểm ĐỦ leaf bên trong |
-| 9 | Báo xong khi chưa `tsc --noEmit` sau khi thêm union (bỏ sót narrow-fallback ở nhánh `false`) | ⛔ không gate được trước — chỉ `tsc` bắt được SAU khi đã viết sai; kỷ luật luôn chạy `tsc` ngay sau mỗi union mới |

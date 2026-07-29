@@ -7,6 +7,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — sáu giá trị, không có giá trị thứ bảy
 
@@ -46,6 +48,29 @@ của §9a.1** (mang giá trị thông tin thật? + dính liền cấu trúc v�
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Viết class màu tay (`text-danger`, `text-[#hex]`, `style={{color}}`) trên `Typography`/`Alert`/`Chip` khi prop `color`/`tone`/`status` diễn đạt được | ⬜ **CHƯA — gate cần viết** (không có `check-color.mjs`; quét `.storybook/components/**` tìm `text-(muted|accent|danger|success|warning)` NGOÀI file `Typography.tsx`/`ChipBase.tsx`/`Alert.tsx` chính nó) |
+| 2 | Giá trị `color` ngoài 6 giá trị thang, đi qua prop | ✅ `tsc` — `TypographyColor`/`AlertStatus`/`ChipTone` là union literal |
+| 3 | Giá trị màu ngoài thang viết THẲNG bằng className (bỏ qua prop hoàn toàn) | ⬜ CHƯA — `tsc` không bắt được vì không đi qua type; cần gate quét className tay |
+| 4 | Tự chế 1 enum màu hẹp hơn (vd `"ok"|"error"` riêng) thay vì dùng lại `AlertStatus`/`TypographyColor` | ⛔ không gate được — kỷ luật (§5a.3) |
+| 5 | Ép 1 TIER (≥4 bậc liên tục) vào 3 token trạng thái, làm 2 bậc trùng màu | ⬜ CHƯA — gate cần viết: quét prop nhận enum >3 giá trị nhưng map trực tiếp vào `AlertStatus`/`COLOR_CLS` |
+| 6 | Icon mang nghĩa trạng thái khoá cứng màu theo ngữ cảnh khác (label/parent) thay vì `AlertStatus` riêng | ⛔ không gate được — kỷ luật (§5a.3), cần đọc hiểu ngữ nghĩa icon |
+| 7 | Nhiều điểm nổi cùng lúc trong 1 vùng (accent-flood, §2c) | ⛔ không gate được — kỷ luật, phán đoán thẩm mỹ theo vùng |
+| 8 | Copy màu từ `src` khi `src` khớp đúng phép thử CŨ đã bị sửa lưng (§9a.1) | ⛔ không gate được — kỷ luật, phải verify lại bằng 2 lớp câu hỏi mỗi lần, không tin `src` mặc định |
+
+**Gate còn thiếu (#1/#3/#5), mô tả để viết:** quét mọi `className`/literal string trong
+`.storybook/components/**` (trừ 3 file SSOT `Typography.tsx`/`ChipBase.tsx`/`Alert.tsx`)
+khớp `text-(muted|accent|danger|success|warning)(-soft-foreground)?` hoặc `bg-(accent|
+danger|success|warning)-soft`, báo đỏ — vì các token này CHỈ được sinh ra từ 3 map
+(`COLOR_CLS`/`TONE_COLOR`/`STATUS_TINT`), không được viết tay ở call-site.
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — đủ 15 cặp
 
 Thang 6 giá trị ⇒ `C(6,2) = 15` cặp. Thứ tự dùng để chia nhóm (không phải thang cường độ
@@ -62,24 +87,9 @@ tuyệt đối, mà là khoảng cách trong CÂY §2): `muted → default → a
 | **`success` ↔ `warning`** | Trạng thái đã HOÀN TẤT/ĐÚNG hẳn hay còn ĐANG TIẾN TỚI 1 ngưỡng cần lưu ý sớm? Hoàn tất ⇒ `success`. Còn cơ hội/cần chú ý ⇒ `warning`. | [`principles/prominence/context.md`](../prominence/context.md) §4 (bẫy 4) — `ContinueCard.timeLeft` leo tone `neutral→warning` khi urgent, KHÔNG nhảy sang element/màu khác |
 | **`warning` ↔ `danger`** | Hậu quả đã XẢY RA/không thể hoàn tác hay còn CƠ HỘI xử lý trước khi thành lỗi? Đã xảy ra ⇒ `danger`. Còn cơ hội ⇒ `warning`. | `Alert.tsx` `STATUS_ICON`: `warning`→`WarningIcon` (tam giác, còn cảnh báo) khác hẳn `danger`→`XCircleIcon` (đã sai) |
 
-### 3b. Bốn cặp CÁCH MỘT BẬC — chỉ ra câu hỏi cấp trên chưa trả lời
+### 3b. Bốn cặp CÁCH MỘT BẬC · 3c. Sáu cặp CÁCH ≥2 BẬC — cố ý không có phép phân định
 
-| Cặp | Đọc thế nào |
-|---|---|
-| `muted` ↔ `accent` | Phân vân ở đây nghĩa là câu 2 (có phải tín hiệu tương tác không) chưa được trả lời dứt khoát — quay lại câu 2 trước khi hỏi tiếp phụ hay không. |
-| `default` ↔ `success` | Phân vân nghĩa là câu 1 (đây có đang báo cáo 1 trạng thái dữ liệu thật không) chưa trả lời — một câu chữ không thể vừa "chỉ là chữ chính" vừa "đang báo 1 outcome" cùng lúc. |
-| `accent` ↔ `warning` | Đang so "tín hiệu chung" với "báo động cụ thể" mà chưa chốt câu 1 — nếu đã xác định KHÔNG phải trạng thái dữ liệu thì `warning` không còn là ứng viên nữa. |
-| `success` ↔ `danger` | Cách nhau 1 bậc trong dải 3 semantic vì BỎ QUA mất trạng thái trung gian `warning` — hỏi lại "có mức nửa chừng không" trước khi chọn 1 trong 2 đầu mút. |
-
-### 3c. Sáu cặp CÁCH ≥2 BẬC — không có phép phân định, và cố ý không có
-
-`muted`↔`success` · `muted`↔`warning` · `muted`↔`danger` · `default`↔`warning` ·
-`default`↔`danger` · `accent`↔`danger`
-
-**Phân vân giữa hai giá trị cách nhau ≥2 bậc là dấu hiệu CÂU HỎI 1 (có phải trạng thái
-thật không) đọc SAI**, không phải chọn nhầm. Một chữ không thể vừa "phụ mờ/chữ chính
-trung tính" vừa "báo lỗi nguy hiểm" mà không đi qua câu 1-2 trước. Viết thêm phép phân
-định cho sáu cặp này là hợp thức hoá một lỗi đọc cấu trúc.
+Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -136,24 +146,3 @@ trung tính" vừa "báo lỗi nguy hiểm" mà không đi qua câu 1-2 trước
    hệ thống, không tham khảo ngành ngoài.
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Viết class màu tay (`text-danger`, `text-[#hex]`, `style={{color}}`) trên `Typography`/`Alert`/`Chip` khi prop `color`/`tone`/`status` diễn đạt được | ⬜ **CHƯA — gate cần viết** (không có `check-color.mjs`; quét `.storybook/components/**` tìm `text-(muted|accent|danger|success|warning)` NGOÀI file `Typography.tsx`/`ChipBase.tsx`/`Alert.tsx` chính nó) |
-| 2 | Giá trị `color` ngoài 6 giá trị thang, đi qua prop | ✅ `tsc` — `TypographyColor`/`AlertStatus`/`ChipTone` là union literal |
-| 3 | Giá trị màu ngoài thang viết THẲNG bằng className (bỏ qua prop hoàn toàn) | ⬜ CHƯA — `tsc` không bắt được vì không đi qua type; cần gate quét className tay |
-| 4 | Tự chế 1 enum màu hẹp hơn (vd `"ok"|"error"` riêng) thay vì dùng lại `AlertStatus`/`TypographyColor` | ⛔ không gate được — kỷ luật (§5a.3) |
-| 5 | Ép 1 TIER (≥4 bậc liên tục) vào 3 token trạng thái, làm 2 bậc trùng màu | ⬜ CHƯA — gate cần viết: quét prop nhận enum >3 giá trị nhưng map trực tiếp vào `AlertStatus`/`COLOR_CLS` |
-| 6 | Icon mang nghĩa trạng thái khoá cứng màu theo ngữ cảnh khác (label/parent) thay vì `AlertStatus` riêng | ⛔ không gate được — kỷ luật (§5a.3), cần đọc hiểu ngữ nghĩa icon |
-| 7 | Nhiều điểm nổi cùng lúc trong 1 vùng (accent-flood, §2c) | ⛔ không gate được — kỷ luật, phán đoán thẩm mỹ theo vùng |
-| 8 | Copy màu từ `src` khi `src` khớp đúng phép thử CŨ đã bị sửa lưng (§9a.1) | ⛔ không gate được — kỷ luật, phải verify lại bằng 2 lớp câu hỏi mỗi lần, không tin `src` mặc định |
-
-**Gate còn thiếu (#1/#3/#5), mô tả để viết:** quét mọi `className`/literal string trong
-`.storybook/components/**` (trừ 3 file SSOT `Typography.tsx`/`ChipBase.tsx`/`Alert.tsx`)
-khớp `text-(muted|accent|danger|success|warning)(-soft-foreground)?` hoặc `bg-(accent|
-danger|success|warning)-soft`, báo đỏ — vì các token này CHỈ được sinh ra từ 3 map
-(`COLOR_CLS`/`TONE_COLOR`/`STATUS_TINT`), không được viết tay ở call-site.

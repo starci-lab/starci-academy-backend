@@ -6,6 +6,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG
 
@@ -79,6 +81,23 @@ Không vướng cả 3 câu trên → weight của tier ở Bước A render đ�
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Truyền `size`/`weight` ngoài union literal | ✅ `tsc` — `TypographySize` + `weight` là union |
+| 2 | Rải `text-*`/`font-*` className khi `Typography` diễn đạt được bằng prop | ⬜ **CHƯA — gate cần viết**: quét mọi `className=` trên JSX render `<Typography`/`<span data-anat-part="Text"` chứa `text-(xs|sm|base|lg|muted|foreground)`/`font-(medium|bold|semibold)` |
+| 3 | Token sai `text-muted-foreground`/`text-default`/`color="default"` thừa trên `Typography` | ⬜ **CHƯA — gate cần viết** |
+| 4 | Namespace kiểu cũ `Typography.Xs`/`.Sm`/`.H3` (đã merge 2026-07-25) | ✅ `check-no-namespace.mjs` |
+| 5 | `size="code"` hoặc `isLink` kèm `weight` (vô tác dụng, xem §3c/§4.1-4.2) | ⬜ **CHƯA — gate cần viết**: quét call-site vừa có `size="code"`/`isLink` vừa có `weight=` |
+| 6 | Tự nâng `size` so với `src` thật ("cho card nổi bật hơn") | ⛔ không gate được — kỷ luật, phải đối chiếu `src` từng dòng (§4.5) |
+| 7 | `weight="bold"` cạnh `prefixIcon`/`suffixIcon` kỳ vọng render đậm | ⛔ không gate được — đúng thiết kế atom, chỉ cảnh báo bằng tài liệu (§4.3) |
+| 8 | Báo xong khi chỉ đối chiếu bảng vai trò, chưa đọc đúng DÒNG `src` (nhầm dòng số hạng ↔ dòng tên) | ⛔ không gate được — kỷ luật, đọc lại đúng dòng trước khi trích |
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN
 
 ### 3a. Bốn tier ⇒ `C(4,2) = 6` cặp — vét đủ theo khoảng cách trong thang A-B-C-D
@@ -91,14 +110,7 @@ Không vướng cả 3 câu trên → weight của tier ở Bước A render đ�
 | `B ↔ C` | Text này có phải là TÊN/NHÃN của một thực thể, hay là CÂU MÔ TẢ đọc liền? Tên/nhãn ngắn, nổi hơn dòng xung quanh ⇒ B (`medium`). Câu văn xuôi dài, giọng phụ ⇒ C (regular + thường muted). |
 | `C ↔ D` | Xoá dòng này, phần còn lại có MẤT Ý CHÍNH không, hay chỉ mất 1 chi tiết vụn? Mất ý chính (mô tả) ⇒ C. Chỉ mất meta (giờ, nhãn phụ) ⇒ D. |
 
-**Cách 2 bậc (2 cặp) — câu hỏi cấp trên chưa trả lời, không viết phép thử riêng:**
-`A ↔ C`, `B ↔ D` — phân vân ở đây nghĩa là chưa trả lời dứt câu 2 hoặc câu 3 ở §2 Bước A;
-quay lại đó, đừng so trực tiếp 2 tier cách nhau 2 bậc.
-
-**Cách 3 bậc (1 cặp) — cố ý không có phép thử:**
-`A ↔ D` — Tier A (đậm nhất, đứng riêng) và Tier D (nhạt nhất, meta phụ) không bao giờ là 2 lựa
-chọn hợp lý cho CÙNG một dòng chữ. Phân vân ở đây là dấu hiệu đọc sai cấu trúc (VD tưởng nhầm
-1 con số phụ là điểm nhấn của khối), không phải chọn sai tier.
+**Cách ≥2 bậc (3 cặp: `A ↔ C`, `B ↔ D`, `A ↔ D`):** Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ### 3b. Bốn giá trị weight ⇒ `C(4,2) = 6` cặp — vét theo khoảng cách trong thang regular-medium-semibold-bold
 
@@ -110,12 +122,7 @@ chọn hợp lý cho CÙNG một dòng chữ. Phân vân ở đây là dấu hi�
 | `medium ↔ semibold` | Đang ở cỡ HEADING (`h3`-`h5`) hay cỡ BODY? Ở BODY, `semibold` fold về `medium` — 2 giá trị này render GIỐNG HỆT nhau ở body, đừng phân vân, viết `medium` cho rõ ý. Ở HEADING, 2 giá trị khác nhau thật — `semibold` là ngoại lệ Modal-header hoặc verdict cấp khối, `medium` gần như không dùng ở heading. |
 | `semibold ↔ bold` | Đây có phải Tier A (đứng riêng làm tâm điểm) không? CÓ ⇒ `bold`. Đây có phải tiêu đề Modal/verdict/tổng tiền không? CÓ ⇒ `semibold`, không bao giờ `bold`. |
 
-**Cách 2 bậc (2 cặp) — câu hỏi cấp trên chưa trả lời:** `regular ↔ semibold`, `medium ↔ bold`.
-Quay lại xác định trước: đây có phải Tier A/ngoại lệ Modal không?
-
-**Cách 3 bậc (1 cặp) — cố ý không có phép thử:** `regular ↔ bold`. Một dòng chữ phân vân giữa
-"không đậm gì cả" và "đậm nhất trang" là dấu hiệu chưa xác định được tier, không phải chọn sai
-weight.
+**Cách ≥2 bậc (3 cặp: `regular ↔ semibold`, `medium ↔ bold`, `regular ↔ bold`):** Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ### 3c. TỔ HỢP size×weight — tiêu chí vét cạn KHÁC (không phải thang có thứ tự): liệt kê đủ MỌI NHÁNH RENDER × mọi giá trị weight
 `Typography.tsx` có đúng **6 nhánh render** đọc/không đọc `weight` khác nhau (skeleton bỏ qua vì
@@ -175,18 +182,3 @@ dịch — code nhận mọi giá trị, âm thầm bỏ qua. Đây chính là b
    mới ngoài dữ liệu đã đúc.
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Truyền `size`/`weight` ngoài union literal | ✅ `tsc` — `TypographySize` + `weight` là union |
-| 2 | Rải `text-*`/`font-*` className khi `Typography` diễn đạt được bằng prop | ⬜ **CHƯA — gate cần viết**: quét mọi `className=` trên JSX render `<Typography`/`<span data-anat-part="Text"` chứa `text-(xs|sm|base|lg|muted|foreground)`/`font-(medium|bold|semibold)` |
-| 3 | Token sai `text-muted-foreground`/`text-default`/`color="default"` thừa trên `Typography` | ⬜ **CHƯA — gate cần viết** |
-| 4 | Namespace kiểu cũ `Typography.Xs`/`.Sm`/`.H3` (đã merge 2026-07-25) | ✅ `check-no-namespace.mjs` |
-| 5 | `size="code"` hoặc `isLink` kèm `weight` (vô tác dụng, xem §3c/§4.1-4.2) | ⬜ **CHƯA — gate cần viết**: quét call-site vừa có `size="code"`/`isLink` vừa có `weight=` |
-| 6 | Tự nâng `size` so với `src` thật ("cho card nổi bật hơn") | ⛔ không gate được — kỷ luật, phải đối chiếu `src` từng dòng (§4.5) |
-| 7 | `weight="bold"` cạnh `prefixIcon`/`suffixIcon` kỳ vọng render đậm | ⛔ không gate được — đúng thiết kế atom, chỉ cảnh báo bằng tài liệu (§4.3) |
-| 8 | Báo xong khi chỉ đối chiếu bảng vai trò, chưa đọc đúng DÒNG `src` (nhầm dòng số hạng ↔ dòng tên) | ⛔ không gate được — kỷ luật, đọc lại đúng dòng trước khi trích |

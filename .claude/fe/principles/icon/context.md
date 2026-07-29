@@ -5,6 +5,8 @@
 > icon (xem `color/` khi dựng). Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — bốn thang con, không phải một thang phẳng
 
@@ -103,6 +105,25 @@ bảng màu hẹp hơn — kể cả khi ca đang sửa chỉ cần đúng 1-2 g
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Dùng bộ icon khác `@phosphor-icons/react` (kể cả `@gravity-ui/icons` còn trong `package.json`) | ⬜ **CHƯA — gate cần viết**: quét import icon lib ngoài whitelist, trừ `react-icons` brand-logo (`ProgrammingLanguageTabs`, khác hẳn ngữ nghĩa) |
+| 1b | **Để trống slot `Indicator` của HeroUI** (`Accordion` · `Select` · `Checkbox` · `Chip`/`Alert` close) và để vendor tự vẽ glyph — đó là bộ icon thứ hai lọt vào bằng cửa sau, không `import` nào để grep (§1a.1) | ⬜ **CHƯA — gate viết được**: quét JSX tìm `<*.Indicator />` tự đóng, whitelist `Radio.Indicator` vì nó không vẽ icon |
+| 1c | Override `Checkbox.Indicator` bằng node thay vì bằng hàm ⇒ indeterminate hiện dấu check (bẫy §4.7) | ⬜ **CHƯA — gate viết được**: `Checkbox.Indicator` có children mà children KHÔNG phải arrow function |
+| 2 | Weight ngoài 2 nấc `regular`/`bold` (`thin`/`light`/`duotone`) | ⬜ **CHƯA — gate cần viết**: quét giá trị literal truyền vào `weight=` |
+| 3 | Size icon ngoài 5 giá trị thang (`size-4.5`, `size-7`…) | ⬜ **CHƯA — gate cần viết**, cùng dạng `check-seams.mjs` nhưng cho class icon |
+| 4 | Bảng `Record<Size, Weight>` gán CÙNG một giá trị cho mọi key (bẫy `StepBadge`) | ⬜ **CHƯA — gate cần viết**: quét object literal 2 key trở lên có type `Weight`/`IconWeight`, báo đỏ nếu mọi value giống nhau |
+| 5 | Khai prop icon bằng type cụ thể của 1 lib (`PhosphorIcon`, `IconType`…) | ⬜ **CHƯA — gate cần viết**: quét import type từ `@phosphor-icons/react` dùng làm kiểu prop |
+| 6 | Tra bảng size mà chưa xác định TRẦN hay TRONG Ô (bẫy `ContentModeNav`) | ⛔ không gate được — đòi hỏi biết NGỮ CẢNH render, không suy được từ text tĩnh — kỷ luật |
+| 7 | Giữ icon trang trí không phải ký hiệu "quốc dân" cạnh fact đã đủ nghĩa bằng chữ | ⛔ không gate được — đòi hỏi phán đoán ngữ nghĩa "ai cũng hiểu ngay hay cần liên tưởng" — kỷ luật |
+| 8 | Icon cùng hàng khác KHUÔN hình học (tam giác trần cạnh vòng tròn) | ⛔ không gate được — đòi hỏi so hình học giữa các icon, không phải so text — kỷ luật |
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN
 
 Bốn thang con ⇒ bốn phép đếm riêng, không gộp thành một con số giả.
@@ -124,12 +145,7 @@ Bốn thang con ⇒ bốn phép đếm riêng, không gộp thành một con s�
 | `size-4` ↔ `size-5` | Đây CHÍNH là cặp `ContentModeNav` từng sai: icon trong Ô `text-sm` phải `size-5` (line-height), không phải `size-4` (font-size của `text-xs`). Hỏi: icon có Ô bọc không — có thì line-height thắng. |
 | `size-5` ↔ `size-6` | `text-sm` hay `text-base` đang bao icon vị trí `DIV`? Tra cột line-height bảng 1c. |
 
-**3.1b. Ba cặp cách một bậc** — câu hỏi cấp trên (vị trí `TEXT`/`DIV` + text-size nào) chưa trả
-lời thì đừng chọn: `size-3`↔`size-4` · `size-3.5`↔`size-5` · `size-4`↔`size-6`.
-
-**3.1c. Ba cặp cách xa — cố ý không có phép thử:** `size-3`↔`size-5` · `size-3.5`↔`size-6` ·
-`size-3`↔`size-6`. Phân vân ở đây nghĩa là chưa xác định được vị trí + text-size của ngữ cảnh,
-không phải chọn nhầm số — quay lại §2a câu 3.
+**3.1b. Sáu cặp còn lại của `C(5,2)`:** Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ### 3.2. Cặp WEIGHT — `C(2,2) = 1` cặp
 
@@ -227,20 +243,3 @@ Tiêu chí dừng: mọi ô của lưới 5×2 đã có phán quyết, không c�
 3. Cây quyết định §2 — chỉ dùng khi (2) không tồn tại (component mới, chưa có primitive sở hữu).
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Dùng bộ icon khác `@phosphor-icons/react` (kể cả `@gravity-ui/icons` còn trong `package.json`) | ⬜ **CHƯA — gate cần viết**: quét import icon lib ngoài whitelist, trừ `react-icons` brand-logo (`ProgrammingLanguageTabs`, khác hẳn ngữ nghĩa) |
-| 1b | **Để trống slot `Indicator` của HeroUI** (`Accordion` · `Select` · `Checkbox` · `Chip`/`Alert` close) và để vendor tự vẽ glyph — đó là bộ icon thứ hai lọt vào bằng cửa sau, không `import` nào để grep (§1a.1) | ⬜ **CHƯA — gate viết được**: quét JSX tìm `<*.Indicator />` tự đóng, whitelist `Radio.Indicator` vì nó không vẽ icon |
-| 1c | Override `Checkbox.Indicator` bằng node thay vì bằng hàm ⇒ indeterminate hiện dấu check (bẫy §4.7) | ⬜ **CHƯA — gate viết được**: `Checkbox.Indicator` có children mà children KHÔNG phải arrow function |
-| 2 | Weight ngoài 2 nấc `regular`/`bold` (`thin`/`light`/`duotone`) | ⬜ **CHƯA — gate cần viết**: quét giá trị literal truyền vào `weight=` |
-| 3 | Size icon ngoài 5 giá trị thang (`size-4.5`, `size-7`…) | ⬜ **CHƯA — gate cần viết**, cùng dạng `check-seams.mjs` nhưng cho class icon |
-| 4 | Bảng `Record<Size, Weight>` gán CÙNG một giá trị cho mọi key (bẫy `StepBadge`) | ⬜ **CHƯA — gate cần viết**: quét object literal 2 key trở lên có type `Weight`/`IconWeight`, báo đỏ nếu mọi value giống nhau |
-| 5 | Khai prop icon bằng type cụ thể của 1 lib (`PhosphorIcon`, `IconType`…) | ⬜ **CHƯA — gate cần viết**: quét import type từ `@phosphor-icons/react` dùng làm kiểu prop |
-| 6 | Tra bảng size mà chưa xác định TRẦN hay TRONG Ô (bẫy `ContentModeNav`) | ⛔ không gate được — đòi hỏi biết NGỮ CẢNH render, không suy được từ text tĩnh — kỷ luật |
-| 7 | Giữ icon trang trí không phải ký hiệu "quốc dân" cạnh fact đã đủ nghĩa bằng chữ | ⛔ không gate được — đòi hỏi phán đoán ngữ nghĩa "ai cũng hiểu ngay hay cần liên tưởng" — kỷ luật |
-| 8 | Icon cùng hàng khác KHUÔN hình học (tam giác trần cạnh vòng tròn) | ⛔ không gate được — đòi hỏi so hình học giữa các icon, không phải so text — kỷ luật |

@@ -5,6 +5,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — sáu bậc, không có bậc thứ bảy
 
@@ -37,6 +39,27 @@ SSOT của thang: `SeamScale` trong `.storybook/components/frames/_spacing.ts`. 
 
 ---
 
+## 6. VẠCH CẤM
+
+Mỗi dòng dưới đây là một luật **máy kiểm được**. Cột cuối cho biết đã có gate hay chưa.
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Viết SỐ cho `gap` (`gap={3}`) thay vì chữ | ✅ `tsc` — `SeamScale` là union literal |
+| 2 | Con của khung mang `margin` (trừ whitelist `mt-auto` · `ms-auto` · `-mx-*`) | ✅ `check-padding.mjs` |
+| 3 | Viết bố cục tay (`flex`/`grid` + `gap-*` trong `className`) từ tầng `composite` trở lên | ✅ `check-seams.mjs` |
+| 4 | Con của khung mang `margin` cùng lúc parent có `gap` (hai chủ một seam) | ✅ `check-padding.mjs` (luật `child-margin`) |
+| 5 | Dùng giá trị ngoài thang (`gap-1.5` · `gap-4` · `gap-5`) | ✅ `check-seams.mjs` |
+| 6 | Chép seam từ component khác không cùng `src` (bẫy §4.5) | ⛔ không gate được — kỷ luật |
+| 7 | Báo xong khi mới đọc code, chưa đo `getComputedStyle` | ⛔ không gate được — kỷ luật |
+
+2026-07-29 sửa hai dòng khai sai: dòng 3 nay áp từ tầng `composite` trở lên vì `tierOf` đã
+đọc đúng tên thư mục thật, dòng 4 do `check-padding.mjs` bắt chứ không phải `check-seams.mjs`.
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — đủ 15 cặp
 
 Thang 6 bậc ⇒ `C(6,2) = 15` cặp. Liệt kê đủ 15, không chọn lọc.
@@ -51,8 +74,8 @@ Chưa từng có lỗi nào lệch ≥2 bậc. Xem neo trong `example.html` §3.
 | **`flush` ↔ `tight`** | Hai thứ có phải **đều là CHỮ** không? Cả hai là chữ và đọc liền thành một ý (tiêu đề trên, phụ đề dưới) ⇒ `flush`. Có một cái **không phải chữ** (icon, chấm, gạch) hoặc là hậu tố dính (đơn vị) ⇒ `tight`. | ✅ 1 lần |
 | **`tight` ↔ `related`** | **MARK hay PEER.** Xoá một cái: phần còn lại vẫn **đứng độc lập hoàn chỉnh** ⇒ hai PEER ⇒ `related`. Phần còn lại vẫn có nghĩa nhưng **mất ngữ cảnh mà cái kia cấp** ⇒ MARK ⇒ `tight`. | ✅ 2 lần |
 | **`related` ↔ `grouped`** | **ĐẢO THỨ TỰ ĐƯỢC KHÔNG.** Đổi chỗ hai cái mà nghĩa không đổi ⇒ PEER ⇒ `related`. Thứ tự mang nghĩa, **hoặc mỗi hàng là một LOẠI khác nhau** ⇒ hàng của một mặt ⇒ `grouped`. | ✅ 1 lần |
-| **`grouped` ↔ `section`** | **CÓ ĐƯỜNG KẺ / TIÊU ĐỀ NÀO NẰM GIỮA ĐƯỢC KHÔNG.** Chèn divider hoặc heading vào giữa mà thấy tự nhiên ⇒ hai VÙNG ⇒ `section`. Chèn vào thấy gượng vì chúng đọc như một danh sách liền ⇒ `grouped`. | chưa |
-| **`section` ↔ `page`** | **BÊ MỘT CÁI SANG TRANG KHÁC CÓ CÒN NGHĨA KHÔNG.** Còn nghĩa và tự đứng được ⇒ hai tính năng riêng ⇒ `page`. Bê đi thì cái còn lại cụt ⇒ hai vùng của một khối ⇒ `section`. | chưa |
+
+Hai cặp kề còn lại chưa cắn thật lần nào, mới là rủi ro lý thuyết: `grouped`↔`section` · `section`↔`page`.
 
 ### 3b. Bốn cặp CÁCH MỘT BẬC — hiếm, nhưng có đường phân định
 
@@ -68,9 +91,7 @@ Chưa từng có lỗi nào lệch ≥2 bậc. Xem neo trong `example.html` §3.
 `flush`↔`grouped` · `flush`↔`section` · `flush`↔`page` · `tight`↔`section` ·
 `tight`↔`page` · `related`↔`page`
 
-**Phân vân giữa hai giá trị cách nhau ≥2 bậc là dấu hiệu CÂY VẼ SAI, không phải chọn sai.**
-Hai thứ đang so không cùng cấp trong cây tổ hợp. Dừng chọn seam, vẽ lại cấu trúc, rồi
-mới chọn. Viết thêm phép phân định cho sáu cặp này là hợp thức hoá một lỗi cấu trúc.
+Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -115,25 +136,3 @@ TRƯỚC bước chọn giá trị.
    `8px`, cả hai đều đúng trong ngữ cảnh của mình.
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-Mỗi dòng dưới đây là một luật **máy kiểm được**. Cột cuối cho biết đã có gate hay chưa.
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Viết SỐ cho `gap` (`gap={3}`) thay vì chữ | ✅ `tsc` — `SeamScale` là union literal |
-| 2 | Con của khung mang `margin` (trừ whitelist `mt-auto` · `ms-auto` · `-mx-*`) | ✅ `check-padding.mjs` |
-| 3 | Viết bố cục tay (`flex`/`grid` + `gap-*` trong `className`) từ tầng `composite` trở lên | ✅ `check-seams.mjs` |
-| 4 | Con của khung mang `margin` cùng lúc parent có `gap` (hai chủ một seam) | ✅ `check-padding.mjs` (luật `child-margin`) |
-| 5 | Dùng giá trị ngoài thang (`gap-1.5` · `gap-4` · `gap-5`) | ✅ `check-seams.mjs` |
-| 6 | Chép seam từ component khác không cùng `src` (bẫy §4.5) | ⛔ không gate được — kỷ luật |
-| 7 | Báo xong khi mới đọc code, chưa đo `getComputedStyle` | ⛔ không gate được — kỷ luật |
-
-Hai chỗ đã sửa 2026-07-29 sau khi đối chiếu code gate thật, vì bản trước khai sai:
-dòng 3 từng ghi phủ tầng `composite` trong khi gate chỉ kiểm `design·block·screen` — hai tầng
-đầu không tồn tại trên đĩa, nên nó thực chất chỉ phủ `block` (118/258 file, 46%); nay `tierOf`
-đọc đúng tên thư mục thật và luật áp từ `composite` trở lên. Dòng 4 từng gán việc bắt `margin`
-cho `check-seams.mjs` trong khi logic đó nằm ở `check-padding.mjs`.

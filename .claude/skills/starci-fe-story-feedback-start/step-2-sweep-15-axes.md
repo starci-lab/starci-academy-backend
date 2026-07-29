@@ -1,10 +1,25 @@
 # B2 — QUÉT ĐỦ 15 TRỤC
 
-> **Trục nạp:** cả mười lăm, xem [`principles/INDEX.md`](../../fe/principles/INDEX.md)
+> **Trục nạp:** **PHẦN A** của cả mười lăm trục, xem
+> [`principles/INDEX.md`](../../fe/principles/INDEX.md)
 > **Phạm vi:** mọi vùng đã chọn ở B1, **lặp lại đầy đủ ở MỖI vòng**. Read-only — bước này chỉ
 > đề xuất, không sửa.
 
 Đây là bước lõi. Ra một **ma trận vùng × trục**, và ma trận đó **không được có ô trống**.
+
+## Nạp hai tầng, không nạp cả bộ
+
+Mỗi `context.md` chia hai tầng đọc (2026-07-29). Quét theo đúng hai nhịp này:
+
+| Nhịp | Nạp gì | Để làm gì |
+|---|---|---|
+| **Phát hiện** | **PHẦN A** của cả 15 trục (§1 thang · §2 cây · §6 vạch cấm) | điền phán quyết cho mọi ô của ma trận |
+| **Tra sâu** | **PHẦN B** của **đúng trục ra `LỆCH`** (§3 vét cạn · §4 bẫy · §5 neo) | lấy phép phân định và cách sửa cho ô đó |
+
+⚠️ **Đừng nạp PHẦN B của trục ra `ĐẠT` hoặc `N/A`.** Cả bộ là 2 580 dòng, dài hơn
+`principles.md` đã bị khai tử vì quá dài; nạp hết mỗi vòng là tái lập đúng bệnh đó. Riêng Phần A
+của 15 trục là 1 243 dòng, vừa sức nạp trọn — và Phần A đã đủ để **phát hiện**, đó là toàn bộ
+việc của nhịp đầu.
 
 ---
 

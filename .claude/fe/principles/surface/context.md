@@ -6,6 +6,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG
 
@@ -73,6 +75,22 @@ nguyên, không tokenize (đúng ngữ cảnh hơn nhưng để 2 call-site trô
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | Viết `rounded-*`/`shadow-*` ngoài từ vựng đã quan sát (vd `rounded-[10px]`, `shadow-[0_0_0_2px_red]`) | ⬜ **CHƯA** — không script nào trong `scripts/*.mjs` quét `rounded-`/`shadow-` (đã grep hết, 0 hit) |
+| 2 | Một hộp vừa có `border` vừa có `shadow-surface` cùng lúc (double-fill §1a) | ⬜ **CHƯA** — gate cần viết: quét mọi `cn(...)` chứa cả `border` (không phải `border-none`) và `shadow-surface` |
+| 3 | `variant="nested"` khi không có mặt cha bọc trực tiếp (đã cắn 2 lần thật, §4.2) | ⛔ **không gate được** — cần biết cây DOM cha thật, không regex hoá được — kỷ luật/soi mắt |
+| 4 | Thêm ring/outline chọn mà không tắt bóng đi kèm (§4.3) | ⬜ **CHƯA** — gate cần viết: quét mọi `isSelected &&`/`isFocusVisible &&` cạnh `ring-`/`outline-` mà nhánh đó thiếu `shadow-none` |
+| 5 | ROW (`NestedSection`, `SurfaceCardListItem`) tự thêm `rounded-*`/`border`/`shadow-*` riêng (vi phạm §7b ROW≠CARD) | ⬜ **CHƯA** |
+| 6 | Truyền `className` restyle mặt thẻ vào wrapper ngoài thay vì `contentClassName` (§4.1) | ⬜ **CHƯA thường trực** — từng có script Node MỘT LẦN bắt bug này (`steps/13` §2p, quét 88 file gọi `SurfaceCard.*`), nhưng chưa đưa vào `scripts/*.mjs` sống |
+| 7 | Áp công thức đồng tâm (`radius trong = ngoài − padding`, §4.5) cho KHUNG mặt lồng hoặc media thay vì chỉ PHẦN TỬ field | ⬜ **CHƯA** — chưa có gate phân biệt loại đối tượng trước khi áp công thức |
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — 4 hình dạng mặt THẬT, `C(4,2) = 6` cặp
 
 Chỉ `surface`/`nested` là giá trị của MỘT prop chung (§1a). Nhưng "bo góc/viền/bóng/nền" của
@@ -97,18 +115,7 @@ có thứ tự, nên áp dụng được đúng cách đếm `C(N,2)` như trụ
 | `placeholder` ↔ `nested` | Viền này có kèm **NỘI DUNG THẬT** bên trong không, hay chỉ báo "chỗ này trống, bấm để thêm"? Có nội dung thật, đang lồng trong một mặt cha ⇒ `nested`. Trống, tĩnh, chờ hành động ⇒ `placeholder` |
 | `nested` ↔ `surface` | Cây §2 câu 1: có mặt cha bọc NGAY TRỰC TIẾP không? CÓ ⇒ `nested`. KHÔNG (đây là mặt ngoài cùng) ⇒ `surface` |
 
-### 3b. Hai cặp CÁCH MỘT BẬC
-
-| Cặp | Đọc thế nào |
-|---|---|
-| `bare` ↔ `nested` | Phân vân ở đây nghĩa là chưa trả lời được "đây có phải MỘT KHUNG hoàn chỉnh tự đứng được không, hay chỉ là một dòng trong danh sách của khung khác". Một ROW không bao giờ tự đứng thành card — trả lời câu đó trước |
-| `placeholder` ↔ `surface` | Phân vân nghĩa là đang nhầm "ô trống mời thêm" với "thẻ đã có dữ liệu thật". Kiểm: props truyền vào là `icon`+`label` tĩnh của `Placeholder`, hay là nội dung/data thật của một card? |
-
-### 3c. Một cặp CÁCH XA — cố ý không có phép thử
-
-`bare` ↔ `surface`: một cái là ROW mượn khung của khung khác, một cái CHÍNH LÀ khung. Phân vân ở
-đây là dấu hiệu đọc sai CẤP cha-con (đang so một PHẦN với CÁI CHỨA nó), không phải chọn sai giá
-trị. Dừng, vẽ lại cây cha-con trước khi chọn tiếp.
+Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu cây vẽ sai, không phải chọn sai giá trị (luật xuyên trục 3 ở INDEX.md). Quay lại §2.
 
 ---
 
@@ -185,17 +192,3 @@ trị. Dừng, vẽ lại cây cha-con trước khi chọn tiếp.
 4. Cây §2 — chỉ dùng khi (1) không tồn tại.
 
 Neo cụ thể từng nhánh: [`example.html`](example.html).
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | Viết `rounded-*`/`shadow-*` ngoài từ vựng đã quan sát (vd `rounded-[10px]`, `shadow-[0_0_0_2px_red]`) | ⬜ **CHƯA** — không script nào trong `scripts/*.mjs` quét `rounded-`/`shadow-` (đã grep hết, 0 hit) |
-| 2 | Một hộp vừa có `border` vừa có `shadow-surface` cùng lúc (double-fill §1a) | ⬜ **CHƯA** — gate cần viết: quét mọi `cn(...)` chứa cả `border` (không phải `border-none`) và `shadow-surface` |
-| 3 | `variant="nested"` khi không có mặt cha bọc trực tiếp (đã cắn 2 lần thật, §4.2) | ⛔ **không gate được** — cần biết cây DOM cha thật, không regex hoá được — kỷ luật/soi mắt |
-| 4 | Thêm ring/outline chọn mà không tắt bóng đi kèm (§4.3) | ⬜ **CHƯA** — gate cần viết: quét mọi `isSelected &&`/`isFocusVisible &&` cạnh `ring-`/`outline-` mà nhánh đó thiếu `shadow-none` |
-| 5 | ROW (`NestedSection`, `SurfaceCardListItem`) tự thêm `rounded-*`/`border`/`shadow-*` riêng (vi phạm §7b ROW≠CARD) | ⬜ **CHƯA** |
-| 6 | Truyền `className` restyle mặt thẻ vào wrapper ngoài thay vì `contentClassName` (§4.1) | ⬜ **CHƯA thường trực** — từng có script Node MỘT LẦN bắt bug này (`steps/13` §2p, quét 88 file gọi `SurfaceCard.*`), nhưng chưa đưa vào `scripts/*.mjs` sống |
-| 7 | Áp công thức đồng tâm (`radius trong = ngoài − padding`, §4.5) cho KHUNG mặt lồng hoặc media thay vì chỉ PHẦN TỬ field | ⬜ **CHƯA** — chưa có gate phân biệt loại đối tượng trước khi áp công thức |

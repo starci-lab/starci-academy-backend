@@ -13,6 +13,8 @@
 > Neo code thật: [`example.html`](example.html).
 
 ---
+# PHẦN A · NHẬN BIẾT — nạp phần này khi QUÉT
+---
 
 ## 1. THANG — HAI thang riêng, không gộp
 
@@ -78,6 +80,26 @@ cần hỏi thầy nữa cho 3 ngoại lệ này.
 
 ---
 
+## 6. VẠCH CẤM
+
+| # | Cấm | Gate |
+|---|---|---|
+| 1 | `text-center`/`justify-center`/`align="center"` cho content chính ≥2 dòng, ngoài 4 ngoại lệ §1 | ⛔ chưa gate — kỷ luật |
+| 2 | Viết `text-left`/`text-right` (vật lý) thay vì `text-start`/`text-end` (logic) | ⛔ chưa gate — Tailwind nhận cả hai, không lỗi biên dịch |
+| 3 | Set `text-align` trực tiếp trên `<td>`/`<th>` khi có CSS un-layered đè (BẪY 3) thay vì bọc span | ⛔ chưa gate — vỡ lặng lẽ, chỉ lộ khi đo `getComputedStyle` |
+| 4 | Đổi `justify` của CẢ track khi chỉ cần đẩy ĐÚNG 1 phần tử (lẽ ra dùng `ml-auto`) | ⛔ chưa gate |
+| 5 | Viết `justify-*`/`items-*` tay trong `className` ở tầng `composite` trở lên | 🟡 MỘT PHẦN — `check-seams.mjs` chỉ bắt khi đi kèm `gap-*` (BẪY 5), `justify-only` lọt |
+| 6 | Render `<button>`/pressable toàn khối mà không tự đè `text-align` (BẪY 1) | ⛔ chưa gate — chỉ lộ khi đo DOM |
+
+Không có luật nào ở trục này được `tsc` bắt (khác trục `seam`, nơi `SeamScale` là union literal) —
+`TypographyAlign`/`TableAlign`/`LayoutJustify`/`LayoutAlign` đều là union literal ĐÚNG, nhưng KHÔNG
+CÓ union nào bắt được "center hay không nên center" — đó là quyết định NGỮ NGHĨA, không phải cú
+pháp, nên cả 6 dòng trên đều dựa vào kỷ luật đọc + đo, không dựa vào compiler.
+
+---
+# PHẦN B · TRA KHI ĐÃ THẤY LỆCH — chỉ mở khi Phần A ra kết quả lệch
+---
+
 ## 3. VÉT CẠN CA DỄ LẪN — 11 cặp, đếm được
 
 ### 3a. Thang A (3 bậc) ⇒ `C(3,2) = 3` cặp
@@ -86,7 +108,6 @@ cần hỏi thầy nữa cho 3 ngoại lệ này.
 |---|---|---|
 | `start` ↔ `center` | Nội dung có **≥2 dòng CHỮ CHẠY** (đoạn văn, mô tả) không? Có ⇒ `start` bắt buộc — mép trái+phải đều răng cưa khi center, mắt phải dò lại điểm bắt đầu mỗi dòng. Không (≤2 dòng NGẮN, hero/caption/empty-state) ⇒ `center` được phép nếu khớp 1 trong 4 ngoại lệ §1. | ✅ toàn bộ ca `text-center` sống đều rơi đúng nhánh "được phép" — xem §4 example.html |
 | `center` ↔ `end` | Đây có phải **SỐ/tiền/mốc thời gian/hành động ở CUỐI hàng** không? Có ⇒ `end` (kèm `tabularNums` nếu là số). Không (là caption/nhãn 1 dòng đứng một mình) ⇒ `center`. | ✅ `Table.tsx` `TableAlign` chỉ định nghĩa `start`\|`end`, cố ý KHÔNG có `center` cho cột dữ liệu |
-| `start` ↔ `end` | Đây có phải **ô/cột trong 1 hàng có ≥2 field** (label trái, giá trị phải) không? Có ⇒ 2 field 2 đầu, không cùng 1 field. Không (1 field độc lập) ⇒ chọn theo hướng đọc mặc định `start`. | chưa cắn — 2 bậc này hiếm lẫn vì ngược hướng rõ |
 
 ### 3b. Thang B (4 bậc ngữ nghĩa) ⇒ `C(4,2) = 6` cặp
 
@@ -96,8 +117,9 @@ cần hỏi thầy nữa cho 3 ngoại lệ này.
 | `center` ↔ `end` | Phần tử có phải **trailing action/caret DUY NHẤT** cần dồn hẳn về 1 phía không? Có ⇒ `end`. Không (khối cần đứng GIỮA track, ví dụ hero) ⇒ `center`. | ✅ `ContentPager.tsx:113`, `ChallengeDeliverableList.tsx:228` dùng `justify="end"` cho hàng CTA/caret |
 | `start` ↔ `between` | Có **đúng 2 nhóm cần tách xa nhau tối đa** (label ↔ value, tiêu đề ↔ hành động) không? Có ⇒ `between`. Không (nhiều phần tử cùng gói về 1 phía) ⇒ `start`. | ✅ `KeyValueList` dùng `justify-between` cho mọi hàng label↔value (raw class, xem BẪY 5) |
 | `center` ↔ `between` | Cả track có phải **1 khối duy nhất cần đứng giữa** hay **≥2 nhóm cần đẩy ra 2 đầu**? 1 khối ⇒ `center`. ≥2 nhóm ⇒ `between`. | dễ lẫn khi chỉ có 2 phần tử — 2 phần tử canh `between` và 2 phần tử canh `center` với `gap` lớn trông giống nhau, xem BẪY 4 |
-| `end` ↔ `between` | Có phần tử NÀO cần đứng Ở ĐẦU track không? Có ⇒ `between` (đầu giữ nguyên, cuối đẩy ra). Không (mọi thứ dồn cuối) ⇒ `end`. | chưa cắn |
 | `stretch` (chỉ có ở `align`, thay cho `between`) ↔ `center` | Nội dung con có cần **chiếm ĐỦ bề ngang** track (input, card full-width) không? Có ⇒ `stretch` (mặc định của `StackV`). Không (khối co theo nội dung, cần đứng giữa) ⇒ `center`. | ✅ `StackV` mặc định `align="stretch"` (`Stack.tsx:129`); mọi hero-card đổi sang `align="center"` đều tường minh (không dựa mặc định) |
+
+**Chưa cắn (rủi ro LÝ THUYẾT, chưa từng xảy ra — không giữ phép phân định riêng):** Thang A `start` ↔ `end` · Thang B `end` ↔ `between`.
 
 ### 3c. Hai cặp XUYÊN THANG — không tính vào `C(N,2)` vì khác thang, nhưng là chỗ gõ nhầm nhiều nhất
 
@@ -151,32 +173,11 @@ Năm bẫy dưới đây đều có neo code thật, render ở `example.html` �
    đừng tự áp lại cây quyết định từ đầu.
 3. Cây quyết định §2 — chỉ dùng khi (1) và (2) không tồn tại.
 
-✅ **ĐÃ CHỐT — neo cũ trong `principles.md` §3 bản lịch sử (dòng 159) đã CHẾT, và KHÔNG CẦN neo
-thay thế 1-1**: "dòng ≈ $58.99 khi thanh toán quốc tế (CourseCard) căn giữa" trỏ vào
-`CourseCard.tsx` — file đó nay nằm ở
-`.storybook/components/_legacy/designs/cards/CourseCard/CourseCard.tsx`, không còn ca sống. Đo
-lại 2026-07-29 (`grep -n "text-align|justify|align=" PriceTag.tsx`, file thay thế sống) xác nhận
-**không còn** dòng hint đó, cũng không còn center-align nào ở đó. Không dùng lại neo cũ — nhưng
-nguyên lý nó minh hoạ (số/giá không nên center) đã có neo SỐNG mạnh hơn NGAY trong tài liệu này:
-`Table.tsx` `TableAlign` (§3a Cặp 2) cố ý không định nghĩa `center` cho dữ liệu số. Mất VÍ DỤ cụ
-thể, không mất tính hợp lệ của luật — không phải câu cần thầy.
+✅ **ĐÃ CHỐT (đo 2026-07-29)** — neo cũ `principles.md` §3 bản lịch sử (dòng 159: "≈ $58.99 … CourseCard
+căn giữa") đã CHẾT vì `CourseCard.tsx` nay nằm `_legacy` còn `PriceTag.tsx` (file thay thế sống) không
+còn dòng hint đó lẫn center-align nào: KHÔNG cần neo thay thế 1-1, không dùng lại neo cũ — nguyên lý
+"số/giá không nên center" đã có neo SỐNG mạnh hơn ngay trong tài liệu này, `Table.tsx` `TableAlign`
+(§3a Cặp 2) cố ý không định nghĩa `center` cho dữ liệu số. Mất VÍ DỤ cụ thể, không mất tính hợp lệ
+của luật — không phải câu cần thầy.
 
 Neo cụ thể từng nhánh: [`example.html`](example.html) §6.
-
----
-
-## 6. VẠCH CẤM
-
-| # | Cấm | Gate |
-|---|---|---|
-| 1 | `text-center`/`justify-center`/`align="center"` cho content chính ≥2 dòng, ngoài 4 ngoại lệ §1 | ⛔ chưa gate — kỷ luật |
-| 2 | Viết `text-left`/`text-right` (vật lý) thay vì `text-start`/`text-end` (logic) | ⛔ chưa gate — Tailwind nhận cả hai, không lỗi biên dịch |
-| 3 | Set `text-align` trực tiếp trên `<td>`/`<th>` khi có CSS un-layered đè (BẪY 3) thay vì bọc span | ⛔ chưa gate — vỡ lặng lẽ, chỉ lộ khi đo `getComputedStyle` |
-| 4 | Đổi `justify` của CẢ track khi chỉ cần đẩy ĐÚNG 1 phần tử (lẽ ra dùng `ml-auto`) | ⛔ chưa gate |
-| 5 | Viết `justify-*`/`items-*` tay trong `className` ở tầng `composite` trở lên | 🟡 MỘT PHẦN — `check-seams.mjs` chỉ bắt khi đi kèm `gap-*` (BẪY 5), `justify-only` lọt |
-| 6 | Render `<button>`/pressable toàn khối mà không tự đè `text-align` (BẪY 1) | ⛔ chưa gate — chỉ lộ khi đo DOM |
-
-Không có luật nào ở trục này được `tsc` bắt (khác trục `seam`, nơi `SeamScale` là union literal) —
-`TypographyAlign`/`TableAlign`/`LayoutJustify`/`LayoutAlign` đều là union literal ĐÚNG, nhưng KHÔNG
-CÓ union nào bắt được "center hay không nên center" — đó là quyết định NGỮ NGHĨA, không phải cú
-pháp, nên cả 6 dòng trên đều dựa vào kỷ luật đọc + đo, không dựa vào compiler.
