@@ -46,13 +46,13 @@ thể làm biến mất hàng trăm file người khác đang sửa dở.
 
 ---
 >
-> **Repo:** FE `D:\Repositories\starci-academy` · BE `D:\Repositories\starci-academy-backend`,
+> **Repo:** FE `C:\Repositories\starci-academy` · BE `C:\Repositoriesc\starci-academy-backend`,
 > cùng branch `mtp`. Code design-system nằm ở `starci-academy/.storybook`.
 >
 > **Canon SSOT** ở BE, không ở FE:
 > | File | Giữ gì |
 > |---|---|
-> | `.claude/fe/principles.md` | **§0** `.storybook`=BẢN VẼ · `src`=CÔNG TRÌNH. Đọc §0 trước khi động vào FE |
+> | [`.claude/fe/rules/0-boundary.md`](rules/0-boundary.md) | **§0** `.storybook`=BẢN VẼ · `src`=CÔNG TRÌNH. Đọc §0 trước khi động vào FE |
 > | `.claude/fe/rules/1-decompose.md` | tách cây screen → atom |
 > | `.claude/fe/rules/2-leaf-states.md` | chia leaf · vét states · **§8** API `states[]` · **§8a** tên state |
 > | `.claude/fe/rules/3-shape-tier.md` | **§1.0** gap bằng CHỮ · §1.0a padding · chọn khung · padding |
@@ -78,7 +78,7 @@ thể làm biến mất hàng trăm file người khác đang sửa dở.
 
 | Tầng | Là gì | Số |
 |---|---|---|
-| `frame` | **không biết nội dung**, chỉ quyết trục · seam · canh | 5 (`Cluster` `Container` `Grid` `Split` `Stack`) |
+| `frame` | **không biết nội dung**, chỉ quyết trục · seam · canh | 6 (`Cluster` `Container` `Grid` `ResponsiveRow` `Split` `Stack`) — `ResponsiveRow` thêm 2026-07-29, xem `principles/frame/context.md` §1 |
 | `composite` | **biết nội dung**, dựng bằng frame (`SurfaceCard` `Section` `KeyValue` `Form` `ModalShell`…) | 37 |
 
 Phép thử là **"sở hữu nội dung"**, không phải "đếm import" — một khung 0 import vẫn có thể biết

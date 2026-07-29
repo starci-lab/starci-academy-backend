@@ -5,12 +5,17 @@ description: Audit + dựng lại MỘT screen trong Storybook design-system the
 
 # /starci-fe-screen-audit — audit + dựng lại một SCREEN, từ root xuống
 
-> **Canon SSOT:** `.claude/fe/principles.md` — §4a cấm đổi thang cỡ atom · §10a một seam
-> một chủ · §10c thang `0·1·2·3·6·8` · §11a badge một nấc · **§11a.1 `anatPart` xuống,
-> `showAnatomy` KHÔNG** · §11f leaf theo CẤU TRÚC · §12c skeleton co-located · §12g.3 mọi
-> leaf phải có `code` · **§13z khung áp từ tầng layout trở lên** · §14d.1 design sở hữu hình.
+> **Canon SSOT:** `.claude/fe/principles/surface/context.md` §4a cấm đổi thang cỡ atom ·
+> `.claude/fe/principles/seam/context.md` §10a một seam một chủ ·
+> `.claude/fe/principles/inset/context.md` §1 thang inset `0·2·3·6·8` (NĂM bậc, khác thang seam) ·
+> `.claude/fe/rules/1-decompose.md` §4a badge một nấc · **`anatPart` xuống,
+> `showAnatomy` KHÔNG** · `.claude/fe/rules/2-leaf-states.md` §0 leaf theo CẤU TRÚC ·
+> `.claude/fe/principles/skeleton/context.md` §2 skeleton co-located ·
+> `.claude/fe/rules/2-leaf-states.md` §4 mọi leaf phải có `code` ·
+> `.claude/fe/principles/frame/context.md` **§2 khung áp từ tầng composite trở lên** ·
+> `.claude/fe/rules/2-leaf-states.md` §0 tầng nào sở hữu hình.
 > **Naming:** `.claude/fe/storybook-naming.md` — chữ HIỆN UI = **Full English**.
-> **Code:** `D:\Repositories\starci-academy\.storybook` (branch `mtp`).
+> **Code:** `C:\Repositories\starci-academy\.storybook` (branch `mtp`).
 
 ## ⛔ Luật cứng của lane
 

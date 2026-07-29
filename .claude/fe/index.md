@@ -3,7 +3,7 @@
 > Hai thư mục, hai vai. **`rules/` = LUẬT** (đúng/sai, dùng để CHẤM) ·
 > **`steps/` = TRÌNH TỰ** (làm gì trước, đo gì rồi mới qua bước sau, dùng để CHẠY).
 > Workflow dài cần cả hai: mỗi step nạp đúng file rules nó cần.
-> Luật đầy đủ vẫn ở `principles.md`; bộ này là **cách NGHĨ** + chỗ dễ sai + số đo thật.
+> Luật đầy đủ vẫn ở [`principles/INDEX.md`](principles/INDEX.md); bộ này là **cách NGHĨ** + chỗ dễ sai + số đo thật.
 >
 > ⚠️ **`principles.md` LẠC HẬU ở ba điểm** (2026-07-28) và KHÔNG được sửa (thầy chốt: canon
 > mới ghi vào `rules/` + `steps/`). Đọc nó thì tự dịch: **tầng `design` đã XOÁ** ⇒ đọc thành
@@ -17,6 +17,7 @@
 
 | File | Trả lời câu gì | Step dùng nó |
 |---|---|---|
+| [`rules/0-boundary.md`](rules/0-boundary.md) | **được phép GHI VÀO ĐÂU** — `.storybook` là bản vẽ, `src` là công trình. Đọc TRƯỚC mọi file khác | mọi step |
 | [`rules/1-decompose.md`](rules/1-decompose.md) | tách một màn thành cây component (screen → atom), ai được import gì | S3 · S5 |
 | [`rules/2-leaf-states.md`](rules/2-leaf-states.md) | bao nhiêu leaf, mỗi leaf vét đủ state nào | S4 · S6 |
 | [`rules/3-shape-tier.md`](rules/3-shape-tier.md) | gap · padding · chọn khung · chọn component · điều cấm | S7 |

@@ -2,7 +2,7 @@
 
 Nạp đúng thước + code THẬT trước khi chấm (chống chế):
 
-- **`.claude/fe/principles.md`** — đọc checklist "Đo được" mỗi §:
+- **`.claude/fe/principles/INDEX.md`** — đọc checklist "Đo được" mỗi §:
   - **§1** Surface-in-surface (top-level shadow · nested border · radius).
   - **§2 + §2d** Color-prominence (đúng 1 thứ nổi/vùng · thang muted→accent→chip→button · **cùng info-type → cùng element, nhấn bằng TONE**).
   - **§4** Element-compliance (primitive SỞ HỮU sizing/style nội bộ; consumer truyền children TRẦN).

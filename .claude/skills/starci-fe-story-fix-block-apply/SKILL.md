@@ -37,4 +37,4 @@ Có **plan duyệt** (`$FE_SOURCE/.artifacts/plans/story-fix-<block>.md`) chứa
 ## Ràng
 - Chỉ làm cái đã chốt; **dựng primitive TRƯỚC block**. Sửa component PHẢI update story cùng lượt (three-layer-sync).
 - KHÔNG đụng `.storybook/preview.tsx` / `main.ts`. Skeleton KHÔNG sweep; error/empty render TRONG khung card.
-- Liên quan: `starci-fe-story-fix-block-plan` (ra plan) · `.claude/fe/principles.md` (thước).
+- Liên quan: `starci-fe-story-fix-block-plan` (ra plan) · `.claude/fe/principles/INDEX.md` (thước).

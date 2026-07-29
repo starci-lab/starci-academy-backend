@@ -1,7 +1,7 @@
 # PLAYBOOK — dựng MỘT screen từ đầu
 
-> Đúc kết từ ca `CourseContents` (2026-07-26 → 27). Đọc `principles.md` cho LUẬT;
-> file này là THỨ TỰ LÀM và BỘ KIỂM. Mọi § dẫn dưới đây đều trỏ về `principles.md`.
+> Đúc kết từ ca `CourseContents` (2026-07-26 → 27). Đọc [`principles/INDEX.md`](principles/INDEX.md) cho LUẬT;
+> file này là THỨ TỰ LÀM và BỘ KIỂM. Mọi § dẫn dưới đây đều trỏ về [`principles/INDEX.md`](principles/INDEX.md).
 
 ---
 

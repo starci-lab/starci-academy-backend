@@ -18,7 +18,7 @@
 
 | Luật | Đo được |
 |---|---|
-| `tier` ∈ `atoms · frames · composites · designs · blocks · screens` | tách `layouts` 2026-07-27: 7 khung slot-trơ vs 37 component sở hữu nội dung |
+| **Tên tầng: SSOT là [`principles/INDEX.md`](../principles/INDEX.md)**, không khai lại ở đây | chốt 2026-07-29 lấy tên thư mục thật làm chuẩn. Dùng chung ở gốc: `atoms`(47) · `behaviors`(2) · `frames`(7) · `composites`(48). Theo app dưới `<app>/`: `blocks`(118) · `layouts`(5) · `overlays`(10) · `pages`(21). Cộng `heroui` là tầng vendor không có thư mục. **`designs` và `screens` đã CHẾT** — bản trước của dòng này còn khai cả hai, và hai gate đi tìm chúng nên bỏ sót 54% cây |
 | họ = **số NHIỀU** cho loại phần tử (`chips`, `cards`, `lists`), danh từ miền giữ nguyên (`learn`, `commerce`) | |
 | **1 file impl = 1 NAMESPACE** (cả `.Base`, `.Group`… trong một file) | 1.14 file/thư mục |
 | **1 file story = 1 MEMBER** (mỗi member một file) | 1.59 file/thư mục |

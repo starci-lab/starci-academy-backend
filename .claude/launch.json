@@ -43,7 +43,7 @@
     {
       "name": "storybook",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "D:/Repositories/starci-academy", "run", "storybook"],
+      "runtimeArgs": ["--prefix", "C:/Repositories/starci-academy", "run", "storybook"],
       "port": 6006
     },
     {
@@ -101,6 +101,30 @@
       "runtimeArgs": ["-m", "http.server", "8086", "--directory", "D:/Repositories/nivo-expert-app/.prototype"],
       "port": 8086,
       "url": "http://localhost:8086/",
+      "autoPort": false
+    },
+    {
+      "name": "decompose-proto",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8081", "--directory", "C:/Repositories/starci-academy/.artifacts/decompose"],
+      "port": 8081,
+      "url": "http://localhost:8081/",
+      "autoPort": false
+    },
+    {
+      "name": "principles",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8083", "--directory", "C:/Repositories/ac/starci-academy-backend/.claude/fe/principles"],
+      "port": 8083,
+      "url": "http://localhost:8083/",
+      "autoPort": false
+    },
+    {
+      "name": "gap-scan-proto",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8082", "--directory", "C:/Users/Cuong/AppData/Local/Temp/claude/C--Repositories-ac-starci-academy-backend/0df15438-a89e-40f1-91bb-aba70ea69a4e/scratchpad/gap-scan"],
+      "port": 8082,
+      "url": "http://localhost:8082/",
       "autoPort": false
     }
   ]

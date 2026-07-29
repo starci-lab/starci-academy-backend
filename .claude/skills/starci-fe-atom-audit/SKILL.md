@@ -5,10 +5,14 @@ description: Audit + dựng lại MỘT atom trong Storybook design-system theo 
 
 # /starci-fe-atom-audit — audit + dựng lại một ATOM
 
-> **Canon SSOT:** `.claude/fe/principles.md` — §12a namespace · §12b cấm children ·
-> §12c skeleton co-located · §12d size↔icon · §12f state thuộc về ai · **§12g tầng atom
-> = 1 prop 1 leaf** · §5.0 một bộ icon · §5.0a weight theo size.
-> **Code:** `D:\Repositories\starci-academy\.storybook` (branch `mtp`).
+> **Canon SSOT:** `.claude/fe/principles/naming/context.md` §12a namespace ·
+> `.claude/fe/rules/3-shape-tier.md` §12b cấm children ·
+> `.claude/fe/principles/skeleton/context.md` §12c skeleton co-located ·
+> `.claude/fe/rules/3-shape-tier.md` §12d size↔icon · `.claude/fe/rules/2-leaf-states.md`
+> §12f state thuộc về ai · `.claude/fe/rules/2-leaf-states.md` **§4 tầng atom
+> = 1 prop 1 leaf** · `.claude/fe/principles/skeleton/context.md` §2 hình shimmer nào ·
+> `.claude/fe/principles/icon/context.md` §5.0 một bộ icon · §5.0a weight theo size.
+> **Code:** `C:\Repositories\starci-academy\.storybook` (branch `mtp`).
 
 ## ⛔ Luật cứng của lane
 

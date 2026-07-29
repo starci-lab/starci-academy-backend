@@ -8,7 +8,7 @@ description: >
   KHÔNG sửa code. Brainstorm chạy **Opus (effort high)**. Đối tác: `starci-fe-story-fix-block-apply` (giai đoạn 2
   apply plan đã duyệt). Dùng khi thầy gõ `/starci-fe-story-fix-block-plan <story|họ>` (vd `CourseCard`, `cards`),
   "plan sửa block <X>", "phân tích cách fix render block <X>". KHÔNG phải audit-toàn-bộ (đó là
-  `starci-fe-story-audit`); đây là 1 block, ra plan fix cụ thể. KHÔNG phải layout/overlay (dùng skill
+  `starci-fe-story-generate`); đây là 1 block, ra plan fix cụ thể. KHÔNG phải layout/overlay (dùng skill
   `-layout-plan`/`-overlay-plan`).
 ---
 
@@ -38,5 +38,5 @@ Vai: **PLAN (read-only)**. Ra *cách fix + primitive cần thêm* để `-apply`
 5. **S5 — Xuất plan + STOP** → [`s5-output.md`](s5-output.md) · ghi `.artifacts/plans/` + cái đã chọn.
 
 ## Ràng
-- **Read-only** (chỉ đọc + widget + ghi `.artifacts`). 1 block/lượt (họ lớn → `starci-fe-story-audit` khoanh trước).
-- Liên quan: `starci-fe-story-fix-block-apply` (thực thi) · `starci-fe-story-audit` (full-scan) · `.claude/fe/principles.md` (SSOT thước).
+- **Read-only** (chỉ đọc + widget + ghi `.artifacts`). 1 block/lượt (họ lớn → `starci-fe-story-generate` khoanh trước).
+- Liên quan: `starci-fe-story-fix-block-apply` (thực thi) · `starci-fe-story-generate` (full-scan) · `.claude/fe/principles/INDEX.md` (SSOT thước).

@@ -1653,3 +1653,158 @@ từ mỗi bản bằng bằng chứng đo được (`Feedback.tsx:157` không g
 giữ nguyên bản đang có sẵn hoặc bản mới nhất; (2) build 1 leaf/state MỚI (ở đây: `Skeleton`)
 thường là lúc lộ ra bug đã nằm im từ trước vì chưa ai từng test render thật nhánh đó — không
 "copy nguyên code cũ vì nó chắc đã chạy được" khi chưa có bằng chứng nhánh đó THỰC SỰ đã chạy.
+### 3c. `/starci-fe-story-feedback` — "40 điểm" Chip vs text lệch nhau, tự sửa sai lần 1, thầy hỏi ngược bắt lộ ra + hệ thống 4-tier chữ
+
+Feedback gốc: ảnh `ChallengePage`, cùng "40 điểm" — khối "Yêu cầu" render chip, khối "Nộp bài"
+render text-accent trần. Trò kết luận LẦN 1 sai: suy từ canon §2a (còn ⏳ nháp lúc đó) "scalar
+tự do → text", đề xuất bỏ chip giữ text-accent, dựng composite `ScoreValue` (atom
+`Typography` `weight="medium"`) áp cho `ChallengeBrief.tsx`/`ChallengeDeliverableList.tsx`.
+
+Thầy hỏi ngược "font-medium ở đây theo ref hay tự nghĩ?" → tra lại `src` THẬT (không phải suy
+diễn) lộ ra: `ChallengeView/index.tsx:253` VÀ `ChallengeSubmissionPanel/index.tsx:433` — 2 file
+độc lập, không liên quan nhau — đều dùng **`<Chip color="accent" variant="soft" size="sm">`**
+cho đúng info-type này (điểm-đáng-giá trước khi có kết quả), toggle sang `Typography muted`
+fraction "earned/required" SAU khi có kết quả. `weight="medium"` không có căn cứ ở CẢ HAI phe:
+`src` không có, và canon chip-typography (chốt thật 2026-07-23, không phải nháp) cấm chip đậm
+chữ tuỳ tiện. Kết luận đảo: **Chip thắng**, `ScoreValue` phải bọc `Chip` không phải `Typography`,
+bỏ hẳn `weight`. ⚠️ **CHƯA ÁP** — đang chờ thầy chốt câu cuối cùng để đảo code (xem lượt hội
+thoại kế tiếp).
+
+Bài học phương pháp: 2 nguồn `src` độc lập > 1 luật canon còn ⏳ nháp. Tra `src` TRƯỚC khi suy
+diễn từ 1 luật nội bộ, đặc biệt khi luật đó tự ghi "chờ chốt câu chữ".
+
+**Nhánh phụ cùng phiên — hệ thống chữ 4-tier**: thầy chê 1 widget chat (dòng thời gian phân tích
+ca trên) "lộn xộn thiếu quyết đoán" vì mỗi bước dùng size gần giống nhau, không nói được vai
+trò. Research nhanh (Dropbox mobile 5→3 bậc, +17% conversion; tương phản = size+weight+color
+cộng dồn) → sửa widget theo 3 bậc cố định (kicker 11px muted · headline 17px/500 · body 13px),
+rồi thầy yêu cầu nâng thành hệ thống CHO CẢ APP, bake vào canon: `principles.md` §9c (4 tier
+A-D + 1 ngoại lệ Modal-header + cây quyết định 5 bước) — không đổi neo dữ liệu thật đã có, chỉ
+tổ chức lại cho quyết đoán. Render trực quan thêm vào đầu `text-size-system.html` (mục 0/0b/0c),
+serve lại 8080 (port bị 1 process cũ chiếm — kill + start lại, giống tiền lệ Storybook 6006).
+
+Verify: `tsc --noEmit` sạch (2 lỗi còn lại là `.next/types` route `rag-playground`, không liên
+quan). eslint sạch. Server 8080 xác nhận 200 qua curl, KHÔNG tự lái Browser pane soi mắt.
+
+### 3d. Markdown 3-tier — title không được richtext, quét lộ ra 1 ca nặng hơn cả ca ban đầu
+
+Thầy hỏi trực tiếp (không kèm ảnh lần này): *"title có nên chấp nhận markdown hay không? chỉ
+chấp nhận markdown ở bài viết và richtext là text nhỏ thôi"*. Tổng quát hoá §3a cũ (accordion
+title không markdown, lý do kỹ thuật: `<button>` không chứa được block-level markup) thành luật
+CHUNG cho mọi field `title`, không riêng accordion.
+
+Chốt 3 tầng, ghi thành trang riêng (thầy yêu cầu: "ghi rules như gap.html ấy, ghi vào rules sau
+đỡ quên" — không chỉ nói bằng lời/widget chat, phải là 1 file HTML sống trong repo):
+`starci-academy/.artifacts/decompose/markdown-tier-rules.html`.
+
+- **title** → `Typography.parseInlineCode` (chỉ `` `backtick` ``, không bold/italic/link).
+- **richtext nhỏ** (description/caption/hint 1 dòng) → composite `RichText`.
+- **bài viết** → composite `MarkdownContent`.
+
+**Sửa 2 chỗ thầy chỉ đích danh**: JSDoc `RichText.tsx:144-146` từng liệt kê "titles" là ví dụ
+dùng — bỏ, thêm câu chốt "not for title fields". `SurfaceCardAccordionItem.title: ReactNode` →
+`string`, thêm `titleStart?: ReactNode` (mirror `titleEnd`) cho icon dẫn đầu cần màu riêng.
+
+**Quét `tsc` sau khi xiết kiểu lộ ra ngay 1 consumer thứ 3** (`SubmissionFindingsList.tsx`) mà
+lượt "chỉ đích danh" của thầy không biết tới — đúng bài học cũ "quét KHÔNG được suy luận bỏ qua"
+(xem đầu file). Ca này NẶNG hơn 2 ca ban đầu: field `message` khai "authored as markdown", render
+thẳng bằng `<MarkdownContent>` (full react-markdown, block-level) NGAY TRONG accordion trigger
+`<button>` — đúng lỗi HTML-không-hợp-lệ §3a từng bắt ở `ChallengeBrief`/`ChallengeDeliverableList`,
+nhưng chưa từng lan tới component này vì nó được dựng SAU đợt sửa đó. Sửa: tách severity icon
+sang `titleStart`, `message` sang `title` (string, qua `parseInlineCode`); JSDoc field sửa lại
+không mời sai lần nữa.
+
+`ChallengeDeliverableList.tsx`'s `StatusIcon` (đã có sẵn, composed JSX trong `title`) cũng đổi
+sang `titleStart` cùng đợt — 3/3 ca thật đều là "cần icon riêng màu trong title", không phải
+richtext thật; câu trả lời đúng không phải giữ `ReactNode` mà tách `titleStart` riêng.
+
+Quét `.storybook/stories/**/*.stories.tsx` tìm cú pháp markdown literal (`**`, `[text](url)`)
+nhét sẵn trong field `title` bất kỳ: **0 hit** — nợ nằm ở tầng COMPONENT (kiểu cho phép
+ReactNode/MarkdownContent), không phải ở DỮ LIỆU story, nên không cần bước "truncate về plain
+text" nào cả — sửa component/kiểu là đủ, câu hỏi ban đầu của thầy về truncate hoá ra không có ca
+áp dụng.
+
+⚠️ **`atoms/navigation/Accordion.tsx`'s `AccordionItem.title: ReactNode`** — permissive tương tự
+nhưng CHƯA có ca thật nào lạm dụng (`E2eResultDrawer`'s `flow.title` vẫn plain string). Ghi nợ,
+KHÔNG sửa đợt này — atom riêng, phạm vi khác.
+
+Cập nhật luôn 2 story file khác đang có sẵn (không phải do đợt này gây ra) 2 hit
+`check-orphan-parts` cũ (`ScoreValue` chưa có story riêng — đúng, đang CHƯA ÁP theo §3c ngay
+trên, chờ thầy chốt Chip vs Typography) — thêm role vào `ANNOTATE` cho rõ, nhưng KHÔNG đủ điều
+kiện gate (cần `storyId` thật hoặc `tier:"heroui"`) nên gate vẫn báo 2 hit, đúng như trước.
+
+Verify: `tsc --noEmit` sạch (trừ `rag-playground` không liên quan), `eslint` 0 lỗi mới trên 5 file
+sửa, `check-story-ids` live gãy 0, `check-deps-coverage` không thêm hit mới, `check-orphan-parts`
+còn đúng 2 hit `ScoreValue` — nợ cũ, không phải do đợt sửa này.
+
+### 3e. Thầy: "làm nốt đi" — dọn 3 cổng đỏ sau đợt gộp khái niệm, khung học `as`/`inline`, dựng `ResponsiveRow`
+
+Tiếp sau đợt gộp khái niệm trùng (status/tone/verdict/mark → `AlertStatus`, `QuotaBar` trùng
+lặp, severity type trùng) làm 3 gate sống đỏ theo (side-effect, không phải lỗi cố ý): 2 orphan
+part `ScoreValue` (đã ghi ở đầu file — mục riêng), `check-padding` (9 chỗ), `check-seams` (15
+chỗ). Thầy: *"làm nốt đi"* — dọn cả 3, không dừng ở báo cáo.
+
+**`check-padding` (9→0)**: khi vào việc, phát hiện MỘT PHIÊN KHÁC đang sửa CÙNG vấn đề song
+song, real-time — họ đã tự dựng cơ chế `// inset-exception: <lý do>` (xem
+`principles/inset/context.md` §4.5 mới) và thêm bậc `InsetScale` thứ 5 `snug` (`p-2`, §1 mới)
+đúng lúc trò đang đo. Việc của trò co lại còn: (1) vá 2 lỗi cú pháp JSX họ gõ dở
+(`Stepper.tsx`/`map.tsx` dùng `{/* comment */}` bên trong ngoặc nhóm 1 nhánh `? :` thay vì
+children context thật — hợp lệ) — bắt bằng `tsc`, sửa bằng comment dòng thường `//`; (2) dọn
+1 dòng comment bị trùng lặp do 2 phiên cùng viết exception cho 1 chỗ; (3) đơn giản hoá thêm
+`Stepper.tsx` — 1 nhánh `pt-1` KHÔNG BAO GIỜ chạy (dead code, đo bằng cách đọc lại nhánh
+`isVertical`/`!isVertical` của biến `indicatorAndCopy`) và 1 `pb-1` ĐO BẰNG DOM không đổi
+pixel nào khi gỡ (inert) — cả hai xoá thẳng, không cần exception. Bài học ghi vào
+`principles/inset/context.md` §4.6: comment dòng thường (`//`) hợp lệ ở MỌI vị trí giữa token
+JS/TS kể cả trong ngoặc nhóm; `{/* */}` chỉ hợp lệ trong children context của JSX.
+
+**`check-seams` (15→0, KHÔNG thêm ngoại lệ nào — thầy chốt "refactor từng chỗ")**: hỏi thầy
+trước khi đụng vì ~8/15 chỗ không phải lười viết tay mà có ràng buộc thật (tag ngữ nghĩa
+`<section>`/`<li>`/`<figure>`, `RadioGroup` vendor cần con trực tiếp, root mang marker
+`data-anat` riêng `Stack` không có, `StatRibbon` đổi display-type theo breakpoint). Thầy chọn
+refactor thật, không thêm cơ chế ngoại lệ kiểu `inset-exception` cho rule này:
+- 7 chỗ cơ học → đổi thẳng `StackV`/`StackH`.
+- `List.tsx`(`<section>`)/`SurfaceCard.tsx`(`<li>`, dòng có pseudo-divider `after:`)/
+  `MermaidDiagram.tsx`(`<figure>`)/`map.tsx`(`<span>`, dòng chip nằm trong câu văn) → dùng prop
+  `as` MỚI mà 1 phiên khác đang dựng đồng thời trên `Flex`/`Stack` (`frames/Flex/Flex.tsx`,
+  `frames/Stack/Stack.tsx`) — bắt được 1 bug TS THẬT trong code họ đang gõ dở: gõ `as` bằng
+  `keyof JSX.IntrinsicElements` làm props giao (intersect) qua MỌI thẻ HTML, voi element
+  (`img`/`input`/`br`…) không nhận `children` kéo `children` cả union về `never`, thẻ không
+  render được dù mặc định `"div"`. Sửa: thu hẹp `as` về đúng 5 tag thật cần
+  (`"div"|"section"|"figure"|"span"|"li"`). Ghi chi tiết:
+  `principles/frame/context.md` §1 (mục `Flex`, ngoài thang).
+- `SurfaceCard.tsx` `SelectableGroup` (RadioGroup bọc grid cột CỐ ĐỊNH viết tay) → đổi sang
+  khung `Grid` thật, map `columns` cố định (1/2/3) thành step responsive
+  (`{base,sm,md,lg}`, riêng `columns=3` phải `{base:2,sm:3,...}` vì `GridColumns.base` chỉ nhận
+  `1|2`) — đo DOM xác nhận cả 3 trạng thái đúng số cột đúng bậc container thật (720px→3 cột,
+  480px→2, 360px→1).
+- `StatRibbon.tsx` (grid dưới `@app-sm`, flex-1-giãn-đều từ `@app-sm` — không frame nào có sẵn
+  làm được cả hai, hỏi thầy 3 hướng, thầy chọn "dựng khung mới") → **dựng frame mới
+  `frames/ResponsiveRow/ResponsiveRow.tsx`** — khung thứ 6, chỉ 1 call-site (`StatRibbon`),
+  chưa đạt bar "≥2 ca thật" của luật dựng-khung-mới nhưng thầy tự chốt sau khi nghe rõ vì sao
+  `Grid`/`Flex` đều không model được hình này. Đo DOM xác nhận: <640px = grid 2 cột; ≥640px =
+  flex 1 hàng, cả trường hợp 4 stat lẫn 2 stat đều giãn đều lấp hết bề rộng (không để trống ô
+  như `Grid` cố định sẽ làm). Ghi chi tiết + cảnh báo "đừng lấy làm tiền lệ hạ bar":
+  `principles/frame/context.md` §1 (bảng khung), §2 (câu 4b), §6 (dòng 5).
+
+✅ **Cả 2 file `principles/inset/context.md` + `principles/frame/context.md` đều đang STALE ở
+nhiều chỗ khác không liên quan đợt sửa này** (GUARDED tier list còn `design`/`screen` đã chết,
+thang seam/inset cũ) — chỉ sửa đúng phần đụng vào việc hôm nay (thang inset 5 bậc, gate-hole
+§4.4 SUPERSEDED, khung thứ 6), KHÔNG rà toàn bộ 2 file (ngoài phạm vi, để lượt khác).
+
+**Bài học phương pháp lặp lại đúng khuôn "đa phiên" đã có trong `continue.md`**: không chỉ
+đọc file trước khi ghi — phải RE-READ ngay trước từng `Edit` (3 lần bị "File has been modified
+since read" giữa 2 lần gọi tool liên tiếp, đều do phiên khác đang gõ CÙNG lúc), và khi thấy 1
+cơ chế/API mới xuất hiện giữa chừng (không phải do mình tạo), đọc hiểu ĐÚNG rồi DÙNG LUÔN thay vì
+tự chế lại bản khác song song (`inset-exception`, prop `as`) — 2 lời giải khác nhau cho cùng 1
+vấn đề tệ hơn cả không có lời giải nào.
+
+Verify: `tsc --noEmit` sạch (trừ `rag-playground` có sẵn từ đầu phiên). 9/10 gate xanh —
+`check-seams`/`check-padding`/`check-orphan-parts` (mục đầu file) đều 0 finding; `check-story-
+coverage` đỏ nhưng là bug đường dẫn CŨ, có từ trước đợt này (`BLOCKS`/`STORIES` trỏ
+`src/components/blocks`/`.storybook/stories/blocks`, cả hai đường dẫn đều không còn khớp cây
+thật sau đợt tách app `starci/` — báo lại thầy, KHÔNG tự sửa vì ngoài phạm vi + gate script
+dùng chung nhiều phiên). `eslint` 0 lỗi MỚI (còn nợ cũ `showAnatomy` unused rải nhiều file
+không đụng, xác nhận qua `git show HEAD:<file>` từng file trước khi bỏ qua). Đo DOM xác nhận
+trực tiếp (không chụp ảnh, đúng quy ước): `SelectableGroup` 3 trạng thái cột, `StatRibbon` 2
+bậc breakpoint × 2 số lượng item, `List` giữ đúng thẻ `<section>`, `MarkdownContent` chip-row
+giữ `<span>` + accordion trigger giữ layout gốc. Storybook restart sạch (Windows watcher không
+tự bắt file đổi hàng loạt, đã ghi tiền lệ này từ trước).

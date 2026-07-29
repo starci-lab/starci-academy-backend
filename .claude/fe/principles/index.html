@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PRINCIPLES — 15 trục quyết định</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#111725; --panel2:#151c2b; --ink:#e7edf5; --muted:#8b98a9; --line:#233049;
+    --accent:#8b7bff; --success:#38d39f; --warn:#f5a524; --danger:#f31260;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;padding:28px}
+  .wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+  h1{font-size:20px;margin:0}
+  h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 12px;border-top:1px solid var(--line);padding-top:18px}
+  .sub{color:var(--muted);margin:0}
+  code{font-family:ui-monospace,monospace}
+  .note{font-size:12px;color:var(--muted)}
+  .rules{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .rules b{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:9px;text-decoration:none;color:inherit;transition:border-color .12s,background .12s}
+  .card:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--panel))}
+  .ch{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .cn{font-family:ui-monospace,monospace;font-weight:700;font-size:14px;color:var(--ink)}
+  .st{font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;font-weight:700}
+  .st.ok{background:color-mix(in srgb,var(--success) 20%,transparent);color:var(--success)}
+  .st.wip{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+  .cq{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0}
+  .cs{font-family:ui-monospace,monospace;font-size:11px;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);padding:2px 7px;border-radius:5px;align-self:flex-start}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:8px 10px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  td{padding:8px 10px;border-bottom:1px solid #1b2436;vertical-align:top}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PRINCIPLES — 15 trục quyết định</h1>
+  <p class="sub">Mỗi trục trả lời đúng <b>một</b> câu hỏi thiết kế, và có đúng <b>hai</b> file: <code>context.md</code> cho LLM đọc để QUYẾT, <code>example.html</code> render thật cho mắt người soi.</p>
+
+  <div class="rules">
+    <b>Cách dùng:</b> khi phân vân về một quyết định, mở đúng trục đó — đừng nạp cả 12. Bảng điều hướng ngắn nằm ở <code>INDEX.md</code>, luôn đọc file đó mỗi lượt.
+    <br><b>Ba luật xuyên trục:</b> neo <code>src</code> thật ghi đè suy luận · hai component giống hình không bắt buộc giống số · phân vân giữa hai giá trị cách nhau ≥2 bậc là dấu hiệu cây vẽ sai, không phải chọn sai.
+  </div>
+
+  <h2>Trục</h2>
+  <div class="grid">
+    <a class="card" href="seam/example.html">
+      <div class="ch"><span class="cn">seam</span><span class="st ok">đủ</span></div>
+      <p class="cq">Khoảng cách <b>giữa</b> hai thứ đứng cạnh nhau.</p>
+      <span class="cs">6 bậc · 15 cặp</span>
+    </a>
+    <a class="card" href="inset/example.html">
+      <div class="ch"><span class="cn">inset</span><span class="st ok">đủ</span></div>
+      <p class="cq">Padding từ viền <b>vào trong</b> một bề mặt.</p>
+      <span class="cs">4 bậc · 6 cặp</span>
+    </a>
+    <a class="card" href="text/example.html">
+      <div class="ch"><span class="cn">text</span><span class="st ok">đủ</span></div>
+      <p class="cq">Cỡ chữ, độ đậm, màu chữ.</p>
+      <span class="cs">2 thang giao nhau</span>
+    </a>
+    <a class="card" href="button/example.html">
+      <div class="ch"><span class="cn">button</span><span class="st ok">đủ</span></div>
+      <p class="cq">Nút này <code>variant</code> gì, đứng ở đâu trong cụm.</p>
+      <span class="cs">7 variant · 21 cặp</span>
+    </a>
+    <a class="card" href="color/example.html">
+      <div class="ch"><span class="cn">color</span><span class="st ok">đủ</span></div>
+      <p class="cq">Chỗ này có được tô màu accent không.</p>
+      <span class="cs">ca khó: tô hay không</span>
+    </a>
+    <a class="card" href="icon/example.html">
+      <div class="ch"><span class="cn">icon</span><span class="st ok">đủ</span></div>
+      <p class="cq">Icon nào, cỡ nào, weight nào, có nên có không.</p>
+      <span class="cs">size × weight</span>
+    </a>
+    <a class="card" href="markdown/example.html">
+      <div class="ch"><span class="cn">markdown</span><span class="st ok">đủ</span></div>
+      <p class="cq">Chuỗi này render markdown tới mức nào.</p>
+      <span class="cs">3 tầng × loại field</span>
+    </a>
+    <a class="card" href="frame/example.html">
+      <div class="ch"><span class="cn">frame</span><span class="st ok">đủ</span></div>
+      <p class="cq">Dùng khung nào: Stack · Cluster · Grid · Split · Container.</p>
+      <span class="cs">cây chọn khung</span>
+    </a>
+    <a class="card" href="skeleton/example.html">
+      <div class="ch"><span class="cn">skeleton</span><span class="st ok">đủ</span></div>
+      <p class="cq">Component này vẽ shimmer thế nào.</p>
+      <span class="cs">hình mirror hình thật</span>
+    </a>
+    <a class="card" href="async/example.html">
+      <div class="ch"><span class="cn">async</span><span class="st ok">đủ</span></div>
+      <p class="cq">Rỗng, lỗi, đang tải thì vẽ gì và ai vẽ.</p>
+      <span class="cs">4 trạng thái · 6 cặp</span>
+    </a>
+    <a class="card" href="naming/example.html">
+      <div class="ch"><span class="cn">naming</span><span class="st ok">đủ</span></div>
+      <p class="cq">Đặt tên component, story, type, file, thư mục.</p>
+      <span class="cs">theo loại artefact</span>
+    </a>
+    <a class="card" href="surface/example.html">
+      <div class="ch"><span class="cn">surface</span><span class="st ok">đủ</span></div>
+      <p class="cq">Bo góc, viền, đổ bóng, nền.</p>
+      <span class="cs">bán kính đồng tâm</span>
+    </a>
+    <a class="card" href="prominence/example.html">
+      <div class="ch"><span class="cn">prominence</span><span class="st ok">du</span></div>
+      <p class="cq">Thu nay nen NOI toi muc nao so voi thu quanh no.</p>
+      <span class="cs">4 bac &middot; 6 cap</span>
+    </a>
+    <a class="card" href="press/example.html">
+      <div class="ch"><span class="cn">press</span><span class="st ok">du</span></div>
+      <p class="cq">Bam vao thu nay thi no phan hoi the nao.</p>
+      <span class="cs">5 bac &middot; 10 cap</span>
+    </a>
+    <a class="card" href="reading-flow/example.html">
+      <div class="ch"><span class="cn">reading-flow</span><span class="st ok">du</span></div>
+      <p class="cq">Chu va khoi can theo le nao, doc theo dong nao.</p>
+      <span class="cs">2 thang vuong goc</span>
+    </a>
+  </div>
+
+  <h2>Khuôn của mỗi trang <code>example.html</code></h2>
+  <div class="rules">
+    <table>
+      <thead><tr><th style="width:8%">§</th><th style="width:26%">Phần</th><th>Trả lời</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>THANG</td><td>có bao nhiêu lựa chọn, thanh đo trực quan</td></tr>
+        <tr><td>1</td><td>NGUYÊN LÝ VÉT CẠN</td><td>phép tính <code>C(N,2)</code> và ma trận phân nhóm — tiêu chí dừng đếm được</td></tr>
+        <tr><td>2</td><td>CẶP DỄ LẪN</td><td><b>render hai chiều sai</b> cạnh bản đúng, kèm phép phân định · vì sao · nguyên lý</td></tr>
+        <tr><td>3</td><td>BẪY CẤU TRÚC</td><td>chọn đúng giá trị mà vẫn sai, cũng render thật</td></tr>
+        <tr><td>4</td><td>LỖI THẬT ĐÃ CẮN</td><td>điều chỉ lộ ra khi xếp chúng cạnh nhau</td></tr>
+        <tr><td>5</td><td>CẶP KHÔNG RENDER</td><td>nói rõ vì sao, không lặng lẽ bỏ qua</td></tr>
+        <tr><td>6-7</td><td>NEO + CÁCH ĐO</td><td>giá trị đọc lại tận nơi, snippet kiểm bằng số</td></tr>
+      </tbody>
+    </table>
+    <p class="note" style="margin:10px 0 0">Trang nào toàn bảng chữ là trang <b>hỏng</b>, dù nội dung đúng. Cả điểm của <code>example.html</code> là <b>nhìn thấy</b> khác biệt chứ không đọc mô tả về nó.</p>
+  </div>
+</div>
+</body>
+</html>

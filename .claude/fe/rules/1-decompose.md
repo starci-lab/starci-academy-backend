@@ -3,7 +3,7 @@
 > Một trong 4 file tư duy. Bộ: `thinking-1-decompose` · `thinking-2-leaf-states` ·
 > `thinking-3-shape-tier` · `thinking-4-organization`.
 > File này trả lời: **đứng trước một màn, tách nó thành cây component thế nào.**
-> Luật chi tiết ở `principles.md`; file này là THỨ TỰ NGHĨ và chỗ dễ sai.
+> Luật chi tiết ở [`../principles/INDEX.md`](../principles/INDEX.md); file này là THỨ TỰ NGHĨ và chỗ dễ sai.
 
 ---
 
@@ -185,3 +185,21 @@ MEMBER của một namespace (`.Base`, `.Inline`, `.Prominent`...) LÀ LEAF, kh�
 gọi hai tên khác nhau nghĩa là hai cửa vào khác nhau, không phải hai nhánh dữ liệu của cùng một
 cửa. Neo sai đã cắn: `PriceTag.Inline` và `PriceTag.Prominent` từng bị gộp chung thành hai state
 trong MỘT leaf, trong khi đúng ra là hai leaf riêng.
+
+---
+
+## 6. GỘP N BẢN PORT TRÙNG CỦA MỘT COMPONENT THẬT
+
+Thầy chốt 2026-07-29, neo `TrialEnrollBanner`. Một `TrialEnrollHook` trong `src` từng bị port
+thành BA block (`TrialEnrollNudge` · `FoundationTrialEnrollBanner` · `TrialEnrollBanner`), mỗi
+bản một quyết định khác nhau về description, `isSkeleton`, và cách dựng CTA.
+
+**Gộp KHÔNG phải là giữ bản có sẵn hay giữ bản mới nhất.** Chọn từng phần tốt nhất, và mỗi lần
+chọn phải có BẰNG CHỨNG ĐO ĐƯỢC. Neo thật: chọn "CTA compose `Button` làm child" thay vì
+`actionLabel` shorthand của `FeedbackCallout` — không phải vì nhìn gọn hơn, mà vì đọc thẳng
+`Feedback.tsx:157` xác nhận nút dựng từ `actionLabel` KHÔNG gắn `data-anat-part`, tức vô hình
+với cây deps của panel.
+
+**Dấu hiệu đáng tin để mở một lượt gộp: chính CODE đã tự cảnh báo.** `LeaderboardPage.tsx` ghi
+sẵn trong file header của nó rằng có ba bản trùng, từ trước khi ai chạy audit. Một comment tự
+thú như vậy đáng tin hơn một lượt quét đi tìm nghi phạm.

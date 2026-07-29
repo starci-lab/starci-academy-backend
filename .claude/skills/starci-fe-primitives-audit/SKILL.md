@@ -26,7 +26,7 @@ Vai: **AUDIT (report-only)**. Ra BẢN ĐỒ gap + đề xuất **batch để s�
 - **BỎ check KHÔNG áp dụng** — Logo/Media/Brand tĩnh không cần size/skeleton/icon → đừng flag bừa.
 - Màu/phân-lớp/icon-size là VISUAL → NHÌN/ĐO khi cần, đừng chỉ đọc class.
 
-## Canon 10 chiều (thước = `.claude/fe/principles.md` §1–6 + ButtonGroup template)
+## Canon 10 chiều (thước = `.claude/fe/principles/INDEX.md` §1–6 + ButtonGroup template)
 1. **§6 Granularity** — component này có nên là 1 PROP của foundational (`Button`…) thay vì component riêng?
 2. **Props-roles** — vai qua slot/prop CÓ TÊN; shape khác → prop `variant`/`scenario` tường minh (không "emerge").
 3. **Size** — có prop `size` nếu kích thước biến thiên.
@@ -68,4 +68,4 @@ Vai: **AUDIT (report-only)**. Ra BẢN ĐỒ gap + đề xuất **batch để s�
 ## Ràng
 - **Report-only** — KHÔNG sửa code, KHÔNG ghi `.claude`. Chỉ ghi `.artifacts/audits/`.
 - **PORT-only** (bỏ src-drift). Bỏ check không áp dụng. Không chấm nCn.
-- Liên quan: `.claude/fe/principles.md` (thước) · `starci-fe-story-fix-block-{plan,apply}` (apply từng batch).
+- Liên quan: `.claude/fe/principles/INDEX.md` (thước) · `starci-fe-story-fix-block-{plan,apply}` (apply từng batch).

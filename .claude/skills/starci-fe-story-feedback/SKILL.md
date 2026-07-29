@@ -11,27 +11,28 @@ description: >
   tìm cùng pattern → liệt kê danh sách nghi vấn (KHÔNG sửa vội). Bước quét này BẮT BUỘC, KHÔNG
   ĐƯỢC suy luận bỏ qua kể cả khi fix lượt 1 ở tầng atom và "có vẻ" tự lan — vẫn phải grep ra
   danh sách thật làm bằng chứng. → chờ thầy chốt danh sách → mới áp sửa hàng loạt + verify
-  (tsc/9 gate/eslint/restart Storybook). Sau khi CẢ 2 lượt đã chốt: ghi lại vào
+  (tsc/10 gate sống/eslint/restart Storybook). Sau khi CẢ 2 lượt đã chốt: ghi lại vào
   `.claude/fe/steps/13-feedback-anatomy-
-  registry.md` (nhật ký) VÀ canon `.claude/fe/rules/*.md` + `principles.md` (SSOT, neo ngày +
-  before/after cụ thể). Dùng khi thầy gõ `/starci-fe-story-feedback` (kèm hoặc không kèm
+  registry.md` (nhật ký) VÀ canon `.claude/fe/rules/*.md` + `.claude/fe/principles/INDEX.md`
+  (SSOT, neo ngày + before/after cụ thể). Dùng khi thầy gõ `/starci-fe-story-feedback` (kèm hoặc không kèm
   feedback cụ thể trong cùng câu), hoặc bất cứ lúc nào thầy sửa lưng trò về 1 quyết định CODE
   trong Storybook đang build/soi. KHÔNG phải audit chủ động đi tìm lỗi (đó là
-  `starci-fe-story-audit`/`starci-fe-atom-audit`) — đây là PHẢN ỨNG với 1 câu feedback thầy vừa
+  `starci-fe-atom-audit`/`starci-fe-screen-audit`) — đây là PHẢN ỨNG với 1 câu feedback thầy vừa
   đưa. KHÔNG dùng cho feedback CONTENT/COPY (chữ/số/field dữ liệu sai) — loại đó sửa thẳng,
   không cần vòng QA 2 lượt.
 ---
 
 # /starci-fe-story-feedback — vòng QA 2 lượt cho feedback CODE trong Storybook
 
-> **Canon SSOT:** `.claude/fe/principles.md` §9 (chữ qua Typography) · §13 (ranh giới tầng,
-> composite/block/screen không hand-roll CSS phức tạp) · `.claude/fe/rules/3-shape-tier.md`
+> **Canon SSOT:** `.claude/fe/principles/text/context.md` (chữ qua Typography) ·
+> `.claude/fe/principles/frame/context.md` (ranh giới tầng, composite/block/screen không
+> hand-roll CSS phức tạp) · `.claude/fe/rules/3-shape-tier.md`
 > (tầng nào sở hữu gì, "className để restyle" bị cấm ở đâu).
 > **Nền:** [`diagnose-before-fix`](../../discipline/diagnose-before-fix.md) (hiểu đúng feedback
 > trước khi sửa) · [`safe-bulk-edit`](../../discipline/safe-bulk-edit.md) (lượt 2 = sweep, liệt
 > kê hết + chờ chốt trước khi áp) · [`multi-session-git`](../../discipline/multi-session-git.md)
 > (canon là file CHUNG nhiều session — fetch trước khi ghi).
-> **Code:** `D:\Repositories\starci-academy\.storybook` (branch `mtp`).
+> **Code:** `C:\Repositories\starci-academy\.storybook` (branch `mtp`).
 
 ## Trước tiên: đây có phải feedback CODE không?
 
@@ -79,7 +80,7 @@ Không chắc thuộc loại nào → hỏi thầy trước khi chọn nhánh, �
   `isSkeleton` ở mọi block khác), quy ước nội bộ thắng — trừ feedback về CHỮ/COPY, ở đó khớp
   `src` luôn thắng tuyệt đối.
 - **Kiểu dữ liệu (type) luôn có TÊN** — không intersection ẩn danh tại chỗ khai prop.
-- Canon (`principles.md`, `rules/*.md`) là file CHUNG — `git fetch` + xem `HEAD..origin/mtp`
+- Canon (`principles/INDEX.md`, `rules/*.md`) là file CHUNG — `git fetch` + xem `HEAD..origin/mtp`
   trước khi ghi (đừng đè bản của session khác).
 - **Đừng lái Storybook qua Browser pane để soi mắt** ở bước verify — chậm/treo, để thầy tự xem
   sau khi báo xong; chỉ cần `preview_logs` xác nhận build không lỗi.
@@ -90,7 +91,7 @@ Không chắc thuộc loại nào → hỏi thầy trước khi chọn nhánh, �
   1. `.claude/fe/steps/13-feedback-anatomy-registry.md` — feedback/quyết định nào đã ghi cho
      ĐÚNG file/component đang bị chỉ ra, đặc biệt mục có chữ "CHƯA áp"/"để dành"/"chưa quay
      lại" — đây chính là loại tồn đọng hay bị rơi.
-  2. `principles.md` + `rules/*.md` — luật nào đã chốt liên quan tới đúng pattern này.
+  2. `principles/INDEX.md` + `rules/*.md` — luật nào đã chốt liên quan tới đúng pattern này.
   3. Lượt hội thoại TRƯỚC trong CÙNG phiên — có đề xuất nào đã trình ra, thầy chưa bác bỏ,
      nhưng cuộc trò chuyện rẽ hướng (vd đổi sang 1 refactor lớn hơn) khiến đề xuất đó chưa bao
      giờ thực sự được áp?
@@ -155,10 +156,15 @@ không phát minh biến thể mới cho từng file).
 
 ### 2d. Verify full
 - `npx tsc --noEmit` (từ FE repo) — sạch.
-- Chạy đủ 9 gate: `check-no-namespace` · `check-story-ids` · `check-seams` ·
+- Chạy đủ **10 gate SỐNG**: `check-no-namespace` · `check-story-ids` · `check-seams` ·
   `check-inline-types` · `check-padding` · `check-one-instance-per-state` ·
-  `check-member-as-state` · `check-orphan-parts` · `check-passthrough-block` — xanh hết,
-  không bỏ sót gate nào dù tưởng "chắc không liên quan".
+  `check-member-as-state` · `check-orphan-parts` · `check-passthrough-block` ·
+  **`check-deps-coverage`** — xanh hết, không bỏ sót gate nào dù tưởng "chắc không liên quan".
+  (Bản trước ghi "9 gate" và bỏ sót `check-deps-coverage`, trong khi `scripts/` có 11 file.)
+- ⚠️ **`check-story-coverage.mjs` là cổng thứ 11 và đang CHẾT — đừng chạy, đừng sửa cho xanh.**
+  Nó so `src/components/blocks` với `.storybook/stories/blocks`, tức đòi bản vẽ phải SOI GƯƠNG
+  công trình — đúng cái §0 đã bãi bỏ. Đo 2026-07-29: thiếu **162/162**, luôn đỏ nên không mang
+  tin gì. Xử nó (sửa phạm vi hay xoá) là việc phải hỏi thầy, không quyết trong lượt sửa feedback.
 - `eslint --fix` trên toàn bộ file đã đổi ở CẢ 2 lượt.
 - Restart Storybook (`preview_stop` → `preview_start` tên `storybook`) — watcher Windows hay
   kẹt khi đổi story; `preview_logs` xác nhận build không lỗi. Không tự lái browser soi mắt.
@@ -170,8 +176,8 @@ không phát minh biến thể mới cho từng file).
 1. **`.claude/fe/steps/13-feedback-anatomy-registry.md`** — thêm mục mới (theo mạch §2x hiện
    có): feedback nguyên văn (rút gọn) → chẩn đoán → fix (tên prop/atom mới) → danh sách lượt 2
    đã sửa → kết quả verify.
-2. **Canon SSOT** (`principles.md` + `rules/3-shape-tier.md`, hoặc rule file khác nếu đúng chủ
-   đề hơn) — `git fetch` trước, thêm đoạn NEO có ngày, trích code before/after cụ thể, và câu
+2. **Canon SSOT** (`principles/INDEX.md` → trục phù hợp + `rules/3-shape-tier.md`, hoặc rule file
+   khác nếu đúng chủ đề hơn) — `git fetch` trước, thêm đoạn NEO có ngày, trích code before/after cụ thể, và câu
    LUẬT CHUNG rút ra (không chỉ chép lại ca cụ thể — phải khái quát đủ để áp cho ca tương lai
    khác hình nhưng cùng bản chất).
 3. Nếu feedback phát sinh 1 bài học không thuộc case CSS-sai-tầng (vd quy tắc đặt tên, quy tắc

@@ -11,7 +11,7 @@
 | | |
 |---|---|
 | **VÀO** | — |
-| **LÀM** | `git pull` **cả hai repo** (FE + BE canon). Đọc `principles.md` §6c·§10·§11·§12g·§13·§14, rồi 4 file trong `rules/`. |
+| **LÀM** | `git pull` **cả hai repo** (FE + BE canon). Đọc [`../principles/markdown/context.md`](../principles/markdown/context.md) §6c · [`../principles/seam/context.md`](../principles/seam/context.md) §10 · [`../rules/1-decompose.md`](../rules/1-decompose.md) §11 · `principles.md` §12g · [`../principles/frame/context.md`](../principles/frame/context.md) §13 · [`../rules/2-leaf-states.md`](../rules/2-leaf-states.md) §14, rồi 4 file trong `rules/`. |
 | **CỔNG ĐO** | `git rev-list --left-right --count origin/mtp...HEAD` → `0 0` ở **cả hai** repo |
 | **RA** | biết luật hiện hành + biết luật nào đang **tự đá nhau** |
 | **DỪNG KHI** | hai file canon nói ngược nhau về đúng thứ mình sắp làm ⇒ hỏi thầy chốt TRƯỚC, **đừng chọn hộ** |
