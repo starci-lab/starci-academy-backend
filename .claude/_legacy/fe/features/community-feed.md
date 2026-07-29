@@ -1,9 +1,0 @@
-# Feature — CommunityFeed
-> Feed cộng đồng kiểu Facebook/Twitter (đọc công khai, đăng bài cần đăng nhập) + panel chat riêng. Nguồn: `features/community/CommunityFeed` + `features/community/CommunityChat`.
-
-- **Job**: theo dõi + tham gia thảo luận cộng đồng, lọc theo channel → shell nhẹ kiểu [[dashboard-hub]] (tab lọc nội dung) nhưng KHÔNG có identity rail — 1 cột `PageContainer` + `TabsCard` channel + feed cuộn-thêm.
-- **CTA**: `CommunityComposer` (chỉ hiện khi đăng nhập) là hành động chính; "Tải thêm" secondary cuối feed; header có nút phụ dẫn sang `CommunityChat`. → [[call-to-action]]
-- **Links (onward)**: channel tabs (Tất cả/Problems/Founder Q&A/General) đổi scope tại chỗ; header CTA → `/community/chat`; `CommunityChat` lại tự tách 2 tab hội thoại (phòng chung ↔ DM riêng với founder). → [[content-linking]]
-- **Psychology**: reaction bar + đếm comment trên mỗi post (social proof mức bài viết); `CommunityChat` đặt "DM riêng với founder" ngang hàng "phòng chung" — một hình thức exclusivity/authority-access (được chat trực tiếp founder = đặc quyền thành viên). → [[persuasion-psychology]]
-- **Ghi chú**: khách chưa đăng nhập ở `CommunityChat` chỉ thấy 1 dòng chữ muted "cần đăng nhập" — KHÔNG kèm nút hành động nào (khác phần lớn empty-state khác trong app luôn kèm CTA rõ). Nên thêm 1 nút "Đăng nhập" thay vì để trơ chữ ([[call-to-action]] discipline).
-- **Độc lập với nội dung học**: `CommunityPostEntity` chỉ có `author` (User) + `channel` (enum) — KHÔNG có FK tới Course/Module/Content/Challenge nào. Đây là social feed thuần user-to-user; không có "học xong bài X → được đăng ở channel Y" hay bất kỳ gating theo tiến độ học nào. Nếu muốn nhắc khóa học ở feed này thì chỉ là nudge chung chung (vd banner tĩnh), không phải 1 data-link thật — đừng mô tả nó như 1 funnel có căn cứ dữ liệu.
