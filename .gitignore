@@ -93,3 +93,6 @@ claude-legacy/
 
 # cloudflare tunnel token (never commit)
 .secrets/
+
+# bộ skill riêng, có repo GitHub của chính nó
+.claude-starci-ultimate/
