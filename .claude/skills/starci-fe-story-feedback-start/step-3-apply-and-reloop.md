@@ -13,6 +13,13 @@ lại — **không phải quét phần còn lại, mà quét lại từ đầu**
 
 ## LÀM
 
+**0. Phản hồi MƠ HỒ (không kèm chỉ định cụ thể) ⇒ quay lại BRAINSTORM, đừng áp thẳng.** Đây là
+lúc luật đó thực sự phát sinh — B2 chỉ TRÌNH ma trận, còn B3 mới là lúc thầy phản hồi và trò
+chuẩn bị áp. Câu như *"sai rules"*, *"phèn"*, *"render kiểu khác đi"*, *"rườm rà"* không đủ để
+chọn MỘT cách sửa; xem [SKILL.md § Luật cứng](SKILL.md) cho bảng cỡ nhỏ (`show_widget`) / cỡ lớn
+(HTML qua cổng `web-preview-8080`, KHÔNG phải Storybook `:6006`). Chỉ khi phản hồi đã có chỉ định
+rõ mới vào bước 1 dưới đây.
+
 **1. Đọc phản hồi cho đúng ba loại.** Ba loại này xử khác hẳn nhau, gộp là hỏng:
 
 | Thầy nói | Nghĩa | Làm gì |

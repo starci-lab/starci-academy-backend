@@ -54,11 +54,40 @@ Thiếu verify ở vòng cuối thì **chạy verify trước**, đừng chốt 
 **3. Đổi trạng thái** ở đầu `session.md` từ `ĐANG CHẠY` sang `ĐÃ ĐÓNG — <ngày>`, để bước B0 của
 phiên sau không nhặt nhầm nó thành phiên còn dở.
 
+**4. Ghi `audit.md` — bộ nhớ cache cho lần audit sau trên cùng đích.**
+
+```
+.artifacts/feedback/<đích-slug>/audit.md
+```
+
+(Lưu ý: đường dẫn này KHÔNG có ngày, khác thư mục phiên `<ngày>-<đích-slug>/` — nó sống lâu
+hơn một phiên, để phiên sau ở ngày khác vẫn tìm thấy.)
+
+```markdown
+# Audit — <đích>, chốt <ngày>
+
+- storyId: <id>
+- hash: <hash của tổ hợp DOM đo được + mọi file source đã đọc lúc chốt vòng cuối>
+
+## Ma trận cuối cùng
+| Vùng | flow | prom | async | frame | naming | seam | inset | surf | text | icon | color | button | press | md | skel |
+|------|------|------|-------|-------|--------|------|-------|------|------|------|-------|--------|-------|----|----- |
+(chỉ giữ phán quyết CUỐI của mỗi ô sau khi đã sửa/duyệt — không giữ lịch sử từng vòng, đó là
+việc của `session.md`)
+```
+
+Chỉ ghi `audit.md` khi **mọi ô `LỆCH` trong ma trận đã được xử lý** (áp sửa, hoặc thầy bác kèm
+lý do rồi giữ nguyên có chủ ý). Ô `LỆCH` chưa xử vẫn còn trong `audit.md` thì lần sau B0 đọc
+hash khớp sẽ **bỏ qua đúng chỗ cần sửa** — đây là lỗi nghiêm trọng của cơ chế cache, kiểm kỹ
+trước khi ghi.
+
 ## CỔNG ĐO
 
 - Vòng cuối đã verify xanh.
 - Mọi mục trong bản ghi đều có nội dung — mục rỗng phải ghi rõ là rỗng, không được để trống.
 - Trạng thái phiên đã đổi sang `ĐÃ ĐÓNG`.
+- `audit.md` đã ghi, và **không còn ô `LỆCH` nào trong đó chưa xử lý**.
+- Hash trong `audit.md` bao cả DOM lẫn source — không hash source một mình (xem lý do ở B0 §2b).
 
 ## RA
 

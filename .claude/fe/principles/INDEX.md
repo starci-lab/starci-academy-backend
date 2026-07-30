@@ -1,5 +1,10 @@
 # PRINCIPLES — bảng điều hướng · LUÔN nạp mỗi lượt
 
+> 🧭 **Trang này trả lời "giá trị này ĐÚNG hay SAI".** Câu đứng TRƯỚC nó — *"cụm nội dung này thì
+> lấy COMPONENT nào ra dùng"* — nằm ở [`../matrix.md`](../matrix.md). Chọn sai vỏ thì cả 15 trục
+> dưới đây đúng hết cũng vô nghĩa, nên khi đang DỰNG cái mới thì tra `matrix.md` trước; 15 trục
+> này dùng khi SOI một giá trị cụ thể.
+
 > Mỗi **trục thiết kế** là một thư mục, và mỗi trục có **đúng hai** file:
 >
 > **`context.md`** = thang · cây quyết định · vét cạn ca dễ lẫn · vạch cấm. **LLM đọc để QUYẾT.**
@@ -42,8 +47,13 @@ Trục mới thêm sau này bắt đầu ở ⬜ và chỉ được tick ✅ khi
 | rỗng · lỗi · đang tải thì vẽ gì? | [`async/context.md`](async/context.md) | ✅ |
 | đặt tên component/story/type thế nào? | [`naming/context.md`](naming/context.md) | ✅ |
 | bo góc · viền · đổ bóng bao nhiêu? | [`surface/context.md`](surface/context.md) | ✅ |
+| bấm vào thứ này thì nó phản hồi thế nào? | [`press/context.md`](press/context.md) | ✅ |
+| thứ này nên nổi tới mức nào so với thứ quanh nó — cơ chế nào, không phải màu nào? | [`prominence/context.md`](prominence/context.md) | ✅ |
+| chữ/khối này căn theo lề nào, đọc theo dòng nào? | [`reading-flow/context.md`](reading-flow/context.md) | ✅ |
 
-**12/12 trục đủ hai file** (2026-07-29). Đo trên đĩa: mỗi thư mục đúng 2 file, mọi
+**15/15 trục đủ hai file** (2026-07-30 — sửa từ "12/12" ghi sai ngày 2026-07-29: bảng ở trên bỏ
+sót ba trục `press`/`prominence`/`reading-flow` dù cả ba đã có đủ `context.md` + `example.html`
+trên đĩa từ trước, chỉ là chưa được liệt ở đây). Đo trên đĩa: mỗi thư mục đúng 2 file, mọi
 `example.html` đủ 8 mục và kết thúc bằng `</html>` (không bị cắt giữa chừng).
 
 Khuôn của `example.html` là [`seam/example.html`](seam/example.html) — bảy phần:
@@ -76,6 +86,9 @@ Mỗi dòng một trục. Không tick được dòng nào thì mở `context.md`
 - [ ] rỗng/lỗi/tải đều có đường đi, không rơi ra card trắng
 - [ ] mọi tên theo khuôn, không có tên mô tả cơ chế
 - [ ] mọi bo góc lồng nhau theo công thức đồng tâm
+- [ ] mọi phản hồi khi bấm truy được về đúng bậc của `press`, không tự chế hiệu ứng riêng
+- [ ] mọi chỗ nổi bật chọn ĐÚNG CƠ CHẾ (accent/chip/button) trước khi hỏi màu gì
+- [ ] mọi khối/chữ căn lề và dòng đọc theo `reading-flow`, không lệch mắt đọc tự nhiên
 
 ---
 

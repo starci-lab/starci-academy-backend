@@ -168,6 +168,15 @@ dịch — code nhận mọi giá trị, âm thầm bỏ qua. Đây chính là b
 6. **`text-xl font-semibold` viết trần ở `src` = `h4` (20px heading), KHÔNG PHẢI `lg` body
    (18px)** — 2 thang khác nhau, dễ lẫn vì cả hai "to hơn sm". Neo: `EnrollGate`
    (`type="h4"` thật), `ContentPaywall` (`text-xl font-semibold` viết trần, không qua Typography).
+7. **Vendor CSS lặng lẽ đè `weight` khi atom không tự khai class rõ ràng.** Neo 2026-07-30
+   (`ChallengePage/Graded`, round-1): HeroUI's `.accordion__trigger { font-medium }` bleed vào một
+   dòng chữ lẽ ra `font-normal`, vì nhánh `weightCls` cũ trả về `null` khi không có `weight`/icon
+   — thiếu class nghĩa là KHÔNG có gì chặn CSS của thư viện cha thắng thế. Sửa tại
+   `atoms/text/Typography/Typography.tsx:448-450`: `weightCls` giờ LUÔN ra một trong bốn class cụ
+   thể (`font-medium`/`font-bold`/`font-normal`), không bao giờ `null`/rỗng — xem comment tại chỗ
+   dòng 444-450. Luật khái quát: **một atom bọc vendor phải LUÔN emit class tường minh cho mọi
+   giá trị nó sở hữu, không được để "giá trị mặc định" nghĩa là im lặng/kế thừa** — im lặng là chỗ
+   hở để `.accordion__*`/`.progress-bar` hay bất kỳ class cha nào của thư viện tràn vào.
 
 ---
 

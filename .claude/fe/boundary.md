@@ -73,6 +73,17 @@ caller điều khiển, bên thật thì tự phân trang nội bộ.
 ⇒ Đối chiếu **HÀNH VI** (ai bấm gì, xảy ra gì), không chỉ đối chiếu tên biến và tên prop, trước
 khi coi một component có sẵn là "đã port xong".
 
+**Bẫy 3 — đối chiếu xong HÀNH VI/CẤU TRÚC (bẫy 2) rồi thì DỪNG LẠI THÊM MỘT BƯỚC: đừng chép luôn
+GIÁ TRỊ THẬT (class/token/tỉ lệ) nếu chưa chắc hệ `.storybook` có cùng nền tảng.**
+Neo 2026-07-30, phiên `ChallengePage/Graded`: chép thẳng `bg-info` từ `LastAttemptResult.tsx` —
+token đó CHƯA TỪNG tồn tại kể cả trong chính `src` (chỉ là tên class gọi ra, chưa ai khai
+`--info` ở đâu cả); chép `mt-2` cho một chấm severity — đúng số đo thật trong `src`, nhưng vi
+phạm luật "cha sở hữu seam, con không mang margin" mà `.storybook` có còn `src` không theo luật
+này.
+⇒ Giá trị chép từ `src` phải kiểm **tồn tại/hợp lệ trong CHÍNH hệ `.storybook`** trước khi dùng —
+không thì đó là một QUYẾT ĐỊNH cần thầy chốt (thêm token mới? đổi cách hiện?), không phải chỗ tự
+vá bằng workaround hay chép nguyên bất chấp.
+
 ---
 
 ## 5. Cổng đo
@@ -81,6 +92,8 @@ khi coi một component có sẵn là "đã port xong".
 - [ ] Mọi prompt của agent nền đều có câu chặn `src/` viết tường minh?
 - [ ] Trước khi báo "không có bản gốc", đã thử ≥2 cách gọi tên khác nhau?
 - [ ] Trước khi coi một component là bản port, đã đối chiếu hành vi chứ không chỉ tên?
+- [ ] Giá trị (class/token/tỉ lệ) chép từ `src` đã kiểm tồn tại/hợp lệ trong `.storybook` chưa,
+      hay chỉ chép mù theo đúng chữ nhìn thấy?
 
 > Mục "kill và restart server không đủ để xem đúng bản mới" đã chuyển sang
 > [`environment.md`](environment.md) §4 — đó là bẫy của MÁY, không phải luật về quyền ghi.

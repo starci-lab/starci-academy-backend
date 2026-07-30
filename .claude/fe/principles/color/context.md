@@ -123,6 +123,14 @@ Các cặp cách từ 2 bậc trở lên: phân vân ở đó là dấu hiệu c
    Neo bug thật: `SurfaceCard.leadingIcon` (outcomes list `ContentHeader`) khoá cứng theo
    màu label → checkmark ra màu đen thay vì xanh; sửa bằng prop `leadingIconColor?:
    AlertStatus` riêng ([`principles/icon/context.md`](../icon/context.md) §2c).
+6. **`color` bị đọc kiểu `color ? COLOR_CLS[color] : null` — vendor thắng khi caller không
+   truyền `color`.** Neo 2026-07-30 (`ChallengePage/Graded`): HeroUI's `.accordion__body-inner
+   { color: var(--muted) }` bleed vào chữ lẽ ra phải `text-default` vì nhánh đọc bỏ qua
+   `COLOR_CLS["default"]` khi `color` prop không được truyền. Sửa tại
+   `atoms/text/Typography/Typography.tsx:95` (comment "round-6") + dòng 345/364/426: MỌI nhánh
+   giờ đọc `COLOR_CLS[color ?? "default"]`, không còn nhánh `color ? … : null`. Cùng luật khái
+   quát với `text/context.md` §4.7: atom bọc vendor phải emit class tường minh cho **giá trị mặc
+   định** cũng như giá trị được truyền, không được coi "không truyền" là "không cần class".
 6. **Mỗi giá trị đúng CỤC BỘ nhưng CẢ VÙNG quá nhiều điểm nổi (accent-flood, §2c).** Neo:
    `CourseCard` 2026-07-22 — 3 check xanh + chip −55% xanh + CTA hồng = 4-5 điểm nổi cùng
    lúc, không điểm nào sai giá trị nhưng cả cụm mất tác dụng "nổi". Bẫy này không sửa được
