@@ -89,10 +89,14 @@ scratch/
 .claude/_canon_tmp/
 .claude/worktrees/
 claude-legacy/
-# .claude/{fe,be,skills,patterns} giờ COMMIT vào repo này (backend tự chứa canon+skills, 2026-07-14)
+# 2026-07-14: .claude/{fe,be,skills,patterns} COMMIT vào repo này — backend tự chứa canon+skills.
+# 2026-07-31: ĐẢO LẠI. .claude/ giờ LÀ repo starci183/starci-claude-skills (bộ dùng chung cho
+# nhiều source), nên nó tự quản version của nó. Cây canon cũ nằm ở claude-legacy/claude-2026-07-31/,
+# vẫn còn đủ trong lịch sử git tới commit ecad51e12.
+.claude/
 
 # cloudflare tunnel token (never commit)
 .secrets/
 
-# bộ skill riêng, có repo GitHub của chính nó
+# bộ skill riêng, có repo GitHub của chính nó — 2026-07-31 đã dời thành .claude/ ở trên
 .claude-starci-ultimate/
