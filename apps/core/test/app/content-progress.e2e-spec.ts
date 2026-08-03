@@ -38,10 +38,20 @@ import {
 } from "@modules/databases"
 import {
     KeycloakAuthGraphQLGuard,
+    KeycloakJwksService,
 } from "@modules/keycloak"
+import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+} from "@modules/cookie"
 import {
     CacheService,
 } from "@modules/cache"
+import {
+    PingResolver,
+} from "../helpers/ping-resolver"
 import {
     GraphQLEnrollmentGuard,
     ProgressProjectionService,
@@ -191,6 +201,7 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                     CqrsModule,
                 ],
                 providers: [
+                    PingResolver,
                     MarkAsReadedResolver,
                     MarkAsReadedService,
                     MarkAsReadedHandler,
@@ -210,6 +221,23 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                     {
                         provide: CacheService,
                         useValue: cacheServiceMock,
+                    },
+                    // guard deps — let Nest construct the real guard at compile
+                    // time; `.overrideGuard` swaps its runtime behaviour below
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                        },
                     },
                 ],
             })
@@ -317,7 +345,9 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                 const xpRow = await entityManager.findOneOrFail(XpHistoryEntity,
                     {
                         where: {
-                            userId: user.id,
+                            user: {
+                                id: user.id,
+                            },
                             source: XpSource.LessonRead,
                         },
                     })
@@ -336,7 +366,9 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                 const activityRow = await entityManager.findOneOrFail(ActivityEntity,
                     {
                         where: {
-                            userId: user.id,
+                            user: {
+                                id: user.id,
+                            },
                             type: ActivityType.LessonRead,
                         },
                     })
@@ -355,7 +387,9 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                 expect(await entityManager.count(XpHistoryEntity,
                     {
                         where: {
-                            userId: user.id,
+                            user: {
+                                id: user.id,
+                            },
                             source: XpSource.LessonRead,
                         },
                     })).toBe(1)
@@ -445,7 +479,9 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                 expect(await entityManager.count(ActivityEntity,
                     {
                         where: {
-                            userId: user.id,
+                            user: {
+                                id: user.id,
+                            },
                             type: ActivityType.LessonBookmarked,
                         },
                     })).toBe(1)
@@ -470,7 +506,9 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                 expect(await entityManager.count(ActivityEntity,
                     {
                         where: {
-                            userId: user.id,
+                            user: {
+                                id: user.id,
+                            },
                             type: ActivityType.LessonBookmarked,
                         },
                     })).toBe(1)
@@ -496,7 +534,9 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                 expect(await entityManager.count(ActivityEntity,
                     {
                         where: {
-                            userId: user.id,
+                            user: {
+                                id: user.id,
+                            },
                             type: ActivityType.LessonBookmarked,
                         },
                     })).toBe(1)
