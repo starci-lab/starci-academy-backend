@@ -1,3 +1,7 @@
+import {
+    APP_TIMEZONE,
+} from "@modules/common"
+
 /**
  * SQL expr for the start of the CURRENT KPI week: the most recent Monday 08:00
  * Asia/Ho_Chi_Minh (GMT+7, no DST). Shift -8h before truncating to Monday
@@ -7,4 +11,4 @@
  * (`set-kpi-target.resolver.ts`), and the reward claim so the notion of "week"
  * can never drift apart between them.
  */
-export const KPI_WEEK_START_SQL = "(date_trunc('week', (now() AT TIME ZONE 'Asia/Ho_Chi_Minh') - interval '8 hours') + interval '8 hours') AT TIME ZONE 'Asia/Ho_Chi_Minh'"
+export const KPI_WEEK_START_SQL = `(date_trunc('week', (now() AT TIME ZONE '${APP_TIMEZONE}') - interval '8 hours') + interval '8 hours') AT TIME ZONE '${APP_TIMEZONE}'`

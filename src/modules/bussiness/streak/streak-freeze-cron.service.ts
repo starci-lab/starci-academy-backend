@@ -10,6 +10,9 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    APP_TIMEZONE,
+} from "@modules/common"
+import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
@@ -52,7 +55,7 @@ export class StreakFreezeCronService {
         CronExpression.EVERY_DAY_AT_1AM,
         {
             name: "streak-freeze-auto-protect",
-            timeZone: "Asia/Ho_Chi_Minh",
+            timeZone: APP_TIMEZONE,
         },
     )
     async consumeStreakFreezeForMisses(): Promise<void> {
@@ -76,34 +79,42 @@ export class StreakFreezeCronService {
     }
 
     /**
-     * Protect ONE candidate user for yesterday: decrement a freeze, insert the
-     * protected day, and recompute their stats — all in one transaction. A
-     * conditional UPDATE (`streak_freezes > 0`) guards against a freeze spent
-     * between the candidate query and this txn (then the insert is skipped).
+     * Protect ONE candidate user for yesterday: insert the protected day FIRST,
+     * then decrement a freeze, and recompute their stats — all in one transaction.
+     * The idempotent insert (`ON CONFLICT ... DO NOTHING RETURNING id`) reports
+     * whether THIS txn is the one that actually created the protected-day row —
+     * a concurrent replica racing the same user+day gets 0 rows back and skips
+     * both the decrement and the recompute, so a freeze is spent AT MOST ONCE
+     * per protected day even with no cross-replica lock.
      *
      * @param userId - the user to protect.
      */
     private async protectUser(userId: string): Promise<void> {
         await this.entityManager.transaction(async (manager) => {
-            // decrement only if a freeze is still available (race-safe); 0 rows
-            // affected means it was spent elsewhere → skip the protection
-            const updateResult = await manager.query<Array<StreakFreezeProtectIdRow>>(
-                `UPDATE users
-                 SET streak_freezes = streak_freezes - 1
-                 WHERE id = $1 AND streak_freezes > 0
+            // insert yesterday as a protected day (idempotent on the unique (user,
+            // date)); RETURNING id tells us whether THIS txn won the insert race
+            const insertResult = await manager.query<Array<StreakFreezeProtectIdRow>>(
+                `INSERT INTO streak_protected_days (user_id, date)
+                 VALUES ($1, ((now() AT TIME ZONE '${APP_TIMEZONE}')::date - 1))
+                 ON CONFLICT ON CONSTRAINT uq_streak_protected_days_user_date DO NOTHING
                  RETURNING id`,
                 [
                     userId,
                 ],
             )
-            if (updateResult.length === 0) {
+            if (insertResult.length === 0) {
+                // the day is already protected (this run or a racing replica already
+                // did it) — nothing new to protect, so no freeze should be spent
                 return
             }
-            // insert yesterday as a protected day (idempotent on the unique (user, date))
-            await manager.query(
-                `INSERT INTO streak_protected_days (user_id, date)
-                 VALUES ($1, (CURRENT_DATE - 1)::date)
-                 ON CONFLICT ON CONSTRAINT uq_streak_protected_days_user_date DO NOTHING`,
+            // only the txn that actually inserted the protected day may spend a
+            // freeze for it (race-safe); 0 rows affected means the freeze was
+            // spent elsewhere, so the day stays protected without a spend
+            await manager.query<Array<StreakFreezeProtectIdRow>>(
+                `UPDATE users
+                 SET streak_freezes = streak_freezes - 1
+                 WHERE id = $1 AND streak_freezes > 0
+                 RETURNING id`,
                 [
                     userId,
                 ],
@@ -119,9 +130,12 @@ export class StreakFreezeCronService {
 
     /**
      * Build the candidate query: users with a freeze in stock who were ACTIVE the
-     * day before yesterday (`CURRENT_DATE - 2`) but INACTIVE yesterday
-     * (`CURRENT_DATE - 1`). "Active" = an XP event OR an existing protected day on
-     * that calendar day. This is a single set-based scan (no per-user loop).
+     * day before yesterday (VN "today" - 2) but INACTIVE yesterday (VN "today" -
+     * 1). "Active" = an XP event OR an existing protected day on that calendar
+     * day, with the day boundary reckoned in {@link APP_TIMEZONE} — matching the
+     * VN-cast day boundary the streak projection itself now uses, so the cron's
+     * notion of "yesterday" can never drift from the projection's. This is a
+     * single set-based scan (no per-user loop).
      *
      * @returns the parameterless candidate SQL.
      */
@@ -135,20 +149,26 @@ export class StreakFreezeCronService {
               AND (
                 EXISTS (
                     SELECT 1 FROM xp_histories x
-                    WHERE x.user_id = u.id AND x.created_at::date = CURRENT_DATE - 2
+                    WHERE x.user_id = u.id
+                      AND (x.created_at AT TIME ZONE '${APP_TIMEZONE}')::date
+                        = (now() AT TIME ZONE '${APP_TIMEZONE}')::date - 2
                 ) OR EXISTS (
                     SELECT 1 FROM streak_protected_days spd
-                    WHERE spd.user_id = u.id AND spd.date = (CURRENT_DATE - 2)::date
+                    WHERE spd.user_id = u.id
+                      AND spd.date = ((now() AT TIME ZONE '${APP_TIMEZONE}')::date - 2)
                 )
               )
               -- inactive yesterday (the miss we want to cover)
               AND NOT EXISTS (
                 SELECT 1 FROM xp_histories x
-                WHERE x.user_id = u.id AND x.created_at::date = CURRENT_DATE - 1
+                WHERE x.user_id = u.id
+                  AND (x.created_at AT TIME ZONE '${APP_TIMEZONE}')::date
+                    = (now() AT TIME ZONE '${APP_TIMEZONE}')::date - 1
               )
               AND NOT EXISTS (
                 SELECT 1 FROM streak_protected_days spd
-                WHERE spd.user_id = u.id AND spd.date = (CURRENT_DATE - 1)::date
+                WHERE spd.user_id = u.id
+                  AND spd.date = ((now() AT TIME ZONE '${APP_TIMEZONE}')::date - 1)
               )
         `
     }

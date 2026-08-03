@@ -23,6 +23,9 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    InstallmentPlanNotFoundException,
+} from "@modules/exceptions"
 import type {
     ApplyInstallmentPaymentForTransactionParams,
     CreateFixedInstallmentPlanParams,
@@ -227,12 +230,22 @@ export class InstallmentPlanService {
         }: RecordInstallmentPaymentParams,
     ): Promise<RecordInstallmentPaymentResult> {
         const manager = entityManager ?? this.entityManager
-        const plan = await manager.findOneByOrFail(
+        // typed lookup, not `findOneByOrFail` — a raw TypeORM
+        // `EntityNotFoundError` must never cross into the queue worker
+        // (the reconcile worker calls this through
+        // `applyPaymentForTransaction`), which needs a typed exception to
+        // decide retryable-vs-not (see error-handling.md §3/§7)
+        const plan = await manager.findOneBy(
             InstallmentPlanEntity,
             {
                 id: planId,
             },
         )
+        if (!plan) {
+            throw new InstallmentPlanNotFoundException({
+                planId,
+            })
+        }
         const wasDefaulted = plan.status === InstallmentPlanStatus.Defaulted
         const minPaymentVnd = this.computeMinPaymentVnd(plan)
         const metMinimum = paidAmountVnd >= minPaymentVnd

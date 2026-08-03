@@ -1,5 +1,6 @@
 import {
     Injectable,
+    Logger,
 } from "@nestjs/common"
 import {
     EntityManager,
@@ -44,6 +45,9 @@ const DEFAULT_PAGE_SIZE = 20
  */
 @Injectable()
 export class CodingSubmissionService {
+    /** Logger scoped to this service for easy grep of best-effort failures. */
+    private readonly logger = new Logger(CodingSubmissionService.name)
+
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -114,13 +118,25 @@ export class CodingSubmissionService {
                 suspicionScore: evaluation.suspicionScore,
                 flaggedForReview: evaluation.flagged,
             })
-        // best-effort: remember the device this submission came from
-        await this.deviceService.recordDevice({
-            userId,
-            fingerprint,
-            ipAddress,
-            userAgent,
-        })
+        // best-effort: remember the device this submission came from. The
+        // submission row already exists at this point, so a failure here
+        // must be swallowed (logged, not thrown) — otherwise it would strand
+        // an already-persisted Pending submission with no judging job ever
+        // enqueued for it.
+        try {
+            await this.deviceService.recordDevice({
+                userId,
+                fingerprint,
+                ipAddress,
+                userAgent,
+            })
+        } catch (error) {
+            const cause = error instanceof Error ? error : new Error(String(error))
+            this.logger.warn(
+                `Failed to record device for submission ${submission.id}: ${cause.message}`,
+                cause.stack,
+            )
+        }
         // enqueue the async judging job; the returned job id is what the client subscribes to
         const job = await this.enqueueJudgeCodingSubmissionJobService.enqueue({
             userId,

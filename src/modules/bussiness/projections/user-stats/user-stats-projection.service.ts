@@ -5,6 +5,9 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    APP_TIMEZONE,
+} from "@modules/common"
+import {
     InjectPrimaryPostgreSQLEntityManager,
     UserStatsProjectionEntity,
 } from "@modules/databases"
@@ -195,7 +198,7 @@ export class UserStatsProjectionService {
                 -- 7-day window for the streak strip; this one resets Monday like every
                 -- other weekly KPI).
                 'weeklyStudyDays', COALESCE((
-                    SELECT COUNT(DISTINCT (created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)
+                    SELECT COUNT(DISTINCT (created_at AT TIME ZONE '${APP_TIMEZONE}')::date)
                     FROM xp_histories
                     WHERE user_id = $1 AND created_at >= ${KPI_WEEK_START_SQL}
                 ), 0),
@@ -214,9 +217,12 @@ export class UserStatsProjectionService {
                 -- but only when that latest day is today or yesterday (else broken).
                 -- A day counts as active if it has an XP event OR a streak-freeze
                 -- protected day (UNION) — protection is the only additive input.
+                -- Every day boundary here is cast to ${APP_TIMEZONE} — the same VN
+                -- calendar day weeklyStudyDays above and last7Days below already use
+                -- — so the streak "day" and the platform "day" never disagree.
                 'streak', COALESCE((
                     WITH days AS (
-                        SELECT created_at::date AS d
+                        SELECT (created_at AT TIME ZONE '${APP_TIMEZONE}')::date AS d
                         FROM xp_histories WHERE user_id = $1
                         UNION
                         SELECT spd.date AS d
@@ -228,13 +234,14 @@ export class UserStatsProjectionService {
                     )
                     SELECT COUNT(*)::int FROM islands
                     WHERE island = (SELECT island FROM islands ORDER BY d DESC LIMIT 1)
-                      AND (SELECT MAX(d) FROM days) >= CURRENT_DATE - 1
+                      AND (SELECT MAX(d) FROM days)
+                        >= (now() AT TIME ZONE '${APP_TIMEZONE}')::date - 1
                 ), 0),
                 -- longest-ever streak: size of the biggest consecutive-day island
                 -- (protected days UNIONed into the active-day set, same as above)
                 'longestStreak', COALESCE((
                     WITH days AS (
-                        SELECT created_at::date AS d
+                        SELECT (created_at AT TIME ZONE '${APP_TIMEZONE}')::date AS d
                         FROM xp_histories WHERE user_id = $1
                         UNION
                         SELECT spd.date AS d
@@ -250,21 +257,27 @@ export class UserStatsProjectionService {
                 ), 0),
                 -- the last 7 calendar days (oldest→today) flagged active when the
                 -- user earned any XP OR has a streak-freeze protected day → drives
-                -- the streak strip
+                -- the streak strip. "Today" and every day boundary are VN-anchored
+                -- (${APP_TIMEZONE}), matching streak/longestStreak above.
                 'last7Days', COALESCE((
                     SELECT jsonb_agg(
                         jsonb_build_object(
                             'date', to_char(gd, 'YYYY-MM-DD'),
                             'active', (EXISTS (
                                 SELECT 1 FROM xp_histories x
-                                WHERE x.user_id = $1 AND x.created_at::date = gd
+                                WHERE x.user_id = $1
+                                  AND (x.created_at AT TIME ZONE '${APP_TIMEZONE}')::date = gd
                             ) OR EXISTS (
                                 SELECT 1 FROM streak_protected_days spd
                                 WHERE spd.user_id = $1 AND spd.date = gd::date
                             ))
                         ) ORDER BY gd
                     )
-                    FROM generate_series(CURRENT_DATE - 6, CURRENT_DATE, interval '1 day') AS gd
+                    FROM generate_series(
+                        (now() AT TIME ZONE '${APP_TIMEZONE}')::date - 6,
+                        (now() AT TIME ZONE '${APP_TIMEZONE}')::date,
+                        interval '1 day'
+                    ) AS gd
                 ), '[]'::jsonb)
             )
             ON CONFLICT (user_id) DO UPDATE SET

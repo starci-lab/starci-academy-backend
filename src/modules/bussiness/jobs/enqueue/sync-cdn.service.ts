@@ -68,6 +68,11 @@ export class EnqueueSyncCdnJobService {
                     jobId: job.id,
                 },
             ),
+        ).catch((error) =>
+            this.jobActionService.failJob({
+                job,
+                error: `Failed to enqueue job to broker: ${error?.message ?? "unknown error"}`,
+            }),
         )
         return job
     }

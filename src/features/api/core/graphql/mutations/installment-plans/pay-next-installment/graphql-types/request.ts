@@ -5,6 +5,13 @@ import {
     Int,
 } from "@nestjs/graphql"
 import {
+    IsEnum,
+    IsInt,
+    IsOptional,
+    IsUUID,
+    Min,
+} from "class-validator"
+import {
     GraphQLTypePaymentType,
     PaymentType,
 } from "@modules/databases"
@@ -26,6 +33,8 @@ export class PayNextInstallmentRequest {
             description: "Id of the installment plan to pay the current cycle of.",
         },
     )
+    // must be a real plan uuid — an ownership/existence check happens in the handler
+    @IsUUID()
         planId: string
 
     /** Domestic gateway only (VND) — Stripe/PayPal/Crypto are rejected (MVP scope). */
@@ -35,6 +44,8 @@ export class PayNextInstallmentRequest {
             description: "Payment provider for the installment payment (PayOS / Sepay only, MVP).",
         },
     )
+    // required — an unrecognized provider is rejected before it reaches the gateway
+    @IsEnum(PaymentType)
         paymentType: PaymentType
 
     /** Redirect URL after a successful payment (required by PayOS). */
@@ -70,5 +81,10 @@ export class PayNextInstallmentRequest {
             description: "Custom charge amount for a FlexiblePool plan (must be >= this cycle's minimum). Omit to charge exactly the minimum. Rejected for Fixed plans.",
         },
     )
+    // optional; when present it must be a non-negative whole VND amount —
+    // the ">= this cycle's minimum" invariant is cross-field and enforced in the handler
+    @IsOptional()
+    @IsInt()
+    @Min(0)
         amountVnd?: number
 }

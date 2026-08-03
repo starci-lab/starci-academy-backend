@@ -21,6 +21,9 @@ import {
     enqueueLearnerEmail,
 } from "@modules/transactional-email"
 import {
+    SocialDigestFailedException,
+} from "@modules/exceptions"
+import {
     EnqueueSendMailJobService,
 } from "../jobs"
 
@@ -112,37 +115,58 @@ export class SocialDigestCronService {
                     entry)
             }
 
-            // one best-effort email per user with activity
+            // one best-effort email per user with activity — a single
+            // enqueue failure must never abort the sweep for the OTHER
+            // recipients still waiting in the loop (mirrors
+            // PublicRagPlaygroundCleanupService.dropSession's per-item isolation)
+            let sentCount = 0
             for (const [userId,
                 summary] of perUser) {
                 const followers = summary.byType.get(NotificationType.NewFollower) ?? 0
                 const replies =
                     (summary.byType.get(NotificationType.CommentReply) ?? 0) +
                     (summary.byType.get(NotificationType.CommunityReply) ?? 0)
-                await enqueueLearnerEmail({
-                    entityManager: this.entityManager,
-                    enqueueSendMailJobService: this.enqueueSendMailJobService,
-                    userId,
-                    template: "activity-digest",
-                    webBaseUrl: envConfig().web.baseUrl,
-                    subject: {
-                        vi: `Bạn có ${summary.total} hoạt động mới`,
-                        en: `You have ${summary.total} new updates`,
-                    },
-                    extraContext: {
-                        total: summary.total,
-                        followers,
-                        replies,
-                        // link to the settings page where the digest can be turned off
-                        settingsUrl: `${envConfig().web.baseUrl}/profile/settings`,
-                    },
-                })
+                try {
+                    await enqueueLearnerEmail({
+                        entityManager: this.entityManager,
+                        enqueueSendMailJobService: this.enqueueSendMailJobService,
+                        userId,
+                        template: "activity-digest",
+                        webBaseUrl: envConfig().web.baseUrl,
+                        subject: {
+                            vi: `Bạn có ${summary.total} hoạt động mới`,
+                            en: `You have ${summary.total} new updates`,
+                        },
+                        extraContext: {
+                            total: summary.total,
+                            followers,
+                            replies,
+                            // link to the settings page where the digest can be turned off
+                            settingsUrl: `${envConfig().web.baseUrl}/profile/settings`,
+                        },
+                    })
+                    sentCount += 1
+                } catch (error) {
+                    // this user's enqueue failed — log and move on to the next
+                    // recipient rather than aborting the whole sweep
+                    const cause = error instanceof Error ? error : new Error(String(error))
+                    this.logger.warn(
+                        `Failed to enqueue activity digest for user ${userId}: ${cause.message}`,
+                        cause.stack,
+                    )
+                }
             }
-            this.logger.log(`Activity digest queued for ${perUser.size} user(s)`)
+            this.logger.log(`Activity digest queued for ${sentCount}/${perUser.size} user(s)`)
         } catch (error) {
-            // normalize + log (message + stack) and swallow — next day self-heals
+            // normalize, wrap in a typed exception so the failure is groupable
+            // and observable, then log (message + stack) and swallow — a bad
+            // run (e.g. a broken aggregation query) can never crash the
+            // scheduler, and the next day self-heals
             const cause = error instanceof Error ? error : new Error(String(error))
-            this.logger.error(cause.message,
+            const exception = new SocialDigestFailedException({
+                originalError: cause,
+            })
+            this.logger.error(exception.message,
                 cause.stack)
         }
     }

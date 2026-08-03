@@ -243,25 +243,46 @@ export class JobActionService {
     }
 
     /**
-     * Fail the job.
-     * @param error - The error.
-     * @param entityManager - The entity manager.
-     * @param id - The ID of the job.
-     * @returns The job.
+     * Fail the job. Optionally fencing-guarded (see {@link increaseJob}).
+     * @param params - error / job / entityManager / emitChangeEvent / expectedFencingToken.
      */
     async failJob({
         error,
         entityManager,
         job,
         emitChangeEvent = true,
+        expectedFencingToken,
     }: FailJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
-        job.status = JobStatus.Failed
-        job.error = error ?? null
-        await manager.save(
-            JobEntity,
-            job,
-        )
+        const nextError = error ?? null
+        if (expectedFencingToken != null) {
+            const result = await manager.update(
+                JobEntity,
+                {
+                    id: job.id,
+                    fencingToken: expectedFencingToken,
+                },
+                {
+                    status: JobStatus.Failed,
+                    error: nextError,
+                },
+            )
+            if (!result.affected) {
+                throw new JobFencedOutException({
+                    id: job.id,
+                    expectedFencingToken,
+                })
+            }
+            job.status = JobStatus.Failed
+            job.error = nextError
+        } else {
+            job.status = JobStatus.Failed
+            job.error = nextError
+            await manager.save(
+                JobEntity,
+                job,
+            )
+        }
         if (emitChangeEvent) {
             await this.eventEmitterService.emit({
                 event: EventName.JobStatusUpdated,

@@ -3,7 +3,11 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
+    QueryFailedError,
 } from "typeorm"
+import {
+    APP_TIMEZONE,
+} from "@modules/common"
 import {
     CoinSource,
     DailyQuestCompletionEntity,
@@ -33,7 +37,10 @@ import type {
 } from "./types"
 
 /** The IANA timezone the "daily" calendar day is reckoned in. */
-const QUEST_TIMEZONE = "Asia/Ho_Chi_Minh"
+const QUEST_TIMEZONE = APP_TIMEZONE
+
+/** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
+const PG_UNIQUE_VIOLATION = "23505"
 
 /**
  * Daily-quest business logic. The quest is per-request DERIVED from TODAY's
@@ -185,62 +192,79 @@ export class DailyQuestService {
      * the reward grant, and the completion insert in ONE transaction so a
      * concurrent double-claim cannot double-credit. Throws a typed exception when
      * fewer than {@link DAILY_QUEST_MIN_TASKS_REQUIRED} tasks are done or the
-     * quest was already claimed today.
+     * quest was already claimed today — including when a RACING concurrent claim
+     * wins the (user_id, quest_date) unique-constraint backstop: the loser's raw
+     * `QueryFailedError` (SQLSTATE 23505) is caught and translated into the same
+     * typed exception the sequential already-claimed check throws.
      *
      * @param userId - the claiming user's id.
      * @returns the user's refreshed Coin balance.
      */
     async claimReward(userId: string): Promise<ClaimDailyQuestResult> {
-        return this.entityManager.transaction(async (manager) => {
-            const date = await this.getTodayDate(manager)
-            const counts = await this.getTodayCounts(manager,
-                userId)
-            const tasks = this.buildTasks(counts)
-            const completedCount = tasks.filter((task) => task.current >= task.target).length
-            const allDone = completedCount >= DAILY_QUEST_MIN_TASKS_REQUIRED
-            if (!allDone) {
-                throw new DailyQuestNotCompleteException({
-                    date,
-                })
-            }
-            if (await this.hasClaimedToday(manager,
-                userId,
-                date)) {
-                throw new DailyQuestAlreadyClaimedException({
-                    date,
-                })
-            }
-            // record the completion first — the (user_id, quest_date) unique row is
-            // the idempotency backstop against a racing concurrent claim
-            await manager.insert(DailyQuestCompletionEntity,
-                {
+        // captured from inside the tx so the catch block can report the right day
+        let date: string | undefined
+        try {
+            return await this.entityManager.transaction(async (manager) => {
+                date = await this.getTodayDate(manager)
+                const counts = await this.getTodayCounts(manager,
+                    userId)
+                const tasks = this.buildTasks(counts)
+                const completedCount = tasks.filter((task) => task.current >= task.target).length
+                const allDone = completedCount >= DAILY_QUEST_MIN_TASKS_REQUIRED
+                if (!allDone) {
+                    throw new DailyQuestNotCompleteException({
+                        date,
+                    })
+                }
+                if (await this.hasClaimedToday(manager,
                     userId,
-                    questDate: date,
-                    coinReward: DAILY_QUEST_REWARD,
+                    date)) {
+                    throw new DailyQuestAlreadyClaimedException({
+                        date,
+                    })
+                }
+                // record the completion first — the (user_id, quest_date) unique row is
+                // the idempotency backstop against a racing concurrent claim
+                await manager.insert(DailyQuestCompletionEntity,
+                    {
+                        userId,
+                        questDate: date,
+                        coinReward: DAILY_QUEST_REWARD,
+                    })
+                // grant the flat reward via the shared coin ledger helper (never XP).
+                // refId is unique per user+day so the grant is idempotent on its own too.
+                await writeCoinHistory({
+                    entityManager: manager,
+                    userId,
+                    source: CoinSource.DailyQuest,
+                    points: DAILY_QUEST_REWARD,
+                    refId: `daily:${date}`,
                 })
-            // grant the flat reward via the shared coin ledger helper (never XP).
-            // refId is unique per user+day so the grant is idempotent on its own too.
-            await writeCoinHistory({
-                entityManager: manager,
-                userId,
-                source: CoinSource.DailyQuest,
-                points: DAILY_QUEST_REWARD,
-                refId: `daily:${date}`,
+                // read back the credited balance for the response
+                const user = await manager.findOneOrFail(UserEntity,
+                    {
+                        where: {
+                            id: userId,
+                        },
+                        select: {
+                            id: true,
+                            coinBalance: true,
+                        },
+                    })
+                return {
+                    balance: user.coinBalance,
+                }
             })
-            // read back the credited balance for the response
-            const user = await manager.findOneOrFail(UserEntity,
-                {
-                    where: {
-                        id: userId,
-                    },
-                    select: {
-                        id: true,
-                        coinBalance: true,
-                    },
+        } catch (error) {
+            // a concurrent duplicate lost the unique race → translate to the same
+            // typed exception the sequential already-claimed check throws above
+            if (error instanceof QueryFailedError
+                && (error.driverError as { code?: string } | undefined)?.code === PG_UNIQUE_VIOLATION) {
+                throw new DailyQuestAlreadyClaimedException({
+                    date: date as string,
                 })
-            return {
-                balance: user.coinBalance,
             }
-        })
+            throw error
+        }
     }
 }

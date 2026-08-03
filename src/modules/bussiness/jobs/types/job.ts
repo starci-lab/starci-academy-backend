@@ -88,6 +88,8 @@ export interface FailJobParams extends JobTargetParams {
     emitChangeEvent?: boolean
     /** The error message. */
     error?: string
+    /** When set, the failure is applied only if the row still carries this fencing token. */
+    expectedFencingToken?: number
 }
 
 /** Params for storing the result of a job. */

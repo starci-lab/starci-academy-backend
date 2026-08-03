@@ -46,9 +46,14 @@ export class MembershipService {
 
     /**
      * Grant or extend a membership on successful payment and mark the funding
-     * transaction succeeded — both inside one DB transaction. Idempotent: a
-     * transaction already marked succeeded is left untouched so webhook retries
-     * (and the reconcile poll) never double-extend the period.
+     * transaction succeeded — both inside one DB transaction. Atomic: the
+     * Pending→Succeeded transition is claimed FIRST via a guarded `UPDATE ...
+     * WHERE status = 'pending'` (same technique as
+     * `TransactionActionService.updateTransactionStatusIfExpected`); the period
+     * is only extended when THIS call is the one that won that claim (rows-
+     * affected = 1). A concurrent webhook/reconcile-poll race that loses the
+     * claim sees 0 rows affected and no-ops — so a paid transaction extends the
+     * membership exactly once, not merely "checked then acted on".
      *
      * @param params - the owning `userId` and the `transactionId` that funded it
      */
@@ -58,37 +63,33 @@ export class MembershipService {
     }: GrantMembershipParams): Promise<boolean> {
         return this.entityManager.transaction(
             async (entityManager): Promise<boolean> => {
-                // idempotency guard — skip if this payment was already applied
-                const transaction = await entityManager.findOne(
+                // atomically claim the Pending -> Succeeded transition BEFORE
+                // granting anything — this IS the guard, replacing the earlier
+                // read-then-compare-in-app-code (TOCTOU) idempotency check
+                const claim = await entityManager.update(
                     TransactionEntity,
                     {
-                        where: {
-                            id: transactionId,
-                        },
+                        id: transactionId,
+                        status: TransactionStatus.Pending,
+                    },
+                    {
+                        status: TransactionStatus.Succeeded,
                     },
                 )
-                if (transaction?.status === TransactionStatus.Succeeded) {
-                    // already granted by a concurrent/earlier path → not a new grant
+                if (!claim.affected) {
+                    // already claimed (granted) by a concurrent/earlier path → not a new grant
                     return false
                 }
 
-                // extend the period by one billing cycle, stacking on any time left
+                // this call alone won the claim → extend the period by one
+                // billing cycle, stacking on any time left; runs exactly once
+                // for this transaction
                 await this.extendPeriod({
                     userId,
                     months: MEMBERSHIP_PERIOD_MONTHS,
                     entityManager,
                 })
 
-                // mark the funding transaction succeeded in the same unit of work
-                await entityManager.update(
-                    TransactionEntity,
-                    {
-                        id: transactionId,
-                    },
-                    {
-                        status: TransactionStatus.Succeeded,
-                    },
-                )
                 // a new grant happened → caller may notify the buyer
                 return true
             },
