@@ -8,6 +8,7 @@ import {
     CodingProblemsResolver,
 } from "./coding-problems.resolver"
 
+/** Wires the `codingProblems` list query resolver as its own registrable module. */
 @Module({
     providers: [
         CodingProblemsResolver,

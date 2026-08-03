@@ -18,8 +18,14 @@ import {
 } from "../user"
 
 /**
- * Guard that checks if the user is enrolled in the course.
- */ 
+ * The paid-only gate — enforces `is_enrolled = true` for the `x-course-id`
+ * course before letting a resolver run. Backs capstone / milestone /
+ * personal-project / premium mutations and queries, where a trial placeholder
+ * (`is_enrolled = false`, see {@link GraphQLEnrollmentGuard}) must NOT be
+ * enough. The check is delegated to {@link UserService.checkEnrollment} (the
+ * cached authorization hot path); this guard adds only the header parsing and
+ * the "no course id at all" rejection.
+ */
 @Injectable()
 export class GraphQLMustEnrolledGuard implements CanActivate {
     constructor(
@@ -27,9 +33,13 @@ export class GraphQLMustEnrolledGuard implements CanActivate {
     ) {}
 
     /**
-     * Can activate.
+     * Reject the request unless the caller is a paying (`is_enrolled = true`)
+     * member of the `x-course-id` course.
+     *
      * @param context - Execution context.
-     * @returns Promise of boolean.
+     * @returns True when the caller is enrolled.
+     * @throws {CourseIdRequiredException} When no `x-course-id` header is present.
+     * @throws {EnrollmentNotFoundException} When the caller is not (paid-)enrolled.
      */
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = GqlExecutionContext.create(context).getContext().req

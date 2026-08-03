@@ -37,11 +37,15 @@ import {
 
 /**
  * Learner-CMS query: the authenticated user's learning feedback, merged across
- * the three sources (challenge submission feedback, milestone-task feedback, CV
- * review) and paginated with `{ items, total }`. A plain list read keyed by the
- * viewer (the LIST exception — no CQRS projection). The merged rows have no
- * single primary key, so the resolver synthesises a stable list key from the
- * source bucket + the absolute row offset.
+ * the two sources (challenge submission feedback, milestone-task feedback) and
+ * paginated with `{ items, total }`. A plain list read keyed by the viewer (the
+ * LIST exception — no CQRS projection). The merged rows have no single primary
+ * key, so the resolver synthesises a stable list key from the source bucket +
+ * the absolute row offset.
+ *
+ * A third source (CV review feedback) was dropped when the legacy
+ * `cv_submissions`/`cv_submission_attempts` tables were retired — see
+ * {@link LearningFeedbacksCmsService} for why it isn't a drop-in replacement.
  */
 @Resolver()
 export class MyLearningFeedbacksResolver {
@@ -87,7 +91,7 @@ export class MyLearningFeedbacksResolver {
             offset: safeOffset,
         } = clampPagination(limit,
             offset)
-        // read one merged page of the viewer's feedback across all three sources
+        // read one merged page of the viewer's feedback across both sources
         const page = await this.learningFeedbacksCmsService.list({
             userId: user.id,
             limit: safeLimit,

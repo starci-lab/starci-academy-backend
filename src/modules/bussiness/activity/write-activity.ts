@@ -26,9 +26,9 @@ export interface WriteActivityParams {
 
 /**
  * Append one activity event to the home-feed ledger, idempotently and in the
- * caller's transaction. Guards on the `(type, refId)` unique key: if the event
- * was already recorded (re-read lesson, re-graded attempt, re-follow), NOTHING
- * happens — no duplicate feed row. Mirrors `writeXpHistory`.
+ * caller's transaction. Guards on the `(type, idempotencyKey)` unique key: if the
+ * event was already recorded (re-read lesson, re-graded attempt, re-follow),
+ * NOTHING happens — no duplicate feed row. Mirrors `writeXpHistory`.
  *
  * @param params - See {@link WriteActivityParams}.
  */

@@ -1,11 +1,6 @@
 import {
     Injectable,
-    Logger,
-    type OnModuleInit,
 } from "@nestjs/common"
-import {
-    type EachMessagePayload,
-} from "kafkajs"
 import {
     EntityManager,
 } from "typeorm"
@@ -16,16 +11,16 @@ import {
     envConfig,
 } from "@modules/env"
 import {
-    KafkaCdcMessageException,
-} from "@modules/exceptions"
-import {
     KafkaService,
 } from "@modules/kafka"
+import {
+    AbstractProjectionListener,
+    type ProjectionCdcMessage,
+} from "@modules/projection"
 import {
     ProgressProjectionService,
 } from "./progress-projection.service"
 import type {
-    CdcEnvelope,
     ChallengeAttemptTargetRow,
     ContentCourseLookupRow,
     DerivedProgressTarget,
@@ -45,131 +40,61 @@ import type {
  * {@link ProgressProjectionService.recompute}, which performs an idempotent
  * UPSERT. Delivery is at-least-once, so duplicate recomputes are harmless.
  *
- * The consumer is best-effort on boot: if Kafka is unreachable (some
- * environments run without it) the failure is logged and swallowed so the
- * application still starts. The broker connection + consumer disconnect are
- * owned by {@link KafkaService}; this listener only declares its group, topics,
- * and per-message projection logic.
+ * Extends {@link AbstractProjectionListener}, which owns topic subscription,
+ * best-effort boot, and the swallow-and-log per-message loop; this class only
+ * declares its group, its topics, and how to derive/recompute one target.
  */
 @Injectable()
-export class ProgressProjectionListener implements OnModuleInit {
-    /** Scoped logger so CDC issues are easy to grep in aggregated logs. */
-    private readonly logger = new Logger(ProgressProjectionListener.name)
+export class ProgressProjectionListener extends AbstractProjectionListener<DerivedProgressTarget> {
+    /** Stable groupId → restarts resume from the committed offset (no replay storm). */
+    protected readonly groupId = "progress-projection"
+
+    /** The four CDC topics whose row-changes can move a user's course progress. */
+    protected readonly topics = [
+        `${envConfig().kafka.cdcTopicPrefix}user_contents`,
+        `${envConfig().kafka.cdcTopicPrefix}user_challenge_submission_attempts`,
+        `${envConfig().kafka.cdcTopicPrefix}user_milestone_task_attempts`,
+        `${envConfig().kafka.cdcTopicPrefix}enrollments`,
+    ]
 
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly progressProjectionService: ProgressProjectionService,
-        private readonly kafkaService: KafkaService,
-    ) {}
-
-    /**
-     * Subscribe to the four CDC topics and start consuming. Connection and
-     * shutdown are delegated to {@link KafkaService}; any failure here is logged
-     * and swallowed — Kafka may be down in some environments and must not block
-     * application boot.
-     */
-    async onModuleInit(): Promise<void> {
-        // topic prefix is CDC-specific (Debezium server + schema) → stays here;
-        // broker endpoints are owned by KafkaService
-        const { cdcTopicPrefix } = envConfig().kafka
-        // build the fully-qualified CDC topic names this listener cares about
-        const topics = [
-            `${cdcTopicPrefix}user_contents`,
-            `${cdcTopicPrefix}user_challenge_submission_attempts`,
-            `${cdcTopicPrefix}user_milestone_task_attempts`,
-            `${cdcTopicPrefix}enrollments`,
-        ]
-        try {
-            // make sure the topics exist so subscribe never trips on a cold broker
-            // (no-op when Debezium / auto-create already made them)
-            await this.kafkaService.ensureTopics({
-                topics,
-            })
-            // stable groupId → restarts resume from the committed offset (no replay storm);
-            // KafkaService connects the consumer and tracks it for shutdown
-            const { consumer } = await this.kafkaService.createConsumer({
-                groupId: "progress-projection",
-            })
-            // subscribe to every CDC topic; fromBeginning=false → only new changes
-            await consumer.subscribe({
-                topics,
-                fromBeginning: false,
-            })
-            // start the per-message processing loop (handler is failure-isolated)
-            await consumer.run({
-                eachMessage: (payload) => this.handleMessage(payload),
-            })
-            // surface successful wiring so ops can confirm CDC is live
-            this.logger.log(
-                `Progress-projection CDC listener subscribed to: ${topics.join(", ")}`,
-            )
-        } catch (error) {
-            // Kafka being unreachable is non-fatal — log Error-style (stack
-            // preserved) and let the app boot. `error` is already a typed
-            // KafkaConsumerConnectException when the connect step failed.
-            const cause = error instanceof Error ? error : new Error(String(error))
-            this.logger.error(
-                "Progress-projection CDC listener disabled (Kafka unavailable)",
-                cause.stack,
-            )
-        }
-    }
-
-    /**
-     * Process one CDC message: parse it, derive the affected `(userId, courseId)`
-     * for its topic, and recompute the projection. Errors are caught and logged
-     * (never thrown) so one bad message does not stall the consumer — recompute
-     * is an idempotent UPSERT, so the next valid message self-heals.
-     *
-     * @param payload - the KafkaJS per-message payload (topic + raw value)
-     */
-    private async handleMessage(
-        {
-            topic,
-            message,
-        }: EachMessagePayload,
-    ): Promise<void> {
-        try {
-            // tombstone/null-value records carry no row image → nothing to derive
-            if (!message.value) {
-                return
-            }
-            // parse the Debezium envelope; `payload` is the flat row after unwrap
-            const envelope = JSON.parse(message.value.toString()) as CdcEnvelope<unknown>
-            // some unwrap configs emit the row at top level → fall back to whole object
-            const row = envelope.payload ?? envelope
-            // resolve the (user, course) to recompute for this specific topic
-            const target = await this.deriveTarget({
-                topic,
-                row,
-            })
-            // could not derive (delete op / missing parent row) → skip silently
-            if (!target) {
-                return
-            }
-            // idempotent UPSERT of the projection row for the affected user+course
-            await this.progressProjectionService.recompute({
-                userId: target.userId,
-                courseId: target.courseId,
-            })
-        } catch (error) {
-            // at-least-once delivery → swallow + log; a later message will recover.
-            // wrap in a typed exception so the log carries a stable code + the
-            // original stack (Error-style), keyed by the source topic
-            const exception = new KafkaCdcMessageException({
-                topic,
-                originalError: error instanceof Error ? error : undefined,
-            })
-            this.logger.error(exception.message,
-                exception.stack)
-        }
+        kafkaService: KafkaService,
+    ) {
+        // base owns the Kafka wiring (subscribe, boot, per-message loop)
+        super(kafkaService)
     }
 
     /**
      * Map a CDC row to the `(userId, courseId)` to recompute, branching on the
-     * source topic (the table name suffix). Returns `null` when the target can
-     * not be derived (missing columns / deleted parent row).
+     * source topic (the table name suffix). Returns an empty array when the
+     * target cannot be derived (missing columns / deleted parent row) — the
+     * base class treats an empty array as "skip this message".
+     *
+     * @param message - {@link ProjectionCdcMessage} (source topic + parsed row).
+     * @returns the derived target wrapped in an array (0–1 elements).
+     */
+    protected async deriveTargets(
+        {
+            topic,
+            row,
+        }: ProjectionCdcMessage,
+    ): Promise<Array<DerivedProgressTarget>> {
+        const target = await this.deriveTarget({
+            topic,
+            row,
+        })
+        return target ? [
+            target,
+        ] : []
+    }
+
+    /**
+     * Map a CDC row to the `(userId, courseId)` to recompute, branching on the
+     * source topic (the table name suffix). Returns `null` when the target
+     * cannot be derived (missing columns / deleted parent row).
      *
      * @param params - the source topic and the parsed row image
      * @returns the derived target, or `null` to skip
@@ -198,6 +123,19 @@ export class ProgressProjectionListener implements OnModuleInit {
         }
         // unknown topic (mis-subscription) → nothing to do
         return null
+    }
+
+    /**
+     * Recompute the projection for one derived `(userId, courseId)` target
+     * (idempotent UPSERT).
+     *
+     * @param target - one target returned by {@link deriveTargets}.
+     */
+    protected async recomputeTarget(target: DerivedProgressTarget): Promise<void> {
+        await this.progressProjectionService.recompute({
+            userId: target.userId,
+            courseId: target.courseId,
+        })
     }
 
     /**

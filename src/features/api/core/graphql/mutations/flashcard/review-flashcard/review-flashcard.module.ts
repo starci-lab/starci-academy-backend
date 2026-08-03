@@ -8,6 +8,7 @@ import {
     ReviewFlashcardResolver,
 } from "./review-flashcard.resolver"
 
+/** Feature-module boundary for the `reviewFlashcard` mutation — wires its resolver (business logic lives in the shared `FlashcardReviewService`). */
 @Module({
     providers: [
         ReviewFlashcardResolver,

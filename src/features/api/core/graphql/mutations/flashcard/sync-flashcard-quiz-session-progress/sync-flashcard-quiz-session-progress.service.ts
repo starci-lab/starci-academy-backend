@@ -15,12 +15,22 @@ import {
     SyncFlashcardQuizSessionProgressData,
 } from "./graphql-types"
 
+/**
+ * Thin `CommandBus` proxy for `syncFlashcardQuizSessionProgress` — wraps the request into a
+ * {@link SyncFlashcardQuizSessionProgressCommand} rather than calling {@link SyncFlashcardQuizSessionProgressHandler} directly,
+ * keeping the resolver decoupled from the CQRS wiring.
+ */
 @Injectable()
 export class SyncFlashcardQuizSessionProgressService {
     constructor(
         private readonly commandBus: CommandBus,
     ) { }
 
+    /**
+     * Dispatches the wrapped command and returns whatever {@link SyncFlashcardQuizSessionProgressHandler} resolves.
+     * @param params - the request + caller, threaded straight into {@link SyncFlashcardQuizSessionProgressCommand}.
+     * @returns the handler's result.
+     */
     async execute(
         params: ExecuteParams<SyncFlashcardQuizSessionProgressRequest>,
     ): Promise<SyncFlashcardQuizSessionProgressData> {

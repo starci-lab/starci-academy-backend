@@ -111,7 +111,7 @@ export class ToggleFavouriteHandler
         const saved = await this.entityManager.save(userContent)
 
         // record a bookmark as a home-feed activity (only when turning it ON);
-        // refId is the user-content id so re-bookmarking never duplicates
+        // idempotencyKey is the user-content id so re-bookmarking never duplicates
         if (isFavorite) {
             await writeActivity({
                 entityManager: this.entityManager,

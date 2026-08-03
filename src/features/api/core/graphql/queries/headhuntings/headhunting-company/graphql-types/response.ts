@@ -10,6 +10,7 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+/** Response wrapper for the single headhunting company query. */
 @ObjectType({
     description: "Response wrapper for the Headhunter query.",
 })

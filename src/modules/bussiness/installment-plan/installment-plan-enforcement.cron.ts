@@ -112,6 +112,15 @@ export class InstallmentPlanEnforcementCronService {
     /**
      * Enforce ONE overdue plan against the three stages described above.
      *
+     * The stages are checked highest-first (3 → 2 → 1) and each branch
+     * unconditionally `return`s — that is what keeps them MUTUALLY EXCLUSIVE
+     * for a single run. Stage 1 only runs when the plan is below the
+     * `secondReminderAfterDays` threshold precisely because stage 2's `if`
+     * already returned for anything at or past it. Adding a 4th stage or
+     * dropping any of these `return`s would let more than one stage fire for
+     * the same plan in the same sweep (e.g. re-sending the day-0 reminder on
+     * a plan that already got the final warning).
+     *
      * @param plan - The overdue plan (already known `nextDueAt < now`).
      */
     private async enforceOne(plan: InstallmentPlanEntity): Promise<void> {

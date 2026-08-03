@@ -14,6 +14,7 @@ import {
     description: "A ranked user by number of solved problems.",
 })
 export class CodingLeaderboardEntryObject {
+    /** The user's id. */
     @Field(
         () => ID,
         {
@@ -22,6 +23,7 @@ export class CodingLeaderboardEntryObject {
     )
         userId: string
 
+    /** The user's display username. */
     @Field(
         () => String,
         {
@@ -30,6 +32,7 @@ export class CodingLeaderboardEntryObject {
     )
         username: string
 
+    /** Number of distinct problems the user has solved. */
     @Field(
         () => Int,
         {
@@ -39,6 +42,7 @@ export class CodingLeaderboardEntryObject {
         solvedCount: number
 }
 
+/** Response wrapper for the codingLeaderboard query. */
 @ObjectType({
     description: "Response wrapper for the codingLeaderboard query.",
 })
@@ -46,6 +50,7 @@ export class CodingLeaderboardResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<CodingLeaderboardEntryObject>>
 {
+    /** Ranked users, highest solved count first. */
     @Field(
         () => [CodingLeaderboardEntryObject],
         {

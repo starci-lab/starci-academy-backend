@@ -10,6 +10,7 @@ import {
  */
 export interface TransactionCourseNotFoundExceptionMetadata
     extends AbstractExceptionMetadata {
+    /** The ID of the transaction missing its course. */
     id: string
 }
 

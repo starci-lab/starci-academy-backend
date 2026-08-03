@@ -20,6 +20,18 @@ export class FlashcardCardResolverService {
         private readonly translationResolver: TranslationResolverService,
     ) { }
 
+    /**
+     * Resolves a single card's question/answer/explanation to the requested locale,
+     * in place — mirrors {@link FlashcardDeckResolverService.transform}. `question`
+     * always takes the resolved value since every card carries a translation row for
+     * it; `answer`/`explanation` keep the base (nullable) value when no row exists,
+     * so an answerless card is never blanked to `""`. `card.translations` is deleted
+     * once consumed so raw locale rows never leak into the GraphQL response.
+     * @param card - Card entity to localize; mutated directly.
+     * @param locale - Locale requested by the caller.
+     * @param fallbackLocale - Locale to fall back to when `card` carries no
+     * `defaultLocale` of its own.
+     */
     transform(
         card: FlashcardCardEntity,
         locale: Locale,

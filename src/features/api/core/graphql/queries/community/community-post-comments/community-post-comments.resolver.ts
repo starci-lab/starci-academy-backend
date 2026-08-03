@@ -34,6 +34,7 @@ import {
     CommunityPostCommentsService,
 } from "./community-post-comments.service"
 
+/** GraphQL resolver for the `communityPostComments` query. */
 @Resolver()
 export class CommunityPostCommentsResolver {
     constructor(

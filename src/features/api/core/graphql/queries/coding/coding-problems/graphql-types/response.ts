@@ -16,6 +16,7 @@ import {
     description: "A page of coding problems (catalog only; solved state is myCodingProgress).",
 })
 export class CodingProblemsResponseData {
+    /** The page of problems (title localized; no testcases). */
     @Field(
         () => [CodingProblemEntity],
         {
@@ -24,6 +25,7 @@ export class CodingProblemsResponseData {
     )
         problems: Array<CodingProblemEntity>
 
+    /** Total problems matching the filters. */
     @Field(
         () => Int,
         {
@@ -33,6 +35,7 @@ export class CodingProblemsResponseData {
         total: number
 }
 
+/** Response wrapper for the codingProblems query. */
 @ObjectType({
     description: "Response wrapper for the codingProblems query.",
 })
@@ -40,6 +43,7 @@ export class CodingProblemsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CodingProblemsResponseData>
 {
+    /** The page of problems + solved ids. */
     @Field(
         () => CodingProblemsResponseData,
         {

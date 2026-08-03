@@ -8,6 +8,7 @@ import {
     MyFlashcardStatsResolver,
 } from "./my-flashcard-stats.resolver"
 
+/** Feature-module boundary for the `myFlashcardStats` query — wires its resolver (business logic lives in the shared projection service). */
 @Module({
     providers: [
         MyFlashcardStatsResolver,

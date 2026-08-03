@@ -10,6 +10,7 @@ import {
     CodingProblemEntity,
 } from "@modules/databases"
 
+/** Response wrapper for the codingProblem query. */
 @ObjectType({
     description: "Response wrapper for the codingProblem query.",
 })
@@ -17,6 +18,7 @@ export class CodingProblemResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CodingProblemEntity>
 {
+    /** The problem detail (sample testcases only, localized). */
     @Field(
         () => CodingProblemEntity,
         {

@@ -7,6 +7,10 @@ import {
     IsUUID,
 } from "class-validator"
 
+/**
+ * Request for `challengeSubmissionProgress`: scopes the read to the
+ * viewer's enrollment in this course.
+ */
 @InputType({
     description: "Request for fetching challenge submission progress.",
 })

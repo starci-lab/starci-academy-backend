@@ -33,7 +33,16 @@ export class UserService {
     ) {}
 
     /**
-     * Get user by user ID from Keycloak
+     * Resolve the internal user id from a Keycloak subject id, cached under
+     * `CacheKey.KeycloakUser`. This is an IDENTITY lookup, not a profile fetch —
+     * the DB read (and therefore the cached row) selects `id` ONLY, so the
+     * result is typed `UserEntity` for caller convenience but only `.id` is
+     * ever populated. Every other field is `undefined` at runtime; do not read
+     * `.email` / `.username` / `.avatar` etc. off the return value.
+     *
+     * @param keycloakId - The Keycloak subject id (`sub`) to resolve.
+     * @returns A `UserEntity` with only `id` populated.
+     * @throws {UserNotFoundException} When no user matches `keycloakId`.
      */
     async getUserByKeycloakId(
         keycloakId: string

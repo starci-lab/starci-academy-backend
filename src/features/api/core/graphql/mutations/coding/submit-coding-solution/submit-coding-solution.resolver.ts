@@ -48,6 +48,14 @@ export class SubmitCodingSolutionResolver {
         private readonly codingSubmissionService: CodingSubmissionService,
     ) {}
 
+    /**
+     * Resolves the `submitCodingSolution` mutation for the authenticated user.
+     *
+     * @param request - problem slug, language, source code, and optional anti-cheat telemetry
+     * @param user - the authenticated caller the submission is attributed to
+     * @param client - request metadata (IP/user-agent/fingerprint) forwarded to device tracking
+     * @returns the created submission id + the judging job id to subscribe to
+     */
     @UseThrottler(ThrottlerConfig.Strict)
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({

@@ -28,6 +28,11 @@ export class UserCodingProblemDetailService {
         private readonly codingSubmissionService: CodingSubmissionService,
     ) {}
 
+    /**
+     * @param request - {@link UserCodingProblemDetailRequest}; `userId` is the
+     * profile owner being viewed, not necessarily the caller.
+     * @param locale - locale for the problem's translated title/statement.
+     */
     async execute(
         request: UserCodingProblemDetailRequest,
         locale: Locale,

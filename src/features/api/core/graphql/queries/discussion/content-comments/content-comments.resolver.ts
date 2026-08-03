@@ -34,6 +34,7 @@ import {
     ContentCommentsService,
 } from "./content-comments.service"
 
+/** GraphQL resolver for the `contentComments` query. */
 @Resolver()
 export class ContentCommentsResolver {
     constructor(

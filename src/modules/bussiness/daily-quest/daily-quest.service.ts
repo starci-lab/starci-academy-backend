@@ -36,9 +36,6 @@ import type {
     DailyQuestTodayDateRow,
 } from "./types"
 
-/** The IANA timezone the "daily" calendar day is reckoned in. */
-const QUEST_TIMEZONE = APP_TIMEZONE
-
 /** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
 
@@ -67,7 +64,7 @@ export class DailyQuestService {
             SELECT to_char((now() AT TIME ZONE $1)::date, 'YYYY-MM-DD') AS today
             `,
             [
-                QUEST_TIMEZONE,
+                APP_TIMEZONE,
             ],
         )
         return rows[0].today
@@ -117,7 +114,7 @@ export class DailyQuestService {
             `,
             [
                 userId,
-                QUEST_TIMEZONE,
+                APP_TIMEZONE,
             ],
         )
         return rows[0]

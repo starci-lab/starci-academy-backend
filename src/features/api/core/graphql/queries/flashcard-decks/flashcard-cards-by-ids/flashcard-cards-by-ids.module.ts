@@ -8,6 +8,7 @@ import {
     FlashcardCardsByIdsResolver,
 } from "./flashcard-cards-by-ids.resolver"
 
+/** Feature-module boundary for the `flashcardCardsByIds` query — wires its resolver (business logic lives in the shared `FlashcardReviewService`). */
 @Module({
     providers: [
         FlashcardCardsByIdsResolver,

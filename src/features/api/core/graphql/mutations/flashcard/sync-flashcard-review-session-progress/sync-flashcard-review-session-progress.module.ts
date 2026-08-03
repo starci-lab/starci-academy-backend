@@ -17,6 +17,7 @@ import {
     ConfigurableModuleClass,
 } from "./sync-flashcard-review-session-progress.module-definition"
 
+/** Feature-module boundary for the `syncFlashcardReviewSessionProgress` mutation — wires its resolver + service + CQRS handler. */
 @Module({
     imports: [
         CqrsModule,

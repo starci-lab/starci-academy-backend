@@ -8,6 +8,7 @@ import {
     CodingLeaderboardResolver,
 } from "./coding-leaderboard.resolver"
 
+/** Wires the `codingLeaderboard` query resolver as its own registrable module. */
 @Module({
     providers: [
         CodingLeaderboardResolver,

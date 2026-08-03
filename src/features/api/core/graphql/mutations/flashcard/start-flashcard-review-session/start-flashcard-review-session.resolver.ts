@@ -34,6 +34,11 @@ import {
     StartFlashcardReviewSessionService,
 } from "./start-flashcard-review-session.service"
 
+/**
+ * GraphQL entrypoint for `startFlashcardReviewSession` — delegates to {@link StartFlashcardReviewSessionService.execute},
+ * which dispatches the CQRS command {@link StartFlashcardReviewSessionHandler} owns. See {@link execute}'s
+ * own doc below for what the mutation actually does.
+ */
 @Resolver()
 export class StartFlashcardReviewSessionResolver {
     constructor(

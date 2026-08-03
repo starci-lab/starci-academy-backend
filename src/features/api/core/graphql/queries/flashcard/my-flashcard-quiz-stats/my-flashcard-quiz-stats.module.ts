@@ -11,6 +11,7 @@ import {
     MyFlashcardQuizStatsService,
 } from "./my-flashcard-quiz-stats.service"
 
+/** Feature-module boundary for the `myFlashcardQuizStats` query — wires its resolver + service. */
 @Module({
     providers: [
         MyFlashcardQuizStatsResolver,

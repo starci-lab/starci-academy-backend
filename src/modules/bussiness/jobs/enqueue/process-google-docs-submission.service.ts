@@ -109,7 +109,7 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
                     userId,
                     actionType: ActionType.ProcessGoogleDocsSubmission,
                     category: JobCategory.SubmitChallenge,
-                    maxSteps: envConfig().job.processGitSubmission.maxSteps,
+                    maxSteps: envConfig().job.processGoogleDocsSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),
                     challengeSubmissionId,
                 },

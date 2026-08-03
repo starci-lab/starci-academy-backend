@@ -17,6 +17,9 @@ import {
     ConsultantRequest,
 } from "./graphql-types"
 
+/**
+ * Service for the single Headhunter query.
+ */
 @Injectable()
 export class ConsultantService {
     constructor(

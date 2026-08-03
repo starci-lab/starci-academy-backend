@@ -13,6 +13,7 @@ import {
     description: "Filters + pagination for the coding-problem list.",
 })
 export class CodingProblemsRequest {
+    /** Filter by difficulty tier. */
     @Field(
         () => GraphQLTypeCodingDifficulty,
         {
@@ -22,6 +23,7 @@ export class CodingProblemsRequest {
     )
         difficulty?: CodingDifficulty
 
+    /** Filter to problems carrying this tag. */
     @Field(
         () => String,
         {
@@ -31,6 +33,7 @@ export class CodingProblemsRequest {
     )
         tag?: string
 
+    /** 1-based page number (default 1). */
     @Field(
         () => Int,
         {
@@ -40,6 +43,7 @@ export class CodingProblemsRequest {
     )
         page?: number
 
+    /** Page size (default 20). */
     @Field(
         () => Int,
         {

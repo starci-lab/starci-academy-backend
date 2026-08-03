@@ -27,32 +27,33 @@ import {
     ContentAiService,
 } from "@modules/bussiness"
 import {
-    ClearContentAiHistoryRequest,
-    ClearContentAiHistoryResponse,
+    DeleteContentAiSessionRequest,
+    DeleteContentAiSessionResponse,
 } from "./graphql-types"
 import type {
-    ClearContentAiHistoryData,
+    DeleteContentAiSessionData,
 } from "./graphql-types"
 
 @Resolver()
-export class ClearContentAiHistoryResolver {
+export class DeleteContentAiSessionResolver {
     constructor(
         private readonly contentAiService: ContentAiService,
     ) { }
 
     /**
-     * Clear the current user's saved content-AI conversation for a content
-     * (scoped to their enrollment). Requires authentication.
+     * Delete the current user's saved content-AI conversation (a hard delete
+     * of the session row, cascading its messages — not a partial history
+     * wipe), scoped to their enrollment. Requires authentication.
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
-        [Locale.En]: "Conversation cleared successfully",
+        [Locale.En]: "Conversation deleted successfully",
         [Locale.Vi]: "Đã xoá hội thoại",
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
-        () => ClearContentAiHistoryResponse,
+        () => DeleteContentAiSessionResponse,
         {
             name: "deleteContentAiSession",
             description: "Delete one of the current user's content-AI conversations (sessions).",
@@ -60,10 +61,10 @@ export class ClearContentAiHistoryResolver {
     )
     async execute(
         @Args("request")
-            request: ClearContentAiHistoryRequest,
+            request: DeleteContentAiSessionRequest,
         @KeycloakGraphQLUser()
             user: UserEntity,
-    ): Promise<ClearContentAiHistoryData> {
+    ): Promise<DeleteContentAiSessionData> {
         await this.contentAiService.deleteSession({
             userId: user.id,
             sessionId: request.sessionId,

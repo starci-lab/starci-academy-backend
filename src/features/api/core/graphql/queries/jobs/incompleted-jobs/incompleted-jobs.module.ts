@@ -14,6 +14,11 @@ import {
     IncompletedJobsHandler,
 } from "./incompleted-jobs.handler"
 
+/**
+ * Registers {@link IncompletedJobsResolver} as a leaf query module — the schema
+ * discovers the `incompletedJobs` operation through this registration, per
+ * [[naming-and-structure]] §5.
+ */
 @Module({
     providers: [
         IncompletedJobsService,

@@ -14,6 +14,7 @@ import {
     description: "Per-user coding progress: solved/attempted/revealed ids + total points.",
 })
 export class MyCodingProgressResponseData {
+    /** Problem ids the user has solved (Accepted). */
     @Field(
         () => [ID],
         {
@@ -22,6 +23,7 @@ export class MyCodingProgressResponseData {
     )
         solvedProblemIds: Array<string>
 
+    /** Problem ids the user has submitted to (any verdict). */
     @Field(
         () => [ID],
         {
@@ -30,6 +32,7 @@ export class MyCodingProgressResponseData {
     )
         attemptedProblemIds: Array<string>
 
+    /** Problem ids whose reference solution the user revealed. */
     @Field(
         () => [ID],
         {
@@ -38,6 +41,7 @@ export class MyCodingProgressResponseData {
     )
         revealedProblemIds: Array<string>
 
+    /** Cumulative coding points earned by the user. */
     @Field(
         () => Int,
         {
@@ -47,6 +51,7 @@ export class MyCodingProgressResponseData {
         totalPoints: number
 }
 
+/** Response wrapper for the myCodingProgress query. */
 @ObjectType({
     description: "Response wrapper for the myCodingProgress query.",
 })
@@ -54,6 +59,7 @@ export class MyCodingProgressResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCodingProgressResponseData>
 {
+    /** The user's coding progress. */
     @Field(
         () => MyCodingProgressResponseData,
         {

@@ -34,6 +34,7 @@ import {
     CommunityFeedService,
 } from "./community-feed.service"
 
+/** GraphQL resolver for the `communityFeed` query. */
 @Resolver()
 export class CommunityFeedResolver {
     constructor(

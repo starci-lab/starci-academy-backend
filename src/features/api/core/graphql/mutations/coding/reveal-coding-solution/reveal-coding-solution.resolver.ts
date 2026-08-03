@@ -43,6 +43,13 @@ export class RevealCodingSolutionResolver {
         private readonly codingSubmissionService: CodingSubmissionService,
     ) {}
 
+    /**
+     * Resolves the `revealCodingSolution` mutation for the authenticated user.
+     *
+     * @param request - the target problem's slug
+     * @param user - the authenticated caller, whose reveal is (idempotently) recorded
+     * @returns whether a new reveal was recorded, plus the problem's reference solutions
+     */
     @UseThrottler(ThrottlerConfig.Soft)
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({

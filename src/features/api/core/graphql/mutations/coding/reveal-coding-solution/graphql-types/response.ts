@@ -15,6 +15,7 @@ import {
     description: "The reveal outcome plus the problem's reference solutions (served only through this gated flow).",
 })
 export class RevealCodingSolutionResponseData {
+    /** False means the answer was already forfeited on an earlier call — idempotent, no new penalty applied. */
     @Field(
         () => Boolean,
         {
@@ -23,6 +24,7 @@ export class RevealCodingSolutionResponseData {
     )
         revealed: boolean
 
+    /** The payload this gated mutation exists to serve — solutions are never exposed via the problem detail read. */
     @Field(
         () => [CodingProblemSolutionEntity],
         {
@@ -32,6 +34,7 @@ export class RevealCodingSolutionResponseData {
         solutions: Array<CodingProblemSolutionEntity>
 }
 
+/** Response wrapper for the `revealCodingSolution` mutation; the reveal outcome lives in {@link data}. */
 @ObjectType({
     description: "Response wrapper for the revealCodingSolution mutation.",
 })
@@ -39,6 +42,7 @@ export class RevealCodingSolutionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RevealCodingSolutionResponseData>
 {
+    /** Null on error — inspect the wrapper's status/error fields instead. */
     @Field(
         () => RevealCodingSolutionResponseData,
         {

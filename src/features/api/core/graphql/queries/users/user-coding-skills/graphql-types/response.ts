@@ -17,6 +17,7 @@ import {
     description: "A solved-count bucket keyed by language or difficulty value.",
 })
 export class UserCodingSkillCount {
+    /** Which axis this bucket belongs to (language vs. difficulty) is determined by which list it's found in, not by this value alone. */
     @Field(
         () => String,
         {
@@ -25,6 +26,7 @@ export class UserCodingSkillCount {
     )
         key: string
 
+    /** Counts distinct problems, not raw accepted submissions — resubmitting a solved problem does not increase this. */
     @Field(
         () => Int,
         {
@@ -39,6 +41,7 @@ export class UserCodingSkillCount {
     description: "A user's solved-coding breakdown by language and by difficulty.",
 })
 export class UserCodingSkillsData {
+    /** A problem solved in 2 languages counts once per language here, so the totals across buckets will not sum to the overall solved count. */
     @Field(
         () => [UserCodingSkillCount],
         {
@@ -47,6 +50,7 @@ export class UserCodingSkillsData {
     )
         byLanguage: Array<UserCodingSkillCount>
 
+    /** Bucketed by the PROBLEM's difficulty, not the submission — every language a problem was solved in shares one difficulty bucket entry. */
     @Field(
         () => [UserCodingSkillCount],
         {
@@ -55,6 +59,7 @@ export class UserCodingSkillsData {
     )
         byDifficulty: Array<UserCodingSkillCount>
 
+    /** Bucketed by the PROBLEM's domain, same one-entry-per-problem shape as byDifficulty. */
     @Field(
         () => [UserCodingSkillCount],
         {
@@ -73,6 +78,7 @@ export class UserCodingSkillsData {
 export class UserCodingSkillsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserCodingSkillsData> {
+    /** Empty buckets (never null sub-arrays) when the user has no solves yet. */
     @Field(
         () => UserCodingSkillsData,
         {

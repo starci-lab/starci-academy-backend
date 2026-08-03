@@ -601,9 +601,15 @@ export class LeagueService {
     /**
      * Build the active-users bucketing SQL (params: `$1` ending-week start, `$2`
      * ending-week end, `$3` new-week start used as the deterministic shuffle
-     * salt). Returns every user with a league row OR >= 1 point in the ending
-     * week, with their current tier, ordered by `md5(user_id || $3)` so the
-     * shuffle is stable across re-runs (no Math.random).
+     * salt). Returns every league member with >= 1 point in the ending week,
+     * with their current tier, ordered by `md5(user_id || $3)` so the shuffle
+     * is stable across re-runs (no Math.random). Having a league row alone is
+     * NOT enough — a member who earned nothing in the ending week is pruned
+     * from this pass: they keep their tier and current row, but are left
+     * without a cohort (`cohort: null`, set by {@link settleEndingCohorts}) and
+     * simply do not get a fresh one this week, freeing their cohort slot for an
+     * active user. They re-enter a live cohort automatically via
+     * {@link placeUserLazily} the next time they're actually active.
      *
      * @returns the parameterised SELECT.
      */
@@ -619,7 +625,6 @@ export class LeagueService {
                   AND x.created_at >= $1
                   AND x.created_at < $2
             )
-            OR ul.user_id IS NOT NULL
             ORDER BY md5(ul.user_id::text || $3) ASC
         `
     }

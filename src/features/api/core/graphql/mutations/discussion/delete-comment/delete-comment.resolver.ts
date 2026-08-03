@@ -34,6 +34,7 @@ import {
     DeleteCommentService,
 } from "./delete-comment.service"
 
+/** GraphQL resolver for the `deleteComment` mutation. */
 @Resolver()
 export class DeleteCommentResolver {
     constructor(

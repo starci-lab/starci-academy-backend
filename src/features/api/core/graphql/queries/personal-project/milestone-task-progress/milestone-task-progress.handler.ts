@@ -23,6 +23,11 @@ import {
     UserNotFoundException,
 } from "@modules/exceptions"
 
+/**
+ * CQRS handler for the `milestoneTaskProgress` query: resolves the viewer's
+ * enrollment for the requested course, then delegates to
+ * {@link PersonalProjectProgressService} for the cached/recomputed progress.
+ */
 @QueryHandler(MilestoneTaskProgressQuery)
 export class MilestoneTaskProgressHandler
 implements IQueryHandler<MilestoneTaskProgressQuery, MilestoneTaskProgressResponseData>
@@ -34,6 +39,11 @@ implements IQueryHandler<MilestoneTaskProgressQuery, MilestoneTaskProgressRespon
         private readonly personalProjectProgressService: PersonalProjectProgressService,
     ) {}
 
+    /**
+     * @param query - Carries the request (courseId) and the authenticated user.
+     * @returns Empty completion tasks (and a null current task) when the user
+     * has no enrollment in the course.
+     */
     async execute(
         query: MilestoneTaskProgressQuery,
     ): Promise<MilestoneTaskProgressResponseData> {

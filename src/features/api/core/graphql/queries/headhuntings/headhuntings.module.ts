@@ -23,6 +23,12 @@ import {
     ConsultantSuggestionsSingleQueryModule,
 } from "./consultant-suggestions"
 
+/**
+ * Headhuntings query group — companies and consultants, single-lookup and
+ * list/autocomplete variants: `headhuntingCompanies`/`headhuntingCompany`,
+ * `consultants`/`consultant`, and their two suggestion (typeahead) leaves.
+ * Each leaf is registered global so its resolver is picked up by the schema.
+ */
 @Module({
     imports: [
         HeadhuntingCompaniesSingleQueryModule.register({

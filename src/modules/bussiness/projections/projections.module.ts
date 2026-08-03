@@ -55,17 +55,20 @@ import {
 /**
  * Umbrella module aggregating every CQRS projection leaf-module: progress
  * (user×course), content engagement (content), user stats (user), course stats
- * (course). Each leaf owns its recompute service + CDC listener and stores the
- * aggregate as a single jsonb `value` keyed by its natural key. Registering this
- * module wires + re-exports all four (services stay globally injectable for
- * inline recompute from write paths).
+ * (course), contribution, user coding, user XP, user capstone, user pinned
+ * projects, user solved challenges, trending contents, league cohort points,
+ * user flashcard stats, user flashcard course stats, and user mock-interview
+ * course stats. Each leaf owns its recompute service + CDC listener and stores
+ * the aggregate as a single jsonb `value` keyed by its natural key. Registering
+ * this module wires + re-exports all fifteen (services stay globally injectable
+ * for inline recompute from write paths).
  */
 @Module({
 })
 export class ProjectionsModule extends ConfigurableModuleClass {
     /**
-     * Compose the four projection leaf-modules, forwarding the register options
-     * (e.g. `isGlobal`) so their exported services resolve everywhere.
+     * Compose the fifteen projection leaf-modules, forwarding the register
+     * options (e.g. `isGlobal`) so their exported services resolve everywhere.
      *
      * @param options - {@link OPTIONS_TYPE}
      * @returns the composed dynamic module.

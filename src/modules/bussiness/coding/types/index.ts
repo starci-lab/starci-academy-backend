@@ -190,6 +190,13 @@ export interface GetAcceptedSubmissionSummaryParams {
  * Raw row from the accepted-submission-summary SQL aggregate. Always exactly
  * one row (scalar subqueries with no FROM), with every field null when the
  * user has no accepted submission for the problem.
+ *
+ * The `passed_count` / `total_count` / `first_solved_at` fields are
+ * deliberately snake_case — unlike every other interface in this file — because
+ * they mirror the raw SQL column aliases returned by the query in
+ * `coding-submission.service.ts` (`AS "passed_count"` etc.). This is an
+ * intentional 1:1 mirror of the driver's row shape, not a naming-convention
+ * oversight; do not rename these fields to camelCase.
  */
 export interface AcceptedSubmissionSummaryRow {
     /** Distinct languages used across ALL accepted attempts, or null when none. */

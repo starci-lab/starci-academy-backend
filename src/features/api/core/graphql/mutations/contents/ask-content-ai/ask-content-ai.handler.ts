@@ -31,6 +31,13 @@ import {
     AskContentAiData,
 } from "./graphql-types"
 
+/**
+ * Handles {@link AskContentAiCommand}: grounds the learner's question via
+ * {@link ContentAiService.prepareMessages} (lesson/task/challenge/quiz/
+ * foundation/course scope), invokes the System AI engine at the free-first
+ * floor, then bills the AI credit pool for whichever model actually served
+ * the answer.
+ */
 @CommandHandler(AskContentAiCommand)
 @Injectable()
 export class AskContentAiHandler
@@ -44,6 +51,11 @@ export class AskContentAiHandler
         super()
     }
 
+    /**
+     * @param command - The one-shot content-AI question, the asking user, and the locale.
+     * @returns The model's answer.
+     * @throws UserNotFoundException when the command carries no authenticated user.
+     */
     protected override async process(
         command: AskContentAiCommand,
     ): Promise<AskContentAiData> {

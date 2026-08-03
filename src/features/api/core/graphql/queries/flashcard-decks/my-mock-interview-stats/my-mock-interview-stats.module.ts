@@ -11,6 +11,7 @@ import {
     MyMockInterviewStatsService,
 } from "./my-mock-interview-stats.service"
 
+/** Feature-module boundary for the `myMockInterviewStats` query — wires its resolver + service. */
 @Module({
     providers: [
         MyMockInterviewStatsResolver,

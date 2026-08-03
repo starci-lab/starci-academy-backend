@@ -8,6 +8,7 @@ import {
     FlashcardDeckResolver,
 } from "./flashcard-deck.resolver"
 
+/** Feature-module boundary for the `flashcardDeck` query — wires its resolver (business logic lives in the shared `FlashcardDeckReadService`). */
 @Module({
     providers: [
         FlashcardDeckResolver,

@@ -12,7 +12,18 @@ import {
 import {
     ScalableBloomFilter,
 } from "bloom-filters"
+import type {
+    GetEmailBloomFilterResult,
+} from "./types"
 
+/**
+ * Fast-path, best-effort membership pre-check for known emails, backed by a
+ * `ScalableBloomFilter` persisted as one shared cache entry (`CacheKey.BloomFilter`
+ * / `BloomFilterType.Email`). Seeded at init by {@link BloomFilterSynchronizerService}
+ * and kept warm by the write paths below; the Postgres email-uniqueness
+ * constraint remains the actual source of truth — this filter is fail-open,
+ * never a hard gate.
+ */
 @Injectable()
 export class EmailBloomFilterService {
     constructor(
@@ -21,10 +32,11 @@ export class EmailBloomFilterService {
     }
 
     /**
-     * Get the bloom filter.
-     * @returns The bloom filter.
+     * Read the raw cached bloom filter entry, without recreating it when absent.
+     *
+     * @returns The cached filter, or `undefined` when nothing has been cached yet.
      */
-    async get() {
+    async get(): Promise<GetEmailBloomFilterResult> {
         return await this.cacheService.get(
             {
                 key: CacheKey.BloomFilter,
@@ -77,7 +89,7 @@ export class EmailBloomFilterService {
      */
     async add(
         email: string
-    ) {
+    ): Promise<void> {
         const bloomFilter = await this.loadOrCreate()
         bloomFilter.scalableBloomFilter.add(
             email
@@ -99,7 +111,7 @@ export class EmailBloomFilterService {
      */
     async addMultiple(
         emails: Array<string>
-    ) {
+    ): Promise<void> {
         const bloomFilter = await this.loadOrCreate()
         for (const email of emails) {
             bloomFilter.scalableBloomFilter.add(email)

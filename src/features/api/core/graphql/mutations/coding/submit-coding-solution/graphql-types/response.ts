@@ -13,6 +13,7 @@ import {
     description: "The created submission id + the judging job id to subscribe to.",
 })
 export class SubmitCodingSolutionResponseData {
+    /** Row id to look up submission history/detail; the verdict itself is filled in later by the judge worker. */
     @Field(
         () => ID,
         {
@@ -21,6 +22,7 @@ export class SubmitCodingSolutionResponseData {
     )
         submissionId: string
 
+    /** The client must subscribe to this id to learn the verdict — the mutation itself returns before judging finishes. */
     @Field(
         () => ID,
         {
@@ -30,6 +32,7 @@ export class SubmitCodingSolutionResponseData {
         jobId: string
 }
 
+/** Response wrapper for the `submitCodingSolution` mutation; the submission/job ids live in {@link data}. */
 @ObjectType({
     description: "Response wrapper for the submitCodingSolution mutation.",
 })
@@ -37,6 +40,7 @@ export class SubmitCodingSolutionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SubmitCodingSolutionResponseData>
 {
+    /** Null on error — inspect the wrapper's status/error fields instead. */
     @Field(
         () => SubmitCodingSolutionResponseData,
         {

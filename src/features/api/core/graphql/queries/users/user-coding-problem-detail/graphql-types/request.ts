@@ -15,6 +15,7 @@ import {
     description: "Request for a target user's coding-problem detail (public profile).",
 })
 export class UserCodingProblemDetailRequest {
+    /** The profile being viewed, NOT the caller — determines whose submission summary is returned. */
     @Field(
         () => ID,
         {
@@ -23,6 +24,7 @@ export class UserCodingProblemDetailRequest {
     )
         userId: string
 
+    /** Resolves the problem read; an unknown slug fails the underlying `codingProblem`-style lookup. */
     @Field(
         () => String,
         {

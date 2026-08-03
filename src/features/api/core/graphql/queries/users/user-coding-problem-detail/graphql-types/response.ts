@@ -26,6 +26,7 @@ import {
     description: "A target user's accepted-submission summary for one coding problem (no source code, no reference solutions).",
 })
 export class UserCodingProblemDetailSubmissionData {
+    /** Every language ever accepted, not just the language of the earliest solve. */
     @Field(
         () => [GraphQLTypeCodingLanguage],
         {
@@ -34,6 +35,7 @@ export class UserCodingProblemDetailSubmissionData {
     )
         languages: Array<CodingLanguage>
 
+    /** A constant, not a real per-submission verdict — this object only exists for solved problems. */
     @Field(
         () => GraphQLTypeCodingVerdict,
         {
@@ -42,6 +44,7 @@ export class UserCodingProblemDetailSubmissionData {
     )
         verdict: CodingVerdict
 
+    /** Paired with totalCount from the SAME (earliest) attempt — do not mix with a later attempt's totalCount. */
     @Field(
         () => Int,
         {
@@ -50,6 +53,7 @@ export class UserCodingProblemDetailSubmissionData {
     )
         passedCount: number
 
+    /** Paired with passedCount from the SAME (earliest) attempt. */
     @Field(
         () => Int,
         {
@@ -58,6 +62,7 @@ export class UserCodingProblemDetailSubmissionData {
     )
         totalCount: number
 
+    /** Earliest accepted attempt's timestamp, not the latest — do not confuse with a resubmission date. */
     @Field(
         () => Date,
         {
@@ -79,6 +84,7 @@ export class UserCodingProblemDetailSubmissionData {
     description: "A coding problem's detail plus a target user's accepted-submission summary, for the public profile.",
 })
 export class UserCodingProblemDetailData {
+    /** Reused entity shape (never carries hidden testcases or reference solutions) — same as `codingProblem`. */
     @Field(
         () => CodingProblemEntity,
         {
@@ -87,6 +93,7 @@ export class UserCodingProblemDetailData {
     )
         problem: CodingProblemEntity
 
+    /** Null is a normal, expected state here (visitor browsing an unsolved problem), not an error. */
     @Field(
         () => UserCodingProblemDetailSubmissionData,
         {
@@ -106,6 +113,7 @@ export class UserCodingProblemDetailData {
 export class UserCodingProblemDetailResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserCodingProblemDetailData> {
+    /** Always present when the request succeeds — the problem lookup itself throws on an unknown slug. */
     @Field(
         () => UserCodingProblemDetailData,
         {

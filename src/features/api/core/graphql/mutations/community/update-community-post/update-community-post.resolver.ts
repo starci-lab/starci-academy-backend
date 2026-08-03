@@ -34,6 +34,7 @@ import {
     UpdateCommunityPostService,
 } from "./update-community-post.service"
 
+/** GraphQL resolver for the `updateCommunityPost` mutation. */
 @Resolver()
 export class UpdateCommunityPostResolver {
     constructor(

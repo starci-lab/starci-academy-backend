@@ -125,9 +125,10 @@ export class MarkAsReadedHandler
                 )
                 // award lesson XP + reward points only on a DELIBERATE mark-as-read
                 // (silent === false) — the auto-mark-on-scroll path passes silent so
-                // passive scrolling never spends the reward. Both writeXpHistory and
-                // writeActivity are idempotent on the user-content refId, so claiming
-                // the reward after the page already auto-marked read still grants once.
+                // passive scrolling never spends the reward. Both writeXpHistory's
+                // refId and writeActivity's idempotencyKey key off the same
+                // user-content id, so claiming the reward after the page already
+                // auto-marked read still grants once.
                 if (readed && !silent) {
                     await writeXpHistory({
                         entityManager,

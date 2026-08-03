@@ -34,6 +34,7 @@ import {
     ContentReactionsService,
 } from "./content-reactions.service"
 
+/** GraphQL resolver for the `contentReactions` query. */
 @Resolver()
 export class ContentReactionsResolver {
     constructor(

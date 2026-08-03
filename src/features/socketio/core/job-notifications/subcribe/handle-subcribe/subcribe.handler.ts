@@ -33,6 +33,12 @@ import {
     JobActionService,
 } from "@modules/bussiness"
 
+/**
+ * Handles a client's request to subscribe to one job's status updates: loads
+ * the job scoped to the requesting user (so a job owned by someone else, or a
+ * system job with no owner, surfaces as `JobNotFoundException` instead of
+ * leaking its status), then joins the caller's socket to that job's room.
+ */
 @QueryHandler(SubcribeJobNotificationQuery)
 @Injectable()
 export class SubcribeJobNotificationHandler

@@ -16,6 +16,9 @@ import {
     HeadhunterCompaniesQuery,
 } from "./headhunting-companies.query"
 
+/**
+ * Service for the headhunting companies list query.
+ */
 @Injectable()
 export class HeadhuntingCompaniesService {
     constructor(

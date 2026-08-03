@@ -15,6 +15,7 @@ import {
     description: "A coding problem's approach-hint markdown (from Elasticsearch).",
 })
 export class CodingProblemHint {
+    /** Stable URL slug of the problem. */
     @Field(
         () => String,
         {
@@ -23,6 +24,7 @@ export class CodingProblemHint {
     )
         slug: string
 
+    /** The approach-hint content in Markdown (localized). */
     @Field(
         () => String,
         {
@@ -32,6 +34,7 @@ export class CodingProblemHint {
         hint: string
 }
 
+/** Response wrapper for the codingProblemHint query. */
 @ObjectType({
     description: "Response wrapper for the codingProblemHint query.",
 })
@@ -39,6 +42,7 @@ export class CodingProblemHintResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CodingProblemHint | null>
 {
+    /** The approach hint, or null when the problem has none. */
     @Field(
         () => CodingProblemHint,
         {

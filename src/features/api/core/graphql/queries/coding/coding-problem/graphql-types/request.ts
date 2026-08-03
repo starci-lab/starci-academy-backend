@@ -8,6 +8,7 @@ import {
     description: "Lookup a coding problem by its slug.",
 })
 export class CodingProblemRequest {
+    /** Stable URL slug of the problem. */
     @Field(
         () => String,
         {

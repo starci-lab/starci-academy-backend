@@ -9,6 +9,7 @@ import {
     description: "Coding leaderboard parameters.",
 })
 export class CodingLeaderboardRequest {
+    /** Max number of ranked users to return (default 50). */
     @Field(
         () => Int,
         {

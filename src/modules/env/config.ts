@@ -1862,6 +1862,17 @@ export const envConfig = () => ({
                 defaultValue: "2h",
             }),
         },
+        /**
+         * Process Google Docs Submission job configuration. Kept as its own key (rather
+         * than reusing `processGitSubmission`) so tuning the Git pipeline's step count can
+         * never silently retune this one too.
+         */
+        processGoogleDocsSubmission: {
+            maxSteps: parseEnvInt({
+                key: "JOB_PROCESS_GOOGLE_DOCS_SUBMISSION_MAX_STEPS",
+                defaultValue: 2,
+            }),
+        },
         /** Send Mail job configuration. */
         sendMail: {
             maxSteps: parseEnvInt({

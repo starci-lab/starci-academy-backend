@@ -14,6 +14,10 @@ import {
     CodingProblemSuggestionsService,
 } from "./coding-problem-suggestions.service"
 
+/**
+ * Wires the `codingProblemSuggestions` typeahead query: resolver, the thin
+ * bus-dispatch service, and the CQRS handler that runs the ES suggester.
+ */
 @Module({
     providers: [
         CodingProblemSuggestionsService,

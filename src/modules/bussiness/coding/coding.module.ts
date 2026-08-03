@@ -14,27 +14,28 @@ import {
     CodingSubmissionService,
 } from "./coding-submission.service"
 import {
-    DeviceService,
+    DeviceModule,
 } from "../device"
 
 /**
  * Business module for the coding-practice feature: problem reads + submission
  * create/history. The judging job is enqueued via the (global) JobsModule's
- * enqueue service, so no extra wiring is needed here. Also wires the device
- * recorder consumed by the submission service.
+ * enqueue service, so no extra wiring is needed here. Imports {@link DeviceModule}
+ * for the device recorder consumed by the submission service.
  */
 @Module({
+    imports: [
+        DeviceModule,
+    ],
     providers: [
         CodingProblemService,
         CodingProgressService,
         CodingSubmissionService,
-        DeviceService,
     ],
     exports: [
         CodingProblemService,
         CodingProgressService,
         CodingSubmissionService,
-        DeviceService,
     ],
 })
 export class CodingModule extends ConfigurableModuleClass {}

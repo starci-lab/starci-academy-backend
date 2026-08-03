@@ -45,6 +45,7 @@ registerEnumType(
     },
 )
 
+/** Sort field and order for listing headhunters within a company. */
 @InputType({
     description: "Sort field and order for listing headhunters within a company.",
 })
@@ -58,6 +59,7 @@ export class ConsultantsRequestSort extends SortInput<ConsultantsSortBy> {
         by: ConsultantsSortBy
 }
 
+/** Pagination and sort filters for listing headhunters within a company. */
 @InputType({
     description: "Pagination and sort filters for listing foundations.",
 })

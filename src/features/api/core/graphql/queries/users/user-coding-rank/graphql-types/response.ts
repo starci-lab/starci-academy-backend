@@ -18,6 +18,7 @@ import {
     description: "A user's derived coding rank + percentile by distinct solved problems.",
 })
 export class CodingRankObject {
+    /** 1 is the top solver; null (not 0) signals unranked — do not render null as rank 0. */
     @Field(
         () => Int,
         {
@@ -27,6 +28,7 @@ export class CodingRankObject {
     )
         rank: number | null
 
+    /** Always paired with rank; null under the same unranked condition. */
     @Field(
         () => Int,
         {
@@ -49,6 +51,7 @@ export class CodingRankObject {
 export class UserCodingRankResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CodingRankObject | null> {
+    /** In practice always an object — unranked is represented by its own rank/percentile fields being null, not this field. */
     @Field(
         () => CodingRankObject,
         {

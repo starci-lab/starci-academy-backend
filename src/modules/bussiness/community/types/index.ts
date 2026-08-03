@@ -104,7 +104,12 @@ export interface DeleteCommunityCommentResult {
     id: string
 }
 
-/** Params to list a page of a community post's comments. */
+/**
+ * Params to list a page of a community post's comments. The listing does NOT
+ * filter out soft-deleted comments (unlike `listFeed` on posts) — a
+ * soft-deleted comment still appears in the page so the FE can render its
+ * placeholder in place rather than shifting the thread.
+ */
 export interface ListCommunityCommentsParams {
     /** Post whose comments are listed. */
     postId: string
@@ -116,9 +121,13 @@ export interface ListCommunityCommentsParams {
     limit?: number
 }
 
-/** Result of a community post comments listing. */
+/**
+ * Result of a community post comments listing. `comments` INCLUDES
+ * soft-deleted rows (`isDeleted: true`) — the caller must check the flag
+ * itself to render a placeholder instead of the live body.
+ */
 export interface ListCommunityCommentsResult {
-    /** The page of comment rows (author relation loaded). */
+    /** The page of comment rows (author relation loaded); may include soft-deleted rows. */
     comments: Array<CommunityPostCommentEntity>
     /** Total comments matching the scope (for pagination). */
     total: number

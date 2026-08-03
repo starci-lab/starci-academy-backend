@@ -22,6 +22,11 @@ import {
     UserNotFoundException,
 } from "@modules/exceptions"
 
+/**
+ * CQRS handler for the `challengeSubmissionProgress` query: resolves the
+ * viewer's enrollment for the requested course, then delegates to
+ * {@link ChallengeProgressService} for the cached/recomputed progress.
+ */
 @QueryHandler(ChallengeSubmissionProgressQuery)
 export class ChallengeSubmissionProgressHandler
 implements IQueryHandler<ChallengeSubmissionProgressQuery, ChallengeSubmissionProgressResponseData>
@@ -32,6 +37,10 @@ implements IQueryHandler<ChallengeSubmissionProgressQuery, ChallengeSubmissionPr
         private readonly challengeProgressService: ChallengeProgressService,
     ) {}
 
+    /**
+     * @param query - Carries the request (courseId) and the authenticated user.
+     * @returns Empty completion tasks when the user has no enrollment in the course.
+     */
     async execute(
         query: ChallengeSubmissionProgressQuery,
     ): Promise<ChallengeSubmissionProgressResponseData> {

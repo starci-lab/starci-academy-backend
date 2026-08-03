@@ -34,6 +34,7 @@ import {
     ReactToActivityService,
 } from "./react-to-activity.service"
 
+/** GraphQL resolver for the `reactToActivity` mutation. */
 @Resolver()
 export class ReactToActivityResolver {
     constructor(

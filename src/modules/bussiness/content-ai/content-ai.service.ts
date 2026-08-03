@@ -41,68 +41,30 @@ import {
 import {
     UserService,
 } from "../user"
-
-/**
- * Which surface a content-AI question is grounded on. A session is one
- * `(scope + anchor)`; the scope selects WHICH grounding path runs:
- * - `"content"`: a course lesson/content item (MinIO body + repo code, premium-gated).
- * - `"task"`: a capstone / personal-project task (milestone RAG chunk, enrolled-only).
- * - `"foundation"`: a global foundation-library doc (single-doc RAG, no course gate).
- * - `"course"`: the whole course (course-wide RAG, enrolled-only).
- */
-export type ContentAiScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course"
-
-/** One prior chat turn replayed to the model as short-term memory. */
-export interface ContentAiHistoryMessage {
-    /** Author of the turn: `"user"` or `"assistant"`. */
-    role: string
-    /** The message text. */
-    content: string
-}
-
-/** A conversation in the session list / search results. */
-export interface ContentAiSessionSummary {
-    /** Session id. */
-    id: string
-    /** Conversation title (null until the first question auto-titles it). */
-    title: string | null
-    /** Last-activity timestamp (drives recency ordering). */
-    updatedAt: Date
-    /** Number of turns in the conversation. */
-    messageCount: number
-    /** Which surface the conversation grounds on. */
-    scope: ContentAiScope
-    /** Content the conversation is anchored to (content scope only; null otherwise). */
-    originContentId: string | null
-    /** Title of the anchoring content (only resolved for cross-lesson search results). */
-    originContentTitle: string | null
-    /** First message matching the search query (only for search results). */
-    snippet: string | null
-}
-
-/** Params for {@link ContentAiService.prepareMessages}. */
-export interface PrepareContentAiMessagesParams {
-    /** The asking learner (drives the premium-content entitlement gate). */
-    userId: string
-    /** Lesson content the question is about (lesson scope). */
-    contentId?: string | null
-    /** Capstone / personal-project task the question is about (task scope). */
-    taskId?: string | null
-    /** Hands-on challenge the question is about (challenge scope, enrolled-only). */
-    challengeId?: string | null
-    /** Flashcard-quiz deck the question is about (quiz scope, enrolled-only; FE hides chat during a live attempt). */
-    quizId?: string | null
-    /** Global foundation-library doc the question is about (foundation scope). */
-    foundationId?: string | null
-    /** Course the question is about when no lesson/task/foundation is open (course scope, enrolled-only). */
-    courseId?: string | null
-    /** The learner's question about this content. */
-    question: string
-    /** Recent prior turns (oldest first) for short-term memory; capped here. */
-    history?: Array<ContentAiHistoryMessage>
-    /** Active request locale — reply language + which body locale to load. */
-    locale: Locale
-}
+import type {
+    ContentAiHistoryMessage,
+    ContentAiScope,
+    ContentAiSessionSummary,
+    CreateContentAiSessionParams,
+    ContentAiSessionsParams,
+    DeleteContentAiSessionParams,
+    ListScopedContentAiSessionsParams,
+    LoadContentAiSessionMessagesParams,
+    PrepareContentAiMessagesParams,
+    PrepareContentAiMessagesResult,
+    RenameContentAiSessionParams,
+    ResolveChallengeGroundingParams,
+    ResolveCourseGroundingParams,
+    ResolveFoundationGroundingParams,
+    ResolveGroundingParams,
+    ResolveLessonGroundingParams,
+    ResolveQuizGroundingParams,
+    ResolveTaskGroundingParams,
+    ResolvedContentAiSessionOwner,
+    SaveContentAiTurnParams,
+    SetContentAiSessionArchivedParams,
+    TouchContentAiSessionParams,
+} from "./types"
 
 /**
  * Rolling TOKEN-BUDGET window for replayed history (behaves like a general chat
@@ -192,7 +154,7 @@ export class ContentAiService {
             history,
             locale,
         }: PrepareContentAiMessagesParams,
-    ): Promise<{ messages: Array<BaseMessage> }> {
+    ): Promise<PrepareContentAiMessagesResult> {
         // Dispatch grounding by scope. Priority contentId > taskId > foundationId:
         // a lesson page always grounds on its lesson; a capstone-task or foundation
         // page carries no contentId and grounds on its own material instead. Guard:
@@ -300,12 +262,7 @@ export class ContentAiService {
             contentId,
             question,
             locale,
-        }: {
-            userId: string
-            contentId: string
-            question: string
-            locale: Locale
-        },
+        }: ResolveLessonGroundingParams,
     ): Promise<string> {
         // The lesson body lives in MinIO (the Postgres `body` column is empty for
         // snapshot-backed content) — load it the same way the content reader does,
@@ -399,11 +356,7 @@ export class ContentAiService {
             userId,
             taskId,
             question,
-        }: {
-            userId: string
-            taskId: string
-            question: string
-        },
+        }: ResolveTaskGroundingParams,
     ): Promise<string> {
         // resolve the task's owning course so we can enforce the enrolled-only gate
         const courseId = await this.resolveCourseIdOfTask(taskId)
@@ -443,11 +396,7 @@ export class ContentAiService {
             userId,
             challengeId,
             question,
-        }: {
-            userId: string
-            challengeId: string
-            question: string
-        },
+        }: ResolveChallengeGroundingParams,
     ): Promise<string> {
         // resolve the challenge's owning course so we can enforce the enrolled-only gate
         const courseId = await this.resolveCourseIdOfChallenge(challengeId)
@@ -487,11 +436,7 @@ export class ContentAiService {
             userId,
             quizId,
             question,
-        }: {
-            userId: string
-            quizId: string
-            question: string
-        },
+        }: ResolveQuizGroundingParams,
     ): Promise<string> {
         // resolve the quiz deck's owning course so we can enforce the enrolled-only gate
         const courseId = await this.resolveCourseIdOfQuiz(quizId)
@@ -528,11 +473,7 @@ export class ContentAiService {
             userId,
             foundationId,
             question,
-        }: {
-            userId: string
-            foundationId: string
-            question: string
-        },
+        }: ResolveFoundationGroundingParams,
     ): Promise<string> {
         // userId is accepted for signature symmetry with the other scopes; a
         // global foundation doc needs no per-user gate, so it is unused here.
@@ -570,11 +511,7 @@ export class ContentAiService {
             userId,
             courseId,
             question,
-        }: {
-            userId: string
-            courseId: string
-            question: string
-        },
+        }: ResolveCourseGroundingParams,
     ): Promise<string> {
         const enrolled = await this.userService.checkEnrollment(userId,
             courseId)
@@ -616,12 +553,7 @@ export class ContentAiService {
             contentId,
             question,
             body,
-        }: {
-            content: ContentEntity
-            contentId: string
-            question: string
-            body: string
-        },
+        }: ResolveGroundingParams,
     ): Promise<string> {
         // full lesson code (all repo files) — "" for a prose-only lesson
         const code = await this.loadFullCode(content)
@@ -958,23 +890,7 @@ export class ContentAiService {
             foundationId,
             courseId,
             archived,
-        }: {
-            userId: string
-            scope?: ContentAiScope | null
-            contentId?: string | null
-            taskId?: string | null
-            challengeId?: string | null
-            quizId?: string | null
-            foundationId?: string | null
-            courseId?: string | null
-            /**
-             * Born-archived: stamp `archived_at = now()` at creation so the
-             * conversation never clutters the default history list yet stays
-             * searchable. Used for selection-passage ("explain this") chats — a
-             * one-off side-thread that inherits the surface grounding + the passage.
-             */
-            archived?: boolean | null
-        },
+        }: CreateContentAiSessionParams,
     ): Promise<string | null> {
         // derive scope by anchor priority when the caller did not pin one
         const resolvedScope: ContentAiScope | null = scope
@@ -1135,20 +1051,7 @@ export class ContentAiService {
             limit,
             offset,
             includeArchived,
-        }: {
-            userId: string
-            scope?: ContentAiScope | null
-            contentId?: string | null
-            taskId?: string | null
-            challengeId?: string | null
-            quizId?: string | null
-            foundationId?: string | null
-            courseId?: string | null
-            search?: string
-            limit?: number
-            offset?: number
-            includeArchived?: boolean
-        },
+        }: ContentAiSessionsParams,
     ): Promise<Array<ContentAiSessionSummary>> {
         // clamp the page so a bad client value can't pull the whole table
         const pageLimit = Math.min(Math.max(limit ?? 20,
@@ -1244,19 +1147,7 @@ export class ContentAiService {
             limit,
             offset,
             includeArchived,
-        }: {
-            userId: string
-            scope: ContentAiScope
-            taskId?: string | null
-            challengeId?: string | null
-            quizId?: string | null
-            foundationId?: string | null
-            courseId?: string | null
-            search: string
-            limit: number
-            offset: number
-            includeArchived: boolean
-        },
+        }: ListScopedContentAiSessionsParams,
     ): Promise<Array<ContentAiSessionSummary>> {
         // resolve the owner predicate + the anchor predicate for this scope. Column
         // names are whitelisted (never client input) so they interpolate safely.
@@ -1519,7 +1410,7 @@ export class ContentAiService {
         {
             userId,
             sessionId,
-        }: { userId: string, sessionId: string },
+        }: LoadContentAiSessionMessagesParams,
     ): Promise<Array<ContentAiHistoryMessage>> {
         const owned = await this.resolveOwnedSession(userId,
             sessionId)
@@ -1561,13 +1452,7 @@ export class ContentAiService {
             contentId,
             question,
             answer,
-        }: {
-            userId: string
-            sessionId: string
-            contentId?: string | null
-            question: string
-            answer: string
-        },
+        }: SaveContentAiTurnParams,
     ): Promise<void> {
         const trimmedAnswer = answer.trim()
         if (!question.trim() || !trimmedAnswer) {
@@ -1633,7 +1518,7 @@ export class ContentAiService {
         {
             userId,
             sessionId,
-        }: { userId: string, sessionId: string },
+        }: DeleteContentAiSessionParams,
     ): Promise<void> {
         const owned = await this.resolveOwnedSession(userId,
             sessionId)
@@ -1673,7 +1558,7 @@ export class ContentAiService {
             userId,
             sessionId,
             title,
-        }: { userId: string, sessionId: string, title: string },
+        }: RenameContentAiSessionParams,
     ): Promise<void> {
         // reject over-long titles at the boundary rather than letting the varchar(200)
         // column raise a raw DB error; an empty/blank title resets to auto-titling
@@ -1721,7 +1606,7 @@ export class ContentAiService {
             userId,
             sessionId,
             archived,
-        }: { userId: string, sessionId: string, archived: boolean },
+        }: SetContentAiSessionArchivedParams,
     ): Promise<void> {
         const owned = await this.resolveOwnedSession(userId,
             sessionId)
@@ -1760,7 +1645,7 @@ export class ContentAiService {
         {
             userId,
             sessionId,
-        }: { userId: string, sessionId: string },
+        }: TouchContentAiSessionParams,
     ): Promise<void> {
         const owned = await this.resolveOwnedSession(userId,
             sessionId)
@@ -1800,7 +1685,7 @@ export class ContentAiService {
     private async resolveOwnedSession(
         userId: string,
         sessionId: string,
-    ): Promise<{ enrollmentId: string | null, userId: string | null } | null> {
+    ): Promise<ResolvedContentAiSessionOwner | null> {
         const rows = await this.entityManager.query<Array<{
             enrollmentId: string | null
             userId: string | null

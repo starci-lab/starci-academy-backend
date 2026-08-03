@@ -11,6 +11,7 @@ import {
     MyFlashcardReviewStatsService,
 } from "./my-flashcard-review-stats.service"
 
+/** Feature-module boundary for the `myFlashcardReviewStats` query — wires its resolver + service. */
 @Module({
     providers: [
         MyFlashcardReviewStatsResolver,

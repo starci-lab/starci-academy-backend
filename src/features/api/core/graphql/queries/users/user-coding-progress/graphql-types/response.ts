@@ -23,6 +23,7 @@ import {
 export class UserCodingProgressResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCodingProgressResponseData> {
+    /** Same shape as `myCodingProgress`'s data — only the subject user differs. */
     @Field(
         () => MyCodingProgressResponseData,
         {

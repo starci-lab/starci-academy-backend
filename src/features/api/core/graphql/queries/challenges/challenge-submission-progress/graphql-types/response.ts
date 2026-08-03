@@ -9,6 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+/**
+ * One challenge's progress for the viewer's enrollment: score, completion,
+ * and derived lifecycle status.
+ */
 @ObjectType({
     description: "Single challenge progress item.",
 })
@@ -62,6 +66,9 @@ export class ChallengeSubmissionProgressItemData {
         numAttempts: number
 }
 
+/**
+ * All challenges in the requested course, each with the viewer's progress.
+ */
 @ObjectType({
     description: "Challenge submission progress data.",
 })
@@ -75,6 +82,9 @@ export class ChallengeSubmissionProgressResponseData {
         completionTasks: Array<ChallengeSubmissionProgressItemData>
 }
 
+/**
+ * Response wrapper for the `challengeSubmissionProgress` query.
+ */
 @ObjectType({
     description: "Response wrapper for the challengeSubmissionProgress query.",
 })

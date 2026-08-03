@@ -10,8 +10,11 @@ import {
  */
 export interface TransactionExpiredErrorMetadata
     extends AbstractExceptionMetadata {
+    /** The ID of the expired transaction. */
     id: string
+    /** How long the transaction had been pending when the check ran, in ms. */
     timeSinceCreationMs?: number
+    /** The allowed pending window, in ms, that {@link timeSinceCreationMs} exceeded. */
     allowedTimeSinceCreationMs?: number
 }
 

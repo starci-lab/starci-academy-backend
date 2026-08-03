@@ -11,6 +11,7 @@ import {
     MyMockInterviewAttemptBySessionService,
 } from "./my-mock-interview-attempt-by-session.service"
 
+/** Feature-module boundary for the `myMockInterviewAttemptBySessionId` query — wires its resolver + service. */
 @Module({
     providers: [
         MyMockInterviewAttemptBySessionResolver,

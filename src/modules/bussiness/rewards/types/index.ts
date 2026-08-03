@@ -98,12 +98,14 @@ export interface RewardWalletResult {
     redemptions: Array<RewardRedemptionEntity>
 }
 
-/** Params for {@link RewardsService.redeemReward}. */
+/** Params for {@link RewardsService.redeem}. */
 export interface RedeemRewardParams {
     /** The redeeming user's id. */
     userId: string
     /** The catalog key of the reward to redeem. */
     rewardKey: string
+    /** Shipping details for a `physical`-kind reward. Ignored for every other kind. */
+    shipping?: RewardShippingInput
 }
 
 /**

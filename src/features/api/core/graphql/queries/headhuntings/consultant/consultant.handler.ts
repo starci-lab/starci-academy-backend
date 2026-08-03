@@ -25,6 +25,11 @@ import {
     ConsultantQuery,
 } from "./consultant.query"
 
+/**
+ * Handles the single Headhunter lookup query (by `id` or `displayId`,
+ * Elasticsearch), then gates the resolved consultant's contact fields by the
+ * viewer's best CV score.
+ */
 @QueryHandler(ConsultantQuery)
 @Injectable()
 export class ConsultantHandler

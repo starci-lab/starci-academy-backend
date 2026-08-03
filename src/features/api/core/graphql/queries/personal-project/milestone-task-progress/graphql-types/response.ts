@@ -9,6 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+/**
+ * One milestone task's progress for the viewer's enrollment: score,
+ * completion, and attempt count.
+ */
 @ObjectType({
     description: "Single task progress item.",
 })
@@ -54,6 +58,10 @@ export class MilestoneTaskProgressItemData {
         numAttempts: number
 }
 
+/**
+ * All milestone tasks in the requested course, each with the viewer's
+ * progress, plus the first uncompleted task.
+ */
 @ObjectType({
     description: "Milestone task progress data.",
 })
@@ -76,6 +84,9 @@ export class MilestoneTaskProgressResponseData {
         currentTask: MilestoneTaskProgressItemData | null
 }
 
+/**
+ * Response wrapper for the `milestoneTaskProgress` query.
+ */
 @ObjectType({
     description: "Response wrapper for the milestoneTaskProgress query.",
 })

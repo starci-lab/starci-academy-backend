@@ -15,6 +15,7 @@ import {
     description: "A solved coding problem with the language(s) used.",
 })
 export class UserCodingHistoryItemData {
+    /** Display title shown for the problem entry. */
     @Field(
         () => String,
         {
@@ -23,6 +24,7 @@ export class UserCodingHistoryItemData {
     )
         problemTitle: string
 
+    /** Drives the click-through link to the problem's detail view on this profile. */
     @Field(
         () => String,
         {
@@ -31,6 +33,7 @@ export class UserCodingHistoryItemData {
     )
         slug: string
 
+    /** Raw difficulty value, for the caller to localize/style (not pre-translated here). */
     @Field(
         () => String,
         {
@@ -39,6 +42,7 @@ export class UserCodingHistoryItemData {
     )
         difficulty: string
 
+    /** Raw domain value, for grouping/filtering client-side. */
     @Field(
         () => String,
         {
@@ -47,6 +51,7 @@ export class UserCodingHistoryItemData {
     )
         domain: string
 
+    /** Every language the user was ever accepted in for this problem, not just the latest. */
     @Field(
         () => [String],
         {
@@ -55,6 +60,7 @@ export class UserCodingHistoryItemData {
     )
         languages: Array<string>
 
+    /** Nullable defensively; every entry in this list is already a solve, so this is effectively always set. */
     @Field(
         () => Date,
         {
@@ -74,6 +80,7 @@ export class UserCodingHistoryItemData {
 export class UserCodingHistoryResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<UserCodingHistoryItemData>> {
+    /** Empty array (never null) when the user has no solves yet. */
     @Field(
         () => [UserCodingHistoryItemData],
         {

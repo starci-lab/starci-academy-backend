@@ -8,21 +8,29 @@ import type {
 
 /** Params for updating the status of a transaction. */
 export interface UpdateTransactionStatusParams {
+    /** The transaction id to update. */
     id: string
+    /** The status to write. */
     status: TransactionStatus
+    /** Optional transactional entity manager; falls back to the primary one when omitted. */
     entityManager?: EntityManager
 }
 
 /** Params for a guarded status update (only applies while `expectedStatus` holds). */
 export interface UpdateTransactionStatusIfExpectedParams {
+    /** The transaction id to update. */
     id: string
+    /** The status to write when the guard matches. */
     status: TransactionStatus
+    /** The row must currently be in this status, or the update is skipped (returns `false`). */
     expectedStatus: TransactionStatus
+    /** Optional transactional entity manager; falls back to the primary one when omitted. */
     entityManager?: EntityManager
 }
 
 /** Result for updating the status of a transaction. */
 export interface UpdateTransactionStatusResult {
+    /** The transaction after the update. */
     transaction: TransactionEntity
 }
 

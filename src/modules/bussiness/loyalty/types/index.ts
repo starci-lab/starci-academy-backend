@@ -47,7 +47,10 @@ export interface ResolveLoyaltyPercentParams {
     /**
      * Extra courses to treat as owned on top of {@link LoyaltyContext.ownedCount},
      * so a multi-course checkout can price line N as if the N earlier lines of the
-     * SAME order were already bought. Defaults to 0.
+     * SAME order were already bought. Defaults to 0. MUST be non-negative — every
+     * current caller passes a cart-line index so this is not reachable today, but
+     * the value is not floored, so a negative caller would silently under-discount
+     * rather than throw.
      */
     extraOwnedCount?: number
 }

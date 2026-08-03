@@ -32,6 +32,7 @@ import {
     MyFounderConversationService,
 } from "./my-founder-conversation.service"
 
+/** GraphQL resolver for the `myFounderConversation` query. */
 @Resolver()
 export class MyFounderConversationResolver {
     constructor(

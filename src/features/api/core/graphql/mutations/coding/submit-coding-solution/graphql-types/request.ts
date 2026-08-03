@@ -15,6 +15,7 @@ import {
     description: "Submit a solution to a coding problem for judging.",
 })
 export class SubmitCodingSolutionRequest {
+    /** Identifies which problem this submission is judged against. */
     @Field(
         () => String,
         {
@@ -23,6 +24,7 @@ export class SubmitCodingSolutionRequest {
     )
         slug: string
 
+    /** Selects the judge runtime — must match a language the problem actually offers a checker for. */
     @Field(
         () => GraphQLTypeCodingLanguage,
         {
@@ -31,6 +33,7 @@ export class SubmitCodingSolutionRequest {
     )
         language: CodingLanguage
 
+    /** The code sent to Judge0 for execution against the problem's testcases. */
     @Field(
         () => String,
         {
@@ -39,6 +42,7 @@ export class SubmitCodingSolutionRequest {
     )
         sourceCode: string
 
+    /** Omitted by older clients; captured for transport only, no server-side consumer reads it back yet. */
     @Field(
         () => CodingTelemetryInput,
         {

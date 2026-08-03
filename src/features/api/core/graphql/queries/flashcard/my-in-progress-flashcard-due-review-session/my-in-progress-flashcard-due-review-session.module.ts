@@ -8,6 +8,7 @@ import {
     MyInProgressFlashcardDueReviewSessionResolver,
 } from "./my-in-progress-flashcard-due-review-session.resolver"
 
+/** Feature-module boundary for the `myInProgressFlashcardDueReviewSession` query — wires its resolver (business logic lives in the shared `FlashcardDueReviewSessionService`). */
 @Module({
     providers: [
         MyInProgressFlashcardDueReviewSessionResolver,

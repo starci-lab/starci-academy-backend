@@ -34,6 +34,7 @@ import {
     CreateCommunityPostService,
 } from "./create-community-post.service"
 
+/** GraphQL resolver for the `createCommunityPost` mutation. */
 @Resolver()
 export class CreateCommunityPostResolver {
     constructor(

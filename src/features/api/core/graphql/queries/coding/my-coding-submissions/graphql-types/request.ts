@@ -9,6 +9,7 @@ import {
     description: "Page the current user's submissions for a problem.",
 })
 export class MyCodingSubmissionsRequest {
+    /** Slug of the problem to fetch submissions for. */
     @Field(
         () => String,
         {
@@ -17,6 +18,7 @@ export class MyCodingSubmissionsRequest {
     )
         slug: string
 
+    /** 1-based page number (default 1). */
     @Field(
         () => Int,
         {
@@ -26,6 +28,7 @@ export class MyCodingSubmissionsRequest {
     )
         page?: number
 
+    /** Page size (default 20). */
     @Field(
         () => Int,
         {

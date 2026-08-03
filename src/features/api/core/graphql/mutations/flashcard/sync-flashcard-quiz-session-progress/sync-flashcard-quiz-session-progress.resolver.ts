@@ -34,6 +34,11 @@ import {
     SyncFlashcardQuizSessionProgressService,
 } from "./sync-flashcard-quiz-session-progress.service"
 
+/**
+ * GraphQL entrypoint for `syncFlashcardQuizSessionProgress` — delegates to {@link SyncFlashcardQuizSessionProgressService.execute},
+ * which dispatches the CQRS command {@link SyncFlashcardQuizSessionProgressHandler} owns. See {@link execute}'s
+ * own doc below for what the mutation actually does.
+ */
 @Resolver()
 export class SyncFlashcardQuizSessionProgressResolver {
     constructor(

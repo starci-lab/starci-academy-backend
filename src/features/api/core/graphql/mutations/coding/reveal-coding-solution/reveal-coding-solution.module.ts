@@ -8,6 +8,10 @@ import {
     RevealCodingSolutionResolver,
 } from "./reveal-coding-solution.resolver"
 
+/**
+ * Single-mutation module wiring the `revealCodingSolution` resolver into the
+ * GraphQL schema.
+ */
 @Module({
     providers: [
         RevealCodingSolutionResolver,

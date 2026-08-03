@@ -37,9 +37,9 @@ import {
 } from "./voucher.service"
 import type {
     LocalizedReward,
+    RedeemRewardParams,
     RedeemRewardResult,
     RewardDefinition,
-    RewardShippingInput,
     RewardSumRow,
     RewardWalletResult,
 } from "./types"
@@ -153,15 +153,17 @@ export class RewardsService {
      * ledger insert in one pessimistic-locked transaction so concurrent redeems
      * cannot overspend. Never debits `user.coin_balance`.
      *
-     * @param userId - the redeemer.
-     * @param rewardKey - catalog key to redeem.
+     * @param params - the redeemer's id, the catalog key to redeem, and
+     * optional shipping details (used only for a `physical`-kind reward).
      * @returns the refreshed balance + streak-freeze count (+ voucher code /
      * granted AI credit when the redeemed reward mints one).
      */
     async redeem(
-        userId: string,
-        rewardKey: string,
-        shipping?: RewardShippingInput,
+        {
+            userId,
+            rewardKey,
+            shipping,
+        }: RedeemRewardParams,
     ): Promise<RedeemRewardResult> {
         const reward = this.getReward(rewardKey)
         if (!reward) {

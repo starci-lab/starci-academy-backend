@@ -17,6 +17,9 @@ import {
     HeadhuntingCompanyRequest,
 } from "./graphql-types"
 
+/**
+ * Service for the single headhunting company query.
+ */
 @Injectable()
 export class HeadhuntingCompanyService {
     constructor(

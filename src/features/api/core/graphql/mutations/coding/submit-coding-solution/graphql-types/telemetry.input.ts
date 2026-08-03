@@ -12,6 +12,7 @@ import {
     description: "Client behavioural telemetry for anti-cheat scoring (all fields optional).",
 })
 export class CodingTelemetryInput {
+    /** Number of paste events into the editor during the attempt. */
     @Field(
         () => Int,
         {
@@ -21,6 +22,7 @@ export class CodingTelemetryInput {
     )
         pasteCount?: number
 
+    /** Largest single paste size in characters. */
     @Field(
         () => Int,
         {
@@ -30,6 +32,7 @@ export class CodingTelemetryInput {
     )
         pasteSizeMax?: number
 
+    /** Total keystrokes recorded in the editor. */
     @Field(
         () => Int,
         {
@@ -39,6 +42,7 @@ export class CodingTelemetryInput {
     )
         keystrokeCount?: number
 
+    /** Number of times the editor tab lost focus. */
     @Field(
         () => Int,
         {
@@ -48,6 +52,7 @@ export class CodingTelemetryInput {
     )
         tabBlurCount?: number
 
+    /** Elapsed time from opening the problem to submitting, in milliseconds. */
     @Field(
         () => Int,
         {

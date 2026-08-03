@@ -124,7 +124,10 @@ export class LoyaltyDiscountService {
      * `extraOwnedCount` for progressive cart pricing) + `+5` when diligent, capped
      * at {@link MAX_DISCOUNT_PERCENT}.
      *
-     * @param params - The DB-derived context + optional extra-owned-count.
+     * @param params - The DB-derived context + optional extra-owned-count. `extraOwnedCount`
+     * MUST be non-negative (see {@link ResolveLoyaltyPercentParams.extraOwnedCount}) — it is
+     * added to `context.ownedCount` with no floor, so a negative value would silently
+     * under-discount instead of throwing.
      * @returns The percent (0–30), the reason, and the enrolled-course count used.
      */
     resolveLoyaltyPercent(

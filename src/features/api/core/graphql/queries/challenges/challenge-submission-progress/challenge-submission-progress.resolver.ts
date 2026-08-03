@@ -32,6 +32,10 @@ import {
     ChallengeSubmissionProgressService,
 } from "./challenge-submission-progress.service"
 
+/**
+ * GraphQL entry point for `challengeSubmissionProgress`: forwards to the
+ * CQRS query bus via {@link ChallengeSubmissionProgressService}.
+ */
 @Resolver()
 export class ChallengeSubmissionProgressResolver {
     constructor(

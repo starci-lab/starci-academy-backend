@@ -65,12 +65,14 @@ export class RedeemRewardResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<RedeemRewardData> {
-        return this.rewardsService.redeem(user.id,
-            request.rewardKey,
-            {
+        return this.rewardsService.redeem({
+            userId: user.id,
+            rewardKey: request.rewardKey,
+            shipping: {
                 recipientName: request.recipientName,
                 phone: request.phone,
                 address: request.address,
-            })
+            },
+        })
     }
 }

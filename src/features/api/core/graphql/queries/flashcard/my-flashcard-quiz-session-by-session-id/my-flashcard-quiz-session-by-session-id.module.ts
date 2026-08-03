@@ -11,6 +11,7 @@ import {
     MyFlashcardQuizSessionBySessionIdService,
 } from "./my-flashcard-quiz-session-by-session-id.service"
 
+/** Feature-module boundary for the `myFlashcardQuizSessionBySessionId` query — wires its resolver + service. */
 @Module({
     providers: [
         MyFlashcardQuizSessionBySessionIdResolver,

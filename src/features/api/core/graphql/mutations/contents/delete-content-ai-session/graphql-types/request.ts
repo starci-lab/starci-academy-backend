@@ -5,13 +5,13 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * Request for {@link ClearContentAiHistoryResponse}: delete the current user's
+ * Request for {@link DeleteContentAiSessionResponse}: delete the current user's
  * saved content-AI conversation for one content (scoped to their enrollment).
  */
 @InputType({
     description: "Delete a content-AI conversation (session).",
 })
-export class ClearContentAiHistoryRequest {
+export class DeleteContentAiSessionRequest {
     @Field(
         () => ID,
         {

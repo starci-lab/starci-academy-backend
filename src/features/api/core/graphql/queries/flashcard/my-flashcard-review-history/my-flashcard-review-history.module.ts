@@ -11,6 +11,7 @@ import {
     MyFlashcardReviewHistoryService,
 } from "./my-flashcard-review-history.service"
 
+/** Feature-module boundary for the `myFlashcardReviewHistory` query — wires its resolver + service. */
 @Module({
     providers: [
         MyFlashcardReviewHistoryResolver,

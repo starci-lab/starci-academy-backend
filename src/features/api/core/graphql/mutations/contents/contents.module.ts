@@ -11,8 +11,8 @@ import {
     AskContentAiSingleMutationModule,
 } from "./ask-content-ai"
 import {
-    ClearContentAiHistorySingleMutationModule,
-} from "./clear-content-ai-history"
+    DeleteContentAiSessionSingleMutationModule,
+} from "./delete-content-ai-session"
 import {
     CreateContentAiSessionSingleMutationModule,
 } from "./create-content-ai-session"
@@ -40,7 +40,7 @@ import {
         AskContentAiSingleMutationModule.register({
             isGlobal: true,
         }),
-        ClearContentAiHistorySingleMutationModule.register({
+        DeleteContentAiSessionSingleMutationModule.register({
             isGlobal: true,
         }),
         CreateContentAiSessionSingleMutationModule.register({

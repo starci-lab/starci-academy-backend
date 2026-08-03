@@ -17,6 +17,7 @@ import {
     ConfigurableModuleClass,
 } from "./start-flashcard-quiz-session.module-definition"
 
+/** Feature-module boundary for the `startFlashcardQuizSession` mutation — wires its resolver + service + CQRS handler; exports the service so `myInProgressFlashcardQuizSession` can share its resolution logic. */
 @Module({
     imports: [
         CqrsModule,

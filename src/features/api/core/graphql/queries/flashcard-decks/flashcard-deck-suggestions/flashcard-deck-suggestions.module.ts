@@ -14,6 +14,7 @@ import {
     FlashcardDeckSuggestionsService,
 } from "./flashcard-deck-suggestions.service"
 
+/** Feature-module boundary for the `flashcardDeckSuggestions` query — wires its resolver + service + CQRS handler. */
 @Module({
     providers: [
         FlashcardDeckSuggestionsService,
