@@ -1,12 +1,18 @@
 # `src/modules/` — the shared library (`@modules/*`)
 
-62 modules live here flat today. Until stage 3 of the optimize physically groups
-them into tier subfolders, THIS file is the tier map: it says what KIND each
-module is, so the flat list reads as grouped. The tiers, the barrel-hygiene rule,
-and the staged plan are in `.artifacts/states/_modules/structure.md`; the rule a
-machine holds is `canon/be/enforce/authoring/naming-and-structure.md` §3.
+The modules are grouped into tier subfolders (stage 3 of the optimize, done for
+the three movable tiers below). Imports stay `@modules/<name>` — the `@modules/*`
+alias is a multi-root array (tsconfig + the jest configs) resolving
+`src/modules/*` then each tier folder, so a module's physical tier and its import
+path are decoupled and moving a module never churns its importers. The rule a
+machine holds is `canon/be/enforce/authoring/naming-and-structure.md` §3; the
+target + staged plan are in `.artifacts/states/_modules/structure.md`.
 
-A NEW module declares its tier here on the day it is created.
+A NEW module is created directly inside its tier folder.
+
+Still flat at the root (a later call — borderline or app-composition, not moved):
+`ai`, `crypto`, `filesystem` (borderline integration/platform), and `api`, `init`,
+`tests`, `docs`, `membership`, `playground-agent-core` (app composition / tooling).
 
 ## integrations/ — an adapter to something OUTSIDE the process
 sepay · payos · stripe · paypal · nowpayments · kafka · elasticsearch · s3 ·
