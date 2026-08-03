@@ -8,7 +8,7 @@
   "testEnvironment": "node",
   "testRegex": "\\.e2e-spec\\.ts$",
   "roots": [
-    "<rootDir>/apps/core/test/e2e"
+    "<rootDir>/apps/core/test/app"
   ],
   "transform": {
     "^.+\\.(t|j)s$": [

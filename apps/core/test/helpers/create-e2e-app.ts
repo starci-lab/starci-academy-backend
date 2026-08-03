@@ -26,7 +26,12 @@ import {
 } from "@modules/crypto"
 import {
     EnqueueEnrollJobService,
+    EnqueueSendMailJobService,
+    NotificationService,
 } from "@modules/bussiness"
+import {
+    MembershipService,
+} from "@modules/membership"
 import {
     SEPAY,
 } from "@modules/sepay/constants"
@@ -149,6 +154,27 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             {
                 provide: EnqueueEnrollJobService,
                 useValue: enqueueEnrollJob,
+            },
+            // grant-path side effects the webhook handlers inject but that a
+            // grant assertion never needs to actually fire — stubbed so Nest can
+            // resolve the full handler provider graph at compile()
+            {
+                provide: MembershipService,
+                useValue: {
+                    grantMembership: jest.fn(),
+                },
+            },
+            {
+                provide: EnqueueSendMailJobService,
+                useValue: {
+                    enqueue: jest.fn(),
+                },
+            },
+            {
+                provide: NotificationService,
+                useValue: {
+                    createNotification: jest.fn(),
+                },
             },
             {
                 provide: MountFilesystemService,
