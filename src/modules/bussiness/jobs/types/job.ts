@@ -48,6 +48,14 @@ export interface GetJobParams extends Omit<JobTargetParams, "job"> {
     id: string
     /** Whether to emit a change event. */
     emitChangeEvent?: boolean
+    /**
+     * Optional caller to scope the lookup to (compared against `jobs.user_id`).
+     * When provided, a job owned by someone else — or a system job with no
+     * owner at all — is treated the same as not found: the predicate lives in
+     * the query so a row the caller does not own never leaves the database.
+     * Omit for internal/worker callers that legitimately load any job by id.
+     */
+    userId?: string | null
 }
 
 /** Params for queuing a job. */

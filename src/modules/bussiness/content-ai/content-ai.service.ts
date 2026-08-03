@@ -1603,14 +1603,23 @@ export class ContentAiService {
             ],
         )
         // auto-title from the first question (only when still untitled) + bump recency
+        // the owner predicate is carried in the write itself, not just the SELECT above
         await this.entityManager.query(
             `UPDATE content_ai_sessions
                 SET title = COALESCE(title, $2), updated_at = now()
-              WHERE id = $1`,
+              WHERE id = $1
+                AND (
+                  user_id = $3
+                  OR EXISTS (
+                    SELECT 1 FROM enrollments e
+                     WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $3
+                  )
+                )`,
             [
                 sessionId,
                 question.trim().slice(0,
                     120),
+                userId,
             ],
         )
     }
@@ -1631,11 +1640,21 @@ export class ContentAiService {
         if (!owned) {
             return
         }
-        await this.entityManager.delete(
-            ContentAiSessionEntity,
-            {
-                id: sessionId,
-            },
+        // owner predicate carried in the DELETE itself, not just the preceding SELECT
+        await this.entityManager.query(
+            `DELETE FROM content_ai_sessions
+              WHERE id = $1
+                AND (
+                  user_id = $2
+                  OR EXISTS (
+                    SELECT 1 FROM enrollments e
+                     WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $2
+                  )
+                )`,
+            [
+                sessionId,
+                userId,
+            ],
         )
     }
 
@@ -1670,11 +1689,22 @@ export class ContentAiService {
         if (!owned) {
             return
         }
+        // owner predicate carried in the UPDATE itself, not just the preceding SELECT
         await this.entityManager.query(
-            "UPDATE content_ai_sessions SET title = $2, updated_at = now() WHERE id = $1",
+            `UPDATE content_ai_sessions
+                SET title = $2, updated_at = now()
+              WHERE id = $1
+                AND (
+                  user_id = $3
+                  OR EXISTS (
+                    SELECT 1 FROM enrollments e
+                     WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $3
+                  )
+                )`,
             [
                 sessionId,
                 trimmed || null,
+                userId,
             ],
         )
     }
@@ -1698,12 +1728,22 @@ export class ContentAiService {
         if (!owned) {
             return
         }
+        // owner predicate carried in the UPDATE itself, not just the preceding SELECT
+        const ownerPredicate = `
+                AND (
+                  user_id = $2
+                  OR EXISTS (
+                    SELECT 1 FROM enrollments e
+                     WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $2
+                  )
+                )`
         await this.entityManager.query(
             archived
-                ? "UPDATE content_ai_sessions SET archived_at = now() WHERE id = $1"
-                : "UPDATE content_ai_sessions SET archived_at = NULL WHERE id = $1",
+                ? `UPDATE content_ai_sessions SET archived_at = now() WHERE id = $1${ownerPredicate}`
+                : `UPDATE content_ai_sessions SET archived_at = NULL WHERE id = $1${ownerPredicate}`,
             [
                 sessionId,
+                userId,
             ],
         )
     }
@@ -1727,10 +1767,21 @@ export class ContentAiService {
         if (!owned) {
             return
         }
+        // owner predicate carried in the UPDATE itself, not just the preceding SELECT
         await this.entityManager.query(
-            "UPDATE content_ai_sessions SET updated_at = now() WHERE id = $1",
+            `UPDATE content_ai_sessions
+                SET updated_at = now()
+              WHERE id = $1
+                AND (
+                  user_id = $2
+                  OR EXISTS (
+                    SELECT 1 FROM enrollments e
+                     WHERE e.id = content_ai_sessions.enrollment_id AND e.user_id = $2
+                  )
+                )`,
             [
                 sessionId,
+                userId,
             ],
         )
     }

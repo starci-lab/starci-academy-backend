@@ -193,10 +193,20 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 // already a PAID enrollment → genuine duplicate: just finalize and stop.
                 if (existingEnrollment?.isEnrolled === true) {
                     alreadyEnrolled = true
-                    await this.transactionActionService.updateTransactionStatus(
+                    // guarded write (only applies while still Pending): a transaction
+                    // funding a MULTI-course order is shared by one enroll job per
+                    // course line, so a sibling course's job may have already flipped
+                    // this same row to Succeeded — this must never clobber that (or
+                    // any other terminal status) back to Succeeded from a stale read.
+                    // Unlike the AI/installment grants, this write does NOT gate the
+                    // enrollment effect itself: per-course enrollment is already
+                    // exactly-once via the `existingEnrollment` check above plus the
+                    // course-row pessimistic lock taken earlier in this transaction.
+                    await this.transactionActionService.updateTransactionStatusIfExpected(
                         {
                             id: transactionId,
                             status: TransactionStatus.Succeeded,
+                            expectedStatus: TransactionStatus.Pending,
                             entityManager,
                         },
                     )
@@ -288,11 +298,16 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     }
                     await entityManager.save(course)
                 }
-                // update the transaction status
-                await this.transactionActionService.updateTransactionStatus(
+                // guarded write (only applies while still Pending) — same reasoning
+                // as the `alreadyEnrolled` branch above: this transaction may be
+                // shared by other course lines' enroll jobs, so use the atomic
+                // guard rather than an unconditional write that could clobber a
+                // status a concurrent path already advanced.
+                await this.transactionActionService.updateTransactionStatusIfExpected(
                     {
                         id: transactionId,
                         status: TransactionStatus.Succeeded,
+                        expectedStatus: TransactionStatus.Pending,
                         entityManager,
                     }
                 )

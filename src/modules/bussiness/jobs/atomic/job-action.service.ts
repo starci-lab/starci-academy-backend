@@ -8,6 +8,10 @@ import {
 } from "@nestjs/common"
 import type {
     EntityManager,
+    FindOptionsWhere,
+} from "typeorm"
+import {
+    IsNull,
 } from "typeorm"
 import type {
     CompleteJobParams,
@@ -57,21 +61,27 @@ export class JobActionService {
      * Get the job.
      * @param id - The ID of the job.
      * @param entityManager - The entity manager.
+     * @param userId - Optional caller to scope the lookup to. When provided,
+     * a job owned by someone else (or with no owner) never leaves the query —
+     * it surfaces as `JobNotFoundException`, same as a genuinely missing row.
      * @returns The job.
      */
     async getJob(
         {
             entityManager,
             id,
+            userId,
         }: GetJobParams
     ): Promise<JobEntity> {
         const manager = entityManager ?? this.primaryEntityManager
+        const where: FindOptionsWhere<JobEntity> = { id }
+        if (userId !== undefined) {
+            where.userId = userId === null ? IsNull() : userId
+        }
         const job = await manager.findOne(
             JobEntity,
             {
-                where: {
-                    id,
-                },
+                where,
             },
         )
         if (!job) {

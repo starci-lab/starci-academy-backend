@@ -52,7 +52,9 @@ export class DeviceService {
         const existing = await this.entityManager.findOne(DeviceEntity,
             {
                 where: {
-                    userId,
+                    user: {
+                        id: userId,
+                    },
                     fingerprint,
                 },
             })

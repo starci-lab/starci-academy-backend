@@ -317,8 +317,14 @@ export class AiEntitlementService {
 
     /**
      * Grant a paid tier on successful payment and mark the funding transaction
-     * succeeded — both inside one DB transaction. Idempotent: a transaction
-     * already marked succeeded is left untouched (so webhook retries are safe).
+     * succeeded — both inside one DB transaction. Atomic: the Pending→Succeeded
+     * transition is claimed FIRST via a guarded `UPDATE ... WHERE status =
+     * 'pending'` (same technique as
+     * `TransactionActionService.updateTransactionStatusIfExpected`); the tier is
+     * only granted when THIS call is the one that won that claim (rows-affected
+     * = 1). A concurrent webhook/reconcile-poll race that loses the claim sees
+     * 0 rows affected and no-ops — so a paid transaction is granted exactly
+     * once, not merely "checked then acted on".
      *
      * @param params - the owning `userId`, the `tier` to grant, and the
      *  `transactionId` that funded it
@@ -330,21 +336,26 @@ export class AiEntitlementService {
     }: GrantTierParams): Promise<boolean> {
         return this.entityManager.transaction(
             async (entityManager): Promise<boolean> => {
-                // idempotency guard — skip if this payment was already applied
-                const transaction = await entityManager.findOne(
+                // atomically claim the Pending -> Succeeded transition BEFORE
+                // granting anything — this IS the guard, replacing the earlier
+                // read-then-compare-in-app-code (TOCTOU) idempotency check
+                const claim = await entityManager.update(
                     TransactionEntity,
                     {
-                        where: {
-                            id: transactionId,
-                        },
+                        id: transactionId,
+                        status: TransactionStatus.Pending,
+                    },
+                    {
+                        status: TransactionStatus.Succeeded,
                     },
                 )
-                if (transaction?.status === TransactionStatus.Succeeded) {
-                    // already granted by a concurrent/earlier path → not a new grant
+                if (!claim.affected) {
+                    // already claimed (granted) by a concurrent/earlier path → not a new grant
                     return false
                 }
 
-                // activate the tier for a fresh billing period
+                // this call alone won the claim → activate the tier for a fresh
+                // billing period; runs exactly once for this transaction
                 const subscription = await this.loadOrCreate(
                     userId,
                     entityManager,
@@ -359,16 +370,6 @@ export class AiEntitlementService {
                 subscription.autoRenew = false
                 await entityManager.save(subscription)
 
-                // mark the funding transaction succeeded
-                await entityManager.update(
-                    TransactionEntity,
-                    {
-                        id: transactionId,
-                    },
-                    {
-                        status: TransactionStatus.Succeeded,
-                    },
-                )
                 // a new grant happened → caller may notify the buyer
                 return true
             },

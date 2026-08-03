@@ -267,6 +267,19 @@ export class FlashcardReviewService {
                 card)
         }
 
+        // Gate premium answers behind enrollment, mirroring the content paywall's
+        // isEntitled/lockPremiumContent pair (`content.handler.ts:174-184`) — this
+        // is the enforcement `FlashcardCardEntity.isPremium`'s own doc claims exists
+        // but never did (see `.artifacts/states/flashcard/findings.md` #1). The
+        // GLOBAL (cross-course) queue can mix cards from many courses, so entitlement
+        // is resolved per the CARD'S OWN course (`card.deck.courseId`), not the
+        // request's optional `courseId` — cached per distinct course id so a shared
+        // course is only checked once.
+        const entitledByCourseId = await this.resolveEntitlementByCourseId(
+            cards,
+            userId,
+        )
+
         // preserve the due-order page ordering (find does not guarantee it)
         const localized: Array<DueFlashcard> = cardIds
             .map((id) => cardById.get(id))
@@ -277,7 +290,10 @@ export class FlashcardReviewService {
                     ? (localizedDeckTitleById.get(card.deck.id) ?? card.deck.title)
                     : "",
                 front: card.question,
-                back: card.answer ?? "",
+                back: this.isEntitledToCard(card,
+                    entitledByCourseId)
+                    ? (card.answer ?? "")
+                    : "",
                 level: card.level ?? null,
                 tags: card.tags ?? [],
                 nextIntervals: this.previewIntervals(
@@ -430,6 +446,14 @@ export class FlashcardReviewService {
                 card)
         }
 
+        // Gate premium answers behind enrollment — same rationale as `listDue`
+        // (see the comment there); this batch can likewise mix cards drawn from
+        // several courses (a resumed cross-course due-review batch).
+        const entitledByCourseId = await this.resolveEntitlementByCourseId(
+            cards,
+            userId,
+        )
+
         return cardIds
             .map((id) => cardById.get(id))
             .filter((card): card is FlashcardCardEntity => Boolean(card))
@@ -439,7 +463,10 @@ export class FlashcardReviewService {
                     ? (localizedDeckTitleById.get(card.deck.id) ?? card.deck.title)
                     : "",
                 front: card.question,
-                back: card.answer ?? "",
+                back: this.isEntitledToCard(card,
+                    entitledByCourseId)
+                    ? (card.answer ?? "")
+                    : "",
                 level: card.level ?? null,
                 tags: card.tags ?? [],
                 nextIntervals: this.previewIntervals(
@@ -639,6 +666,63 @@ export class FlashcardReviewService {
             good: intervalForGrade(2),
             easy: intervalForGrade(3),
         }
+    }
+
+    /**
+     * Resolves, once per DISTINCT owning course, whether the viewer is entitled to
+     * read premium cards from that course — mirrors `ContentHandler.isEntitled`
+     * (`content.handler.ts:283-300`). A batch of cards (due queue or an id-based
+     * rehydrate) can span several courses, so this is checked per course rather
+     * than once for the whole batch; `UserService.checkEnrollment` is backed by a
+     * single per-user cached set, so repeat calls for the same user are cheap.
+     *
+     * @param cards - The loaded cards (each card's `deck.courseId` identifies its course).
+     * @param userId - Active user id.
+     * @returns Entitlement keyed by course id — only courses that actually own a
+     *   premium card in this batch are checked.
+     */
+    private async resolveEntitlementByCourseId(
+        cards: Array<FlashcardCardEntity>,
+        userId: string,
+    ): Promise<Map<string, boolean>> {
+        const entitledByCourseId = new Map<string, boolean>()
+        for (const card of cards) {
+            if (!card.isPremium) {
+                continue
+            }
+            const courseId = card.deck?.courseId
+            if (!courseId || entitledByCourseId.has(courseId)) {
+                continue
+            }
+            entitledByCourseId.set(
+                courseId,
+                await this.userService.checkEnrollment(
+                    userId,
+                    courseId,
+                ),
+            )
+        }
+        return entitledByCourseId
+    }
+
+    /**
+     * Whether the viewer may read THIS card's answer: true for a free card, or a
+     * premium card whose owning course is entitled per
+     * {@link resolveEntitlementByCourseId}. A premium card whose course could not
+     * be resolved (no deck loaded) fails closed (not entitled) rather than leaking.
+     *
+     * @param card - The card being served.
+     * @param entitledByCourseId - Per-course entitlement from {@link resolveEntitlementByCourseId}.
+     */
+    private isEntitledToCard(
+        card: FlashcardCardEntity,
+        entitledByCourseId: Map<string, boolean>,
+    ): boolean {
+        if (!card.isPremium) {
+            return true
+        }
+        const courseId = card.deck?.courseId
+        return Boolean(courseId && entitledByCourseId.get(courseId))
     }
 
     /**

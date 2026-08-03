@@ -29,6 +29,9 @@ import {
     FlashcardReviewService,
     NEW_CARD_STATE,
 } from "./flashcard-review.service"
+import {
+    UserService,
+} from "../user"
 
 /** SM-2 repetition count at/above which a card is considered "mastered". */
 const MASTERED_REPETITIONS = 2
@@ -47,6 +50,7 @@ export class FlashcardDeckReadService {
         private readonly elasticsearchService: ElasticsearchService,
         private readonly flashcardDeckResolver: FlashcardDeckResolverService,
         private readonly flashcardReviewService: FlashcardReviewService,
+        private readonly userService: UserService,
     ) { }
 
     /**
@@ -97,7 +101,60 @@ export class FlashcardDeckReadService {
             await this.annotateViewerStats(decks,
                 userId)
         }
+        // Gate premium answers behind enrollment, mirroring the content paywall's
+        // isEntitled/lockPremiumContent pair (`content.handler.ts:174-184`) — this
+        // is the enforcement `FlashcardCardEntity.isPremium`'s own doc claims
+        // exists but never did (see `.artifacts/states/flashcard/findings.md` #1).
+        // Every deck here belongs to the SAME `courseId` (the query scope), so one
+        // enrollment check covers the whole page.
+        const entitled = await this.isEntitled(courseId,
+            userId)
+        if (!entitled) {
+            for (const deck of decks) {
+                for (const card of deck.cards ?? []) {
+                    if (card.isPremium) {
+                        this.lockPremiumCard(card)
+                    }
+                }
+            }
+        }
         return decks
+    }
+
+    /**
+     * Whether the viewer may read a premium card's answer/explanation: true for a
+     * free card, or for a viewer enrolled in the card's owning course. Mirrors
+     * `ContentHandler.isEntitled` (`content.handler.ts:283-300`).
+     *
+     * @param courseId - Owning course id of the card(s) being gated.
+     * @param userId - Active user id, when authenticated.
+     */
+    private async isEntitled(
+        courseId?: string,
+        userId?: string,
+    ): Promise<boolean> {
+        if (!userId || !courseId) {
+            return false
+        }
+        return await this.userService.checkEnrollment(
+            userId,
+            courseId,
+        )
+    }
+
+    /**
+     * Withholds a premium card's answer/explanation in place, mirroring
+     * `ContentHandler.lockPremiumContent` (`content.handler.ts:309-352`) — the
+     * question and metadata stay visible (the card is still browsable / listable),
+     * only the "back" content a non-entitled viewer must not see is nulled out.
+     *
+     * @param card - Card to lock (mutated in place).
+     */
+    private lockPremiumCard(
+        card: FlashcardCardEntity,
+    ): void {
+        card.answer = null
+        card.explanation = null
     }
 
     /**
@@ -188,6 +245,20 @@ export class FlashcardDeckReadService {
             if (userId && deck.cards?.length > 0) {
                 await this.annotateNextIntervals(deck.cards,
                     userId)
+            }
+            // Gate premium answers behind enrollment — same paywall this deck's
+            // cards claim to mirror but never enforced (Finding #1). `deck.courseId`
+            // (a `@RelationId` field, populated at index time and stored in the ES
+            // mapping — `flashcard-deck.mapping.ts:22-25`) identifies the owning
+            // course without a second DB round-trip.
+            const entitled = await this.isEntitled(deck.courseId,
+                userId)
+            if (!entitled) {
+                for (const card of deck.cards ?? []) {
+                    if (card.isPremium) {
+                        this.lockPremiumCard(card)
+                    }
+                }
             }
             return deck
         } catch (error) {

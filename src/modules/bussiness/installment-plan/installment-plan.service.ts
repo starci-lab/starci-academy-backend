@@ -291,10 +291,15 @@ export class InstallmentPlanService {
     /**
      * Apply a succeeded `installmentPayment` transaction to its plan and mark
      * the transaction succeeded — both inside one DB transaction, mirroring
-     * `AiEntitlementService.grantTier`'s idempotency shape. Called by
-     * `ReconcileTransactionWorker.finalize()` on gateway confirmation. A
-     * transaction already marked succeeded is left untouched (safe against
-     * webhook + reconcile-poll double-firing).
+     * `AiEntitlementService.grantTier`'s atomic-claim shape. Called by
+     * `ReconcileTransactionWorker.finalize()` on gateway confirmation. The
+     * Pending→Succeeded transition is claimed FIRST via a guarded
+     * `UPDATE ... WHERE status = 'pending'` (same technique as
+     * `TransactionActionService.updateTransactionStatusIfExpected`); the
+     * NON-idempotent `recordPayment` (mutates installmentsPaid/remainingVnd)
+     * only runs when THIS call is the one that won that claim (rows-affected =
+     * 1), so a webhook + reconcile-poll double-fire cannot double-apply the
+     * same payment to the ledger.
      *
      * @param params - {@link ApplyInstallmentPaymentForTransactionParams}.
      * @returns Whether this call newly applied the payment (false = already applied).
@@ -310,34 +315,31 @@ export class InstallmentPlanService {
         const manager = entityManager ?? this.entityManager
         return manager.transaction(
             async (transactionalManager): Promise<boolean> => {
-                // idempotency guard — skip if this payment was already applied
-                const transaction = await transactionalManager.findOne(
+                // atomically claim the Pending -> Succeeded transition BEFORE
+                // touching the plan's ledger — this IS the guard, replacing the
+                // earlier read-then-compare-in-app-code (TOCTOU) idempotency check
+                const claim = await transactionalManager.update(
                     TransactionEntity,
                     {
-                        where: {
-                            id: transactionId,
-                        },
+                        id: transactionId,
+                        status: TransactionStatus.Pending,
+                    },
+                    {
+                        status: TransactionStatus.Succeeded,
                     },
                 )
-                if (transaction?.status === TransactionStatus.Succeeded) {
+                if (!claim.affected) {
+                    // already claimed (applied) by a concurrent/earlier path → no-op
                     return false
                 }
 
+                // this call alone won the claim → apply the ledger mutation
+                // exactly once for this funding transaction
                 await this.recordPayment(
                     {
                         planId,
                         paidAmountVnd,
                         entityManager: transactionalManager,
-                    },
-                )
-
-                await transactionalManager.update(
-                    TransactionEntity,
-                    {
-                        id: transactionId,
-                    },
-                    {
-                        status: TransactionStatus.Succeeded,
                     },
                 )
                 return true
