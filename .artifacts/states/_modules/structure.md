@@ -15,9 +15,21 @@ brings the tree to; it is staged so nothing has to change all its imports at onc
 | **databases/** | entities + data sources | databases |
 | **lib/** | a leaf utility with no framework/domain weight | common, mixin, native, stream-async-iterator, validators, assets |
 
-`api`, `init`, `tests`, `docs` are not library modules — they belong to the app
-composition / tooling, not the shared lib; the optimize decides case by case
-(likely `apps/core` or a top-level `tooling/`), not under `modules/`.
+**The flat leftovers, re-examined per module** — a shallow first pass wrongly lumped these as
+"app-composition/borderline"; this is the careful `why` (nature + import direction CHECKED, not
+guessed). Mis-classification hides in this bucket.
+
+| Module | Belongs in | Why (checked) |
+|---|---|---|
+| `membership` | **bussiness/** | a real business domain (`MembershipService.grantMembership`, tiers/periods). Top-level only by history (the "final-mvp" commit, before the `bussiness/` grouping existed), not by design — this is drift the first pass should have flagged, not bucketed. Imports `bussiness` 0× → no cycle. 25 importers use `@modules/membership`; the move rewrites them to `@modules/bussiness/membership` (real churn → its own staged commit). |
+| `playground-agent-core` | **bussiness/** (playground) | `base-agent.service` — business/agent logic; 1 importer; 0 bussiness cycle. |
+| `crypto` | **lib/** | `encryption.service` — a pure utility, no domain/framework weight. |
+| `filesystem` | **lib/** or **platform/** | mount + config services — a utility/config concern, not a domain. |
+| `ai` | GENUINELY borderline — teacher's call | 91 files: BOTH the LLM adapter (invoke/balancer → integrations) AND business entitlement/credits (→ bussiness). Probably SPLIT, not move whole. Flagged, not silently bucketed. |
+| `api`, `init`, `tests`, `docs` | not library modules | app composition / tooling — `apps/core` or a top-level `tooling/`, not under `modules/`. |
+
+Lesson: check each module's nature (domain vs util vs adapter) and its import direction BEFORE calling
+it "borderline" — do not hand-wave a business domain like `membership` into "app-composition".
 
 ## Barrel hygiene — the rule that clears the 4 tsc errors
 

@@ -460,7 +460,12 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                             XpHistoryEntity,
                             {
                                 where: {
-                                    userId: user.id,
+                                    // XpHistoryEntity.userId is a bare @RelationId
+                                    // (no @Column) — not queryable in `where`; filter
+                                    // through the relation instead
+                                    user: {
+                                        id: user.id,
+                                    },
                                     source: XpSource.FlashcardFirstReview,
                                 },
                             },
@@ -498,7 +503,9 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                         const xpHistoryCount = await entityManager.count(XpHistoryEntity,
                             {
                                 where: {
-                                    userId: user.id,
+                                    user: {
+                                        id: user.id,
+                                    },
                                     source: XpSource.FlashcardFirstReview,
                                 },
                             })
@@ -536,7 +543,9 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                         const xpHistoryCount = await entityManager.count(XpHistoryEntity,
                             {
                                 where: {
-                                    userId: user.id,
+                                    user: {
+                                        id: user.id,
+                                    },
                                     source: XpSource.FlashcardFirstReview,
                                 },
                             })
