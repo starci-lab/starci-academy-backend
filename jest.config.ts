@@ -32,6 +32,7 @@ const sharedProjectConfig = {
             "<rootDir>/src/modules/$1",
             "<rootDir>/src/modules/lib/$1",
             "<rootDir>/src/modules/platform/$1",
+            "<rootDir>/src/modules/integrations/$1",
         ],
         "^@features/(.*)$": "<rootDir>/src/features/$1",
     },
