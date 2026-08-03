@@ -83,7 +83,9 @@ describe("DeviceService",
                             DeviceEntity,
                             {
                                 where: {
-                                    userId,
+                                    user: {
+                                        id: userId,
+                                    },
                                     fingerprint,
                                 },
                             },
