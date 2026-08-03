@@ -28,7 +28,10 @@ const sharedProjectConfig = {
     transformIgnorePatterns: [],
     /** Path aliases mirrored from tsconfig. */
     moduleNameMapper: {
-        "^@modules/(.*)$": "<rootDir>/src/modules/$1",
+        "^@modules/(.*)$": [
+            "<rootDir>/src/modules/$1",
+            "<rootDir>/src/modules/lib/$1",
+        ],
         "^@features/(.*)$": "<rootDir>/src/features/$1",
     },
     /** Node environment — no DOM. */

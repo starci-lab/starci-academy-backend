@@ -27,7 +27,8 @@
         "./src/features/*"
       ],
       "@modules/*": [
-        "./src/modules/*"
+        "./src/modules/*",
+        "./src/modules/lib/*"
       ]
     }
   }
