@@ -45,3 +45,13 @@ export interface ClaimKpiRewardParams {
     /** Which KPI to claim the reward for. */
     key: KpiKey
 }
+
+/** Params for {@link KpiRewardService.setTarget}. */
+export interface SetKpiTargetParams {
+    /** The user whose target is being set. */
+    userId: string
+    /** Which KPI the target applies to. */
+    key: KpiKey
+    /** The raw requested target (clamped server-side into `[0, KPI_TARGET_MAX[key]]`). */
+    target: number
+}

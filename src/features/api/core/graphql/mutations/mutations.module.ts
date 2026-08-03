@@ -82,6 +82,9 @@ import {
 import {
     PlaygroundSessionsMutationsModule,
 } from "./playground-sessions"
+import {
+    StreakMutationsModule,
+} from "./streak"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -162,6 +165,9 @@ import {
             isGlobal: true,
         }),
         PlaygroundSessionsMutationsModule.register({
+            isGlobal: true,
+        }),
+        StreakMutationsModule.register({
             isGlobal: true,
         }),
     ],

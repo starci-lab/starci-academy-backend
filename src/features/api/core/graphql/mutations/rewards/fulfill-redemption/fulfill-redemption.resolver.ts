@@ -1,0 +1,68 @@
+import {
+    Args,
+    Mutation,
+    Resolver,
+} from "@nestjs/graphql"
+import {
+    UseGuards,
+    UseInterceptors,
+} from "@nestjs/common"
+import {
+    GraphQLSuccessMessage,
+    GraphQLTransformInterceptor,
+} from "@modules/api"
+import {
+    GraphQLAdminAccessGuard,
+    RewardsService,
+} from "@modules/bussiness"
+import {
+    UseThrottler,
+    ThrottlerConfig,
+} from "@modules/throttler"
+import {
+    Locale,
+} from "@modules/databases"
+import {
+    FulfillRedemptionData,
+    FulfillRedemptionRequest,
+    FulfillRedemptionResponse,
+} from "./graphql-types"
+
+/**
+ * Ops mutation: mark a `pending` physical reward redemption `fulfilled` once
+ * it has shipped. Admin-only — gated behind the `x-admin-api-key` header
+ * (same {@link GraphQLAdminAccessGuard} as the other operator-only surfaces),
+ * NOT the learner auth guard, since this mutates another user's redemption.
+ * Delegates the status transition + guard to {@link RewardsService.fulfillRedemption}.
+ */
+@Resolver()
+export class FulfillRedemptionResolver {
+    constructor(
+        private readonly rewardsService: RewardsService,
+    ) {}
+
+    @UseThrottler(ThrottlerConfig.Soft)
+    @UseGuards(GraphQLAdminAccessGuard)
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Redemption fulfilled successfully",
+        [Locale.Vi]: "Đã xác nhận giao quà",
+    })
+    @UseInterceptors(GraphQLTransformInterceptor)
+    @Mutation(
+        () => FulfillRedemptionResponse,
+        {
+            name: "fulfillRedemption",
+            description: "Ops: mark a pending physical reward redemption as fulfilled (shipped).",
+        },
+    )
+    async execute(
+        @Args("request")
+            request: FulfillRedemptionRequest,
+    ): Promise<FulfillRedemptionData> {
+        const redemption = await this.rewardsService.fulfillRedemption(request.redemptionId)
+        return {
+            redemptionId: redemption.id,
+            status: redemption.status,
+        }
+    }
+}

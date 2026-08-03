@@ -29,6 +29,7 @@ import {
 } from "../projections/user-stats/user-stats-projection.service"
 import {
     computeKpiCoinReward,
+    KPI_TARGET_MAX,
 } from "./kpi-reward.catalog"
 import type {
     ClaimKpiRewardParams,
@@ -36,6 +37,7 @@ import type {
     GetKpiRewardFloorStatesParams,
     KpiRewardFloorState,
     KpiWeekStartRow,
+    SetKpiTargetParams,
 } from "./types"
 
 /**
@@ -89,6 +91,55 @@ export class KpiRewardService {
                 newTarget,
             ],
         )
+    }
+
+    /**
+     * Set one of a user's weekly KPI targets. Clamps the requested value into
+     * `[0, KPI_TARGET_MAX[key]]` (0 clears that KPI's goal), then merges it
+     * into the user's `weekly_kpi_targets` jsonb map via an atomic
+     * `jsonb_set` so concurrent writes to different keys don't clobber each
+     * other. Also lowers this week's anti-gaming floor to match the new
+     * target — skipped for a clear (target 0), which isn't a real commitment
+     * to track.
+     *
+     * @param params - {@link SetKpiTargetParams}
+     * @returns the post-clamp target that was actually persisted.
+     */
+    async setTarget(
+        {
+            userId,
+            key,
+            target,
+        }: SetKpiTargetParams,
+    ): Promise<number> {
+        const clampedTarget = Math.min(
+            Math.max(Math.trunc(target),
+                0),
+            KPI_TARGET_MAX[key],
+        )
+        await this.entityManager.query(
+            `
+            UPDATE users
+            SET weekly_kpi_targets = jsonb_set(
+                COALESCE(weekly_kpi_targets, '{}'::jsonb),
+                $2,
+                to_jsonb($3::int),
+                true
+            )
+            WHERE id = $1
+            `,
+            [
+                userId,
+                `{${key}}`,
+                clampedTarget,
+            ],
+        )
+        if (clampedTarget > 0) {
+            await this.lowerFloor(userId,
+                key,
+                clampedTarget)
+        }
+        return clampedTarget
     }
 
     /**

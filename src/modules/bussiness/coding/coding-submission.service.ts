@@ -19,9 +19,6 @@ import {
     EnqueueJudgeCodingSubmissionJobService,
 } from "../jobs"
 import {
-    AntiCheatService,
-} from "../anti-cheat"
-import {
     DeviceService,
 } from "../device"
 import type {
@@ -52,7 +49,6 @@ export class CodingSubmissionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly enqueueJudgeCodingSubmissionJobService: EnqueueJudgeCodingSubmissionJobService,
-        private readonly antiCheatService: AntiCheatService,
         private readonly deviceService: DeviceService,
     ) {}
 
@@ -87,11 +83,6 @@ export class CodingSubmissionService {
                 identifier: slug,
             })
         }
-        // score the attempt for AI/paste-cheat likelihood (never blocks submit)
-        const evaluation = this.antiCheatService.evaluate({
-            telemetry,
-            codeLength: sourceCode.length,
-        })
         // persist a fresh submission in the pending state (verdict set later by the worker)
         const submission = await this.entityManager.save(CodingSubmissionEntity,
             {
@@ -104,19 +95,10 @@ export class CodingSubmissionService {
                 language,
                 sourceCode,
                 verdict: CodingVerdict.Pending,
-                // anti-cheat capture: request metadata + telemetry + verdict
+                // request metadata captured for device tracking below
                 ipAddress,
                 userAgent,
                 deviceFingerprint: fingerprint,
-                // store raw telemetry + computed reasons for later review
-                clientTelemetry: telemetry
-                    ? JSON.stringify({
-                        ...telemetry,
-                        reasons: evaluation.reasons,
-                    })
-                    : null,
-                suspicionScore: evaluation.suspicionScore,
-                flaggedForReview: evaluation.flagged,
             })
         // best-effort: remember the device this submission came from. The
         // submission row already exists at this point, so a failure here

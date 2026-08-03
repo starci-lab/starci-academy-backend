@@ -7,9 +7,24 @@ import type {
     CodingVerdict,
     Locale,
 } from "@modules/databases"
-import type {
-    CodingClientTelemetry,
-} from "../../anti-cheat"
+
+/**
+ * Client-measured behavioural telemetry sent alongside a coding submission.
+ * All fields are optional (older clients omit them). Currently captured for
+ * transport only — no server-side consumer reads it back.
+ */
+export interface CodingClientTelemetry {
+    /** Number of paste events into the editor during the attempt. */
+    pasteCount?: number
+    /** Largest single paste size in characters. */
+    pasteSizeMax?: number
+    /** Total keystrokes recorded in the editor. */
+    keystrokeCount?: number
+    /** Number of times the editor tab lost focus. */
+    tabBlurCount?: number
+    /** Elapsed time from opening the problem to submitting, in milliseconds. */
+    timeOpenToSubmitMs?: number
+}
 
 /** Params for listing coding problems with optional filters + pagination. */
 export interface ListCodingProblemsParams {

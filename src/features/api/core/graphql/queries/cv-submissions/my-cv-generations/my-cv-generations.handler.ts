@@ -16,14 +16,14 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    clampPagination,
+} from "@modules/common"
+import {
     MyCvGenerationsQuery,
 } from "./my-cv-generations.query"
 import {
     CvGenerationListItem,
 } from "./graphql-types"
-
-const DEFAULT_LIMIT = 20
-const MAX_LIMIT = 100
 
 @QueryHandler(MyCvGenerationsQuery)
 @Injectable()
@@ -53,13 +53,11 @@ export class MyCvGenerationsHandler
         }
 
         // clamp pagination server-side.
-        const take = Math.min(
-            Math.max(1,
-                limit ?? DEFAULT_LIMIT),
-            MAX_LIMIT,
-        )
-        const skip = Math.max(0,
-            offset ?? 0)
+        const {
+            limit: take,
+            offset: skip,
+        } = clampPagination(limit,
+            offset)
 
         // fetched rows are mapped below into the lightweight `CvGenerationListItem`
         // shape — `structuredData`/`latexCdnKey`/`uploadedCdnKey`/`feedback` are

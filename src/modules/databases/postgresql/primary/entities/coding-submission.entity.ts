@@ -248,25 +248,4 @@ export class CodingSubmissionEntity extends UuidAbstractEntity {
         nullable: true,
     })
         deviceFingerprint: string | null
-
-    @Column({
-        name: "client_telemetry",
-        type: "text",
-        nullable: true,
-    })
-        clientTelemetry: string | null
-
-    @Column({
-        name: "suspicion_score",
-        type: "int",
-        default: 0,
-    })
-        suspicionScore: number
-
-    @Column({
-        name: "flagged_for_review",
-        type: "boolean",
-        default: false,
-    })
-        flaggedForReview: boolean
 }

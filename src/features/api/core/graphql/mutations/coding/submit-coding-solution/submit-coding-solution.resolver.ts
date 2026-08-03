@@ -76,7 +76,7 @@ export class SubmitCodingSolutionResolver {
             client: ClientContext,
     ): Promise<SubmitCodingSolutionResponseData> {
         // create the pending submission + enqueue judging, scoped to the user.
-        // request metadata + telemetry feed anti-cheat scoring + device tracking
+        // request metadata feeds device tracking; telemetry is captured for transport only
         return this.codingSubmissionService.submit({
             userId: user.id,
             slug: request.slug,

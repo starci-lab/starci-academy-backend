@@ -28,12 +28,12 @@ import {
     LearningFeedbacksCmsService,
 } from "@modules/bussiness"
 import {
+    clampPagination,
+} from "@modules/common"
+import {
     MyLearningFeedbacksData,
     MyLearningFeedbacksResponse,
 } from "./graphql-types"
-
-/** Hard ceiling on page size to keep the CMS list query cheap. */
-const MAX_LIMIT = 100
 
 /**
  * Learner-CMS query: the authenticated user's learning feedback, merged across
@@ -82,11 +82,11 @@ export class MyLearningFeedbacksResolver {
             offset: number,
     ): Promise<MyLearningFeedbacksData> {
         // clamp the page window so a hostile client can't request an unbounded scan
-        const safeLimit = Math.min(Math.max(limit ?? 20,
-            1),
-        MAX_LIMIT)
-        const safeOffset = Math.max(offset ?? 0,
-            0)
+        const {
+            limit: safeLimit,
+            offset: safeOffset,
+        } = clampPagination(limit,
+            offset)
         // read one merged page of the viewer's feedback across all three sources
         const page = await this.learningFeedbacksCmsService.list({
             userId: user.id,

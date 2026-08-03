@@ -29,15 +29,13 @@ import {
     FlashcardReviewService,
 } from "@modules/bussiness"
 import {
+    clampPagination,
+    DEFAULT_PAGINATION_LIMIT,
+} from "@modules/common"
+import {
     MyDueFlashcardsData,
     MyDueFlashcardsResponse,
 } from "./graphql-types"
-
-/** Default page size for the due-flashcard queue. */
-const DEFAULT_LIMIT = 20
-
-/** Hard cap on the page size to bound the query. */
-const MAX_LIMIT = 100
 
 /**
  * Spaced-repetition queue: the viewer's due flashcards (no review row yet OR past
@@ -79,7 +77,7 @@ export class MyDueFlashcardsResolver {
             {
                 type: () => Int,
                 nullable: true,
-                defaultValue: DEFAULT_LIMIT,
+                defaultValue: DEFAULT_PAGINATION_LIMIT,
                 description: "Max cards to return (the count is still the full total).",
             },
         )
@@ -90,9 +88,7 @@ export class MyDueFlashcardsResolver {
             locale: Locale,
     ): Promise<MyDueFlashcardsData> {
         // clamp the page size into a sane bound
-        const safeLimit = Math.min(Math.max(limit ?? DEFAULT_LIMIT,
-            1),
-        MAX_LIMIT)
+        const { limit: safeLimit } = clampPagination(limit)
         return this.flashcardReviewService.listDue({
             userId: user.id,
             courseId,

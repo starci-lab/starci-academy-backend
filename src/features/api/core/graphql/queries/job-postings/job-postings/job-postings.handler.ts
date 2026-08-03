@@ -17,14 +17,14 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
+    clampPagination,
+} from "@modules/common"
+import {
     JobPostingsQuery,
 } from "./job-postings.query"
 import type {
     JobPostingsData,
 } from "./graphql-types"
-
-/** Hard ceiling on page size to keep the query cheap. */
-const MAX_LIMIT = 100
 
 /**
  * Lists job postings from Postgres (newest first), with optional work-mode /
@@ -57,11 +57,11 @@ export class JobPostingsHandler
         } = query.params
 
         // clamp the page size so a caller can't force an unbounded scan
-        const take = Math.min(Math.max(limit ?? 20,
-            1),
-        MAX_LIMIT)
-        const skip = Math.max(offset ?? 0,
-            0)
+        const {
+            limit: take,
+            offset: skip,
+        } = clampPagination(limit,
+            offset)
 
         // optional case-insensitive title search
         const trimmedSearch = search?.trim()

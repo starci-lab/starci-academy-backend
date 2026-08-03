@@ -16,6 +16,9 @@ import type {
 } from "@modules/databases"
 import {
     InsufficientRewardPointsException,
+    RewardRedemptionAlreadyCancelledException,
+    RewardRedemptionNotFoundException,
+    RewardRedemptionNotFulfillableException,
     StreakFreezeLimitReachedException,
     UnknownRewardException,
 } from "@modules/exceptions"
@@ -263,6 +266,80 @@ export class RewardsService {
                 voucherCode,
                 aiCreditGranted,
             }
+        })
+    }
+
+    /**
+     * Ops-only: mark a `pending` physical redemption `fulfilled` (the gift has
+     * shipped). Rejects any redemption that isn't currently `pending` — a
+     * digital reward is already `granted` on redeem, and an already
+     * `fulfilled`/`cancelled` row has nothing left to transition.
+     *
+     * @param redemptionId - the redemption to fulfil.
+     * @returns the redemption row after the transition.
+     */
+    async fulfillRedemption(redemptionId: string): Promise<RewardRedemptionEntity> {
+        return this.entityManager.transaction(async (manager) => {
+            // lock the row so a concurrent fulfil/cancel can't race the same redemption
+            const redemption = await manager.findOne(RewardRedemptionEntity,
+                {
+                    where: {
+                        id: redemptionId,
+                    },
+                    lock: {
+                        mode: "pessimistic_write",
+                    },
+                })
+            if (!redemption) {
+                throw new RewardRedemptionNotFoundException({
+                    redemptionId,
+                })
+            }
+            if (redemption.status !== RewardRedemptionStatus.Pending) {
+                throw new RewardRedemptionNotFulfillableException({
+                    redemptionId,
+                    status: redemption.status,
+                })
+            }
+            redemption.status = RewardRedemptionStatus.Fulfilled
+            return manager.save(redemption)
+        })
+    }
+
+    /**
+     * Ops-only: void a redemption — sets it `cancelled`. `computeSpent` EXCLUDES
+     * `cancelled` rows from the spent sum, so flipping the status alone IS the
+     * refund; this never touches `user.coin_balance` (same never-debit invariant
+     * as {@link redeem}, so the double-refund a direct coin credit would cause
+     * cannot happen).
+     *
+     * @param redemptionId - the redemption to cancel/refund.
+     * @returns the redemption row after the transition.
+     */
+    async cancelRedemption(redemptionId: string): Promise<RewardRedemptionEntity> {
+        return this.entityManager.transaction(async (manager) => {
+            // lock the row so a concurrent fulfil/cancel can't race the same redemption
+            const redemption = await manager.findOne(RewardRedemptionEntity,
+                {
+                    where: {
+                        id: redemptionId,
+                    },
+                    lock: {
+                        mode: "pessimistic_write",
+                    },
+                })
+            if (!redemption) {
+                throw new RewardRedemptionNotFoundException({
+                    redemptionId,
+                })
+            }
+            if (redemption.status === RewardRedemptionStatus.Cancelled) {
+                throw new RewardRedemptionAlreadyCancelledException({
+                    redemptionId,
+                })
+            }
+            redemption.status = RewardRedemptionStatus.Cancelled
+            return manager.save(redemption)
         })
     }
 }

@@ -20,9 +20,6 @@ import {
     EnqueueJudgeCodingSubmissionJobService,
 } from "../jobs"
 import {
-    AntiCheatService,
-} from "../anti-cheat"
-import {
     DeviceService,
 } from "../device"
 import {
@@ -43,7 +40,6 @@ describe("CodingSubmissionService",
         let enqueueService: jest.Mocked<
             Pick<EnqueueJudgeCodingSubmissionJobService, "enqueue">
         >
-        let antiCheatService: jest.Mocked<Pick<AntiCheatService, "evaluate">>
         let deviceService: jest.Mocked<Pick<DeviceService, "recordDevice">>
 
         const userId = "user-1"
@@ -67,15 +63,6 @@ describe("CodingSubmissionService",
                 Pick<EnqueueJudgeCodingSubmissionJobService, "enqueue">
             >
 
-            // anti-cheat stub: a clean evaluation by default
-            antiCheatService = {
-                evaluate: jest.fn(() => ({
-                    suspicionScore: 0,
-                    flagged: false,
-                    reasons: [],
-                })),
-            } as unknown as jest.Mocked<Pick<AntiCheatService, "evaluate">>
-
             // device recording is best-effort and returns void
             deviceService = {
                 recordDevice: jest.fn().mockResolvedValue(undefined),
@@ -91,10 +78,6 @@ describe("CodingSubmissionService",
                     {
                         provide: EnqueueJudgeCodingSubmissionJobService,
                         useValue: enqueueService,
-                    },
-                    {
-                        provide: AntiCheatService,
-                        useValue: antiCheatService,
                     },
                     {
                         provide: DeviceService,
@@ -171,7 +154,7 @@ describe("CodingSubmissionService",
                         })
                     })
 
-                it("stamps the anti-cheat verdict + telemetry onto the submission",
+                it("captures request metadata (ip/user-agent) on the submission",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "problem-1",
@@ -179,74 +162,25 @@ describe("CodingSubmissionService",
                         entityManager.save.mockResolvedValueOnce({
                             id: "submission-1",
                         })
-                        // a flagged evaluation should be written through to the row
-                        antiCheatService.evaluate.mockReturnValueOnce({
-                            suspicionScore: 80,
-                            flagged: true,
-                            reasons: [
-                                "pasted",
-                            ],
-                        })
 
                         await service.submit({
                             userId,
                             slug,
                             language: CodingLanguage.Python,
                             sourceCode: "print(1)",
-                            telemetry: {
-                                pasteCount: 9,
-                            },
                             ipAddress: "1.2.3.4",
                             userAgent: "ua",
                             fingerprint: "fp-1",
                         })
 
-                        // anti-cheat scored the attempt using the final code length
-                        expect(antiCheatService.evaluate).toHaveBeenCalledWith({
-                            telemetry: {
-                                pasteCount: 9,
-                            },
-                            codeLength: "print(1)".length,
-                        })
                         const saved = entityManager.save.mock.calls[0][1] as {
-                            suspicionScore: number
-                            flaggedForReview: boolean
-                            clientTelemetry: string | null
                             ipAddress: string | null
+                            userAgent: string | null
+                            deviceFingerprint: string | null
                         }
-                        expect(saved.suspicionScore).toBe(80)
-                        expect(saved.flaggedForReview).toBe(true)
                         expect(saved.ipAddress).toBe("1.2.3.4")
-                        // telemetry is serialized together with the computed reasons
-                        expect(JSON.parse(saved.clientTelemetry as string)).toEqual({
-                            pasteCount: 9,
-                            reasons: [
-                                "pasted",
-                            ],
-                        })
-                    })
-
-                it("stores null telemetry when the client supplied none",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce({
-                            id: "problem-1",
-                        })
-                        entityManager.save.mockResolvedValueOnce({
-                            id: "submission-1",
-                        })
-
-                        await service.submit({
-                            userId,
-                            slug,
-                            language: CodingLanguage.Python,
-                            sourceCode: "print(1)",
-                        })
-
-                        const saved = entityManager.save.mock.calls[0][1] as {
-                            clientTelemetry: string | null
-                        }
-                        // no telemetry object → nothing to serialize
-                        expect(saved.clientTelemetry).toBeNull()
+                        expect(saved.userAgent).toBe("ua")
+                        expect(saved.deviceFingerprint).toBe("fp-1")
                     })
 
                 it("records the originating device (best-effort)",

@@ -7,9 +7,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -19,8 +16,6 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    KpiKey,
     Locale,
     UserEntity,
 } from "@modules/databases"
@@ -36,28 +31,15 @@ import {
     SetKpiTargetResponse,
 } from "./graphql-types"
 
-/** Per-KPI upper bound for a sane target (so a progress ring never goes absurd). */
-const MAX_TARGET: Record<KpiKey, number> = {
-    [KpiKey.Lessons]: 100,
-    [KpiKey.StudyDays]: 7,
-    [KpiKey.Challenges]: 100,
-    [KpiKey.Coding]: 100,
-    [KpiKey.Flashcards]: 1000,
-    [KpiKey.Milestones]: 20,
-}
-
 /**
  * Set one of the authenticated user's weekly KPI targets.
  *
- * The value is clamped into `[0, MAX_TARGET[key]]` (0 clears that KPI's goal),
- * then merged into the user's `weekly_kpi_targets` jsonb map via an atomic
- * `jsonb_set` so concurrent writes to different keys don't clobber each other.
+ * Delegates the clamp + the atomic `jsonb_set` write (and the matching
+ * anti-gaming floor update) to {@link KpiRewardService.setTarget}.
  */
 @Resolver()
 export class SetKpiTargetResolver {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly kpiRewardService: KpiRewardService,
     ) {}
 
@@ -81,39 +63,11 @@ export class SetKpiTargetResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<SetKpiTargetResponse> {
-        // clamp into [0, per-KPI max] so the stored target is always sane
-        const target = Math.min(
-            Math.max(Math.trunc(request.target),
-                0),
-            MAX_TARGET[request.key],
-        )
-        // atomic merge of the single key into the jsonb map (other keys untouched)
-        await this.entityManager.query(
-            `
-            UPDATE users
-            SET weekly_kpi_targets = jsonb_set(
-                COALESCE(weekly_kpi_targets, '{}'::jsonb),
-                $2,
-                to_jsonb($3::int),
-                true
-            )
-            WHERE id = $1
-            `,
-            [
-                user.id,
-                `{${request.key}}`,
-                target,
-            ],
-        )
-        // lower this week's anti-gaming floor (never raises it) — skip for a
-        // clear (target 0), which isn't a real commitment to track
-        if (target > 0) {
-            await this.kpiRewardService.lowerFloor(
-                user.id,
-                request.key,
-                target,
-            )
-        }
+        await this.kpiRewardService.setTarget({
+            userId: user.id,
+            key: request.key,
+            target: request.target,
+        })
         // no payload — the client already knows the value it sent (post-clamp it can
         // re-fetch via myKpis if it needs the canonical number)
         return {

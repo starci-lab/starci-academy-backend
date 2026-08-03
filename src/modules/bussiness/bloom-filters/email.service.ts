@@ -114,29 +114,4 @@ export class EmailBloomFilterService {
             }
         )
     }
-
-    /**
-     * Check if an email is in the bloom filter.
-     *
-     * Read-only: when the filter is absent (never seeded / evicted) this returns
-     * `false` rather than throwing — "not seen" is the safe answer for a
-     * best-effort dedup pre-check, and callers fall back to the database.
-     *
-     * @param email - The email to check.
-     * @returns True if the email is in the bloom filter, false otherwise.
-     */
-    async has(
-        email: string
-    ) {
-        const bloomFilter = await this.cacheService.get(
-            {
-                key: CacheKey.BloomFilter,
-                args: [BloomFilterType.Email],
-            }
-        )
-        if (!bloomFilter?.scalableBloomFilter) {
-            return false
-        }
-        return bloomFilter.scalableBloomFilter.has(email)
-    }
 }

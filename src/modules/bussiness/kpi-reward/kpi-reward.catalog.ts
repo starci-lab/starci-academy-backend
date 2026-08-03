@@ -36,3 +36,17 @@ export const KPI_REWARD_PER_UNIT_TARGET: Record<KpiKey, number> = {
  */
 export const computeKpiCoinReward = (key: KpiKey, floorTarget: number): number =>
     Math.round(floorTarget * KPI_REWARD_PER_UNIT_TARGET[key])
+
+/**
+ * Per-KPI upper bound for a sane target (so a progress ring never goes
+ * absurd). Enforced by {@link KpiRewardService.setTarget} when a user sets
+ * their own weekly target.
+ */
+export const KPI_TARGET_MAX: Record<KpiKey, number> = {
+    [KpiKey.Lessons]: 100,
+    [KpiKey.StudyDays]: 7,
+    [KpiKey.Challenges]: 100,
+    [KpiKey.Coding]: 100,
+    [KpiKey.Flashcards]: 1000,
+    [KpiKey.Milestones]: 20,
+}

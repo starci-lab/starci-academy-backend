@@ -32,12 +32,12 @@ import {
     toGlobalId,
 } from "@modules/routing"
 import {
+    clampPagination,
+} from "@modules/common"
+import {
     MyMilestoneTaskAttemptsData,
     MyMilestoneTaskAttemptsResponse,
 } from "./graphql-types"
-
-/** Hard ceiling on page size to keep the CMS list query cheap. */
-const MAX_LIMIT = 100
 
 /**
  * Learner-CMS query: the authenticated user's milestone-task review attempts
@@ -87,11 +87,8 @@ export class MyMilestoneTaskAttemptsResolver {
         // client can't request an unbounded scan
         const page = await this.milestoneTaskAttemptsCmsService.list({
             userId: user.id,
-            limit: Math.min(Math.max(limit ?? 20,
-                1),
-            MAX_LIMIT),
-            offset: Math.max(offset ?? 0,
-                0),
+            ...clampPagination(limit,
+                offset),
         })
         return {
             // map each attempt to its GraphQL shape; the course UUID becomes an

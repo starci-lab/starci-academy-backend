@@ -30,12 +30,12 @@ import {
     NotificationService,
 } from "@modules/bussiness"
 import {
+    clampPagination,
+} from "@modules/common"
+import {
     MyNotificationsResponse,
     MyNotificationsResponseData,
 } from "./graphql-types"
-
-/** Hard ceiling on page size to keep the bell query cheap. */
-const MAX_LIMIT = 100
 
 /**
  * Per-user notification bell list (newest first), paginated, with the unread
@@ -102,13 +102,10 @@ export class MyNotificationsResolver {
         ] = await Promise.all([
             this.notificationService.listNotifications({
                 userId: user.id,
-                // clamp the page size into [1, MAX_LIMIT] so a hostile client can't
-                // ask for an unbounded scan
-                limit: Math.min(Math.max(limit ?? 20,
-                    1),
-                MAX_LIMIT),
-                offset: Math.max(offset ?? 0,
-                    0),
+                // clamp the page size so a hostile client can't ask for an
+                // unbounded scan
+                ...clampPagination(limit,
+                    offset),
                 unreadOnly: unreadOnly ?? false,
                 ...(type
                     ? {
