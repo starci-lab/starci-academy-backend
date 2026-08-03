@@ -47,7 +47,10 @@ jest.mock("@modules/env",
         const actual = jest.requireActual<typeof import("@modules/env")>("@modules/env")
         return {
             ...actual,
-            envConfig: jest.fn(),
+            // default to the real envConfig so a module-load-time call (e.g. the
+            // cache config's top-level `envConfig().cache…`) doesn't hit an
+            // undefined return; individual tests still override via mockReturnValue
+            envConfig: jest.fn(actual.envConfig),
         }
     })
 
