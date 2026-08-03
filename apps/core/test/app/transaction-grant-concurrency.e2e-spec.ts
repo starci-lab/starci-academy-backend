@@ -354,10 +354,13 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                 expect(webhookOutcome.status).toBe("fulfilled")
                 expect(reconcileOutcome.status).toBe("fulfilled")
 
-                // the atomic claim was attempted by BOTH racers ...
-                expect(grantTierSpy).toHaveBeenCalledTimes(2)
-                // ... but exactly ONE of the two calls actually won it (returned
-                // true); the loser's `claim.affected` was 0 and it no-opped
+                // the grant path ran at least once. It may run once or twice
+                // depending on race timing: the webhook's own `WHERE status =
+                // 'pending'` findOne can short-circuit it BEFORE grantTier when
+                // the reconcile poll wins the race and commits first. Whichever
+                // grantTier calls happen, exactly ONE wins the atomic claim
+                // (returns true); every loser's `claim.affected` was 0 and no-opped
+                expect(grantTierSpy).toHaveBeenCalled()
                 const grantResults = await Promise.all(
                     grantTierSpy.mock.results.map((result) => result.value),
                 )
