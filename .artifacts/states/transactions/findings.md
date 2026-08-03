@@ -13,10 +13,23 @@ Every terminal-grant path: read tx by id, compare `status === Succeeded` in app 
 `PayNextInstallmentRequest` declares planId/paymentType/amountVnd with only `@Field` — no `@IsUUID`, no `@IsEnum(PaymentType)`, no `@IsInt`/`@Min(0)` on amountVnd (buyer-chosen top-up). Malformed/NaN amountVnd reaches the gateway with no declared contract. Same gap on RedeemRewardRequest.
 - src/features/api/core/graphql/mutations/installment-plans/pay-next-installment/graphql-types/request.ts:21-74
 
-## 3. [business-logic] Voucher-code support silently inconsistent across the 5 gateways
-`voucherCode` accepted on every course-enroll-* variant, but only sepay + payos call VoucherService. Stripe/paypal/crypto never reference voucherCode → buyer types a voucher, pays with Stripe, gets no error and no discount. Contrast installmentMonths on the SAME request which throws for unsupported gateways. Cart checkout has no voucherCode field at all. sepay doc "ONLY gateway wired" vs payos doc "Second gateway wired" — stale/contradictory.
-- course-enroll-stripe.service.ts / course-enroll-paypal.service.ts / course-enroll-crypto.service.ts (no reference)
-- course-enroll-sepay.service.ts:57-60 (stale claim) · courses-checkout.handler.ts (no field)
+## 3. [business-logic] Two VND-only checkout modifiers, OPPOSITE failure modes — voucher drops silently, installment throws
+`voucherCode` and `installmentMonths` are both optional modifiers on the SAME course-enroll request, and both only actually work on the domestic VND gateways. But when the buyer picks an unsupported gateway they fail in opposite ways:
+- `installmentMonths` → the dispatcher throws `InstallmentCurrencyNotSupportedException` before creating anything (course-enroll.handler.ts:86). **Loud, correct.**
+- `voucherCode` → no guard anywhere; stripe/paypal/crypto services simply never read the field → buyer types a voucher, pays with Stripe, gets **no discount and no error**. **Silent drop — the buyer overpays.**
+
+The fix is NOT "make voucher throw like installment everywhere" — voucher portability is `discountType`-dependent (voucher.service.ts:346 `applyToAmount`):
+- **Percent** (`amount × (1 − value/100)`) is currency-agnostic → CAN and should apply to the USD gateways' `priceUsd`. This is the industry norm (Stripe/Shopify recommend percent for cross-currency promos).
+- **Flat** (`amount − value`, value denominated in VND) is currency-bound → must reject loud on USD gateways, never FX-convert (Stripe script-coupons: "currency check … if currencies don't match, return a zero discount"; codebase's own "no runtime FX" rule).
+
+Secondary drift on the same surface:
+- **Cart checkout has NO `voucherCode` field at all** (courses-checkout/graphql-types/request.ts) yet DOES carry `installmentMonths` — single-enroll vs cart inconsistent.
+- **Stale JSDoc**: request DTO says voucher "honoured by the Sepay gateway only" and CourseEnrollSepayService class-doc says "the ONLY gateway wired" — but PayOS honours it too now (course-enroll-payos.service.ts:176). Docs contradict code.
+
+**Target (design decision 2026-08-04, see business.md "Payment-modifier capability model")**: one capability matrix per `PaymentType` as SSOT + one failure mode (reject loud before any row/checkout) — Percent voucher portable to all gateways, Flat voucher VND-scoped (reject on USD), installment capability-gated like BNPL.
+- course-enroll-stripe.service.ts / course-enroll-paypal.service.ts / course-enroll-crypto.service.ts (never read voucherCode)
+- course-enroll.handler.ts:86 (installment loud-reject — the pattern voucher should mirror) · voucher.service.ts:339-355 (percent vs flat math)
+- course-enroll-sepay.service.ts:57-60 · graphql-types/request.ts:55 (stale claims) · courses-checkout/graphql-types/request.ts (no voucherCode field)
 
 ## 4. [jsdoc] TransactionStatus enum — no per-member JSDoc, 2 members dead
 transaction-status.ts:11-17 declares Pending/Succeeded/Cancelled/Failed/Unpaid with zero inline JSDoc (canon comments §3 requires it; sibling enums comply). Cancelled/Failed never assigned by production code — every real failure uses Unpaid. FE would build UI for states that never occur.

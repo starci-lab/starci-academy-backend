@@ -110,9 +110,36 @@ Cancelled, Failed                                 [declared in the enum, never
    `installmentMonths`/`installmentMarkupPercent`/`installmentTotalVnd` are
    read back by the grant path (voucher settle, or the enroll worker creating
    the `Fixed` installment plan) exactly as priced at checkout.
-6. **Voucher support is inconsistent across the five gateways** — see
-   `findings.md` #3. A FE offering a voucher-code field on checkout must know
-   which `paymentType` it is wiring before assuming the code will be honoured.
+6. **Checkout modifiers are gateway-capability-gated** — see the capability
+   model below and `findings.md` #3. As-built this is only half-true (installment
+   rejects loudly, voucher drops silently); the model is the agreed target.
+
+## Payment-modifier capability model (design decision 2026-08-04)
+
+The two optional checkout modifiers (`voucherCode`, `installmentMonths`) are not
+uniformly supportable across the five gateways, because the gateways split on a
+**currency axis**: PayOS/Sepay charge **VND** (`amount`), Stripe/PayPal/Crypto
+charge an explicit **USD** price (`priceUsd`, no runtime FX). The agreed model —
+grounded in how Stripe/Shopify/Udemy handle cross-currency promotions and how
+BNPL (Klarna/Affirm/Afterpay) gates installments by region — is:
+
+| Modifier | International (USD gateways) | Domestic (VND gateways) |
+| --- | --- | --- |
+| Voucher **Percent** | honoured — applies to `priceUsd` (currency-agnostic) | honoured — applies to VND |
+| Voucher **Flat** | **rejected** (a flat-VND value can't be charged in USD without FX; future: issue a separate flat-USD voucher, per-currency like Stripe coupons) | honoured — applies to VND |
+| **Installment** (trả góp) | **rejected** — later cycles need a domestic recurring collection (`pay-next-installment` is PayOS/Sepay only); FE should hide the option per selected gateway, exactly like BNPL eligibility | honoured — PayOS/Sepay |
+
+Two rules make this consistent:
+
+1. **One SSOT capability matrix per `PaymentType`** — `{ currency, supportsVoucherPercent, supportsVoucherFlat, supportsInstallment }` — instead of each service deciding ad hoc.
+2. **One failure mode: reject loud, before any row or checkout is created.** An unsupported modifier throws a typed exception — never the current silent drop (a Percent/Flat voucher ignored by Stripe/PayPal/Crypto) and never a runtime FX conversion.
+
+As-built gap (see `findings.md` #3): installment already rejects loudly
+(course-enroll.handler.ts:86); voucher is honoured only by PayOS+Sepay and is
+**silently ignored** by Stripe/PayPal/Crypto; cart checkout carries
+`installmentMonths` but has **no `voucherCode` field at all**. Bringing the code
+to this model means wiring Percent-voucher into the USD gateways, rejecting Flat
+vouchers there loudly, and reconciling the cart surface.
 
 ## Cross-domain notes
 

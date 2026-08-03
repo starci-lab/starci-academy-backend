@@ -100,3 +100,9 @@ claude-legacy/
 
 # bộ skill riêng, có repo GitHub của chính nó — 2026-07-31 đã dời thành .claude/ ở trên
 .claude-starci-ultimate/
+
+# cruft — audit/migration temp + leaked scratchpad temp files (2026-08-04 cleanup)
+.audits/
+.claude-vip/
+# scratchpad temp files that leaked into the repo root with mangled C: paths
+*AppDataLocalTemp*

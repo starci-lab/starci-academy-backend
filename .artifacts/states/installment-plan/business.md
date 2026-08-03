@@ -32,3 +32,4 @@ Active/Overdue --(schedule/balance finished)--> Completed  [terminal]
 ## Cross-domain
 - pay-next-installment.handler collapses "not found" and "not yours" to one InstallmentPlanNotFoundException — IDOR-safe.
 - Shares TransactionEntity ActionType.InstallmentPayment + installmentPlanId with transactions.
+- **VND-only is the correct half of the payment-modifier capability model** (transactions/business.md "Payment-modifier capability model"): installment is capability-gated like BNPL — later cycles need a domestic recurring collection, so USD gateways are rejected loudly (course-enroll.handler.ts:86, pay-next-installment.handler.ts:314). This is the pattern the voucher modifier should mirror; unlike voucher, installment already rejects rather than silently dropping.

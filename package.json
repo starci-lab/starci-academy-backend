@@ -31,7 +31,11 @@
     "test:e2e": "jest --config ./apps/core/test/jest-e2e.json --runInBand",
     "test:e2e:docker": "jest --config ./apps/core/test/e2e/jest-e2e-docker.json --runInBand",
     "harness": "jest --config ./apps/core/test/harness/jest-harness.json --runInBand",
-    "migrate:primary": "node -r ts-node/register -r tsconfig-paths/register scripts/run-primary-migrations.ts"
+    "migrate:primary": "node -r ts-node/register -r tsconfig-paths/register scripts/run-primary-migrations.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.ts": "eslint --fix"
   },
   "dependencies": {
     "@apollo/client": "^4.1.6",
@@ -177,7 +181,9 @@
     "eslint-plugin-prettier": "^5.2.2",
     "framer-motion": "^12.40.0",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "jest": "^30.0.0",
+    "lint-staged": "^17.3.0",
     "prettier": "^3.4.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
