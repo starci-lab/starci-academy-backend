@@ -28,7 +28,8 @@
       ],
       "@modules/*": [
         "./src/modules/*",
-        "./src/modules/lib/*"
+        "./src/modules/lib/*",
+        "./src/modules/platform/*"
       ]
     }
   }
