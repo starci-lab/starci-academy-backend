@@ -52,7 +52,7 @@ export class CourseEnrollRequest {
         () => String,
         {
             nullable: true,
-            description: "Optional Coin-shop voucher code to apply on top of the loyalty discount. Currently honoured by the Sepay gateway only.",
+            description: "Optional Coin-shop voucher code to apply on top of the loyalty discount. A Percent voucher is honoured by every gateway; a Flat (VND) voucher is honoured only by the domestic VND gateways (PayOS/Sepay) and rejected on the international gateways (Stripe/PayPal/Crypto).",
         },
     )
         voucherCode?: string

@@ -41,6 +41,7 @@ import type {
 import {
     EnqueueReconcileTransactionJobService,
     LoyaltyDiscountService,
+    VoucherService,
 } from "@modules/bussiness"
 
 /**
@@ -50,6 +51,12 @@ import {
  * International gateway → charges the explicit USD price (`pricing_phases.priceUsd`)
  * as the PayPal order value (dollars), not the VND amount. The VND price is still
  * stored on the transaction as a stable reference.
+ *
+ * Honours a **Percent** `request.voucherCode` (currency-agnostic — applies to
+ * `priceUsd`) per `PAYMENT_MODIFIER_CAPABILITY`; a Flat (VND) voucher is
+ * rejected before dispatch (see course-enroll.handler.ts), so this service
+ * only ever sees Percent here. Same preview → reserve pattern as
+ * {@link CourseEnrollSepayService}.
  */
 @Injectable()
 export class CourseEnrollPaypalService {
@@ -62,6 +69,7 @@ export class CourseEnrollPaypalService {
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
+        private readonly voucherService: VoucherService,
     ) {}
 
     /**
@@ -75,6 +83,7 @@ export class CourseEnrollPaypalService {
             courseId,
             payosReturnUrl,
             payosCancelUrl,
+            voucherCode,
         },
         user,
     }: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
@@ -124,6 +133,21 @@ export class CourseEnrollPaypalService {
             })
         }
 
+        // an invalid/unsupported code throws HERE (before any row or PayPal order
+        // is created) — a valid Percent voucher further discounts the USD price.
+        // A Flat voucher never reaches here (rejected before dispatch in
+        // course-enroll.handler.ts — Flat is VND-only per PAYMENT_MODIFIER_CAPABILITY).
+        const discountedPriceUsd = voucherCode
+            ? this.voucherService.applyToAmount(
+                priceUsd,
+                await this.voucherService.previewDiscount({
+                    userId: user.id,
+                    code: voucherCode,
+                    courseId: course.id,
+                }),
+            )
+            : priceUsd
+
         // reuse a still-fresh pending PayPal transaction instead of re-creating
         const existing = await this.entityManager.findOne(
             TransactionEntity,
@@ -163,33 +187,50 @@ export class CourseEnrollPaypalService {
         const order = await this.retryService.retry({
             action: async () => this.paypalClient.createOrder({
                 // PayPal charges USD dollars (client formats to a 2-decimal string)
-                amount: priceUsd,
+                amount: discountedPriceUsd,
                 referenceId: String(orderCode),
                 description: `Course enrollment ${orderCode}`,
                 returnUrl: payosReturnUrl,
                 cancelUrl: payosCancelUrl,
             }),
         })
-        // persist the pending transaction with the approval URL
-        const transaction = this.entityManager.create(
-            TransactionEntity,
-            {
-                user,
-                course,
-                referenceId: String(orderCode),
-                amount,
-                discountPercent,
-                pricingPhase: currentPhase,
-                paymentType: PaymentType.Paypal,
-                // approveUrl is the hosted page the browser redirects to
-                checkoutUrl: order.approveUrl,
-                // store the PayPal order id so reconciliation can poll by id
-                providerPaymentId: order.orderId,
-                status: TransactionStatus.Pending,
-                actionType: ActionType.Enroll,
-            },
-        )
-        await this.entityManager.save(transaction)
+        // persist the pending transaction + (if given) RESERVE the voucher in the
+        // SAME db transaction, so a concurrent second checkout can never also
+        // claim the same code
+        const transaction = await this.entityManager.transaction(async (manager) => {
+            const created = manager.create(
+                TransactionEntity,
+                {
+                    user,
+                    course,
+                    referenceId: String(orderCode),
+                    amount,
+                    discountPercent,
+                    voucherCode: voucherCode ?? null,
+                    pricingPhase: currentPhase,
+                    paymentType: PaymentType.Paypal,
+                    // approveUrl is the hosted page the browser redirects to
+                    checkoutUrl: order.approveUrl,
+                    // store the PayPal order id so reconciliation can poll by id
+                    providerPaymentId: order.orderId,
+                    status: TransactionStatus.Pending,
+                    actionType: ActionType.Enroll,
+                },
+            )
+            const saved = await manager.save(created)
+            if (voucherCode) {
+                // re-validate + reserve UNDER LOCK — the earlier previewDiscount() was
+                // advisory only (no lock held), so a race since then is still caught here
+                await this.voucherService.reserve({
+                    entityManager: manager,
+                    userId: user.id,
+                    code: voucherCode,
+                    courseId: course.id,
+                    transactionId: saved.id,
+                })
+            }
+            return saved
+        })
         // schedule the delayed reconcile poll (fires if no webhook arrives)
         await this.enqueueReconcileTransactionJobService.enqueue({
             transactionId: transaction.id,

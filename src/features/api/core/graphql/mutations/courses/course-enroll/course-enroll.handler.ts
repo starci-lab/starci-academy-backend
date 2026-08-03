@@ -5,13 +5,19 @@ import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     PaymentType,
+    VoucherDiscountType,
 } from "@modules/databases"
 import {
     CourseAlreadyEnrolledError,
     InstallmentCurrencyNotSupportedException,
     UnsupportedPaymentTypeException,
     UserNotFoundException,
+    VoucherNotSupportedForGatewayException,
 } from "@modules/exceptions"
+import {
+    PAYMENT_MODIFIER_CAPABILITY,
+    VoucherService,
+} from "@modules/bussiness"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -57,6 +63,7 @@ export class CourseEnrollHandler
         private readonly courseEnrollStripeService: CourseEnrollStripeService,
         private readonly courseEnrollPaypalService: CourseEnrollPaypalService,
         private readonly courseEnrollCryptoService: CourseEnrollCryptoService,
+        private readonly voucherService: VoucherService,
     ) {
         super()
     }
@@ -79,14 +86,46 @@ export class CourseEnrollHandler
             courseId,
             paymentType,
             installmentMonths,
+            voucherCode,
         } = request
 
-        // installments (trả góp) are VND-only per the design doc — the non-domestic
-        // gateways can't collect the later cycles, so refuse before creating anything
-        if (installmentMonths && paymentType !== PaymentType.PayOS && paymentType !== PaymentType.Sepay) {
+        // SSOT capability matrix — see PAYMENT_MODIFIER_CAPABILITY for the design
+        // decision (.artifacts/states/transactions/business.md § "Payment-modifier
+        // capability model"). Both checks below reject LOUD, before any row or
+        // checkout is created — never a silent drop, never a runtime FX conversion.
+        const capability = PAYMENT_MODIFIER_CAPABILITY[paymentType]
+
+        // installments (trả góp) are VND-only — the non-domestic gateways can't
+        // collect the later cycles, so refuse before creating anything
+        if (installmentMonths && !capability?.supportsInstallment) {
             throw new InstallmentCurrencyNotSupportedException({
                 paymentType: String(paymentType),
             })
+        }
+
+        // a voucher's DISCOUNT TYPE decides its portability: Percent is
+        // currency-agnostic and honoured everywhere; Flat is VND-denominated and
+        // must reject on a USD gateway rather than silently being dropped (the
+        // as-built gap this closes — see findings.md #3). The preview here is
+        // advisory only (no lock) — each provider service re-validates + reserves
+        // under lock right before it persists the pending transaction.
+        if (voucherCode) {
+            const {
+                discountType,
+            } = await this.voucherService.previewDiscount({
+                userId: user.id,
+                code: voucherCode,
+                courseId,
+            })
+            const supported = discountType === VoucherDiscountType.Percent
+                ? capability?.supportsVoucherPercent
+                : capability?.supportsVoucherFlat
+            if (!supported) {
+                throw new VoucherNotSupportedForGatewayException({
+                    paymentType: String(paymentType),
+                    discountType,
+                })
+            }
         }
 
         const alreadyEnrolled = await this.entityManager.exists(

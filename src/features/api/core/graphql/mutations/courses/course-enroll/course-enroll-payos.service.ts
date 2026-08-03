@@ -52,9 +52,10 @@ import {
 /**
  * PayOS-specific course enrollment: payment link + preflight row.
  *
- * Second gateway (of 5) wired to honour `request.voucherCode` — see
- * {@link CourseEnrollSepayService} for the pattern (preview → reserve inside
- * the same insert transaction → persist the code); PayPal/Stripe/Crypto still need it.
+ * A domestic VND gateway — honours BOTH `request.voucherCode` discount types
+ * (Percent and Flat) per `PAYMENT_MODIFIER_CAPABILITY`. See
+ * {@link CourseEnrollSepayService} for the shared pattern (preview → reserve
+ * inside the same insert transaction → persist the code).
  */
 @Injectable()
 export class CourseEnrollPayOsService {

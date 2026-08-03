@@ -42,6 +42,7 @@ import type {
 import {
     EnqueueReconcileTransactionJobService,
     LoyaltyDiscountService,
+    VoucherService,
 } from "@modules/bussiness"
 
 /**
@@ -52,6 +53,12 @@ import {
  * not the VND amount. Stripe `unit_amount` is the smallest currency unit (cents), so
  * the USD dollar price is multiplied by 100. The VND price is still stored on the
  * transaction as a stable reference.
+ *
+ * Honours a **Percent** `request.voucherCode` (currency-agnostic — applies to
+ * `priceUsd`) per `PAYMENT_MODIFIER_CAPABILITY`; a Flat (VND) voucher is
+ * rejected before dispatch (see course-enroll.handler.ts), so this service
+ * only ever sees Percent here. Same preview → reserve pattern as
+ * {@link CourseEnrollSepayService}.
  */
 @Injectable()
 export class CourseEnrollStripeService {
@@ -65,6 +72,7 @@ export class CourseEnrollStripeService {
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
+        private readonly voucherService: VoucherService,
     ) {}
 
     /**
@@ -78,6 +86,7 @@ export class CourseEnrollStripeService {
             courseId,
             payosReturnUrl,
             payosCancelUrl,
+            voucherCode,
         },
         user,
     }: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
@@ -126,6 +135,21 @@ export class CourseEnrollStripeService {
                 courseId: course.id,
             })
         }
+
+        // an invalid/unsupported code throws HERE (before any row or Stripe
+        // session is created) — a valid Percent voucher further discounts the
+        // USD price. A Flat voucher never reaches here (rejected before dispatch
+        // in course-enroll.handler.ts — Flat is VND-only per PAYMENT_MODIFIER_CAPABILITY).
+        const discountedPriceUsd = voucherCode
+            ? this.voucherService.applyToAmount(
+                priceUsd,
+                await this.voucherService.previewDiscount({
+                    userId: user.id,
+                    code: voucherCode,
+                    courseId: course.id,
+                }),
+            )
+            : priceUsd
 
         // reuse a still-fresh pending Stripe transaction instead of re-creating
         const existing = await this.entityManager.findOne(
@@ -179,7 +203,7 @@ export class CourseEnrollStripeService {
                         price_data: {
                             currency,
                             // Stripe expects cents → convert USD dollars to integer cents
-                            unit_amount: Math.round(priceUsd * 100),
+                            unit_amount: Math.round(discountedPriceUsd * 100),
                             product_data: {
                                 name: `Course enrollment ${orderCode}`,
                             },
@@ -188,26 +212,43 @@ export class CourseEnrollStripeService {
                 ],
             }),
         })
-        // persist the pending transaction with the hosted checkout URL
-        const transaction = this.entityManager.create(
-            TransactionEntity,
-            {
-                user,
-                course,
-                referenceId: String(orderCode),
-                amount,
-                discountPercent,
-                pricingPhase: currentPhase,
-                paymentType: PaymentType.Stripe,
-                // session.url is the hosted page the browser redirects to
-                checkoutUrl: session.url ?? "",
-                // store the session id so reconciliation can poll Stripe by id
-                providerPaymentId: session.id,
-                status: TransactionStatus.Pending,
-                actionType: ActionType.Enroll,
-            },
-        )
-        await this.entityManager.save(transaction)
+        // persist the pending transaction + (if given) RESERVE the voucher in the
+        // SAME db transaction, so a concurrent second checkout can never also
+        // claim the same code
+        const transaction = await this.entityManager.transaction(async (manager) => {
+            const created = manager.create(
+                TransactionEntity,
+                {
+                    user,
+                    course,
+                    referenceId: String(orderCode),
+                    amount,
+                    discountPercent,
+                    voucherCode: voucherCode ?? null,
+                    pricingPhase: currentPhase,
+                    paymentType: PaymentType.Stripe,
+                    // session.url is the hosted page the browser redirects to
+                    checkoutUrl: session.url ?? "",
+                    // store the session id so reconciliation can poll Stripe by id
+                    providerPaymentId: session.id,
+                    status: TransactionStatus.Pending,
+                    actionType: ActionType.Enroll,
+                },
+            )
+            const saved = await manager.save(created)
+            if (voucherCode) {
+                // re-validate + reserve UNDER LOCK — the earlier previewDiscount() was
+                // advisory only (no lock held), so a race since then is still caught here
+                await this.voucherService.reserve({
+                    entityManager: manager,
+                    userId: user.id,
+                    code: voucherCode,
+                    courseId: course.id,
+                    transactionId: saved.id,
+                })
+            }
+            return saved
+        })
         // schedule the delayed reconcile poll (fires if no webhook arrives)
         await this.enqueueReconcileTransactionJobService.enqueue({
             transactionId: transaction.id,

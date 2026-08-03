@@ -20,6 +20,7 @@ import {
 import {
     EnqueueReconcileTransactionJobService,
     InstallmentPlanService,
+    PAYMENT_MODIFIER_CAPABILITY,
 } from "@modules/bussiness"
 import {
     RetryService,
@@ -130,9 +131,11 @@ export class CoursesCheckoutHandler
             })
         }
 
-        // installments (trả góp) are VND-only per the design doc — the non-domestic
-        // gateways can't collect the later cycles, so refuse before creating anything
-        if (installmentMonths && paymentType !== PaymentType.PayOS && paymentType !== PaymentType.Sepay) {
+        // installments (trả góp) are VND-only — read from the SSOT capability
+        // matrix (see PAYMENT_MODIFIER_CAPABILITY) rather than hand-rolling the
+        // currency check; the non-domestic gateways can't collect the later
+        // cycles, so refuse before creating anything
+        if (installmentMonths && !PAYMENT_MODIFIER_CAPABILITY[paymentType]?.supportsInstallment) {
             throw new InstallmentCurrencyNotSupportedException({
                 paymentType: String(paymentType),
             })

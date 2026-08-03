@@ -329,15 +329,20 @@ export class VoucherService {
 
     /**
      * Apply a resolved voucher discount ON TOP OF an already-loyalty-discounted
-     * VND price: percent takes a further percent off the remaining price; flat
-     * subtracts a flat VND amount. Floored at 0 either way (never negative).
+     * price: percent takes a further percent off the remaining price (currency-
+     * agnostic — safe for a VND `amount` OR a USD `priceUsd`, per
+     * `PAYMENT_MODIFIER_CAPABILITY`); flat subtracts a flat VND amount, so it
+     * must only ever be called with a VND `amount` (the caller is expected to
+     * have already rejected a Flat voucher on a USD gateway — see
+     * `VoucherNotSupportedForGatewayException`). Floored at 0 either way
+     * (never negative).
      *
-     * @param amountVnd - the price to discount further (post-loyalty).
-     * @param discount - the voucher's `{ discountType, value }`.
-     * @returns the final VND amount, floored at 0.
+     * @param amount - the price to discount further (post-loyalty), in whatever
+     * currency the caller's gateway charges.
+     * @returns the final amount, floored at 0.
      */
     applyToAmount(
-        amountVnd: number,
+        amount: number,
         discount: {
             discountType: VoucherDiscountType
             value: number
@@ -346,12 +351,12 @@ export class VoucherService {
         if (discount.discountType === VoucherDiscountType.Percent) {
             return Math.max(
                 0,
-                Math.round(amountVnd * (1 - discount.value / 100)),
+                Math.round(amount * (1 - discount.value / 100)),
             )
         }
         return Math.max(
             0,
-            amountVnd - discount.value,
+            amount - discount.value,
         )
     }
 

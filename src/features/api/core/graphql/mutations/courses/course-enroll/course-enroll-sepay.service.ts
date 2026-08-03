@@ -54,10 +54,12 @@ import {
  * Sepay-specific course enrollment via the SePay Payment Gateway. Signs the
  * order fields (form-POST checkout) and persists a pending preflight row.
  *
- * The ONLY gateway (of the 5) currently wired to honour `request.voucherCode` —
- * the other 4 (PayOS/PayPal/Stripe/Crypto) need the same 3-step pattern
- * (preview → reserve inside the same insert transaction → persist the code)
- * added when their checkout is next touched.
+ * A domestic VND gateway — honours BOTH `request.voucherCode` discount types
+ * (Percent and Flat) per `PAYMENT_MODIFIER_CAPABILITY`, using the 3-step
+ * pattern (preview → reserve inside the same insert transaction → persist the
+ * code) every gateway now follows. PayOS mirrors this pattern; the USD
+ * gateways (Stripe/PayPal/Crypto) follow the same pattern but only for
+ * Percent (Flat is rejected before dispatch — see course-enroll.handler.ts).
  */
 @Injectable()
 export class CourseEnrollSepayService {

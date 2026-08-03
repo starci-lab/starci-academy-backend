@@ -27,6 +27,9 @@ import type {
     UserEntity,
 } from "@modules/databases"
 import {
+    VoucherService,
+} from "@modules/bussiness"
+import {
     CourseEnrollCommand,
 } from "./course-enroll.command"
 import {
@@ -79,6 +82,9 @@ describe("CourseEnrollHandler",
         let stripe: ProviderServiceMock
         let paypal: ProviderServiceMock
         let crypto: ProviderServiceMock
+        let voucherService: {
+            previewDiscount: jest.Mock
+        }
 
         beforeEach(async () => {
             // fresh jest-backed entity manager; `exists` is not on the shared mock
@@ -112,6 +118,10 @@ describe("CourseEnrollHandler",
                     checkoutUrl: "crypto-url",
                 }),
             }
+            // no test in this file exercises voucherCode — default resolves nothing
+            voucherService = {
+                previewDiscount: jest.fn(),
+            }
 
             module = await Test.createTestingModule({
                 providers: [
@@ -135,6 +145,10 @@ describe("CourseEnrollHandler",
                     {
                         provide: CourseEnrollCryptoService,
                         useValue: crypto,
+                    },
+                    {
+                        provide: VoucherService,
+                        useValue: voucherService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
