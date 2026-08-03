@@ -106,3 +106,7 @@ claude-legacy/
 .claude-vip/
 # scratchpad temp files that leaked into the repo root with mangled C: paths
 *AppDataLocalTemp*
+
+# untracked build/temp (2026-08-04)
+scratch/
+.exe/
