@@ -1,5 +1,3 @@
 export * from "./playground"
 export * from "./cache"
 export * from "./run"
-export * from "./metric"
-export * from "./eval"

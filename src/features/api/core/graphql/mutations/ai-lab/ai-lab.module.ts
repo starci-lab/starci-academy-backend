@@ -7,20 +7,13 @@ import {
 import {
     RunPlaygroundPromptSingleMutationModule,
 } from "./run-playground-prompt"
-import {
-    SubmitEvalChallengeSingleMutationModule,
-} from "./submit-eval-challenge"
 
 /**
- * AI Lab mutation group: run a playground prompt and submit a prompt template
- * for eval grading.
+ * AI Lab mutation group: run a playground prompt.
  */
 @Module({
     imports: [
         RunPlaygroundPromptSingleMutationModule.register({
-            isGlobal: true,
-        }),
-        SubmitEvalChallengeSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

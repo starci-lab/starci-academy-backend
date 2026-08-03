@@ -32,9 +32,6 @@ import {
     EnrollModule,
 } from "./enroll"
 import {
-    ReviewAiLabEvalModule,
-} from "./ai/review-ai-lab-eval"
-import {
     GenerateCvModule,
 } from "./ai/generate-cv"
 import {
@@ -71,9 +68,6 @@ import {
             isGlobal: true,
         }),
         EnrollModule.register({
-            isGlobal: true,
-        }),
-        ReviewAiLabEvalModule.register({
             isGlobal: true,
         }),
         GenerateCvModule.register({

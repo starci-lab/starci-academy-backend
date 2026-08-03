@@ -37,8 +37,6 @@ export enum BullQueueName {
     JudgeCodingSubmission = "judge-coding-submission",
     /** Queue for polling a pending payment transaction's gateway status (delayed, repeated). */
     ReconcileTransaction = "reconcile-transaction",
-    /** Queue for grading an AI Lab eval submission (prompt template) against an eval set. */
-    ReviewAiLabEval = "review-ai-lab-eval",
     /** Queue for AI-generating (or revising) a CV from user input / verified achievements. */
     GenerateCv = "generate-cv",
     /** Queue for scoring a user-UPLOADED CV row (`cv_generations.source = uploaded`) via the shared rubric. */

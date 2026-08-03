@@ -13,17 +13,10 @@ import {
 import {
     AiLabRunService,
 } from "./ai-lab-run.service"
-import {
-    AiLabEvalMetricService,
-} from "./ai-lab-eval-metric.service"
-import {
-    AiLabEvalService,
-} from "./ai-lab-eval.service"
 
 /**
- * AI Lab business logic: playground reads + history, run orchestration (cache
- * lookup → entitlement gate → lane resolution → streaming hand-off), and the
- * eval-set grader (metrics + LLM judge) reused by the eval-runner processor.
+ * AI Lab business logic: playground reads + history and run orchestration (cache
+ * lookup → entitlement gate → lane resolution → streaming hand-off).
  *
  * `AiInvokeService` / `AiEntitlementService` / `GradingLaneValidationService`
  * come from the globally-registered `AiModule`, `EmbeddingModelService` from
@@ -35,15 +28,11 @@ import {
         AiLabPlaygroundService,
         AiLabCacheService,
         AiLabRunService,
-        AiLabEvalMetricService,
-        AiLabEvalService,
     ],
     exports: [
         AiLabPlaygroundService,
         AiLabCacheService,
         AiLabRunService,
-        AiLabEvalMetricService,
-        AiLabEvalService,
     ],
 })
 export class AiLabModule extends ConfigurableModuleClass {

@@ -87,10 +87,6 @@ export enum ActionType {
      */
     ReconcileTransaction = "reconcileTransaction",
     /**
-     * Grade an AI Lab eval submission (prompt template) against an eval set's cases.
-     */
-    ReviewAiLabEval = "reviewAiLabEval",
-    /**
      * Purchase a community membership (grants/extends membership on payment success).
      */
     MembershipPurchase = "membershipPurchase",
@@ -161,9 +157,6 @@ registerEnumType(
             },
             [ActionType.ReconcileTransaction]: {
                 description: "Poll a pending transaction's gateway status; finalize on payment or mark unpaid when exhausted.",
-            },
-            [ActionType.ReviewAiLabEval]: {
-                description: "Grade an AI Lab eval submission (prompt template) against an eval set's cases.",
             },
             [ActionType.MembershipPurchase]: {
                 description: "Purchase a community membership (grants/extends membership on payment success).",

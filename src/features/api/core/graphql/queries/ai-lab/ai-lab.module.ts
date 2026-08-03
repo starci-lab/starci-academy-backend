@@ -8,22 +8,15 @@ import {
     AiLabPlaygroundSingleQueryModule,
 } from "./ai-lab-playground"
 import {
-    AiLabEvalResultSingleQueryModule,
-} from "./ai-lab-eval-result"
-import {
     MyAiLabRunsSingleQueryModule,
 } from "./my-ai-lab-runs"
 
 /**
- * AI Lab query group: lesson playground config, eval verdict, and the learner's
- * own run history.
+ * AI Lab query group: lesson playground config and the learner's own run history.
  */
 @Module({
     imports: [
         AiLabPlaygroundSingleQueryModule.register({
-            isGlobal: true,
-        }),
-        AiLabEvalResultSingleQueryModule.register({
             isGlobal: true,
         }),
         MyAiLabRunsSingleQueryModule.register({
