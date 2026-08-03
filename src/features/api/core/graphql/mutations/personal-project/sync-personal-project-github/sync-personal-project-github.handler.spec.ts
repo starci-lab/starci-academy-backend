@@ -17,7 +17,7 @@ import {
 } from "@modules/exceptions"
 import {
     UrlValidatorService,
-} from "@modules/vaildators"
+} from "@modules/validators"
 import {
     EncryptionService,
 } from "@modules/crypto"

@@ -9,7 +9,7 @@ import {
 } from "./bloom-filter.service"
 import {
     ConfigurableModuleClass,
-} from "./vaildators.module-definition"
+} from "./validators.module-definition"
 
 /**
  * Module for URL validation helpers.
@@ -24,4 +24,4 @@ import {
         BloomFilterService,
     ],
 })
-export class VaildatorsModule extends ConfigurableModuleClass {}
+export class ValidatorsModule extends ConfigurableModuleClass {}

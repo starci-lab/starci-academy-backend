@@ -17,7 +17,7 @@ import {
 } from "@modules/ai"
 import {
     UrlValidatorService,
-} from "@modules/vaildators"
+} from "@modules/validators"
 import {
     NoPersonalProjectTasksFoundException,
     PersonalProjectGithubUrlMissingException,

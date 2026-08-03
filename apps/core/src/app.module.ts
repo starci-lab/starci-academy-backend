@@ -130,8 +130,8 @@ import {
     StreamAsyncIteratorModule
 } from "@modules/stream-async-iterator"
 import {
-    VaildatorsModule
-} from "@modules/vaildators"
+    ValidatorsModule
+} from "@modules/validators"
 import {
     GoogleApisModule
 } from "@modules/googleapis"
@@ -455,7 +455,7 @@ import {
                 }
             ),
             /** Vaildators module. */
-            VaildatorsModule.register(
+            ValidatorsModule.register(
                 {
                     isGlobal: true,
                 }

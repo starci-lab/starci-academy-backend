@@ -19,7 +19,7 @@ export interface RecomputeProgressParams {
 }
 
 /** Raw row shape returned from the leaderboard read (extracted from jsonb `value`). */
-export interface LeaderboardRow {
+export interface ProgressLeaderboardRow {
     /** `enrollments.id` of the ranked enrollment. */
     enrollment_id: string
     /** `users.id` of the enrolled user. */

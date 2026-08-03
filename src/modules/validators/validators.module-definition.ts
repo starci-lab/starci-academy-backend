@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 
 /**
- * The configurable module class for the Vaildators module.
+ * The configurable module class for the Validators module.
  */
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
   new ConfigurableModuleBuilder().setExtras(

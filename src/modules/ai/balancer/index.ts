@@ -1,5 +1,4 @@
 export * from "./ai-balancer.module"
-export * from "./ai-balancer.module-definition"
 export * from "./ai-model-catalog.service"
 export * from "./key-store.service"
 export * from "./key-rotator.service"

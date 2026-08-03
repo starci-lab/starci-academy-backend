@@ -17,10 +17,10 @@ import {
 import type {
     CourseTotalsRow,
     GetMyRankResult,
-    LeaderboardRow,
     MyCourseProgressResult,
     MyCourseProgressRow,
     MyRankRow,
+    ProgressLeaderboardRow,
     RecomputeProgressParams,
 } from "./types"
 
@@ -196,7 +196,7 @@ export class ProgressProjectionService {
         // via enrollment_id (rows are backfilled), falling back to the (user_id, course_id)
         // pair only for any not-yet-backfilled row. Trials are EXCLUDED from the leaderboard
         // (AND e.is_enrolled = true) — only real/paid enrollments rank.
-        const rows = await this.entityManager.query<Array<LeaderboardRow>>(
+        const rows = await this.entityManager.query<Array<ProgressLeaderboardRow>>(
             `
             SELECT e.id         AS enrollment_id,
                    p.user_id    AS user_id,

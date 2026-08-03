@@ -22,7 +22,7 @@ import {
 } from "@modules/exceptions"
 import {
     UrlValidatorService,
-} from "@modules/vaildators"
+} from "@modules/validators"
 import {
     UserService,
 } from "@modules/bussiness"

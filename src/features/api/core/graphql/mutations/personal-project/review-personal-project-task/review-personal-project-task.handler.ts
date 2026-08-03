@@ -38,7 +38,7 @@ import type {
 } from "./graphql-types"
 import {
     UrlValidatorService,
-} from "@modules/vaildators"
+} from "@modules/validators"
 
 const BRANCH_PATTERN = /^[a-zA-Z0-9._/-]+$/
 const BRANCH_MAX = 255

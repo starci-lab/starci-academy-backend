@@ -30,7 +30,7 @@ import type {
 } from "./types"
 import {
     UrlValidatorService,
-} from "@modules/vaildators"
+} from "@modules/validators"
 import {
     GradingLaneValidationService,
 } from "@modules/ai"
