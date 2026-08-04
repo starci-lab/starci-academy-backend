@@ -30,12 +30,18 @@ export enum AiModelCategory {
     /** Strongest models; reached only by an explicit pin. */
     High = "high",
     /**
-     * Text-vectorizing models for RAG (indexing the source) — a separate axis,
-     * not a rung above the others. Never enters a grading chain or a chat pick;
-     * embedding models are selected by the `embedding` supportedTask, and within
-     * this tier the same cheapest-first weight rule applies.
+     * BULK embedding — vectorizing a large corpus (indexing the whole source).
+     * Runs on the self-hosted 8B model: cost 0, throughput over latency, so a big
+     * one-off index never spends cloud tokens. A separate axis, never on a
+     * grading/chat ladder.
      */
-    Embedding = "embedding",
+    EmbeddingBulk = "embedding_bulk",
+    /**
+     * DOCUMENT embedding — vectorizing a single document or a learner's code on
+     * demand (per-request, latency-sensitive). Runs on a cloud model. Also a
+     * separate axis, selected by the embedding task, cheapest-first within it.
+     */
+    EmbeddingDoc = "embedding_doc",
 }
 
 export const GraphQLTypeAiModelCategory = createEnumType(AiModelCategory)
@@ -55,8 +61,11 @@ registerEnumType(
             [AiModelCategory.High]: {
                 description: "Strongest models, reached only by an explicit pin.",
             },
-            [AiModelCategory.Embedding]: {
-                description: "Text-vectorizing models for RAG; selected by task, not a rung.",
+            [AiModelCategory.EmbeddingBulk]: {
+                description: "Bulk vectorizing of a large corpus; self-hosted, cost 0.",
+            },
+            [AiModelCategory.EmbeddingDoc]: {
+                description: "On-demand vectorizing of one document or learner code; cloud.",
             },
         },
     },

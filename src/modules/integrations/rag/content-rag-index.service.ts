@@ -25,6 +25,7 @@ import {
     ContentEntity,
     FlashcardDeckEntity,
     FoundationEntity,
+    AiModelCategory,
     InjectPrimaryPostgreSQLEntityManager,
     InjectQdrantClient,
     Locale,
@@ -151,9 +152,11 @@ export class ContentRagIndexService {
     async build(): Promise<BuildContentRagIndexResult> {
         const collectionName = envConfig().services.contentRag.collection
 
-        // local-first embedder: a healthy self-hosted GPU embeds for $0, climbing
-        // to a cloud embedding model only when the local host is down
-        const embeddingModel = await this.embeddingModelService.getViaBalancer()
+        // indexing a whole corpus is BULK work → the single self-hosted 8B model
+        // (cost 0, throughput over latency); no cloud fallback on this tier
+        const embeddingModel = await this.embeddingModelService.getViaBalancer(
+            AiModelCategory.EmbeddingBulk,
+        )
         const splitter = new RecursiveCharacterTextSplitter({
             chunkSize: envConfig().services.contentRag.chunkSize,
             chunkOverlap: envConfig().services.contentRag.chunkOverlap,

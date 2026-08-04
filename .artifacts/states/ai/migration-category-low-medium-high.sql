@@ -20,8 +20,11 @@
 
 BEGIN;
 
--- 1. the target type — three capability rungs plus the embedding axis
-CREATE TYPE ai_model_category_new AS ENUM ('low', 'medium', 'high', 'embedding');
+-- 1. the target type — three capability rungs plus two embedding axes
+--    (bulk = self-hosted corpus indexing, doc = cloud per-request)
+CREATE TYPE ai_model_category_new AS ENUM (
+    'low', 'medium', 'high', 'embedding_bulk', 'embedding_doc'
+);
 
 -- 2. re-type the column, mapping every old value to its tier in one pass;
 --    embedding models are re-homed in step 3
@@ -38,11 +41,14 @@ ALTER TABLE ai_models
         END::ai_model_category_new
     );
 
--- 3. embedding models get the embedding tier, identified by their task tag
---    rather than the old category (nomic sat in 'free', text-embedding in
---    'economy' — both would otherwise fold into 'low')
+-- 3. embedding models get an embedding axis, identified by their task tag
+--    rather than the old category. Self-hosted (provider 'local') is the bulk
+--    corpus-indexing model; any other embedding model is a cloud doc embedder.
 UPDATE ai_models
-    SET category = 'embedding'
+    SET category = CASE
+        WHEN provider = 'local' THEN 'embedding_bulk'::ai_model_category_new
+        ELSE 'embedding_doc'::ai_model_category_new
+    END
     WHERE 'embedding' = ANY (
         SELECT jsonb_array_elements_text(supported_tasks)
     );

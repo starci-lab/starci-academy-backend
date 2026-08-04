@@ -133,16 +133,19 @@ export class EmbeddingModelService {
      *
      * @returns A promise of the resolved {@link Embeddings} client (local-first).
      */
-    async getViaBalancer(): Promise<Embeddings> {
+    async getViaBalancer(
+        category: AiModelCategory.EmbeddingBulk | AiModelCategory.EmbeddingDoc
+        = AiModelCategory.EmbeddingDoc,
+    ): Promise<Embeddings> {
         const { result } = await this.useApiService.useApi<Embeddings>({
             lane: "chain",
             task: AiModelTask.Embedding,
-            // Embedding tier — within it the cheapest model (the $0 self-hosted
-            // one) is tried first, climbing to a cloud embedding model only when
-            // it is unavailable. Selection is further narrowed by the `embedding`
-            // supportedTask.
+            // Two embedding tiers on separate axes: `embedding_bulk` (self-hosted
+            // 8B, cost 0) for indexing a whole corpus, `embedding_doc` (cloud,
+            // low latency) for a single document / learner code on demand. The
+            // caller picks which; within the tier the cheapest model wins.
             categories: [
-                AiModelCategory.Embedding,
+                category,
             ],
             // build (not invoke): hand back the embeddings client the resolved
             // provider/key/model selects. Per-call key rotation is sacrificed for
