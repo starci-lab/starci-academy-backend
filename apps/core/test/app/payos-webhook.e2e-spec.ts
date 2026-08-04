@@ -172,16 +172,20 @@ describe("payOS webhook (e2e)",
                 expect(stillPending).toBe(1)
             })
 
-        it("rejects a verified webhook for an unknown order without granting anything",
+        it("acks a verified webhook for an unknown order (URL-probe shape) without granting anything",
             async () => {
-                // valid signature but no matching pending transaction exists
+                // valid signature but no matching pending transaction exists.
+                // Unlike SePay/Stripe, the PayOS handler treats an unmatched order
+                // as an unmatched probe/stray callback — it logs and ACKs (201)
+                // rather than throwing, so PayOS never marks the webhook URL
+                // "inactive" and retries a real callback into a black hole.
                 e2e.payosClient.webhooks.verify.mockResolvedValueOnce(undefined)
 
-                const response = await request(e2e.app.getHttpServer())
+                await request(e2e.app.getHttpServer())
                     .post(WEBHOOK_URL)
                     .send(payosBody("999999"))
+                    .expect(201)
 
-                expect(response.status).toBeGreaterThanOrEqual(400)
                 const count = await entityManager.count(AiSubscriptionEntity)
                 expect(count).toBe(0)
             })
@@ -198,11 +202,14 @@ describe("payOS webhook (e2e)",
                     .send(payosBody("700003"))
                     .expect(201)
 
-                // second delivery finds no pending transaction → rejected
-                const replay = await request(e2e.app.getHttpServer())
+                // second delivery finds no matching PENDING transaction (already
+                // settled) — same "unmatched order" path as the probe case above,
+                // so the handler ACKs (201) rather than throwing; the entitlement
+                // count staying at 1 is what actually proves no double grant
+                await request(e2e.app.getHttpServer())
                     .post(WEBHOOK_URL)
                     .send(payosBody("700003"))
-                expect(replay.status).toBeGreaterThanOrEqual(400)
+                    .expect(201)
 
                 // exactly one entitlement row exists (no double grant)
                 const count = await entityManager.count(AiSubscriptionEntity)

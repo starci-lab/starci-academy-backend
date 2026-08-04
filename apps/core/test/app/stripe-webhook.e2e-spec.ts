@@ -57,6 +57,12 @@ const completedEvent = (
             id: "cs_test",
             object: "checkout.session",
             client_reference_id: referenceId,
+            // the handler only grants when funds have actually cleared — a
+            // `checkout.session.completed` event can fire for an async payment
+            // method whose session is still `payment_status: "unpaid"`. Without
+            // this the handler silently no-ops (logs + returns) on every case
+            // below, so nothing ever gets granted.
+            payment_status: "paid",
         } as Stripe.Checkout.Session,
     },
 } as unknown as Stripe.Event)

@@ -309,23 +309,42 @@ export class FlashcardReviewSessionService {
             xpEarned,
         }: CompleteFlashcardReviewSessionParams,
     ): Promise<CompleteFlashcardReviewSessionResult> {
-        await this.entityManager.update(
+        // Ownership is a two-level nested relation (enrollment → user), which a
+        // bare `update()` cannot express: TypeORM compiles `update` to an
+        // UpdateQueryBuilder that has no JOINs, so a nested-relation WHERE throws
+        // "Cannot find alias for relation". Resolve ownership with a `findOne`
+        // (which CAN join) first, then update by the scalar `id` + the
+        // replay-safe `status` guard — mirroring `sync()` in this same service.
+        const owned = await this.entityManager.findOne(
             FlashcardReviewSessionEntity,
             {
-                id: sessionId,
-                enrollment: {
-                    user: {
-                        id: userId,
+                where: {
+                    id: sessionId,
+                    enrollment: {
+                        user: {
+                            id: userId,
+                        },
                     },
                 },
-                status: Not("completed"),
-            },
-            {
-                status: "completed",
-                reviewedCount,
-                xpEarned,
+                select: {
+                    id: true,
+                },
             },
         )
+        if (owned) {
+            await this.entityManager.update(
+                FlashcardReviewSessionEntity,
+                {
+                    id: sessionId,
+                    status: Not("completed"),
+                },
+                {
+                    status: "completed",
+                    reviewedCount,
+                    xpEarned,
+                },
+            )
+        }
 
         return {
             reviewedCount,

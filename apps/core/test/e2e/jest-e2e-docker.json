@@ -31,5 +31,5 @@
   "globalSetup": "<rootDir>/apps/core/test/e2e/setup.ts",
   "globalTeardown": "<rootDir>/apps/core/test/e2e/teardown.ts",
   "testTimeout": 120000,
-  "maxWorkers": 1
+  "maxWorkers": 2
 }
