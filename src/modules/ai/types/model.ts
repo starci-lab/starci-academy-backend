@@ -37,3 +37,16 @@ export enum AiTaskKind {
     /** CV submission review pipeline (extract → plan → analyze). */
     ReviewCvSubmission = "reviewCvSubmission",
 }
+
+/**
+ * Inputs to the catalog ranking score — the recorded metrics a model row
+ * carries. Extended by adding a field here and a factor in `computeModelWeight`.
+ */
+export interface ComputeModelWeightParams {
+    /** USD charged per million prompt tokens. */
+    priceInUsdPerMTok: number
+    /** USD charged per million completion tokens. */
+    priceOutUsdPerMTok: number
+    /** Total context window in tokens; absent when not yet recorded. */
+    contextWindowTokens?: number | null
+}

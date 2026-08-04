@@ -27,6 +27,8 @@ export type AiModelCatalogMd = {
     priceInUsdPerMTok?: string | number
     /** Real provider price (USD) per 1,000,000 output tokens; string or number from markdown. */
     priceOutUsdPerMTok?: string | number
+    /** Published context window in tokens; string or number from markdown. */
+    contextWindowTokens?: string | number
     /** Whether the model is enabled; string or boolean from markdown. */
     enabled?: string | boolean
     /** Whether the model is complimentary (free); string or boolean from markdown. */

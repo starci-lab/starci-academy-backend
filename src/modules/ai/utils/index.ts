@@ -1,3 +1,4 @@
+export * from "./compute-model-weight"
 export * from "./normalize-grading-score"
 export * from "./extract-json-block"
 export * from "./resolve-grading-chain"

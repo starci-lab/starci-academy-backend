@@ -69,6 +69,8 @@ export interface AppConfigAiModel {
     priceInUsdPerMTok: number
     /** Real provider price (USD) per 1,000,000 output tokens — cost source of truth. */
     priceOutUsdPerMTok: number
+    /** Published context window in tokens; null when not yet verified. */
+    contextWindowTokens?: number | null
     /** Credits per 1,000,000 input tokens — DERIVED from {@link priceInUsdPerMTok}. */
     creditPerMTokIn: number
     /** Credits per 1,000,000 output tokens — DERIVED from {@link priceOutUsdPerMTok}. */

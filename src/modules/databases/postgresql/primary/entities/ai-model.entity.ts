@@ -192,6 +192,29 @@ export class AiModelEntity extends UuidAbstractEntity {
         priceOutUsdPerMTok: number
 
     /**
+     * Total context window in tokens, as published by the provider. Together
+     * with the two prices this is the whole recorded metric set the catalog
+     * ranks on — see `computeModelWeight`, where a roomier window and a cheaper
+     * call both push a model earlier in its category's chain.
+     *
+     * Nullable on purpose: a window we have not verified stays `null` rather
+     * than being guessed, and the ranking treats it as neutral.
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Published context window in tokens; null when not yet recorded.",
+        },
+    )
+    @Column({
+        name: "context_window_tokens",
+        type: "int",
+        nullable: true,
+    })
+        contextWindowTokens: number | null
+
+    /**
      * Token-based billing rate: credits charged per 1,000,000 INPUT tokens.
      * DERIVED at seed from {@link priceInUsdPerMTok} (`round(price × 5000)`, i.e.
      * 1 credit ≡ $0.0002 real cost). A grading run is billed

@@ -33,7 +33,20 @@ export class AiModelInsertService {
     ) {}
 
     /**
-     * Upserts every parsed model and returns how many rows were written.
+     * Upserts every parsed model, then RETIRES every enabled row the seed no
+     * longer describes, and returns how many rows were written.
+     *
+     * The retire pass matters because the upsert is keyed on `(provider, name)`:
+     * dropping a model from the mount folder would otherwise leave its row
+     * behind, still `enabled`, and the balancer would keep routing to a model
+     * nobody maintains any more — including ids the provider has since removed,
+     * which fail every attempt they are given.
+     *
+     * Rows are disabled rather than deleted so that transactions and grading
+     * runs which reference the model by name keep resolving their history.
+     *
+     * @param entries - every model parsed from the mount folder.
+     * @returns the number of rows upserted (retired rows are not counted).
      */
     async upsertMany(
         entries: Array<AiModelCatalogParsed>,
@@ -43,7 +56,53 @@ export class AiModelInsertService {
             await this.upsertOne(entry)
             upserted += 1
         }
+        await this.retireModelsAbsentFromSeed(entries)
         return upserted
+    }
+
+    /**
+     * Disable every currently-enabled model whose `(provider, name)` pair is not
+     * present in the seed.
+     *
+     * @param entries - the models the seed describes; an empty seed retires nothing.
+     */
+    private async retireModelsAbsentFromSeed(
+        entries: Array<AiModelCatalogParsed>,
+    ): Promise<void> {
+        // an empty parse is far more likely to mean "mount folder unreadable"
+        // than "the operator meant to disable every model", so never act on it
+        if (!entries.length) {
+            return
+        }
+        const seeded = new Set(
+            entries.map((entry) => `${entry.model.provider}:${entry.model.name}`),
+        )
+        const enabledRows = await this.entityManager.find(
+            AiModelEntity,
+            {
+                where: {
+                    enabled: true,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    provider: true,
+                },
+            },
+        )
+        const staleIds = enabledRows
+            .filter((row) => !seeded.has(`${row.provider}:${row.name}`))
+            .map((row) => row.id)
+        if (!staleIds.length) {
+            return
+        }
+        await this.entityManager.update(
+            AiModelEntity,
+            staleIds,
+            {
+                enabled: false,
+            },
+        )
     }
 
     /**
@@ -79,6 +138,7 @@ export class AiModelInsertService {
                     priority: model.priority,
                     credit: model.credit,
                     weight: model.weight,
+                    contextWindowTokens: model.contextWindowTokens ?? null,
                     priceInUsdPerMTok: model.priceInUsdPerMTok,
                     priceOutUsdPerMTok: model.priceOutUsdPerMTok,
                     creditPerMTokIn: model.creditPerMTokIn,

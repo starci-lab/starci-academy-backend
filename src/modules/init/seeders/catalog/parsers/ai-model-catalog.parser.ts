@@ -16,6 +16,9 @@ import {
     logInitSeederEntitySkipped,
 } from "../../shared"
 import {
+    computeModelWeight,
+} from "@modules/ai"
+import {
     AiModelCatalogPathService,
 } from "../path"
 import {
@@ -98,10 +101,23 @@ export class AiModelCatalogParserService {
                     enMd.credit,
                     0,
                 ),
-                weight: this.coerceMdScalarService.toRequiredNumber(
-                    enMd.weight,
-                    0,
-                ),
+                // DERIVED, never authored: cheaper + roomier ranks earlier. The
+                // seed used to carry a hand-typed decimal that was anchored to
+                // nothing and had to be re-guessed on every new model.
+                weight: computeModelWeight({
+                    priceInUsdPerMTok: this.coerceMdScalarService.toRequiredNumber(
+                        enMd.priceInUsdPerMTok,
+                        0,
+                    ),
+                    priceOutUsdPerMTok: this.coerceMdScalarService.toRequiredNumber(
+                        enMd.priceOutUsdPerMTok,
+                        0,
+                    ),
+                    contextWindowTokens: this.coerceMdScalarService.toRequiredNumber(
+                        enMd.contextWindowTokens,
+                        0,
+                    ),
+                }),
                 priceInUsdPerMTok: this.coerceMdScalarService.toRequiredNumber(
                     enMd.priceInUsdPerMTok,
                     0,
@@ -110,6 +126,12 @@ export class AiModelCatalogParserService {
                     enMd.priceOutUsdPerMTok,
                     0,
                 ),
+                // 0 (absent from the seed) is recorded as "not verified", not as
+                // a model with no context — the ranking treats null as neutral.
+                contextWindowTokens: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.contextWindowTokens,
+                    0,
+                ) || null,
                 // credit rate is DERIVED from the real USD price (single source):
                 // round(price$/M × CREDITS_PER_USD), i.e. 1 credit ≡ $0.0002 cost.
                 // EVERY model bills at its derived rate — `complimentary` only
@@ -118,11 +140,13 @@ export class AiModelCatalogParserService {
                 // gets a finite number of runs and the max loss per user is capped
                 // (250 credits ≈ $0.05/week), instead of unbounded free grading.
                 creditPerMTokIn: Math.round(
-                    this.coerceMdScalarService.toRequiredNumber(enMd.priceInUsdPerMTok, 0)
+                    this.coerceMdScalarService.toRequiredNumber(enMd.priceInUsdPerMTok,
+                        0)
                     * AI_CREDITS_PER_USD,
                 ),
                 creditPerMTokOut: Math.round(
-                    this.coerceMdScalarService.toRequiredNumber(enMd.priceOutUsdPerMTok, 0)
+                    this.coerceMdScalarService.toRequiredNumber(enMd.priceOutUsdPerMTok,
+                        0)
                     * AI_CREDITS_PER_USD,
                 ),
                 enabled: this.coerceMdScalarService.toRequiredBoolean(
@@ -168,8 +192,10 @@ export class AiModelCatalogParserService {
             })
         }
 
+        // ordered by the DERIVED weight (cheaper + roomier first) rather than by
+        // the hand-typed `priority` the seed no longer carries
         return parsed.sort(
-            (prev, next) => next.model.priority - prev.model.priority,
+            (prev, next) => next.model.weight - prev.model.weight,
         )
     }
 
