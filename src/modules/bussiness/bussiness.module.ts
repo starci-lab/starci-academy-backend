@@ -34,9 +34,6 @@ import {
     DiscussionModule,
 } from "./discussion"
 import {
-    AiLabModule,
-} from "./ai-lab"
-import {
     NotificationModule,
 } from "./notification"
 import {
@@ -113,8 +110,6 @@ export class BussinessModule extends ConfigurableModuleClass {
             CodingModule.register(options),
             // import the content discussion (comments + reactions) module
             DiscussionModule.register(options),
-            // import the AI Lab (playground + eval grading) module
-            AiLabModule.register(options),
             // import the in-app notifications module
             NotificationModule.register(options),
             // import the CQRS projections module (progress + content + stats read-models)

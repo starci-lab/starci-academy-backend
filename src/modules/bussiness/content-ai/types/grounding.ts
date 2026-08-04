@@ -2,6 +2,22 @@ import type {
     ContentEntity,
     Locale,
 } from "@modules/databases"
+import type {
+    ContentAiScope,
+} from "./session"
+
+/**
+ * Result of a page-scope grounding resolver that ALSO resolves the surface's
+ * owning course (content / task / challenge / quiz) — the course id doubles as
+ * the key for the additive BASE (course-wide) grounding, so it is returned
+ * alongside the page text instead of being re-resolved a second time.
+ */
+export interface PageGroundingResult {
+    /** The scope's own grounding text ("" when the entitlement gate refused). */
+    grounding: string
+    /** The surface's owning course, or `null` when it could not be resolved. */
+    courseId: string | null
+}
 
 /** Params for {@link ContentAiService.resolveLessonGrounding}. */
 export interface ResolveLessonGroundingParams {
@@ -55,13 +71,17 @@ export interface ResolveFoundationGroundingParams {
     question: string
 }
 
-/** Params for {@link ContentAiService.resolveCourseGrounding}. */
-export interface ResolveCourseGroundingParams {
-    /** The asking learner (drives the enrolled-only gate). */
+/**
+ * Params for {@link ContentAiService.resolveBaseGrounding}: the ADDITIVE
+ * course-wide layer stacked under every scope's own page grounding (and the
+ * WHOLE grounding for the `"course"` scope, which has no page of its own).
+ */
+export interface ResolveBaseGroundingParams {
+    /** The asking learner (drives the enrolled / premium-exclusion split). */
     userId: string
-    /** Course the question is about. */
+    /** The course to ground the BASE layer on. */
     courseId: string
-    /** The learner's question about the course. */
+    /** The learner's question. */
     question: string
 }
 
@@ -75,4 +95,23 @@ export interface ResolveGroundingParams {
     question: string
     /** The whole lesson body (used when the content fits without retrieval). */
     body: string
+}
+
+/** Params for {@link ContentAiService.buildSystemPrompt}. */
+export interface BuildSystemPromptParams {
+    /**
+     * The additive course-wide BASE grounding, rendered under its own
+     * `=== COURSE KNOWLEDGE (retrieved) ===` header ahead of the scope
+     * section — empty ("") omits the section entirely. For the `"course"`
+     * scope this is always "" (its grounding is carried in `page` instead, so
+     * it renders through the existing single `=== COURSE MATERIAL ===`
+     * section rather than a duplicate header).
+     */
+    base: string
+    /** The scope's own page grounding (lesson body, task brief, course RAG, ...). */
+    page: string
+    /** Active request locale — selects the reply language. */
+    locale: Locale
+    /** Which surface persona + section header to render. */
+    scope: ContentAiScope
 }

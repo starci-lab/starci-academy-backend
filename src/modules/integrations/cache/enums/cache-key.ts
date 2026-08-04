@@ -22,8 +22,6 @@ export enum CacheKey {
     AiPingKeyStatus = "ai.ping.key-status",
     /** AI per-model latency probe snapshots keyed by model name. */
     AiModelLatency = "ai.model.latency",
-    /** Cached AI Lab playground run output, keyed by playground + user + input hash. */
-    AiLabRun = "ai-lab.run",
     /** Display label for an entity reference, keyed by entityName + id + locale. */
     EntityLabel = "entity.label",
 }

@@ -28,7 +28,7 @@ import {
     UserService,
 } from "@modules/bussiness"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
 } from "@modules/rag"
 import {
     MOCK_INTERVIEW_CLASSIC_PROMPTS,
@@ -151,7 +151,7 @@ export class MockInterviewSessionDrawService {
         private readonly personalProjectProgressService: PersonalProjectProgressService,
         private readonly userService: UserService,
         private readonly flashcardDeckReadService: FlashcardDeckReadService,
-        private readonly contentRagRetrievalService: ContentRagRetrievalService,
+        private readonly contentRagRetrievalService: CourseRagRetrievalService,
     ) {}
 
     /**

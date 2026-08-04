@@ -60,7 +60,7 @@ export const CV_RAG_COLLECTION = "cv_rag"
 /**
  * Retrieves CV-authoring reference material (rubric / skill catalog / sample
  * phrasing) most relevant to a query from the persistent `cv_rag` Qdrant
- * collection. Read-only + persistent (mirrors {@link ContentRagRetrievalService}
+ * collection. Read-only + persistent (mirrors {@link CourseRagRetrievalService}
  * rather than the per-run ephemeral grading retrieval).
  *
  * Opens the existing collection, runs ONE similarity search scoped to the

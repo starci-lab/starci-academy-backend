@@ -47,7 +47,7 @@ import {
     S3ReadService,
 } from "@modules/s3"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
 } from "@modules/rag"
 import {
     AiEntitlementService,
@@ -91,7 +91,7 @@ const POSTGRESQL_PRIMARY = "primary"
  * MOCKED (no external infra available in this harness):
  *  - `S3ReadService` — real class talks to MinIO/DigitalOcean S3 clients; stubbed
  *    to hand back a canned lesson-body JSON keyed by contentId.
- *  - `ContentRagRetrievalService` — real class talks to Qdrant; stubbed to return
+ *  - `CourseRagRetrievalService` — real class talks to Qdrant; stubbed to return
  *    a marker excerpt so the test can prove (by its PRESENCE/ABSENCE in the final
  *    answer) whether a scope's material reached the model.
  *  - `AiInvokeService.run` — real class calls the model balancer/providers.
@@ -152,9 +152,24 @@ describe("askContentAi entitlement per scope (e2e)",
         const COURSE_EXCERPT_MARKER = "COURSE_WIDE_EXCERPT_MARKER"
         const FOUNDATION_EXCERPT_MARKER = "FOUNDATION_DOC_EXCERPT_MARKER"
 
+        // both default to the real service's own empty-degrade shape (never
+        // undefined) — additive grounding calls `retrieveCourseExcerpt` for the
+        // course-wide BASE layer on every request that resolves a course (content/
+        // task/course scopes all resolve one), IN ADDITION to whichever
+        // page-specific PAGE layer call applies — so both must resolve even in
+        // describe blocks that only care about one of the two. Each scope's own
+        // `beforeEach` below overrides whichever one it needs a specific marker on.
         const contentRagMock = {
-            retrieveContentExcerpt: jest.fn(),
-            retrieveCourseExcerpt: jest.fn(),
+            retrieveContentExcerpt: jest.fn().mockResolvedValue({
+                excerpt: "",
+                retrievedChunks: 0,
+                matchedContentIds: [],
+            }),
+            retrieveCourseExcerpt: jest.fn().mockResolvedValue({
+                excerpt: "",
+                retrievedChunks: 0,
+                matchedContentIds: [],
+            }),
         }
         const s3ReadServiceMock = {
             json: jest.fn(),
@@ -253,7 +268,7 @@ describe("askContentAi entitlement per scope (e2e)",
                     // real class, no external deps — safe to use as-is
                     S3NameResolverService,
                     {
-                        provide: ContentRagRetrievalService,
+                        provide: CourseRagRetrievalService,
                         useValue: contentRagMock,
                     },
                     {
@@ -492,10 +507,13 @@ describe("askContentAi entitlement per scope (e2e)",
                         expect(body.data.answer).toContain(COURSE_EXCERPT_MARKER)
                     })
 
-                it("NOT enrolled learner → 200, but course-wide material is NEVER fetched/leaked",
+                it("NOT enrolled learner → 200, grounds on course-wide RAG with the PREMIUM lesson EXCLUDED (no-leak via excludeContentIds)",
                     async () => {
                         currentUser = await seedUser("kc-course-not-enrolled")
-                        // no enrollment row created — never enrolled
+                        // no enrollment row — a TRIAL viewer. Additive grounding now gives them
+                        // course-wide RAG MINUS premium lessons (`excludeContentIds`) instead of
+                        // the old hard block: the no-leak guarantee moved from "never call RAG" to
+                        // "call RAG but exclude every premium content id of the course".
 
                         const response = await askContentAi({
                             courseId: course.id,
@@ -505,8 +523,17 @@ describe("askContentAi entitlement per scope (e2e)",
                         expect(response.status).toBe(200)
                         const body = response.body.data.askContentAi
                         expect(body.success).toBe(true)
-                        expect(body.data.answer).not.toContain(COURSE_EXCERPT_MARKER)
-                        expect(contentRagMock.retrieveCourseExcerpt).not.toHaveBeenCalled()
+                        // course-wide RAG DOES run for a trial viewer now — but the premium lesson
+                        // is passed in `excludeContentIds`, so it is filtered out of retrieval.
+                        expect(contentRagMock.retrieveCourseExcerpt).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                excludeContentIds: expect.arrayContaining([premiumContent.id]),
+                            }),
+                        )
+                        // the (non-premium) course-wide excerpt reaches the model; the premium
+                        // lesson body never does.
+                        expect(body.data.answer).toContain(COURSE_EXCERPT_MARKER)
+                        expect(body.data.answer).not.toContain(PREMIUM_BODY_MARKER)
                     })
             })
 

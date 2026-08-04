@@ -126,7 +126,11 @@ export class JobReadinessService {
             EnrollmentEntity,
             {
                 where: {
-                    userId,
+                    // `userId` is a @RelationId virtual column — not queryable in a
+                    // `where`; filter through the real `user` relation instead.
+                    user: {
+                        id: userId,
+                    },
                     isEnrolled: true,
                 },
                 relations: {

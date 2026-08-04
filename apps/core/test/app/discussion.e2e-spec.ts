@@ -1,15 +1,25 @@
+import request from "supertest"
 import {
     Test,
 } from "@nestjs/testing"
 import type {
+    CanActivate,
+    ExecutionContext,
     INestApplication,
 } from "@nestjs/common"
+import {
+    GqlExecutionContext,
+} from "@nestjs/graphql"
 import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import type {
     EntityManager,
 } from "typeorm"
+import {
+    ApolloServerModule,
+    ApolloServerType,
+} from "@modules/api"
 import {
     ActivityEntity,
     ActivityReactionEntity,
@@ -34,6 +44,9 @@ import {
     CommentNotFoundException,
 } from "@modules/exceptions"
 import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/keycloak"
+import {
     CacheService,
 } from "@modules/cache"
 import {
@@ -42,9 +55,22 @@ import {
 import {
     CommentService,
     ContentEngagementProjectionService,
+    GraphQLEnrollmentGuard,
     ReactionService,
     UserService,
 } from "@modules/bussiness"
+import {
+    ContentCommentsResolver,
+    ContentCommentsService,
+} from "@features/api/core/graphql/queries/discussion/content-comments"
+import {
+    ContentReactionsResolver,
+    ContentReactionsService,
+} from "@features/api/core/graphql/queries/discussion/content-reactions"
+import {
+    ReactToContentResolver,
+    ReactToContentService,
+} from "@features/api/core/graphql/mutations/discussion/react-to-content"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -629,6 +655,379 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
                                 },
                             })
                         expect(rowCount).toBe(1)
+                    })
+            })
+    })
+
+/**
+ * e2e for the discussion READ resolvers (`contentComments`, `contentReactions`)
+ * plus the `reactToContent` mutation — driven over REAL HTTP through Apollo
+ * (`ApolloServerModule` + guards), not the bare domain-service calls above. All
+ * three GraphQL operations require `KeycloakAuthGraphQLGuard`
+ * (`reactToContent` additionally chains `GraphQLEnrollmentGuard`); none of that
+ * guard wiring had ever been exercised — the block above calls the services
+ * directly, bypassing every guard entirely.
+ *
+ * MOCKED (same externals as the block above):
+ *  - `EventEmitterService`, `CacheService` (always-miss, see the block above).
+ *
+ * REAL: Postgres (Testcontainers), the full Apollo/GraphQL stack, every resolver +
+ * query/mutation service under test, `CommentService`/`ReactionService`/
+ * `ContentEngagementProjectionService`/`UserService`, and `GraphQLEnrollmentGuard`
+ * (permissive here — no `x-course-id` header is sent, matching how the FE calls
+ * these two operations today). `KeycloakAuthGraphQLGuard` is overridden with a fake
+ * `CanActivate` (mirrors `progress-query.e2e-spec.ts`) since there is no live
+ * Keycloak server in this harness.
+ *
+ * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
+ */
+describe("Discussion GraphQL — contentComments/contentReactions queries + reactToContent mutation (e2e)",
+    () => {
+        let app: INestApplication
+        let entityManager: EntityManager
+
+        /** Read-only fixtures, seeded once — distinct displayIds from the block above. */
+        let course: CourseEntity
+        let content: ContentEntity
+
+        /** The "logged in" user the overridden guard stamps onto the request; null = unauthenticated. */
+        let currentUser: UserEntity | null = null
+
+        // mirrors progress-query.e2e-spec.ts's fakeAuthGuard: denies (→ Nest's
+        // default ForbiddenException) when nobody is "logged in".
+        const fakeAuthGuard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                if (!currentUser) {
+                    return false
+                }
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = currentUser
+                return true
+            },
+        }
+
+        const cacheServiceMock = {
+            get: jest.fn().mockResolvedValue(undefined),
+            set: jest.fn().mockResolvedValue(undefined),
+            del: jest.fn().mockResolvedValue(undefined),
+        }
+        const eventEmitterServiceMock = {
+            emit: jest.fn().mockResolvedValue(undefined),
+        }
+
+        const GRAPHQL_ENDPOINT = "/graphql"
+
+        const CONTENT_COMMENTS_QUERY = `
+            query ContentCommentsRead($request: ContentCommentsRequest!) {
+                contentComments(request: $request) {
+                    success
+                    message
+                    error
+                    data {
+                        comments {
+                            id
+                            body
+                            parentCommentId
+                        }
+                        total
+                    }
+                }
+            }
+        `
+        const CONTENT_REACTIONS_QUERY = `
+            query ContentReactionsRead($request: ContentReactionsRequest!) {
+                contentReactions(request: $request) {
+                    success
+                    message
+                    error
+                    data {
+                        total
+                        myReaction
+                    }
+                }
+            }
+        `
+        const REACT_TO_CONTENT_MUTATION = `
+            mutation ReactToContentWrite($request: ReactToContentRequest!) {
+                reactToContent(request: $request) {
+                    success
+                    message
+                    error
+                    data {
+                        total
+                        myReaction
+                    }
+                }
+            }
+        `
+
+        const post = (query: string, variables: Record<string, unknown>) =>
+            request(app.getHttpServer())
+                .post(GRAPHQL_ENDPOINT)
+                .send({
+                    query,
+                    variables,
+                })
+
+        beforeAll(async () => {
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true,
+                        withHydration: false,
+                        withResolvers: false,
+                    }),
+                ],
+                providers: [
+                    // REAL — resolvers + their query/mutation services under test
+                    ContentCommentsResolver,
+                    ContentCommentsService,
+                    ContentReactionsResolver,
+                    ContentReactionsService,
+                    ReactToContentResolver,
+                    ReactToContentService,
+                    // REAL — the domain services + guard the resolvers delegate to
+                    CommentService,
+                    ReactionService,
+                    ContentEngagementProjectionService,
+                    UserService,
+                    GraphQLEnrollmentGuard,
+                    {
+                        provide: CacheService,
+                        useValue: cacheServiceMock,
+                    },
+                    {
+                        provide: EventEmitterService,
+                        useValue: eventEmitterServiceMock,
+                    },
+                ],
+            })
+                .overrideGuard(KeycloakAuthGraphQLGuard)
+                .useValue(fakeAuthGuard)
+                .compile()
+
+            app = moduleRef.createNestApplication()
+            await app.init()
+
+            entityManager = app.get<EntityManager>(
+                getEntityManagerToken(POSTGRESQL_PRIMARY),
+            )
+
+            // read-only course/module/content fixtures, seeded ONCE — distinct
+            // displayIds from the direct-service block above (same DB, same suite)
+            course = await entityManager.save(
+                entityManager.create(CourseEntity,
+                    {
+                        title: "Fullstack Mastery",
+                        displayId: "fullstack-mastery-discussion-gql-e2e",
+                        description: "e2e fixture course",
+                        originalPrice: 999_000,
+                        defaultLocale: Locale.En,
+                    }),
+            )
+            const courseModule = await entityManager.save(
+                entityManager.create(ModuleEntity,
+                    {
+                        title: "Module 1",
+                        displayId: "module-1-discussion-gql-e2e",
+                        description: "e2e fixture module",
+                        defaultLocale: Locale.En,
+                        course,
+                    }),
+            )
+            content = await entityManager.save(
+                entityManager.create(ContentEntity,
+                    {
+                        title: "Lesson 1",
+                        displayId: "lesson-1-discussion-gql-e2e",
+                        body: "lesson body",
+                        defaultLocale: Locale.En,
+                        module: courseModule,
+                    }),
+            )
+        })
+
+        afterAll(async () => {
+            await app.close().catch(() => undefined)
+        })
+
+        afterEach(async () => {
+            await entityManager.query(
+                "TRUNCATE TABLE \"comment_reactions\", \"content_reactions\", \"content_comments\", \"content_engagement_projections\", \"enrollments\", \"users\" RESTART IDENTITY CASCADE",
+            )
+            currentUser = null
+            jest.clearAllMocks()
+            cacheServiceMock.get.mockResolvedValue(undefined)
+            cacheServiceMock.set.mockResolvedValue(undefined)
+            cacheServiceMock.del.mockResolvedValue(undefined)
+        })
+
+        /** Seed a bare user (only keycloakId is required by this suite). */
+        const seedUser = async (keycloakId: string): Promise<UserEntity> =>
+            entityManager.save(
+                entityManager.create(UserEntity,
+                    {
+                        keycloakId,
+                    }),
+            )
+
+        describe("contentComments query",
+            () => {
+                it("an AUTHENTICATED viewer lists a lesson's top-level comments",
+                    async () => {
+                        const author = await seedUser("kc-gql-content-comments-author")
+                        const topLevel = await entityManager.save(
+                            entityManager.create(ContentCommentEntity,
+                                {
+                                    content,
+                                    user: author,
+                                    body: "a lesson question",
+                                }),
+                        )
+                        await entityManager.save(
+                            entityManager.create(ContentCommentEntity,
+                                {
+                                    content,
+                                    user: author,
+                                    parentComment: topLevel,
+                                    body: "a reply",
+                                }),
+                        )
+
+                        currentUser = author
+                        const response = await post(CONTENT_COMMENTS_QUERY,
+                            {
+                                request: {
+                                    contentId: content.id,
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.contentComments
+                        expect(body.success).toBe(true)
+                        expect(body.data.total).toBe(1)
+                        expect(body.data.comments[0].id).toBe(topLevel.id)
+                    })
+
+                it("auth denied: an UNAUTHENTICATED request is rejected before the resolver runs",
+                    async () => {
+                        // currentUser left null — the auth guard must deny before the query runs
+                        const response = await post(CONTENT_COMMENTS_QUERY,
+                            {
+                                request: {
+                                    contentId: content.id,
+                                },
+                            })
+
+                        expect(response.body.errors).toBeDefined()
+                        expect(response.body.errors.length).toBeGreaterThan(0)
+                    })
+            })
+
+        describe("contentReactions query",
+            () => {
+                it("an AUTHENTICATED viewer reads the aggregate summary + their own pick",
+                    async () => {
+                        const reactor = await seedUser("kc-gql-content-reactions-user")
+                        await entityManager.save(
+                            entityManager.create(ContentReactionEntity,
+                                {
+                                    content,
+                                    user: reactor,
+                                    type: ReactionType.Wow,
+                                }),
+                        )
+
+                        currentUser = reactor
+                        const response = await post(CONTENT_REACTIONS_QUERY,
+                            {
+                                request: {
+                                    contentId: content.id,
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.contentReactions
+                        expect(body.success).toBe(true)
+                        expect(body.data.total).toBe(1)
+                        expect(body.data.myReaction).toBe("wow")
+                    })
+
+                it("auth denied: an UNAUTHENTICATED request is rejected before the resolver runs",
+                    async () => {
+                        const response = await post(CONTENT_REACTIONS_QUERY,
+                            {
+                                request: {
+                                    contentId: content.id,
+                                },
+                            })
+
+                        expect(response.body.errors).toBeDefined()
+                        expect(response.body.errors.length).toBeGreaterThan(0)
+                    })
+            })
+
+        describe("reactToContent mutation",
+            () => {
+                it("an AUTHENTICATED viewer reacts to a content — real row + recomputed summary over GraphQL",
+                    async () => {
+                        currentUser = await seedUser("kc-gql-react-to-content-user")
+
+                        const response = await post(REACT_TO_CONTENT_MUTATION,
+                            {
+                                request: {
+                                    contentId: content.id,
+                                    type: "love",
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.reactToContent
+                        expect(body.success).toBe(true)
+                        expect(body.data.total).toBe(1)
+                        expect(body.data.myReaction).toBe("love")
+
+                        const row = await entityManager.findOneOrFail(ContentReactionEntity,
+                            {
+                                where: {
+                                    content: {
+                                        id: content.id,
+                                    },
+                                    user: {
+                                        id: currentUser.id,
+                                    },
+                                },
+                            })
+                        expect(row.type).toBe(ReactionType.Love)
+                    })
+
+                it("auth denied: an UNAUTHENTICATED request is rejected before the resolver runs, writes NO row",
+                    async () => {
+                        // currentUser left null — the auth guard must deny before the mutation runs
+                        const response = await post(REACT_TO_CONTENT_MUTATION,
+                            {
+                                request: {
+                                    contentId: content.id,
+                                    type: "love",
+                                },
+                            })
+
+                        expect(response.body.errors).toBeDefined()
+                        expect(response.body.errors.length).toBeGreaterThan(0)
+                        const count = await entityManager.count(ContentReactionEntity,
+                            {
+                                where: {
+                                    content: {
+                                        id: content.id,
+                                    },
+                                },
+                            })
+                        expect(count).toBe(0)
                     })
             })
     })

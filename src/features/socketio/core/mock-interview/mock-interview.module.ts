@@ -17,7 +17,7 @@ import {
  * namespace).
  *
  * `UserService` comes from the globally-registered bussiness `UserModule`,
- * `ContentRagRetrievalService` from the global `RagModule`, and
+ * `CourseRagRetrievalService` from the global `RagModule`, and
  * `AiInvokeService` / `AiEntitlementService` from the global `AiModule` — none
  * of those are imported here. `MockInterviewTurnService` is scoped locally to
  * this module since it is only ever consumed by `MockInterviewGateway`.

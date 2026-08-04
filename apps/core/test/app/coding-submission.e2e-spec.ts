@@ -229,6 +229,15 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
         })
 
         afterAll(async () => {
+            // the "two-sum" / "retired-problem" fixtures are read-only WITHIN this
+            // suite, but the Testcontainers Postgres is shared across the whole e2e
+            // run (see setup-e2e.ts) — leaving them behind collides with
+            // coding-queries.e2e-spec.ts's own same-slug "two-sum" fixture
+            // (duplicate-key on the unique slug) whenever that file runs after this
+            // one. CASCADE also clears coding_problem_solutions.
+            await entityManager.query(
+                "TRUNCATE TABLE \"coding_problems\" RESTART IDENTITY CASCADE",
+            ).catch(() => undefined)
             await app.close().catch(() => undefined)
         })
 

@@ -162,6 +162,16 @@ describe("Flashcard due-review BATCH session — start/sync/complete lifecycle (
         })
 
         afterAll(async () => {
+            // the deck/card fixtures are read-only WITHIN this suite, but the
+            // Testcontainers Postgres is shared across the whole e2e run (see
+            // setup-e2e.ts) — leaving them behind pollutes any OTHER file's
+            // courseId-less "global" flashcard query with cards this suite has no
+            // control over (e.g. flashcard-stats-queries.e2e-spec.ts's
+            // myDueFlashcards). CASCADE also clears flashcard_cards (+ their
+            // translations).
+            await entityManager.query(
+                "TRUNCATE TABLE \"flashcard_decks\" RESTART IDENTITY CASCADE",
+            ).catch(() => undefined)
             await app.close().catch(() => undefined)
         })
 

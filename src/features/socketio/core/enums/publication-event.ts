@@ -3,8 +3,6 @@ export enum PublicationEvent {
     GlobalSearch = "autocomplete.global_search.publication",
     SubscribeJobNotification = "job_notifications.subscribe_job_notification.publication",
     SubscribeContentDiscussion = "content_discussion.subscribe.publication",
-    SubscribeAiLabRun = "ai_lab.subscribe_run.publication",
-    AbortAiLabRun = "ai_lab.abort_run.publication",
     SubscribeNotifications = "notifications.subscribe.publication",
     SubscribeCommunityFeed = "community_feed.subscribe.publication",
     SubscribeCommunityChat = "community_chat.subscribe.publication",

@@ -350,7 +350,7 @@ export const getAdminApiKey = (): string => {
     return readFileSync(
         join(
             process.cwd(),
-            ".mount",
+            ".volume",
             "terraform",
             "admin-api-key.key",
         ),

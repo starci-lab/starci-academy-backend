@@ -1,15 +1,25 @@
+import request from "supertest"
 import {
     Test,
 } from "@nestjs/testing"
 import type {
+    CanActivate,
+    ExecutionContext,
     INestApplication,
 } from "@nestjs/common"
+import {
+    GqlExecutionContext,
+} from "@nestjs/graphql"
 import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import type {
     EntityManager,
 } from "typeorm"
+import {
+    ApolloServerModule,
+    ApolloServerType,
+} from "@modules/api"
 import {
     CommunityChannel,
     CommunityPostCommentEntity,
@@ -30,6 +40,10 @@ import {
     CommunityPostQuotaExceededException,
 } from "@modules/exceptions"
 import {
+    KeycloakAuthGraphQLGuard,
+    KeycloakOptionalAuthGraphQLGuard,
+} from "@modules/keycloak"
+import {
     DayjsService,
 } from "@modules/mixin"
 import {
@@ -45,6 +59,26 @@ import {
     CommunityReactionService,
     NotificationService,
 } from "@modules/bussiness"
+import {
+    CommunityFeedResolver,
+    CommunityFeedService,
+} from "@features/api/core/graphql/queries/community/community-feed"
+import {
+    CommunityPostResolver,
+    CommunityPostQueryService,
+} from "@features/api/core/graphql/queries/community/community-post"
+import {
+    CommunityPostCommentsResolver,
+    CommunityPostCommentsService,
+} from "@features/api/core/graphql/queries/community/community-post-comments"
+import {
+    CreateCommunityPostCommentResolver,
+    CreateCommunityPostCommentService,
+} from "@features/api/core/graphql/mutations/community/create-community-post-comment"
+import {
+    ReactToCommunityPostCommentResolver,
+    ReactToCommunityPostCommentService,
+} from "@features/api/core/graphql/mutations/community/react-to-community-post-comment"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -803,6 +837,608 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
                                 },
                             })
                         expect(count).toBe(NON_MEMBER_POST_LIMIT + 2)
+                    })
+            })
+    })
+
+/**
+ * e2e for the community READ resolvers (`communityFeed`, `communityPost`,
+ * `communityPostComments`) plus the `createCommunityPostComment` /
+ * `reactToCommunityPostComment` mutations — driven over REAL HTTP through Apollo
+ * (`ApolloServerModule` + guards), not the bare domain-service calls above. None of
+ * these five GraphQL operations had coverage that exercised the resolver + guard +
+ * response-wrapper layer: the block above proves the domain services are correct,
+ * this block proves production's actual request path (auth guard → resolver →
+ * query/mutation service → `GraphQLTransformInterceptor`'s success/error envelope)
+ * wires them together correctly.
+ *
+ * MOCKED (same externals as the block above, genuinely outside this domain):
+ *  - `EventEmitterService`, `NotificationService`.
+ *
+ * REAL: Postgres (Testcontainers), the full Apollo/GraphQL stack, every resolver +
+ * query/mutation service under test, and the community domain services they call.
+ * `KeycloakOptionalAuthGraphQLGuard` / `KeycloakAuthGraphQLGuard` are overridden
+ * with a fake `CanActivate` (mirrors `progress-query.e2e-spec.ts`) since there is no
+ * live Keycloak server in this harness — the override still exercises the REAL
+ * per-resolver `@UseGuards` wiring (optional-auth passthrough vs. auth-required
+ * rejection), only the token verification itself is stubbed.
+ *
+ * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
+ */
+describe("Community GraphQL — communityFeed/communityPost/communityPostComments queries + comment mutations (e2e)",
+    () => {
+        let app: INestApplication
+        let entityManager: EntityManager
+
+        /** The "logged in" user the overridden guards stamp onto the request; null = anonymous/unauthenticated. */
+        let currentUser: UserEntity | null = null
+
+        // KeycloakOptionalAuthGraphQLGuard: never blocks — stamps req.user when
+        // a viewer is "logged in", leaves it unset (truly anonymous) otherwise.
+        const fakeOptionalAuthGuard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                if (currentUser) {
+                    gqlContext.req.user = currentUser
+                }
+                return true
+            },
+        }
+        // KeycloakAuthGraphQLGuard: mirrors progress-query.e2e-spec.ts's fakeAuthGuard —
+        // rejects (→ Nest's default ForbiddenException) when nobody is "logged in".
+        const fakeAuthGuard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                if (!currentUser) {
+                    return false
+                }
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = currentUser
+                return true
+            },
+        }
+
+        const eventEmitterServiceMock = {
+            emit: jest.fn().mockResolvedValue(undefined),
+        }
+        const notificationServiceMock = {
+            createNotification: jest.fn().mockResolvedValue(undefined),
+        }
+
+        const GRAPHQL_ENDPOINT = "/graphql"
+
+        const COMMUNITY_FEED_QUERY = `
+            query CommunityFeed($request: CommunityFeedRequest!) {
+                communityFeed(request: $request) {
+                    success
+                    message
+                    error
+                    data {
+                        items {
+                            id
+                            body
+                            channel
+                            commentCount
+                            isMine
+                            reactions {
+                                total
+                                myReaction
+                            }
+                        }
+                        nextCursor
+                    }
+                }
+            }
+        `
+        const COMMUNITY_POST_QUERY = `
+            query CommunityPostRead($request: CommunityPostRequest!) {
+                communityPost(request: $request) {
+                    success
+                    message
+                    error
+                    data {
+                        id
+                        body
+                        channel
+                        commentCount
+                        reactions {
+                            total
+                            myReaction
+                        }
+                    }
+                }
+            }
+        `
+        const COMMUNITY_POST_COMMENTS_QUERY = `
+            query CommunityPostCommentsRead($request: CommunityPostCommentsRequest!) {
+                communityPostComments(request: $request) {
+                    success
+                    message
+                    error
+                    data {
+                        comments {
+                            id
+                            body
+                            parentCommentId
+                            replyCount
+                        }
+                        total
+                    }
+                }
+            }
+        `
+        const CREATE_COMMUNITY_POST_COMMENT_MUTATION = `
+            mutation CreateCommunityPostCommentWrite($request: CreateCommunityPostCommentRequest!) {
+                createCommunityPostComment(request: $request) {
+                    success
+                    message
+                    error
+                    data {
+                        id
+                        body
+                        parentCommentId
+                    }
+                }
+            }
+        `
+        const REACT_TO_COMMUNITY_POST_COMMENT_MUTATION = `
+            mutation ReactToCommunityPostCommentWrite($request: ReactToCommunityPostCommentRequest!) {
+                reactToCommunityPostComment(request: $request) {
+                    success
+                    message
+                    error
+                    data {
+                        total
+                        myReaction
+                    }
+                }
+            }
+        `
+
+        const post = (query: string, variables: Record<string, unknown>) =>
+            request(app.getHttpServer())
+                .post(GRAPHQL_ENDPOINT)
+                .send({
+                    query,
+                    variables,
+                })
+
+        beforeAll(async () => {
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true,
+                        withHydration: false,
+                        withResolvers: false,
+                    }),
+                ],
+                providers: [
+                    // REAL — resolvers + their query/mutation services under test
+                    CommunityFeedResolver,
+                    CommunityFeedService,
+                    CommunityPostResolver,
+                    CommunityPostQueryService,
+                    CommunityPostCommentsResolver,
+                    CommunityPostCommentsService,
+                    CreateCommunityPostCommentResolver,
+                    CreateCommunityPostCommentService,
+                    ReactToCommunityPostCommentResolver,
+                    ReactToCommunityPostCommentService,
+                    // REAL — the domain services the query/mutation services delegate to
+                    CommunityPostService,
+                    CommunityCommentService,
+                    CommunityReactionService,
+                    CommunityPostQuotaService,
+                    MembershipService,
+                    DayjsService,
+                    {
+                        provide: EventEmitterService,
+                        useValue: eventEmitterServiceMock,
+                    },
+                    {
+                        provide: NotificationService,
+                        useValue: notificationServiceMock,
+                    },
+                ],
+            })
+                .overrideGuard(KeycloakOptionalAuthGraphQLGuard)
+                .useValue(fakeOptionalAuthGuard)
+                .overrideGuard(KeycloakAuthGraphQLGuard)
+                .useValue(fakeAuthGuard)
+                .compile()
+
+            app = moduleRef.createNestApplication()
+            await app.init()
+
+            entityManager = app.get<EntityManager>(
+                getEntityManagerToken(POSTGRESQL_PRIMARY),
+            )
+        })
+
+        afterAll(async () => {
+            await app.close().catch(() => undefined)
+        })
+
+        afterEach(async () => {
+            await entityManager.query(
+                "TRUNCATE TABLE \"community_post_comment_reactions\", \"community_post_reactions\", \"community_post_comments\", \"community_posts\", \"memberships\", \"users\" RESTART IDENTITY CASCADE",
+            )
+            currentUser = null
+            jest.clearAllMocks()
+        })
+
+        /** Seed a bare user (only keycloakId + username are required by this suite). */
+        const seedUser = async (
+            keycloakId: string,
+            username: string,
+        ): Promise<UserEntity> =>
+            entityManager.save(
+                entityManager.create(UserEntity,
+                    {
+                        keycloakId,
+                        username,
+                    }),
+            )
+
+        describe("communityFeed query",
+            () => {
+                it("lists posts (author + reaction summary) and reflects the AUTHENTICATED viewer's own reaction",
+                    async () => {
+                        const author = await seedUser("kc-gql-feed-author",
+                            "gql-feed-author")
+                        const viewer = await seedUser("kc-gql-feed-viewer",
+                            "gql-feed-viewer")
+                        const postA = await entityManager.save(
+                            entityManager.create(CommunityPostEntity,
+                                {
+                                    author,
+                                    channel: CommunityChannel.General,
+                                    body: "first post",
+                                }),
+                        )
+                        await entityManager.save(
+                            entityManager.create(CommunityPostReactionEntity,
+                                {
+                                    post: postA,
+                                    user: viewer,
+                                    type: ReactionType.Love,
+                                }),
+                        )
+                        await entityManager.save(
+                            entityManager.create(CommunityPostEntity,
+                                {
+                                    author,
+                                    channel: CommunityChannel.General,
+                                    body: "second post",
+                                }),
+                        )
+
+                        currentUser = viewer
+                        const response = await post(COMMUNITY_FEED_QUERY,
+                            {
+                                request: {
+                                    limit: 20,
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.communityFeed
+                        expect(body.success).toBe(true)
+                        expect(body.data.items).toHaveLength(2)
+                        const first = body.data.items.find((item: { id: string }) => item.id === postA.id)
+                        expect(first.body).toBe("first post")
+                        expect(first.reactions.total).toBe(1)
+                        expect(first.reactions.myReaction).toBe("love")
+                        expect(first.isMine).toBe(false)
+                    })
+
+                it("validation: an oversized limit is clamped server-side, never handed straight to the DB query",
+                    async () => {
+                        const author = await seedUser("kc-gql-feed-clamp",
+                            "gql-feed-clamp")
+                        for (let i = 0; i < 3; i += 1) {
+                            await entityManager.save(
+                                entityManager.create(CommunityPostEntity,
+                                    {
+                                        author,
+                                        channel: CommunityChannel.General,
+                                        body: `post #${i}`,
+                                    }),
+                            )
+                        }
+
+                        // anonymous (currentUser stays null) — communityFeed is optional-auth
+                        const response = await post(COMMUNITY_FEED_QUERY,
+                            {
+                                request: {
+                                    limit: 999,
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.communityFeed
+                        expect(body.success).toBe(true)
+                        // only 3 posts exist — proves the clamp didn't error, it just bounded the query
+                        expect(body.data.items).toHaveLength(3)
+                        expect(body.data.items.every((item: { reactions: { myReaction: string | null } }) =>
+                            item.reactions.myReaction === null)).toBe(true)
+                    })
+            })
+
+        describe("communityPost query",
+            () => {
+                it("fetches a single post by id with its reaction summary",
+                    async () => {
+                        const author = await seedUser("kc-gql-post-author",
+                            "gql-post-author")
+                        const singlePost = await entityManager.save(
+                            entityManager.create(CommunityPostEntity,
+                                {
+                                    author,
+                                    channel: CommunityChannel.Problems,
+                                    body: "need help with this",
+                                }),
+                        )
+
+                        const response = await post(COMMUNITY_POST_QUERY,
+                            {
+                                request: {
+                                    postId: singlePost.id,
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.communityPost
+                        expect(body.success).toBe(true)
+                        expect(body.data.id).toBe(singlePost.id)
+                        expect(body.data.body).toBe("need help with this")
+                        expect(body.data.channel).toBe("problems")
+                        expect(body.data.reactions.total).toBe(0)
+                    })
+
+                it("not-found: a non-existent postId surfaces CommunityPostNotFoundException through the response envelope, not a crash",
+                    async () => {
+                        const response = await post(COMMUNITY_POST_QUERY,
+                            {
+                                request: {
+                                    postId: "77777777-7777-4777-8777-777777777777",
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.communityPost
+                        expect(body.success).toBe(false)
+                        expect(body.error).toBe("COMMUNITY_POST_NOT_FOUND_EXCEPTION")
+                    })
+            })
+
+        describe("communityPostComments query",
+            () => {
+                it("lists top-level comments, then a parent's replies, each with its own total",
+                    async () => {
+                        const author = await seedUser("kc-gql-comments-author",
+                            "gql-comments-author")
+                        const parentPost = await entityManager.save(
+                            entityManager.create(CommunityPostEntity,
+                                {
+                                    author,
+                                    channel: CommunityChannel.General,
+                                    body: "post with comments",
+                                }),
+                        )
+                        const topLevel = await entityManager.save(
+                            entityManager.create(CommunityPostCommentEntity,
+                                {
+                                    post: parentPost,
+                                    user: author,
+                                    body: "top-level comment",
+                                }),
+                        )
+                        await entityManager.save(
+                            entityManager.create(CommunityPostCommentEntity,
+                                {
+                                    post: parentPost,
+                                    user: author,
+                                    parentComment: topLevel,
+                                    body: "a reply",
+                                }),
+                        )
+
+                        const topLevelResponse = await post(COMMUNITY_POST_COMMENTS_QUERY,
+                            {
+                                request: {
+                                    postId: parentPost.id,
+                                },
+                            })
+                        const topLevelBody = topLevelResponse.body.data.communityPostComments
+                        expect(topLevelBody.success).toBe(true)
+                        expect(topLevelBody.data.total).toBe(1)
+                        expect(topLevelBody.data.comments[0].id).toBe(topLevel.id)
+                        expect(topLevelBody.data.comments[0].replyCount).toBe(1)
+
+                        const repliesResponse = await post(COMMUNITY_POST_COMMENTS_QUERY,
+                            {
+                                request: {
+                                    postId: parentPost.id,
+                                    parentCommentId: topLevel.id,
+                                },
+                            })
+                        const repliesBody = repliesResponse.body.data.communityPostComments
+                        expect(repliesBody.data.total).toBe(1)
+                        expect(repliesBody.data.comments[0].body).toBe("a reply")
+                    })
+
+                it("not-found: a non-existent postId returns an EMPTY page (never errors, never leaks another post's comments)",
+                    async () => {
+                        const response = await post(COMMUNITY_POST_COMMENTS_QUERY,
+                            {
+                                request: {
+                                    postId: "88888888-8888-4888-8888-888888888888",
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.communityPostComments
+                        expect(body.success).toBe(true)
+                        expect(body.data.comments).toEqual([])
+                        expect(body.data.total).toBe(0)
+                    })
+            })
+
+        describe("createCommunityPostComment mutation",
+            () => {
+                it("an AUTHENTICATED user creates a top-level comment — persisted as a real row",
+                    async () => {
+                        const author = await seedUser("kc-gql-create-comment-author",
+                            "gql-create-comment-author")
+                        const commenter = await seedUser("kc-gql-create-comment-user",
+                            "gql-create-comment-user")
+                        const targetPost = await entityManager.save(
+                            entityManager.create(CommunityPostEntity,
+                                {
+                                    author,
+                                    channel: CommunityChannel.General,
+                                    body: "comment on me",
+                                }),
+                        )
+
+                        currentUser = commenter
+                        const response = await post(CREATE_COMMUNITY_POST_COMMENT_MUTATION,
+                            {
+                                request: {
+                                    postId: targetPost.id,
+                                    body: "a fresh comment",
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.createCommunityPostComment
+                        expect(body.success).toBe(true)
+                        expect(body.data.body).toBe("a fresh comment")
+                        expect(body.data.parentCommentId).toBeNull()
+
+                        const row = await entityManager.findOneOrFail(CommunityPostCommentEntity,
+                            {
+                                where: {
+                                    id: body.data.id,
+                                },
+                            })
+                        expect(row.body).toBe("a fresh comment")
+                        expect(row.userId).toBe(commenter.id)
+                    })
+
+                it("auth denied: an UNAUTHENTICATED request is rejected before the resolver runs, writes NO row",
+                    async () => {
+                        const author = await seedUser("kc-gql-create-comment-noauth",
+                            "gql-create-comment-noauth")
+                        const targetPost = await entityManager.save(
+                            entityManager.create(CommunityPostEntity,
+                                {
+                                    author,
+                                    channel: CommunityChannel.General,
+                                    body: "comment target",
+                                }),
+                        )
+
+                        // currentUser left null — the auth guard must deny before the mutation runs
+                        const response = await post(CREATE_COMMUNITY_POST_COMMENT_MUTATION,
+                            {
+                                request: {
+                                    postId: targetPost.id,
+                                    body: "should never land",
+                                },
+                            })
+
+                        expect(response.body.errors).toBeDefined()
+                        expect(response.body.errors.length).toBeGreaterThan(0)
+                        const count = await entityManager.count(CommunityPostCommentEntity,
+                            {
+                                where: {
+                                    post: {
+                                        id: targetPost.id,
+                                    },
+                                },
+                            })
+                        expect(count).toBe(0)
+                    })
+            })
+
+        describe("reactToCommunityPostComment mutation",
+            () => {
+                it("an AUTHENTICATED user reacts to a comment — real row + refreshed summary",
+                    async () => {
+                        const author = await seedUser("kc-gql-react-comment-author",
+                            "gql-react-comment-author")
+                        const reactor = await seedUser("kc-gql-react-comment-user",
+                            "gql-react-comment-user")
+                        const targetPost = await entityManager.save(
+                            entityManager.create(CommunityPostEntity,
+                                {
+                                    author,
+                                    channel: CommunityChannel.General,
+                                    body: "post",
+                                }),
+                        )
+                        const comment = await entityManager.save(
+                            entityManager.create(CommunityPostCommentEntity,
+                                {
+                                    post: targetPost,
+                                    user: author,
+                                    body: "react to me",
+                                }),
+                        )
+
+                        currentUser = reactor
+                        const response = await post(REACT_TO_COMMUNITY_POST_COMMENT_MUTATION,
+                            {
+                                request: {
+                                    commentId: comment.id,
+                                    type: "haha",
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.reactToCommunityPostComment
+                        expect(body.success).toBe(true)
+                        expect(body.data.total).toBe(1)
+                        expect(body.data.myReaction).toBe("haha")
+
+                        const rowCount = await entityManager.count(CommunityPostCommentReactionEntity,
+                            {
+                                where: {
+                                    comment: {
+                                        id: comment.id,
+                                    },
+                                    user: {
+                                        id: reactor.id,
+                                    },
+                                },
+                            })
+                        expect(rowCount).toBe(1)
+                    })
+
+                it("not-found: reacting to a non-existent commentId surfaces CommunityPostCommentNotFoundException",
+                    async () => {
+                        currentUser = await seedUser("kc-gql-react-comment-404",
+                            "gql-react-comment-404")
+
+                        const response = await post(REACT_TO_COMMUNITY_POST_COMMENT_MUTATION,
+                            {
+                                request: {
+                                    commentId: "99999999-9999-4999-8999-999999999999",
+                                    type: "like",
+                                },
+                            })
+
+                        expect(response.status).toBe(200)
+                        const body = response.body.data.reactToCommunityPostComment
+                        expect(body.success).toBe(false)
+                        expect(body.error).toBe("COMMUNITY_POST_COMMENT_NOT_FOUND_EXCEPTION")
                     })
             })
     })

@@ -15,7 +15,7 @@ import {
     XpSource,
 } from "@modules/databases"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
 } from "@modules/rag"
 import {
     FLAT_POINTS,
@@ -78,7 +78,7 @@ export class FlashcardQuizSessionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userFlashcardStatsProjectionService: UserFlashcardStatsProjectionService,
-        private readonly contentRagRetrievalService: ContentRagRetrievalService,
+        private readonly contentRagRetrievalService: CourseRagRetrievalService,
     ) {}
 
     /**

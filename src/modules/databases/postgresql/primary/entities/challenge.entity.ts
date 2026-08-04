@@ -379,4 +379,24 @@ export class ChallengeEntity extends UuidAbstractEntity {
     )
         contentId: string
 
+    /**
+     * The content-AI conversation the learner last used on this challenge's
+     * surface, so the FE can resume the remembered chat instead of starting a
+     * fresh one. Nullable — set once a `content-ai session` (scope = `challenge`)
+     * exists for this challenge; never set at seed time.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The content-AI conversation the learner last used on this challenge (for resume); null until one exists.",
+        },
+    )
+    @Column({
+        name: "content_ai_session_id",
+        type: "uuid",
+        nullable: true,
+    })
+        contentAiSessionId: string | null
+
 }

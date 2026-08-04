@@ -217,7 +217,10 @@ export class WeeklyChallengeService {
                 userId,
                 source: CoinSource.WeeklyChallenge,
                 points: coinReward,
-                refId: `weeklyChallenge:${userId}:${weekStart.toISOString()}`,
+                // date-only week key: the full ISO timestamp made this refId
+                // exceed coin_histories.ref_id's varchar(64) (16+36+1+24 = 77).
+                // A week is uniquely identified by its start date alone.
+                refId: `weeklyChallenge:${userId}:${weekStart.toISOString().slice(0, 10)}`,
             })
             await manager.save(
                 manager.create(

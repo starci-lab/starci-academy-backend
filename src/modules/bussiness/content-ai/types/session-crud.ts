@@ -6,7 +6,7 @@ import type {
 export interface CreateContentAiSessionParams {
     /** The learner the session is created for. */
     userId: string
-    /** Explicit scope; when omitted, derived by anchor priority (content > task > challenge > quiz > foundation > course). */
+    /** Explicit scope; when omitted, derived by anchor priority (content > task > challenge > quiz > foundation > course > global). */
     scope?: ContentAiScope | null
     /** Lesson content the session is anchored to (content scope). */
     contentId?: string | null

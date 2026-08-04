@@ -1,7 +1,0 @@
-<class 'list'> 5
-{
-  "level": 1,
-  "text": "So on DigitalOcean, a 'flavor' is basically the `size` slug you pass in — there's no custom CPU/RAM picker like GCP has, DO only gives you fixed presets baked into that one string. The prefix tells you the family: `s-` is Basic shared-CPU, `g-` is General-Purpose with roughly a 1-to-4 vCPU-to-RAM ratio and it's the safe default when you don't know the workload yet, `c-` is CPU-Optimized with dedicated vCPU and a 1-to-2 ratio for CPU-heavy stuff, `m-` is Memory-Optimized at 1-to-8 for RAM-hungry apps, and `so-`/`gd-` is Storage-Optimized with large NVMe for disk-heavy workloads. You can't just grab the biggest droplet because picking wrong doesn't break anything, it just quietly wastes money — like a Node.js backend is single-threaded and CPU-bound, so if you pick `g-4vcpu-8gb` you're paying for 8GB of RAM you barely touch, when what you actually need is dedicated vCPU from `c-2` or `c-4`. So the principle is match the bottleneck: CPU-bound goes CPU-Optimized, memory-bound goes Memory-Optimized, disk-heavy goes Storage-Optimized, and General-Purpose is only for balanced or unclear cases.",
-  "sonnet": 100,
-  "haiku": 100
-}

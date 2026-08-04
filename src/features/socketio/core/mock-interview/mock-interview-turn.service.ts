@@ -13,7 +13,7 @@ import {
     normalizeMockInterviewKind,
 } from "@modules/databases"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
 } from "@modules/rag"
 import type {
     PrepareMockInterviewTurnParams,
@@ -117,7 +117,7 @@ const QNA_KIND_FRAMING_MAP: Record<string, string> = {
 @Injectable()
 export class MockInterviewTurnService {
     constructor(
-        private readonly contentRagRetrievalService: ContentRagRetrievalService,
+        private readonly contentRagRetrievalService: CourseRagRetrievalService,
     ) { }
 
     /**
@@ -146,7 +146,7 @@ export class MockInterviewTurnService {
      * then instructs the model to stay strictly within the current canonical
      * phase and to degrade to a generic-but-still-on-rails question when the
      * retrieved excerpt comes back empty (index missing / retrieval failure —
-     * {@link ContentRagRetrievalService} already degrades gracefully on its end).
+     * {@link CourseRagRetrievalService} already degrades gracefully on its end).
      *
      * @param params - Course scope, prompt title, current phase, transcript, locale, and level.
      * @returns One system message (persona + rules + course excerpt) plus one

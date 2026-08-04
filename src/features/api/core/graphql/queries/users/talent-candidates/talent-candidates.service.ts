@@ -93,7 +93,11 @@ export class TalentCandidatesService {
             EnrollmentEntity,
             {
                 where: {
-                    courseId,
+                    // `courseId` is a @RelationId virtual column — not queryable in a
+                    // `where`; filter through the real `course` relation instead.
+                    course: {
+                        id: courseId,
+                    },
                     isEnrolled: true,
                     user: {
                         openToWork: true,

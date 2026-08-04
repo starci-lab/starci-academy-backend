@@ -395,4 +395,24 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         },
     )
         approachCriteria: Array<MilestoneTaskApproachCriteriaEntity>
+
+    /**
+     * The content-AI conversation the learner last used on this task's surface,
+     * so the FE can resume the remembered chat instead of starting a fresh one.
+     * Nullable — set once a `content-ai session` (scope = `task`) exists for this
+     * task; never set at seed time.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The content-AI conversation the learner last used on this task (for resume); null until one exists.",
+        },
+    )
+    @Column({
+        name: "content_ai_session_id",
+        type: "uuid",
+        nullable: true,
+    })
+        contentAiSessionId: string | null
 }

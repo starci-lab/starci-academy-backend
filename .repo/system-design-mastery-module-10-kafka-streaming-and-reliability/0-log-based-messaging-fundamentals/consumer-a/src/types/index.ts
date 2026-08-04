@@ -1,4 +1,0 @@
-/**
- * Barrel re-export for types/ folder.
- */
-export * from "./common"

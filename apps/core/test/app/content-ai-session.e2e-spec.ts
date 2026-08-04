@@ -47,7 +47,7 @@ import {
     S3ReadService,
 } from "@modules/s3"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
 } from "@modules/rag"
 import {
     AiEntitlementService,
@@ -120,7 +120,7 @@ const POSTGRESQL_PRIMARY = "primary"
  * MOCKED (no external infra available in this harness):
  *  - `S3ReadService` — real class talks to MinIO; stubbed to hand back a canned
  *    lesson body.
- *  - `ContentRagRetrievalService` — real class talks to Qdrant; stubbed (unused
+ *  - `CourseRagRetrievalService` — real class talks to Qdrant; stubbed (unused
  *    by the small-body/no-code grounding path this spec exercises).
  *  - `AiInvokeService.run` — real class calls the model balancer/providers;
  *    stubbed to return a canned answer.
@@ -167,9 +167,22 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
         const s3ReadServiceMock = {
             json: jest.fn(),
         }
+        // both default to the real service's own empty-degrade shape (never
+        // undefined) — additive grounding calls `retrieveCourseExcerpt` for the
+        // course-wide BASE layer on every request that resolves a course, in
+        // addition to whichever page-specific PAGE layer call applies, so both
+        // must resolve even when a test only cares about the page-level answer.
         const contentRagMock = {
-            retrieveContentExcerpt: jest.fn(),
-            retrieveCourseExcerpt: jest.fn(),
+            retrieveContentExcerpt: jest.fn().mockResolvedValue({
+                excerpt: "",
+                retrievedChunks: 0,
+                matchedContentIds: [],
+            }),
+            retrieveCourseExcerpt: jest.fn().mockResolvedValue({
+                excerpt: "",
+                retrievedChunks: 0,
+                matchedContentIds: [],
+            }),
         }
         const aiInvokeServiceMock = {
             run: jest.fn().mockResolvedValue({
@@ -302,7 +315,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                     // real class, no external deps — safe to use as-is
                     S3NameResolverService,
                     {
-                        provide: ContentRagRetrievalService,
+                        provide: CourseRagRetrievalService,
                         useValue: contentRagMock,
                     },
                     {
@@ -536,6 +549,28 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                         },
                     })
                 expect(titledSession.title).toBe(question)
+            })
+
+        it("createContentAiSession with NO enrollment for the content's course → silent no-op: null id, no row persisted",
+            async () => {
+                // deliberately no seedEnrollment() call — the caller has never
+                // touched this course at all
+                currentUser = await seedUser("kc-content-ai-create-no-enrollment")
+
+                const response = await gql(CREATE_SESSION_MUTATION,
+                    {
+                        contentId: content.id,
+                    })
+
+                expect(response.status).toBe(200)
+                const body = response.body.data.createContentAiSession
+                // createSession's contract: a missing anchor / enrollment resolves to
+                // `null` (no row created) rather than throwing — the interceptor still
+                // reports success (nothing errored), so `data.id` is the signal to check
+                expect(body.success).toBe(true)
+                expect(body.data.id).toBeNull()
+
+                expect(await entityManager.count(ContentAiSessionEntity)).toBe(0)
             })
 
         it("IDOR — deleteContentAiSession as a non-owner is a silent no-op: the session survives; the real owner's delete removes it",

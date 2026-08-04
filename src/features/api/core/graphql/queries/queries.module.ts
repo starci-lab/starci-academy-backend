@@ -71,9 +71,6 @@ import {
     DiscussionQueriesModule,
 } from "./discussion"
 import {
-    AiLabQueriesModule,
-} from "./ai-lab"
-import {
     SessionsQueriesModule,
 } from "./sessions"
 import {
@@ -182,9 +179,6 @@ import {
             isGlobal: true,
         }),
         DiscussionQueriesModule.register({
-            isGlobal: true,
-        }),
-        AiLabQueriesModule.register({
             isGlobal: true,
         }),
         SessionsQueriesModule.register({

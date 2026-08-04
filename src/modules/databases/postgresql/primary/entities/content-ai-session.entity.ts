@@ -36,10 +36,14 @@ import {
  * The `scope` selects WHICH anchor column identifies the conversation:
  * - `content`  → `originContent` (a course lesson/content item).
  * - `task`     → `originTask` (a capstone / personal-project task).
+ * - `challenge` → `originChallenge` (a hands-on challenge).
+ * - `quiz`     → `originQuiz` (a flashcard-quiz deck).
  * - `foundation` → `originFoundation` (a GLOBAL foundation-library doc; no course).
  * - `course`   → the enrollment's course itself (no per-item anchor).
+ * - `global`   → the app-wide chat; no anchor column at all — keys off {@link
+ *   ContentAiSessionEntity.user} the same way `foundation` does.
  */
-export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course"
+export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course" | "global"
 
 /**
  * One content-AI conversation thread — a named chat a learner keeps about a lesson,

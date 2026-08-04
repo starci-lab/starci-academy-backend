@@ -108,7 +108,7 @@ export interface BuildContentRagIndexResult {
  * `{ contentId, courseId, kind, filePath, lang, sourceHash }` — `contentId` is
  * really "this row's own id" regardless of kind (content/code/challenge/
  * flashcard/milestone all share the same UUID id-space) — so content-AI chat
- * can filter by a single lesson's `contentId`, `ContentRagRetrievalService.
+ * can filter by a single lesson's `contentId`, `CourseRagRetrievalService.
  * searchCourse` can filter by `courseId` across every kind, and this service
  * can tell whether a row's source changed since it was last indexed.
  *

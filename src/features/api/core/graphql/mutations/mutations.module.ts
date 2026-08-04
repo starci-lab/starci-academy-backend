@@ -38,9 +38,6 @@ import {
     InterviewMutationsModule,
 } from "./interview"
 import {
-    AiLabMutationsModule,
-} from "./ai-lab"
-import {
     MembershipMutationsModule,
 } from "./membership"
 import {
@@ -123,9 +120,6 @@ import {
             isGlobal: true,
         }),
         InterviewMutationsModule.register({
-            isGlobal: true,
-        }),
-        AiLabMutationsModule.register({
             isGlobal: true,
         }),
         MembershipMutationsModule.register({

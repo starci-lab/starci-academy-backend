@@ -18,7 +18,7 @@ import {
     S3ReadService,
 } from "@modules/s3"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
 } from "@modules/rag"
 import {
     UserService,
@@ -168,7 +168,7 @@ describe("ContentAiService",
                         useValue: userService,
                     },
                     {
-                        provide: ContentRagRetrievalService,
+                        provide: CourseRagRetrievalService,
                         useValue: contentRagRetrievalService,
                     },
                 ],
@@ -459,11 +459,23 @@ describe("ContentAiService",
                             .toContain("QUIZ MATERIAL")
                     })
 
-                it("COURSE · not enrolled → NO course RAG fetched (premium-safe)",
+                it("COURSE · not enrolled → grounds on course RAG with PREMIUM content EXCLUDED (no leak)",
                     async () => {
                         userService.checkEnrollment.mockResolvedValueOnce(false)
+                        entityManager.find.mockResolvedValueOnce([
+                            {
+                                id: "premium-1",
+                            },
+                            {
+                                id: "premium-2",
+                            },
+                        ])
+                        contentRagRetrievalService.retrieveCourseExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "FREE-COURSE-CHUNK",
+                            })
 
-                        await service.prepareMessages({
+                        const { messages } = await service.prepareMessages({
                             userId,
                             courseId,
                             question: "What does this course cover?",
@@ -473,8 +485,19 @@ describe("ContentAiService",
                         expect(userService.checkEnrollment)
                             .toHaveBeenCalledWith(userId,
                                 courseId)
+                        // never the binary block anymore — the RAG call itself
+                        // excludes every premium lesson id of the course
                         expect(contentRagRetrievalService.retrieveCourseExcerpt)
-                            .not.toHaveBeenCalled()
+                            .toHaveBeenCalledWith({
+                                courseId,
+                                query: "What does this course cover?",
+                                excludeContentIds: [
+                                    "premium-1",
+                                    "premium-2",
+                                ],
+                            })
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("FREE-COURSE-CHUNK")
                     })
 
                 it("COURSE · enrolled → grounds on course-wide RAG",
@@ -833,6 +856,57 @@ describe("ContentAiService",
                         expect(list).toEqual([])
                         // never ran the list query (bailed at the owner resolve)
                         expect(entityManager.query).toHaveBeenCalledTimes(1)
+                    })
+            })
+
+        // ── ADDITIVE BASE GROUNDING — the app-wide layered-context surface ───────
+        // A question layers a course-wide BASE under whichever page grounding
+        // applies (content/task/challenge/quiz), and a truly anchorless request
+        // (no page, no course) is the "global" app-wide chat — never throws.
+        describe("additive BASE grounding (app-wide chat)",
+            () => {
+                it("CONTENT · additive BASE layers course-wide RAG UNDER the lesson's own material",
+                    async () => {
+                        userService.checkEnrollment.mockResolvedValueOnce(true)
+                        contentRagRetrievalService.retrieveCourseExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "COURSE-WIDE-BASE-CHUNK",
+                            })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        const system = messages[0] as SystemMessage
+                        // the additive BASE section, ahead of the page section...
+                        expect(system.content).toContain("=== COURSE KNOWLEDGE (retrieved) ===")
+                        expect(system.content).toContain("COURSE-WIDE-BASE-CHUNK")
+                        // ...AND the lesson's own page grounding, unchanged
+                        expect(system.content).toContain("=== LESSON CONTENT ===")
+                        expect(system.content).toContain(smallBody)
+                        expect(contentRagRetrievalService.retrieveCourseExcerpt)
+                            .toHaveBeenCalledWith({
+                                courseId: "course-1",
+                                query: baseParams.question,
+                            })
+                    })
+
+                it("GLOBAL · fully anchorless (no anchor, no course) → general tutor, no base section, never throws",
+                    async () => {
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            question: "How do I reverse a linked list?",
+                            locale: Locale.En,
+                        })
+
+                        // no course to resolve → no entitlement / RAG machinery touched at all
+                        expect(userService.checkEnrollment).not.toHaveBeenCalled()
+                        expect(contentRagRetrievalService.retrieveCourseExcerpt).not.toHaveBeenCalled()
+                        expect(contentRagRetrievalService.retrieveContentExcerpt).not.toHaveBeenCalled()
+
+                        const system = messages[0] as SystemMessage
+                        expect(system.content).not.toContain("=== COURSE KNOWLEDGE (retrieved) ===")
+                        expect(system.content).toContain("general, sharp programming tutor")
+                        const last = messages[messages.length - 1] as HumanMessage
+                        expect(last.content).toBe("How do I reverse a linked list?")
                     })
             })
     })

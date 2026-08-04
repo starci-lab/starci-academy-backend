@@ -3,10 +3,20 @@
  * `(scope + anchor)`; the scope selects WHICH grounding path runs:
  * - `"content"`: a course lesson/content item (MinIO body + repo code, premium-gated).
  * - `"task"`: a capstone / personal-project task (milestone RAG chunk, enrolled-only).
+ * - `"challenge"`: a hands-on challenge (RAG chunk, enrolled-only).
+ * - `"quiz"`: a flashcard-quiz deck (RAG chunk, enrolled-only).
  * - `"foundation"`: a global foundation-library doc (single-doc RAG, no course gate).
- * - `"course"`: the whole course (course-wide RAG, enrolled-only).
+ * - `"course"`: the whole course, no page of its own (course-wide RAG is the ONLY
+ *   grounding — the additive BASE described below IS the course's grounding here).
+ * - `"global"`: the app-wide chat — no page anchor AND no course (truly anchorless).
+ *   Anchored on the USER (like `foundation`), never an enrollment.
+ *
+ * ADDITIVE grounding: every anchored scope above (content/task/challenge/quiz)
+ * layers a course-wide BASE (this course's RAG, premium-excluded for a
+ * non-enrolled viewer) UNDER its own page-specific grounding — see
+ * {@link import("../content-ai.service").ContentAiService.prepareMessages}.
  */
-export type ContentAiScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course"
+export type ContentAiScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course" | "global"
 
 /** One prior chat turn replayed to the model as short-term memory. */
 export interface ContentAiHistoryMessage {

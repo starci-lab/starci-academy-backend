@@ -14,9 +14,6 @@ import {
     ContentDiscussionModule,
 } from "./content-discussion"
 import {
-    AiLabModule,
-} from "./ai-lab"
-import {
     NotificationsModule,
 } from "./notifications"
 import {
@@ -55,9 +52,6 @@ import {
             isGlobal: true,
         }),
         ContentDiscussionModule.register({
-            isGlobal: true,
-        }),
-        AiLabModule.register({
             isGlobal: true,
         }),
         NotificationsModule.register({

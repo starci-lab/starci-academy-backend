@@ -31,7 +31,7 @@ import {
     ParsingCriteriaResultsFromModelTextException,
 } from "@modules/exceptions"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
 } from "@modules/rag"
 import {
     UserService,
@@ -146,7 +146,7 @@ export class MockInterviewGradingService {
         private readonly aiInvokeService: AiInvokeService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
         private readonly aiEntitlementService: AiEntitlementService,
-        private readonly contentRagRetrievalService: ContentRagRetrievalService,
+        private readonly contentRagRetrievalService: CourseRagRetrievalService,
         private readonly userService: UserService,
     ) { }
 

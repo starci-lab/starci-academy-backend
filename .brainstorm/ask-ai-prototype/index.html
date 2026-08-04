@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ask AI · Layered Context · toàn states</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --panel:#ffffff; --panel2:#faf9f6; --ink:#1c1c1a; --ink2:#5f5e5a; --ink3:#8a8981;
+    --line:#e7e5df; --line2:#d3d1c7;
+    --accent:#185fa5; --accent-bg:#e6f1fb; --accent-ink:#0c447c;
+    --ok:#0f6e56; --ok-bg:#e1f5ee; --ok-ink:#085041;
+    --warn:#854f0b; --warn-bg:#faeeda; --warn-ink:#633806;
+    --danger:#a32d2d; --danger-bg:#fcebeb; --danger-ink:#791f1f;
+    --radius:10px;
+  }
+  [data-theme="dark"]{
+    --bg:#1b1b19; --panel:#242422; --panel2:#201f1d; --ink:#f0efe9; --ink2:#b4b2a9; --ink3:#888780;
+    --line:#33322e; --line2:#444441;
+    --accent:#85b7eb; --accent-bg:#123146; --accent-ink:#cfe4f8;
+    --ok:#5dcaa5; --ok-bg:#0f3a30; --ok-ink:#bff0e0;
+    --warn:#ef9f27; --warn-bg:#3f2c0d; --warn-ink:#f7d79a;
+    --danger:#f09595; --danger-bg:#3d1414; --danger-ink:#f6c3c3;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+  .app{display:grid;grid-template-columns:236px 1fr;grid-template-rows:52px 1fr;height:100vh}
+  .topbar{grid-column:1/3;display:flex;align-items:center;gap:14px;padding:0 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .brand{font-weight:600;display:flex;align-items:center;gap:9px}
+  .dot{width:22px;height:22px;border-radius:6px;background:var(--accent-bg);color:var(--accent-ink);display:grid;place-items:center;font-size:13px}
+  .states{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+  .chip-btn{font-size:12.5px;padding:5px 11px;border-radius:20px;border:1px solid var(--line2);background:var(--panel);color:var(--ink2);cursor:pointer}
+  .chip-btn.on{background:var(--accent-bg);color:var(--accent-ink);border-color:transparent}
+  .theme{border:1px solid var(--line2);background:var(--panel);color:var(--ink2);width:30px;height:30px;border-radius:8px;cursor:pointer}
+  .rail{border-right:1px solid var(--line);background:var(--panel2);padding:12px;overflow:auto}
+  .rail h4{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);margin:6px 6px 8px;font-weight:600}
+  .newbtn{width:100%;display:flex;align-items:center;gap:8px;justify-content:center;border:1px solid var(--line2);background:var(--panel);color:var(--ink);border-radius:8px;padding:8px;cursor:pointer;margin-bottom:12px;font-size:13px}
+  .sess{display:flex;gap:9px;align-items:flex-start;padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:3px;border:1px solid transparent}
+  .sess:hover{background:var(--panel)}
+  .sess.on{background:var(--panel);border-color:var(--line2)}
+  .sess .ic{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:12px;flex:none;margin-top:1px}
+  .sess .tt{font-size:13px;font-weight:500;line-height:1.3}
+  .sess .mt{font-size:11.5px;color:var(--ink3)}
+  .ic-base{background:var(--accent-bg);color:var(--accent-ink)}
+  .ic-page{background:var(--ok-bg);color:var(--ok-ink)}
+  .ic-quote{background:var(--warn-bg);color:var(--warn-ink)}
+  .main{display:grid;grid-template-columns:1fr 392px;overflow:hidden}
+  .reading{border-right:1px solid var(--line);overflow:auto;padding:22px 26px;background:var(--panel)}
+  .reading h2{font-size:19px;margin:0 0 4px}
+  .reading .crumb{font-size:12px;color:var(--ink3);margin-bottom:16px;display:flex;gap:6px;align-items:center}
+  .reading p{color:var(--ink2);margin:0 0 14px}
+  mark{background:var(--warn-bg);color:var(--warn-ink);padding:1px 3px;border-radius:4px;cursor:pointer}
+  .qpop{display:inline-flex;gap:6px;align-items:center;font-size:12px;background:var(--warn-ink);color:#fff;border:none;border-radius:20px;padding:5px 11px;cursor:pointer;margin-left:8px;vertical-align:middle}
+  .facts{margin-top:18px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--panel2)}
+  .facts h5{margin:0 0 8px;font-size:12px;color:var(--ink3);letter-spacing:.03em;text-transform:uppercase;font-weight:600}
+  .facts .row{display:flex;gap:8px;font-size:12.5px;color:var(--ink2);padding:3px 0}
+  .facts .row b{color:var(--ink);font-weight:500;min-width:96px;flex:none}
+  .wip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--warn-bg);color:var(--warn-ink);margin-left:8px}
+  .globalempty{display:grid;place-items:center;min-height:60%;text-align:center;color:var(--ink3);padding:24px}
+  .globalempty .big{width:52px;height:52px;border-radius:14px;background:var(--accent-bg);color:var(--accent-ink);display:grid;place-items:center;font-size:24px;margin:0 auto 14px}
+  .chat{display:flex;flex-direction:column;background:var(--panel2);overflow:hidden}
+  .ctxbar{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--panel)}
+  .lchip{font-size:11.5px;padding:4px 9px;border-radius:20px;display:inline-flex;gap:5px;align-items:center;font-weight:500}
+  .l-base{background:var(--accent-bg);color:var(--accent-ink)}
+  .l-page{background:var(--ok-bg);color:var(--ok-ink)}
+  .l-quote{background:var(--warn-bg);color:var(--warn-ink)}
+  .tierbadge{margin-left:auto;font-size:11px;color:var(--ink3);display:inline-flex;gap:5px;align-items:center}
+  .stream{flex:1;overflow:auto;padding:16px 14px;display:flex;flex-direction:column;gap:12px}
+  .bubble{max-width:86%;padding:9px 12px;font-size:13.5px;line-height:1.55;border-radius:12px}
+  .u{align-self:flex-end;background:var(--accent-bg);color:var(--accent-ink);border-bottom-right-radius:4px}
+  .a{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .a .src{color:var(--ink3);font-size:12px}
+  .typing{align-self:flex-start;display:inline-flex;gap:4px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;border-bottom-left-radius:4px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--ink3);animation:bl 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  @keyframes bl{0%,60%,100%{opacity:.25}30%{opacity:1}}
+  .note{margin:0 auto;text-align:center;max-width:92%;font-size:12.5px;color:var(--ink2);background:var(--panel);border:1px dashed var(--line2);border-radius:10px;padding:10px 12px}
+  .note.err{color:var(--danger-ink);background:var(--danger-bg);border-color:transparent}
+  .note.gate{color:var(--warn-ink);background:var(--warn-bg);border-color:transparent}
+  .composer{border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px;align-items:center;background:var(--panel)}
+  .composer .fake{flex:1;font-size:13px;color:var(--ink3);border:1px solid var(--line2);border-radius:20px;padding:9px 13px}
+  .send{width:34px;height:34px;border-radius:50%;background:var(--accent-bg);color:var(--accent-ink);border:none;display:grid;place-items:center;cursor:pointer;font-size:16px}
+  .emptychat{flex:1;display:grid;place-items:center;text-align:center;color:var(--ink3);padding:30px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <span class="brand"><span class="dot">✦</span> Trợ lý AI · ngữ cảnh phân lớp</span>
+    <div class="states" id="states"></div>
+    <button class="theme" id="theme" title="Đổi giao diện">◐</button>
+  </div>
+
+  <aside class="rail">
+    <button class="newbtn">＋ Trò chuyện mới</button>
+    <h4>Phiên trò chuyện</h4>
+    <div id="sessions"></div>
+  </aside>
+
+  <main class="main">
+    <section class="reading" id="reading"></section>
+    <section class="chat">
+      <div class="ctxbar" id="ctxbar"></div>
+      <div class="stream" id="stream"></div>
+      <div class="composer">
+        <span class="fake" id="composer">Hỏi bất cứ điều gì…</span>
+        <button class="send">↑</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const SESS = {
+  global:{ icon:"🌐", cls:"ic-base", title:"Trò chuyện chung", meta:"nền: toàn bộ source", layers:["base"], tier:"low · haiku" },
+  content:{ icon:"📄", cls:"ic-page", title:"Bài: Closures", meta:"nền + bài + code", layers:["base","page"], tier:"mid · sonnet" },
+  quote:{ icon:"❝", cls:"ic-quote", title:'Trích: "…phạm vi bao ngoài"', meta:"nền + bài + trích", layers:["base","page","quote"], tier:"high · opus" },
+};
+const LAYER = {
+  base:["l-base","🌐 Toàn bộ khoá học"],
+  page:["l-page","📄 Bài đọc (body MinIO)"],
+  code:["l-page","</> Mã nguồn bài (toàn repo)"],
+  quote:["l-quote","❝ Đoạn trích"],
+};
+
+let cur = "content", ui = "content";
+
+const QA = {
+  global:{ q:"Khoá học này có phần nào dạy về bất đồng bộ không?", a:'Có — chủ đề bất đồng bộ nằm ở học phần <b>Async & Promises</b>, gồm 3 bài. <span class="src">(RAG toàn bộ source khoá học)</span>' },
+  content:{ q:"Vì sao biến vẫn giữ được giá trị sau khi hàm ngoài kết thúc?", a:'Vì closure giữ <b>tham chiếu</b> tới biến trong phạm vi bao ngoài, nên biến không bị thu hồi khi hàm ngoài trả về. <span class="src">(nguồn: body bài + toàn bộ repo code của bài)</span>' },
+  quote:{ q:"Câu này áp dụng cho vòng lặp thì sao?", a:'Trong vòng lặp, mỗi closure bắt tham chiếu tới cùng biến bao ngoài — nếu dùng <code>var</code> thì chúng chia sẻ 1 biến; <code>let</code> tạo binding mới mỗi vòng. <span class="src">(chỉ xét đoạn bạn đã quote)</span>' },
+};
+
+const FACTS = {
+  global:[
+    ["Nạp vào","RAG trên toàn bộ source khoá học (mọi bài + code)"],
+    ["Cổng","chưa xác định — không neo 1 course cụ thể"],
+    ["Neo phiên","theo USER (không qua enrollment)"],
+    ["Trạng thái","content-ai-chat-app-wide · chưa lên mtp"],
+  ],
+  content:[
+    ["Nạp vào","body bài (đọc từ MinIO, KHÔNG từ cột DB) + toàn bộ repo code của bài"],
+    ["Theo cỡ","nhỏ → nhồi cả body+code · lớn → RAG top-k chunk của bài"],
+    ["Cổng","premium → chặn nếu chưa enroll (PremiumContentAiAccessDenied)"],
+    ["System prompt","persona tutor + 'primary source' + trả lời theo locale (Vi/En)"],
+    ["Neo phiên","theo enrollment (content scope)"],
+  ],
+  quote:[
+    ["Nạp vào","đi TRONG câu hỏi: <display>câu hỏi</display> + <context>đoạn bôi đen + đoạn văn bao quanh</context>"],
+    ["Model dùng","<context> chỉ để biết HỎI CHỖ NÀO → trả lời <display>, không lặp lại tag"],
+    ["Phiên","selection-passage chat → tạo SESSION MỚI (session-crud)"],
+    ["Có sẵn?","CÓ trên mtp — quote nằm trong `question`, không phải param riêng"],
+  ],
+};
+
+function chips(layers){
+  const set = [...layers];
+  if(set.includes("page")) set.splice(set.indexOf("page")+1,0,"code");
+  return set.map(k=>{const [c,t]=LAYER[k];return `<span class="lchip ${c}">${t}</span>`}).join("");
+}
+function factsHtml(k){
+  const wip = (k==="global");
+  return `<div class="facts"><h5>Ngữ cảnh nạp vào — theo code${wip?'<span class="wip">chưa lên mtp</span>':''}</h5>${
+    FACTS[k].map(([a,b])=>`<div class="row"><b>${a}</b><span>${b}</span></div>`).join("")}</div>`;
+}
+
+function renderSessions(){
+  document.getElementById("sessions").innerHTML = Object.entries(SESS).map(([k,s])=>`
+    <div class="sess ${k===cur?'on':''}" data-k="${k}">
+      <span class="ic ${s.cls}">${s.icon}</span>
+      <div><div class="tt">${s.title}</div><div class="mt">${s.meta}</div></div>
+    </div>`).join("");
+  document.querySelectorAll(".sess").forEach(el=>el.onclick=()=>{cur=el.dataset.k; if(ui==="gated"&&cur!=="content")ui="content"; draw();});
+}
+
+function renderStates(){
+  const S=[["empty","Trống"],["loading","Đang trả lời"],["content","Có trả lời"],["error","Lỗi"],["gated","Chặn premium"]];
+  document.getElementById("states").innerHTML = S.map(([k,t])=>`<button class="chip-btn ${k===ui?'on':''}" data-u="${k}">${t}</button>`).join("");
+  document.querySelectorAll("[data-u]").forEach(el=>el.onclick=()=>{ui=el.dataset.u; draw();});
+}
+
+function renderReading(){
+  const r=document.getElementById("reading");
+  if(cur==="global"){
+    r.innerHTML=`<div class="globalempty"><div><div class="big">🌐</div><div style="font-weight:600;color:var(--ink);font-size:15px;margin-bottom:4px">Ngữ cảnh gốc: toàn bộ source</div>Không mở trang nào — AI tra cứu trên toàn kho nội dung & mã nguồn khoá học.</div></div>${factsHtml("global")}`;
+    return;
+  }
+  r.innerHTML=`
+    <div class="crumb">Fullstack Mastery › Module 1 ›</div>
+    <h2>Closures trong JavaScript</h2>
+    <p>Closure là một hàm được đóng gói cùng tham chiếu tới trạng thái xung quanh nó (môi trường từ vựng). <mark id="quoteable">Nhờ đó hàm vẫn truy cập được các biến của phạm vi bao ngoài sau khi phạm vi đó đã kết thúc</mark>${cur==='content'?'<button class="qpop" id="qbtn">❝ Hỏi AI về đoạn này</button>':''}.</p>
+    <p>Bài này đính kèm <b>toàn bộ repo code của bài</b> vào ngữ cảnh — không phải một file lẻ. Nếu body + code đủ nhỏ, cả hai được nhồi thẳng; nếu lớn, hệ thống RAG lấy các chunk (body + code) liên quan nhất tới câu hỏi.</p>
+    ${factsHtml(cur)}`;
+  const qb=document.getElementById("qbtn");
+  if(qb) qb.onclick=()=>{cur="quote"; ui="content"; draw(); };
+}
+
+function renderChat(){
+  document.getElementById("ctxbar").innerHTML = chips(SESS[cur].layers) +
+    `<span class="tierbadge">⚡ ${SESS[cur].tier}</span>`;
+  const s=document.getElementById("stream");
+  const qa=QA[cur];
+  document.getElementById("composer").textContent = cur==="quote" ? "Hỏi tiếp về đoạn đã quote…" : "Hỏi bất cứ điều gì…";
+  if(ui==="empty"){
+    s.innerHTML=`<div class="emptychat"><div><div style="font-size:26px;margin-bottom:8px">💬</div>Bắt đầu hỏi — câu trả lời dựa trên ${SESS[cur].layers.length>1?'ngữ cảnh trang này':'toàn bộ khoá học'}.</div></div>`;
+    return;
+  }
+  let html=`<div class="bubble u">${qa.q}</div>`;
+  if(cur==="quote") html=`<div class="note">↳ Phiên mới tạo từ trích đoạn — kế thừa nền + bài, thêm chip trích đoạn.</div>`+html;
+  if(ui==="loading"){ html+=`<div class="typing"><i></i><i></i><i></i></div>`; }
+  else if(ui==="content"){ html+=`<div class="bubble a">${qa.a}</div>`; }
+  else if(ui==="error"){ html+=`<div class="note err">Không gọi được model (mọi tier đều lỗi/timeout). Thử lại sau.</div>`; }
+  else if(ui==="gated"){ html+=`<div class="note gate">Bài premium — chưa enroll nên bị chặn hỏi AI về nội dung bài (PremiumContentAiAccessDenied). Ngữ cảnh trang không được nạp.</div>`; }
+  s.innerHTML=html;
+  s.scrollTop=s.scrollHeight;
+}
+
+function draw(){ renderSessions(); renderStates(); renderReading(); renderChat(); }
+
+document.getElementById("theme").onclick=()=>{
+  const el=document.documentElement;
+  el.setAttribute("data-theme", el.getAttribute("data-theme")==="dark"?"light":"dark");
+};
+if(matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.setAttribute("data-theme","dark");
+draw();
+</script>
+</body>
+</html>

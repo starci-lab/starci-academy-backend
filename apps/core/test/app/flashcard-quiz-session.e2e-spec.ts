@@ -34,7 +34,7 @@ import {
     UserService,
 } from "@modules/bussiness"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
 } from "@modules/rag"
 import {
     StartFlashcardQuizSessionHandler,
@@ -73,7 +73,7 @@ const FLASHCARD_QUIZ_SESSION_POINTS = 5
  *
  * MOCKED (no external infra available in this harness):
  *  - `CacheService` — real class talks to Redis; stubbed to always miss.
- *  - `ContentRagRetrievalService` — real class talks to Qdrant; stubbed to
+ *  - `CourseRagRetrievalService` — real class talks to Qdrant; stubbed to
  *    return no hits, so a session that DOES rank weak tags still degrades
  *    exactly like a production Qdrant outage (tag + coverage kept, no deep
  *    link) rather than needing a live vector index in the test harness.
@@ -136,7 +136,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
                         useValue: cacheServiceMock,
                     },
                     {
-                        provide: ContentRagRetrievalService,
+                        provide: CourseRagRetrievalService,
                         useValue: contentRagRetrievalServiceMock,
                     },
                 ],
@@ -198,6 +198,16 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
         })
 
         afterAll(async () => {
+            // the deck/card fixtures are read-only WITHIN this suite, but the
+            // Testcontainers Postgres is shared across the whole e2e run (see
+            // setup-e2e.ts) — leaving them behind pollutes any OTHER file's
+            // courseId-less "global" flashcard query with cards this suite has no
+            // control over (e.g. flashcard-stats-queries.e2e-spec.ts's
+            // myDueFlashcards). CASCADE also clears flashcard_cards (+ their
+            // translations).
+            await entityManager.query(
+                "TRUNCATE TABLE \"flashcard_decks\" RESTART IDENTITY CASCADE",
+            ).catch(() => undefined)
             await app.close().catch(() => undefined)
         })
 

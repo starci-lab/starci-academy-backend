@@ -1,6 +1,0 @@
-kafka:
-  brokers: "localhost:9092"
-  topic: "platform-events"
-  groupId: "broker-demo-group"
-  clientId: "broker-client"
-  consumerDelayMs: 0

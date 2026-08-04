@@ -1,9 +1,0 @@
-# Tự động đăng ký Loki làm datasource mặc định trong Grafana.
-# (EN: Auto-register Loki as the default datasource in Grafana.)
-apiVersion: 1
-datasources:
-  - name: Loki
-    type: loki
-    access: proxy
-    url: http://loki:3100
-    isDefault: true

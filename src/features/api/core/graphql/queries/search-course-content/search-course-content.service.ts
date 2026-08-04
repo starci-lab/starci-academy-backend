@@ -12,7 +12,7 @@ import {
     TranslationResolverService,
 } from "@modules/databases"
 import {
-    ContentRagRetrievalService,
+    CourseRagRetrievalService,
     SearchCourseHit,
 } from "@modules/rag"
 import {
@@ -50,7 +50,7 @@ export class SearchCourseContentService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        private readonly contentRagRetrievalService: ContentRagRetrievalService,
+        private readonly contentRagRetrievalService: CourseRagRetrievalService,
         private readonly translationResolver: TranslationResolverService,
     ) {}
 

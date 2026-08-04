@@ -229,23 +229,27 @@ export class CommunityReactionService {
             .groupBy("reaction.post_id")
             .addGroupBy("reaction.type")
             .getRawMany<CommunityPostReactionCountRow>()
-        // the viewing user's own reaction per post (for highlighting)
-        const mineRows = await this.entityManager
-            .createQueryBuilder(CommunityPostReactionEntity,
-                "reaction")
-            .select("reaction.post_id",
-                "postId")
-            .addSelect("reaction.type",
-                "type")
-            .where("reaction.post_id IN (:...postIds)",
-                {
-                    postIds,
-                })
-            .andWhere("reaction.user_id = :userId",
-                {
-                    userId,
-                })
-            .getRawMany<CommunityPostReactionRow>()
+        // the viewing user's own reaction per post (for highlighting) — SKIPPED for an
+        // anonymous viewer (empty userId): binding "" to the uuid `user_id` column makes
+        // Postgres reject the whole query (invalid input syntax for type uuid).
+        const mineRows = userId
+            ? await this.entityManager
+                .createQueryBuilder(CommunityPostReactionEntity,
+                    "reaction")
+                .select("reaction.post_id",
+                    "postId")
+                .addSelect("reaction.type",
+                    "type")
+                .where("reaction.post_id IN (:...postIds)",
+                    {
+                        postIds,
+                    })
+                .andWhere("reaction.user_id = :userId",
+                    {
+                        userId,
+                    })
+                .getRawMany<CommunityPostReactionRow>()
+            : ([] as Array<CommunityPostReactionRow>)
         // index "my reaction" by post id for O(1) lookup while assembling
         const myByPost = mineRows.reduce<Record<string, ReactionType>>((acc, row) => {
             acc[row.postId] = row.type
@@ -309,23 +313,27 @@ export class CommunityReactionService {
             .groupBy("reaction.comment_id")
             .addGroupBy("reaction.type")
             .getRawMany<CommunityCommentReactionCountRow>()
-        // the viewing user's own reaction per comment (for highlighting)
-        const mineRows = await this.entityManager
-            .createQueryBuilder(CommunityPostCommentReactionEntity,
-                "reaction")
-            .select("reaction.comment_id",
-                "commentId")
-            .addSelect("reaction.type",
-                "type")
-            .where("reaction.comment_id IN (:...commentIds)",
-                {
-                    commentIds,
-                })
-            .andWhere("reaction.user_id = :userId",
-                {
-                    userId,
-                })
-            .getRawMany<CommunityCommentReactionRow>()
+        // the viewing user's own reaction per comment (for highlighting) — SKIPPED for an
+        // anonymous viewer (empty userId): binding "" to the uuid `user_id` column makes
+        // Postgres reject the whole query (invalid input syntax for type uuid).
+        const mineRows = userId
+            ? await this.entityManager
+                .createQueryBuilder(CommunityPostCommentReactionEntity,
+                    "reaction")
+                .select("reaction.comment_id",
+                    "commentId")
+                .addSelect("reaction.type",
+                    "type")
+                .where("reaction.comment_id IN (:...commentIds)",
+                    {
+                        commentIds,
+                    })
+                .andWhere("reaction.user_id = :userId",
+                    {
+                        userId,
+                    })
+                .getRawMany<CommunityCommentReactionRow>()
+            : ([] as Array<CommunityCommentReactionRow>)
         // index "my reaction" by comment id for O(1) lookup while assembling
         const myByComment = mineRows.reduce<Record<string, ReactionType>>((acc, row) => {
             acc[row.commentId] = row.type

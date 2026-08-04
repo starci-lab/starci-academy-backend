@@ -1,6 +1,0 @@
-kafka:
-  brokers: "localhost:9092"
-  topic: "ordering-events"
-  groupId: "broker-lesson1-group"
-  clientId: "consumer-fast"
-  consumerDelayMs: 0
