@@ -612,7 +612,8 @@ describe("UseApiService",
                         // (model, provider) branch requires BOTH — a name-only pin falls
                         // into the name-only `find`, still resolving the right row
                         aiModelCatalogService.enabledModels.mockResolvedValue([
-                            buildModelRow("gpt-4o", ModelProvider.OpenAI),
+                            buildModelRow("gpt-4o",
+                                ModelProvider.OpenAI),
                         ])
 
                         const result = await service.useApi<string>({
@@ -628,7 +629,8 @@ describe("UseApiService",
                 it("throws Unsupported when a name-only pinned model is not in the catalog",
                     async () => {
                         aiModelCatalogService.enabledModels.mockResolvedValue([
-                            buildModelRow("gpt-4o", ModelProvider.OpenAI),
+                            buildModelRow("gpt-4o",
+                                ModelProvider.OpenAI),
                         ])
 
                         await expect(

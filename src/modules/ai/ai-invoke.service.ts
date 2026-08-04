@@ -98,8 +98,8 @@ export class AiInvokeService {
     /**
      * THE one high-level entry every AI surface uses (grading, capstone, eval,
      * interview, chatbot, and any future AI service). Resolves the System routing
-     * from the inputs (floor by `difficulty`/`floor`, climbing up to the plan
-     * ceiling capped by the user `ceil`), runs the model (invoke, or stream when
+     * from the inputs (the grading category, or an explicit `floor`, capped by
+     * the user `ceil`), runs the model (invoke, or stream when
      * `onChunk` is set), and returns the served model + the credit `cost` to
      * charge. The caller does the `consume(cost)` (idempotency differs per surface).
      *
@@ -111,7 +111,6 @@ export class AiInvokeService {
             userId,
             messages,
             selection,
-            difficulty,
             floor,
             ceil,
             surface,
@@ -140,7 +139,6 @@ export class AiInvokeService {
         const options = await resolveGradingInvokeOptions({
             userId,
             selection,
-            difficulty,
             floor,
             ceil: effectiveCeil,
             allowFreeAuto,

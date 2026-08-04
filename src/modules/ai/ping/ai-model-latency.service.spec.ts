@@ -60,7 +60,8 @@ const setEnv = (overrides: Partial<{
     cycleIntervalMs: number
     staggerMs: number
     timeoutMs: number
-}> = {}): void => {
+}> = {
+}): void => {
     mockEnvConfig.mockReturnValue({
         ai: {
             latencyProbe: {
@@ -104,7 +105,8 @@ describe("AiModelLatencyService",
 
             aiModelLatencyCacheService = {
                 recordModelLatency: jest.fn(async () => undefined),
-                getAll: jest.fn(async () => ({})),
+                getAll: jest.fn(async () => ({
+                })),
             } as unknown as jest.Mocked<
                 Pick<AiModelLatencyCacheService, "recordModelLatency" | "getAll">
             >
@@ -151,9 +153,15 @@ describe("AiModelLatencyService",
                 it("schedules a staggered probe per in-scope model + records each snapshot",
                     async () => {
                         const models = [
-                            makeModel("m-0", ModelProvider.OpenAI, AiModelCategory.Premium),
-                            makeModel("m-1", ModelProvider.Gemini, AiModelCategory.Balanced),
-                            makeModel("m-2", ModelProvider.Local, AiModelCategory.Free),
+                            makeModel("m-0",
+                                ModelProvider.OpenAI,
+                                AiModelCategory.Premium),
+                            makeModel("m-1",
+                                ModelProvider.Gemini,
+                                AiModelCategory.Balanced),
+                            makeModel("m-2",
+                                ModelProvider.Local,
+                                AiModelCategory.Free),
                         ]
                         aiModelCatalogService.enabledModels.mockResolvedValue(models)
 
@@ -193,8 +201,12 @@ describe("AiModelLatencyService",
                 it("on the LAST model flips cycleInProgress off + emits the full snapshot",
                     async () => {
                         const models = [
-                            makeModel("m-0", ModelProvider.OpenAI, AiModelCategory.Premium),
-                            makeModel("m-1", ModelProvider.Local, AiModelCategory.Free),
+                            makeModel("m-0",
+                                ModelProvider.OpenAI,
+                                AiModelCategory.Premium),
+                            makeModel("m-1",
+                                ModelProvider.Local,
+                                AiModelCategory.Free),
                         ]
                         aiModelCatalogService.enabledModels.mockResolvedValue(models)
 
@@ -258,8 +270,12 @@ describe("AiModelLatencyService",
                 it("catches a probe that THROWS → safeRecordDown, cycle continues",
                     async () => {
                         const models = [
-                            makeModel("m-0", ModelProvider.OpenAI, AiModelCategory.Premium),
-                            makeModel("m-1", ModelProvider.Gemini, AiModelCategory.Balanced),
+                            makeModel("m-0",
+                                ModelProvider.OpenAI,
+                                AiModelCategory.Premium),
+                            makeModel("m-1",
+                                ModelProvider.Gemini,
+                                AiModelCategory.Balanced),
                         ]
                         aiModelCatalogService.enabledModels.mockResolvedValue(models)
 
@@ -320,9 +336,15 @@ describe("AiModelLatencyService",
                             scope: "freeLocal",
                         })
                         aiModelCatalogService.enabledModels.mockResolvedValue([
-                            makeModel("local-x", ModelProvider.Local, AiModelCategory.Premium),
-                            makeModel("free-x", ModelProvider.OpenAI, AiModelCategory.Free),
-                            makeModel("paid-x", ModelProvider.OpenAI, AiModelCategory.Premium),
+                            makeModel("local-x",
+                                ModelProvider.Local,
+                                AiModelCategory.Premium),
+                            makeModel("free-x",
+                                ModelProvider.OpenAI,
+                                AiModelCategory.Free),
+                            makeModel("paid-x",
+                                ModelProvider.OpenAI,
+                                AiModelCategory.Premium),
                         ])
 
                         await service.runCycle()
@@ -344,8 +366,12 @@ describe("AiModelLatencyService",
                             scope: "all",
                         })
                         aiModelCatalogService.enabledModels.mockResolvedValue([
-                            makeModel("a", ModelProvider.OpenAI, AiModelCategory.Premium),
-                            makeModel("b", ModelProvider.Anthropic, AiModelCategory.Frontier),
+                            makeModel("a",
+                                ModelProvider.OpenAI,
+                                AiModelCategory.Premium),
+                            makeModel("b",
+                                ModelProvider.Anthropic,
+                                AiModelCategory.Frontier),
                         ])
 
                         await service.runCycle()
@@ -375,7 +401,9 @@ describe("AiModelLatencyService",
                             enabled: true,
                         })
                         aiModelCatalogService.enabledModels.mockResolvedValue([
-                            makeModel("a", ModelProvider.OpenAI, AiModelCategory.Premium),
+                            makeModel("a",
+                                ModelProvider.OpenAI,
+                                AiModelCategory.Premium),
                         ])
 
                         service.onModuleInit()

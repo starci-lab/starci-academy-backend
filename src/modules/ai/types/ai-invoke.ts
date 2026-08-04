@@ -128,9 +128,13 @@ export interface AiRunParams {
     messages: Array<BaseMessage>
     /** The user's lane/model pick (System Auto vs Manual). Absent → Auto. */
     selection?: AiJobSelection
-    /** Task difficulty → floor category (easy→economy … insane→frontier). */
+    /**
+     * Task difficulty, carried for logging/analytics only. It no longer selects
+     * a model: every automatic grading run resolves to the same category, and
+     * the frontier model is reachable only by pinning it explicitly.
+     */
     difficulty?: string | null
-    /** Explicit floor override (wins over difficulty; chatbot passes Free). */
+    /** Explicit floor override (chatbot passes Free). */
     floor?: AiModelCategory | null
     /** User-set per-feature ceiling cap (settings config per hạng mục). */
     ceil?: AiModelCategory | null

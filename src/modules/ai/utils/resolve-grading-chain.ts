@@ -15,40 +15,34 @@ export const CATEGORY_LADDER: Array<AiModelCategory> = [
 ]
 
 /**
- * Floor category a grading run STARTS from, by task difficulty. Harder task →
- * higher floor. Unknown / null difficulty → Economy (the grading floor).
+ * The one category every automatic grading run uses, whatever the task's
+ * difficulty.
+ *
+ * Difficulty used to pick the rung (easy → Economy … insane → Frontier). It no
+ * longer does: every graded submission — easy through insane, challenge through
+ * interview — runs on the same workhorse model, because grading marks a
+ * submission against a rubric that the prompt already spells out, which a
+ * mid-priced model does as well as a frontier one at a fraction of the cost.
+ *
+ * The stronger `Frontier` model is reachable ONLY by pinning it explicitly
+ * (`selection.model`, the premium lane). Nothing automatic ever escalates into
+ * it — see {@link resolveGradingChain}, which caps the climb here.
  */
-const DIFFICULTY_FLOOR: Record<string, AiModelCategory> = {
-    easy: AiModelCategory.Economy,
-    medium: AiModelCategory.Balanced,
-    hard: AiModelCategory.Premium,
-    insane: AiModelCategory.Frontier,
-    expert: AiModelCategory.Frontier,
-}
+export const GRADING_FLOOR_CATEGORY = AiModelCategory.Balanced
+
+/** Rank of {@link GRADING_FLOOR_CATEGORY} in {@link CATEGORY_LADDER}. */
+const GRADING_CEILING_RANK = CATEGORY_LADDER.indexOf(GRADING_FLOOR_CATEGORY)
 
 /**
- * Resolve the grading floor category from a task difficulty.
+ * Build the ordered category chain the Auto lane runs: from `floor` up to the
+ * effective ceiling, which never exceeds {@link GRADING_FLOOR_CATEGORY}.
  *
- * @param difficulty - the task difficulty (nullable).
- * @returns the floor category (Economy when unknown).
- */
-export const gradingFloorForDifficulty = (
-    difficulty?: string | null,
-): AiModelCategory => {
-    return DIFFICULTY_FLOOR[(difficulty ?? "").toLowerCase()]
-        ?? AiModelCategory.Economy
-}
-
-/**
- * Build the ordered category chain the Auto lane runs: from `floor` UP to the
- * effective ceiling (climb on exhaustion, never below the floor).
- *
- * - `chain = ladder[floor..top] ∩ tierCategories`, additionally capped at `ceil`
- *   when given (ascending = climb order).
- * - When the floor is above the ceiling (e.g. an `insane` task on a free tier
- *   capped at Economy), clamp down to the single highest entitled category at or
- *   above Economy.
- * - Always returns at least `[Economy]`.
+ * - `chain = ladder[floor..ceiling] ∩ tierCategories` (ascending = climb order).
+ * - The ceiling is capped at {@link GRADING_FLOOR_CATEGORY} even when the user's
+ *   plan (or their own `ceil` setting) would allow more, so an automatic run can
+ *   never escalate into the frontier model on its own.
+ * - When nothing survives the intersection, fall back to the grading category
+ *   rather than an empty chain, which would fail the run outright.
  *
  * @param params - the `floor` to start from, the user's `tierCategories`
  *   (plan ceiling), and an optional `ceil` (user-set per-feature cap).
@@ -66,8 +60,13 @@ export const resolveGradingChain = (
     },
 ): Array<AiModelCategory> => {
     const floorRank = CATEGORY_LADDER.indexOf(floor)
-    // optional user-set cap (per hạng mục in settings): never climb past `ceil`
-    const ceilRank = ceil ? CATEGORY_LADDER.indexOf(ceil) : CATEGORY_LADDER.length - 1
+    // a user-set cap can only lower the ceiling, never raise it past the
+    // automatic grading category
+    const requestedCeilRank = ceil
+        ? CATEGORY_LADDER.indexOf(ceil)
+        : GRADING_CEILING_RANK
+    const ceilRank = Math.min(requestedCeilRank,
+        GRADING_CEILING_RANK)
     const chain = CATEGORY_LADDER.filter(
         (category, rank) =>
             rank >= floorRank
@@ -77,12 +76,5 @@ export const resolveGradingChain = (
     if (chain.length > 0) {
         return chain
     }
-    // floor above ceiling → clamp to the highest entitled GRADING category (≥ Economy)
-    const economyRank = CATEGORY_LADDER.indexOf(AiModelCategory.Economy)
-    const allowedGrading = CATEGORY_LADDER.filter(
-        (category, rank) => rank >= economyRank && tierCategories.includes(category),
-    )
-    return allowedGrading.length > 0
-        ? [allowedGrading[allowedGrading.length - 1]]
-        : [AiModelCategory.Economy]
+    return [GRADING_FLOOR_CATEGORY]
 }

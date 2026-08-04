@@ -13,10 +13,14 @@ const MockedOpenAI = OpenAI as unknown as jest.Mock
 /** Build a service whose constructor deps are inert stubs. */
 const buildService = (): OpenRouterPingService => {
     return new OpenRouterPingService(
-        {} as never, // MountFilesystemService
-        {} as never, // EventEmitterService
-        {} as never, // WinstonService
-        {} as never, // AiPingCacheService
+        {
+        } as never, // MountFilesystemService
+        {
+        } as never, // EventEmitterService
+        {
+        } as never, // WinstonService
+        {
+        } as never, // AiPingCacheService
     )
 }
 
@@ -52,7 +56,8 @@ describe("OpenRouterPingService.executePing",
                     },
                 }))
 
-                const result = await callExecutePing(buildService(), "sk-or")
+                const result = await callExecutePing(buildService(),
+                    "sk-or")
 
                 expect(result).toEqual({
                     success: true,
@@ -77,7 +82,8 @@ describe("OpenRouterPingService.executePing",
                     },
                 }))
 
-                const result = await callExecutePing(buildService(), "sk-or")
+                const result = await callExecutePing(buildService(),
+                    "sk-or")
 
                 expect(result.success).toBe(false)
                 expect(result.errorMessage).toBeNull()
@@ -94,7 +100,8 @@ describe("OpenRouterPingService.executePing",
                     },
                 }))
 
-                const result = await callExecutePing(buildService(), "sk-or")
+                const result = await callExecutePing(buildService(),
+                    "sk-or")
 
                 expect(result.success).toBe(false)
                 expect(result.errorMessage).toContain("ECONNREFUSED")

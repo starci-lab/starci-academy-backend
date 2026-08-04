@@ -65,12 +65,14 @@ export const extractRetryAfterMs = (error: unknown): number | undefined => {
     // delta-seconds form (e.g. "30")
     const seconds = Number(value)
     if (value !== "" && Number.isFinite(seconds)) {
-        return Math.max(0, seconds * 1000)
+        return Math.max(0,
+            seconds * 1000)
     }
     // HTTP-date form
     const dateMs = Date.parse(value)
     if (!Number.isNaN(dateMs)) {
-        return Math.max(0, dateMs - Date.now())
+        return Math.max(0,
+            dateMs - Date.now())
     }
     return undefined
 }

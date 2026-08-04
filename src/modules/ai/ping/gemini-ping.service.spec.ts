@@ -11,10 +11,14 @@ const buildService = (axiosGet: jest.Mock): GeminiPingService => {
     }
     return new GeminiPingService(
         axiosService as never, // AxiosService
-        {} as never, // MountFilesystemService
-        {} as never, // EventEmitterService
-        {} as never, // WinstonService
-        {} as never, // AiPingCacheService
+        {
+        } as never, // MountFilesystemService
+        {
+        } as never, // EventEmitterService
+        {
+        } as never, // WinstonService
+        {
+        } as never, // AiPingCacheService
     )
 }
 
@@ -38,7 +42,8 @@ describe("GeminiPingService.executePing",
                     status: 200,
                 }))
 
-                const result = await callExecutePing(buildService(get), "sk-gemini")
+                const result = await callExecutePing(buildService(get),
+                    "sk-gemini")
 
                 expect(result).toEqual({
                     success: true,
@@ -56,7 +61,8 @@ describe("GeminiPingService.executePing",
                     status: 403,
                 }))
 
-                const result = await callExecutePing(buildService(get), "sk-gemini")
+                const result = await callExecutePing(buildService(get),
+                    "sk-gemini")
 
                 expect(result.success).toBe(false)
                 expect(result.errorMessage).toBeNull()
@@ -79,7 +85,8 @@ describe("GeminiPingService.executePing",
                     throw authError
                 })
 
-                const result = await callExecutePing(buildService(get), "sk-bad")
+                const result = await callExecutePing(buildService(get),
+                    "sk-bad")
 
                 expect(result.success).toBe(false)
                 expect(result.errorMessage).toContain("API key not valid")

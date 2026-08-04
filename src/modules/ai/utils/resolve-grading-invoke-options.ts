@@ -9,7 +9,7 @@ import type {
     AiJobSelection,
 } from "../types"
 import {
-    gradingFloorForDifficulty,
+    GRADING_FLOOR_CATEGORY,
     resolveGradingChain,
 } from "./resolve-grading-chain"
 
@@ -27,12 +27,6 @@ export interface ResolveGradingInvokeOptionsParams {
      * paid entitlement (unpaid users are rejected) and starts from a higher floor.
      */
     allowFreeAuto?: boolean
-    /**
-     * Task difficulty (easy/medium/hard/insane/expert) → the FLOOR category the
-     * Auto chain starts from (easy→economy … insane→frontier). The chain then
-     * climbs up to the user's tier ceiling. Omitted → economy floor.
-     */
-    difficulty?: string | null
     /**
      * Explicit FLOOR category override (wins over `difficulty`). Used by surfaces
      * that don't have a difficulty — e.g. the chatbot passes `Free`.
@@ -64,12 +58,13 @@ export interface ResolveGradingInvokeOptionsResult {
  *
  * Grading runs ONLY on the System pool. Two selection paths:
  * - **pinned model** → a user-pinned model + provider (gated on the unlock).
- * - **balancer** (default, no pin) → the **floor→climb chain**: start at the
- *   difficulty floor, climb up to the tier ceiling, within each category the
- *   balancer tries highest-weight first. Free tier caps at Balanced; paid tiers
- *   climb to Frontier.
+ *   This is the ONLY way to reach the frontier model.
+ * - **balancer** (default, no pin) → {@link GRADING_FLOOR_CATEGORY}, whatever
+ *   the task's difficulty; within that category the balancer tries the
+ *   highest-weight (cheapest, roomiest) model first. Nothing automatic
+ *   escalates past it.
  *
- * @param params - user id, selection, difficulty, entitlement service.
+ * @param params - user id, selection, entitlement service.
  * @returns the invoke args.
  * @throws AiModeNotEntitledException when a pinned/premium-only run is not entitled.
  */
@@ -79,7 +74,6 @@ export async function resolveGradingInvokeOptions(
         selection,
         aiEntitlementService,
         allowFreeAuto = true,
-        difficulty,
         floor,
         ceil,
     }: ResolveGradingInvokeOptionsParams,
@@ -107,12 +101,10 @@ export async function resolveGradingInvokeOptions(
     const tierCategories = await aiEntitlementService.resolveTierCategories({
         userId,
     })
-    // explicit `floor` wins; else premium-only-without-difficulty (CV) starts
-    // mid-ladder; else the difficulty floor
-    const effectiveFloor = floor
-        ?? (requiresPaid && !difficulty
-            ? AiModelCategory.Balanced
-            : gradingFloorForDifficulty(difficulty))
+    // explicit `floor` wins; otherwise every automatic grading run — any
+    // difficulty, any surface — starts (and ends) on the same grading category.
+    // The frontier model is reached only by pinning it above.
+    const effectiveFloor = floor ?? GRADING_FLOOR_CATEGORY
     return {
         categories: resolveGradingChain({
             floor: effectiveFloor,

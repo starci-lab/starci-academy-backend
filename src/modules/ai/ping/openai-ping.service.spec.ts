@@ -10,10 +10,14 @@ const MockedOpenAI = OpenAI as unknown as jest.Mock
 /** Build a service whose constructor deps are inert stubs. */
 const buildService = (): OpenAiPingService => {
     return new OpenAiPingService(
-        {} as never, // MountFilesystemService
-        {} as never, // EventEmitterService
-        {} as never, // WinstonService
-        {} as never, // AiPingCacheService
+        {
+        } as never, // MountFilesystemService
+        {
+        } as never, // EventEmitterService
+        {
+        } as never, // WinstonService
+        {
+        } as never, // AiPingCacheService
     )
 }
 
@@ -50,7 +54,8 @@ describe("OpenAiPingService.executePing",
                     },
                 }))
 
-                const result = await callExecutePing(buildService(), "sk-openai")
+                const result = await callExecutePing(buildService(),
+                    "sk-openai")
 
                 expect(result).toEqual({
                     success: true,
@@ -71,7 +76,8 @@ describe("OpenAiPingService.executePing",
                     },
                 }))
 
-                const result = await callExecutePing(buildService(), "sk-openai")
+                const result = await callExecutePing(buildService(),
+                    "sk-openai")
 
                 expect(result.success).toBe(false)
                 expect(result.errorMessage).toBeNull()
@@ -98,7 +104,8 @@ describe("OpenAiPingService.executePing",
                     },
                 }))
 
-                const result = await callExecutePing(buildService(), "sk-bad")
+                const result = await callExecutePing(buildService(),
+                    "sk-bad")
 
                 expect(result.success).toBe(false)
                 // toPingErrorMessage surfaces the response-body detail

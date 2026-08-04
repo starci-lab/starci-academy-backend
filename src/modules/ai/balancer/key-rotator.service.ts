@@ -61,7 +61,8 @@ export class KeyRotatorService {
 
         const now = new Date()
         const eligibleKeys = pool.filter(
-            (key) => isPingEntryEligible(providerCache[key.value], now),
+            (key) => isPingEntryEligible(providerCache[key.value],
+                now),
         )
 
         if (eligibleKeys.length === 0) {

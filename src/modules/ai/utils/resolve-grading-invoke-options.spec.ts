@@ -35,9 +35,15 @@ const userId = "user-1"
 
 describe("resolveGradingInvokeOptions",
     () => {
-        it("free tier + no selection → economy floor chain (capped at economy)",
+        it("free tier + no selection → the grading category, since the tier entitles it",
             async () => {
-                const entitlement = makeEntitlementStub()
+                const entitlement = makeEntitlementStub({
+                    tierCategories: [
+                        AiModelCategory.Free,
+                        AiModelCategory.Economy,
+                        AiModelCategory.Balanced,
+                    ],
+                })
 
                 const result = await resolveGradingInvokeOptions({
                     userId,
@@ -46,12 +52,12 @@ describe("resolveGradingInvokeOptions",
 
                 expect(result).toEqual({
                     categories: [
-                        AiModelCategory.Economy,
+                        AiModelCategory.Balanced,
                     ],
                 })
             })
 
-        it("paid tier + hard difficulty → premium floor, climbs to frontier",
+        it("paid tier, no pin → still the grading category; nothing escalates automatically",
             async () => {
                 const entitlement = makeEntitlementStub({
                     tierCategories: [
@@ -67,31 +73,32 @@ describe("resolveGradingInvokeOptions",
                     userId,
                     selection: {
                     },
-                    difficulty: "hard",
                     aiEntitlementService: entitlement as unknown as AiEntitlementService,
                 })
 
+                // the plan unlocks Premium and Frontier, yet an unpinned run gets
+                // neither — reaching the frontier model requires picking it
                 expect(result).toEqual({
                     categories: [
-                        AiModelCategory.Premium,
-                        AiModelCategory.Frontier,
+                        AiModelCategory.Balanced,
                     ],
                 })
             })
 
-        it("free tier + insane difficulty → clamps the high floor down to economy",
+        it("a tier entitling nothing in the window still yields the grading category",
             async () => {
-                const entitlement = makeEntitlementStub()
+                const entitlement = makeEntitlementStub({
+                    tierCategories: [AiModelCategory.Free],
+                })
 
                 const result = await resolveGradingInvokeOptions({
                     userId,
-                    difficulty: "insane",
                     aiEntitlementService: entitlement as unknown as AiEntitlementService,
                 })
 
                 expect(result).toEqual({
                     categories: [
-                        AiModelCategory.Economy,
+                        AiModelCategory.Balanced,
                     ],
                 })
             })
