@@ -89,7 +89,7 @@ export class AiModelCatalogParserService {
                 category: this.coerceMdScalarService.toRequiredEnum(
                     enMd.category,
                     AiModelCategory,
-                    AiModelCategory.Economy,
+                    AiModelCategory.Low,
                 ),
                 keysFilePath: this.coerceMdScalarService.toRequiredString(
                     enMd.keysFilePath,

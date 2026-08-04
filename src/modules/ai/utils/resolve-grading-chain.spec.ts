@@ -13,18 +13,16 @@ describe("GRADING_FLOOR_CATEGORY",
                 // difficulty used to pick the rung (easy→Economy … insane→Frontier);
                 // it no longer does. Easy and insane submissions grade on the same
                 // model, because the rubric the prompt carries does the discriminating.
-                expect(GRADING_FLOOR_CATEGORY).toBe(AiModelCategory.Balanced)
+                expect(GRADING_FLOOR_CATEGORY).toBe(AiModelCategory.Medium)
             })
     })
 
 describe("resolveGradingChain",
     () => {
         const ALL = [
-            AiModelCategory.Free,
-            AiModelCategory.Economy,
-            AiModelCategory.Balanced,
-            AiModelCategory.Premium,
-            AiModelCategory.Frontier,
+            AiModelCategory.Low,
+            AiModelCategory.Medium,
+            AiModelCategory.High,
         ]
 
         describe("the automatic lane never escalates into the frontier model",
@@ -36,7 +34,7 @@ describe("resolveGradingChain",
                                 floor: GRADING_FLOOR_CATEGORY,
                                 tierCategories: ALL,
                             }),
-                        ).toEqual([AiModelCategory.Balanced])
+                        ).toEqual([AiModelCategory.Medium])
                     })
 
                 it("ignores a ceil that would raise the climb past the grading category",
@@ -47,19 +45,19 @@ describe("resolveGradingChain",
                             resolveGradingChain({
                                 floor: GRADING_FLOOR_CATEGORY,
                                 tierCategories: ALL,
-                                ceil: AiModelCategory.Frontier,
+                                ceil: AiModelCategory.High,
                             }),
-                        ).toEqual([AiModelCategory.Balanced])
+                        ).toEqual([AiModelCategory.Medium])
                     })
 
                 it("never yields Frontier from a lower floor either",
                     () => {
                         const chain = resolveGradingChain({
-                            floor: AiModelCategory.Free,
+                            floor: AiModelCategory.Low,
                             tierCategories: ALL,
                         })
-                        expect(chain).not.toContain(AiModelCategory.Frontier)
-                        expect(chain).not.toContain(AiModelCategory.Premium)
+                        expect(chain).not.toContain(AiModelCategory.High)
+                        expect(chain).not.toContain(AiModelCategory.High)
                     })
             })
 
@@ -67,13 +65,12 @@ describe("resolveGradingChain",
             () => {
                 expect(
                     resolveGradingChain({
-                        floor: AiModelCategory.Free,
+                        floor: AiModelCategory.Low,
                         tierCategories: ALL,
                     }),
                 ).toEqual([
-                    AiModelCategory.Free,
-                    AiModelCategory.Economy,
-                    AiModelCategory.Balanced,
+                    AiModelCategory.Low,
+                    AiModelCategory.Medium,
                 ])
             })
 
@@ -82,13 +79,12 @@ describe("resolveGradingChain",
                 // a cap may only ever narrow the window, never widen it
                 expect(
                     resolveGradingChain({
-                        floor: AiModelCategory.Free,
+                        floor: AiModelCategory.Low,
                         tierCategories: ALL,
-                        ceil: AiModelCategory.Economy,
+                        ceil: AiModelCategory.Low,
                     }),
                 ).toEqual([
-                    AiModelCategory.Free,
-                    AiModelCategory.Economy,
+                    AiModelCategory.Low,
                 ])
             })
 
@@ -96,15 +92,15 @@ describe("resolveGradingChain",
             () => {
                 expect(
                     resolveGradingChain({
-                        floor: AiModelCategory.Free,
+                        floor: AiModelCategory.Low,
                         tierCategories: [
-                            AiModelCategory.Free,
-                            AiModelCategory.Balanced,
+                            AiModelCategory.Low,
+                            AiModelCategory.Medium,
                         ],
                     }),
                 ).toEqual([
-                    AiModelCategory.Free,
-                    AiModelCategory.Balanced,
+                    AiModelCategory.Low,
+                    AiModelCategory.Medium,
                 ])
             })
 
@@ -114,8 +110,8 @@ describe("resolveGradingChain",
                 // and an empty chain fails the run outright
                 expect(
                     resolveGradingChain({
-                        floor: AiModelCategory.Balanced,
-                        tierCategories: [AiModelCategory.Free],
+                        floor: AiModelCategory.Medium,
+                        tierCategories: [AiModelCategory.Low],
                     }),
                 ).toEqual([GRADING_FLOOR_CATEGORY])
             })
@@ -124,7 +120,7 @@ describe("resolveGradingChain",
             () => {
                 expect(
                     resolveGradingChain({
-                        floor: AiModelCategory.Frontier,
+                        floor: AiModelCategory.High,
                         tierCategories: ALL,
                     }),
                 ).toEqual([GRADING_FLOOR_CATEGORY])

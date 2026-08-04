@@ -266,7 +266,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 new HumanMessage(humanText),
             ],
             selection: payload.ai,
-            floor: AiModelCategory.Economy,
+            floor: AiModelCategory.Low,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.ChallengeGrading,
             cacheSessionId: challenge?.id,

@@ -112,7 +112,7 @@ export class RagPlaygroundGateway {
                 // climbing to a paid tier. If the local host is down this simply
                 // fails (caught below), which is the correct behavior here.
                 categories: [
-                    AiModelCategory.Free,
+                    AiModelCategory.Low,
                 ],
                 task: AiModelTask.Chatting,
                 temperature: 0.3,

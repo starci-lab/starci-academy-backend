@@ -439,7 +439,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 new HumanMessage(humanText),
             ],
             selection: payload.ai,
-            floor: AiModelCategory.Balanced,
+            floor: AiModelCategory.Medium,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.TaskGrading,
             // every submission of one milestone task shares the criteria prefix

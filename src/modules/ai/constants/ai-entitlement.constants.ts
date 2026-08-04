@@ -25,31 +25,26 @@ export const SUBSCRIPTION_PERIOD_MONTHS = 1
  * can call a Premium model, it just burns more credits from the shared pool.
  */
 export const TIER_ALLOWED_CATEGORIES: Record<AiSubTier | "free", Array<AiModelCategory>> = {
-    // no plan → free (self-hosted Qwen, 0 credit) + economy + balanced cloud
+    // no plan → chat (Low) + the grading workhorse (Medium); the strongest rung
+    // (High) is paid-only, and unpaid learners are still graded on Medium
     free: [
-        AiModelCategory.Free,
-        AiModelCategory.Economy,
-        AiModelCategory.Balanced,
+        AiModelCategory.Low,
+        AiModelCategory.Medium,
     ],
     [AiSubTier.Plus]: [
-        AiModelCategory.Free,
-        AiModelCategory.Economy,
-        AiModelCategory.Balanced,
-        AiModelCategory.Premium,
-        AiModelCategory.Frontier,
+        AiModelCategory.Low,
+        AiModelCategory.Medium,
+        AiModelCategory.High,
     ],
     [AiSubTier.Pro]: [
-        AiModelCategory.Free,
-        AiModelCategory.Economy,
-        AiModelCategory.Balanced,
-        AiModelCategory.Premium,
-        AiModelCategory.Frontier,
+        AiModelCategory.Low,
+        AiModelCategory.Medium,
+        AiModelCategory.High,
     ],
     [AiSubTier.Max]: [
-        AiModelCategory.Free,
-        AiModelCategory.Economy,
-        AiModelCategory.Balanced,
-        AiModelCategory.Premium,
-        AiModelCategory.Frontier,
+        AiModelCategory.Low,
+        AiModelCategory.Medium,
+        AiModelCategory.High,
+        AiModelCategory.High,
     ],
 }

@@ -159,7 +159,7 @@ export class SplitCvFromTextHandler
                 new SystemMessage(systemText),
                 new HumanMessage(humanText),
             ],
-            floor: AiModelCategory.Economy,
+            floor: AiModelCategory.Low,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.CVGenerating,
         })

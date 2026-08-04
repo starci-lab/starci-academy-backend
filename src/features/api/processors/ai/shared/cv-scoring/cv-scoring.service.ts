@@ -120,7 +120,7 @@ export class CvScoringService {
                 new HumanMessage(humanText),
             ],
             selection,
-            floor: AiModelCategory.Balanced,
+            floor: AiModelCategory.Medium,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.CVGenerating,
         })

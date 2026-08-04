@@ -7,11 +7,9 @@ import {
  * from a `floor` up to the user's tier ceiling.
  */
 export const CATEGORY_LADDER: Array<AiModelCategory> = [
-    AiModelCategory.Free,
-    AiModelCategory.Economy,
-    AiModelCategory.Balanced,
-    AiModelCategory.Premium,
-    AiModelCategory.Frontier,
+    AiModelCategory.Low,
+    AiModelCategory.Medium,
+    AiModelCategory.High,
 ]
 
 /**
@@ -28,7 +26,7 @@ export const CATEGORY_LADDER: Array<AiModelCategory> = [
  * (`selection.model`, the premium lane). Nothing automatic ever escalates into
  * it — see {@link resolveGradingChain}, which caps the climb here.
  */
-export const GRADING_FLOOR_CATEGORY = AiModelCategory.Balanced
+export const GRADING_FLOOR_CATEGORY = AiModelCategory.Medium
 
 /** Rank of {@link GRADING_FLOOR_CATEGORY} in {@link CATEGORY_LADDER}. */
 const GRADING_CEILING_RANK = CATEGORY_LADDER.indexOf(GRADING_FLOOR_CATEGORY)

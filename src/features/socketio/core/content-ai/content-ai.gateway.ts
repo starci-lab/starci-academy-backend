@@ -188,7 +188,7 @@ export class ContentAiGateway {
                 userId,
                 messages,
                 selection,
-                floor: AiModelCategory.Free,
+                floor: AiModelCategory.Low,
                 surface: AiCeilSurface.Chatbot,
                 // pin every turn of one conversation to the same provider so the
                 // growing history prefix stays a warm cache hit; a lesson-scoped

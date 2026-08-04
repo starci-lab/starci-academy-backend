@@ -8,26 +8,34 @@ import {
 /**
  * Coarse category tag attached to every AI model in the `ai_models` catalog.
  *
- * Drives:
- * - User-facing "tier" selection — caller asks `useApi({ category })` to pick
- *   a model of the requested class.
- * - Frontend badges / labels next to the model name on the admin panel.
- * - Pricing presentation (cheap vs premium).
+ * Three tiers, named by CAPABILITY rather than by a marketing word:
+ * - `low` — the cheap, fast rung the chatbot runs on.
+ * - `medium` — the grading workhorse (challenge / milestone / CV / interview).
+ * - `high` — the strongest models, reached only by pinning one explicitly.
  *
- * Four tiers cover real cost/quality trade-offs without exploding the
- * surface area. Inside a tier `priority` decides which model is tried first.
+ * Inside a tier `weight` (derived from price + context) decides which model is
+ * tried first — cheapest that is good enough.
+ *
+ * Renamed from the old five-value scheme (free/economy/balanced/premium/frontier):
+ * the two middle rungs were never populated, and a capability name reads truer
+ * than a price label. The DB `ai_model_category` enum is migrated value-by-value
+ * (add → UPDATE rows → recreate the type) rather than through synchronize, which
+ * cannot rename an enum value — see the migration in `.artifacts/states/ai/`.
  */
 export enum AiModelCategory {
-    /** Miễn phí — self-hosted local model (Qwen), 0 credit. Usable without a plan. */
-    Free = "free",
-    /** Tiết kiệm — cheap cloud models. e.g. gpt-5.4-nano, gemini-2.5-flash-lite. */
-    Economy = "economy",
-    /** Cân bằng — mid-tier cost/quality. e.g. gpt-5-mini, gemini-2.5-flash. */
-    Balanced = "balanced",
-    /** Cao cấp — flagship models, highest quality, highest cost. e.g. gemini-2.5-pro. */
-    Premium = "premium",
-    /** Đỉnh — frontier reasoning models, top quality/cost. e.g. Claude Opus 4.8, GPT-5. */
-    Frontier = "frontier",
+    /** Cheap, fast; the chatbot rung. */
+    Low = "low",
+    /** The grading workhorse rung. */
+    Medium = "medium",
+    /** Strongest models; reached only by an explicit pin. */
+    High = "high",
+    /**
+     * Text-vectorizing models for RAG (indexing the source) — a separate axis,
+     * not a rung above the others. Never enters a grading chain or a chat pick;
+     * embedding models are selected by the `embedding` supportedTask, and within
+     * this tier the same cheapest-first weight rule applies.
+     */
+    Embedding = "embedding",
 }
 
 export const GraphQLTypeAiModelCategory = createEnumType(AiModelCategory)
@@ -36,22 +44,19 @@ registerEnumType(
     GraphQLTypeAiModelCategory,
     {
         name: "AiModelCategory",
-        description: "Coarse cost/quality category tag for AI models.",
+        description: "Capability tier of an AI model: low (chat), medium (grading), high (deep).",
         valuesMap: {
-            [AiModelCategory.Free]: {
-                description: "Miễn phí — self-hosted local model, 0 credit, no plan needed.",
+            [AiModelCategory.Low]: {
+                description: "Cheap, fast; the chatbot rung.",
             },
-            [AiModelCategory.Economy]: {
-                description: "Tiết kiệm — fast, cheap, smaller models.",
+            [AiModelCategory.Medium]: {
+                description: "The grading workhorse rung.",
             },
-            [AiModelCategory.Balanced]: {
-                description: "Cân bằng — mid-tier cost/quality.",
+            [AiModelCategory.High]: {
+                description: "Strongest models, reached only by an explicit pin.",
             },
-            [AiModelCategory.Premium]: {
-                description: "Cao cấp — flagship models, highest quality.",
-            },
-            [AiModelCategory.Frontier]: {
-                description: "Đỉnh — frontier reasoning models (Opus 4.8, GPT-5).",
+            [AiModelCategory.Embedding]: {
+                description: "Text-vectorizing models for RAG; selected by task, not a rung.",
             },
         },
     },

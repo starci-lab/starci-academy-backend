@@ -110,7 +110,7 @@ export class AskContentAiHandler
         } = await this.aiInvokeService.run({
             userId: user.id,
             messages,
-            floor: AiModelCategory.Free,
+            floor: AiModelCategory.Low,
             surface: AiCeilSurface.Chatbot,
         })
 

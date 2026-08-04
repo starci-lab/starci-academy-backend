@@ -155,13 +155,13 @@ describe("AiModelLatencyService",
                         const models = [
                             makeModel("m-0",
                                 ModelProvider.OpenAI,
-                                AiModelCategory.Premium),
+                                AiModelCategory.High),
                             makeModel("m-1",
                                 ModelProvider.Gemini,
-                                AiModelCategory.Balanced),
+                                AiModelCategory.Medium),
                             makeModel("m-2",
                                 ModelProvider.Local,
-                                AiModelCategory.Free),
+                                AiModelCategory.Low),
                         ]
                         aiModelCatalogService.enabledModels.mockResolvedValue(models)
 
@@ -203,10 +203,10 @@ describe("AiModelLatencyService",
                         const models = [
                             makeModel("m-0",
                                 ModelProvider.OpenAI,
-                                AiModelCategory.Premium),
+                                AiModelCategory.High),
                             makeModel("m-1",
                                 ModelProvider.Local,
-                                AiModelCategory.Free),
+                                AiModelCategory.Low),
                         ]
                         aiModelCatalogService.enabledModels.mockResolvedValue(models)
 
@@ -241,7 +241,7 @@ describe("AiModelLatencyService",
                                     {
                                         name: "m-0",
                                         provider: ModelProvider.OpenAI,
-                                        category: AiModelCategory.Premium,
+                                        category: AiModelCategory.High,
                                         ok: true,
                                         latencyMs: 30,
                                         checkedAt: "2026-06-30T00:00:00.000Z",
@@ -250,7 +250,7 @@ describe("AiModelLatencyService",
                                     {
                                         name: "m-1",
                                         provider: ModelProvider.Local,
-                                        category: AiModelCategory.Free,
+                                        category: AiModelCategory.Low,
                                         ok: false,
                                         latencyMs: 0,
                                         checkedAt: "2026-06-30T00:00:01.000Z",
@@ -272,10 +272,10 @@ describe("AiModelLatencyService",
                         const models = [
                             makeModel("m-0",
                                 ModelProvider.OpenAI,
-                                AiModelCategory.Premium),
+                                AiModelCategory.High),
                             makeModel("m-1",
                                 ModelProvider.Gemini,
-                                AiModelCategory.Balanced),
+                                AiModelCategory.Medium),
                         ]
                         aiModelCatalogService.enabledModels.mockResolvedValue(models)
 
@@ -338,13 +338,13 @@ describe("AiModelLatencyService",
                         aiModelCatalogService.enabledModels.mockResolvedValue([
                             makeModel("local-x",
                                 ModelProvider.Local,
-                                AiModelCategory.Premium),
+                                AiModelCategory.High),
                             makeModel("free-x",
                                 ModelProvider.OpenAI,
-                                AiModelCategory.Free),
+                                AiModelCategory.Low),
                             makeModel("paid-x",
                                 ModelProvider.OpenAI,
-                                AiModelCategory.Premium),
+                                AiModelCategory.High),
                         ])
 
                         await service.runCycle()
@@ -368,10 +368,10 @@ describe("AiModelLatencyService",
                         aiModelCatalogService.enabledModels.mockResolvedValue([
                             makeModel("a",
                                 ModelProvider.OpenAI,
-                                AiModelCategory.Premium),
+                                AiModelCategory.High),
                             makeModel("b",
                                 ModelProvider.Anthropic,
-                                AiModelCategory.Frontier),
+                                AiModelCategory.High),
                         ])
 
                         await service.runCycle()
@@ -403,7 +403,7 @@ describe("AiModelLatencyService",
                         aiModelCatalogService.enabledModels.mockResolvedValue([
                             makeModel("a",
                                 ModelProvider.OpenAI,
-                                AiModelCategory.Premium),
+                                AiModelCategory.High),
                         ])
 
                         service.onModuleInit()

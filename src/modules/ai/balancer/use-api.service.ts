@@ -61,11 +61,9 @@ import type {
 
 /** Category ladder cheapest → strongest — the macro fallback order. */
 const CATEGORY_RANK: ReadonlyArray<AiModelCategory> = [
-    AiModelCategory.Free,
-    AiModelCategory.Economy,
-    AiModelCategory.Balanced,
-    AiModelCategory.Premium,
-    AiModelCategory.Frontier,
+    AiModelCategory.Low,
+    AiModelCategory.Medium,
+    AiModelCategory.High,
 ]
 
 /**
@@ -315,7 +313,7 @@ export class UseApiService {
         // weight order. A DOWN local already loses to a healthy cloud at `downRank`
         // above, so an offline GPU falls back to the cloud chain automatically.
         const freeLocalRank = (row: AiModelEntity): number =>
-            row.category === AiModelCategory.Free
+            row.category === AiModelCategory.Low
                 && row.provider === ModelProvider.Local
                 ? 0
                 : 1

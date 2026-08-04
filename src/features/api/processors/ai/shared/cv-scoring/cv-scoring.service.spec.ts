@@ -122,7 +122,7 @@ describe("CvScoringService",
                         expect(aiInvokeService.run).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 userId: "user-1",
-                                floor: AiModelCategory.Balanced,
+                                floor: AiModelCategory.Medium,
                                 surface: AiCeilSurface.Grading,
                                 task: AiModelTask.CVGenerating,
                             }),

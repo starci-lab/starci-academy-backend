@@ -139,7 +139,7 @@ describe("AiInvokeService",
                         // a Balanced category pins the Premium lane
                         await service.invoke({
                             messages,
-                            category: AiModelCategory.Balanced,
+                            category: AiModelCategory.Medium,
                             model: "gpt-4o",
                             provider: ModelProvider.OpenAI,
                         })
@@ -147,7 +147,7 @@ describe("AiInvokeService",
                         expect(useApiService.useApi).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 lane: "pinned",
-                                category: AiModelCategory.Balanced,
+                                category: AiModelCategory.Medium,
                                 model: "gpt-4o",
                                 provider: ModelProvider.OpenAI,
                             }),
@@ -159,13 +159,13 @@ describe("AiInvokeService",
                         // Economy is the free fallback chain, not Premium
                         await service.invoke({
                             messages,
-                            category: AiModelCategory.Economy,
+                            category: AiModelCategory.Low,
                         })
 
                         expect(useApiService.useApi).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 lane: "chain",
-                                category: AiModelCategory.Economy,
+                                category: AiModelCategory.Low,
                             }),
                         )
                     })
@@ -233,7 +233,7 @@ describe("AiInvokeService",
                         await service.stream({
                             messages,
                             onChunk,
-                            category: AiModelCategory.Balanced,
+                            category: AiModelCategory.Medium,
                             model: "gpt-4o",
                             provider: ModelProvider.OpenAI,
                         })
@@ -241,7 +241,7 @@ describe("AiInvokeService",
                         expect(useApiService.useApi).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 lane: "pinned",
-                                category: AiModelCategory.Balanced,
+                                category: AiModelCategory.Medium,
                                 model: "gpt-4o",
                                 provider: ModelProvider.OpenAI,
                             }),

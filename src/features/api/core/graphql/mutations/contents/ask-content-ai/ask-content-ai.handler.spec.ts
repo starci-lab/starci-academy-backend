@@ -144,7 +144,7 @@ describe("AskContentAiHandler",
                             content: "grounded",
                         },
                     ],
-                    floor: AiModelCategory.Free,
+                    floor: AiModelCategory.Low,
                     surface: AiCeilSurface.Chatbot,
                 })
             })

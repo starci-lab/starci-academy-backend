@@ -280,7 +280,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
         // free lane only: self-hosted Local provider OR Free-tier models
         return models.filter(
             (model) => model.provider === ModelProvider.Local
-                || model.category === AiModelCategory.Free,
+                || model.category === AiModelCategory.Low,
         )
     }
 

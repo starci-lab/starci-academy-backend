@@ -137,11 +137,12 @@ export class EmbeddingModelService {
         const { result } = await this.useApiService.useApi<Embeddings>({
             lane: "chain",
             task: AiModelTask.Embedding,
-            // FREE floor — prefer the $0 self-hosted embedding model; the Auto
-            // chain climbs to a cloud embedding model only when it is unavailable.
+            // Embedding tier — within it the cheapest model (the $0 self-hosted
+            // one) is tried first, climbing to a cloud embedding model only when
+            // it is unavailable. Selection is further narrowed by the `embedding`
+            // supportedTask.
             categories: [
-                AiModelCategory.Free,
-                AiModelCategory.Economy,
+                AiModelCategory.Embedding,
             ],
             // build (not invoke): hand back the embeddings client the resolved
             // provider/key/model selects. Per-call key rotation is sacrificed for

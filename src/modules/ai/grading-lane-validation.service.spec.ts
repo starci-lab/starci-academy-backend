@@ -31,7 +31,7 @@ const buildModelRow = (
 ): AiModelEntity => ({
     name: "gpt-4o",
     provider: ModelProvider.OpenAI,
-    category: AiModelCategory.Balanced,
+    category: AiModelCategory.Medium,
     ...overrides,
 }) as AiModelEntity
 
@@ -50,7 +50,7 @@ describe("GradingLaneValidationService",
                 assertCanUsePaidModels: jest.fn(async () => undefined),
                 // enroll-aware unlocked categories a pinned model is checked against
                 resolveTierCategories: jest.fn(async () => [
-                    AiModelCategory.Economy,
+                    AiModelCategory.Low,
                 ]),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "assertCanUsePaidModels" | "resolveTierCategories">>
 
@@ -125,7 +125,7 @@ describe("GradingLaneValidationService",
             () => {
                 beforeEach(() => {
                     aiEntitlementService.resolveTierCategories.mockResolvedValue([
-                        AiModelCategory.Balanced,
+                        AiModelCategory.Medium,
                     ])
                 })
 
@@ -152,7 +152,7 @@ describe("GradingLaneValidationService",
                         // the picked model's category is within the tier categories
                         aiModelCatalogService.enabledModels.mockResolvedValueOnce([
                             buildModelRow({
-                                category: AiModelCategory.Balanced,
+                                category: AiModelCategory.Medium,
                             }),
                         ])
 
@@ -173,7 +173,7 @@ describe("GradingLaneValidationService",
                         // a Premium-category row when only Balanced is unlocked → reject
                         aiModelCatalogService.enabledModels.mockResolvedValueOnce([
                             buildModelRow({
-                                category: AiModelCategory.Premium,
+                                category: AiModelCategory.High,
                             }),
                         ])
 

@@ -417,13 +417,13 @@ describe("UseApiService",
                         const freeRow = {
                             ...buildModelRow("free-model",
                                 ModelProvider.OpenAI),
-                            category: AiModelCategory.Free,
+                            category: AiModelCategory.Low,
                             weight: 0,
                         } as AiModelEntity
                         const ecoRow = {
                             ...buildModelRow("eco-model",
                                 ModelProvider.Gemini),
-                            category: AiModelCategory.Economy,
+                            category: AiModelCategory.Low,
                             weight: 0,
                         } as AiModelEntity
                         aiModelCatalogService.enabledModels.mockResolvedValue([
@@ -450,8 +450,8 @@ describe("UseApiService",
                         const result = await service.useApi<string>({
                             lane: "chain",
                             categories: [
-                                AiModelCategory.Free,
-                                AiModelCategory.Economy,
+                                AiModelCategory.Low,
+                                AiModelCategory.Low,
                             ],
                             action: async () => "ok",
                         })
@@ -523,7 +523,7 @@ describe("UseApiService",
 
                         const result = await service.useApi<string>({
                             lane: "pinned",
-                            category: "balanced" as never,
+                            category: "medium" as never,
                             model: "gpt-4o",
                             provider: ModelProvider.OpenAI,
                             action: async () => "graded",
@@ -546,7 +546,7 @@ describe("UseApiService",
                         await expect(
                             service.useApi<string>({
                                 lane: "pinned",
-                                category: "balanced" as never,
+                                category: "medium" as never,
                                 model: "ghost-model",
                                 provider: ModelProvider.OpenAI,
                                 action: async () => "x",
@@ -564,7 +564,7 @@ describe("UseApiService",
 
                         const result = await service.useApi<string>({
                             lane: "pinned",
-                            category: "balanced" as never,
+                            category: "medium" as never,
                             action: async () => "ok",
                         })
 
@@ -585,7 +585,7 @@ describe("UseApiService",
                         await expect(
                             service.useApi<string>({
                                 lane: "pinned",
-                                category: "balanced" as never,
+                                category: "medium" as never,
                                 model: "gpt-4o",
                                 provider: ModelProvider.OpenAI,
                                 action: async () => "ok",
@@ -601,7 +601,7 @@ describe("UseApiService",
                         await expect(
                             service.useApi<string>({
                                 lane: "pinned",
-                                category: "balanced" as never,
+                                category: "medium" as never,
                                 action: async () => "ok",
                             }),
                         ).rejects.toBeInstanceOf(AllModelsExhaustedException)
@@ -618,7 +618,7 @@ describe("UseApiService",
 
                         const result = await service.useApi<string>({
                             lane: "pinned",
-                            category: "balanced" as never,
+                            category: "medium" as never,
                             model: "gpt-4o",
                             action: async () => "ok",
                         })
@@ -636,7 +636,7 @@ describe("UseApiService",
                         await expect(
                             service.useApi<string>({
                                 lane: "pinned",
-                                category: "balanced" as never,
+                                category: "medium" as never,
                                 model: "ghost-model",
                                 action: async () => "x",
                             }),
@@ -655,7 +655,7 @@ describe("UseApiService",
                         await expect(
                             service.useApi<string>({
                                 lane: "pinned",
-                                category: "balanced" as never,
+                                category: "medium" as never,
                                 model: "gpt-4o",
                                 provider: ModelProvider.OpenAI,
                                 action: async () => {
@@ -1038,16 +1038,16 @@ describe("UseApiService",
                 it("sorts a healthy Free Local model FIRST within the Free tier",
                     async () => {
                         const freeLocal = row("qwen-local",
-                            AiModelCategory.Free,
+                            AiModelCategory.Low,
                             ModelProvider.Local)
                         const freeCloudA = row("free-a",
-                            AiModelCategory.Free,
+                            AiModelCategory.Low,
                             ModelProvider.OpenAI)
                         const freeCloudB = row("free-b",
-                            AiModelCategory.Free,
+                            AiModelCategory.Low,
                             ModelProvider.Gemini)
                         const economy = row("eco-1",
-                            AiModelCategory.Economy,
+                            AiModelCategory.Low,
                             ModelProvider.OpenAI)
                         // local probed healthy
                         aiModelLatencyCacheService.getAll.mockResolvedValue(
@@ -1067,8 +1067,8 @@ describe("UseApiService",
                                 economy,
                             ],
                             [
-                                AiModelCategory.Free,
-                                AiModelCategory.Economy,
+                                AiModelCategory.Low,
+                                AiModelCategory.Low,
                             ],
                         )
 
@@ -1080,10 +1080,10 @@ describe("UseApiService",
                 it("pushes a probe-down Free Local model AFTER healthy cloud (downRank wins)",
                     async () => {
                         const freeLocal = row("qwen-local",
-                            AiModelCategory.Free,
+                            AiModelCategory.Low,
                             ModelProvider.Local)
                         const freeCloudA = row("free-a",
-                            AiModelCategory.Free,
+                            AiModelCategory.Low,
                             ModelProvider.OpenAI)
                         // local probed DOWN
                         aiModelLatencyCacheService.getAll.mockResolvedValue(
@@ -1100,7 +1100,7 @@ describe("UseApiService",
                                 freeCloudA,
                             ],
                             [
-                                AiModelCategory.Free,
+                                AiModelCategory.Low,
                             ],
                         )
 
@@ -1112,14 +1112,14 @@ describe("UseApiService",
                 it("leaves Economy/paid order untouched across tiers",
                     async () => {
                         const freeLocal = row("qwen-local",
-                            AiModelCategory.Free,
+                            AiModelCategory.Low,
                             ModelProvider.Local)
                         const ecoHi = row("eco-hi",
-                            AiModelCategory.Economy,
+                            AiModelCategory.Low,
                             ModelProvider.OpenAI,
                             10)
                         const ecoLo = row("eco-lo",
-                            AiModelCategory.Economy,
+                            AiModelCategory.Low,
                             ModelProvider.OpenAI,
                             1)
                         aiModelLatencyCacheService.getAll.mockResolvedValue(
@@ -1137,8 +1137,8 @@ describe("UseApiService",
                                 ecoLo,
                             ],
                             [
-                                AiModelCategory.Free,
-                                AiModelCategory.Economy,
+                                AiModelCategory.Low,
+                                AiModelCategory.Low,
                             ],
                         )
 

@@ -280,7 +280,7 @@ export class MockInterviewGateway {
                 userId,
                 messages,
                 selection,
-                floor: AiModelCategory.Economy,
+                floor: AiModelCategory.Low,
                 surface: AiCeilSurface.Interview,
                 // interviewer questions want natural variety, not deterministic grading
                 temperature: 0.4,

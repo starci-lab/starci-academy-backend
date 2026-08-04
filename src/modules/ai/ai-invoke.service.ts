@@ -298,7 +298,7 @@ export class AiInvokeService {
         // Auto lane = `categories` (the entitled tier set) → balancer loops them
         // low→high by priority (Free → Economy → Balanced → Premium, capped here).
         const isPremiumLane = category !== undefined
-            && category !== AiModelCategory.Economy
+            && category !== AiModelCategory.Low
 
         const {
             result,
@@ -460,7 +460,7 @@ export class AiInvokeService {
 
         // Premium lane (any non-Economy category) pins one model; Auto runs the fallback chain
         const isPremiumLane = category !== undefined
-            && category !== AiModelCategory.Economy
+            && category !== AiModelCategory.Low
 
         const {
             result,

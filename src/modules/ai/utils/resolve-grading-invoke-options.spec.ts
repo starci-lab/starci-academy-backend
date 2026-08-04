@@ -17,8 +17,8 @@ import type {
 const makeEntitlementStub = (
     {
         tierCategories = [
-            AiModelCategory.Free,
-            AiModelCategory.Economy,
+            AiModelCategory.Low,
+            AiModelCategory.Low,
         ],
     }: {
         tierCategories?: Array<AiModelCategory>
@@ -39,9 +39,9 @@ describe("resolveGradingInvokeOptions",
             async () => {
                 const entitlement = makeEntitlementStub({
                     tierCategories: [
-                        AiModelCategory.Free,
-                        AiModelCategory.Economy,
-                        AiModelCategory.Balanced,
+                        AiModelCategory.Low,
+                        AiModelCategory.Low,
+                        AiModelCategory.Medium,
                     ],
                 })
 
@@ -52,7 +52,7 @@ describe("resolveGradingInvokeOptions",
 
                 expect(result).toEqual({
                     categories: [
-                        AiModelCategory.Balanced,
+                        AiModelCategory.Medium,
                     ],
                 })
             })
@@ -61,11 +61,11 @@ describe("resolveGradingInvokeOptions",
             async () => {
                 const entitlement = makeEntitlementStub({
                     tierCategories: [
-                        AiModelCategory.Free,
-                        AiModelCategory.Economy,
-                        AiModelCategory.Balanced,
-                        AiModelCategory.Premium,
-                        AiModelCategory.Frontier,
+                        AiModelCategory.Low,
+                        AiModelCategory.Low,
+                        AiModelCategory.Medium,
+                        AiModelCategory.High,
+                        AiModelCategory.High,
                     ],
                 })
 
@@ -80,7 +80,7 @@ describe("resolveGradingInvokeOptions",
                 // neither — reaching the frontier model requires picking it
                 expect(result).toEqual({
                     categories: [
-                        AiModelCategory.Balanced,
+                        AiModelCategory.Medium,
                     ],
                 })
             })
@@ -88,7 +88,7 @@ describe("resolveGradingInvokeOptions",
         it("a tier entitling nothing in the window still yields the grading category",
             async () => {
                 const entitlement = makeEntitlementStub({
-                    tierCategories: [AiModelCategory.Free],
+                    tierCategories: [AiModelCategory.Low],
                 })
 
                 const result = await resolveGradingInvokeOptions({
@@ -98,7 +98,7 @@ describe("resolveGradingInvokeOptions",
 
                 expect(result).toEqual({
                     categories: [
-                        AiModelCategory.Balanced,
+                        AiModelCategory.Medium,
                     ],
                 })
             })
@@ -107,10 +107,10 @@ describe("resolveGradingInvokeOptions",
             async () => {
                 const entitlement = makeEntitlementStub({
                     tierCategories: [
-                        AiModelCategory.Free,
-                        AiModelCategory.Economy,
-                        AiModelCategory.Balanced,
-                        AiModelCategory.Premium,
+                        AiModelCategory.Low,
+                        AiModelCategory.Low,
+                        AiModelCategory.Medium,
+                        AiModelCategory.High,
                     ],
                 })
 

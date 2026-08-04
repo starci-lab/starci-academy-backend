@@ -317,7 +317,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 new HumanMessage(humanText),
             ],
             selection: payload.ai,
-            floor: AiModelCategory.Balanced,
+            floor: AiModelCategory.Medium,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.ChallengeGrading,
             // all submissions of one challenge share the rubric prefix → one route

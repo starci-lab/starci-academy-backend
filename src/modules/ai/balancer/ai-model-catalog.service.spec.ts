@@ -47,7 +47,7 @@ const buildModelRow = (
 ): AiModelEntity => ({
     name: "gpt-4o",
     provider: ModelProvider.OpenAI,
-    category: AiModelCategory.Balanced,
+    category: AiModelCategory.Medium,
     enabled: true,
     credit: 0,
     creditPerMTokIn: 0,
@@ -130,19 +130,19 @@ describe("AiModelCatalogService",
                         // mixed categories returned; only the requested one survives
                         entityManager.find.mockResolvedValueOnce([
                             buildModelRow({
-                                category: AiModelCategory.Economy,
+                                category: AiModelCategory.Low,
                             }),
                             buildModelRow({
-                                category: AiModelCategory.Premium,
+                                category: AiModelCategory.High,
                             }),
                         ])
 
                         const result = await service.enabledModels({
-                            category: AiModelCategory.Premium,
+                            category: AiModelCategory.High,
                         })
 
                         expect(result).toHaveLength(1)
-                        expect(result[0].category).toBe(AiModelCategory.Premium)
+                        expect(result[0].category).toBe(AiModelCategory.High)
                     })
 
                 it("propagates a DB failure instead of swallowing it",
