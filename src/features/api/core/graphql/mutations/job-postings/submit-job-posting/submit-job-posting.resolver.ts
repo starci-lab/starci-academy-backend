@@ -164,8 +164,12 @@ export class SubmitJobPostingResolver {
             },
         )
 
-        // return the new posting id (interceptor wraps it as `data`)
-        return saved.id
+        // return the new posting's routing slug (`displayId`), NOT its UUID
+        // primary key: the detail page resolves `/jobs/<param>` by `displayId`
+        // (see job-posting.handler `where: { displayId }`), so returning `id`
+        // here makes the post-submit "View posting" CTA 404. The interceptor
+        // wraps this as `data`.
+        return saved.displayId
     }
 
     /**

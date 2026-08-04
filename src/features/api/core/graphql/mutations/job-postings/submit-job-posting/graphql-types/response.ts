@@ -7,7 +7,12 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** Response for submitting a job posting — returns the new posting id. */
+/**
+ * Response for submitting a job posting — returns the new posting's routing
+ * `displayId` (the slug the detail page resolves `/jobs/<displayId>` by), not
+ * its UUID primary key, so the client's post-submit "View posting" CTA links
+ * to a page that resolves.
+ */
 @ObjectType({
     description: "Response for submitting a job posting.",
 })
@@ -16,7 +21,7 @@ export class SubmitJobPostingResponse extends AbstractGraphQLResponse {
         () => ID,
         {
             nullable: true,
-            description: "Id of the newly created job posting (null on error).",
+            description: "Routing displayId (slug) of the newly created job posting (null on error).",
         },
     )
         data: string | null
