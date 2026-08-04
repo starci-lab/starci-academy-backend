@@ -192,6 +192,44 @@ export class AiModelEntity extends UuidAbstractEntity {
         priceOutUsdPerMTok: number
 
     /**
+     * REAL provider price in USD per 1,000,000 CACHED input tokens — a
+     * prompt-cache hit, which providers re-price at roughly 0.1x-0.2x of a fresh
+     * input token and OpenRouter passes through. Null when the model publishes
+     * no cache pricing (billing then treats cached tokens as fresh).
+     */
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "Real provider price (USD) per 1,000,000 cached input tokens; null when the model has no cache pricing.",
+        },
+    )
+    @Column({
+        name: "price_cache_read_usd_per_mtok",
+        type: "double precision",
+        nullable: true,
+    })
+        priceCacheReadUsdPerMTok: number | null
+
+    /**
+     * Credits charged per 1,000,000 CACHED input tokens. DERIVED from
+     * {@link priceCacheReadUsdPerMTok}; null when the model has no cache price.
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Credits charged per 1,000,000 cached input tokens (derived from price).",
+        },
+    )
+    @Column({
+        name: "credit_per_mtok_cached",
+        type: "int",
+        nullable: true,
+    })
+        creditPerMTokCached: number | null
+
+    /**
      * Total context window in tokens, as published by the provider. Together
      * with the two prices this is the whole recorded metric set the catalog
      * ranks on — see `computeModelWeight`, where a roomier window and a cheaper

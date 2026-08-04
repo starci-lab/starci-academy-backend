@@ -27,3 +27,19 @@ export const DEFAULT_ESTIMATE_COMPLETION_TOKENS = 800
  * always tracks real money instead of a per-tier round number.
  */
 export const AI_CREDITS_PER_USD = 5000
+
+/**
+ * Share of the normal input rate a prompt-cache HIT is billed at.
+ *
+ * OpenRouter re-prices a cache read at roughly 0.1x (Anthropic) to 0.5x (OpenAI)
+ * of a fresh input token and passes that discount through to us. We bill the
+ * learner at the least generous end of that range: it never charges less than
+ * the call could plausibly have cost, while still refusing to bill a discounted
+ * token at full price.
+ *
+ * Deliberately one constant rather than a per-model column: the real multiplier
+ * is a property of the upstream provider and moves without notice, so a number
+ * frozen into a seed row would go stale silently. Promote it to a metric on the
+ * catalog only once the response tells us the true per-call discount.
+ */
+export const CACHE_READ_RATE_MULTIPLIER = 0.5

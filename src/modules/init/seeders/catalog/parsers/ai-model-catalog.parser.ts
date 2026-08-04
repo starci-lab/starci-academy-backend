@@ -147,6 +147,22 @@ export class AiModelCatalogParserService {
                     enMd.contextWindowTokens,
                     0,
                 ) || null,
+                // a prompt-cache hit is re-priced by the provider (roughly
+                // 0.1x-0.2x of a fresh input token). Recorded per model because
+                // the ratio differs per model, exactly like the two base prices.
+                priceCacheReadUsdPerMTok: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.priceCacheReadUsdPerMTok,
+                    0,
+                ) || null,
+                creditPerMTokCached: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.priceCacheReadUsdPerMTok,
+                    0,
+                )
+                    ? creditRateFromUsd(this.coerceMdScalarService.toRequiredNumber(
+                        enMd.priceCacheReadUsdPerMTok,
+                        0,
+                    ))
+                    : null,
                 // credit rate is DERIVED from the real USD price (single source):
                 // round(price$/M × CREDITS_PER_USD), i.e. 1 credit ≡ $0.0002 cost.
                 // EVERY model bills at its derived rate — `complimentary` only

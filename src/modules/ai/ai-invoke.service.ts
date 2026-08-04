@@ -152,11 +152,13 @@ export class AiInvokeService {
             model: string,
             promptTokens?: number,
             completionTokens?: number,
+            cachedTokens?: number,
         ): Promise<number> =>
             this.aiModelCatalogService.creditForRun({
                 name: model,
                 promptTokens,
                 completionTokens,
+                cachedTokens,
                 fallback: DEFAULT_MODEL_CREDIT,
             })
 
@@ -179,6 +181,7 @@ export class AiInvokeService {
                     result.model,
                     result.promptTokens,
                     result.completionTokens,
+                    result.cachedTokens,
                 ),
                 promptTokens: result.promptTokens,
                 completionTokens: result.completionTokens,
@@ -200,6 +203,7 @@ export class AiInvokeService {
                 result.model,
                 result.promptTokens,
                 result.completionTokens,
+                result.cachedTokens,
             ),
             promptTokens: result.promptTokens,
             completionTokens: result.completionTokens,
@@ -265,6 +269,12 @@ export class AiInvokeService {
                         : String(response.content),
                     promptTokens: usage?.input_tokens ?? 0,
                     completionTokens: usage?.output_tokens ?? 0,
+                    // Prompt-cache hits are INCLUDED in `input_tokens`, but the
+                    // provider charges a fraction for them (OpenRouter passes the
+                    // discount straight through). Billing the learner the full
+                    // input rate for tokens we got at a discount would break the
+                    // rule that a credit represents what the call actually cost.
+                    cachedTokens: usage?.input_token_details?.cache_read ?? 0,
                 }
             } catch (error) {
                 if (timedOut) {
@@ -363,6 +373,7 @@ export class AiInvokeService {
             let text = ""
             let promptTokens = 0
             let completionTokens = 0
+            let cachedTokens = 0
             // hard per-attempt timeout aborts the stream; combine it with the
             // caller's abort signal (user-stop). A TIMEOUT is surfaced as a plain
             // error → Transient → next model; a USER abort stays AbortError → stop.
@@ -413,12 +424,19 @@ export class AiInvokeService {
                     if (usage) {
                         promptTokens = usage.input_tokens ?? promptTokens
                         completionTokens = usage.output_tokens ?? completionTokens
+                        // the chatbot resends its whole history every turn, so the
+                        // cached share of the prompt is exactly where the saving
+                        // lives — capture it or the learner pays full price for
+                        // tokens the provider discounted
+                        cachedTokens = usage.input_token_details?.cache_read
+                            ?? cachedTokens
                     }
                 }
                 return {
                     text,
                     promptTokens,
                     completionTokens,
+                    cachedTokens,
                 }
             } catch (error) {
                 if (timedOut) {

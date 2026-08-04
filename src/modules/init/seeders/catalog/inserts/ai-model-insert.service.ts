@@ -139,6 +139,8 @@ export class AiModelInsertService {
                     credit: model.credit,
                     weight: model.weight,
                     contextWindowTokens: model.contextWindowTokens ?? null,
+                    priceCacheReadUsdPerMTok: model.priceCacheReadUsdPerMTok ?? null,
+                    creditPerMTokCached: model.creditPerMTokCached ?? null,
                     priceInUsdPerMTok: model.priceInUsdPerMTok,
                     priceOutUsdPerMTok: model.priceOutUsdPerMTok,
                     creditPerMTokIn: model.creditPerMTokIn,

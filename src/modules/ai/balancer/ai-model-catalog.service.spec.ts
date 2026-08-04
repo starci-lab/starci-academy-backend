@@ -231,6 +231,107 @@ describe("AiModelCatalogService",
                         expect(result).toBe(10)
                     })
 
+                it("bills prompt-cache hits at the model's own cache rate, not the input rate",
+                    async () => {
+                        entityManager.find.mockResolvedValueOnce([
+                            buildModelRow({
+                                name: "cached-model",
+                                creditPerMTokIn: 1000,
+                                creditPerMTokOut: 1000,
+                                creditPerMTokCached: 200,
+                            }),
+                        ])
+
+                        const result = await service.creditForRun({
+                            name: "cached-model",
+                            promptTokens: 10_000,
+                            cachedTokens: 8_000,
+                            completionTokens: 1_000,
+                            fallback: 1,
+                        })
+
+                        // 2000 fresh × 1000 + 8000 cached × 200 + 1000 out × 1000
+                        // = (2e6 + 1.6e6 + 1e6) / 1e6 = 4.6 → 5
+                        expect(result).toBe(5)
+                    })
+
+                it("charges the learner less once the conversation warms the cache",
+                    async () => {
+                        const row = buildModelRow({
+                            name: "cached-model",
+                            creditPerMTokIn: 1000,
+                            creditPerMTokOut: 1000,
+                            creditPerMTokCached: 200,
+                        })
+                        entityManager.find.mockResolvedValue([row])
+
+                        const cold = await service.creditForRun({
+                            name: "cached-model",
+                            promptTokens: 10_000,
+                            completionTokens: 1_000,
+                            fallback: 1,
+                        })
+                        const warm = await service.creditForRun({
+                            name: "cached-model",
+                            promptTokens: 10_000,
+                            cachedTokens: 8_000,
+                            completionTokens: 1_000,
+                            fallback: 1,
+                        })
+
+                        // identical prompt, identical output — the only difference is
+                        // that the provider served most of it from cache, and the
+                        // discount reaches the learner instead of stopping at us
+                        expect(warm).toBeLessThan(cold)
+                    })
+
+                it("falls back to the conservative multiplier when no cache price is recorded",
+                    async () => {
+                        entityManager.find.mockResolvedValueOnce([
+                            buildModelRow({
+                                name: "uncached-model",
+                                creditPerMTokIn: 1000,
+                                creditPerMTokOut: 1000,
+                                creditPerMTokCached: null,
+                            }),
+                        ])
+
+                        const result = await service.creditForRun({
+                            name: "uncached-model",
+                            promptTokens: 10_000,
+                            cachedTokens: 8_000,
+                            completionTokens: 1_000,
+                            fallback: 1,
+                        })
+
+                        // cached share bills at 0.5 × the input rate:
+                        // (2000×1000 + 8000×500 + 1000×1000) / 1e6 = 7
+                        expect(result).toBe(7)
+                    })
+
+                it("never lets a bogus cached count exceed the prompt it came from",
+                    async () => {
+                        entityManager.find.mockResolvedValueOnce([
+                            buildModelRow({
+                                name: "cached-model",
+                                creditPerMTokIn: 1000,
+                                creditPerMTokOut: 0,
+                                creditPerMTokCached: 200,
+                            }),
+                        ])
+
+                        const result = await service.creditForRun({
+                            name: "cached-model",
+                            promptTokens: 1_000,
+                            cachedTokens: 999_999,
+                            completionTokens: 0,
+                            fallback: 1,
+                        })
+
+                        // clamped to the 1000 prompt tokens, all cached: 1000×200/1e6
+                        expect(result).toBe(1)
+                    })
+
                 it("never bills a rated model 0 credits — a tiny fractional total rounds up",
                     async () => {
                         entityManager.find.mockResolvedValueOnce([

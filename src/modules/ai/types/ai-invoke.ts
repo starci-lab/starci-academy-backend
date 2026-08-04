@@ -55,6 +55,12 @@ export interface AiInvokeResult {
     promptTokens?: number
     /** Completion (output) tokens the provider reported (0 when unreported). */
     completionTokens?: number
+    /**
+     * Prompt-cache HITS, already counted inside {@link promptTokens}. The
+     * provider charges a fraction for these, so billing re-prices this share
+     * rather than charging it at the full input rate.
+     */
+    cachedTokens?: number
 }
 
 /**
@@ -113,6 +119,11 @@ export interface StreamActionResult {
     promptTokens: number
     /** Completion tokens reported by the model (0 when unreported). */
     completionTokens: number
+    /**
+     * Prompt-cache HITS, already counted inside `promptTokens`. Billed at a
+     * fraction of the input rate, since the provider charges us a fraction.
+     */
+    cachedTokens?: number
 }
 
 /**
@@ -176,6 +187,12 @@ export interface AiRunResult {
     promptTokens?: number
     /** Completion tokens (streaming path only). */
     completionTokens?: number
+    /**
+     * Prompt-cache HITS, already counted inside {@link promptTokens}. The
+     * provider charges a fraction for these, so billing re-prices this share
+     * rather than charging it at the full input rate.
+     */
+    cachedTokens?: number
 }
 
 /** Result of {@link AiInvokeService.stream}. */
@@ -192,4 +209,9 @@ export interface AiStreamResult {
     promptTokens: number
     /** Completion tokens produced (0 when the model did not report usage). */
     completionTokens: number
+    /**
+     * Prompt-cache HITS, already counted inside `promptTokens`. Billed at a
+     * fraction of the input rate, since the provider charges us a fraction.
+     */
+    cachedTokens?: number
 }

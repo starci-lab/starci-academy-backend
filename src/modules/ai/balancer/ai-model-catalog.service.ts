@@ -12,6 +12,7 @@ import type {
     EnabledModelsParams,
 } from "./types"
 import {
+    CACHE_READ_RATE_MULTIPLIER,
     DEFAULT_ESTIMATE_COMPLETION_TOKENS,
     DEFAULT_ESTIMATE_PROMPT_TOKENS,
 } from "../constants/credit-cost"
@@ -118,11 +119,13 @@ export class AiModelCatalogService {
             name,
             promptTokens,
             completionTokens,
+            cachedTokens,
             fallback,
         }: {
             name: string
             promptTokens?: number
             completionTokens?: number
+            cachedTokens?: number
             fallback: number
         },
     ): Promise<number> {
@@ -147,8 +150,27 @@ export class AiModelCatalogService {
         const noUsage = inputTokens === 0 && outputTokens === 0
         const billedInput = noUsage ? DEFAULT_ESTIMATE_PROMPT_TOKENS : inputTokens
         const billedOutput = noUsage ? DEFAULT_ESTIMATE_COMPLETION_TOKENS : outputTokens
-        const credits = (billedInput * found.creditPerMTokIn
-            + billedOutput * found.creditPerMTokOut) / 1_000_000
+        // Prompt-cache hits are counted INSIDE `promptTokens` but the provider
+        // re-prices them (roughly 0.1x-0.2x of a fresh input token) and
+        // OpenRouter passes that discount on to us. Charging the learner the full
+        // input rate for them would make a credit represent the list price rather
+        // than what we actually paid, so the cached share bills at the model's own
+        // recorded cache rate.
+        const cachedInput = noUsage
+            ? 0
+            : Math.min(Math.max(cachedTokens ?? 0,
+                0),
+            billedInput)
+        const freshInput = billedInput - cachedInput
+        // no recorded cache price → fall back to the conservative multiplier
+        // rather than inventing a discount the provider may not give
+        const cachedRate = found.creditPerMTokCached
+            ?? found.creditPerMTokIn * CACHE_READ_RATE_MULTIPLIER
+        const credits = (
+            freshInput * found.creditPerMTokIn
+            + cachedInput * cachedRate
+            + billedOutput * found.creditPerMTokOut
+        ) / 1_000_000
         return Math.ceil(credits)
     }
 
