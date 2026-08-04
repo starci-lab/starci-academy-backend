@@ -12,9 +12,6 @@ import {
     AiEntitlementService,
 } from "./ai-entitlement.service"
 import {
-    AiTaskModelService,
-} from "./ai-task-model.service"
-import {
     GradingLaneValidationService,
 } from "./grading-lane-validation.service"
 import {
@@ -39,7 +36,6 @@ import {
     providers: [
         AiInvokeService,
         AiEntitlementService,
-        AiTaskModelService,
         GradingLaneValidationService,
         AiModelLatencyService,
     ],
@@ -48,7 +44,6 @@ import {
         AiPingModule,
         AiInvokeService,
         AiEntitlementService,
-        AiTaskModelService,
         GradingLaneValidationService,
         AiModelLatencyService,
     ],

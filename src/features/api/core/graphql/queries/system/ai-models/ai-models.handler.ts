@@ -6,21 +6,24 @@ import {
 } from "@modules/env"
 import {
     AiModelCatalogService,
-    AiTaskModelService,
     AiTaskKind,
+    GRADING_FLOOR_CATEGORY,
     ModelRecommendation,
     UseApiService,
 } from "@modules/ai"
+import {
+    AiModelTask,
+} from "@modules/databases"
 import type {
     AiModelsResponseData,
     AiActiveModelData,
     AiGradableModelData,
+    AiModelChoiceData,
 } from "./graphql-types"
 
 @Injectable()
 export class AiModelsHandler {
     constructor(
-        private readonly aiTaskModelService: AiTaskModelService,
         private readonly modelCatalog: AiModelCatalogService,
         private readonly useApiService: UseApiService,
     ) {}
@@ -28,31 +31,50 @@ export class AiModelsHandler {
     async execute(): Promise<AiModelsResponseData> {
         const tier = envConfig().ai.modelRecommendation as ModelRecommendation
 
+        const enabled = await this.modelCatalog.enabledModels()
+
+        // Read the chain the balancer will ACTUALLY run, rather than a static
+        // per-task table maintained beside the catalog. That table drifted: it
+        // went on advertising models the roster no longer contains, so the panel
+        // showed an admin a model that could not be reached.
+        //
+        // Every grading task now resolves to the same category — difficulty no
+        // longer selects a rung — so the three rows below share one chain, and
+        // it is derived, never typed.
+        const gradingChain: Array<AiModelChoiceData> = enabled
+            .filter((model) => model.category === GRADING_FLOOR_CATEGORY)
+            .filter((model) => !model.supportedTasks?.length
+                || model.supportedTasks.includes(AiModelTask.Grading))
+            // highest weight first — the order UseApiService tries them in
+            .sort((left, right) => right.weight - left.weight)
+            .map((model) => ({
+                model: model.name,
+                provider: model.provider,
+            }))
+
         const models: Array<AiActiveModelData> = [
             {
                 taskKind: AiTaskKind.Grade,
                 label: "Chấm bài Challenge",
                 description: "Chấm điểm các bài nộp code (Git, Google Docs). AI phân tích source code và đưa ra điểm số cùng phản hồi chi tiết.",
-                activeModel: this.aiTaskModelService.primaryChoice(AiTaskKind.Grade),
-                fallbackChain: this.aiTaskModelService.fallbackChain(AiTaskKind.Grade),
+                activeModel: gradingChain[0],
+                fallbackChain: gradingChain,
             },
             {
                 taskKind: AiTaskKind.ReviewPersonalProject,
                 label: "Review Dự án cá nhân",
                 description: "Đánh giá task trong dự án cá nhân. AI kiểm tra từng tiêu chí và cho phản hồi từng phần.",
-                activeModel: this.aiTaskModelService.primaryChoice(AiTaskKind.ReviewPersonalProject),
-                fallbackChain: this.aiTaskModelService.fallbackChain(AiTaskKind.ReviewPersonalProject),
+                activeModel: gradingChain[0],
+                fallbackChain: gradingChain,
             },
             {
                 taskKind: AiTaskKind.ReviewCvSubmission,
                 label: "Review CV (analyze)",
                 description: "Phân tích CV theo rubric, sinh markdown `detailFeedback` sau bước plan.",
-                activeModel: this.aiTaskModelService.primaryChoice(AiTaskKind.ReviewCvSubmission),
-                fallbackChain: this.aiTaskModelService.fallbackChain(AiTaskKind.ReviewCvSubmission),
+                activeModel: gradingChain[0],
+                fallbackChain: gradingChain,
             },
         ]
-
-        const enabled = await this.modelCatalog.enabledModels()
         // providers whose key pool still has a healthy key — a model whose
         // provider is missing here is rendered locked in the picker (no key)
         const usableProviders = await this.useApiService.availableProviders()

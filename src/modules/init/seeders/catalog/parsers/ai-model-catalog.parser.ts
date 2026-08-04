@@ -17,6 +17,8 @@ import {
 } from "../../shared"
 import {
     computeModelWeight,
+    creditForTypicalCall,
+    creditRateFromUsd,
 } from "@modules/ai"
 import {
     AiModelCatalogPathService,
@@ -97,10 +99,23 @@ export class AiModelCatalogParserService {
                     enMd.priority,
                     0,
                 ),
-                credit: this.coerceMdScalarService.toRequiredNumber(
-                    enMd.credit,
-                    0,
-                ),
+                // DERIVED, never authored. A credit REPRESENTS real money
+                // (1 credit ≡ $0.0002), so the flat fallback has to be what a
+                // typical call actually costs — not a per-category round number.
+                // It is computed with the same estimator `creditForRun` falls
+                // back to when a provider reports no usage, so the two paths
+                // cannot disagree. The old hand-set constants charged a coarse
+                // per-tier cap that massively overcharged a cheap model.
+                credit: creditForTypicalCall({
+                    priceInUsdPerMTok: this.coerceMdScalarService.toRequiredNumber(
+                        enMd.priceInUsdPerMTok,
+                        0,
+                    ),
+                    priceOutUsdPerMTok: this.coerceMdScalarService.toRequiredNumber(
+                        enMd.priceOutUsdPerMTok,
+                        0,
+                    ),
+                }),
                 // DERIVED, never authored: cheaper + roomier ranks earlier. The
                 // seed used to carry a hand-typed decimal that was anchored to
                 // nothing and had to be re-guessed on every new model.
@@ -139,15 +154,13 @@ export class AiModelCatalogParserService {
                 // cost. This keeps the free pool (250/week) bounded: a free user
                 // gets a finite number of runs and the max loss per user is capped
                 // (250 credits ≈ $0.05/week), instead of unbounded free grading.
-                creditPerMTokIn: Math.round(
+                creditPerMTokIn: creditRateFromUsd(
                     this.coerceMdScalarService.toRequiredNumber(enMd.priceInUsdPerMTok,
-                        0)
-                    * AI_CREDITS_PER_USD,
+                        0),
                 ),
-                creditPerMTokOut: Math.round(
+                creditPerMTokOut: creditRateFromUsd(
                     this.coerceMdScalarService.toRequiredNumber(enMd.priceOutUsdPerMTok,
-                        0)
-                    * AI_CREDITS_PER_USD,
+                        0),
                 ),
                 enabled: this.coerceMdScalarService.toRequiredBoolean(
                     enMd.enabled,
@@ -244,7 +257,6 @@ export class AiModelCatalogParserService {
  * from the real USD price (`round(price$/M × this)`), so the USD price in the
  * markdown is the single source of truth for both cost auditing and billing.
  */
-const AI_CREDITS_PER_USD = 5000
 
 /**
  * Parse the `# supportedTasks` markdown heading (a comma/newline-separated list)

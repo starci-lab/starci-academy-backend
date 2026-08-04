@@ -17,3 +17,13 @@ export const DEFAULT_ESTIMATE_PROMPT_TOKENS = 1500
 
 /** Assumed completion tokens for the no-usage cost estimate — see above. */
 export const DEFAULT_ESTIMATE_COMPLETION_TOKENS = 800
+
+/**
+ * Credits per US dollar of real provider cost — the exchange rate that makes a
+ * credit MEAN something: 1 credit ≡ $0.0002 spent with the model provider.
+ *
+ * Every credit figure in the catalog (`creditPerMTokIn/Out`, the flat `credit`)
+ * is derived through this constant rather than authored, so a learner's balance
+ * always tracks real money instead of a per-tier round number.
+ */
+export const AI_CREDITS_PER_USD = 5000

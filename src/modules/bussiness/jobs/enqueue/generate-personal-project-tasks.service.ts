@@ -29,10 +29,6 @@ import {
     JobActionService,
 } from "../atomic"
 import {
-    AiTaskKind,
-    AiTaskModelService,
-} from "@modules/ai"
-import {
     sleepEnqueueUxDelay,
 } from "../utils"
 import type {
@@ -45,7 +41,6 @@ import type {
 @Injectable()
 export class EnqueueGeneratePersonalProjectTasksJobService {
     constructor(
-        private readonly aiTaskModelService: AiTaskModelService,
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
@@ -65,10 +60,14 @@ export class EnqueueGeneratePersonalProjectTasksJobService {
             locale,
         }: EnqueueGeneratePersonalProjectTasksParams,
     ): Promise<JobEntity> {
+        // No default model: an absent model/provider means "let the balancer
+        // pick", which is health- and cost-aware. Pinning a default here bypassed
+        // both — the job would keep naming one model even after it was retired
+        // from the catalog or its keys went unhealthy.
         const payload: GeneratePersonalProjectTasksPayload = {
             enrollmentId,
-            model: model || this.aiTaskModelService.primaryChoice(AiTaskKind.GenerateMilestone).model,
-            provider: provider || this.aiTaskModelService.primaryChoice(AiTaskKind.GenerateMilestone).provider,
+            model,
+            provider,
             locale,
         }
         const job = await this.jobActionService.createJob({
