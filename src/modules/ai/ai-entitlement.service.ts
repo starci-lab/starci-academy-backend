@@ -58,9 +58,10 @@ import type {
  *
  * - **Allowance** = the free base credits (`systemConfig.ai.auto`, see
  *   {@link AiAutoQuotaConfigService}) + the active tier's catalog credits.
- * - **Model access** is gated by tier: free is locked to `economy` models; any
- *   paid tier (Plus/Pro/Max) unlocks `balanced` + `premium`. Each call costs
- *   {@link CATEGORY_CREDIT_COST} credits by category.
+ * - **Model access** is gated by tier via {@link TIER_ALLOWED_CATEGORIES}. A
+ *   call is billed by TOKENS actually used — `AiModelCatalogService.creditForRun`
+ *   applies the served model's own per-million-token rates — not by a flat
+ *   per-category constant.
  *
  * Windows reset lazily on read: when a `*ResetAt` timestamp is in the past the
  * matching counter drops to 0 and the timestamp rolls forward from "now".

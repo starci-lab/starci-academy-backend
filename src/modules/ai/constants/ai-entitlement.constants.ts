@@ -3,19 +3,6 @@ import {
     AiSubTier,
 } from "@modules/databases"
 
-/**
- * Credit cost of a single LLM call by model category — unified with the grading
- * tiers (Low/Medium/High = 5/20/50 in `credit-cost.ts`).
- * Free (self-hosted Qwen) is 0; Premium flagship models cost the most.
- */
-export const CATEGORY_CREDIT_COST: Record<AiModelCategory, number> = {
-    [AiModelCategory.Free]: 0,
-    [AiModelCategory.Economy]: 5,
-    [AiModelCategory.Balanced]: 20,
-    [AiModelCategory.Premium]: 50,
-    [AiModelCategory.Frontier]: 100,
-}
-
 /** Length of the short rolling window: 5 hours, in milliseconds. */
 export const WINDOW_5H_MS = 5 * 60 * 60 * 1000
 
@@ -34,9 +21,8 @@ export const SUBSCRIPTION_PERIOD_MONTHS = 1
  * tasks floor at Balanced — see the grading grade-steps), where eval evidence
  * showed Free/Economy models grade too shallowly (miss subtle API-contract
  * defects). Any paid tier (Plus / Pro / Max) additionally unlocks **Premium +
- * Frontier**; credit cost (see {@link CATEGORY_CREDIT_COST}) is then the only
- * limiter, so a Plus user can call a Premium model, it just burns more credits
- * from the shared pool.
+ * Frontier**; token-based credit cost is then the only limiter, so a Plus user
+ * can call a Premium model, it just burns more credits from the shared pool.
  */
 export const TIER_ALLOWED_CATEGORIES: Record<AiSubTier | "free", Array<AiModelCategory>> = {
     // no plan → free (self-hosted Qwen, 0 credit) + economy + balanced cloud
