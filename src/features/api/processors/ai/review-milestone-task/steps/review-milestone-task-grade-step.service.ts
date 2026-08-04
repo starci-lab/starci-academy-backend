@@ -431,7 +431,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         // Climbs to the tier ceiling. Credit charge happens in the complete step
         // (by the stored served model).
         const {
-            text: raw, model, provider, attempts, promptTokens, completionTokens,
+            text: raw, model, provider, attempts, promptTokens, completionTokens, cachedTokens,
         } = await this.aiInvokeService.run({
             userId: enrollment.userId,
             messages: [
@@ -456,6 +456,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 attempts,
                 promptTokens,
                 completionTokens,
+                cachedTokens,
             },
         }
     }

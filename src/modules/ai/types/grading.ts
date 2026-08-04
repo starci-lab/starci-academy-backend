@@ -38,4 +38,10 @@ export interface GradingStepAiUsage {
     promptTokens?: number
     /** Output (completion) tokens the model reported (0/undefined when unreported). */
     completionTokens?: number
+    /**
+     * Prompt-cache hits, already counted inside {@link promptTokens}. Carried so
+     * the post-commit billing can re-price them at the model's cache rate rather
+     * than the full input rate — see `creditForRun`.
+     */
+    cachedTokens?: number
 }

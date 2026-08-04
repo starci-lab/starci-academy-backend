@@ -393,8 +393,11 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 await this.aiEntitlementService.consume({
                     userId: enrollment.userId,
                     cost: grade.aiUsage?.model
-                        ? await this.aiModelCatalogService.creditForModel({
+                        ? await this.aiModelCatalogService.creditForRun({
                             name: grade.aiUsage.model,
+                            promptTokens: grade.aiUsage.promptTokens,
+                            completionTokens: grade.aiUsage.completionTokens,
+                            cachedTokens: grade.aiUsage.cachedTokens,
                             fallback: DEFAULT_MODEL_CREDIT,
                         })
                         : 0,

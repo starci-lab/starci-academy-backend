@@ -1,7 +1,7 @@
 /**
  * Fallback credit for a served model missing from the catalog (balanced-tier
  * default). Callers pass this as the `fallback` to
- * {@link AiModelCatalogService.creditForModel}.
+ * {@link AiModelCatalogService.creditForRun}.
  */
 export const DEFAULT_MODEL_CREDIT = 20
 

@@ -80,30 +80,6 @@ export class AiModelCatalogService {
     }
 
     /**
-     * Resolve the billing `credit` of the model that served a run, by its
-     * concrete name. The single source of grading cost (replaces the hardcoded
-     * `MODEL_CREDIT` map). Unknown / disabled model → {@link fallback}.
-     *
-     * NOTE: this is the BILLING value (`credit`), NOT the ordering `weight`.
-     *
-     * @param params - the served model `name` and a `fallback` credit.
-     * @returns the model's catalog credit, or `fallback` when not found.
-     */
-    async creditForModel(
-        {
-            name,
-            fallback,
-        }: {
-            name: string
-            fallback: number
-        },
-    ): Promise<number> {
-        const models = await this.enabledModels()
-        const found = models.find((model) => model.name === name)
-        return found ? found.credit : fallback
-    }
-
-    /**
      * TOKEN-BASED billing for one run: `ceil((promptTok·rateIn + completionTok·
      * rateOut) / 1e6)`, where the per-million-token rates come from the served
      * model's catalog row (proportional to its real `$/M` price). Falls back to

@@ -91,7 +91,7 @@ describe("ProcessGitSubmissionCompleteStepService",
                 new DayjsService(),
                 aiEntitlementService as never,
                 {
-                    creditForModel: jest.fn().mockResolvedValue(0),
+                    creditForRun: jest.fn().mockResolvedValue(0),
                 } as never,
                 {
                     recompute: jest.fn(),

@@ -156,43 +156,6 @@ describe("AiModelCatalogService",
                     })
             })
 
-        describe("creditForModel",
-            () => {
-                it("returns the catalog credit of the model served",
-                    async () => {
-                        entityManager.find.mockResolvedValueOnce([
-                            buildModelRow({
-                                name: "gpt-4o",
-                                credit: 12,
-                            }),
-                        ])
-
-                        const result = await service.creditForModel({
-                            name: "gpt-4o",
-                            fallback: 999,
-                        })
-
-                        expect(result).toBe(12)
-                    })
-
-                it("returns the fallback when the model is not in the enabled catalog",
-                    async () => {
-                        // catalog has rows, but none match the served name (disabled / renamed / removed)
-                        entityManager.find.mockResolvedValueOnce([
-                            buildModelRow({
-                                name: "some-other-model",
-                            }),
-                        ])
-
-                        const result = await service.creditForModel({
-                            name: "gpt-4o",
-                            fallback: 20,
-                        })
-
-                        expect(result).toBe(20)
-                    })
-            })
-
         describe("creditForRun",
             () => {
                 it("returns the fallback when the model is not in the enabled catalog",

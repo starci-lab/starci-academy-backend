@@ -250,7 +250,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         // correctly (right score ordering, no length bias). Only CODE grading
         // (githubUrl + capstone) needs the higher Balanced floor. Climbs to ceiling.
         const {
-            text: raw, model, provider, attempts, cost, promptTokens, completionTokens,
+            text: raw, model, provider, attempts, cost, promptTokens, completionTokens, cachedTokens,
         } = await this.aiInvokeService.run({
             userId: enrollment.userId,
             messages: [
@@ -303,6 +303,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 attempts,
                 promptTokens,
                 completionTokens,
+                cachedTokens,
             },
         }
     }

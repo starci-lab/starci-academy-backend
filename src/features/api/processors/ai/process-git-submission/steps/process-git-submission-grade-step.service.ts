@@ -301,7 +301,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         // shallowly (miss subtle API-contract defects); text grading (googleDocs /
         // interview) stays at Economy. Climbs to the tier ceiling → served + cost.
         const {
-            text: raw, model, provider, attempts, cost, promptTokens, completionTokens,
+            text: raw, model, provider, attempts, cost, promptTokens, completionTokens, cachedTokens,
         } = await this.aiInvokeService.run({
             userId: enrollment.userId,
             messages: [
@@ -354,6 +354,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 attempts,
                 promptTokens,
                 completionTokens,
+                cachedTokens,
             },
         }
     }
