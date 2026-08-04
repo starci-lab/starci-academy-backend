@@ -185,6 +185,14 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         const maxScore = criteria.reduce((sum, criterion) => sum + criterion.score,
             0)
 
+        // CACHE INVARIANT — do NOT interpolate anything submission-specific here.
+        // The provider caches this prompt by its exact prefix and re-prices repeat
+        // reads at a fraction (see creditForRun's cachedTokens path). Every value
+        // below is challenge-level (title, maxScore, language), so all submissions
+        // of one challenge share the cached prefix. Splicing in the learner's name,
+        // an id, or a timestamp would make every call a unique prefix and kill the
+        // discount silently — no error, just a bigger bill. Submission content
+        // belongs in the HumanMessage, which follows this.
         const systemText = [
             `You are a strict, experienced reviewer grading a learner's submitted document for the challenge: "${challengeTitle}".`,
             "",
