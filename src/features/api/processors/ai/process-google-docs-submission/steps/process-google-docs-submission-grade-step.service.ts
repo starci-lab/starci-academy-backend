@@ -269,6 +269,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             floor: AiModelCategory.Economy,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.ChallengeGrading,
+            cacheSessionId: challenge?.id,
         })
 
         // Charge for the LLM usage NOW (idempotently), BEFORE parsing — a parse failure must not

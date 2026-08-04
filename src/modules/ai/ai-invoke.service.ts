@@ -38,6 +38,7 @@ import {
     DEFAULT_MODEL_CREDIT,
 } from "./constants"
 import {
+    openRouterCacheHeaders,
     resolveGradingInvokeOptions,
 } from "./utils"
 import type {
@@ -117,6 +118,7 @@ export class AiInvokeService {
             task,
             allowFreeAuto,
             temperature,
+            cacheSessionId,
             onChunk,
             signal,
         }: AiRunParams,
@@ -169,6 +171,7 @@ export class AiInvokeService {
                 ...options,
                 task: resolvedTask,
                 temperature,
+                cacheSessionId,
                 onChunk,
                 signal,
             })
@@ -193,6 +196,7 @@ export class AiInvokeService {
             ...options,
             task: resolvedTask,
             temperature,
+            cacheSessionId,
         })
         return {
             text: result.text,
@@ -225,6 +229,7 @@ export class AiInvokeService {
             model,
             provider,
             task,
+            cacheSessionId,
         }: AiInvokeParams,
     ): Promise<AiInvokeResult> {
         // Default to deterministic sampling so the same submission grades the same.
@@ -239,6 +244,7 @@ export class AiInvokeService {
                     model: context.model,
                     apiKey: context.key,
                     temperature: resolvedTemperature,
+                    cacheSessionId,
                 },
             )
             // hard per-attempt timeout → abort + surface as TIMEOUT (not AbortError)
@@ -351,6 +357,7 @@ export class AiInvokeService {
             model,
             provider,
             task,
+            cacheSessionId,
             onChunk,
             signal,
         }: AiStreamParams,
@@ -367,6 +374,7 @@ export class AiInvokeService {
                     model: context.model,
                     apiKey: context.key,
                     temperature: resolvedTemperature,
+                    cacheSessionId,
                 },
             )
             // accumulate the full text + token usage across every streamed chunk
@@ -504,13 +512,20 @@ export class AiInvokeService {
             model,
             apiKey,
             temperature,
+            cacheSessionId,
         }: {
             provider: ModelProvider
             model: string
             apiKey: string
             temperature: number
+            cacheSessionId?: string
         },
     ): ChatOpenAI | ChatGoogleGenerativeAI | ChatAnthropic {
+        // OpenRouter reuses a warm prompt-cache only when follow-up requests
+        // route to the same upstream provider; its `x-session-id` header pins
+        // that routing to a stable key. A header, never the body — a bad value is
+        // ignored, so the worst case is a cache miss, not a failed call.
+        const openRouterHeaders = openRouterCacheHeaders(cacheSessionId)
         switch (provider) {
         case ModelProvider.OpenAI:
             return new ChatOpenAI(
@@ -552,6 +567,7 @@ export class AiInvokeService {
                     temperature,
                     configuration: {
                         baseURL: envConfig().ai.openrouter.baseUrl,
+                        defaultHeaders: openRouterHeaders,
                     },
                 },
             )

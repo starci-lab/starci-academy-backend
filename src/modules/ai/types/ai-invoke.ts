@@ -35,6 +35,16 @@ export interface AiInvokeParams {
      */
     task?: AiModelTask
     /**
+     * Stable key grouping requests that share a prompt PREFIX onto the same
+     * upstream provider, so its warm prompt-cache is reused (sent as OpenRouter's
+     * `x-session-id`, ≤256 chars). Grading passes the challenge/task id — every
+     * submission of one challenge repeats the same rubric system prompt, and
+     * without this each submission's differing first user message hashes to a
+     * different route and misses that shared cache. Chat passes the conversation
+     * id. Omit when there is no reusable prefix.
+     */
+    cacheSessionId?: string
+    /**
      * Sampling temperature. Defaults to 0 (deterministic) so grading is
      * reproducible; raise it only for generative tasks that want variety.
      */
@@ -93,6 +103,12 @@ export interface AiStreamParams {
      * considers models whose `supportedTasks` include it, ordered health/latency-aware.
      */
     task?: AiModelTask
+    /**
+     * Stable key grouping same-prefix requests onto one provider for prompt-
+     * cache reuse (OpenRouter `x-session-id`, ≤256 chars). Grading → challenge id;
+     * chat → conversation id. Omit when there is no reusable prefix.
+     */
+    cacheSessionId?: string
     /**
      * Sampling temperature. Defaults to 0 (deterministic); raise it only for
      * generative tasks (the playground) that want variety.
@@ -155,6 +171,12 @@ export interface AiRunParams {
      * task-filter + health/latency-aware ordering.
      */
     task?: AiModelTask
+    /**
+     * Stable key grouping same-prefix requests onto one provider for prompt-
+     * cache reuse (OpenRouter `x-session-id`, ≤256 chars). Grading → challenge id;
+     * chat → conversation id. Omit when there is no reusable prefix.
+     */
+    cacheSessionId?: string
     /**
      * Surface this run belongs to (chatbot/grading/interview). When set (and no
      * explicit `ceil`), `run()` resolves the user's saved per-surface ceiling

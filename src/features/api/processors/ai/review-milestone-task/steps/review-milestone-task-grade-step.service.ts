@@ -442,6 +442,8 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             floor: AiModelCategory.Balanced,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.TaskGrading,
+            // every submission of one milestone task shares the criteria prefix
+            cacheSessionId: milestoneTask.id,
         })
 
         const parsed = this.projectEvaluationParseService.parse(raw)

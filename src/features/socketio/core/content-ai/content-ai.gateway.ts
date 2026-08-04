@@ -190,6 +190,10 @@ export class ContentAiGateway {
                 selection,
                 floor: AiModelCategory.Free,
                 surface: AiCeilSurface.Chatbot,
+                // pin every turn of one conversation to the same provider so the
+                // growing history prefix stays a warm cache hit; a lesson-scoped
+                // fallback keeps chats without a session id still grouped
+                cacheSessionId: sessionId ?? contentId,
                 // tutoring answers want a little variety, not deterministic grading
                 temperature: 0.3,
                 signal: controller.signal,

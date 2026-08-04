@@ -320,6 +320,8 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             floor: AiModelCategory.Balanced,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.ChallengeGrading,
+            // all submissions of one challenge share the rubric prefix → one route
+            cacheSessionId: challenge?.id,
         })
 
         // Charge for the LLM usage NOW (idempotently), BEFORE parsing — a parse failure must not
