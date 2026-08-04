@@ -115,13 +115,23 @@ export class KafkaService implements OnModuleDestroy {
         try {
             // join the broker as an admin
             await admin.connect()
-            // createTopics is idempotent for existing topics (returns false, no error)
-            await admin.createTopics({
-                topics: topics.map((topic) => ({
-                    topic,
-                    numPartitions,
-                })),
-            })
+            // Only create topics that are actually missing. `createTopics` is
+            // idempotent (returns false for existing topics without throwing),
+            // but the broker still answers CreateTopics with a per-topic
+            // TOPIC_ALREADY_EXISTS error, which kafkajs's own Connection logger
+            // prints at ERROR level on every boot. Diffing against the live
+            // topic list first means we never send CreateTopics for topics that
+            // already exist, so that recurring noise disappears.
+            const existing = new Set(await admin.listTopics())
+            const missing = topics.filter((topic) => !existing.has(topic))
+            if (missing.length > 0) {
+                await admin.createTopics({
+                    topics: missing.map((topic) => ({
+                        topic,
+                        numPartitions,
+                    })),
+                })
+            }
         } catch (error) {
             // wrap the broker error in a typed exception so the log carries a
             // stable code + the original stack; non-fatal because topic
