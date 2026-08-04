@@ -68,6 +68,9 @@ import {
 import {
     AskContentAiService,
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai"
+import {
+    PingResolver,
+} from "../helpers/ping-resolver"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -228,6 +231,10 @@ describe("askContentAi entitlement per scope (e2e)",
                     CqrsModule,
                 ],
                 providers: [
+                    // satisfies "Query root type must be provided" — this module
+                    // registers only mutation resolvers, so the generated schema
+                    // needs a no-op root `@Query` to pass validation at `app.init()`.
+                    PingResolver,
                     AskContentAiResolver,
                     AskContentAiService,
                     AskContentAiHandler,

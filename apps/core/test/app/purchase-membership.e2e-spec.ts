@@ -278,7 +278,11 @@ describe("Purchase membership (e2e)",
                 )
                 expect(transaction.status).toBe(TransactionStatus.Pending)
                 expect(transaction.actionType).toBe(ActionType.MembershipPurchase)
-                expect(transaction.course).toBeNull()
+                // `course` is the @ManyToOne relation, left undefined by a
+                // findOneOrFail that does not join it; assert on `courseId`, the
+                // @RelationId scalar TypeORM loads by default (null for a
+                // membership purchase, which carries no course).
+                expect(transaction.courseId).toBeNull()
                 expect(transaction.aiSubTier).toBeNull()
                 expect(transaction.pricingPhase).toBe(PricingPhase.Regular)
                 expect(transaction.amount).toBe(MEMBERSHIP_PRICE_VND)

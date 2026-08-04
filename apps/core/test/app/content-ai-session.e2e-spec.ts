@@ -83,6 +83,9 @@ import {
 import {
     TouchContentAiSessionResolver,
 } from "@features/api/core/graphql/mutations/contents/touch-content-ai-session/touch-content-ai-session.resolver"
+import {
+    PingResolver,
+} from "../helpers/ping-resolver"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -272,6 +275,10 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                     CqrsModule,
                 ],
                 providers: [
+                    // satisfies "Query root type must be provided" — this module
+                    // registers only mutation resolvers, so the generated schema
+                    // needs a no-op root `@Query` to pass validation at `app.init()`.
+                    PingResolver,
                     CreateContentAiSessionResolver,
                     DeleteContentAiSessionResolver,
                     RenameContentAiSessionResolver,

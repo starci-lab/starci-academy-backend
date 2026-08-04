@@ -33,6 +33,9 @@ import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 import {
+    PingResolver,
+} from "../helpers/ping-resolver"
+import {
     CreateCvBlocksHandler,
 } from "@features/api/core/graphql/mutations/cv-submissions/create-cv-blocks/create-cv-blocks.handler"
 import {
@@ -200,6 +203,7 @@ describe("CV block-editor documents — create/update/delete (e2e)",
                     CqrsModule,
                 ],
                 providers: [
+                    PingResolver,
                     CreateCvBlocksResolver,
                     CreateCvBlocksService,
                     CreateCvBlocksHandler,

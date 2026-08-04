@@ -193,23 +193,42 @@ export class FlashcardQuizSessionService {
             // older client's session id that never called
             // `startFlashcardQuizSession` still matches nothing, same as
             // before — the row itself doesn't exist under that id).
-            await manager.update(
+            // Ownership is a two-level nested relation (enrollment → user),
+            // which a bare `update()` cannot express: TypeORM compiles `update`
+            // to an UpdateQueryBuilder with no JOINs, so a nested-relation WHERE
+            // throws "Cannot find alias for relation". Resolve ownership with a
+            // `findOne` (which CAN join) first, then update by the scalar `id` +
+            // the replay-safe `status` guard — mirroring `sync()`.
+            const owned = await manager.findOne(
                 FlashcardQuizSessionEntity,
                 {
-                    id: sessionId,
-                    enrollment: {
-                        user: {
-                            id: userId,
+                    where: {
+                        id: sessionId,
+                        enrollment: {
+                            user: {
+                                id: userId,
+                            },
                         },
                     },
-                    status: Not("completed"),
-                },
-                {
-                    status: "completed",
-                    coverage,
-                    weakTags,
+                    select: {
+                        id: true,
+                    },
                 },
             )
+            if (owned) {
+                await manager.update(
+                    FlashcardQuizSessionEntity,
+                    {
+                        id: sessionId,
+                        status: Not("completed"),
+                    },
+                    {
+                        status: "completed",
+                        coverage,
+                        weakTags,
+                    },
+                )
+            }
 
             // sum today's (VN calendar day) FlashcardQuiz XP for this (user, course) —
             // the daily cap headroom is the ceiling minus what has already been granted

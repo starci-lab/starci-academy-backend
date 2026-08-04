@@ -23,6 +23,15 @@ import {
     UserStatsProjectionService,
 } from "@modules/bussiness"
 import {
+    KeycloakJwksService,
+} from "@modules/keycloak"
+import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+} from "@modules/cookie"
+import {
     SetFollowResolver,
 } from "@features/api/core/graphql/mutations/follows/set-follow/set-follow.resolver"
 
@@ -77,6 +86,25 @@ describe("Follow / unfollow (e2e)",
                         provide: NotificationService,
                         useValue: {
                             createNotification,
+                        },
+                    },
+                    // guard deps — `SetFollowResolver` carries
+                    // `@UseGuards(KeycloakAuthGraphQLGuard)`, so Nest constructs the
+                    // guard as an enhancer at `app.init()` even though this test
+                    // invokes `execute()` directly; its constructor deps must resolve
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
                         },
                     },
                 ],

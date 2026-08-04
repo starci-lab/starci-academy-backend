@@ -43,6 +43,9 @@ import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 import {
+    PingResolver,
+} from "../helpers/ping-resolver"
+import {
     JobActionService,
 } from "@modules/bussiness"
 import {
@@ -264,6 +267,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                     CqrsModule,
                 ],
                 providers: [
+                    PingResolver,
                     UploadCvResolver,
                     UploadCvService,
                     UploadCvHandler,

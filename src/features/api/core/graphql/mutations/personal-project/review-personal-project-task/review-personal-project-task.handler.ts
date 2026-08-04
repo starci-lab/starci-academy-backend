@@ -88,27 +88,32 @@ export class ReviewPersonalProjectTaskHandler
             },
         )
 
-        /** Resolve taskId: use provided or default to first milestone task (orderIndex 0) */
+        /** Resolve taskId: use provided or default to the first milestone task (lowest sortIndex). */
         let taskId = request.taskId
         if (!taskId) {
-            const firstTask = await this.entityManager.findOne(
-                MilestoneTaskEntity,
-                {
-                    where: {
-                        milestone: {
-                            course: {
-                                id: request.courseId,
-                            },
-                        },
-                    },
-                    order: {
-                        sortIndex: "ASC",
-                    },
-                    select: {
-                        id: true,
-                    },
-                },
-            )
+            // A nested-relation `where` (milestone.course) forces TypeORM's `findOne`
+            // (which sets `take: 1`) into its DISTINCT-subquery pagination path; paired
+            // with a restrictive `select` that omits the ORDER BY column, the generated
+            // subquery references a `sort_index` alias it never selected → Postgres
+            // "column does not exist" (QueryFailedError). A QueryBuilder with a raw
+            // `.limit(1)` (not `.take(1)`) keeps a plain `... ORDER BY sort_index ASC
+            // LIMIT 1` and sidesteps the DISTINCT path entirely.
+            const firstTask = await this.entityManager
+                .createQueryBuilder(MilestoneTaskEntity,
+                    "task")
+                .innerJoin("task.milestone",
+                    "milestone")
+                .innerJoin("milestone.course",
+                    "course")
+                .where("course.id = :courseId",
+                    {
+                        courseId: request.courseId,
+                    })
+                .orderBy("task.sortIndex",
+                    "ASC")
+                .select(["task.id"])
+                .limit(1)
+                .getOne()
             if (!firstTask) {
                 throw new NoPersonalProjectTasksFoundException({
                     courseId: request.courseId,

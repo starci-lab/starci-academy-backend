@@ -25,6 +25,15 @@ import {
     JobPostingInvalidRequestReason,
 } from "@modules/exceptions"
 import {
+    KeycloakJwksService,
+} from "@modules/keycloak"
+import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+} from "@modules/cookie"
+import {
     SubmitJobPostingResolver,
 } from "@features/api/core/graphql/mutations/job-postings/submit-job-posting/submit-job-posting.resolver"
 import type {
@@ -83,6 +92,27 @@ describe("Public job-posting submission (e2e)",
                     // is a plain `@Resolver()` provider, resolvable by Nest DI the
                     // same as any other injectable outside a GraphQLModule context
                     SubmitJobPostingResolver,
+                    // guard deps — the resolver's class-level
+                    // `@UseGuards(KeycloakAuthGraphQLGuard)` makes Nest construct
+                    // the guard at compile time, so its constructor deps must
+                    // resolve. The guard never runs here (tests call `execute`
+                    // directly with an already-resolved user), so bare no-op
+                    // stubs suffice.
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                        },
+                    },
                 ],
             }).compile()
 
@@ -133,7 +163,9 @@ describe("Public job-posting submission (e2e)",
                 const user = await seedUser("kc-job-existing-company")
                 const company = await seedCompany("Pegasi")
 
-                const id = await resolver.execute(
+                // `execute` returns the new posting's UUID primary key
+                // (`saved.id`), which the interceptor wraps as `data`.
+                const postingId = await resolver.execute(
                     {
                         ...baseRequest,
                         companyId: company.id,
@@ -144,7 +176,7 @@ describe("Public job-posting submission (e2e)",
                 const posting = await entityManager.findOneOrFail(JobPostingEntity,
                     {
                         where: {
-                            id,
+                            id: postingId,
                         },
                     })
                 expect(posting.title).toBe(baseRequest.title)
@@ -158,7 +190,8 @@ describe("Public job-posting submission (e2e)",
             async () => {
                 const user = await seedUser("kc-job-new-company")
 
-                const id = await resolver.execute(
+                // `execute` returns the posting's UUID id (interceptor wraps it as `data`).
+                const postingId = await resolver.execute(
                     {
                         ...baseRequest,
                         newCompany: {
@@ -171,7 +204,7 @@ describe("Public job-posting submission (e2e)",
                 const posting = await entityManager.findOneOrFail(JobPostingEntity,
                     {
                         where: {
-                            id,
+                            id: postingId,
                         },
                         relations: {
                             company: true,
@@ -311,6 +344,7 @@ describe("Public job-posting submission (e2e)",
                 const user = await seedUser("kc-job-slug-collision")
                 const company = await seedCompany("Slug Co")
 
+                // `execute` returns each posting's UUID id, not its slug.
                 const firstId = await resolver.execute(
                     {
                         ...baseRequest,

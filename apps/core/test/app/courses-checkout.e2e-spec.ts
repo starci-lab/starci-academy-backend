@@ -314,6 +314,13 @@ describe("Courses checkout — multi-course cart (e2e)",
                         where: {
                             id: result.transactionId,
                         },
+                        // `courseId` is a pure @RelationId (no @Column) and `course`
+                        // is a lazy relation — neither is populated by a bare find, so
+                        // `order.course` would be `undefined`, not `null`. Load the
+                        // relation so the cart order's null course is asserted as null.
+                        relations: {
+                            course: true,
+                        },
                     },
                 )
                 expect(order.status).toBe(TransactionStatus.Pending)

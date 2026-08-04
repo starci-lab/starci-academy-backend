@@ -40,10 +40,20 @@ import {
 } from "@modules/databases"
 import {
     KeycloakAuthGraphQLGuard,
+    KeycloakJwksService,
 } from "@modules/keycloak"
+import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+} from "@modules/cookie"
 import {
     GraphQLMustEnrolledGuard,
 } from "@modules/bussiness"
+import {
+    PingResolver,
+} from "../helpers/ping-resolver"
 import {
     UserService,
 } from "@modules/bussiness/user"
@@ -255,6 +265,9 @@ describe("Personal-project mutations (e2e)",
                     CqrsModule,
                 ],
                 providers: [
+                    // satisfies the GraphQL "Query root type must be provided"
+                    // rule — this module registers only mutation resolvers
+                    PingResolver,
                     SubmitPersonalGithubUrlResolver,
                     SubmitPersonalGithubUrlService,
                     SubmitPersonalGithubUrlHandler,
@@ -286,6 +299,24 @@ describe("Personal-project mutations (e2e)",
                     {
                         provide: EnqueueReviewPersonalProjectTaskJobService,
                         useValue: enqueueReviewJobMock,
+                    },
+                    // KeycloakAuthGraphQLGuard deps — let Nest construct the real
+                    // guard at compile time; `.overrideGuard` swaps its runtime
+                    // behaviour below (same pattern as content-progress.e2e-spec.ts)
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                        },
                     },
                 ],
             })
@@ -441,10 +472,19 @@ describe("Personal-project mutations (e2e)",
                             },
                             course.id)
 
-                        expect(response.status).toBe(200)
-                        const body = response.body.data.submitPersonalGithubUrl
-                        expect(body.success).toBe(false)
-                        expect(body.error).toBe("ENROLLMENT_NOT_FOUND_EXCEPTION")
+                        // The enrollment gate is a GUARD (GraphQLMustEnrolledGuard), and
+                        // guards run BEFORE interceptors — so its thrown exception never
+                        // reaches GraphQLTransformInterceptor's `catchError` (which is what
+                        // produces the `{success:false, error}` body). Instead it surfaces
+                        // through Apollo's `formatError`: a GraphQL transport error carrying
+                        // `extensions.code`, with the HTTP status set from the exception's
+                        // `httpStatus` (EnrollmentNotFoundException leaves it unset → 500).
+                        // The FE keys off `extensions.code`, not the interceptor shape, for
+                        // guard-gated operations.
+                        expect(response.status).toBe(500)
+                        expect(response.body.data).toBeNull()
+                        expect(response.body.errors[0].extensions.code)
+                            .toBe("ENROLLMENT_NOT_FOUND_EXCEPTION")
                     })
 
                 it("missing x-course-id header → CourseIdRequiredException, guard trips before the handler",
@@ -459,10 +499,15 @@ describe("Personal-project mutations (e2e)",
                                 githubUrl: "https://github.com/starci/personal-project",
                             })
 
-                        expect(response.status).toBe(200)
-                        const body = response.body.data.submitPersonalGithubUrl
-                        expect(body.success).toBe(false)
-                        expect(body.error).toBe("COURSE_ID_REQUIRED_EXCEPTION")
+                        // Same guard-before-interceptor path as the no-enrollment case:
+                        // CourseIdRequiredException is thrown by GraphQLMustEnrolledGuard and
+                        // surfaces via Apollo `formatError` as a GraphQL error, not the
+                        // interceptor's `{success:false}` body. This exception DOES set
+                        // `httpStatus` (400 BAD_REQUEST), so the transport status is 400.
+                        expect(response.status).toBe(400)
+                        expect(response.body.data).toBeNull()
+                        expect(response.body.errors[0].extensions.code)
+                            .toBe("COURSE_ID_REQUIRED_EXCEPTION")
                     })
             })
 

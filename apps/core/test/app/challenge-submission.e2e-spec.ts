@@ -827,12 +827,18 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
                             "sync-bad-url",
                         )
 
+                        // a well-formed, `new URL()`-parsable link that is NOT a
+                        // GitHub URL — passes `UrlValidatorService.isParsable` so it
+                        // reaches the type-pattern check that raises
+                        // SubmissionUrlInvalidException (an unparsable string like
+                        // "not-a-github-url" would trip `isParsable` first and throw
+                        // the earlier InvalidUrlException instead)
                         await expect(
                             commandBus.execute(
                                 new SyncSubmissionCommand({
                                     request: {
                                         id: submission.id,
-                                        url: "not-a-github-url",
+                                        url: "https://gitlab.com/starci/academy",
                                     },
                                     user,
                                 }),

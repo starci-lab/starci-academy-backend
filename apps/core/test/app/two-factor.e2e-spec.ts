@@ -32,6 +32,15 @@ import type {
     VerifyTotpParams,
 } from "@modules/totp"
 import {
+    KeycloakJwksService,
+} from "@modules/keycloak"
+import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+} from "@modules/cookie"
+import {
     SetupTwoFactorResolver,
 } from "@features/api/core/graphql/mutations/two-factor/setup-two-factor/setup-two-factor.resolver"
 import {
@@ -134,6 +143,25 @@ describe("Two-factor (TOTP) setup / confirm / disable (e2e)",
                     {
                         provide: TotpService,
                         useValue: fakeTotpService,
+                    },
+                    // guard deps — the three resolvers under test carry
+                    // `@UseGuards(KeycloakAuthGraphQLGuard)`, so Nest constructs the
+                    // guard as an enhancer at `app.init()` even though these tests
+                    // invoke `execute()` directly; its constructor deps must resolve
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                        },
                     },
                 ],
             }).compile()

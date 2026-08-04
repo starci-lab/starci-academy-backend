@@ -16,6 +16,7 @@ import {
     EnrollmentEntity,
     FlashcardCardEntity,
     FlashcardCardResolverService,
+    FlashcardCardTranslationEntity,
     FlashcardDeckEntity,
     FlashcardDeckResolverService,
     FlashcardReviewEventEntity,
@@ -50,6 +51,13 @@ const GRADE_AGAIN = 0
 const GRADE_HARD = 1
 const GRADE_GOOD = 2
 const GRADE_EASY = 3
+
+/**
+ * A valid session UUID threaded onto a graded review. The
+ * `flashcard_review_events.session_id` column is `uuid` (it references a real
+ * `flashcard_review_sessions.id`), so a non-UUID literal fails to insert.
+ */
+const TRACKED_SESSION_ID = "8f3b2c1a-4d5e-4f6a-8b7c-9d0e1f2a3b4c"
 
 /**
  * e2e for the flashcard write-flows' grading core —
@@ -174,6 +182,26 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                         deck,
                     }),
             )
+            // Cards are localized on the due path (listDue → deck resolver → card
+            // resolver): the REQUIRED `question` field always takes its resolved
+            // translation value, so a card carrying NO translation row reads back as
+            // an empty `front`. Production always seeds one `question` row per locale
+            // (the hydration merge emits it) — mirror that here so `front` resolves to
+            // the real prompt instead of "".
+            for (const card of [
+                freeCard,
+                premiumCard,
+            ]) {
+                await entityManager.save(
+                    entityManager.create(FlashcardCardTranslationEntity,
+                        {
+                            flashcardCardId: card.id,
+                            locale: Locale.En,
+                            field: "question",
+                            value: card.question,
+                        }),
+                )
+            }
         })
 
         afterAll(async () => {
@@ -530,7 +558,11 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                             cardId: freeCard.id,
                             grade: GRADE_GOOD,
                         })
-                        await seedEnrollment(user)
+                        // No enrollment is seeded here: `review()` is never gated on
+                        // enrollment (only the premium ANSWER reveal in listDue/listByIds
+                        // is), and the first grade above already resolve-or-created the
+                        // (user, course) trial enrollment both cards share — a second
+                        // `seedEnrollment` would collide on UQ_enrollments_user_course.
                         const second = await flashcardReviewService.review({
                             userId: user.id,
                             cardId: premiumCard.id,
@@ -563,7 +595,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                             userId: user.id,
                             cardId: freeCard.id,
                             grade: GRADE_GOOD,
-                            sessionId: "session-abc",
+                            sessionId: TRACKED_SESSION_ID,
                         })
                         await flashcardReviewService.review({
                             userId: user.id,
@@ -584,7 +616,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                         )
                         expect(events).toHaveLength(2)
                         expect(events[0].grade).toBe(GRADE_GOOD)
-                        expect(events[0].sessionId).toBe("session-abc")
+                        expect(events[0].sessionId).toBe(TRACKED_SESSION_ID)
                         expect(events[1].grade).toBe(GRADE_HARD)
                         expect(events[1].sessionId).toBeNull()
                     })

@@ -357,7 +357,12 @@ describe("Community chat — sendMessage + private-DM access (e2e)",
                             {
                                 where: {
                                     type: ChatConversationType.FounderDm,
-                                    memberId: member.id,
+                                    // `memberId` is a @RelationId virtual column — not
+                                    // queryable in `where`; filter through the real
+                                    // `member` relation instead.
+                                    member: {
+                                        id: member.id,
+                                    },
                                 },
                             })
                         expect(dmCount).toBe(1)

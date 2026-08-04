@@ -37,6 +37,15 @@ import {
     KPI_TARGET_MAX,
 } from "@modules/bussiness/kpi-reward/kpi-reward.catalog"
 import {
+    KeycloakJwksService,
+} from "@modules/keycloak"
+import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+} from "@modules/cookie"
+import {
     UpdateProfileResolver,
 } from "@features/api/core/graphql/mutations/profile/update-profile/update-profile.resolver"
 import {
@@ -146,6 +155,25 @@ describe("Profile-write mutations (e2e)",
                         provide: MountStorageService,
                         useValue: {
                             githubAccessToken: "ghp_test_token",
+                        },
+                    },
+                    // guard deps — `UpdateProfileResolver` / `SetKpiTargetResolver`
+                    // carry `@UseGuards(KeycloakAuthGraphQLGuard)`, so Nest constructs
+                    // the guard as an enhancer at `app.init()` even though these tests
+                    // invoke `execute()` directly; its constructor deps must resolve
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
                         },
                     },
                 ],

@@ -252,7 +252,11 @@ describe("Notification-bell read-state mutations (e2e)",
                 const totalRows = await entityManager.count(NotificationEntity,
                     {
                         where: {
-                            userId: user.id,
+                            // `userId` is a @RelationId virtual column — not queryable
+                            // in `where`; filter through the real `user` relation.
+                            user: {
+                                id: user.id,
+                            },
                         },
                     })
                 expect(totalRows).toBe(2)
