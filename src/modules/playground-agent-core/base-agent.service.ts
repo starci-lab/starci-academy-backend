@@ -145,7 +145,7 @@ export abstract class BaseAgentService {
                         this.logger.error(`pairing failed${ack?.error ? `: ${ack.error}` : " — check the code / server URL"}.`)
                         process.exit(1)
                     }
-                    this.sendLog(`paired ✓  playground=${ack.playgroundSlug ?? "?"}  step=${(ack.currentStepIndex ?? 0) + 1}`)
+                    this.sendLog(`paired OK  playground=${ack.playgroundSlug ?? "?"}  step=${(ack.currentStepIndex ?? 0) + 1}`)
                     // report this machine's hardware ONCE (best-effort GPU) so the UI can show it.
                     void this.deviceService.collect().then((info) => {
                         socket.emit(EVENT.deviceInfo,

@@ -43,7 +43,7 @@ export class ConsultantContactGateService {
      * see `CV-VERIFIED-TRUST-TIER-WORKFLOW.md`): StarCi sells CREDIBILITY, not
      * ACCESS.
      *
-     * ⚠️ Placeholder step values pending calibration — see
+     * CAUTION: placeholder step values pending calibration — see
      * {@link import("./cv-verification.service").CvVerificationService.scoreOf}.
      *
      * @param params - The viewer to score.

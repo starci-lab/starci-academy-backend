@@ -328,9 +328,148 @@ const noDeepModuleImport = {
     },
 }
 
+// ── 9. no-vietnamese ─────────────────────────────────────────────────────────────────────────
+// comments.md: "Comments and JSDoc are written in English." The same letter class + the same
+// `vn-ok:` escape hatch as the front-end gate (.claude/scripts/gates/check-no-vietnamese.mjs),
+// so one repo does not police Vietnamese two different ways. Precise Vietnamese letters only —
+// never matches ñ / ç / ü / é-as-French, so a European loanword is not a false positive.
+const VIETNAMESE_LETTER = /[À-ÃÈ-ÊÌÍÒ-ÕÙÚÝà-ãè-êìíò-õùúýĂăĐđĨĩŨũƠơƯưẠ-ỿ]/
+/** Sanctioned: the Vietnamese language's own name, e.g. in a locale label. */
+const VIETNAMESE_ENDONYM = /Tiếng Việt/
+/** Sanctioned: FUNCTIONAL Vietnamese the code matches or emits, with the reason stated inline. */
+const VIETNAMESE_OK_PRAGMA = /\bvn-ok:/
+
+const noVietnamese = {
+    meta: {
+        type: "problem",
+        docs: {
+            description: "Comments, JSDoc and string literals are written in English. [[comments intro]]",
+        },
+        schema: [],
+        messages: {
+            vietnamese: "Vietnamese text — comments, JSDoc and literals are written in English (comments.md). If this Vietnamese is FUNCTIONAL (a literal the code matches on or emits at runtime), keep it and state why with a `vn-ok: <reason>` comment on the same line.",
+        },
+    },
+    create(context) {
+        const sourceCode = context.sourceCode || context.getSourceCode()
+
+        // The bar is a stranger reading this repo: an engineer who does not speak Vietnamese
+        // must be able to read every comment, JSDoc and literal in `src/` and `apps/`. So the
+        // check is deliberately unconditional — no carve-out for a term glossed in quotes or
+        // parentheses, because a reader who cannot read the gloss gains nothing from it.
+        // `.volume/` is the product's CONTENT mount (the `vi` locale itself) and is not part
+        // of the linted source tree at all.
+        //
+        // The one release valve is canon's own: FUNCTIONAL Vietnamese — a literal the code
+        // matches on or emits at runtime, where translating it changes behaviour — stays, with
+        // `vn-ok: <reason>` on the line so the reason is on the record.
+        const isSanctioned = (line) => {
+            const raw = sourceCode.lines[line - 1] ?? ""
+            return VIETNAMESE_OK_PRAGMA.test(raw) || VIETNAMESE_ENDONYM.test(raw)
+        }
+
+        // Report once per node, at the FIRST offending line, so a long JSDoc block yields one
+        // actionable location rather than one report per line.
+        function check(node, text, startLine) {
+            const lines = String(text).split("\n")
+            for (let offset = 0; offset < lines.length; offset += 1) {
+                if (!VIETNAMESE_LETTER.test(lines[offset])) continue
+                const line = startLine + offset
+                if (isSanctioned(line)) continue
+                context.report({
+                    node,
+                    loc: {
+                        line,
+                        column: 0,
+                    },
+                    messageId: "vietnamese",
+                })
+                return
+            }
+        }
+
+        return {
+            Program() {
+                for (const comment of sourceCode.getAllComments()) {
+                    check(comment,
+                        comment.value,
+                        comment.loc.start.line)
+                }
+            },
+            Literal(node) {
+                if (typeof node.value === "string") {
+                    check(node,
+                        node.value,
+                        node.loc.start.line)
+                }
+            },
+            TemplateElement(node) {
+                check(node,
+                    node.value.raw ?? "",
+                    node.loc.start.line)
+            },
+        }
+    },
+}
+
+// ── 10. no-emoji ─────────────────────────────────────────────────────────────────────────────
+// Emoji carry tone, not information, and render inconsistently across terminals, logs and
+// diffs. Deliberately NARROW ranges: the pictographic + dingbat + misc-symbol blocks only.
+// It must never fire on the typography this codebase's own JSDoc relies on — the arrow `→`
+// (U+2192), the em dash `—`, the middle dot `·`, `§` — so the arrow and general-punctuation
+// blocks are excluded by construction.
+const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/u
+
+const noEmoji = {
+    meta: {
+        type: "problem",
+        docs: {
+            description: "No emoji in source — comments, JSDoc or literals.",
+        },
+        schema: [],
+        messages: {
+            emoji: "Emoji in source. Say it in words: emoji carry tone rather than information and render inconsistently in terminals, logs and diffs.",
+        },
+    },
+    create(context) {
+        const sourceCode = context.sourceCode || context.getSourceCode()
+
+        return {
+            Program() {
+                for (const comment of sourceCode.getAllComments()) {
+                    if (EMOJI.test(comment.value)) {
+                        context.report({
+                            node: comment,
+                            messageId: "emoji",
+                        })
+                    }
+                }
+            },
+            Literal(node) {
+                if (typeof node.value === "string" && EMOJI.test(node.value)) {
+                    context.report({
+                        node,
+                        messageId: "emoji",
+                    })
+                }
+            },
+            TemplateElement(node) {
+                if (EMOJI.test(node.value.raw ?? "")) {
+                    context.report({
+                        node,
+                        messageId: "emoji",
+                    })
+                }
+            },
+        }
+    },
+}
+
 export default {
     meta: { name: "eslint-plugin-starci-be", version: "0.1.0" },
     rules: {
+        "no-vietnamese": noVietnamese,
+        "no-emoji": noEmoji,
         "require-exception-object-arg": requireExceptionObjectArg,
         "no-inline-param-type": noInlineParamType,
         "no-nest-logger": noNestLogger,

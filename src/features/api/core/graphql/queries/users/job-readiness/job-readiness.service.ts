@@ -322,7 +322,7 @@ export class JobReadinessService {
      * (no capstone/challenge signal there yet) degrades to `null` so the pillar
      * is renormalized away in {@link depthOf} rather than scored as a hard 0.
      *
-     * ⚠️ Score-step values pending calibration (see `scoreOf`'s own doc) — the
+     * CAUTION: score-step values pending calibration (see `scoreOf`'s own doc) — the
      * FORMULA'S fairness is locked here, not the threshold.
      *
      * @param userId - the learner.

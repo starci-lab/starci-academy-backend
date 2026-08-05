@@ -10,7 +10,7 @@ import {
  * `ReconcileTransactionWorker.finalize()` to call `InstallmentPlanService.
  * recordPayment`). See `docs/installment-payment-plan.md`.
  *
- * ⚠️ `action_type` is used by ≥2 columns (`transactions.action_type`,
+ * CAUTION: `action_type` is used by ≥2 columns (`transactions.action_type`,
  * `jobs.action_type`) — on an existing DB `synchronize` would try to recreate
  * the shared enum type and crash boot. Run this `ALTER TYPE … ADD VALUE`
  * (migration or psql) BEFORE booting. `ADD VALUE IF NOT EXISTS` is idempotent

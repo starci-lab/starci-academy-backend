@@ -9,7 +9,7 @@ import {
  * API (Claude Opus 4.8 — frontier tier). Routed at runtime through
  * `ChatAnthropic` with the Anthropic key pool.
  *
- * ⚠️ `model_provider` is used by ≥2 columns (`ai_models.provider`,
+ * CAUTION: `model_provider` is used by ≥2 columns (`ai_models.provider`,
  * `ai_subscriptions.byok_provider`, the `served_provider` columns) — on an
  * existing DB `synchronize` would try to recreate the shared enum type and crash
  * boot. Run this `ALTER TYPE … ADD VALUE` (migration or psql) BEFORE booting.

@@ -11,7 +11,7 @@ import {
  *
  * Pricing (VND/month):
  * - Plus: 99_000
- * - Pro:  199_000  ⭐ most popular
+ * - Pro:  199_000  most popular
  * - Max:  499_000
  *
  * Caps (additive with course enrollments):

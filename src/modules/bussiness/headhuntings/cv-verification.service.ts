@@ -127,7 +127,7 @@ export class CvVerificationService {
      * graded exercises". The 3-level classification is still kept for the
      * marketplace tie-break ({@link rankOf}); it just no longer feeds the gate.
      *
-     * ⚠️ The step value (100) and the downstream unlock threshold
+     * CAUTION: the step value (100) and the downstream unlock threshold
      * ({@link import("./constants").CV_SCORE_UNLOCK_THRESHOLD}) are a
      * placeholder pending calibration — deliberately NOT tuned yet (2026-07-05:
      * "khoan check điểm thật đã, check điểm cv để fair cho mọi người trước").
