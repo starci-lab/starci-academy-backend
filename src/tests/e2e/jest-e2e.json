@@ -20,12 +20,7 @@
   },
   "transformIgnorePatterns": [],
   "moduleNameMapper": {
-    "^@modules/(.*)$": [
-      "<rootDir>/src/modules/$1",
-      "<rootDir>/src/modules/lib/$1",
-      "<rootDir>/src/modules/platform/$1",
-      "<rootDir>/src/modules/integrations/$1"
-    ],
+    "^@modules/(.*)$": "<rootDir>/src/modules/$1",
     "^@features/(.*)$": "<rootDir>/src/features/$1",
     "^@tests/(.*)$": "<rootDir>/src/tests/$1"
   },

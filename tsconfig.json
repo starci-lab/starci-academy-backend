@@ -27,10 +27,7 @@
         "./src/features/*"
       ],
       "@modules/*": [
-        "./src/modules/*",
-        "./src/modules/lib/*",
-        "./src/modules/platform/*",
-        "./src/modules/integrations/*"
+        "./src/modules/*"
       ],
       "@tests/*": [
         "./src/tests/*"
