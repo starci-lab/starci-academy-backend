@@ -56,7 +56,7 @@ export class MyChallengeSubmissionsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Challenge submissions fetched successfully",
-        [Locale.Vi]: "Lấy bài nộp challenge thành công",
+        [Locale.Vi]: "Lấy bài nộp challenge thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

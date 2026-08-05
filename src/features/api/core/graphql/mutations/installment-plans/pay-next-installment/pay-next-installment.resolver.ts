@@ -56,7 +56,7 @@ export class PayNextInstallmentResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Installment payment checkout created successfully",
-        [Locale.Vi]: "Tạo thanh toán trả góp thành công",
+        [Locale.Vi]: "Tạo thanh toán trả góp thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

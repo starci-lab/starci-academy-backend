@@ -58,7 +58,7 @@ export class PinExternalProjectResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Project pinned successfully",
-        [Locale.Vi]: "Ghim dự án thành công",
+        [Locale.Vi]: "Ghim dự án thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

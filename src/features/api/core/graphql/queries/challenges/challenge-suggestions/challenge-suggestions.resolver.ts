@@ -44,7 +44,7 @@ export class ChallengeSuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý thử thách thành công",
+        [Locale.Vi]: "Lấy gợi ý thử thách thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Challenge suggestions fetched successfully",
     })
     @Query(

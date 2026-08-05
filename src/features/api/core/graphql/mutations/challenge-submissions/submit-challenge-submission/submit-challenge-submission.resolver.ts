@@ -55,7 +55,7 @@ export class SubmitChallengeSubmissionResolver {
     @UseThrottler(ThrottlerConfig.Medium)
     @GraphQLSuccessMessage({
         [Locale.En]: "Submissions queued for grading",
-        [Locale.Vi]: "Đã xếp hàng chấm các bài nộp",
+        [Locale.Vi]: "Đã xếp hàng chấm các bài nộp", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

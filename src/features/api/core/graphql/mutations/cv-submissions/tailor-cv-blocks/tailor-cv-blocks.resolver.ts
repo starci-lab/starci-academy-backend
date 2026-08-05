@@ -42,7 +42,7 @@ export class TailorCvBlocksResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV tailored successfully",
-        [Locale.Vi]: "Điều chỉnh CV thành công",
+        [Locale.Vi]: "Điều chỉnh CV thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

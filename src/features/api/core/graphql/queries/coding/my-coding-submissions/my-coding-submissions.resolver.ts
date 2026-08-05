@@ -46,7 +46,7 @@ export class MyCodingSubmissionsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Submissions fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử nộp bài thành công",
+        [Locale.Vi]: "Lấy lịch sử nộp bài thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

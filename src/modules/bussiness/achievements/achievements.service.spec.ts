@@ -60,11 +60,11 @@ const buildDefinition = (
     slug: "busy-bee",
     name: {
         en: "Busy Bee",
-        vi: "Ong Chăm Chỉ",
+        vi: "Ong Chăm Chỉ", // vn-ok: vi-locale string emitted to clients
     },
     description: {
         en: "Gain 5 followers.",
-        vi: "Có 5 người theo dõi.",
+        vi: "Có 5 người theo dõi.", // vn-ok: vi-locale string emitted to clients
     },
     iconKey: "assets/badges/achievements/busy-bee.png",
     criteriaType: AchievementCriteriaType.Followers,

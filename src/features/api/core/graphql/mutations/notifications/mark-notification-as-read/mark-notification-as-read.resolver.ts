@@ -44,7 +44,7 @@ export class MarkNotificationAsReadResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Notification marked as read",
-        [Locale.Vi]: "Đã đánh dấu thông báo là đã đọc",
+        [Locale.Vi]: "Đã đánh dấu thông báo là đã đọc", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

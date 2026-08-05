@@ -46,7 +46,7 @@ export class ChangelogEntriesResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Changelog fetched successfully",
-        [Locale.Vi]: "Lấy nhật ký cập nhật thành công",
+        [Locale.Vi]: "Lấy nhật ký cập nhật thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -35,7 +35,7 @@ export class TemplateCvsResolver {
      */
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy danh sách template CV thành công",
+        [Locale.Vi]: "Lấy danh sách template CV thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Successfully retrieved CV templates",
     })
     @Query(

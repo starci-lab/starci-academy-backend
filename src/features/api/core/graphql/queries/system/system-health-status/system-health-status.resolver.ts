@@ -42,7 +42,7 @@ export class SystemHealthStatusResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "System health fetched successfully",
-        [Locale.Vi]: "Lấy trạng thái hệ thống thành công",
+        [Locale.Vi]: "Lấy trạng thái hệ thống thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

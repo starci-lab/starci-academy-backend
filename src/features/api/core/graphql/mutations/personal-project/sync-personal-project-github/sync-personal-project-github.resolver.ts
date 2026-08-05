@@ -53,7 +53,7 @@ export class SyncPersonalProjectGithubResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Personal project GitHub URL synced successfully",
-        [Locale.Vi]: "Đồng bộ GitHub URL dự án cá nhân thành công",
+        [Locale.Vi]: "Đồng bộ GitHub URL dự án cá nhân thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

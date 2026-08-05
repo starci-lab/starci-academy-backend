@@ -48,7 +48,7 @@ export class CommunityPostResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Community post fetched successfully",
-        [Locale.Vi]: "Lấy bài đăng cộng đồng thành công",
+        [Locale.Vi]: "Lấy bài đăng cộng đồng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakOptionalAuthGraphQLGuard,

@@ -135,7 +135,7 @@ export class SocialDigestCronService {
                         template: "activity-digest",
                         webBaseUrl: envConfig().web.baseUrl,
                         subject: {
-                            vi: `Bạn có ${summary.total} hoạt động mới`,
+                            vi: `Bạn có ${summary.total} hoạt động mới`, // vn-ok: vi-locale string emitted to clients
                             en: `You have ${summary.total} new updates`,
                         },
                         extraContext: {

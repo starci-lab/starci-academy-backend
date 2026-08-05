@@ -49,7 +49,7 @@ export class LastPersonalTaskAttemptResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Latest personal task attempt fetched successfully",
-        [Locale.Vi]: "Lấy kết quả đánh giá mới nhất thành công",
+        [Locale.Vi]: "Lấy kết quả đánh giá mới nhất thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

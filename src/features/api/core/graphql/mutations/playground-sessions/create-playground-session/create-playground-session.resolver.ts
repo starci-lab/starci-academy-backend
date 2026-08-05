@@ -46,7 +46,7 @@ export class CreatePlaygroundSessionResolver {
     @UseThrottler(ThrottlerConfig.Medium)
     @GraphQLSuccessMessage({
         [Locale.En]: "Playground session created successfully",
-        [Locale.Vi]: "Tạo phiên playground thành công",
+        [Locale.Vi]: "Tạo phiên playground thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

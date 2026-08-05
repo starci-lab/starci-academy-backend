@@ -60,7 +60,7 @@ export class SetFollowResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Follow state updated successfully",
-        [Locale.Vi]: "Cập nhật theo dõi thành công",
+        [Locale.Vi]: "Cập nhật theo dõi thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

@@ -47,7 +47,7 @@ export class SetCommunityPostPinnedResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Post pin updated successfully",
-        [Locale.Vi]: "Cập nhật ghim bài thành công",
+        [Locale.Vi]: "Cập nhật ghim bài thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

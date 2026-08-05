@@ -59,7 +59,7 @@ export class SuggestedUsersResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Suggested users fetched successfully",
-        [Locale.Vi]: "Lấy gợi ý theo dõi thành công",
+        [Locale.Vi]: "Lấy gợi ý theo dõi thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

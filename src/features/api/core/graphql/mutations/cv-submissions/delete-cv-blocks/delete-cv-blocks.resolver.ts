@@ -42,7 +42,7 @@ export class DeleteCvBlocksResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV document deleted successfully",
-        [Locale.Vi]: "Xoá CV thành công",
+        [Locale.Vi]: "Xoá CV thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

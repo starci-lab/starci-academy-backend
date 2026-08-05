@@ -62,7 +62,7 @@ export class SearchUsersResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Users fetched successfully",
-        [Locale.Vi]: "Tìm người dùng thành công",
+        [Locale.Vi]: "Tìm người dùng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

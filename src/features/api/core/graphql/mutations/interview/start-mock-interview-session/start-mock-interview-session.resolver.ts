@@ -55,7 +55,7 @@ export class StartMockInterviewSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Mock interview session started successfully",
-        [Locale.Vi]: "Bắt đầu phiên phỏng vấn thử thành công",
+        [Locale.Vi]: "Bắt đầu phiên phỏng vấn thử thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

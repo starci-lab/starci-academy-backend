@@ -54,7 +54,7 @@ export class UserCodingProblemDetailResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Coding problem detail fetched successfully",
-        [Locale.Vi]: "Lấy chi tiết bài tập thành công",
+        [Locale.Vi]: "Lấy chi tiết bài tập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

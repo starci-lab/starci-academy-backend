@@ -49,7 +49,7 @@ export class GenerateAvatarPresignUrlResolver {
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
         [Locale.En]: "Avatar upload URL generated successfully",
-        [Locale.Vi]: "Tạo URL tải ảnh đại diện thành công",
+        [Locale.Vi]: "Tạo URL tải ảnh đại diện thành công", // vn-ok: vi-locale string emitted to clients
     })
     @Mutation(
         () => GenerateAvatarPresignUrlResponse,

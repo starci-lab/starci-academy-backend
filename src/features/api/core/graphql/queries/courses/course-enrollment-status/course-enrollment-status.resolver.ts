@@ -51,7 +51,7 @@ export class CourseEnrollmentStatusResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course enrollment status fetched successfully",
-        [Locale.Vi]: "Lấy trạng thái đăng ký khóa học thành công",
+        [Locale.Vi]: "Lấy trạng thái đăng ký khóa học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

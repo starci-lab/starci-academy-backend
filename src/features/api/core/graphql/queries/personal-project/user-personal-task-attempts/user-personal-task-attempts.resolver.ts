@@ -45,7 +45,7 @@ export class UserPersonalTaskAttemptsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Personal task attempts fetched successfully",
-        [Locale.Vi]: "Lấy danh sách lần thử thành công",
+        [Locale.Vi]: "Lấy danh sách lần thử thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -44,7 +44,7 @@ export class UserChallengeSubmissionFeedbacksResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Submission feedbacks fetched successfully",
-        [Locale.Vi]: "Lấy danh sách submission feedback thành công",
+        [Locale.Vi]: "Lấy danh sách submission feedback thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

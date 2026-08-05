@@ -57,7 +57,7 @@ export class MyFlashcardReviewHistoryResolver {
         GraphQLEnrollmentGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard review history fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử ôn tập thành công",
+        [Locale.Vi]: "Lấy lịch sử ôn tập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

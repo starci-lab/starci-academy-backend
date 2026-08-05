@@ -38,7 +38,7 @@ export class JobPostingResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Job posting fetched successfully",
-        [Locale.Vi]: "Lấy tin tuyển dụng thành công",
+        [Locale.Vi]: "Lấy tin tuyển dụng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

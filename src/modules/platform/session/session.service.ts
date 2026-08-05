@@ -192,7 +192,7 @@ export class SessionService {
                     template: "new-device-signin",
                     webBaseUrl: envConfig().web.baseUrl,
                     subject: {
-                        vi: "Có đăng nhập mới vào tài khoản của bạn",
+                        vi: "Có đăng nhập mới vào tài khoản của bạn", // vn-ok: vi-locale string emitted to clients
                         en: "New sign-in to your account",
                     },
                     extraContext: {

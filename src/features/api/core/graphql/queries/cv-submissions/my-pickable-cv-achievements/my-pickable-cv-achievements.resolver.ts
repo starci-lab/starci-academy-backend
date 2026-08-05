@@ -44,7 +44,7 @@ export class MyPickableCvAchievementsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Pickable achievements fetched successfully",
-        [Locale.Vi]: "Lấy danh sách thành tích thành công",
+        [Locale.Vi]: "Lấy danh sách thành tích thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

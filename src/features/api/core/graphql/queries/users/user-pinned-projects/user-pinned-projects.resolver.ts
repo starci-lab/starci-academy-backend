@@ -51,7 +51,7 @@ export class UserPinnedProjectsResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Pinned projects fetched successfully",
-        [Locale.Vi]: "Lấy danh sách dự án đã ghim thành công",
+        [Locale.Vi]: "Lấy danh sách dự án đã ghim thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

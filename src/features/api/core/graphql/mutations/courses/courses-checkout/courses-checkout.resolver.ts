@@ -55,7 +55,7 @@ export class CoursesCheckoutResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Multi-course checkout created successfully",
-        [Locale.Vi]: "Tạo thanh toán nhiều khóa học thành công",
+        [Locale.Vi]: "Tạo thanh toán nhiều khóa học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

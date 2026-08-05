@@ -46,7 +46,7 @@ export class ClaimDailyQuestRewardResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Daily quest reward claimed successfully",
-        [Locale.Vi]: "Nhận thưởng nhiệm vụ hằng ngày thành công",
+        [Locale.Vi]: "Nhận thưởng nhiệm vụ hằng ngày thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

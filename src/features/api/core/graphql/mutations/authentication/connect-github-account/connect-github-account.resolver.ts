@@ -46,7 +46,7 @@ export class ConnectGithubAccountResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "GitHub account connected successfully",
-        [Locale.Vi]: "Kết nối tài khoản GitHub thành công",
+        [Locale.Vi]: "Kết nối tài khoản GitHub thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

@@ -47,7 +47,7 @@ export class SendChatMessageResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Message sent successfully",
-        [Locale.Vi]: "Gửi tin nhắn thành công",
+        [Locale.Vi]: "Gửi tin nhắn thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

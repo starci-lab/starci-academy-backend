@@ -53,7 +53,7 @@ export class SyncMockInterviewSessionTurnsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Mock interview session synced successfully",
-        [Locale.Vi]: "Đồng bộ phiên phỏng vấn thử thành công",
+        [Locale.Vi]: "Đồng bộ phiên phỏng vấn thử thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

@@ -40,7 +40,7 @@ export class AiKeyHealthResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI key health fetched successfully",
-        [Locale.Vi]: "Lấy trạng thái khoá AI thành công",
+        [Locale.Vi]: "Lấy trạng thái khoá AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

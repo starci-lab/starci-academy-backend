@@ -52,7 +52,7 @@ export class GlobalLeaderboardResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Global leaderboard fetched successfully",
-        [Locale.Vi]: "Lấy bảng xếp hạng tổng thể thành công",
+        [Locale.Vi]: "Lấy bảng xếp hạng tổng thể thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

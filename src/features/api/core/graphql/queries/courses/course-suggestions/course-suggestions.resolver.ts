@@ -44,7 +44,7 @@ export class CourseSuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý khóa học thành công",
+        [Locale.Vi]: "Lấy gợi ý khóa học thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Course suggestions fetched successfully",
     })
     @Query(

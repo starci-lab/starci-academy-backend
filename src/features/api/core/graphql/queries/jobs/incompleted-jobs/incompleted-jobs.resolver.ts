@@ -48,7 +48,7 @@ export class IncompletedJobsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Incompleted jobs fetched successfully",
-        [Locale.Vi]: "Lấy danh sách job chưa hoàn tất thành công",
+        [Locale.Vi]: "Lấy danh sách job chưa hoàn tất thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

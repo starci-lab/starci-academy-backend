@@ -47,7 +47,7 @@ export class MyFlashcardStatsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard stats fetched successfully",
-        [Locale.Vi]: "Lấy thống kê ôn tập thành công",
+        [Locale.Vi]: "Lấy thống kê ôn tập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

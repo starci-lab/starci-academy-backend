@@ -54,7 +54,7 @@ export class StartFlashcardDueReviewSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard due-review session started successfully",
-        [Locale.Vi]: "Bắt đầu phiên ôn tập đến hạn thành công",
+        [Locale.Vi]: "Bắt đầu phiên ôn tập đến hạn thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

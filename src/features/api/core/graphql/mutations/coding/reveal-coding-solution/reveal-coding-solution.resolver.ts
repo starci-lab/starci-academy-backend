@@ -54,7 +54,7 @@ export class RevealCodingSolutionResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Solution revealed",
-        [Locale.Vi]: "Đã mở đáp án",
+        [Locale.Vi]: "Đã mở đáp án", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

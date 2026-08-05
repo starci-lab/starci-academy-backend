@@ -47,7 +47,7 @@ export class CreateCommunityPostResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Post created successfully",
-        [Locale.Vi]: "Đăng bài thành công",
+        [Locale.Vi]: "Đăng bài thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

@@ -50,7 +50,7 @@ export class ClearCartResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Cart cleared successfully",
-        [Locale.Vi]: "Xóa toàn bộ giỏ hàng thành công",
+        [Locale.Vi]: "Xóa toàn bộ giỏ hàng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

@@ -59,7 +59,7 @@ export class ConfirmTwoFactorResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Two-factor authentication enabled",
-        [Locale.Vi]: "Đã bật xác thực hai lớp",
+        [Locale.Vi]: "Đã bật xác thực hai lớp", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

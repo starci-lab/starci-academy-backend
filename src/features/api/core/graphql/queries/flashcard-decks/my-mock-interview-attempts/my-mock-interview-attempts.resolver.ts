@@ -57,7 +57,7 @@ export class MyMockInterviewAttemptsResolver {
         GraphQLMustEnrolledGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Mock interview history fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử phỏng vấn thử thành công",
+        [Locale.Vi]: "Lấy lịch sử phỏng vấn thử thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

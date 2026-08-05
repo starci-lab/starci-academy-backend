@@ -45,7 +45,7 @@ export class CodingLeaderboardResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Coding leaderboard fetched successfully",
-        [Locale.Vi]: "Lấy bảng xếp hạng thành công",
+        [Locale.Vi]: "Lấy bảng xếp hạng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

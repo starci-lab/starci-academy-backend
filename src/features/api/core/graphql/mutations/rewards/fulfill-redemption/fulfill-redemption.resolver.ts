@@ -45,7 +45,7 @@ export class FulfillRedemptionResolver {
     @UseGuards(GraphQLAdminAccessGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Redemption fulfilled successfully",
-        [Locale.Vi]: "Đã xác nhận giao quà",
+        [Locale.Vi]: "Đã xác nhận giao quà", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

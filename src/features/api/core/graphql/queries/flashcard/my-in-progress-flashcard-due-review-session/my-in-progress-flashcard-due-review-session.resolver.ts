@@ -51,7 +51,7 @@ export class MyInProgressFlashcardDueReviewSessionResolver {
         GraphQLEnrollmentGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "In-progress flashcard due-review session fetched successfully",
-        [Locale.Vi]: "Lấy phiên ôn tập đến hạn đang dang dở thành công",
+        [Locale.Vi]: "Lấy phiên ôn tập đến hạn đang dang dở thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

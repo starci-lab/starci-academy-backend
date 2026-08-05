@@ -51,7 +51,7 @@ export class MyLeagueResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "League standing fetched successfully",
-        [Locale.Vi]: "Lấy bảng xếp hạng giải đấu thành công",
+        [Locale.Vi]: "Lấy bảng xếp hạng giải đấu thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

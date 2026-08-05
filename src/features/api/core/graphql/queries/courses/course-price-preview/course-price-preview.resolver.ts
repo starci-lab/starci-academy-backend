@@ -47,7 +47,7 @@ export class CoursePricePreviewResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course price preview fetched successfully",
-        [Locale.Vi]: "Lấy giá khóa học thành công",
+        [Locale.Vi]: "Lấy giá khóa học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

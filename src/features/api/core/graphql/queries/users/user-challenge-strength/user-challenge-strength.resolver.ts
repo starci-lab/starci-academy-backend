@@ -51,7 +51,7 @@ export class UserChallengeStrengthResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Challenge strength fetched successfully",
-        [Locale.Vi]: "Lấy độ mạnh thử thách thành công",
+        [Locale.Vi]: "Lấy độ mạnh thử thách thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -44,7 +44,7 @@ export class ConsultantSuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý chuyên viên tư vấn thành công",
+        [Locale.Vi]: "Lấy gợi ý chuyên viên tư vấn thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Consultant suggestions fetched successfully",
     })
     @Query(

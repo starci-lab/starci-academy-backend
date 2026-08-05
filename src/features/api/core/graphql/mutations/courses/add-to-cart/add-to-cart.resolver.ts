@@ -53,7 +53,7 @@ export class AddToCartResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course added to cart successfully",
-        [Locale.Vi]: "Thêm khóa học vào giỏ hàng thành công",
+        [Locale.Vi]: "Thêm khóa học vào giỏ hàng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

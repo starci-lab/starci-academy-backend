@@ -53,7 +53,7 @@ export class MyInProgressMockInterviewSessionResolver {
         GraphQLMustEnrolledGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "In-progress mock interview session fetched successfully",
-        [Locale.Vi]: "Lấy phiên phỏng vấn thử đang dang dở thành công",
+        [Locale.Vi]: "Lấy phiên phỏng vấn thử đang dang dở thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

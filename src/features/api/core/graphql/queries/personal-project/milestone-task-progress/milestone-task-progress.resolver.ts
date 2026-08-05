@@ -45,7 +45,7 @@ export class MilestoneTaskProgressResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Milestone task progress fetched successfully",
-        [Locale.Vi]: "Lấy tiến độ task thành công",
+        [Locale.Vi]: "Lấy tiến độ task thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -51,7 +51,7 @@ export class CourseQuestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course questions fetched successfully",
-        [Locale.Vi]: "Lấy câu hỏi khóa học thành công",
+        [Locale.Vi]: "Lấy câu hỏi khóa học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

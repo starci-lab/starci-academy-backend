@@ -38,7 +38,7 @@ export class PlatformStatsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Platform stats fetched successfully",
-        [Locale.Vi]: "Lấy thống kê nền tảng thành công",
+        [Locale.Vi]: "Lấy thống kê nền tảng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

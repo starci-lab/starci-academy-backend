@@ -49,7 +49,7 @@ export class UploadCvResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV uploaded successfully; scoring started",
-        [Locale.Vi]: "Đã tải CV lên thành công; bắt đầu chấm điểm",
+        [Locale.Vi]: "Đã tải CV lên thành công; bắt đầu chấm điểm", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

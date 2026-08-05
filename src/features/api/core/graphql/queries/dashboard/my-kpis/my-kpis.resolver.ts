@@ -54,7 +54,7 @@ export class MyKpisResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Weekly KPIs fetched successfully",
-        [Locale.Vi]: "Lấy KPI tuần thành công",
+        [Locale.Vi]: "Lấy KPI tuần thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

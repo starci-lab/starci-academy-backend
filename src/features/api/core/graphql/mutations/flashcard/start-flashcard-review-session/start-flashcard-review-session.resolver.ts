@@ -55,7 +55,7 @@ export class StartFlashcardReviewSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard review session started successfully",
-        [Locale.Vi]: "Bắt đầu phiên ôn tập thành công",
+        [Locale.Vi]: "Bắt đầu phiên ôn tập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

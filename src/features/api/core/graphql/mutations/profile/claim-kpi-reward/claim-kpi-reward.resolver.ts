@@ -49,7 +49,7 @@ export class ClaimKpiRewardResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "KPI reward claimed successfully",
-        [Locale.Vi]: "Nhận thưởng KPI thành công",
+        [Locale.Vi]: "Nhận thưởng KPI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

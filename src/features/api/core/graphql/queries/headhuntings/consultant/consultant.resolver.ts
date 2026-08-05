@@ -47,7 +47,7 @@ export class ConsultantResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Consultant fetched successfully",
-        [Locale.Vi]: "Lấy thông tin consultant thành công",
+        [Locale.Vi]: "Lấy thông tin consultant thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -46,7 +46,7 @@ export class AskContentAiResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Answer generated successfully",
-        [Locale.Vi]: "Đã trả lời thành công",
+        [Locale.Vi]: "Đã trả lời thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -46,7 +46,7 @@ export class CodingProblemHintResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Coding problem hint fetched successfully",
-        [Locale.Vi]: "Lấy gợi ý tư duy thành công",
+        [Locale.Vi]: "Lấy gợi ý tư duy thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -47,7 +47,7 @@ export class RecommendedCoursesResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Recommended courses fetched successfully",
-        [Locale.Vi]: "Lấy khóa học gợi ý thành công",
+        [Locale.Vi]: "Lấy khóa học gợi ý thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

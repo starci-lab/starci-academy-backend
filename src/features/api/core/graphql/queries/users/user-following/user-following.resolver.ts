@@ -56,7 +56,7 @@ export class UserFollowingResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Following fetched successfully",
-        [Locale.Vi]: "Lấy danh sách đang theo dõi thành công",
+        [Locale.Vi]: "Lấy danh sách đang theo dõi thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

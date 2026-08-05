@@ -48,7 +48,7 @@ export class TouchContentAiSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Conversation opened",
-        [Locale.Vi]: "Đã mở hội thoại",
+        [Locale.Vi]: "Đã mở hội thoại", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -51,7 +51,7 @@ export class CompleteFlashcardDueReviewSessionResolver {
         GraphQLEnrollmentGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Due-review session recorded successfully",
-        [Locale.Vi]: "Ghi nhận phiên ôn tập đến hạn thành công",
+        [Locale.Vi]: "Ghi nhận phiên ôn tập đến hạn thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

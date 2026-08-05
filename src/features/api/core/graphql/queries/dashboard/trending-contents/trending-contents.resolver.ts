@@ -58,7 +58,7 @@ export class TrendingContentsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Trending lessons fetched successfully",
-        [Locale.Vi]: "Lấy bài học nổi bật thành công",
+        [Locale.Vi]: "Lấy bài học nổi bật thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

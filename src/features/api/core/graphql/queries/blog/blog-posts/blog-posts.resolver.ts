@@ -50,7 +50,7 @@ export class BlogPostsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Blog posts fetched successfully",
-        [Locale.Vi]: "Lấy danh sách bài viết thành công",
+        [Locale.Vi]: "Lấy danh sách bài viết thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

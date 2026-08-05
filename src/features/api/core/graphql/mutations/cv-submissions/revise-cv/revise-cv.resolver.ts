@@ -49,7 +49,7 @@ export class ReviseCvResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV revision started successfully",
-        [Locale.Vi]: "Đã bắt đầu chỉnh sửa CV thành công",
+        [Locale.Vi]: "Đã bắt đầu chỉnh sửa CV thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

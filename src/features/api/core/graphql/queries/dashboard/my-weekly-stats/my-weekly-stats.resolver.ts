@@ -46,7 +46,7 @@ export class MyWeeklyStatsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Weekly stats fetched successfully",
-        [Locale.Vi]: "Lấy thống kê tuần thành công",
+        [Locale.Vi]: "Lấy thống kê tuần thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

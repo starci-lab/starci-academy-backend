@@ -45,7 +45,7 @@ export class IndexSearchResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Index search results fetched successfully",
-        [Locale.Vi]: "Lấy kết quả index search thành công",
+        [Locale.Vi]: "Lấy kết quả index search thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

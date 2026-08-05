@@ -45,7 +45,7 @@ export class MyUnreadNotificationCountResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Unread notification count fetched successfully",
-        [Locale.Vi]: "Lấy số thông báo chưa đọc thành công",
+        [Locale.Vi]: "Lấy số thông báo chưa đọc thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

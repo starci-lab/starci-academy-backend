@@ -42,7 +42,7 @@ export class RewriteCvBlockResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV block rewritten successfully",
-        [Locale.Vi]: "Viết lại khối CV thành công",
+        [Locale.Vi]: "Viết lại khối CV thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

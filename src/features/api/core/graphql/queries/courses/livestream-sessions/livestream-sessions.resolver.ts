@@ -50,7 +50,7 @@ export class LivestreamSessionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Livestream sessions fetched successfully",
-        [Locale.Vi]: "Lấy lịch livestream thành công",
+        [Locale.Vi]: "Lấy lịch livestream thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

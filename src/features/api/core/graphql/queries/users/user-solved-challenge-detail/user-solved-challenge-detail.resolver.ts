@@ -51,7 +51,7 @@ export class UserSolvedChallengeDetailResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Solved challenge detail fetched successfully",
-        [Locale.Vi]: "Lấy chi tiết challenge đã giải thành công",
+        [Locale.Vi]: "Lấy chi tiết challenge đã giải thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

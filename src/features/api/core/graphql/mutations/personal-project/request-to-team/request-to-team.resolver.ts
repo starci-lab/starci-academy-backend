@@ -47,7 +47,7 @@ export class RequestToTeamResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Team join request sent successfully",
-        [Locale.Vi]: "Đã gửi yêu cầu vào team thành công",
+        [Locale.Vi]: "Đã gửi yêu cầu vào team thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

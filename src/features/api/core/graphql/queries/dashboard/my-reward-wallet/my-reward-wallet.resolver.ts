@@ -48,7 +48,7 @@ export class MyRewardWalletResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Reward wallet fetched successfully",
-        [Locale.Vi]: "Lấy ví Coin thành công",
+        [Locale.Vi]: "Lấy ví Coin thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

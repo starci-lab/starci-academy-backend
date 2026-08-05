@@ -59,7 +59,7 @@ export class RefreshTokenResolver {
     @SkipThrottle()
     @GraphQLSuccessMessage({
         [Locale.En]: "Token refreshed successfully",
-        [Locale.Vi]: "Làm mới token thành công",
+        [Locale.Vi]: "Làm mới token thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

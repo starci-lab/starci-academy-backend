@@ -59,7 +59,7 @@ export class SignOutResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "Signed out successfully",
-        [Locale.Vi]: "Đăng xuất thành công",
+        [Locale.Vi]: "Đăng xuất thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

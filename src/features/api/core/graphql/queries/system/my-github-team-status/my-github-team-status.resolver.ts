@@ -45,7 +45,7 @@ export class MyGithubTeamStatusResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "GitHub team status fetched successfully",
-        [Locale.Vi]: "Lấy trạng thái team GitHub thành công",
+        [Locale.Vi]: "Lấy trạng thái team GitHub thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

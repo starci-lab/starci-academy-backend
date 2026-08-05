@@ -56,7 +56,7 @@ export class MyPinnableCapstonesResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Pinnable capstones fetched successfully",
-        [Locale.Vi]: "Lấy danh sách dự án có thể ghim thành công",
+        [Locale.Vi]: "Lấy danh sách dự án có thể ghim thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

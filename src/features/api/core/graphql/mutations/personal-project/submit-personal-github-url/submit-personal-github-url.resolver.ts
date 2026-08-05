@@ -49,7 +49,7 @@ export class SubmitPersonalGithubUrlResolver {
     @UseThrottler(ThrottlerConfig.Medium)
     @GraphQLSuccessMessage({
         [Locale.En]: "GitHub URL submitted successfully",
-        [Locale.Vi]: "Đã gửi GitHub URL thành công",
+        [Locale.Vi]: "Đã gửi GitHub URL thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

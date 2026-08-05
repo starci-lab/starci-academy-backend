@@ -37,7 +37,7 @@ export class HeadhuntingCompanySuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý công ty headhunter thành công",
+        [Locale.Vi]: "Lấy gợi ý công ty headhunter thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Headhunting company suggestions fetched successfully",
     })
     @Query(

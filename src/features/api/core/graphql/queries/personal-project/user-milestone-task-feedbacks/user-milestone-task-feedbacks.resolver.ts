@@ -45,7 +45,7 @@ export class UserMilestoneTaskFeedbacksResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Milestone task feedbacks fetched successfully",
-        [Locale.Vi]: "Lấy chi tiết phản hồi thành công",
+        [Locale.Vi]: "Lấy chi tiết phản hồi thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -41,7 +41,7 @@ export const enqueueSubscriptionActiveEmail = async (
         locale: params.locale,
         webBaseUrl: params.webBaseUrl,
         subject: {
-            vi: "Gói AI của bạn đã được kích hoạt",
+            vi: "Gói AI của bạn đã được kích hoạt", // vn-ok: vi-locale string emitted to clients
             en: "Your AI plan is now active",
         },
         extraContext: {
@@ -65,7 +65,7 @@ export const enqueueMembershipActiveEmail = async (
         locale: params.locale,
         webBaseUrl: params.webBaseUrl,
         subject: {
-            vi: "Chào mừng bạn trở thành thành viên",
+            vi: "Chào mừng bạn trở thành thành viên", // vn-ok: vi-locale string emitted to clients
             en: "Welcome to membership",
         },
     })
@@ -86,7 +86,7 @@ export const enqueuePaymentFailedEmail = async (
         locale: params.locale,
         webBaseUrl: params.webBaseUrl,
         subject: {
-            vi: "Thanh toán của bạn chưa hoàn tất",
+            vi: "Thanh toán của bạn chưa hoàn tất", // vn-ok: vi-locale string emitted to clients
             en: "Your payment didn’t go through",
         },
     })
@@ -108,7 +108,7 @@ export const enqueueInstallmentDueEmail = async (
         locale: params.locale,
         webBaseUrl: params.webBaseUrl,
         subject: {
-            vi: "Kỳ thanh toán trả góp sắp đến hạn",
+            vi: "Kỳ thanh toán trả góp sắp đến hạn", // vn-ok: vi-locale string emitted to clients
             en: "Your installment payment is due soon",
         },
         extraContext: {
@@ -133,7 +133,7 @@ export const enqueueInstallmentFinalWarningEmail = async (
         locale: params.locale,
         webBaseUrl: params.webBaseUrl,
         subject: {
-            vi: "Sắp bị khoá quyền truy cập khóa học",
+            vi: "Sắp bị khoá quyền truy cập khóa học", // vn-ok: vi-locale string emitted to clients
             en: "Your course access is about to be locked",
         },
         extraContext: {
@@ -158,7 +158,7 @@ export const enqueueInstallmentDefaultedEmail = async (
         locale: params.locale,
         webBaseUrl: params.webBaseUrl,
         subject: {
-            vi: "Quyền truy cập khóa học đã bị tạm khoá",
+            vi: "Quyền truy cập khóa học đã bị tạm khoá", // vn-ok: vi-locale string emitted to clients
             en: "Your course access has been locked",
         },
         extraContext: {

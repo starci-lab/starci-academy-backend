@@ -48,7 +48,7 @@ export class MyAiQuotaResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI quota fetched successfully",
-        [Locale.Vi]: "Lấy hạn mức AI thành công",
+        [Locale.Vi]: "Lấy hạn mức AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -61,7 +61,7 @@ export class SubmitContactResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "Your message has been sent",
-        [Locale.Vi]: "Tin nhắn của bạn đã được gửi",
+        [Locale.Vi]: "Tin nhắn của bạn đã được gửi", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

@@ -49,7 +49,7 @@ export class PurchaseMembershipResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Membership checkout created successfully",
-        [Locale.Vi]: "Tạo thanh toán hội viên thành công",
+        [Locale.Vi]: "Tạo thanh toán hội viên thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

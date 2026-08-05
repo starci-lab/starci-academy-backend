@@ -58,7 +58,7 @@ export class UserCapstoneProgressResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Capstone progress fetched successfully",
-        [Locale.Vi]: "Lấy tiến độ dự án thành công",
+        [Locale.Vi]: "Lấy tiến độ dự án thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

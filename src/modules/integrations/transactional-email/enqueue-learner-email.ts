@@ -96,7 +96,7 @@ export const enqueueLearnerEmail = async (
                     user.username ??
                     pickLocale(locale,
                         {
-                            vi: "bạn",
+                            vi: "bạn", // vn-ok: vi-locale string emitted to clients
                             en: "there",
                         }),
                 dashboardUrl: webBaseUrl,

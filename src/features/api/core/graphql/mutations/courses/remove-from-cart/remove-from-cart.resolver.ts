@@ -53,7 +53,7 @@ export class RemoveFromCartResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course removed from cart successfully",
-        [Locale.Vi]: "Xóa khóa học khỏi giỏ hàng thành công",
+        [Locale.Vi]: "Xóa khóa học khỏi giỏ hàng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

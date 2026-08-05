@@ -418,7 +418,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                     locale: payload.locale,
                     webBaseUrl: envConfig().web.baseUrl,
                     subject: {
-                        vi: "Task dự án cá nhân của bạn đã được chấm",
+                        vi: "Task dự án cá nhân của bạn đã được chấm", // vn-ok: vi-locale string emitted to clients
                         en: "Your personal-project task was reviewed",
                     },
                     extraContext: {

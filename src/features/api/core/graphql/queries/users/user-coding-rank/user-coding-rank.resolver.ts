@@ -50,7 +50,7 @@ export class UserCodingRankResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Coding rank fetched successfully",
-        [Locale.Vi]: "Lấy thứ hạng lập trình thành công",
+        [Locale.Vi]: "Lấy thứ hạng lập trình thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

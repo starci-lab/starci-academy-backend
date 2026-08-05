@@ -323,7 +323,7 @@ export class ContentHandler
             if (!text) {
                 return ""
             }
-            // Cut right before the standard testing section heading (vi: "Kiểm thử", en:
+            // Cut right before the standard testing section heading (vi: "Kiểm thử", en: // vn-ok: vi-locale string emitted to clients
             // "Verification" / "Testing") so the teaser includes the code but not the rest.
             // Drop everything from a dangling unclosed code fence so the teaser never ends inside a
             // ```mermaid/```code block (a half diagram fails to parse on the FE).

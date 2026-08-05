@@ -55,7 +55,7 @@ export class GradeMockInterviewSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Mock interview session graded successfully",
-        [Locale.Vi]: "Chấm phiên phỏng vấn thử thành công",
+        [Locale.Vi]: "Chấm phiên phỏng vấn thử thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

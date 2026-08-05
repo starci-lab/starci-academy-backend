@@ -46,7 +46,7 @@ export class CourseMindMapResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course mind-map fetched successfully",
-        [Locale.Vi]: "Lấy sơ đồ tư duy khóa học thành công",
+        [Locale.Vi]: "Lấy sơ đồ tư duy khóa học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -43,7 +43,7 @@ export class MyCvBlocksResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV documents fetched successfully",
-        [Locale.Vi]: "Lấy danh sách CV thành công",
+        [Locale.Vi]: "Lấy danh sách CV thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

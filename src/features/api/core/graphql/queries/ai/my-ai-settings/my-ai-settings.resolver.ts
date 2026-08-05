@@ -47,7 +47,7 @@ export class MyAiSettingsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI settings fetched successfully",
-        [Locale.Vi]: "Lấy cài đặt AI thành công",
+        [Locale.Vi]: "Lấy cài đặt AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

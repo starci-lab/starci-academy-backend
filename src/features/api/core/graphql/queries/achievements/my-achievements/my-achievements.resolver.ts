@@ -53,7 +53,7 @@ export class MyAchievementsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Achievements fetched successfully",
-        [Locale.Vi]: "Lấy thành tích thành công",
+        [Locale.Vi]: "Lấy thành tích thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -47,7 +47,7 @@ export class SetKpiTargetResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "KPI target updated successfully",
-        [Locale.Vi]: "Cập nhật mục tiêu KPI thành công",
+        [Locale.Vi]: "Cập nhật mục tiêu KPI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

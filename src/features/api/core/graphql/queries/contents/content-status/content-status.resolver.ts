@@ -46,7 +46,7 @@ export class ContentStatusResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Content status fetched successfully",
-        [Locale.Vi]: "Lấy trạng thái nội dung thành công",
+        [Locale.Vi]: "Lấy trạng thái nội dung thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -46,7 +46,7 @@ export class MyCreditUsageResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI credit usage fetched successfully",
-        [Locale.Vi]: "Lấy lượng credit AI đã dùng thành công",
+        [Locale.Vi]: "Lấy lượng credit AI đã dùng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

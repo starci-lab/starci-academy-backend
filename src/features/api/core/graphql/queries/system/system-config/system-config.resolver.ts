@@ -38,7 +38,7 @@ export class SystemConfigResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "System config fetched successfully",
-        [Locale.Vi]: "Lấy cấu hình hệ thống thành công",
+        [Locale.Vi]: "Lấy cấu hình hệ thống thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

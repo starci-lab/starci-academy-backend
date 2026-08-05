@@ -58,7 +58,7 @@ export class MyFlashcardQuizHistoryResolver {
         GraphQLEnrollmentGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard quiz history fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử hỏi nhanh thành công",
+        [Locale.Vi]: "Lấy lịch sử hỏi nhanh thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

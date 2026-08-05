@@ -46,7 +46,7 @@ export class WeeklyChallengeResolver {
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Weekly challenge fetched successfully",
-        [Locale.Vi]: "Lấy thử thách tuần thành công",
+        [Locale.Vi]: "Lấy thử thách tuần thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

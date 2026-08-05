@@ -332,7 +332,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 template: "enrollment-confirmed",
                 webBaseUrl: envConfig().web.baseUrl,
                 subject: {
-                    vi: "Bạn đã ghi danh khóa học thành công",
+                    vi: "Bạn đã ghi danh khóa học thành công", // vn-ok: vi-locale string emitted to clients
                     en: "You’re enrolled — welcome aboard",
                 },
             })

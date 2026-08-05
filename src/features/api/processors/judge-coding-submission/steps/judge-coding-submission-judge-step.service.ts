@@ -202,7 +202,7 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
                 template: "coding-result",
                 webBaseUrl: envConfig().web.baseUrl,
                 subject: {
-                    vi: "Bài coding của bạn đã có kết quả",
+                    vi: "Bài coding của bạn đã có kết quả", // vn-ok: vi-locale string emitted to clients
                     en: "Your coding submission has a verdict",
                 },
                 extraContext: {

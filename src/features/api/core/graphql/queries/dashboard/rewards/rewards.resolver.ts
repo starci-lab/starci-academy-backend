@@ -39,7 +39,7 @@ export class RewardsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Rewards fetched successfully",
-        [Locale.Vi]: "Lấy danh sách quà thành công",
+        [Locale.Vi]: "Lấy danh sách quà thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

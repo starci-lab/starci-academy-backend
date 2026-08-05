@@ -52,7 +52,7 @@ export class OpenToWorkUsersResolver {
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Open-to-work users fetched successfully",
-        [Locale.Vi]: "Lấy danh sách ứng viên thành công",
+        [Locale.Vi]: "Lấy danh sách ứng viên thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

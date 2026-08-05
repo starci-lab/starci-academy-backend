@@ -52,7 +52,7 @@ export class MyNotificationsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Notifications fetched successfully",
-        [Locale.Vi]: "Lấy thông báo thành công",
+        [Locale.Vi]: "Lấy thông báo thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

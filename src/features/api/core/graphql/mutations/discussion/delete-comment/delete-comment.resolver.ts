@@ -47,7 +47,7 @@ export class DeleteCommentResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Comment deleted successfully",
-        [Locale.Vi]: "Xóa bình luận thành công",
+        [Locale.Vi]: "Xóa bình luận thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

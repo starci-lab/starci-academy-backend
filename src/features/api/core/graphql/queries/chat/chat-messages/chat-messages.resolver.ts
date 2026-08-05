@@ -48,7 +48,7 @@ export class ChatMessagesResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Messages fetched successfully",
-        [Locale.Vi]: "Lấy tin nhắn thành công",
+        [Locale.Vi]: "Lấy tin nhắn thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

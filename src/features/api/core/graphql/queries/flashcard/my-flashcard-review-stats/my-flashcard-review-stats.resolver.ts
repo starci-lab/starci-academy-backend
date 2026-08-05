@@ -53,7 +53,7 @@ export class MyFlashcardReviewStatsResolver {
         GraphQLEnrollmentGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard review stats fetched successfully",
-        [Locale.Vi]: "Lấy thống kê ôn tập thành công",
+        [Locale.Vi]: "Lấy thống kê ôn tập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -49,7 +49,7 @@ export class ReviewFlashcardResolver {
         GraphQLEnrollmentGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard reviewed successfully",
-        [Locale.Vi]: "Ôn thẻ thành công",
+        [Locale.Vi]: "Ôn thẻ thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

@@ -123,7 +123,7 @@ export class ProcessResolveGithubCompleteStepService extends AbstractStepService
             template: "repo-access-granted",
             webBaseUrl: envConfig().web.baseUrl,
             subject: {
-                vi: "Bạn đã được cấp quyền truy cập repository",
+                vi: "Bạn đã được cấp quyền truy cập repository", // vn-ok: vi-locale string emitted to clients
                 en: "Your repository access is ready",
             },
             extraContext: {

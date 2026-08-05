@@ -52,7 +52,7 @@ export class UserCapstoneTasksResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Capstone tasks fetched successfully",
-        [Locale.Vi]: "Lấy dự án đã hoàn thành thành công",
+        [Locale.Vi]: "Lấy dự án đã hoàn thành thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

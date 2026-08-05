@@ -60,7 +60,7 @@ export class ResolveRouteResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Route resolved successfully",
-        [Locale.Vi]: "Phân giải đường dẫn thành công",
+        [Locale.Vi]: "Phân giải đường dẫn thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

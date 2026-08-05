@@ -154,7 +154,7 @@ export class ProcessRevokeGithubRemoveStepService extends AbstractStepService<
             template: "access-revoked",
             webBaseUrl: envConfig().web.baseUrl,
             subject: {
-                vi: "Quyền truy cập repository đã được gỡ",
+                vi: "Quyền truy cập repository đã được gỡ", // vn-ok: vi-locale string emitted to clients
                 en: "Your repository access was removed",
             },
         })

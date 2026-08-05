@@ -52,7 +52,7 @@ export class ReorderPinnedProjectsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Pinned projects reordered successfully",
-        [Locale.Vi]: "Sắp xếp lại dự án đã ghim thành công",
+        [Locale.Vi]: "Sắp xếp lại dự án đã ghim thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

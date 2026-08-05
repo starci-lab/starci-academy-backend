@@ -42,7 +42,7 @@ export class SplitCvFromTextResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV parsed into blocks successfully",
-        [Locale.Vi]: "Tách CV thành các khối thành công",
+        [Locale.Vi]: "Tách CV thành các khối thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -80,7 +80,7 @@ export const enqueueSubmissionResultEmail = async (
             ],
             subject: pickLocale(locale,
                 {
-                    vi: `Bài nộp đã được chấm: ${challengeTitle}`,
+                    vi: `Bài nộp đã được chấm: ${challengeTitle}`, // vn-ok: vi-locale string emitted to clients
                     en: `Your submission was graded: ${challengeTitle}`,
                 }),
             template: "submission-result",
@@ -90,7 +90,7 @@ export const enqueueSubmissionResultEmail = async (
                     userChallengeSubmission?.user?.username ??
                     pickLocale(locale,
                         {
-                            vi: "bạn",
+                            vi: "bạn", // vn-ok: vi-locale string emitted to clients
                             en: "there",
                         }),
                 challengeTitle,

@@ -66,7 +66,7 @@ export class MyInProgressChallengesResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "In-progress challenges fetched successfully",
-        [Locale.Vi]: "Lấy danh sách challenge đang làm thành công",
+        [Locale.Vi]: "Lấy danh sách challenge đang làm thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

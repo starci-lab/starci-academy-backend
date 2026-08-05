@@ -44,7 +44,7 @@ export class RevokeSessionResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "Device logged out successfully",
-        [Locale.Vi]: "Đã đăng xuất thiết bị thành công",
+        [Locale.Vi]: "Đã đăng xuất thiết bị thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

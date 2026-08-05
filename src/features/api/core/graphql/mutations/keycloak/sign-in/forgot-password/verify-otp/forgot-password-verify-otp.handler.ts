@@ -153,7 +153,7 @@ export class ForgotPasswordVerifyOtpHandler
             template: "password-changed",
             webBaseUrl: envConfig().web.baseUrl,
             subject: {
-                vi: "Mật khẩu của bạn đã được thay đổi",
+                vi: "Mật khẩu của bạn đã được thay đổi", // vn-ok: vi-locale string emitted to clients
                 en: "Your password was changed",
             },
         })

@@ -73,7 +73,7 @@ export class ActiveAdvertisementResolver {
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Active advertisement fetched successfully",
-        [Locale.Vi]: "Lấy quảng cáo thành công",
+        [Locale.Vi]: "Lấy quảng cáo thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

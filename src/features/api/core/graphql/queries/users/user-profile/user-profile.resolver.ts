@@ -51,7 +51,7 @@ export class UserProfileResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "User profile fetched successfully",
-        [Locale.Vi]: "Lấy hồ sơ người dùng thành công",
+        [Locale.Vi]: "Lấy hồ sơ người dùng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -44,7 +44,7 @@ export class ContentSuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý nội dung thành công",
+        [Locale.Vi]: "Lấy gợi ý nội dung thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Content suggestions fetched successfully",
     })
     @Query(

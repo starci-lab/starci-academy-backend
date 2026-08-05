@@ -57,7 +57,7 @@ export class MyLearningFeedbacksResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Learning feedback fetched successfully",
-        [Locale.Vi]: "Lấy phản hồi học tập thành công",
+        [Locale.Vi]: "Lấy phản hồi học tập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

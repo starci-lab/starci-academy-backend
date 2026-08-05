@@ -57,7 +57,7 @@ export class UpdateProfileResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Profile updated successfully",
-        [Locale.Vi]: "Cập nhật hồ sơ thành công",
+        [Locale.Vi]: "Cập nhật hồ sơ thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

@@ -55,7 +55,7 @@ export class CoursesCheckoutPreviewResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Checkout preview fetched successfully",
-        [Locale.Vi]: "Lấy xem trước thanh toán thành công",
+        [Locale.Vi]: "Lấy xem trước thanh toán thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

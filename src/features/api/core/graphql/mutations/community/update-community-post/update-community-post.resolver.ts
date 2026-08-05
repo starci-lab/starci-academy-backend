@@ -47,7 +47,7 @@ export class UpdateCommunityPostResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Post updated successfully",
-        [Locale.Vi]: "Cập nhật bài thành công",
+        [Locale.Vi]: "Cập nhật bài thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

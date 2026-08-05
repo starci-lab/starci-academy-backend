@@ -48,7 +48,7 @@ export class CommunityFeedResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Community feed fetched successfully",
-        [Locale.Vi]: "Lấy bảng tin cộng đồng thành công",
+        [Locale.Vi]: "Lấy bảng tin cộng đồng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakOptionalAuthGraphQLGuard,

@@ -45,7 +45,7 @@ export class SavedContentsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Saved contents fetched successfully",
-        [Locale.Vi]: "Lấy danh sách đã lưu thành công",
+        [Locale.Vi]: "Lấy danh sách đã lưu thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

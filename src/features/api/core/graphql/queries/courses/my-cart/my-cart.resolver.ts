@@ -50,7 +50,7 @@ export class MyCartResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Cart fetched successfully",
-        [Locale.Vi]: "Lấy giỏ hàng thành công",
+        [Locale.Vi]: "Lấy giỏ hàng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

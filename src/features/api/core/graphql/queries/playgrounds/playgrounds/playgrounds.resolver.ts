@@ -51,7 +51,7 @@ export class PlaygroundsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Playgrounds fetched successfully",
-        [Locale.Vi]: "Lấy danh sách playground thành công",
+        [Locale.Vi]: "Lấy danh sách playground thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

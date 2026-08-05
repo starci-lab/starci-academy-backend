@@ -77,7 +77,7 @@ export class CourseLearningHistoryResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course learning history fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử học của khóa thành công",
+        [Locale.Vi]: "Lấy lịch sử học của khóa thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

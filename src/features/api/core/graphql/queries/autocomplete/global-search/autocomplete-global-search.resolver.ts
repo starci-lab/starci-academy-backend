@@ -50,7 +50,7 @@ export class AutocompleteGlobalSearchResolver {
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Global search results fetched successfully",
-        [Locale.Vi]: "Lấy kết quả tìm kiếm toàn cục thành công",
+        [Locale.Vi]: "Lấy kết quả tìm kiếm toàn cục thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

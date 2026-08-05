@@ -67,7 +67,7 @@ export class MyUpcomingLivestreamsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Upcoming livestreams fetched successfully",
-        [Locale.Vi]: "Lấy lịch livestream sắp tới thành công",
+        [Locale.Vi]: "Lấy lịch livestream sắp tới thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

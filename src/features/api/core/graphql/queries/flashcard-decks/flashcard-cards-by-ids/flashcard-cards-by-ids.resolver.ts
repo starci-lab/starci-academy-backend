@@ -52,7 +52,7 @@ export class FlashcardCardsByIdsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcards fetched successfully",
-        [Locale.Vi]: "Lấy thẻ thành công",
+        [Locale.Vi]: "Lấy thẻ thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

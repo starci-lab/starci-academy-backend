@@ -41,7 +41,7 @@ export class CheckEmailExistsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Email existence checked successfully",
-        [Locale.Vi]: "Kiểm tra email tồn tại thành công",
+        [Locale.Vi]: "Kiểm tra email tồn tại thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

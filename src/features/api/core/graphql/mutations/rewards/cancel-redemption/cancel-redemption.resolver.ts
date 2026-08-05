@@ -48,7 +48,7 @@ export class CancelRedemptionResolver {
     @UseGuards(GraphQLAdminAccessGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Redemption cancelled successfully",
-        [Locale.Vi]: "Đã huỷ đổi quà",
+        [Locale.Vi]: "Đã huỷ đổi quà", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

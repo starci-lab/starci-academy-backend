@@ -45,7 +45,7 @@ export class HeadhuntingCompaniesResolver {
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy danh sách công ty headhunter thành công",
+        [Locale.Vi]: "Lấy danh sách công ty headhunter thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Headhunting companies fetched successfully",
     })
     @Query(

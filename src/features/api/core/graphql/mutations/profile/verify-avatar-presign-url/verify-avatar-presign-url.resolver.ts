@@ -49,7 +49,7 @@ export class VerifyAvatarPresignUrlResolver {
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
         [Locale.En]: "Avatar updated successfully",
-        [Locale.Vi]: "Cập nhật ảnh đại diện thành công",
+        [Locale.Vi]: "Cập nhật ảnh đại diện thành công", // vn-ok: vi-locale string emitted to clients
     })
     @Mutation(
         () => VerifyAvatarPresignUrlResponse,

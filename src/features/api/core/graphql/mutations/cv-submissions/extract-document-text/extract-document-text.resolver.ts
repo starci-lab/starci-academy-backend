@@ -42,7 +42,7 @@ export class ExtractDocumentTextResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Document text extracted successfully",
-        [Locale.Vi]: "Trích xuất văn bản tài liệu thành công",
+        [Locale.Vi]: "Trích xuất văn bản tài liệu thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

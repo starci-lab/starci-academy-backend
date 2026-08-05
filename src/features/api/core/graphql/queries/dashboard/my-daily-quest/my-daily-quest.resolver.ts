@@ -46,7 +46,7 @@ export class MyDailyQuestResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Daily quest fetched successfully",
-        [Locale.Vi]: "Lấy nhiệm vụ hằng ngày thành công",
+        [Locale.Vi]: "Lấy nhiệm vụ hằng ngày thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

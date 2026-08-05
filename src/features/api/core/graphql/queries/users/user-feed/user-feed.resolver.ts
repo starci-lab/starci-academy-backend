@@ -71,7 +71,7 @@ export class UserFeedResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Activity fetched successfully",
-        [Locale.Vi]: "Lấy hoạt động thành công",
+        [Locale.Vi]: "Lấy hoạt động thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

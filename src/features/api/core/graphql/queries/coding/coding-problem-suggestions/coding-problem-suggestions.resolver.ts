@@ -44,7 +44,7 @@ export class CodingProblemSuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý bài luyện tập thành công",
+        [Locale.Vi]: "Lấy gợi ý bài luyện tập thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Coding problem suggestions fetched successfully",
     })
     @Query(

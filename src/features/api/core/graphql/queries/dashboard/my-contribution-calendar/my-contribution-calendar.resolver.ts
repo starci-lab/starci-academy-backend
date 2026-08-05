@@ -50,7 +50,7 @@ export class MyContributionCalendarResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Contribution calendar fetched successfully",
-        [Locale.Vi]: "Lấy lịch hoạt động thành công",
+        [Locale.Vi]: "Lấy lịch hoạt động thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

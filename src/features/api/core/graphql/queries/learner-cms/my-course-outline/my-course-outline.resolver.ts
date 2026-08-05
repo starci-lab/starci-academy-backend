@@ -50,7 +50,7 @@ export class MyCourseOutlineResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course outline fetched successfully",
-        [Locale.Vi]: "Lấy dàn bài khóa học thành công",
+        [Locale.Vi]: "Lấy dàn bài khóa học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

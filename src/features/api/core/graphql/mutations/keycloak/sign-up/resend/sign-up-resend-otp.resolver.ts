@@ -41,7 +41,7 @@ export class SignUpResendOtpResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "OTP sent successfully",
-        [Locale.Vi]: "Gửi mã OTP thành công",
+        [Locale.Vi]: "Gửi mã OTP thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

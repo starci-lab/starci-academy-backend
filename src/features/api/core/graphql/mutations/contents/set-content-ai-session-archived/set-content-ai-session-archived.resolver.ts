@@ -49,7 +49,7 @@ export class SetContentAiSessionArchivedResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Conversation updated",
-        [Locale.Vi]: "Đã cập nhật hội thoại",
+        [Locale.Vi]: "Đã cập nhật hội thoại", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

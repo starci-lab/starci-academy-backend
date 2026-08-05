@@ -44,7 +44,7 @@ export class ToggleFavouriteResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Favourite toggled successfully",
-        [Locale.Vi]: "Cập nhật yêu thích thành công",
+        [Locale.Vi]: "Cập nhật yêu thích thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

@@ -47,7 +47,7 @@ export class MyVouchersResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Vouchers fetched successfully",
-        [Locale.Vi]: "Lấy danh sách voucher thành công",
+        [Locale.Vi]: "Lấy danh sách voucher thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

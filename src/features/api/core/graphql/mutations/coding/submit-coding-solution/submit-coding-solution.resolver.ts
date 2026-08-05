@@ -60,7 +60,7 @@ export class SubmitCodingSolutionResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Solution submitted for judging",
-        [Locale.Vi]: "Đã nộp bài, đang chấm",
+        [Locale.Vi]: "Đã nộp bài, đang chấm", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

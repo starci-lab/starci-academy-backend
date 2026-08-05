@@ -49,7 +49,7 @@ export class ReviewPersonalProjectTaskResolver {
     @UseThrottler(ThrottlerConfig.Medium)
     @GraphQLSuccessMessage({
         [Locale.En]: "Task review queued successfully",
-        [Locale.Vi]: "Đã gửi yêu cầu chấm task thành công",
+        [Locale.Vi]: "Đã gửi yêu cầu chấm task thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

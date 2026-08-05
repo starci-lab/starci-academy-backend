@@ -56,7 +56,7 @@ export class TalentCandidatesResolver {
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Talent candidates fetched successfully",
-        [Locale.Vi]: "Lấy danh sách ứng viên theo lộ trình thành công",
+        [Locale.Vi]: "Lấy danh sách ứng viên theo lộ trình thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

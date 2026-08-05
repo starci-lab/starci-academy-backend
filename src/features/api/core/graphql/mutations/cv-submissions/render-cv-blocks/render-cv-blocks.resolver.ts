@@ -42,7 +42,7 @@ export class RenderCvBlocksResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV rendered successfully",
-        [Locale.Vi]: "Kết xuất CV thành công",
+        [Locale.Vi]: "Kết xuất CV thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

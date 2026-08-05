@@ -55,7 +55,7 @@ export class MyMilestoneTaskAttemptsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Milestone task attempts fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử làm nhiệm vụ thành công",
+        [Locale.Vi]: "Lấy lịch sử làm nhiệm vụ thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

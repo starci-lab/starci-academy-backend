@@ -49,7 +49,7 @@ export class DeleteContentAiSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Conversation deleted successfully",
-        [Locale.Vi]: "Đã xoá hội thoại",
+        [Locale.Vi]: "Đã xoá hội thoại", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

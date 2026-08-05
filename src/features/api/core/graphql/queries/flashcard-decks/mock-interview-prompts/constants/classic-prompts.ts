@@ -21,7 +21,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Easy,
         title: {
             [Locale.En]: "Design a URL shortener",
-            [Locale.Vi]: "Thiết kế dịch vụ rút gọn URL",
+            [Locale.Vi]: "Thiết kế dịch vụ rút gọn URL", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -29,7 +29,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Easy,
         title: {
             [Locale.En]: "Design a rate limiter",
-            [Locale.Vi]: "Thiết kế bộ giới hạn tốc độ (rate limiter)",
+            [Locale.Vi]: "Thiết kế bộ giới hạn tốc độ (rate limiter)", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -37,7 +37,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Easy,
         title: {
             [Locale.En]: "Design a parking garage system",
-            [Locale.Vi]: "Thiết kế hệ thống bãi đỗ xe",
+            [Locale.Vi]: "Thiết kế hệ thống bãi đỗ xe", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -45,7 +45,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Medium,
         title: {
             [Locale.En]: "Design a distributed key-value store",
-            [Locale.Vi]: "Thiết kế kho lưu trữ key-value phân tán",
+            [Locale.Vi]: "Thiết kế kho lưu trữ key-value phân tán", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -53,7 +53,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Medium,
         title: {
             [Locale.En]: "Design a notification system",
-            [Locale.Vi]: "Thiết kế hệ thống gửi thông báo",
+            [Locale.Vi]: "Thiết kế hệ thống gửi thông báo", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -61,7 +61,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Medium,
         title: {
             [Locale.En]: "Design a real-time chat application",
-            [Locale.Vi]: "Thiết kế ứng dụng nhắn tin thời gian thực",
+            [Locale.Vi]: "Thiết kế ứng dụng nhắn tin thời gian thực", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -69,7 +69,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Medium,
         title: {
             [Locale.En]: "Design a social media news feed",
-            [Locale.Vi]: "Thiết kế news feed mạng xã hội",
+            [Locale.Vi]: "Thiết kế news feed mạng xã hội", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -77,7 +77,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Medium,
         title: {
             [Locale.En]: "Design a web crawler",
-            [Locale.Vi]: "Thiết kế web crawler quy mô lớn",
+            [Locale.Vi]: "Thiết kế web crawler quy mô lớn", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -85,7 +85,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Medium,
         title: {
             [Locale.En]: "Design a search typeahead/autocomplete system",
-            [Locale.Vi]: "Thiết kế tính năng gợi ý tìm kiếm (typeahead)",
+            [Locale.Vi]: "Thiết kế tính năng gợi ý tìm kiếm (typeahead)", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -93,7 +93,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Medium,
         title: {
             [Locale.En]: "Design an elevator control system",
-            [Locale.Vi]: "Thiết kế hệ thống điều phối thang máy",
+            [Locale.Vi]: "Thiết kế hệ thống điều phối thang máy", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -101,7 +101,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Hard,
         title: {
             [Locale.En]: "Design a ride-sharing dispatch system",
-            [Locale.Vi]: "Thiết kế hệ thống điều phối xe (kiểu Uber)",
+            [Locale.Vi]: "Thiết kế hệ thống điều phối xe (kiểu Uber)", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -109,7 +109,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Hard,
         title: {
             [Locale.En]: "Design a video streaming service",
-            [Locale.Vi]: "Thiết kế dịch vụ streaming video",
+            [Locale.Vi]: "Thiết kế dịch vụ streaming video", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -117,7 +117,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Hard,
         title: {
             [Locale.En]: "Design a distributed job scheduler",
-            [Locale.Vi]: "Thiết kế bộ lập lịch tác vụ phân tán",
+            [Locale.Vi]: "Thiết kế bộ lập lịch tác vụ phân tán", // vn-ok: vi-locale string emitted to clients
         },
     },
     {
@@ -125,7 +125,7 @@ export const MOCK_INTERVIEW_CLASSIC_PROMPTS: ReadonlyArray<MockInterviewClassicP
         difficulty: ChallengeDifficulty.Hard,
         title: {
             [Locale.En]: "Design a payment processing system",
-            [Locale.Vi]: "Thiết kế hệ thống xử lý thanh toán",
+            [Locale.Vi]: "Thiết kế hệ thống xử lý thanh toán", // vn-ok: vi-locale string emitted to clients
         },
     },
 ]

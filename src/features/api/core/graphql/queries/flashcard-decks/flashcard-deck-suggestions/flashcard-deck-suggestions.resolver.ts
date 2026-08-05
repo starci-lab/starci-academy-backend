@@ -44,7 +44,7 @@ export class FlashcardDeckSuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý bộ thẻ ghi nhớ thành công",
+        [Locale.Vi]: "Lấy gợi ý bộ thẻ ghi nhớ thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Flashcard deck suggestions fetched successfully",
     })
     @Query(

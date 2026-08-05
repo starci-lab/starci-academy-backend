@@ -48,7 +48,7 @@ export class UserCodingHistoryResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Coding history fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử giải bài thành công",
+        [Locale.Vi]: "Lấy lịch sử giải bài thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -55,7 +55,7 @@ export class SetWeeklyGoalResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Weekly goal updated successfully",
-        [Locale.Vi]: "Cập nhật mục tiêu tuần thành công",
+        [Locale.Vi]: "Cập nhật mục tiêu tuần thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

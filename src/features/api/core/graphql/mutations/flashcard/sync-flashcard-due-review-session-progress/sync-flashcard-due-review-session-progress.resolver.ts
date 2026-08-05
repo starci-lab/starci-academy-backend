@@ -55,7 +55,7 @@ export class SyncFlashcardDueReviewSessionProgressResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard due-review session synced successfully",
-        [Locale.Vi]: "Đồng bộ phiên ôn tập đến hạn thành công",
+        [Locale.Vi]: "Đồng bộ phiên ôn tập đến hạn thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

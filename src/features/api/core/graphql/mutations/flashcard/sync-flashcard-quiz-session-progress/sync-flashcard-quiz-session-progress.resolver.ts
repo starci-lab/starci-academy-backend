@@ -55,7 +55,7 @@ export class SyncFlashcardQuizSessionProgressResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard quiz session synced successfully",
-        [Locale.Vi]: "Đồng bộ phiên hỏi nhanh thành công",
+        [Locale.Vi]: "Đồng bộ phiên hỏi nhanh thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

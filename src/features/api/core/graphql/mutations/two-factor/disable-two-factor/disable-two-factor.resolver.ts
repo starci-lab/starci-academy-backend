@@ -61,7 +61,7 @@ export class DisableTwoFactorResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Two-factor authentication disabled",
-        [Locale.Vi]: "Đã tắt xác thực hai lớp",
+        [Locale.Vi]: "Đã tắt xác thực hai lớp", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

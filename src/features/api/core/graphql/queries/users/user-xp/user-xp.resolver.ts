@@ -52,7 +52,7 @@ export class UserXpResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "User XP fetched successfully",
-        [Locale.Vi]: "Lấy điểm kinh nghiệm thành công",
+        [Locale.Vi]: "Lấy điểm kinh nghiệm thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

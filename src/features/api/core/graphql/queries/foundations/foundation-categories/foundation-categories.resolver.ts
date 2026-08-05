@@ -40,7 +40,7 @@ export class FoundationCategoriesResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy danh sách nền tảng thành công",
+        [Locale.Vi]: "Lấy danh sách nền tảng thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Foundation categories fetched successfully",
     })
     @Query(

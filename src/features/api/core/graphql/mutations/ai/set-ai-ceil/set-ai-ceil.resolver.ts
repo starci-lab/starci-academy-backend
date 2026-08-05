@@ -45,7 +45,7 @@ export class SetAiCeilResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI ceiling updated successfully",
-        [Locale.Vi]: "Cập nhật trần AI thành công",
+        [Locale.Vi]: "Cập nhật trần AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

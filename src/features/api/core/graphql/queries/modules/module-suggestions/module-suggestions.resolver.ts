@@ -38,7 +38,7 @@ export class ModuleSuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý module thành công",
+        [Locale.Vi]: "Lấy gợi ý module thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Module suggestions fetched successfully",
     })
     @Query(

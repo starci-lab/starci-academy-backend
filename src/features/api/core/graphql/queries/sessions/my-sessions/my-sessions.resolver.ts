@@ -54,7 +54,7 @@ export class MySessionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Active sessions fetched successfully",
-        [Locale.Vi]: "Lấy danh sách thiết bị đăng nhập thành công",
+        [Locale.Vi]: "Lấy danh sách thiết bị đăng nhập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

@@ -55,7 +55,7 @@ export class MyXpHistoryResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "XP history fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử XP thành công",
+        [Locale.Vi]: "Lấy lịch sử XP thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

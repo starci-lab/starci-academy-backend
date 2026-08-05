@@ -45,7 +45,7 @@ export class MyCodingProgressResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Coding progress fetched successfully",
-        [Locale.Vi]: "Lấy tiến độ thành công",
+        [Locale.Vi]: "Lấy tiến độ thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

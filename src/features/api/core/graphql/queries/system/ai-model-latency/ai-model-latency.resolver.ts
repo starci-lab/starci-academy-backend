@@ -45,7 +45,7 @@ export class AiModelLatencyResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI model latency fetched successfully",
-        [Locale.Vi]: "Lấy độ trễ mô hình AI thành công",
+        [Locale.Vi]: "Lấy độ trễ mô hình AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

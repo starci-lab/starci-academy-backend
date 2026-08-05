@@ -43,7 +43,7 @@ export class CommunityChatConversationResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Community chat fetched successfully",
-        [Locale.Vi]: "Lấy phòng chat cộng đồng thành công",
+        [Locale.Vi]: "Lấy phòng chat cộng đồng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

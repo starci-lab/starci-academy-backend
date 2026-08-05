@@ -38,7 +38,7 @@ export class AiSubscriptionTiersResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI subscription tiers fetched successfully",
-        [Locale.Vi]: "Lấy danh sách gói AI thành công",
+        [Locale.Vi]: "Lấy danh sách gói AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

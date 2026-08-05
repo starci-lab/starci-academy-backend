@@ -46,7 +46,7 @@ export class HeadhuntingCompanyResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Headhunting company fetched successfully",
-        [Locale.Vi]: "Lấy thông tin công ty headhunter thành công",
+        [Locale.Vi]: "Lấy thông tin công ty headhunter thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

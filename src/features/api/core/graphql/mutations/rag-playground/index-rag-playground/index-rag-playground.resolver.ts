@@ -40,7 +40,7 @@ export class IndexRagPlaygroundResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "Code indexed successfully",
-        [Locale.Vi]: "Đã index code thành công",
+        [Locale.Vi]: "Đã index code thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

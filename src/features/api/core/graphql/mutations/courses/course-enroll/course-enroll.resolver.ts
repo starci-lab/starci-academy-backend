@@ -53,7 +53,7 @@ export class CourseEnrollResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course checkout created successfully",
-        [Locale.Vi]: "Tạo liên kết thanh toán khóa học thành công",
+        [Locale.Vi]: "Tạo liên kết thanh toán khóa học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

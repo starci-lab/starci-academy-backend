@@ -48,7 +48,7 @@ export class GenerateCvResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "CV generation started successfully",
-        [Locale.Vi]: "Đã bắt đầu tạo CV thành công",
+        [Locale.Vi]: "Đã bắt đầu tạo CV thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

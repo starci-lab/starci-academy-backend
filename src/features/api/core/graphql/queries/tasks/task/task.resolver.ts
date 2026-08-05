@@ -55,7 +55,7 @@ export class TaskResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Task fetched successfully",
-        [Locale.Vi]: "Lấy task thành công",
+        [Locale.Vi]: "Lấy task thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

@@ -45,7 +45,7 @@ export class CodingProblemResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Coding problem fetched successfully",
-        [Locale.Vi]: "Lấy bài tập thành công",
+        [Locale.Vi]: "Lấy bài tập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -48,7 +48,7 @@ export class FlashcardDecksByCourseResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard decks fetched successfully",
-        [Locale.Vi]: "Lấy danh sách bộ thẻ thành công",
+        [Locale.Vi]: "Lấy danh sách bộ thẻ thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -54,7 +54,7 @@ export class StartTrialResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Trial started successfully",
-        [Locale.Vi]: "Bắt đầu học thử thành công",
+        [Locale.Vi]: "Bắt đầu học thử thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

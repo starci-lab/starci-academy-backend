@@ -45,7 +45,7 @@ export class LeaderboardResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Leaderboard fetched successfully",
-        [Locale.Vi]: "Lấy bảng xếp hạng thành công",
+        [Locale.Vi]: "Lấy bảng xếp hạng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

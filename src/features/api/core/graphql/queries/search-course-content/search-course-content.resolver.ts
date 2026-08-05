@@ -47,7 +47,7 @@ export class SearchCourseContentResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Course content searched successfully",
-        [Locale.Vi]: "Tìm nội dung khóa thành công",
+        [Locale.Vi]: "Tìm nội dung khóa thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

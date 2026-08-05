@@ -48,7 +48,7 @@ export class RenameContentAiSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Conversation renamed",
-        [Locale.Vi]: "Đã đổi tên hội thoại",
+        [Locale.Vi]: "Đã đổi tên hội thoại", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

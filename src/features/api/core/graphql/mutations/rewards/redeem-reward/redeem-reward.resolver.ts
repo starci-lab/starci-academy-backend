@@ -49,7 +49,7 @@ export class RedeemRewardResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Reward redeemed successfully",
-        [Locale.Vi]: "Đổi quà thành công",
+        [Locale.Vi]: "Đổi quà thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

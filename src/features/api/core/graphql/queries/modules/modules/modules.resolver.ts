@@ -44,7 +44,7 @@ export class ModulesResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Modules fetched successfully",
-        [Locale.Vi]: "Lấy danh sách module thành công",
+        [Locale.Vi]: "Lấy danh sách module thành công", // vn-ok: vi-locale string emitted to clients
     })
     // Enroll guard removed — logged-in users may browse module list for trial reading.
     @UseGuards(

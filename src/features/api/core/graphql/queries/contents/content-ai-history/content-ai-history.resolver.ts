@@ -51,7 +51,7 @@ export class ContentAiHistoryResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Conversation loaded successfully",
-        [Locale.Vi]: "Đã tải hội thoại",
+        [Locale.Vi]: "Đã tải hội thoại", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

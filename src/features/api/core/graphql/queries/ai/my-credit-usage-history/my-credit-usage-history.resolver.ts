@@ -52,7 +52,7 @@ export class MyCreditUsageHistoryResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI credit usage history fetched successfully",
-        [Locale.Vi]: "Lấy lịch sử dùng credit AI thành công",
+        [Locale.Vi]: "Lấy lịch sử dùng credit AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -48,7 +48,7 @@ export class UserCodingSkillsResolver {
         GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Coding skills fetched successfully",
-        [Locale.Vi]: "Lấy kỹ năng lập trình thành công",
+        [Locale.Vi]: "Lấy kỹ năng lập trình thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

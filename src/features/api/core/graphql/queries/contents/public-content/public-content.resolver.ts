@@ -40,7 +40,7 @@ export class PublicContentResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Public content fetched successfully",
-        [Locale.Vi]: "Lấy nội dung công khai thành công",
+        [Locale.Vi]: "Lấy nội dung công khai thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

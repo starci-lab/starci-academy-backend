@@ -45,7 +45,7 @@ export class MyFounderConversationResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Founder chat fetched successfully",
-        [Locale.Vi]: "Lấy phòng chat founder thành công",
+        [Locale.Vi]: "Lấy phòng chat founder thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

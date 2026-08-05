@@ -72,7 +72,7 @@ export class SubmitJobPostingResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Job posting submitted successfully",
-        [Locale.Vi]: "Đăng tin tuyển dụng thành công",
+        [Locale.Vi]: "Đăng tin tuyển dụng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

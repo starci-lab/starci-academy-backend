@@ -50,7 +50,7 @@ export class MockInterviewPromptsResolver {
         GraphQLMustEnrolledGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Interview prompts fetched successfully",
-        [Locale.Vi]: "Lấy đề phỏng vấn thành công",
+        [Locale.Vi]: "Lấy đề phỏng vấn thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

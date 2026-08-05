@@ -48,7 +48,7 @@ export class PurchaseAiSubscriptionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI subscription checkout created successfully",
-        [Locale.Vi]: "Tạo thanh toán gói AI thành công",
+        [Locale.Vi]: "Tạo thanh toán gói AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

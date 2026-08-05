@@ -45,7 +45,7 @@ export class MyInstallmentPlansResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Installment plans fetched successfully",
-        [Locale.Vi]: "Lấy kế hoạch trả góp thành công",
+        [Locale.Vi]: "Lấy kế hoạch trả góp thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

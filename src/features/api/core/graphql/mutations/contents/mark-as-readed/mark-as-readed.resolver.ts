@@ -51,7 +51,7 @@ export class MarkAsReadedResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Content read status updated successfully",
-        [Locale.Vi]: "Cập nhật trạng thái đã đọc thành công",
+        [Locale.Vi]: "Cập nhật trạng thái đã đọc thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

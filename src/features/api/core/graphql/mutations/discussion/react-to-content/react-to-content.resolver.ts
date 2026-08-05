@@ -54,7 +54,7 @@ export class ReactToContentResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Reaction updated successfully",
-        [Locale.Vi]: "Cập nhật cảm xúc thành công",
+        [Locale.Vi]: "Cập nhật cảm xúc thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

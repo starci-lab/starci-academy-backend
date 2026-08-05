@@ -46,7 +46,7 @@ export class GenerateSubmitCvPresignUrlResolver {
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
         [Locale.En]: "Create CV submission request successfully",
-        [Locale.Vi]: "Tạo yêu cầu nộp CV thành công",
+        [Locale.Vi]: "Tạo yêu cầu nộp CV thành công", // vn-ok: vi-locale string emitted to clients
     })
     @Mutation(
         () => GenerateSubmitCvPresignUrlResponse,

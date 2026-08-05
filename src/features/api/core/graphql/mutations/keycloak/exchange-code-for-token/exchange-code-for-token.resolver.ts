@@ -57,7 +57,7 @@ export class ExchangeCodeForTokenResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "Code exchanged successfully",
-        [Locale.Vi]: "Đổi code lấy token thành công",
+        [Locale.Vi]: "Đổi code lấy token thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

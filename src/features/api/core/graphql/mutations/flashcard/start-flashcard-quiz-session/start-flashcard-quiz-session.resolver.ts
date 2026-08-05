@@ -54,7 +54,7 @@ export class StartFlashcardQuizSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard quiz session started successfully",
-        [Locale.Vi]: "Bắt đầu phiên hỏi nhanh thành công",
+        [Locale.Vi]: "Bắt đầu phiên hỏi nhanh thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

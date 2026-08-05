@@ -51,7 +51,7 @@ export class AskRagPlaygroundResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "Question prepared successfully",
-        [Locale.Vi]: "Đã chuẩn bị câu hỏi thành công",
+        [Locale.Vi]: "Đã chuẩn bị câu hỏi thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

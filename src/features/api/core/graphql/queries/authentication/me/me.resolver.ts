@@ -48,7 +48,7 @@ export class MeResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Me fetched successfully",
-        [Locale.Vi]: "Lấy thông tin người dùng thành công",
+        [Locale.Vi]: "Lấy thông tin người dùng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(() => MeResponse,

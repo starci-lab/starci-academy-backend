@@ -58,7 +58,7 @@ export class MyFlashcardReviewSessionBySessionIdResolver {
         GraphQLEnrollmentGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard session fetched successfully",
-        [Locale.Vi]: "Lấy phiên ôn thẻ thành công",
+        [Locale.Vi]: "Lấy phiên ôn thẻ thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

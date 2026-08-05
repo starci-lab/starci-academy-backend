@@ -45,7 +45,7 @@ export class ChallengeSubmissionProgressResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Challenge submission progress fetched successfully",
-        [Locale.Vi]: "Lấy tiến độ bài tập thành công",
+        [Locale.Vi]: "Lấy tiến độ bài tập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

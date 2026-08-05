@@ -51,7 +51,7 @@ export class CreateContentAiSessionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Conversation started successfully",
-        [Locale.Vi]: "Đã tạo hội thoại mới",
+        [Locale.Vi]: "Đã tạo hội thoại mới", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)

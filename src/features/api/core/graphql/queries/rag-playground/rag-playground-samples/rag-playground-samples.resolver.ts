@@ -39,7 +39,7 @@ export class RagPlaygroundSamplesResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "RAG Playground samples fetched successfully",
-        [Locale.Vi]: "Lấy danh sách mẫu RAG Playground thành công",
+        [Locale.Vi]: "Lấy danh sách mẫu RAG Playground thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

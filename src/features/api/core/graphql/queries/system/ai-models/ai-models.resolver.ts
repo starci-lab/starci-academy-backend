@@ -37,7 +37,7 @@ export class AiModelsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI models fetched successfully",
-        [Locale.Vi]: "Lấy thông tin mô hình AI thành công",
+        [Locale.Vi]: "Lấy thông tin mô hình AI thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

@@ -47,7 +47,7 @@ export class AiBalancerHealthResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI balancer health fetched successfully",
-        [Locale.Vi]: "Lấy trạng thái AI balancer thành công",
+        [Locale.Vi]: "Lấy trạng thái AI balancer thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

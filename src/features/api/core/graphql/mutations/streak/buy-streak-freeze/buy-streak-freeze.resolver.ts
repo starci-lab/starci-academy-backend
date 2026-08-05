@@ -47,7 +47,7 @@ export class BuyStreakFreezeResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Streak freeze purchased successfully",
-        [Locale.Vi]: "Mua đóng băng chuỗi ngày thành công",
+        [Locale.Vi]: "Mua đóng băng chuỗi ngày thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

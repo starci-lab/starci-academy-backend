@@ -57,7 +57,7 @@ export class SignUpVerifyOtpResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "Signed up successfully",
-        [Locale.Vi]: "Đăng ký thành công",
+        [Locale.Vi]: "Đăng ký thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

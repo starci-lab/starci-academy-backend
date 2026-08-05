@@ -47,7 +47,7 @@ export class ContentCommentsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Comments fetched successfully",
-        [Locale.Vi]: "Lấy bình luận thành công",
+        [Locale.Vi]: "Lấy bình luận thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

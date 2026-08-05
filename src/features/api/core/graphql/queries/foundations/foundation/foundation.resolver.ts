@@ -39,7 +39,7 @@ export class FoundationResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Foundation fetched successfully",
-        [Locale.Vi]: "Lấy tài nguyên nền tảng thành công",
+        [Locale.Vi]: "Lấy tài nguyên nền tảng thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

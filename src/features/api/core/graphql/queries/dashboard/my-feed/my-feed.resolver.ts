@@ -75,7 +75,7 @@ export class MyFeedResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Feed fetched successfully",
-        [Locale.Vi]: "Lấy bảng tin thành công",
+        [Locale.Vi]: "Lấy bảng tin thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

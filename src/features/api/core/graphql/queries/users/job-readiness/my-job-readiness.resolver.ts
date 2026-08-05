@@ -46,7 +46,7 @@ export class MyJobReadinessResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Job readiness fetched successfully",
-        [Locale.Vi]: "Lấy điểm sẵn sàng đi làm thành công",
+        [Locale.Vi]: "Lấy điểm sẵn sàng đi làm thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

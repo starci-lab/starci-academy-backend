@@ -65,7 +65,7 @@ export class BlogPostResolver {
     @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Blog post fetched successfully",
-        [Locale.Vi]: "Lấy bài viết thành công",
+        [Locale.Vi]: "Lấy bài viết thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

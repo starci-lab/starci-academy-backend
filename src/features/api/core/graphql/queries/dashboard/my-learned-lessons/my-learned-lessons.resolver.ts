@@ -55,7 +55,7 @@ export class MyLearnedLessonsResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Learned lessons fetched successfully",
-        [Locale.Vi]: "Lấy danh sách bài đã học thành công",
+        [Locale.Vi]: "Lấy danh sách bài đã học thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

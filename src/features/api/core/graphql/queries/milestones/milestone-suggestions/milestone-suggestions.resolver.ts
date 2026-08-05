@@ -44,7 +44,7 @@ export class MilestoneSuggestionsResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.Vi]: "Lấy gợi ý cột mốc thành công",
+        [Locale.Vi]: "Lấy gợi ý cột mốc thành công", // vn-ok: vi-locale string emitted to clients
         [Locale.En]: "Milestone suggestions fetched successfully",
     })
     @Query(

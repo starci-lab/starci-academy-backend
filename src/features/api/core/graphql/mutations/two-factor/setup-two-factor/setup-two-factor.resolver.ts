@@ -59,7 +59,7 @@ export class SetupTwoFactorResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Two-factor setup started",
-        [Locale.Vi]: "Đã bắt đầu thiết lập xác thực hai lớp",
+        [Locale.Vi]: "Đã bắt đầu thiết lập xác thực hai lớp", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

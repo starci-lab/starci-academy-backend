@@ -58,7 +58,7 @@ export class SyncSubmissionResolver {
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Submissions synced successfully",
-        [Locale.Vi]: "Đồng bộ bài nộp thành công",
+        [Locale.Vi]: "Đồng bộ bài nộp thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,

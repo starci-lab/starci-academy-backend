@@ -54,7 +54,7 @@ export class UnpinProjectResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Project unpinned successfully",
-        [Locale.Vi]: "Bỏ ghim dự án thành công",
+        [Locale.Vi]: "Bỏ ghim dự án thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
