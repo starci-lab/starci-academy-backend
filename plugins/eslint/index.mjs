@@ -813,6 +813,9 @@ const noNonGlobalModuleImport = {
         schema: [],
         messages: {
             cross: "`{{name}}` is an in-repo module from another capability (`{{from}}` -> `{{to}}`). Register it globally at the app composition root (`apps/*/src/**`) instead of importing it here (no-non-global-module-import, naming-and-structure §8).",
+            crossEmpty: "`{{name}}` is an in-repo module from another capability (`{{from}}` -> `{{to}}`) and its `{{method}}()` carries no configuration, so it is a plain import wearing a call. Register it globally at the app composition root (`apps/*/src/**`) (no-non-global-module-import, naming-and-structure §8).",
+            crossGlobalOnly: "`{{name}}` is an in-repo module from another capability (`{{from}}` -> `{{to}}`) and its `{{method}}()` sets only `isGlobal` -- a feature declaring app-wide visibility on the app's behalf. Move that registration to `apps/*/src/**` (no-non-global-module-import, naming-and-structure §8).",
+            crossConfigAndGlobal: "`{{name}}` is configured for THIS module (`{{method}}()`) yet also marked `isGlobal: true` -- the two contradict. Keep the per-instance options and drop `isGlobal`, or move the whole registration to `apps/*/src/**` (no-non-global-module-import, naming-and-structure §8).",
         },
     },
     create(context) {
@@ -833,7 +836,8 @@ const noNonGlobalModuleImport = {
             }
         }
 
-        function reportIfForeign(idNode) {
+        function reportIfForeign(idNode, messageId = "cross", extra = {
+        }) {
             if (!idNode || idNode.type !== "Identifier") return
             const source = importSourceByLocal.get(idNode.name)
             if (source === undefined) return
@@ -843,13 +847,53 @@ const noNonGlobalModuleImport = {
             if (!otherCapability || otherCapability === selfCapability) return
             context.report({
                 node: idNode,
-                messageId: "cross",
+                messageId,
                 data: {
                     name: idNode.name,
                     from: selfCapability,
                     to: otherCapability,
+                    ...extra,
                 },
             })
+        }
+
+        /**
+         * Classify the options object a dynamic-module registration was given.
+         *
+         * The distinction §8 turns on is whether the call carries configuration
+         * that a single global registration could not express -- `type:
+         * "monolithic"` for an Apollo server, `instanceKeys: [Cache]` for an
+         * ioredis connection. Those legitimately belong to ONE module and are
+         * allowed to stay local. What is not allowed is a call that configures
+         * nothing (a plain import wearing parentheses) or that only sets
+         * `isGlobal`, which is a feature deciding app-wide visibility on the
+         * app's behalf.
+         *
+         * Classified by CONTENT, never by key name: an allow-list of names like
+         * `instanceKey` would punish a module that spells its option
+         * differently, and this rule already refuses name-based reasoning for
+         * third-party detection.
+         */
+        function classifyRegistration(call) {
+            const options = call.arguments.find((arg) => arg.type === "ObjectExpression")
+            if (!options) return "empty"
+
+            const isGlobal = propertyNamed(options, "isGlobal")
+            const declaresGlobal = isGlobal !== null
+                && isGlobal.type === "Literal"
+                && isGlobal.value === true
+            const configuring = options.properties.some((prop) => {
+                if (prop.type === "SpreadElement") return true
+                if (prop.computed) return true
+                const key = prop.key
+                const name = key.type === "Identifier" ? key.name
+                    : key.type === "Literal" ? key.value
+                        : null
+                return name !== "isGlobal"
+            })
+
+            if (!configuring) return declaresGlobal ? "globalOnly" : "empty"
+            return declaresGlobal ? "configAndGlobal" : "configured"
         }
 
         function checkCall(call) {
@@ -863,7 +907,19 @@ const noNonGlobalModuleImport = {
                 return
             }
             if (call.callee.type === "MemberExpression" && !call.callee.computed) {
-                reportIfForeign(call.callee.object)
+                const method = call.callee.property.type === "Identifier"
+                    ? call.callee.property.name
+                    : "register"
+                const verdict = classifyRegistration(call)
+                if (verdict === "configured") return
+                const messageId = verdict === "globalOnly" ? "crossGlobalOnly"
+                    : verdict === "configAndGlobal" ? "crossConfigAndGlobal"
+                        : "crossEmpty"
+                reportIfForeign(call.callee.object,
+                    messageId,
+                    {
+                        method,
+                    })
             }
         }
 
