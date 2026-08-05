@@ -589,42 +589,55 @@ const noSelfModuleAlias = {
     create(context) {
         const filename = (context.filename || context.getFilename()).replace(/\\/g, "/")
 
-        function selfKeys() {
+        function selfAlias() {
             const modulesIdx = filename.lastIndexOf("/src/modules/")
             if (modulesIdx !== -1) {
                 const parts = filename.slice(modulesIdx + "/src/modules/".length).split("/")
                 if (MODULES_META_ROOTS.has(parts[0]) && parts.length >= 2) {
-                    return [
-                        `${parts[0]}/${parts[1]}`,
-                        parts[1],
-                    ]
+                    return {
+                        prefix: "@modules/",
+                        keys: [
+                            `${parts[0]}/${parts[1]}`,
+                            parts[1],
+                        ],
+                    }
                 }
-                if (parts[0]) return [parts[0]]
+                if (parts[0]) {
+                    return {
+                        prefix: "@modules/",
+                        keys: [parts[0]],
+                    }
+                }
             }
             const featuresIdx = filename.lastIndexOf("/src/features/")
             if (featuresIdx !== -1) {
                 const name = filename.slice(featuresIdx + "/src/features/".length).split("/")[0]
-                return name ? [name] : []
+                return name
+                    ? {
+                        prefix: "@features/",
+                        keys: [name],
+                    }
+                    : null
             }
             const testsIdx = filename.lastIndexOf("/src/tests/")
             if (testsIdx !== -1) {
                 const name = filename.slice(testsIdx + "/src/tests/".length).split("/")[0]
-                return name ? [name] : []
+                return name
+                    ? {
+                        prefix: "@tests/",
+                        keys: [name],
+                    }
+                    : null
             }
-            return []
+            return null
         }
 
         function check(node, specifier) {
-            let prefix = null
-            if (specifier.startsWith("@modules/")) prefix = "@modules/"
-            else if (specifier.startsWith("@features/")) prefix = "@features/"
-            else if (specifier.startsWith("@tests/")) prefix = "@tests/"
-            else return
-            const rest = specifier.slice(prefix.length)
+            const self = selfAlias()
+            if (!self || !specifier.startsWith(self.prefix)) return
+            const rest = specifier.slice(self.prefix.length)
             if (!rest) return
-            const keys = selfKeys()
-            if (keys.length === 0) return
-            const hit = keys.some((key) => rest === key || rest.startsWith(`${key}/`))
+            const hit = self.keys.some((key) => rest === key || rest.startsWith(`${key}/`))
             if (!hit) return
             context.report({
                 node,
