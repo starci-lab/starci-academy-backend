@@ -2,9 +2,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    HealthModule,
-} from "@modules/platform/health/health.module"
-import {
     ConfigurableModuleClass,
 } from "./system-health-status.module-definition"
 import {
@@ -12,17 +9,13 @@ import {
 } from "./system-health-status.resolver"
 
 @Module({
-    imports: [
-        HealthModule.register({
-            isGlobal: true,
-        }),
-    ],
     providers: [
         SystemHealthStatusResolver,
     ],
 })
 /**
- * Feature-module boundary for the public `systemHealthStatus` query -- imports
- * `HealthModule` and wires its resolver.
+ * Feature-module boundary for the public `systemHealthStatus` query -- wires its
+ * resolver. `SystemHealthService` arrives from the global `HealthModule`
+ * registration at the app root (naming-and-structure §8).
  */
 export class SystemHealthStatusSingleQueryModule extends ConfigurableModuleClass {}

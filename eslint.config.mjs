@@ -140,22 +140,21 @@ export default defineConfig([
         // counted those aggregators; this rule does not.
         files: ["src/features/**/*.module.ts"],
         rules: {
-            // naming-and-structure §8 · nợ=3 → warn.
+            // naming-and-structure §8 · nợ=0 → error.
             //
-            // 13 were burned down: every one was already registered `isGlobal: true` at
-            // apps/core, the only app composing @features/api and @features/socketio.
-            // A 14th (ApolloServerModule) stopped being a violation when the rule learned
-            // to allow a registration that carries real per-instance configuration --
-            // `type: Monolithic` cannot be expressed by one global registration.
+            // Burned down from 17. Thirteen were already registered `isGlobal: true` at
+            // apps/core -- the only app composing @features/api and @features/socketio --
+            // so removing the local import changed nothing at runtime. A fourteenth
+            // (ApolloServerModule) stopped being a violation when the rule learned to
+            // allow a registration carrying real per-instance configuration: `type:
+            // Monolithic` cannot be expressed by one global registration.
             //
-            // The 3 left are NOT registered globally in any app, so each needs a
-            // registration decision at an app root before it can be un-imported:
-            //   HealthModule   -- register({ isGlobal: true }) from inside a feature
-            //   Judge0Module   -- register({}) carrying nothing
-            //   JobsModule     -- bare identifier
-            // Deleting one without adding the global registration compiles clean and
-            // fails at runtime, which is the hazard §8 exists to name.
-            "starci-be/no-non-global-module-import": "warn",
+            // The last three each needed a decision rather than a deletion:
+            //   JobsModule    -- redundant; the global BussinessModule already imports
+            //                    AND exports JobsModule.register(options)
+            //   HealthModule  -- moved to the app root, which is what its own doc
+            //   Judge0Module     already prescribed ("Register with isGlobal: true")
+            "starci-be/no-non-global-module-import": "error",
         },
     },
     {

@@ -102,6 +102,12 @@ import {
     TotpModule,
 } from "@modules/integrations/totp/totp.module"
 import {
+    Judge0Module,
+} from "@modules/integrations/judge0/judge0.module"
+import {
+    HealthModule,
+} from "@modules/platform/health/health.module"
+import {
     SepayModule,
 } from "@modules/integrations/sepay/sepay.module"
 import {
@@ -307,6 +313,27 @@ import {
             ),
             /** TOTP (two-factor) module. */
             TotpModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /**
+             * Judge0 sandbox. Global because the judging processor is the only
+             * consumer today, but nothing about `Judge0Service` is per-feature --
+             * the module's own doc already prescribes this registration
+             * (naming-and-structure §8).
+             */
+            Judge0Module.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /**
+             * System health. Global so any feature can read it -- which is what
+             * the module's own doc says, and what the public health-status query
+             * was doing by registering it from inside a feature.
+             */
+            HealthModule.register(
                 {
                     isGlobal: true,
                 }

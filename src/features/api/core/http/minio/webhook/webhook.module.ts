@@ -1,7 +1,4 @@
 import {
-    JobsModule,
-} from "@modules/bussiness/jobs/jobs.module"
-import {
     Module,
 } from "@nestjs/common"
 import {
@@ -18,9 +15,6 @@ import {
 } from "./webhook.module-definition"
 
 @Module({
-    imports: [
-        JobsModule,
-    ],
     controllers: [
         MinioWebhookController,
     ],
