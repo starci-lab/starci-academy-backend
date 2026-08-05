@@ -97,7 +97,8 @@ export class SubcribeJobNotificationGateway implements OnModuleInit {
                         data: {
                             jobId: payload.jobId,
                             challengeSubmissionId: payload.challengeSubmissionId,
-                            category: payload.category,
+                            // the event payload carries null for a job row with no category; the socket message omits it instead
+                            category: payload.category ?? undefined,
                             status: payload.status,
                             error: payload.error,
                         },

@@ -124,6 +124,30 @@ export interface EntityManagerMock {
 }
 
 /**
+ * Widen an {@link EntityManagerMock} to the `EntityManager` a production
+ * signature asks for.
+ *
+ * {@link EntityManagerMock} deliberately declares only the handful of methods
+ * the suites actually program, so it does NOT structurally satisfy TypeORM's
+ * `EntityManager` -- pass one straight into a typed parameter and `tsc` is right
+ * to reject it. This is the single, named place that widening happens: canon
+ * type-safety §6 sanctions `as unknown as` for spec mocks, and keeping it behind
+ * one function leaves the mock's own declared type honest about the subset it
+ * really implements.
+ *
+ * @param mock - the mock to widen
+ * @returns the same object, typed as an `EntityManager`
+ *
+ * @example
+ * await service.markUsed({
+ *     entityManager: asEntityManager(entityManager),
+ *     transactionId,
+ * })
+ */
+export const asEntityManager = (mock: EntityManagerMock): EntityManager =>
+    mock as unknown as EntityManager
+
+/**
  * Build a fresh {@link QueryBuilderMock} with every chainable method wired to
  * return the builder and the terminals resolving empty.
  *
@@ -240,7 +264,7 @@ export const makeEntityManagerMock = (): EntityManagerMock => {
     // under test executes exactly as it would, minus the real BEGIN/COMMIT
     entityManager.transaction = jest.fn(
         (callback: (manager: EntityManager) => Promise<unknown>) =>
-            callback(entityManager as unknown as EntityManager),
+            callback(asEntityManager(entityManager)),
     )
 
     return entityManager

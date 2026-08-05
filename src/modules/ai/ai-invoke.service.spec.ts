@@ -3,6 +3,9 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
+    HumanMessage,
+} from "@langchain/core/messages"
+import {
     AiModelCategory,
 } from "@modules/databases/postgresql/primary/enums/ai-model-category"
 import {
@@ -30,9 +33,6 @@ import type {
 import {
     AiEntitlementService,
 } from "./ai-entitlement.service"
-import type {
-    StreamActionResult,
-} from "./types/ai-invoke"
 
 /**
  * Tests the lane-routing logic of {@link AiInvokeService.invoke} and
@@ -54,11 +54,10 @@ describe("AiInvokeService",
             Pick<AiEntitlementService, "resolveTierCategories" | "assertCanUsePaidModels">
         >
 
+        // real LangChain message instances -- `AiInvokeParams.messages` is
+        // `Array<BaseMessage>`, and a literal `{ role, content }` is not one.
         const messages = [
-            {
-                role: "user",
-                content: "hi",
-            },
+            new HumanMessage("hi"),
         ]
 
         // a rotator context whose `provider` matches no `buildClient` branch --
@@ -198,8 +197,15 @@ describe("AiInvokeService",
                         // this stays network-free.
                         useApiService.useApi.mockImplementationOnce(
                             async (
-                                params: UseApiParams<StreamActionResult>,
-                            ) => params.action(unsupportedProviderContext),
+                                params: UseApiParams<unknown>,
+                            ) => ({
+                                // the action throws before this wrapper is built --
+                                // the fields exist only to satisfy `UseApiResult`
+                                result: await params.action(unsupportedProviderContext),
+                                model: "some-model",
+                                provider: ModelProvider.OpenAI,
+                                attempts: 1,
+                            }),
                         )
 
                         await expect(
@@ -275,8 +281,15 @@ describe("AiInvokeService",
                         // the stream ever touches the underlying LangChain client.
                         useApiService.useApi.mockImplementationOnce(
                             async (
-                                params: UseApiParams<StreamActionResult>,
-                            ) => params.action(unsupportedProviderContext),
+                                params: UseApiParams<unknown>,
+                            ) => ({
+                                // the action throws before this wrapper is built --
+                                // the fields exist only to satisfy `UseApiResult`
+                                result: await params.action(unsupportedProviderContext),
+                                model: "some-model",
+                                provider: ModelProvider.OpenAI,
+                                attempts: 1,
+                            }),
                         )
 
                         await expect(

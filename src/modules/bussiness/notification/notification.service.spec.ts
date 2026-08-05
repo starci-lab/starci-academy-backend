@@ -24,6 +24,7 @@ import {
     NotificationNotFoundException,
 } from "@modules/platform/exceptions/errors/notification/notification"
 import {
+    asEntityManager,
     makeEntityManagerMock,
 } from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
@@ -165,7 +166,7 @@ describe("NotificationService",
                         txManager.save.mockResolvedValueOnce(saved)
 
                         await service.createNotification({
-                            entityManager: txManager,
+                            entityManager: asEntityManager(txManager),
                             userId,
                             type: NotificationType.CommentReply,
                             title: {

@@ -24,6 +24,7 @@ import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
 import {
+    asEntityManager,
     makeEntityManagerMock,
 } from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
@@ -146,7 +147,7 @@ describe("VoucherService",
                         queryBuilder.getOne.mockResolvedValueOnce(voucher)
 
                         const result = await service.reserve({
-                            entityManager,
+                            entityManager: asEntityManager(entityManager),
                             userId,
                             code,
                             courseId,
@@ -171,7 +172,7 @@ describe("VoucherService",
 
                         await expect(
                             service.reserve({
-                                entityManager,
+                                entityManager: asEntityManager(entityManager),
                                 userId,
                                 code,
                                 courseId,
@@ -195,7 +196,7 @@ describe("VoucherService",
 
                         await expect(
                             service.reserve({
-                                entityManager,
+                                entityManager: asEntityManager(entityManager),
                                 userId,
                                 code,
                                 courseId,
@@ -219,7 +220,7 @@ describe("VoucherService",
 
                         await expect(
                             service.reserve({
-                                entityManager,
+                                entityManager: asEntityManager(entityManager),
                                 userId,
                                 code,
                                 courseId,
@@ -243,7 +244,7 @@ describe("VoucherService",
 
                         await expect(
                             service.reserve({
-                                entityManager,
+                                entityManager: asEntityManager(entityManager),
                                 userId,
                                 code,
                                 courseId,
@@ -267,7 +268,7 @@ describe("VoucherService",
 
                         await expect(
                             service.reserve({
-                                entityManager,
+                                entityManager: asEntityManager(entityManager),
                                 userId,
                                 code,
                                 courseId,
@@ -292,7 +293,7 @@ describe("VoucherService",
                         entityManager.findOne.mockResolvedValueOnce(voucher)
 
                         await service.markUsed({
-                            entityManager,
+                            entityManager: asEntityManager(entityManager),
                             transactionId,
                         })
 
@@ -318,7 +319,7 @@ describe("VoucherService",
                         entityManager.findOne.mockResolvedValueOnce(null)
 
                         await service.markUsed({
-                            entityManager,
+                            entityManager: asEntityManager(entityManager),
                             transactionId,
                         })
 
@@ -337,7 +338,7 @@ describe("VoucherService",
                         entityManager.findOne.mockResolvedValueOnce(voucher)
 
                         await service.release({
-                            entityManager,
+                            entityManager: asEntityManager(entityManager),
                             transactionId,
                         })
 
@@ -354,7 +355,7 @@ describe("VoucherService",
                         entityManager.findOne.mockResolvedValueOnce(null)
 
                         await service.release({
-                            entityManager,
+                            entityManager: asEntityManager(entityManager),
                             transactionId,
                         })
 

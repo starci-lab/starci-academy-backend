@@ -15,6 +15,9 @@ import {
 import {
     ScalableBloomFilter,
 } from "bloom-filters"
+import type {
+    SetParams,
+} from "@modules/integrations/cache/types/cache"
 
 describe("EmailBloomFilterService",
     () => {
@@ -123,7 +126,10 @@ describe("EmailBloomFilterService",
                                 },
                             })
                         // ...then add() persists it again with the email present
-                        const secondCall = cacheService.set.mock.calls[1][0]
+                        // jest.Mocked erases set()'s `K extends CacheKey` generic, so the
+                        // recorded cacheResult widens to every key's payload; this service
+                        // only ever writes CacheKey.BloomFilter
+                        const secondCall = cacheService.set.mock.calls[1][0] as SetParams<CacheKey.BloomFilter>
                         expect(secondCall.cacheResult.scalableBloomFilter.has(email)).toBe(true)
                         expect(cacheService.set).toHaveBeenCalledTimes(2)
                     })
@@ -171,7 +177,8 @@ describe("EmailBloomFilterService",
 
                         // loadOrCreate's write, then addMultiple's write
                         expect(cacheService.set).toHaveBeenCalledTimes(2)
-                        const finalCall = cacheService.set.mock.calls[1][0]
+                        // same generic erasure as above -- narrow back to the bloom-filter key
+                        const finalCall = cacheService.set.mock.calls[1][0] as SetParams<CacheKey.BloomFilter>
                         expect(finalCall.cacheResult.scalableBloomFilter.has("a@example.com")).toBe(true)
                         expect(finalCall.cacheResult.scalableBloomFilter.has("b@example.com")).toBe(true)
                     })

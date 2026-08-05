@@ -9,7 +9,9 @@ import {
     join,
 } from "path"
 import request from "supertest"
-import Stripe from "stripe"
+import type {
+    Stripe,
+} from "stripe"
 import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
@@ -57,6 +59,18 @@ const POSTGRESQL_PRIMARY = "primary"
 const WEBHOOK_URL = "/v1/stripe/webhook"
 
 /**
+ * The verified webhook event union the SDK hands back. The v22 SDK no longer
+ * exposes a `Stripe.Event` namespace type through the CommonJS entry point, so
+ * the union is read off the client method that produces it.
+ */
+type StripeEvent = ReturnType<Stripe["webhooks"]["constructEvent"]>
+
+/** The Checkout Session carried by a `checkout.session.completed` event. */
+type StripeCheckoutSession = Extract<StripeEvent, {
+    type: "checkout.session.completed"
+}>["data"]["object"]
+
+/**
  * Craft a minimal `checkout.session.completed` Stripe event whose session
  * echoes our `referenceId` back via `client_reference_id`. The injected Stripe
  * mock returns this object from `constructEvent`, so its exact bytes do not need
@@ -64,7 +78,7 @@ const WEBHOOK_URL = "/v1/stripe/webhook"
  */
 const completedEvent = (
     referenceId: string | null,
-): Stripe.Event => ({
+): StripeEvent => ({
     id: "evt_test",
     object: "event",
     type: "checkout.session.completed",
@@ -79,9 +93,9 @@ const completedEvent = (
             // this the handler silently no-ops (logs + returns) on every case
             // below, so nothing ever gets granted.
             payment_status: "paid",
-        } as Stripe.Checkout.Session,
+        } as StripeCheckoutSession,
     },
-} as unknown as Stripe.Event)
+} as unknown as StripeEvent)
 
 describe("Stripe webhook (e2e)",
     () => {

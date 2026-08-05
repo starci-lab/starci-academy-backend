@@ -67,7 +67,9 @@ import {
 import {
     InjectStripe,
 } from "@modules/integrations/stripe/stripe.providers"
-import Stripe from "stripe"
+import type {
+    Stripe,
+} from "stripe"
 import {
     PaypalClient,
 } from "@modules/integrations/paypal/paypal.client"

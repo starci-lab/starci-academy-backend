@@ -66,7 +66,8 @@ export class LivestreamSessionsHandler
                     sorts,
                 },
             },
-            locale,
+            // the transport leaves locale unset for locale-agnostic callers; English is the base locale
+            locale = Locale.En,
         } = query.params
 
         const order: FindOptionsOrder<LivestreamSessionEntity> = {

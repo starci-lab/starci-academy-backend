@@ -16,7 +16,9 @@ import {
 import {
     InjectStripe,
 } from "@modules/integrations/stripe/stripe.providers"
-import Stripe from "stripe"
+import type {
+    Stripe,
+} from "stripe"
 import {
     InjectSepay,
 } from "@modules/integrations/sepay/sepay.providers"

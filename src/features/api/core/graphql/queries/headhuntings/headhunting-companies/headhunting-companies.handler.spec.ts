@@ -101,8 +101,8 @@ describe("HeadhuntingCompaniesHandler",
 
                 const result = await handler.execute(
                     new HeadhunterCompaniesQuery({
-                        request: {
-                        },
+                        // the query carries no request payload (ExecuteParams<void>)
+                        request: undefined,
                         locale: Locale.Vi,
                     }),
                 )
@@ -129,8 +129,7 @@ describe("HeadhuntingCompaniesHandler",
 
                 const result = await handler.execute(
                     new HeadhunterCompaniesQuery({
-                        request: {
-                        },
+                        request: undefined,
                     }),
                 )
 

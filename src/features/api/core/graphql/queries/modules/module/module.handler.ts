@@ -5,6 +5,9 @@ import {
     ModuleEntity,
 } from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
@@ -47,7 +50,8 @@ export class ModuleHandler
     protected override async process(query: ModuleQuery): Promise<ModuleEntity> {
         const {
             request,
-            locale,
+            // the transport leaves locale unset for locale-agnostic callers; English is the base locale
+            locale = Locale.En,
         } = query.params
         const {
             id,

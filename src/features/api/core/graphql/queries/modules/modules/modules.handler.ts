@@ -76,13 +76,15 @@ export class ModulesHandler
             ],
             size: 1000,
         })
-        const data = response.hits.hits.map((hit) => {
-            const module = hit._source as ModuleEntity
-            return {
-                ...module,
-                contents: module.contents ?? [],
-            }
-        })
+        const data = response.hits.hits
+            .map((hit) => hit._source)
+            // a hit without a stored source cannot be rendered -- drop it rather than emit a hole
+            .filter((module): module is ModuleEntity => module !== undefined)
+            .map((module) => {
+                // the index omits an empty nested array; the GraphQL field is non-null
+                module.contents = module.contents ?? []
+                return module
+            })
 
         return {
             data,

@@ -22,6 +22,9 @@ import {
     SortOrder,
 } from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
+    ContentsSortBy,
+} from "./graphql-types/request"
+import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -140,7 +143,7 @@ describe("ContentsHandler",
                                 pageNumber: 2,
                                 sorts: [
                                     {
-                                        by: "createdAt",
+                                        by: ContentsSortBy.CreatedAt,
                                         order: SortOrder.Asc,
                                     },
                                 ],

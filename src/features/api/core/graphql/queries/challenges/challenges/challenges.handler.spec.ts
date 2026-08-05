@@ -19,6 +19,9 @@ import {
     SortOrder,
 } from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
+    ChallengesSortBy,
+} from "./graphql-types/request"
+import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import type {
@@ -98,7 +101,7 @@ describe("ChallengesHandler",
                                 pageNumber: 2,
                                 sorts: [
                                     {
-                                        by: "createdAt",
+                                        by: ChallengesSortBy.CreatedAt,
                                         order: SortOrder.Desc,
                                     },
                                 ],

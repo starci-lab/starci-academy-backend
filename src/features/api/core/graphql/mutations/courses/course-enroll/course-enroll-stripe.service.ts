@@ -34,7 +34,9 @@ import {
 import {
     Injectable,
 } from "@nestjs/common"
-import Stripe from "stripe"
+import type {
+    Stripe,
+} from "stripe"
 import type {
     EntityManager,
 } from "typeorm"

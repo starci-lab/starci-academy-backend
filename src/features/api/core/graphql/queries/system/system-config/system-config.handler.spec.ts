@@ -74,8 +74,8 @@ describe("SystemConfigHandler",
             async () => {
                 const result = await handler.execute(
                     new SystemConfigQuery({
-                        request: {
-                        },
+                        // the query carries no request payload (ExecuteParams<undefined>)
+                        request: undefined,
                     }),
                 )
 

@@ -8,6 +8,7 @@ import {
     ActivityType,
 } from "@modules/databases/postgresql/primary/enums/activity-type"
 import {
+    asEntityManager,
     makeEntityManagerMock,
 } from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
@@ -41,7 +42,7 @@ describe("writeActivity",
                 }
 
                 await writeActivity({
-                    entityManager,
+                    entityManager: asEntityManager(entityManager),
                     userId,
                     type: ActivityType.LessonRead,
                     idempotencyKey,
@@ -84,7 +85,7 @@ describe("writeActivity",
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 await writeActivity({
-                    entityManager,
+                    entityManager: asEntityManager(entityManager),
                     userId,
                     type: ActivityType.UserFollowed,
                     idempotencyKey,
@@ -106,7 +107,7 @@ describe("writeActivity",
                 })
 
                 await writeActivity({
-                    entityManager,
+                    entityManager: asEntityManager(entityManager),
                     userId,
                     type: ActivityType.ChallengePassed,
                     idempotencyKey,
@@ -128,7 +129,7 @@ describe("writeActivity",
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 await writeActivity({
-                    entityManager,
+                    entityManager: asEntityManager(entityManager),
                     userId,
                     type: ActivityType.CodingSolved,
                     idempotencyKey,

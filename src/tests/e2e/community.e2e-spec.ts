@@ -837,7 +837,7 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
                         const user = await seedUser("kc-quota-deleted-still-counts",
                             "quota-deleted-still-counts")
 
-                        const posts = []
+                        const posts: Array<CommunityPostEntity> = []
                         for (let i = 0; i < NON_MEMBER_POST_LIMIT; i += 1) {
                             posts.push(await communityPostService.createPost({
                                 user,

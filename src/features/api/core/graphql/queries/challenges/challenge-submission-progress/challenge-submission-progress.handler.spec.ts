@@ -30,6 +30,12 @@ import type {
 import type {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
+import type {
+    ChallengeSubmissionProgressCacheResult,
+} from "@modules/integrations/cache/types/cache-results/challenge-submission-progress"
+import {
+    ChallengeProgressStatus,
+} from "@modules/integrations/cache/types/cache-results/challenge-submission-progress"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -119,19 +125,22 @@ describe("ChallengeSubmissionProgressHandler",
 
         it("delegates to the progress service with the resolved enrollment id",
             async () => {
-                const progress = {
+                const progress: ChallengeSubmissionProgressCacheResult = {
                     completionTasks: [
                         {
-                            challengeId: "ch-1",
+                            id: "ch-1",
+                            lastScore: 10,
+                            maxScore: 10,
+                            completed: true,
+                            status: ChallengeProgressStatus.Completed,
+                            numAttempts: 1,
                         },
                     ],
                 }
                 entityManager.findOne.mockResolvedValueOnce({
                     id: "enroll-1",
                 })
-                challengeProgressService.getProgress.mockResolvedValueOnce(
-                    progress as Awaited<ReturnType<ChallengeProgressService["getProgress"]>>,
-                )
+                challengeProgressService.getProgress.mockResolvedValueOnce(progress)
 
                 const result = await handler.execute(
                     new ChallengeSubmissionProgressQuery({

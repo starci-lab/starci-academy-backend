@@ -11,6 +11,9 @@ import {
 import {
     ContentCommentEntity,
 } from "@modules/databases/postgresql/primary/entities/content-comment.entity"
+import type {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CommentForbiddenException,
     CommentNotFoundException,
@@ -72,9 +75,10 @@ describe("CommentService",
 
         const contentId = "content-1"
         const commentId = "comment-1"
+        // minimal author stand-in -- the service only ever reads `user.id`
         const author = {
             id: "user-1",
-        }
+        } as unknown as UserEntity
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults

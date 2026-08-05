@@ -20,6 +20,9 @@ import {
 import {
     AiModelCategory,
 } from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 describe("AiModelsHandler",
     () => {
@@ -161,8 +164,8 @@ describe("AiModelsHandler",
                 ] as unknown as Awaited<ReturnType<AiModelCatalogService["enabledModels"]>>)
                 // both providers have a healthy key for this case
                 useApiService.availableProviders.mockResolvedValueOnce(
-                    new Set(["openrouter",
-                        "openai"]),
+                    new Set([ModelProvider.OpenRouter,
+                        ModelProvider.OpenAI]),
                 )
 
                 const result = await handler.execute()

@@ -75,7 +75,9 @@ import {
     CommandHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
-import Stripe from "stripe"
+import type {
+    Stripe,
+} from "stripe"
 import type {
     EntityManager,
 } from "typeorm"
@@ -143,8 +145,10 @@ export class StripeWebhookHandler
             return
         }
 
-        // the session echoes our reference id back via client_reference_id
-        const session = event.data.object as Stripe.Checkout.Session
+        // the guard above narrowed the event union to `checkout.session.completed`,
+        // so `data.object` is already the Checkout Session -- no cast needed. the
+        // session echoes our reference id back via client_reference_id
+        const session = event.data.object
 
         // `checkout.session.completed` can fire for an async payment method whose
         // funds have NOT cleared yet -- only a `paid` session means money is in

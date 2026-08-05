@@ -59,18 +59,9 @@ import {
 } from "./graphql-types/response"
 import type {
     BuildSystemPromptParams,
+    CapstoneGroundingRow,
     LoadCapstoneGroundingParams,
 } from "./types/rewrite-cv-block"
-
-/** Real StarCi capstone grounding pulled from Postgres for an accurate rewrite. */
-interface CapstoneGroundingRow {
-    task_title: string
-    task_description: string | null
-    milestone_title: string
-    course_title: string
-    score: number
-    short_feedback: string | null
-}
 
 @CommandHandler(RewriteCvBlockCommand)
 @Injectable()
