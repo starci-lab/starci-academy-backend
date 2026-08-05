@@ -1,4 +1,7 @@
 import type {
+    EntityManager,
+} from "typeorm"
+import type {
     AiCeilSurface,
     AiModelCategory,
     AiModelTask,
@@ -144,4 +147,42 @@ export interface EntitlementHistoryPage {
     items: Array<EntitlementHistoryItem>
     /** Total number of charge rows for the user (across all pages). */
     total: number
+}
+
+/** Params for {@link AiEntitlementService.grantBonusCredit}. */
+export interface GrantBonusCreditParams {
+    /** Owner of the entitlement. */
+    userId: string
+    /** Bonus credit to add to the 5h window. */
+    amount5h: number
+    /** Bonus credit to add to the weekly window. */
+    amountWeek: number
+    /** Share the caller's transaction (e.g. the reward-redemption txn). */
+    entityManager: EntityManager
+}
+
+/** Result of {@link AiEntitlementService.grantBonusCredit}. */
+export interface GrantBonusCreditResult {
+    /** Post-grant bonus credit in the 5h window. */
+    bonusCredit5h: number
+    /** Post-grant bonus credit in the weekly window. */
+    bonusCreditWeek: number
+}
+
+/** Params for {@link AiEntitlementService.resolveCeil}. */
+export interface ResolveCeilParams {
+    /** Owner of the ceiling overrides. */
+    userId: string
+    /** Surface to resolve the ceiling for; omit for just the global default. */
+    surface?: AiCeilSurface
+}
+
+/** Params for {@link AiEntitlementService.setCeil}. */
+export interface SetCeilParams {
+    /** Owner of the ceiling overrides. */
+    userId: string
+    /** Surface to set the ceiling for; omit for the global default. */
+    surface?: AiCeilSurface | null
+    /** Ceiling category to set; null clears the override. */
+    category?: AiModelCategory | null
 }

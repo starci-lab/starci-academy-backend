@@ -5,7 +5,6 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
-    AiCeilSurface,
     AiModelCategory,
     AiSubStatus,
     AiSubscriptionEntity,
@@ -46,8 +45,12 @@ import type {
     ConsumeEntitlementParams,
     EntitlementHistoryPage,
     EntitlementHistoryParams,
+    GrantBonusCreditParams,
+    GrantBonusCreditResult,
     GrantTierParams,
+    ResolveCeilParams,
     ResolveEntitlementParams,
+    SetCeilParams,
 } from "./types"
 
 /**
@@ -625,14 +628,8 @@ export class AiEntitlementService {
             amount5h,
             amountWeek,
             entityManager,
-        }: {
-            userId: string
-            amount5h: number
-            amountWeek: number
-            /** Share the caller's transaction (e.g. the reward-redemption txn). */
-            entityManager: EntityManager
-        },
-    ): Promise<{ bonusCredit5h: number, bonusCreditWeek: number }> {
+        }: GrantBonusCreditParams,
+    ): Promise<GrantBonusCreditResult> {
         const subscription = await entityManager
             .createQueryBuilder(
                 AiSubscriptionEntity,
@@ -784,10 +781,7 @@ export class AiEntitlementService {
         {
             userId,
             surface,
-        }: {
-            userId: string
-            surface?: AiCeilSurface
-        },
+        }: ResolveCeilParams,
     ): Promise<AiModelCategory | null> {
         const subscription = await this.entityManager.findOne(
             AiSubscriptionEntity,
@@ -822,11 +816,7 @@ export class AiEntitlementService {
             userId,
             surface,
             category,
-        }: {
-            userId: string
-            surface?: AiCeilSurface | null
-            category?: AiModelCategory | null
-        },
+        }: SetCeilParams,
     ): Promise<AiQuotaSnapshot> {
         return this.entityManager.transaction(
             async (entityManager) => {
