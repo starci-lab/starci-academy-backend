@@ -38,6 +38,7 @@ import type {
 /** Max leaderboard rows returned for the weekly challenge. */
 const LEADERBOARD_LIMIT = 10
 
+@Injectable()
 /**
  * The weekly-challenge event. Deterministically picks ONE challenge for the
  * current ISO week (challenges ordered by id ASC, index = ISO-week-number % count)
@@ -48,7 +49,6 @@ const LEADERBOARD_LIMIT = 10
  * the one write path is {@link claimReward}, which grants a Coin bonus once per
  * ISO week to a viewer who passed.
  */
-@Injectable()
 export class WeeklyChallengeService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

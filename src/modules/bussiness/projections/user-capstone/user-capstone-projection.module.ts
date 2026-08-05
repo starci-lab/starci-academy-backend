@@ -11,11 +11,6 @@ import {
     UserCapstoneProjectionListener,
 } from "./user-capstone-projection.listener"
 
-/**
- * Leaf module for the per-user capstone-tasks projection (recompute service + CDC
- * listener on `user_milestone_task_attempts`). Exports the service so the profile
- * capstone read (and any inline write path) can use it.
- */
 @Module({
     providers: [
         UserCapstoneProjectionService,
@@ -25,5 +20,10 @@ import {
         UserCapstoneProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-user capstone-tasks projection (recompute service + CDC
+ * listener on `user_milestone_task_attempts`). Exports the service so the profile
+ * capstone read (and any inline write path) can use it.
+ */
 export class UserCapstoneProjectionModule extends ConfigurableModuleClass {
 }

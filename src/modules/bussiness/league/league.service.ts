@@ -33,6 +33,7 @@ import type {
     ShiftTierParams,
 } from "./types"
 
+@Injectable()
 /**
  * Business logic for the Duolingo-style GLOBAL weekly league.
  *
@@ -43,7 +44,6 @@ import type {
  * cron calls {@link runWeeklyReset} to promote the top 10 / demote the bottom 5
  * and re-bucket everyone into fresh cohorts for the new week.
  */
-@Injectable()
 export class LeagueService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

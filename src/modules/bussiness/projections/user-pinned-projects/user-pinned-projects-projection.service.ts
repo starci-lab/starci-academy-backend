@@ -18,6 +18,7 @@ import type {
     UserPinnedProjectValue,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS projection service for a user's pinned projects (the public-profile
  * "pinned projects" list). The join over `user_pinned_projects` LEFT JOINed with
@@ -27,7 +28,6 @@ import type {
  * reads the flat row with a TTL lazy-refresh and parses the jsonb into a typed,
  * ordered view that mirrors the old direct-join read exactly.
  */
-@Injectable()
 export class UserPinnedProjectsProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

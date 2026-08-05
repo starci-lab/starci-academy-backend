@@ -42,6 +42,7 @@ import type {
  */
 const RESUME_WINDOW_HOURS = 24
 
+@Injectable()
 /**
  * Business logic for the resumable flashcard reviewer ("Học thẻ") session —
  * mirrors {@link import("./flashcard-quiz-session.service").FlashcardQuizSessionService}'s
@@ -62,7 +63,6 @@ const RESUME_WINDOW_HOURS = 24
  * with `reviewFlashcard`'s own current behavior (no XP) instead of silently
  * introducing a parallel economy.
  */
-@Injectable()
 export class FlashcardReviewSessionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

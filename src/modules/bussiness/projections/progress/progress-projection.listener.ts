@@ -31,6 +31,7 @@ import type {
     UserMilestoneTaskAttemptCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * Kafka CDC consumer that keeps the `user_course_progress_projections`
  * read-model in sync with the source-of-truth tables.
@@ -44,7 +45,6 @@ import type {
  * best-effort boot, and the swallow-and-log per-message loop; this class only
  * declares its group, its topics, and how to derive/recompute one target.
  */
-@Injectable()
 export class ProgressProjectionListener extends AbstractProjectionListener<DerivedProgressTarget> {
     /** Stable groupId → restarts resume from the committed offset (no replay storm). */
     protected readonly groupId = "progress-projection"

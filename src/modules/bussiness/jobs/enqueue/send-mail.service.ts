@@ -33,12 +33,12 @@ import type {
     EnqueueSendMailParams,
 } from "../types"
 
+@Injectable()
 /**
  * Service for enqueuing a transactional email job onto the `send-mail`
  * BullMQ queue. The actual delivery happens in {@link SendMailWorker}
  * which relays through the Brevo SMTP gateway configured in env.
  */
-@Injectable()
 export class EnqueueSendMailJobService {
     constructor(
         private readonly jobActionService: JobActionService,

@@ -113,6 +113,7 @@ const MAX_CODE_STUFF_CHARS = 24000
  */
 const NON_SOURCE_CODE_FILE = /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$|\.lock$|\.min\.(?:js|css)$|\.map$/i
 
+@Injectable()
 /**
  * Shared content-AI tutoring logic: turns a `(content, question, history)` into
  * the grounded LangChain messages to send to the model.
@@ -122,7 +123,6 @@ const NON_SOURCE_CODE_FILE = /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock
  * place. NOTE: content AI is free-tier — there is intentionally NO AI-credit
  * gate here; callers invoke the free local model only.
  */
-@Injectable()
 export class ContentAiService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

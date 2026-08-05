@@ -28,6 +28,7 @@ import type {
 /** Default number of leaderboard entries when the caller gives none. */
 const DEFAULT_LEADERBOARD_LIMIT = 50
 
+@Injectable()
 /**
  * CQRS projection service for a user's coding-practice aggregate. The heavy
  * GROUP BYs over `coding_submissions` run ONLY in {@link recompute}, which folds
@@ -35,7 +36,6 @@ const DEFAULT_LEADERBOARD_LIMIT = 50
  * {@link getSkills} / {@link getHistory} read the flat row with a TTL lazy-refresh;
  * the CDC listener keeps it fresh on new submissions.
  */
-@Injectable()
 export class UserCodingProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

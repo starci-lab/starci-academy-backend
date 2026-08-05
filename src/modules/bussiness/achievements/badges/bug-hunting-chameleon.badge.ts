@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Coding-practice problems solved (an accepted submission). */
 @Injectable()
+/** Coding-practice problems solved (an accepted submission). */
 export class BugHuntingChameleonBadge extends AbstractBadge {
     readonly slug = "bug-hunting-chameleon"
 

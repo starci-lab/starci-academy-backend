@@ -35,6 +35,7 @@ import type {
     RecordInstallmentPaymentResult,
 } from "./types"
 
+@Injectable()
 /**
  * Owns installment-plan lifecycle: creating a plan at checkout (`Fixed`) or at
  * backfill time (`FlexiblePool`), computing each cycle's minimum payment, and
@@ -43,7 +44,6 @@ import type {
  * (the sweep) and this service (the immediate unlock-on-catch-up path) sharing
  * the same `lockedCourseIds` snapshot on the plan.
  */
-@Injectable()
 export class InstallmentPlanService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

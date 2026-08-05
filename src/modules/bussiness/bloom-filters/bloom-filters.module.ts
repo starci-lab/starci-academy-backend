@@ -8,9 +8,6 @@ import {
     EmailBloomFilterService,
 } from "./email.service"
 
-/**
- * The module for the bussiness logics.
- */
 @Module({
     providers: [
         EmailBloomFilterService,
@@ -19,5 +16,8 @@ import {
         EmailBloomFilterService,
     ],
 })
+/**
+ * The module for the bussiness logics.
+ */
 export class BloomFiltersModule extends ConfigurableModuleClass {
 }

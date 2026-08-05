@@ -32,6 +32,7 @@ const SOURCE_TABLES = [
     "user_leagues",
 ]
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_achievement_projections` honest. Rather than
  * recompute eagerly (the award pass is heavier than a per-row projection), it
@@ -40,7 +41,6 @@ const SOURCE_TABLES = [
  * for any missed event. Kafka plumbing + per-message safety are owned by
  * {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class AchievementProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "achievement-projection"

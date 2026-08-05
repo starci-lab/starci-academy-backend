@@ -33,6 +33,7 @@ import type {
     SendChatMessageParams,
 } from "./types"
 
+@Injectable()
 /**
  * Domain service for community chat: the single global community room + per-member
  * founder DM threads, plus message listing/sending. Chat is MEMBER-ONLY (active
@@ -40,7 +41,6 @@ import type {
  * member + the founder. Every sent message fans out a local event so the Socket.IO
  * gateway pushes it to the conversation's room.
  */
-@Injectable()
 export class ChatService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

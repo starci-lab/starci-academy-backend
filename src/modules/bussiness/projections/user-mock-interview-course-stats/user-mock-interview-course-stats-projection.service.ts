@@ -121,6 +121,7 @@ const EMPTY_RESULT: UserMockInterviewCourseStatsResult = {
     },
 }
 
+@Injectable()
 /**
  * CQRS projection service for a user's mock-interview COURSE stats — one row
  * per enrollment. The heavy attempts scan + fold (trend / mode split / two
@@ -133,7 +134,6 @@ const EMPTY_RESULT: UserMockInterviewCourseStatsResult = {
  * on every read (a bounded ≤50-row scan) — a violation of
  * `.claude/be/rules/cqrs-no-inline-aggregate.md` ("kể cả scale nhỏ").
  */
-@Injectable()
 export class UserMockInterviewCourseStatsProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

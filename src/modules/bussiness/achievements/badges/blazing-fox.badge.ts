@@ -5,11 +5,11 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
+@Injectable()
 /**
  * Current consecutive-day streak ending today/yesterday — gaps-and-islands
  * over the user's distinct XP-earning days.
  */
-@Injectable()
 export class BlazingFoxBadge extends AbstractBadge {
     readonly slug = "blazing-fox"
 

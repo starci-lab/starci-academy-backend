@@ -213,6 +213,7 @@ interface CourseTagCountRow {
     total: string
 }
 
+@Injectable()
 /**
  * CQRS projection service for a user's flashcard COURSE stats — shared by both
  * the quick-quiz and review recap surfaces. The heavy scan/fold over
@@ -226,7 +227,6 @@ interface CourseTagCountRow {
  * on every read (a bounded ≤50-row scan + GROUP BY) — a violation of
  * `.claude/be/rules/cqrs-no-inline-aggregate.md` ("kể cả scale nhỏ").
  */
-@Injectable()
 export class UserFlashcardCourseStatsProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

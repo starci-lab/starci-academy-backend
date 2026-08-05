@@ -21,12 +21,12 @@ import {
     JobNotFoundException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Manual, user-triggered requeue of a job. (Automatic stalled-job recovery is owned by
  * BullMQ — lock + `stalledInterval` + `maxStalledCount` — so the old Postgres `queueAt`
  * sweeper / `getStalledJobs` scan was removed.)
  */
-@Injectable()
 export class JobStalledService {
     constructor(
         private readonly dayjsService: DayjsService,

@@ -13,6 +13,7 @@ import type {
     RecordDeviceResult,
 } from "./types"
 
+@Injectable()
 /**
  * Records the devices a user authenticates / submits from, keyed by the
  * client-generated fingerprint. Used for audit and anti-cheat correlation
@@ -21,7 +22,6 @@ import type {
  * @example
  * await deviceService.recordDevice({ userId, fingerprint, ipAddress, userAgent })
  */
-@Injectable()
 export class DeviceService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

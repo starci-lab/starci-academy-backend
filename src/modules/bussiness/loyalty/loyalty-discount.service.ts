@@ -45,6 +45,7 @@ const BUNDLE_BONUS_PERCENT_TIER_3 = 10
  */
 const MAX_COMBINED_DISCOUNT_PERCENT = 40
 
+@Injectable()
 /**
  * Computes the discount applied to course checkouts, in two independent parts:
  *
@@ -61,7 +62,6 @@ const MAX_COMBINED_DISCOUNT_PERCENT = 40
  * {@link CoursePricingService}) and surfaced on the recommended-courses query, so
  * the charged price always matches what the buyer was shown.
  */
-@Injectable()
 export class LoyaltyDiscountService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

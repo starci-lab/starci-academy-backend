@@ -17,6 +17,7 @@ import {
     UserService,
 } from "../user"
 
+@Injectable()
 /**
  * The paid-only gate — enforces `is_enrolled = true` for the `x-course-id`
  * course before letting a resolver run. Backs capstone / milestone /
@@ -26,7 +27,6 @@ import {
  * cached authorization hot path); this guard adds only the header parsing and
  * the "no course id at all" rejection.
  */
-@Injectable()
 export class GraphQLMustEnrolledGuard implements CanActivate {
     constructor(
         private readonly userService: UserService,

@@ -8,11 +8,6 @@ import {
     WeeklyChallengeService,
 } from "./weekly-challenge.service"
 
-/**
- * Weekly-challenge business module: a single read-only service that picks the
- * current ISO week's challenge deterministically and reports who passed it this
- * week. Exports the service so the GraphQL `weeklyChallenge` leaf can read it.
- */
 @Module({
     providers: [
         WeeklyChallengeService,
@@ -21,5 +16,10 @@ import {
         WeeklyChallengeService,
     ],
 })
+/**
+ * Weekly-challenge business module: a single read-only service that picks the
+ * current ISO week's challenge deterministically and reports who passed it this
+ * week. Exports the service so the GraphQL `weeklyChallenge` leaf can read it.
+ */
 export class WeeklyChallengeModule extends ConfigurableModuleClass {
 }

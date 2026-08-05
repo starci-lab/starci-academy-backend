@@ -33,10 +33,10 @@ import type {
     EnqueueSyncCdnParams,
 } from "../types"
 
+@Injectable()
 /**
  * Enqueue a one-off job: sync a single entity to the CDN (see `CdnSynchronizer` runtime services).
  */
-@Injectable()
 export class EnqueueSyncCdnJobService {
     constructor(
         private readonly jobActionService: JobActionService,

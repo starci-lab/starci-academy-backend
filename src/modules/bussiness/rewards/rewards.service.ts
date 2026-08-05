@@ -44,6 +44,7 @@ import type {
     RewardWalletResult,
 } from "./types"
 
+@Injectable()
 /**
  * Reward-store (the Coin shop) business logic. The spendable balance is DERIVED as
  * `user.coin_balance - SUM(non-cancelled redemption cost)` so the Coin
@@ -52,7 +53,6 @@ import type {
  * rewards land `pending` for ops to fulfil; `voucher`/`aiCredit` rewards are
  * digital effects too (mint a checkout code / top up the AI credit window).
  */
-@Injectable()
 export class RewardsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

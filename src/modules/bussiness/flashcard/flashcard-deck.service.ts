@@ -36,13 +36,13 @@ import {
 /** SM-2 repetition count at/above which a card is considered "mastered". */
 const MASTERED_REPETITIONS = 2
 
+@Injectable()
 /**
  * Read access to seeded flashcard decks. Loads the full deck graph (cards →
  * translations) eagerly so GraphQL can serve it without per-field
  * resolvers. The single-deck read is served from Elasticsearch (the ES sync
  * builder embeds the same full graph); the by-course list stays on Postgres.
  */
-@Injectable()
 export class FlashcardDeckReadService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

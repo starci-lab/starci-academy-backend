@@ -28,6 +28,7 @@ import type {
     ProgressEnrollmentType,
 } from "./types"
 
+@Injectable()
 /**
  * Service for managing challenge submission progress.
  *
@@ -39,7 +40,6 @@ import type {
  * Redis `challenge.submission.progress` cache — the projection table IS the cache
  * now, and its `updated_at` timestamp drives staleness.
  */
-@Injectable()
 export class ChallengeProgressService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

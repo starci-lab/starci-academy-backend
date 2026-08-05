@@ -11,11 +11,6 @@ import {
     UserFlashcardStatsProjectionListener,
 } from "./user-flashcard-stats-projection.listener"
 
-/**
- * Leaf module for the per-user flashcard-stats projection (recompute service +
- * CDC listener on `flashcard_review_events`). Exports the service so the
- * `myFlashcardStats` read can use it.
- */
 @Module({
     providers: [
         UserFlashcardStatsProjectionService,
@@ -25,5 +20,10 @@ import {
         UserFlashcardStatsProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-user flashcard-stats projection (recompute service +
+ * CDC listener on `flashcard_review_events`). Exports the service so the
+ * `myFlashcardStats` read can use it.
+ */
 export class UserFlashcardStatsProjectionModule extends ConfigurableModuleClass {
 }

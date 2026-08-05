@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Distinct lessons read inside the DevOps Mastery course. */
 @Injectable()
+/** Distinct lessons read inside the DevOps Mastery course. */
 export class DevopsWolfBadge extends AbstractBadge {
     readonly slug = "devops-wolf"
 

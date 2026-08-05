@@ -8,13 +8,6 @@ import {
     DailyQuestService,
 } from "./daily-quest.service"
 
-/**
- * Daily-quest business module. Exports {@link DailyQuestService} so the GraphQL
- * `myDailyQuest` query + `claimDailyQuestReward` mutation can read today's quest
- * progress and claim the reward. The user / xp_histories / user_flashcard_reviews
- * / daily_quest_completions tables it reads are provided by the globally-registered
- * databases module.
- */
 @Module({
     providers: [
         DailyQuestService,
@@ -23,4 +16,11 @@ import {
         DailyQuestService,
     ],
 })
+/**
+ * Daily-quest business module. Exports {@link DailyQuestService} so the GraphQL
+ * `myDailyQuest` query + `claimDailyQuestReward` mutation can read today's quest
+ * progress and claim the reward. The user / xp_histories / user_flashcard_reviews
+ * / daily_quest_completions tables it reads are provided by the globally-registered
+ * databases module.
+ */
 export class DailyQuestModule extends ConfigurableModuleClass {}

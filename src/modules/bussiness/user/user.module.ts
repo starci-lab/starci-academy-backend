@@ -8,9 +8,6 @@ import {
     UserService,
 } from "./user.service"
 
-/**
- * The module for the bussiness logics.
- */
 @Module({
     providers: [
         UserService,
@@ -19,5 +16,8 @@ import {
         UserService,
     ],
 })
+/**
+ * The module for the bussiness logics.
+ */
 export class UserModule extends ConfigurableModuleClass {
 }

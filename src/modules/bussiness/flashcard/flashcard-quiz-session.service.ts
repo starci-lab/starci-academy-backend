@@ -58,6 +58,7 @@ const DAILY_CAP_TIMEZONE = "Asia/Ho_Chi_Minh"
 /** Upper bound on weak tags returned per session (top-N weakest, not a silent drop of the rest). */
 const MAX_WEAK_TAGS = 5
 
+@Injectable()
 /**
  * Business logic for the flashcard quick-quiz ("Hỏi nhanh") flow. Finishing a
  * session grants a capped, coverage-weighted XP reward written as a single
@@ -72,7 +73,6 @@ const MAX_WEAK_TAGS = 5
  * aggregate coverage/answered-count itself, which also lets it compute
  * per-tag weak spots and bridge a poor session back to a specific lesson.
  */
-@Injectable()
 export class FlashcardQuizSessionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

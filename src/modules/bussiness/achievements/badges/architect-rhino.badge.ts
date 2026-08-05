@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Distinct lessons read inside the System Design Mastery course. */
 @Injectable()
+/** Distinct lessons read inside the System Design Mastery course. */
 export class ArchitectRhinoBadge extends AbstractBadge {
     readonly slug = "architect-rhino"
 

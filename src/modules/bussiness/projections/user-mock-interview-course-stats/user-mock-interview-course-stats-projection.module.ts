@@ -11,11 +11,6 @@ import {
     UserMockInterviewCourseStatsProjectionListener,
 } from "./user-mock-interview-course-stats-projection.listener"
 
-/**
- * Leaf module for the per-enrollment mock-interview-course-stats projection
- * (recompute service + CDC listener on `mock_interview_attempts`). Exports
- * the service so `myMockInterviewStats` can read it.
- */
 @Module({
     providers: [
         UserMockInterviewCourseStatsProjectionService,
@@ -25,5 +20,10 @@ import {
         UserMockInterviewCourseStatsProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-enrollment mock-interview-course-stats projection
+ * (recompute service + CDC listener on `mock_interview_attempts`). Exports
+ * the service so `myMockInterviewStats` can read it.
+ */
 export class UserMockInterviewCourseStatsProjectionModule extends ConfigurableModuleClass {
 }

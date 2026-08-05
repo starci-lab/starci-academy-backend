@@ -25,11 +25,11 @@ import type {
     ProgressEnrollmentType,
 } from "./types"
 
+@Injectable()
 /**
  * Service for managing personal project task progress.
  * Encapsulates cache get / compute / set / invalidate logic.
  */
-@Injectable()
 export class PersonalProjectProgressService {
     constructor(
         private readonly cacheService: CacheService,

@@ -18,12 +18,12 @@ import type {
     CourseStatsEnrollmentCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `course_stats_projections` fresh. Any enrollment
  * change recomputes the affected course's counters. Connection + per-message
  * safety are owned by {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class CourseStatsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "course-stats-projection"

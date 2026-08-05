@@ -38,12 +38,12 @@ import {
     sleepEnqueueUxDelay,
 } from "../utils"
 
+@Injectable()
 /**
  * Service for enqueuing a coding-submission judging job. Creates (or requeues)
  * the tracked `jobs` row, then adds the BullMQ job after a short UX delay so
  * the client can render a "judging…" state without a flash.
  */
-@Injectable()
 export class EnqueueJudgeCodingSubmissionJobService {
     constructor(
         private readonly jobActionService: JobActionService,

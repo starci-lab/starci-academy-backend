@@ -11,11 +11,6 @@ import {
     UserSolvedChallengesProjectionListener,
 } from "./user-solved-challenges-projection.listener"
 
-/**
- * Leaf module for the per-user solved-challenges projection (recompute service +
- * CDC listener on `user_challenge_submission_attempts`). Exports the service so
- * the profile solved-challenges read (and any inline write path) can use it.
- */
 @Module({
     providers: [
         UserSolvedChallengesProjectionService,
@@ -25,5 +20,10 @@ import {
         UserSolvedChallengesProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-user solved-challenges projection (recompute service +
+ * CDC listener on `user_challenge_submission_attempts`). Exports the service so
+ * the profile solved-challenges read (and any inline write path) can use it.
+ */
 export class UserSolvedChallengesProjectionModule extends ConfigurableModuleClass {
 }

@@ -18,13 +18,13 @@ import type {
     ActivityCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_contribution_projections` fresh. A new activity
  * row moves the actor's current-year calendar; the projection's TTL lazy-refresh
  * is the fallback for the daily window drift. Connection + per-message safety are
  * owned by {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class ContributionProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "contribution-projection"

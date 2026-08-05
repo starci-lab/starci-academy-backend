@@ -14,6 +14,7 @@ import type {
     ResolveCvVerificationLevelsParams,
 } from "./types"
 
+@Injectable()
 /**
  * Classifies candidates into a {@link CvVerificationLevel} — a recruiter TRUST
  * signal tied to REAL, graded StarCi work (never to payment or CV count). A
@@ -26,7 +27,6 @@ import type {
  * ({@link import("./consultant-contact-gate.service").ConsultantContactGateService})
  * — this is an additive trust tier, not a new access lock.
  */
-@Injectable()
 export class CvVerificationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

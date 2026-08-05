@@ -31,6 +31,7 @@ import type {
     TransactionReconcileStatus,
 } from "../types"
 
+@Injectable()
 /**
  * Queries the originating payment gateway for the authoritative status of a
  * pending transaction during reconciliation.
@@ -41,7 +42,6 @@ import type {
  * cannot determine an answer (errors are swallowed into `unknown` so the
  * reconcile poll keeps retrying rather than failing the job).
  */
-@Injectable()
 export class TransactionReconcileQueryService {
     constructor(
         @InjectPayOS()

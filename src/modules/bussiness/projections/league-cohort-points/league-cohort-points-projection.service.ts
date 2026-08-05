@@ -19,6 +19,7 @@ import type {
     RecomputeLeagueCohortParams,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS projection service for a league cohort's ranked week-points board. The
  * heavy `SUM(xp_histories.points)` GROUP BY over a cohort's members runs ONLY in
@@ -28,7 +29,6 @@ import type {
  * window is derived from `league_cohorts` inside recompute, so callers pass only
  * the cohort id.
  */
-@Injectable()
 export class LeagueCohortPointsProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

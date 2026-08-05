@@ -13,6 +13,7 @@ import {
     UserService,
 } from "../user"
 
+@Injectable()
 /**
  * Resolves the caller's enrollment for the `x-course-id` course — creating a
  * TRIAL placeholder (`is_enrolled = false`) when none exists yet — and injects
@@ -26,7 +27,6 @@ import {
  * personal-project / premium) keep using {@link GraphQLMustEnrolledGuard}, which
  * checks `is_enrolled = true`.
  */
-@Injectable()
 export class GraphQLEnrollmentGuard implements CanActivate {
     constructor(
         private readonly userService: UserService,

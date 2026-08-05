@@ -85,11 +85,11 @@ import {
     HeadhuntingsBussinessModule,
 } from "./headhuntings"
 
+@Module({
+})
 /**
  * The module for the bussiness logics.
  */
-@Module({
-})
 export class BussinessModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

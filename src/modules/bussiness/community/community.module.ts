@@ -17,11 +17,6 @@ import {
     CommunityPostQuotaService,
 } from "./community-post-quota.service"
 
-/**
- * Bussiness module for the community domain (feed posts + threaded comments +
- * reactions). Depends on the globally-provided MembershipService (quota) and
- * NotificationService (reply notifications).
- */
 @Module({
     providers: [
         CommunityPostService,
@@ -36,4 +31,9 @@ import {
         CommunityPostQuotaService,
     ],
 })
+/**
+ * Bussiness module for the community domain (feed posts + threaded comments +
+ * reactions). Depends on the globally-provided MembershipService (quota) and
+ * NotificationService (reply notifications).
+ */
 export class CommunityModule extends ConfigurableModuleClass {}

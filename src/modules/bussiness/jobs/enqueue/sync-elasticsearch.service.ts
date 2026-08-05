@@ -33,10 +33,10 @@ import type {
     EnqueueSyncElasticsearchParams,
 } from "../types"
 
+@Injectable()
 /**
  * Enqueue a one-off job: index a single entity into Elasticsearch (see `ElasticsearchSynchronizer` runtime services).
  */
-@Injectable()
 export class EnqueueSyncElasticsearchJobService {
     constructor(
         private readonly jobActionService: JobActionService,

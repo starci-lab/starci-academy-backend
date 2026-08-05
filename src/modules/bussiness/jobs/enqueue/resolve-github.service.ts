@@ -46,10 +46,10 @@ import type {
     EnqueueResolveGithubParams,
 } from "../types"
 
+@Injectable()
 /**
  * Service for enqueueing resolve-github jobs.
  */
-@Injectable()
 export class EnqueueResolveGithubJobService {
     constructor(
         private readonly jobActionService: JobActionService,

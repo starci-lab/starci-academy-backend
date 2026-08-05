@@ -17,6 +17,7 @@ import type {
     UserXpResult,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS projection service for a user's XP aggregate. The per-source SUM(amount)
  * over `xp_histories` runs ONLY in {@link recompute}, which folds
@@ -25,7 +26,6 @@ import type {
  * TTL lazy-refresh; the CDC listener keeps it fresh on new ledger rows / balance
  * changes.
  */
-@Injectable()
 export class UserXpProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

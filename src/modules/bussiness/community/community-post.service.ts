@@ -32,13 +32,13 @@ import type {
     UpdateCommunityPostParams,
 } from "./types"
 
+@Injectable()
 /**
  * Domain service for community posts (the Facebook/Twitter-style feed): create
  * (quota-checked) / edit / soft-delete + paged listing. Ownership is enforced
  * here. Every mutation fans out a local event so the Socket.IO gateway can push
  * the change to the feed/channel room.
  */
-@Injectable()
 export class CommunityPostService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

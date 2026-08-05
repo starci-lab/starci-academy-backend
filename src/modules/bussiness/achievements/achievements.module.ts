@@ -16,13 +16,6 @@ import {
     AbstractBadge,
 } from "./badges"
 
-/**
- * Business module for achievements / badges. Awards are computed on-read by
- * {@link AchievementsService}; each badge (animal) is its own
- * {@link AbstractBadge} service, all folded into the {@link ACHIEVEMENT_BADGES}
- * token. Exports the service so the GraphQL leaf (and inline write paths) can
- * read + recompute.
- */
 @Module({
     providers: [
         ...ACHIEVEMENT_BADGE_PROVIDERS,
@@ -39,4 +32,11 @@ import {
         AchievementsService,
     ],
 })
+/**
+ * Business module for achievements / badges. Awards are computed on-read by
+ * {@link AchievementsService}; each badge (animal) is its own
+ * {@link AbstractBadge} service, all folded into the {@link ACHIEVEMENT_BADGES}
+ * token. Exports the service so the GraphQL leaf (and inline write paths) can
+ * read + recompute.
+ */
 export class AchievementsModule extends ConfigurableModuleClass {}

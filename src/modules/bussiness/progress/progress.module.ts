@@ -11,10 +11,6 @@ import {
     ChallengeProgressService,
 } from "./challenge.service"
 
-/**
- * Module for progress business logic. The CQRS progress projection (service +
- * CDC listener) now lives in the dedicated `projections` module.
- */
 @Module({
     providers: [
         PersonalProjectProgressService,
@@ -25,5 +21,9 @@ import {
         ChallengeProgressService,
     ],
 })
+/**
+ * Module for progress business logic. The CQRS progress projection (service +
+ * CDC listener) now lives in the dedicated `projections` module.
+ */
 export class ProgressModule extends ConfigurableModuleClass {
 }

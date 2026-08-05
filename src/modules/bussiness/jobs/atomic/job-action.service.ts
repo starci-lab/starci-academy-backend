@@ -41,12 +41,12 @@ import {
     EventEmitterService
 } from "@modules/event"
 
+@Injectable()
 /**
  * Service for job lifecycle management:
  * create -> increase steps -> complete/fail.
  * Supports optional transactional entity manager.
  */
-@Injectable()
 export class JobActionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

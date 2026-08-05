@@ -18,6 +18,7 @@ import type {
     MockInterviewAttemptCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_mock_interview_course_stats_projections`
  * fresh — each new graded `mock_interview_attempts` row moves the
@@ -25,7 +26,6 @@ import type {
  * join needed. Connection + per-message safety are owned by
  * {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class UserMockInterviewCourseStatsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-mock-interview-course-stats-projection"

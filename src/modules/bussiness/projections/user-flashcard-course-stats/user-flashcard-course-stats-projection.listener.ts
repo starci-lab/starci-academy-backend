@@ -18,6 +18,7 @@ import type {
     FlashcardCourseStatsSourceCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_flashcard_course_stats_projections` fresh —
  * BOTH `flashcard_quiz_sessions` and `flashcard_review_sessions` converge on
@@ -28,7 +29,6 @@ import type {
  * `topics` array with a topic-agnostic `deriveTargets`, so no hand-rolled
  * `OnModuleInit` is needed here.
  */
-@Injectable()
 export class UserFlashcardCourseStatsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-flashcard-course-stats-projection"

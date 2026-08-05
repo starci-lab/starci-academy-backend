@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Highest league tier reached, as an ordinal (bronze=1 … legend=7). */
 @Injectable()
+/** Highest league tier reached, as an ordinal (bronze=1 … legend=7). */
 export class ChampionLionBadge extends AbstractBadge {
     readonly slug = "champion-lion"
 

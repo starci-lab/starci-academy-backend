@@ -15,6 +15,7 @@ import type {
     CountRow,
 } from "./types"
 
+@Injectable()
 /**
  * Learner-CMS read service for the current user's learning feedback, merged from
  * the three feedback sources that exist for a user:
@@ -35,7 +36,6 @@ import type {
  * newest-first and windowed in SQL so paging stays correct across all sources
  * without fetch-merge-slice in memory.
  */
-@Injectable()
 export class LearningFeedbacksCmsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

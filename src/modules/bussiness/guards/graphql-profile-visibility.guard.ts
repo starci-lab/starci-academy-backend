@@ -16,6 +16,7 @@ import {
     UserService,
 } from "../user"
 
+@Injectable()
 /**
  * Guard for the public profile sub-queries (achievements / courses / activity
  * feed / contribution calendar / weekly stats / coding progress).
@@ -35,7 +36,6 @@ import {
  * the guard is a no-op (the resolver handles the missing arg). Must run AFTER
  * `KeycloakOptionalAuthGraphQLGuard`, which populates `req.user` for the owner check.
  */
-@Injectable()
 export class GraphQLProfileVisibilityGuard implements CanActivate {
     constructor(
         private readonly userService: UserService,

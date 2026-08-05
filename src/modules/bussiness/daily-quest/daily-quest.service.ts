@@ -39,6 +39,7 @@ import type {
 /** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
 
+@Injectable()
 /**
  * Daily-quest business logic. The quest is per-request DERIVED from TODAY's
  * (Asia/Ho_Chi_Minh) activity — read lessons + passed challenges come from the
@@ -50,7 +51,6 @@ const PG_UNIQUE_VIOLATION = "23505"
  * the grant is made idempotent by the `(user_id, quest_date)` unique row on
  * `daily_quest_completions`.
  */
-@Injectable()
 export class DailyQuestService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

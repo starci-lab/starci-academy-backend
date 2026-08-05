@@ -46,10 +46,10 @@ import type {
     EnqueueRevokeGithubParams,
 } from "../types"
 
+@Injectable()
 /**
  * Service for enqueueing revoke-github jobs (removes a user from a course team).
  */
-@Injectable()
 export class EnqueueRevokeGithubJobService {
     constructor(
         private readonly jobActionService: JobActionService,

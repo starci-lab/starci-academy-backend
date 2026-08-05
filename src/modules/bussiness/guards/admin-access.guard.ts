@@ -12,10 +12,10 @@ import {
     InvalidAdminApiKeyException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Guard that grants access only when admin API key matches mounted secret.
  */
-@Injectable()
 export class AdminAccessGuard implements CanActivate {
     constructor(
         private readonly mountStorageService: MountStorageService,

@@ -42,6 +42,7 @@ import type {
     SummarizeContentReactionsParams,
 } from "./types"
 
+@Injectable()
 /**
  * Domain service for Facebook-style reactions on contents and comments.
  *
@@ -49,7 +50,6 @@ import type {
  * entities). Picking the same/another emotion updates the row; passing `null` removes it.
  * Every change fans out a local event for the Socket.IO gateway to push to the content room.
  */
-@Injectable()
 export class ReactionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

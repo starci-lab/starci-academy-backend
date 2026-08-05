@@ -40,12 +40,12 @@ import {
 /** Default page size for comment listings. */
 const DEFAULT_LIMIT = 20
 
+@Injectable()
 /**
  * Domain service for threaded content comments: create/edit/soft-delete + paged listing.
  * Ownership is enforced here (never trust the client). Every mutation fans out a local
  * event so the Socket.IO gateway can push the change to subscribers of the content room.
  */
-@Injectable()
 export class CommentService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

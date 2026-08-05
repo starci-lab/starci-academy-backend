@@ -22,13 +22,13 @@ export const STREAK_FREEZE_COST = 100
 /** Maximum number of streak freezes a user may hold at once. */
 export const STREAK_FREEZE_MAX = 3
 
+@Injectable()
 /**
  * Streak-freeze inventory business logic: buying a freeze (spending points) and
  * the daily auto-protect consumption are owned here. The auto-protect cron lives
  * in {@link StreakFreezeCronService}; this service holds the transactional spend
  * + the candidate query so both paths share one connection.
  */
-@Injectable()
 export class StreakService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

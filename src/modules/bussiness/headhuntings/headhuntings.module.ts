@@ -11,10 +11,6 @@ import {
     CvVerificationService,
 } from "./cv-verification.service"
 
-/**
- * Module for headhunting business logic — the CV-score gate on consultant
- * contact details, plus the CV verification tier (recruiter trust signal).
- */
 @Module({
     providers: [
         ConsultantContactGateService,
@@ -25,5 +21,9 @@ import {
         CvVerificationService,
     ],
 })
+/**
+ * Module for headhunting business logic — the CV-score gate on consultant
+ * contact details, plus the CV verification tier (recruiter trust signal).
+ */
 export class HeadhuntingsBussinessModule extends ConfigurableModuleClass {
 }

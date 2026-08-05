@@ -23,13 +23,13 @@ import type {
     UserStatsXpHistoryCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_stats_projections` fresh. A follow change moves
  * BOTH endpoints' counters; a notification change moves the recipient's unread
  * count; an XP-history row moves the earner's streak + rolling weekly metrics.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class UserStatsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-stats-projection"

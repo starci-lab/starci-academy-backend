@@ -17,6 +17,7 @@ import type {
     RecomputeContributionParams,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS projection service for a user's GitHub-style contribution calendar, scoped
  * to ONE calendar year per row. The per-day GROUP BY over the `activities` ledger
@@ -24,7 +25,6 @@ import type {
  * keyed by `(user_id, year)`. {@link getCalendar} reads the flat row; the current
  * year gets a TTL lazy-refresh (it still grows), past years are immutable once built.
  */
-@Injectable()
 export class ContributionProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

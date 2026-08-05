@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Milestone tasks passed across the user's enrollments. */
 @Injectable()
+/** Milestone tasks passed across the user's enrollments. */
 export class CrownedOwlBadge extends AbstractBadge {
     readonly slug = "crowned-owl"
 

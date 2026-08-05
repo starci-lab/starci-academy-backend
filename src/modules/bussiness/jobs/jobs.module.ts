@@ -32,11 +32,11 @@ import {
     InstallmentPlanModule,
 } from "../installment-plan"
 
+@Module({
+})
 /**
  * Module for job management.
  */
-@Module({
-})
 export class JobsModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

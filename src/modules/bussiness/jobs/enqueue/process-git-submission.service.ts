@@ -39,12 +39,12 @@ import {
     sleepEnqueueUxDelay,
 } from "../utils"
 
+@Injectable()
 /**
  * Enqueues a SCHEMA V2 Git challenge submission grading job (criteria-based): targets the V2
  * queue/action and carries the learner's chosen programming language so the grade step picks the
  * right approach criteria. (The legacy V1 enqueue/pipeline has been removed.)
  */
-@Injectable()
 export class EnqueueProcessGitSubmissionJobService {
     constructor(
         private readonly jobActionService: JobActionService,

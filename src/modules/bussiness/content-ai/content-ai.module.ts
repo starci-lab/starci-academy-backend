@@ -8,6 +8,14 @@ import {
     ContentAiService,
 } from "./content-ai.service"
 
+@Module({
+    providers: [
+        ContentAiService,
+    ],
+    exports: [
+        ContentAiService,
+    ],
+})
 /**
  * Content-AI business logic: grounds a learner's question in the lesson body
  * (loaded from MinIO) and enforces the premium-content gate, producing the
@@ -19,13 +27,5 @@ import {
  * `CourseRagRetrievalService` from the app-root-global `RagModule` — so this
  * module declares no imports.
  */
-@Module({
-    providers: [
-        ContentAiService,
-    ],
-    exports: [
-        ContentAiService,
-    ],
-})
 export class ContentAiModule extends ConfigurableModuleClass {
 }

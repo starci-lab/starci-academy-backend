@@ -35,6 +35,7 @@ import type {
     SummarizeCommunityPostsParams,
 } from "./types"
 
+@Injectable()
 /**
  * Domain service for Facebook-style reactions on community posts and their
  * comments. Each user holds at most one reaction per target (composite uniques on
@@ -42,7 +43,6 @@ import type {
  * removes it. Unlike feed activities, self-reactions are allowed (you may like
  * your own post). Every change fans out a local event for the Socket.IO gateway.
  */
-@Injectable()
 export class CommunityReactionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -36,12 +36,12 @@ import type {
 /** Default page size for submission history. */
 const DEFAULT_PAGE_SIZE = 20
 
+@Injectable()
 /**
  * Write-side + history business logic for coding submissions: persist a new
  * submission in `pending` state and enqueue the async judging job, and page a
  * user's submission history for a problem.
  */
-@Injectable()
 export class CodingSubmissionService {
     /** Logger scoped to this service for easy grep of best-effort failures. */
     private readonly logger = new Logger(CodingSubmissionService.name)

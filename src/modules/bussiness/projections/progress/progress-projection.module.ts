@@ -11,10 +11,6 @@ import {
     ProgressProjectionListener,
 } from "./progress-projection.listener"
 
-/**
- * Leaf module for the user×course progress projection (recompute service + CDC
- * listener). Exports the service for inline recompute from write paths.
- */
 @Module({
     providers: [
         ProgressProjectionService,
@@ -24,5 +20,9 @@ import {
         ProgressProjectionService,
     ],
 })
+/**
+ * Leaf module for the user×course progress projection (recompute service + CDC
+ * listener). Exports the service for inline recompute from write paths.
+ */
 export class ProgressProjectionModule extends ConfigurableModuleClass {
 }

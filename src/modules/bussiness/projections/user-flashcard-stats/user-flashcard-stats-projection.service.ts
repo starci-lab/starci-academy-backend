@@ -45,6 +45,7 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000
  */
 const DAILY_COUNTS_RETAIN_DAYS = 90
 
+@Injectable()
 /**
  * CQRS projection service for a user's flashcard study stats. The history scan
  * over `flashcard_review_events` runs ONLY in {@link recompute}, which folds
@@ -52,7 +53,6 @@ const DAILY_COUNTS_RETAIN_DAYS = 90
  * into the jsonb `value` keyed by user. {@link getStats} reads the flat row with a
  * TTL lazy-refresh; the CDC listener keeps it fresh on new review events.
  */
-@Injectable()
 export class UserFlashcardStatsProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

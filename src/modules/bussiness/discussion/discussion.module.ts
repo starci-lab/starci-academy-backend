@@ -11,12 +11,6 @@ import {
     ReactionService,
 } from "./reaction.service"
 
-/**
- * Bussiness module for the lesson-content discussion domain (comments +
- * reactions). The content-engagement projection (service + CDC listener) now
- * lives in the dedicated `projections` module; ReactionService injects it from
- * there (globally provided).
- */
 @Module({
     providers: [
         CommentService,
@@ -27,5 +21,11 @@ import {
         ReactionService,
     ],
 })
+/**
+ * Bussiness module for the lesson-content discussion domain (comments +
+ * reactions). The content-engagement projection (service + CDC listener) now
+ * lives in the dedicated `projections` module; ReactionService injects it from
+ * there (globally provided).
+ */
 export class DiscussionModule extends ConfigurableModuleClass {
 }

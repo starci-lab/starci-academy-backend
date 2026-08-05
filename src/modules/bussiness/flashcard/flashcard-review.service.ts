@@ -67,13 +67,13 @@ const EASE_FLOOR = 1.3
  */
 const DAILY_NEW_LIMIT = 20
 
+@Injectable()
 /**
  * Spaced-repetition (SM-2) read + write for flashcards. {@link listDue} serves
  * the viewer's due-card queue (no review row yet OR past its `dueAt`) across all
  * decks — enrollment is NOT required, so trial viewers can review too; {@link review}
  * applies an SM-2 grade and upserts the per-(user, card) review row.
  */
-@Injectable()
 export class FlashcardReviewService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -11,11 +11,11 @@ import {
     TransactionReconcileQueryService,
 } from "./atomic"
 
+@Module({
+})
 /**
  * Module for transaction management.
  */
-@Module({
-})
 export class TransactionsModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

@@ -14,6 +14,7 @@ import {
     CvVerificationService,
 } from "./cv-verification.service"
 
+@Injectable()
 /**
  * Gates a consultant's direct contact details (email / phone / Zalo /
  * LinkedIn) behind the requesting viewer's best-ever CV score. Below
@@ -25,7 +26,6 @@ import {
  * which fetch consultant documents from Elasticsearch and pass each one
  * through {@link gateConsultant} before returning it to the client.
  */
-@Injectable()
 export class ConsultantContactGateService {
     constructor(
         private readonly cvVerificationService: CvVerificationService,

@@ -28,12 +28,12 @@ import type {
 /** Default page size for problem listing. */
 const DEFAULT_PAGE_SIZE = 20
 
+@Injectable()
 /**
  * Read-side business logic for the coding-practice problem bank: listing with
  * filters + solved flags and single-problem detail (samples only, localized).
  * Never exposes hidden testcases.
  */
-@Injectable()
 export class CodingProblemService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -27,6 +27,7 @@ import type {
     PinnedProjectUserIdRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_pinned_projects_projections` fresh. Tails the
  * three tables whose changes can move a user's pinned-projects aggregate:
@@ -37,7 +38,6 @@ import type {
  *     owners of pins whose enrollment points at the changed course.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class UserPinnedProjectsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-pinned-projects-projection"

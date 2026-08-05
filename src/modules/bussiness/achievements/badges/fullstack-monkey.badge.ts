@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Distinct lessons read inside the Fullstack Mastery course. */
 @Injectable()
+/** Distinct lessons read inside the Fullstack Mastery course. */
 export class FullstackMonkeyBadge extends AbstractBadge {
     readonly slug = "fullstack-monkey"
 

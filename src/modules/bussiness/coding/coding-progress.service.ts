@@ -23,6 +23,7 @@ import type {
     UpdateCodingProgressParams,
 } from "./types"
 
+@Injectable()
 /**
  * Read-side per-user coding-practice progress/status, decoupled from the shared
  * problem catalog (the catalog is served from Elasticsearch by
@@ -30,7 +31,6 @@ import type {
  * pattern: a Redis cache keyed by userId, computed on miss and invalidated when
  * the user submits. Carries solved/attempted/revealed problem ids + total points.
  */
-@Injectable()
 export class CodingProgressService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

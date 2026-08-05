@@ -38,13 +38,13 @@ import type {
 /** Default page size for community comment listings. */
 const DEFAULT_LIMIT = 20
 
+@Injectable()
 /**
  * Domain service for threaded community post comments: create/edit/soft-delete +
  * paged listing. Ownership is enforced here. Every mutation fans out a local event
  * so the Socket.IO gateway pushes the change to the post room; creating a comment
  * also notifies the post author (and the parent comment author on a reply).
  */
-@Injectable()
 export class CommunityCommentService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

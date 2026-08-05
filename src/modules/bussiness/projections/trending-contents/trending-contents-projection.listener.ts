@@ -17,6 +17,7 @@ import {
 /** The single global key every `user_contents` change funnels into. */
 const GLOBAL_KEY = "global"
 
+@Injectable()
 /**
  * CDC consumer that keeps `trending_contents_projections` fresh — any lesson-read
  * change funnels into the one global trending row. Because trending is a global
@@ -25,7 +26,6 @@ const GLOBAL_KEY = "global"
  * coalesced to one global row. Connection + per-message safety are owned by
  * {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class TrendingContentsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "trending-contents-projection"

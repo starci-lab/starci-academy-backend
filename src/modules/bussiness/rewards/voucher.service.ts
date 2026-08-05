@@ -71,6 +71,7 @@ export interface ReleaseVoucherParams {
     transactionId: string
 }
 
+@Injectable()
 /**
  * Coin-shop voucher lifecycle: mint on redemption, preview + reserve at
  * checkout, settle (used/released) once the funding transaction resolves.
@@ -82,7 +83,6 @@ export interface ReleaseVoucherParams {
  * without letting a SECOND concurrent checkout also spend it, while a
  * failed/expired first checkout still gives the code back instead of burning it.
  */
-@Injectable()
 export class VoucherService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

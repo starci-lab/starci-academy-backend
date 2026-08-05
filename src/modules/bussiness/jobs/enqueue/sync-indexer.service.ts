@@ -33,10 +33,10 @@ import type {
     EnqueueSyncIndexerParams,
 } from "../types"
 
+@Injectable()
 /**
  * Enqueue a job that scans entities and caches their parent-chain refs.
  */
-@Injectable()
 export class EnqueueSyncIndexerJobService {
     constructor(
         private readonly jobActionService: JobActionService,

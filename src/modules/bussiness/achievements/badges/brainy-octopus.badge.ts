@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** AI-Lab eval sets passed. */
 @Injectable()
+/** AI-Lab eval sets passed. */
 export class BrainyOctopusBadge extends AbstractBadge {
     readonly slug = "brainy-octopus"
 

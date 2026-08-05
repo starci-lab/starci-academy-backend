@@ -5,11 +5,11 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
+@Injectable()
 /**
  * Distinct challenges passed: max attempt score per submission, summed per
  * challenge, counted when it reaches the challenge's pass score.
  */
-@Injectable()
 export class SwordSharkBadge extends AbstractBadge {
     readonly slug = "sword-shark"
 

@@ -25,13 +25,13 @@ import type {
     AssertCanCreateCommunityPostParams,
 } from "./types"
 
+@Injectable()
 /**
  * Enforces the community post quota. Active members may post without limit; a
  * non-member may only create a bounded number of posts within a rolling window
  * (both configured via `envConfig().community`). Everyone may comment + react
  * freely — only the act of CREATING a top-level post is rate-limited.
  */
-@Injectable()
 export class CommunityPostQuotaService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

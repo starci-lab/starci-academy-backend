@@ -15,6 +15,7 @@ import {
     InvalidAdminApiKeyException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * GraphQL counterpart of {@link AdminAccessGuard} — grants access only when the
  * `x-admin-api-key` header matches the mounted admin secret.
@@ -24,7 +25,6 @@ import {
  * (system health, balancer key status) that would otherwise leak live infra /
  * key state to the public.
  */
-@Injectable()
 export class GraphQLAdminAccessGuard implements CanActivate {
     constructor(
         private readonly mountStorageService: MountStorageService,

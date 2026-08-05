@@ -15,6 +15,7 @@ import {
     LeagueService,
 } from "./league.service"
 
+@Injectable()
 /**
  * Cron driver for the weekly-league reset. Fires once per week (Sunday 00:00
  * Asia/Ho_Chi_Minh by default) and delegates the actual settlement +
@@ -23,7 +24,6 @@ import {
  * bad run cannot crash the scheduler — the reset is idempotent and self-heals on
  * the next trigger.
  */
-@Injectable()
 export class LeagueResetService {
     /** Logger scoped to this service for easy grep of reset issues. */
     private readonly logger = new Logger(LeagueResetService.name)

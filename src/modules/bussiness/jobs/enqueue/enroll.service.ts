@@ -47,10 +47,10 @@ import {
     sleepEnqueueUxDelay,
 } from "../utils"
 
+@Injectable()
 /**
  * Service for enqueuing an enroll job.
  */
-@Injectable()
 export class EnqueueEnrollJobService {
     constructor(
         private readonly jobActionService: JobActionService,

@@ -11,10 +11,6 @@ import {
     UserStatsProjectionListener,
 } from "./user-stats-projection.listener"
 
-/**
- * Leaf module for the per-user stats projection (recompute service + CDC
- * listener). Exports the service for inline recompute from write paths.
- */
 @Module({
     providers: [
         UserStatsProjectionService,
@@ -24,5 +20,9 @@ import {
         UserStatsProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-user stats projection (recompute service + CDC
+ * listener). Exports the service for inline recompute from write paths.
+ */
 export class UserStatsProjectionModule extends ConfigurableModuleClass {
 }

@@ -16,6 +16,7 @@ import type {
     GetEmailBloomFilterResult,
 } from "./types"
 
+@Injectable()
 /**
  * Fast-path, best-effort membership pre-check for known emails, backed by a
  * `ScalableBloomFilter` persisted as one shared cache entry (`CacheKey.BloomFilter`
@@ -24,7 +25,6 @@ import type {
  * constraint remains the actual source of truth — this filter is fail-open,
  * never a hard gate.
  */
-@Injectable()
 export class EmailBloomFilterService {
     constructor(
         private readonly cacheService: CacheService,

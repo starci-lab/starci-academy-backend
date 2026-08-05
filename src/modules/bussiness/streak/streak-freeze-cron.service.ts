@@ -23,6 +23,7 @@ import type {
     StreakFreezeProtectIdRow,
 } from "./types"
 
+@Injectable()
 /**
  * Daily auto-protect cron for streak freezes. Once a day it finds users who had
  * a live streak (were active the day before yesterday) but missed yesterday and
@@ -34,7 +35,6 @@ import type {
  * split off {@link StreakService} only to keep the cron wiring tidy; the candidate
  * lookup is a single set-based query and each protection is its own short txn.
  */
-@Injectable()
 export class StreakFreezeCronService {
     /** Logger scoped to this service for easy grep of auto-protect runs. */
     private readonly logger = new Logger(StreakFreezeCronService.name)

@@ -26,6 +26,7 @@ import type {
  */
 const REINDEX_PAGE_SIZE = 500
 
+@Injectable()
 /**
  * Keeps the non-localized `users` Elasticsearch index in sync with the
  * `users` Postgres table.
@@ -40,7 +41,6 @@ const REINDEX_PAGE_SIZE = 500
  * NOTE: this is deliberately NOT a CQRS projection — it writes to Elasticsearch,
  * not to a Postgres read-model table.
  */
-@Injectable()
 export class EsSyncUserService implements OnModuleInit {
     /** Scoped logger so sync issues are easy to grep. */
     private readonly logger = new Logger(EsSyncUserService.name)

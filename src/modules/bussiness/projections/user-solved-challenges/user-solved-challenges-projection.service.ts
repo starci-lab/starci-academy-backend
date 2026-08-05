@@ -19,6 +19,7 @@ import type {
     UserSolvedChallengeValue,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS projection service for a user's passed challenge submissions (with their
  * submitted git / docs link). The DISTINCT-ON join over
@@ -27,7 +28,6 @@ import type {
  * {@link getChallenges} reads the flat row with a TTL lazy-refresh; the CDC
  * listener keeps it fresh on new passing attempts.
  */
-@Injectable()
 export class UserSolvedChallengesProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

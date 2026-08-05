@@ -11,12 +11,6 @@ import {
     UserPinnedProjectsProjectionListener,
 } from "./user-pinned-projects-projection.listener"
 
-/**
- * Leaf module for the per-user pinned-projects projection (recompute service +
- * CDC listener on `user_pinned_projects`, `enrollments`, `courses`). Exports the
- * service so the public-profile pinned-projects read (and any inline write path)
- * can use it.
- */
 @Module({
     providers: [
         UserPinnedProjectsProjectionService,
@@ -26,5 +20,11 @@ import {
         UserPinnedProjectsProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-user pinned-projects projection (recompute service +
+ * CDC listener on `user_pinned_projects`, `enrollments`, `courses`). Exports the
+ * service so the public-profile pinned-projects read (and any inline write path)
+ * can use it.
+ */
 export class UserPinnedProjectsProjectionModule extends ConfigurableModuleClass {
 }

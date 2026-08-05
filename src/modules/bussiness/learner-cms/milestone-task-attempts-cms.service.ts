@@ -15,6 +15,7 @@ import type {
     CountRow,
 } from "./types"
 
+@Injectable()
 /**
  * Learner-CMS read service for the current user's milestone-task review attempts.
  *
@@ -31,7 +32,6 @@ import type {
  * Both passed and failed attempts are included; ordering is newest-first by the
  * attempt's `created_at`.
  */
-@Injectable()
 export class MilestoneTaskAttemptsCmsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

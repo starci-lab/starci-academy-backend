@@ -8,10 +8,6 @@ import {
     ChatService,
 } from "./chat.service"
 
-/**
- * Bussiness module for community chat (community room + founder DM threads).
- * Depends on the globally-provided MembershipService (member gate).
- */
 @Module({
     providers: [
         ChatService,
@@ -20,4 +16,8 @@ import {
         ChatService,
     ],
 })
+/**
+ * Bussiness module for community chat (community room + founder DM threads).
+ * Depends on the globally-provided MembershipService (member gate).
+ */
 export class ChatModule extends ConfigurableModuleClass {}

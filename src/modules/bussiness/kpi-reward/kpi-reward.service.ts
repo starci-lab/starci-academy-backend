@@ -40,6 +40,7 @@ import type {
     SetKpiTargetParams,
 } from "./types"
 
+@Injectable()
 /**
  * Weekly-KPI coin-reward business logic: the anti-gaming FLOOR tracking (a
  * target can only lower the floor within a week — see
@@ -47,7 +48,6 @@ import type {
  * `DailyQuestService.claimReward`'s idempotent transaction + `writeCoinHistory`
  * grant, but scaled by the floor instead of a flat amount).
  */
-@Injectable()
 export class KpiRewardService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

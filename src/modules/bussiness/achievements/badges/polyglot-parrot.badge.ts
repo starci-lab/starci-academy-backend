@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Courses enrolled in. */
 @Injectable()
+/** Courses enrolled in. */
 export class PolyglotParrotBadge extends AbstractBadge {
     readonly slug = "polyglot-parrot"
 

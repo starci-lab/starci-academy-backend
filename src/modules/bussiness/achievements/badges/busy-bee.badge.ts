@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Followers gained. */
 @Injectable()
+/** Followers gained. */
 export class BusyBeeBadge extends AbstractBadge {
     readonly slug = "busy-bee"
 

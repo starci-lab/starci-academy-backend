@@ -21,10 +21,10 @@ import type {
     EnrolledCourseIdRow,
 } from "./types"
 
+@Injectable()
 /**
  * Service for managing users.
  */
-@Injectable()
 export class UserService {
     constructor(
         private readonly cacheService: CacheService,

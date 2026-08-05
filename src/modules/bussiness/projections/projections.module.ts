@@ -52,6 +52,8 @@ import {
     UserMockInterviewCourseStatsProjectionModule,
 } from "./user-mock-interview-course-stats"
 
+@Module({
+})
 /**
  * Umbrella module aggregating every CQRS projection leaf-module: progress
  * (user×course), content engagement (content), user stats (user), course stats
@@ -63,8 +65,6 @@ import {
  * this module wires + re-exports all fifteen (services stay globally injectable
  * for inline recompute from write paths).
  */
-@Module({
-})
 export class ProjectionsModule extends ConfigurableModuleClass {
     /**
      * Compose the fifteen projection leaf-modules, forwarding the register

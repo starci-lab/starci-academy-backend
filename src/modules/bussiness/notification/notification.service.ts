@@ -28,6 +28,7 @@ import type {
     MarkNotificationAsReadParams,
 } from "./types"
 
+@Injectable()
 /**
  * Domain service for per-user in-app notifications: create + realtime fan-out,
  * paged listing, unread counting, and read-state mutations.
@@ -38,7 +39,6 @@ import type {
  * {@link createNotification} (optionally passing their own transaction manager)
  * instead of touching the table directly.
  */
-@Injectable()
 export class NotificationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

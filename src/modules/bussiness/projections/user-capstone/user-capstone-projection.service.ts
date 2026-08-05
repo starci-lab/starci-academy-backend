@@ -19,6 +19,7 @@ import type {
     UserCapstoneTaskValue,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS projection service for a user's passed capstone (milestone) tasks. The
  * 6-table DISTINCT-ON join over `user_milestone_task_attempts` runs ONLY in
@@ -26,7 +27,6 @@ import type {
  * `value` keyed by user. {@link getTasks} reads the flat row with a TTL
  * lazy-refresh; the CDC listener keeps it fresh on new passing attempts.
  */
-@Injectable()
 export class UserCapstoneProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

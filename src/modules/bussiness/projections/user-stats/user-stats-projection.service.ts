@@ -23,13 +23,13 @@ import {
     KPI_WEEK_START_SQL,
 } from "./kpi-week.util"
 
+@Injectable()
 /**
  * CQRS projection service for per-user social + inbox counters (follower /
  * following / unread). The COUNTs run ONLY in {@link recompute}, writing the
  * aggregate as a jsonb `value` keyed by `user_id`; {@link getStats} reads the
  * flat row with a TTL lazy-refresh and parses the jsonb into a typed view.
  */
-@Injectable()
 export class UserStatsProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -17,6 +17,7 @@ import type {
     RecomputeContentEngagementParams,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS projection service for per-content engagement (reactions by emotion +
  * total, distinct-reader view count, comment count, share count).
@@ -27,7 +28,6 @@ import type {
  * row, lazily recomputing when older than the TTL, and parses the jsonb into a
  * typed view — the table stands in for the old Redis view-count cache.
  */
-@Injectable()
 export class ContentEngagementProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

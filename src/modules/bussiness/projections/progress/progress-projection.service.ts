@@ -24,6 +24,7 @@ import type {
     RecomputeProgressParams,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS read-model service for per-course progress (Kiểu B — composite key
  * `(user_id, course_id)`, aggregate stored as a jsonb `value`).
@@ -36,7 +37,6 @@ import type {
  * (created out-of-band; see the backfill script). Reads are eager-maintained
  * (inline + CDC) — no read-time TTL refresh here.
  */
-@Injectable()
 export class ProgressProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

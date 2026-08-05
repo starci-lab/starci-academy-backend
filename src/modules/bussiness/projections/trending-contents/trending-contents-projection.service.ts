@@ -24,6 +24,7 @@ const GLOBAL_KEY = "global"
 /** How many candidates to materialise (over-fetch so per-viewer exclusion still fills `limit`). */
 const CANDIDATE_LIMIT = 50
 
+@Injectable()
 /**
  * CQRS projection service for the platform-wide "trending lessons this week"
  * board. The heavy rolling-7-day GROUP BY over `user_contents` runs ONLY in
@@ -32,7 +33,6 @@ const CANDIDATE_LIMIT = 50
  * (TTL lazy-refresh) and only does a light per-viewer membership check to drop
  * lessons the viewer already read — no aggregation per request.
  */
-@Injectable()
 export class TrendingContentsProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

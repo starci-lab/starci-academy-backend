@@ -25,13 +25,13 @@ import type {
     LeagueCohortPointsXpHistoryCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `league_cohort_points_projections` fresh — a points
  * event rebuilds the earner's current cohort board. The xp_histories row carries
  * only `user_id`, so the affected cohort is resolved via `user_leagues`. A user
  * with no current cohort (unplaced) is skipped. TTL lazy-refresh is the fallback.
  */
-@Injectable()
 export class LeagueCohortPointsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "league-cohort-points-projection"

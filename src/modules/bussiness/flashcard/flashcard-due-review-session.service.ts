@@ -35,6 +35,7 @@ import type {
  */
 const RESUME_WINDOW_HOURS = 24
 
+@Injectable()
 /**
  * Business logic for the resumable CROSS-DECK due-review batch ("DueReview")
  * session — mirrors
@@ -52,7 +53,6 @@ const RESUME_WINDOW_HOURS = 24
  * with NO `xp_histories` insert, NO `XpSource` addition, and NO daily-cap
  * logic.
  */
-@Injectable()
 export class FlashcardDueReviewSessionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

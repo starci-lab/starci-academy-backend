@@ -18,13 +18,13 @@ import type {
     ContentScopedCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `content_engagement_projections` fresh. Tails the
  * three tables that move a content's engagement — reactions, comments, and
  * read-state (view count) — and recomputes the affected content's projection.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class ContentEngagementProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "content-engagement-projection"

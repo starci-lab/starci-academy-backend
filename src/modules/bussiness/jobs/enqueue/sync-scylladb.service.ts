@@ -33,10 +33,10 @@ import type {
     EnqueueSyncScyllaDBParams,
 } from "../types"
 
+@Injectable()
 /**
  * Service for enqueuing a one-off sync-scylladb job.
  */
-@Injectable()
 export class EnqueueSyncScyllaDBJobService {
     constructor(
         private readonly jobActionService: JobActionService,

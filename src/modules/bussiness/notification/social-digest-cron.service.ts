@@ -37,6 +37,7 @@ interface DigestCountRow {
 /** Window the digest looks back over (last 24 hours). */
 const DIGEST_WINDOW_MS = 24 * 60 * 60 * 1000
 
+@Injectable()
 /**
  * Daily activity-digest cron. Once a day it aggregates every recipient's in-app
  * notifications from the last 24 hours (new followers, replies, community
@@ -49,7 +50,6 @@ const DIGEST_WINDOW_MS = 24 * 60 * 60 * 1000
  * run can never crash the scheduler, and per-user mail failures never abort the
  * sweep. Idempotent enough in practice: it runs once a day on a fixed window.
  */
-@Injectable()
 export class SocialDigestCronService {
     /** Logger scoped to this service for easy grep of digest runs. */
     private readonly logger = new Logger(SocialDigestCronService.name)

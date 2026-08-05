@@ -30,6 +30,7 @@ import type {
     RecomputeAchievementsForUserParams,
 } from "./types"
 
+@Injectable()
 /**
  * Business service for GitHub-style achievements / badges.
  *
@@ -42,7 +43,6 @@ import type {
  * Awards are computed on-read ({@link getMyAchievements}) — returning the full
  * list, the earned count, and the subset newly earned this read.
  */
-@Injectable()
 export class AchievementsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

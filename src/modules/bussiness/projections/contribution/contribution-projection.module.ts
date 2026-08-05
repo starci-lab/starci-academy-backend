@@ -11,11 +11,6 @@ import {
     ContributionProjectionListener,
 } from "./contribution-projection.listener"
 
-/**
- * Leaf module for the per-user contribution-calendar projection (recompute service
- * + CDC listener on the activities ledger). Exports the service so the dashboard
- * read + any inline write path can use it.
- */
 @Module({
     providers: [
         ContributionProjectionService,
@@ -25,5 +20,10 @@ import {
         ContributionProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-user contribution-calendar projection (recompute service
+ * + CDC listener on the activities ledger). Exports the service so the dashboard
+ * read + any inline write path can use it.
+ */
 export class ContributionProjectionModule extends ConfigurableModuleClass {
 }

@@ -25,6 +25,7 @@ import type {
     SolvedSubmissionUserIdRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_solved_challenges_projections` fresh — a new
  * challenge-submission attempt rebuilds the owner's solved-challenges aggregate.
@@ -32,7 +33,6 @@ import type {
  * user id is resolved via `user_challenge_submissions`. TTL lazy-refresh is the
  * fallback.
  */
-@Injectable()
 export class UserSolvedChallengesProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-solved-challenges-projection"

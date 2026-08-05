@@ -15,6 +15,7 @@ import type {
     CountRow,
 } from "./types"
 
+@Injectable()
 /**
  * Learner-CMS read service for the current user's challenge-submission attempts.
  *
@@ -34,7 +35,6 @@ import type {
  * Status is derived from the attempt's grading state: not-yet-processed →
  * "pending", graded with a positive score → "passed", otherwise "failed".
  */
-@Injectable()
 export class ChallengeSubmissionsCmsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

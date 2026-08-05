@@ -16,6 +16,7 @@ import type {
     RecomputeCourseStatsParams,
 } from "./types"
 
+@Injectable()
 /**
  * CQRS projection service for per-course counters (currently enrollment count).
  * The COUNT runs ONLY in {@link recompute}, writing the aggregate as a jsonb
@@ -23,7 +24,6 @@ import type {
  * lazy-refresh and parses the jsonb into a typed view — replaces the old Redis
  * enrollment-count cache.
  */
-@Injectable()
 export class CourseStatsProjectionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -11,11 +11,6 @@ import {
     TrendingContentsProjectionListener,
 } from "./trending-contents-projection.listener"
 
-/**
- * Leaf module for the global trending-lessons projection (recompute service +
- * CDC listener on `user_contents`). Exports the service so the explore-feed
- * trending read can use it.
- */
 @Module({
     providers: [
         TrendingContentsProjectionService,
@@ -25,5 +20,10 @@ import {
         TrendingContentsProjectionService,
     ],
 })
+/**
+ * Leaf module for the global trending-lessons projection (recompute service +
+ * CDC listener on `user_contents`). Exports the service so the explore-feed
+ * trending read can use it.
+ */
 export class TrendingContentsProjectionModule extends ConfigurableModuleClass {
 }

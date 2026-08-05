@@ -19,6 +19,7 @@ import type {
     UserXpUserCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_xp_projections` fresh — a new ledger row moves the
  * earner's per-source XP totals AND the global `totalPoints` (both are
@@ -28,7 +29,6 @@ import type {
  * column on `UserEntity` at all). Both topics resolve to a single user id.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class UserXpProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-xp-projection"

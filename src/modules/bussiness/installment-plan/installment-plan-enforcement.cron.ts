@@ -38,6 +38,7 @@ import {
     InstallmentPlanService,
 } from "./installment-plan.service"
 
+@Injectable()
 /**
  * Daily enforcement sweep for installment plans (§2.4 of
  * `docs/installment-payment-plan.md`) — mirrors {@link import("../streak/streak-freeze-cron.service").StreakFreezeCronService}'s
@@ -56,7 +57,6 @@ import {
  * re-run never re-sends the same stage twice — `InstallmentPlanService.recordPayment`
  * clears both timestamps whenever a cycle is paid off.
  */
-@Injectable()
 export class InstallmentPlanEnforcementCronService {
     /** Logger scoped to this service for easy grep of enforcement runs. */
     private readonly logger = new Logger(InstallmentPlanEnforcementCronService.name)

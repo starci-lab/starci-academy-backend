@@ -25,13 +25,13 @@ import type {
     MilestoneTaskAttemptCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_capstone_projections` fresh — a new milestone-task
  * attempt rebuilds the owner's capstone aggregate. The attempts row carries only
  * `user_milestone_task_id`, so the owning user id is resolved via
  * `user_milestone_tasks → enrollments`. TTL lazy-refresh is the fallback.
  */
-@Injectable()
 export class UserCapstoneProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-capstone-projection"

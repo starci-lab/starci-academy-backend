@@ -28,6 +28,7 @@ import type {
  */
 const ES_SYNC_USER_GROUP_ID = "es-sync-user"
 
+@Injectable()
 /**
  * Kafka CDC consumer that mirrors `public.users` row-changes into the
  * Elasticsearch `users` index.
@@ -45,7 +46,6 @@ const ES_SYNC_USER_GROUP_ID = "es-sync-user"
  * it) the failure is logged and swallowed so the app still starts. Delivery is
  * at-least-once, so duplicate re-indexes are harmless (the upsert is idempotent).
  */
-@Injectable()
 export class EsSyncUserListener implements OnModuleInit {
     /** Scoped logger so CDC issues are easy to grep in aggregated logs. */
     private readonly logger = new Logger(EsSyncUserListener.name)

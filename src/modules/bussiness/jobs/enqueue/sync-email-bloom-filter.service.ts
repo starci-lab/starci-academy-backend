@@ -30,10 +30,10 @@ import {
     sleepEnqueueUxDelay,
 } from "../utils"
 
+@Injectable()
 /**
  * Enqueue a job that rebuilds the email bloom filter from `users.email` in batches.
  */
-@Injectable()
 export class EnqueueSyncEmailBloomFilterJobService {
     constructor(
         private readonly jobActionService: JobActionService,

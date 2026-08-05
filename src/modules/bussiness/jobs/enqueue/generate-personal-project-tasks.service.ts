@@ -35,10 +35,10 @@ import type {
     EnqueueGeneratePersonalProjectTasksParams,
 } from "../types"
 
+@Injectable()
 /**
  * Service for enqueueing generate-personal-project-tasks jobs.
  */
-@Injectable()
 export class EnqueueGeneratePersonalProjectTasksJobService {
     constructor(
         private readonly jobActionService: JobActionService,

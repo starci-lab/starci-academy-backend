@@ -18,12 +18,12 @@ import {
     TransactionNotFoundException 
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Service for transaction lifecycle management:
  * create -> increase steps -> complete/fail.
  * Supports optional transactional entity manager.
  */
-@Injectable()
 export class TransactionActionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -58,6 +58,7 @@ export const STREAK_MILESTONES: ReadonlyArray<StreakMilestone> = [
     },
 ]
 
+@Injectable()
 /**
  * Grants a one-time Coin bonus + notification the first time a user's
  * platform-wide streak (from {@link UserStatsProjectionService.getStats})
@@ -74,7 +75,6 @@ export const STREAK_MILESTONES: ReadonlyArray<StreakMilestone> = [
  * so the check-then-grant here is really a fast-path avoiding the wasted
  * transaction, with `writeCoinHistory` as the hard backstop against races.
  */
-@Injectable()
 export class StreakMilestoneService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -11,10 +11,6 @@ import {
     ContentEngagementProjectionListener,
 } from "./content-engagement-projection.listener"
 
-/**
- * Leaf module for the per-content engagement projection (recompute service + CDC
- * listener). Exports the service for inline recompute from write paths.
- */
 @Module({
     providers: [
         ContentEngagementProjectionService,
@@ -24,5 +20,9 @@ import {
         ContentEngagementProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-content engagement projection (recompute service + CDC
+ * listener). Exports the service for inline recompute from write paths.
+ */
 export class ContentEngagementProjectionModule extends ConfigurableModuleClass {
 }

@@ -11,11 +11,6 @@ import {
     UserCodingProjectionListener,
 } from "./user-coding-projection.listener"
 
-/**
- * Leaf module for the per-user coding-practice projection (recompute service +
- * CDC listener on `coding_submissions`). Exports the service so the profile
- * skills + history reads (and any inline write path) can use it.
- */
 @Module({
     providers: [
         UserCodingProjectionService,
@@ -25,5 +20,10 @@ import {
         UserCodingProjectionService,
     ],
 })
+/**
+ * Leaf module for the per-user coding-practice projection (recompute service +
+ * CDC listener on `coding_submissions`). Exports the service so the profile
+ * skills + history reads (and any inline write path) can use it.
+ */
 export class UserCodingProjectionModule extends ConfigurableModuleClass {
 }

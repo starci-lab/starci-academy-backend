@@ -18,6 +18,7 @@ import type {
     FlashcardReviewEventCdcRow,
 } from "./types"
 
+@Injectable()
 /**
  * CDC consumer that keeps `user_flashcard_stats_projections` fresh — each new
  * `flashcard_review_events` row moves the reviewer's streak / retention / totals.
@@ -25,7 +26,6 @@ import type {
  * target. Connection + per-message safety are owned by
  * {@link AbstractProjectionListener}.
  */
-@Injectable()
 export class UserFlashcardStatsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-flashcard-stats-projection"

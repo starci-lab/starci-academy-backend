@@ -5,8 +5,8 @@ import {
     AbstractBadge,
 } from "./abstract-badge"
 
-/** Discussion comments posted. */
 @Injectable()
+/** Discussion comments posted. */
 export class GuidingElephantBadge extends AbstractBadge {
     readonly slug = "guiding-elephant"
 
