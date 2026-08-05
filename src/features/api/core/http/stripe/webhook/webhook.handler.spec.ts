@@ -243,9 +243,11 @@ describe("StripeWebhookHandler",
 
         it("rejects a bad signature without touching the DB",
             async () => {
-                // constructEvent throws on a signature mismatch
+                // constructEvent throws on a signature mismatch — a raw Stripe SDK
+                // failure that propagates unwrapped (the handler does not catch it)
+                const signatureError = new Error("Webhook signature verification failed")
                 stripe.webhooks.constructEvent.mockImplementationOnce(() => {
-                    throw new Error("Webhook signature verification failed")
+                    throw signatureError
                 })
 
                 await expect(

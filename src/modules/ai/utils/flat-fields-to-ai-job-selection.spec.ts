@@ -58,11 +58,13 @@ describe("flatFieldsToAiJobSelection",
                     selectedModel: "gpt-4o",
                 }
 
+                // asserted first so a non-throwing regression fails here, not by
+                // falling through the catch block below with nothing to inspect
+                expect(() => flatFieldsToAiJobSelection(fields)).toThrow(AiByokInvalidException)
+
                 try {
                     flatFieldsToAiJobSelection(fields)
-                    throw new Error("expected flatFieldsToAiJobSelection to throw")
                 } catch (error) {
-                    expect(error).toBeInstanceOf(AiByokInvalidException)
                     const byokError = error as AiByokInvalidException
                     expect(byokError.metadata?.reason).toBe(
                         "a pinned model requires both a model and a provider",

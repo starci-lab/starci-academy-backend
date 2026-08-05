@@ -178,11 +178,14 @@ describe("UseApiService",
                 it("throws AllModelsExhausted after every attempt fails",
                     async () => {
                         // the action always throws → retry until max attempts → exhausted
+                        // (a raw, unclassified provider-call failure — the SUT is what
+                        // classifies it, that's the behavior under test)
+                        const providerError = new Error("boom")
                         await expect(
                             service.useApi<string>({
                                 lane: "chain",
                                 action: async () => {
-                                    throw new Error("boom")
+                                    throw providerError
                                 },
                             }),
                         ).rejects.toBeInstanceOf(AllModelsExhaustedException)
@@ -365,11 +368,12 @@ describe("UseApiService",
                         // classifyAiError falls through to Transient for anything that
                         // isn't Auth/RateLimit/NonKey — the class default is 20s, not
                         // hard-disabled and no Retry-After lookup
+                        const unrecognizedError = new Error("boom")
                         await expect(
                             service.useApi<string>({
                                 lane: "chain",
                                 action: async () => {
-                                    throw new Error("boom")
+                                    throw unrecognizedError
                                 },
                             }),
                         ).rejects.toBeInstanceOf(AllModelsExhaustedException)
@@ -701,7 +705,9 @@ describe("UseApiService",
                     statusText: `status ${status}`,
                     json: jest.fn(async () => {
                         if (body === undefined) {
-                            throw new Error("no body")
+                            // mirrors a real `Response.json()` parse failure on an empty body
+                            const noBodyError = new Error("no body")
+                            throw noBodyError
                         }
                         return body
                     }),

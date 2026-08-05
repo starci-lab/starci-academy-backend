@@ -240,9 +240,11 @@ describe("ContentRagIndexService",
                 ])
                 // boom: the body read THROWS (MinIO/network error) → caught + skipped
                 // good: vi body present, en null → 1 chunk
+                // a raw MinIO/network failure that propagates unwrapped from the S3 client
+                const minioReadError = new Error("MinIO read failed")
                 s3ReadService.json.mockImplementation(async (args: { key: string }) => {
                     if (args.key.startsWith("contents/boom/")) {
-                        throw new Error("MinIO read failed")
+                        throw minioReadError
                     }
                     if (args.key === "contents/good/vi.json") {
                         return {

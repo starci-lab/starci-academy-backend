@@ -2,6 +2,9 @@ import {
     MigrationInterface,
     QueryRunner,
 } from "typeorm"
+import {
+    IrreversibleMigrationException,
+} from "@modules/exceptions"
 
 /**
  * Drops the four AI Lab EVAL tables — the graded prompt-challenge feature that
@@ -56,8 +59,9 @@ export class DropAiLabEvalTables1726100000000 implements MigrationInterface {
      * @throws Always — this migration is not reversible.
      */
     async down(_queryRunner: QueryRunner): Promise<void> {
-        throw new Error(
-            "DropAiLabEvalTables1726100000000 is not reversible: the AI Lab eval feature has been removed and its data cannot be restored.",
-        )
+        throw new IrreversibleMigrationException({
+            migrationName: "DropAiLabEvalTables1726100000000",
+            reason: "the AI Lab eval feature has been removed and its data cannot be restored.",
+        })
     }
 }

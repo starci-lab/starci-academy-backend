@@ -420,8 +420,10 @@ describe("KeyStoreService",
                                 keysFilePath: "/mnt/openai-corrupt.keys",
                             }),
                         ])
+                        // a raw filesystem I/O failure that propagates unwrapped
+                        const readError = new Error("EIO: read failed")
                         mountFilesystemService.readKeysFile.mockImplementationOnce(() => {
-                            throw new Error("EIO: read failed")
+                            throw readError
                         })
 
                         await expect(service.reloadAll()).rejects.toThrow("EIO: read failed")
