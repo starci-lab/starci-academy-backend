@@ -29,8 +29,8 @@
     "^@features/(.*)$": "<rootDir>/src/features/$1",
     "^@tests/(.*)$": "<rootDir>/src/tests/$1"
   },
-  "globalSetup": "<rootDir>/src/tests/harness/setup.ts",
-  "globalTeardown": "<rootDir>/src/tests/harness/teardown.ts",
+  "globalSetup": "<rootDir>/src/tests/helpers/harness-setup.ts",
+  "globalTeardown": "<rootDir>/src/tests/helpers/harness-teardown.ts",
   "testTimeout": 300000,
   "maxWorkers": 1
 }

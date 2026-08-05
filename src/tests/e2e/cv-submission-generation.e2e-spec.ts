@@ -44,7 +44,7 @@ import {
 } from "@modules/keycloak"
 import {
     PingResolver,
-} from "../helpers/ping-resolver"
+} from "@tests/helpers"
 import {
     JobActionService,
 } from "@modules/bussiness"

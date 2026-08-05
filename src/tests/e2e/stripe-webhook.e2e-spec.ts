@@ -29,10 +29,10 @@ import {
 } from "@modules/databases"
 import {
     createE2eApp,
-} from "../helpers/create-e2e-app"
+} from "@tests/helpers"
 import type {
     E2eApp,
-} from "../helpers/create-e2e-app"
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

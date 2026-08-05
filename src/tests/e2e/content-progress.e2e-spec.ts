@@ -51,7 +51,7 @@ import {
 } from "@modules/cache"
 import {
     PingResolver,
-} from "../helpers/ping-resolver"
+} from "@tests/helpers"
 import {
     GraphQLEnrollmentGuard,
     ProgressProjectionService,

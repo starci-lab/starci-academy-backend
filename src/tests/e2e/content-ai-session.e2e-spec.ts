@@ -85,7 +85,7 @@ import {
 } from "@features/api/core/graphql/mutations/contents/touch-content-ai-session/touch-content-ai-session.resolver"
 import {
     PingResolver,
-} from "../helpers/ping-resolver"
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

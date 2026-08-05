@@ -15,17 +15,13 @@ import {
 } from "@features/api/processors/ai/shared/cv-scoring/cv-scoring.service"
 import {
     createHarnessInvoke,
-} from "./harness-invoke"
-import type {
-    HarnessTierName,
-} from "./models"
-import {
     judge,
-} from "./judge"
-import {
     readVolumeDoc,
     volumeExists,
-} from "./volume"
+} from "@tests/helpers"
+import type {
+    HarnessTierName,
+} from "@tests/helpers"
 
 /** Minimum judge score a produced grade must reach to count as passing. */
 const PASS_SCORE = 60

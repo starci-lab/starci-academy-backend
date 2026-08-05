@@ -36,17 +36,13 @@ import {
 } from "@features/api/processors/ai/process-google-docs-submission/steps/process-google-docs-submission-grade-step.service"
 import {
     createHarnessInvoke,
-} from "./harness-invoke"
-import type {
-    HarnessTierName,
-} from "./models"
-import {
     judge,
-} from "./judge"
-import {
     readVolumeDoc,
     volumeExists,
-} from "./volume"
+} from "@tests/helpers"
+import type {
+    HarnessTierName,
+} from "@tests/helpers"
 
 /** Minimum judge score a produced evaluation must reach to count as passing. */
 const PASS_SCORE = 60

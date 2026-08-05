@@ -77,7 +77,7 @@ import {
 } from "@features/api/processors/reconcile-transaction/reconcile-transaction.worker"
 import type {
     SepayClientMock,
-} from "../helpers/types"
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

@@ -34,7 +34,7 @@ import {
 } from "@modules/keycloak"
 import {
     PingResolver,
-} from "../helpers/ping-resolver"
+} from "@tests/helpers"
 import {
     CreateCvBlocksHandler,
 } from "@features/api/core/graphql/mutations/cv-submissions/create-cv-blocks/create-cv-blocks.handler"

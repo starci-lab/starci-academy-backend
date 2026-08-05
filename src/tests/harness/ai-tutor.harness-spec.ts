@@ -1,12 +1,10 @@
 import {
     generate,
-} from "./models"
+    judge,
+} from "@tests/helpers"
 import type {
     HarnessTierName,
-} from "./models"
-import {
-    judge,
-} from "./judge"
+} from "@tests/helpers"
 
 /**
  * Shared tutor persona every query case generates under -- the StarCi Academy

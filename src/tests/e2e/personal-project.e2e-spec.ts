@@ -53,7 +53,7 @@ import {
 } from "@modules/bussiness"
 import {
     PingResolver,
-} from "../helpers/ping-resolver"
+} from "@tests/helpers"
 import {
     UserService,
 } from "@modules/bussiness"

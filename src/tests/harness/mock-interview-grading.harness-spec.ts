@@ -41,18 +41,14 @@ import {
 } from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/types"
 import {
     createHarnessInvoke,
-} from "./harness-invoke"
-import type {
-    HarnessTierName,
-} from "./models"
-import {
     judge,
-} from "./judge"
-import {
     listVolumeDir,
     readVolumeDoc,
     volumeExists,
-} from "./volume"
+} from "@tests/helpers"
+import type {
+    HarnessTierName,
+} from "@tests/helpers"
 
 /** Minimum judge score a produced grade must reach to count as passing. */
 const PASS_SCORE = 60
