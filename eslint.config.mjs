@@ -109,7 +109,6 @@ export default defineConfig([
             "starci-be": starciBe,
         },
         rules: {
-            "starci-be/barrel-export-star-only": "error", // naming-and-structure §3 · nợ=0 -> error
             "starci-be/no-ai-symbol": "error", // nợ=0 -> error · comments stay ASCII (auto-fixable)
             "starci-be/no-emoji": "error", // nợ=0 → error · emoji carry tone, not information
             "starci-be/no-vietnamese": "error", // comments.md · nợ=0 → error
@@ -119,6 +118,7 @@ export default defineConfig([
             "starci-be/no-inline-param-type": "error", // type-safety §4 · nợ=0 → error
             "starci-be/no-nest-logger": "error", // observability · nợ=0 → error
             "starci-be/must-deep-module-import": "error", // naming-and-structure §3 · nợ=0 → error
+            "starci-be/no-self-module-alias": "error", // naming-and-structure §3 · nợ=0 → error
             "starci-be/require-export-jsdoc": "error", // comments §3 · nợ=0 → error
             "starci-be/require-enum-member-jsdoc": "error", // type-safety §3 · nợ=0 → error
         },

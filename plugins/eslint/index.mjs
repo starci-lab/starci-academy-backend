@@ -21,12 +21,10 @@ const NEST_BUILTIN_EXCEPTIONS = new Set([
     "ConflictException",
 ])
 const WINSTON_LOG_METHODS = new Set(["log", "error", "warn", "info", "debug"])
-// `@modules/*` resolves against FOUR tsconfig roots (see tsconfig.json `paths`): the plain
-// capability root plus three "meta" category roots -- `modules/lib/*`, `modules/platform/*`,
-// `modules/integrations/*`. A specifier under one of those three carries one extra path
-// segment (category + module name) and is still the module's BARREL entry
-// (`@modules/platform/exceptions`), not a file. `must-deep-module-import` requires at least
-// one segment past that entry so the specifier names a file, not the barrel.
+// Capability roots under `src/modules/`. Three of them sit behind a category folder
+// (`lib` / `platform` / `integrations`), so the module name is the SECOND path segment
+// (`@modules/platform/exceptions/...`). Everywhere else the module name is the first
+// (`@modules/ai/...`). Used by `must-deep-module-import` and `no-self-module-alias`.
 const MODULES_META_ROOTS = new Set(["lib", "platform", "integrations"])
 
 /** Object node is a destructured parameter pattern (also unwraps a TS parameter property). */
@@ -570,56 +568,77 @@ const noAiSymbol = {
     },
 }
 
-// ── 12. barrel-export-star-only ──────────────────────────────────────────────────────────────
-// naming-and-structure.md §3: "A barrel contains `export *` lines and nothing else." A NAMED
-// re-export (`export { A } from`, `export type { T } from`) is always a symptom, not a style
-// choice: it means two folders emit the same symbol and someone hand-picked their way around
-// the resulting TS2308 instead of fixing the ownership. The cure is ownership -- the shared
-// symbol moves to the capability's `shared/` folder as its single owner -- so the rule points
-// at the named re-export, which is where the workaround is visible.
-//
-// Only `index.ts` is a barrel. A `.module-definition.ts` is deliberately never re-exported at
-// all (ConfigurableModuleBuilder emits identical token names in every module), so it needs no
-// carve-out here: it simply must not appear.
-const barrelExportStarOnly = {
+// ── 12. no-self-module-alias ─────────────────────────────────────────────────────────────────
+// naming-and-structure.md §3: inside a capability, imports are relative. `@modules/ai/...`
+// from a file that already lives under `src/modules/ai/` is the same module talking to itself
+// through the public alias -- a cycle magnet and a lie about the boundary. Same cut for
+// `@features/<name>` and `@tests/<name>`. Meta-root modules accept both the long form
+// (`@modules/platform/winston/...`) and the legacy short form (`@modules/winston/...`).
+const noSelfModuleAlias = {
     meta: {
         type: "problem",
         docs: {
-            description: "A barrel (`index.ts`) contains `export *` lines only. [[naming-and-structure §3]]",
+            description:
+                "Inside a capability, import relatives -- never the capability's own alias. [[naming-and-structure §3]]",
         },
         schema: [],
         messages: {
-            named: "Named re-export in a barrel -- a barrel is `export *` lines only. Two folders emitting one symbol is an ownership bug: move the shared symbol to the capability's `shared/` folder as its single owner and let both sides import it (naming-and-structure §3).",
+            self: "`{{specifier}}` points at this capability through its public alias -- use a relative import (no-self-module-alias, naming-and-structure §3).",
         },
     },
     create(context) {
-        const filename = context.filename || context.getFilename()
-        if (!/(^|[\\/])index\.ts$/.test(filename)) {
-            return {
+        const filename = (context.filename || context.getFilename()).replace(/\\/g, "/")
+
+        function selfKeys() {
+            const modulesIdx = filename.lastIndexOf("/src/modules/")
+            if (modulesIdx !== -1) {
+                const parts = filename.slice(modulesIdx + "/src/modules/".length).split("/")
+                if (MODULES_META_ROOTS.has(parts[0]) && parts.length >= 2) {
+                    return [
+                        `${parts[0]}/${parts[1]}`,
+                        parts[1],
+                    ]
+                }
+                if (parts[0]) return [parts[0]]
             }
+            const featuresIdx = filename.lastIndexOf("/src/features/")
+            if (featuresIdx !== -1) {
+                const name = filename.slice(featuresIdx + "/src/features/".length).split("/")[0]
+                return name ? [name] : []
+            }
+            const testsIdx = filename.lastIndexOf("/src/tests/")
+            if (testsIdx !== -1) {
+                const name = filename.slice(testsIdx + "/src/tests/".length).split("/")[0]
+                return name ? [name] : []
+            }
+            return []
         }
+
+        function check(node, specifier) {
+            let prefix = null
+            if (specifier.startsWith("@modules/")) prefix = "@modules/"
+            else if (specifier.startsWith("@features/")) prefix = "@features/"
+            else if (specifier.startsWith("@tests/")) prefix = "@tests/"
+            else return
+            const rest = specifier.slice(prefix.length)
+            if (!rest) return
+            const keys = selfKeys()
+            if (keys.length === 0) return
+            const hit = keys.some((key) => rest === key || rest.startsWith(`${key}/`))
+            if (!hit) return
+            context.report({
+                node,
+                messageId: "self",
+                data: {
+                    specifier,
+                },
+            })
+        }
+
         return {
-            ExportNamedDeclaration(node) {
-                // `export { A } from "./x"` / `export type { T } from "./x"` -- a re-export.
-                // A local `export const foo = ...` has no `source` and is not a barrel concern.
-                if (!node.source) return
-
-                // IN-REPO sources only. The canon's stated problem is two FOLDERS OF THIS REPO
-                // emitting the same symbol, which is what makes the parent's `export *` illegal.
-                // A third-party package is not a folder here: re-exporting `Throttle` from
-                // `@nestjs/throttler` through a module's barrel is a deliberate facade, and
-                // `export *` from a library would be strictly worse (it dumps the whole package).
-                const source = node.source.value
-                const isInRepo = source.startsWith(".")
-                    || source.startsWith("@modules/")
-                    || source.startsWith("@features/")
-                if (!isInRepo) return
-
-                context.report({
-                    node,
-                    messageId: "named",
-                })
-            },
+            ImportDeclaration(node) { check(node.source, node.source.value) },
+            ExportNamedDeclaration(node) { if (node.source) check(node.source, node.source.value) },
+            ExportAllDeclaration(node) { if (node.source) check(node.source, node.source.value) },
         }
     },
 }
@@ -627,7 +646,6 @@ const barrelExportStarOnly = {
 export default {
     meta: { name: "eslint-plugin-starci-be", version: "0.1.0" },
     rules: {
-        "barrel-export-star-only": barrelExportStarOnly,
         "no-ai-symbol": noAiSymbol,
         "no-vietnamese": noVietnamese,
         "no-emoji": noEmoji,
@@ -639,5 +657,6 @@ export default {
         "require-export-jsdoc": requireExportJsdoc,
         "require-enum-member-jsdoc": requireEnumMemberJsdoc,
         "must-deep-module-import": mustDeepModuleImport,
+        "no-self-module-alias": noSelfModuleAlias,
     },
 }

@@ -72,7 +72,7 @@ debt**, so a violation is not a warning to triage — it is a broken build.
 | `@typescript-eslint/no-explicit-any` | type-safety §1 | `any` — narrow from `unknown` instead |
 | `no-nest-logger` · `no-interpolated-log-message` · `no-console` | observability | any logger but `WinstonService`; an interpolated log message (it takes a `WinstonLog` member plus a structured object) |
 | `must-deep-module-import` | naming-and-structure §3 | a barrel / module-root import (`@modules/ai`) -- name the declaring file |
-| `barrel-export-star-only` | naming-and-structure §3 | a named re-export in an `index.ts` — always the symptom of two folders emitting one symbol |
+| `no-self-module-alias` | naming-and-structure §3 | a capability importing itself through `@modules` / `@features` / `@tests` -- use a relative path |
 | `require-export-jsdoc` · `require-enum-member-jsdoc` | comments §3 · type-safety §3 | an undocumented export; an enum member that does not state its consequence |
 | `no-vietnamese` · `no-emoji` · `no-ai-symbol` | comments | non-English or non-ASCII in source — the bar is a stranger who does not read Vietnamese |
 

@@ -43,7 +43,7 @@ import {
 } from "./keycloak-optional-auth-graphql.guard"
 import {
     UserService,
-} from "../../bussiness/user"
+} from "@modules/bussiness/user/user.service"
 import type {
     ExecutionContext,
 } from "@nestjs/common"
