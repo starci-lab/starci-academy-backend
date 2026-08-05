@@ -17,6 +17,9 @@ import {
 import {
     AiTaskKind,
 } from "@modules/ai/types/model"
+import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
 
 describe("AiModelsHandler",
     () => {
@@ -34,7 +37,7 @@ describe("AiModelsHandler",
                     {
                         name: "cheap-grader",
                         provider: "openrouter",
-                        category: "balanced",
+                        category: AiModelCategory.Medium,
                         complimentary: false,
                         weight: 3.76,
                         supportedTasks: ["grading"],
@@ -42,7 +45,7 @@ describe("AiModelsHandler",
                     {
                         name: "dear-grader",
                         provider: "openrouter",
-                        category: "balanced",
+                        category: AiModelCategory.Medium,
                         complimentary: false,
                         weight: 1.67,
                         supportedTasks: ["grading"],

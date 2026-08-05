@@ -287,10 +287,10 @@ describe("AiEntitlementService",
             () => {
                 it("is idempotent — a transaction already succeeded is left untouched",
                     async () => {
-                        // first findOne (the funding transaction) is already succeeded
-                        entityManager.findOne.mockResolvedValueOnce({
-                            id: "txn-1",
-                            status: TransactionStatus.Succeeded,
+                        // grantTier claims via UPDATE ... WHERE status=pending;
+                        // a non-pending row loses the claim (0 rows affected)
+                        entityManager.update.mockResolvedValueOnce({
+                            affected: 0,
                         })
 
                         await service.grantTier({
@@ -299,22 +299,29 @@ describe("AiEntitlementService",
                             transactionId: "txn-1",
                         })
 
-                        // no subscription mutation, no transaction status flip
+                        // lost claim -> no subscription mutation
                         expect(entityManager.save).not.toHaveBeenCalled()
-                        expect(entityManager.update).not.toHaveBeenCalled()
+                        expect(entityManager.update).toHaveBeenCalledWith(
+                            expect.anything(),
+                            {
+                                id: "txn-1",
+                                status: TransactionStatus.Pending,
+                            },
+                            {
+                                status: TransactionStatus.Succeeded,
+                            },
+                        )
                     })
 
                 it("activates the tier and marks the funding transaction succeeded",
                     async () => {
                         const subscription = buildSubscription()
-                        entityManager.findOne
-                            // funding transaction is still pending
-                            .mockResolvedValueOnce({
-                                id: "txn-1",
-                                status: TransactionStatus.Pending,
-                            })
-                            // loadOrCreate resolves the user's existing row
-                            .mockResolvedValueOnce(subscription)
+                        // this call wins the Pending -> Succeeded claim
+                        entityManager.update.mockResolvedValueOnce({
+                            affected: 1,
+                        })
+                        // loadOrCreate resolves the user's existing row
+                        entityManager.findOne.mockResolvedValueOnce(subscription)
 
                         await service.grantTier({
                             userId,
@@ -330,6 +337,7 @@ describe("AiEntitlementService",
                             expect.anything(),
                             {
                                 id: "txn-1",
+                                status: TransactionStatus.Pending,
                             },
                             {
                                 status: TransactionStatus.Succeeded,
