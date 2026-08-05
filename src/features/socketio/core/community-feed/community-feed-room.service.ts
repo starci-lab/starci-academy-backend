@@ -5,12 +5,12 @@ import type {
     CommunityChannel,
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Builds Socket.IO room names for the community feed. Posts fan out to a per-channel
  * room (and a global "all" room); comments + reactions fan out to a per-post room so
  * only viewers of that post refetch.
  */
-@Injectable()
 export class CommunityFeedRoomService {
     /**
      * Room every post change is broadcast to, regardless of channel. Clients on the

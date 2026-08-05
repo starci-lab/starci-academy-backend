@@ -80,11 +80,11 @@ import {
     renderCriteriaPromptSections,
 } from "../../shared/challenge-submission"
 
+@Injectable()
 /**
  * Step 0: Load GitHub repo → LLM grades per criterion (yes/no + score) → persist attempt + feedback.
  * Also ensures the UserMilestoneTask record exists for the given enrollment + milestoneTask.
  */
-@Injectable()
 export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
     ReviewPersonalProjectTaskPayload,
     EmptyObject

@@ -7,10 +7,10 @@ import {
     CommentNodeObject,
 } from "./comment-node.object"
 
-/** A page of comments plus the total count for the queried scope. */
 @ObjectType({
     description: "A page of comments plus the total count for the queried scope.",
 })
+/** A page of comments plus the total count for the queried scope. */
 export class CommentsPageObject {
     /** The page of comment nodes. */
     @Field(
@@ -31,10 +31,10 @@ export class CommentsPageObject {
         total: number
 }
 
-/** Result of a soft-delete returning the affected comment id. */
 @ObjectType({
     description: "Result of a soft-delete returning the affected comment id.",
 })
+/** Result of a soft-delete returning the affected comment id. */
 export class DeletedCommentObject {
     /** Id of the soft-deleted comment. */
     @Field(

@@ -17,17 +17,6 @@ import {
     ToolsModule,
 } from "@features/tools"
 
-/**
- * Root module for the local-only ops "tools" service.
- *
- * Wires just the infrastructure the tools need:
- *   - {@link ExecaModule}  — runs `pg_dump` / `gzip` / `openssl`
- *   - {@link FfmpegModule} — multi-bitrate video encoding (media + dash)
- *   - {@link Bento4Module} — MPEG-DASH packaging (dash)
- * Cloud uploads are done by `SyncService` via per-target S3 clients built from
- * the local SQLite store, so no app-wide S3 module is needed. Everything is
- * registered globally so {@link ToolsModule} can inject the services.
- */
 @Module({
     imports: [
         /** Environment configuration. */
@@ -50,4 +39,15 @@ import {
         }),
     ],
 })
+/**
+ * Root module for the local-only ops "tools" service.
+ *
+ * Wires just the infrastructure the tools need:
+ *   - {@link ExecaModule}  — runs `pg_dump` / `gzip` / `openssl`
+ *   - {@link FfmpegModule} — multi-bitrate video encoding (media + dash)
+ *   - {@link Bento4Module} — MPEG-DASH packaging (dash)
+ * Cloud uploads are done by `SyncService` via per-target S3 clients built from
+ * the local SQLite store, so no app-wide S3 module is needed. Everything is
+ * registered globally so {@link ToolsModule} can inject the services.
+ */
 export class AppModule {}

@@ -12,10 +12,11 @@ import {
     PgBackupService 
 } from "./pg.service"
 
-/**
- * Service for backing up Primary database.
- */
 @Injectable()
+/**
+ * Every-3h primary product-DB dump. Separate from Keycloak so each dump has its
+ * own S3 prefix and failure domain.
+ */
 export class PrimaryBackupService {
     /**
      * Constructor.

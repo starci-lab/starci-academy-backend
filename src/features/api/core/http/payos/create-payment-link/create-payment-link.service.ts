@@ -15,6 +15,10 @@ import {
 } from "./dtos/response"
 
 @Injectable()
+/**
+ * Dispatches payment-link create through the command bus so the controller stays a thin
+ * REST leaf.
+ */
 export class CreatePaymentLinkService {
     constructor(
         private readonly commandBus: CommandBus,

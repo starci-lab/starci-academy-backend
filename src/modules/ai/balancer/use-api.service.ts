@@ -74,12 +74,12 @@ const CATEGORY_RANK: ReadonlyArray<AiModelCategory> = [
  */
 const LATENCY_FRESHNESS_MS = 5 * 60_000
 
+@Injectable()
 /**
  * High-level AI invoke wrapper — routes pooled keys through round-robin and
  * persists every success/failure into {@link AiPingCacheService} so the next
  * request skips unhealthy keys and admin UI stays in sync.
  */
-@Injectable()
 export class UseApiService {
     constructor(
         private readonly aiModelCatalogService: AiModelCatalogService,

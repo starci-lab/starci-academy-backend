@@ -8,10 +8,10 @@ import {
     parseChallengeEvaluation,
 } from "./utils"
 
+@Injectable()
 /**
  * Nest injectable wrapper for parsing challenge grading JSON from the LLM.
  */
-@Injectable()
 export class ChallengeEvaluationParseService {
     /**
      * @param text - Raw model output.

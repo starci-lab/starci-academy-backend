@@ -11,9 +11,6 @@ import {
     KeycloakGithubRedirectModule,
 } from "./redirect"
 
-/**
- * Module for the Keycloak GitHub.
- */
 @Module({
     imports: [
         KeycloakGithubRedirectModule.register(
@@ -28,4 +25,7 @@ import {
         ),
     ],
 })
+/**
+ * Module for the Keycloak GitHub.
+ */
 export class KeycloakGithubModule extends ConfigurableModuleClass {}

@@ -61,6 +61,10 @@ import {
 
 @CommandHandler(SepayWebhookCommand)
 @Injectable()
+/**
+ * Matches `order_invoice_number` (falling back to the legacy top-level invoice) then
+ * settles — a missing invoice must not silently drop the IPN.
+ */
 export class SepayWebhookHandler
     extends ICQRSHandler<SepayWebhookCommand, void>
     implements ICommandHandler<SepayWebhookCommand, void> {

@@ -23,6 +23,10 @@ import {
         version: "1",
     }
 )
+/**
+ * Browser return from GitHub OAuth — exchanges the code server-side and 302s to the SPA so
+ * the client secret never leaves this process.
+ */
 export class GithubOauthCallbackController {
     constructor(
         private readonly githubOauthCallbackService: GithubOauthCallbackService,

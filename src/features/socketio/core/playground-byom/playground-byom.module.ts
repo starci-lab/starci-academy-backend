@@ -15,15 +15,6 @@ import {
     PlaygroundByomRoomService,
 } from "./playground-byom-room.service"
 
-/**
- * Module providing the Socket.IO Playground BYOM gateway (relays shell
- * commands + resource reports between a browser and a learner's local CLI
- * agent, in the `/playground_byom` namespace).
- *
- * Imports the `Cache` ioredis instance so the gateway can rate-limit the
- * unauthenticated `agent:pair` endpoint (atomic INCR+EXPIRE) — shared across
- * app instances, unlike an in-memory counter.
- */
 @Module({
     imports: [
         IoRedisModule.register({
@@ -40,4 +31,13 @@ import {
         PlaygroundByomGateway,
     ],
 })
+/**
+ * Module providing the Socket.IO Playground BYOM gateway (relays shell
+ * commands + resource reports between a browser and a learner's local CLI
+ * agent, in the `/playground_byom` namespace).
+ *
+ * Imports the `Cache` ioredis instance so the gateway can rate-limit the
+ * unauthenticated `agent:pair` endpoint (atomic INCR+EXPIRE) — shared across
+ * app instances, unlike an in-memory counter.
+ */
 export class PlaygroundByomSocketModule extends ConfigurableModuleClass {}

@@ -23,15 +23,15 @@ import {
     PaypalWebhookService,
 } from "./webhook.service"
 
-/**
- * PayPal webhook HTTP route.
- */
 @Controller(
     {
         path: httpConfig().paypal().tags,
         version: "1",
     },
 )
+/**
+ * PayPal webhook HTTP route.
+ */
 export class PaypalWebhookController {
     private readonly logger = new Logger(PaypalWebhookController.name)
 

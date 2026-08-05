@@ -18,12 +18,12 @@ import type {
     PingKeyResult,
 } from "./types"
 
+@Injectable()
 /**
  * Routes zero-token provider pings to the correct {@link *PingService}.
  *
  * Used by the AI Balancer health checker and model-router quota checks.
  */
-@Injectable()
 export class AiPingService {
     constructor(
         private readonly openAiPingService: OpenAiPingService,

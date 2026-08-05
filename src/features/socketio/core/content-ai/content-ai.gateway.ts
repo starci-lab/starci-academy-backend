@@ -45,6 +45,7 @@ import type {
     EmitChunkParams,
 } from "./types"
 
+@ContentAiWebSocketGateway()
 /**
  * WebSocket gateway for the `/content_ai` namespace — grounded lesson Q&A
  * answer streaming.
@@ -59,7 +60,6 @@ import type {
  * {@link SubscriptionEvent.ContentAiChunk} event. An
  * {@link PublicationEvent.AbortContentAi} message cancels the in-flight stream.
  */
-@ContentAiWebSocketGateway()
 export class ContentAiGateway {
     constructor(
         private readonly contentAiService: ContentAiService,

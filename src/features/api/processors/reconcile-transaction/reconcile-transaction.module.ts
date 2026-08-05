@@ -11,14 +11,14 @@ import {
     ReconcileTransactionBootSweepService,
 } from "./reconcile-transaction-boot-sweep.service"
 
-/**
- * Module registering the reconcile-transaction BullMQ worker + startup catch-up sweep.
- */
 @Module({
     providers: [
         ReconcileTransactionWorker,
         ReconcileTransactionBootSweepService,
     ],
 })
+/**
+ * Module registering the reconcile-transaction BullMQ worker + startup catch-up sweep.
+ */
 export class ReconcileTransactionModule extends ConfigurableModuleClass {
 }

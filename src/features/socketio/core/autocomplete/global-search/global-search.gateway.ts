@@ -20,10 +20,10 @@ import type {
 import {
     GlobalSearchService,
 } from "./handle-global-search"
+@AutocompleteWebSocketGateway()
 /**
  * WebSocket gateway that streams autocomplete suggestions in real-time.
  */
-@AutocompleteWebSocketGateway()
 export class GlobalSearchGateway {
     constructor(
         private readonly globalSearchService: GlobalSearchService,

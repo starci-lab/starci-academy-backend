@@ -14,9 +14,6 @@ import {
     PayosWebhookModule,
 } from "./webhook"
 
-/**
- * Module for payOS HTTP (merchant API + webhook).
- */
 @Module(
     {
         imports: [
@@ -38,4 +35,7 @@ import {
         ],
     },
 )
+/**
+ * Module for payOS HTTP (merchant API + webhook).
+ */
 export class PayosModule extends ConfigurableModuleClass {}

@@ -16,9 +16,6 @@ import {
     ProcessResolveGithubUpdateUserStepService,
 } from "./steps"
 
-/**
- * Module for resolve-github queue processor.
- */
 @Module({
     providers: [
         ProcessResolveGithubSendStepService,
@@ -28,5 +25,8 @@ import {
         ResolveGithubWorker,
     ],
 })
+/**
+ * Module for resolve-github queue processor.
+ */
 export class ResolveGithubModule extends ConfigurableModuleClass {}
 

@@ -8,10 +8,10 @@ import {
     parseProjectEvaluation,
 } from "./utils"
 
+@Injectable()
 /**
  * Nest injectable wrapper for parsing milestone / project grading JSON from the LLM.
  */
-@Injectable()
 export class ProjectEvaluationParseService {
     /**
      * @param text - Raw model output.

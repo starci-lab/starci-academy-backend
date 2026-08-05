@@ -2,8 +2,8 @@ import {
     Injectable,
 } from "@nestjs/common"
 
-/** Builds the Socket.IO room name for one user's private notification stream. */
 @Injectable()
+/** Builds the Socket.IO room name for one user's private notification stream. */
 export class NotificationRoomService {
     /**
      * Room name for a user's notifications. Only the user's own sockets join it,

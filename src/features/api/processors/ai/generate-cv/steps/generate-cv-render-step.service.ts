@@ -38,6 +38,7 @@ import {
     compileCvPdf,
 } from "./compile-cv-pdf"
 
+@Injectable()
 /**
  * Step 2 — render. Reads the structured CV JSON from the compose step, fills the
  * LaTeX template (every user-supplied value is LaTeX-escaped inside the
@@ -49,7 +50,6 @@ import {
  * is `null` when the compile failed, and the job still succeeds (degrades to
  * the raw `.tex` download, same contract the FE preview already has).
  */
-@Injectable()
 export class GenerateCvRenderStepService extends AbstractStepService<
     GenerateCvPayload,
     ExtendedGenerateCvContext

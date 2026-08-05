@@ -14,4 +14,8 @@ import {
     ],
     exports: [StreamAsyncIteratorService],
 })
+/**
+ * Exposes {@link StreamAsyncIteratorService} so GraphQL/NATS subscriptions can
+ * `for await` a callback stream without each feature reimplementing abort/close.
+ */
 export class StreamAsyncIteratorModule extends ConfigurableModuleClass {}

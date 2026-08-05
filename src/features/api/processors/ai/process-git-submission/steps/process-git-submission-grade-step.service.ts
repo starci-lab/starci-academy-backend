@@ -66,6 +66,7 @@ import {
     GradingRetrievalService,
 } from "@modules/rag"
 
+@Injectable()
 /**
  * SCHEMA V2 grade step (stepIndex 0). Mirrors the legacy git grade step but grades the submitted
  * repo against the challenge's outcome + approach (per-language) yes/no criteria instead of the
@@ -73,7 +74,6 @@ import {
  * and parse service can be reused. Uses the same `stepName` ("grade") as V1 so the complete step
  * reads the result transparently.
  */
-@Injectable()
 export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     ProcessGitSubmissionPayload,
     ExtendedProcessGitSubmissionContext

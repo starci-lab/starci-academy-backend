@@ -19,6 +19,10 @@ import {
 
 @CommandHandler(PresignedUrlCommand)
 @Injectable()
+/**
+ * Mints PUT URLs for both MinIO and DigitalOcean so the browser uploads bytes directly and
+ * the API never proxies the file body.
+ */
 export class PresignedUrlHandler
     extends ICQRSHandler<PresignedUrlCommand, Array<PresignedUrlItem>>
     implements ICommandHandler<PresignedUrlCommand, Array<PresignedUrlItem>> {

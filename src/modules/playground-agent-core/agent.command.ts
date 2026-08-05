@@ -1,9 +1,21 @@
-import { Inject } from "@nestjs/common"
-import { Command, CommandRunner, Option } from "nest-commander"
-import { AGENT_META, type AgentMeta } from "./agent-meta"
-import { BaseAgentService } from "./base-agent.service"
-import { DEFAULT_SERVER } from "./constants"
-import { ServiceInstallerService } from "./service-installer.service"
+import {
+    Inject 
+} from "@nestjs/common"
+import {
+    Command, CommandRunner, Option 
+} from "nest-commander"
+import {
+    AGENT_META, type AgentMeta 
+} from "./agent-meta"
+import {
+    BaseAgentService 
+} from "./base-agent.service"
+import {
+    DEFAULT_SERVER 
+} from "./constants"
+import {
+    ServiceInstallerService 
+} from "./service-installer.service"
 
 /** Parsed CLI options for {@link AgentCommand}. */
 interface AgentCommandOptions {
@@ -12,6 +24,14 @@ interface AgentCommandOptions {
     uninstallService?: boolean
 }
 
+@Command({
+    name: "playground-agent",
+    arguments: "[pairingCode]",
+    description: "Pair your local machine with a StarCi playground session, relay commands, and report resources + device info.",
+    options: {
+        isDefault: true 
+    },
+})
 /**
  * The default CLI command (nest-commander) shared by all three agents. Forms:
  *   <agent> <pairingCode> [--server <url>]        -> run the relay
@@ -22,12 +42,6 @@ interface AgentCommandOptions {
  * so the static `name` here is cosmetic; each app's binary name comes from its
  * generated package.json `bin`, and the exact usage/label come from the meta.
  */
-@Command({
-    name: "playground-agent",
-    arguments: "[pairingCode]",
-    description: "Pair your local machine with a StarCi playground session, relay commands, and report resources + device info.",
-    options: { isDefault: true },
-})
 export class AgentCommand extends CommandRunner {
     constructor(
         @Inject(AGENT_META) private readonly meta: AgentMeta,
@@ -63,7 +77,8 @@ export class AgentCommand extends CommandRunner {
 
     async run(inputs: Array<string>, options: AgentCommandOptions): Promise<void> {
         const pairingCode = inputs[0]
-        const server = (options.server || process.env.STARCI_PLAYGROUND_SERVER || DEFAULT_SERVER).replace(/\/+$/, "")
+        const server = (options.server || process.env.STARCI_PLAYGROUND_SERVER || DEFAULT_SERVER).replace(/\/+$/,
+            "")
 
         if (options.uninstallService) {
             this.serviceInstaller.uninstall()
@@ -78,7 +93,8 @@ export class AgentCommand extends CommandRunner {
                 console.error(`--install-service needs a pairing code: ${this.meta.cliName} <pairingCode> --install-service`)
                 process.exit(1)
             }
-            this.serviceInstaller.install(pairingCode, server)
+            this.serviceInstaller.install(pairingCode,
+                server)
             return
         }
         if (!pairingCode) {
@@ -89,7 +105,8 @@ export class AgentCommand extends CommandRunner {
         }
         // RUN mode: wire up the relay, then keep the command pending forever — the
         // socket keeps the process alive and nest-commander must NOT close the context.
-        this.agentService.run(pairingCode, server)
+        this.agentService.run(pairingCode,
+            server)
         await new Promise<void>(() => { /* never resolves */ })
     }
 }

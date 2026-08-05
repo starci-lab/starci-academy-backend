@@ -24,16 +24,16 @@ import {
     StripeWebhookService,
 } from "./webhook.service"
 
-/**
- * Stripe webhook HTTP route. Reads the raw request body (kept via the app's
- * `rawBody: true` bootstrap) so the signature can be verified.
- */
 @Controller(
     {
         path: httpConfig().stripe().tags,
         version: "1",
     },
 )
+/**
+ * Stripe webhook HTTP route. Reads the raw request body (kept via the app's
+ * `rawBody: true` bootstrap) so the signature can be verified.
+ */
 export class StripeWebhookController {
     private readonly logger = new Logger(StripeWebhookController.name)
 

@@ -65,6 +65,12 @@ const httpStatusFromExceptionsPlugin: ApolloServerPlugin = {
 
 @Module({
 })
+/**
+ * The production GraphQL HTTP server: auto-schema, sandbox landing, and
+ * AbstractException → `extensions.http.status` so auth failures are not 200.
+ * Disables Nest's `autoTransformHttpErrors` because that plugin forces 200
+ * whenever `data` is present (including `data: null`).
+ */
 export class MonolithicApolloServerModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE) {
         const dynamicModule = super.register(options)

@@ -14,9 +14,6 @@ import {
     ConfigurableModuleClass 
 } from "./admin.module-definition"
 
-/**
- * Module for Admin API.
- */
 @Module({
     imports: [
         PresignedUrlModule.register({
@@ -30,5 +27,8 @@ import {
         }),
     ],
 })
+/**
+ * Module for Admin API.
+ */
 export class AdminModule extends ConfigurableModuleClass { }
 

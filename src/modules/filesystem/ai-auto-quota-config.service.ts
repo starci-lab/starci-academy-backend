@@ -11,10 +11,10 @@ import {
     resolveAiAutoQuota,
 } from "./utils/resolve-ai-auto-quota"
 
+@Injectable()
 /**
  * Reads free Auto-lane quota caps from mounted `app.yaml` (`systemConfig.ai.auto`).
  */
-@Injectable()
 export class AiAutoQuotaConfigService {
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,

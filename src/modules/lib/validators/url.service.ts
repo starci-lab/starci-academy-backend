@@ -12,8 +12,8 @@ import type {
     IsUrlValidParams,
 } from "./types"
 
-/** Service for validating URLs. */
 @Injectable()
+/** Service for validating URLs. */
 export class UrlValidatorService {
     /** GitHub repository or profile URL (https only). */
     private static readonly GITHUB_REGEX =

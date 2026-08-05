@@ -15,10 +15,12 @@ import {
     AbstractStepService 
 } from "@modules/bussiness"
 
-/**
- * Step mapping service.
- */
 @Injectable()
+/**
+ * Indexes steps by `stepIndex` so the worker dispatches from persisted
+ * `job.currentStep` rather than a hardcoded array — inserting a step only
+ * requires updating its index.
+ */
 export class StepMappingService {
     constructor(
         private readonly initStepService: ProcessVideoInitStepService,

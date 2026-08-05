@@ -35,6 +35,7 @@ import type {
     ScoreUploadedCvParams,
 } from "./types"
 
+@Injectable()
 /**
  * WF-07 — UPLOAD-scoring path. Grades a user-UPLOADED CV that already lives in
  * the unified `cv_generations` table (`source = uploaded`, `uploadedCdnKey` set)
@@ -52,7 +53,6 @@ import type {
  * row, empty file, or empty extracted text is a hard failure (nothing to grade),
  * surfaced as a typed exception rather than a silent null score.
  */
-@Injectable()
 export class ScoreUploadedCvService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -50,12 +50,6 @@ import {
 // "generate-cv" keeps this file compiling without touching the shared enum.
 const GENERATE_CV_QUEUE_NAME = "generate-cv"
 
-/**
- * Generate-CV worker: gather verified achievements → compose structured CV via
- * LLM → render LaTeX + upload → score (shared rubric) → complete (persist onto
- * `cv_generations`). Runs the shared 5-step {@link AbstractStepService} pipeline;
- * `maxSteps` is `5`.
- */
 @Worker(
     GENERATE_CV_QUEUE_NAME,
     {
@@ -65,6 +59,12 @@ const GENERATE_CV_QUEUE_NAME = "generate-cv"
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
+/**
+ * Generate-CV worker: gather verified achievements → compose structured CV via
+ * LLM → render LaTeX + upload → score (shared rubric) → complete (persist onto
+ * `cv_generations`). Runs the shared 5-step {@link AbstractStepService} pipeline;
+ * `maxSteps` is `5`.
+ */
 export class GenerateCvWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

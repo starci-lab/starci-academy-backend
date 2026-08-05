@@ -16,6 +16,10 @@ import {
 } from "@modules/mixin"
 
 @Injectable()
+/**
+ * Eager snapshot of mount secrets into fields plus a readiness watcher so
+ * other modules do not race the first request against unread key files.
+ */
 export class MountStorageService implements OnModuleInit {
     public githubAccessToken: string
     public githubSecretKey: string

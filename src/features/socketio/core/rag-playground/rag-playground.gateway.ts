@@ -38,6 +38,7 @@ import type {
     SubscribeRagPlaygroundRunSocketIoPayload,
 } from "./types"
 
+@RagPlaygroundWebSocketGateway()
 /**
  * WebSocket gateway for the `/rag_playground` namespace — PUBLIC, no auth
  * (anonymous marketing demo). Mirrors `/ai_lab` (per-run room + token-delta
@@ -52,7 +53,6 @@ import type {
  *   the $0 self-hosted local model and never climbs to a paid tier, so the
  *   "chạy trên GPU local · miễn phí" claim on the marketing page always holds.
  */
-@RagPlaygroundWebSocketGateway()
 export class RagPlaygroundGateway {
     constructor(
         private readonly ragPlaygroundRunRegistryService: RagPlaygroundRunRegistryService,

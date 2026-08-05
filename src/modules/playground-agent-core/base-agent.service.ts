@@ -1,11 +1,26 @@
-import { Inject, Injectable, Logger } from "@nestjs/common"
-import { spawn } from "node:child_process"
-import { io, type Socket } from "socket.io-client"
-import { AGENT_META, type AgentMeta } from "./agent-meta"
-import { EVENT, NAMESPACE } from "./constants"
-import { DeviceService } from "./device.service"
-import type { PairAck } from "./types"
+import {
+    Inject, Injectable, Logger 
+} from "@nestjs/common"
+import {
+    spawn 
+} from "node:child_process"
+import {
+    io, type Socket 
+} from "socket.io-client"
+import {
+    AGENT_META, type AgentMeta 
+} from "./agent-meta"
+import {
+    EVENT, NAMESPACE 
+} from "./constants"
+import {
+    DeviceService 
+} from "./device.service"
+import type {
+    PairAck 
+} from "./types"
 
+@Injectable()
 /**
  * The long-running relay every agent shares: connects to the `/playground_byom`
  * namespace, pairs with a session (short-lived pairing code), streams device
@@ -14,7 +29,6 @@ import type { PairAck } from "./types"
  * {@link onPaired} / {@link afterCommand} / {@link onShutdown}. The socket keeps
  * the Nest application context alive.
  */
-@Injectable()
 export abstract class BaseAgentService {
     protected readonly logger: Logger
     /** Live once {@link run} has been called — hooks may use it freely. */
@@ -43,22 +57,41 @@ export abstract class BaseAgentService {
     /** Run one browser-issued command locally, streaming its output back over the socket. */
     private runBrowserCommand(command: string): Promise<void> {
         return new Promise((resolve) => {
-            this.socket.emit(EVENT.commandOutput, { output: `$ ${command}\n` })
-            const child = spawn(command, { shell: true, windowsHide: true })
+            this.socket.emit(EVENT.commandOutput,
+                {
+                    output: `$ ${command}\n` 
+                })
+            const child = spawn(command,
+                {
+                    shell: true, windowsHide: true 
+                })
             const forward = (chunk: Buffer): void => {
-                this.socket.emit(EVENT.commandOutput, { output: chunk.toString() })
+                this.socket.emit(EVENT.commandOutput,
+                    {
+                        output: chunk.toString() 
+                    })
             }
-            child.stdout.on("data", forward)
-            child.stderr.on("data", forward)
-            child.on("error", (error) => {
-                this.socket.emit(EVENT.commandOutput, { output: `\n[agent] failed to run: ${error.message}\n` })
-            })
-            child.on("close", (code) => {
-                if (code && code !== 0) {
-                    this.socket.emit(EVENT.commandOutput, { output: `\n[exit ${code}]\n` })
-                }
-                resolve()
-            })
+            child.stdout.on("data",
+                forward)
+            child.stderr.on("data",
+                forward)
+            child.on("error",
+                (error) => {
+                    this.socket.emit(EVENT.commandOutput,
+                        {
+                            output: `\n[agent] failed to run: ${error.message}\n` 
+                        })
+                })
+            child.on("close",
+                (code) => {
+                    if (code && code !== 0) {
+                        this.socket.emit(EVENT.commandOutput,
+                            {
+                                output: `\n[exit ${code}]\n` 
+                            })
+                    }
+                    resolve()
+                })
         })
     }
 
@@ -72,13 +105,15 @@ export abstract class BaseAgentService {
     /** The long-running relay for a `run` invocation. Returns after wiring up the socket. */
     run(pairingCode: string, server: string): void {
         this.logger.log(`connecting to ${server}${NAMESPACE} …`)
-        const socket: Socket = io(`${server}${NAMESPACE}`, {
-            transports: ["websocket", "polling"],
-            reconnection: true,
-            reconnectionAttempts: Infinity,
-            reconnectionDelay: 1000,
-            reconnectionDelayMax: 5000,
-        })
+        const socket: Socket = io(`${server}${NAMESPACE}`,
+            {
+                transports: ["websocket",
+                    "polling"],
+                reconnection: true,
+                reconnectionAttempts: Infinity,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+            })
         this.socket = socket
 
         // log to the console AND stream the line to the browser (relayed by the gateway).
@@ -90,44 +125,62 @@ export abstract class BaseAgentService {
             } else {
                 this.logger.log(line)
             }
-            socket.emit(EVENT.log, { line, level, t: Date.now() })
+            socket.emit(EVENT.log,
+                {
+                    line, level, t: Date.now() 
+                })
         }
 
         const pair = (): void => {
-            socket.emit(EVENT.pair, { pairingCode }, (ack: PairAck) => {
-                if (!ack || !ack.sessionId) {
-                    this.logger.error(`pairing failed${ack?.error ? `: ${ack.error}` : " — check the code / server URL"}.`)
-                    process.exit(1)
-                }
-                this.sendLog(`paired ✓  playground=${ack.playgroundSlug ?? "?"}  step=${(ack.currentStepIndex ?? 0) + 1}`)
-                // report this machine's hardware ONCE (best-effort GPU) so the UI can show it.
-                void this.deviceService.collect().then((info) => {
-                    socket.emit(EVENT.deviceInfo, info)
-                    this.sendLog(`device: ${info.platform} ${info.arch} · ${info.cpuModel} (${info.cpuCores}) · ${Math.round(info.totalMemBytes / 1e9)}GB${info.gpu ? ` · ${info.gpu}` : ""}`)
+            socket.emit(EVENT.pair,
+                {
+                    pairingCode 
+                },
+                (ack: PairAck) => {
+                    if (!ack || !ack.sessionId) {
+                        this.logger.error(`pairing failed${ack?.error ? `: ${ack.error}` : " — check the code / server URL"}.`)
+                        process.exit(1)
+                    }
+                    this.sendLog(`paired ✓  playground=${ack.playgroundSlug ?? "?"}  step=${(ack.currentStepIndex ?? 0) + 1}`)
+                    // report this machine's hardware ONCE (best-effort GPU) so the UI can show it.
+                    void this.deviceService.collect().then((info) => {
+                        socket.emit(EVENT.deviceInfo,
+                            info)
+                        this.sendLog(`device: ${info.platform} ${info.arch} · ${info.cpuModel} (${info.cpuCores}) · ${Math.round(info.totalMemBytes / 1e9)}GB${info.gpu ? ` · ${info.gpu}` : ""}`)
+                    })
+                    this.sendLog(this.meta.readyMessage)
+                    this.onPaired()
                 })
-                this.sendLog(this.meta.readyMessage)
-                this.onPaired()
-            })
         }
 
-        socket.on("connect", pair)
-        socket.on("connect_error", (error) => this.sendLog(`connection error: ${error.message} (retrying…)`, "warn"))
-        socket.on("disconnect", (reason) => this.sendLog(`disconnected: ${reason} (retrying…)`, "warn"))
+        socket.on("connect",
+            pair)
+        socket.on("connect_error",
+            (error) => this.sendLog(`connection error: ${error.message} (retrying…)`,
+                "warn"))
+        socket.on("disconnect",
+            (reason) => this.sendLog(`disconnected: ${reason} (retrying…)`,
+                "warn"))
 
-        socket.on(EVENT.commandRun, (payload: { command?: string }) => {
-            const command = payload?.command
-            if (!command) {
-                return
-            }
-            this.enqueue(async () => {
-                await this.runBrowserCommand(command)
-                this.afterCommand()
+        socket.on(EVENT.commandRun,
+            (payload: { command?: string }) => {
+                const command = payload?.command
+                if (!command) {
+                    return
+                }
+                this.enqueue(async () => {
+                    await this.runBrowserCommand(command)
+                    this.afterCommand()
+                })
             })
-        })
 
-        socket.on(EVENT.ping, (payload: { t?: number }) => {
-            socket.emit(EVENT.pong, { t: payload?.t })
-        })
+        socket.on(EVENT.ping,
+            (payload: { t?: number }) => {
+                socket.emit(EVENT.pong,
+                    {
+                        t: payload?.t 
+                    })
+            })
 
         this.onSetup()
 
@@ -137,7 +190,9 @@ export abstract class BaseAgentService {
             socket.close()
             process.exit(0)
         }
-        process.on("SIGINT", shutdown)
-        process.on("SIGTERM", shutdown)
+        process.on("SIGINT",
+            shutdown)
+        process.on("SIGTERM",
+            shutdown)
     }
 }

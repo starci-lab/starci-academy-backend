@@ -62,6 +62,10 @@ import {
 
 @CommandHandler(PayosWebhookCommand)
 @Injectable()
+/**
+ * Verifies the PayOS signature then settles — unsigned or failed probes are ignored so a
+ * cancelled checkout cannot enroll.
+ */
 export class PayosWebhookHandler
     extends ICQRSHandler<PayosWebhookCommand, void>
     implements ICommandHandler<PayosWebhookCommand, void> {

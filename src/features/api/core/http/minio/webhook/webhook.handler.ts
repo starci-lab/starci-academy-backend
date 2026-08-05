@@ -15,6 +15,10 @@ import {
 
 @CommandHandler(MinioWebhookCommand)
 @Injectable()
+/**
+ * Acknowledges object events but skips `cv-submissions/` keys — grading is triggered from
+ * the frontend so a storage event cannot auto-start a job.
+ */
 export class MinioWebhookHandler
     extends ICQRSHandler<MinioWebhookCommand, void>
     implements ICommandHandler<MinioWebhookCommand, void> {

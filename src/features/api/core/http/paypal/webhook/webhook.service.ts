@@ -12,6 +12,10 @@ import type {
 } from "./types"
 
 @Injectable()
+/**
+ * Dispatches the PayPal event through the command bus so the controller can ack before
+ * enrollment runs.
+ */
 export class PaypalWebhookService {
     constructor(
         private readonly commandBus: CommandBus,

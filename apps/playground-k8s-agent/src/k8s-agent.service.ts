@@ -2,8 +2,8 @@ import { Inject, Injectable } from "@nestjs/common"
 import { AGENT_META, type AgentMeta, BaseAgentService, DeviceService, EVENT, RESOURCE_INTERVAL_MS } from "@modules/playground-agent-core"
 import { K8sResourceService } from "./k8s-resource.service"
 
-/** The Kubernetes capability: reports pods / deployments / services / … for step verification. */
 @Injectable()
+/** The Kubernetes capability: reports pods / deployments / services / … for step verification. A failed snapshot is swallowed so it never tears down the command relay. */
 export class K8sAgentService extends BaseAgentService {
     private resourceTimer?: NodeJS.Timeout
 

@@ -40,9 +40,6 @@ import {
     StepNotFoundException,
 } from "@modules/exceptions"
 
-/**
- * Worker for enrolling a user in a course.
- */
 @Worker(
     bullData[BullQueueName.Enroll].name,
     {
@@ -52,6 +49,9 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     }
 )
+/**
+ * Worker for enrolling a user in a course.
+ */
 export class EnrollWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

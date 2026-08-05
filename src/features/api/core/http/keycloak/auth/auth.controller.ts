@@ -30,6 +30,10 @@ import {
     path: httpConfig().keycloak().auth().tags,
     version: "1",
 })
+/**
+ * REST login/register/mail-adapter — password grants and admin adapter swaps that cannot
+ * ride GraphQL (cookies, redirects, Keycloak admin).
+ */
 export class KeycloakAuthController {
     constructor(
         private readonly keycloakAuthService: KeycloakAuthService,

@@ -35,13 +35,13 @@ export const GraphQLSuccessMessage = (message: GraphQLSuccessMessage) =>
     SetMetadata(SUCCESS_MESSAGE_METADATA,
         message)
 
+@Injectable()
 /**
  * Interceptor that wraps resolver result in { data, message, success } and handles errors.
  *
  * @example
  * Use @GraphQLSuccessMessage("Done") on a resolver; this interceptor adds it to the response.
  */
-@Injectable()
 export class GraphQLTransformInterceptor<T = unknown>
 implements NestInterceptor<T, GraphQLResponse<T>> {
     constructor(private readonly reflector: Reflector) {}

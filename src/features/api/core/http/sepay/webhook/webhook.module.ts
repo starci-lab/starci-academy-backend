@@ -23,4 +23,8 @@ import {
         SepayWebhookHandler,
     ],
 })
+/**
+ * Wires the SePay IPN controller + handler so VN bank-transfer settlement stays off
+ * GraphQL.
+ */
 export class SepayWebhookModule extends ConfigurableModuleClass {}

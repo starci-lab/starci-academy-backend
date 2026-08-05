@@ -22,15 +22,15 @@ import {
     SepayWebhookService,
 } from "./webhook.service"
 
-/**
- * SePay webhook HTTP route.
- */
 @Controller(
     {
         path: httpConfig().sepay().tags,
         version: "1",
     },
 )
+/**
+ * SePay webhook HTTP route.
+ */
 export class SepayWebhookController {
     private readonly logger = new Logger(SepayWebhookController.name)
 

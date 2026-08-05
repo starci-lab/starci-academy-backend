@@ -23,4 +23,8 @@ import {
         NowPaymentsWebhookHandler,
     ],
 })
+/**
+ * Wires the NOWPayments IPN controller + handler so crypto settlement stays off the
+ * GraphQL mutation tree.
+ */
 export class NowPaymentsWebhookModule extends ConfigurableModuleClass {}

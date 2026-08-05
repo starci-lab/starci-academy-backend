@@ -21,9 +21,6 @@ import {
     ConfigurableModuleClass,
 } from "./ai.module-definition"
 
-/**
- * AI module — invoke routing, ping, and key-rotation balancer.
- */
 @Module({
     imports: [
         AiPingModule.register({
@@ -48,4 +45,7 @@ import {
         AiModelLatencyService,
     ],
 })
+/**
+ * AI module — invoke routing, ping, and key-rotation balancer.
+ */
 export class AiModule extends ConfigurableModuleClass {}

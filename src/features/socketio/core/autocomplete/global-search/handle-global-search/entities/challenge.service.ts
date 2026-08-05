@@ -15,10 +15,10 @@ import {
     GlobalSearchEntityUtilsService,
 } from "./utils.service"
 
+@Injectable()
 /**
  * Service for performing global search on challenges.
  */
-@Injectable()
 export class ChallengeGlobalSearchService {
     /**
      * Constructor.

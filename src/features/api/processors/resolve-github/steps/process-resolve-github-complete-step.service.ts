@@ -30,10 +30,10 @@ import {
     WinstonService,
 } from "@modules/winston"
 
+@Injectable()
 /**
  * Step 2: complete step (execution slice + step advance).
  */
-@Injectable()
 export class ProcessResolveGithubCompleteStepService extends AbstractStepService<
     EnqueueResolveGithubPayload,
     EmptyObject

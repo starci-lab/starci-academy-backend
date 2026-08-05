@@ -26,10 +26,10 @@ import {
     GithubApiOrgService,
 } from "@modules/github"
 
+@Injectable()
 /**
  * Step 0: send GitHub team membership request.
  */
-@Injectable()
 export class ProcessResolveGithubSendStepService extends AbstractStepService<
     EnqueueResolveGithubPayload,
     EmptyObject

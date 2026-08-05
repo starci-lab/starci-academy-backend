@@ -32,11 +32,11 @@ import {
     toPingErrorMessage,
 } from "./utils"
 
+@Injectable()
 /**
  * Zero-token health ping for Google Gemini using `GET /v1beta/models`.
  * Runs its own staggered mount-key sweep on {@link envConfig().ai.ping} cadence.
  */
-@Injectable()
 export class GeminiPingService extends AbstractProviderPingService {
     /** Provider routed by {@link AiPingService.pingKey}. */
     protected readonly provider = ModelProvider.Gemini

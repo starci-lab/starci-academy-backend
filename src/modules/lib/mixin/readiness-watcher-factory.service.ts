@@ -11,10 +11,10 @@ import {
     ReadinessWatcherNotFoundException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Service for creating and managing readiness watchers.
  */
-@Injectable()
 export class ReadinessWatcherFactoryService {
     readonly watchers: Map<string, ReadinessWatcher> = new Map()
 

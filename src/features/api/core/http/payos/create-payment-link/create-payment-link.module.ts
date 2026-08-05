@@ -23,4 +23,8 @@ import {
         CreatePaymentLinkHandler,
     ],
 })
+/**
+ * Wires create-payment-link so checkout minting is a standalone HTTP operation, not a
+ * GraphQL mutation.
+ */
 export class CreatePaymentLinkModule extends ConfigurableModuleClass {}

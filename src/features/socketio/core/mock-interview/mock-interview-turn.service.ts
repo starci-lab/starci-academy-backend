@@ -96,6 +96,7 @@ const QNA_KIND_FRAMING_MAP: Record<string, string> = {
         "situation, not just define it.",
 }
 
+@Injectable()
 /**
  * Pure(-ish) prompt builder for one turn of the mock interview. The ONLY I/O
  * it performs is a RAG lookup (course-wide, read-only) to ground the
@@ -114,7 +115,6 @@ const QNA_KIND_FRAMING_MAP: Record<string, string> = {
  * global bussiness module) because it is only ever consumed by
  * {@link import("./mock-interview.gateway").MockInterviewGateway}.
  */
-@Injectable()
 export class MockInterviewTurnService {
     constructor(
         private readonly contentRagRetrievalService: CourseRagRetrievalService,

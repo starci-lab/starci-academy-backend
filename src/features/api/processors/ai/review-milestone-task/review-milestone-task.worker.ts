@@ -41,9 +41,6 @@ import {
     ReviewMilestoneTaskStepMappingService,
 } from "./step-mapping.service"
 
-/**
- * Review milestone task: `grade` → `complete`.
- */
 @Worker(
     bullData[BullQueueName.ReviewPersonalProjectTask].name,
     {
@@ -53,6 +50,9 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
+/**
+ * Review milestone task: `grade` → `complete`.
+ */
 export class ReviewMilestoneTaskWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

@@ -41,6 +41,7 @@ import type {
 /** Number of rubric RAG chunks to pull for the scoring prompt. */
 const RUBRIC_RAG_TOP_K = 4
 
+@Injectable()
 /**
  * SOURCE-AGNOSTIC CV scoring service. The ONE reusable place that turns a CV —
  * regardless of whether it was AI-generated (`structuredData`) or user-uploaded
@@ -58,7 +59,6 @@ const RUBRIC_RAG_TOP_K = 4
  * other CV tasks. Rubric context comes from the persistent `cv_rag` collection
  * ({@link CvRagRetrievalService}) — advisory, so a RAG miss never fails scoring.
  */
-@Injectable()
 export class CvScoringService {
     constructor(
         private readonly aiInvokeService: AiInvokeService,

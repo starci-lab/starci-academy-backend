@@ -10,6 +10,10 @@ import {
 
 @Module({
 })
+/**
+ * Registers one IoRedis/Valkey client per requested {@link IoRedisInstanceKey}
+ * so queues, throttles, the socket adapter, and cache never share a connection.
+ */
 export class IoRedisModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

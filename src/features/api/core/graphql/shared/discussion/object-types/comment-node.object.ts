@@ -11,10 +11,10 @@ import {
     ReactionSummaryObject,
 } from "./reaction-summary.object"
 
-/** A single threaded comment shaped for the client (author + counts + reactions). */
 @ObjectType({
     description: "A threaded comment with author, reply count and reaction summary.",
 })
+/** A single threaded comment shaped for the client (author + counts + reactions). */
 export class CommentNodeObject {
     /** Comment primary id. */
     @Field(

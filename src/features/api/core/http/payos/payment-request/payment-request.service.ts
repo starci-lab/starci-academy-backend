@@ -12,6 +12,9 @@ import {
 } from "./payment-request.query"
 
 @Injectable()
+/**
+ * Dispatches payment-status through the query bus so the controller does not import PayOS.
+ */
 export class PaymentRequestService {
     constructor(
         private readonly queryBus: QueryBus,

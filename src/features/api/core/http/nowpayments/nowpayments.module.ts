@@ -8,9 +8,6 @@ import {
     NowPaymentsWebhookModule,
 } from "./webhook"
 
-/**
- * Module for NOWPayments HTTP (IPN webhook).
- */
 @Module(
     {
         imports: [
@@ -22,4 +19,7 @@ import {
         ],
     },
 )
+/**
+ * Module for NOWPayments HTTP (IPN webhook).
+ */
 export class NowPaymentsModule extends ConfigurableModuleClass {}

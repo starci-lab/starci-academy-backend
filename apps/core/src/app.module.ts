@@ -183,9 +183,6 @@ import {
 import {
     KafkaModule
 } from "@modules/kafka"
-/**
- * The main module for the application.
- */
 @Module(
     {
         imports: [
@@ -542,5 +539,10 @@ import {
         ],
     }
 )
-
+/**
+ * Core API composition root — GraphQL, HTTP, Socket.IO, workers, backup crons,
+ * video encoder, and init. Thinner apps (cli/tools/mock/agents) are slices of
+ * this graph; a new global module belongs here if it must reach production
+ * traffic.
+ */
 export class AppModule { }

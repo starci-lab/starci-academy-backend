@@ -31,10 +31,13 @@ import type {
     PgBackupParams
 } from "./types"
 
-/**
- * Service for backing up PostgreSQL databases.
- */
 @Injectable()
+/**
+ * Production-only dump → gzip → openssl → private DO upload. Skips outside
+ * production so local/dev never write encrypted dumps with a missing/shared
+ * password. Throws if `BACKUP_ENCRYPT_PASSWORD` is unset rather than uploading
+ * plaintext.
+ */
 export class PgBackupService {
     constructor(
         private readonly s3UploadService: S3UploadService,

@@ -4,11 +4,11 @@ import {
     Int,
 } from "@nestjs/graphql"
 
-/** GraphQL input for cursor pagination request id. */
 @InputType({
     isAbstract: true,
     description: "Input for cursor pagination request id.",
 })
+/** GraphQL input for cursor pagination request id. */
 export class PaginationCursorRequest {
     @Field(() => String,
         {
@@ -17,11 +17,11 @@ export class PaginationCursorRequest {
         requestId: string
 }
 
-/** GraphQL input for cursor + limit. */
 @InputType({
     isAbstract: true,
     description: "Input for cursor pagination (cursor, limit).",
 })
+/** GraphQL input for cursor + limit. */
 export class PaginationCursorFilters {
     @Field({
         nullable: true,

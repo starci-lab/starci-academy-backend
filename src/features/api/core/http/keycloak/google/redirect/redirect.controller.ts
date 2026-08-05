@@ -19,15 +19,15 @@ import {
     KeycloakOidcRedirectService,
 } from "@modules/keycloak"
 
-/**
- * Controller for starting Keycloak Google OIDC redirect (PKCE).
- */
 @Controller(
     {
         path: httpConfig().keycloak().google().tags,
         version: "1",
     }
 )
+/**
+ * Controller for starting Keycloak Google OIDC redirect (PKCE).
+ */
 export class KeycloakGoogleRedirectController {
     constructor(
         private readonly keycloakOidcRedirectService: KeycloakOidcRedirectService,

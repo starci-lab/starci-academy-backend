@@ -11,9 +11,6 @@ import {
     ConfigurableModuleClass,
 } from "./validators.module-definition"
 
-/**
- * Module for URL validation helpers.
- */
 @Module({
     providers: [
         UrlValidatorService,
@@ -24,4 +21,7 @@ import {
         BloomFilterService,
     ],
 })
+/**
+ * Module for URL validation helpers.
+ */
 export class ValidatorsModule extends ConfigurableModuleClass {}

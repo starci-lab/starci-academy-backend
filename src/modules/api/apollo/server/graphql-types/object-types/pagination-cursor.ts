@@ -3,11 +3,11 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** GraphQL type for cursor pagination response (cursor). */
 @ObjectType({
     isAbstract: true,
     description: "Response for cursor-based pagination.",
 })
+/** GraphQL type for cursor pagination response (cursor). */
 export class PaginationCursorResponseData {
     @Field(() => String,
         {

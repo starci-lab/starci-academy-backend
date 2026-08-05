@@ -49,10 +49,10 @@ import {
 import type {
     EnrollStepExecutionResult
 } from "../types"
+@Injectable()
 /**
  * Step service: create enrollment relation between user and course.
  */
-@Injectable()
 export class EnrollStepService extends AbstractStepService<EnrollPayload, undefined> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

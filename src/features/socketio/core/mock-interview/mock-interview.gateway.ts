@@ -58,6 +58,7 @@ import type {
     MockInterviewTurnHistoryEntry,
 } from "./types"
 
+@MockInterviewWebSocketGateway()
 /**
  * WebSocket gateway for the `/mock_interview` namespace — mock interviewer
  * turn token streaming.
@@ -74,7 +75,6 @@ import type {
  * almost 1:1 — the interviewer's turns are ephemeral (never persisted here);
  * only the end-of-session grade (built elsewhere) is durable.
  */
-@MockInterviewWebSocketGateway()
 export class MockInterviewGateway {
     constructor(
         private readonly mockInterviewTurnService: MockInterviewTurnService,

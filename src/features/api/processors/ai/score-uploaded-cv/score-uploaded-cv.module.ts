@@ -11,6 +11,15 @@ import {
     EnqueueScoreUploadedCvJobService,
 } from "./enqueue-score-uploaded-cv.service"
 
+@Module({
+    providers: [
+        ScoreUploadedCvWorker,
+        EnqueueScoreUploadedCvJobService,
+    ],
+    exports: [
+        EnqueueScoreUploadedCvJobService,
+    ],
+})
 /**
  * WF-07 UPLOAD-scoring processor module. Provides the single-step worker (which
  * scores an uploaded `cv_generations` row via the shared `ScoreUploadedCvService`,
@@ -21,13 +30,4 @@ import {
  * The BullMQ queue (`BullQueueName.ScoreUploadedCv`) is auto-registered globally
  * by `BullModule.forRoot`, so no manual queue registration is needed here.
  */
-@Module({
-    providers: [
-        ScoreUploadedCvWorker,
-        EnqueueScoreUploadedCvJobService,
-    ],
-    exports: [
-        EnqueueScoreUploadedCvJobService,
-    ],
-})
 export class ScoreUploadedCvModule extends ConfigurableModuleClass {}

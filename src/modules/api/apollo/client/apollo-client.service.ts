@@ -15,13 +15,13 @@ export type {
     CreateClientParams, CreateClientResult 
 } from "./types"
 
+@Injectable()
 /**
  * Service responsible for creating and caching Apollo Client instances by key.
  *
  * @example
  * const client = apolloClientService.createClient({ key: "api", uri: "https://api.example.com/graphql" })
  */
-@Injectable()
 export class ApolloClientService {
     private readonly clients: Map<string, ApolloClient> =
         new Map()

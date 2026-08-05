@@ -14,11 +14,11 @@ import type {
     ExtendedJudgeCodingSubmissionContext,
 } from "./types"
 
+@Injectable()
 /**
  * Judge-coding-submission pipeline: a single step that submits the batch to
  * Judge0, waits for results, and persists the verdict.
  */
-@Injectable()
 export class JudgeCodingSubmissionStepMappingService {
     constructor(
         private readonly judgeStepService: JudgeCodingSubmissionJudgeStepService,

@@ -23,6 +23,10 @@ import {
 
 @QueryHandler(PaymentRequestQuery)
 @Injectable()
+/**
+ * Fetches an existing PayOS payment by id so the SPA can poll status without holding PayOS
+ * credentials.
+ */
 export class PaymentRequestHandler
     extends ICQRSHandler<PaymentRequestQuery, PaymentRequestResponseData>
     implements IQueryHandler<PaymentRequestQuery, PaymentRequestResponseData> {

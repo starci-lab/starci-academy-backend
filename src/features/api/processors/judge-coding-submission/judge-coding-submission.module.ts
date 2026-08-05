@@ -17,11 +17,6 @@ import {
     JudgeCodingSubmissionJudgeStepService,
 } from "./steps"
 
-/**
- * BullMQ processor module for judging coding submissions via Judge0. Imports the
- * Judge0 client so the judge step can submit batches; the worker self-registers
- * with the `judge-coding-submission` queue.
- */
 @Module({
     imports: [
         Judge0Module.register({
@@ -33,4 +28,9 @@ import {
         JudgeCodingSubmissionJudgeStepService,
     ],
 })
+/**
+ * BullMQ processor module for judging coding submissions via Judge0. Imports the
+ * Judge0 client so the judge step can submit batches; the worker self-registers
+ * with the `judge-coding-submission` queue.
+ */
 export class JudgeCodingSubmissionModule extends ConfigurableModuleClass {}

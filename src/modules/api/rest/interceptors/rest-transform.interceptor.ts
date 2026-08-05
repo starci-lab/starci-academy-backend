@@ -40,12 +40,12 @@ export const RestSuccessMessage = (message: string) =>
     SetMetadata(SUCCESS_MESSAGE_METADATA,
         message)
 
+@Injectable()
 /**
  * Interceptor that wraps all controller responses in a consistent shape:
  * { success, message, data?, error? }.
  * Use with RestSuccessMessage to set the message; on error, success=false and error set.
  */
-@Injectable()
 export class RestTransformInterceptor<T = unknown>
 implements NestInterceptor<T, RestTransformResponseDto<T>>
 {

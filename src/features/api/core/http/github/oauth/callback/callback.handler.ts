@@ -41,6 +41,10 @@ import {
 
 @CommandHandler(GithubOauthCallbackCommand)
 @Injectable()
+/**
+ * Decrypts the OAuth state, exchanges the code, and writes githubUsername so a forged
+ * `state` cannot bind another user's GitHub identity.
+ */
 export class GithubOauthCallbackHandler
     extends ICQRSHandler<GithubOauthCallbackCommand, GithubOauthCallbackResult>
     implements ICommandHandler<GithubOauthCallbackCommand, GithubOauthCallbackResult> {

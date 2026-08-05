@@ -12,10 +12,12 @@ import {
     PgBackupService 
 } from "./pg.service"
 
-/**
- * Service for backing up Keycloak database.
- */
 @Injectable()
+/**
+ * Every-3h Keycloak PG dump. Isolated from primary so an IdP dump failure
+ * cannot skip the product DB (and vice versa). Prefix `keycloak-backups` keeps
+ * restore paths unambiguous.
+ */
 export class KeycloakBackupService {
     /**
      * Constructor.

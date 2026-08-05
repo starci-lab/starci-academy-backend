@@ -3,13 +3,13 @@ import {
 } from "@nestjs/common"
 import crypto from "crypto"
 
+@Injectable()
 /**
  * SHA-256 over an ordered list of UTF-8 strings.
  *
  * Parts are separated by a NUL byte in the preimage so
  * `["a","bc"]` and `["ab","c"]` do not collide (unlike naive concatenation).
  */
-@Injectable()
 export class Sha256Service {
     /**
      * @param parts - Segments in order; each element is hashed as UTF-8.

@@ -5,6 +5,11 @@ import {
     StreamConnection 
 } from "../types"
 
+/**
+ * Ctor bag for {@link NatsStreamConnection}. `nc` must already be connected;
+ * `queueGroup` opts into competing consumers — omit it and every subscriber
+ * gets a full copy of the stream.
+ */
 export interface NatsStreamConnectionOptions {
     /**
      * NATS connection (must already be connected).

@@ -17,10 +17,10 @@ dayjs.extend(timezone)
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
 
+@Injectable()
 /**
  * Service for working with dates and times.
  */
-@Injectable()
 export class DayjsService {
     /**
      * Get the current date and time in UTC.

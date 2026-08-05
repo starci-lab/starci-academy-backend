@@ -14,10 +14,10 @@ import {
     ProcessRevokeGithubRemoveStepService,
 } from "./steps"
 
+@Injectable()
 /**
  * Step map provider for revoke-github pipeline.
  */
-@Injectable()
 export class RevokeGithubStepMappingService {
     constructor(
         private readonly removeGithubStep: ProcessRevokeGithubRemoveStepService,

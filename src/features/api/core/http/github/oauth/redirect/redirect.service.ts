@@ -11,6 +11,10 @@ import {
 } from "./redirect.command"
 
 @Injectable()
+/**
+ * Dispatches the GitHub OAuth start through the command bus so the controller only issues
+ * the 302.
+ */
 export class GithubOauthRedirectCommandService {
     constructor(
         private readonly commandBus: CommandBus,

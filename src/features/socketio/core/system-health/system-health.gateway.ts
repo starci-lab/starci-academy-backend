@@ -25,6 +25,7 @@ import type {
     AiModelHealthSocketIoMessage,
 } from "./types"
 
+@SystemHealthWebSocketGateway()
 /**
  * WebSocket gateway for the `/system_health` namespace — PUBLIC, no auth.
  *
@@ -36,7 +37,6 @@ import type {
  * on a public status page — the payload carries no raw keys, only model name,
  * provider, category, up/down, latency and freshness.
  */
-@SystemHealthWebSocketGateway()
 export class SystemHealthGateway implements OnModuleInit {
     constructor(
         private readonly wsResponseService: WsResponseService,

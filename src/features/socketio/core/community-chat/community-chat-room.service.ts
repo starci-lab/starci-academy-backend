@@ -2,8 +2,8 @@ import {
     Injectable,
 } from "@nestjs/common"
 
-/** Builds the Socket.IO room name for a chat conversation. */
 @Injectable()
+/** Builds the Socket.IO room name for a chat conversation. */
 export class CommunityChatRoomService {
     /**
      * Room name for a conversation. All participants of one conversation share it.

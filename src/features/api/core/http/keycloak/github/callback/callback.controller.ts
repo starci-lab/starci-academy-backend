@@ -23,15 +23,15 @@ import {
 import {
     ApiOperation 
 } from "@nestjs/swagger"
-/**
- * Controller for the Keycloak GitHub callback.
- */
 @Controller(
     {
         path: httpConfig().keycloak().github().tags,
         version: "1",
     }
 )
+/**
+ * Controller for the Keycloak GitHub callback.
+ */
 export class KeycloakGithubCallbackController {
     constructor(
         private readonly keycloakGithubCallbackService: KeycloakGithubCallbackService,

@@ -1,5 +1,8 @@
-import { Injectable } from "@nestjs/common"
+import {
+    Injectable 
+} from "@nestjs/common"
 
+@Injectable()
 /**
  * Runs local CLI probes (docker, kubectl, nvidia-smi, wmic, …) with NO shell —
  * best-effort, never throws. The one place the agents shell out for READ-ONLY
@@ -12,7 +15,6 @@ import { Injectable } from "@nestjs/common"
  * must not be discarded — only a throw (missing binary / non-zero / timeout)
  * yields "".
  */
-@Injectable()
 export class CommandProbeService {
     /** Run a command (no shell); resolve its stdout ("" if the binary is missing or it errors/timeouts). */
     async run(file: string, args: Array<string> = [], timeoutMs = 8000): Promise<string> {
@@ -21,8 +23,14 @@ export class CommandProbeService {
             // no shell; a positive timeout maps to execa's `timeout`. Throw (missing
             // binary / non-zero / timeout) is caught below → "". stderr alone does NOT
             // throw, so stdout survives warning noise (lenient, unlike ExecaService).
-            const options = timeoutMs > 0 ? { shell: false as const, timeout: timeoutMs } : { shell: false as const }
-            const { stdout } = await execa(file, args, options)
+            const options = timeoutMs > 0 ? {
+                shell: false as const, timeout: timeoutMs 
+            } : {
+                shell: false as const 
+            }
+            const { stdout } = await execa(file,
+                args,
+                options)
             return typeof stdout === "string" ? stdout : ""
         } catch {
             return ""

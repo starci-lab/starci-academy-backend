@@ -36,9 +36,6 @@ import {
     ResolveGithubStepMappingService,
 } from "./step-mapping.service"
 
-/**
- * Resolve GitHub processor: `send-github` -> `update-user` -> `complete`.
- */
 @Worker(
     bullData[BullQueueName.ResolveGithub].name,
     {
@@ -48,6 +45,9 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
+/**
+ * Resolve GitHub processor: `send-github` -> `update-user` -> `complete`.
+ */
 export class ResolveGithubWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

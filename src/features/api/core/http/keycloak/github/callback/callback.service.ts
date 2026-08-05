@@ -13,6 +13,9 @@ import {
 } from "./dtos"
 
 @Injectable()
+/**
+ * Dispatches the GitHub IdP callback through the command bus so the controller only 302s.
+ */
 export class KeycloakGithubCallbackService {
     constructor(
         private readonly commandBus: CommandBus,

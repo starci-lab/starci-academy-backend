@@ -14,10 +14,10 @@ import {
     GlobalSearchService,
 } from "./global-search"
 
+@AutocompleteWebSocketGateway()
 /**
  * WebSocket gateway that streams autocomplete suggestions in real-time.
  */
-@AutocompleteWebSocketGateway()
 export class AutocompleteGateway {
     constructor(
         private readonly globalSearchService: GlobalSearchService,

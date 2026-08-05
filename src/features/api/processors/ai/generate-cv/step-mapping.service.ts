@@ -18,13 +18,13 @@ import type {
     ExtendedGenerateCvContext,
 } from "./types"
 
+@Injectable()
 /**
  * Generate-CV pipeline step map:
  * gather (0) → compose (1) → render (2) → score (3) → complete (4).
  * The worker looks up the step for the job's `currentStep` and runs it; each step
  * advances `currentStep` on finalize until it reaches `maxSteps` (5).
  */
-@Injectable()
 export class GenerateCvStepMappingService {
     constructor(
         private readonly gatherStepService: GenerateCvGatherStepService,

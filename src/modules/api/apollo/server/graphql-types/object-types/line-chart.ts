@@ -4,11 +4,11 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** GraphQL type for line chart response (count). */
 @ObjectType({
     isAbstract: true,
     description: "Response data for line chart (count of data points).",
 })
+/** GraphQL type for line chart response (count). */
 export class LineChartResponseData {
     @Field(() => Int,
         {

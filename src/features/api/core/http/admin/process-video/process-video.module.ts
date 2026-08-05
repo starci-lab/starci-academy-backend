@@ -14,9 +14,6 @@ import {
     ProcessVideoHandler,
 } from "./process-video.handler"
 
-/**
- * Module for admin video processing.
- */
 @Module({
     controllers: [
         ProcessVideoController,
@@ -26,4 +23,7 @@ import {
         ProcessVideoHandler,
     ],
 })
+/**
+ * Module for admin video processing.
+ */
 export class ProcessVideoModule extends ConfigurableModuleClass { }

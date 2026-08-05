@@ -75,6 +75,7 @@ interface XpProjectionValue {
     lessonXp?: number
 }
 
+@Injectable()
 /**
  * Step 0 — gather. Assembles EVERY verified achievement + profile the learner has
  * earned (milestone/capstone passes, graded challenge submissions, accepted coding
@@ -84,7 +85,6 @@ interface XpProjectionValue {
  * text (pdf/docx) so the compose step can rewrite it. The whole gathered blob is
  * persisted as this step's execution result for the compose step to read.
  */
-@Injectable()
 export class GenerateCvGatherStepService extends AbstractStepService<
     GenerateCvPayload,
     ExtendedGenerateCvContext

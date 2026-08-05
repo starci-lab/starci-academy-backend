@@ -11,10 +11,6 @@ import {
     CommunityChatRoomService,
 } from "./community-chat-room.service"
 
-/**
- * Module providing the Socket.IO community chat gateway (per-conversation message
- * realtime).
- */
 @Module({
     providers: [
         CommunityChatGateway,
@@ -25,4 +21,8 @@ import {
         CommunityChatRoomService,
     ],
 })
+/**
+ * Module providing the Socket.IO community chat gateway (per-conversation message
+ * realtime).
+ */
 export class CommunityChatModule extends ConfigurableModuleClass {}

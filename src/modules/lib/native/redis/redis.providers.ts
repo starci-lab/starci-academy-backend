@@ -17,6 +17,10 @@ import {
     envConfig 
 } from "@modules/env"
 
+/**
+ * Builds a node-redis standalone or cluster client from env for `key`.
+ * Cluster vs single is per-role — forcing one mode breaks the other deploy.
+ */
 export const createRedisProvider = (key: RedisInstanceKey): Provider => ({
     provide: createRedisKey(key),
     useFactory: async () => {

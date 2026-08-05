@@ -28,6 +28,7 @@ export const AI_MODEL_CATALOG_CACHE_KEY = "ai-model-catalog:enabled"
  */
 export const AI_MODEL_CATALOG_CACHE_MS = 60_000
 
+@Injectable()
 /**
  * Read-side catalog of the rotation models, backed by the `ai_models` table
  * (seeded from `.mount/data/ai-models/*` by the catalog seeder).
@@ -38,7 +39,6 @@ export const AI_MODEL_CATALOG_CACHE_MS = 60_000
  * {@link AI_MODEL_CATALOG_CACHE_KEY}) to avoid hitting Postgres on every LLM
  * call.
  */
-@Injectable()
 export class AiModelCatalogService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

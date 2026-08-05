@@ -8,9 +8,6 @@ import {
     StripeWebhookModule,
 } from "./webhook"
 
-/**
- * Module for Stripe HTTP (webhook).
- */
 @Module(
     {
         imports: [
@@ -22,4 +19,7 @@ import {
         ],
     },
 )
+/**
+ * Module for Stripe HTTP (webhook).
+ */
 export class StripeModule extends ConfigurableModuleClass {}

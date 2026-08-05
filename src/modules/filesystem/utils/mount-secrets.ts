@@ -16,14 +16,6 @@ import type {
     SecretKeycloakAdmin,
 } from "../types"
 
-/**
- * Load the mounted `app.yaml` (parsed via `js-yaml`).
- *
- * Pass `appConfig` to short-circuit the read for tests / in-memory overrides.
- *
- * @param appConfig - optional pre-built config that skips the disk read
- * @returns Parsed {@link AppConfig}
- */
 let runtimeAppConfig: AppConfig | undefined
 
 /**
@@ -39,6 +31,11 @@ export const clearRuntimeAppConfig = (): void => {
     runtimeAppConfig = undefined
 }
 
+/**
+ * Resolves app catalog: explicit override → post-seed runtime merge → disk
+ * `app.yaml`. Init merges mount AI models/subscriptions into memory; reading
+ * the file alone would drop that merge until the next process restart.
+ */
 export const getAppConfig = (appConfig?: AppConfig): AppConfig => {
     if (appConfig) {
         return appConfig

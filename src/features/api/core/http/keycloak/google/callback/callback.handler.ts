@@ -36,6 +36,10 @@ import {
 
 @CommandHandler(KeycloakGoogleCallbackCommand)
 @Injectable()
+/**
+ * Exchanges the Keycloak code and upserts UserEntity from the JWT so a Google IdP login
+ * creates the same local row as password register.
+ */
 export class KeycloakGoogleCallbackHandler
     extends ICQRSHandler<KeycloakGoogleCallbackCommand, KeycloakGoogleCallbackResponse>
     implements ICommandHandler<KeycloakGoogleCallbackCommand, KeycloakGoogleCallbackResponse> {

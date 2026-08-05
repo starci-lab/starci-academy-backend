@@ -51,6 +51,7 @@ export interface EnqueueScoreUploadedCvJobParams {
     ai?: AiJobSelection
 }
 
+@Injectable()
 /**
  * Enqueues a single-step UPLOAD-scoring job (WF-07). Mirrors
  * {@link EnqueueGenerateCvJobService} but does NOT create the `cv_generations`
@@ -59,7 +60,6 @@ export interface EnqueueScoreUploadedCvJobParams {
  * only creates the tracked `jobs` row and adds the BullMQ job; the worker buffers
  * the file, extracts text, scores via the shared rubric, and persists the grade.
  */
-@Injectable()
 export class EnqueueScoreUploadedCvJobService {
     constructor(
         private readonly jobActionService: JobActionService,

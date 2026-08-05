@@ -57,6 +57,10 @@ import {
 
 @CommandHandler(NowPaymentsWebhookCommand)
 @Injectable()
+/**
+ * Verifies HMAC over the raw body then settles the transaction — a mismatched signature
+ * means the payload is untrusted and must be rejected.
+ */
 export class NowPaymentsWebhookHandler
     extends ICQRSHandler<NowPaymentsWebhookCommand, void>
     implements ICommandHandler<NowPaymentsWebhookCommand, void> {

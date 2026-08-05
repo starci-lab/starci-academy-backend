@@ -38,11 +38,6 @@ import {
     PlaygroundByomSocketModule,
 } from "./playground-byom"
 
-/**
- * Feature module bundling all real-time Socket.IO gateways of the app.
- *
- * - `/autocomplete`  namespace: Elasticsearch-powered autocomplete.
- */
 @Module({
     imports: [
         AutocompleteModule.register({
@@ -80,4 +75,9 @@ import {
         }),
     ],
 })
+/**
+ * Feature module bundling all real-time Socket.IO gateways of the app.
+ *
+ * - `/autocomplete`  namespace: Elasticsearch-powered autocomplete.
+ */
 export class CoreModule extends ConfigurableModuleClass {}

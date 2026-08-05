@@ -16,4 +16,8 @@ import {
         MembershipService,
     ],
 })
+/**
+ * Community-membership grant/extend/expiry for paywalls. Isolated so payment
+ * webhooks can import entitlement without pulling the whole billing graph.
+ */
 export class MembershipModule extends ConfigurableModuleClass {}

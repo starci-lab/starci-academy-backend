@@ -38,6 +38,11 @@ import {
 } from "fs"
 
 @Injectable()
+/**
+ * Step 3 — publishes DASH artifacts to both MinIO and DigitalOcean under
+ * `videos/{assetId}`. Dual-write is deliberate: a single-provider upload would
+ * leave the other origin stale for lesson players / CDN.
+ */
 export class ProcessVideoUploadStepService extends AbstractStepService<FilenameProcessData, undefined> {
     stepIndex = 3
     stepName = "upload"

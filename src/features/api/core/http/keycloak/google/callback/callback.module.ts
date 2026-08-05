@@ -23,4 +23,8 @@ import {
         KeycloakGoogleCallbackHandler,
     ],
 })
+/**
+ * Wires the Google IdP callback controller + handler so redirect and callback can register
+ * independently.
+ */
 export class KeycloakGoogleCallbackModule extends ConfigurableModuleClass {}

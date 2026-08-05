@@ -4,12 +4,12 @@ import { OLLAMA_STATUS_INTERVAL_MS } from "./rag-constants"
 import { RagService } from "./rag.service"
 import type { IndexSource } from "./rag-types"
 
+@Injectable()
 /**
  * The RAG capability: probes local Ollama, indexes browser-supplied code, and
  * answers questions grounded ONLY in that code — all on-device. It reports no
  * docker/k8s resources (there is nothing to verify), so it skips the resource loop.
  */
-@Injectable()
 export class RagAgentService extends BaseAgentService {
     private ollamaTimer?: NodeJS.Timeout
 

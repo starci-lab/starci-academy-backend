@@ -26,9 +26,6 @@ import type {
     PresignedUrlItem,
 } from "./presigned-url.command"
 
-/**
- * Admin controller for generating presigned upload URLs.
- */
 @ApiTags(httpConfig().admin().tags)
 @Controller(
     {
@@ -36,6 +33,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Admin controller for generating presigned upload URLs.
+ */
 export class PresignedUrlController {
     constructor(
         private readonly presignedUrlService: PresignedUrlService,

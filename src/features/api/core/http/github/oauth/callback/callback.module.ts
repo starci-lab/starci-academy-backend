@@ -14,9 +14,6 @@ import {
     GithubOauthCallbackHandler,
 } from "./callback.handler"
 
-/**
- * Module for GitHub OAuth callback.
- */
 @Module({
     controllers: [
         GithubOauthCallbackController,
@@ -26,5 +23,8 @@ import {
         GithubOauthCallbackHandler,
     ],
 })
+/**
+ * Module for GitHub OAuth callback.
+ */
 export class GithubOauthCallbackModule extends ConfigurableModuleClass {}
 

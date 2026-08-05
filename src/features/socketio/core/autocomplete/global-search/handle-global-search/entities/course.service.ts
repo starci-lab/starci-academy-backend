@@ -15,10 +15,10 @@ import {
     GlobalSearchEntityUtilsService,
 } from "./utils.service"
 
+@Injectable()
 /**
  * Service for performing global search on courses.
  */
-@Injectable()
 export class CourseGlobalSearchService {
     constructor(
         private readonly elasticsearch: ElasticsearchService,

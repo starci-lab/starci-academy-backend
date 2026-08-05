@@ -26,4 +26,8 @@ import {
         AiAutoQuotaConfigService,
     ],
 })
+/**
+ * Mount readers + AI quota config so secrets stay on disk (k8s/docker volume)
+ * and never ride in process env that leaks into logs or crash dumps.
+ */
 export class FilesystemModule extends ConfigurableModuleClass {}

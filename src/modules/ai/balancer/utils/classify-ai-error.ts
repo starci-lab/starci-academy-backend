@@ -23,21 +23,6 @@ const extractStatus = (error: unknown): number | undefined => {
 }
 
 /**
- * Classify a failed AI call into a rotation-relevant bucket so the balancer can
- * react correctly instead of blindly marking every failure as "key unhealthy":
- *
- * - {@link AiErrorKind.Auth} — invalid / revoked key (401/403): hard-disable it.
- * - {@link AiErrorKind.RateLimit} — 429 / quota: short cooldown, auto-recovers.
- * - {@link AiErrorKind.NonKey} — the prompt/content/abort is at fault, NOT the key
- *   (context length, content filter, malformed request, aborted, JSON parse):
- *   do NOT penalize the key and stop retrying other keys (they will fail too).
- * - {@link AiErrorKind.Transient} — everything else (5xx, network, timeout): light
- *   cooldown + try another key. The safe default for unknown errors.
- *
- * @param error - the thrown error (any shape).
- * @returns the rotation bucket.
- */
-/**
  * Pull a `Retry-After` delay (ms) off a 429 error when the provider sent one.
  * The header is either delta-seconds (e.g. `"30"`) or an HTTP date. Returns
  * undefined when absent/unparseable so the caller falls back to a default cooldown.
@@ -77,6 +62,18 @@ export const extractRetryAfterMs = (error: unknown): number | undefined => {
     return undefined
 }
 
+/**
+ * Classify a failed AI call into a rotation-relevant bucket so the balancer can
+ * react correctly instead of blindly marking every failure as "key unhealthy":
+ *
+ * - {@link AiErrorKind.Auth} — invalid / revoked key (401/403): hard-disable it.
+ * - {@link AiErrorKind.RateLimit} — 429 / quota: short cooldown, auto-recovers.
+ * - {@link AiErrorKind.NonKey} — the prompt/content/abort is at fault, NOT the key
+ *   (context length, content filter, malformed request, aborted, JSON parse):
+ *   do NOT penalize the key and stop retrying other keys (they will fail too).
+ * - {@link AiErrorKind.Transient} — everything else (5xx, network, timeout): light
+ *   cooldown + try another key. The safe default for unknown errors.
+ */
 export const classifyAiError = (error: unknown): AiErrorKind => {
     const status = extractStatus(error)
     const message = (error instanceof Error ? error.message : String(error)).toLowerCase()

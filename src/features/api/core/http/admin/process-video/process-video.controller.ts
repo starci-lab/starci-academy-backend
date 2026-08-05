@@ -31,9 +31,6 @@ import type {
     ProcessVideoResult,
 } from "./process-video.command"
 
-/**
- * Admin controller for enqueuing video processing jobs.
- */
 @ApiTags(httpConfig().admin().tags)
 @Controller(
     {
@@ -41,6 +38,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Admin controller for enqueuing video processing jobs.
+ */
 export class ProcessVideoController {
     constructor(
         private readonly processVideoService: ProcessVideoService,

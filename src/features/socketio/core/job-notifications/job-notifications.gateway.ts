@@ -9,10 +9,10 @@ import {
     socketIoKeycloakAuthMiddleware,
 } from "@modules/socketio"
 
+@JobNotificationsWebSocketGateway()
 /**
  * WebSocket gateway for job notifications in the `/job_notifications` namespace.
  */
-@JobNotificationsWebSocketGateway()
 export class JobNotificationsGateway {
     /**
      * The server instance.

@@ -13,9 +13,6 @@ import {
     ProcessorsModule 
 } from "./processors"
 
-/**
- * Module for the API.
- */
 @Module({
     imports: [
         CoreModule.register({
@@ -26,6 +23,9 @@ import {
         }),
     ],
 })
+/**
+ * Module for the API.
+ */
 export class ApiModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

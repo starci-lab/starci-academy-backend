@@ -74,13 +74,13 @@ import {
 /** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
 
+@Injectable()
 /**
  * Step 1: finalize — load grade result, then ATOMICALLY persist the attempt + feedbacks,
  * the credit charge, the XP/points grant, and the job step advance in ONE transaction.
  * The attempt carries `idempotencyKey = job.id`, so a retried/stalled job cannot create a
  * second attempt or double-charge.
  */
-@Injectable()
 export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStepService<
     ProcessGoogleDocsSubmissionPayload,
     ExtendedProcessGoogleDocsSubmissionContext

@@ -38,6 +38,10 @@ import {
 
 @CommandHandler(KeycloakRegisterCommand)
 @Injectable()
+/**
+ * Creates the Keycloak user, sends verify-email, then password-grants immediately so the
+ * SPA is signed in without a second round-trip.
+ */
 export class KeycloakRegisterHandler
     extends ICQRSHandler<KeycloakRegisterCommand, KeycloakAuthResponse>
     implements ICommandHandler<KeycloakRegisterCommand, KeycloakAuthResponse> {

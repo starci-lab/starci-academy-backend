@@ -33,10 +33,10 @@ import {
     GithubApiOrgService,
 } from "@modules/github"
 
+@Injectable()
 /**
  * Step 0: remove the user from the course GitHub team (revoke repo access).
  */
-@Injectable()
 export class ProcessRevokeGithubRemoveStepService extends AbstractStepService<
     EnqueueRevokeGithubPayload,
     EmptyObject

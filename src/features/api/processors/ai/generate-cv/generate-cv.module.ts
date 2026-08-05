@@ -60,4 +60,8 @@ import {
         ScoreUploadedCvService,
     ],
 })
+/**
+ * Wires the CV generate pipeline and exports enqueue + upload-score services so GraphQL
+ * mutations can start jobs without owning BullMQ.
+ */
 export class GenerateCvModule extends ConfigurableModuleClass {}

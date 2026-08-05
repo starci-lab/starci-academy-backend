@@ -43,10 +43,10 @@ import {
     JobStatusUpdatedSocketIoMessage 
 } from "../types"
 
+@JobNotificationsWebSocketGateway()
 /**
  * WebSocket gateway for job notification subscription in the `/job_notifications` namespace.
  */
-@JobNotificationsWebSocketGateway()
 export class SubcribeJobNotificationGateway implements OnModuleInit {
     /**
      * The service to handle job notification subscription.

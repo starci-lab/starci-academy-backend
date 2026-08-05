@@ -8,6 +8,12 @@ import {
     MockModule
 } from "@features/mock"
 
+@Module({
+    imports: [
+        EnvModule.forRoot(),
+        MockModule,
+    ],
+})
 /**
  * Root module for the standalone mock-sandbox service.
  *
@@ -16,10 +22,4 @@ import {
  * solely to serve public dummy data to lesson Sandpack iframes with relaxed
  * CORS, kept isolated from the main core app.
  */
-@Module({
-    imports: [
-        EnvModule.forRoot(),
-        MockModule,
-    ],
-})
 export class AppModule {}

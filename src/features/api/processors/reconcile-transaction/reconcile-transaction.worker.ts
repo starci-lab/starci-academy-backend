@@ -52,6 +52,15 @@ import type {
     EntityManager,
 } from "typeorm"
 
+@Worker(
+    bullData[BullQueueName.ReconcileTransaction].name,
+    {
+        concurrency: envConfig().bullmq.concurrency,
+        lockDuration: envConfig().bullmq.lockDuration,
+        stalledInterval: envConfig().bullmq.stalledInterval,
+        maxStalledCount: envConfig().bullmq.maxStalledCount,
+    },
+)
 /**
  * Worker that reconciles a pending payment transaction when no webhook arrived.
  *
@@ -62,15 +71,6 @@ import type {
  * - `unpaid` (gateway terminal non-paid) → mark the transaction `unpaid`.
  * - `unknown` → re-enqueue the next attempt; once attempts are exhausted, mark `unpaid`.
  */
-@Worker(
-    bullData[BullQueueName.ReconcileTransaction].name,
-    {
-        concurrency: envConfig().bullmq.concurrency,
-        lockDuration: envConfig().bullmq.lockDuration,
-        stalledInterval: envConfig().bullmq.stalledInterval,
-        maxStalledCount: envConfig().bullmq.maxStalledCount,
-    },
-)
 export class ReconcileTransactionWorker extends WorkerHost {
     constructor(
         @InjectSuperJson()

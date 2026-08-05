@@ -9,9 +9,6 @@ import {
     UtilsModule 
 } from "./utils" 
 
-/**
- * CLI module for the application.
- */
 @Module({
     imports: [
         UtilsModule.register({
@@ -19,4 +16,9 @@ import {
         }),
     ],
 })
+/**
+ * CLI feature root. Only pulls `UtilsModule` globally — must not import
+ * `InitModule` / `SeedersService` or the CLI would boot the git-sourced seeder
+ * graph.
+ */
 export class CliModule extends ConfigurableModuleClass {}

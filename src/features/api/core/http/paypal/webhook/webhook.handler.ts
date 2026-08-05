@@ -61,6 +61,10 @@ import {
 
 @CommandHandler(PaypalWebhookCommand)
 @Injectable()
+/**
+ * Verifies the event via PayPal's signature API then settles — a failed verify means the
+ * payload is forged and must not enroll.
+ */
 export class PaypalWebhookHandler
     extends ICQRSHandler<PaypalWebhookCommand, void>
     implements ICommandHandler<PaypalWebhookCommand, void> {

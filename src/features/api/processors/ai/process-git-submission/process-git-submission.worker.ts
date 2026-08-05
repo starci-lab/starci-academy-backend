@@ -51,11 +51,6 @@ import {
     UserChallengeSubmissionNotFoundException,
 } from "@modules/exceptions"
 
-/**
- * SCHEMA V2 worker: GitHub submission → split → embed → grade against outcome/approach criteria →
- * update `user_challenge_submissions`. Enqueued jobs use the same 2-step pipeline (grade + complete)
- * as the legacy worker, so `maxSteps` is `2`.
- */
 @Worker(
     bullData[BullQueueName.ProcessGitSubmission].name,
     {
@@ -65,6 +60,11 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
+/**
+ * SCHEMA V2 worker: GitHub submission → split → embed → grade against outcome/approach criteria →
+ * update `user_challenge_submissions`. Enqueued jobs use the same 2-step pipeline (grade + complete)
+ * as the legacy worker, so `maxSteps` is `2`.
+ */
 export class ProcessGitSubmissionWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

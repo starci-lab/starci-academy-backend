@@ -37,6 +37,10 @@ import {
 
 @CommandHandler(KeycloakLoginCommand)
 @Injectable()
+/**
+ * Exchanges password for tokens then upserts UserEntity from the JWT sub so GraphQL has a
+ * local row on first login.
+ */
 export class KeycloakLoginHandler
     extends ICQRSHandler<KeycloakLoginCommand, KeycloakAuthResponse>
     implements ICommandHandler<KeycloakLoginCommand, KeycloakAuthResponse> {

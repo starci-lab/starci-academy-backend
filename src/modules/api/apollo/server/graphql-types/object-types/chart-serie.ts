@@ -3,11 +3,11 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** GraphQL type for a chart series point (timestamp). */
 @ObjectType({
     isAbstract: true,
     description: "A single point in a chart series (timestamp).",
 })
+/** GraphQL type for a chart series point (timestamp). */
 export class ChartSerie {
     @Field(() => Date,
         {

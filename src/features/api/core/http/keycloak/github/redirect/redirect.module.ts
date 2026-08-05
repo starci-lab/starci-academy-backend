@@ -13,5 +13,9 @@ import {
         KeycloakGithubRedirectController,
     ],
 })
+/**
+ * Wires only the GitHub IdP start controller — no handler, because Keycloak owns the
+ * authorize round-trip.
+ */
 export class KeycloakGithubRedirectModule extends ConfigurableModuleClass {}
 

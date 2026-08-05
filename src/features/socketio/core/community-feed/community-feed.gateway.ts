@@ -42,6 +42,7 @@ import type {
     SubscribeCommunityFeedSocketIoPayload,
 } from "./types"
 
+@CommunityFeedWebSocketGateway()
 /**
  * WebSocket gateway for the `/community_feed` namespace.
  *
@@ -50,7 +51,6 @@ import type {
  * post. The actual writes happen in the bussiness services, which fan out local
  * {@link EventName} events; this gateway forwards them to the matching rooms.
  */
-@CommunityFeedWebSocketGateway()
 export class CommunityFeedGateway implements OnModuleInit {
     constructor(
         private readonly communityFeedRoomService: CommunityFeedRoomService,

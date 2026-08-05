@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common"
 import { CommandProbeService, type PlaygroundResource } from "@modules/playground-agent-core"
 
+@Injectable()
 /**
  * Snapshots local Kubernetes resources across the kinds StarCi steps verify.
  * Missing tooling / no cluster contributes nothing (no throw) — the agent still
  * runs and simply reports an empty list until a cluster is reachable.
  */
-@Injectable()
 export class K8sResourceService {
     constructor(private readonly probe: CommandProbeService) {}
 

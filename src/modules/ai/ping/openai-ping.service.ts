@@ -27,11 +27,11 @@ import {
     toPingErrorMessage,
 } from "./utils"
 
+@Injectable()
 /**
  * Zero-token health ping for OpenAI using `GET /v1/models`.
  * Runs its own staggered mount-key sweep on {@link envConfig().ai.ping} cadence.
  */
-@Injectable()
 export class OpenAiPingService extends AbstractProviderPingService {
     /** Provider routed by {@link AiPingService.pingKey}. */
     protected readonly provider = ModelProvider.OpenAI

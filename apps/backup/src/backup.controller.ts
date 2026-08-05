@@ -6,6 +6,11 @@ import {
 } from "./backup.service"
 
 @Controller()
+/**
+ * HTTP `/` probe so the leftover `apps/backup` process has a liveness route.
+ * Not the dump trigger — production dumps are `@features/backup` crons inside
+ * core.
+ */
 export class BackupController {
     constructor(private readonly backupService: BackupService) {}
 

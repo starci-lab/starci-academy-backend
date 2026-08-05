@@ -9,10 +9,10 @@ import type {
     RetryParams
 } from "./types"
 
+@Injectable()
 /**
  * Service for retrying actions.
  */
-@Injectable()
 export class RetryService {
     /**
      * Retry an action with configurable options.

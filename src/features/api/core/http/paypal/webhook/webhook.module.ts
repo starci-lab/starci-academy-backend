@@ -23,4 +23,7 @@ import {
         PaypalWebhookHandler,
     ],
 })
+/**
+ * Wires the PayPal webhook controller + handler so capture settlement stays off GraphQL.
+ */
 export class PaypalWebhookModule extends ConfigurableModuleClass {}

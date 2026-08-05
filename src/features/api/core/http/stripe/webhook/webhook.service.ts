@@ -12,6 +12,10 @@ import type {
 } from "./types"
 
 @Injectable()
+/**
+ * Dispatches the Stripe event through the command bus so the controller can ack before
+ * enrollment runs.
+ */
 export class StripeWebhookService {
     constructor(
         private readonly commandBus: CommandBus,

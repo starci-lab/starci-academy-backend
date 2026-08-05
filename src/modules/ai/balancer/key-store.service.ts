@@ -22,6 +22,7 @@ import {
     AiModelCatalogService,
 } from "./ai-model-catalog.service"
 
+@Injectable()
 /**
  * In-memory store of API keys keyed by provider.
  *
@@ -44,7 +45,6 @@ import {
  * const pool = keyStore.getPool(ModelProvider.OpenAI)
  * const active = pool.filter((key) => key.status === KeyStatus.Active)
  */
-@Injectable()
 export class KeyStoreService {
     /** Provider → ordered list of key states (stable order for round-robin). */
     private readonly pool = new Map<ModelProvider, Array<KeyState>>()

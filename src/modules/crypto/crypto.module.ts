@@ -21,4 +21,8 @@ import {
         Sha256Service,
     ],
 })
+/**
+ * AES-GCM + SHA-256 providers so features encrypt/hash via DI instead of
+ * reaching `node:crypto` with ad-hoc IVs and keys.
+ */
 export class CryptoModule extends ConfigurableModuleClass {}

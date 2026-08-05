@@ -22,15 +22,15 @@ import {
     PaymentRequestResponse,
 } from "./dtos"
 
-/**
- * payOS GET payment request HTTP route.
- */
 @Controller(
     {
         path: httpConfig().payos().tags,
         version: "1",
     },
 )
+/**
+ * payOS GET payment request HTTP route.
+ */
 export class PaymentRequestController {
     constructor(
         private readonly paymentRequestService: PaymentRequestService,

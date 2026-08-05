@@ -11,9 +11,6 @@ import {
     KeycloakGoogleRedirectModule,
 } from "./redirect"
 
-/**
- * Module for the Keycloak Google.
- */
 @Module({
     imports: [
         KeycloakGoogleRedirectModule.register(
@@ -28,4 +25,7 @@ import {
         ),
     ],
 })
+/**
+ * Module for the Keycloak Google.
+ */
 export class KeycloakGoogleModule extends ConfigurableModuleClass {}

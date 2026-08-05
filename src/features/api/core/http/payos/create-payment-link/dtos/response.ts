@@ -98,6 +98,10 @@ export class CreatePaymentLinkResponseData {
         qrCode: string
 };
 
+/**
+ * House REST envelope around PayOS checkout fields so the SPA reads `data` the same way as
+ * every other HTTP success.
+ */
 export class CreatePaymentLinkResponse extends AbstractRestResponse<CreatePaymentLinkResponseData> {
     @ApiProperty(
         {

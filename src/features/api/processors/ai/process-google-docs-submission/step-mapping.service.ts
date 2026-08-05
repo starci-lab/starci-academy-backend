@@ -15,11 +15,11 @@ import {
     ProcessGoogleDocsSubmissionCompleteStepService,
 } from "./steps"
 
+@Injectable()
 /**
  * SCHEMA V2 Google Docs submission pipeline: grade against criteria → complete (2-step). Reuses the
  * legacy complete step (it keys off the shared `grade` step name).
  */
-@Injectable()
 export class ProcessGoogleDocsSubmissionStepMappingService {
     constructor(
         private readonly gradeStepService: ProcessGoogleDocsSubmissionGradeStepService,

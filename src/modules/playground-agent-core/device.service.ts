@@ -1,10 +1,16 @@
-import { Injectable } from "@nestjs/common"
+import {
+    Injectable 
+} from "@nestjs/common"
 import os from "node:os"
-import { CommandProbeService } from "./command-probe.service"
-import type { DeviceInfo } from "./types"
+import {
+    CommandProbeService 
+} from "./command-probe.service"
+import type {
+    DeviceInfo 
+} from "./types"
 
-/** Collects the learner machine's hardware/OS snapshot (best-effort GPU). */
 @Injectable()
+/** Collects the learner machine's hardware/OS snapshot (best-effort GPU). */
 export class DeviceService {
     constructor(private readonly probe: CommandProbeService) {}
 
@@ -12,19 +18,33 @@ export class DeviceService {
     private async detectGpu(): Promise<string | null> {
         try {
             if (process.platform === "win32") {
-                const out = (await this.probe.run("wmic", ["path", "win32_VideoController", "get", "name"], 3000))
-                    || (await this.probe.run("powershell", ["-NoProfile", "-Command", "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name"], 3000))
+                const out = (await this.probe.run("wmic",
+                    ["path",
+                        "win32_VideoController",
+                        "get",
+                        "name"],
+                    3000))
+                    || (await this.probe.run("powershell",
+                        ["-NoProfile",
+                            "-Command",
+                            "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name"],
+                        3000))
                 const names = out.split(/\r?\n/).map((s) => s.trim()).filter((s) => s && s.toLowerCase() !== "name")
                 const isVirtual = (n: string): boolean => /duet|parsec|virtual|basic display|rdp|citrix|idd|meta|spacedesk/i.test(n)
                 return names.find((n) => !isVirtual(n)) ?? names[0] ?? null
             }
             if (process.platform === "linux") {
-                const out = await this.probe.run("lspci", [], 3000)
+                const out = await this.probe.run("lspci",
+                    [],
+                    3000)
                 const line = out.split(/\r?\n/).find((l) => /vga|3d|display/i.test(l))
-                return line ? line.replace(/^.*:\s*/, "").trim() : null
+                return line ? line.replace(/^.*:\s*/,
+                    "").trim() : null
             }
             if (process.platform === "darwin") {
-                const out = await this.probe.run("system_profiler", ["SPDisplaysDataType"], 3000)
+                const out = await this.probe.run("system_profiler",
+                    ["SPDisplaysDataType"],
+                    3000)
                 const match = out.match(/Chipset Model:\s*(.+)/)
                 return match ? match[1].trim() : null
             }
@@ -37,14 +57,22 @@ export class DeviceService {
     /** NVIDIA-only VRAM + name via nvidia-smi. Returns {} if nvidia-smi is absent/fails. */
     private async detectNvidiaVram(): Promise<{ vramFreeMb?: number, vramTotalMb?: number, gpu?: string }> {
         try {
-            const out = await this.probe.run("nvidia-smi", ["--query-gpu=memory.free,memory.total,name", "--format=csv,noheader,nounits"], 3000)
+            const out = await this.probe.run("nvidia-smi",
+                ["--query-gpu=memory.free,memory.total,name",
+                    "--format=csv,noheader,nounits"],
+                3000)
             const first = out.split(/\r?\n/).map((s) => s.trim()).find((s) => s.length > 0)
             if (!first) {
-                return {}
+                return {
+                }
             }
-            const [free, total, ...nameParts] = first.split(",").map((s) => s.trim())
-            const vramFreeMb = Number.parseInt(free, 10)
-            const vramTotalMb = Number.parseInt(total, 10)
+            const [free,
+                total,
+                ...nameParts] = first.split(",").map((s) => s.trim())
+            const vramFreeMb = Number.parseInt(free,
+                10)
+            const vramTotalMb = Number.parseInt(total,
+                10)
             const name = nameParts.join(",").trim()
             return {
                 vramFreeMb: Number.isFinite(vramFreeMb) ? vramFreeMb : undefined,
@@ -53,7 +81,8 @@ export class DeviceService {
             }
         } catch {
             // best-effort — no NVIDIA GPU (or driver) just means undefined vram.
-            return {}
+            return {
+            }
         }
     }
 

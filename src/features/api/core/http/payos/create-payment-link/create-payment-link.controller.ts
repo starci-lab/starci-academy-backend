@@ -28,15 +28,15 @@ import {
 } from "@nestjs/swagger"
 
 
-/**
- * payOS create payment link HTTP route.
- */
 @Controller(
     {
         path: httpConfig().payos().tags,
         version: "1",
     },
 )
+/**
+ * payOS create payment link HTTP route.
+ */
 export class CreatePaymentLinkController {
     constructor(
         private readonly createPaymentLinkService: CreatePaymentLinkService,

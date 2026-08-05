@@ -16,6 +16,11 @@ import {
 } from "./utils.service"
 
 @Injectable()
+/**
+ * Hits the locale-scoped content ES index (title / description / body) so lesson
+ * and article hits appear in autocomplete without dumping them into the
+ * course / module / challenge queries.
+ */
 export class ContentGlobalSearchService {
     constructor(
         private readonly elasticsearch: ElasticsearchService,

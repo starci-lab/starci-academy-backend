@@ -34,11 +34,11 @@ import {
 /** Redis key prefix for the per-provider round-robin counter. */
 const ROTATION_COUNTER_PREFIX = "ai_balancer:rotation:"
 
+@Injectable()
 /**
  * Picks the next eligible key from a provider pool using Redis round-robin.
  * Skips keys whose latest ping snapshot in Redis reports `status: false`.
  */
-@Injectable()
 export class KeyRotatorService {
     constructor(
         private readonly keyStoreService: KeyStoreService,

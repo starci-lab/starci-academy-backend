@@ -8,6 +8,10 @@ import {
     SocketIoPayload,
 } from "@modules/socketio"
 
+/**
+ * Entity class-name union the client may request — anything outside these four
+ * has no autocomplete index and would 404 ES or return an empty group.
+ */
 export type SearchableEntity =
     typeof CourseEntity.name |
     typeof ModuleEntity.name |

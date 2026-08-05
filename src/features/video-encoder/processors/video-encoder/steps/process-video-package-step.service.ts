@@ -36,6 +36,11 @@ import {
 } from "os"
 
 @Injectable()
+/**
+ * Step 2 — Bento4 fragment + MPEG-DASH manifest. Isolated because fragmentation
+ * is checked per rendition; re-running after a partial package must not
+ * double-fragment already-cut files.
+ */
 export class ProcessVideoPackageStepService extends AbstractStepService<FilenameProcessData, undefined> {
     stepIndex = 2
     stepName = "package"

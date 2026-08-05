@@ -28,13 +28,15 @@ import type {
     PgSyncCommandOptions
 } from "./types"
 
-/**
- * Sync PostgreSQL database (dump from source, restore into destination).
- */
 @SubCommand({
     name: "pg-sync",
     description: "Sync PostgreSQL database",
 })
+/**
+ * Clone one Postgres into another via local dump+restore. Refuses identical
+ * URLs so a typo cannot wipe the source. Temp dump stays on disk (not S3) —
+ * this is a clone tool, not the encrypted backup cron.
+ */
 export class PgSyncCommand extends CommandRunner {
     constructor(
         private readonly winstonService: WinstonService,

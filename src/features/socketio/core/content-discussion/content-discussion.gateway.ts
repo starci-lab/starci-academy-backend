@@ -40,6 +40,7 @@ import type {
     SubscribeContentDiscussionSocketIoPayload,
 } from "./types"
 
+@ContentDiscussionWebSocketGateway()
 /**
  * WebSocket gateway for the `/content_discussion` namespace.
  *
@@ -47,7 +48,6 @@ import type {
  * content. The actual writes happen in the bussiness services, which fan out local
  * {@link EventName} events; this gateway forwards them to the matching room.
  */
-@ContentDiscussionWebSocketGateway()
 export class ContentDiscussionGateway implements OnModuleInit {
     constructor(
         private readonly contentDiscussionRoomService: ContentDiscussionRoomService,

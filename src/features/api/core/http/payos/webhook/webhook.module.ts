@@ -23,4 +23,7 @@ import {
         PayosWebhookHandler,
     ],
 })
+/**
+ * Wires the PayOS IPN controller + handler so bank-transfer settlement stays off GraphQL.
+ */
 export class PayosWebhookModule extends ConfigurableModuleClass {}

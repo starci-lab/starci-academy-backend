@@ -15,10 +15,10 @@ import {
     GlobalSearchEntityUtilsService,
 } from "./utils.service"
 
+@Injectable()
 /**
  * Service for performing global search on modules.
  */
-@Injectable()
 export class ModuleGlobalSearchService {
     constructor(
         private readonly elasticsearch: ElasticsearchService,

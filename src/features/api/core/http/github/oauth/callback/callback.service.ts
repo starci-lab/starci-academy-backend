@@ -11,6 +11,10 @@ import {
 } from "./callback.command"
 
 @Injectable()
+/**
+ * Dispatches the GitHub OAuth callback through the command bus so the redirect controller
+ * does not import Octokit or crypto.
+ */
 export class GithubOauthCallbackService {
     constructor(
         private readonly commandBus: CommandBus,

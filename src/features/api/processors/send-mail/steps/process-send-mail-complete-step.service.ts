@@ -25,10 +25,10 @@ import {
     WinstonService,
 } from "@modules/winston"
 
+@Injectable()
 /**
  * Step 1: last pipeline step (persist execution slice + advance job).
  */
-@Injectable()
 export class ProcessSendMailCompleteStepService extends AbstractStepService<
     SendMailPayload,
     EmptyObject

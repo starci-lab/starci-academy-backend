@@ -7,13 +7,13 @@ import type {
     PaginateResult,
 } from "../types"
 
+@Injectable()
 /**
  * Service to paginate arrays by page number and limit.
  *
  * @example
  * const page = paginateService.paginate({ items: all, pageNumber: 1, limit: 10 })
  */
-@Injectable()
 export class PaginateService {
     /**
      * Returns a slice of items for the given page.

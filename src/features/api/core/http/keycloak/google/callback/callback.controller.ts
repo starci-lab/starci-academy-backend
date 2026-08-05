@@ -23,15 +23,15 @@ import {
 import {
     ApiOperation 
 } from "@nestjs/swagger"
-/**
- * Controller for the Keycloak Google callback.
- */
 @Controller(
     {
         path: httpConfig().keycloak().google().tags,
         version: "1",
     }
 )
+/**
+ * Controller for the Keycloak Google callback.
+ */
 export class KeycloakGoogleCallbackController {
     constructor(
         private readonly keycloakGoogleCallbackService: KeycloakGoogleCallbackService,

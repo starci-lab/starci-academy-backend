@@ -36,6 +36,10 @@ import {
 
 @CommandHandler(GithubOauthRedirectCommand)
 @Injectable()
+/**
+ * Verifies the Keycloak refresh token then builds the GitHub authorize URL with encrypted
+ * state so the callback can restore user + return URL without trusting query params.
+ */
 export class GithubOauthRedirectCommandHandler
     extends ICQRSHandler<GithubOauthRedirectCommand, GithubOauthRedirectCommandResult>
     implements ICommandHandler<GithubOauthRedirectCommand, GithubOauthRedirectCommandResult> {

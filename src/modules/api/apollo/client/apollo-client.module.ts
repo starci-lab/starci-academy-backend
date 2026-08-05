@@ -9,14 +9,14 @@ import {
     ApolloClientService 
 } from "./apollo-client.service"
 
+@Module({
+})
 /**
  * Nest module that provides Apollo Client creation and caching via ApolloClientService.
  *
  * @example
  * ApolloClientModule.register({ isGlobal: true })
  */
-@Module({
-})
 export class ApolloClientModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

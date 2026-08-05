@@ -8,9 +8,6 @@ import {
     PaypalWebhookModule,
 } from "./webhook"
 
-/**
- * Module for PayPal HTTP (webhook).
- */
 @Module(
     {
         imports: [
@@ -22,4 +19,7 @@ import {
         ],
     },
 )
+/**
+ * Module for PayPal HTTP (webhook).
+ */
 export class PaypalModule extends ConfigurableModuleClass {}

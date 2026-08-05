@@ -7,6 +7,10 @@ import {
     pow10,
 } from "./pow-10"
 
+/**
+ * Inputs for {@link bnMulDecimal}. Named (not inline) so call sites share one
+ * rounding contract — `isRoundUp` decides whether a partial unit is kept.
+ */
 export interface BnMulDecimalParams {
     // the amount to convert to a decimal
     bn: BN
@@ -72,6 +76,10 @@ export interface BnDivDecimalParams {
     fractionDigits?: Decimal
 }
 
+/**
+ * Divides a BN by a Decimal via reciprocal multiply so BN stays integer-only
+ * and a fractional divisor cannot throw or truncate to zero mid-scale.
+ */
 export const bnDivDecimal = ({
     bn,
     decimal,
@@ -86,6 +94,10 @@ export const bnDivDecimal = ({
     })
 }
 
+/**
+ * BN÷BN as a Decimal with explicit scale. Direct `bn1/bn2` would floor to 0
+ * for ratios below 1, which silently zeros fees and shares.
+ */
 export const bnDivBn = ({
     bn1,
     bn2,
@@ -105,6 +117,10 @@ export const bnDivBn = ({
         )
 }
 
+/**
+ * Inputs for {@link bnDivBn}. `fractionDigits` is the kept scale after the
+ * ratio — too low and a tiny share rounds to 0.
+ */
 export interface BnDivBnParams {
     bn1: BN
     bn2: BN

@@ -19,14 +19,14 @@ import {
     ServicesModule,
 } from "./services"
 
+@Module({
+})
 /**
  * Nest module that registers Apollo Server (monolithic or federation) and optional services.
  *
  * @example
  * ApolloServerModule.register({ type: ApolloServerType.Monolithic, useServices: true })
  */
-@Module({
-})
 export class ApolloServerModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

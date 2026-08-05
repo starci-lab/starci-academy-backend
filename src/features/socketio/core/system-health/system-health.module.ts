@@ -8,10 +8,6 @@ import {
     SystemHealthGateway,
 } from "./system-health.gateway"
 
-/**
- * Module providing the Socket.IO system-health gateway (public per-model AI
- * latency snapshot broadcast).
- */
 @Module({
     providers: [
         SystemHealthGateway,
@@ -20,4 +16,8 @@ import {
         SystemHealthGateway,
     ],
 })
+/**
+ * Module providing the Socket.IO system-health gateway (public per-model AI
+ * latency snapshot broadcast).
+ */
 export class SystemHealthModule extends ConfigurableModuleClass {}

@@ -33,17 +33,6 @@ import {
     CliModule,
 } from "@features/cli"
 
-/**
- * CLI application root module — only imports required by {@link CliModule}.
- * `PrimaryPostgreSQLModule` added for `utils playground-seed` (and any future
- * subcommand needing `@InjectPrimaryPostgreSQLEntityManager` — none did before,
- * so it was never wired here; `withResolvers: false` since the CLI has no
- * GraphQL layer to resolve entity fields for).
- * `CryptoModule` / `FilesystemModule` / `S3Module` added for
- * `utils playground-seed-test` — the seeder's shared parser/context services
- * transitively need `Sha256Service`, `MountStorageService`, and `S3ReadService`.
- * None of the three pulls in `InitModule`/`SeedersService`/`DataGitBootstrapService`.
- */
 @Module({
     imports: [
 
@@ -86,4 +75,15 @@ import {
         }),
     ],
 })
+/**
+ * CLI application root — only imports required by {@link CliModule}.
+ * `PrimaryPostgreSQLModule` added for `utils playground-seed` (and any future
+ * subcommand needing `@InjectPrimaryPostgreSQLEntityManager` — none did before,
+ * so it was never wired here; `withResolvers: false` since the CLI has no
+ * GraphQL layer to resolve entity fields for).
+ * `CryptoModule` / `FilesystemModule` / `S3Module` added for
+ * `utils playground-seed-test` — the seeder's shared parser/context services
+ * transitively need `Sha256Service`, `MountStorageService`, and `S3ReadService`.
+ * None of the three pulls in `InitModule`/`SeedersService`/`DataGitBootstrapService`.
+ */
 export class AppModule {}

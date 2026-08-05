@@ -21,5 +21,9 @@ import {
         PaginateService,
     ],
 })
+/**
+ * Shared Apollo helpers (paginate + validate) so query leaves do not each
+ * reimplement offset math or input checks against the same GraphQL types.
+ */
 export class ServicesModule extends ConfigurableModuleClass {
 }

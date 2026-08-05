@@ -81,13 +81,13 @@ export interface EnqueueGenerateCvJobParams {
     language?: string
 }
 
+@Injectable()
 /**
  * Enqueues a CV generation job. CREATES the `Pending` {@link UserCvGenerationEntity}
  * row FIRST (in the same order as the git/google-docs enqueue services create
  * their tracked rows), then creates the tracked `jobs` row and adds the BullMQ
  * job. The worker updates the generation row to `Done` / `Failed`.
  */
-@Injectable()
 export class EnqueueGenerateCvJobService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

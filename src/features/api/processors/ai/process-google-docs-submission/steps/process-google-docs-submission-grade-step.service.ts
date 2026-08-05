@@ -63,13 +63,13 @@ import {
     GradingRetrievalService,
 } from "@modules/rag"
 
+@Injectable()
 /**
  * SCHEMA V2 grade step (stepIndex 0) for Google Docs submissions. Mirrors the legacy gdocs grade
  * step but grades the document against the challenge's outcome + approach (per-language) yes/no
  * criteria. Outputs the same evaluation template shape so the legacy complete step + parse service
  * can be reused. Uses the same `stepName` ("grade") as V1.
  */
-@Injectable()
 export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepService<
     ProcessGoogleDocsSubmissionPayload,
     ExtendedProcessGoogleDocsSubmissionContext

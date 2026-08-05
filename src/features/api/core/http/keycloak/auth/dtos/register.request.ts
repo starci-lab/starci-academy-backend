@@ -6,6 +6,10 @@ import {
     MinLength,
 } from "class-validator"
 
+/**
+ * Registration fields validated here before Keycloak user-create — email is required
+ * because username may be derived from it.
+ */
 export class KeycloakRegisterRequest {
     @IsOptional()
     @IsString()

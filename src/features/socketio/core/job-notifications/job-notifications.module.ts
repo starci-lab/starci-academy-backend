@@ -11,10 +11,6 @@ import {
     SubcribeJobNotificationModule,
 } from "./subcribe"
 
-/**
- * Root module for the `/job_notifications` Socket.IO namespace: wires the
- * gateway plus the subscribe-to-a-job feature module.
- */
 @Module({
     imports: [
         SubcribeJobNotificationModule.register({
@@ -25,5 +21,9 @@ import {
         JobNotificationsGateway,
     ],
 })
+/**
+ * Root module for the `/job_notifications` Socket.IO namespace: wires the
+ * gateway plus the subscribe-to-a-job feature module.
+ */
 export class JobNotificationsModule extends ConfigurableModuleClass {}
 

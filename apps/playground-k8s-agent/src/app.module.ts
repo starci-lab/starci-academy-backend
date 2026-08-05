@@ -15,7 +15,6 @@ const K8S_AGENT_META: AgentMeta = {
     launchdLabel: "org.starci.playground-k8s-agent",
 }
 
-/** Root module for the k8s agent's nest-commander CLI. */
 @Module({
     providers: [
         { provide: AGENT_META, useValue: K8S_AGENT_META },
@@ -28,4 +27,5 @@ const K8S_AGENT_META: AgentMeta = {
         AgentCommand,
     ],
 })
+/** Root module for the k8s agent's nest-commander CLI. Unique systemd/launchd names so it can coexist with docker/rag on the same machine. */
 export class AppModule {}

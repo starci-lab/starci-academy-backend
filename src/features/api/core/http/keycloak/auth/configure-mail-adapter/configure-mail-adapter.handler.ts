@@ -21,6 +21,10 @@ import {
 
 @CommandHandler(KeycloakConfigureMailAdapterCommand)
 @Injectable()
+/**
+ * Points Keycloak SMTP at our verify-email flow (and optionally fires verify for one user)
+ * so confirmation mail is not sent by Keycloak's default theme.
+ */
 export class KeycloakConfigureMailAdapterHandler
     extends ICQRSHandler<KeycloakConfigureMailAdapterCommand, KeycloakConfigureMailAdapterResponse>
     implements ICommandHandler<KeycloakConfigureMailAdapterCommand, KeycloakConfigureMailAdapterResponse> {

@@ -36,6 +36,7 @@ import type {
     SubscribeCommunityChatSocketIoPayload,
 } from "./types"
 
+@CommunityChatWebSocketGateway()
 /**
  * WebSocket gateway for the `/community_chat` namespace.
  *
@@ -44,7 +45,6 @@ import type {
  * {@link EventName.ChatMessageCreated} event; this gateway forwards it to the
  * matching room (refetch-on-event model).
  */
-@CommunityChatWebSocketGateway()
 export class CommunityChatGateway implements OnModuleInit {
     constructor(
         private readonly communityChatRoomService: CommunityChatRoomService,

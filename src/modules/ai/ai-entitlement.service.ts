@@ -53,6 +53,7 @@ import type {
     SetCeilParams,
 } from "./types"
 
+@Injectable()
 /**
  * Resolves and debits a user's AI entitlement.
  *
@@ -69,7 +70,6 @@ import type {
  * Windows reset lazily on read: when a `*ResetAt` timestamp is in the past the
  * matching counter drops to 0 and the timestamp rolls forward from "now".
  */
-@Injectable()
 export class AiEntitlementService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

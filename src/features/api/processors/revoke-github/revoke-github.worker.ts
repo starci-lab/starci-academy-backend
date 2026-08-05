@@ -36,9 +36,6 @@ import {
     RevokeGithubStepMappingService,
 } from "./step-mapping.service"
 
-/**
- * Revoke GitHub processor: `remove-github`.
- */
 @Worker(
     bullData[BullQueueName.RevokeGithub].name,
     {
@@ -48,6 +45,9 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
+/**
+ * Revoke GitHub processor: `remove-github`.
+ */
 export class RevokeGithubWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

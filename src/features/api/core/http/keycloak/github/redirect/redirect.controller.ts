@@ -19,15 +19,15 @@ import {
     KeycloakOidcRedirectService,
 } from "@modules/keycloak"
 
-/**
- * Controller for starting Keycloak GitHub OIDC redirect (PKCE).
- */
 @Controller(
     {
         path: httpConfig().keycloak().github().tags,
         version: "1",
     }
 )
+/**
+ * Controller for starting Keycloak GitHub OIDC redirect (PKCE).
+ */
 export class KeycloakGithubRedirectController {
     constructor(
         private readonly keycloakOidcRedirectService: KeycloakOidcRedirectService,

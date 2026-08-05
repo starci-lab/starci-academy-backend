@@ -9,8 +9,8 @@ import type {
     BloomFilterState,
 } from "./types"
 
-/** Simple Bloom filter helper (in-memory). */
 @Injectable()
+/** Simple Bloom filter helper (in-memory). */
 export class BloomFilterService {
     /**
      * Recommended parameters for a target false positive rate.

@@ -14,9 +14,6 @@ import {
     ViewPresignedUrlHandler,
 } from "./view-presigned-url.handler"
 
-/**
- * Module for admin view presigned URL generation (GET access).
- */
 @Module({
     controllers: [
         ViewPresignedUrlController,
@@ -26,4 +23,7 @@ import {
         ViewPresignedUrlHandler,
     ],
 })
+/**
+ * Module for admin view presigned URL generation (GET access).
+ */
 export class ViewPresignedUrlModule extends ConfigurableModuleClass {}

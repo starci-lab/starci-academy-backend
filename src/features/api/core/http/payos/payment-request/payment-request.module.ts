@@ -23,4 +23,8 @@ import {
         PaymentRequestHandler,
     ],
 })
+/**
+ * Wires the PayOS payment-status query as its own HTTP operation so checkout polling does
+ * not share the create-link module.
+ */
 export class PaymentRequestModule extends ConfigurableModuleClass {}

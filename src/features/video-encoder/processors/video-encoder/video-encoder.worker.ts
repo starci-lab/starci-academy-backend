@@ -38,6 +38,10 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     }
 )
+/**
+ * ProcessVideo Bull consumer. Re-reads `job.currentStep` each loop so a retry
+ * resumes mid-pipeline instead of re-downloading and re-encoding from step 0.
+ */
 export class VideoEncoderWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

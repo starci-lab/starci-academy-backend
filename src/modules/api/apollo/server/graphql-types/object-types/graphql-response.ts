@@ -7,11 +7,15 @@ import {
     IsString,
 } from "class-validator"
 
-/** Base GraphQL response shape (success, message, error). */
 @ObjectType({
     isAbstract: true,
     description: "Base response for all GraphQL queries and mutations.",
 })
+/**
+ * Envelope every GraphQL op returns so the interceptor can stamp
+ * success/message/error uniformly. `data` lives on subclasses and stays null
+ * on failure — do not put payload fields here or errors leak typed data.
+ */
 export abstract class AbstractGraphQLResponse {
     @IsBoolean()
     @Field(() => Boolean,

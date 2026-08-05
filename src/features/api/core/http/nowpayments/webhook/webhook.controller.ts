@@ -23,15 +23,15 @@ import {
     NowPaymentsWebhookService,
 } from "./webhook.service"
 
-/**
- * NOWPayments IPN HTTP route.
- */
 @Controller(
     {
         path: httpConfig().nowpayments().tags,
         version: "1",
     },
 )
+/**
+ * NOWPayments IPN HTTP route.
+ */
 export class NowPaymentsWebhookController {
     private readonly logger = new Logger(NowPaymentsWebhookController.name)
 

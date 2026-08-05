@@ -9,15 +9,15 @@ import {
     IAbstractGraphQLResponse,
 } from "../../types"
 
+@ObjectType({
+    description: "A single entity autocomplete suggestion.",
+})
 /**
  * One generic autocomplete suggestion (any entity).
  *
  * Reused by every entity's `*Suggestions` query — the id deep-links/selects the
  * entity on the client, the label is the clean display string.
  */
-@ObjectType({
-    description: "A single entity autocomplete suggestion.",
-})
 export class SuggestionItem {
     /** Entity id (used to deep-link / select on the client). */
     @Field(
@@ -28,7 +28,6 @@ export class SuggestionItem {
     )
         id: string
 
-    /** Clean display label (e.g. "Docker"). */
     @Field(
         () => String,
         {
@@ -38,16 +37,16 @@ export class SuggestionItem {
         label: string
 }
 
+@ObjectType({
+    description: "Entity autocomplete suggestions, best match first.",
+})
 /**
  * Generic payload of autocomplete suggestions, best match first.
  *
  * Reused by every entity's `*Suggestions` query.
  */
-@ObjectType({
-    description: "Entity autocomplete suggestions, best match first.",
-})
+/** Clean display label (e.g. "Docker"). */
 export class SuggestionsPayload {
-    /** The matching suggestions, ordered by relevance then display index. */
     @Field(
         () => [SuggestionItem],
         {
@@ -57,15 +56,16 @@ export class SuggestionsPayload {
         data: Array<SuggestionItem>
 }
 
+@ObjectType({
+    description: "Response wrapper for an entity autocomplete suggestions query.",
+})
 /**
  * Generic response wrapper for any entity `*Suggestions` query.
  *
  * Reused by every entity's `*Suggestions` query — wraps {@link SuggestionsPayload}
  * in the standard success/message/error envelope.
  */
-@ObjectType({
-    description: "Response wrapper for an entity autocomplete suggestions query.",
-})
+/** The matching suggestions, ordered by relevance then display index. */
 export class SuggestionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SuggestionsPayload>

@@ -12,6 +12,10 @@ import {
 } from "./webhook.command"
 
 @Injectable()
+/**
+ * Dispatches the PayOS IPN through the command bus so the controller can ack before
+ * enrollment runs.
+ */
 export class PayosWebhookService {
     constructor(
         private readonly commandBus: CommandBus,

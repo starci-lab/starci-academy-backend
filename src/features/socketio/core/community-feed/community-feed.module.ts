@@ -11,10 +11,6 @@ import {
     CommunityFeedRoomService,
 } from "./community-feed-room.service"
 
-/**
- * Module providing the Socket.IO community feed gateway (posts + comments +
- * reactions realtime).
- */
 @Module({
     providers: [
         CommunityFeedGateway,
@@ -25,4 +21,8 @@ import {
         CommunityFeedRoomService,
     ],
 })
+/**
+ * Module providing the Socket.IO community feed gateway (posts + comments +
+ * reactions realtime).
+ */
 export class CommunityFeedModule extends ConfigurableModuleClass {}

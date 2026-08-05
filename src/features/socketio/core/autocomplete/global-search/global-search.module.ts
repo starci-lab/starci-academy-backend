@@ -12,14 +12,11 @@ import {
     GlobalSearchService,
     CourseGlobalSearchService,
     ModuleGlobalSearchService,
-    ChallengeGlobalSearchService,
+    ChallengeGlobalSearchService,
     ContentGlobalSearchService,
     GlobalSearchEntityUtilsService
 } from "./handle-global-search"
 
-/**
- * Module providing Socket.IO global fuzzy search using CQRS + Elasticsearch.
- */
 @Module({
     providers: [
         GlobalSearchGateway,
@@ -27,7 +24,7 @@ import {
         GlobalSearchHandler,
         CourseGlobalSearchService,
         ModuleGlobalSearchService,
-        ChallengeGlobalSearchService,
+        ChallengeGlobalSearchService,
         ContentGlobalSearchService,
         GlobalSearchEntityUtilsService,
     ],
@@ -37,5 +34,9 @@ import {
         GlobalSearchHandler,
     ]
 })
+/**
+ * Wires the autocomplete global-search gateway plus per-entity ES searchers so a
+ * typed query can fan out without each caller importing the leaf services.
+ */
 export class GlobalSearchModule extends ConfigurableModuleClass {}
 

@@ -13,13 +13,13 @@ import type {
     ValidatePageNumberParams,
 } from "../types"
 
+@Injectable()
 /**
  * Service to validate pagination limit and page number.
  *
  * @example
  * validateService.validateLimit({ limit: 50, min: 1, max: 100 })
  */
-@Injectable()
 export class ValidateService {
     /**
      * Validates limit is within min/max; throws if out of range.

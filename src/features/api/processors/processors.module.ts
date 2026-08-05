@@ -38,9 +38,6 @@ import {
     ScoreUploadedCvModule,
 } from "./ai/score-uploaded-cv"
 
-/**
- * Module for API-side BullMQ processors.
- */
 @Module({
     imports: [
         SendMailModule.register({
@@ -81,4 +78,7 @@ import {
         }),
     ],
 })
+/**
+ * Module for API-side BullMQ processors.
+ */
 export class ProcessorsModule extends ConfigurableModuleClass {}

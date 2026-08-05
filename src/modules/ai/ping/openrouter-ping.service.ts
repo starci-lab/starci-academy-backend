@@ -30,13 +30,13 @@ import {
     toPingErrorMessage,
 } from "./utils"
 
+@Injectable()
 /**
  * Zero-token health ping for OpenRouter using `GET /api/v1/models` (the gateway
  * is OpenAI-compatible). Reuses the `openai` SDK pointed at the OpenRouter
  * baseURL. Runs its own staggered mount-key sweep on {@link envConfig().ai.ping}
  * cadence.
  */
-@Injectable()
 export class OpenRouterPingService extends AbstractProviderPingService {
     /** Provider routed by {@link AiPingService.pingKey}. */
     protected readonly provider = ModelProvider.OpenRouter

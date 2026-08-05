@@ -17,9 +17,6 @@ import {
     ConfigurableModuleClass,
 } from "./webhook.module-definition"
 
-/**
- * Module for the Minio webhook.
- */
 @Module({
     imports: [
         JobsModule,
@@ -35,4 +32,7 @@ import {
         MinioWebhookService,
     ],
 })
+/**
+ * Module for the Minio webhook.
+ */
 export class MinioWebhookModule extends ConfigurableModuleClass {}

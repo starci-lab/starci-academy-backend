@@ -3,6 +3,7 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 
+@Resolver()
 /**
  * A no-op root `@Query` resolver for e2e specs that only exercise mutations.
  *
@@ -12,7 +13,6 @@ import {
  * this resolver to such a module's `providers` satisfies that requirement
  * without pulling in any real query flow.
  */
-@Resolver()
 export class PingResolver {
     /**
      * Trivial root query so the generated schema has a valid `Query` type.

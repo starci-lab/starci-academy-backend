@@ -27,4 +27,8 @@ import {
         ChallengeEvaluationParseService,
     ],
 })
+/**
+ * Wires Google-Docs submission grade + complete steps so the worker stays a dumb runner
+ * over the step map.
+ */
 export class ProcessGoogleDocsSubmissionModule extends ConfigurableModuleClass {}

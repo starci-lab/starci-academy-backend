@@ -40,6 +40,15 @@ import {
     ScoreUploadedCvService,
 } from "../shared/cv-scoring"
 
+@Worker(
+    bullData[BullQueueName.ScoreUploadedCv].name,
+    {
+        concurrency: envConfig().bullmq.aiConcurrency,
+        lockDuration: envConfig().bullmq.lockDuration,
+        stalledInterval: envConfig().bullmq.stalledInterval,
+        maxStalledCount: envConfig().bullmq.maxStalledCount,
+    },
+)
 /**
  * WF-07 UPLOAD-scoring worker — SINGLE-STEP (score only), NOT a multi-step
  * pipeline. It grades a user-UPLOADED CV row (`cv_generations.source = uploaded`)
@@ -50,15 +59,6 @@ import {
  * polling. This is the upload analogue of {@link GenerateCvWorker}, collapsed to a
  * single pass (there is nothing to compose/render for an already-uploaded file).
  */
-@Worker(
-    bullData[BullQueueName.ScoreUploadedCv].name,
-    {
-        concurrency: envConfig().bullmq.aiConcurrency,
-        lockDuration: envConfig().bullmq.lockDuration,
-        stalledInterval: envConfig().bullmq.stalledInterval,
-        maxStalledCount: envConfig().bullmq.maxStalledCount,
-    },
-)
 export class ScoreUploadedCvWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

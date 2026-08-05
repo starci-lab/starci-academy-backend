@@ -43,16 +43,16 @@ const DEVOPS_MASTERY_DISPLAY_ID = "devops-mastery"
 /** Course folder relative path — index-prefixed, relative to the `courses` context dir. */
 const DEVOPS_MASTERY_RELATIVE_PATH = "2-devops-mastery"
 
+@SubCommand({
+    name: "playground-seed-test",
+    description: "Test-run the Playground seeder against local .mount/data content (git-free)",
+})
 /**
  * Test-runs the Playground seeder against local `.mount/data` content, bypassing
  * every git-sourced seed entrypoint (`DataGitBootstrapService` / `InitModule` /
  * `SeedersService`) entirely. Reads the mounted `courses/2-devops-mastery/playgrounds/`
  * tree directly and upserts into Postgres, printing a before/after row-count summary.
  */
-@SubCommand({
-    name: "playground-seed-test",
-    description: "Test-run the Playground seeder against local .mount/data content (git-free)",
-})
 export class PlaygroundSeedTestCommand extends CommandRunner {
     constructor(
         private readonly winstonService: WinstonService,

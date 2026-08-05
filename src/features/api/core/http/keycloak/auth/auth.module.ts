@@ -31,4 +31,8 @@ import {
         KeycloakConfigureMailAdapterHandler,
     ],
 })
+/**
+ * Wires REST auth handlers so login/register/mail-adapter stay out of the GraphQL Keycloak
+ * mutation tree.
+ */
 export class KeycloakAuthModule extends ConfigurableModuleClass {}

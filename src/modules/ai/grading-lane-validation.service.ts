@@ -19,6 +19,7 @@ import type {
     ValidateGradingLaneParams,
 } from "./types"
 
+@Injectable()
 /**
  * Validates a grading model pick against entitlement and the `ai_models` catalog.
  *
@@ -29,7 +30,6 @@ import type {
  *   (paid OR enrolled) and the model's category must be in the user's tier
  *   categories, with the row existing + `enabled`.
  */
-@Injectable()
 export class GradingLaneValidationService {
     constructor(
         private readonly aiEntitlementService: AiEntitlementService,

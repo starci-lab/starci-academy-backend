@@ -32,12 +32,12 @@ import {
     ModuleGlobalSearchService,
 } from "./entities"
 
+@QueryHandler(GlobalSearchQuery)
+@Injectable()
 /**
  * Handler that performs fuzzy search across multiple Elasticsearch indices
  * (contents, challenges, courses, modules) and merges results by score.
  */
-@QueryHandler(GlobalSearchQuery)
-@Injectable()
 export class GlobalSearchHandler
     extends ICQRSHandler<GlobalSearchQuery, GlobalSearchSocketIoMessage>
     implements IQueryHandler<GlobalSearchQuery, GlobalSearchSocketIoMessage> {

@@ -11,6 +11,15 @@ import {
     MockInterviewTurnService,
 } from "./mock-interview-turn.service"
 
+@Module({
+    providers: [
+        MockInterviewGateway,
+        MockInterviewTurnService,
+    ],
+    exports: [
+        MockInterviewGateway,
+    ],
+})
 /**
  * Module providing the Socket.IO mock-interview gateway (on-rails,
  * RAG-grounded interviewer turn token streaming in the `/mock_interview`
@@ -22,13 +31,4 @@ import {
  * of those are imported here. `MockInterviewTurnService` is scoped locally to
  * this module since it is only ever consumed by `MockInterviewGateway`.
  */
-@Module({
-    providers: [
-        MockInterviewGateway,
-        MockInterviewTurnService,
-    ],
-    exports: [
-        MockInterviewGateway,
-    ],
-})
 export class MockInterviewModule extends ConfigurableModuleClass {}

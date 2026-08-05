@@ -22,6 +22,10 @@ import {
 } from "./configure-mail-adapter"
 
 @Injectable()
+/**
+ * Dispatches login/register/mail-adapter commands so the controller does not import
+ * Keycloak admin or JWT decode.
+ */
 export class KeycloakAuthService {
     constructor(
         private readonly commandBus: CommandBus,

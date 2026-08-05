@@ -10,6 +10,10 @@ import {
 
 @Module({
 })
+/**
+ * Registers one node-redis client per requested {@link RedisInstanceKey} so
+ * cache, BullMQ, throttler, and adapter traffic stay on separate connections.
+ */
 export class RedisModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

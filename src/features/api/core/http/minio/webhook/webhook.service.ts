@@ -12,6 +12,10 @@ import {
 } from "./webhook.command"
 
 @Injectable()
+/**
+ * Dispatches the MinIO notification through the command bus so the controller can return
+ * 200 before any side effect.
+ */
 export class MinioWebhookService {
     constructor(
         private readonly commandBus: CommandBus,

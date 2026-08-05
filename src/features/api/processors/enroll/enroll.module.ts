@@ -13,9 +13,6 @@ import {
 import {
     EnrollStepService
 } from "./steps"
-/**
- * Module for enrolling a user in a course.
- */
 @Module({
     providers: [
         EnrollWorker,
@@ -23,5 +20,8 @@ import {
         EnrollStepService,
     ],
 })
+/**
+ * Module for enrolling a user in a course.
+ */
 export class EnrollModule extends ConfigurableModuleClass {
 }

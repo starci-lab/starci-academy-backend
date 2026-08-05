@@ -41,11 +41,11 @@ import {
     JitterService
 } from "./jitter.service"
 
+@Module({
+})
 /**
  * Module for the Mixin service.
  */
-@Module({
-})
 export class MixinModule extends ConfigurableModuleClass {
     /**
      * Register the Mixin module.

@@ -14,9 +14,6 @@ import {
     ProcessRevokeGithubRemoveStepService,
 } from "./steps"
 
-/**
- * Module for revoke-github queue processor.
- */
 @Module({
     providers: [
         ProcessRevokeGithubRemoveStepService,
@@ -24,4 +21,7 @@ import {
         RevokeGithubWorker,
     ],
 })
+/**
+ * Module for revoke-github queue processor.
+ */
 export class RevokeGithubModule extends ConfigurableModuleClass {}

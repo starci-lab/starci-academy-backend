@@ -16,6 +16,11 @@ import {
     IoRedisInstanceKeyOptions 
 } from "./types"
 
+/**
+ * Builds the client for `key`: Cache → Valkey (cluster-capable), others →
+ * ioredis. BullMQ/Throttler set `maxRetriesPerRequest: null` — sharing a
+ * vanilla client would hang blocking queue commands.
+ */
 export const createIoRedisProvider = (key: IoRedisInstanceKey): Provider => ({
     provide: createIoRedisKey(key),
     useFactory: (

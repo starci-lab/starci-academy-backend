@@ -27,4 +27,8 @@ import {
         ProjectEvaluationParseService,
     ],
 })
+/**
+ * Wires milestone-task review grade + complete steps so personal-project AI review does
+ * not live in the GraphQL mutation module.
+ */
 export class ReviewMilestoneTaskModule extends ConfigurableModuleClass {}

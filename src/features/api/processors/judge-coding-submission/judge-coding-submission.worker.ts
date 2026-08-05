@@ -51,12 +51,6 @@ import type {
     ExtendedJudgeCodingSubmissionContext,
 } from "./types"
 
-/**
- * Worker: coding submission → build Judge0 batch (source × testcases) → judge →
- * aggregate verdict → update `coding_submissions`. On completion the
- * `JobActionService.completeJob` event pushes the status to the client over the
- * `job_notifications` Socket.IO namespace.
- */
 @Worker(
     bullData[BullQueueName.JudgeCodingSubmission].name,
     {
@@ -66,6 +60,12 @@ import type {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
+/**
+ * Worker: coding submission → build Judge0 batch (source × testcases) → judge →
+ * aggregate verdict → update `coding_submissions`. On completion the
+ * `JobActionService.completeJob` event pushes the status to the client over the
+ * `job_notifications` Socket.IO namespace.
+ */
 export class JudgeCodingSubmissionWorker extends WorkerHost {
     /** Human-readable verdict labels for the timed-out/errored notification (English source copy). */
     private static readonly VERDICT_LABELS: Record<string, string> = {

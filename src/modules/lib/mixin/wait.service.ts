@@ -13,10 +13,10 @@ import type {
     WaitParams
 } from "./types"
 
+@Injectable()
 /**
  * Service for waiting for a condition to be met.
  */
-@Injectable()
 export class WaitService {
     /**
      * Poll until condition is met or max attempts exceeded.

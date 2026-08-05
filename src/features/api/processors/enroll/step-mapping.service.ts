@@ -11,10 +11,10 @@ import type {
     EnrollPayload,
 } from "@modules/bullmq"
 
+@Injectable()
 /**
  * Service for mapping steps.
  */
-@Injectable()
 export class StepMappingService {
     constructor(
         private readonly enrollStepService: EnrollStepService,

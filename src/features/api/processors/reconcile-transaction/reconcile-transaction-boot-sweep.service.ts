@@ -24,6 +24,7 @@ import {
     envConfig,
 } from "@modules/env"
 
+@Injectable()
 /**
  * Startup catch-up for transaction reconciliation.
  *
@@ -34,7 +35,6 @@ import {
  * long it has already been pending ("from last time") so an old transaction
  * resumes near the end of its budget instead of restarting the full poll loop.
  */
-@Injectable()
 export class ReconcileTransactionBootSweepService implements OnApplicationBootstrap {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

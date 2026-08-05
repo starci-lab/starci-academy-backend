@@ -28,6 +28,7 @@ import type {
     GrantMembershipParams,
 } from "./types"
 
+@Injectable()
 /**
  * Owns community-membership entitlement: granting/extending on payment,
  * checking whether a user is currently a member, and the expiry sweep.
@@ -36,7 +37,6 @@ import type {
  * await membershipService.grantMembership({ userId, transactionId })
  * const member = await membershipService.isActive(userId)
  */
-@Injectable()
 export class MembershipService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

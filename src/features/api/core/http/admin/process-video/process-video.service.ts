@@ -11,6 +11,10 @@ import {
 } from "./process-video.command"
 
 @Injectable()
+/**
+ * Dispatches process-video through the command bus so the controller does not own BullMQ
+ * or the encoder payload shape.
+ */
 export class ProcessVideoService {
     constructor(
         private readonly commandBus: CommandBus,

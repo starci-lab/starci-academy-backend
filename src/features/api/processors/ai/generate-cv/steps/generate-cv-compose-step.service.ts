@@ -53,6 +53,7 @@ import type {
 /** Number of RAG chunks to pull per CV-context query. */
 const RAG_TOP_K = 4
 
+@Injectable()
 /**
  * Step 1 — compose. Builds the CV system prompt from the VERIFIED gathered data
  * + the user's free-text `extraPrompts` + three RAG contexts (rubric / catalog /
@@ -61,7 +62,6 @@ const RAG_TOP_K = 4
  * lane already targets Balanced-plus), and parses the STRICT JSON reply into the
  * structured CV. Persisted as this step's execution result for the render step.
  */
-@Injectable()
 export class GenerateCvComposeStepService extends AbstractStepService<
     GenerateCvPayload,
     ExtendedGenerateCvContext

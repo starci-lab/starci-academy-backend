@@ -15,9 +15,6 @@ import {
     ApolloServerType,
 } from "@modules/api"
 
-/**
- * Module for the Core.
- */
 @Module({
     imports: [
         ApolloServerModule.register(
@@ -34,5 +31,9 @@ import {
         }),
     ],
 })
+/**
+ * Composes HTTP + GraphQL under one monolithic Apollo server so the API app boots a single
+ * surface instead of each protocol registering itself.
+ */
 export class CoreModule extends ConfigurableModuleClass {
 }

@@ -29,6 +29,7 @@ import type {
     AiModelEntity,
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Per-MODEL latency probe scheduler.
  *
@@ -43,7 +44,6 @@ import type {
  * never feeds balancer key eligibility. Every step is wrapped in try/catch so a
  * failing probe can never crash the scheduler.
  */
-@Injectable()
 export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
     /** Handle for the recurring cycle timer — cleared on shutdown. */
     private cycleIntervalHandle: NodeJS.Timeout | null = null

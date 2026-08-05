@@ -20,13 +20,13 @@ import {
     MountFoundationsService,
 } from "./mount-foundations.service"
 
-/**
- * Serves static files from `.mount/data/foundations` (external-link targets).
- */
 @Controller({
     path: `${httpConfig().mount().tags}/${httpConfig().mount().foundations().path}`,
     version: "1",
 })
+/**
+ * Serves static files from `.mount/data/foundations` (external-link targets).
+ */
 export class MountFoundationsController {
     constructor(
         private readonly mountFoundationsService: MountFoundationsService,

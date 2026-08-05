@@ -12,10 +12,10 @@ import {
     runInKubernetes
 } from "@modules/env"
 
+@Injectable()
 /**
  * Service for the current app instance.
  */
-@Injectable()
 export class InstanceService {
     // instance id, deprecated since we use pod id instead
     private readonly id: string

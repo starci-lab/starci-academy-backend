@@ -29,4 +29,9 @@ import {
         ProcessVideoFinalizeStepService,
     ],
 })
+/**
+ * Registers the ProcessVideo worker and its step map. Split from
+ * `VideoEncoderModule` so an app can load encoder config without starting the
+ * ffmpeg consumer.
+ */
 export class VideoEncoderProcessorsModule extends ConfigurableModuleClass { }

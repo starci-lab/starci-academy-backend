@@ -56,16 +56,6 @@ import type {
 
 
 /**
- * Single entry point for "just run this prompt against a working LLM".
- *
- * Hides key rotation + model fallback behind {@link UseApiService}: callers
- * hand over messages, the balancer picks a key/model, builds the LangChain
- * chat client, invokes, and rotates on failure. Use this from job processors
- * for every chat completion so each AI call benefits from the shared,
- * health-checked key pool.
- */
-
-/**
  * Map the run surface to the model task it serves, so the Auto lane can filter
  * the catalog by `supportedTasks` + order the chain health/latency-aware.
  * Chatbot → chatting; grading + interview → grading; unknown → undefined (no filter).
@@ -83,6 +73,15 @@ const surfaceToTask = (surface?: AiCeilSurface): AiModelTask | undefined => {
 }
 
 @Injectable()
+/**
+ * Single entry point for "just run this prompt against a working LLM".
+ *
+ * Hides key rotation + model fallback behind {@link UseApiService}: callers
+ * hand over messages, the balancer picks a key/model, builds the LangChain
+ * chat client, invokes, and rotates on failure. Use this from job processors
+ * for every chat completion so each AI call benefits from the shared,
+ * health-checked key pool.
+ */
 export class AiInvokeService {
     constructor(
         private readonly useApiService: UseApiService,

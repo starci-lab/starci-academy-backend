@@ -35,6 +35,10 @@ import {
 
 @CommandHandler(KeycloakGithubCallbackCommand)
 @Injectable()
+/**
+ * Exchanges the Keycloak code and upserts UserEntity from the JWT so a GitHub IdP login
+ * creates the same local row as password register.
+ */
 export class KeycloakGithubCallbackHandler
     extends ICQRSHandler<KeycloakGithubCallbackCommand, KeycloakGithubCallbackResponse>
     implements ICommandHandler<KeycloakGithubCallbackCommand, KeycloakGithubCallbackResponse> {

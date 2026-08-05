@@ -18,6 +18,7 @@ import {
     envConfig,
 } from "@modules/env"
 
+@Injectable()
 /**
  * Dev-only: artificially delays every API response by a configured amount so the
  * frontend can exercise its loading / skeleton states (real APIs are never
@@ -30,7 +31,6 @@ import {
  * ONLY to the root operation (query/mutation field), never to nested `@ResolveField`
  * resolvers, so a deep query is delayed once — not once per resolver.
  */
-@Injectable()
 export class ResponseDelayInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
         const config = envConfig()

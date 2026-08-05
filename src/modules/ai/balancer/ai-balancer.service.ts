@@ -30,6 +30,7 @@ import {
     KeyStoreService,
 } from "./key-store.service"
 
+@Injectable()
 /**
  * Public façade of the AI Balancer key pool.
  *
@@ -37,7 +38,6 @@ import {
  * - {@link healthSnapshot} — admin read model merging mount keys + ping cache.
  * - {@link reload} — refresh pools from mount files.
  */
-@Injectable()
 export class AiBalancerService {
     constructor(
         private readonly keyStoreService: KeyStoreService,

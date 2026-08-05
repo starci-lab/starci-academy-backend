@@ -23,18 +23,18 @@ import {
 import {
     GithubOauthRedirectCommandService,
 } from "./redirect.service"
-/**
- * Controller for starting GitHub OAuth redirect.
- *
- * Redirects (302) to:
- * `https://github.com/login/oauth/authorize?client_id=...&redirect_uri=...&scope=...&state=...`
- */
 @Controller(
     {
         path: httpConfig().github().oauth().tags,
         version: "1",
     },
 )
+/**
+ * Controller for starting GitHub OAuth redirect.
+ *
+ * Redirects (302) to:
+ * `https://github.com/login/oauth/authorize?client_id=...&redirect_uri=...&scope=...&state=...`
+ */
 export class GithubOauthRedirectController {
     constructor(
         private readonly githubOauthRedirectCommandService: GithubOauthRedirectCommandService,

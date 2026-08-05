@@ -7,6 +7,10 @@ import {
     pow10,
 } from "./pow-10"
 
+/**
+ * Inputs for {@link toDecimalAmount}. `decimals` is the token's on-chain scale;
+ * `fractionDigits` is display precision — mixing them truncates mid-conversion.
+ */
 export interface ToDecimalAmountParams {
     // the amount to convert to a decimal
     amount: BN
@@ -16,6 +20,10 @@ export interface ToDecimalAmountParams {
     fractionDigits?: Decimal
 }
 
+/**
+ * Turns a chain integer into a human Decimal via a precision factor so BN
+ * division does not drop fractional tokens before the final round.
+ */
 export const toDecimalAmount = ({
     amount,
     decimals,
@@ -39,6 +47,10 @@ export const toDecimalAmount = ({
             Decimal.ROUND_HALF_UP)
 }
 
+/**
+ * Inputs for {@link toRawAmount}. `amount` is UI-scale; omitting `fractionDigits`
+ * uses the env default so submit-path rounding matches the quote path.
+ */
 export interface ToRawAmountParams {
     // the decimal amount (UI / human-readable)
     amount: Decimal
@@ -48,6 +60,10 @@ export interface ToRawAmountParams {
     fractionDigits?: Decimal
   }
 
+/**
+ * Turns a human Decimal back into a chain BN, rounding the scaled integer up
+ * so a displayed balance never under-delivers on-chain.
+ */
 export const toRawAmount = ({
     amount,
     decimals,

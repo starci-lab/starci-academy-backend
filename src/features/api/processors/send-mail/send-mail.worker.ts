@@ -38,9 +38,6 @@ import {
     SendMailStepMappingService,
 } from "./step-mapping.service"
 
-/**
- * Send mail: `send-mail` → `complete`.
- */
 @Worker(
     bullData[BullQueueName.SendMail].name,
     {
@@ -50,6 +47,9 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
+/**
+ * Send mail: `send-mail` → `complete`.
+ */
 export class SendMailWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

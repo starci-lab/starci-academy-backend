@@ -15,7 +15,10 @@ type Pow10BNParams = {
 export function pow10(params: Pow10BNParams): BN
 export function pow10(params: Pow10DecimalParams): Decimal
 
-// implementation
+/**
+ * `10^exponent` as BN or Decimal. JS `number` overflows past ~1e22, which would
+ * corrupt token-decimal scaling; the overload picks the type the caller must keep.
+ */
 export function pow10({
     exponent,
     asBN,

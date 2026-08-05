@@ -8,10 +8,10 @@ import {
     GraphQLTypeChatConversationType,
 } from "@modules/databases"
 
-/** A chat conversation handle shaped for the client (id + kind). */
 @ObjectType({
     description: "A chat conversation (community room or founder DM).",
 })
+/** A chat conversation handle shaped for the client (id + kind). */
 export class ChatConversationObject {
     /** Conversation primary id (pass to chatMessages / sendChatMessage). */
     @Field(

@@ -26,9 +26,6 @@ import type {
     ViewPresignedUrlItem,
 } from "./view-presigned-url.command"
 
-/**
- * Admin controller for getting MPEG-DASH view URLs.
- */
 @ApiTags(httpConfig().admin().tags)
 @Controller(
     {
@@ -36,6 +33,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Admin controller for getting MPEG-DASH view URLs.
+ */
 export class ViewPresignedUrlController {
     constructor(
         private readonly viewPresignedUrlService: ViewPresignedUrlService,

@@ -8,10 +8,10 @@ import type {
     ResolveTupleResult,
     RetryOptions
 } from "./types"
+@Injectable()
 /**
   * Service for asynchronous operations.
   */
-@Injectable()
 export class AsyncService {
     constructor(
         private readonly retryService: RetryService

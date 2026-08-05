@@ -11,9 +11,6 @@ import {
     ConfigurableModuleClass 
 } from "./graphql.module-definition"
 
-/**
- * Module for the GraphQL.
- */
 @Module({
     imports: [
         QueriesModule.register({
@@ -24,4 +21,8 @@ import {
         }),
     ],
 })
+/**
+ * Registers Queries and Mutations globally so operation modules can contribute leaves
+ * without each one re-wiring the GraphQL server.
+ */
 export class GraphQLModule extends ConfigurableModuleClass {}

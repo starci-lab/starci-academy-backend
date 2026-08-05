@@ -36,6 +36,7 @@ import type {
     SyncedAsset,
 } from "./types"
 
+@Injectable()
 /**
  * Syncs local static brand assets (logos, etc.) from the on-disk assets folder
  * up to the MinIO bucket on boot, so the frontend can reference them by stable,
@@ -49,7 +50,6 @@ import type {
  * // runs automatically on module init; can also be invoked manually:
  * const { assets } = await assetsService.sync()
  */
-@Injectable()
 export class AssetsService implements OnModuleInit {
     /** Scoped logger for boot-time asset sync diagnostics. */
     private readonly logger = new Logger(AssetsService.name)

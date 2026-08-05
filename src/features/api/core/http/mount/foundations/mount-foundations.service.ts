@@ -16,10 +16,10 @@ import type {
     ReadFoundationsFileResult,
 } from "./types"
 
+@Injectable()
 /**
  * Serves files from `.mount/data/foundations` for external-link resources.
  */
-@Injectable()
 export class MountFoundationsService {
     async readFile(
         relativePath: string,

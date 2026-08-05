@@ -4,6 +4,10 @@ import {
     MinLength,
 } from "class-validator"
 
+/**
+ * Username/password validated at the REST boundary so a malformed grant never reaches the
+ * Keycloak token endpoint.
+ */
 export class KeycloakLoginRequest {
     @IsString()
     @MinLength(3)

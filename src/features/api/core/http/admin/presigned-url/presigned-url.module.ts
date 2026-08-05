@@ -14,9 +14,6 @@ import {
     PresignedUrlHandler,
 } from "./presigned-url.handler"
 
-/**
- * Module for admin presigned URL generation.
- */
 @Module({
     controllers: [
         PresignedUrlController,
@@ -26,4 +23,7 @@ import {
         PresignedUrlHandler,
     ],
 })
+/**
+ * Module for admin presigned URL generation.
+ */
 export class PresignedUrlModule extends ConfigurableModuleClass {}

@@ -13,12 +13,12 @@ interface RagChunk {
 const CHUNK_LINES = 35
 const CHUNK_OVERLAP_LINES = 8
 
+@Injectable()
 /**
  * On-device RAG engine, single session per agent process. Talks to the
  * learner's LOCAL Ollama (no cloud, no auth) — every method is best-effort
  * and never throws, so a missing/unhealthy Ollama degrades gracefully.
  */
-@Injectable()
 export class RagService {
     private chunks: Array<RagChunk> = []
 

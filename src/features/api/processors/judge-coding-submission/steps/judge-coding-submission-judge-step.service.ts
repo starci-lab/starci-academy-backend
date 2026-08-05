@@ -62,13 +62,13 @@ import type {
     JudgeCodingSubmissionJudgeStepExecuteResult,
 } from "../types"
 
+@Injectable()
 /**
  * Step 0: build one Judge0 run per testcase, submit the batch, wait for terminal
  * results, aggregate them into a verdict + timing, and persist everything to the
  * `coding_submissions` row. Hidden-testcase IO is never written into the
  * client-facing per-case results.
  */
-@Injectable()
 export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
     JudgeCodingSubmissionPayload,
     ExtendedJudgeCodingSubmissionContext

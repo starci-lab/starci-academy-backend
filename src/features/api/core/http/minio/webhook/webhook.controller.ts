@@ -23,9 +23,6 @@ import {
     MinioWebhookService,
 } from "./webhook.service"
 
-/**
- * MinIO Bucket Notification HTTP controller.
- */
 @ApiTags("webhooks")
 @Controller(
     {
@@ -33,6 +30,9 @@ import {
         version: "1",
     },
 )
+/**
+ * MinIO Bucket Notification HTTP controller.
+ */
 export class MinioWebhookController {
     constructor(
         private readonly minioWebhookService: MinioWebhookService,

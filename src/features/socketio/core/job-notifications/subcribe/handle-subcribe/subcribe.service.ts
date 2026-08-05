@@ -15,8 +15,8 @@ import type {
     SubcribeJobNotificationSocketIoMessage,
 } from "./types"
 
-/** Service to handle job notification subscription. */
 @Injectable()
+/** Service to handle job notification subscription. */
 export class SubcribeJobNotificationService {
     constructor(
         private readonly queryBus: QueryBus,

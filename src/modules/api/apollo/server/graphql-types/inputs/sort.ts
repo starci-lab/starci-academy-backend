@@ -9,7 +9,9 @@ import {
 
 /** Sort order. */
 export enum SortOrder {
+    /** Earlier rows first (A→Z / oldest). Unstable order makes pagination skip or duplicate. */
     Asc = "ASC",
+    /** Later rows first — "newest" feeds so page 1 is the latest, not the oldest. */
     Desc = "DESC",
 }
 
@@ -32,11 +34,14 @@ registerEnumType(GraphQLTypeSortOrder,
     }
 )
 
-/** Input for sort. */
 @InputType({
     isAbstract: true,
     description: "Input for sort.",
 })
+/**
+ * Abstract sort pair: each entity only types `by`. `order` is required so
+ * offset/cursor pages stay deterministic across identical `by` values.
+ */
 export abstract class SortInput<T extends string> {
     /** Sort by. */
     abstract by: T

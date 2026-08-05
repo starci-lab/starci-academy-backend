@@ -4,11 +4,11 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** GraphQL type for page pagination response (count). */
 @ObjectType({
     isAbstract: true,
     description: "Response for page-based pagination.",
 })
+/** GraphQL type for page pagination response (count). */
 export class PaginationPageResponseData {
     @Field(() => Int,
         {

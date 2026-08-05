@@ -21,5 +21,10 @@ import {
         PrimaryBackupService,
     ],
 })
+/**
+ * Dump/encrypt/upload pipeline plus Keycloak and primary cron wrappers. Split
+ * from `BackupModule` so a future non-PG target can sit alongside without
+ * pulling `pg_dump`.
+ */
 export class PgBackupModule extends ConfigurableModuleClass {}
 

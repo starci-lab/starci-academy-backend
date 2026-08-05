@@ -15,6 +15,10 @@ import {
 
 @Module({
 })
+/**
+ * Dynamic mount of foundation JSON for the CMS — registered from HttpModule options so
+ * non-CMS deploys can omit the endpoint.
+ */
 export class MountFoundationsModule extends ConfigurableModuleClass {
     static register(
         options: typeof OPTIONS_TYPE = {

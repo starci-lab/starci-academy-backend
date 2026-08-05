@@ -6,10 +6,10 @@ import {
     CommunityPostNodeObject,
 } from "./community-post-node.object"
 
-/** A cursor-paginated page of the community feed. */
 @ObjectType({
     description: "A cursor-paginated page of community feed posts.",
 })
+/** A cursor-paginated page of the community feed. */
 export class CommunityFeedPageObject {
     /** The page of post nodes (pinned-first, then newest). */
     @Field(

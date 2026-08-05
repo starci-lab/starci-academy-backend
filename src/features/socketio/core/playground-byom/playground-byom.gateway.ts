@@ -66,6 +66,7 @@ const PAIR_RATE_LIMIT = 20
 /** Fixed window (seconds) for the per-IP `agent:pair` rate limit (Redis key TTL). */
 const PAIR_RATE_WINDOW_SECONDS = 60
 
+@PlaygroundByomWebSocketGateway()
 /**
  * WebSocket gateway for the `/playground_byom` namespace — relays shell
  * commands + resource reports between a browser and a learner's local CLI
@@ -81,7 +82,6 @@ const PAIR_RATE_WINDOW_SECONDS = 60
  * step's `verifyResourceKind`/`verifyResourceNamePattern`/`verifyExpectedStatus`
  * — a substring/prefix + optional status match, no AI grading.
  */
-@PlaygroundByomWebSocketGateway()
 export class PlaygroundByomGateway implements OnGatewayDisconnect {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

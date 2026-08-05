@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common"
 import { CommandProbeService, type PlaygroundResource } from "@modules/playground-agent-core"
 
+@Injectable()
 /**
  * Snapshots local Docker resources (containers / images / networks) the way the
  * StarCi gateway's "lite" verify expects them. Missing tooling contributes
  * nothing (no throw) — a machine without Docker simply reports an empty list.
  */
-@Injectable()
 export class DockerResourceService {
     constructor(private readonly probe: CommandProbeService) {}
 

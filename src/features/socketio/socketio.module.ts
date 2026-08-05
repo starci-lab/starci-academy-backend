@@ -7,9 +7,6 @@ import {
 import {
     CoreModule,
 } from "./core"
-/**
- * Module for the Socket.IO.
- */
 @Module({
     imports: [
         CoreModule.register({
@@ -17,4 +14,7 @@ import {
         }),
     ],
 })
+/**
+ * Module for the Socket.IO.
+ */
 export class SocketIoModule extends ConfigurableModuleClass {}

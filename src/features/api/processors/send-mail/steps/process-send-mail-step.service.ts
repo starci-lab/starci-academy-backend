@@ -28,10 +28,10 @@ import {
     MailerService 
 } from "@nestjs-modules/mailer"
 
+@Injectable()
 /**
  * Step 0: run the send mail `process()` for the target entity.
  */
-@Injectable()
 export class ProcessSendMailStepService extends AbstractStepService<
     SendMailPayload,
     EmptyObject

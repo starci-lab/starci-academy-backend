@@ -39,6 +39,7 @@ import type {
     NotificationCreatedSocketIoMessage,
 } from "./types"
 
+@NotificationsWebSocketGateway()
 /**
  * WebSocket gateway for the `/notifications` namespace — per-user bell realtime.
  *
@@ -51,7 +52,6 @@ import type {
  * fans out a local {@link EventName.NotificationCreated} event; this gateway
  * forwards it to the recipient's room as a {@link SubscriptionEvent.NotificationCreated}.
  */
-@NotificationsWebSocketGateway()
 export class NotificationsGateway implements OnModuleInit {
     constructor(
         private readonly userService: UserService,

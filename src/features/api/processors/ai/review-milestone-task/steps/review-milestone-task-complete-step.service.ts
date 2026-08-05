@@ -80,12 +80,12 @@ const PG_UNIQUE_VIOLATION = "23505"
 /** Per-course weighted XP granted once when a milestone task is first passed (matches leaderboard ×10). */
 const MILESTONE_PASS_XP = 10
 
+@Injectable()
 /**
  * Step 1: finalize — load grade result, then ATOMICALLY persist the user-milestone-task,
  * its attempt, the XP/points grant, and the job step advance in ONE transaction. The attempt
  * carries `idempotencyKey = job.id`, so a retried/stalled job cannot create a duplicate attempt.
  */
-@Injectable()
 export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
     ReviewPersonalProjectTaskPayload,
     EmptyObject

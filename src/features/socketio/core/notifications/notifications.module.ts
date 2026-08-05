@@ -11,9 +11,6 @@ import {
     NotificationRoomService,
 } from "./notification-room.service"
 
-/**
- * Module providing the Socket.IO notifications gateway (per-user bell realtime).
- */
 @Module({
     providers: [
         NotificationsGateway,
@@ -24,4 +21,7 @@ import {
         NotificationRoomService,
     ],
 })
+/**
+ * Module providing the Socket.IO notifications gateway (per-user bell realtime).
+ */
 export class NotificationsModule extends ConfigurableModuleClass {}

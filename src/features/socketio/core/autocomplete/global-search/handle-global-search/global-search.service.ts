@@ -15,10 +15,10 @@ import {
     GlobalSearchQuery,
 } from "./global-search.query"
 
+@Injectable()
 /**
  * Service responsible for executing global fuzzy search via CQRS QueryBus.
  */
-@Injectable()
 export class GlobalSearchService {
     constructor(
         private readonly queryBus: QueryBus,

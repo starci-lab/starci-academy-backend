@@ -15,11 +15,11 @@ import type {
     ExtendedProcessGitSubmissionContext,
 } from "./types"
 
+@Injectable()
 /**
  * SCHEMA V2 git submission pipeline: load repo → split → vectorize → grade against criteria →
  * complete. Reuses the legacy complete step (it keys off the shared `grade` step name).
  */
-@Injectable()
 export class ProcessGitSubmissionStepMappingService {
     constructor(
         private readonly gradeStepService: ProcessGitSubmissionGradeStepService,

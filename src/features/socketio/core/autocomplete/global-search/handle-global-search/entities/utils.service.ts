@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import removeMarkdown from "remove-markdown"
 
+@Injectable()
 /**
  * Service for performing global search entity utils.
  */
-@Injectable()
 export class GlobalSearchEntityUtilsService {
     /**
      * The number of words to include in the snippet.

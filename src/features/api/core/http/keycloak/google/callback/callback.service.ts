@@ -13,6 +13,9 @@ import {
 } from "./dtos"
 
 @Injectable()
+/**
+ * Dispatches the Google IdP callback through the command bus so the controller only 302s.
+ */
 export class KeycloakGoogleCallbackService {
     constructor(
         private readonly commandBus: CommandBus,

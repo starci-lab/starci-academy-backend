@@ -8,9 +8,6 @@ import {
     SepayWebhookModule,
 } from "./webhook"
 
-/**
- * Module for SePay HTTP (webhook).
- */
 @Module(
     {
         imports: [
@@ -22,4 +19,7 @@ import {
         ],
     },
 )
+/**
+ * Module for SePay HTTP (webhook).
+ */
 export class SepayModule extends ConfigurableModuleClass {}

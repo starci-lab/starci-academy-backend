@@ -36,9 +36,6 @@ import {
 } from "./mount/foundations"
 
 
-/**
- * Module for the HTTP.
- */
 @Module({
     imports: [
         KeycloakModule.register(
@@ -93,4 +90,7 @@ import {
         ),
     ],
 })
+/**
+ * Module for the HTTP.
+ */
 export class HttpModule extends ConfigurableModuleClass { }

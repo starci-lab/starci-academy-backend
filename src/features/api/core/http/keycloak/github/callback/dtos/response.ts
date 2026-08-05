@@ -3,6 +3,10 @@ import {
     IsUUID 
 } from "class-validator"
 
+/**
+ * Tokens after GitHub-via-Keycloak login — same shape the SPA already stores from password
+ * login.
+ */
 export class KeycloakGithubCallbackResponse {
     /**
      * The id of the user.

@@ -6,10 +6,10 @@ import {
     ChatMessageNodeObject,
 } from "./chat-message-node.object"
 
-/** A cursor-paginated page of chat messages (newest-first). */
 @ObjectType({
     description: "A cursor-paginated page of chat messages.",
 })
+/** A cursor-paginated page of chat messages (newest-first). */
 export class ChatMessagesPageObject {
     /** The page of message nodes (newest-first). */
     @Field(

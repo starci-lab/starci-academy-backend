@@ -53,11 +53,6 @@ import {
 } from "@modules/exceptions"
 import SuperJSON from "superjson"
 
-/**
- * SCHEMA V2 worker: Google Docs submission → split → vectorize → grade against outcome/approach
- * criteria → update `submission_attempts`. Same 2-step pipeline (grade + complete) as the legacy
- * worker, so `maxSteps` is `2`.
- */
 @Worker(
     bullData[BullQueueName.ProcessGoogleDocsSubmission].name,
     {
@@ -67,6 +62,11 @@ import SuperJSON from "superjson"
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
+/**
+ * SCHEMA V2 worker: Google Docs submission → split → vectorize → grade against outcome/approach
+ * criteria → update `submission_attempts`. Same 2-step pipeline (grade + complete) as the legacy
+ * worker, so `maxSteps` is `2`.
+ */
 export class ProcessGoogleDocsSubmissionWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,

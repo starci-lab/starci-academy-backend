@@ -74,6 +74,7 @@ import {
 /** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
 
+@Injectable()
 /**
  * Step 1: finalize — load grade result, then ATOMICALLY persist the attempt + feedbacks,
  * the credit charge, the XP/points grant, and the job step advance in ONE transaction.
@@ -83,7 +84,6 @@ const PG_UNIQUE_VIOLATION = "23505"
  * side effects and the `currentStep` advance commit together, there is no window where a
  * crash leaves a charged-but-unadvanced job.
  */
-@Injectable()
 export class ProcessGitSubmissionCompleteStepService extends AbstractStepService<
     ProcessGitSubmissionPayload,
     ExtendedProcessGitSubmissionContext

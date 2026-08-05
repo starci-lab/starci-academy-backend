@@ -14,9 +14,6 @@ import {
     GithubOauthRedirectCommandHandler,
 } from "./redirect.handler"
 
-/**
- * Module for GitHub OAuth redirect.
- */
 @Module({
     controllers: [
         GithubOauthRedirectController,
@@ -26,5 +23,8 @@ import {
         GithubOauthRedirectCommandHandler,
     ],
 })
+/**
+ * Module for GitHub OAuth redirect.
+ */
 export class GithubOauthRedirectModule extends ConfigurableModuleClass {}
 

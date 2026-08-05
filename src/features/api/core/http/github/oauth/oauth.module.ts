@@ -11,9 +11,6 @@ import {
     GithubOauthCallbackModule,
 } from "./callback"
 
-/**
- * Module for GitHub OAuth.
- */
 @Module({
     imports: [
         GithubOauthRedirectModule.register({
@@ -24,5 +21,8 @@ import {
         }),
     ],
 })
+/**
+ * Module for GitHub OAuth.
+ */
 export class GithubOauthModule extends ConfigurableModuleClass {}
 

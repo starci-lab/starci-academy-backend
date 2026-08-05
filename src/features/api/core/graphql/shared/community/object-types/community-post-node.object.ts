@@ -13,10 +13,10 @@ import {
     ReactionSummaryObject,
 } from "../../discussion"
 
-/** A single community post shaped for the client (author + counts + reactions). */
 @ObjectType({
     description: "A community feed post with author, comment count and reaction summary.",
 })
+/** A single community post shaped for the client (author + counts + reactions). */
 export class CommunityPostNodeObject {
     /** Post primary id. */
     @Field(

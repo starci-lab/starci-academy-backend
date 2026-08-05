@@ -5,10 +5,10 @@ import {
     JitterOptions,
 } from "./types"
 
+@Injectable()
 /**
  * Service for adding random jitter to delays (e.g. to avoid thundering herd).
  */
-@Injectable()
 export class JitterService {
     /**
      * Returns baseDelay + random jitter.

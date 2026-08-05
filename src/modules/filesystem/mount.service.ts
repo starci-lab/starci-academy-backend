@@ -35,6 +35,7 @@ import {
     getAnthropicApiKeys,
     readAiKeysFile,
 } from "./utils"
+@Injectable()
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
  *
@@ -45,7 +46,6 @@ import {
  *
  * This follows best practices for Node.js applications running on Kubernetes.
  */
-@Injectable()
 export class MountFilesystemService {
     /**
      * Get app config (from mount path or provided value).

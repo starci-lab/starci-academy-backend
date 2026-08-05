@@ -2,8 +2,8 @@ import {
     Injectable,
 } from "@nestjs/common"
 
-/** Builds the Socket.IO room name for a content's discussion (comments + reactions). */
 @Injectable()
+/** Builds the Socket.IO room name for a content's discussion (comments + reactions). */
 export class ContentDiscussionRoomService {
     /**
      * Room name for a content's discussion. All viewers of one content share this room.

@@ -12,6 +12,10 @@ import type {
 } from "./types"
 
 @Injectable()
+/**
+ * Dispatches the IPN through the command bus so the controller can ack quickly and keep
+ * NOWPayments from retry-storming.
+ */
 export class NowPaymentsWebhookService {
     constructor(
         private readonly commandBus: CommandBus,

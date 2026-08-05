@@ -60,6 +60,10 @@ import {
 
 @CommandHandler(StripeWebhookCommand)
 @Injectable()
+/**
+ * Constructs the Stripe event with the webhook secret then settles only
+ * `checkout.session.completed` — other types must not enroll or refund here.
+ */
 export class StripeWebhookHandler
     extends ICQRSHandler<StripeWebhookCommand, void>
     implements ICommandHandler<StripeWebhookCommand, void> {

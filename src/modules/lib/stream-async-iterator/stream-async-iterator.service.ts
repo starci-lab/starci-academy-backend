@@ -10,6 +10,10 @@ import type {
 } from "./types"
 
 @Injectable()
+/**
+ * Turns onData/onError/onClose (+ optional AbortSignal) into an async iterable.
+ * Without it, a closed or aborted stream hangs the consumer or leaks the connection.
+ */
 export class StreamAsyncIteratorService {
     constructor() {}
 

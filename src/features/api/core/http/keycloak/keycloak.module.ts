@@ -14,9 +14,6 @@ import {
     KeycloakAuthModule,
 } from "./auth"
 
-/**
- * Module for the Keycloak.
- */
 @Module({
     imports: [
         KeycloakGoogleModule.register({
@@ -30,4 +27,7 @@ import {
         }),
     ],
 })
+/**
+ * Module for the Keycloak.
+ */
 export class KeycloakModule extends ConfigurableModuleClass {}

@@ -40,14 +40,6 @@ import {
     UpsertService,
 } from "@modules/init/seeders/shared"
 
-/**
- * `PlaygroundSeedTestCommand`'s dependency graph is provided directly here rather
- * than via `SeedersModule.register(...)` — that module also provides `SeedersService`
- * (the git-sourced init orchestrator), which this git-free CLI command must never
- * import, even transitively. Every provider below is the exact subgraph
- * `PlaygroundProcessorService` needs (confirmed per-constructor); none of them
- * reaches `InitModule` / `SeedersService` / `DataGitBootstrapService`.
- */
 @Module({
     providers: [
         UtilsCommand,
@@ -72,4 +64,12 @@ import {
         MergeJsonService,
     ],
 })
+/**
+ * `PlaygroundSeedTestCommand`'s dependency graph is provided directly here rather
+ * than via `SeedersModule.register(...)` — that module also provides `SeedersService`
+ * (the git-sourced init orchestrator), which this git-free CLI command must never
+ * import, even transitively. Every provider below is the exact subgraph
+ * `PlaygroundProcessorService` needs (confirmed per-constructor); none of them
+ * reaches `InitModule` / `SeedersService` / `DataGitBootstrapService`.
+ */
 export class UtilsModule extends ConfigurableModuleClass {}

@@ -43,6 +43,10 @@ import {
 
 @CommandHandler(ProcessVideoCommand)
 @Injectable()
+/**
+ * Enqueues video processing with the full source URL so the worker can download after the
+ * admin request has already returned.
+ */
 export class ProcessVideoHandler
     extends ICQRSHandler<ProcessVideoCommand, ProcessVideoResult>
     implements ICommandHandler<ProcessVideoCommand, ProcessVideoResult> {

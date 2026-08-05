@@ -19,10 +19,10 @@ import {
 
 puppeteer.use(StealthPlugin())
 
+@Injectable()
 /**
  * Service for scraping data from Next.js apps via Puppeteer (headless browser).
  */
-@Injectable()
 export class NextJsQueryService implements OnModuleInit, OnModuleDestroy {
     private browser: Browser
     private pageMap: Record<string, Page> = {

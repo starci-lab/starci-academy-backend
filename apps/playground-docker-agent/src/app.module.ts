@@ -15,7 +15,6 @@ const DOCKER_AGENT_META: AgentMeta = {
     launchdLabel: "org.starci.playground-docker-agent",
 }
 
-/** Root module for the docker agent's nest-commander CLI. */
 @Module({
     providers: [
         { provide: AGENT_META, useValue: DOCKER_AGENT_META },
@@ -28,4 +27,5 @@ const DOCKER_AGENT_META: AgentMeta = {
         AgentCommand,
     ],
 })
+/** Root module for the docker agent's nest-commander CLI. Unique systemd/launchd names so it can coexist with k8s/rag on the same machine. */
 export class AppModule {}

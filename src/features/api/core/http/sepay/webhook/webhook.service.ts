@@ -12,6 +12,10 @@ import {
 } from "./webhook.command"
 
 @Injectable()
+/**
+ * Dispatches the SePay IPN through the command bus so the controller can ack before
+ * enrollment runs.
+ */
 export class SepayWebhookService {
     constructor(
         private readonly commandBus: CommandBus,

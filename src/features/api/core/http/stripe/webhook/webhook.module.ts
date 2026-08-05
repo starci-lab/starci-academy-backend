@@ -23,4 +23,7 @@ import {
         StripeWebhookHandler,
     ],
 })
+/**
+ * Wires the Stripe webhook controller + handler so card settlement stays off GraphQL.
+ */
 export class StripeWebhookModule extends ConfigurableModuleClass {}

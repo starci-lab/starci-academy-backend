@@ -19,6 +19,7 @@ import {
     InvalidIvLengthException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Service for AES-256-GCM encryption and decryption (authenticated encryption).
  *
@@ -26,7 +27,6 @@ import {
  * const payload = encryptionService.encrypt({ plainText, key })
  * const text = encryptionService.decrypt({ payload, key })
  */
-@Injectable()
 export class EncryptionService {
 
     constructor(

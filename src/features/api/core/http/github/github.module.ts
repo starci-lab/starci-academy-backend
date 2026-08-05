@@ -8,9 +8,6 @@ import {
     GithubOauthModule,
 } from "./oauth"
 
-/**
- * Module for GitHub.
- */
 @Module({
     imports: [
         GithubOauthModule.register({
@@ -18,5 +15,8 @@ import {
         }),
     ],
 })
+/**
+ * Module for GitHub.
+ */
 export class GithubModule extends ConfigurableModuleClass {}
 

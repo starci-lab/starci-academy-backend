@@ -39,6 +39,7 @@ import type {
     GenerateCvScoreStepExecuteResult,
 } from "../types"
 
+@Injectable()
 /**
  * Step 3 — score. Grades the freshly composed CV with the SOURCE-AGNOSTIC
  * {@link CvScoringService} (the same service the upload path will call in WF-03c)
@@ -47,7 +48,6 @@ import type {
  * leaves `score`/`feedback` null (the generation itself already succeeded — a
  * scoring miss must not fail the whole job or lose the rendered CV).
  */
-@Injectable()
 export class GenerateCvScoreStepService extends AbstractStepService<
     GenerateCvPayload,
     ExtendedGenerateCvContext

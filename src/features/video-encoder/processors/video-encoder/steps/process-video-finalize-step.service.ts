@@ -33,6 +33,11 @@ import {
 } from "fs"
 
 @Injectable()
+/**
+ * Step 4 — deletes the temp dir and runs `queryAtEnd` so the asset row flips to
+ * ready only after upload succeeded. Cleanup is best-effort: a leftover temp
+ * dir must not fail the job once bytes are already public.
+ */
 export class ProcessVideoFinalizeStepService extends AbstractStepService<FilenameProcessData, undefined> {
     stepIndex = 4
     stepName = "finalize"

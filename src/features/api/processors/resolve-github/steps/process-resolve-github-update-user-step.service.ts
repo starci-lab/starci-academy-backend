@@ -27,10 +27,10 @@ import {
     UserNotFoundException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Step 1: update internal user `githubUsername`.
  */
-@Injectable()
 export class ProcessResolveGithubUpdateUserStepService extends AbstractStepService<
     EnqueueResolveGithubPayload,
     EmptyObject

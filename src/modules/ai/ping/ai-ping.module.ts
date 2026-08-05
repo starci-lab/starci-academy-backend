@@ -17,6 +17,17 @@ import {
     OpenRouterPingService,
 } from "./openrouter-ping.service"
 
+@Module({
+    providers: [
+        OpenAiPingService,
+        GeminiPingService,
+        OpenRouterPingService,
+        AiPingService,
+    ],
+    exports: [
+        AiPingService,
+    ],
+})
 /**
  * AI ping sub-module — zero-token provider health checks.
  *
@@ -32,15 +43,4 @@ import {
  *
  * Consumed by {@link AiModule} and {@link AiBalancerModule}.
  */
-@Module({
-    providers: [
-        OpenAiPingService,
-        GeminiPingService,
-        OpenRouterPingService,
-        AiPingService,
-    ],
-    exports: [
-        AiPingService,
-    ],
-})
 export class AiPingModule extends ConfigurableModuleClass {}

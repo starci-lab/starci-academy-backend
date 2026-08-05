@@ -7,10 +7,10 @@ import {
     UserEntity,
 } from "@modules/databases"
 
-/** A single chat message shaped for the client. */
 @ObjectType({
     description: "A chat message with author + viewer flags.",
 })
+/** A single chat message shaped for the client. */
 export class ChatMessageNodeObject {
     /** Message primary id. */
     @Field(

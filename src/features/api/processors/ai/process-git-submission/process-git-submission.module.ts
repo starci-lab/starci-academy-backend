@@ -27,4 +27,8 @@ import {
         ChallengeEvaluationParseService,
     ],
 })
+/**
+ * Wires git-submission grade + complete steps so the worker stays a dumb runner over the
+ * step map.
+ */
 export class ProcessGitSubmissionModule extends ConfigurableModuleClass {}

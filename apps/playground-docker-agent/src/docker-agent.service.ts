@@ -2,8 +2,8 @@ import { Inject, Injectable } from "@nestjs/common"
 import { AGENT_META, type AgentMeta, BaseAgentService, DeviceService, EVENT, RESOURCE_INTERVAL_MS } from "@modules/playground-agent-core"
 import { DockerResourceService } from "./docker-resource.service"
 
-/** The docker capability: reports containers / images / networks for step verification. */
 @Injectable()
+/** The docker capability: reports containers / images / networks for step verification. A failed snapshot is swallowed so it never tears down the command relay. */
 export class DockerAgentService extends BaseAgentService {
     private resourceTimer?: NodeJS.Timeout
 

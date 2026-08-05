@@ -11,10 +11,10 @@ import {
     ReactionSummaryObject,
 } from "../../discussion"
 
-/** A single threaded community post comment shaped for the client. */
 @ObjectType({
     description: "A threaded community post comment with author, reply count and reactions.",
 })
+/** A single threaded community post comment shaped for the client. */
 export class CommunityCommentNodeObject {
     /** Comment primary id. */
     @Field(

@@ -11,6 +11,10 @@ import {
 } from "./view-presigned-url.command"
 
 @Injectable()
+/**
+ * Dispatches view-presign through the command bus so the controller stays a thin HTTP
+ * leaf.
+ */
 export class ViewPresignedUrlService {
     constructor(
         private readonly commandBus: CommandBus,

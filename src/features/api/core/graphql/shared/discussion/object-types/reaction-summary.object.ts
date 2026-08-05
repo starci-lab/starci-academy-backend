@@ -8,10 +8,10 @@ import {
     ReactionType,
 } from "@modules/databases"
 
-/** A single emotion bucket with how many users picked it. */
 @ObjectType({
     description: "A single emotion bucket with its count.",
 })
+/** A single emotion bucket with how many users picked it. */
 export class ReactionCountObject {
     /** The emotion kind. */
     @Field(
@@ -32,10 +32,10 @@ export class ReactionCountObject {
         count: number
 }
 
-/** Aggregate reaction state for a target (content or comment) from one user's view. */
 @ObjectType({
     description: "Aggregate reactions for a target plus the viewer's own pick.",
 })
+/** Aggregate reaction state for a target (content or comment) from one user's view. */
 export class ReactionSummaryObject {
     /** Per-emotion counts (only emotions with at least one reaction). */
     @Field(

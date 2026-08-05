@@ -11,9 +11,6 @@ import {
     GlobalSearchModule,
 } from "./global-search"
 
-/**
- * Module providing Socket.IO autocomplete using CQRS + Elasticsearch.
- */
 @Module({
     imports: [
         GlobalSearchModule.register({
@@ -24,4 +21,7 @@ import {
         AutocompleteGateway,
     ],
 })
+/**
+ * Module providing Socket.IO autocomplete using CQRS + Elasticsearch.
+ */
 export class AutocompleteModule extends ConfigurableModuleClass {}

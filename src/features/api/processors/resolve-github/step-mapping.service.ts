@@ -16,10 +16,10 @@ import {
     ProcessResolveGithubCompleteStepService,
 } from "./steps"
 
+@Injectable()
 /**
  * Step map provider for resolve-github pipeline.
  */
-@Injectable()
 export class ResolveGithubStepMappingService {
     constructor(
         private readonly sendGithubStep: ProcessResolveGithubSendStepService,

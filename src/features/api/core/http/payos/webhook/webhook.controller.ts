@@ -22,15 +22,15 @@ import {
     PayosWebhookService,
 } from "./webhook.service"
 
-/**
- * payOS webhook HTTP route.
- */
 @Controller(
     {
         path: httpConfig().payos().tags,
         version: "1",
     },
 )
+/**
+ * payOS webhook HTTP route.
+ */
 export class PayosWebhookController {
     private readonly logger = new Logger(PayosWebhookController.name)
 

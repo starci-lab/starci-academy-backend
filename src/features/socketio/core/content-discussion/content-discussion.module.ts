@@ -11,9 +11,6 @@ import {
     ContentDiscussionRoomService,
 } from "./content-discussion-room.service"
 
-/**
- * Module providing the Socket.IO content discussion gateway (comments + reactions realtime).
- */
 @Module({
     providers: [
         ContentDiscussionGateway,
@@ -24,4 +21,7 @@ import {
         ContentDiscussionRoomService,
     ],
 })
+/**
+ * Module providing the Socket.IO content discussion gateway (comments + reactions realtime).
+ */
 export class ContentDiscussionModule extends ConfigurableModuleClass {}
