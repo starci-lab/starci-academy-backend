@@ -41,6 +41,9 @@ import {
 import {
     PaypalClient,
 } from "@modules/paypal"
+import {
+    toUnknownRecord,
+} from "@modules/common"
 import type {
     PaypalPurchaseUnit,
 } from "@modules/paypal"
@@ -105,7 +108,7 @@ export class PaypalWebhookHandler
             transmissionSig,
             transmissionTime,
             // pass the raw event body PayPal signed over
-            webhookEvent: body as unknown as Record<string, unknown>,
+            webhookEvent: toUnknownRecord(body),
         })
         if (!verified) {
             // a failed verification means the payload is untrusted → reject

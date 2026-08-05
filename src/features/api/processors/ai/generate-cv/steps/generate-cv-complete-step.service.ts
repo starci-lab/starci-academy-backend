@@ -28,6 +28,9 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
+    toUnknownRecord,
+} from "@modules/common"
+import {
     CvGenerationStepResultMissingException,
     JobFencedOutException,
 } from "@modules/exceptions"
@@ -121,7 +124,7 @@ export class GenerateCvCompleteStepService extends AbstractStepService<
                         // deep-partial, so the plain object needs an explicit cast.
                         {
                             status: CvGenerationStatus.Done,
-                            structuredData: composed as unknown as Record<string, unknown>,
+                            structuredData: toUnknownRecord(composed),
                             latexCdnKey: rendered.latexCdnKey,
                             generatedPdfCdnKey: rendered.pdfCdnKey,
                             processedAt: this.dayjsService.now().toDate(),

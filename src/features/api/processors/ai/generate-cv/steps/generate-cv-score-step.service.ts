@@ -27,6 +27,9 @@ import {
     CvGenerationStepResultMissingException,
 } from "@modules/exceptions"
 import {
+    toUnknownRecord,
+} from "@modules/common"
+import {
     CvScoringService,
 } from "../../shared/cv-scoring"
 import type {
@@ -135,7 +138,7 @@ export class GenerateCvScoreStepService extends AbstractStepService<
             // write below). This generate step stays `structuredData`-only.
             const scored = await this.cvScoringService.score({
                 userId: payload.userId,
-                structuredData: composed as unknown as Record<string, unknown>,
+                structuredData: toUnknownRecord(composed),
                 templateLevel,
                 ...(payload.locale !== undefined ? {
                     locale: payload.locale,

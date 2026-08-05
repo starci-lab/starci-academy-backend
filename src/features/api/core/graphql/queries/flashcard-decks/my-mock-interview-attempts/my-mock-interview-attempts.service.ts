@@ -11,12 +11,12 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     MockInterviewAttemptEntity,
 } from "@modules/databases"
+import {
+    toUnknownRecordArray,
+} from "@modules/common"
 import type {
     ListMyMockInterviewAttemptsParams,
     ListMyMockInterviewAttemptsResult,
-    MockInterviewAttemptAttributeScore,
-    MockInterviewAttemptPhaseScore,
-    MockInterviewAttemptQuestionReview,
 } from "./types"
 
 /**
@@ -132,7 +132,7 @@ export class MyMockInterviewAttemptsService {
                 // declares most of these non-nullable — sanitize (see
                 // `coerceScore`/`coerceIdentifyingString`/`coerceText`) so one bad
                 // entry drops out instead of nulling the WHOLE page.
-                phaseScores: ((attempt.phaseScores ?? []) as unknown as Array<MockInterviewAttemptPhaseScore>)
+                phaseScores: toUnknownRecordArray(attempt.phaseScores)
                     .flatMap((entry) => {
                         const phase = coerceIdentifyingString(entry.phase)
                         return phase ? [{
@@ -143,7 +143,7 @@ export class MyMockInterviewAttemptsService {
                                 100),
                         }] : []
                     }),
-                attributeScores: ((attempt.attributeScores ?? []) as unknown as Array<MockInterviewAttemptAttributeScore>)
+                attributeScores: toUnknownRecordArray(attempt.attributeScores)
                     .flatMap((entry) => {
                         const key = coerceIdentifyingString(entry.key)
                         return key ? [{
@@ -156,7 +156,7 @@ export class MyMockInterviewAttemptsService {
                 gaps: attempt.gaps,
                 followUpQuestion: attempt.followUpQuestion,
                 matchedContentIds: attempt.matchedContentIds,
-                questionReviews: ((attempt.questionReviews ?? []) as unknown as Array<MockInterviewAttemptQuestionReview>)
+                questionReviews: toUnknownRecordArray(attempt.questionReviews)
                     .flatMap((entry) => {
                         const kind = coerceIdentifyingString(entry.kind)
                         return kind ? [{
@@ -165,13 +165,13 @@ export class MyMockInterviewAttemptsService {
                             kind,
                             question: coerceText(entry.question),
                             candidateAnswer: coerceText(entry.candidateAnswer),
-                            modelAnswer: entry.modelAnswer ?? null,
+                            modelAnswer: typeof entry.modelAnswer === "string" ? entry.modelAnswer : null,
                             feedback: coerceText(entry.feedback),
                             score: coerceScore(entry.score,
                                 0),
                             max: coerceScore(entry.max,
                                 100),
-                            matchedContentId: entry.matchedContentId ?? null,
+                            matchedContentId: typeof entry.matchedContentId === "string" ? entry.matchedContentId : null,
                         }] : []
                     }),
                 createdAt: attempt.createdAt,

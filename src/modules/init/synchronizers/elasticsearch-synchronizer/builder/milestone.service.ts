@@ -56,12 +56,12 @@ export class ElasticsearchMilestoneBuildService {
                 })
                 return {
                     locale,
-                    // suggest is an index-only field (not on the entity type) — cast so the
-                    // generic indexer stores it while keeping the entity contract intact
-                    entity: {
-                        ...localizedMilestone,
-                        suggest,
-                    } as unknown as MilestoneEntity,
+                    entity: Object.assign(
+                        localizedMilestone,
+                        {
+                            suggest,
+                        },
+                    ),
                 }
             },
         )

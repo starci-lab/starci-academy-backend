@@ -14,7 +14,7 @@ import {
 import {
     Injectable
 } from "@nestjs/common"
-import type {
+import {
     Readable,
 } from "stream"
 import SuperJSON from "superjson"
@@ -88,12 +88,18 @@ export class S3ReadService {
                 }),
             )
 
-            const body = result.Body as unknown as Readable | undefined
+            const body = result.Body
             if (!body) return ""
+            if (!(body instanceof Readable) && !(Symbol.asyncIterator in Object(body))) return ""
 
             const chunks: Array<Buffer> = []
-            for await (const chunk of body) {
-                chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+            // AWS SDK Body is a Node Readable / async-iterable stream at runtime
+            for await (const chunk of body as AsyncIterable<unknown>) {
+                if (Buffer.isBuffer(chunk)) {
+                    chunks.push(chunk)
+                } else if (typeof chunk === "string" || chunk instanceof Uint8Array) {
+                    chunks.push(Buffer.from(chunk))
+                }
             }
             return Buffer.concat(chunks).toString("utf8")
         } catch (error) {
@@ -161,12 +167,18 @@ export class S3ReadService {
                 }),
             )
 
-            const body = result.Body as unknown as Readable | undefined
+            const body = result.Body
             if (!body) return Buffer.alloc(0)
+            if (!(body instanceof Readable) && !(Symbol.asyncIterator in Object(body))) return Buffer.alloc(0)
 
             const chunks: Array<Buffer> = []
-            for await (const chunk of body) {
-                chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+            // AWS SDK Body is a Node Readable / async-iterable stream at runtime
+            for await (const chunk of body as AsyncIterable<unknown>) {
+                if (Buffer.isBuffer(chunk)) {
+                    chunks.push(chunk)
+                } else if (typeof chunk === "string" || chunk instanceof Uint8Array) {
+                    chunks.push(Buffer.from(chunk))
+                }
             }
             return Buffer.concat(chunks)
         } catch (error) {

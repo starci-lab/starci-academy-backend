@@ -239,6 +239,14 @@ export const envConfig = () => ({
             ),
         },
     },
+    /**
+     * Raw `NODE_ENV` string (development / production / test / …). Sentry and other
+     * pre-boot reporters tag events with this; prefer `isProduction` for branching.
+     */
+    nodeEnv: parseEnvString({
+        key: "NODE_ENV",
+        defaultValue: "development",
+    }),
     /** True when NODE_ENV === "production". */
     isProduction: parseEnvString(
         {
@@ -264,6 +272,16 @@ export const envConfig = () => ({
             port: parseEnvInt({
                 key: "CORE_PORT",
                 defaultValue: 3001,
+            }),
+        },
+        /**
+         * Standalone backup worker (`apps/backup`). Nest historically reads the
+         * lowercase `port` env var when no explicit PORT is set.
+         */
+        backup: {
+            port: parseEnvInt({
+                key: "port",
+                defaultValue: 3000,
             }),
         },
         /** Standalone mock-sandbox service (public dummy API for lesson Sandpack iframes). */
@@ -1558,6 +1576,20 @@ export const envConfig = () => ({
                 }),
             },
         },
+    },
+    /**
+     * Standalone playground-agent CLI (`npx` binary). Read via envConfig so the
+     * agent does not touch `process.env` itself.
+     */
+    playgroundAgent: {
+        /**
+         * Relay server the agent pairs with. Empty → caller falls back to its
+         * baked-in DEFAULT_SERVER constant.
+         */
+        server: parseEnvString({
+            key: "STARCI_PLAYGROUND_SERVER",
+            defaultValue: "",
+        }),
     },
     /** Backup configuration. */
     backup: {

@@ -61,16 +61,16 @@ export class ElasticsearchContentBuildService {
                 })
                 return {
                     locale,
-                    // `suggest` is an index-only field (not on the entity type) — cast so the
-                    // generic indexer stores it while keeping the entity contract intact
-                    entity: {
-                        ...localizedContent,
-                        // derive the challenge count LIVE from the loaded relation. The denormalized
-                        // `num_challenges` column is not repopulated on reseed (stays stale / 0), so
-                        // counting the hydrated challenges here keeps the ES doc accurate + reseed-safe.
-                        numChallenges: localizedContent.challenges?.length ?? 0,
-                        suggest,
-                    } as unknown as ContentEntity,
+                    entity: Object.assign(
+                        localizedContent,
+                        {
+                            // derive the challenge count LIVE from the loaded relation. The denormalized
+                            // `num_challenges` column is not repopulated on reseed (stays stale / 0), so
+                            // counting the hydrated challenges here keeps the ES doc accurate + reseed-safe.
+                            numChallenges: localizedContent.challenges?.length ?? 0,
+                            suggest,
+                        },
+                    ),
                 }
             },
         )

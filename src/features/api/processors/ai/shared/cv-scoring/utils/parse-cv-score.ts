@@ -6,6 +6,9 @@ import {
     CvModelOutputParseException,
 } from "@modules/exceptions"
 import {
+    toUnknownRecord,
+} from "@modules/common"
+import {
     CV_SCORE_MAX,
     CV_SCORE_MIN,
 } from "../constants"
@@ -78,7 +81,6 @@ export const parseCvScore = (
 
     return {
         score: normalizeGradingScore(clampedScore),
-        // widen to the jsonb column shape
-        feedback: feedback as unknown as Record<string, unknown>,
+        feedback: toUnknownRecord(feedback),
     }
 }

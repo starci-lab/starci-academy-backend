@@ -20,7 +20,7 @@ import {
     dirname,
     join,
 } from "path"
-import type {
+import {
     Readable,
 } from "stream"
 import {
@@ -191,10 +191,12 @@ export class S3SnapshotService {
             }),
         )
 
-        // the SDK returns the body as a Node Readable in this runtime
-        const body = result.Body as unknown as Readable | undefined
+        const body = result.Body
         if (!body) {
             // an object with no body still counts as written (0 bytes)
+            return 0
+        }
+        if (!(body instanceof Readable)) {
             return 0
         }
 

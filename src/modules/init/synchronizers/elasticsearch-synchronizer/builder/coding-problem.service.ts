@@ -118,27 +118,27 @@ export class ElasticsearchCodingProblemBuildService {
                 })
                 return {
                     locale,
-                    // full detail doc so the `codingProblem` query can serve straight from ES;
-                    // `suggest` is index-only, so cast through unknown to satisfy the generic
-                    // indexer while keeping the entity contract
-                    entity: {
-                        id: problem.id,
-                        slug: problem.slug,
-                        title,
-                        statement,
-                        difficulty: problem.difficulty,
-                        domain: problem.domain,
-                        tags: problem.tags,
-                        timeLimitMs: problem.timeLimitMs,
-                        memoryLimitKb: problem.memoryLimitKb,
-                        points: problem.points,
-                        orderIndex: problem.orderIndex,
-                        sortIndex: problem.sortIndex,
-                        enabled: problem.enabled,
-                        starterCodes: problem.starterCodes,
-                        testcases: sampleTestcases,
-                        suggest,
-                    } as unknown as CodingProblemEntity,
+                    entity: Object.assign(
+                        new CodingProblemEntity(),
+                        {
+                            id: problem.id,
+                            slug: problem.slug,
+                            title,
+                            statement,
+                            difficulty: problem.difficulty,
+                            domain: problem.domain,
+                            tags: problem.tags,
+                            timeLimitMs: problem.timeLimitMs,
+                            memoryLimitKb: problem.memoryLimitKb,
+                            points: problem.points,
+                            orderIndex: problem.orderIndex,
+                            sortIndex: problem.sortIndex,
+                            enabled: problem.enabled,
+                            starterCodes: problem.starterCodes,
+                            testcases: sampleTestcases,
+                            suggest,
+                        },
+                    ),
                 }
             },
         )

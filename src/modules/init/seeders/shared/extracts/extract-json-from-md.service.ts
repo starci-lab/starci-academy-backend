@@ -61,10 +61,11 @@ export class ExtractJsonFromMdService {
         if (this.isPlainObject(parsed)) {
             return parsed as T
         }
-        // an array / string root is wrapped so callers always receive an object
-        return {
-            data: parsed 
-        } as unknown as T
+        const wrapped: Record<string, unknown> = {
+            data: parsed,
+        }
+        // T is the caller-chosen markdown envelope
+        return wrapped as T
     }
 
     /**

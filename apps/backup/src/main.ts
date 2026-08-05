@@ -4,9 +4,12 @@ import {
 import {
     BackupModule 
 } from "./backup.module"
+import {
+    envConfig,
+} from "@modules/env"
 
 async function bootstrap() {
     const app = await NestFactory.create(BackupModule)
-    await app.listen(process.env.port ?? 3000)
+    await app.listen(envConfig().services.backup.port)
 }
 bootstrap()

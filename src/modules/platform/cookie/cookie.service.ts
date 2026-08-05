@@ -3,7 +3,6 @@ import {
 } from "@nestjs/common"
 import type {
     CookieOptions,
-    Request
 } from "express"
 import {
     AttachHttpOnlyCookieParams,
@@ -11,7 +10,8 @@ import {
     AttachReadableCookieParams,
     AttachReadableCookieResult,
     ClearCookieParams,
-    ClearCookieResult
+    ClearCookieResult,
+    CookieRequestLike,
 } from "./types"
 import {
     envConfig
@@ -177,12 +177,13 @@ export class CookieService {
      * @param name - The name of the cookie to retrieve.
      * @returns The cookie value if found, undefined otherwise.
      */
-    getCookie(req: Request, name: string): string | undefined {
+    getCookie(req: CookieRequestLike | undefined, name: string): string | undefined {
         if (!req) return undefined
 
         // 1. Try req.cookies (populated by cookie-parser middleware)
-        if (req.cookies?.[name]) {
-            return req.cookies[name]
+        const parsed = req.cookies?.[name]
+        if (typeof parsed === "string") {
+            return parsed
         }
 
         // 2. Fallback to manual header parsing
@@ -210,7 +211,7 @@ export class CookieService {
      * @param name - The cookie name to collect all values for.
      * @returns All decoded values for `name`, in header order (empty when none).
      */
-    getAllCookieValues(req: Request, name: string): Array<string> {
+    getAllCookieValues(req: CookieRequestLike | undefined, name: string): Array<string> {
         const cookieHeader = req?.headers?.cookie
         if (typeof cookieHeader !== "string") {
             return []

@@ -153,6 +153,9 @@ export class PgBackupService {
                 ],
                 timeoutMs: 10 * 60 * 1000,
                 env: {
+                    // spawn inherit: openssl reads BACKUP_ENCRYPT_PASSWORD from the
+                    // child env; spreading process.env is not a config read.
+                    // eslint-disable-next-line no-restricted-syntax
                     ...process.env,
                     BACKUP_ENCRYPT_PASSWORD: encryptPassword,
                 },

@@ -30,10 +30,6 @@ import type {
 import type {
     EntityManager,
 } from "typeorm"
-import type {
-    Request,
-} from "express"
-
 /**
  * Abstract class for Keycloak authentication guard.
  */
@@ -110,7 +106,7 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
         // enforce single account-wide session: the request must carry the
         // session id that matches the user's current active session
         const sessionId = this.cookieService.getCookie(
-            request as unknown as Request,
+            request,
             CookieName.SessionId,
         )
         // throws 401 when a newer login elsewhere has superseded this device

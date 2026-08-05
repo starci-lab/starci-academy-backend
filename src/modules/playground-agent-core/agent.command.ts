@@ -16,6 +16,9 @@ import {
 import {
     ServiceInstallerService 
 } from "./service-installer.service"
+import {
+    envConfig,
+} from "@modules/env"
 
 /** Parsed CLI options for {@link AgentCommand}. */
 interface AgentCommandOptions {
@@ -77,7 +80,7 @@ export class AgentCommand extends CommandRunner {
 
     async run(inputs: Array<string>, options: AgentCommandOptions): Promise<void> {
         const pairingCode = inputs[0]
-        const server = (options.server || process.env.STARCI_PLAYGROUND_SERVER || DEFAULT_SERVER).replace(/\/+$/,
+        const server = (options.server || envConfig().playgroundAgent.server || DEFAULT_SERVER).replace(/\/+$/,
             "")
 
         if (options.uninstallService) {

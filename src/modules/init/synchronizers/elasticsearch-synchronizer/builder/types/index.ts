@@ -8,6 +8,11 @@ import type {
 export type LocalizedElasticsearchEntity<T> = {
     /** Locale the entity graph was transformed for. */
     locale: Locale
-    /** The localized entity graph ready to index. */
-    entity: T
+    /**
+     * Localized entity graph plus optional ES-only completion payload (`suggest`).
+     * Index-only fields are not on the TypeORM entity.
+     */
+    entity: T & {
+        suggest?: unknown
+    }
 }

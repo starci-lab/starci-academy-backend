@@ -90,12 +90,12 @@ export class ElasticsearchFlashcardDeckBuildService {
                 })
                 return {
                     locale,
-                    // `suggest` is an index-only field (not on the entity type) — cast so the
-                    // generic indexer stores it while keeping the entity contract intact
-                    entity: {
-                        ...localizedDeck,
-                        suggest,
-                    } as unknown as FlashcardDeckEntity,
+                    entity: Object.assign(
+                        localizedDeck,
+                        {
+                            suggest,
+                        },
+                    ),
                 }
             },
         )

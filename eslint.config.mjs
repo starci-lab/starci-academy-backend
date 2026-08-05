@@ -68,10 +68,16 @@ export default defineConfig([
         // reads `process.env` to stand up its own Testcontainers infra, which is a
         // different concern from the app's OWN typed config tree.
         files: ["src/**/*.ts", "apps/**/*.ts"],
-        ignores: ["**/*spec.ts", "apps/*/test/**", "src/modules/tests/**"],
+        ignores: [
+            "**/*spec.ts",
+            "apps/*/test/**",
+            "src/modules/tests/**",
+            // config-and-env §8: this file IS the only permitted process.env reader.
+            "src/modules/platform/env/utils/parse-env.ts",
+        ],
         rules: {
             "no-restricted-syntax": [
-                "warn", // type-safety §6 · nợ≈37 (as unknown as) · config-and-env §8 · nợ≈5 (process.env)
+                "error", // type-safety §6 + config-and-env §8 · nợ=0 → error
                 {
                     selector: "TSAsExpression:has(> TSAsExpression > TSUnknownKeyword)",
                     message: "`as unknown as X` is banned outside test mocks — narrow properly instead (type-safety §6).",

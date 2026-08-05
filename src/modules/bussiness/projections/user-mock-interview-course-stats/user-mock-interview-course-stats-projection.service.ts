@@ -16,6 +16,9 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    toUnknownRecordArray,
+} from "@modules/common"
 import type {
     MockInterviewCourseStatsBreakdownItemData,
     MockInterviewCourseStatsRecurringGapData,
@@ -58,28 +61,6 @@ const RECURRING_GAP_MIN_COUNT = 2
 
 /** How many of the most-frequent recurring gaps to surface. */
 const RECURRING_GAPS_TOP_N = 5
-
-/** One phase-score entry, as persisted (loosely typed jsonb on the entity). */
-interface RawPhaseScore {
-    phase?: unknown
-    score?: unknown
-    max?: unknown
-}
-
-/** One question-review entry, as persisted (loosely typed jsonb on the entity). */
-interface RawQuestionReview {
-    questionIndex?: unknown
-    kind?: unknown
-    score?: unknown
-    max?: unknown
-    matchedContentId?: unknown
-}
-
-/** One attribute-score entry, as persisted (loosely typed jsonb on the entity) — always one of the 3 fixed keys (communication/structuredThinking/tradeoffAwareness), no `max` field (fixed at 100). */
-interface RawAttributeScore {
-    key?: unknown
-    score?: unknown
-}
 
 /** Accumulator for one breakdown key (phase or kind) while scanning attempts. */
 interface BreakdownAccumulator {
@@ -309,12 +290,12 @@ export class UserMockInterviewCourseStatsProjectionService {
             if (isQna) {
                 qnaCount += 1
                 this.accumulateQuestionReviews(
-                    attempt.questionReviews as unknown as Array<RawQuestionReview>,
+                    attempt.questionReviews,
                     attempt.createdAt,
                     kindAcc,
                 )
                 this.accumulateQuestionReviewsByLanguage(
-                    attempt.questionReviews as unknown as Array<RawQuestionReview>,
+                    attempt.questionReviews,
                     sessionById.get(attempt.sessionId),
                     attempt.createdAt,
                     languageAcc,
@@ -322,7 +303,7 @@ export class UserMockInterviewCourseStatsProjectionService {
             } else {
                 designCount += 1
                 this.accumulatePhaseScores(
-                    attempt.phaseScores as unknown as Array<RawPhaseScore>,
+                    attempt.phaseScores,
                     attempt.createdAt,
                     attempt.matchedContentIds,
                     phaseAcc,
@@ -331,7 +312,7 @@ export class UserMockInterviewCourseStatsProjectionService {
             // attributeScores/level are graded on EVERY attempt regardless of
             // mode (not gated by isQna like phase/kind are)
             this.accumulateAttributeScores(
-                attempt.attributeScores as unknown as Array<RawAttributeScore>,
+                attempt.attributeScores,
                 attempt.createdAt,
                 attempt.matchedContentIds,
                 attributeAcc,
@@ -394,12 +375,12 @@ export class UserMockInterviewCourseStatsProjectionService {
      * recent one without a second database pass.
      */
     private accumulatePhaseScores(
-        phaseScores: Array<RawPhaseScore> | null | undefined,
+        phaseScores: unknown,
         createdAt: Date,
         matchedContentIds: Array<string>,
         acc: Map<string, BreakdownAccumulator>,
     ): void {
-        for (const entry of phaseScores ?? []) {
+        for (const entry of toUnknownRecordArray(phaseScores)) {
             const phase = typeof entry.phase === "string" ? entry.phase : ""
             if (!DESIGN_PHASE_KEYS.has(phase)) {
                 continue
@@ -425,11 +406,11 @@ export class UserMockInterviewCourseStatsProjectionService {
      * candidate for THIS attempt when the question came in weak.
      */
     private accumulateQuestionReviews(
-        questionReviews: Array<RawQuestionReview> | null | undefined,
+        questionReviews: unknown,
         createdAt: Date,
         acc: Map<string, BreakdownAccumulator>,
     ): void {
-        for (const entry of questionReviews ?? []) {
+        for (const entry of toUnknownRecordArray(questionReviews)) {
             const kind = typeof entry.kind === "string" ? entry.kind : ""
             if (kind.length === 0) {
                 continue
@@ -461,7 +442,7 @@ export class UserMockInterviewCourseStatsProjectionService {
      * resolved as undefined) skips the whole attempt's reviews.
      */
     private accumulateQuestionReviewsByLanguage(
-        questionReviews: Array<RawQuestionReview> | null | undefined,
+        questionReviews: unknown,
         session: MockInterviewSessionEntity | undefined,
         createdAt: Date,
         acc: Map<string, BreakdownAccumulator>,
@@ -469,7 +450,7 @@ export class UserMockInterviewCourseStatsProjectionService {
         if (!session || !session.seedQuestions) {
             return
         }
-        for (const entry of questionReviews ?? []) {
+        for (const entry of toUnknownRecordArray(questionReviews)) {
             const questionIndex = typeof entry.questionIndex === "number" ? entry.questionIndex : -1
             const seed = questionIndex >= 0 ? session.seedQuestions[questionIndex] : undefined
             const lang = seed?.givenCodes?.[0]?.lang
@@ -503,12 +484,12 @@ export class UserMockInterviewCourseStatsProjectionService {
      * same as `accumulatePhaseScores` does.
      */
     private accumulateAttributeScores(
-        attributeScores: Array<RawAttributeScore> | null | undefined,
+        attributeScores: unknown,
         createdAt: Date,
         matchedContentIds: Array<string>,
         acc: Map<string, BreakdownAccumulator>,
     ): void {
-        for (const entry of attributeScores ?? []) {
+        for (const entry of toUnknownRecordArray(attributeScores)) {
             const key = typeof entry.key === "string" ? entry.key : ""
             if (key.length === 0) {
                 continue

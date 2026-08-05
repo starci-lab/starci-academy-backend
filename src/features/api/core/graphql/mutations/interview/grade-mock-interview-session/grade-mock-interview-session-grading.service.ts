@@ -37,6 +37,9 @@ import {
     UserService,
 } from "@modules/bussiness/user"
 import {
+    toUnknownRecord,
+} from "@modules/common"
+import {
     MockInterviewGradePromptService,
 } from "./grade-mock-interview-session-prompt.service"
 import {
@@ -724,16 +727,15 @@ export class MockInterviewGradingService {
                     overallScore: result.overallScore,
                     verdict: result.verdict,
                     // jsonb columns are typed as Array<Record<string, unknown>> on the
-                    // entity (schema-evolution friendly); the normalized result's named
-                    // interfaces are structurally compatible but lack an index signature,
-                    // so widen explicitly for the jsonb column assignment
-                    phaseScores: result.phaseScores as unknown as Array<Record<string, unknown>>,
-                    attributeScores: result.attributeScores as unknown as Array<Record<string, unknown>>,
+                    // entity (schema-evolution friendly); copy named result rows onto
+                    // index-signature records for the jsonb column assignment
+                    phaseScores: result.phaseScores.map(toUnknownRecord),
+                    attributeScores: result.attributeScores.map(toUnknownRecord),
                     strengths: result.strengths,
                     gaps: result.gaps,
                     followUpQuestion: result.followUpQuestion,
                     matchedContentIds: result.matchedContentIds,
-                    questionReviews: result.questionReviews as unknown as Array<Record<string, unknown>>,
+                    questionReviews: result.questionReviews.map(toUnknownRecord),
                     countsToReadiness,
                     // copied verbatim from the session row so the history row
                     // keeps the name after the session's 24h resume TTL expires

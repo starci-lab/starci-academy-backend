@@ -3,6 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     ContentEntity,
+    ContentLearningOutcomeEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
@@ -270,12 +271,15 @@ export class ContentHandler
                 "Vận dụng khái niệm vào một ví dụ thực hành nhỏ.",
                 "Nhận ra các tình huống biên và lỗi thường gặp.",
             ]
-        content.outcomes = bullets.map((text, index) => ({
-            id: `${content.id}-stub-outcome-${index}`,
-            text,
-            orderIndex: index,
-            sortIndex: index,
-        }) as unknown as ContentEntity["outcomes"][number])
+        content.outcomes = bullets.map((text, index) => Object.assign(
+            new ContentLearningOutcomeEntity(),
+            {
+                id: `${content.id}-stub-outcome-${index}`,
+                text,
+                orderIndex: index,
+                sortIndex: index,
+            },
+        ))
     }
 
     /**

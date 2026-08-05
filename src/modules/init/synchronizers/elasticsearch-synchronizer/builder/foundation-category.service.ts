@@ -57,12 +57,12 @@ export class ElasticsearchFoundationCategoryBuildService {
                 }
                 return {
                     locale,
-                    // suggest is an index-only field (not on the entity type) — cast so the
-                    // generic indexer stores it while keeping the entity contract intact
-                    entity: {
-                        ...localizedCategory,
-                        suggest,
-                    } as unknown as FoundationCategoryEntity,
+                    entity: Object.assign(
+                        localizedCategory,
+                        {
+                            suggest,
+                        },
+                    ),
                 }
             },
         )

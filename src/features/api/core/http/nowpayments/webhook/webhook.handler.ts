@@ -41,6 +41,9 @@ import {
     NowPaymentsClient,
 } from "@modules/nowpayments"
 import {
+    toUnknownRecord,
+} from "@modules/common"
+import {
     Injectable,
     Logger,
 } from "@nestjs/common"
@@ -91,7 +94,7 @@ export class NowPaymentsWebhookHandler
 
         // verify the IPN: recompute HMAC-SHA512 of the sorted body vs the header
         const verified = this.nowPaymentsClient.verifySignature({
-            body: body as unknown as Record<string, unknown>,
+            body: toUnknownRecord(body),
             signature,
         })
         if (!verified) {

@@ -23,6 +23,9 @@ import {
     CacheService,
 } from "@modules/cache"
 import {
+    toUnknownRecord,
+} from "@modules/common"
+import {
     toGlobalId,
 } from "./utils"
 import type {
@@ -233,7 +236,7 @@ export class LabelResolverService {
         await Promise.all(
             rows.map(async (row) => {
                 // pull id + the dynamic label column via a typed view of the row
-                const typedRow = row as unknown as Record<string, unknown>
+                const typedRow = toUnknownRecord(row)
                 const id = String(typedRow.id)
                 const rawLabel = typedRow[kind.labelColumn]
 
