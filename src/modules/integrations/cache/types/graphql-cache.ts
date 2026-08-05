@@ -16,5 +16,5 @@ export interface GraphQLCacheConfig {
      * @example
      * argsExtractor: (request, user) => [request.courseId, user?.id]
      */
-    argsExtractor: (request: any, user: any) => Array<any>
+    argsExtractor: (request: Record<string, unknown>, user: Record<string, unknown>) => Array<unknown>
 }

@@ -84,9 +84,9 @@ export class ProcessVideoHandler
             url,
             callbackQueries: {
                 queryAtStart: ["SELECT 1",
-                    []] as readonly [string, any[]],
+                    []] as readonly [string, unknown[]],
                 queryAtEnd: ["SELECT 1",
-                    []] as readonly [string, any[]],
+                    []] as readonly [string, unknown[]],
             },
         }
 

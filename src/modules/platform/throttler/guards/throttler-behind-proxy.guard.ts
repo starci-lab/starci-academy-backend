@@ -8,6 +8,10 @@ import {
 import {
     GqlExecutionContext
 } from "@nestjs/graphql"
+import type {
+    GraphQLRequestResponseContext,
+    ThrottlerTrackedRequest,
+} from "../types"
 
 /**
  * Global rate-limit guard that works behind a reverse proxy AND across both
@@ -27,9 +31,9 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
      * @param req - The incoming request record.
      * @returns The client IP used as the throttle key.
      */
-    protected async getTracker(req: Record<string, any>): Promise<string> {
+    protected async getTracker(req: ThrottlerTrackedRequest): Promise<string> {
         // prefer the first proxied IP, else fall back to the socket address
-        return req.ips?.length ? req.ips[0] : req.ip
+        return req.ips?.length ? req.ips[0] : (req.ip ?? "")
     }
 
     /**
@@ -39,13 +43,10 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
      * @param context - The Nest execution context.
      * @returns The request/response pair for the active transport.
      */
-    protected getRequestResponse(context: ExecutionContext): { req: Record<string, any>; res: Record<string, any> } {
+    protected getRequestResponse(context: ExecutionContext): GraphQLRequestResponseContext {
         // GraphQL keeps req/res on the gql context, not the HTTP argument host
         if (context.getType<string>() === "graphql") {
-            const gqlContext = GqlExecutionContext.create(context).getContext<{
-                req: Record<string, any>
-                res: Record<string, any>
-            }>()
+            const gqlContext = GqlExecutionContext.create(context).getContext<GraphQLRequestResponseContext>()
             return {
                 req: gqlContext.req,
                 res: gqlContext.res,

@@ -4,9 +4,9 @@
  */
 export interface ThrottlerRequestResponse {
     /** The incoming request record for the active transport. */
-    req: Record<string, any>
+    req: Record<string, unknown>
     /** The outgoing response record for the active transport. */
-    res: Record<string, any>
+    res: Record<string, unknown>
 }
 
 /**
@@ -15,7 +15,18 @@ export interface ThrottlerRequestResponse {
  */
 export interface GraphQLRequestResponseContext {
     /** The incoming request record carried on the GraphQL context. */
-    req: Record<string, any>
+    req: Record<string, unknown>
     /** The outgoing response record carried on the GraphQL context. */
-    res: Record<string, any>
+    res: Record<string, unknown>
+}
+
+/**
+ * Minimal request shape {@link ThrottlerBehindProxyGuard.getTracker} reads to
+ * key the rate limit by real client IP.
+ */
+export interface ThrottlerTrackedRequest {
+    /** Direct socket IP. */
+    ip?: string
+    /** Proxied IP chain (first hop = real client) when behind a reverse proxy. */
+    ips?: Array<string>
 }
