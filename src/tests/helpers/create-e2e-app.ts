@@ -165,6 +165,9 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             // real services so grantTier mutates the real DB
             AiEntitlementService,
             DayjsService,
+            // every handler logs through WinstonService; stubbed so no test
+            // opens the Loki transport
+            winstonServiceMock,
             // mocked externals / unused-by-grant config
             {
                 provide: SEPAY,

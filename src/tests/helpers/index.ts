@@ -11,6 +11,7 @@
  * not symbols a spec ever imports.
  */
 export * from "./create-e2e-app"
+export * from "./e2e-db-reset.service"
 export * from "./e2e-stack.service"
 export * from "./harness-invoke"
 export * from "./harness-invoke.service"

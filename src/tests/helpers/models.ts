@@ -48,12 +48,21 @@ const readClaudeCodeToken = (): string | undefined => {
  */
 const buildClient = (): Anthropic => {
     const token = readClaudeCodeToken()
+    // The SDK retries 429/5xx itself with exponential backoff and honours
+    // `retry-after`. Two (its default) is nowhere near enough for a harness run
+    // firing dozens of calls back to back, so it is raised here; the outer
+    // {@link withRateLimitRetry} loop then covers the case where even that is
+    // exhausted.
+    const shared = {
+        maxRetries: MAX_SDK_RETRIES,
+    }
     if (!token) {
-        return new Anthropic()
+        return new Anthropic(shared)
     }
 
     if (token.startsWith("sk-ant-oat")) {
         return new Anthropic({
+            ...shared,
             authToken: token,
             defaultHeaders: {
                 "anthropic-beta": OAUTH_BETA,
@@ -62,8 +71,111 @@ const buildClient = (): Anthropic => {
     }
 
     return new Anthropic({
+        ...shared,
         apiKey: token,
     })
+}
+
+/** How many times the Anthropic SDK itself retries a throttled request. */
+const MAX_SDK_RETRIES = 10
+
+/** How many times {@link withRateLimitRetry} re-runs a call the SDK gave up on. */
+const MAX_OUTER_ATTEMPTS = 10
+
+/** Ceiling on one backoff wait, so an exhausted quota cannot stall a run forever. */
+const MAX_BACKOFF_MS = 60_000
+
+/** Shape of the throttling errors the Anthropic SDK surfaces. */
+interface ThrottleError {
+    /** HTTP status, when the SDK attached one. */
+    status?: number
+    /** Response headers, carrying `retry-after` when the server sent it. */
+    headers?: Record<string, string>
+    /** The API's own error envelope. */
+    error?: {
+        error?: {
+            /** e.g. `rate_limit_error`, `overloaded_error`. */
+            type?: string
+        }
+    }
+}
+
+/**
+ * Tail of the serialisation chain. Every Anthropic call queues behind the
+ * previous one: the harness is the only client of this token, so two calls
+ * firing concurrently would rate-limit nobody but themselves. `maxWorkers: 1`
+ * already serialises across FILES; this serialises within one.
+ */
+let callChain: Promise<unknown> = Promise.resolve()
+
+/** Run `fn` only after every previously queued call has settled. */
+const serialize = <TResult>(fn: () => Promise<TResult>): Promise<TResult> => {
+    const run = callChain.then(fn,
+        fn)
+    callChain = run.catch(() => undefined)
+    return run
+}
+
+/** Whether an error is the API asking us to slow down or come back later. */
+const isRetryable = (error: unknown): boolean => {
+    const throttle = error as ThrottleError
+    const status = throttle?.status
+    const type = throttle?.error?.error?.type
+    return status === 429
+        || status === 529
+        || (status !== undefined && status >= 500)
+        || type === "rate_limit_error"
+        || type === "overloaded_error"
+}
+
+/** The server's own `retry-after` in milliseconds, when it sent one. */
+const retryAfterMs = (error: unknown): number | undefined => {
+    const raw = (error as ThrottleError)?.headers?.["retry-after"]
+    const seconds = raw === undefined ? Number.NaN : Number(raw)
+    return Number.isFinite(seconds) ? seconds * 1_000 : undefined
+}
+
+const sleep = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve,
+        ms))
+
+/**
+ * Run one Anthropic call, serialised against every other, retrying while the
+ * API is throttling or overloaded.
+ *
+ * A harness verdict must reflect the MODEL's answer, not the account's quota at
+ * that minute -- a run reporting "36 failed" because of `rate_limit_error` has
+ * measured nothing. Waits honour the server's `retry-after` when present and
+ * otherwise back off exponentially with jitter, so a burst of retries does not
+ * resynchronise into another burst.
+ *
+ * Errors that are not throttling (a bad request, a missing credential) rethrow
+ * immediately -- retrying those only hides a real defect.
+ *
+ * @param fn - the API call to run
+ * @returns whatever `fn` resolves to
+ */
+export const withRateLimitRetry = async <TResult>(
+    fn: () => Promise<TResult>,
+): Promise<TResult> => {
+    let lastError: unknown
+
+    for (let attempt = 1; attempt <= MAX_OUTER_ATTEMPTS; attempt += 1) {
+        try {
+            return await serialize(fn)
+        } catch (error) {
+            lastError = error
+            if (!isRetryable(error) || attempt === MAX_OUTER_ATTEMPTS) {
+                throw error
+            }
+            const backoff = Math.min(MAX_BACKOFF_MS,
+                2 ** attempt * 1_000)
+            const jitter = Math.floor(Math.random() * 1_000)
+            await sleep(retryAfterMs(error) ?? backoff + jitter)
+        }
+    }
+
+    throw lastError
 }
 
 /**
@@ -129,7 +241,7 @@ export const generate = async (
 ): Promise<string> => {
     const config: Tier = HARNESS_TIER[tier]
 
-    const res = await client.messages.create({
+    const res = await withRateLimitRetry(() => client.messages.create({
         model: config.model,
         max_tokens: 2048,
         ...(config.effort
@@ -152,7 +264,7 @@ export const generate = async (
                 content: input.prompt,
             },
         ],
-    })
+    }))
 
     return res.content
         .filter((block): block is Anthropic.TextBlock => block.type === "text")

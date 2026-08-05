@@ -4,6 +4,7 @@ import {
 
 import {
     client,
+    withRateLimitRetry,
 } from "./models"
 
 /**
@@ -59,7 +60,7 @@ export const judge = async (
     rubric: string,
     output: string,
 ): Promise<Verdict> => {
-    const res = await client.messages.parse({
+    const res = await withRateLimitRetry(() => client.messages.parse({
         model: "claude-opus-4-8",
         max_tokens: 2048,
         output_config: {
@@ -72,7 +73,7 @@ export const judge = async (
                 content: `RUBRIC:\n${rubric}\n\nOUTPUT:\n${output}`,
             },
         ],
-    })
+    }))
 
     return res.parsed_output as Verdict
 }
