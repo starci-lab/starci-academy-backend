@@ -1,10 +1,3 @@
-/**
- * Service for producing messages to NATS subjects.
- *
- * @example
- * const producer = await app.get(NatsProducerService)
- * producer.publish({ subject: 'my.subject', payload: data })
- */
 import type {
     NatsConnection 
 } from "nats"
@@ -31,6 +24,10 @@ import {
 } from "../enums"
 
 @Injectable()
+/**
+ * Publishes encoded payloads onto NATS subjects (including the ping heartbeat)
+ * so other pods' bridges can re-emit locally.
+ */
 export class NatsProducerService {
     constructor(
         @InjectNats()

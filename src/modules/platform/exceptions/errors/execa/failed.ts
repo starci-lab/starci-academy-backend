@@ -9,6 +9,7 @@ import {
     AbstractException
 } from "../abstract"
 
+/** Failed command + exit/stdio for a non-zero subprocess. */
 export interface ExecaExecutionFailedExceptionMetadata extends AbstractExceptionMetadata {
     command: string
     args: Array<string>
@@ -17,6 +18,7 @@ export interface ExecaExecutionFailedExceptionMetadata extends AbstractException
     exitCode?: number
 }
 
+/** Surfaces a subprocess failure so the pipeline stops instead of continuing on bad output. */
 export class ExecaExecutionFailedException extends AbstractException {
     constructor(
         {

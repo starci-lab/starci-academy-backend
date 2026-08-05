@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Invalid pricing fields parsed from the course seed manifest. */
 export interface CourseSeedPricingDataInvalidExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     /** Which part of pricing `data.json` failed validation. */

@@ -5,10 +5,12 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Consultant index whose headhunter mount path was missing. */
 export interface ConsultantPathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     consultantIndex?: number
 }
 
+/** Aborts headhunter seed/load when the consultant folder is absent on the mount. */
 export class ConsultantPathNotFoundException extends AbstractException {
     constructor({
         consultantIndex,

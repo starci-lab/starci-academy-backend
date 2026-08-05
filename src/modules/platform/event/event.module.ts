@@ -17,6 +17,10 @@ import {
 
 @Module({
 })
+/**
+ * Registers the in-process EventEmitter plus optional NATS bridge so publishers fan out
+ * without knowing the transport.
+ */
 export class EventModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

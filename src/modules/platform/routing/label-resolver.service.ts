@@ -34,6 +34,7 @@ import type {
     ResolveLabelsParams,
 } from "./types"
 
+@Injectable()
 /**
  * Service that resolves a batch of entity references (`{ entityName, id }`) into
  * display labels, batched per entity kind and cached in Redis to avoid the N+1
@@ -54,7 +55,6 @@ import type {
  * })
  * const label = labels.get(toGlobalId(CourseEntity.name, id))
  */
-@Injectable()
 export class LabelResolverService {
     /**
      * Lookup table mapping a supported entity name to its query descriptor.

@@ -21,6 +21,7 @@ import {
 } from "./enums"
 
 
+@Injectable()
 /**
  * Service for attaching and clearing HttpOnly cookies on Express response.
  * Used for refresh tokens and logout.
@@ -29,7 +30,6 @@ import {
  * cookieService.attachHttpOnlyCookie({ res, name: "refreshToken", value: token })
  * cookieService.clearCookie({ res, name: "refreshToken" })
  */
-@Injectable()
 export class CookieService {
     constructor() {}
 

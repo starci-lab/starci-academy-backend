@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Category index whose mount path was missing. */
 export interface FoundationCategoryPathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     /** Resolved `orderIndex` that has no matching entry in `paths`. */
     categoryIndex: number

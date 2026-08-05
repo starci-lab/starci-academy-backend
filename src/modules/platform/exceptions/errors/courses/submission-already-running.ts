@@ -5,10 +5,12 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Submission currently executing another attempt. */
 export interface SubmissionAlreadyRunningExceptionMetadata extends AbstractExceptionMetadata {
     submissionId: string
 }
 
+/** Blocks a second concurrent grade/run so two workers cannot overwrite the same attempt. */
 export class SubmissionAlreadyRunningException extends AbstractException {
     constructor({
         submissionId,

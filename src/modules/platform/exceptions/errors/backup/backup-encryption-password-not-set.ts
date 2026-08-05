@@ -5,10 +5,12 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Env path that should have held the backup encryption password. */
 export interface BackupEncryptionPasswordNotSetExceptionMetadata extends AbstractExceptionMetadata {
     envPath?: string
 }
 
+/** Aborts backup before dump — an unencrypted artifact must never be uploaded. */
 export class BackupEncryptionPasswordNotSetException extends AbstractException {
     constructor(
         {

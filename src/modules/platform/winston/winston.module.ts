@@ -16,6 +16,10 @@ import {
 
 @Module({
 })
+/**
+ * Registers console/Loki Winston providers so services inject a typed logger instead of
+ * Nest's Logger.
+ */
 export class WinstonModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

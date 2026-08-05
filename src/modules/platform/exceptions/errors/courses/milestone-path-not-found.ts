@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Milestone index whose mount path was missing. */
 export interface MilestonePathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     milestoneIndex: number
 }

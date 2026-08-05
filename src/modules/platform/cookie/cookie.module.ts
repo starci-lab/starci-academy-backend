@@ -16,4 +16,8 @@ import {
         CookieService,
     ],
 })
+/**
+ * Wires CookieService so HTTP handlers can set/clear auth and CSRF cookies without each
+ * feature owning cookie options.
+ */
 export class CookieModule extends ConfigurableModuleClass {}

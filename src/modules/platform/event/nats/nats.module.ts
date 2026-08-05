@@ -1,12 +1,3 @@
-/**
- * Module for NATS integration.
- *
- * Provides NATS connection, producer, consumer, bridge to EventEmitter,
- * and stream connection factory for AsyncIterable usage.
- *
- * @example
- * NatsModule.register({ subjects: ['event.1'] })
- */
 import type {
     Provider 
 } from "@nestjs/common"
@@ -35,6 +26,10 @@ import {
 
 @Module({
 })
+/**
+ * Registers NATS connection, producer, consumer and EventEmitter bridge so
+ * cross-pod events reach every instance instead of dying in-process.
+ */
 export class NatsModule extends ConfigurableModuleClass {
     public static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

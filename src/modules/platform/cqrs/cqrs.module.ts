@@ -8,9 +8,6 @@ import {
     EventBusModule 
 } from "./event-bus"
 
-/**
- * Module that exposes the CQRS pattern via the NestJS Event Bus.
- */
 @Module({
     imports: [
         EventBusModule.register({
@@ -18,4 +15,7 @@ import {
         }),
     ],
 })
+/**
+ * Module that exposes the CQRS pattern via the NestJS Event Bus.
+ */
 export class CQRSModule extends ConfigurableModuleClass {}

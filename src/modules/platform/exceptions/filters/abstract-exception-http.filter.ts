@@ -12,6 +12,7 @@ import {
     AbstractException,
 } from "../errors/abstract"
 
+@Catch(AbstractException)
 /**
  * Global REST exception filter for {@link AbstractException}. Nest's default
  * filter only maps subclasses of `HttpException` to their status code —
@@ -27,7 +28,6 @@ import {
  * calling `response.status().json()` on a GraphQL request's underlying
  * response would double-send and crash the request.
  */
-@Catch(AbstractException)
 export class AbstractExceptionHttpFilter implements ExceptionFilter {
     private readonly logger = new Logger(AbstractExceptionHttpFilter.name)
 

@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** EN step index that had no VI counterpart during challenge seed. */
 export interface ChallengeSeedStepViMissingExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     moduleIndex: number

@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** EN module preview that had no VI counterpart during module seed. */
 export interface ModuleSeedPreviewViMissingExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     moduleIndex: number

@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Course index with no matching `{courseIndex}-*` folder on the mount. */
 export interface ChallengeSeedCourseDirNameNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
 }

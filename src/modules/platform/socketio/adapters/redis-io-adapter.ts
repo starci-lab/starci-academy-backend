@@ -12,6 +12,10 @@ import {
     IoAdapter 
 } from "@nestjs/platform-socket.io"
 
+/**
+ * Shares Socket.IO rooms across pods via Redis pub/sub — without it, room emits stay local
+ * to one instance.
+ */
 export class RedisIoAdapter extends IoAdapter {
     private adapterConstructor: ReturnType<typeof createAdapter>
     private redisClient: RedisClient

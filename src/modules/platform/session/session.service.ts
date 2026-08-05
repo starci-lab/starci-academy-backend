@@ -65,6 +65,7 @@ import type {
     StartSessionResult
 } from "./types"
 
+@Injectable()
 /**
  * Enforces a per-account device limit (default 2) and tracks each login session
  * with its device, IP, and geo-location.
@@ -80,7 +81,6 @@ import type {
  * await sessionService.startSession({ res, req, accessToken })
  * await sessionService.assertCurrent({ userId, sessionId })
  */
-@Injectable()
 export class SessionService {
     constructor(
         @InjectIoRedis(IoRedisInstanceKey.Cache)

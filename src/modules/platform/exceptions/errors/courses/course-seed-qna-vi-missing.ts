@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** EN Q&A entry that had no VI counterpart during course seed. */
 export interface CourseSeedQnaViMissingExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     /** 1-based index from `## N.` in English Q&A. */

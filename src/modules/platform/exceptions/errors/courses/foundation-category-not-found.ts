@@ -5,11 +5,13 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Foundation-category id/displayId that matched no row. */
 export interface FoundationCategoryNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     id?: string
     displayId?: string
 }
 
+/** Fails foundation browse when the category does not exist. */
 export class FoundationCategoryNotFoundException extends AbstractException {
     constructor({
         id,

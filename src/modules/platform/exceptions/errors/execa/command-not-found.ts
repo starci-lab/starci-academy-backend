@@ -9,6 +9,7 @@ import {
     AbstractException
 } from "../abstract"
 
+/** Missing binary name + args so PATH/install issues are obvious. */
 export interface ExecaCommandNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     command: string
     args: Array<string>
@@ -18,6 +19,10 @@ export interface ExecaCommandNotFoundExceptionMetadata extends AbstractException
     stdout?: string
 }
 
+/**
+ * Fails fast when the executable is not on PATH — retrying the same command cannot
+ * succeed.
+ */
 export class ExecaCommandNotFoundException extends AbstractException {
     constructor(
         {

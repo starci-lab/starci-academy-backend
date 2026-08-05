@@ -14,4 +14,8 @@ import {
     ],
     exports: [WsResponseService],
 })
+/**
+ * Exports WsResponseService so gateways share one success/error emit shape across
+ * namespaces.
+ */
 export class SocketIoModule extends ConfigurableModuleClass {}

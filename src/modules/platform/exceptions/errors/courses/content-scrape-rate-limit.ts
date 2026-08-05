@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** User + window that tripped the content-access scrape cap. */
 export interface ContentScrapeRateLimitExceptionMetadata extends AbstractExceptionMetadata {
     /** The offending user's id. */
     userId?: string

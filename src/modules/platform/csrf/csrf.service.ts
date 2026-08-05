@@ -22,6 +22,7 @@ import type {
     IssueCsrfCookieResult
 } from "./types"
 
+@Injectable()
 /**
  * Service for the signed double-submit CSRF token scheme.
  *
@@ -34,7 +35,6 @@ import type {
  * const token = csrfService.issueCookie({ res })
  * const ok = csrfService.verify(headerToken)
  */
-@Injectable()
 export class CsrfService {
     constructor(
         private readonly cookieService: CookieService,

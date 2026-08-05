@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Module index whose path was missing from the resolved `paths` list. */
 export interface ModulePathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     moduleIndex: number
 }

@@ -12,6 +12,10 @@ import {
 
 /** Thrown when Socket.IO access token is missing */
 export type SocketIoAccessTokenMissingExceptionMetadata = AbstractExceptionMetadata
+/**
+ * Drops the handshake when no token was supplied — unauthenticated sockets must not join
+ * user rooms.
+ */
 export class SocketIoAccessTokenMissingException extends AbstractException {
     constructor(
         { originalError }: SocketIoAccessTokenMissingExceptionMetadata
@@ -28,6 +32,10 @@ export class SocketIoAccessTokenMissingException extends AbstractException {
 
 /** Thrown when Socket.IO access token is invalid */
 export type SocketIoAccessTokenInvalidExceptionMetadata = AbstractExceptionMetadata
+/**
+ * Drops the handshake when Keycloak rejects the token — stale/forged tokens must not set
+ * `userId`.
+ */
 export class SocketIoAccessTokenInvalidException extends AbstractException {
     constructor(
         { originalError }: SocketIoAccessTokenInvalidExceptionMetadata

@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Challenge index whose path was missing from the resolved `paths` list. */
 export interface ChallengePathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     challengeIndex: number
 }

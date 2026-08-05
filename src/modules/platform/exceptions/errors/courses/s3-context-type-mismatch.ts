@@ -5,11 +5,13 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Context that was expected to be S3-backed but was not. */
 export interface S3ContextTypeMismatchExceptionMetadata extends AbstractExceptionMetadata {
     index: number
     actualType?: string
 }
 
+/** Rejects using the S3 reader against a non-S3 context. */
 export class S3ContextTypeMismatchException extends AbstractException {
     constructor(
         {

@@ -8,12 +8,14 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Submitted URL that failed validation for the submission type. */
 export interface SubmissionUrlInvalidExceptionMetadata extends AbstractExceptionMetadata {
     id?: string
     submissionType?: SubmissionType
     url?: string
 }
 
+/** Rejects the submit so an unusable URL is never queued for review. */
 export class SubmissionUrlInvalidException extends AbstractException {
     constructor({
         id,

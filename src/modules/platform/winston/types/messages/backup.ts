@@ -1,3 +1,4 @@
+/** Encrypted dump reached S3 — name + key so restore runbooks can fetch the artifact. */
 export interface PgBackupCompletedSuccessfullyMessage {
     /** Backup artifact name (e.g. primary-backup, keycloak-backup). */
     name: string
@@ -5,6 +6,7 @@ export interface PgBackupCompletedSuccessfullyMessage {
     s3Key: string
 }
 
+/** Whole backup job aborted — prefix + error; do not treat the last S3 object as complete. */
 export interface PgBackupFailedMessage {
     /** Backup artifact name (e.g. primary-backup, keycloak-backup). */
     name: string
@@ -14,6 +16,7 @@ export interface PgBackupFailedMessage {
     error: string
 }
 
+/** One pipeline step (dump/gzip/openssl/upload) failed — later steps were skipped. */
 export interface PgBackupStepFailedMessage {
     /** Backup artifact name (e.g. primary-backup, keycloak-backup). */
     name: string

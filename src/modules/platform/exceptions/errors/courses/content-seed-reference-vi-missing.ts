@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** EN reference that had no VI counterpart during content seed. */
 export interface ContentSeedReferenceViMissingExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     moduleIndex: number

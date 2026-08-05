@@ -5,10 +5,15 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Grade payload the complete-step expected — logged when it is missing or the wrong shape. */
 export interface MissingOrInvalidGradeExecutionResultExceptionMetadata extends AbstractExceptionMetadata {
     grade?: unknown
 }
 
+/**
+ * Aborts the grade complete-step so a malformed model result cannot be persisted as a
+ * score.
+ */
 export class MissingOrInvalidGradeExecutionResultException extends AbstractException {
     constructor({
         grade,

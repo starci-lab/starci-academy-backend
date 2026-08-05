@@ -1,7 +1,10 @@
 /** Sync operation kind for DB seeder logging. */
 export enum DbSyncType {
+    /** Row did not exist — seeder inserted it. */
     Created = "created",
+    /** Row existed — seeder overwrote it from mount data. */
     Updated = "updated",
+    /** Row is gone from the mount — seeder removed it from the DB. */
     Deleted = "deleted",
 }
 

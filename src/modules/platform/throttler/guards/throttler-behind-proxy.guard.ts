@@ -13,6 +13,7 @@ import type {
     ThrottlerTrackedRequest,
 } from "../types"
 
+@Injectable()
 /**
  * Global rate-limit guard that works behind a reverse proxy AND across both
  * REST (HTTP) and GraphQL execution contexts.
@@ -23,7 +24,6 @@ import type {
  *   of the GraphQL context (the stock guard only understands HTTP), which is
  *   required now that it runs as a global APP_GUARD over GraphQL resolvers too.
  */
-@Injectable()
 export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
     /**
      * Tracks requests per real client IP.

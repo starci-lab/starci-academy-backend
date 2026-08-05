@@ -16,11 +16,11 @@ import {
     EnqueueSyncScyllaDBJobService,
 } from "@modules/bussiness"
 
+@Injectable()
+@EventsHandler(SyncScyllaDBEvent)
 /**
  * Event handler for one-off ScyllaDB sync after a successful write flow.
  */
-@Injectable()
-@EventsHandler(SyncScyllaDBEvent)
 export class SyncScyllaDBEventHandler
     extends ICQRSHandler<SyncScyllaDBEvent, void>
     implements ICommandHandler<SyncScyllaDBEvent, void> {

@@ -15,6 +15,7 @@ import {
     ICQRSHandler,
 } from "../../icqrs-handler"
 
+@EventsHandler(AddGithubUserToTeamEvent)
 /**
  * Event-bus handler that materialises {@link AddGithubUserToTeamEvent}
  * into a queued `invite-github` BullMQ job.
@@ -24,7 +25,6 @@ import {
  * the in-memory retry loop provided by {@link EventBus} so a transient
  * enqueue failure (e.g. Redis blip) does not drop the intent.
  */
-@EventsHandler(AddGithubUserToTeamEvent)
 export class AddGithubUserToTeamHandler
     extends ICQRSHandler<AddGithubUserToTeamEvent, void>
     implements ICommandHandler<AddGithubUserToTeamEvent, void> {

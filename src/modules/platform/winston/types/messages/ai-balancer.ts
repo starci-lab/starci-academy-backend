@@ -7,6 +7,7 @@ export interface SeederFinishedMessage {
     upserted: number
 }
 
+/** Key store reread the mount file — rotation now uses the new key set. */
 export interface AiBalancerKeysReloadedMessage {
     /** Provider whose keys were reloaded. */
     provider: string
@@ -16,6 +17,7 @@ export interface AiBalancerKeysReloadedMessage {
     keysFilePath: string
 }
 
+/** A key crossed the failure threshold and is out of rotation until it recovers. */
 export interface AiBalancerKeyDisabledMessage {
     provider: string
     /** Last 4 chars of the key (rest masked). */
@@ -26,11 +28,13 @@ export interface AiBalancerKeyDisabledMessage {
     reason: string
 }
 
+/** A previously disabled key succeeded again and is back in the rotation pool. */
 export interface AiBalancerKeyRecoveredMessage {
     provider: string
     keySuffix: string
 }
 
+/** Rotation selected this key for the next call — active count shows remaining headroom. */
 export interface AiBalancerKeyPickedMessage {
     provider: string
     keySuffix: string
@@ -38,6 +42,10 @@ export interface AiBalancerKeyPickedMessage {
     activeKeysCount: number
 }
 
+/**
+ * Every key for the provider is disabled — callers will fail until one recovers or is
+ * reloaded.
+ */
 export interface AiBalancerNoActiveKeyMessage {
     provider: string
     /** Total keys (any status) seen for the provider. */

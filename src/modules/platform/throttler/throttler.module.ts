@@ -27,11 +27,11 @@ import {
 import {
     ThrottlerBehindProxyGuard
 } from "./guards"
+@Module({
+})
 /**
  * The module for the Throttler.
  */
-@Module({
-})
 export class ThrottlerModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

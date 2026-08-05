@@ -8,11 +8,16 @@ import type {
     SubmissionType,
 } from "@modules/databases"
 
+/** Submission type + id that cannot use automated git grading. */
 export interface ChallengeSubmissionSubmitTypeNotSupportedExceptionMetadata extends AbstractExceptionMetadata {
     submissionType?: SubmissionType
     challengeSubmissionId?: string
 }
 
+/**
+ * Rejects auto-grade submit unless the submission is a GitHub repo — other types need a
+ * different pipeline.
+ */
 export class ChallengeSubmissionSubmitTypeNotSupportedException extends AbstractException {
     constructor({
         submissionType,

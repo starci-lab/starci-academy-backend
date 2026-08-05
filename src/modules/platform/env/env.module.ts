@@ -12,13 +12,13 @@ import {
     ConfigurableModuleClass, OPTIONS_TYPE 
 } from "./env.module-definition"
 
+@Module({
+})
 /**
  * Module for loading environment variables from .env files.
  * @example
  * EnvModule.forRoot()
  */
-@Module({
-})
 export class EnvModule extends ConfigurableModuleClass {
     /**
      * Loads environment variables from .env files.

@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Template-CV index whose mount path was missing. */
 export interface TemplateCvPathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     /**
      * Resolved `orderIndex` under `cv/` that has no matching entry in `paths`.

@@ -33,6 +33,7 @@ import {
     CSRF_HEADER_NAME
 } from "../constants"
 
+@Injectable()
 /**
  * Guard enforcing the signed double-submit CSRF check on cookie-driven
  * GraphQL mutations (refresh / sign-out). It requires the `X-CSRF-Token`
@@ -44,7 +45,6 @@ import {
  * \@UseGuards(CsrfGuard)
  * \@Mutation(() => RefreshTokenResponse)
  */
-@Injectable()
 export class CsrfGuard implements CanActivate {
     constructor(
         private readonly csrfService: CsrfService,

@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Course index whose path was missing from the resolved `paths` list. */
 export interface CoursePathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
 }

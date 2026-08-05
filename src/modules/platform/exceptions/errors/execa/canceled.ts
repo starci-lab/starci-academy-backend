@@ -9,6 +9,7 @@ import {
     AbstractException
 } from "../abstract"
 
+/** Canceled command + args/stdio so the abort is distinguishable from a crash. */
 export interface ExecaCommandCanceledExceptionMetadata extends AbstractExceptionMetadata {
     command: string
     args: Array<string>
@@ -17,6 +18,10 @@ export interface ExecaCommandCanceledExceptionMetadata extends AbstractException
     stderr?: string
 }
 
+/**
+ * Signals the subprocess was canceled on purpose — callers must not treat it as a tool
+ * failure.
+ */
 export class ExecaCommandCanceledException extends AbstractException {
     constructor(
         {

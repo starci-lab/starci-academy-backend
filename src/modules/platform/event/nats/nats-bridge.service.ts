@@ -73,6 +73,7 @@ import {
     v4 
 } from "uuid"
 
+@Injectable()
 /**
  * Service that bridges NATS messages to NestJS EventEmitter.
  *
@@ -82,7 +83,6 @@ import {
  * @example
  * Injected via NatsModule; subscribes on init to configured subjects.
  */
-@Injectable()
 export class NatsBridgeService implements OnModuleInit {
     private subjects: Array<string> = []
 

@@ -9,12 +9,14 @@ import {
     AbstractException
 } from "../abstract"
 
+/** Invalid execa invocation params that were rejected before spawn. */
 export interface ExecaInvalidParamsExceptionMetadata extends AbstractExceptionMetadata {
     command: string
     args: Array<string>
     reason: string
 }
 
+/** Rejects a malformed execa call before spawn — prevents confusing OS errors. */
 export class ExecaInvalidParamsException extends AbstractException {
     constructor(
         {

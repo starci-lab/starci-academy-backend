@@ -14,6 +14,10 @@ export interface AiModelRouterResolvedMessage {
     tier: string
 }
 
+/**
+ * Provider marked unavailable for the task kind — router will skip it until a recheck
+ * clears it.
+ */
 export interface AiModelRouterFailureMessage {
     /** Task kind. */
     taskKind: AiTaskKind
@@ -21,6 +25,7 @@ export interface AiModelRouterFailureMessage {
     provider: string
 }
 
+/** Proactive recheck cleared unavailable providers — they are eligible again. */
 export interface AiModelRouterRecheckMessage {
     /** Task kind. */
     taskKind: string
@@ -28,6 +33,7 @@ export interface AiModelRouterRecheckMessage {
     clearedCount: number
 }
 
+/** Provider ping outcome (success/error + masked key) for the health snapshot. */
 export interface AiPingResultMessage {
     /** Provider that was pinged. */
     provider: string

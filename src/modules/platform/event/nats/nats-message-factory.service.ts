@@ -16,6 +16,7 @@ import type {
     NatsParseMessageResult,
 } from "./types"
 
+@Injectable()
 /**
  * Factory service for creating and parsing NATS messages (envelope: id, digest, data).
  *
@@ -23,7 +24,6 @@ import type {
  * const str = factory.create({ message: { id: 1 }, withoutHash: false })
  * const parsed = factory.parse(str)
  */
-@Injectable()
 export class NatsMessageFactoryService {
     constructor(
         @InjectSuperJson()

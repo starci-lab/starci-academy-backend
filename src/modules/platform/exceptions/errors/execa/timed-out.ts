@@ -9,6 +9,7 @@ import {
     AbstractException
 } from "../abstract"
 
+/** Timed-out command + args/stdio. */
 export interface ExecaCommandTimedOutExceptionMetadata extends AbstractExceptionMetadata {
     command: string
     args: Array<string>
@@ -17,6 +18,10 @@ export interface ExecaCommandTimedOutExceptionMetadata extends AbstractException
     stderr?: string
 }
 
+/**
+ * Aborts after the subprocess exceeded its timeout — hung tools must not block the worker
+ * forever.
+ */
 export class ExecaCommandTimedOutException extends AbstractException {
     constructor(
         {

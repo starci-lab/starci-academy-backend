@@ -15,6 +15,10 @@ import type {
 } from "./types"
 
 @Injectable()
+/**
+ * Central emit helpers (client / room / broadcast) so gateways do not invent competing
+ * payload shapes.
+ */
 export class WsResponseService {
     constructor(
         @InjectSuperJson()

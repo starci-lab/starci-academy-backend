@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** EN value-proposition entry that had no VI counterpart during course seed. */
 export interface CourseSeedValuePropositionViMissingExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     orderIndex: number

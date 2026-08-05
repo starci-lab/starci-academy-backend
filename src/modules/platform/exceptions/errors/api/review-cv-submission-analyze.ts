@@ -11,6 +11,10 @@ export interface CvSubmissionAnalyzeEmptyDetailFeedbackExceptionMetadata extends
     key: string
 }
 
+/**
+ * Aborts CV analyze when the model returned no detail feedback — an empty review must not
+ * be stored.
+ */
 export class CvSubmissionAnalyzeEmptyDetailFeedbackException extends AbstractException {
     constructor({
         key,

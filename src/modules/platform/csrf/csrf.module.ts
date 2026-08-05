@@ -21,4 +21,8 @@ import {
         CsrfGuard,
     ],
 })
+/**
+ * Exports CsrfService + CsrfGuard so mutating HTTP routes can reject requests missing a
+ * valid double-submit token.
+ */
 export class CsrfModule extends ConfigurableModuleClass {}

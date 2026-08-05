@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Mount indices that should have resolved a `{challengeIndex}-*` folder. */
 export interface ChallengeDirNameNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     moduleIndex: number

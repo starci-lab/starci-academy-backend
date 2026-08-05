@@ -5,11 +5,13 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** openssl exit code + stderr so the failed encryption step is diagnosable. */
 export interface PgBackupOpenSslFailedExceptionMetadata extends AbstractExceptionMetadata {
     exitCode: unknown
     stderr?: string
 }
 
+/** Stops the backup pipeline after encryption fails — plaintext dumps stay off S3. */
 export class PgBackupOpenSslFailedException extends AbstractException {
     constructor(
         {

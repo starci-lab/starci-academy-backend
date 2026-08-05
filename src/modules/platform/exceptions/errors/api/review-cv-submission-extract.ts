@@ -13,6 +13,7 @@ export interface CvSubmissionExtractS3BufferEmptyExceptionMetadata extends Abstr
     provider: string
 }
 
+/** Aborts CV extract when MinIO returned zero bytes — parsing would invent empty text. */
 export class CvSubmissionExtractS3BufferEmptyException extends AbstractException {
     constructor({
         key,
@@ -37,6 +38,7 @@ export interface CvSubmissionExtractUnsupportedExtensionExceptionMetadata extend
     extension: string | undefined
 }
 
+/** Rejects CV extract for non-PDF/DOCX keys — other types have no parser in this pipeline. */
 export class CvSubmissionExtractUnsupportedExtensionException extends AbstractException {
     constructor({
         extension,
@@ -59,6 +61,10 @@ export interface CvSubmissionExtractEmptyTextExceptionMetadata extends AbstractE
     key: string
 }
 
+/**
+ * Aborts CV extract when parsing yielded only whitespace — downstream plan/analyze needs
+ * real text.
+ */
 export class CvSubmissionExtractEmptyTextException extends AbstractException {
     constructor({
         key,
@@ -81,6 +87,10 @@ export interface CvSubmissionExtractEmptyFileNameExceptionMetadata extends Abstr
     key: string
 }
 
+/**
+ * Aborts CV complete when the CDN key has no file segment — copy destination cannot be
+ * formed.
+ */
 export class CvSubmissionExtractEmptyFileNameException extends AbstractException {
     constructor({
         key,

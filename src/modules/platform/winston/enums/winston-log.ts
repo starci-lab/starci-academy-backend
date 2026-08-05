@@ -1,29 +1,48 @@
 /** Log event names; each maps to a config entry in configMap (level, loki, messageType). */
 export enum WinstonLog {
+    /** Course seeder finished a full pass — mount data is now in Postgres. */
     CoursesSeededSuccessfully = "CoursesSeededSuccessfully",
     /** Init seeder: single mount entity skipped (parse/load error). */
     InitSeederEntitySkipped = "InitSeederEntitySkipped",
     /** DB seeder: entity row created, updated, or deleted. */
     DbSynchronizerSyncedSuccessfully = "DbSynchronizerSyncedSuccessfully",
+    /** A course/module/content context markdown file was read from the mount. */
     ContextFileLoadedSuccessfully = "ContextFileLoadedSuccessfully",
+    /** Enroll job created a new enrollment row — learner can now access the course. */
     EnrollmentCreated = "EnrollmentCreated",
+    /** One step inside the enroll pipeline completed (audit trail per step). */
     EnrollStepExecuted = "EnrollStepExecuted",
+    /** One step inside the git-submission pipeline completed. */
     ProcessGitSubmissionStepExecuted = "ProcessGitSubmissionStepExecuted",
     /** Generic worker / pipeline step completed (reusable across processors). */
     ProcessStepExecuted = "ProcessStepExecuted",
+    /** One step inside the CV-submission pipeline completed. */
     ProcessCVSubmissionStepExecuted = "ProcessCVSubmissionStepExecuted",
+    /** BullMQ job finished without throwing — downstream can treat it as done. */
     JobExecutedSuccessfully = "JobExecutedSuccessfully",
+    /** BullMQ job threw — worker will retry or dead-letter per queue policy. */
     JobExecutedFailed = "JobExecutedFailed",
+    /** Enroll job found an existing enrollment — skipped create to stay idempotent. */
     EnrollmentAlreadyExists = "EnrollmentAlreadyExists",
+    /** CDN sync cycle began walking courses (progress marker, not a per-entity result). */
     CdnSynchronizerCoursesSyncing = "CdnSynchronizerCoursesSyncing",
+    /** One course's CDN assets uploaded successfully this cycle. */
     CdnSynchronizerCourseSyncedSuccessfully = "CdnSynchronizerCourseSyncedSuccessfully",
+    /** Course CDN hash matched — upload skipped to avoid rewriting identical objects. */
     CdnSynchronizerCourseAlreadySynced = "CdnSynchronizerCourseAlreadySynced",
+    /** Course CDN sync failed; retries may still be pending. */
     CdnSynchronizerCourseSyncFailed = "CdnSynchronizerCourseSyncFailed",
+    /** Course CDN sync exhausted retries — operator must intervene. */
     CdnSynchronizerCourseSyncFailedMaxRetriesReached = "CdnSynchronizerCourseSyncFailedMaxRetriesReached",
+    /** One retry attempt of a course CDN sync failed (not yet the final failure). */
     CdnSynchronizerCourseSyncFailedAttempt = "CdnSynchronizerCourseSyncFailedAttempt",
+    /** Challenge runtime (sandbox) files failed to land on CDN. */
     CdnSynchronizerChallengeRuntimeSyncFailed = "CdnSynchronizerChallengeRuntimeSyncFailed",
+    /** Course runtime files failed to land on CDN. */
     CdnSynchronizerCourseRuntimeSyncFailed = "CdnSynchronizerCourseRuntimeSyncFailed",
+    /** Module runtime files failed to land on CDN. */
     CdnSynchronizerModuleRuntimeSyncFailed = "CdnSynchronizerModuleRuntimeSyncFailed",
+    /** Content runtime files failed to land on CDN. */
     CdnSynchronizerContentRuntimeSyncFailed = "CdnSynchronizerContentRuntimeSyncFailed",
     /** CDN synchronizer: sync cycle started. */
     CdnSynchronizerCdnSyncStarted = "CdnSynchronizerCdnSyncStarted",

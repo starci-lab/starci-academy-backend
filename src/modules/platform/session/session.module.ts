@@ -23,4 +23,8 @@ import {
         SessionService,
     ],
 })
+/**
+ * Exports SessionService (and pulls JobsModule) so sign-in can persist the session and
+ * alert on new devices.
+ */
 export class SessionModule extends ConfigurableModuleClass {}

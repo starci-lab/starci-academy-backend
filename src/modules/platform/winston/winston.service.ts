@@ -22,10 +22,10 @@ import {
 } from "winston"
 import _ from "lodash"
 
+@Injectable()
 /**
  * The service for the Winston.
  */
-@Injectable()
 export class WinstonService {
     constructor(
         @InjectConsoleWinston()

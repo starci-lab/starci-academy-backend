@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** User + challenge pair with no submission row. */
 export interface UserChallengeSubmissionNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     userChallengeSubmissionId?: string
     /** `challenge_submissions.id` when the join row is missing for this user. */
@@ -12,6 +13,10 @@ export interface UserChallengeSubmissionNotFoundExceptionMetadata extends Abstra
     userId?: string
 }
 
+/**
+ * Fails user-scoped submission reads when the learner has no submission for that
+ * challenge.
+ */
 export class UserChallengeSubmissionNotFoundException extends AbstractException {
     constructor({
         userChallengeSubmissionId,

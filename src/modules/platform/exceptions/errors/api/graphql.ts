@@ -11,6 +11,10 @@ export interface GraphQLDataNotFoundExceptionMetadata extends AbstractExceptionM
     variables: Record<string, unknown>
     url: string
 }
+/**
+ * Upstream GraphQL returned no data for the query — callers must not treat an empty
+ * payload as success.
+ */
 export class GraphQLDataNotFoundException extends AbstractException {
     constructor(
         { query, variables, url, originalError }: GraphQLDataNotFoundExceptionMetadata

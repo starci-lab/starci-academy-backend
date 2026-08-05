@@ -25,6 +25,7 @@ interface PrometheusInstantQueryResponse {
     }
 }
 
+@Injectable()
 /**
  * Reads live per-container CPU/memory/network usage from Prometheus (scraping
  * cAdvisor). Every StarCi-owned infra container is labelled `name=starci-<x>`
@@ -41,7 +42,6 @@ interface PrometheusInstantQueryResponse {
  * const metrics = await prometheusMetricsService.containerMetricsByName()
  * metrics.get("postgres")?.cpuPercent
  */
-@Injectable()
 export class PrometheusMetricsService {
     private readonly logger = new Logger(PrometheusMetricsService.name)
 

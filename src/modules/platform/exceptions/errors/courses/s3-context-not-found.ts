@@ -5,10 +5,12 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Id that should have resolved an S3-backed context. */
 export interface S3ContextNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     index: number
 }
 
+/** Stops S3 reads when the context is not S3-backed. */
 export class S3ContextNotFoundException extends AbstractException {
     constructor(
         {

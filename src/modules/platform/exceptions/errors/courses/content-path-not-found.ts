@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Content index whose path was missing from the resolved `paths` list. */
 export interface ContentPathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     contentIndex: number
 }

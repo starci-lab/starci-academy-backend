@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** EN prerequisite that had no VI counterpart during course seed. */
 export interface CourseSeedPrerequisiteViMissingExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     orderIndex: number

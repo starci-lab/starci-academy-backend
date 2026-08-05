@@ -3,6 +3,7 @@ import {
     type AbstractExceptionMetadata,
 } from "../abstract"
 
+/** Bucket name + provider error from a failed ensure-bucket call. */
 export interface S3BucketCreationFailedExceptionMetadata extends AbstractExceptionMetadata {
     bucket: string
     statusCode?: number
@@ -11,6 +12,7 @@ export interface S3BucketCreationFailedExceptionMetadata extends AbstractExcepti
     resource?: string
 }
 
+/** Aborts startup/sync when the bucket cannot be created — later puts would fail opaquely. */
 export class S3BucketCreationFailedException extends AbstractException {
     constructor(
         {

@@ -5,10 +5,12 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Attempt id that matched no submission-attempt row. */
 export interface SubmissionAttemptNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     id?: string
 }
 
+/** Fails attempt-scoped reads when the attempt row is gone. */
 export class SubmissionAttemptNotFoundException extends AbstractException {
     constructor({
         id,

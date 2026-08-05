@@ -11,6 +11,10 @@ import {
     PrometheusMetricsService,
 } from "./prometheus-metrics.service"
 
+@Module({
+    providers: [SystemHealthService, PrometheusMetricsService],
+    exports: [SystemHealthService, PrometheusMetricsService],
+})
 /**
  * Provides the {@link SystemHealthService} liveness prober and the
  * {@link PrometheusMetricsService} resource-usage reader. Register with
@@ -18,8 +22,4 @@ import {
  * `systemHealthStatus` query) can inject either without re-importing the
  * module.
  */
-@Module({
-    providers: [SystemHealthService, PrometheusMetricsService],
-    exports: [SystemHealthService, PrometheusMetricsService],
-})
 export class HealthModule extends ConfigurableModuleClass {}

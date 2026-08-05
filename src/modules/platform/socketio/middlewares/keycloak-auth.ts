@@ -14,6 +14,10 @@ import {
     KeycloakTokenService,
 } from "@modules/keycloak"
 
+/**
+ * Rejects the handshake unless a live Keycloak access token is present — otherwise
+ * `socket.data.userId` would be unset for room joins.
+ */
 export const socketIoKeycloakAuthMiddleware = (
     socket: TypedSocket,
     next: (err?: Error) => void,

@@ -16,6 +16,8 @@ import {
     SyncScyllaDBEventHandler,
 } from "./sync-scylladb"
 
+@Module({
+})
 /**
  * Module that exposes typed event-bus handlers built on top of the
  * lightweight in-memory {@link EventBus} from `@modules/bussiness`.
@@ -23,8 +25,6 @@ import {
  * Each handler represents a single domain intent and hides the detail
  * of which BullMQ queue/payload shape is used downstream.
  */
-@Module({
-})
 export class EventBusModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

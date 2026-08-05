@@ -11,6 +11,7 @@ export interface CvSubmissionPlanEmptyTextExceptionMetadata extends AbstractExce
     key: string
 }
 
+/** Aborts CV plan when extracted text is empty — the model would plan against nothing. */
 export class CvSubmissionPlanEmptyTextException extends AbstractException {
     constructor({
         key,

@@ -8,10 +8,6 @@ import {
     LabelResolverService,
 } from "./label-resolver.service"
 
-/**
- * Module exposing routing helpers that need DI — currently the
- * {@link LabelResolverService} (EntityManager + CacheService).
- */
 @Module({
     providers: [
         LabelResolverService,
@@ -20,5 +16,9 @@ import {
         LabelResolverService,
     ],
 })
+/**
+ * Module exposing routing helpers that need DI — currently the
+ * {@link LabelResolverService} (EntityManager + CacheService).
+ */
 export class RoutingModule extends ConfigurableModuleClass {
 }

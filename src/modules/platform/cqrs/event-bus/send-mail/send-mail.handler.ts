@@ -16,6 +16,8 @@ import {
     SendMailEvent,
 } from "./send-mail.event"
 
+@Injectable()
+@EventsHandler(SendMailEvent)
 /**
  * Event-bus handler that enqueues a `send-mail` BullMQ job for every
  * {@link SendMailEvent} published to it.
@@ -25,8 +27,6 @@ import {
  *          -> EnqueueSendMailJobService.enqueue -> BullMQ queue
  *          -> SendMailWorker -> Nest Mailer (nodemailer + Brevo SMTP)
  */
-@Injectable()
-@EventsHandler(SendMailEvent)
 export class SendMailEventHandler
     extends ICQRSHandler<SendMailEvent, void>
     implements ICommandHandler<SendMailEvent, void> {

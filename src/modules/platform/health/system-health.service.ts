@@ -36,6 +36,7 @@ import type {
     TcpProbeTarget,
 } from "./types"
 
+@Injectable()
 /**
  * Framework-light liveness prober for the platform's infrastructure
  * components. Instead of injecting the real clients (Postgres pool, Redis,
@@ -54,7 +55,6 @@ import type {
  * @example
  * const components = await systemHealthService.probeAll()
  */
-@Injectable()
 export class SystemHealthService {
     private readonly logger = new Logger(SystemHealthService.name)
 

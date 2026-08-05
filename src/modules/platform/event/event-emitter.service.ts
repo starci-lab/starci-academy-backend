@@ -23,8 +23,8 @@ import {
     OnParams,
 } from "./types"
 
-/** Event emitter service. */
 @Injectable()
+/** Event emitter service. */
 export class EventEmitterService {
     constructor(
         private readonly eventEmitter: EventEmitter2,

@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Course index whose `{index}-*` folder name could not be resolved on the mount. */
 export interface CoursePathNameNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
 }

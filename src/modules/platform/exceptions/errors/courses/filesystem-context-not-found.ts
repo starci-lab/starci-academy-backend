@@ -5,10 +5,12 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Id that should have resolved a filesystem-backed context. */
 export interface FilesystemContextNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     index: number
 }
 
+/** Stops mount reads when the context is not filesystem-backed. */
 export class FilesystemContextNotFoundException extends AbstractException {
     constructor(
         {

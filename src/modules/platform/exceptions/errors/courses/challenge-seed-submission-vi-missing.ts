@@ -5,6 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** EN submission order/title that had no VI counterpart during challenge seed. */
 export interface ChallengeSeedSubmissionViMissingExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     moduleIndex: number

@@ -31,6 +31,10 @@ import {
 } from "@nestjs/websockets/constants"
 
 @Injectable()
+/**
+ * Wraps gateway handler results as `{success, message, data}` (and errors the same way) so
+ * clients share one envelope.
+ */
 export class WsTransformInterceptor<T = unknown>
 implements NestInterceptor<T, void>
 {

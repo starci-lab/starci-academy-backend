@@ -5,10 +5,12 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Company index whose headhunting mount path was missing. */
 export interface HeadhuntingCompanyPathNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     companyIndex?: number
 }
 
+/** Aborts company seed/load when the folder is absent on the mount. */
 export class HeadhuntingCompanyPathNotFoundException extends AbstractException {
     constructor({
         companyIndex,
