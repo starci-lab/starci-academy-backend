@@ -101,26 +101,56 @@ interface ThrottleError {
 }
 
 /**
- * Tail of the serialisation chain. Every Anthropic call queues behind the
- * previous one: the harness is the only client of this token, so two calls
- * firing concurrently would rate-limit nobody but themselves. `maxWorkers: 1`
- * already serialises across FILES; this serialises within one.
+ * How many Anthropic calls the harness allows in flight at once.
+ *
+ * Not 1. Fully serialising removes self-inflicted 429s but makes a run take the
+ * SUM of every call: roughly 68 calls at ~50s each, so about an hour. Not
+ * unbounded either -- that is what produced the original burst of
+ * `rate_limit_error`. Four keeps the pipe busy while staying far under the
+ * account's per-minute ceiling, and {@link withRateLimitRetry} still absorbs a
+ * throttle if one lands.
  */
-let callChain: Promise<unknown> = Promise.resolve()
+const MAX_IN_FLIGHT = 4
 
-/** Run `fn` only after every previously queued call has settled. */
-const serialize = <TResult>(fn: () => Promise<TResult>): Promise<TResult> => {
-    const run = callChain.then(fn,
-        fn)
-    callChain = run.catch(() => undefined)
-    return run
+/** Calls currently executing. */
+let inFlight = 0
+
+/** Callers parked until a slot frees up, released in arrival order. */
+const waiting: Array<() => void> = []
+
+/** Take one of the {@link MAX_IN_FLIGHT} slots, waiting if all are busy. */
+const acquire = (): Promise<void> => {
+    if (inFlight < MAX_IN_FLIGHT) {
+        inFlight += 1
+        return Promise.resolve()
+    }
+    return new Promise((resolve) => waiting.push(() => {
+        inFlight += 1
+        resolve()
+    }))
+}
+
+/** Give a slot back and wake the longest-waiting caller. */
+const release = (): void => {
+    inFlight -= 1
+    waiting.shift()?.()
+}
+
+/** Run `fn` once a concurrency slot is free, always giving the slot back. */
+const throttle = async <TResult>(fn: () => Promise<TResult>): Promise<TResult> => {
+    await acquire()
+    try {
+        return await fn()
+    } finally {
+        release()
+    }
 }
 
 /** Whether an error is the API asking us to slow down or come back later. */
 const isRetryable = (error: unknown): boolean => {
-    const throttle = error as ThrottleError
-    const status = throttle?.status
-    const type = throttle?.error?.error?.type
+    const throttleError = error as ThrottleError
+    const status = throttleError?.status
+    const type = throttleError?.error?.error?.type
     return status === 429
         || status === 529
         || (status !== undefined && status >= 500)
@@ -140,8 +170,8 @@ const sleep = (ms: number): Promise<void> =>
         ms))
 
 /**
- * Run one Anthropic call, serialised against every other, retrying while the
- * API is throttling or overloaded.
+ * Run one Anthropic call under the concurrency cap, retrying while the API is
+ * throttling or overloaded.
  *
  * A harness verdict must reflect the MODEL's answer, not the account's quota at
  * that minute -- a run reporting "36 failed" because of `rate_limit_error` has
@@ -162,7 +192,7 @@ export const withRateLimitRetry = async <TResult>(
 
     for (let attempt = 1; attempt <= MAX_OUTER_ATTEMPTS; attempt += 1) {
         try {
-            return await serialize(fn)
+            return await throttle(fn)
         } catch (error) {
             lastError = error
             if (!isRetryable(error) || attempt === MAX_OUTER_ATTEMPTS) {
