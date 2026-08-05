@@ -1,6 +1,6 @@
 import {
     E2eStackService,
-} from "../helpers/e2e-stack.service"
+} from "./e2e-stack.service"
 
 /**
  * Jest globalSetup for the `test:e2e` lane: boot the shared

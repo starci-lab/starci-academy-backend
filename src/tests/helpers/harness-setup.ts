@@ -1,11 +1,11 @@
 import {
     E2eStackService,
-} from "../helpers/e2e-stack.service"
+} from "./e2e-stack.service"
 
 /**
  * Jest globalSetup for the `harness` lane: boot the shared
  * {@link E2eStackService} (real Testcontainers infra) and seed it, mirroring
- * `src/tests/e2e/setup.ts` so LLM-eval flows run against the same
+ * `./e2e-setup.ts` so LLM-eval flows run against the same
  * infra shape as the e2e lane.
  *
  * The instance is stashed on `globalThis` so {@link teardown} can stop it
