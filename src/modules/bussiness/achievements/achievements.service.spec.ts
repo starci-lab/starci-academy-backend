@@ -25,10 +25,10 @@ import {
 } from "@modules/databases/postgresql/primary/enums/achievement-criteria-type"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 
 /** Params for the local `build` test helper (wires a SUT with programmed badges/definitions/rows). */
 interface BuildParams {

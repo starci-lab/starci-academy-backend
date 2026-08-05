@@ -50,10 +50,10 @@ import {
 } from "@modules/lib/mixin/dayjs.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"

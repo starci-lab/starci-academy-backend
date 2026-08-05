@@ -13,10 +13,10 @@ import {
 } from "@modules/bussiness/headhuntings/cv-verification.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     TalentCandidatesService,
 } from "./talent-candidates.service"

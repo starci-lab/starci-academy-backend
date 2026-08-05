@@ -28,10 +28,10 @@ import {
 } from "../device/device.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     winstonServiceMock,
 } from "@tests/helpers/create-e2e-app"

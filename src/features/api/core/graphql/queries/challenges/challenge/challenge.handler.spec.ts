@@ -32,10 +32,10 @@ import {
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     ChallengeEntity,
 } from "@modules/databases/postgresql/primary/entities/challenge.entity"

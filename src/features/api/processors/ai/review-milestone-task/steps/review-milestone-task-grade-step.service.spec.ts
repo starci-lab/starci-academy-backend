@@ -1,7 +1,7 @@
 import {
     makeEntityManagerMock,
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     EnrollmentEntity,
 } from "@modules/databases/postgresql/primary/entities/enrollment.entity"

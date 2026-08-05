@@ -53,10 +53,10 @@ import {
 } from "@modules/platform/winston/winston.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     JobEntity,
 } from "@modules/databases/postgresql/primary/entities/job.entity"

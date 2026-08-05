@@ -25,10 +25,10 @@ import {
 } from "@modules/platform/exceptions/errors/flashcard/flashcard-deck-not-found"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     FlashcardReviewService,
 } from "./flashcard-review.service"

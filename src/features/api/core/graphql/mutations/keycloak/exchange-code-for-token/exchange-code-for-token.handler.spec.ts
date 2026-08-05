@@ -29,10 +29,10 @@ import {
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     ExchangeCodeForTokenCommand,
 } from "./exchange-code-for-token.command"

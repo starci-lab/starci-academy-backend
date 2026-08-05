@@ -23,10 +23,10 @@ import {
 } from "@modules/platform/exceptions/errors/flashcard/flashcard-card-not-found"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     UserService,
 } from "../user/user.service"

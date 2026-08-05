@@ -36,10 +36,10 @@ import {
 } from "@modules/platform/exceptions/errors/courses/premium-content-ai-access-denied"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 
 // Control the hybrid stuff-vs-RAG threshold deterministically while keeping the
 // REST of the real env config intact -- rag/cache/ai modules read other env

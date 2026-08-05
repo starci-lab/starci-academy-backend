@@ -19,10 +19,10 @@ import {
 } from "@modules/platform/env/config"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     WinstonLog,
 } from "@modules/platform/winston/enums/winston-log"

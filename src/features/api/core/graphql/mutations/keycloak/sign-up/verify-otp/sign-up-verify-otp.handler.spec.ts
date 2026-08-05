@@ -35,10 +35,10 @@ import {
 } from "@modules/platform/exceptions/errors/users/otp"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     SignUpVerifyOtpCommand,
 } from "./sign-up-verify-otp.command"

@@ -22,10 +22,10 @@ import {
 } from "@modules/bussiness/loyalty/loyalty-discount.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     CoursesCheckoutPricingService,
 } from "./courses-checkout-pricing.service"

@@ -23,10 +23,10 @@ import {
 } from "@modules/platform/exceptions/errors/daily-quest/daily-quest-not-complete"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     DailyQuestTodayCountsRow,
 } from "./types"

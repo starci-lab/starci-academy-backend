@@ -55,10 +55,10 @@ import {
 } from "@modules/integrations/nowpayments/nowpayments.client"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     NowPaymentsWebhookCommand,
 } from "./webhook.command"

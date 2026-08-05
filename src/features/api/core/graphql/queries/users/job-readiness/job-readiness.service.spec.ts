@@ -16,10 +16,10 @@ import {
 } from "@modules/databases/postgresql/primary/enums/cv-verification-level"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     JobReadinessService,
 } from "./job-readiness.service"

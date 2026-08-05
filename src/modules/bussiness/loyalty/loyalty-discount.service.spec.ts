@@ -10,10 +10,10 @@ import {
 } from "@modules/databases/postgresql/primary/enums/discount-reason"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     LoyaltyDiscountService,
 } from "./loyalty-discount.service"

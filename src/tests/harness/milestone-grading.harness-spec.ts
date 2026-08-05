@@ -45,10 +45,10 @@ import {
 } from "@modules/integrations/rag/grading-rag-retrieval.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"

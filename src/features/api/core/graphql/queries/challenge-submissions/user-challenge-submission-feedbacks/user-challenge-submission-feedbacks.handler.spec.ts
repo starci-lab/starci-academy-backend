@@ -23,10 +23,10 @@ import {
 } from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     UserChallengeSubmissionFeedbackEntity,
 } from "@modules/databases/postgresql/primary/entities/user-challenge-submission-feedback.entity"

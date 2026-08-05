@@ -1,7 +1,7 @@
 import {
     makeEntityManagerMock,
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"

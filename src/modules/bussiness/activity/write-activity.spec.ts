@@ -10,10 +10,10 @@ import {
 import {
     asEntityManager,
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 
 /**
  * `writeActivity` is a plain function (no DI) -- the caller's transaction

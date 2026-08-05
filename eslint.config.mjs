@@ -63,20 +63,18 @@ export default defineConfig([
     },
     {
         // Two canon bans that need no plugin code — a selector is enough. Scoped OFF the
-        // `*spec.ts` family, `apps/*/test/**` and `src/modules/tests/**`: type-safety §6
-        // sanctions `as unknown as` inside spec mocks by name, and the e2e/harness stack
-        // reads `process.env` to stand up its own Testcontainers infra, which is a
-        // different concern from the app's OWN typed config tree.
+        // `*spec.ts` family and `src/tests/**`: type-safety §6 sanctions `as unknown as`
+        // inside spec mocks by name, and the e2e/harness lanes read and WRITE
+        // `process.env` to point the app at the Testcontainers instance they just booted,
+        // which is a different concern from the app's OWN typed config tree.
+        //
+        // One entry, not two: the unit mocks used to sit apart in `src/modules/tests/**`
+        // and needed their own line. They live under `src/tests/mocks/` now, because a
+        // mock only specs touch is not part of the shared library `modules/` is for.
         files: ["src/**/*.ts", "apps/**/*.ts"],
         ignores: [
             "**/*spec.ts",
-            "apps/*/test/**",
-            // The e2e + harness lanes and the unit-mock module. All three are test
-            // infrastructure that stands up its own Testcontainers stack, which means
-            // reading and WRITING `process.env` to point the app at the container it
-            // just booted -- a different concern from the app's OWN typed config tree.
             "src/tests/**",
-            "src/modules/tests/**",
             // config-and-env §8: this file IS the only permitted process.env reader.
             "src/modules/platform/env/utils/parse-env.ts",
         ],

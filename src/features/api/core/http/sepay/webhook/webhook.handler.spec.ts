@@ -52,10 +52,10 @@ import {
 } from "@modules/integrations/sepay/constants/sepay"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     SepayWebhookCommand,
 } from "./webhook.command"

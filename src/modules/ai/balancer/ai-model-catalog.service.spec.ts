@@ -16,10 +16,10 @@ import {
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import {
     AiModelCatalogService,
     AI_MODEL_CATALOG_CACHE_KEY,

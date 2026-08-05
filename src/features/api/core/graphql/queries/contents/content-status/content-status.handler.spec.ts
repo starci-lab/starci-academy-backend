@@ -17,10 +17,10 @@ import {
 } from "./content-status.query"
 import {
     makeEntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests/utils/mocks/entity-manager.mock"
+} from "@tests/mocks/entity-manager.mock"
 import type {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
