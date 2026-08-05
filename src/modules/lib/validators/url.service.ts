@@ -28,7 +28,9 @@ export class UrlValidatorService {
         try {
             new URL(url)
         } catch {
-            throw new InvalidUrlException(url)
+            throw new InvalidUrlException({
+                urlString: url,
+            })
         }
     }
     /**

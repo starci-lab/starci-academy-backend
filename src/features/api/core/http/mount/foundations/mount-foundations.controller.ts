@@ -1,7 +1,6 @@
 import {
     Controller,
     Get,
-    NotFoundException,
     Param,
     Res,
 } from "@nestjs/common"
@@ -11,6 +10,9 @@ import {
 import type {
     Response,
 } from "express"
+import {
+    MountFoundationsFileNotFoundException,
+} from "@modules/exceptions"
 import {
     httpConfig,
 } from "../../http"
@@ -51,8 +53,11 @@ export class MountFoundationsController {
 
             res.type(this.resolveContentType(absolutePath))
             res.send(buffer)
-        } catch {
-            throw new NotFoundException()
+        } catch (caught) {
+            throw new MountFoundationsFileNotFoundException({
+                relativePath,
+                originalError: caught instanceof Error ? caught : new Error(String(caught)),
+            })
         }
     }
 

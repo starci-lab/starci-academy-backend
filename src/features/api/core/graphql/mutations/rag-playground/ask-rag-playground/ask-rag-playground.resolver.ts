@@ -68,7 +68,8 @@ export class AskRagPlaygroundResolver {
         const question = request.question.trim().slice(0,
             MAX_QUESTION_CHARS)
         if (!question) {
-            throw new RagPlaygroundInvalidQuestionException()
+            throw new RagPlaygroundInvalidQuestionException({
+            })
         }
 
         const { chunks } = await this.publicRagPlaygroundService.retrieveContext({

@@ -18,7 +18,9 @@ export const assertPostgresConnectionUrl = (urlString: string): void => {
     try {
         parsed = new URL(urlString)
     } catch {
-        throw new InvalidUrlException(urlString)
+        throw new InvalidUrlException({
+            urlString,
+        })
     }
     // strip the trailing ":" so "postgres:" → "postgres"
     const scheme = parsed.protocol.replace(
@@ -27,7 +29,9 @@ export const assertPostgresConnectionUrl = (urlString: string): void => {
     )
     // only the two canonical Postgres schemes are accepted
     if (scheme !== "postgresql" && scheme !== "postgres") {
-        throw new InvalidPostgresUrlException(urlString)
+        throw new InvalidPostgresUrlException({
+            urlString,
+        })
     }
 }
 

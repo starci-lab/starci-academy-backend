@@ -4,8 +4,10 @@ import {
 } from "@modules/env"
 import {
     Injectable,
-    NotFoundException,
 } from "@nestjs/common"
+import {
+    MountFoundationsFileNotFoundException,
+} from "@modules/exceptions"
 import fs from "fs/promises"
 import {
     join,
@@ -25,7 +27,9 @@ export class MountFoundationsService {
         const normalized = relativePath.replace(/^\/+/,
             "")
         if (!normalized || normalized.includes("..")) {
-            throw new NotFoundException()
+            throw new MountFoundationsFileNotFoundException({
+                relativePath,
+            })
         }
 
         const context = envConfig().contexts
@@ -34,7 +38,9 @@ export class MountFoundationsService {
             .find((item) => item.type === ContextType.Filesystem)
 
         if (!context) {
-            throw new NotFoundException()
+            throw new MountFoundationsFileNotFoundException({
+                relativePath,
+            })
         }
 
         const absolutePath = join(

@@ -241,14 +241,18 @@ export class PgSyncCommand extends CommandRunner {
         try {
             parsed = new URL(urlString)
         } catch {
-            throw new InvalidUrlException(urlString)
+            throw new InvalidUrlException({
+                urlString,
+            })
         }
         const scheme = parsed.protocol.replace(
             ":",
             "",
         )
         if(scheme !== "postgresql" && scheme !== "postgres") {
-            throw new InvalidPostgresUrlException(urlString)
+            throw new InvalidPostgresUrlException({
+                urlString,
+            })
         }
     }
 }

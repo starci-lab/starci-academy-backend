@@ -107,13 +107,10 @@ export class CourseMindMapService {
         )
         // surface a typed 404 so the resolver/transform layer can map it to a clean error envelope
         if (!course) {
-            throw new CourseNotFoundException(
-                isUuid ? {
-                    id: courseId,
-                } : {
-                    displayId: courseId,
-                },
-            )
+            throw new CourseNotFoundException({
+                id: isUuid ? courseId : undefined,
+                displayId: isUuid ? undefined : courseId,
+            })
         }
         // unauthored course → EMPTY (no derived module graph)
         if (!course.mindMap) {
