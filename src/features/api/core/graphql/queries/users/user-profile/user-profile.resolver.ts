@@ -80,8 +80,12 @@ export class UserProfileResolver {
             UserEntity,
             {
                 where: [
-                    { username, isDeleted: false },
-                    { email: username, isDeleted: false },
+                    {
+                        username, isDeleted: false 
+                    },
+                    {
+                        email: username, isDeleted: false 
+                    },
                 ],
             },
         )

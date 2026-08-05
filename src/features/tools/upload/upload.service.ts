@@ -1,11 +1,14 @@
 import {
-    BadRequestException,
     Injectable,
     Logger,
 } from "@nestjs/common"
 import {
     randomUUID,
 } from "crypto"
+import {
+    ToolsFileRequiredException,
+    ToolsTargetReferenceInvalidException,
+} from "@modules/exceptions"
 import {
     mkdir,
     writeFile,
@@ -61,12 +64,16 @@ export class UploadService {
     ): Promise<ProcessUploadResult> {
         // at least one file is required
         if (!files || files.length === 0) {
-            throw new BadRequestException("No files uploaded (expected multipart field \"files\").")
+            throw new ToolsFileRequiredException({
+                fieldName: "files",
+            })
         }
         // validate every requested target up-front so we fail before writing
         for (const targetId of targetIds) {
             if (!this.toolsStoreService.getTarget(targetId)) {
-                throw new BadRequestException(`Target ${targetId} not found.`)
+                throw new ToolsTargetReferenceInvalidException({
+                    targetId,
+                })
             }
         }
 

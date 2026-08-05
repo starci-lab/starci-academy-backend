@@ -249,7 +249,7 @@ export class MyInProgressMockInterviewSessionData {
 @ObjectType({
     description: "Response wrapper for the myInProgressMockInterviewSession query.",
 })
-    /**
+/**
      * ISO timestamp of the session's 1-hour ask-loop deadline (`createdAt` +
      * 1h) — a RESUMED session's countdown reflects the TRUE remaining time
      * (anchored to the original draw), never a freshly-reset hour.

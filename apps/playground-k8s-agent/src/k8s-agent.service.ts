@@ -1,6 +1,12 @@
-import { Inject, Injectable } from "@nestjs/common"
-import { AGENT_META, type AgentMeta, BaseAgentService, DeviceService, EVENT, RESOURCE_INTERVAL_MS } from "@modules/playground-agent-core"
-import { K8sResourceService } from "./k8s-resource.service"
+import {
+    Inject, Injectable 
+} from "@nestjs/common"
+import {
+    AGENT_META, type AgentMeta, BaseAgentService, DeviceService, EVENT, RESOURCE_INTERVAL_MS 
+} from "@modules/playground-agent-core"
+import {
+    K8sResourceService 
+} from "./k8s-resource.service"
 
 @Injectable()
 /** The Kubernetes capability: reports pods / deployments / services / … for step verification. A failed snapshot is swallowed so it never tears down the command relay. */
@@ -9,28 +15,35 @@ export class K8sAgentService extends BaseAgentService {
 
     constructor(
         @Inject(AGENT_META) meta: AgentMeta,
-        deviceService: DeviceService,
+            deviceService: DeviceService,
         private readonly resources: K8sResourceService,
     ) {
-        super(meta, deviceService)
+        super(meta,
+            deviceService)
     }
 
     /** Snapshot local Kubernetes resources and report them for step verification. */
     private report(): void {
         void this.resources.snapshot()
-            .then((resources) => this.socket.emit(EVENT.resourcesReport, { resources }))
+            .then((resources) => this.socket.emit(EVENT.resourcesReport,
+                {
+                    resources 
+                }))
             .catch(() => { /* best-effort — a failed snapshot never tears down the relay. */ })
     }
 
     protected onSetup(): void {
-        this.socket.on(EVENT.stepVerified, () => this.report())
-        this.socket.on(EVENT.verifyNow, () => this.report())
+        this.socket.on(EVENT.stepVerified,
+            () => this.report())
+        this.socket.on(EVENT.verifyNow,
+            () => this.report())
     }
 
     protected onPaired(): void {
         this.report()
         if (!this.resourceTimer) {
-            this.resourceTimer = setInterval(() => this.report(), RESOURCE_INTERVAL_MS)
+            this.resourceTimer = setInterval(() => this.report(),
+                RESOURCE_INTERVAL_MS)
         }
     }
 

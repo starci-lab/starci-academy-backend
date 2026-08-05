@@ -43,7 +43,8 @@ describe("EsSyncUserService",
         const userId = "user-1"
 
         /** Build a minimal, valid (non-deleted) user row for the sync source-of-truth read. */
-        const makeUser = (overrides: Partial<UserEntity> = {}): UserEntity =>
+        const makeUser = (overrides: Partial<UserEntity> = {
+        }): UserEntity =>
             ({
                 id: userId,
                 username: "starci",

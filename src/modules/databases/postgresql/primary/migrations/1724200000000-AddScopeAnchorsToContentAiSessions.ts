@@ -123,7 +123,7 @@ export class AddScopeAnchorsToContentAiSessions1724200000000 implements Migratio
      */
     async down(queryRunner: QueryRunner): Promise<void> {
         // content_ai_messages
-        await queryRunner.query(`DROP INDEX IF EXISTS "idx_content_ai_messages_user_id";`)
+        await queryRunner.query("DROP INDEX IF EXISTS \"idx_content_ai_messages_user_id\";")
         await queryRunner.query(`
             ALTER TABLE "content_ai_messages"
             DROP CONSTRAINT IF EXISTS "fk_user_id_content_ai_messages_users";
@@ -133,9 +133,9 @@ export class AddScopeAnchorsToContentAiSessions1724200000000 implements Migratio
         `)
 
         // content_ai_sessions
-        await queryRunner.query(`DROP INDEX IF EXISTS "idx_content_ai_sessions_origin_foundation_id";`)
-        await queryRunner.query(`DROP INDEX IF EXISTS "idx_content_ai_sessions_origin_task_id";`)
-        await queryRunner.query(`DROP INDEX IF EXISTS "idx_content_ai_sessions_user_id";`)
+        await queryRunner.query("DROP INDEX IF EXISTS \"idx_content_ai_sessions_origin_foundation_id\";")
+        await queryRunner.query("DROP INDEX IF EXISTS \"idx_content_ai_sessions_origin_task_id\";")
+        await queryRunner.query("DROP INDEX IF EXISTS \"idx_content_ai_sessions_user_id\";")
         await queryRunner.query(`
             ALTER TABLE "content_ai_sessions"
             DROP CONSTRAINT IF EXISTS "fk_user_id_content_ai_sessions_users";

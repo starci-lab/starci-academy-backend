@@ -108,7 +108,8 @@ export class CoursesResolver {
             )
             : []
         const isEnrolledByCourseId = new Map(
-            enrollments.map((enrollment) => [enrollment.courseId, enrollment.isEnrolled]),
+            enrollments.map((enrollment) => [enrollment.courseId,
+                enrollment.isEnrolled]),
         )
         response.data.forEach((course) => {
             course.isEnrolled = isEnrolledByCourseId.get(course.id) ?? false

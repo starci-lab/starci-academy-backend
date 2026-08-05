@@ -85,7 +85,8 @@ export class FlashcardCardsByIdsResolver {
         @GraphQLLocale()
             locale: Locale,
     ): Promise<FlashcardCardsByIdsData> {
-        const safeCardIds = cardIds.slice(0, MAX_IDS)
+        const safeCardIds = cardIds.slice(0,
+            MAX_IDS)
         const cards = await this.flashcardReviewService.listByIds({
             userId: user.id,
             courseId,

@@ -15,13 +15,13 @@ export class AddCvBlocksTexSource1725000000000 implements MigrationInterface {
 
     async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
-            `ALTER TABLE "cv_blocks" ADD COLUMN IF NOT EXISTS "tex_source" text;`,
+            "ALTER TABLE \"cv_blocks\" ADD COLUMN IF NOT EXISTS \"tex_source\" text;",
         )
     }
 
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
-            `ALTER TABLE "cv_blocks" DROP COLUMN IF EXISTS "tex_source";`,
+            "ALTER TABLE \"cv_blocks\" DROP COLUMN IF EXISTS \"tex_source\";",
         )
     }
 }

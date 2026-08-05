@@ -129,7 +129,8 @@ describe("AI tutor — content-varied query eval across tiers (harness)",
 
                 expect(output.trim().length).toBeGreaterThan(0)
 
-                const verdict = await judge(rubric, output)
+                const verdict = await judge(rubric,
+                    output)
 
                 expect(verdict.pass).toBe(true)
                 expect(verdict.score).toBeGreaterThanOrEqual(PASS_SCORE)

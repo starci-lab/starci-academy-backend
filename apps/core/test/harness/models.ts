@@ -26,9 +26,12 @@ const readClaudeCodeToken = (): string | undefined => {
         return fromEnv
     }
 
-    const file = join(process.cwd(), ".secrets", "claude-code-token.txt")
+    const file = join(process.cwd(),
+        ".secrets",
+        "claude-code-token.txt")
     if (existsSync(file)) {
-        const fromFile = readFileSync(file, "utf8").trim()
+        const fromFile = readFileSync(file,
+            "utf8").trim()
         if (fromFile) {
             return fromFile
         }

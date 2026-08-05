@@ -90,7 +90,7 @@ describe("Installment payment reconcile (e2e)",
                     {
                         keycloakId: `kc-${referenceId}`,
                     }),
-                )
+            )
 
         /**
          * Seed a `Fixed` installment plan (no `originTransaction` — the

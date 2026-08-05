@@ -3,7 +3,6 @@ import {
     Delete,
     Get,
     HttpCode,
-    NotFoundException,
     Param,
     Post,
     UseGuards,
@@ -15,6 +14,9 @@ import {
 import {
     rm,
 } from "fs/promises"
+import {
+    ToolsArtifactNotFoundException,
+} from "@modules/exceptions"
 import {
     LocalOnlyGuard,
 } from "../guards"
@@ -79,7 +81,9 @@ export class ArtifactsController {
         // look up first so we can remove the on-disk files too
         const artifact = this.toolsStoreService.getArtifact(id)
         if (!artifact) {
-            throw new NotFoundException(`Artifact ${id} not found.`)
+            throw new ToolsArtifactNotFoundException({
+                artifactId: id,
+            })
         }
         // drop the local files/dir, then the registry row
         await rm(artifact.localPath,

@@ -1,7 +1,15 @@
-import { Module } from "@nestjs/common"
-import { AGENT_META, type AgentMeta, AgentCommand, BaseAgentService, CommandProbeService, DeviceService, ServiceInstallerService } from "@modules/playground-agent-core"
-import { RagAgentService } from "./rag-agent.service"
-import { RagService } from "./rag.service"
+import {
+    Module 
+} from "@nestjs/common"
+import {
+    AGENT_META, type AgentMeta, AgentCommand, BaseAgentService, CommandProbeService, DeviceService, ServiceInstallerService 
+} from "@modules/playground-agent-core"
+import {
+    RagAgentService 
+} from "./rag-agent.service"
+import {
+    RagService 
+} from "./rag.service"
 
 /** Identity for the rag agent (unique service names so it can coexist with docker/k8s). */
 const RAG_AGENT_META: AgentMeta = {
@@ -17,13 +25,17 @@ const RAG_AGENT_META: AgentMeta = {
 
 @Module({
     providers: [
-        { provide: AGENT_META, useValue: RAG_AGENT_META },
+        {
+            provide: AGENT_META, useValue: RAG_AGENT_META 
+        },
         CommandProbeService,
         DeviceService,
         ServiceInstallerService,
         RagService,
         RagAgentService,
-        { provide: BaseAgentService, useExisting: RagAgentService },
+        {
+            provide: BaseAgentService, useExisting: RagAgentService 
+        },
         AgentCommand,
     ],
 })

@@ -38,7 +38,8 @@ import type {
 const POSTGRESQL_PRIMARY = "primary"
 
 /** Build a full {@link UserStatsResult} fixture, overriding only what a case needs. */
-const makeStats = (overrides: Partial<UserStatsResult> = {}): UserStatsResult => ({
+const makeStats = (overrides: Partial<UserStatsResult> = {
+}): UserStatsResult => ({
     followerCount: 0,
     followingCount: 0,
     unreadNotificationCount: 0,

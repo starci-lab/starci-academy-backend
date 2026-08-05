@@ -295,7 +295,10 @@ export class MockInterviewSessionDrawService {
     private normalizeLang(
         value: string | undefined,
     ): string {
-        const known = new Set(["typescript", "java", "csharp", "go"])
+        const known = new Set(["typescript",
+            "java",
+            "csharp",
+            "go"])
         const candidate = (value ?? "").trim().toLowerCase()
         return known.has(candidate) ? candidate : "typescript"
     }
@@ -319,7 +322,10 @@ export class MockInterviewSessionDrawService {
         langs: Array<string> | undefined,
         fallbackSingle: string | undefined,
     ): Array<string> {
-        const order = ["typescript", "java", "csharp", "go"]
+        const order = ["typescript",
+            "java",
+            "csharp",
+            "go"]
         const known = new Set(order)
         const picked = new Set(
             (langs ?? [])
@@ -470,7 +476,8 @@ export class MockInterviewSessionDrawService {
         // languages the candidate selected at setup — each 4-track code question is
         // served in a RANDOM member of (this ∩ its authored tracks); a code question
         // authored in none of these is dropped from the pool (see listCourseInterviewQuestions)
-        const resolvedLangs = this.normalizeLangs(params.langs, params.lang)
+        const resolvedLangs = this.normalizeLangs(params.langs,
+            params.lang)
 
         const reachedModuleIds = await this.listReachedModuleIds({
             courseId,
@@ -565,7 +572,8 @@ export class MockInterviewSessionDrawService {
             const eqOpener = await this.drawEqQuestion(level,
                 ["culture"])
             const eqCloser = await this.drawEqQuestion(level,
-                ["behavioral", "situational"],
+                ["behavioral",
+                    "situational"],
                 eqOpener?.cardId)
             if (eqCloser) {
                 seedTopics.push(eqCloser)
@@ -970,7 +978,9 @@ export class MockInterviewSessionDrawService {
                     kind: question.kind,
                     // deliver ONLY the randomly-chosen language's given code — snapshotted
                     // per-question so grade time re-resolves THIS body (not session.lang)
-                    givenCodes: [{ lang: chosenBody.lang, code: chosenBody.givenCode }],
+                    givenCodes: [{
+                        lang: chosenBody.lang, code: chosenBody.givenCode 
+                    }],
                 }]
             }
             // NON-track question — a legacy/agnostic single `givenCode` (e.g. a
@@ -982,7 +992,9 @@ export class MockInterviewSessionDrawService {
                 parts.push(question.diagram)
             }
             const langVariants: Array<MockInterviewGivenCodeVariant> = question.givenCode
-                ? [{ lang: question.givenLang ?? "agnostic", code: question.givenCode }]
+                ? [{
+                    lang: question.givenLang ?? "agnostic", code: question.givenCode 
+                }]
                 : []
             return [{
                 id: question.id,

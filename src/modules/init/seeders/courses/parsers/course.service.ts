@@ -94,7 +94,8 @@ export class CourseParserService {
         if (/^https?:\/\//i.test(trimmed)) {
             return trimmed
         }
-        const key = trimmed.replace(/^\/+/, "")
+        const key = trimmed.replace(/^\/+/,
+            "")
         return this.s3BuildService.buildPublicObjectUrl({
             key,
             provider: S3Provider.Minio,

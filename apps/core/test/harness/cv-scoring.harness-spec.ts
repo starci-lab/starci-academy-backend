@@ -206,7 +206,8 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
                 const cvVi = readVolumeDoc("cv/samples/04-mid-fullstack",
                     "vi")
 
-                const result = await score(cvVi.body, Locale.Vi)
+                const result = await score(cvVi.body,
+                    Locale.Vi)
 
                 expect(String(result.feedback.shortFeedback).trim().length).toBeGreaterThan(0)
                 const verdict = await judge(

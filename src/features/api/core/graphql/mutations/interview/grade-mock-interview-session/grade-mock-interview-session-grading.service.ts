@@ -341,7 +341,8 @@ export class MockInterviewGradingService {
         // the two contradict each other on the same scorecard
         const overallScore = rescored && phaseScores.length > 0
             ? Math.round(
-                phaseScores.reduce((sum, phase) => sum + phase.score, 0) / phaseScores.length,
+                phaseScores.reduce((sum, phase) => sum + phase.score,
+                    0) / phaseScores.length,
             )
             : parsed.overallScore
 
@@ -890,7 +891,8 @@ export class MockInterviewGradingService {
             (checkpoint, index) => checkpoint.critical && !hit.has(index),
         )
         const capped = missedCritical
-            ? Math.min(score, CRITICAL_MISS_SCORE_CAP)
+            ? Math.min(score,
+                CRITICAL_MISS_SCORE_CAP)
             : score
         return Math.max(0,
             Math.min(100,

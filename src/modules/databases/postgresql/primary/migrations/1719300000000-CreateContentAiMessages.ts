@@ -57,6 +57,6 @@ export class CreateContentAiMessages1719300000000 implements MigrationInterface 
      * @param queryRunner - Active TypeORM query runner.
      */
     async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE IF EXISTS "content_ai_messages";`)
+        await queryRunner.query("DROP TABLE IF EXISTS \"content_ai_messages\";")
     }
 }

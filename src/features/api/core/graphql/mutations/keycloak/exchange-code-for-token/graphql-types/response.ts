@@ -33,7 +33,7 @@ export interface ExchangeCodeForTokenCommandResult {
 @ObjectType({
     description: "Response wrapper for exchangeCodeForToken mutation.",
 })
-    /**
+/**
      * The refresh token returned from the command.
      */
 export class ExchangeCodeForTokenResponse

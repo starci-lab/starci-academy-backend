@@ -39,7 +39,7 @@ export class FoundationCategoriesPayload {
 @ObjectType({
     description: "Response wrapper for the foundationCategories query.",
 })
-    /** Categories for the requested page, ordered by display index. */
+/** Categories for the requested page, ordered by display index. */
 export class FoundationCategoriesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<FoundationCategoriesPayload>

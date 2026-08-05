@@ -419,7 +419,8 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
             const req = request(app.getHttpServer())
                 .post(GRAPHQL_ENDPOINT)
             return (locale
-                ? req.set("x-locale", locale)
+                ? req.set("x-locale",
+                    locale)
                 : req
             ).send({
                 query,
@@ -607,7 +608,8 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 question,
                 rubric,
             }) => {
-                const learner = await seedUser(`kc-content-ai-harness-${tier}-${Math.random().toString(36).slice(2, 10)}`)
+                const learner = await seedUser(`kc-content-ai-harness-${tier}-${Math.random().toString(36).slice(2,
+                    10)}`)
                 currentUser = learner
                 currentTier = tier
 
@@ -683,7 +685,8 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 expect(turns[1].message).toBe(answer)
 
                 // finally, grade the real model answer against the rubric
-                const verdict = await judge(rubric, answer)
+                const verdict = await judge(rubric,
+                    answer)
 
                 expect(verdict.pass).toBe(true)
                 expect(verdict.score).toBeGreaterThanOrEqual(PASS_SCORE)

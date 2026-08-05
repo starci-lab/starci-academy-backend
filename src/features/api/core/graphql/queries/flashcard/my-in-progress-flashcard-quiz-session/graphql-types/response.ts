@@ -109,7 +109,7 @@ export class MyInProgressFlashcardQuizSessionData {
 @ObjectType({
     description: "Response wrapper for the myInProgressFlashcardQuizSession query.",
 })
-    /**
+/**
      * ISO timestamp of the session's lazy-expiry deadline (`createdAt` +
      * `FLASHCARD_QUIZ_SESSION_DURATION_MS`) — "session lazy-expiry"
      * (2026-07-11): a RESUMED session's countdown reflects the TRUE

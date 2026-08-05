@@ -111,9 +111,9 @@ export class PlaygroundSeedTestCommand extends CommandRunner {
                         this.formatRowCounts(after)
                     } (delta playgrounds=${after.playgrounds - before.playgrounds}, `
                         + `playgroundSteps=${after.playgroundSteps - before.playgroundSteps}, `
-                        + `playgroundTranslations=`
+                        + "playgroundTranslations="
                         + `${after.playgroundTranslations - before.playgroundTranslations}, `
-                        + `playgroundStepTranslations=`
+                        + "playgroundStepTranslations="
                         + `${after.playgroundStepTranslations - before.playgroundStepTranslations})`,
                 },
             )

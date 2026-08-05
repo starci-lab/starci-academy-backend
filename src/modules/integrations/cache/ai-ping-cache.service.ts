@@ -119,7 +119,8 @@ export class AiPingCacheService implements OnModuleInit {
             status: false,
             lastPing: now.toISOString(),
             failCount: (previous?.failCount ?? 0) + 1,
-            cooldownUntil: now.add(effectiveMs, "millisecond").toISOString(),
+            cooldownUntil: now.add(effectiveMs,
+                "millisecond").toISOString(),
             disabled: disabled ?? previous?.disabled,
             lastUsedAt: previous?.lastUsedAt,
         }

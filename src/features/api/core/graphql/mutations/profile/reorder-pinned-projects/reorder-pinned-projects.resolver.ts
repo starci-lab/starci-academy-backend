@@ -88,12 +88,14 @@ export class ReorderPinnedProjectsResolver {
                     .set({
                         orderIndex,
                     })
-                    .where("id = :id", {
-                        id,
-                    })
-                    .andWhere("user_id = :userId", {
-                        userId: user.id,
-                    })
+                    .where("id = :id",
+                        {
+                            id,
+                        })
+                    .andWhere("user_id = :userId",
+                        {
+                            userId: user.id,
+                        })
                     .execute()
             }
         })

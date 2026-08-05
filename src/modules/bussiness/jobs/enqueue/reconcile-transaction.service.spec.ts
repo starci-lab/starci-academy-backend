@@ -52,7 +52,8 @@ const setReconcileEnv = (
     overrides: Partial<{
         enabled: boolean
         delayMs: number
-    }> = {},
+    }> = {
+    },
 ): void => {
     mockEnvConfig.mockReturnValue({
         services: {

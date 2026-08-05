@@ -83,12 +83,14 @@ export class UnpinProjectResolver {
             .createQueryBuilder()
             .delete()
             .from(UserPinnedProjectEntity)
-            .where("id = :id", {
-                id,
-            })
-            .andWhere("user_id = :userId", {
-                userId: user.id,
-            })
+            .where("id = :id",
+                {
+                    id,
+                })
+            .andWhere("user_id = :userId",
+                {
+                    userId: user.id,
+                })
             .execute()
 
         // zero affected rows means the pin did not exist or is not owned by the user

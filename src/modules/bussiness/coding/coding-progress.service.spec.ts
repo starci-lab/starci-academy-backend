@@ -152,7 +152,8 @@ describe("CodingProgressService",
                 it("treats a non-array cached entry (empty-default shape) as a miss and recomputes",
                     async () => {
                         // the empty default cached value does not have the array shape
-                        cacheService.get.mockResolvedValueOnce({} as CodingProblemProgressCacheResult)
+                        cacheService.get.mockResolvedValueOnce({
+                        } as CodingProblemProgressCacheResult)
 
                         const result = await service.getProgress({
                             userId,

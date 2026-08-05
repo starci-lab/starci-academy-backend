@@ -14,13 +14,22 @@ import {
 })
 /** One tag's full review-retention breakdown, worst-first. */
 export class FlashcardWeakTag {
-    @Field(() => String, { description: "The technology tag (e.g. NestJS)." })
+    @Field(() => String,
+        {
+            description: "The technology tag (e.g. NestJS)." 
+        })
         tag: string
 
-    @Field(() => Int, { description: "Retention for this tag = graded Good/Easy / total graded, 0..100." })
+    @Field(() => Int,
+        {
+            description: "Retention for this tag = graded Good/Easy / total graded, 0..100." 
+        })
         retention: number
 
-    @Field(() => Int, { description: "Distinct cards (not reviews) carrying this tag that were graded at least once." })
+    @Field(() => Int,
+        {
+            description: "Distinct cards (not reviews) carrying this tag that were graded at least once." 
+        })
         cardCount: number
 }
 
@@ -29,22 +38,40 @@ export class FlashcardWeakTag {
 })
 /** A "leech FOCUS" card — the card the learner keeps forgetting or getting stuck on. */
 export class FlashcardLeechFocusCard {
-    @Field(() => ID, { description: "The card id (open it in the reviewer)." })
+    @Field(() => ID,
+        {
+            description: "The card id (open it in the reviewer)." 
+        })
         cardId: string
 
-    @Field(() => String, { description: "The card's question text (default-locale snapshot)." })
+    @Field(() => String,
+        {
+            description: "The card's question text (default-locale snapshot)." 
+        })
         question: string
 
-    @Field(() => ID, { description: "Owning deck id (deep-link target)." })
+    @Field(() => ID,
+        {
+            description: "Owning deck id (deep-link target)." 
+        })
         deckId: string
 
-    @Field(() => String, { description: "Owning deck title." })
+    @Field(() => String,
+        {
+            description: "Owning deck title." 
+        })
         deckTitle: string
 
-    @Field(() => Int, { description: "Times this card exhibited its reason (Again-after-a-prior-recall count, or repeated-Hard count)." })
+    @Field(() => Int,
+        {
+            description: "Times this card exhibited its reason (Again-after-a-prior-recall count, or repeated-Hard count)." 
+        })
         lapseCount: number
 
-    @Field(() => String, { description: "\"lapsed\" = forgot after once recalling it; \"stuckHard\" = repeatedly graded Hard." })
+    @Field(() => String,
+        {
+            description: "\"lapsed\" = forgot after once recalling it; \"stuckHard\" = repeatedly graded Hard." 
+        })
         reason: "lapsed" | "stuckHard"
 }
 
@@ -53,16 +80,28 @@ export class FlashcardLeechFocusCard {
 })
 /** One deck's review RETENTION (recalled/total) — the outcome analogue of the footprint `byDeck`. */
 export class FlashcardDeckRetention {
-    @Field(() => ID, { description: "The deck this retention is scoped to." })
+    @Field(() => ID,
+        {
+            description: "The deck this retention is scoped to." 
+        })
         deckId: string
 
-    @Field(() => String, { description: "The deck's title." })
+    @Field(() => String,
+        {
+            description: "The deck's title." 
+        })
         deckTitle: string
 
-    @Field(() => Int, { description: "Retention = graded Good/Easy / total graded for this deck, 0..100." })
+    @Field(() => Int,
+        {
+            description: "Retention = graded Good/Easy / total graded for this deck, 0..100." 
+        })
         retention: number
 
-    @Field(() => Int, { description: "Total graded reviews for this deck." })
+    @Field(() => Int,
+        {
+            description: "Total graded reviews for this deck." 
+        })
         reviewCount: number
 }
 

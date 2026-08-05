@@ -47,7 +47,8 @@ describe("VoucherService",
 
         /** A valid, redeemable voucher row — tests override just the field under test. */
         const makeVoucher = (
-            overrides: Partial<CourseVoucherEntity> = {},
+            overrides: Partial<CourseVoucherEntity> = {
+            },
         ): CourseVoucherEntity => ({
             id: "voucher-1",
             userId,

@@ -18,17 +18,21 @@ import {
 export const computeCompletionPercent = (row: MyCourseProgressResult): number => {
     const ratios: Array<number> = []
     if (row.contentTotal > 0) {
-        ratios.push(Math.min(1, row.contentCompleted / row.contentTotal))
+        ratios.push(Math.min(1,
+            row.contentCompleted / row.contentTotal))
     }
     if (row.challengeTotal > 0) {
-        ratios.push(Math.min(1, row.challengeCompleted / row.challengeTotal))
+        ratios.push(Math.min(1,
+            row.challengeCompleted / row.challengeTotal))
     }
     if (row.total > 0) {
-        ratios.push(Math.min(1, row.completed / row.total))
+        ratios.push(Math.min(1,
+            row.completed / row.total))
     }
     if (ratios.length === 0) {
         return 0
     }
-    const sum = ratios.reduce((acc, ratio) => acc + ratio, 0)
+    const sum = ratios.reduce((acc, ratio) => acc + ratio,
+        0)
     return Math.round((sum / ratios.length) * 100)
 }

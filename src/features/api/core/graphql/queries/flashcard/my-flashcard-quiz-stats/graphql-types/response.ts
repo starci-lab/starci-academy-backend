@@ -36,10 +36,16 @@ export class FlashcardQuizStatsTagItem {
 })
 /** How many of the course's technology tags the learner has attempted at least once, vs how many exist. */
 export class FlashcardQuizStatsConceptCoverage {
-    @Field(() => Int, { description: "Distinct tags touched by at least one scanned quiz session's cards." })
+    @Field(() => Int,
+        {
+            description: "Distinct tags touched by at least one scanned quiz session's cards." 
+        })
         covered: number
 
-    @Field(() => Int, { description: "Distinct tags across every card in this course's decks." })
+    @Field(() => Int,
+        {
+            description: "Distinct tags across every card in this course's decks." 
+        })
         total: number
 }
 

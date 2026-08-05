@@ -45,7 +45,8 @@ import {
  */
 export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course" | "global"
 
-@Index(["enrollment", "originContent"])
+@Index(["enrollment",
+    "originContent"])
 @Index(["user"])
 @Entity("content_ai_sessions")
 /**

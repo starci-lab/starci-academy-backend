@@ -99,8 +99,8 @@ export default defineConfig([
         },
         rules: {
             "starci-be/no-interpolated-log-message": "error", // observability · nợ=0 (the WinstonService signature already forces an enum arg)
-            "starci-be/require-exception-object-arg": "warn", // error-handling §1
-            "starci-be/throw-abstract-exception": "warn", // error-handling §1
+            "starci-be/require-exception-object-arg": "error", // error-handling §1 · nợ=0 → error
+            "starci-be/throw-abstract-exception": "error", // error-handling §1 · nợ=0 → error
             "starci-be/no-inline-param-type": "error", // type-safety §4 · nợ=0 → error
             "starci-be/no-nest-logger": "warn", // observability
             "starci-be/no-deep-module-import": "warn", // naming-and-structure §3

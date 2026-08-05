@@ -197,7 +197,7 @@ export class StartMockInterviewSessionData {
 @ObjectType({
     description: "Response wrapper for the startMockInterviewSession mutation.",
 })
-    /**
+/**
      * ISO timestamp of when the live interview loop must auto-end (server
      * `createdAt + 1h`, uniform across every mode) — the FE derives its
      * countdown from THIS, never from a local clock start; the server

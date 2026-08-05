@@ -102,10 +102,10 @@ export class CreateContentAiSessions1719400000000 implements MigrationInterface 
             ALTER TABLE "content_ai_messages"
             DROP CONSTRAINT IF EXISTS "fk_session_id_content_ai_messages_sessions";
         `)
-        await queryRunner.query(`DROP INDEX IF EXISTS "idx_content_ai_messages_session_id";`)
+        await queryRunner.query("DROP INDEX IF EXISTS \"idx_content_ai_messages_session_id\";")
         await queryRunner.query(`
             ALTER TABLE "content_ai_messages" DROP COLUMN IF EXISTS "session_id";
         `)
-        await queryRunner.query(`DROP TABLE IF EXISTS "content_ai_sessions";`)
+        await queryRunner.query("DROP TABLE IF EXISTS \"content_ai_sessions\";")
     }
 }

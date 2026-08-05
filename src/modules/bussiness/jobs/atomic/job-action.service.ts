@@ -74,7 +74,9 @@ export class JobActionService {
         }: GetJobParams
     ): Promise<JobEntity> {
         const manager = entityManager ?? this.primaryEntityManager
-        const where: FindOptionsWhere<JobEntity> = { id }
+        const where: FindOptionsWhere<JobEntity> = {
+            id 
+        }
         if (userId !== undefined) {
             where.userId = userId === null ? IsNull() : userId
         }

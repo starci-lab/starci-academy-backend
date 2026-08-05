@@ -45,7 +45,7 @@ export class AddChallengeAnchorToContentAiSessions1724300000000 implements Migra
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */
     async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP INDEX IF EXISTS "idx_content_ai_sessions_origin_challenge_id";`)
+        await queryRunner.query("DROP INDEX IF EXISTS \"idx_content_ai_sessions_origin_challenge_id\";")
         await queryRunner.query(`
             ALTER TABLE "content_ai_sessions"
             DROP CONSTRAINT IF EXISTS "fk_origin_challenge_id_content_ai_sessions_challenges";

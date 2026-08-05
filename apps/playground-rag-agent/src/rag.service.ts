@@ -1,6 +1,12 @@
-import { Injectable } from "@nestjs/common"
-import { EMBED_MODEL, GEN_MODEL_FALLBACK, OLLAMA_BASE, RAG_TOP_K } from "./rag-constants"
-import type { IndexSource, OllamaStatus, RagSource } from "./rag-types"
+import {
+    Injectable 
+} from "@nestjs/common"
+import {
+    EMBED_MODEL, GEN_MODEL_FALLBACK, OLLAMA_BASE, RAG_TOP_K 
+} from "./rag-constants"
+import type {
+    IndexSource, OllamaStatus, RagSource 
+} from "./rag-types"
 
 /** An embedded chunk of indexed code, kept in-memory for the session. */
 interface RagChunk {
@@ -27,9 +33,13 @@ export class RagService {
         try {
             const response = await fetch(`${OLLAMA_BASE}/api/tags`)
             const data = await response.json() as { models?: Array<{ name: string }> }
-            return { serving: true, models: (data.models ?? []).map((model) => model.name) }
+            return {
+                serving: true, models: (data.models ?? []).map((model) => model.name) 
+            }
         } catch {
-            return { serving: false, models: [] }
+            return {
+                serving: false, models: [] 
+            }
         }
     }
 
@@ -39,8 +49,12 @@ export class RagService {
         const chunks: Array<{ filePath: string, snippet: string, startLine: number }> = []
         const step = CHUNK_LINES - CHUNK_OVERLAP_LINES
         for (let start = 0; start < lines.length; start += step) {
-            const end = Math.min(start + CHUNK_LINES, lines.length)
-            chunks.push({ filePath, snippet: lines.slice(start, end).join("\n"), startLine: start + 1 })
+            const end = Math.min(start + CHUNK_LINES,
+                lines.length)
+            chunks.push({
+                filePath, snippet: lines.slice(start,
+                    end).join("\n"), startLine: start + 1 
+            })
             if (end >= lines.length) {
                 break
             }
@@ -50,11 +64,16 @@ export class RagService {
 
     /** Embed one piece of text via local Ollama. Throws on failure — callers decide how to handle it. */
     private async embed(text: string): Promise<Array<number>> {
-        const response = await fetch(`${OLLAMA_BASE}/api/embeddings`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ model: EMBED_MODEL, prompt: text }),
-        })
+        const response = await fetch(`${OLLAMA_BASE}/api/embeddings`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({
+                    model: EMBED_MODEL, prompt: text 
+                }),
+            })
         const data = await response.json() as { embedding?: Array<number> }
         return data.embedding ?? []
     }
@@ -66,19 +85,26 @@ export class RagService {
             // P4 will teach github/sample sources to resolve inline text; for now a machine
             // with no pasted code has nothing local to embed.
             const label = source.fileName || source.githubUrl || source.sampleId || "unknown"
-            return { chunkCount: 0, sourceLabel: `${label} (on-device indexing needs inline code for now)` }
+            return {
+                chunkCount: 0, sourceLabel: `${label} (on-device indexing needs inline code for now)` 
+            }
         }
         const label = source.fileName || "pasted-code"
-        const windows = this.chunkText(source.code, label)
+        const windows = this.chunkText(source.code,
+            label)
         try {
             for (const window of windows) {
                 const embedding = await this.embed(window.snippet)
-                this.chunks.push({ filePath: window.filePath, snippet: window.snippet, embedding })
+                this.chunks.push({
+                    filePath: window.filePath, snippet: window.snippet, embedding 
+                })
             }
         } catch {
             // best-effort — whatever embedded before the failure stays indexed.
         }
-        return { chunkCount: this.chunks.length, sourceLabel: label }
+        return {
+            chunkCount: this.chunks.length, sourceLabel: label 
+        }
     }
 
     /** Cosine similarity between two equal-length embedding vectors. */
@@ -100,9 +126,13 @@ export class RagService {
     /** Top-`RAG_TOP_K` chunks by cosine similarity to the question embedding. */
     private topChunks(questionEmbedding: Array<number>): Array<{ chunk: RagChunk, score: number }> {
         return this.chunks
-            .map((chunk) => ({ chunk, score: this.cosineSimilarity(questionEmbedding, chunk.embedding) }))
+            .map((chunk) => ({
+                chunk, score: this.cosineSimilarity(questionEmbedding,
+                    chunk.embedding) 
+            }))
             .sort((a, b) => b.score - a.score)
-            .slice(0, RAG_TOP_K)
+            .slice(0,
+                RAG_TOP_K)
     }
 
     /** Choose a generation model from the installed set: coder > qwen > any non-embed > fallback. */
@@ -116,14 +146,20 @@ export class RagService {
 
     /** Stream an Ollama `/api/generate` NDJSON response, calling `onChunk` with the accumulated text. */
     private async streamGenerate(prompt: string, model: string, onChunk: (text: string, done: boolean) => void): Promise<void> {
-        const response = await fetch(`${OLLAMA_BASE}/api/generate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ model, prompt, stream: true }),
-        })
+        const response = await fetch(`${OLLAMA_BASE}/api/generate`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({
+                    model, prompt, stream: true 
+                }),
+            })
         const reader = response.body?.getReader()
         if (!reader) {
-            onChunk("", true)
+            onChunk("",
+                true)
             return
         }
         const decoder = new TextDecoder()
@@ -134,7 +170,10 @@ export class RagService {
             if (done) {
                 break
             }
-            buffer += decoder.decode(value, { stream: true })
+            buffer += decoder.decode(value,
+                {
+                    stream: true 
+                })
             const lines = buffer.split("\n")
             buffer = lines.pop() ?? ""
             for (const line of lines) {
@@ -143,10 +182,12 @@ export class RagService {
                 }
                 const parsed = JSON.parse(line) as { response?: string, done?: boolean }
                 accumulated += parsed.response ?? ""
-                onChunk(accumulated, Boolean(parsed.done))
+                onChunk(accumulated,
+                    Boolean(parsed.done))
             }
         }
-        onChunk(accumulated, true)
+        onChunk(accumulated,
+            true)
     }
 
     /** Answer a question grounded ONLY in the indexed chunks, streaming the answer as it generates. */
@@ -158,7 +199,8 @@ export class RagService {
             const top = this.topChunks(questionEmbedding)
             const sources: Array<RagSource> = top.map(({ chunk, score }) => ({
                 filePath: chunk.filePath,
-                snippet: chunk.snippet.slice(0, 200),
+                snippet: chunk.snippet.slice(0,
+                    200),
                 score: Math.round(score * 100) / 100,
             }))
             const context = top
@@ -170,11 +212,18 @@ export class RagService {
                 context,
                 `Question: ${question}`,
             ].join("\n\n")
-            await this.streamGenerate(prompt, genModel, onAnswerChunk)
-            return { sources }
+            await this.streamGenerate(prompt,
+                genModel,
+                onAnswerChunk)
+            return {
+                sources 
+            }
         } catch {
-            onAnswerChunk("[lỗi] không gọi được Ollama local — kiểm tra `ollama serve`.", true)
-            return { sources: [] }
+            onAnswerChunk("[lỗi] không gọi được Ollama local — kiểm tra `ollama serve`.",
+                true)
+            return {
+                sources: [] 
+            }
         }
     }
 }

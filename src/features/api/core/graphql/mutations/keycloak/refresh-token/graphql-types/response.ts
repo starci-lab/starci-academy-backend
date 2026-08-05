@@ -31,7 +31,7 @@ export interface RefreshTokenCommandResult {
 @ObjectType({
     description: "Response wrapper for refresh mutation.",
 })
-    /**
+/**
      * The refresh token returned from the command.
      */
 export class RefreshTokenResponse

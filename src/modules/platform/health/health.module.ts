@@ -12,8 +12,10 @@ import {
 } from "./prometheus-metrics.service"
 
 @Module({
-    providers: [SystemHealthService, PrometheusMetricsService],
-    exports: [SystemHealthService, PrometheusMetricsService],
+    providers: [SystemHealthService,
+        PrometheusMetricsService],
+    exports: [SystemHealthService,
+        PrometheusMetricsService],
 })
 /**
  * Provides the {@link SystemHealthService} liveness prober and the

@@ -1,14 +1,16 @@
 import {
-    BadRequestException,
     Injectable,
     Logger,
-    NotFoundException,
 } from "@nestjs/common"
 import {
     CreateBucketCommand,
     HeadBucketCommand,
     PutObjectCommand,
 } from "@aws-sdk/client-s3"
+import {
+    ToolsArtifactNotFoundException,
+    ToolsArtifactSyncTargetsMissingException,
+} from "@modules/exceptions"
 import type {
     S3Client,
 } from "@aws-sdk/client-s3"
@@ -117,20 +119,22 @@ export class SyncService {
      *
      * @param artifactId - The artifact to push.
      * @returns The new status, totals, and a per-target breakdown.
-     * @throws NotFoundException When the artifact does not exist.
-     * @throws BadRequestException When the artifact has no targets/key prefix.
+     * @throws ToolsArtifactNotFoundException When the artifact does not exist.
+     * @throws ToolsArtifactSyncTargetsMissingException When the artifact has no targets/key prefix.
      */
     async syncArtifact(artifactId: string): Promise<SyncArtifactResult> {
         // the artifact must exist to be synced
         const artifact = this.toolsStoreService.getArtifact(artifactId)
         if (!artifact) {
-            throw new NotFoundException(`Artifact ${artifactId} not found.`)
+            throw new ToolsArtifactNotFoundException({
+                artifactId,
+            })
         }
         // a sync needs at least one destination + a key prefix
         if (artifact.targetIds.length === 0 || !artifact.keyPrefix) {
-            throw new BadRequestException(
-                `Artifact ${artifactId} has no targets/keyPrefix; nothing to sync to.`,
-            )
+            throw new ToolsArtifactSyncTargetsMissingException({
+                artifactId,
+            })
         }
 
         const keyPrefix = artifact.keyPrefix

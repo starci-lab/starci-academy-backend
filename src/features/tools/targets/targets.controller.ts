@@ -4,7 +4,6 @@ import {
     Delete,
     Get,
     HttpCode,
-    NotFoundException,
     Param,
     Patch,
     Post,
@@ -14,6 +13,9 @@ import {
     ApiOperation,
     ApiTags,
 } from "@nestjs/swagger"
+import {
+    ToolsTargetNotFoundException,
+} from "@modules/exceptions"
 import {
     LocalOnlyGuard,
 } from "../guards"
@@ -90,7 +92,9 @@ export class TargetsController {
             ...body,
         })
         if (!updated) {
-            throw new NotFoundException(`Target ${id} not found.`)
+            throw new ToolsTargetNotFoundException({
+                targetId: id,
+            })
         }
         return updated
     }
@@ -106,7 +110,9 @@ export class TargetsController {
         // surface a 404 when the id does not match any saved target
         const removed = this.toolsStoreService.deleteTarget(id)
         if (!removed) {
-            throw new NotFoundException(`Target ${id} not found.`)
+            throw new ToolsTargetNotFoundException({
+                targetId: id,
+            })
         }
         return {
             id,

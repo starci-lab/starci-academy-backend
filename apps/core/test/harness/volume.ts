@@ -15,7 +15,9 @@ import {
 const SEP = "<!-- @starci/seperator -->"
 
 /** Root of the SSOT content mount every harness grounds real cases in. */
-const VOLUME_DATA = join(process.cwd(), ".volume", "data")
+const VOLUME_DATA = join(process.cwd(),
+    ".volume",
+    "data")
 
 /** A parsed `.volume/data` doc — its fields plus convenience `title`/`body`. */
 export interface VolumeDoc {
@@ -42,16 +44,21 @@ export const readVolumeDoc = (
     relDir: string,
     locale: "en" | "vi" = "en",
 ): VolumeDoc => {
-    const file = join(VOLUME_DATA, relDir, `${locale}.md`)
-    const raw = readFileSync(file, "utf8")
+    const file = join(VOLUME_DATA,
+        relDir,
+        `${locale}.md`)
+    const raw = readFileSync(file,
+        "utf8")
 
     const parts = raw
         .split(SEP)
         .map((part) => part.trim())
 
-    const fields: Record<string, string> = {}
+    const fields: Record<string, string> = {
+    }
     for (let index = 0; index + 1 < parts.length; index += 2) {
-        const key = parts[index].replace(/^#\s*/, "").trim()
+        const key = parts[index].replace(/^#\s*/,
+            "").trim()
         if (key) {
             fields[key] = parts[index + 1]
         }
@@ -68,7 +75,8 @@ export const readVolumeDoc = (
 export const listVolumeDir = (
     relDir: string,
 ): Array<string> => {
-    const dir = join(VOLUME_DATA, relDir)
+    const dir = join(VOLUME_DATA,
+        relDir)
     if (!existsSync(dir)) {
         return []
     }
@@ -80,4 +88,5 @@ export const listVolumeDir = (
 /** Whether a `.volume/data` path exists (lets a harness skip when the mount is absent). */
 export const volumeExists = (
     relDir: string,
-): boolean => existsSync(join(VOLUME_DATA, relDir))
+): boolean => existsSync(join(VOLUME_DATA,
+    relDir))

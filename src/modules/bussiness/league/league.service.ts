@@ -88,7 +88,7 @@ export class LeagueService {
         // last-week finishing rank per member (snapshotted at the previous reset)
         // → the rank-movement caret. A flat read on the per-user league rows.
         const lastWeekRankRows = await this.entityManager.query(
-            `SELECT user_id, last_week_rank FROM user_leagues WHERE cohort_id = $1`,
+            "SELECT user_id, last_week_rank FROM user_leagues WHERE cohort_id = $1",
             [
                 cohort.id,
             ],

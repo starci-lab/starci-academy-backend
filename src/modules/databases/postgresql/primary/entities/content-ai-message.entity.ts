@@ -23,7 +23,8 @@ import {
 } from "./content-ai-session.entity"
 
 @Index(["session"])
-@Index(["enrollment", "content"])
+@Index(["enrollment",
+    "content"])
 @Entity("content_ai_messages")
 /**
  * One persisted content-AI chat turn, belonging to a

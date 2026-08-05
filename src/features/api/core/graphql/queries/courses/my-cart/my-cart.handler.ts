@@ -128,7 +128,8 @@ export class MyCartHandler
         if (staleItemIds.length > 0) {
             // self-heal: delete the stale row(s) now, don't wait for whichever
             // enroll-writer should have cleaned them up
-            await this.entityManager.delete(CartItemEntity, staleItemIds)
+            await this.entityManager.delete(CartItemEntity,
+                staleItemIds)
         }
         return items.filter((item) => !enrolledCourseIds.has(item.courseId))
     }

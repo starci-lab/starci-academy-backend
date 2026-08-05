@@ -52,7 +52,7 @@ export class FoundationCategorySuggestionsPayload {
 @ObjectType({
     description: "Response wrapper for the foundationCategorySuggestions query.",
 })
-    /** The matching suggestions, ordered by relevance then display index. */
+/** The matching suggestions, ordered by relevance then display index. */
 export class FoundationCategorySuggestionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<FoundationCategorySuggestionsPayload>

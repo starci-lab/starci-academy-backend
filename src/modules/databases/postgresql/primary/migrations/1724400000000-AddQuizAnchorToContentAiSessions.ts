@@ -46,7 +46,7 @@ export class AddQuizAnchorToContentAiSessions1724400000000 implements MigrationI
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */
     async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP INDEX IF EXISTS "idx_content_ai_sessions_origin_quiz_id";`)
+        await queryRunner.query("DROP INDEX IF EXISTS \"idx_content_ai_sessions_origin_quiz_id\";")
         await queryRunner.query(`
             ALTER TABLE "content_ai_sessions"
             DROP CONSTRAINT IF EXISTS "fk_origin_quiz_id_content_ai_sessions_flashcard_decks";

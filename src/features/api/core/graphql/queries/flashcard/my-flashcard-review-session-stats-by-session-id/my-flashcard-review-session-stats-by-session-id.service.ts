@@ -325,7 +325,8 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
         }
 
         return Array.from(forgotCountByTag.entries())
-            .map(([tag, forgotCount]) => ({
+            .map(([tag,
+                forgotCount]) => ({
                 tag,
                 forgotCount,
             }))
