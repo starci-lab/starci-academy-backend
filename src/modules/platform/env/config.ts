@@ -296,20 +296,6 @@ export const envConfig = () => ({
                 defaultValue: 1000,
             }),
         },
-        /**
-         * Standalone local-only ops "tools" service (the `apps/tools` app).
-         * Serves the Vite ops dashboard at `/dashboard` and exposes
-         * `/api/v1/tools/*` endpoints for managing cloud infra from a local
-         * machine (media->MinIO, Postgres snapshot/backup, S3 bucket snapshot).
-         * Hard-blocked (404) when `isProduction` is true.
-         */
-        tools: {
-            /** HTTP port the local ops console listens on. */
-            port: parseEnvInt({
-                key: "TOOLS_PORT",
-                defaultValue: 3003,
-            }),
-        },
         /** API service configuration. */
         api: {
             enable: parseEnvBoolean({
@@ -1603,36 +1589,6 @@ export const envConfig = () => ({
                 defaultValue: "",
             }),
         },
-    },
-    /**
-     * Local-only ops "tools" console configuration (the `apps/tools` app).
-     * These artifacts are written to the local filesystem so the operator can
-     * inspect/sync them by hand -- they never leave the machine unless a sync
-     * tool pushes them.
-     */
-    tools: {
-        /**
-         * Root directory where Postgres dumps and S3 bucket snapshots are
-         * written. Lives under the repo working dir by default and is
-         * git-ignored; override per machine with `TOOLS_SNAPSHOT_DIR`.
-         */
-        snapshotDir: parseEnvString({
-            key: "TOOLS_SNAPSHOT_DIR",
-            defaultValue: join(process.cwd(),
-                ".tools-snapshots"),
-        }),
-        /**
-         * Path to the local SQLite database that stores saved S3 targets and
-         * the artifact registry (so artifacts can be listed and re-synced
-         * without recomputing). Defaults under the snapshot root; override with
-         * `TOOLS_DB_PATH`.
-         */
-        dbPath: parseEnvString({
-            key: "TOOLS_DB_PATH",
-            defaultValue: join(process.cwd(),
-                ".tools-snapshots",
-                "tools.sqlite"),
-        }),
     },
     /** Computation configuration. */
     computation: {

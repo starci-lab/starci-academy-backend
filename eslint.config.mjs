@@ -97,14 +97,13 @@ export default defineConfig([
     {
         // The custom canon layer. Every rule starts at `warn` with its measured debt in the
         // trailing comment, and is flipped to `error` the moment that debt reaches 0 — the
-        // same burn-down playbook the front-end plugin follows. Scoped OFF
-        // `apps/tools/dashboard`: error-handling.md's own scope line is explicit —
-        // "how a SERVER-SIDE application represents a failure" — and that app is a plain
-        // Vite/React SPA with no NestJS, no `@modules/*`, no `AbstractException` in its
-        // dependency graph; `throw-abstract-exception`, `no-nest-logger` and
-        // `must-deep-module-import` are backend-shaped rules that do not apply to it.
+        // same burn-down playbook the front-end plugin follows.
+        //
+        // This block used to carve out `apps/tools/dashboard/**`, a Vite/React SPA that the
+        // backend-shaped rules did not fit. That app is gone, and with it the only exception
+        // to "every remaining app is a NestJS app". Do not re-add a front-end carve-out here
+        // without the front end actually returning.
         files: ["src/**/*.ts", "apps/**/*.ts"],
-        ignores: ["apps/tools/dashboard/**"],
         plugins: {
             "starci-be": starciBe,
         },

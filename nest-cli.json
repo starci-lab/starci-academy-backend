@@ -43,26 +43,6 @@
         "webpackConfigPath": "apps/playground-rag-agent/webpack.config.cjs"
       }
     },
-    "backup": {
-      "type": "application",
-      "root": "apps/backup",
-      "entryFile": "main",
-      "sourceRoot": "apps/backup/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/backup/tsconfig.app.json"
-      }
-    },
-    "cli": {
-      "type": "application",
-      "root": "apps/cli",
-      "entryFile": "main",
-      "sourceRoot": "apps/cli/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/cli/tsconfig.app.json",
-        "webpack": true,
-        "webpackConfigPath": "apps/cli/webpack.config.cjs"
-      }
-    },
     "core": {
       "type": "application",
       "root": "apps/core",
@@ -85,15 +65,15 @@
         "webpackConfigPath": "apps/mock/webpack.config.cjs"
       }
     },
-    "tools": {
+    "cli": {
       "type": "application",
-      "root": "apps/tools",
+      "root": "apps/cli",
       "entryFile": "main",
-      "sourceRoot": "apps/tools/src",
+      "sourceRoot": "apps/cli/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/tools/tsconfig.app.json",
+        "tsConfigPath": "apps/cli/tsconfig.app.json",
         "webpack": true,
-        "webpackConfigPath": "apps/tools/webpack.config.cjs"
+        "webpackConfigPath": "apps/cli/webpack.config.cjs"
       }
     }
   }

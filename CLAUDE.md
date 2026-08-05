@@ -85,9 +85,8 @@ staged `*.ts` only. Untouched history never blocks you; the file you touch must 
 the count in its trailing comment, gets burned down, and is flipped to `error` only at zero.
 Shipping a rule at `error` while debt exists blocks every commit that touches an offending file.
 
-**The sanctioned exits**, each stated where it applies: `apps/tools/dashboard/**` is a Vite/React
-SPA and is out of scope for the back-end-shaped rules; the `*spec.ts` family, `apps/*/test/**` and
+**The sanctioned exits**, each stated where it applies: the `*spec.ts` family, `src/tests/**` and
 `src/modules/tests/**` may use `as unknown as` (canon §6 names spec mocks) and may read
-`process.env` to stand up Testcontainers; `apps/*/test/**` may `throw new Error`, which there is a
+`process.env` to stand up Testcontainers; those same test lanes may `throw new Error`, which there is a
 test-runner assertion rather than a domain failure. Vietnamese a literal matches on or emits at
 runtime stays, marked `vn-ok: <reason>` on the line.

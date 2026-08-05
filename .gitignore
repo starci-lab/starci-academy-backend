@@ -5,8 +5,6 @@
 
 # local-only ops tools artifacts (pg dumps + s3 bucket snapshots)
 .tools-snapshots/
-# built vite ops dashboard (apps/tools)
-apps/tools/dashboard/dist/
 
 # Logs
 logs
