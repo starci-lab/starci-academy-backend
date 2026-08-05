@@ -33,6 +33,7 @@ import {
 /** Hard cap on question length — bounds prompt size on a public, unauthenticated endpoint. */
 const MAX_QUESTION_CHARS = 500
 
+@Resolver()
 /**
  * PUBLIC (no login) mutation — retrieve grounded context for a question and
  * prepare it for streaming. Does NOT invoke the model itself: it stashes the
@@ -41,7 +42,6 @@ const MAX_QUESTION_CHARS = 500
  * namespace, which does the (local, $0) model call. Strict throttle — the
  * retrieval step is real Qdrant + embedding work on an anonymous endpoint.
  */
-@Resolver()
 export class AskRagPlaygroundResolver {
     constructor(
         private readonly publicRagPlaygroundService: PublicRagPlaygroundService,

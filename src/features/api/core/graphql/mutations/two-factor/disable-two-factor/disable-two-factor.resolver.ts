@@ -41,6 +41,7 @@ import {
     DisableTwoFactorResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Disable two-factor (TOTP) for the current user, clearing the stored secret.
  *
@@ -48,7 +49,6 @@ import {
  * before turning it off. When it is already disabled, the call is idempotent and
  * just clears any leftover pending secret.
  */
-@Resolver()
 export class DisableTwoFactorResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

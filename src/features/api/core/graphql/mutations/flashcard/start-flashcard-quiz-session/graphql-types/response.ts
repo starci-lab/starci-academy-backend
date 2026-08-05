@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The newly-persisted resumable flashcard quick-quiz session. */
 @ObjectType({
     description: "A newly-persisted resumable flashcard quick-quiz session.",
 })
+/** The newly-persisted resumable flashcard quick-quiz session. */
 export class StartFlashcardQuizSessionData {
     @Field(
         () => ID,
@@ -21,12 +21,6 @@ export class StartFlashcardQuizSessionData {
     )
         sessionId: string
 
-    /**
-     * ISO timestamp of when this run stops being resumable (server
-     * `createdAt + FLASHCARD_QUIZ_SESSION_DURATION_MS`) — the FE derives its
-     * countdown from THIS, never a local clock start. Mirrors
-     * `StartMockInterviewSessionData.deadlineAt`.
-     */
     @Field(
         () => String,
         {
@@ -39,6 +33,12 @@ export class StartFlashcardQuizSessionData {
 @ObjectType({
     description: "Response wrapper for the startFlashcardQuizSession mutation.",
 })
+    /**
+     * ISO timestamp of when this run stops being resumable (server
+     * `createdAt + FLASHCARD_QUIZ_SESSION_DURATION_MS`) — the FE derives its
+     * countdown from THIS, never a local clock start. Mirrors
+     * `StartMockInterviewSessionData.deadlineAt`.
+     */
 export class StartFlashcardQuizSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<StartFlashcardQuizSessionData>

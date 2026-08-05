@@ -16,6 +16,7 @@ import {
 } from "../../../../../types"
 
 @Injectable()
+/** Forwards sign-in init to the command bus so the resolver stays a thin leaf. */
 export class SignInInitService {
     constructor(
         private readonly commandBus: CommandBus,

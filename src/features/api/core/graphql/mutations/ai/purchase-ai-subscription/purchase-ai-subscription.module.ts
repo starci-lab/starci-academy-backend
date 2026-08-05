@@ -30,4 +30,8 @@ import {
         PurchaseAiSubscriptionService,
     ],
 })
+/**
+ * Registers resolver + bus service + checkout handler as one Nest unit so the
+ * AI group cannot import a half-wired purchase leaf.
+ */
 export class PurchaseAiSubscriptionSingleMutationModule extends ConfigurableModuleClass {}

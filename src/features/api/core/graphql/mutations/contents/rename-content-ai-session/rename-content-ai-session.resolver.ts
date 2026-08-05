@@ -35,6 +35,7 @@ import type {
 } from "./graphql-types"
 
 @Resolver()
+/** GraphQL entry that lets the user replace a generated sidebar title. */
 export class RenameContentAiSessionResolver {
     constructor(
         private readonly contentAiService: ContentAiService,

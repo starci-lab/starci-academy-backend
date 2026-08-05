@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request to update a community post comment's body. */
 @InputType({
     description: "Request to update a community post comment's body.",
 })
+/** Request to update a community post comment's body. */
 export class UpdateCommunityPostCommentRequest {
     /** Id of the comment to edit. */
     @Field(

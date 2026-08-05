@@ -4,14 +4,14 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Archive or unarchive a content-AI conversation.",
+})
 /**
  * Request for {@link SetContentAiSessionArchivedResponse}: archive or unarchive a
  * conversation. Archived conversations drop from the default history list but stay
  * searchable.
  */
-@InputType({
-    description: "Archive or unarchive a content-AI conversation.",
-})
 export class SetContentAiSessionArchivedRequest {
     @Field(
         () => ID,

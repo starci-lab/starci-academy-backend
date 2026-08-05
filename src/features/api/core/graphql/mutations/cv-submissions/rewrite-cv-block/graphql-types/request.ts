@@ -8,6 +8,9 @@ import {
     ModelProvider,
 } from "@modules/databases"
 
+@InputType({
+    description: "Rewrite / improve a single CV block (optionally grounded in a real capstone).",
+})
 /**
  * Rewrite / improve a single CV block's item text. Optionally grounds the
  * rewrite in a real StarCi capstone (`capstoneAttemptId`) so the AI describes
@@ -15,9 +18,6 @@ import {
  * content plus an optional freeform `instruction`. Nothing is persisted — the
  * FE swaps the returned block into the editor.
  */
-@InputType({
-    description: "Rewrite / improve a single CV block (optionally grounded in a real capstone).",
-})
 export class RewriteCvBlockRequest {
     @Field(
         () => GraphQLJSON,

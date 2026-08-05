@@ -13,4 +13,8 @@ import {
         SetFollowResolver,
     ],
 })
+/**
+ * Registers setFollow (follow / unfollow toggle) so social graph writes
+ * stay out of the profile aggregator.
+ */
 export class SetFollowSingleMutationModule extends ConfigurableModuleClass {}

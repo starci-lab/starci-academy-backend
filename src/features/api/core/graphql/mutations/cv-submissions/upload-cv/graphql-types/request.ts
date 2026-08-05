@@ -8,6 +8,9 @@ import {
     ModelProvider,
 } from "@modules/databases"
 
+@InputType({
+    description: "Register an uploaded CV into the unified table + enqueue scoring.",
+})
 /**
  * Request for {@link UploadCvResponse} (WF-07): register a CV the user UPLOADED
  * (already PUT to storage via the presign flow) into the unified `cv_generations`
@@ -18,9 +21,6 @@ import {
  * `cdnKey`), PUTs the file to that `url`, then calls THIS mutation with the same
  * `cdnKey` so the server can find + score the uploaded file.
  */
-@InputType({
-    description: "Register an uploaded CV into the unified table + enqueue scoring.",
-})
 export class UploadCvRequest {
     /** The object key of the already-uploaded file (from the presign response). */
     @Field(

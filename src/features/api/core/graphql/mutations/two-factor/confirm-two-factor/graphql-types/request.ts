@@ -7,10 +7,10 @@ import {
     MinLength,
 } from "class-validator"
 
-/** Request to confirm two-factor setup with a code from the authenticator. */
 @InputType({
     description: "Request to confirm two-factor (TOTP) setup.",
 })
+/** Request to confirm two-factor setup with a code from the authenticator. */
 export class ConfirmTwoFactorRequest {
     @Field(
         () => String,

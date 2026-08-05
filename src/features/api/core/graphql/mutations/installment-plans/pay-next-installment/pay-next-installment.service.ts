@@ -15,10 +15,10 @@ import {
     PayNextInstallmentResponseData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin service that dispatches "pay next installment cycle" to its command handler.
  */
-@Injectable()
 export class PayNextInstallmentService {
     constructor(
         private readonly commandBus: CommandBus,

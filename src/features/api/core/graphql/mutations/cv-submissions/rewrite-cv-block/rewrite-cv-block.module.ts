@@ -30,4 +30,5 @@ import {
         RewriteCvBlockService,
     ],
 })
+/** Isolated Nest registration for single-block rewrite without wiring persist/export into the same graph. */
 export class RewriteCvBlockSingleMutationModule extends ConfigurableModuleClass {}

@@ -11,9 +11,6 @@ import {
     MarkAllNotificationsAsReadSingleMutationModule,
 } from "./mark-all-notifications-as-read"
 
-/**
- * Per-user notifications mutation group (mark one / mark all as read).
- */
 @Module({
     imports: [
         MarkNotificationAsReadSingleMutationModule.register({
@@ -24,4 +21,7 @@ import {
         }),
     ],
 })
+/**
+ * Per-user notifications mutation group (mark one / mark all as read).
+ */
 export class NotificationsMutationsModule extends ConfigurableModuleClass {}

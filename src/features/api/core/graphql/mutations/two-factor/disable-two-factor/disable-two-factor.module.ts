@@ -13,4 +13,8 @@ import {
         DisableTwoFactorResolver,
     ],
 })
+/**
+ * Registers 2FA disable as its own leaf so teardown cannot share setup /
+ * confirm resolvers (those mint or prove secrets; this one clears them).
+ */
 export class DisableTwoFactorSingleMutationModule extends ConfigurableModuleClass {}

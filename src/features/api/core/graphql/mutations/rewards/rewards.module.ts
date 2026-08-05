@@ -14,11 +14,6 @@ import {
     CancelRedemptionSingleMutationModule,
 } from "./cancel-redemption"
 
-/**
- * Rewards mutation group — redeem a reward from the Coin shop, plus the
- * ops-only terminal-state transitions (fulfil a shipped physical redemption,
- * cancel/refund a redemption).
- */
 @Module({
     imports: [
         RedeemRewardSingleMutationModule.register({
@@ -32,4 +27,9 @@ import {
         }),
     ],
 })
+/**
+ * Rewards mutation group — redeem a reward from the Coin shop, plus the
+ * ops-only terminal-state transitions (fulfil a shipped physical redemption,
+ * cancel/refund a redemption).
+ */
 export class RewardsMutationsModule extends ConfigurableModuleClass {}

@@ -28,10 +28,10 @@ import type {
     CreateCommentRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that creates a comment and returns its client-facing node.
  */
-@Injectable()
 export class CreateCommentService {
     constructor(
         private readonly commentService: CommentService,

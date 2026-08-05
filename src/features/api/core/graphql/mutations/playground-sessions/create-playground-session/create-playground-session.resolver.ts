@@ -33,11 +33,11 @@ import {
     CreatePlaygroundSessionService,
 } from "./create-playground-session.service"
 
+@Resolver()
 /**
  * GraphQL entry: creates a playground session (pairing code) for the
  * authenticated, entitled (actively enrolled) learner.
  */
-@Resolver()
 export class CreatePlaygroundSessionResolver {
     constructor(
         private readonly createPlaygroundSessionService: CreatePlaygroundSessionService,

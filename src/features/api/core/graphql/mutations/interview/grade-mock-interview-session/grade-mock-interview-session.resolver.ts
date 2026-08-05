@@ -36,6 +36,11 @@ import {
 } from "./grade-mock-interview-session.service"
 
 @Resolver()
+/**
+ * GraphQL entry for grading a finished mock interview. Enrolment is required
+ * because RAG grounding is course-scoped; unenrolled callers must not see
+ * course-private model answers.
+ */
 export class GradeMockInterviewSessionResolver {
     constructor(
         private readonly gradeMockInterviewSessionService: GradeMockInterviewSessionService,

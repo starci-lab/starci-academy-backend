@@ -30,4 +30,8 @@ import {
         PurchaseMembershipService,
     ],
 })
+/**
+ * Registers resolver + bus service + checkout handler as one Nest unit so
+ * the membership group cannot import a half-wired purchase leaf.
+ */
 export class PurchaseMembershipSingleMutationModule extends ConfigurableModuleClass {}

@@ -17,7 +17,6 @@ import {
     ConfigurableModuleClass,
 } from "./sync-flashcard-quiz-session-progress.module-definition"
 
-/** Feature-module boundary for the `syncFlashcardQuizSessionProgress` mutation — wires its resolver + service + CQRS handler. */
 @Module({
     imports: [
         CqrsModule,
@@ -31,4 +30,5 @@ import {
         SyncFlashcardQuizSessionProgressService,
     ],
 })
+/** Feature-module boundary for the `syncFlashcardQuizSessionProgress` mutation — wires its resolver + service + CQRS handler. */
 export class SyncFlashcardQuizSessionProgressSingleMutationModule extends ConfigurableModuleClass {}

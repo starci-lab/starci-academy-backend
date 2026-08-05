@@ -32,6 +32,10 @@ import type {
 
 @CommandHandler(ForgotPasswordInitCommand)
 @Injectable()
+/**
+ * Starts password reset by parking the new password on an OTP challenge and
+ * mailing the code — the password is not applied until verify succeeds.
+ */
 export class ForgotPasswordInitHandler
     extends ICQRSHandler<ForgotPasswordInitCommand, SignInInitData>
     implements ICommandHandler<ForgotPasswordInitCommand, SignInInitData>

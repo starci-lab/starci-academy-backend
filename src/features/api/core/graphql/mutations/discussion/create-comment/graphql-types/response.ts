@@ -10,10 +10,10 @@ import {
     CommentNodeObject,
 } from "../../../../shared/discussion"
 
-/** Response wrapper for the create-comment mutation. */
 @ObjectType({
     description: "Response wrapper for the create-comment mutation.",
 })
+/** Response wrapper for the create-comment mutation. */
 export class CreateCommentResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CommentNodeObject>

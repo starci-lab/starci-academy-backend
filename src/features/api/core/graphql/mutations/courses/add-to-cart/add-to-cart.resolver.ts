@@ -33,10 +33,10 @@ import {
     AddToCartService,
 } from "./add-to-cart.service"
 
+@Resolver()
 /**
  * GraphQL entry for adding a course to the current user's shopping cart.
  */
-@Resolver()
 export class AddToCartResolver {
     constructor(
         private readonly addToCartService: AddToCartService,

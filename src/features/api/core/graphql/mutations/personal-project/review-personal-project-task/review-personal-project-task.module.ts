@@ -21,4 +21,8 @@ import {
         ReviewPersonalProjectTaskHandler,
     ],
 })
+/**
+ * Registers per-task review enqueue as one Nest unit so the personal-project
+ * group cannot import a handler without its enrollment guards.
+ */
 export class ReviewPersonalProjectTaskSingleMutationModule extends ConfigurableModuleClass {}

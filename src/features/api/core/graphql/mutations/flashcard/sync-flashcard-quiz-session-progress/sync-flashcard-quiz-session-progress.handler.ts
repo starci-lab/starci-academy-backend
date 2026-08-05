@@ -26,14 +26,14 @@ import {
     SyncFlashcardQuizSessionProgressData,
 } from "./graphql-types"
 
+@CommandHandler(SyncFlashcardQuizSessionProgressCommand)
+@Injectable()
 /**
  * Applies one `syncFlashcardQuizSessionProgress` sync — small enough (a
  * single ownership-scoped lookup + guard + update) that, like
  * `SyncMockInterviewSessionTurnsHandler`, it does not warrant a separate
  * domain service; the logic lives directly in the handler.
  */
-@CommandHandler(SyncFlashcardQuizSessionProgressCommand)
-@Injectable()
 export class SyncFlashcardQuizSessionProgressHandler
     extends ICQRSHandler<SyncFlashcardQuizSessionProgressCommand, SyncFlashcardQuizSessionProgressData>
     implements ICommandHandler<SyncFlashcardQuizSessionProgressCommand, SyncFlashcardQuizSessionProgressData> {

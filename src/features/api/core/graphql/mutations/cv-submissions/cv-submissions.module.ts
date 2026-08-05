@@ -81,4 +81,5 @@ import {
         }),
     ],
 })
+/** Composition root for CV generate, upload, edit, and export writes so the schema picks them up from one import. */
 export class CvSubmissionsMutationsModule extends ConfigurableModuleClass {}

@@ -38,6 +38,8 @@ import type {
     CreatePlaygroundSessionResponseData,
 } from "./graphql-types"
 
+@CommandHandler(CreatePlaygroundSessionCommand)
+@Injectable()
 /**
  * Creates a fresh {@link PlaygroundSessionEntity} for the learner: gates on
  * having at least one active enrollment (reuses
@@ -46,8 +48,6 @@ import type {
  * then mints a short pairing code the CLI agent uses to join over the
  * `/playground_byom` Socket.IO namespace.
  */
-@CommandHandler(CreatePlaygroundSessionCommand)
-@Injectable()
 export class CreatePlaygroundSessionHandler
     extends ICQRSHandler<CreatePlaygroundSessionCommand, CreatePlaygroundSessionResponseData>
     implements ICommandHandler<CreatePlaygroundSessionCommand, CreatePlaygroundSessionResponseData>

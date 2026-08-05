@@ -17,10 +17,10 @@ import type {
     DeleteCommunityPostRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that soft-deletes a community post (author-only).
  */
-@Injectable()
 export class DeleteCommunityPostService {
     constructor(
         private readonly communityPostService: CommunityPostService,

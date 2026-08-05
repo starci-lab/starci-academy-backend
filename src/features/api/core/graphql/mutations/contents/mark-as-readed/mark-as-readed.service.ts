@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver never imports the handler or persistence. */
 export class MarkAsReadedService {
     constructor(
         private readonly commandBus: CommandBus,

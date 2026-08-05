@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Forwards grading to the command bus so the resolver stays a thin GraphQL leaf. */
 export class GradeMockInterviewSessionService {
     constructor(
         private readonly commandBus: CommandBus,

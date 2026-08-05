@@ -9,6 +9,9 @@ import {
     Min,
 } from "class-validator"
 
+@InputType({
+    description: "Request to record a finished flashcard review session.",
+})
 /**
  * Request to record a finished flashcard review ("Học thẻ") session.
  *
@@ -19,9 +22,6 @@ import {
  * CLIENT-REPORTED bookkeeping snapshot to persist onto the row for
  * history/stats display — never a server grant.
  */
-@InputType({
-    description: "Request to record a finished flashcard review session.",
-})
 export class CompleteFlashcardReviewSessionRequest {
     @Field(
         () => ID,

@@ -9,13 +9,13 @@ import {
     SendChatMessageService,
 } from "./send-chat-message"
 
-/**
- * Aggregates the write-side (mutation) resolvers of the community chat feature.
- */
 @Module({
     providers: [
         SendChatMessageResolver,
         SendChatMessageService,
     ],
 })
+/**
+ * Aggregates the write-side (mutation) resolvers of the community chat feature.
+ */
 export class ChatMutationsModule extends ConfigurableModuleClass {}

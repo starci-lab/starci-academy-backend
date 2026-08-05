@@ -29,6 +29,10 @@ import {
 } from "./sign-in-resend-otp.service"
 
 @Resolver()
+/**
+ * GraphQL entry for resending a sign-in OTP. Strict throttle only — captcha
+ * already gated init, and resend requires a live challenge id.
+ */
 export class SignInResendOtpResolver {
     constructor(
         private readonly signInResendOtpService: SignInResendOtpService,

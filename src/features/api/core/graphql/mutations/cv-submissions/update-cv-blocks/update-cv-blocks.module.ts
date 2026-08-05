@@ -30,4 +30,5 @@ import {
         UpdateCvBlocksService,
     ],
 })
+/** Isolated Nest registration for update-cv-blocks without wiring create/delete into the same graph. */
 export class UpdateCvBlocksSingleMutationModule extends ConfigurableModuleClass {}

@@ -32,6 +32,7 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 @Resolver()
+/** GraphQL entry that authenticates before mutating favourite state. */
 export class ToggleFavouriteResolver {
     constructor(
         private readonly toggleFavouriteService: ToggleFavouriteService,

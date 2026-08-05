@@ -33,6 +33,7 @@ import {
 } from "./generate-cv.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before enqueueing CV generation. */
 export class GenerateCvResolver {
     constructor(
         private readonly generateCvService: GenerateCvService,

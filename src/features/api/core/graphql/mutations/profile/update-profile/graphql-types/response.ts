@@ -10,10 +10,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Response for updating the current user's profile (returns the fresh user). */
 @ObjectType({
     description: "Response for updating the current user's profile.",
 })
+/** Response for updating the current user's profile (returns the fresh user). */
 export class UpdateProfileResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserEntity>

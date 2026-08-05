@@ -18,11 +18,11 @@ import type {
     SendChatMessageRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that sends a chat message and returns its client-facing node.
  * Access (member-only + DM ownership) is enforced in the domain service.
  */
-@Injectable()
 export class SendChatMessageService {
     constructor(
         private readonly chatService: ChatService,

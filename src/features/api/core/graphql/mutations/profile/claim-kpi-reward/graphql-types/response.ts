@@ -8,13 +8,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Result of claiming one weekly KPI's coin reward.",
+})
 /**
  * Payload of a successful KPI-reward claim: the coin amount just granted and
  * the user's refreshed Coin balance.
  */
-@ObjectType({
-    description: "Result of claiming one weekly KPI's coin reward.",
-})
 export class ClaimKpiRewardData {
     @Field(
         () => Int,
@@ -33,12 +33,12 @@ export class ClaimKpiRewardData {
         balance: number
 }
 
-/**
- * Response wrapper for the claimKpiReward mutation.
- */
 @ObjectType({
     description: "Response wrapper for the claimKpiReward mutation.",
 })
+/**
+ * Response wrapper for the claimKpiReward mutation.
+ */
 export class ClaimKpiRewardResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ClaimKpiRewardData> {

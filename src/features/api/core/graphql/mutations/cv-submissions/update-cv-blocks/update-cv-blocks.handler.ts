@@ -26,12 +26,12 @@ import {
     CvBlocksDocument,
 } from "./graphql-types"
 
+@CommandHandler(UpdateCvBlocksCommand)
+@Injectable()
 /**
  * Handler for `updateCvBlocks` — partial autosave of a CV document. Ownership
  * is enforced (the row must belong to the caller); missing/foreign rows 404.
  */
-@CommandHandler(UpdateCvBlocksCommand)
-@Injectable()
 export class UpdateCvBlocksHandler
     extends ICQRSHandler<UpdateCvBlocksCommand, CvBlocksDocument>
     implements ICommandHandler<UpdateCvBlocksCommand, CvBlocksDocument> {

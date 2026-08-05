@@ -10,12 +10,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * GraphQL envelope for the connectGithubAccount mutation.
- */
 @ObjectType({
     description: "Response wrapper for the connectGithubAccount mutation.",
 })
+/**
+ * GraphQL envelope for the connectGithubAccount mutation.
+ */
 export class ConnectGithubAccountResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserEntity>

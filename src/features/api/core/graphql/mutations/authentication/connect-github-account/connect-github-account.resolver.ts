@@ -27,10 +27,10 @@ import {
     ConnectGithubAccountService,
 } from "./connect-github-account.service"
 
+@Resolver()
 /**
  * GraphQL mutation for connecting GitHub account to authenticated user.
  */
-@Resolver()
 export class ConnectGithubAccountResolver {
     constructor(
         private readonly connectGithubAccountService: ConnectGithubAccountService,

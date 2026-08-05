@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Result of creating a content-AI conversation. */
 @ObjectType({
     description: "Result of creating a content-AI conversation.",
 })
+/** Result of creating a content-AI conversation. */
 export class CreateContentAiSessionData {
     @Field(
         () => ID,
@@ -26,6 +26,7 @@ export class CreateContentAiSessionData {
 @ObjectType({
     description: "Response wrapper for the createContentAiSession mutation.",
 })
+/** GraphQL envelope for a new content-AI thread; `data.id` is null when no enrollment resolves so the client can prompt trial/enrol instead of crashing. */
 export class CreateContentAiSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CreateContentAiSessionData>

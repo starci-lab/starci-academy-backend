@@ -15,6 +15,9 @@ import {
  *  client cannot persist an unbounded array. */
 const MAX_CARD_IDS = 200
 
+@InputType({
+    description: "Start a resumable cross-deck due-review batch session for one course + drawn card set.",
+})
 /**
  * Request to start (or resume-replace) ONE resumable CROSS-DECK due-review
  * batch session for a course, mirroring `startFlashcardReviewSession`'s
@@ -24,9 +27,6 @@ const MAX_CARD_IDS = 200
  * becomes resumable and so `completeFlashcardDueReviewSession` has a real
  * server-issued `sessionId` to anchor its status flip to.
  */
-@InputType({
-    description: "Start a resumable cross-deck due-review batch session for one course + drawn card set.",
-})
 export class StartFlashcardDueReviewSessionRequest {
     @Field(
         () => ID,

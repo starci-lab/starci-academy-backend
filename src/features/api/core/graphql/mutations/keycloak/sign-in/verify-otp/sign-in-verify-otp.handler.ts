@@ -46,6 +46,10 @@ import type {
 
 @CommandHandler(SignInVerifyOtpCommand)
 @Injectable()
+/**
+ * Consumes the OTP challenge and returns the parked Keycloak tokens. Cookie
+ * attachment stays in the resolver because CQRS must not touch HTTP.
+ */
 export class SignInVerifyOtpHandler
     extends ICQRSHandler<SignInVerifyOtpCommand, SignInVerifyOtpCommandResult>
     implements ICommandHandler<SignInVerifyOtpCommand, SignInVerifyOtpCommandResult>

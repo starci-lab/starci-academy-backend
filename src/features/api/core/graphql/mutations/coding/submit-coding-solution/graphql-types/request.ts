@@ -10,10 +10,10 @@ import {
     CodingTelemetryInput,
 } from "./telemetry.input"
 
-/** Request for submitting a coding solution. */
 @InputType({
     description: "Submit a solution to a coding problem for judging.",
 })
+/** Request for submitting a coding solution. */
 export class SubmitCodingSolutionRequest {
     /** Identifies which problem this submission is judged against. */
     @Field(

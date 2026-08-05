@@ -21,4 +21,5 @@ import {
         SignUpResendOtpHandler,
     ],
 })
+/** Wires sign-up OTP resend as its own mutation so throttle can be stricter than init. */
 export class SignUpResendOtpSingleMutationModule extends ConfigurableModuleClass {}

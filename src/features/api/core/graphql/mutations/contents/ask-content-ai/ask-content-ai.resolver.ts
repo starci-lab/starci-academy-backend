@@ -33,6 +33,7 @@ import {
 } from "./ask-content-ai.service"
 
 @Resolver()
+/** GraphQL boundary that throttles and authenticates before charging the unified AI credit pool. */
 export class AskContentAiResolver {
     constructor(
         private readonly askContentAiService: AskContentAiService,

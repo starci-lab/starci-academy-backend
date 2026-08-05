@@ -30,4 +30,5 @@ import {
         CoursesCheckoutHandler,
     ],
 })
+/** Isolated Nest registration for multi-course cart checkout as one payment. */
 export class CoursesCheckoutSingleMutationModule extends ConfigurableModuleClass {}

@@ -28,6 +28,7 @@ import {
     FulfillRedemptionResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Ops mutation: mark a `pending` physical reward redemption `fulfilled` once
  * it has shipped. Admin-only — gated behind the `x-admin-api-key` header
@@ -35,7 +36,6 @@ import {
  * NOT the learner auth guard, since this mutates another user's redemption.
  * Delegates the status transition + guard to {@link RewardsService.fulfillRedemption}.
  */
-@Resolver()
 export class FulfillRedemptionResolver {
     constructor(
         private readonly rewardsService: RewardsService,

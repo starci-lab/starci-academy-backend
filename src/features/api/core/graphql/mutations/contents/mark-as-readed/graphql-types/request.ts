@@ -7,6 +7,7 @@ import {
 @InputType({
     description: "Request for marking a content as read or unread.",
 })
+/** GraphQL input; `silent` exists so auto-mark-on-scroll updates progress without spending the one-time XP/feed reward. */
 export class MarkAsReadedRequest {
     @Field(
         () => ID,

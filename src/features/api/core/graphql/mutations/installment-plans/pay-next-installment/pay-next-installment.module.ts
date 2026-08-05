@@ -30,4 +30,8 @@ import {
         PayNextInstallmentService,
     ],
 })
+/**
+ * Registers resolver + service + handler for the next-installment checkout
+ * so a half-wired payment leaf cannot be imported from the plans group.
+ */
 export class PayNextInstallmentSingleMutationModule extends ConfigurableModuleClass {}

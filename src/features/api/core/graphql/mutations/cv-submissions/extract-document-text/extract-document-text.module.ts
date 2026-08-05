@@ -30,4 +30,5 @@ import {
         ExtractDocumentTextService,
     ],
 })
+/** Isolated Nest registration for document-text extraction without wiring sibling CV mutations. */
 export class ExtractDocumentTextSingleMutationModule extends ConfigurableModuleClass {}

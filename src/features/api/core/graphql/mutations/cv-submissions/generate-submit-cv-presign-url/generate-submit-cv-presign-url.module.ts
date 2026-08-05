@@ -22,4 +22,5 @@ import {
         GenerateSubmitCvPresignUrlHandler,
     ],
 })
+/** Isolated Nest registration for the CV upload presign without wiring uploadCv into the same graph. */
 export class GenerateSubmitCvPresignUrlSingleMutationModule extends ConfigurableModuleClass {}

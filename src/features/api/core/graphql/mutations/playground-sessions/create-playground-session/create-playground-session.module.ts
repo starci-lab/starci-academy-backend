@@ -21,4 +21,8 @@ import {
         CreatePlaygroundSessionHandler,
     ],
 })
+/**
+ * Registers createPlaygroundSession as one Nest unit so pairing-code mint
+ * cannot be imported without its session snapshot handler.
+ */
 export class CreatePlaygroundSessionSingleMutationModule extends ConfigurableModuleClass {}

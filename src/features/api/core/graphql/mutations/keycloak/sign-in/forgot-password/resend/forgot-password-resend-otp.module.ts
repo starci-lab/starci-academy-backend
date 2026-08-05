@@ -21,4 +21,5 @@ import {
         ForgotPasswordResendOtpHandler,
     ],
 })
+/** Wires reset-OTP resend as its own mutation so throttle can be stricter than init. */
 export class ForgotPasswordResendOtpSingleMutationModule extends ConfigurableModuleClass {}

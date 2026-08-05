@@ -13,4 +13,8 @@ import {
         IndexRagPlaygroundResolver,
     ],
 })
+/**
+ * Registers RAG (re)index as its own Nest unit so corpus rebuild stays off
+ * the ask path.
+ */
 export class IndexRagPlaygroundSingleMutationModule extends ConfigurableModuleClass {}

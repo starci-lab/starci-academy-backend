@@ -21,4 +21,5 @@ import {
         ForgotPasswordVerifyOtpHandler,
     ],
 })
+/** Wires reset-OTP verify so password apply + login stay in one mutation folder. */
 export class ForgotPasswordVerifyOtpSingleMutationModule extends ConfigurableModuleClass {}

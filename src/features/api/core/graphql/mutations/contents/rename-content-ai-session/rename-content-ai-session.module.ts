@@ -13,4 +13,5 @@ import {
         RenameContentAiSessionResolver,
     ],
 })
+/** Isolated Nest registration for renaming a conversation without wiring sibling session mutations. */
 export class RenameContentAiSessionSingleMutationModule extends ConfigurableModuleClass { }

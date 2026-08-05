@@ -33,6 +33,7 @@ import {
 } from "./rewrite-cv-block.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before calling the rewrite model. */
 export class RewriteCvBlockResolver {
     constructor(
         private readonly rewriteCvBlockService: RewriteCvBlockService,

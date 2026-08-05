@@ -21,4 +21,8 @@ import {
         SyncSubmissionHandler,
     ],
 })
+/**
+ * Registers the draft-save leaf separately from enqueue-grading so the two
+ * writes cannot be collapsed into one resolver that always spends quota.
+ */
 export class SyncSubmissionSingleMutationModule extends ConfigurableModuleClass {}

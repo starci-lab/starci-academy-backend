@@ -21,5 +21,6 @@ import {
         ExchangeCodeForTokenHandler,
     ],
 })
+/** Wires OIDC code-exchange so social callback can mint tokens without the rest of auth. */
 export class ExchangeCodeForTokenSingleMutationModule extends ConfigurableModuleClass {}
 

@@ -17,10 +17,10 @@ import type {
     ReactToCommentRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that sets/changes/removes the current user's reaction on a comment.
  */
-@Injectable()
 export class ReactToCommentService {
     constructor(
         private readonly reactionService: ReactionService,

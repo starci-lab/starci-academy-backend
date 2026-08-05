@@ -4,13 +4,13 @@ import {
     Int,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Client behavioural telemetry for anti-cheat scoring (all fields optional).",
+})
 /**
  * Optional client-measured behavioural telemetry sent with a coding
  * submission, used server-side to estimate AI/paste-cheat likelihood.
  */
-@InputType({
-    description: "Client behavioural telemetry for anti-cheat scoring (all fields optional).",
-})
 export class CodingTelemetryInput {
     /** Number of paste events into the editor during the attempt. */
     @Field(

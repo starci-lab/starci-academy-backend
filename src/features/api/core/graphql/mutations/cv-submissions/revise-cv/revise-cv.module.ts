@@ -49,4 +49,5 @@ import {
         ReviseCvService,
     ],
 })
+/** Isolated Nest registration for revise-cv without wiring generate/upload into the same graph. */
 export class ReviseCvSingleMutationModule extends ConfigurableModuleClass {}

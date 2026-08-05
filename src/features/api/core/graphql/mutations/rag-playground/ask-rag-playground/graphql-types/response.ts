@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One retrieved chunk, for citation display. */
 @ObjectType({
     description: "One retrieved code chunk backing the answer (citation).",
 })
+/** One retrieved chunk, for citation display. */
 export class RagPlaygroundSourceData {
     @Field(
         () => String,
@@ -31,10 +31,10 @@ export class RagPlaygroundSourceData {
         snippet: string
 }
 
-/** Result of preparing a grounded ask — the run id to stream + its sources. */
 @ObjectType({
     description: "Result of preparing a grounded RAG Playground ask.",
 })
+/** Result of preparing a grounded ask — the run id to stream + its sources. */
 export class AskRagPlaygroundData {
     @Field(
         () => ID,
@@ -53,10 +53,10 @@ export class AskRagPlaygroundData {
         sources: Array<RagPlaygroundSourceData>
 }
 
-/** Response wrapper for the askRagPlayground mutation. */
 @ObjectType({
     description: "Response wrapper for the askRagPlayground mutation.",
 })
+/** Response wrapper for the askRagPlayground mutation. */
 export class AskRagPlaygroundResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<AskRagPlaygroundData> {

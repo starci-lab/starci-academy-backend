@@ -83,6 +83,7 @@ const QNA_KIND_RUBRIC_MAP: Record<MockInterviewKind, string> = {
             + " concrete, sound debugging/mitigation approach grounded in the course material, not just guess?",
 }
 
+@Injectable()
 /**
  * Pure builder for the mock-interview SESSION grading prompt. No I/O and no
  * injected dependencies — it only turns a prompt title + mode + transcript +
@@ -110,7 +111,6 @@ const QNA_KIND_RUBRIC_MAP: Record<MockInterviewKind, string> = {
  * never requests or reads it, so `mode="design"` output is byte-identical to
  * before.
  */
-@Injectable()
 export class MockInterviewGradePromptService {
     /**
      * Build the grading messages for one whole mock-interview session —

@@ -13,4 +13,8 @@ import {
         CancelRedemptionResolver,
     ],
 })
+/**
+ * Registers cancelRedemption so an admin can void a pending redemption without
+ * the rewards aggregator importing the resolver class.
+ */
 export class CancelRedemptionSingleMutationModule extends ConfigurableModuleClass {}

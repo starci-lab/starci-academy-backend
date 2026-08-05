@@ -54,6 +54,10 @@ import {
 
 @CommandHandler(SignUpVerifyOtpCommand)
 @Injectable()
+/**
+ * Marks the Keycloak email verified, creates the local user, and returns
+ * tokens. Cookie attachment stays in the resolver (HTTP side-effect).
+ */
 export class SignUpVerifyOtpHandler
     extends ICQRSHandler<SignUpVerifyOtpCommand, SignUpVerifyOtpCommandResult>
     implements ICommandHandler<SignUpVerifyOtpCommand, SignUpVerifyOtpCommandResult>

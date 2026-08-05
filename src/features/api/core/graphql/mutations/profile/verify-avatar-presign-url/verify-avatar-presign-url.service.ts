@@ -12,10 +12,10 @@ import {
     VerifyAvatarPresignUrlResponseData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin mutation service dispatching to the command bus.
  */
-@Injectable()
 export class VerifyAvatarPresignUrlService {
     constructor(
         private readonly commandBus: CommandBus,

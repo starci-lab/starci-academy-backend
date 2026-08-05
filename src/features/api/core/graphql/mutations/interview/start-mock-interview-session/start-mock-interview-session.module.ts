@@ -34,4 +34,5 @@ import {
         StartMockInterviewSessionService,
     ],
 })
+/** Wires the draw service with this mutation so start can persist without the rest of interview. */
 export class StartMockInterviewSessionSingleMutationModule extends ConfigurableModuleClass {}

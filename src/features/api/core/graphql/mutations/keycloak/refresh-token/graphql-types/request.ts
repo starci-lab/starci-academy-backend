@@ -12,6 +12,10 @@ import {
 @InputType({
     description: "Optional arguments for refreshToken when using access-token TTL checks.",
 })
+/**
+ * Optional TTL gate so the client can skip a Keycloak round-trip when the
+ * current access token is still good enough — cuts refresh storms on tab focus.
+ */
 export class RefreshTokenRequest {
     @Field(
         () => Int,

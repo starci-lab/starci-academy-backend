@@ -2,6 +2,10 @@ import type {
     RefreshTokenRequest 
 } from "./graphql-types"
 
+/**
+ * Cookie + optional bearer inputs for refresh. The refresh token is not on the
+ * GraphQL input — it arrives from the httpOnly cookie so XSS cannot steal it.
+ */
 export interface RefreshTokenCommandParams {
     refreshToken: string
     /**
@@ -14,6 +18,7 @@ export interface RefreshTokenCommandParams {
     request: RefreshTokenRequest
 }
 
+/** CQRS envelope for refresh so coalescing/rotation stays off the resolver. */
 export class RefreshTokenCommand {
     constructor(
         readonly params: RefreshTokenCommandParams,

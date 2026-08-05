@@ -30,4 +30,5 @@ import {
         DeleteCvBlocksService,
     ],
 })
+/** Isolated Nest registration for deleting a CV document without wiring sibling editor mutations. */
 export class DeleteCvBlocksSingleMutationModule extends ConfigurableModuleClass {}

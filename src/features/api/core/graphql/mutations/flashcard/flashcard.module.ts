@@ -35,11 +35,6 @@ import {
     CompleteFlashcardDueReviewSessionSingleMutationModule,
 } from "./complete-flashcard-due-review-session"
 
-/**
- * Flashcard mutation group (spaced-repetition review grading + quick-quiz XP
- * + resumable quick-quiz session draw/sync + resumable review session
- * draw/sync + resumable cross-deck due-review batch session draw/sync).
- */
 @Module({
     imports: [
         ReviewFlashcardSingleMutationModule.register({
@@ -74,4 +69,9 @@ import {
         }),
     ],
 })
+/**
+ * Flashcard mutation group (spaced-repetition review grading + quick-quiz XP
+ * + resumable quick-quiz session draw/sync + resumable review session
+ * draw/sync + resumable cross-deck due-review batch session draw/sync).
+ */
 export class FlashcardMutationsModule extends ConfigurableModuleClass {}

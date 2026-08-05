@@ -10,6 +10,9 @@ import {
     CartItemEntity,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "Response wrapper for the addToCart mutation.",
+})
 /**
  * Response wrapper for the addToCart mutation.
  *
@@ -18,9 +21,6 @@ import {
  * on the error path — a non-nullable field would crash GraphQL and mask the real
  * error instead of surfacing it.
  */
-@ObjectType({
-    description: "Response wrapper for the addToCart mutation.",
-})
 export class AddToCartResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CartItemEntity>

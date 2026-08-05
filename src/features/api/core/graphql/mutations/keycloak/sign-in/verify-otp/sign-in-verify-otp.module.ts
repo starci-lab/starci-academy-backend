@@ -21,5 +21,6 @@ import {
         SignInVerifyOtpHandler,
     ],
 })
+/** Wires sign-in OTP verify so session minting can register without init/resend. */
 export class SignInVerifyOtpSingleMutationModule extends ConfigurableModuleClass {}
 

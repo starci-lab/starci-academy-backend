@@ -17,10 +17,10 @@ import type {
     DeleteCommentRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that soft-deletes a comment (author only).
  */
-@Injectable()
 export class DeleteCommentService {
     constructor(
         private readonly commentService: CommentService,

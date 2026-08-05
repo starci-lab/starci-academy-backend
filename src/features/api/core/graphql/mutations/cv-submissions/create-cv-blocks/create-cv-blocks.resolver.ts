@@ -33,6 +33,7 @@ import {
 } from "./create-cv-blocks.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before inserting a CV block document. */
 export class CreateCvBlocksResolver {
     constructor(
         private readonly createCvBlocksService: CreateCvBlocksService,

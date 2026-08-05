@@ -7,6 +7,7 @@ import {
 @InputType({
     description: "Request for toggling a content's favourite state.",
 })
+/** GraphQL input that sends the desired favourite state (set, not flip) so retries stay idempotent. */
 export class ToggleFavouriteRequest {
     @Field(
         () => ID,

@@ -7,6 +7,11 @@ import {
 @InputType({
     description: "Request to sync personal project GitHub URL and/or branch on enrollment.",
 })
+/**
+ * Partial enrollment patch for repo / branch / private-clone token. Omitted
+ * fields keep the stored value; `clearGithubToken` is the only way to drop
+ * a token without sending an empty string that might look like "keep".
+ */
 export class SyncPersonalProjectGithubRequest {
     @Field(
         () => ID,

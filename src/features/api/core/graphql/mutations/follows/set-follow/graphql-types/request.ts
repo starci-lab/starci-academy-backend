@@ -4,12 +4,12 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/**
- * Request to follow or unfollow another user (idempotent toggle).
- */
 @InputType({
     description: "Request to follow or unfollow another user.",
 })
+/**
+ * Request to follow or unfollow another user (idempotent toggle).
+ */
 export class SetFollowRequest {
     @Field(
         () => ID,

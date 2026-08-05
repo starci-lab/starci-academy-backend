@@ -34,8 +34,8 @@ import {
     SetCommunityPostPinnedService,
 } from "./set-community-post-pinned.service"
 
-/** GraphQL resolver for the `setCommunityPostPinned` mutation. */
 @Resolver()
+/** GraphQL resolver for the `setCommunityPostPinned` mutation. */
 export class SetCommunityPostPinnedResolver {
     constructor(
         private readonly setCommunityPostPinnedService: SetCommunityPostPinnedService,

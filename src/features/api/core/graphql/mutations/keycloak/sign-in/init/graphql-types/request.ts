@@ -12,6 +12,10 @@ import {
 @InputType({
     description: "Input for initiating sign-in with username/password (OTP confirmation required).",
 })
+/**
+ * Password is checked now but tokens are not returned yet — they sit on the
+ * OTP challenge until verify, so password-only phishing cannot finish login.
+ */
 export class SignInInitRequest {
     @Field(() => String,
         {

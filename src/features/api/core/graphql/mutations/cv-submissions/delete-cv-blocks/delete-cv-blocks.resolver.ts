@@ -33,6 +33,7 @@ import {
 } from "./delete-cv-blocks.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before deleting a CV document. */
 export class DeleteCvBlocksResolver {
     constructor(
         private readonly deleteCvBlocksService: DeleteCvBlocksService,

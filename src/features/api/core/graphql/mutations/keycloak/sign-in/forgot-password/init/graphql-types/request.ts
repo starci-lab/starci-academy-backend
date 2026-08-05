@@ -12,6 +12,10 @@ import {
 @InputType({
     description: "Input for initiating forgot-password flow (OTP required).",
 })
+/**
+ * Email + intended new password. The password is held on the OTP challenge
+ * until verify — it is not written to Keycloak on this call.
+ */
 export class ForgotPasswordInitRequest {
     @Field(() => String,
         {

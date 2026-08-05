@@ -7,12 +7,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * Data payload for minting a presigned avatar-upload URL.
- */
 @ObjectType({
     description: "Result of generating an avatar upload pre-signed URL.",
 })
+/**
+ * Data payload for minting a presigned avatar-upload URL.
+ */
 export class GenerateAvatarPresignUrlResponseData {
     @Field(
         () => String,
@@ -31,12 +31,12 @@ export class GenerateAvatarPresignUrlResponseData {
         key: string
 }
 
-/**
- * Envelope response for generating an avatar upload pre-signed URL.
- */
 @ObjectType({
     description: "Response for generating an avatar upload pre-signed URL.",
 })
+/**
+ * Envelope response for generating an avatar upload pre-signed URL.
+ */
 export class GenerateAvatarPresignUrlResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<GenerateAvatarPresignUrlResponseData> {

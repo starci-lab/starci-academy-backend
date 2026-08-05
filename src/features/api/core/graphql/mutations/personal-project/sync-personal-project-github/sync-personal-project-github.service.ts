@@ -13,6 +13,9 @@ import type {
 } from "./types"
 
 @Injectable()
+/**
+ * Thin command-bus hop for the enrollment GitHub patch.
+ */
 export class SyncPersonalProjectGithubService {
     constructor(
         private readonly commandBus: CommandBus,

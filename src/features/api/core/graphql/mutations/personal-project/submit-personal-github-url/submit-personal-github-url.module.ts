@@ -21,4 +21,8 @@ import {
         SubmitPersonalGithubUrlHandler,
     ],
 })
+/**
+ * Registers the first-time GitHub URL bind as its own Nest unit, separate
+ * from sync / team-invite / review.
+ */
 export class SubmitPersonalGithubUrlSingleMutationModule extends ConfigurableModuleClass {}

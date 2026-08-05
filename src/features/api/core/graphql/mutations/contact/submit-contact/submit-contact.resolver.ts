@@ -43,12 +43,12 @@ const escapeHtml = (value: string): string =>
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
 
+@Resolver()
 /**
  * Public contact-form endpoint. Anonymous (no auth guard) — anyone can reach out.
  * The message is delivered to the founder's inbox via the shared mailer, with the
  * sender's address set as reply-to so a reply lands back in their mailbox.
  */
-@Resolver()
 export class SubmitContactResolver {
     constructor(
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,

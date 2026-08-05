@@ -44,6 +44,10 @@ import {
 } from "@modules/env"
 
 @Resolver()
+/**
+ * GraphQL entry for this-device sign-out. CSRF is required because the refresh
+ * cookie is sent automatically; other devices stay signed in on purpose.
+ */
 export class SignOutResolver {
     constructor(
         private readonly signOutService: SignOutService,

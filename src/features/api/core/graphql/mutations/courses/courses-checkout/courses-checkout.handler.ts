@@ -80,6 +80,10 @@ const COURSES_CHECKOUT_LABEL = "courses-checkout"
 
 @CommandHandler(CoursesCheckoutCommand)
 @Injectable()
+/**
+ * Prices the cart into one gateway payment and a pending order so webhook
+ * fan-out can enroll each line without the client calling enroll N times.
+ */
 export class CoursesCheckoutHandler
     extends ICQRSHandler<CoursesCheckoutCommand, CoursesCheckoutResponseData>
     implements ICommandHandler<CoursesCheckoutCommand, CoursesCheckoutResponseData> {

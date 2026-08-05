@@ -13,4 +13,8 @@ import {
         SetupTwoFactorResolver,
     ],
 })
+/**
+ * Registers 2FA setup (secret mint + otpauth URL) separately from confirm
+ * so a setup call never marks 2FA active without a valid TOTP.
+ */
 export class SetupTwoFactorSingleMutationModule extends ConfigurableModuleClass {}

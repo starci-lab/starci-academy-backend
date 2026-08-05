@@ -29,6 +29,10 @@ import {
 } from "./forgot-password-resend-otp.service"
 
 @Resolver()
+/**
+ * GraphQL entry for resending a reset OTP. Strict throttle only — captcha
+ * already gated init, and resend requires a live challenge id.
+ */
 export class ForgotPasswordResendOtpResolver {
     constructor(
         private readonly forgotPasswordResendOtpService: ForgotPasswordResendOtpService,

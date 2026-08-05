@@ -11,12 +11,12 @@ import {
     RewardRedemptionStatus,
 } from "@modules/databases"
 
-/**
- * The redemption's id + refreshed status after the fulfil transition.
- */
 @ObjectType({
     description: "The redemption after being marked fulfilled.",
 })
+/**
+ * The redemption's id + refreshed status after the fulfil transition.
+ */
 export class FulfillRedemptionData {
     @Field(
         () => String,
@@ -35,12 +35,12 @@ export class FulfillRedemptionData {
         status: RewardRedemptionStatus
 }
 
-/**
- * Response wrapper for the fulfillRedemption mutation.
- */
 @ObjectType({
     description: "Response wrapper for the fulfillRedemption mutation.",
 })
+/**
+ * Response wrapper for the fulfillRedemption mutation.
+ */
 export class FulfillRedemptionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<FulfillRedemptionData> {

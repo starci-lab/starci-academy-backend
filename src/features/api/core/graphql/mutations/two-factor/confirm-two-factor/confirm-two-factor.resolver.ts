@@ -41,12 +41,12 @@ import {
     ConfirmTwoFactorResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Confirm two-factor (TOTP) setup by verifying a code against the pending
  * secret, then enabling the flag. Rejects with a typed exception when there is
  * no pending secret or the code does not match within the skew window.
  */
-@Resolver()
 export class ConfirmTwoFactorResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

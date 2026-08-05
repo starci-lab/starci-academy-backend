@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver does not import scoring enqueue. */
 export class UploadCvService {
     constructor(
         private readonly commandBus: CommandBus,

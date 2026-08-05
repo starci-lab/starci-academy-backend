@@ -33,10 +33,10 @@ import {
     CourseEnrollService,
 } from "./course-enroll.service"
 
+@Resolver()
 /**
  * GraphQL entry for starting course checkout (preflight + payment provider).
  */
-@Resolver()
 export class CourseEnrollResolver {
     constructor(
         private readonly courseEnrollService: CourseEnrollService,

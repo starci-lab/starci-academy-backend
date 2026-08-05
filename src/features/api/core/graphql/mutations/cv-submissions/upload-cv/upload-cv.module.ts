@@ -17,14 +17,6 @@ import {
     ConfigurableModuleClass,
 } from "./upload-cv.module-definition"
 
-/**
- * WF-07 `uploadCv` mutation module. Creates the uploaded `cv_generations` row
- * (`source = uploaded`) + enqueues async scoring.
- *
- * `EnqueueScoreUploadedCvJobService` (injected by the handler) is provided by the
- * globally-registered `ScoreUploadedCvModule` (app root), so no processor import
- * is needed here.
- */
 @Module({
     imports: [
         CqrsModule,
@@ -38,4 +30,12 @@ import {
         UploadCvService,
     ],
 })
+/**
+ * WF-07 `uploadCv` mutation module. Creates the uploaded `cv_generations` row
+ * (`source = uploaded`) + enqueues async scoring.
+ *
+ * `EnqueueScoreUploadedCvJobService` (injected by the handler) is provided by the
+ * globally-registered `ScoreUploadedCvModule` (app root), so no processor import
+ * is needed here.
+ */
 export class UploadCvSingleMutationModule extends ConfigurableModuleClass {}

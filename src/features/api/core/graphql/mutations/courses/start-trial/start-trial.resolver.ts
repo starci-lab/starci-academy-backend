@@ -33,10 +33,10 @@ import {
     StartTrialService,
 } from "./start-trial.service"
 
+@Resolver()
 /**
  * GraphQL entry for starting a trial (preview) enrollment — the "Học thử" flow.
  */
-@Resolver()
 export class StartTrialResolver {
     constructor(
         private readonly startTrialService: StartTrialService,

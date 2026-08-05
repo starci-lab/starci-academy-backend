@@ -39,9 +39,9 @@ import {
 const BRANCH_PATTERN = /^[a-zA-Z0-9._/-]+$/
 const BRANCH_MAX = 255
 
-/** Handler for `SyncPersonalProjectGithubCommand`. */
 @CommandHandler(SyncPersonalProjectGithubCommand)
 @Injectable()
+/** Handler for `SyncPersonalProjectGithubCommand`. */
 export class SyncPersonalProjectGithubHandler
     extends ICQRSHandler<SyncPersonalProjectGithubCommand, SyncPersonalProjectGithubResult>
     implements ICommandHandler<SyncPersonalProjectGithubCommand, SyncPersonalProjectGithubResult> {

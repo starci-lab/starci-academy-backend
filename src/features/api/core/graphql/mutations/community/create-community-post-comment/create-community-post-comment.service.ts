@@ -18,10 +18,10 @@ import type {
     CreateCommunityPostCommentRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that creates a comment on a community post and returns its node.
  */
-@Injectable()
 export class CreateCommunityPostCommentService {
     constructor(
         private readonly communityCommentService: CommunityCommentService,

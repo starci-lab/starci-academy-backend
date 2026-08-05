@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The AI answer to one content question. */
 @ObjectType({
     description: "Answer to a content question from StarCi AI.",
 })
+/** The AI answer to one content question. */
 export class AskContentAiData {
     @Field(
         () => String,
@@ -24,6 +24,7 @@ export class AskContentAiData {
 @ObjectType({
     description: "Response wrapper for the askContentAi mutation.",
 })
+/** GraphQL envelope so the interceptor can attach success/error metadata; `data` is the grounded answer and stays null on failure. */
 export class AskContentAiResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<AskContentAiData>

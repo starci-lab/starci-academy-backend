@@ -17,12 +17,12 @@ import type {
     ReactToActivityRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that sets/changes/removes the current user's reaction on a feed
  * activity. The "cannot react to your own activity" rule is enforced in
  * {@link ReactionService.reactToActivity}.
  */
-@Injectable()
 export class ReactToActivityService {
     constructor(
         private readonly reactionService: ReactionService,

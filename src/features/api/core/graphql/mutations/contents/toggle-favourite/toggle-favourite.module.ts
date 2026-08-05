@@ -30,4 +30,5 @@ import {
         ToggleFavouriteService,
     ],
 })
+/** Isolated Nest registration for favourite toggles so they can be global without sibling content mutations. */
 export class ToggleFavouriteSingleMutationModule extends ConfigurableModuleClass {}

@@ -13,4 +13,8 @@ import {
         RedeemRewardResolver,
     ],
 })
+/**
+ * Registers redeemReward so spending points for a catalogue item stays a
+ * single Nest unit under the rewards aggregator.
+ */
 export class RedeemRewardSingleMutationModule extends ConfigurableModuleClass {}

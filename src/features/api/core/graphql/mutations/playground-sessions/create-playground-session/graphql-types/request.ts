@@ -8,10 +8,10 @@ import {
     PlaygroundSessionMode,
 } from "@modules/databases"
 
-/** Request for the createPlaygroundSession mutation. */
 @InputType({
     description: "Playground to start a new pairing session for.",
 })
+/** Request for the createPlaygroundSession mutation. */
 export class CreatePlaygroundSessionRequest {
     @Field(
         () => ID,

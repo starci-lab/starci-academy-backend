@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Forwards transcript sync to the command bus so the resolver stays a thin leaf. */
 export class SyncMockInterviewSessionTurnsService {
     constructor(
         private readonly commandBus: CommandBus,

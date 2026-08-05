@@ -20,14 +20,14 @@ const MAX_PHONE_LENGTH = 32
  */
 const MAX_ADDRESS_LENGTH = 500
 
+@InputType({
+    description: "Redeem a reward from the gifts store.",
+})
 /**
  * Request to redeem a single catalog reward by its stable key. For PHYSICAL
  * rewards the shipping fields carry where to send the gift (snapshotted onto the
  * redemption's metadata for ops); they are ignored for digital rewards.
  */
-@InputType({
-    description: "Redeem a reward from the gifts store.",
-})
 export class RedeemRewardRequest {
     @Field(
         () => String,

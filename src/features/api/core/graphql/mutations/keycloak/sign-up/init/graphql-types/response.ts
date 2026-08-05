@@ -11,6 +11,10 @@ import {
 @ObjectType({
     description: "Payload of signUp: challenge id and expiry.",
 })
+/**
+ * Opaque challenge handle for the OTP step. The Keycloak user may already
+ * exist unverified — this payload must not leak tokens before email proof.
+ */
 export class SignUpInitData {
     @Field(() => String,
         {
@@ -28,7 +32,11 @@ export class SignUpInitData {
 @ObjectType({
     description: "Response wrapper for the signUp mutation.",
 })
-export class SignUpResponse
+/**
+ * Envelope reused by sign-up init/resend. `data` is nullable for the
+ * interceptor error path.
+ */
+export class SignUpResponse {
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SignUpInitData>
 {

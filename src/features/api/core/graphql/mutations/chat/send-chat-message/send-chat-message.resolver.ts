@@ -34,8 +34,8 @@ import {
     SendChatMessageService,
 } from "./send-chat-message.service"
 
-/** GraphQL resolver for the `sendChatMessage` mutation. */
 @Resolver()
+/** GraphQL resolver for the `sendChatMessage` mutation. */
 export class SendChatMessageResolver {
     constructor(
         private readonly sendChatMessageService: SendChatMessageService,

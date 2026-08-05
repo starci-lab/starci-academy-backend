@@ -18,6 +18,7 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver does not import persistence. */
 export class CreateCvBlocksService {
     constructor(
         private readonly commandBus: CommandBus,

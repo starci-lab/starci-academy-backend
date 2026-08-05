@@ -36,6 +36,7 @@ import {
     UnpinProjectResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Remove one of the current user's pinned projects.
  *
@@ -43,7 +44,6 @@ import {
  * userId, and an unaffected delete (the pin does not exist or is owned by
  * someone else) surfaces a typed exception rather than silently succeeding.
  */
-@Resolver()
 export class UnpinProjectResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

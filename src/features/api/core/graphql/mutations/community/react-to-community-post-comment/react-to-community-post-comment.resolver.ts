@@ -34,8 +34,8 @@ import {
     ReactToCommunityPostCommentService,
 } from "./react-to-community-post-comment.service"
 
-/** GraphQL resolver for the `reactToCommunityPostComment` mutation. */
 @Resolver()
+/** GraphQL resolver for the `reactToCommunityPostComment` mutation. */
 export class ReactToCommunityPostCommentResolver {
     constructor(
         private readonly reactToCommunityPostCommentService: ReactToCommunityPostCommentService,

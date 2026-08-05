@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver does not import AI clients. */
 export class TailorCvBlocksService {
     constructor(
         private readonly commandBus: CommandBus,

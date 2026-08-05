@@ -13,6 +13,10 @@ import {
 @InputType({
     description: "Input for initiating sign-up (account creation) with Keycloak; OTP confirmation required to receive tokens.",
 })
+/**
+ * Profile + password for a new account. Tokens are not returned until OTP
+ * verify, so an unverified email cannot finish registration.
+ */
 export class SignUpInitRequest {
     @Field(() => String,
         {

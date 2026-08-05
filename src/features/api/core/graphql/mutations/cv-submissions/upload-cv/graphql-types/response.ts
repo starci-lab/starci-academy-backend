@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The created uploaded-CV row id + the scoring job id (poll / subscribe on these). */
 @ObjectType({
     description: "Identifies the uploaded cv_generations row that was created + the scoring job.",
 })
+/** The created uploaded-CV row id + the scoring job id (poll / subscribe on these). */
 export class UploadCvData {
     @Field(
         () => ID,
@@ -33,6 +33,7 @@ export class UploadCvData {
 @ObjectType({
     description: "Response wrapper for the uploadCv mutation.",
 })
+/** GraphQL envelope with uploaded-row + scoring-job ids so the client can subscribe while scoring runs async. */
 export class UploadCvResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UploadCvData>

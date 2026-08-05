@@ -5,14 +5,14 @@ import {
 } from "@nestjs/graphql"
 import GraphQLJSON from "graphql-type-json"
 
+@InputType({
+    description: "Update a CV document (block editor autosave).",
+})
 /**
  * Update one of the signed-in user's CV documents (autosave from the block
  * editor). `id` targets the document; the other fields are partial — only the
  * provided ones are written. `blocks` / `style` are opaque FE-owned JSON.
  */
-@InputType({
-    description: "Update a CV document (block editor autosave).",
-})
 export class UpdateCvBlocksRequest {
     @Field(
         () => ID,

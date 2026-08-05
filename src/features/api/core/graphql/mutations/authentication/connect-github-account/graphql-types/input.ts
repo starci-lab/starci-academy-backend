@@ -9,12 +9,12 @@ import {
     Matches,
 } from "class-validator"
 
-/**
- * GitHub username to connect to user account.
- */
 @InputType({
     description: "Input for connecting GitHub account.",
 })
+/**
+ * GitHub username to connect to user account.
+ */
 export class ConnectGithubAccountInput {
     /**
      * GitHub username (1-39 alphanumeric chars, hyphens allowed).

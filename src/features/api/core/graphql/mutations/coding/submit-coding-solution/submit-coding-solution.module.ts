@@ -8,13 +8,13 @@ import {
     SubmitCodingSolutionResolver,
 } from "./submit-coding-solution.resolver"
 
-/**
- * Single-mutation module wiring the `submitCodingSolution` resolver into the
- * GraphQL schema.
- */
 @Module({
     providers: [
         SubmitCodingSolutionResolver,
     ],
 })
+/**
+ * Single-mutation module wiring the `submitCodingSolution` resolver into the
+ * GraphQL schema.
+ */
 export class SubmitCodingSolutionSingleMutationModule extends ConfigurableModuleClass {}

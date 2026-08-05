@@ -3,10 +3,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Ask a question grounded in a RAG Playground session's indexed source. */
 @InputType({
     description: "Ask a question grounded in a public RAG Playground session's indexed source.",
 })
+/** Ask a question grounded in a RAG Playground session's indexed source. */
 export class AskRagPlaygroundRequest {
     @Field(
         () => String,

@@ -13,6 +13,10 @@ import {
 @ObjectType({
     description: "Response for submit personal GitHub URL mutation.",
 })
+/**
+ * Returns the updated enrollment (not a job) — this write is synchronous.
+ * `data` is nullable for the interceptor error path.
+ */
 export class SubmitPersonalGithubUrlResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<EnrollmentEntity>

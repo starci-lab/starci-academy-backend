@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request to send a chat message to a conversation. */
 @InputType({
     description: "Request to send a chat message to a conversation.",
 })
+/** Request to send a chat message to a conversation. */
 export class SendChatMessageRequest {
     /** Conversation the message is sent to. */
     @Field(

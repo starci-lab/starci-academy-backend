@@ -26,11 +26,11 @@ import {
     DeleteCvBlocksData,
 } from "./graphql-types"
 
+@CommandHandler(DeleteCvBlocksCommand)
+@Injectable()
 /**
  * Handler for `deleteCvBlocks` — removes a CV document the caller owns.
  */
-@CommandHandler(DeleteCvBlocksCommand)
-@Injectable()
 export class DeleteCvBlocksHandler
     extends ICQRSHandler<DeleteCvBlocksCommand, DeleteCvBlocksData>
     implements ICommandHandler<DeleteCvBlocksCommand, DeleteCvBlocksData> {

@@ -35,6 +35,7 @@ import {
     UpdateProfileResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Update the authenticated user's editable profile fields (display name, bio,
  * avatar URL).
@@ -45,7 +46,6 @@ import {
  * handled there, not here. Returns the refreshed user so the client can update
  * its cache without a follow-up `me` round-trip.
  */
-@Resolver()
 export class UpdateProfileResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

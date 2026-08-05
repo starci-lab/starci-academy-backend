@@ -33,6 +33,7 @@ import {
 } from "./upload-cv.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before registering an uploaded CV into `cv_generations`. */
 export class UploadCvResolver {
     constructor(
         private readonly uploadCvService: UploadCvService,

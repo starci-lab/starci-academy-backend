@@ -33,6 +33,7 @@ import {
 } from "./extract-document-text.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before running extraction into the paste field. */
 export class ExtractDocumentTextResolver {
     constructor(
         private readonly extractDocumentTextService: ExtractDocumentTextService,

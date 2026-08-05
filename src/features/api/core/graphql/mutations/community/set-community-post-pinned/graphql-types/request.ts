@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request to pin/unpin a community post (founder-only). */
 @InputType({
     description: "Request to pin/unpin a community post (founder-only).",
 })
+/** Request to pin/unpin a community post (founder-only). */
 export class SetCommunityPostPinnedRequest {
     /** Id of the post to pin or unpin. */
     @Field(

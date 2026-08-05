@@ -26,6 +26,10 @@ import {
 
 @CommandHandler(GradeMockInterviewSessionCommand)
 @Injectable()
+/**
+ * Runs the RAG-grounded whole-session grade and persists the attempt so
+ * history queries do not re-score from the client transcript.
+ */
 export class GradeMockInterviewSessionHandler
     extends ICQRSHandler<GradeMockInterviewSessionCommand, MockInterviewGradeSessionData>
     implements ICommandHandler<GradeMockInterviewSessionCommand, MockInterviewGradeSessionData> {

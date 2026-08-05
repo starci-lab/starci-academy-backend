@@ -13,4 +13,8 @@ import {
         ClaimKpiRewardResolver,
     ],
 })
+/**
+ * Registers KPI-reward claim as its own Nest unit — payout rules differ
+ * from daily / weekly claims and must not share a resolver.
+ */
 export class ClaimKpiRewardSingleMutationModule extends ConfigurableModuleClass {}

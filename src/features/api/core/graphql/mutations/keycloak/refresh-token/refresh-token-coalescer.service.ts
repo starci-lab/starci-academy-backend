@@ -28,6 +28,7 @@ import type {
     ExchangeRefreshTokenResult,
 } from "./types"
 
+@Injectable()
 /**
  * Coalesces concurrent refresh-token exchanges across all app instances.
  *
@@ -42,7 +43,6 @@ import type {
  * @example
  * const tokens = await coalescer.exchange({ refreshToken })
  */
-@Injectable()
 export class RefreshTokenCoalescerService {
     constructor(
         @InjectIoRedis(IoRedisInstanceKey.Cache)

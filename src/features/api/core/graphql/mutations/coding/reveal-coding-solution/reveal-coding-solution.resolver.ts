@@ -32,12 +32,12 @@ import {
     type RevealCodingSolutionResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Records that the user revealed a problem's reference solution. Idempotent.
  * Once revealed, a later first solve of that problem awards no points — peeking
  * the answer forfeits the score. Auth-guarded + soft-throttled.
  */
-@Resolver()
 export class RevealCodingSolutionResolver {
     constructor(
         private readonly codingSubmissionService: CodingSubmissionService,

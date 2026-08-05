@@ -7,14 +7,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Plain text extracted from an uploaded document (not persisted).",
+})
 /**
  * Extracted plain-text payload for `extractDocumentText` — the raw text pulled
  * out of the uploaded file (pdf/docx/plain). Not persisted; the FE loads it
  * into the paste field for the user to review.
  */
-@ObjectType({
-    description: "Plain text extracted from an uploaded document (not persisted).",
-})
 export class ExtractDocumentTextData {
     @Field(
         () => String,
@@ -28,6 +28,7 @@ export class ExtractDocumentTextData {
 @ObjectType({
     description: "Response wrapper for the extractDocumentText mutation.",
 })
+/** GraphQL envelope for in-memory extracted text; not persisted so the user can review or edit before split/save. */
 export class ExtractDocumentTextResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ExtractDocumentTextData | null>

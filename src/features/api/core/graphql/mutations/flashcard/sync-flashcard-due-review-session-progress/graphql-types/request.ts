@@ -10,6 +10,9 @@ import {
     Min,
 } from "class-validator"
 
+@InputType({
+    description: "Sync an in-flight cross-deck due-review batch session's position + progress for later resume.",
+})
 /**
  * Periodically syncs an IN-FLIGHT cross-deck due-review batch session's
  * position + progress to the server — mirrors
@@ -20,9 +23,6 @@ import {
  * network drop) can pick their draw back up via
  * `myInProgressFlashcardDueReviewSession` instead of losing progress.
  */
-@InputType({
-    description: "Sync an in-flight cross-deck due-review batch session's position + progress for later resume.",
-})
 export class SyncFlashcardDueReviewSessionProgressRequest {
     @Field(
         () => ID,

@@ -34,12 +34,12 @@ import {
     StartFlashcardQuizSessionService,
 } from "./start-flashcard-quiz-session.service"
 
+@Resolver()
 /**
  * GraphQL entrypoint for `startFlashcardQuizSession` — delegates to {@link StartFlashcardQuizSessionService.execute},
  * which dispatches the CQRS command {@link StartFlashcardQuizSessionHandler} owns. See {@link execute}'s
  * own doc below for what the mutation actually does.
  */
-@Resolver()
 export class StartFlashcardQuizSessionResolver {
     constructor(
         private readonly startFlashcardQuizSessionService: StartFlashcardQuizSessionService,

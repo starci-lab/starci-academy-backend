@@ -16,15 +16,15 @@ import {
     PaymentType,
 } from "@modules/databases"
 
+@InputType({
+    description: "Plan id + payment provider + redirect URLs for paying an installment plan's current cycle.",
+})
 /**
  * Request for paying the CURRENT cycle of an installment (trả góp) plan —
  * charges exactly `computeMinPaymentVnd(plan)`, never the whole remaining
  * balance. MVP is VND-only (PayOS / Sepay); other payment types are rejected
  * by the handler.
  */
-@InputType({
-    description: "Plan id + payment provider + redirect URLs for paying an installment plan's current cycle.",
-})
 export class PayNextInstallmentRequest {
     /** The plan being paid — must belong to the requesting user. */
     @Field(

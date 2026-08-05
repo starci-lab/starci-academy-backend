@@ -31,11 +31,11 @@ import {
     MarkNotificationAsReadResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Marks one of the current user's notifications as read. Ownership is enforced
  * in the service (an unowned id behaves exactly like a missing one).
  */
-@Resolver()
 export class MarkNotificationAsReadResolver {
     constructor(
         private readonly notificationService: NotificationService,

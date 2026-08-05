@@ -16,6 +16,10 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin command-bus hop so the resolver stays GraphQL-shaped and branch /
+ * URL validation stay inside the handler.
+ */
 export class ReviewPersonalProjectTaskService {
     constructor(
         private readonly commandBus: CommandBus,

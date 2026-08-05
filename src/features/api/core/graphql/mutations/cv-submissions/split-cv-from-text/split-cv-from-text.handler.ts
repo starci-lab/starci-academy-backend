@@ -90,6 +90,8 @@ const PRIMARY_FIELD_KEY: Record<(typeof BLOCK_TYPES)[number], string> = {
     interest: "name",
 }
 
+@CommandHandler(SplitCvFromTextCommand)
+@Injectable()
 /**
  * Handler for `splitCvFromText` — parses a raw pasted CV / free-text resume into
  * an ordered array of block-editor blocks via a SYNCHRONOUS AI invoke (no BullMQ
@@ -102,8 +104,6 @@ const PRIMARY_FIELD_KEY: Record<(typeof BLOCK_TYPES)[number], string> = {
  * Free-tier friendly: no explicit model is pinned, so the balancer's Auto lane
  * picks (local-first) — text parsing does not need a grading floor.
  */
-@CommandHandler(SplitCvFromTextCommand)
-@Injectable()
 export class SplitCvFromTextHandler
     extends ICQRSHandler<SplitCvFromTextCommand, SplitCvFromTextData>
     implements ICommandHandler<SplitCvFromTextCommand, SplitCvFromTextData> {

@@ -20,11 +20,11 @@ import type {
     UpdateCommunityPostRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that edits a community post's body (author-only) and returns
  * the refreshed client-facing node.
  */
-@Injectable()
 export class UpdateCommunityPostService {
     constructor(
         private readonly communityPostService: CommunityPostService,

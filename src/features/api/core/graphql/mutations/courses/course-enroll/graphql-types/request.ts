@@ -9,10 +9,10 @@ import {
     PaymentType,
 } from "@modules/databases"
 
-/** Request for course enroll mutation (tier, payment provider, optional PayOS URLs). */
 @InputType({
     description: "Course id, pricing tier, and return URLs for PayOS or Sepay checkout.",
 })
+/** Request for course enroll mutation (tier, payment provider, optional PayOS URLs). */
 export class CourseEnrollRequest {
     @Field(
         () => ID,

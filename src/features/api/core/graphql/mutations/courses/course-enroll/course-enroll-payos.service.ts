@@ -49,6 +49,7 @@ import {
     VoucherService,
 } from "@modules/bussiness"
 
+@Injectable()
 /**
  * PayOS-specific course enrollment: payment link + preflight row.
  *
@@ -57,7 +58,6 @@ import {
  * {@link CourseEnrollSepayService} for the shared pattern (preview → reserve
  * inside the same insert transaction → persist the code).
  */
-@Injectable()
 export class CourseEnrollPayOsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

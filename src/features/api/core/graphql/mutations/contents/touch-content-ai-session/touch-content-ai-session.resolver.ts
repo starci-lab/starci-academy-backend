@@ -35,6 +35,7 @@ import type {
 } from "./graphql-types"
 
 @Resolver()
+/** GraphQL entry that bumps recency so this conversation is the one auto-reopened on reload. */
 export class TouchContentAiSessionResolver {
     constructor(
         private readonly contentAiService: ContentAiService,

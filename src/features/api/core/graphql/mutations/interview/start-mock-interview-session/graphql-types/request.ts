@@ -5,6 +5,9 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Ask the server to draw a mock-interview prompt for one course + level.",
+})
 /**
  * Request to have the SERVER pick a mock-interview prompt for one course +
  * seniority level. Unlike Pha 1 (client-side `drawRandomPrompt` from the full
@@ -13,9 +16,6 @@ import {
  * against whatever the server actually handed back (looked up by
  * `sessionId`), not whatever the client echoes.
  */
-@InputType({
-    description: "Ask the server to draw a mock-interview prompt for one course + level.",
-})
 export class StartMockInterviewSessionRequest {
     @Field(
         () => ID,

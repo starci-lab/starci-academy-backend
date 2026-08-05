@@ -26,14 +26,14 @@ import {
     SyncMockInterviewSessionTurnsData,
 } from "./graphql-types"
 
+@CommandHandler(SyncMockInterviewSessionTurnsCommand)
+@Injectable()
 /**
  * Applies one `syncMockInterviewSessionTurns` sync — small enough (a single
  * ownership-scoped lookup + guard + update) that, unlike
  * `startMockInterviewSession`/`gradeMockInterviewSession`, it does not
  * warrant a separate domain service; the logic lives directly in the handler.
  */
-@CommandHandler(SyncMockInterviewSessionTurnsCommand)
-@Injectable()
 export class SyncMockInterviewSessionTurnsHandler
     extends ICQRSHandler<SyncMockInterviewSessionTurnsCommand, SyncMockInterviewSessionTurnsData>
     implements ICommandHandler<SyncMockInterviewSessionTurnsCommand, SyncMockInterviewSessionTurnsData> {

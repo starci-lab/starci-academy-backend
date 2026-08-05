@@ -40,6 +40,7 @@ import {
     MAX_PINNED_PROJECTS,
 } from "./constants"
 
+@Resolver()
 /**
  * Pin a free-form external project to the current user's public profile.
  *
@@ -47,7 +48,6 @@ import {
  * most {@link MAX_PINNED_PROJECTS} pins; the new pin is appended at the end of
  * the current list (`orderIndex` = current count).
  */
-@Resolver()
 export class PinExternalProjectResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

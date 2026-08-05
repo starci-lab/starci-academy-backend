@@ -26,10 +26,10 @@ import type {
  */
 const LOCAL_TEST_PRICE_DIVISOR = 100
 
+@Injectable()
 /**
  * Resolves course checkout amounts in VND from `originalPrice` and `pricing_phases`.
  */
-@Injectable()
 export class CoursePricingService {
     /**
      * Integer VND amount for PayOS / Sepay (Regular → `originalPrice`, other tiers → `pricing_phases.price`).

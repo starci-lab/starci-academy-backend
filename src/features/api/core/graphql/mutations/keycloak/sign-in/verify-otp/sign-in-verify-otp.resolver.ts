@@ -42,6 +42,10 @@ import {
 } from "./sign-in-verify-otp.service"
 
 @Resolver()
+/**
+ * GraphQL entry for completing password sign-in. Cookie/CSRF/session
+ * side-effects live here because CQRS must not touch the HTTP response.
+ */
 export class SignInVerifyOtpResolver {
     constructor(
         private readonly signInVerifyOtpService: SignInVerifyOtpService,

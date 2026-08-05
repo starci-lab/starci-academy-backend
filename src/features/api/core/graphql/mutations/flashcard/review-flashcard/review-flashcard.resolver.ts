@@ -33,12 +33,12 @@ import {
     ReviewFlashcardResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Grade one flashcard in the spaced-repetition flow. Applies SM-2 and upserts the
  * viewer's per-card review row via {@link FlashcardReviewService}, returning the
  * next due date.
  */
-@Resolver()
 export class ReviewFlashcardResolver {
     constructor(
         private readonly flashcardReviewService: FlashcardReviewService,

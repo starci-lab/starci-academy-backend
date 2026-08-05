@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request to soft-delete a comment (author only). */
 @InputType({
     description: "Request to soft-delete a comment.",
 })
+/** Request to soft-delete a comment (author only). */
 export class DeleteCommentRequest {
     /** Comment being deleted. */
     @Field(

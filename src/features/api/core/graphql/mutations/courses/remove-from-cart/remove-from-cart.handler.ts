@@ -25,14 +25,14 @@ import type {
     RemoveFromCartResponseData,
 } from "./graphql-types"
 
+@CommandHandler(RemoveFromCartCommand)
+@Injectable()
 /**
  * Handler for the removeFromCart mutation.
  *
  * Idempotently deletes the caller's `(user, course)` cart row: removing a course
  * that was never in the cart is not an error — it simply reports `removed: false`.
  */
-@CommandHandler(RemoveFromCartCommand)
-@Injectable()
 export class RemoveFromCartHandler
     extends ICQRSHandler<RemoveFromCartCommand, RemoveFromCartResponseData>
     implements ICommandHandler<RemoveFromCartCommand, RemoveFromCartResponseData> {

@@ -42,6 +42,10 @@ import {
 } from "@modules/session"
 
 @Resolver()
+/**
+ * GraphQL entry for the OIDC broker callback. Sets the refresh-token cookie,
+ * CSRF cookie, and device session here (HTTP side-effects cannot live in CQRS).
+ */
 export class ExchangeCodeForTokenResolver {
     constructor(
         private readonly exchangeCodeForTokenService: ExchangeCodeForTokenService,

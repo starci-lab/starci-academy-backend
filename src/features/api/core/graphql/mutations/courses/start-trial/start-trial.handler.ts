@@ -28,6 +28,8 @@ import type {
     StartTrialResponseData,
 } from "./graphql-types"
 
+@CommandHandler(StartTrialCommand)
+@Injectable()
 /**
  * Creates a TRIAL (preview) enrollment for a course: a real `enrollments` row
  * with `is_enrolled = false`. This lets the learner's activity (lesson reads,
@@ -37,8 +39,6 @@ import type {
  * `is_enrolled = true`). Idempotent: if any enrollment row already exists (trial
  * or real) it is a no-op, returning that row's flag.
  */
-@CommandHandler(StartTrialCommand)
-@Injectable()
 export class StartTrialHandler
     extends ICQRSHandler<StartTrialCommand, StartTrialResponseData>
     implements ICommandHandler<StartTrialCommand, StartTrialResponseData>

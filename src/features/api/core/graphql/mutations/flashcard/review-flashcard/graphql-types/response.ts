@@ -8,12 +8,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * The scheduling result of a review: when the card is next due.
- */
 @ObjectType({
     description: "When the reviewed flashcard is next due.",
 })
+/**
+ * The scheduling result of a review: when the card is next due.
+ */
 export class ReviewFlashcardData {
     @Field(
         () => Date,
@@ -32,12 +32,12 @@ export class ReviewFlashcardData {
         xpEarned: number
 }
 
-/**
- * Response wrapper for the reviewFlashcard mutation.
- */
 @ObjectType({
     description: "Response wrapper for the reviewFlashcard mutation.",
 })
+/**
+ * Response wrapper for the reviewFlashcard mutation.
+ */
 export class ReviewFlashcardResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ReviewFlashcardData> {

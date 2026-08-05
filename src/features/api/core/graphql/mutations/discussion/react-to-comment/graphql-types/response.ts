@@ -10,10 +10,10 @@ import {
     ReactionSummaryObject,
 } from "../../../../shared/discussion"
 
-/** Response wrapper for the react-to-comment mutation. */
 @ObjectType({
     description: "Response wrapper for the react-to-comment mutation.",
 })
+/** Response wrapper for the react-to-comment mutation. */
 export class ReactToCommentResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ReactionSummaryObject>

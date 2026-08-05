@@ -37,6 +37,7 @@ const MIN_GOAL = 0
 /** Upper bound — a sane cap so the progress ring never reflects an absurd target. */
 const MAX_GOAL = 100
 
+@Resolver()
 /**
  * Set the authenticated user's weekly learning goal (lessons per week).
  *
@@ -44,7 +45,6 @@ const MAX_GOAL = 100
  * is clamped into [0, 100] before it is written, so an out-of-range request is
  * normalized rather than rejected. Returns the standard wrapper with no payload.
  */
-@Resolver()
 export class SetWeeklyGoalResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -40,10 +40,10 @@ import {
     SubmitChallengeSubmissionService,
 } from "./submit-challenge-submission.service"
 
+@Resolver()
 /**
  * GraphQL entry: queue automated grading for GitHub challenge submissions under a challenge.
  */
-@Resolver()
 export class SubmitChallengeSubmissionResolver {
     constructor(
         private readonly submitChallengeSubmissionService: SubmitChallengeSubmissionService,

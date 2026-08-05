@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Checkout URL + identifiers after creating a membership payment link. */
 @ObjectType({
     description: "Checkout URL and identifiers for a community membership purchase.",
 })
+/** Checkout URL + identifiers after creating a membership payment link. */
 export class PurchaseMembershipResponseData {
     @Field(
         () => String,
@@ -60,6 +60,11 @@ export class PurchaseMembershipResponseData {
 @ObjectType({
     description: "Response wrapper for the purchaseMembership mutation.",
 })
+/**
+ * GraphQL envelope for community-membership checkout. `data` is nullable so
+ * the transform interceptor can null it on the error path instead of crashing
+ * GraphQL over a missing checkout payload.
+ */
 export class PurchaseMembershipResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<PurchaseMembershipResponseData>

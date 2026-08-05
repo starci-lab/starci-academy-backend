@@ -41,6 +41,11 @@ import {
 
 @CommandHandler(ExchangeCodeForTokenCommand)
 @Injectable()
+/**
+ * Completes social login: consumes the one-time PKCE bundle, upserts the local
+ * user from the Keycloak JWT, and returns tokens. The refresh token stays off
+ * the GraphQL payload so the resolver can lock it in an httpOnly cookie.
+ */
 export class ExchangeCodeForTokenHandler
     extends ICQRSHandler<ExchangeCodeForTokenCommand, ExchangeCodeForTokenCommandResult>
     implements ICommandHandler<ExchangeCodeForTokenCommand, ExchangeCodeForTokenCommandResult>

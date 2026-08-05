@@ -8,10 +8,10 @@ import {
     CompleteFlashcardDueReviewSessionResolver,
 } from "./complete-flashcard-due-review-session.resolver"
 
-/** Feature-module boundary for the `completeFlashcardDueReviewSession` mutation — wires its resolver (business logic lives in the shared `FlashcardDueReviewSessionService`). */
 @Module({
     providers: [
         CompleteFlashcardDueReviewSessionResolver,
     ],
 })
+/** Feature-module boundary for the `completeFlashcardDueReviewSession` mutation — wires its resolver (business logic lives in the shared `FlashcardDueReviewSessionService`). */
 export class CompleteFlashcardDueReviewSessionSingleMutationModule extends ConfigurableModuleClass {}

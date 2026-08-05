@@ -18,6 +18,10 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin command-bus hop so the resolver does not write enrollment columns
+ * itself.
+ */
 export class SubmitPersonalGithubUrlService {
     constructor(
         private readonly commandBus: CommandBus,

@@ -13,4 +13,8 @@ import {
         SetWeeklyGoalResolver,
     ],
 })
+/**
+ * Registers weekly-goal write separately from weekly-challenge claim so
+ * changing a target cannot accidentally trigger a payout.
+ */
 export class SetWeeklyGoalSingleMutationModule extends ConfigurableModuleClass {}

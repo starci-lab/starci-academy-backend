@@ -19,14 +19,14 @@ const MAX_TECH_STACK_TAGS = 20
 /** Upper bound on a single tech-stack tag length. */
 const MAX_TECH_STACK_TAG_LENGTH = 64
 
+@InputType({
+    description: "Request to pin one of the user's enrollment capstones.",
+})
 /**
  * Request to pin one of the current user's enrollment capstones to their
  * profile. Title and URL are derived server-side (course title / enrollment
  * GitHub URL); only an optional override description and tech stack are accepted.
  */
-@InputType({
-    description: "Request to pin one of the user's enrollment capstones.",
-})
 export class PinCourseProjectRequest {
     @Field(
         () => ID,

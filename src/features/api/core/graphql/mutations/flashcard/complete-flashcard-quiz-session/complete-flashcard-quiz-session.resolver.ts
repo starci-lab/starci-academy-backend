@@ -33,12 +33,12 @@ import {
     CompleteFlashcardQuizSessionResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Record a finished flashcard quick-quiz ("Hỏi nhanh") session and grant its
  * capped, idempotent XP reward via {@link FlashcardQuizSessionService}, returning
  * the XP earned.
  */
-@Resolver()
 export class CompleteFlashcardQuizSessionResolver {
     constructor(
         private readonly flashcardQuizSessionService: FlashcardQuizSessionService,

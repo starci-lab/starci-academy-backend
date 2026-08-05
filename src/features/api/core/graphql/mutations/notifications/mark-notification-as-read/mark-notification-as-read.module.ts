@@ -13,4 +13,8 @@ import {
         MarkNotificationAsReadResolver,
     ],
 })
+/**
+ * Registers the single-notification mark-read write so inbox state changes
+ * stay a Nest unit under the notifications aggregator.
+ */
 export class MarkNotificationAsReadSingleMutationModule extends ConfigurableModuleClass {}

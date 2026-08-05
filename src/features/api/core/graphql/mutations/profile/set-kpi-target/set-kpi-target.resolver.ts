@@ -31,13 +31,13 @@ import {
     SetKpiTargetResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Set one of the authenticated user's weekly KPI targets.
  *
  * Delegates the clamp + the atomic `jsonb_set` write (and the matching
  * anti-gaming floor update) to {@link KpiRewardService.setTarget}.
  */
-@Resolver()
 export class SetKpiTargetResolver {
     constructor(
         private readonly kpiRewardService: KpiRewardService,

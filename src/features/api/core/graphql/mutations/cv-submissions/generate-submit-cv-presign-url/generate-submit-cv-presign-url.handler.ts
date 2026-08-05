@@ -25,6 +25,10 @@ import {
 
 @CommandHandler(GenerateSubmitCvPresignUrlCommand)
 @Injectable()
+/**
+ * Builds a MinIO signed PUT (PDF-only) and returns the object key so `uploadCv`
+ * can register the same key later without the API ever seeing the file bytes.
+ */
 export class GenerateSubmitCvPresignUrlHandler
     extends ICQRSHandler<GenerateSubmitCvPresignUrlCommand, GenerateSubmitCvPresignUrlResponseData>
     implements ICommandHandler<GenerateSubmitCvPresignUrlCommand, GenerateSubmitCvPresignUrlResponseData> {

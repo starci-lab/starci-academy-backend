@@ -5,6 +5,7 @@ import {
     ExecuteParams,
 } from "../../../../../../types"
 
+/** CQRS envelope for applying the parked reset password after OTP succeeds. */
 export class ForgotPasswordVerifyOtpCommand {
     constructor(
         readonly params: ExecuteParams<ForgotPasswordVerifyOtpRequest>,

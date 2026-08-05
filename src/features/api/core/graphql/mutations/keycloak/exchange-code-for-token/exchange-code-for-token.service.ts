@@ -13,6 +13,7 @@ import {
 } from "./exchange-code-for-token.command"
 
 @Injectable()
+/** Forwards the OIDC code exchange to the command bus so the resolver can focus on cookies. */
 export class ExchangeCodeForTokenService {
     constructor(
         private readonly commandBus: CommandBus,

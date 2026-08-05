@@ -33,10 +33,10 @@ import {
     RemoveFromCartService,
 } from "./remove-from-cart.service"
 
+@Resolver()
 /**
  * GraphQL entry for removing a course from the current user's shopping cart.
  */
-@Resolver()
 export class RemoveFromCartResolver {
     constructor(
         private readonly removeFromCartService: RemoveFromCartService,

@@ -122,6 +122,7 @@ const RAG_QUERY_MAX_CHARS = 2000
  */
 const MIN_SUBSTANTIVE_ANSWER_LENGTH = 100
 
+@Injectable()
 /**
  * Grading for a WHOLE mock-interview SESSION (not one question — the
  * candidate answered across all 5 phases in a single conversation). Retrieves
@@ -134,7 +135,6 @@ const MIN_SUBSTANTIVE_ANSWER_LENGTH = 100
  * grades a whole session against a 5-phase rubric instead of one answer
  * against a single model-answer rubric.
  */
-@Injectable()
 export class MockInterviewGradingService {
     /** Logger scoped to this service for the session-lookup-miss warning (see {@link resolveTrustedPromptIdentity}). */
     private readonly logger = new Logger(MockInterviewGradingService.name)

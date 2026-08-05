@@ -11,14 +11,14 @@ import {
     GraphQLTypeCvExportFormat,
 } from "../cv-export-format.enum"
 
+@ObjectType({
+    description: "An exported CV file: presigned URL + persisted object key + format.",
+})
 /**
  * The result of exporting a CV document: a fresh presigned GET URL the FE can
  * open/download immediately, the persisted MinIO object key, and which format
  * was produced.
  */
-@ObjectType({
-    description: "An exported CV file: presigned URL + persisted object key + format.",
-})
 export class RenderCvBlocksResult {
     @Field(
         () => String,
@@ -48,6 +48,7 @@ export class RenderCvBlocksResult {
 @ObjectType({
     description: "Response wrapper for the renderCvBlocks (export) mutation.",
 })
+/** GraphQL envelope with a fresh presigned GET + object key so the export can be downloaded without proxying bytes through GraphQL. */
 export class RenderCvBlocksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RenderCvBlocksResult | null>

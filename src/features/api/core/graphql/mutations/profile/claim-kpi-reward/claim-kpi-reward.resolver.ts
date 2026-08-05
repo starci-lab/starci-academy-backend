@@ -32,6 +32,7 @@ import {
     ClaimKpiRewardResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Claim the authenticated user's coin reward for one weekly KPI whose floor
  * target has been met. Delegates the eligibility + already-claimed checks,
@@ -39,7 +40,6 @@ import {
  * atomic transaction). A typed exception surfaces when the KPI isn't eligible
  * yet or was already claimed this week.
  */
-@Resolver()
 export class ClaimKpiRewardResolver {
     constructor(
         private readonly kpiRewardService: KpiRewardService,

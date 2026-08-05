@@ -7,10 +7,10 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** Response for pinning a course capstone — returns the new pin id. */
 @ObjectType({
     description: "Response for pinning a course capstone project.",
 })
+/** Response for pinning a course capstone — returns the new pin id. */
 export class PinCourseProjectResponse extends AbstractGraphQLResponse {
     @Field(
         () => ID,

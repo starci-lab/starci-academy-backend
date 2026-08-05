@@ -7,12 +7,12 @@ import {
     IsUUID,
 } from "class-validator"
 
-/**
- * Ops request to mark a `pending` physical redemption `fulfilled` (shipped).
- */
 @InputType({
     description: "Mark a pending physical reward redemption as fulfilled (shipped).",
 })
+/**
+ * Ops request to mark a `pending` physical redemption `fulfilled` (shipped).
+ */
 export class FulfillRedemptionRequest {
     /** The redemption to fulfil — must currently be `pending`, checked in the handler. */
     @Field(

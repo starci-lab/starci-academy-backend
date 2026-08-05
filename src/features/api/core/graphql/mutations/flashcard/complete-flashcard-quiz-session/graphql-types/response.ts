@@ -10,6 +10,9 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A weak technology tag from a finished quick-quiz session, with an optional review deep link.",
+})
 /**
  * One weak tag surfaced from the finished session — the lowest-coverage
  * technology tags across the session's cards, ranked ascending (weakest
@@ -17,9 +20,6 @@ import {
  * came from so the recap can bridge a poor score into real review instead of
  * a dead-end "practice more" loop.
  */
-@ObjectType({
-    description: "A weak technology tag from a finished quick-quiz session, with an optional review deep link.",
-})
 export class QuizSessionWeakTagData {
     @Field(
         () => String,
@@ -56,15 +56,15 @@ export class QuizSessionWeakTagData {
         contentId?: string
 }
 
+@ObjectType({
+    description: "Readiness signal for surfacing an AI Mock Interview cross-link from the quick-quiz recap.",
+})
 /**
  * Readiness signal for the AI Mock Interview cross-link — a cheap proxy
  * (flashcard retention rate) reused as-is rather than new cross-session
  * tracking, so the recap can nudge a consistently strong learner toward the
  * platform's actually-differentiated, AI-graded feature.
  */
-@ObjectType({
-    description: "Readiness signal for surfacing an AI Mock Interview cross-link from the quick-quiz recap.",
-})
 export class QuizSessionReadinessData {
     @Field(
         () => Int,
@@ -91,14 +91,14 @@ export class QuizSessionReadinessData {
         unlocked: boolean
 }
 
+@ObjectType({
+    description: "The outcome of a finished flashcard quick-quiz session.",
+})
 /**
  * The outcome of finishing a flashcard quick-quiz session: the XP granted,
  * this session's weakest tags (with review deep links where unambiguous),
  * and the AI Mock Interview readiness signal.
  */
-@ObjectType({
-    description: "The outcome of a finished flashcard quick-quiz session.",
-})
 export class CompleteFlashcardQuizSessionData {
     @Field(
         () => Int,
@@ -133,12 +133,12 @@ export class CompleteFlashcardQuizSessionData {
         readiness: QuizSessionReadinessData
 }
 
-/**
- * Response wrapper for the completeFlashcardQuizSession mutation.
- */
 @ObjectType({
     description: "Response wrapper for the completeFlashcardQuizSession mutation.",
 })
+/**
+ * Response wrapper for the completeFlashcardQuizSession mutation.
+ */
 export class CompleteFlashcardQuizSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CompleteFlashcardQuizSessionData> {

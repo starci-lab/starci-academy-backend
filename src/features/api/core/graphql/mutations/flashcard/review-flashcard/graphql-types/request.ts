@@ -12,12 +12,12 @@ import {
     Min,
 } from "class-validator"
 
-/**
- * Request to grade one flashcard in the spaced-repetition flow.
- */
 @InputType({
     description: "Request to grade a flashcard (SM-2).",
 })
+/**
+ * Request to grade one flashcard in the spaced-repetition flow.
+ */
 export class ReviewFlashcardRequest {
     @Field(
         () => ID,

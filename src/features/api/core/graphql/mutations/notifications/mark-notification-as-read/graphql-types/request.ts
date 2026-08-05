@@ -4,13 +4,13 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Mark a single notification as read.",
+})
 /**
  * Request to mark a single notification as read. The notification must belong to
  * the authenticated user (ownership is enforced server-side).
  */
-@InputType({
-    description: "Mark a single notification as read.",
-})
 export class MarkNotificationAsReadRequest {
     @Field(
         () => ID,

@@ -14,6 +14,10 @@ import {
 @InputType({
     description: "Request for exchanging OIDC authorization code for tokens.",
 })
+/**
+ * Callback payload from the identity broker. `state` must match the server-started
+ * redirect so a stolen `code` alone cannot complete login without the PKCE bundle.
+ */
 export class ExchangeCodeForTokenRequest {
     @Field(() => String,
         {

@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The created CV generation run id (poll `cvGeneration(id)` for its status). */
 @ObjectType({
     description: "Identifies the CV generation run that was created + enqueued.",
 })
+/** The created CV generation run id (poll `cvGeneration(id)` for its status). */
 export class GenerateCvData {
     @Field(
         () => ID,
@@ -33,6 +33,7 @@ export class GenerateCvData {
 @ObjectType({
     description: "Response wrapper for the generateCv mutation.",
 })
+/** GraphQL envelope with job + generation ids so the client can subscribe or poll instead of blocking on a long AI run. */
 export class GenerateCvResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<GenerateCvData>

@@ -31,12 +31,12 @@ import {
     SetAiCeilResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Set the current user's AI model CEILING for one surface (or the global
  * default) — the per-hạng-mục cap the learner uses for cost control. Writes the
  * `ai_subscriptions.ceil_overrides` jsonb; clients refetch `myAiQuota` after.
  */
-@Resolver()
 export class SetAiCeilResolver {
     constructor(
         private readonly aiEntitlementService: AiEntitlementService,

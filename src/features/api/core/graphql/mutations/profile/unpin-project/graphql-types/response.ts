@@ -5,9 +5,9 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** Response for removing a pinned project (no payload). */
 @ObjectType({
     description: "Response for removing a pinned project.",
 })
+/** Response for removing a pinned project (no payload). */
 export class UnpinProjectResponse extends AbstractGraphQLResponse {
 }

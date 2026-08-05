@@ -30,4 +30,5 @@ import {
         SplitCvFromTextService,
     ],
 })
+/** Isolated Nest registration for split-from-text without wiring persist mutations into the same graph. */
 export class SplitCvFromTextSingleMutationModule extends ConfigurableModuleClass {}

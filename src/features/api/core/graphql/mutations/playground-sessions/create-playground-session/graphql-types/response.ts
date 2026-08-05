@@ -16,6 +16,11 @@ import {
 @ObjectType({
     description: "Data for the createPlaygroundSession mutation.",
 })
+/**
+ * Fresh session snapshot: id + pairing code + mode + ordered steps.
+ * When mode is Free, every step's `commandHint` is nulled server-side —
+ * a free-mode learner's response must never contain the hint value.
+ */
 export class CreatePlaygroundSessionResponseData {
     @Field(
         () => ID,
@@ -41,12 +46,6 @@ export class CreatePlaygroundSessionResponseData {
     )
         mode: PlaygroundSessionMode
 
-    /**
-     * The playground's ordered steps, snapshotted for this session. When
-     * {@link mode} is {@link PlaygroundSessionMode.Free}, every step's
-     * `commandHint` is nulled out server-side here — a Free-mode learner's
-     * response never contains the hint value.
-     */
     @Field(
         () => [PlaygroundStepEntity],
         {
@@ -59,6 +58,10 @@ export class CreatePlaygroundSessionResponseData {
 @ObjectType({
     description: "Response wrapper for the createPlaygroundSession mutation.",
 })
+/**
+ * Envelope for createPlaygroundSession. `data` is nullable so interceptor
+ * error paths do not crash GraphQL over a missing session snapshot.
+ */
 export class CreatePlaygroundSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CreatePlaygroundSessionResponseData>

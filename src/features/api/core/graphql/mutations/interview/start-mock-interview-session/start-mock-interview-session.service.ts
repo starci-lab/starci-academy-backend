@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Forwards the start-session request to the command bus so the resolver stays a thin leaf. */
 export class StartMockInterviewSessionService {
     constructor(
         private readonly commandBus: CommandBus,

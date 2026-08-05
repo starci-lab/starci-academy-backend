@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Identifiers returned after a solution is accepted for judging. */
 @ObjectType({
     description: "The created submission id + the judging job id to subscribe to.",
 })
+/** Identifiers returned after a solution is accepted for judging. */
 export class SubmitCodingSolutionResponseData {
     /** Row id to look up submission history/detail; the verdict itself is filled in later by the judge worker. */
     @Field(
@@ -32,10 +32,10 @@ export class SubmitCodingSolutionResponseData {
         jobId: string
 }
 
-/** Response wrapper for the `submitCodingSolution` mutation; the submission/job ids live in {@link data}. */
 @ObjectType({
     description: "Response wrapper for the submitCodingSolution mutation.",
 })
+/** Response wrapper for the `submitCodingSolution` mutation; the submission/job ids live in {@link data}. */
 export class SubmitCodingSolutionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SubmitCodingSolutionResponseData>

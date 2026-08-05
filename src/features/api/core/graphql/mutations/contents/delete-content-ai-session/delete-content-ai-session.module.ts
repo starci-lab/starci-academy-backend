@@ -13,4 +13,5 @@ import {
         DeleteContentAiSessionResolver,
     ],
 })
+/** Isolated Nest registration for deleting a content-AI conversation without wiring sibling session mutations. */
 export class DeleteContentAiSessionSingleMutationModule extends ConfigurableModuleClass { }

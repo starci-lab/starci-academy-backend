@@ -26,6 +26,8 @@ import {
     AddToCartCommand,
 } from "./add-to-cart.command"
 
+@CommandHandler(AddToCartCommand)
+@Injectable()
 /**
  * Handler for the addToCart mutation.
  *
@@ -34,8 +36,6 @@ import {
  * is already present (so the unique constraint is never tripped), otherwise
  * creates and returns a fresh one.
  */
-@CommandHandler(AddToCartCommand)
-@Injectable()
 export class AddToCartHandler
     extends ICQRSHandler<AddToCartCommand, CartItemEntity>
     implements ICommandHandler<AddToCartCommand, CartItemEntity> {

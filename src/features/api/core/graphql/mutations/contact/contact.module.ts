@@ -8,9 +8,6 @@ import {
     SubmitContactSingleMutationModule,
 } from "./submit-contact"
 
-/**
- * Public contact mutation group (the contact-form submission).
- */
 @Module({
     imports: [
         SubmitContactSingleMutationModule.register({
@@ -18,4 +15,7 @@ import {
         }),
     ],
 })
+/**
+ * Public contact mutation group (the contact-form submission).
+ */
 export class ContactMutationsModule extends ConfigurableModuleClass {}

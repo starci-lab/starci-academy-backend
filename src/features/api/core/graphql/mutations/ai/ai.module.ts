@@ -11,9 +11,6 @@ import {
     ConfigurableModuleClass,
 } from "./ai.module-definition"
 
-/**
- * Per-user AI mutation group (subscription purchase, per-surface model ceiling, …).
- */
 @Module({
     imports: [
         PurchaseAiSubscriptionSingleMutationModule.register({
@@ -24,4 +21,7 @@ import {
         }),
     ],
 })
+/**
+ * Per-user AI mutation group (subscription purchase, per-surface model ceiling, …).
+ */
 export class AiMutationsModule extends ConfigurableModuleClass { }

@@ -32,6 +32,10 @@ import {
 } from "./graphql-types"
 
 @Resolver()
+/**
+ * GraphQL entry for logging out one other device. Auth is required; ownership
+ * is enforced in SessionService so users cannot revoke each other's sessions.
+ */
 export class RevokeSessionResolver {
     constructor(
         private readonly sessionService: SessionService,

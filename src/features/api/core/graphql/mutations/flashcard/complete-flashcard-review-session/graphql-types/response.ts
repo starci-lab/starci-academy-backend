@@ -8,6 +8,9 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "The outcome of a finished flashcard review session.",
+})
 /**
  * The outcome of finishing a flashcard review session: the reviewed-count
  * and XP bookkeeping values snapshotted onto the row. `xpEarned` here is
@@ -15,9 +18,6 @@ import {
  * `CompleteFlashcardReviewSessionRequest`'s own doc for why no XP grant
  * happens server-side.
  */
-@ObjectType({
-    description: "The outcome of a finished flashcard review session.",
-})
 export class CompleteFlashcardReviewSessionData {
     @Field(
         () => Int,
@@ -36,12 +36,12 @@ export class CompleteFlashcardReviewSessionData {
         xpEarned: number
 }
 
-/**
- * Response wrapper for the completeFlashcardReviewSession mutation.
- */
 @ObjectType({
     description: "Response wrapper for the completeFlashcardReviewSession mutation.",
 })
+/**
+ * Response wrapper for the completeFlashcardReviewSession mutation.
+ */
 export class CompleteFlashcardReviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CompleteFlashcardReviewSessionData> {

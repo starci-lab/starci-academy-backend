@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One phase's score breakdown inside a graded mock-interview session. */
 @ObjectType({
     description: "Score breakdown for one of the 5 canonical mock interview phases.",
 })
+/** One phase's score breakdown inside a graded mock-interview session. */
 export class MockInterviewPhaseScoreItem {
     @Field(
         () => String,
@@ -39,10 +39,10 @@ export class MockInterviewPhaseScoreItem {
         max: number
 }
 
-/** One named attribute's score inside a graded mock-interview session. */
 @ObjectType({
     description: "Score for one named evaluation attribute (communication, structured thinking, …).",
 })
+/** One named attribute's score inside a graded mock-interview session. */
 export class MockInterviewAttributeScoreItem {
     @Field(
         () => String,
@@ -61,6 +61,9 @@ export class MockInterviewAttributeScoreItem {
         score: number
 }
 
+@ObjectType({
+    description: "Per-question model-answer review for one mode=\"qna\" question.",
+})
 /**
  * One `mode="qna"` question's full review — the candidate's own answer paired
  * with the course's CANONICAL authored answer for the exact same flashcard
@@ -68,9 +71,6 @@ export class MockInterviewAttributeScoreItem {
  * course looks like (a generic tool has no ground truth to compare against).
  * Always an empty array on the parent for `mode="design"`.
  */
-@ObjectType({
-    description: "Per-question model-answer review for one mode=\"qna\" question.",
-})
 export class MockInterviewQuestionReviewItem {
     @Field(
         () => Int,
@@ -147,10 +147,10 @@ export class MockInterviewQuestionReviewItem {
         matchedContentId: string | null
 }
 
-/** The graded result for one whole mock-interview session. */
 @ObjectType({
     description: "Grade for a whole mock-interview session, scored against the 5-phase rubric.",
 })
+/** The graded result for one whole mock-interview session. */
 export class MockInterviewGradeSessionData {
     @Field(
         () => Int,
@@ -229,6 +229,11 @@ export class MockInterviewGradeSessionData {
 @ObjectType({
     description: "Response wrapper for the gradeMockInterviewSession mutation.",
 })
+/**
+ * Envelope for a finished session grade. `data` is nullable so the transform
+ * interceptor can null it on the error path — a required field would crash
+ * GraphQL and hide the real exception (e.g. RAG/model failure).
+ */
 export class GradeMockInterviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MockInterviewGradeSessionData>

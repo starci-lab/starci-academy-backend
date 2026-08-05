@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request for the start-trial mutation. */
 @InputType({
     description: "Course id to start a trial (preview) enrollment for.",
 })
+/** Request for the start-trial mutation. */
 export class StartTrialRequest {
     @Field(
         () => ID,

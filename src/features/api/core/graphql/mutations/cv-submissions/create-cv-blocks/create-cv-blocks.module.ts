@@ -30,4 +30,5 @@ import {
         CreateCvBlocksService,
     ],
 })
+/** Isolated Nest registration for creating a CV block document without wiring sibling editor mutations. */
 export class CreateCvBlocksSingleMutationModule extends ConfigurableModuleClass {}

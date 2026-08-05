@@ -44,6 +44,7 @@ import {
     VoucherService,
 } from "@modules/bussiness"
 
+@Injectable()
 /**
  * Crypto (NOWPayments) course enrollment: creates a hosted invoice (redirect
  * provider, USDT/USDC) and persists a pending preflight row.
@@ -58,7 +59,6 @@ import {
  * only ever sees Percent here. Same preview → reserve pattern as
  * {@link CourseEnrollSepayService}.
  */
-@Injectable()
 export class CourseEnrollCryptoService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

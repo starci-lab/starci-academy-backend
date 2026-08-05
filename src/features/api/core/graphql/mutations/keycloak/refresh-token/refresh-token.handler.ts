@@ -26,6 +26,10 @@ import type {
 
 @CommandHandler(RefreshTokenCommand)
 @Injectable()
+/**
+ * Refreshes tokens, coalescing concurrent calls on the same refresh token so
+ * Keycloak rotation cannot invalidate parallel tab refreshes.
+ */
 export class RefreshTokenHandler
     extends ICQRSHandler<RefreshTokenCommand, RefreshTokenCommandResult>
     implements ICommandHandler<RefreshTokenCommand, RefreshTokenCommandResult>

@@ -35,10 +35,10 @@ import {
     SyncPersonalProjectGithubService,
 } from "./sync-personal-project-github.service"
 
+@Resolver()
 /**
  * GraphQL entry for syncing the personal project GitHub URL for the current user.
  */
-@Resolver()
 export class SyncPersonalProjectGithubResolver {
     constructor(
         private readonly syncPersonalProjectGithubService: SyncPersonalProjectGithubService,

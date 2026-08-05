@@ -31,6 +31,8 @@ import {
     AskContentAiData,
 } from "./graphql-types"
 
+@CommandHandler(AskContentAiCommand)
+@Injectable()
 /**
  * Handles {@link AskContentAiCommand}: grounds the learner's question via
  * {@link ContentAiService.prepareMessages} (lesson/task/challenge/quiz/
@@ -38,8 +40,6 @@ import {
  * floor, then bills the AI credit pool for whichever model actually served
  * the answer.
  */
-@CommandHandler(AskContentAiCommand)
-@Injectable()
 export class AskContentAiHandler
     extends ICQRSHandler<AskContentAiCommand, AskContentAiData>
     implements ICommandHandler<AskContentAiCommand, AskContentAiData> {

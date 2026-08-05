@@ -30,11 +30,11 @@ import {
     MarkAllNotificationsAsReadResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Marks ALL of the current user's unread notifications as read in one statement
  * (the "mark all read" action on the bell). Returns how many rows were flipped.
  */
-@Resolver()
 export class MarkAllNotificationsAsReadResolver {
     constructor(
         private readonly notificationService: NotificationService,

@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Checkout URL + identifiers after creating an AI subscription payment link. */
 @ObjectType({
     description: "Checkout URL and identifiers for an AI subscription purchase.",
 })
+/** Checkout URL + identifiers after creating an AI subscription payment link. */
 export class PurchaseAiSubscriptionResponseData {
     @Field(
         () => String,
@@ -60,6 +60,11 @@ export class PurchaseAiSubscriptionResponseData {
 @ObjectType({
     description: "Response wrapper for the purchaseAiSubscription mutation.",
 })
+/**
+ * GraphQL envelope for AI-subscription checkout. `data` is nullable so the
+ * transform interceptor can null it on the error path — a required field would
+ * crash GraphQL and hide the real payment-provider failure.
+ */
 export class PurchaseAiSubscriptionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<PurchaseAiSubscriptionResponseData>

@@ -31,6 +31,10 @@ import {
 
 @CommandHandler(ConnectGithubAccountCommand)
 @Injectable()
+/**
+ * Verifies the GitHub login exists via Octokit before persisting it — a
+ * typo'd username would otherwise break later team-invite / clone jobs.
+ */
 export class ConnectGithubAccountHandler
     extends ICQRSHandler<ConnectGithubAccountCommand, UserEntity>
     implements ICommandHandler<ConnectGithubAccountCommand, UserEntity> {

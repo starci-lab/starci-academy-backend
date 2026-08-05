@@ -28,11 +28,11 @@ import {
     VerifyAvatarPresignUrlService,
 } from "./verify-avatar-presign-url.service"
 
+@Resolver()
 /**
  * Resolver confirming a direct avatar upload + persisting it (mutation-based,
  * mirrors the CV submission verify flow).
  */
-@Resolver()
 export class VerifyAvatarPresignUrlResolver {
     constructor(
         private readonly verifyAvatarPresignUrlService: VerifyAvatarPresignUrlService,

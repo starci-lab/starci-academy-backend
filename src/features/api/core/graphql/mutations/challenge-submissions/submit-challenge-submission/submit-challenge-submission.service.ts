@@ -13,6 +13,10 @@ import {
 } from "./types"
 
 @Injectable()
+/**
+ * Thin command-bus hop so the GraphQL leaf never talks to the job queue or
+ * the credit pool directly.
+ */
 export class SubmitChallengeSubmissionService {
     constructor(
         private readonly commandBus: CommandBus,

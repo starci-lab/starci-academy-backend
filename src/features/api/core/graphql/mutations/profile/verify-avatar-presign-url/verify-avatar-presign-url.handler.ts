@@ -33,13 +33,13 @@ import {
     AvatarKeyOwnershipMismatchException,
 } from "@modules/exceptions"
 
+@CommandHandler(VerifyAvatarPresignUrlCommand)
+@Injectable()
 /**
  * Confirms a direct avatar upload: authorises the key (must live under the
  * caller's own `avatars/{userId}/` prefix — never trust a client key), checks
  * the object really landed in MinIO, then persists its public URL on the user.
  */
-@CommandHandler(VerifyAvatarPresignUrlCommand)
-@Injectable()
 export class VerifyAvatarPresignUrlHandler
     extends ICQRSHandler<VerifyAvatarPresignUrlCommand, VerifyAvatarPresignUrlResponseData>
     implements ICommandHandler<VerifyAvatarPresignUrlCommand, VerifyAvatarPresignUrlResponseData> {

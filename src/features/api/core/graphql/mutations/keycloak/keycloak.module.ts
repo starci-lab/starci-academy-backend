@@ -72,4 +72,8 @@ import {
         }),
     ],
 })
+/**
+ * Aggregates every Keycloak write (sign-in/up, OTP, token, session) so the API
+ * app can import auth mutations as one configurable module.
+ */
 export class KeycloakMutationsModule extends ConfigurableModuleClass {}

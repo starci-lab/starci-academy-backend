@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Checkout URL + identifiers after creating an installment-plan cycle payment. */
 @ObjectType({
     description: "Checkout URL and identifiers for paying an installment plan's current cycle.",
 })
+/** Checkout URL + identifiers after creating an installment-plan cycle payment. */
 export class PayNextInstallmentResponseData {
     @Field(
         () => ID,
@@ -65,12 +65,12 @@ export class PayNextInstallmentResponseData {
         checkoutFields?: string
 }
 
-/**
- * Response wrapper for the `payNextInstallment` mutation.
- */
 @ObjectType({
     description: "Response wrapper for the payNextInstallment mutation.",
 })
+/**
+ * Response wrapper for the `payNextInstallment` mutation.
+ */
 export class PayNextInstallmentResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<PayNextInstallmentResponseData>

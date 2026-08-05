@@ -21,4 +21,8 @@ import {
         SyncPersonalProjectGithubHandler,
     ],
 })
+/**
+ * Registers the enrollment GitHub patch leaf separately from first-time
+ * submit so token clears cannot hitch a ride on the required-URL mutation.
+ */
 export class SyncPersonalProjectGithubSingleMutationModule extends ConfigurableModuleClass {}

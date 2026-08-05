@@ -3,6 +3,9 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Extract plain text from an uploaded document (CV / job description) by its storage key (no persistence).",
+})
 /**
  * Extract plain text from an already-uploaded document (a CV file or a job
  * description file) identified by its storage object key. The FE presigns +
@@ -10,9 +13,6 @@ import {
  * extracted text is handed back to the FE (not persisted) so the user can
  * review/edit it before feeding it into `splitCvFromText` / `tailorCvBlocks`.
  */
-@InputType({
-    description: "Extract plain text from an uploaded document (CV / job description) by its storage key (no persistence).",
-})
 export class ExtractDocumentTextRequest {
     @Field(
         () => String,

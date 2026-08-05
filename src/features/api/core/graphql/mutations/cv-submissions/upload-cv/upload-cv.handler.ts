@@ -38,6 +38,10 @@ import {
 
 @CommandHandler(UploadCvCommand)
 @Injectable()
+/**
+ * Creates a Pending uploaded-source row and enqueues scoring so upload and
+ * score stay one atomic user action after the presigned PUT.
+ */
 export class UploadCvHandler
     extends ICQRSHandler<UploadCvCommand, UploadCvData>
     implements ICommandHandler<UploadCvCommand, UploadCvData> {

@@ -45,6 +45,7 @@ import {
     VoucherService,
 } from "@modules/bussiness"
 
+@Injectable()
 /**
  * Stripe-specific course enrollment: creates a hosted Checkout Session
  * (redirect provider) and persists a pending preflight row.
@@ -60,7 +61,6 @@ import {
  * only ever sees Percent here. Same preview → reserve pattern as
  * {@link CourseEnrollSepayService}.
  */
-@Injectable()
 export class CourseEnrollStripeService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

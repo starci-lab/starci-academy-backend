@@ -37,6 +37,10 @@ import {
 } from "./review-personal-project-task.service"
 
 @Resolver()
+/**
+ * GraphQL leaf for per-task review. Enrollment guard lives here so an
+ * unenrolled caller never reaches the handler's enrollment lookup.
+ */
 export class ReviewPersonalProjectTaskResolver {
     constructor(
         private readonly service: ReviewPersonalProjectTaskService,

@@ -26,6 +26,10 @@ import {
 
 @CommandHandler(ForgotPasswordResendOtpCommand)
 @Injectable()
+/**
+ * Rotates the reset OTP on the existing challenge so the parked new-password
+ * payload stays intact — a resend must not force the user to re-enter it.
+ */
 export class ForgotPasswordResendOtpHandler
     extends ICQRSHandler<ForgotPasswordResendOtpCommand, SignInInitData>
     implements ICommandHandler<ForgotPasswordResendOtpCommand, SignInInitData>

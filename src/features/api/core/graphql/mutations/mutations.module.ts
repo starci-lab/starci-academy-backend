@@ -166,4 +166,8 @@ import {
         }),
     ],
 })
+/**
+ * Root write-side composition: every domain mutation group registers here
+ * as global so a feature app can import one module instead of each leaf.
+ */
 export class MutationsModule extends ConfigurableModuleClass { }

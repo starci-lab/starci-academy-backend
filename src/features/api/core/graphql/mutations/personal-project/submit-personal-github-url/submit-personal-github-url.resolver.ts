@@ -37,6 +37,10 @@ import {
 } from "./submit-personal-github-url.service"
 
 @Resolver(() => EnrollmentEntity)
+/**
+ * GraphQL leaf for the first-time repo bind. Enrollment guard lives here
+ * so an unenrolled caller never reaches the handler's findOneOrFail.
+ */
 export class SubmitPersonalGithubUrlResolver {
     constructor(
         private readonly service: SubmitPersonalGithubUrlService,

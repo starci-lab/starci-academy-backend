@@ -17,10 +17,10 @@ import type {
     ReactToContentRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that sets/changes/removes the current user's reaction on a content.
  */
-@Injectable()
 export class ReactToContentService {
     constructor(
         private readonly reactionService: ReactionService,

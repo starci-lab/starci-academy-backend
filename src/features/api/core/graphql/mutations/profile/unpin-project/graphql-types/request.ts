@@ -7,10 +7,10 @@ import {
     IsUUID,
 } from "class-validator"
 
-/** Request to remove one of the current user's pinned projects. */
 @InputType({
     description: "Request to remove one of the user's pinned projects.",
 })
+/** Request to remove one of the current user's pinned projects. */
 export class UnpinProjectRequest {
     @Field(
         () => ID,

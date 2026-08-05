@@ -21,4 +21,5 @@ import {
         RemoveFromCartHandler,
     ],
 })
+/** Isolated Nest registration for dropping one cart line without clearing the rest. */
 export class RemoveFromCartSingleMutationModule extends ConfigurableModuleClass {}

@@ -45,4 +45,5 @@ import {
         }),
     ],
 })
+/** Composition root for cart, enroll, trial, and checkout writes so the schema picks them up from one import. */
 export class CoursesMutationsModule extends ConfigurableModuleClass {}

@@ -10,6 +10,10 @@ import {
 @ObjectType({
     description: "Data for submit challenge submission mutation.",
 })
+/**
+ * Only the enqueued `jobs.id` — grading is async; the client subscribes to
+ * job notifications rather than blocking on the score.
+ */
 export class SubmitChallengeSubmissionResponseData {
     @Field(
         () => ID,
@@ -23,6 +27,10 @@ export class SubmitChallengeSubmissionResponseData {
 @ObjectType({
     description: "Response for submit challenge submissions mutation.",
 })
+/**
+ * Envelope for submitChallengeSubmission. `data` is nullable so interceptor
+ * error paths do not crash GraphQL over a missing job id.
+ */
 export class SubmitChallengeSubmissionResponse extends AbstractGraphQLResponse {
     @Field(
         () => SubmitChallengeSubmissionResponseData,

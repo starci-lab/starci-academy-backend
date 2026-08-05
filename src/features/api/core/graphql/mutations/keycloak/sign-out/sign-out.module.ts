@@ -29,5 +29,6 @@ import {
         SignOutHandler,
     ],
 })
+/** Wires sign-out with CookieModule so this mutation can clear auth cookies itself. */
 export class SignOutSingleMutationModule extends ConfigurableModuleClass {}
 

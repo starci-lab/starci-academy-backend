@@ -4,13 +4,13 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Start a new content-AI conversation for a scope (content / task / foundation / course).",
+})
 /**
  * Request for {@link CreateContentAiSessionResponse}: start a new content-AI
  * conversation (session) anchored to a content.
  */
-@InputType({
-    description: "Start a new content-AI conversation for a scope (content / task / foundation / course).",
-})
 export class CreateContentAiSessionRequest {
     @Field(
         () => String,

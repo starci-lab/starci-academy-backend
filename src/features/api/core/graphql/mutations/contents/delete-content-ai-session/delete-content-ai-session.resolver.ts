@@ -35,6 +35,7 @@ import type {
 } from "./graphql-types"
 
 @Resolver()
+/** GraphQL entry that removes a conversation the user no longer wants in the sidebar. */
 export class DeleteContentAiSessionResolver {
     constructor(
         private readonly contentAiService: ContentAiService,

@@ -34,8 +34,8 @@ import {
     DeleteCommunityPostService,
 } from "./delete-community-post.service"
 
-/** GraphQL resolver for the `deleteCommunityPost` mutation. */
 @Resolver()
+/** GraphQL resolver for the `deleteCommunityPost` mutation. */
 export class DeleteCommunityPostResolver {
     constructor(
         private readonly deleteCommunityPostService: DeleteCommunityPostService,

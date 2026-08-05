@@ -75,6 +75,11 @@ import type {
 
 @CommandHandler(PurchaseAiSubscriptionCommand)
 @Injectable()
+/**
+ * Opens AI-tier checkout: persists a pending transaction, then hands the
+ * client a provider URL (or SePay signed form fields). Fulfilment is webhook
+ * + reconcile-job — this handler must not mark the subscription active.
+ */
 export class PurchaseAiSubscriptionHandler
     extends ICQRSHandler<PurchaseAiSubscriptionCommand, PurchaseAiSubscriptionResponseData>
     implements ICommandHandler<PurchaseAiSubscriptionCommand, PurchaseAiSubscriptionResponseData> {

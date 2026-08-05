@@ -20,11 +20,11 @@ import type {
     SetCommunityPostPinnedRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that pins/unpins a community post (founder-only) and returns the
  * refreshed client-facing node.
  */
-@Injectable()
 export class SetCommunityPostPinnedService {
     constructor(
         private readonly communityPostService: CommunityPostService,

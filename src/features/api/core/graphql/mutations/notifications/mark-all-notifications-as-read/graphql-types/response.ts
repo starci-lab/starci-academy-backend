@@ -8,12 +8,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * Result of marking all of the current user's notifications as read.
- */
 @ObjectType({
     description: "Result of marking all notifications as read.",
 })
+/**
+ * Result of marking all of the current user's notifications as read.
+ */
 export class MarkAllNotificationsAsReadResponseData {
     @Field(
         () => Int,
@@ -24,12 +24,12 @@ export class MarkAllNotificationsAsReadResponseData {
         markedCount: number
 }
 
-/**
- * Response wrapper for the markAllNotificationsAsRead mutation.
- */
 @ObjectType({
     description: "Response wrapper for the markAllNotificationsAsRead mutation.",
 })
+/**
+ * Response wrapper for the markAllNotificationsAsRead mutation.
+ */
 export class MarkAllNotificationsAsReadResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MarkAllNotificationsAsReadResponseData>

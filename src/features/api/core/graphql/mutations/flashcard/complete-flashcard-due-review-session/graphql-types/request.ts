@@ -9,6 +9,9 @@ import {
     Min,
 } from "class-validator"
 
+@InputType({
+    description: "Request to record a finished cross-deck due-review batch session.",
+})
 /**
  * Request to record a finished cross-deck due-review batch session.
  *
@@ -20,9 +23,6 @@ import {
  * history/stats display — never a server grant. Mirrors
  * `CompleteFlashcardReviewSessionRequest`.
  */
-@InputType({
-    description: "Request to record a finished cross-deck due-review batch session.",
-})
 export class CompleteFlashcardDueReviewSessionRequest {
     @Field(
         () => ID,

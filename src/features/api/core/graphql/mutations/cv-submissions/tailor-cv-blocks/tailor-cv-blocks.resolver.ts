@@ -33,6 +33,7 @@ import {
 } from "./tailor-cv-blocks.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before tailoring block wording toward a job description. */
 export class TailorCvBlocksResolver {
     constructor(
         private readonly tailorCvBlocksService: TailorCvBlocksService,

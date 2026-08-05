@@ -31,6 +31,10 @@ import {
 } from "@modules/captcha"
 
 @Resolver()
+/**
+ * GraphQL entry for starting sign-up. Captcha + strict throttle exist to stop
+ * unauthenticated account-creation and OTP mail storms.
+ */
 export class SignUpInitResolver {
     constructor(
         private readonly signUpInitService: SignUpInitService,

@@ -3,12 +3,12 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/**
- * Request payload for getting a pre-signed URL to submit a CV.
- */
 @InputType({
     description: "Input for generating a CV submission pre-signed URL.",
 })
+/**
+ * Request payload for getting a pre-signed URL to submit a CV.
+ */
 export class GenerateSubmitCvPresignUrlRequest {
     /**
      * Original filename (used to determine extension).

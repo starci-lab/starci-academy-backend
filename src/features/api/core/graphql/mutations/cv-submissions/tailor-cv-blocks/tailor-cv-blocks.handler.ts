@@ -37,6 +37,8 @@ import {
     TailorCvBlocksData,
 } from "./graphql-types"
 
+@CommandHandler(TailorCvBlocksCommand)
+@Injectable()
 /**
  * Handler for `tailorCvBlocks` — tailors the ENTIRE CV blocks array toward a job
  * description via a SYNCHRONOUS AI invoke (no BullMQ enqueue). Nothing is
@@ -54,8 +56,6 @@ import {
  * A validated model pick threads through `selection`; no pick → the Auto lane
  * picks (local-first). Mirrors rewrite-cv-block's invoke path.
  */
-@CommandHandler(TailorCvBlocksCommand)
-@Injectable()
 export class TailorCvBlocksHandler
     extends ICQRSHandler<TailorCvBlocksCommand, TailorCvBlocksData>
     implements ICommandHandler<TailorCvBlocksCommand, TailorCvBlocksData> {

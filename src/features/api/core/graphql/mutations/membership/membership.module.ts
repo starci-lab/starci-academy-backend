@@ -8,9 +8,6 @@ import {
     ConfigurableModuleClass,
 } from "./membership.module-definition"
 
-/**
- * Community membership mutation group (purchase / checkout).
- */
 @Module({
     imports: [
         PurchaseMembershipSingleMutationModule.register({
@@ -18,4 +15,7 @@ import {
         }),
     ],
 })
+/**
+ * Community membership mutation group (purchase / checkout).
+ */
 export class MembershipMutationsModule extends ConfigurableModuleClass { }

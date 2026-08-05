@@ -31,6 +31,10 @@ import {
 } from "@modules/captcha"
 
 @Resolver()
+/**
+ * GraphQL entry for starting password sign-in. Captcha + strict throttle exist
+ * to stop credential stuffing from minting OTP mail storms.
+ */
 export class SignInInitResolver {
     constructor(
         private readonly signInInitService: SignInInitService,

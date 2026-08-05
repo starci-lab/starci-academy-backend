@@ -5,9 +5,9 @@ import {
     AbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Response for disabling two-factor. */
 @ObjectType({
     description: "Response for disabling two-factor (TOTP).",
 })
+/** Response for disabling two-factor. */
 export class DisableTwoFactorResponse extends AbstractGraphQLResponse {
 }

@@ -30,4 +30,5 @@ import {
         SyncMockInterviewSessionTurnsService,
     ],
 })
+/** Wires the in-flight transcript sync as its own mutation module for resume support. */
 export class SyncMockInterviewSessionTurnsSingleMutationModule extends ConfigurableModuleClass {}

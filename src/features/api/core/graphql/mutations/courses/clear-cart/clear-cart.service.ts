@@ -14,8 +14,8 @@ import type {
     ClearCartResponseData,
 } from "./graphql-types"
 
-/** Thin service that forwards the clearCart request to the CQRS command bus. */
 @Injectable()
+/** Thin service that forwards the clearCart request to the CQRS command bus. */
 export class ClearCartService {
     constructor(
         private readonly commandBus: CommandBus,

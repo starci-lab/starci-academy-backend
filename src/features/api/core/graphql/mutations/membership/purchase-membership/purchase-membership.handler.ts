@@ -78,6 +78,11 @@ const MEMBERSHIP_LABEL = "community-membership"
 
 @CommandHandler(PurchaseMembershipCommand)
 @Injectable()
+/**
+ * Opens community-membership checkout: pending transaction first, then a
+ * provider URL / SePay form. Activation is webhook + reconcile — this path
+ * must not flip membership on.
+ */
 export class PurchaseMembershipHandler
     extends ICQRSHandler<PurchaseMembershipCommand, PurchaseMembershipResponseData>
     implements ICommandHandler<PurchaseMembershipCommand, PurchaseMembershipResponseData> {

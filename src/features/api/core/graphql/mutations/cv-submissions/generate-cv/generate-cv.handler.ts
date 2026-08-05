@@ -31,6 +31,10 @@ import {
 
 @CommandHandler(GenerateCvCommand)
 @Injectable()
+/**
+ * Validates model entitlement then creates a Pending generation + job so the
+ * client polls instead of blocking the mutation on a long AI run.
+ */
 export class GenerateCvHandler
     extends ICQRSHandler<GenerateCvCommand, GenerateCvData>
     implements ICommandHandler<GenerateCvCommand, GenerateCvData> {

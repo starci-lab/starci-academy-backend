@@ -8,6 +8,9 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "The outcome of a finished cross-deck due-review batch session.",
+})
 /**
  * The outcome of finishing a cross-deck due-review batch session: the
  * reviewed-count and XP bookkeeping values snapshotted onto the row.
@@ -15,9 +18,6 @@ import {
  * `CompleteFlashcardDueReviewSessionRequest`'s own doc for why no XP grant
  * happens server-side.
  */
-@ObjectType({
-    description: "The outcome of a finished cross-deck due-review batch session.",
-})
 export class CompleteFlashcardDueReviewSessionData {
     @Field(
         () => Int,
@@ -36,12 +36,12 @@ export class CompleteFlashcardDueReviewSessionData {
         xpEarned: number
 }
 
-/**
- * Response wrapper for the completeFlashcardDueReviewSession mutation.
- */
 @ObjectType({
     description: "Response wrapper for the completeFlashcardDueReviewSession mutation.",
 })
+/**
+ * Response wrapper for the completeFlashcardDueReviewSession mutation.
+ */
 export class CompleteFlashcardDueReviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CompleteFlashcardDueReviewSessionData> {

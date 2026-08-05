@@ -34,8 +34,8 @@ import {
     CreateCommentService,
 } from "./create-comment.service"
 
-/** GraphQL resolver for the `createComment` mutation. */
 @Resolver()
+/** GraphQL resolver for the `createComment` mutation. */
 export class CreateCommentResolver {
     constructor(
         private readonly createCommentService: CreateCommentService,

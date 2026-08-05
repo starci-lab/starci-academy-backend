@@ -27,10 +27,10 @@ import {
     GraphQLSuccessMessage, GraphQLTransformInterceptor 
 } from "@modules/api"
 
+@Resolver()
 /**
  * Resolver for getting a pre-signed URL to upload a CV (Mutation-based).
  */
-@Resolver()
 export class GenerateSubmitCvPresignUrlResolver {
     constructor(
         private readonly presignedUrlService: GenerateSubmitCvPresignUrlService,

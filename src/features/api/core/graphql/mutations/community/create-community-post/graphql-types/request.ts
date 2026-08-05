@@ -7,10 +7,10 @@ import {
     GraphQLTypeCommunityChannel,
 } from "@modules/databases"
 
-/** Request to create a community post. */
 @InputType({
     description: "Request to create a community post.",
 })
+/** Request to create a community post. */
 export class CreateCommunityPostRequest {
     /** Channel the post is published to (defaults to the general channel). */
     @Field(

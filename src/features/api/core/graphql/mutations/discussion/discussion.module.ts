@@ -29,9 +29,6 @@ import {
     ReactToActivityService,
 } from "./react-to-activity"
 
-/**
- * Aggregates the write-side (mutation) resolvers of the content discussion feature.
- */
 @Module({
     providers: [
         CreateCommentResolver,
@@ -48,4 +45,7 @@ import {
         ReactToActivityService,
     ],
 })
+/**
+ * Aggregates the write-side (mutation) resolvers of the content discussion feature.
+ */
 export class DiscussionMutationsModule extends ConfigurableModuleClass {}

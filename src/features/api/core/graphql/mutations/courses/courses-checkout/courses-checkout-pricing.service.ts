@@ -25,6 +25,7 @@ import type {
     PriceCartResult,
 } from "./types"
 
+@Injectable()
 /**
  * Prices a multi-course cart into per-course lines + order totals, shared by the
  * checkout handler (charge + persist) and the checkout-preview query (display), so
@@ -37,7 +38,6 @@ import type {
  * - **Bundle bonus**: a flat order-wide bonus (+5% for 2 courses, +10% for 3+) is
  *   added on top of each line's loyalty percent, capped at the combined ceiling.
  */
-@Injectable()
 export class CoursesCheckoutPricingService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

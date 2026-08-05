@@ -33,6 +33,7 @@ import {
 } from "./update-cv-blocks.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before saving editor edits. */
 export class UpdateCvBlocksResolver {
     constructor(
         private readonly updateCvBlocksService: UpdateCvBlocksService,

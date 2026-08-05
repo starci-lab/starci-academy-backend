@@ -42,6 +42,7 @@ import {
     MAX_PINNED_PROJECTS,
 } from "./constants"
 
+@Resolver()
 /**
  * Pin one of the current user's enrollment capstones (personal project) to their
  * public profile.
@@ -51,7 +52,6 @@ import {
  * {@link MAX_PINNED_PROJECTS} pins; the new pin is appended at the end of the
  * current list (`orderIndex` = current count).
  */
-@Resolver()
 export class PinCourseProjectResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -8,6 +8,9 @@ import {
     ModelProvider,
 } from "@modules/databases"
 
+@InputType({
+    description: "Revise an existing CV using the user's free-text prompts.",
+})
 /**
  * Request for {@link ReviseCvResponse}: revise an existing CV
  * (`UserCvGenerationEntity` — either `Generated` or `Uploaded`) using the
@@ -15,9 +18,6 @@ import {
  * belongs to the caller, then creates a `Pending` generation run and enqueues
  * the job (mode = Revise).
  */
-@InputType({
-    description: "Revise an existing CV using the user's free-text prompts.",
-})
 export class ReviseCvRequest {
     @Field(
         () => ID,

@@ -33,10 +33,10 @@ import {
     CoursesCheckoutService,
 } from "./courses-checkout.service"
 
+@Resolver()
 /**
  * GraphQL entry for buying multiple courses in one payment (cart checkout).
  */
-@Resolver()
 export class CoursesCheckoutResolver {
     constructor(
         private readonly coursesCheckoutService: CoursesCheckoutService,

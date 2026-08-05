@@ -8,9 +8,6 @@ import {
     SubmitJobPostingSingleMutationModule,
 } from "./submit-job-posting"
 
-/**
- * Job posting mutation group (public job board submissions).
- */
 @Module({
     imports: [
         SubmitJobPostingSingleMutationModule.register({
@@ -18,4 +15,7 @@ import {
         }),
     ],
 })
+/**
+ * Job posting mutation group (public job board submissions).
+ */
 export class JobPostingsMutationsModule extends ConfigurableModuleClass {}

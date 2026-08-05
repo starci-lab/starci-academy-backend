@@ -35,6 +35,7 @@ import type {
 } from "./graphql-types"
 
 @Resolver()
+/** GraphQL entry that hides a conversation without deleting its history. */
 export class SetContentAiSessionArchivedResolver {
     constructor(
         private readonly contentAiService: ContentAiService,

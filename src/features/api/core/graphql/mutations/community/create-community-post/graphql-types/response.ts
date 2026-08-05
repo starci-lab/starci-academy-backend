@@ -10,10 +10,10 @@ import {
     CommunityPostNodeObject,
 } from "../../../../shared/community"
 
-/** Response wrapper for the create-community-post mutation. */
 @ObjectType({
     description: "Response wrapper for the create-community-post mutation.",
 })
+/** Response wrapper for the create-community-post mutation. */
 export class CreateCommunityPostResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CommunityPostNodeObject>

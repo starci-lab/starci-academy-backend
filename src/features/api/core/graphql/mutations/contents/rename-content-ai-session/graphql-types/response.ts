@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Result of renaming a content-AI conversation. */
 @ObjectType({
     description: "Result of renaming a content-AI conversation.",
 })
+/** Result of renaming a content-AI conversation. */
 export class RenameContentAiSessionData {
     @Field(
         () => Boolean,
@@ -24,6 +24,7 @@ export class RenameContentAiSessionData {
 @ObjectType({
     description: "Response wrapper for the renameContentAiSession mutation.",
 })
+/** GraphQL envelope confirming the sidebar label changed so the user is not stuck with a generated title. */
 export class RenameContentAiSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RenameContentAiSessionData>

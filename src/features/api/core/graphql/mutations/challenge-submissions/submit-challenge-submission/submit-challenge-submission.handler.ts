@@ -53,6 +53,11 @@ import type {
 
 @CommandHandler(SubmitChallengeSubmissionCommand)
 @Injectable()
+/**
+ * Enqueues challenge grading after quota + premium + URL checks. Uses an
+ * advisory lock per user-submission so a double-click cannot spawn two jobs
+ * against the shared credit pool.
+ */
 export class SubmitChallengeSubmissionHandler
     extends ICQRSHandler<
     SubmitChallengeSubmissionCommand, 

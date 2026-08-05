@@ -39,6 +39,7 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 @Resolver()
+/** GraphQL entry that authenticates before mutating read progress (and optionally claiming the one-time reward). */
 export class MarkAsReadedResolver {
     constructor(
         private readonly markAsReadedService: MarkAsReadedService,

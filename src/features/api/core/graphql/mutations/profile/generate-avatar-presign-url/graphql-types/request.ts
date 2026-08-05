@@ -3,12 +3,12 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/**
- * Request payload for minting a presigned avatar-upload URL.
- */
 @InputType({
     description: "Input for generating an avatar upload pre-signed URL.",
 })
+/**
+ * Request payload for minting a presigned avatar-upload URL.
+ */
 export class GenerateAvatarPresignUrlRequest {
     /**
      * Image MIME type to upload (drives the stored key extension + the

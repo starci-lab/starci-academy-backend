@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Result of indexing a source into a RAG Playground session. */
 @ObjectType({
     description: "Result of indexing a source into a RAG Playground session.",
 })
+/** Result of indexing a source into a RAG Playground session. */
 export class IndexRagPlaygroundData {
     @Field(
         () => String,
@@ -38,10 +38,10 @@ export class IndexRagPlaygroundData {
         sourceLabel: string
 }
 
-/** Response wrapper for the indexRagPlayground mutation. */
 @ObjectType({
     description: "Response wrapper for the indexRagPlayground mutation.",
 })
+/** Response wrapper for the indexRagPlayground mutation. */
 export class IndexRagPlaygroundResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<IndexRagPlaygroundData> {

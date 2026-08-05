@@ -25,12 +25,12 @@ import {
     CvBlocksDocument,
 } from "./graphql-types"
 
+@CommandHandler(CreateCvBlocksCommand)
+@Injectable()
 /**
  * Handler for `createCvBlocks` — inserts a new CV document owned by the user.
  * Course-independent; `blocks`/`style` default to empty when omitted.
  */
-@CommandHandler(CreateCvBlocksCommand)
-@Injectable()
 export class CreateCvBlocksHandler
     extends ICQRSHandler<CreateCvBlocksCommand, CvBlocksDocument>
     implements ICommandHandler<CreateCvBlocksCommand, CvBlocksDocument> {

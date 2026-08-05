@@ -4,14 +4,14 @@ import {
 } from "@nestjs/graphql"
 import GraphQLJSON from "graphql-type-json"
 
+@InputType({
+    description: "Create a new CV document (block editor).",
+})
 /**
  * Create a new (empty or pre-filled) CV document for the signed-in user. All
  * fields optional: an empty create yields a blank CV the user then fills in the
  * block editor. `blocks` / `style` are opaque FE-owned JSON.
  */
-@InputType({
-    description: "Create a new CV document (block editor).",
-})
 export class CreateCvBlocksRequest {
     @Field(
         () => String,

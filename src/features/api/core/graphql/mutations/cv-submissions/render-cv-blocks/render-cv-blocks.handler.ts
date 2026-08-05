@@ -63,6 +63,8 @@ const TECTONIC_TIMEOUT_MS = 60_000
 /** Max stdout/stderr captured from tectonic (its log can be chatty on errors). */
 const TECTONIC_MAX_BUFFER = 16 * 1024 * 1024
 
+@CommandHandler(RenderCvBlocksCommand)
+@Injectable()
 /**
  * Handler for `renderCvBlocks` — SYNCHRONOUS compile of a block-editor CV's
  * **LaTeX source** to a PDF. The FE builds the `.tex` (from the block document,
@@ -76,8 +78,6 @@ const TECTONIC_MAX_BUFFER = 16 * 1024 * 1024
  * `.tex` itself is downloaded client-side, so this endpoint only produces the PDF.
  * User-supplied LaTeX is compiled `--untrusted` (no shell-escape / `\write18`).
  */
-@CommandHandler(RenderCvBlocksCommand)
-@Injectable()
 export class RenderCvBlocksHandler
     extends ICQRSHandler<RenderCvBlocksCommand, RenderCvBlocksResult>
     implements ICommandHandler<RenderCvBlocksCommand, RenderCvBlocksResult> {

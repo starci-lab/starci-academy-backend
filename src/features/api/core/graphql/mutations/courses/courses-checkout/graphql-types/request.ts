@@ -9,14 +9,14 @@ import {
     PaymentType,
 } from "@modules/databases"
 
+@InputType({
+    description: "Course ids, payment provider, and redirect URLs for a multi-course checkout.",
+})
 /**
  * Request for the multi-course cart checkout: the set of courses to buy in one
  * payment, the chosen gateway, and the redirect URLs used by the redirect
  * providers (PayOS / Sepay / Stripe / PayPal / Crypto).
  */
-@InputType({
-    description: "Course ids, payment provider, and redirect URLs for a multi-course checkout.",
-})
 export class CoursesCheckoutRequest {
     /**
      * Ids of the courses to buy in one payment. Duplicates and courses the user

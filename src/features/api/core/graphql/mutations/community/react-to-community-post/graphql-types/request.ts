@@ -8,10 +8,10 @@ import {
     ReactionType,
 } from "@modules/databases"
 
-/** Request to set/change/remove a reaction on a community post. */
 @InputType({
     description: "Request to set/change/remove a reaction on a community post.",
 })
+/** Request to set/change/remove a reaction on a community post. */
 export class ReactToCommunityPostRequest {
     /** Post being reacted to. */
     @Field(

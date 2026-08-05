@@ -11,10 +11,6 @@ import {
     RevealCodingSolutionSingleMutationModule,
 } from "./reveal-coding-solution"
 
-/**
- * Coding-practice mutation group: submit a solution for judging, and record a
- * reference-solution reveal (which forfeits the problem's points).
- */
 @Module({
     imports: [
         SubmitCodingSolutionSingleMutationModule.register({
@@ -25,4 +21,8 @@ import {
         }),
     ],
 })
+/**
+ * Coding-practice mutation group: submit a solution for judging, and record a
+ * reference-solution reveal (which forfeits the problem's points).
+ */
 export class CodingMutationsModule extends ConfigurableModuleClass {}

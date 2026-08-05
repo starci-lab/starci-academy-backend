@@ -33,6 +33,10 @@ import {
 } from "@modules/captcha"
 
 @Resolver()
+/**
+ * GraphQL entry for starting password reset. Captcha + strict throttle exist
+ * to stop unauthenticated OTP spam against arbitrary emails.
+ */
 export class ForgotPasswordInitResolver {
     constructor(
         private readonly forgotPasswordInitService: ForgotPasswordInitService,

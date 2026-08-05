@@ -15,6 +15,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin command-bus hop: the resolver stays GraphQL-shaped; Octokit lookup
+ * and the user-row write live in the handler.
+ */
 export class ConnectGithubAccountService {
     constructor(
         private readonly commandBus: CommandBus,

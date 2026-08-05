@@ -21,4 +21,8 @@ import {
         }),
     ],
 })
+/**
+ * Challenge write-side group: sync the user row (URL / model) separately
+ * from enqueue-grading so a draft save never spends quota.
+ */
 export class ChallengeSubmissionsMutationsModule extends ConfigurableModuleClass {}

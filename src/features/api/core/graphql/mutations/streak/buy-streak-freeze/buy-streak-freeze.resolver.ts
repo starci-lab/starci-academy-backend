@@ -30,6 +30,7 @@ import {
     BuyStreakFreezeResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Buy one streak freeze for the current user, spending Coin. Delegates the
  * balance/cap check + atomic spend to {@link StreakService.buyStreakFreeze}
@@ -37,7 +38,6 @@ import {
  * typed exception when the viewer already holds the max freezes or lacks the
  * Coin.
  */
-@Resolver()
 export class BuyStreakFreezeResolver {
     constructor(
         private readonly streakService: StreakService,

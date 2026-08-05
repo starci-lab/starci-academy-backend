@@ -33,6 +33,7 @@ import {
 } from "./revise-cv.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before enqueueing a CV revision. */
 export class ReviseCvResolver {
     constructor(
         private readonly reviseCvService: ReviseCvService,

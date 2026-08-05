@@ -45,6 +45,11 @@ const BRANCH_MAX = 255
 
 @CommandHandler(ReviewPersonalProjectTaskCommand)
 @Injectable()
+/**
+ * Enqueues AI review of one milestone task against the enrollment's repo.
+ * Rejects missing GitHub URL / illegal branch names here so the worker
+ * never starts a clone that cannot succeed.
+ */
 export class ReviewPersonalProjectTaskHandler
     extends ICQRSHandler<ReviewPersonalProjectTaskCommand, ReviewPersonalProjectTaskResponseData>
     implements ICommandHandler<ReviewPersonalProjectTaskCommand, ReviewPersonalProjectTaskResponseData> {

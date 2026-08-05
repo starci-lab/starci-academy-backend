@@ -37,6 +37,10 @@ import {
 
 @CommandHandler(ReviseCvCommand)
 @Injectable()
+/**
+ * Checks the source generation exists and belongs to the caller before enqueueing
+ * — never revise someone else's (or a missing) CV.
+ */
 export class ReviseCvHandler
     extends ICQRSHandler<ReviseCvCommand, ReviseCvData>
     implements ICommandHandler<ReviseCvCommand, ReviseCvData> {

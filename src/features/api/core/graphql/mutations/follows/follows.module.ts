@@ -8,9 +8,6 @@ import {
     SetFollowSingleMutationModule,
 } from "./set-follow"
 
-/**
- * Follow mutation group (follow / unfollow another user).
- */
 @Module({
     imports: [
         SetFollowSingleMutationModule.register({
@@ -18,4 +15,7 @@ import {
         }),
     ],
 })
+/**
+ * Follow mutation group (follow / unfollow another user).
+ */
 export class FollowsMutationsModule extends ConfigurableModuleClass {}

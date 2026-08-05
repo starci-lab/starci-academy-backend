@@ -40,6 +40,7 @@ import {
     SetFollowResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Follow / unfollow another user (idempotent toggle).
  *
@@ -47,7 +48,6 @@ import {
  * up in feeds. Self-follow is a no-op. Logic runs in one transaction so the edge
  * + its activity row commit together.
  */
-@Resolver()
 export class SetFollowResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -18,6 +18,7 @@ import {
 } from "../../../../../../types"
 
 @Injectable()
+/** Forwards reset-OTP resend to the command bus so the resolver stays a thin leaf. */
 export class ForgotPasswordResendOtpService {
     constructor(
         private readonly commandBus: CommandBus,

@@ -38,9 +38,9 @@ import {
     UserService,
 } from "@modules/bussiness"
 
-/** Handler for `SyncSubmissionCommand`. */
 @CommandHandler(SyncSubmissionCommand)
 @Injectable()
+/** Handler for `SyncSubmissionCommand`. */
 export class SyncSubmissionHandler
     extends ICQRSHandler<SyncSubmissionCommand, SyncSubmissionResult>
     implements ICommandHandler<SyncSubmissionCommand, SyncSubmissionResult> {

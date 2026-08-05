@@ -8,9 +8,6 @@ import {
     BuyStreakFreezeSingleMutationModule,
 } from "./buy-streak-freeze"
 
-/**
- * Streak mutation group — buy a streak freeze with Coin.
- */
 @Module({
     imports: [
         BuyStreakFreezeSingleMutationModule.register({
@@ -18,4 +15,7 @@ import {
         }),
     ],
 })
+/**
+ * Streak mutation group — buy a streak freeze with Coin.
+ */
 export class StreakMutationsModule extends ConfigurableModuleClass {}

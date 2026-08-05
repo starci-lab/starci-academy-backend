@@ -7,10 +7,10 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** Response for pinning an external project — returns the new pin id. */
 @ObjectType({
     description: "Response for pinning an external project.",
 })
+/** Response for pinning an external project — returns the new pin id. */
 export class PinExternalProjectResponse extends AbstractGraphQLResponse {
     @Field(
         () => ID,

@@ -13,4 +13,8 @@ import {
         SetAiCeilResolver,
     ],
 })
+/**
+ * Registers the setAiCeil resolver so the AI group can mount the ceiling
+ * write without importing the resolver class itself.
+ */
 export class SetAiCeilSingleMutationModule extends ConfigurableModuleClass { }

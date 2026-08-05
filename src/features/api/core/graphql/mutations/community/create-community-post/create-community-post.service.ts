@@ -21,10 +21,10 @@ import type {
     CreateCommunityPostRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that creates a community post and returns its client-facing node.
  */
-@Injectable()
 export class CreateCommunityPostService {
     constructor(
         private readonly communityPostService: CommunityPostService,

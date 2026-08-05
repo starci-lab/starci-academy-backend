@@ -25,5 +25,6 @@ import {
         RefreshTokenCoalescerService,
     ],
 })
+/** Wires refresh + coalescer so token rotation is a single in-process hop. */
 export class RefreshTokenSingleMutationModule extends ConfigurableModuleClass {}
 

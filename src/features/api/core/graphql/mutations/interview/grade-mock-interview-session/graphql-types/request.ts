@@ -11,15 +11,15 @@ import {
     MockInterviewPhase,
 } from "@modules/databases"
 
+@InputType({
+    description: "One turn of a recorded mock-interview transcript.",
+})
 /**
  * One recorded turn of a completed mock-interview transcript. The candidate
  * answered across all 5 phases in a single conversation (kind="design") — the
  * server grades the WHOLE ordered list of turns at once, not one question at
  * a time.
  */
-@InputType({
-    description: "One turn of a recorded mock-interview transcript.",
-})
 export class MockInterviewTurnInput {
     @Field(
         () => String,
@@ -83,6 +83,9 @@ export class MockInterviewTurnInput {
         artifactHint?: string
 }
 
+@InputType({
+    description: "Grade a whole mock-interview session against the 5-phase rubric.",
+})
 /**
  * Request for grading a WHOLE completed mock-interview session against the
  * 5-phase rubric, grounded in what the course actually taught. The server
@@ -90,9 +93,6 @@ export class MockInterviewTurnInput {
  * sends grading criteria. `locale` is taken from the request context
  * decorator, not this input.
  */
-@InputType({
-    description: "Grade a whole mock-interview session against the 5-phase rubric.",
-})
 export class GradeMockInterviewSessionRequest {
     @Field(
         () => ID,

@@ -54,6 +54,8 @@ interface CapstoneGroundingRow {
     short_feedback: string | null
 }
 
+@CommandHandler(RewriteCvBlockCommand)
+@Injectable()
 /**
  * Handler for `rewriteCvBlock` — improves a single CV block's item text via a
  * SYNCHRONOUS AI invoke (no BullMQ enqueue). Nothing is persisted; the FE swaps
@@ -70,8 +72,6 @@ interface CapstoneGroundingRow {
  * validated defensively — a parse failure or a non-object reply throws rather
  * than returning malformed data. Free-tier friendly: no explicit model pinned.
  */
-@CommandHandler(RewriteCvBlockCommand)
-@Injectable()
 export class RewriteCvBlockHandler
     extends ICQRSHandler<RewriteCvBlockCommand, RewriteCvBlockData>
     implements ICommandHandler<RewriteCvBlockCommand, RewriteCvBlockData> {
@@ -179,10 +179,7 @@ export class RewriteCvBlockHandler
         {
             userId,
             attemptId,
-        }: {
-            userId: string
-            attemptId: string
-        },
+        }: LoadCapstoneGroundingParams,
     ): Promise<CapstoneGroundingRow | null> {
         const rows = await this.entityManager.query(
             `
@@ -216,11 +213,7 @@ export class RewriteCvBlockHandler
             targetLanguage,
             instruction,
             grounding,
-        }: {
-            targetLanguage: string
-            instruction: string
-            grounding: CapstoneGroundingRow | null
-        },
+        }: BuildSystemPromptParams,
     ): string {
         const groundingLines = grounding
             ? [

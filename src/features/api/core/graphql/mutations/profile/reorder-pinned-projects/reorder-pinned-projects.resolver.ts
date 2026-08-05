@@ -33,6 +33,7 @@ import {
     ReorderPinnedProjectsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Reorder the current user's pinned projects.
  *
@@ -41,7 +42,6 @@ import {
  * pins — foreign or unknown ids simply update nothing. The updates run inside a
  * single transaction so the list never observes a partially-reordered state.
  */
-@Resolver()
 export class ReorderPinnedProjectsResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

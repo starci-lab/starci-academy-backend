@@ -36,6 +36,10 @@ import {
 } from "./start-mock-interview-session.service"
 
 @Resolver()
+/**
+ * GraphQL entry for opening a mock interview. Enrolment is required so the
+ * draw only uses course-private prompts and flashcard seeds.
+ */
 export class StartMockInterviewSessionResolver {
     constructor(
         private readonly startMockInterviewSessionService: StartMockInterviewSessionService,

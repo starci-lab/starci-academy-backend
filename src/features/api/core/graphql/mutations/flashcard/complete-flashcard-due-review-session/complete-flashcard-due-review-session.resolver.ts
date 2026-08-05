@@ -33,6 +33,7 @@ import {
     CompleteFlashcardDueReviewSessionResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Record a finished cross-deck due-review batch session via
  * {@link FlashcardDueReviewSessionService}, snapshotting the final
@@ -40,7 +41,6 @@ import {
  * `CompleteFlashcardDueReviewSessionRequest`'s own doc. Mirrors
  * `CompleteFlashcardReviewSessionResolver`.
  */
-@Resolver()
 export class CompleteFlashcardDueReviewSessionResolver {
     constructor(
         private readonly flashcardDueReviewSessionService: FlashcardDueReviewSessionService,

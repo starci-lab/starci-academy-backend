@@ -13,4 +13,8 @@ import {
         ClaimDailyQuestRewardResolver,
     ],
 })
+/**
+ * Registers daily-quest claim so streak / KPI / weekly claims stay distinct
+ * leaves and cannot share one "claim anything" resolver.
+ */
 export class ClaimDailyQuestRewardSingleMutationModule extends ConfigurableModuleClass {}

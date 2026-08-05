@@ -33,6 +33,10 @@ import {
 } from "./purchase-ai-subscription.service"
 
 @Resolver()
+/**
+ * GraphQL leaf for AI-tier checkout. Auth + throttle live here; provider
+ * selection stays in the handler so the schema does not leak PayOS vs SePay.
+ */
 export class PurchaseAiSubscriptionResolver {
     constructor(
         private readonly purchaseAiSubscriptionService: PurchaseAiSubscriptionService,

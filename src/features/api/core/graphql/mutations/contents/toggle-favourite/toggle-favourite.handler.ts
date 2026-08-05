@@ -30,6 +30,10 @@ import {
 
 @CommandHandler(ToggleFavouriteCommand)
 @Injectable()
+/**
+ * Upserts user-content favourite keyed by enrollment and records a feed
+ * bookmark only when turning favourite on — unfavourite must not duplicate activity.
+ */
 export class ToggleFavouriteHandler
     extends ICQRSHandler<ToggleFavouriteCommand, void>
     implements ICommandHandler<ToggleFavouriteCommand, void> {

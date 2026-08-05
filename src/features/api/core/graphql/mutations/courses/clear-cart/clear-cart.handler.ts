@@ -25,14 +25,14 @@ import type {
     ClearCartResponseData,
 } from "./graphql-types"
 
+@CommandHandler(ClearCartCommand)
+@Injectable()
 /**
  * Handler for the clearCart mutation.
  *
  * Deletes every cart row owned by the caller and reports the count removed;
  * clearing an already-empty cart is not an error (reports `removedCount: 0`).
  */
-@CommandHandler(ClearCartCommand)
-@Injectable()
 export class ClearCartHandler
     extends ICQRSHandler<ClearCartCommand, ClearCartResponseData>
     implements ICommandHandler<ClearCartCommand, ClearCartResponseData> {

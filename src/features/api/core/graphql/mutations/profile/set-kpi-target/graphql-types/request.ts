@@ -11,6 +11,9 @@ import {
     KpiKey,
 } from "@modules/databases"
 
+@InputType({
+    description: "Request to set one weekly KPI target for the current user.",
+})
 /**
  * Request to set one of the authenticated user's weekly KPI targets.
  *
@@ -18,9 +21,6 @@ import {
  * persisted (so an out-of-range client value is normalized, not rejected); a
  * target of 0 clears that KPI's goal.
  */
-@InputType({
-    description: "Request to set one weekly KPI target for the current user.",
-})
 export class SetKpiTargetRequest {
     @Field(
         () => GraphQLTypeKpiKey,

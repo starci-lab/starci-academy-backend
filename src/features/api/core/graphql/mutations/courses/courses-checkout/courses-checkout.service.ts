@@ -15,10 +15,10 @@ import type {
     CoursesCheckoutResponseData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin service that dispatches the multi-course checkout to its command handler.
  */
-@Injectable()
 export class CoursesCheckoutService {
     constructor(
         private readonly commandBus: CommandBus,

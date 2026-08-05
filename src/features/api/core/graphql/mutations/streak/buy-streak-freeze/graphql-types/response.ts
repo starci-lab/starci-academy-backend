@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The refreshed freeze inventory + Coin balance after a purchase. */
 @ObjectType({
     description: "Refreshed streak-freeze count + Coin balance after the purchase.",
 })
+/** The refreshed freeze inventory + Coin balance after a purchase. */
 export class BuyStreakFreezeData {
     @Field(
         () => Int,
@@ -30,12 +30,12 @@ export class BuyStreakFreezeData {
         coinBalance: number
 }
 
-/**
- * Response for buying a streak freeze.
- */
 @ObjectType({
     description: "Response for the buyStreakFreeze mutation.",
 })
+/**
+ * Response for buying a streak freeze.
+ */
 export class BuyStreakFreezeResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<BuyStreakFreezeData>

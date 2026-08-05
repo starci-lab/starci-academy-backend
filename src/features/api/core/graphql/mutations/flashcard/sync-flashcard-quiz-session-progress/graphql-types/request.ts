@@ -18,6 +18,9 @@ import {
 /** Upper bound on the results array accepted in one sync call — mirrors `completeFlashcardQuizSession`'s MAX_ANSWERS ceiling. */
 const MAX_RESULTS = 10
 
+@InputType({
+    description: "One card's in-flight cloze outcome within a flashcard quick-quiz session.",
+})
 /**
  * One card's outcome within the IN-FLIGHT session, as reported by the
  * client — the exact shape `completeFlashcardQuizSession`'s
@@ -25,9 +28,6 @@ const MAX_RESULTS = 10
  * duplicate type) so the eventual complete call re-sends this same
  * per-card breakdown.
  */
-@InputType({
-    description: "One card's in-flight cloze outcome within a flashcard quick-quiz session.",
-})
 export class FlashcardQuizSessionResultRequest {
     @Field(
         () => ID,
@@ -60,6 +60,9 @@ export class FlashcardQuizSessionResultRequest {
         totalBlanks: number
 }
 
+@InputType({
+    description: "Sync an in-flight flashcard quick-quiz session's per-card results + position for later resume.",
+})
 /**
  * Periodically syncs an IN-FLIGHT flashcard quick-quiz session's per-card
  * results + position to the server — "resume flashcard quiz session"
@@ -68,9 +71,6 @@ export class FlashcardQuizSessionResultRequest {
  * `myInProgressFlashcardQuizSession` instead of losing progress and being
  * forced into a fresh draw. Mirrors `syncMockInterviewSessionTurns`'s shape.
  */
-@InputType({
-    description: "Sync an in-flight flashcard quick-quiz session's per-card results + position for later resume.",
-})
 export class SyncFlashcardQuizSessionProgressRequest {
     @Field(
         () => ID,

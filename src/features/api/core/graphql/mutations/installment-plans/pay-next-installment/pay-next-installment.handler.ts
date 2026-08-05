@@ -69,6 +69,8 @@ import type {
 /** Label used in provider descriptions. */
 const INSTALLMENT_PAYMENT_LABEL = "installment-payment"
 
+@CommandHandler(PayNextInstallmentCommand)
+@Injectable()
 /**
  * Pays the CURRENT cycle of an installment (trả góp) plan: charges exactly
  * `InstallmentPlanService.computeMinPaymentVnd(plan)` — never the whole
@@ -81,8 +83,6 @@ const INSTALLMENT_PAYMENT_LABEL = "installment-payment"
  * MVP is VND-only (see `docs/installment-payment-plan.md`): only PayOS and
  * Sepay are supported; every other {@link PaymentType} is rejected.
  */
-@CommandHandler(PayNextInstallmentCommand)
-@Injectable()
 export class PayNextInstallmentHandler
     extends ICQRSHandler<PayNextInstallmentCommand, PayNextInstallmentResponseData>
     implements ICommandHandler<PayNextInstallmentCommand, PayNextInstallmentResponseData> {

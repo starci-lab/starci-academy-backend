@@ -30,6 +30,7 @@ import {
     ClaimWeeklyChallengeRewardResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Claim the authenticated user's Coin reward for passing the current ISO
  * week's featured challenge. Delegates the pass + already-claimed checks and
@@ -37,7 +38,6 @@ import {
  * A typed exception surfaces when the challenge hasn't been passed yet or was
  * already claimed this week.
  */
-@Resolver()
 export class ClaimWeeklyChallengeRewardResolver {
     constructor(
         private readonly weeklyChallengeService: WeeklyChallengeService,

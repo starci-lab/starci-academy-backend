@@ -15,12 +15,12 @@ import {
     AskContentAiRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin CQRS-dispatch shim for the `askContentAi` mutation: wraps the
  * resolver's params in {@link AskContentAiCommand} and dispatches it to
  * {@link AskContentAiHandler} via the command bus.
  */
-@Injectable()
 export class AskContentAiService {
     constructor(
         private readonly commandBus: CommandBus,

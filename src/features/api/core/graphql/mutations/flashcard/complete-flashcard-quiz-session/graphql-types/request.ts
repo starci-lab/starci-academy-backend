@@ -18,14 +18,14 @@ import {
 /** Upper bound on the answers array accepted in one complete call — mirrors the service's MAX_ANSWERED_CARDS ceiling. */
 const MAX_ANSWERS = 10
 
+@InputType({
+    description: "One card's cloze outcome within a finished flashcard quick-quiz session.",
+})
 /**
  * One card's outcome within the finished session, as reported by the client.
  * The server re-derives the session's aggregate coverage from this
  * per-card breakdown — it never trusts a client-sent aggregate score.
  */
-@InputType({
-    description: "One card's cloze outcome within a finished flashcard quick-quiz session.",
-})
 export class QuizSessionAnswerRequest {
     @Field(
         () => ID,
@@ -58,15 +58,15 @@ export class QuizSessionAnswerRequest {
         totalBlanks: number
 }
 
+@InputType({
+    description: "Request to record a finished flashcard quick-quiz session.",
+})
 /**
  * Request to record a finished flashcard quick-quiz ("Hỏi nhanh") session and
  * grant its capped XP reward. Carries the PER-CARD answer breakdown so the
  * server can re-derive coverage itself (never trusting a client-sent
  * aggregate score) and compute per-tag weak spots for the recap.
  */
-@InputType({
-    description: "Request to record a finished flashcard quick-quiz session.",
-})
 export class CompleteFlashcardQuizSessionRequest {
     @Field(
         () => ID,

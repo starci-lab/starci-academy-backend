@@ -18,6 +18,7 @@ import {
 } from "../../../../../../types"
 
 @Injectable()
+/** Forwards forgot-password init to the command bus so the resolver stays a thin leaf. */
 export class ForgotPasswordInitService {
     constructor(
         private readonly commandBus: CommandBus,

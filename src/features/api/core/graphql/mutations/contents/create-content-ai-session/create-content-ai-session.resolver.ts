@@ -38,6 +38,7 @@ import type {
 } from "./graphql-types"
 
 @Resolver()
+/** GraphQL entry that starts a conversation anchored to a content so later asks share that thread. */
 export class CreateContentAiSessionResolver {
     constructor(
         private readonly contentAiService: ContentAiService,

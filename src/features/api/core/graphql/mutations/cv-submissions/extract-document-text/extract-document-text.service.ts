@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver does not import S3 or parser code. */
 export class ExtractDocumentTextService {
     constructor(
         private readonly commandBus: CommandBus,

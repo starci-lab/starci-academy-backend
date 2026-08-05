@@ -32,12 +32,12 @@ import {
     RequestToTeamService,
 } from "./request-to-team.service"
 
+@Resolver()
 /**
  * Mutation: request to join the GitHub team of an enrolled course (enqueues the
  * resolve-github invite). Separate from linking the GitHub identity. Auth-only;
  * the handler rejects when the viewer has not linked GitHub yet.
  */
-@Resolver()
 export class RequestToTeamResolver {
     constructor(
         private readonly service: RequestToTeamService,

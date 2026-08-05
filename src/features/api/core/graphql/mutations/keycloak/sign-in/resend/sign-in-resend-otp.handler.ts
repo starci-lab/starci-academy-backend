@@ -26,6 +26,10 @@ import {
 
 @CommandHandler(SignInResendOtpCommand)
 @Injectable()
+/**
+ * Rotates the sign-in OTP on the existing challenge so parked Keycloak tokens
+ * remain valid — a resend must not force another password round-trip.
+ */
 export class SignInResendOtpHandler
     extends ICQRSHandler<SignInResendOtpCommand, SignInInitData>
     implements ICommandHandler<SignInResendOtpCommand, SignInInitData>

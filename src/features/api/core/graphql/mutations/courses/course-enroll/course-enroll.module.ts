@@ -45,4 +45,5 @@ import {
         CourseEnrollHandler,
     ],
 })
+/** Isolated Nest registration for single-course enroll checkout without pulling cart checkout into the same graph. */
 export class CourseEnrollSingleMutationModule extends ConfigurableModuleClass {}

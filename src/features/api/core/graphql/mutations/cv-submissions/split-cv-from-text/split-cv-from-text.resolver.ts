@@ -33,6 +33,7 @@ import {
 } from "./split-cv-from-text.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before parsing pasted CV text. */
 export class SplitCvFromTextResolver {
     constructor(
         private readonly splitCvFromTextService: SplitCvFromTextService,

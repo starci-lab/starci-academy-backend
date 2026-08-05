@@ -31,10 +31,10 @@ import {
     ClearCartService,
 } from "./clear-cart.service"
 
+@Resolver()
 /**
  * GraphQL entry for emptying the current user's shopping cart.
  */
-@Resolver()
 export class ClearCartResolver {
     constructor(
         private readonly clearCartService: ClearCartService,

@@ -42,6 +42,10 @@ import {
 } from "./sign-up-verify-otp.service"
 
 @Resolver()
+/**
+ * GraphQL entry for completing sign-up. Cookie/CSRF/session side-effects live
+ * here because CQRS must not touch the HTTP response.
+ */
 export class SignUpVerifyOtpResolver {
     constructor(
         private readonly signUpVerifyOtpService: SignUpVerifyOtpService,

@@ -10,10 +10,10 @@ import {
     ChatMessageNodeObject,
 } from "../../../../shared/chat"
 
-/** Response wrapper for the send-chat-message mutation. */
 @ObjectType({
     description: "Response wrapper for the send-chat-message mutation.",
 })
+/** Response wrapper for the send-chat-message mutation. */
 export class SendChatMessageResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChatMessageNodeObject>

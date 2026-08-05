@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Payload: checkout URL, order identifiers, and charged amount after creating a payment link. */
 @ObjectType({
     description: "Checkout URL and identifiers after creating a PayOS payment link.",
 })
+/** Payload: checkout URL, order identifiers, and charged amount after creating a payment link. */
 export class CourseEnrollResponseData {
     @Field(
         () => String,
@@ -60,6 +60,7 @@ export class CourseEnrollResponseData {
 @ObjectType({
     description: "Response wrapper for the course enroll mutation.",
 })
+/** GraphQL envelope carrying the payment-link payload the client must redirect or POST to; `data` stays null when checkout creation fails. */
 export class CourseEnrollResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CourseEnrollResponseData>

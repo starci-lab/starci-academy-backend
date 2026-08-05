@@ -7,12 +7,12 @@ import {
     IAbstractGraphQLResponse
 } from "@modules/api"
 
-/**
- * Response payload for getting a pre-signed URL to submit a CV.
- */
 @ObjectType({
     description: "Response for generating a CV submission pre-signed URL.",
 })
+/**
+ * Response payload for getting a pre-signed URL to submit a CV.
+ */
 export class GenerateSubmitCvPresignUrlResponseData {
     /**
      * The pre-signed PUT URL.
@@ -39,12 +39,12 @@ export class GenerateSubmitCvPresignUrlResponseData {
         cdnKey: string
 }
 
-/**
- * Response for verifying a CV submission upload.
- */
 @ObjectType({
     description: "Response for verifying a CV submission upload.",
 })
+/**
+ * Response for verifying a CV submission upload.
+ */
 export class GenerateSubmitCvPresignUrlResponse 
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<GenerateSubmitCvPresignUrlResponseData> 

@@ -18,6 +18,7 @@ import {
 } from "../../../../../types"
 
 @Injectable()
+/** Forwards sign-up OTP resend to the command bus so the resolver stays a thin leaf. */
 export class SignUpResendOtpService {
     constructor(
         private readonly commandBus: CommandBus,

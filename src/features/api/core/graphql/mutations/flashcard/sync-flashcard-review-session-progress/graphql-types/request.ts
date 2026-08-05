@@ -10,6 +10,9 @@ import {
     Min,
 } from "class-validator"
 
+@InputType({
+    description: "Sync an in-flight flashcard review session's position + progress for later resume.",
+})
 /**
  * Periodically syncs an IN-FLIGHT flashcard review ("Học thẻ") session's
  * position + progress to the server — mirrors
@@ -20,9 +23,6 @@ import {
  * (tab close, refresh, network drop) can pick their draw back up via
  * `myInProgressFlashcardReviewSession` instead of losing progress.
  */
-@InputType({
-    description: "Sync an in-flight flashcard review session's position + progress for later resume.",
-})
 export class SyncFlashcardReviewSessionProgressRequest {
     @Field(
         () => ID,

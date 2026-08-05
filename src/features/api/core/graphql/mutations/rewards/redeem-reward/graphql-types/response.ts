@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The AI-credit bonus granted by redeeming an `aiCredit`-kind reward. */
 @ObjectType({
     description: "Bonus AI credit granted for the current 5h + weekly window.",
 })
+/** The AI-credit bonus granted by redeeming an `aiCredit`-kind reward. */
 export class RedeemRewardAiCreditGrant {
     @Field(
         () => Int,
@@ -30,12 +30,12 @@ export class RedeemRewardAiCreditGrant {
         amountWeek: number
 }
 
-/**
- * The refreshed wallet + inventory after a redemption.
- */
 @ObjectType({
     description: "Refreshed Coin balance + streak-freeze count after redeeming.",
 })
+/**
+ * The refreshed wallet + inventory after a redemption.
+ */
 export class RedeemRewardData {
     @Field(
         () => Int,
@@ -72,12 +72,12 @@ export class RedeemRewardData {
         aiCreditGranted?: RedeemRewardAiCreditGrant
 }
 
-/**
- * Response wrapper for the redeemReward mutation.
- */
 @ObjectType({
     description: "Response wrapper for the redeemReward mutation.",
 })
+/**
+ * Response wrapper for the redeemReward mutation.
+ */
 export class RedeemRewardResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RedeemRewardData> {

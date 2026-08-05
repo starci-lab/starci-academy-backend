@@ -30,4 +30,5 @@ import {
         RenderCvBlocksService,
     ],
 })
+/** Isolated Nest registration for CV export without wiring editor mutations into the same graph. */
 export class RenderCvBlocksSingleMutationModule extends ConfigurableModuleClass {}

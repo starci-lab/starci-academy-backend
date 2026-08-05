@@ -21,4 +21,8 @@ import {
         ConnectGithubAccountHandler,
     ],
 })
+/**
+ * Registers resolver + service + handler so GitHub linking cannot be imported
+ * without its Octokit verification path.
+ */
 export class ConnectGithubAccountSingleMutationModule extends ConfigurableModuleClass {}

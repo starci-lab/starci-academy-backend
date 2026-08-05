@@ -41,9 +41,6 @@ import {
     SetCommunityPostPinnedService,
 } from "./set-community-post-pinned"
 
-/**
- * Aggregates the write-side (mutation) resolvers of the community feature.
- */
 @Module({
     providers: [
         CreateCommunityPostResolver,
@@ -66,4 +63,7 @@ import {
         SetCommunityPostPinnedService,
     ],
 })
+/**
+ * Aggregates the write-side (mutation) resolvers of the community feature.
+ */
 export class CommunityMutationsModule extends ConfigurableModuleClass {}

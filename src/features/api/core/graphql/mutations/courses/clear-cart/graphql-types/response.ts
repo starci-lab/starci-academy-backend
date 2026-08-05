@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Payload: how many cart rows were cleared. */
 @ObjectType({
     description: "Outcome of clearing the current user's cart.",
 })
+/** Payload: how many cart rows were cleared. */
 export class ClearCartResponseData {
     /** Number of cart rows deleted for the user (0 when the cart was already empty). */
     @Field(
@@ -23,6 +23,9 @@ export class ClearCartResponseData {
         removedCount: number
 }
 
+@ObjectType({
+    description: "Response wrapper for the clearCart mutation.",
+})
 /**
  * Response wrapper for the clearCart mutation.
  *
@@ -30,9 +33,6 @@ export class ClearCartResponseData {
  * on the error path — a non-nullable field would crash GraphQL and mask the real
  * error.
  */
-@ObjectType({
-    description: "Response wrapper for the clearCart mutation.",
-})
 export class ClearCartResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ClearCartResponseData>

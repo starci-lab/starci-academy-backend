@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Result of archiving / unarchiving a content-AI conversation. */
 @ObjectType({
     description: "Result of archiving / unarchiving a content-AI conversation.",
 })
+/** Result of archiving / unarchiving a content-AI conversation. */
 export class SetContentAiSessionArchivedData {
     @Field(
         () => Boolean,
@@ -24,6 +24,7 @@ export class SetContentAiSessionArchivedData {
 @ObjectType({
     description: "Response wrapper for the setContentAiSessionArchived mutation.",
 })
+/** GraphQL envelope returning the resulting archived flag so hide/restore stays reversible without deleting history. */
 export class SetContentAiSessionArchivedResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SetContentAiSessionArchivedData>

@@ -29,6 +29,8 @@ import {
     ExtractDocumentTextData,
 } from "./graphql-types"
 
+@CommandHandler(ExtractDocumentTextCommand)
+@Injectable()
 /**
  * Handler for `extractDocumentText` — buffers an already-uploaded document
  * (CV or job-description file) from MinIO by its `cdnKey` and extracts its
@@ -43,8 +45,6 @@ import {
  * text could be extracted, so the FE can surface a clear error — unlike the
  * async scoring worker, this is a synchronous user-facing call.
  */
-@CommandHandler(ExtractDocumentTextCommand)
-@Injectable()
 export class ExtractDocumentTextHandler
     extends ICQRSHandler<ExtractDocumentTextCommand, ExtractDocumentTextData>
     implements ICommandHandler<ExtractDocumentTextCommand, ExtractDocumentTextData> {

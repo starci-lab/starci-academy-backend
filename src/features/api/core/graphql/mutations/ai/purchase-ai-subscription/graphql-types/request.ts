@@ -9,14 +9,14 @@ import {
     PaymentType,
 } from "@modules/databases"
 
+@InputType({
+    description: "AI subscription tier + payment provider for checkout.",
+})
 /**
  * Request for purchasing an AI subscription tier. Mirrors the course-enroll
  * checkout shape (PayOS / Sepay), but targets an {@link AiSubTier} instead of
  * a course.
  */
-@InputType({
-    description: "AI subscription tier + payment provider for checkout.",
-})
 export class PurchaseAiSubscriptionRequest {
     @Field(
         () => GraphQLTypeAiSubTier,

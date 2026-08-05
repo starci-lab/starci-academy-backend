@@ -21,4 +21,5 @@ import {
         AddToCartHandler,
     ],
 })
+/** Isolated Nest registration for staging a course in the cart before checkout. */
 export class AddToCartSingleMutationModule extends ConfigurableModuleClass {}

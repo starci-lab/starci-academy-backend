@@ -26,6 +26,10 @@ import {
 
 @CommandHandler(SignUpResendOtpCommand)
 @Injectable()
+/**
+ * Rotates the sign-up OTP on the existing challenge so the unverified
+ * Keycloak user and parked payload stay intact.
+ */
 export class SignUpResendOtpHandler
     extends ICQRSHandler<SignUpResendOtpCommand, SignUpInitData>
     implements ICommandHandler<SignUpResendOtpCommand, SignUpInitData>

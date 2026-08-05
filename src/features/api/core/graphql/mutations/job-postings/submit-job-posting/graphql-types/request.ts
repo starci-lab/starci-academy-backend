@@ -48,6 +48,9 @@ const MAX_COMPANY_TITLE_LENGTH = 255
 /** Upper bound on a new company's URL fields, mirroring `headhunting_companies` columns. */
 const MAX_COMPANY_URL_LENGTH = 2048
 
+@InputType({
+    description: "Payload for creating a new employer company inline with the job posting.",
+})
 /**
  * Inline payload for creating a brand-new employer company alongside the job
  * posting, used when the poster's company is not yet in the directory.
@@ -55,9 +58,6 @@ const MAX_COMPANY_URL_LENGTH = 2048
  * provided — that cross-field invariant is enforced in the handler, since
  * `class-validator` field decorators cannot see sibling fields.
  */
-@InputType({
-    description: "Payload for creating a new employer company inline with the job posting.",
-})
 export class SubmitJobPostingNewCompanyRequest {
     @Field(
         () => String,
@@ -97,6 +97,9 @@ export class SubmitJobPostingNewCompanyRequest {
         websiteUrl?: string
 }
 
+@InputType({
+    description: "Request to submit a job posting via the public form.",
+})
 /**
  * Request to submit a job posting via the public form. `source` on the
  * resulting row is always `Submitted` — this mutation has no admin/seed path.
@@ -106,9 +109,6 @@ export class SubmitJobPostingNewCompanyRequest {
  * required, matching `applyMethod`. Both invariants are enforced in the
  * handler (see `JobPostingInvalidRequestException`).
  */
-@InputType({
-    description: "Request to submit a job posting via the public form.",
-})
 export class SubmitJobPostingRequest {
     @Field(
         () => String,

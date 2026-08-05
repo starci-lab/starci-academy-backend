@@ -8,10 +8,10 @@ import {
     SignOutCommand,
 } from "./sign-out.command"
 
+@Injectable()
 /**
  * Service for signing out a user from Keycloak.
  */
-@Injectable()
 export class SignOutService {
     constructor(
         private readonly commandBus: CommandBus,

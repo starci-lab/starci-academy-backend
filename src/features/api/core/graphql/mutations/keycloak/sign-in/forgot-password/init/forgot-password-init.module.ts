@@ -21,4 +21,5 @@ import {
         ForgotPasswordInitHandler,
     ],
 })
+/** Wires forgot-password init as its own mutation so reset OTP can ship independently. */
 export class ForgotPasswordInitSingleMutationModule extends ConfigurableModuleClass {}

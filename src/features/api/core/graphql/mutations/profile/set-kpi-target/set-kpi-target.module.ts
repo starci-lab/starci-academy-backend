@@ -13,4 +13,8 @@ import {
         SetKpiTargetResolver,
     ],
 })
+/**
+ * Registers KPI-target write so goal-setting stays out of the claim-reward
+ * leaves (setting a target must not pay out).
+ */
 export class SetKpiTargetSingleMutationModule extends ConfigurableModuleClass {}

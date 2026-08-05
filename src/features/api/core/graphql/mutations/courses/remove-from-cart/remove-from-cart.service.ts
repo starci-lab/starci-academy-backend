@@ -15,8 +15,8 @@ import type {
     RemoveFromCartResponseData,
 } from "./graphql-types"
 
-/** Thin service that forwards the removeFromCart request to the CQRS command bus. */
 @Injectable()
+/** Thin service that forwards the removeFromCart request to the CQRS command bus. */
 export class RemoveFromCartService {
     constructor(
         private readonly commandBus: CommandBus,

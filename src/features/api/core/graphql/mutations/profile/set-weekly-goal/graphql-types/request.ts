@@ -7,6 +7,9 @@ import {
     IsInt,
 } from "class-validator"
 
+@InputType({
+    description: "Request to set the current user's weekly learning goal (in lessons).",
+})
 /**
  * Request to set the authenticated user's weekly learning goal.
  *
@@ -14,9 +17,6 @@ import {
  * clamped into [0, 100] server-side before it is persisted, so an out-of-range
  * client value is normalized rather than rejected.
  */
-@InputType({
-    description: "Request to set the current user's weekly learning goal (in lessons).",
-})
 export class SetWeeklyGoalRequest {
     @Field(
         () => Int,

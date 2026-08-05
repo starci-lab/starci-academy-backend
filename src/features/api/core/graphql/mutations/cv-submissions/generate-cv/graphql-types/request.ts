@@ -8,14 +8,14 @@ import {
     ModelProvider,
 } from "@modules/databases"
 
+@InputType({
+    description: "Generate a brand-new CV from the user's free-text prompts.",
+})
 /**
  * Request for {@link GenerateCvResponse}: build a brand-new CV from the user's
  * free-text emphasis / target-role notes. The server creates a `Pending`
  * generation run and enqueues the background job (mode = Generate).
  */
-@InputType({
-    description: "Generate a brand-new CV from the user's free-text prompts.",
-})
 export class GenerateCvRequest {
     @Field(
         () => String,

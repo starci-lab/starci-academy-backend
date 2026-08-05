@@ -5,9 +5,9 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** Response for reordering pinned projects (no payload). */
 @ObjectType({
     description: "Response for reordering the user's pinned projects.",
 })
+/** Response for reordering pinned projects (no payload). */
 export class ReorderPinnedProjectsResponse extends AbstractGraphQLResponse {
 }

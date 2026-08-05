@@ -34,8 +34,8 @@ import {
     ReactToCommentService,
 } from "./react-to-comment.service"
 
-/** GraphQL resolver for the `reactToComment` mutation. */
 @Resolver()
+/** GraphQL resolver for the `reactToComment` mutation. */
 export class ReactToCommentResolver {
     constructor(
         private readonly reactToCommentService: ReactToCommentService,

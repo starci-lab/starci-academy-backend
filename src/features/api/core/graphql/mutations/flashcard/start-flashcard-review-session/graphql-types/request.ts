@@ -21,6 +21,9 @@ export type FlashcardReviewMode = "full" | "due"
  *  unbounded array. */
 const MAX_CARD_IDS = 200
 
+@InputType({
+    description: "Start a resumable flashcard review session for one deck + its card order.",
+})
 /**
  * Request to start (or resume-replace) ONE resumable flashcard review
  * ("Học thẻ") session over a single deck, mirroring
@@ -31,9 +34,6 @@ const MAX_CARD_IDS = 200
  * `completeFlashcardReviewSession` has a real server-issued `sessionId` to
  * anchor its status flip to.
  */
-@InputType({
-    description: "Start a resumable flashcard review session for one deck + its card order.",
-})
 export class StartFlashcardReviewSessionRequest {
     @Field(
         () => ID,

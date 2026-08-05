@@ -13,4 +13,8 @@ import {
         BuyStreakFreezeResolver,
     ],
 })
+/**
+ * Registers streak-freeze purchase so spending currency on a freeze stays
+ * out of the profile claim-reward leaves.
+ */
 export class BuyStreakFreezeSingleMutationModule extends ConfigurableModuleClass {}

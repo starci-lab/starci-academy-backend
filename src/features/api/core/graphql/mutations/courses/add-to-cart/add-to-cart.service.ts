@@ -17,8 +17,8 @@ import type {
     AddToCartRequest,
 } from "./graphql-types"
 
-/** Thin service that forwards the addToCart request to the CQRS command bus. */
 @Injectable()
+/** Thin service that forwards the addToCart request to the CQRS command bus. */
 export class AddToCartService {
     constructor(
         private readonly commandBus: CommandBus,

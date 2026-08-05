@@ -33,6 +33,10 @@ import {
 } from "./purchase-membership.service"
 
 @Resolver()
+/**
+ * GraphQL leaf for community-membership checkout. Auth + throttle live
+ * here; provider selection stays in the handler.
+ */
 export class PurchaseMembershipResolver {
     constructor(
         private readonly purchaseMembershipService: PurchaseMembershipService,

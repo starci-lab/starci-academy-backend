@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver does not import the renderer. */
 export class RenderCvBlocksService {
     constructor(
         private readonly commandBus: CommandBus,

@@ -55,6 +55,10 @@ import type {
 
 @CommandHandler(ForgotPasswordVerifyOtpCommand)
 @Injectable()
+/**
+ * Applies the parked password, signs the user in, and mails a change notice
+ * so a hijacked mailbox cannot reset silently.
+ */
 export class ForgotPasswordVerifyOtpHandler
     extends ICQRSHandler<ForgotPasswordVerifyOtpCommand, ForgotPasswordVerifyOtpCommandResult>
     implements ICommandHandler<ForgotPasswordVerifyOtpCommand, ForgotPasswordVerifyOtpCommandResult>

@@ -21,4 +21,8 @@ import {
         SubmitChallengeSubmissionHandler,
     ],
 })
+/**
+ * Registers enqueue-grading as one Nest unit (resolver + service + handler)
+ * so quota checks cannot be bypassed by importing the handler alone.
+ */
 export class SubmitChallengeSubmissionSingleMutationModule extends ConfigurableModuleClass {}

@@ -17,6 +17,7 @@ export {
 @ObjectType({
     description: "Response wrapper for the createCvBlocks mutation.",
 })
+/** GraphQL envelope returning the saved document so the editor can switch to the new id without a follow-up query. */
 export class CreateCvBlocksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CvBlocksDocument | null>

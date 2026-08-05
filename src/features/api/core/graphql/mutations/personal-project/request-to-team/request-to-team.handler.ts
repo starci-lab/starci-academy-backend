@@ -15,13 +15,13 @@ import type {
     RequestToTeamData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Enqueue a GitHub team-invite for the viewer's enrolled course. Linking a GitHub
  * identity is a prerequisite (separate step) — without `githubUsername` there is
  * nobody to invite, so we reject and the FE forces the link step first. The invite
  * is async (resolve-github job); GitHub membership flips to `pending` until accepted.
  */
-@Injectable()
 export class RequestToTeamHandler {
     constructor(
         private readonly enqueueResolveGithubJobService: EnqueueResolveGithubJobService,

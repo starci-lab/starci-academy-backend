@@ -8,10 +8,10 @@ import {
     ReactionType,
 } from "@modules/databases"
 
-/** Request to set/change/remove the current user's reaction on a content. */
 @InputType({
     description: "Request to set/change/remove a reaction on a content.",
 })
+/** Request to set/change/remove the current user's reaction on a content. */
 export class ReactToContentRequest {
     /** Content being reacted to. */
     @Field(

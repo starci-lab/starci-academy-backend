@@ -128,6 +128,7 @@ const SEED_TITLE_MAX_CHARS = 120
  */
 const MIN_QNA_POOL_SIZE = 3
 
+@Injectable()
 /**
  * Draws ONE mock-interview session for a course + level + mode, server-side —
  * the Pha 2 integrity fix that replaces the FE's client-side `drawRandomPrompt`
@@ -143,7 +144,6 @@ const MIN_QNA_POOL_SIZE = 3
  *   question its own cognitive frame (theory/reasoning/scenario) via a
  *   DETERMINISTIC per-seed hash — see {@link deriveSeedKind}.
  */
-@Injectable()
 export class MockInterviewSessionDrawService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

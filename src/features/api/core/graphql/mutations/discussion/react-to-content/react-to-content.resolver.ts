@@ -41,8 +41,8 @@ import {
     ReactToContentService,
 } from "./react-to-content.service"
 
-/** GraphQL resolver for the `reactToContent` mutation. */
 @Resolver()
+/** GraphQL resolver for the `reactToContent` mutation. */
 export class ReactToContentResolver {
     constructor(
         private readonly reactToContentService: ReactToContentService,

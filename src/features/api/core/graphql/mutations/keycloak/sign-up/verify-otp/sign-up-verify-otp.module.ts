@@ -21,5 +21,6 @@ import {
         SignUpVerifyOtpHandler,
     ],
 })
+/** Wires sign-up OTP verify so first-session minting can register without init/resend. */
 export class SignUpVerifyOtpSingleMutationModule extends ConfigurableModuleClass {}
 

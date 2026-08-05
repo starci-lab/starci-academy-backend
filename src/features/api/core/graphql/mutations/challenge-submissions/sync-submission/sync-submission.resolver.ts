@@ -39,10 +39,10 @@ import {
     SyncSubmissionService,
 } from "./sync-submission.service"
 
+@Resolver()
 /**
  * GraphQL entry for syncing challenge submissions for the current user.
  */
-@Resolver()
 export class SyncSubmissionResolver {
     constructor(
         private readonly syncSubmissionService: SyncSubmissionService,

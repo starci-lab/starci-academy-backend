@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The newly-persisted resumable flashcard review session. */
 @ObjectType({
     description: "A newly-persisted resumable flashcard review session.",
 })
+/** The newly-persisted resumable flashcard review session. */
 export class StartFlashcardReviewSessionData {
     @Field(
         () => ID,
@@ -25,6 +25,11 @@ export class StartFlashcardReviewSessionData {
 @ObjectType({
     description: "Response wrapper for the startFlashcardReviewSession mutation.",
 })
+/**
+ * Envelope for a newly opened per-deck review session. `data` is nullable so
+ * the transform interceptor can null it on the error path — a required field
+ * would crash GraphQL and hide the real exception.
+ */
 export class StartFlashcardReviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<StartFlashcardReviewSessionData>

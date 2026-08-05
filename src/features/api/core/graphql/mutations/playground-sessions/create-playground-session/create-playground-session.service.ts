@@ -16,6 +16,10 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin command-bus hop so the resolver never mints pairing codes or
+ * redacts step hints itself.
+ */
 export class CreatePlaygroundSessionService {
     constructor(
         private readonly commandBus: CommandBus,

@@ -16,6 +16,7 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver stays persistence-free. */
 export class StartTrialService {
     constructor(
         private readonly commandBus: CommandBus,

@@ -33,10 +33,10 @@ import {
     PayNextInstallmentService,
 } from "./pay-next-installment.service"
 
+@Resolver()
 /**
  * GraphQL entry for paying the current cycle of an installment (trả góp) plan.
  */
-@Resolver()
 export class PayNextInstallmentResolver {
     constructor(
         private readonly payNextInstallmentService: PayNextInstallmentService,

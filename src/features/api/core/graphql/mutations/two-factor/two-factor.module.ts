@@ -14,9 +14,6 @@ import {
     DisableTwoFactorSingleMutationModule,
 } from "./disable-two-factor"
 
-/**
- * Two-factor (TOTP) mutation group — setup, confirm, disable.
- */
 @Module({
     imports: [
         SetupTwoFactorSingleMutationModule.register({
@@ -30,4 +27,7 @@ import {
         }),
     ],
 })
+/**
+ * Two-factor (TOTP) mutation group — setup, confirm, disable.
+ */
 export class TwoFactorMutationsModule extends ConfigurableModuleClass {}

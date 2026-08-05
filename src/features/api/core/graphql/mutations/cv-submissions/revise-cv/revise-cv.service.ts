@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver does not import the job-enqueue service. */
 export class ReviseCvService {
     constructor(
         private readonly commandBus: CommandBus,

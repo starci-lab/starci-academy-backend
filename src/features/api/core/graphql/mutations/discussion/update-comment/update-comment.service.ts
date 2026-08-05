@@ -19,10 +19,10 @@ import type {
     UpdateCommentRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that edits a comment and returns its refreshed node.
  */
-@Injectable()
 export class UpdateCommentService {
     constructor(
         private readonly commentService: CommentService,

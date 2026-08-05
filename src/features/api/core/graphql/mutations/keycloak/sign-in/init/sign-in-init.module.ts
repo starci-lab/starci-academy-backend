@@ -21,5 +21,6 @@ import {
         SignInInitHandler,
     ],
 })
+/** Wires sign-in init so password+OTP start can register without verify/resend. */
 export class SignInInitSingleMutationModule extends ConfigurableModuleClass {}
 

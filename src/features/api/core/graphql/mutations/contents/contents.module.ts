@@ -57,4 +57,5 @@ import {
         }),
     ],
 })
+/** Composition root that registers every content write globally so the schema picks them up from one import. */
 export class ContentsMutationModule extends ConfigurableModuleClass { }

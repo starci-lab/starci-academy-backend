@@ -8,6 +8,9 @@ import {
     MockInterviewTurnInput,
 } from "../../grade-mock-interview-session/graphql-types"
 
+@InputType({
+    description: "Sync an in-flight mock-interview session's transcript + position for later resume.",
+})
 /**
  * Periodically syncs an IN-FLIGHT mock-interview session's transcript +
  * position to the server — "resume mock interview session" (2026-07-08), so
@@ -19,9 +22,6 @@ import {
  * rather than a parallel duplicate type — the eventual grade call re-sends
  * this same shape.
  */
-@InputType({
-    description: "Sync an in-flight mock-interview session's transcript + position for later resume.",
-})
 export class SyncMockInterviewSessionTurnsRequest {
     @Field(
         () => ID,

@@ -7,10 +7,10 @@ import {
     MinLength,
 } from "class-validator"
 
-/** Request to disable two-factor; the code proves ownership of the device. */
 @InputType({
     description: "Request to disable two-factor (TOTP).",
 })
+/** Request to disable two-factor; the code proves ownership of the device. */
 export class DisableTwoFactorRequest {
     @Field(
         () => String,

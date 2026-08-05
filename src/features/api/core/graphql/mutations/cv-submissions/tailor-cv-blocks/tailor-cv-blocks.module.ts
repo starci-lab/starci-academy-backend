@@ -30,4 +30,5 @@ import {
         TailorCvBlocksService,
     ],
 })
+/** Isolated Nest registration for tailor-cv-blocks without wiring persist mutations into the same graph. */
 export class TailorCvBlocksSingleMutationModule extends ConfigurableModuleClass {}

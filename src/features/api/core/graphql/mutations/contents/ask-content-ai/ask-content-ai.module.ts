@@ -30,4 +30,5 @@ import {
         AskContentAiService,
     ],
 })
+/** Isolated Nest registration so ask-content-ai can be global without pulling sibling content mutations into the same DI graph. */
 export class AskContentAiSingleMutationModule extends ConfigurableModuleClass {}

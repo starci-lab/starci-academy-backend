@@ -15,12 +15,12 @@ import {
     StartFlashcardReviewSessionData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin `CommandBus` proxy for `startFlashcardReviewSession` — wraps the request into a
  * {@link StartFlashcardReviewSessionCommand} rather than calling {@link StartFlashcardReviewSessionHandler} directly,
  * keeping the resolver decoupled from the CQRS wiring.
  */
-@Injectable()
 export class StartFlashcardReviewSessionService {
     constructor(
         private readonly commandBus: CommandBus,

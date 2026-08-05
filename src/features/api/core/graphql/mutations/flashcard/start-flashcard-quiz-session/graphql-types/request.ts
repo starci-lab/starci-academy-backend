@@ -15,6 +15,9 @@ import {
 /** Upper bound on the card set a single quick-quiz session may draw — mirrors `completeFlashcardQuizSession`'s MAX_ANSWERS ceiling so a session can never outgrow what it can eventually be scored on. */
 const MAX_CARD_IDS = 10
 
+@InputType({
+    description: "Start a resumable flashcard quick-quiz session for one course + drawn card set.",
+})
 /**
  * Request to start (or resume-replace) ONE resumable flashcard quick-quiz
  * ("Hỏi nhanh") session — "resume flashcard quiz session" (2026-07-08),
@@ -25,9 +28,6 @@ const MAX_CARD_IDS = 10
  * `completeFlashcardQuizSession` has a real server-issued `sessionId` to
  * anchor its idempotency + status flip to.
  */
-@InputType({
-    description: "Start a resumable flashcard quick-quiz session for one course + drawn card set.",
-})
 export class StartFlashcardQuizSessionRequest {
     @Field(
         () => ID,

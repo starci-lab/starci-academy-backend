@@ -15,6 +15,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver stays persistence-free. */
 export class ToggleFavouriteService {
     constructor(
         private readonly commandBus: CommandBus,

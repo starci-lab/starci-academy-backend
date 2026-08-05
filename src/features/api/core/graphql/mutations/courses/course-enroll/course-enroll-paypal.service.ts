@@ -44,6 +44,7 @@ import {
     VoucherService,
 } from "@modules/bussiness"
 
+@Injectable()
 /**
  * PayPal-specific course enrollment: creates an order (redirect provider) and
  * persists a pending preflight row.
@@ -58,7 +59,6 @@ import {
  * only ever sees Percent here. Same preview → reserve pattern as
  * {@link CourseEnrollSepayService}.
  */
-@Injectable()
 export class CourseEnrollPaypalService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

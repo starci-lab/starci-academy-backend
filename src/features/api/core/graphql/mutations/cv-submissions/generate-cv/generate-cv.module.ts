@@ -49,4 +49,5 @@ import {
         GenerateCvService,
     ],
 })
+/** Isolated Nest registration for generate-cv without wiring upload/revise into the same graph. */
 export class GenerateCvSingleMutationModule extends ConfigurableModuleClass {}

@@ -13,4 +13,5 @@ import {
         SetContentAiSessionArchivedResolver,
     ],
 })
+/** Isolated Nest registration for archive/unarchive without wiring sibling session mutations. */
 export class SetContentAiSessionArchivedSingleMutationModule extends ConfigurableModuleClass { }

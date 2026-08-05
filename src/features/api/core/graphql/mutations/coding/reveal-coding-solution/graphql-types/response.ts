@@ -10,10 +10,10 @@ import {
     CodingProblemSolutionEntity,
 } from "@modules/databases"
 
-/** Outcome of revealing a problem's reference solution. */
 @ObjectType({
     description: "The reveal outcome plus the problem's reference solutions (served only through this gated flow).",
 })
+/** Outcome of revealing a problem's reference solution. */
 export class RevealCodingSolutionResponseData {
     /** False means the answer was already forfeited on an earlier call — idempotent, no new penalty applied. */
     @Field(
@@ -34,10 +34,10 @@ export class RevealCodingSolutionResponseData {
         solutions: Array<CodingProblemSolutionEntity>
 }
 
-/** Response wrapper for the `revealCodingSolution` mutation; the reveal outcome lives in {@link data}. */
 @ObjectType({
     description: "Response wrapper for the revealCodingSolution mutation.",
 })
+/** Response wrapper for the `revealCodingSolution` mutation; the reveal outcome lives in {@link data}. */
 export class RevealCodingSolutionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RevealCodingSolutionResponseData>

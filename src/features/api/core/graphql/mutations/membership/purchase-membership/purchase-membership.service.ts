@@ -16,6 +16,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin command-bus hop so checkout retries stay inside the CQRS handler
+ * rather than on the GraphQL request contract.
+ */
 export class PurchaseMembershipService {
     constructor(
         private readonly commandBus: CommandBus,

@@ -50,6 +50,7 @@ import {
     VoucherService,
 } from "@modules/bussiness"
 
+@Injectable()
 /**
  * Sepay-specific course enrollment via the SePay Payment Gateway. Signs the
  * order fields (form-POST checkout) and persists a pending preflight row.
@@ -61,7 +62,6 @@ import {
  * gateways (Stripe/PayPal/Crypto) follow the same pattern but only for
  * Percent (Flat is rejected before dispatch — see course-enroll.handler.ts).
  */
-@Injectable()
 export class CourseEnrollSepayService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

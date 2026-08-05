@@ -35,6 +35,10 @@ import {
 } from "./sync-mock-interview-session-turns.service"
 
 @Resolver()
+/**
+ * GraphQL entry for periodic transcript sync so a mid-interview navigate-away
+ * can resume. Soft-fails stale ticks instead of error-toasting the learner.
+ */
 export class SyncMockInterviewSessionTurnsResolver {
     constructor(
         private readonly syncMockInterviewSessionTurnsService: SyncMockInterviewSessionTurnsService,

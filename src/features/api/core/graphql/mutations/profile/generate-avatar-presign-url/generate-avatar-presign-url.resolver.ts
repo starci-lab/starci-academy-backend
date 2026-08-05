@@ -28,11 +28,11 @@ import {
     GenerateAvatarPresignUrlService,
 } from "./generate-avatar-presign-url.service"
 
+@Resolver()
 /**
  * Resolver minting a presigned avatar-upload URL (mutation-based, mirrors the
  * CV submission presign flow).
  */
-@Resolver()
 export class GenerateAvatarPresignUrlResolver {
     constructor(
         private readonly generateAvatarPresignUrlService: GenerateAvatarPresignUrlService,

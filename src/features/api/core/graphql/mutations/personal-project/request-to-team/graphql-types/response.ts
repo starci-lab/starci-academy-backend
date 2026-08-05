@@ -10,6 +10,10 @@ import {
 @ObjectType({
     description: "Result of requesting to join a course's GitHub team.",
 })
+/**
+ * Invite outcome: `requested` plus optional `jobId` so the client can
+ * subscribe to job notifications instead of polling GitHub membership.
+ */
 export class RequestToTeamData {
     @Field(
         () => Boolean,
@@ -32,6 +36,10 @@ export class RequestToTeamData {
 @ObjectType({
     description: "Response wrapper for the requestToTeam mutation.",
 })
+/**
+ * Envelope for requestToTeam. `data` is nullable so interceptor error
+ * paths do not crash GraphQL over a missing invite payload.
+ */
 export class RequestToTeamResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RequestToTeamData>

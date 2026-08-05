@@ -8,14 +8,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "The tailored CV blocks (not persisted).",
+})
 /**
  * Tailored-blocks payload for `tailorCvBlocks` — the SAME blocks array shape
  * (FE-owned JSON: `[{ id, type, title, order, items }]`) with item wording
  * adjusted toward the job description. Not persisted.
  */
-@ObjectType({
-    description: "The tailored CV blocks (not persisted).",
-})
 export class TailorCvBlocksData {
     @Field(
         () => GraphQLJSON,
@@ -29,6 +29,7 @@ export class TailorCvBlocksData {
 @ObjectType({
     description: "Response wrapper for the tailorCvBlocks mutation.",
 })
+/** GraphQL envelope for JD-aligned wording; not persisted so tailoring stays previewable. */
 export class TailorCvBlocksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<TailorCvBlocksData | null>

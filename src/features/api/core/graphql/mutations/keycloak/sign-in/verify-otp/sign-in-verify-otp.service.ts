@@ -16,6 +16,7 @@ import {
 } from "../../../../../types"
 
 @Injectable()
+/** Forwards sign-in OTP verify to the command bus so the resolver can set cookies. */
 export class SignInVerifyOtpService {
     constructor(
         private readonly commandBus: CommandBus,

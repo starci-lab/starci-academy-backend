@@ -10,10 +10,10 @@ import {
     DeletedCommunityCommentObject,
 } from "../../../../shared/community"
 
-/** Response wrapper for the delete-community-post-comment mutation. */
 @ObjectType({
     description: "Response wrapper for the delete-community-post-comment mutation.",
 })
+/** Response wrapper for the delete-community-post-comment mutation. */
 export class DeleteCommunityPostCommentResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<DeletedCommunityCommentObject>

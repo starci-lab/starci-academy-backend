@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The created CV generation run id (poll `cvGeneration(id)` for its status). */
 @ObjectType({
     description: "Identifies the CV revision generation run that was created + enqueued.",
 })
+/** The created CV generation run id (poll `cvGeneration(id)` for its status). */
 export class ReviseCvData {
     @Field(
         () => ID,
@@ -33,6 +33,7 @@ export class ReviseCvData {
 @ObjectType({
     description: "Response wrapper for the reviseCv mutation.",
 })
+/** GraphQL envelope with the new revision-run ids; the source CV is ownership-checked before enqueue. */
 export class ReviseCvResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ReviseCvData>

@@ -22,14 +22,14 @@ const MAX_TECH_STACK_TAGS = 20
 /** Upper bound on a single tech-stack tag length. */
 const MAX_TECH_STACK_TAG_LENGTH = 64
 
+@InputType({
+    description: "Request to pin a free-form external project.",
+})
 /**
  * Request to pin a free-form external project to the current user's profile.
  * Unlike a course pin, every field is user-authored; an external pin is never
  * verified.
  */
-@InputType({
-    description: "Request to pin a free-form external project.",
-})
 export class PinExternalProjectRequest {
     @Field(
         () => String,

@@ -16,6 +16,7 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver does not import gateway services. */
 export class CourseEnrollService {
     constructor(
         private readonly commandBus: CommandBus,

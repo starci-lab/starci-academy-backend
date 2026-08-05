@@ -30,13 +30,13 @@ import {
     ClaimDailyQuestRewardResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Claim the daily-quest reward for the authenticated user. Delegates the
  * completeness + already-claimed checks, the reward grant, and the completion
  * insert to {@link DailyQuestService} (one atomic transaction). A typed exception
  * surfaces when the quest is incomplete or already claimed today.
  */
-@Resolver()
 export class ClaimDailyQuestRewardResolver {
     constructor(
         private readonly dailyQuestService: DailyQuestService,

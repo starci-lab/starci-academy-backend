@@ -15,4 +15,8 @@ import {
         }),
     ],
 })
+/**
+ * Playground write-side group. Today only session create — kept separate
+ * so later session writes do not land in the root MutationsModule.
+ */
 export class PlaygroundSessionsMutationsModule extends ConfigurableModuleClass {}

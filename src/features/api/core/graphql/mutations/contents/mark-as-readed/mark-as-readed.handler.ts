@@ -40,6 +40,10 @@ const LESSON_READ_XP = 3
 
 @CommandHandler(MarkAsReadedCommand)
 @Injectable()
+/**
+ * Persists read progress keyed by enrollment and awards XP/activity only on a
+ * deliberate (non-silent) mark — auto-scroll must not spend the one-time reward.
+ */
 export class MarkAsReadedHandler
     extends ICQRSHandler<MarkAsReadedCommand, void>
     implements ICommandHandler<MarkAsReadedCommand, void> {

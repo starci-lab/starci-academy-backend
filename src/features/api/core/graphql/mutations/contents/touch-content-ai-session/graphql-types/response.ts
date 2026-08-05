@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Result of touching (re-opening) a content-AI conversation. */
 @ObjectType({
     description: "Result of touching a content-AI conversation.",
 })
+/** Result of touching (re-opening) a content-AI conversation. */
 export class TouchContentAiSessionData {
     @Field(
         () => Boolean,
@@ -24,6 +24,7 @@ export class TouchContentAiSessionData {
 @ObjectType({
     description: "Response wrapper for the touchContentAiSession mutation.",
 })
+/** GraphQL envelope confirming recency was bumped so reload auto-reopens this conversation, not an older one. */
 export class TouchContentAiSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<TouchContentAiSessionData>

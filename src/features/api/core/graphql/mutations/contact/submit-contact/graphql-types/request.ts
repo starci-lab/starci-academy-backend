@@ -17,14 +17,14 @@ export const CONTACT_CATEGORIES = [
 /** A reason a visitor is contacting StarCi. */
 export type ContactCategory = (typeof CONTACT_CATEGORIES)[number]
 
+@InputType({
+    description: "A public contact-form message.",
+})
 /**
  * Payload of a public contact-form submission. Anonymous (no auth) — anyone can
  * reach out; the message is emailed to the team with the sender's address as the
  * reply-to.
  */
-@InputType({
-    description: "A public contact-form message.",
-})
 export class SubmitContactRequest {
     @Field(
         () => String,

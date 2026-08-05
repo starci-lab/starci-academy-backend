@@ -30,4 +30,5 @@ import {
         MarkAsReadedService,
     ],
 })
+/** Isolated Nest registration for mark-as-read so progress writes can be global without sibling content mutations. */
 export class MarkAsReadedSingleMutationModule extends ConfigurableModuleClass {}

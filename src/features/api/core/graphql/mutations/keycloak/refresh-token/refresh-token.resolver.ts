@@ -44,6 +44,11 @@ import {
 } from "@modules/passport"
 
 @Resolver()
+/**
+ * GraphQL entry for cookie-driven refresh. CSRF is required because the
+ * refresh cookie is sent automatically; throttle is skipped so a near-expiry
+ * access token is not locked out by the same burst that triggered refresh.
+ */
 export class RefreshTokenResolver {
     constructor(
         private readonly refreshTokenService: RefreshTokenService,

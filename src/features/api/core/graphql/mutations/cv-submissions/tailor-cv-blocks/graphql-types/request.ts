@@ -8,6 +8,9 @@ import {
     ModelProvider,
 } from "@modules/databases"
 
+@InputType({
+    description: "Tailor the whole CV blocks array toward a job description (no persistence).",
+})
 /**
  * Tailor the ENTIRE CV blocks array toward a specific job description. The AI
  * rewrites / emphasizes / reorders the item wording of every block to better
@@ -15,9 +18,6 @@ import {
  * (same block `id`/`type`, same item `id`). Nothing is persisted — the FE swaps
  * the returned blocks into the editor.
  */
-@InputType({
-    description: "Tailor the whole CV blocks array toward a job description (no persistence).",
-})
 export class TailorCvBlocksRequest {
     @Field(
         () => GraphQLJSON,

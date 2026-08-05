@@ -48,7 +48,12 @@ import {
 import {
     slugify,
 } from "./utils"
+import type {
+    ValidateApplyMethodParams,
+    ValidateCompanySelectionParams,
+} from "./types"
 
+@Resolver()
 /**
  * Submit a job posting through the public form. Every row created here is
  * `source = Submitted` and goes live immediately — there is no
@@ -57,7 +62,6 @@ import {
  * Auth is required only so the submission can be attributed to a user
  * (`postedByUserId`); no special role/company account is needed.
  */
-@Resolver()
 export class SubmitJobPostingResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
@@ -177,12 +181,7 @@ export class SubmitJobPostingResolver {
         {
             companyId,
             newCompany,
-        }: {
-            /** Id of an existing company, if the caller chose that path. */
-            companyId?: string
-            /** Inline new-company payload, if the caller chose that path. */
-            newCompany?: SubmitJobPostingRequest["newCompany"]
-        },
+        }: ValidateCompanySelectionParams,
     ): void {
         // neither provided → we don't know who the employer is
         if (!companyId && !newCompany) {
@@ -208,14 +207,7 @@ export class SubmitJobPostingResolver {
             applyMethod,
             applyUrl,
             applyEmail,
-        }: {
-            /** Discriminator for which apply target is required. */
-            applyMethod: JobApplyMethod
-            /** External apply URL, required when `applyMethod` is `ExternalUrl`. */
-            applyUrl?: string
-            /** Apply email, required when `applyMethod` is `Email`. */
-            applyEmail?: string
-        },
+        }: ValidateApplyMethodParams,
     ): void {
         if (applyMethod === JobApplyMethod.ExternalUrl && !applyUrl) {
             throw new JobPostingInvalidRequestException({

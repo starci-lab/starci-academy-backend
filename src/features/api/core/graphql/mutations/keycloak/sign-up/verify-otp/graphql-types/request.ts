@@ -11,6 +11,10 @@ import {
 @InputType({
     description: "Input for verifying OTP and completing sign-up.",
 })
+/**
+ * Challenge + OTP only — profile/password come from the server-held payload
+ * so a stolen OTP cannot finish signup as a different identity.
+ */
 export class SignUpVerifyOtpInput {
     @Field(() => String,
         {

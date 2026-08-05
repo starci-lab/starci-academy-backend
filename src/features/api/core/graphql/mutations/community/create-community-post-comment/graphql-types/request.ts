@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request to create a comment (top-level or reply) on a community post. */
 @InputType({
     description: "Request to create a comment on a community post.",
 })
+/** Request to create a comment (top-level or reply) on a community post. */
 export class CreateCommunityPostCommentRequest {
     /** Post the comment is attached to. */
     @Field(

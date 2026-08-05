@@ -13,4 +13,5 @@ import {
         CreateContentAiSessionResolver,
     ],
 })
+/** Isolated Nest registration for starting a content-AI conversation without wiring sibling session mutations. */
 export class CreateContentAiSessionSingleMutationModule extends ConfigurableModuleClass { }

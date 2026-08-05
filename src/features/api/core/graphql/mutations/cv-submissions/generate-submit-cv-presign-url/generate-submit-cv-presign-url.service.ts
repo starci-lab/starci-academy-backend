@@ -13,6 +13,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** CommandBus hop so the resolver does not import S3 signing. */
 export class GenerateSubmitCvPresignUrlService {
     constructor(
         private readonly commandBus: CommandBus,

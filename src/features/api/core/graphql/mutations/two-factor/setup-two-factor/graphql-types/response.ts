@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Enrollment material returned when starting 2FA setup. */
 @ObjectType({
     description: "TOTP enrollment material (show the QR, then confirm with a code).",
 })
+/** Enrollment material returned when starting 2FA setup. */
 export class SetupTwoFactorData {
     @Field(
         () => String,
@@ -29,10 +29,10 @@ export class SetupTwoFactorData {
         otpauthUrl: string
 }
 
-/** Response for starting two-factor setup. */
 @ObjectType({
     description: "Response for starting two-factor (TOTP) setup.",
 })
+/** Response for starting two-factor setup. */
 export class SetupTwoFactorResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SetupTwoFactorData>

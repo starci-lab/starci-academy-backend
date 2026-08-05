@@ -31,11 +31,11 @@ import {
     UserEmailAlreadyVerifiedException,
 } from "@modules/exceptions"
 
+@CommandHandler(SignUpInitCommand)
+@Injectable()
 /**
  * Handler for the sign up init command.
  */
-@CommandHandler(SignUpInitCommand)
-@Injectable()
 export class SignUpInitHandler
     extends ICQRSHandler<SignUpInitCommand, SignUpInitData>
     implements ICommandHandler<SignUpInitCommand, SignUpInitData>

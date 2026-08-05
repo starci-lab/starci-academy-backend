@@ -10,6 +10,10 @@ import {
 @ObjectType({
     description: "Tokens after OTP verification (refresh token is set as HttpOnly cookie).",
 })
+/**
+ * Client-visible half of completed sign-up: only the access token. Refresh
+ * stays httpOnly-cookied so XSS cannot steal a long-lived credential.
+ */
 export class SignUpVerifyOtpData {
     @Field(() => String,
         {
@@ -21,6 +25,10 @@ export class SignUpVerifyOtpData {
 @ObjectType({
     description: "Response wrapper for the signUpVerifyOtp mutation.",
 })
+/**
+ * Envelope for completed sign-up. `data` is nullable for the interceptor
+ * error path.
+ */
 export class SignUpVerifyOtpResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SignUpVerifyOtpData>
@@ -33,6 +41,10 @@ export class SignUpVerifyOtpResponse
         data: SignUpVerifyOtpData
 }
 
+/**
+ * Internal command result: GraphQL data plus the refresh token kept off the
+ * schema so the resolver can lock it in an httpOnly cookie.
+ */
 export interface SignUpVerifyOtpCommandResult {
     data: SignUpVerifyOtpData
     refreshToken: string

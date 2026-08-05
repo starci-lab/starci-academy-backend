@@ -17,6 +17,10 @@ import {
 
 @CommandHandler(SignOutCommand)
 @Injectable()
+/**
+ * Revokes the refresh token at Keycloak so a stolen cookie cannot be reused
+ * after sign-out. Cookie clearing stays in the resolver (HTTP side-effect).
+ */
 export class SignOutHandler
     extends ICQRSHandler<SignOutCommand, undefined>
     implements ICommandHandler<SignOutCommand, undefined>

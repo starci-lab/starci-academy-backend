@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The newly-persisted resumable due-review batch session. */
 @ObjectType({
     description: "A newly-persisted resumable cross-deck due-review batch session.",
 })
+/** The newly-persisted resumable due-review batch session. */
 export class StartFlashcardDueReviewSessionData {
     @Field(
         () => ID,
@@ -25,6 +25,11 @@ export class StartFlashcardDueReviewSessionData {
 @ObjectType({
     description: "Response wrapper for the startFlashcardDueReviewSession mutation.",
 })
+/**
+ * Envelope for a newly opened cross-deck due-review batch. `data` is nullable
+ * so the transform interceptor can null it on the error path — a required
+ * field would crash GraphQL and hide the real exception.
+ */
 export class StartFlashcardDueReviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<StartFlashcardDueReviewSessionData>

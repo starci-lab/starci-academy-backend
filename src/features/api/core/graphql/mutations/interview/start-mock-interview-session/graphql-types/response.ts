@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One per-language GIVEN code variant of a multi-lang mock-interview question. */
 @ObjectType({
     description: "One per-language GIVEN code variant of a multi-lang mock-interview question.",
 })
+/** One per-language GIVEN code variant of a multi-lang mock-interview question. */
 export class MockInterviewCodeVariant {
     @Field(
         () => String,
@@ -30,14 +30,14 @@ export class MockInterviewCodeVariant {
         givenCode: string
 }
 
+@ObjectType({
+    description: "One programming-language variant of a mock-interview question's given code.",
+})
 /**
  * One authored programming-language variant of a debug/review/optimize
  * question's GIVEN code — same conceptual bug, one entry per language. The
  * candidate freely switches between these client-side (no refetch).
  */
-@ObjectType({
-    description: "One programming-language variant of a mock-interview question's given code.",
-})
 export class MockInterviewGivenCodeVariantItem {
     @Field(
         () => String,
@@ -56,6 +56,9 @@ export class MockInterviewGivenCodeVariantItem {
         code: string
 }
 
+@ObjectType({
+    description: "One drawn flashcard-card seed question for a mode=\"qna\" mock-interview session.",
+})
 /**
  * One drawn flashcard seed topic for a `mode="qna"` session — the FE never
  * sees the seed card's answer/keywords (those stay server-side for grading),
@@ -64,9 +67,6 @@ export class MockInterviewGivenCodeVariantItem {
  * ("Câu 2/5 · Tình huống") and echo the right `kind` back on each ask/grade
  * turn.
  */
-@ObjectType({
-    description: "One drawn flashcard-card seed question for a mode=\"qna\" mock-interview session.",
-})
 export class MockInterviewSeedTopic {
     @Field(
         () => ID,
@@ -101,10 +101,10 @@ export class MockInterviewSeedTopic {
         givenCodes: Array<MockInterviewGivenCodeVariantItem>
 }
 
-/** The server-drawn mock-interview session the learner is about to work through. */
 @ObjectType({
     description: "A server-drawn mock-interview prompt session.",
 })
+/** The server-drawn mock-interview session the learner is about to work through. */
 export class StartMockInterviewSessionData {
     @Field(
         () => ID,
@@ -185,13 +185,6 @@ export class StartMockInterviewSessionData {
     )
         seedTopics: Array<MockInterviewSeedTopic>
 
-    /**
-     * ISO timestamp of when the live interview loop must auto-end (server
-     * `createdAt + 1h`, uniform across every mode) — the FE derives its
-     * countdown from THIS, never from a local clock start; the server
-     * independently re-enforces the same deadline at ask-time (never
-     * trusted from the client).
-     */
     @Field(
         () => String,
         {
@@ -204,6 +197,13 @@ export class StartMockInterviewSessionData {
 @ObjectType({
     description: "Response wrapper for the startMockInterviewSession mutation.",
 })
+    /**
+     * ISO timestamp of when the live interview loop must auto-end (server
+     * `createdAt + 1h`, uniform across every mode) — the FE derives its
+     * countdown from THIS, never from a local clock start; the server
+     * independently re-enforces the same deadline at ask-time (never
+     * trusted from the client).
+     */
 export class StartMockInterviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<StartMockInterviewSessionData>

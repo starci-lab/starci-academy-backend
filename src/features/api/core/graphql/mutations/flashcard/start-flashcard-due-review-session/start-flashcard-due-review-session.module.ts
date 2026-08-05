@@ -17,7 +17,6 @@ import {
     ConfigurableModuleClass,
 } from "./start-flashcard-due-review-session.module-definition"
 
-/** Feature-module boundary for the `startFlashcardDueReviewSession` mutation — wires its resolver + service + CQRS handler; exports the service so `myInProgressFlashcardDueReviewSession` can share its resolution logic. */
 @Module({
     imports: [
         CqrsModule,
@@ -31,4 +30,5 @@ import {
         StartFlashcardDueReviewSessionService,
     ],
 })
+/** Feature-module boundary for the `startFlashcardDueReviewSession` mutation — wires its resolver + service + CQRS handler; exports the service so `myInProgressFlashcardDueReviewSession` can share its resolution logic. */
 export class StartFlashcardDueReviewSessionSingleMutationModule extends ConfigurableModuleClass {}

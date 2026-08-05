@@ -17,10 +17,10 @@ import type {
     ReactToCommunityPostRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Mutation service that sets/changes/removes the current user's reaction on a post.
  */
-@Injectable()
 export class ReactToCommunityPostService {
     constructor(
         private readonly communityReactionService: CommunityReactionService,

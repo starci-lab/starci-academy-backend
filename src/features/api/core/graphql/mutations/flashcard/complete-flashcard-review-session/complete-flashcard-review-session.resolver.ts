@@ -33,13 +33,13 @@ import {
     CompleteFlashcardReviewSessionResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Record a finished flashcard review ("Học thẻ") session via
  * {@link FlashcardReviewSessionService}, snapshotting the final
  * reviewed-count/xpEarned onto the row. Grants NO XP server-side — see
  * `CompleteFlashcardReviewSessionRequest`'s own doc.
  */
-@Resolver()
 export class CompleteFlashcardReviewSessionResolver {
     constructor(
         private readonly flashcardReviewSessionService: FlashcardReviewSessionService,

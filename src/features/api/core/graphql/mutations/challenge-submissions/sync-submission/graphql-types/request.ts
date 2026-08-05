@@ -11,6 +11,10 @@ import {
 @InputType({
     description: "Challenge submission id; optionally the URL and/or the grading model to sync onto the user row (upserts, creating the row if missing).",
 })
+/**
+ * Draft-save input: upserts URL / model onto the user row without spending
+ * grading quota. Omit `url` to change only the model pick.
+ */
 export class SyncSubmissionRequest {
     @Field(
         () => ID,

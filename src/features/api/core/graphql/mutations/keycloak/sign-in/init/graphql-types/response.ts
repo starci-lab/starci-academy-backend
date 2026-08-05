@@ -11,6 +11,10 @@ import {
 @ObjectType({
     description: "Payload of signIn: challenge id and expiry.",
 })
+/**
+ * Opaque challenge handle for the OTP step. Tokens stay server-side until
+ * verify so this payload is safe to expose to the unauthenticated client.
+ */
 export class SignInInitData {
     @Field(() => String,
         {
@@ -28,6 +32,10 @@ export class SignInInitData {
 @ObjectType({
     description: "Response wrapper for the signInInit mutation.",
 })
+/**
+ * Envelope reused by sign-in and forgot-password init/resend. `data` is
+ * nullable for the interceptor error path.
+ */
 export class SignInResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SignInInitData>

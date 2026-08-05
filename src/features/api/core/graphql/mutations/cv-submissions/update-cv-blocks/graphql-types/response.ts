@@ -17,6 +17,7 @@ export {
 @ObjectType({
     description: "Response wrapper for the updateCvBlocks mutation.",
 })
+/** GraphQL envelope returning the updated document so the editor can replace local state without a refetch race. */
 export class UpdateCvBlocksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CvBlocksDocument | null>

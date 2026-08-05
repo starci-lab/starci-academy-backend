@@ -41,11 +41,6 @@ import {
     ClaimWeeklyChallengeRewardSingleMutationModule,
 } from "./claim-weekly-challenge-reward"
 
-/**
- * Profile mutation group (edit display name, bio, avatar). Avatar upload is a
- * presigned-URL flow: generateAvatarPresignUrl → client PUTs to MinIO →
- * verifyAvatarPresignUrl persists it (mirrors the CV submission flow).
- */
 @Module({
     imports: [
         UpdateProfileSingleMutationModule.register({
@@ -86,4 +81,9 @@ import {
         }),
     ],
 })
+/**
+ * Profile mutation group (edit display name, bio, avatar). Avatar upload is a
+ * presigned-URL flow: generateAvatarPresignUrl → client PUTs to MinIO →
+ * verifyAvatarPresignUrl persists it (mirrors the CV submission flow).
+ */
 export class ProfileMutationsModule extends ConfigurableModuleClass {}

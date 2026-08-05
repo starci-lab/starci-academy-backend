@@ -16,6 +16,7 @@ import {
 } from "../../../../../../types"
 
 @Injectable()
+/** Forwards reset-OTP verify to the command bus so the resolver can set cookies. */
 export class ForgotPasswordVerifyOtpService {
     constructor(
         private readonly commandBus: CommandBus,

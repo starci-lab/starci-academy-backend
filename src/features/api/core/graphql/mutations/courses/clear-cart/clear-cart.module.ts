@@ -21,4 +21,5 @@ import {
         ClearCartHandler,
     ],
 })
+/** Isolated Nest registration for emptying the cart without touching enrollments. */
 export class ClearCartSingleMutationModule extends ConfigurableModuleClass {}

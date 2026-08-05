@@ -4,12 +4,12 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/**
- * Delete one of the signed-in user's CV documents.
- */
 @InputType({
     description: "Delete a CV document.",
 })
+/**
+ * Delete one of the signed-in user's CV documents.
+ */
 export class DeleteCvBlocksRequest {
     @Field(
         () => ID,

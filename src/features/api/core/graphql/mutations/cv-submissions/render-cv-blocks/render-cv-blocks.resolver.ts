@@ -33,6 +33,7 @@ import {
 } from "./render-cv-blocks.service"
 
 @Resolver()
+/** GraphQL entry that authenticates before exporting a CV document. */
 export class RenderCvBlocksResolver {
     constructor(
         private readonly renderCvBlocksService: RenderCvBlocksService,

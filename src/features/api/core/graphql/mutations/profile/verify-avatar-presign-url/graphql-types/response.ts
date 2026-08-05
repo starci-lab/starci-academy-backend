@@ -7,12 +7,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * Data payload for verifying an avatar upload.
- */
 @ObjectType({
     description: "Result of verifying an avatar upload.",
 })
+/**
+ * Data payload for verifying an avatar upload.
+ */
 export class VerifyAvatarPresignUrlResponseData {
     @Field(
         () => Boolean,
@@ -32,12 +32,12 @@ export class VerifyAvatarPresignUrlResponseData {
         url: string | null
 }
 
-/**
- * Envelope response for verifying an avatar upload.
- */
 @ObjectType({
     description: "Response for verifying an avatar upload.",
 })
+/**
+ * Envelope response for verifying an avatar upload.
+ */
 export class VerifyAvatarPresignUrlResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<VerifyAvatarPresignUrlResponseData> {

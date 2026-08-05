@@ -11,6 +11,10 @@ import {
 @ObjectType({
     description: "Data for review personal project task response.",
 })
+/**
+ * Only the enqueued review `jobs.id` — scoring is async; the client
+ * tracks progress via job notifications.
+ */
 export class ReviewPersonalProjectTaskResponseData {
     @Field(
         () => ID,
@@ -24,6 +28,10 @@ export class ReviewPersonalProjectTaskResponseData {
 @ObjectType({
     description: "Response for review personal project task mutation.",
 })
+/**
+ * Envelope for reviewPersonalProjectTask. `data` is nullable so interceptor
+ * error paths do not crash GraphQL over a missing job id.
+ */
 export class ReviewPersonalProjectTaskResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ReviewPersonalProjectTaskResponseData>

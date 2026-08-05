@@ -16,6 +16,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin command-bus hop so the resolver stays GraphQL-shaped and checkout
+ * retries / provider branching stay inside the CQRS handler.
+ */
 export class PurchaseAiSubscriptionService {
     constructor(
         private readonly commandBus: CommandBus,

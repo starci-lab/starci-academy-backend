@@ -5,9 +5,9 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** Response for syncing challenge submissions for the current user. */
 @ObjectType({
     description: "Response for syncing challenge submissions for the current user.",
 })
+/** Response for syncing challenge submissions for the current user. */
 export class SyncSubmissionResponse extends AbstractGraphQLResponse {
 }

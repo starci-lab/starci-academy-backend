@@ -36,13 +36,13 @@ import {
     type SubmitCodingSolutionResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Submits a solution: persists a pending submission, enqueues the async Judge0
  * judging job, and returns the submission + job ids. The client subscribes to
  * the job over the `job_notifications` Socket.IO namespace for the verdict.
  * Rate-limited (Strict) to curb spam submits.
  */
-@Resolver()
 export class SubmitCodingSolutionResolver {
     constructor(
         private readonly codingSubmissionService: CodingSubmissionService,

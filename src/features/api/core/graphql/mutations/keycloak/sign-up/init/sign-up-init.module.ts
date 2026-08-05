@@ -21,5 +21,6 @@ import {
         SignUpInitHandler,
     ],
 })
+/** Wires sign-up init so account start can register without verify/resend. */
 export class SignUpInitSingleMutationModule extends ConfigurableModuleClass {}
 

@@ -29,14 +29,14 @@ import {
     StartFlashcardQuizSessionData,
 } from "./graphql-types"
 
+@CommandHandler(StartFlashcardQuizSessionCommand)
+@Injectable()
 /**
  * Persists ONE resumable flashcard quick-quiz session draw — small enough (an
  * enrollment resolve + an "abandon the prior draw" update + an insert) that,
  * like `SyncMockInterviewSessionTurnsHandler`, it does not warrant a separate
  * domain service; the logic lives directly in the handler.
  */
-@CommandHandler(StartFlashcardQuizSessionCommand)
-@Injectable()
 export class StartFlashcardQuizSessionHandler
     extends ICQRSHandler<StartFlashcardQuizSessionCommand, StartFlashcardQuizSessionData>
     implements ICommandHandler<StartFlashcardQuizSessionCommand, StartFlashcardQuizSessionData> {

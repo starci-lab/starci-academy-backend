@@ -44,6 +44,10 @@ import {
 } from "./forgot-password-verify-otp.service"
 
 @Resolver()
+/**
+ * GraphQL entry for completing reset. Cookie/CSRF/session side-effects live
+ * here because CQRS must not touch the HTTP response.
+ */
 export class ForgotPasswordVerifyOtpResolver {
     constructor(
         private readonly forgotPasswordVerifyOtpService: ForgotPasswordVerifyOtpService,

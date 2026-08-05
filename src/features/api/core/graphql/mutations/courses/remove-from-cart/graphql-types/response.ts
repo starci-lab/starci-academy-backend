@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Payload: whether a cart row was actually removed. */
 @ObjectType({
     description: "Outcome of removing a course from the cart.",
 })
+/** Payload: whether a cart row was actually removed. */
 export class RemoveFromCartResponseData {
     /** True when a matching cart row existed and was deleted; false when the cart had no such row. */
     @Field(
@@ -22,6 +22,9 @@ export class RemoveFromCartResponseData {
         removed: boolean
 }
 
+@ObjectType({
+    description: "Response wrapper for the removeFromCart mutation.",
+})
 /**
  * Response wrapper for the removeFromCart mutation.
  *
@@ -29,9 +32,6 @@ export class RemoveFromCartResponseData {
  * on the error path — a non-nullable field would crash GraphQL and mask the real
  * error.
  */
-@ObjectType({
-    description: "Response wrapper for the removeFromCart mutation.",
-})
 export class RemoveFromCartResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RemoveFromCartResponseData>

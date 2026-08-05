@@ -21,14 +21,14 @@ import {
     SyncFlashcardReviewSessionProgressData,
 } from "./graphql-types"
 
+@CommandHandler(SyncFlashcardReviewSessionProgressCommand)
+@Injectable()
 /**
  * Applies one `syncFlashcardReviewSessionProgress` sync — delegates the
  * ownership-scoped lookup + guard + update to
  * {@link FlashcardReviewSessionService.sync}, shared with any other caller
  * that needs the same "silently no-op on a stale/late sync" behavior.
  */
-@CommandHandler(SyncFlashcardReviewSessionProgressCommand)
-@Injectable()
 export class SyncFlashcardReviewSessionProgressHandler
     extends ICQRSHandler<SyncFlashcardReviewSessionProgressCommand, SyncFlashcardReviewSessionProgressData>
     implements ICommandHandler<SyncFlashcardReviewSessionProgressCommand, SyncFlashcardReviewSessionProgressData> {

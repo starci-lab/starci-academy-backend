@@ -18,6 +18,9 @@ import {
     GraphQLTypeBackgroundEffect,
 } from "@modules/databases"
 
+@InputType({
+    description: "Request to update the current user's editable profile fields.",
+})
 /**
  * Request to update the authenticated user's editable profile fields.
  *
@@ -26,9 +29,6 @@ import {
  * value. Avatar is the public URL returned by the avatar-upload REST endpoint —
  * this mutation only persists the chosen URL, it does not handle the binary.
  */
-@InputType({
-    description: "Request to update the current user's editable profile fields.",
-})
 export class UpdateProfileRequest {
     @Field(
         () => String,

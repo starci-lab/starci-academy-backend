@@ -11,6 +11,11 @@ import {
 @InputType({
     description: "Enqueue grading for one challenge submission; pass `githubUrl` on first submit to create the user row.",
 })
+/**
+ * Enqueue-grading input. `githubUrl` is required only on first submit (no
+ * user row yet); later calls may omit it to grade the already-synced URL
+ * without rewriting it.
+ */
 export class SubmitChallengeSubmissionRequest {
     @Field(
         () => ID,

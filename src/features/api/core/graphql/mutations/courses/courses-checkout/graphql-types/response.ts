@@ -9,13 +9,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Checkout URL and identifiers after creating a multi-course payment.",
+})
 /**
  * Payload returned after creating a multi-course checkout: the gateway redirect
  * info plus the number of courses the order will enroll on success.
  */
-@ObjectType({
-    description: "Checkout URL and identifiers after creating a multi-course payment.",
-})
 export class CoursesCheckoutResponseData {
     /** Hosted checkout URL (redirect) or form action URL (SePay). */
     @Field(
@@ -75,12 +75,12 @@ export class CoursesCheckoutResponseData {
         checkoutFields?: string
 }
 
-/**
- * Response wrapper for the `coursesCheckout` mutation.
- */
 @ObjectType({
     description: "Response wrapper for the multi-course checkout mutation.",
 })
+/**
+ * Response wrapper for the `coursesCheckout` mutation.
+ */
 export class CoursesCheckoutResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CoursesCheckoutResponseData>

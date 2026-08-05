@@ -13,4 +13,5 @@ import {
         TouchContentAiSessionResolver,
     ],
 })
+/** Isolated Nest registration for bumping conversation recency without wiring sibling session mutations. */
 export class TouchContentAiSessionSingleMutationModule extends ConfigurableModuleClass { }

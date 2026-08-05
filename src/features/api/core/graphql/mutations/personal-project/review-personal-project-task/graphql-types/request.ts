@@ -13,6 +13,11 @@ import type {
 @InputType({
     description: "Request to review a single task of a personal project.",
 })
+/**
+ * Per-task review input. URL / branch / taskId may be omitted to reuse
+ * enrollment defaults — first-task fallback is `orderIndex = 0`, not
+ * "whatever the UI last showed".
+ */
 export class ReviewPersonalProjectTaskRequest {
     @Field(
         () => ID,

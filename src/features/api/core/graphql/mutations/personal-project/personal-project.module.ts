@@ -33,4 +33,9 @@ import {
         }),
     ],
 })
+/**
+ * Personal-project write-side group: GitHub URL / branch sync, team invite,
+ * and per-task review enqueue — kept together because they all key off the
+ * same enrollment row.
+ */
 export class PersonalProjectMutationsModule extends ConfigurableModuleClass { }

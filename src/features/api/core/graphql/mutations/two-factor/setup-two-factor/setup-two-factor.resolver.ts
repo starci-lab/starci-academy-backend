@@ -37,6 +37,7 @@ import {
     SetupTwoFactorResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Start two-factor (TOTP) enrollment for the current user.
  *
@@ -46,7 +47,6 @@ import {
  * it again (re-enrollment) safely turns the flag off until the new secret is
  * confirmed.
  */
-@Resolver()
 export class SetupTwoFactorResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

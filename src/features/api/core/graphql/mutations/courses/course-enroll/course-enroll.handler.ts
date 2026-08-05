@@ -52,6 +52,10 @@ import {
 
 @CommandHandler(CourseEnrollCommand)
 @Injectable()
+/**
+ * Routes one course to the chosen gateway after voucher and enrollment checks;
+ * does not unlock the course until payment succeeds out of band.
+ */
 export class CourseEnrollHandler
     extends ICQRSHandler<CourseEnrollCommand, CourseEnrollResponseData>
     implements ICommandHandler<CourseEnrollCommand, CourseEnrollResponseData> {

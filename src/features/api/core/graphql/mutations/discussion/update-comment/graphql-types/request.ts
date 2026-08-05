@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request to edit a comment's body (author only). */
 @InputType({
     description: "Request to edit a comment's body.",
 })
+/** Request to edit a comment's body (author only). */
 export class UpdateCommentRequest {
     /** Comment being edited. */
     @Field(

@@ -4,15 +4,15 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Request to create a comment on a content or a course-general question.",
+})
 /**
  * Request to create a comment (top-level or reply). A top-level comment must set
  * exactly one of `contentId` (a lesson question) or `courseId` (a course-general
  * "hỏi chung khóa" question); a reply only needs `parentCommentId` — it inherits its
  * scope from the parent, so both scope fields may be omitted.
  */
-@InputType({
-    description: "Request to create a comment on a content or a course-general question.",
-})
 export class CreateCommentRequest {
     /** Content the comment is attached to; omit for a course-general question or a reply. */
     @Field(

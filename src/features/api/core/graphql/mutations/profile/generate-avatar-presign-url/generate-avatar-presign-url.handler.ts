@@ -30,13 +30,13 @@ import {
     AVATAR_MIME_EXTENSION,
 } from "../shared/avatar"
 
+@CommandHandler(GenerateAvatarPresignUrlCommand)
+@Injectable()
 /**
  * Mints a presigned PUT URL the client uploads its avatar to directly (the bytes
  * never transit the API). Avatars go to MinIO (public via bucket policy, no ACL
  * header needed). Persisting the URL on the user happens in the verify step.
  */
-@CommandHandler(GenerateAvatarPresignUrlCommand)
-@Injectable()
 export class GenerateAvatarPresignUrlHandler
     extends ICQRSHandler<GenerateAvatarPresignUrlCommand, GenerateAvatarPresignUrlResponseData>
     implements ICommandHandler<GenerateAvatarPresignUrlCommand, GenerateAvatarPresignUrlResponseData> {

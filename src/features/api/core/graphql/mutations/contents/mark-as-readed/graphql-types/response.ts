@@ -5,9 +5,9 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/** Response for syncing challenge submissions for the current user. */
 @ObjectType({
     description: "Response for marking a content as read.",
 })
+/** Response for syncing challenge submissions for the current user. */
 export class MarkAsReadedResponse extends AbstractGraphQLResponse {
 }

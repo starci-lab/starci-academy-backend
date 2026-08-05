@@ -7,14 +7,14 @@ import {
     PaymentType,
 } from "@modules/databases"
 
+@InputType({
+    description: "Payment provider for a community membership checkout.",
+})
 /**
  * Request for purchasing community membership. Mirrors the AI-subscription
  * checkout shape (PayOS / Sepay / Stripe / PayPal / Crypto) but targets the
  * single membership product instead of a tier or a course.
  */
-@InputType({
-    description: "Payment provider for a community membership checkout.",
-})
 export class PurchaseMembershipRequest {
     @Field(
         () => GraphQLTypePaymentType,

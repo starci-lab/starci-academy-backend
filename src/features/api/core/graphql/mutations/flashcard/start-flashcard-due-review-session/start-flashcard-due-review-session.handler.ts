@@ -21,14 +21,14 @@ import {
     StartFlashcardDueReviewSessionData,
 } from "./graphql-types"
 
+@CommandHandler(StartFlashcardDueReviewSessionCommand)
+@Injectable()
 /**
  * Persists ONE resumable cross-deck due-review batch session draw —
  * delegates the enrollment resolve + "abandon the prior draw" + insert to
  * {@link FlashcardDueReviewSessionService.start}, which is shared with
  * `myInProgressFlashcardDueReviewSession`'s own resolution.
  */
-@CommandHandler(StartFlashcardDueReviewSessionCommand)
-@Injectable()
 export class StartFlashcardDueReviewSessionHandler
     extends ICQRSHandler<StartFlashcardDueReviewSessionCommand, StartFlashcardDueReviewSessionData>
     implements ICommandHandler<StartFlashcardDueReviewSessionCommand, StartFlashcardDueReviewSessionData> {

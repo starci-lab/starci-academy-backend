@@ -28,6 +28,7 @@ import {
     CancelRedemptionResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Ops mutation: void a reward redemption — sets it `cancelled`. The
  * spendable-balance derivation (`RewardsService.computeSpent`) EXCLUDES
@@ -38,7 +39,6 @@ import {
  * operator-only surfaces), NOT the learner auth guard, since this mutates
  * another user's redemption.
  */
-@Resolver()
 export class CancelRedemptionResolver {
     constructor(
         private readonly rewardsService: RewardsService,
