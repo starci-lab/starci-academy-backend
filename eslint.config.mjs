@@ -124,6 +124,26 @@ export default defineConfig([
         },
     },
     {
+        // naming-and-structure §8 -- modules do not import other in-repo modules.
+        // Split from src/features so severities can diverge. apps/*/src/** is
+        // the composition root and is intentionally out of this glob.
+        files: ["src/modules/**/*.module.ts"],
+        rules: {
+            "starci-be/no-non-global-module-import": "warn", // naming-and-structure §8 · nợ=1 → warn (session.module.ts -> JobsModule)
+        },
+    },
+    {
+        // features debt is 17, concentrated in features/api (ElasticsearchModule
+        // + a handful of other capability imports) plus one IoRedisModule in
+        // socketio/core/playground-byom. mock/** aggregators are same-capability
+        // nesting and correctly silent -- the estimator's mock/socketio numbers
+        // counted those aggregators; this rule does not.
+        files: ["src/features/**/*.module.ts"],
+        rules: {
+            "starci-be/no-non-global-module-import": "warn", // naming-and-structure §8 · nợ=17 → warn
+        },
+    },
+    {
         // error-handling.md §1 states the auto-ban's own intended surface in so many words:
         // "a no-restricted-syntax rule banning `NewExpression[callee.name="Error"]` in `src/**`"
         // — the e2e/harness runners are Jest-side test infrastructure (poll-until-true helpers,

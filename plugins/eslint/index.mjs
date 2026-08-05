@@ -10,6 +10,9 @@
  * (see the comment above each rule for what it does and does not catch).
  */
 
+import path from "node:path"
+import fs from "node:fs"
+
 const EXCEPTION_NAME = /Exception$/
 const NEST_BUILTIN_EXCEPTIONS = new Set([
     "BadRequestException",
@@ -656,6 +659,328 @@ const noSelfModuleAlias = {
     },
 }
 
+// ── 13. no-non-global-module-import ──────────────────────────────────────────
+// naming-and-structure.md §8: a @Module under src/modules or src/features wires
+// only its own providers. In-repo modules are registered globally, once, at the
+// app composition root (apps/*/src/**). Cross-capability entries in `imports`
+// are the bug -- Nest will resolve the foreign providers locally, so the module
+// graph pretends to declare a dependency that the design says is ambient.
+//
+// Decision on SomeModule.register({...}) (do not silently pick one):
+//   Same-capability nesting -- bare `ChildModule` or `ChildModule.register(...)`
+//   / `registerAsync` / `forRoot` / `forRootAsync` / `forFeature` /
+//   `forFeatureAsync` / `registerQueue` -- is ALLOWED. That is a module nesting
+//   its own sub-modules (canon §3) or an aggregator registering leaves (canon
+//   §5). AiPingModule.register, EventBusModule.register and
+//   CdnSynchronizerModule.register are this shape: relative, same capability.
+//   Cross-capability `.register()` is BANNED outright, same as a bare
+//   identifier. Per-instance options of a foreign module belong at
+//   `apps/*/src/**` next to `isGlobal: true`. Allowing any `.register()` would
+//   let `CryptoModule.register({})` silence the rule without moving composition
+//   to the app root -- the fake-fix this choice exists to prevent.
+//
+// Allowed without further checks:
+//   - third-party specifiers (anything that is not relative / @modules /
+//     @features / @tests). Starting list from this repo, not memory:
+//     TypeOrmModule, CqrsModule, ConfigModule, JwtModule, ScheduleModule,
+//     GraphQLModule (@nestjs/graphql), MailerModule (@nestjs-modules/mailer),
+//     SentryModule (@sentry/nestjs), NestBullModule (@nestjs/bullmq),
+//     ThrottlerCoreModule (@nestjs/throttler). Widen by specifier origin, not
+//     by name -- the in-repo BullModule / CacheModule / HttpModule wrappers
+//     share names with Nest packages and must NOT ride an allow-list.
+//   - files outside src/modules/** and src/features/** (app roots live under
+//     apps/*/src/**; that is where the wiring is supposed to live).
+//
+// Visits both `@Module({ imports })` and every static method's returned object
+// literal `imports` (register / forRoot / forFeature / private helpers / ...).
+// Skipping dynamic returns is how a rule reports 11 and hides the rest.
+// Spreads of a local array are followed (init + `.push`). Nested `imports`
+// inside a third-party `forRootAsync({ imports })` options object are NOT
+// walked -- that is async-factory DI wiring, not this module's own imports.
+//
+// Cost (also in canon §8): removing module-to-module imports makes the
+// dependency graph implicit. Today, moving or deleting a module breaks
+// compilation at every importer. After this change nothing points at it, so
+// the same mistake surfaces at runtime as an unresolved provider, in whichever
+// app happened to load it. nest build will not catch that.
+
+const IN_REPO_SPECIFIER = /^(?:\.\.?(?:\/|$)|@modules\/|@features\/|@tests\/)/
+
+function capabilityKey(filePath) {
+    const norm = String(filePath).replace(/\\/g, "/")
+    const modulesIdx = norm.lastIndexOf("/src/modules/")
+    if (modulesIdx !== -1) {
+        const parts = norm.slice(modulesIdx + "/src/modules/".length).split("/")
+        if (MODULES_META_ROOTS.has(parts[0]) && parts[1]) {
+            return `modules:${parts[0]}/${parts[1]}`
+        }
+        if (parts[0]) return `modules:${parts[0]}`
+        return null
+    }
+    const featuresIdx = norm.lastIndexOf("/src/features/")
+    if (featuresIdx !== -1) {
+        const name = norm.slice(featuresIdx + "/src/features/".length).split("/")[0]
+        return name ? `features:${name}` : null
+    }
+    return null
+}
+
+function repoSrcRoot(filename) {
+    const norm = String(filename).replace(/\\/g, "/")
+    const idx = norm.lastIndexOf("/src/")
+    if (idx === -1) return null
+    return norm.slice(0, idx)
+}
+
+function existingFile(baseWithoutExt) {
+    for (const ext of [".ts", ".tsx", ".js", ".mjs", ".cts", ".mts"]) {
+        const candidate = baseWithoutExt + ext
+        if (fs.existsSync(candidate)) return candidate.replace(/\\/g, "/")
+    }
+    for (const ext of [".ts", ".tsx", ".js"]) {
+        const candidate = path.join(baseWithoutExt, `index${ext}`)
+        if (fs.existsSync(candidate)) return candidate.replace(/\\/g, "/")
+    }
+    return `${baseWithoutExt}.ts`.replace(/\\/g, "/")
+}
+
+function resolveSpecifier(filename, specifier) {
+    if (typeof specifier !== "string") return null
+    const srcRoot = repoSrcRoot(filename)
+    if (!srcRoot) return null
+    if (specifier.startsWith("@modules/")) {
+        return existingFile(path.join(srcRoot, "src/modules", specifier.slice("@modules/".length)))
+    }
+    if (specifier.startsWith("@features/")) {
+        return existingFile(path.join(srcRoot, "src/features", specifier.slice("@features/".length)))
+    }
+    if (specifier.startsWith("@tests/")) {
+        return existingFile(path.join(srcRoot, "src/tests", specifier.slice("@tests/".length)))
+    }
+    if (specifier.startsWith(".")) {
+        const fromDir = path.dirname(filename)
+        return existingFile(path.resolve(fromDir, specifier))
+    }
+    return null
+}
+
+function findVariable(scope, name) {
+    let current = scope
+    while (current) {
+        const found = current.variables.find((v) => v.name === name)
+        if (found) return found
+        current = current.upper
+    }
+    return null
+}
+
+function propertyNamed(objectExpr, name) {
+    if (!objectExpr || objectExpr.type !== "ObjectExpression") return null
+    for (const prop of objectExpr.properties) {
+        if (prop.type !== "Property" || prop.computed) continue
+        const key = prop.key
+        const keyName = key.type === "Identifier" ? key.name
+            : key.type === "Literal" ? key.value
+                : null
+        if (keyName === name) return prop.value
+    }
+    return null
+}
+
+function unwrapForwardRef(call) {
+    if (call.callee.type !== "Identifier" || call.callee.name !== "forwardRef") return null
+    const fn = call.arguments[0]
+    if (!fn || (fn.type !== "ArrowFunctionExpression" && fn.type !== "FunctionExpression")) return null
+    const body = fn.body
+    if (body.type === "Identifier") return body
+    if (body.type === "BlockStatement") {
+        for (const stmt of body.body) {
+            if (stmt.type === "ReturnStatement" && stmt.argument && stmt.argument.type === "Identifier") {
+                return stmt.argument
+            }
+        }
+    }
+    return null
+}
+
+const noNonGlobalModuleImport = {
+    meta: {
+        type: "problem",
+        docs: {
+            description:
+                "A module under src/modules or src/features must not import a cross-capability in-repo module. [[naming-and-structure §8]]",
+        },
+        schema: [],
+        messages: {
+            cross: "`{{name}}` is an in-repo module from another capability (`{{from}}` -> `{{to}}`). Register it globally at the app composition root (`apps/*/src/**`) instead of importing it here (no-non-global-module-import, naming-and-structure §8).",
+        },
+    },
+    create(context) {
+        const filename = context.filename || context.getFilename()
+        const selfCapability = capabilityKey(filename)
+        if (!selfCapability) return {}
+
+        const sourceCode = context.sourceCode || context.getSourceCode()
+        const importSourceByLocal = new Map()
+
+        function recordImport(node) {
+            if (!node.source || typeof node.source.value !== "string") return
+            const source = node.source.value
+            for (const spec of node.specifiers) {
+                if (spec.type === "ImportSpecifier" || spec.type === "ImportDefaultSpecifier" || spec.type === "ImportNamespaceSpecifier") {
+                    importSourceByLocal.set(spec.local.name, source)
+                }
+            }
+        }
+
+        function reportIfForeign(idNode) {
+            if (!idNode || idNode.type !== "Identifier") return
+            const source = importSourceByLocal.get(idNode.name)
+            if (source === undefined) return
+            if (!IN_REPO_SPECIFIER.test(source)) return
+            const resolved = resolveSpecifier(filename, source)
+            const otherCapability = resolved ? capabilityKey(resolved) : null
+            if (!otherCapability || otherCapability === selfCapability) return
+            context.report({
+                node: idNode,
+                messageId: "cross",
+                data: {
+                    name: idNode.name,
+                    from: selfCapability,
+                    to: otherCapability,
+                },
+            })
+        }
+
+        function checkCall(call) {
+            const forwarded = unwrapForwardRef(call)
+            if (forwarded) {
+                reportIfForeign(forwarded)
+                return
+            }
+            if (call.callee.type === "Identifier") {
+                reportIfForeign(call.callee)
+                return
+            }
+            if (call.callee.type === "MemberExpression" && !call.callee.computed) {
+                reportIfForeign(call.callee.object)
+            }
+        }
+
+        function checkElement(node, seen) {
+            if (!node) return
+            if (seen.has(node)) return
+            seen.add(node)
+            if (node.type === "SpreadElement") {
+                checkElement(node.argument, seen)
+                return
+            }
+            if (node.type === "Identifier") {
+                const scope = sourceCode.getScope(node)
+                const variable = findVariable(scope, node.name)
+                if (!variable) {
+                    reportIfForeign(node)
+                    return
+                }
+                const isImport = variable.defs.some((d) => d.type === "ImportBinding")
+                if (isImport) {
+                    reportIfForeign(node)
+                    return
+                }
+                for (const def of variable.defs) {
+                    if (def.type !== "Variable" || !def.node.init) continue
+                    const init = def.node.init
+                    if (init.type === "ArrayExpression") {
+                        for (const el of init.elements) checkElement(el, seen)
+                    } else if (init.type === "CallExpression") {
+                        checkCall(init)
+                    } else if (init.type === "Identifier") {
+                        checkElement(init, seen)
+                    }
+                }
+                for (const ref of variable.references) {
+                    const parent = ref.identifier.parent
+                    if (
+                        parent
+                        && parent.type === "MemberExpression"
+                        && parent.object === ref.identifier
+                        && !parent.computed
+                        && parent.property.name === "push"
+                        && parent.parent
+                        && parent.parent.type === "CallExpression"
+                    ) {
+                        for (const arg of parent.parent.arguments) checkElement(arg, seen)
+                    }
+                }
+                return
+            }
+            if (node.type === "CallExpression") {
+                checkCall(node)
+                return
+            }
+            if (node.type === "ArrayExpression") {
+                for (const el of node.elements) checkElement(el, seen)
+            }
+        }
+
+        function checkImportsValue(value) {
+            if (!value) return
+            checkElement(value, new Set())
+        }
+
+        function checkObjectImports(objectExpr) {
+            checkImportsValue(propertyNamed(objectExpr, "imports"))
+        }
+
+        return {
+            ImportDeclaration: recordImport,
+            ClassDeclaration(node) {
+                const decorators = node.decorators || []
+                for (const dec of decorators) {
+                    const expr = dec.expression
+                    if (
+                        expr
+                        && expr.type === "CallExpression"
+                        && expr.callee.type === "Identifier"
+                        && expr.callee.name === "Module"
+                        && expr.arguments[0]
+                        && expr.arguments[0].type === "ObjectExpression"
+                    ) {
+                        checkObjectImports(expr.arguments[0])
+                    }
+                }
+            },
+            ReturnStatement(node) {
+                let parent = node.parent
+                let inStaticMethod = false
+                while (parent) {
+                    if (parent.type === "MethodDefinition" && parent.static) {
+                        inStaticMethod = true
+                        break
+                    }
+                    if (parent.type === "FunctionDeclaration" || parent.type === "ClassDeclaration") break
+                    parent = parent.parent
+                }
+                if (!inStaticMethod || !node.argument) return
+                if (node.argument.type === "ObjectExpression") {
+                    checkObjectImports(node.argument)
+                    return
+                }
+                if (node.argument.type === "Identifier") {
+                    const scope = sourceCode.getScope(node)
+                    const variable = findVariable(scope, node.argument.name)
+                    if (!variable) return
+                    for (const def of variable.defs) {
+                        if (def.type === "Variable" && def.node.init && def.node.init.type === "ObjectExpression") {
+                            checkObjectImports(def.node.init)
+                        }
+                    }
+                }
+            },
+        }
+    },
+}
+
 export default {
     meta: { name: "eslint-plugin-starci-be", version: "0.1.0" },
     rules: {
@@ -671,5 +996,6 @@ export default {
         "require-enum-member-jsdoc": requireEnumMemberJsdoc,
         "must-deep-module-import": mustDeepModuleImport,
         "no-self-module-alias": noSelfModuleAlias,
+        "no-non-global-module-import": noNonGlobalModuleImport,
     },
 }

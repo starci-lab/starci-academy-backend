@@ -61,7 +61,8 @@ print — a gate that passes on a file it never scanned has proved nothing.
 
 `plugins/eslint/index.mjs` (`eslint-plugin-starci-be`, wired in `eslint.config.mjs`) turns the
 back-end authoring canon into rules the machine holds. **Every rule below is `error` with zero
-debt**, so a violation is not a warning to triage — it is a broken build.
+debt unless a trailing comment still carries a `nợ=` count** -- a violation at `error` is a broken
+build, not a warning to triage.
 
 | Rule | Canon | What it stops |
 |---|---|---|
@@ -73,6 +74,7 @@ debt**, so a violation is not a warning to triage — it is a broken build.
 | `no-nest-logger` · `no-interpolated-log-message` · `no-console` | observability | any logger but `WinstonService`; an interpolated log message (it takes a `WinstonLog` member plus a structured object) |
 | `must-deep-module-import` | naming-and-structure §3 | a barrel / module-root import (`@modules/ai`) -- name the declaring file |
 | `no-self-module-alias` | naming-and-structure §3 | a capability importing itself through `@modules` / `@features` / `@tests` -- use a relative path |
+| `no-non-global-module-import` | naming-and-structure §8 | a `@Module` under `src/modules` or `src/features` importing a cross-capability in-repo module -- register it globally at `apps/*/src/**`. Same-capability nesting / aggregators stay. Split: `src/modules/**/*.module.ts` and `src/features/**/*.module.ts`; severity follows the `nợ=` comment in `eslint.config.mjs`. |
 | `require-export-jsdoc` · `require-enum-member-jsdoc` | comments §3 · type-safety §3 | an undocumented export; an enum member that does not state its consequence |
 | `no-vietnamese` · `no-emoji` · `no-ai-symbol` | comments | non-English or non-ASCII in source — the bar is a stranger who does not read Vietnamese |
 
