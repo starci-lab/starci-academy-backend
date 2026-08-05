@@ -43,9 +43,6 @@ import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 import {
-    PingResolver,
-} from "@tests/helpers"
-import {
     JobActionService,
 } from "@modules/bussiness"
 import {
@@ -95,6 +92,9 @@ import {
 import {
     ReviseCvService,
 } from "@features/api/core/graphql/mutations/cv-submissions/revise-cv/revise-cv.service"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -255,6 +255,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,
@@ -267,7 +268,6 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                     CqrsModule,
                 ],
                 providers: [
-                    PingResolver,
                     UploadCvResolver,
                     UploadCvService,
                     UploadCvHandler,

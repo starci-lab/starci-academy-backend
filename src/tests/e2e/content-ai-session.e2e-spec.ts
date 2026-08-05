@@ -84,7 +84,7 @@ import {
     TouchContentAiSessionResolver,
 } from "@features/api/core/graphql/mutations/contents/touch-content-ai-session/touch-content-ai-session.resolver"
 import {
-    PingResolver,
+    TestHelpersModule,
 } from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
@@ -275,6 +275,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,
@@ -291,7 +292,6 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                     // satisfies "Query root type must be provided" -- this module
                     // registers only mutation resolvers, so the generated schema
                     // needs a no-op root `@Query` to pass validation at `app.init()`.
-                    PingResolver,
                     CreateContentAiSessionResolver,
                     DeleteContentAiSessionResolver,
                     RenameContentAiSessionResolver,

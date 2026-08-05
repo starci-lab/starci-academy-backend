@@ -39,6 +39,9 @@ import {
 import type {
     SubmitJobPostingRequest,
 } from "@features/api/core/graphql/mutations/job-postings/submit-job-posting/graphql-types"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -79,6 +82,7 @@ describe("Public job-posting submission (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({

@@ -68,6 +68,9 @@ import {
 import type {
     CoursesCheckoutRequest,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/graphql-types"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -160,6 +163,7 @@ describe("Courses checkout — multi-course cart (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
                         withHydration: false,

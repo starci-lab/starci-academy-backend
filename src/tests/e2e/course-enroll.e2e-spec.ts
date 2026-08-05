@@ -87,6 +87,9 @@ import {
 import type {
     CourseEnrollRequest,
 } from "@features/api/core/graphql/mutations/courses/course-enroll/graphql-types"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -188,6 +191,7 @@ describe("Course enroll — all gateways (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused module doesn't need them
                     PrimaryPostgreSQLModule.register({

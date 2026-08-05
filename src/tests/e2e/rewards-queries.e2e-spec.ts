@@ -60,6 +60,9 @@ import {
 import {
     FulfillRedemptionResolver,
 } from "@features/api/core/graphql/mutations/rewards/fulfill-redemption/fulfill-redemption.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -191,6 +194,7 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

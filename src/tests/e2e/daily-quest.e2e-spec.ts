@@ -47,6 +47,9 @@ import {
 import {
     ClaimDailyQuestRewardResolver,
 } from "@features/api/core/graphql/mutations/profile/claim-daily-quest-reward/claim-daily-quest-reward.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -131,6 +134,7 @@ describe("Daily quest (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

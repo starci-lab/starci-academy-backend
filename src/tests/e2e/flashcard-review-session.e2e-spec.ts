@@ -33,6 +33,9 @@ import {
     FlashcardReviewSessionService,
     UserService,
 } from "@modules/bussiness"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -81,6 +84,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers-module/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({

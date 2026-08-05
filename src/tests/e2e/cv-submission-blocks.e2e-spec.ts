@@ -33,9 +33,6 @@ import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 import {
-    PingResolver,
-} from "@tests/helpers"
-import {
     CreateCvBlocksHandler,
 } from "@features/api/core/graphql/mutations/cv-submissions/create-cv-blocks/create-cv-blocks.handler"
 import {
@@ -62,6 +59,9 @@ import {
 import {
     DeleteCvBlocksService,
 } from "@features/api/core/graphql/mutations/cv-submissions/delete-cv-blocks/delete-cv-blocks.service"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -187,6 +187,7 @@ describe("CV block-editor documents — create/update/delete (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // same GraphQL/Apollo wiring as production
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
@@ -203,7 +204,6 @@ describe("CV block-editor documents — create/update/delete (e2e)",
                     CqrsModule,
                 ],
                 providers: [
-                    PingResolver,
                     CreateCvBlocksResolver,
                     CreateCvBlocksService,
                     CreateCvBlocksHandler,

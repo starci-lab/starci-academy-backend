@@ -78,6 +78,9 @@ import {
 import type {
     SepayClientMock,
 } from "@tests/helpers"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -133,6 +136,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres connection + schema sync against the test container
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,

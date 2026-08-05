@@ -40,6 +40,9 @@ import {
 import {
     ClaimKpiRewardResolver,
 } from "@features/api/core/graphql/mutations/profile/claim-kpi-reward/claim-kpi-reward.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -126,6 +129,7 @@ describe("Weekly KPI reward reads/writes (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

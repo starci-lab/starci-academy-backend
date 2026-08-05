@@ -92,6 +92,9 @@ import {
 import {
     SyncSubmissionHandler,
 } from "@features/api/core/graphql/mutations/challenge-submissions/sync-submission/sync-submission.handler"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -194,6 +197,7 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({

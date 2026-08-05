@@ -35,8 +35,12 @@ import {
     ProcessGoogleDocsSubmissionGradeStepService,
 } from "@features/api/processors/ai/process-google-docs-submission/steps/process-google-docs-submission-grade-step.service"
 import {
-    createHarnessInvoke,
-    judge,
+    Test,
+} from "@nestjs/testing"
+import {
+    HarnessInvokeService,
+    JudgeService,
+    TestHelpersModule,
     readVolumeDoc,
     volumeExists,
 } from "@tests/helpers"
@@ -49,6 +53,8 @@ const PASS_SCORE = 60
 
 /** The tier the harness routes THIS case's grading model call to. */
 let currentTier: HarnessTierName = "high"
+let harnessInvokeService: HarnessInvokeService
+let judgeService: JudgeService
 
 /**
  * REAL challenge material from the `.volume` SSOT mount (course
@@ -215,7 +221,7 @@ const assertAndJudge = async (
     expect(Number.isFinite(evaluation.score)).toBe(true)
     expect(evaluation.shortFeedback.trim().length).toBeGreaterThan(0)
 
-    const verdict = await judge(rubric,
+    const verdict = await judgeService.judge(rubric,
         JSON.stringify(evaluation))
 
     expect(verdict.pass).toBe(true)
@@ -534,6 +540,16 @@ const GDOCS_PARTIAL_TEXT = [
  */
 describeOrSkip("Challenge grading — real grade flow judged (harness)",
     () => {
+        beforeAll(async () => {
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                ],
+            }).compile()
+            harnessInvokeService = moduleRef.get(HarnessInvokeService)
+            judgeService = moduleRef.get(JudgeService)
+        })
+
         afterEach(() => {
             currentTier = "high"
             jest.clearAllMocks()
@@ -580,7 +596,7 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                         log: jest.fn(),
                     } as never,
                     mountStorageService as never,
-                    createHarnessInvoke(() => currentTier) as never,
+                    harnessInvokeService.create(() => currentTier) as never,
                     aiEntitlementService as never,
                     new ChallengeEvaluationParseService(),
                     gradingRetrievalService as never,
@@ -768,7 +784,7 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                         log: jest.fn(),
                     } as never,
                     mountStorageService as never,
-                    createHarnessInvoke(() => currentTier) as never,
+                    harnessInvokeService.create(() => currentTier) as never,
                     aiEntitlementService as never,
                     googleDriverApiService as never,
                     new ChallengeEvaluationParseService(),

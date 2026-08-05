@@ -74,10 +74,10 @@ import {
 import {
     generate,
     messagesToPrompt,
-    judge,
-    readVolumeDoc,
+    JudgeService,
+    TestHelpersModule,
+    VolumeService,
     volumeExists,
-    PingResolver,
 } from "@tests/helpers"
 import type {
     HarnessTierName,
@@ -337,6 +337,8 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
     () => {
         let app: INestApplication
         let entityManager: EntityManager
+        let judgeService: JudgeService
+        let volumeService: VolumeService
 
         /** The "logged in" user the overridden Keycloak guard stamps onto the request. */
         let currentUser: UserEntity | null = null
@@ -425,6 +427,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,
@@ -438,8 +441,6 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                     CqrsModule,
                 ],
                 providers: [
-                    // no-op root @Query so the mutation-only schema validates at init
-                    PingResolver,
                     AskContentAiResolver,
                     AskContentAiService,
                     AskContentAiHandler,
@@ -483,6 +484,8 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
             contentAiService = app.get(ContentAiService)
+            judgeService = app.get(JudgeService)
+            volumeService = app.get(VolumeService)
 
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -611,7 +614,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                     await seedEnrollment(learner)
 
                     // ground on the REAL lesson body pulled from the .volume SSOT mount
-                    const doc = readVolumeDoc(dir as string,
+                    const doc = volumeService.readVolumeDoc(dir as string,
                         docLocale)
                     expect(doc.body.trim().length).toBeGreaterThan(0)
                     s3ReadServiceMock.json.mockResolvedValue({
@@ -677,7 +680,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 expect(turns[1].message).toBe(answer)
 
                 // finally, grade the real model answer against the rubric
-                const verdict = await judge(rubric,
+                const verdict = await judgeService.judge(rubric,
                     answer)
 
                 expect(verdict.pass).toBe(true)
@@ -692,7 +695,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 currentUser = learner
                 // deliberately NOT enrolled -- no seedEnrollment call
 
-                const premiumBody = readVolumeDoc(PREMIUM_LESSON_DIR,
+                const premiumBody = volumeService.readVolumeDoc(PREMIUM_LESSON_DIR,
                     "en")
                 expect(premiumBody.body.trim().length).toBeGreaterThan(0)
                 s3ReadServiceMock.json.mockResolvedValue({
@@ -725,7 +728,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 currentUser = learner
                 currentTier = "mid"
 
-                const doc = readVolumeDoc(INDEXING_LESSON_DIR,
+                const doc = volumeService.readVolumeDoc(INDEXING_LESSON_DIR,
                     "en")
                 s3ReadServiceMock.json.mockResolvedValue({
                     id: content.id,

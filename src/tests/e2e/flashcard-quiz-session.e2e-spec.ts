@@ -48,6 +48,9 @@ import {
 import {
     SyncFlashcardQuizSessionProgressCommand,
 } from "@features/api/core/graphql/mutations/flashcard/sync-flashcard-quiz-session-progress/sync-flashcard-quiz-session-progress.command"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -112,6 +115,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers-module/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({

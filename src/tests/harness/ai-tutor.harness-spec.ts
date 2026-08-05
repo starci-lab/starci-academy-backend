@@ -1,6 +1,10 @@
 import {
-    generate,
-    judge,
+    Test,
+} from "@nestjs/testing"
+import {
+    JudgeService,
+    ModelsService,
+    TestHelpersModule,
 } from "@tests/helpers"
 import type {
     HarnessTierName,
@@ -112,6 +116,19 @@ const QUERY_CASES: Array<QueryCase> = [
  */
 describe("AI tutor — content-varied query eval across tiers (harness)",
     () => {
+        let modelsService: ModelsService
+        let judgeService: JudgeService
+
+        beforeAll(async () => {
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                ],
+            }).compile()
+            modelsService = moduleRef.get(ModelsService)
+            judgeService = moduleRef.get(JudgeService)
+        })
+
         it.each(QUERY_CASES)(
             "$name -> judged pass (tier=$tier)",
             async ({
@@ -119,7 +136,7 @@ describe("AI tutor — content-varied query eval across tiers (harness)",
                 prompt,
                 rubric,
             }) => {
-                const output = await generate(tier,
+                const output = await modelsService.generate(tier,
                     {
                         system: TUTOR_SYSTEM,
                         prompt,
@@ -127,7 +144,7 @@ describe("AI tutor — content-varied query eval across tiers (harness)",
 
                 expect(output.trim().length).toBeGreaterThan(0)
 
-                const verdict = await judge(rubric,
+                const verdict = await judgeService.judge(rubric,
                     output)
 
                 expect(verdict.pass).toBe(true)

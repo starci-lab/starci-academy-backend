@@ -41,6 +41,9 @@ import {
     STREAK_FREEZE_REWARD_KEY,
     VOUCHER_10_REWARD_KEY,
 } from "@modules/bussiness"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -84,6 +87,7 @@ describe("Coin-shop rewards redeem/refund (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({

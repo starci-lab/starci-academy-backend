@@ -79,6 +79,9 @@ import {
     ReactToCommunityPostCommentResolver,
     ReactToCommunityPostCommentService,
 } from "@features/api/core/graphql/mutations/community/react-to-community-post-comment"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -135,6 +138,7 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
@@ -1007,6 +1011,7 @@ describe("Community GraphQL — communityFeed/communityPost/communityPostComment
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

@@ -41,6 +41,9 @@ import {
 import {
     MyUnreadNotificationCountResolver,
 } from "@features/api/core/graphql/queries/notifications/my-unread-notification-count/my-unread-notification-count.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -134,6 +137,7 @@ describe("Notification-bell read queries — myNotifications / myUnreadNotificat
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

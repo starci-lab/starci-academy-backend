@@ -57,6 +57,9 @@ import {
 import {
     ContentAiHistoryResolver,
 } from "@features/api/core/graphql/queries/contents/content-ai-history/content-ai-history.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -170,6 +173,7 @@ describe("Content-AI read queries — contentAiSessions / contentAiSessionMessag
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

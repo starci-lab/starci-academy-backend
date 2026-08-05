@@ -40,8 +40,10 @@ import {
     type MockInterviewTurnRecord,
 } from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/types"
 import {
-    createHarnessInvoke,
-    judge,
+    HarnessInvokeService,
+    JudgeService,
+    TestHelpersModule,
+    VolumeService,
     listVolumeDir,
     readVolumeDoc,
     volumeExists,
@@ -373,26 +375,28 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
     () => {
         let service: MockInterviewGradingService
         let entityManager: EntityManagerMock
+        let judgeService: JudgeService
         let promptTitleEn: string
         let promptTitleVi: string
 
         beforeAll(async () => {
             entityManager = makeEntityManagerMock()
 
-            // read the REAL bank's topic titles once -- used as `promptTitle` so the grading
-            // prompt's "completed a full mock interview about ..." framing matches the actual
-            // course material the transcript is grounded in, not a hand-invented title
-            promptTitleEn = readVolumeDoc(TOPIC_DIR).title
-            promptTitleVi = readVolumeDoc(TOPIC_DIR,
-                "vi").title
-
             const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                ],
                 providers: [
                     MockInterviewGradingService,
                     MockInterviewGradePromptService,
                     {
                         provide: AiInvokeService,
-                        useValue: createHarnessInvoke(() => currentTier),
+                        useFactory: (
+                            harnessInvoke: HarnessInvokeService,
+                        ) => harnessInvoke.create(() => currentTier),
+                        inject: [
+                            HarnessInvokeService,
+                        ],
                     },
                     {
                         provide: GradingLaneValidationService,
@@ -418,6 +422,11 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
             }).compile()
 
             service = moduleRef.get(MockInterviewGradingService)
+            judgeService = moduleRef.get(JudgeService)
+            const volumeService = moduleRef.get(VolumeService)
+            promptTitleEn = volumeService.readVolumeDoc(TOPIC_DIR).title
+            promptTitleVi = volumeService.readVolumeDoc(TOPIC_DIR,
+                "vi").title
         })
 
         afterEach(() => {
@@ -470,7 +479,7 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
                 expect(result.questionReviews).toEqual([])
 
                 // the grade itself is sensible for this transcript
-                const verdict = await judge(rubric,
+                const verdict = await judgeService.judge(rubric,
                     JSON.stringify({
                         overallScore: result.overallScore,
                         verdict: result.verdict,
@@ -550,7 +559,7 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
 
                 expect(result.strengths.length + result.gaps.length).toBeGreaterThan(0)
 
-                const verdict = await judge(
+                const verdict = await judgeService.judge(
                     "The output is a mock-interview grade whose strengths/gaps/followUpQuestion text is written in "
                         + "Vietnamese and is specific to what the candidate actually said (not generic boilerplate). "
                         + "Pass only if the feedback text is genuinely in Vietnamese.",

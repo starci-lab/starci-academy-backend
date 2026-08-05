@@ -53,6 +53,9 @@ import {
     JobActionService,
     JobStalledService,
 } from "@modules/bussiness"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -142,6 +145,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({

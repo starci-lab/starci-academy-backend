@@ -13,6 +13,9 @@ import {
 import type {
     SubmitContactRequest,
 } from "@features/api/core/graphql/mutations/contact/submit-contact/graphql-types"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Inbox that receives contact-form messages -- mirrors the private constant in the resolver. */
 const CONTACT_INBOX = "cuongnvtse160875@gmail.com"
@@ -50,6 +53,9 @@ describe("Public contact-form submission (e2e)",
 
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                ],
                 providers: [
                     // REAL -- the mutation under test (category label mapping,
                     // HTML-escaping, mail envelope assembly)

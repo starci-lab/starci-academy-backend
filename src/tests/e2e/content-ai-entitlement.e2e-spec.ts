@@ -69,7 +69,7 @@ import {
     AskContentAiService,
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai"
 import {
-    PingResolver,
+    TestHelpersModule,
 } from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
@@ -234,6 +234,7 @@ describe("askContentAi entitlement per scope (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // same GraphQL/Apollo wiring as production (formatError,
                     // GraphQLTransformInterceptor's success-shape stays realistic)
                     ApolloServerModule.register({
@@ -254,7 +255,6 @@ describe("askContentAi entitlement per scope (e2e)",
                     // satisfies "Query root type must be provided" -- this module
                     // registers only mutation resolvers, so the generated schema
                     // needs a no-op root `@Query` to pass validation at `app.init()`.
-                    PingResolver,
                     AskContentAiResolver,
                     AskContentAiService,
                     AskContentAiHandler,

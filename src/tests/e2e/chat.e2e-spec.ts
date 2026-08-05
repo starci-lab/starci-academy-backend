@@ -61,6 +61,9 @@ import {
     MyFounderConversationResolver,
     MyFounderConversationService,
 } from "@features/api/core/graphql/queries/chat/my-founder-conversation"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -107,6 +110,7 @@ describe("Community chat — sendMessage + private-DM access (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
@@ -500,6 +504,7 @@ describe("Chat GraphQL — chatMessages/myFounderConversation/communityChatConve
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

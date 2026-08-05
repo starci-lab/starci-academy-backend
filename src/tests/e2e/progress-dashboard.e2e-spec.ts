@@ -83,6 +83,9 @@ import {
 import {
     MilestonesHandler,
 } from "@features/api/core/graphql/queries/milestones/milestones/milestones.handler"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -192,6 +195,7 @@ describe("Learner-dashboard read queries — myInProgressChallenges / myCourseOu
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

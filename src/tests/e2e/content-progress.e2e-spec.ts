@@ -50,9 +50,6 @@ import {
     CacheService,
 } from "@modules/cache"
 import {
-    PingResolver,
-} from "@tests/helpers"
-import {
     GraphQLEnrollmentGuard,
     ProgressProjectionService,
     ReactionService,
@@ -79,6 +76,9 @@ import {
 import {
     ToggleFavouriteService,
 } from "@features/api/core/graphql/mutations/contents/toggle-favourite/toggle-favourite.service"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -188,6 +188,7 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,
@@ -201,7 +202,6 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                     CqrsModule,
                 ],
                 providers: [
-                    PingResolver,
                     MarkAsReadedResolver,
                     MarkAsReadedService,
                     MarkAsReadedHandler,

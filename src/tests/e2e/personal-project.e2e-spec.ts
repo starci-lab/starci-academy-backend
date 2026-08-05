@@ -52,9 +52,6 @@ import {
     GraphQLMustEnrolledGuard,
 } from "@modules/bussiness"
 import {
-    PingResolver,
-} from "@tests/helpers"
-import {
     UserService,
 } from "@modules/bussiness"
 import {
@@ -99,6 +96,9 @@ import {
 import {
     ReviewPersonalProjectTaskHandler,
 } from "@features/api/core/graphql/mutations/personal-project/review-personal-project-task/review-personal-project-task.handler"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -257,6 +257,7 @@ describe("Personal-project mutations (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,
@@ -272,7 +273,6 @@ describe("Personal-project mutations (e2e)",
                 providers: [
                     // satisfies the GraphQL "Query root type must be provided"
                     // rule -- this module registers only mutation resolvers
-                    PingResolver,
                     SubmitPersonalGithubUrlResolver,
                     SubmitPersonalGithubUrlService,
                     SubmitPersonalGithubUrlHandler,

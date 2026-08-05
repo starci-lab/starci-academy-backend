@@ -71,6 +71,9 @@ import {
 import {
     FlashcardDecksByCourseResolver,
 } from "@features/api/core/graphql/queries/flashcard-decks/flashcard-decks-by-course/flashcard-decks-by-course.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -145,6 +148,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
                         withHydration: false,

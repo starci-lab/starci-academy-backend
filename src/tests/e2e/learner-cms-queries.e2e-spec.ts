@@ -61,6 +61,9 @@ import {
 import {
     MyLearningFeedbacksResolver,
 } from "@features/api/core/graphql/queries/learner-cms/my-learning-feedbacks/my-learning-feedbacks.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -179,6 +182,7 @@ describe("Learner-CMS 'my history' reads (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

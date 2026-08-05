@@ -34,6 +34,9 @@ import {
 import {
     SetFollowResolver,
 } from "@features/api/core/graphql/mutations/follows/set-follow/set-follow.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -70,6 +73,7 @@ describe("Follow / unfollow (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
                         withHydration: false,

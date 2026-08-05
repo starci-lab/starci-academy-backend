@@ -56,8 +56,9 @@ import type {
     ReviewMilestoneTaskGradeResult,
 } from "@features/api/processors/ai/review-milestone-task/types"
 import {
-    createHarnessInvoke,
-    judge,
+    HarnessInvokeService,
+    JudgeService,
+    TestHelpersModule,
     readVolumeDoc,
     volumeExists,
 } from "@tests/helpers"
@@ -852,6 +853,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
     () => {
         let service: ReviewMilestoneTaskGradeStepService
         let entityManager: EntityManagerMock
+        let judgeService: JudgeService
 
         const gradingRetrievalServiceMock = {
             retrieveGradingExcerpt: jest.fn(),
@@ -885,6 +887,9 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
             entityManager = makeEntityManagerMock()
 
             const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                ],
                 providers: [
                     ReviewMilestoneTaskGradeStepService,
                     ProjectEvaluationParseService,
@@ -895,7 +900,12 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                     },
                     {
                         provide: AiInvokeService,
-                        useValue: createHarnessInvoke(() => currentTier),
+                        useFactory: (
+                            harnessInvoke: HarnessInvokeService,
+                        ) => harnessInvoke.create(() => currentTier),
+                        inject: [
+                            HarnessInvokeService,
+                        ],
                     },
                     {
                         provide: GradingRetrievalService,
@@ -925,6 +935,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
             }).compile()
 
             service = moduleRef.get(ReviewMilestoneTaskGradeStepService)
+            judgeService = moduleRef.get(JudgeService)
         })
 
         beforeEach(() => {
@@ -1001,7 +1012,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         expect(typeof passed).toBe("boolean")
 
                         // the evaluation itself is sensible for THIS submission against the REAL criteria
-                        const verdict = await judge(rubric,
+                        const verdict = await judgeService.judge(rubric,
                             JSON.stringify({
                                 evaluation,
                                 passed,
@@ -1081,7 +1092,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         expect(typeof passed).toBe("boolean")
 
                         // and both schema paths JUDGE as sensible for the same real submission
-                        const verdict = await judge(rubric,
+                        const verdict = await judgeService.judge(rubric,
                             JSON.stringify({
                                 evaluation,
                                 passed,

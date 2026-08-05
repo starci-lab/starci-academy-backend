@@ -14,9 +14,10 @@ import {
     CvScoringService,
 } from "@features/api/processors/ai/shared/cv-scoring/cv-scoring.service"
 import {
-    createHarnessInvoke,
-    judge,
-    readVolumeDoc,
+    HarnessInvokeService,
+    JudgeService,
+    TestHelpersModule,
+    VolumeService,
     volumeExists,
 } from "@tests/helpers"
 import type {
@@ -93,6 +94,8 @@ const describeOrSkip = HAVE_VOLUME
 describeOrSkip("CV scoring — real .volume samples, judged (harness)",
     () => {
         let service: CvScoringService
+        let judgeService: JudgeService
+        let volumeService: VolumeService
 
         const cvRagRetrievalServiceMock = {
             retrieveCvContext: jest.fn().mockResolvedValue({
@@ -118,11 +121,19 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
 
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                ],
                 providers: [
                     CvScoringService,
                     {
                         provide: AiInvokeService,
-                        useValue: createHarnessInvoke(() => currentTier),
+                        useFactory: (
+                            harnessInvoke: HarnessInvokeService,
+                        ) => harnessInvoke.create(() => currentTier),
+                        inject: [
+                            HarnessInvokeService,
+                        ],
                     },
                     {
                         provide: CvRagRetrievalService,
@@ -132,6 +143,8 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
             }).compile()
 
             service = moduleRef.get(CvScoringService)
+            judgeService = moduleRef.get(JudgeService)
+            volumeService = moduleRef.get(VolumeService)
         })
 
         afterEach(() => {
@@ -152,7 +165,7 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
                 rubric,
             }) => {
                 currentTier = tier
-                const cv = readVolumeDoc(dir)
+                const cv = volumeService.readVolumeDoc(dir)
                 expect(cv.body.trim().length).toBeGreaterThan(0)
 
                 const result = await score(cv.body)
@@ -162,7 +175,7 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
                 expect(result.score).toBeLessThanOrEqual(100)
                 expect(String(result.feedback.shortFeedback).trim().length).toBeGreaterThan(0)
 
-                const verdict = await judge(rubric,
+                const verdict = await judgeService.judge(rubric,
                     JSON.stringify({
                         score: result.score,
                         feedback: result.feedback,
@@ -176,8 +189,8 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
         it("ranks the real SENIOR sample strictly above the real JUNIOR sample",
             async () => {
                 currentTier = "high"
-                const junior = readVolumeDoc("cv/samples/01-junior-backend-nodejs")
-                const senior = readVolumeDoc("cv/samples/06-senior-backend-systemdesign")
+                const junior = volumeService.readVolumeDoc("cv/samples/01-junior-backend-nodejs")
+                const senior = volumeService.readVolumeDoc("cv/samples/06-senior-backend-systemdesign")
 
                 const juniorGrade = await score(junior.body)
                 const seniorGrade = await score(senior.body)
@@ -199,14 +212,14 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
         it("grades a real sample in Vietnamese when locale = vi",
             async () => {
                 currentTier = "mid"
-                const cvVi = readVolumeDoc("cv/samples/04-mid-fullstack",
+                const cvVi = volumeService.readVolumeDoc("cv/samples/04-mid-fullstack",
                     "vi")
 
                 const result = await score(cvVi.body,
                     Locale.Vi)
 
                 expect(String(result.feedback.shortFeedback).trim().length).toBeGreaterThan(0)
-                const verdict = await judge(
+                const verdict = await judgeService.judge(
                     "The feedback is written in Vietnamese and is specific to the CV (not generic). Pass only if the feedback text is in Vietnamese.",
                     JSON.stringify({
                         score: result.score,

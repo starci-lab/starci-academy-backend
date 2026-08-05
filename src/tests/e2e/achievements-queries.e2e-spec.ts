@@ -39,6 +39,9 @@ import {
 import {
     MyAchievementsResolver,
 } from "@features/api/core/graphql/queries/achievements/my-achievements/my-achievements.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -115,6 +118,7 @@ describe("myAchievements (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

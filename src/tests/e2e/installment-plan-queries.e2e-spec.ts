@@ -70,6 +70,9 @@ import {
 import {
     PayNextInstallmentHandler,
 } from "@features/api/core/graphql/mutations/installment-plans/pay-next-installment/pay-next-installment.handler"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -181,6 +184,7 @@ describe("Installment plan surface (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

@@ -49,6 +49,9 @@ import {
 import {
     DisableTwoFactorResolver,
 } from "@features/api/core/graphql/mutations/two-factor/disable-two-factor/disable-two-factor.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -125,6 +128,7 @@ describe("Two-factor (TOTP) setup / confirm / disable (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
                         withHydration: false,

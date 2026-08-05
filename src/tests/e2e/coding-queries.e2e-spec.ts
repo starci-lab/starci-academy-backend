@@ -79,6 +79,9 @@ import {
 import {
     CodingLeaderboardResolver,
 } from "@features/api/core/graphql/queries/coding/coding-leaderboard/coding-leaderboard.resolver"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -175,6 +178,7 @@ describe("Coding-practice read queries (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

@@ -83,6 +83,9 @@ import {
 import {
     MilestoneTaskProgressHandler,
 } from "@features/api/core/graphql/queries/personal-project/milestone-task-progress/milestone-task-progress.handler"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -232,6 +235,7 @@ describe("Progress query reads (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,

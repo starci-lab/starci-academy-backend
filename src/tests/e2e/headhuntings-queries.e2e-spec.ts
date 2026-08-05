@@ -85,6 +85,9 @@ import {
 import {
     JobReadinessService,
 } from "@features/api/core/graphql/queries/users/job-readiness/job-readiness.service"
+import {
+    TestHelpersModule,
+} from "@tests/helpers"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -251,6 +254,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
+                    TestHelpersModule,
                     ApolloServerModule.register({
                         type: ApolloServerType.Monolithic,
                         useServices: false,
