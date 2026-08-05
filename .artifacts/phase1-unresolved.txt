@@ -1,0 +1,9 @@
+filesVisited=5817
+filesRewritten=1
+declsSeen=293
+declsRewritten=1
+declsSplit=0
+bindingsResolved=358
+jestMocksRewritten=0
+unresolved=0
+
