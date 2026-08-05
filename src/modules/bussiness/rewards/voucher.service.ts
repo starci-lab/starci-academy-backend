@@ -222,10 +222,7 @@ export class VoucherService {
         {
             entityManager,
             transactionId,
-        }: {
-            entityManager: EntityManager
-            transactionId: string
-        },
+        }: MarkVoucherUsedParams,
     ): Promise<void> {
         const voucher = await entityManager.findOne(
             CourseVoucherEntity,
@@ -253,10 +250,7 @@ export class VoucherService {
         {
             entityManager,
             transactionId,
-        }: {
-            entityManager: EntityManager
-            transactionId: string
-        },
+        }: ReleaseVoucherParams,
     ): Promise<void> {
         const voucher = await entityManager.findOne(
             CourseVoucherEntity,

@@ -39,6 +39,10 @@ import {
 import {
     RewriteCvBlockData,
 } from "./graphql-types"
+import type {
+    BuildSystemPromptParams,
+    LoadCapstoneGroundingParams,
+} from "./types"
 
 /** Real StarCi capstone grounding pulled from Postgres for an accurate rewrite. */
 interface CapstoneGroundingRow {
