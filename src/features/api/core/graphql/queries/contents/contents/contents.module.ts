@@ -13,14 +13,8 @@ import {
 import {
     ContentsHandler,
 } from "./contents.handler"
-import {
-    ElasticsearchModule,
-} from "@modules/integrations/elasticsearch/elasticsearch.module"
 
 @Module({
-    imports: [
-        ElasticsearchModule,
-    ],
     providers: [
         ContentsService,
         ContentsResolver,

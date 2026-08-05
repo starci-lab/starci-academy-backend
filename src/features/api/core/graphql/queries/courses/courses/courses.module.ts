@@ -16,14 +16,8 @@ import {
 import {
     CoursesHandler,
 } from "./courses.handler"
-import {
-    ElasticsearchModule,
-} from "@modules/integrations/elasticsearch/elasticsearch.module"
 
 @Module({
-    imports: [
-        ElasticsearchModule,
-    ],
     providers: [
         CoursesService,
         CoursesResolver,

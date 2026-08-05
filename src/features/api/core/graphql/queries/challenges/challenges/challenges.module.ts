@@ -13,14 +13,8 @@ import {
 import {
     ChallengesHandler,
 } from "./challenges.handler"
-import {
-    ElasticsearchModule,
-} from "@modules/integrations/elasticsearch/elasticsearch.module"
 
 @Module({
-    imports: [
-        ElasticsearchModule,
-    ],
     providers: [
         ChallengesService,
         ChallengesResolver,

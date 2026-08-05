@@ -2,9 +2,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    GithubModule,
-} from "@modules/integrations/github/github.module"
-import {
     ConfigurableModuleClass,
 } from "./my-github-team-status.module-definition"
 import {
@@ -18,11 +15,6 @@ import {
 } from "./my-github-team-status.handler"
 
 @Module({
-    imports: [
-        GithubModule.register({
-            isGlobal: false,
-        }),
-    ],
     providers: [
         MyGithubTeamStatusResolver,
         MyGithubTeamStatusService,

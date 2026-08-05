@@ -2,9 +2,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    ElasticsearchModule,
-} from "@modules/integrations/elasticsearch/elasticsearch.module"
-import {
     ConfigurableModuleClass,
 } from "./search-users.module-definition"
 import {
@@ -12,9 +9,6 @@ import {
 } from "./search-users.resolver"
 
 @Module({
-    imports: [
-        ElasticsearchModule,
-    ],
     providers: [
         SearchUsersResolver,
     ],

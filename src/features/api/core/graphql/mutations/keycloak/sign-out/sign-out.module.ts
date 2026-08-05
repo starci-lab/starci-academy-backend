@@ -13,16 +13,8 @@ import {
 import {
     SignOutHandler,
 } from "./sign-out.handler"
-import {
-    CookieModule,
-} from "@modules/platform/cookie/cookie.module"
 
 @Module({
-    imports: [
-        CookieModule.register({
-            isGlobal: true,
-        }),
-    ],
     providers: [
         SignOutService,
         SignOutResolver,

@@ -13,20 +13,8 @@ import {
 import {
     IndexSearchHandler,
 } from "./index-search.handler"
-import {
-    ElasticsearchModule,
-} from "@modules/integrations/elasticsearch/elasticsearch.module"
-import {
-    CacheModule,
-} from "@modules/integrations/cache/cache.module"
 
 @Module({
-    imports: [
-        ElasticsearchModule,
-        CacheModule.register({
-            isGlobal: true,
-        }),
-    ],
     providers: [
         IndexSearchResolver,
         IndexSearchService,
