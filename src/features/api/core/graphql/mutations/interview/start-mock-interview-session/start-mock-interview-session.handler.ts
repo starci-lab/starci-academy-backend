@@ -31,7 +31,7 @@ import {
  * Draws and persists the prompt/topics server-side so later grading trusts
  * the stored session, not whatever the client claims it was asked.
  */
-export class StartMockInterviewSessionHandler {
+export class StartMockInterviewSessionHandler
     extends ICQRSHandler<StartMockInterviewSessionCommand, StartMockInterviewSessionData>
     implements ICommandHandler<StartMockInterviewSessionCommand, StartMockInterviewSessionData> {
     constructor(

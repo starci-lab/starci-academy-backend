@@ -17,7 +17,7 @@ import {
  * Envelope for `challenge`. Missing or premium-locked challenges throw from
  * the handler rather than returning a null `data` payload.
  */
-export class ChallengeResponse {
+export class ChallengeResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChallengeEntity>
 {

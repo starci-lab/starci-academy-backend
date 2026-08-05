@@ -36,7 +36,7 @@ export class SignUpInitData {
  * Envelope reused by sign-up init/resend. `data` is nullable for the
  * interceptor error path.
  */
-export class SignUpResponse {
+export class SignUpResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SignUpInitData>
 {
