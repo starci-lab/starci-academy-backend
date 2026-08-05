@@ -1,1 +1,0 @@
-export * from "./silent-ws-exception.filter"

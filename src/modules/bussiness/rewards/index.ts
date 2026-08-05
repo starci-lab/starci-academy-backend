@@ -1,5 +1,0 @@
-export * from "./rewards.module"
-export * from "./rewards.service"
-export * from "./rewards.catalog"
-export * from "./voucher.service"
-export * from "./types"

@@ -1,5 +1,0 @@
-export * from "./path"
-export * from "./parsers"
-export * from "./id-factories"
-export * from "./processors"
-export * from "./seeder.service"

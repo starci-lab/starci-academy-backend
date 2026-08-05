@@ -1,7 +1,0 @@
-export * from "./headhunting-companies.module"
-export * from "./headhunting-companies.module-definition"
-export * from "./graphql-types"
-export * from "./headhunting-companies.query"
-export * from "./headhunting-companies.handler"
-export * from "./headhunting-companies.service"
-export * from "./headhunting-companies.resolver"

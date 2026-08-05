@@ -1,6 +1,0 @@
-export * from "./extract-document-text.module"
-export * from "./extract-document-text.resolver"
-export * from "./extract-document-text.service"
-export * from "./extract-document-text.handler"
-export * from "./extract-document-text.command"
-export * from "./graphql-types"

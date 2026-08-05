@@ -1,6 +1,0 @@
-export * from "./judge-coding-submission.module"
-export * from "./judge-coding-submission.module-definition"
-export * from "./judge-coding-submission.worker"
-export * from "./step-mapping.service"
-export * from "./steps"
-export * from "./types"

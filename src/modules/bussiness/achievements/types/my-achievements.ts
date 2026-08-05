@@ -1,6 +1,6 @@
 import type {
     MyAchievementResult,
-} from "./"
+} from "../types"
 
 /**
  * Cached snapshot value stored in the achievements CQRS projection row. The

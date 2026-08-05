@@ -1,6 +1,0 @@
-export * from "./indexer-synchronizer.module"
-export * from "./content.service"
-export * from "./module.service"
-export * from "./course.service"
-export * from "./challenge.service"
-export * from "./indexer-synchronizer.service"

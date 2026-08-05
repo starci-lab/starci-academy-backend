@@ -1,5 +1,0 @@
-export * from "./graphql-types"
-export * from "./submit-challenge-submission.module"
-export * from "./submit-challenge-submission.resolver"
-export * from "./submit-challenge-submission.service"
-export * from "./types"

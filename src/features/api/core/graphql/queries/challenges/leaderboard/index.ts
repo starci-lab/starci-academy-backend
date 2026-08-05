@@ -1,6 +1,0 @@
-export * from "./leaderboard.module"
-export * from "./leaderboard.resolver"
-export * from "./leaderboard.service"
-export * from "./leaderboard.handler"
-export * from "./leaderboard.query"
-export * from "./graphql-types"

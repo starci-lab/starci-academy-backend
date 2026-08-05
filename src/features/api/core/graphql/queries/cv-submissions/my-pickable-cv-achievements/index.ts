@@ -1,6 +1,0 @@
-export * from "./my-pickable-cv-achievements.module"
-export * from "./my-pickable-cv-achievements.resolver"
-export * from "./my-pickable-cv-achievements.service"
-export * from "./my-pickable-cv-achievements.handler"
-export * from "./my-pickable-cv-achievements.query"
-export * from "./graphql-types"

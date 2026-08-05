@@ -1,0 +1,10 @@
+indexFiles=0
+pure=0
+mixed=0
+empty=0
+
+## mixed
+
+## empty
+
+## pure

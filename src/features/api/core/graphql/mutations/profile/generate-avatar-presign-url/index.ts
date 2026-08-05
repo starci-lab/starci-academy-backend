@@ -1,5 +1,0 @@
-export * from "./generate-avatar-presign-url.module"
-export * from "./generate-avatar-presign-url.resolver"
-export * from "./generate-avatar-presign-url.service"
-export * from "./generate-avatar-presign-url.handler"
-export * from "./graphql-types"

@@ -1,6 +1,0 @@
-export * from "./platform-stats.module"
-export * from "./platform-stats.resolver"
-export * from "./platform-stats.service"
-export * from "./platform-stats.handler"
-export * from "./platform-stats.query"
-export * from "./graphql-types"

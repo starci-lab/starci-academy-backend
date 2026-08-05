@@ -1,6 +1,0 @@
-export * from "./discussion.module"
-export * from "./create-comment"
-export * from "./update-comment"
-export * from "./delete-comment"
-export * from "./react-to-content"
-export * from "./react-to-comment"

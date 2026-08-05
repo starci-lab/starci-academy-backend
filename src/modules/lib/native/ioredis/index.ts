@@ -1,6 +1,0 @@
-export * from "./constants"
-export * from "./enums"
-export * from "./ioredis.decorators"
-export * from "./ioredis.module"
-export * from "./ioredis.providers"
-export * from "./types"

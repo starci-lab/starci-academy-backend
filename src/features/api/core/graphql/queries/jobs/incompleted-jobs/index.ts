@@ -1,6 +1,0 @@
-export * from "./incompleted-jobs.module"
-export * from "./incompleted-jobs.resolver"
-export * from "./incompleted-jobs.service"
-export * from "./incompleted-jobs.handler"
-export * from "./incompleted-jobs.query"
-export * from "./graphql-types"

@@ -1,6 +1,0 @@
-export * from "./rewrite-cv-block.module"
-export * from "./rewrite-cv-block.resolver"
-export * from "./rewrite-cv-block.service"
-export * from "./rewrite-cv-block.handler"
-export * from "./rewrite-cv-block.command"
-export * from "./graphql-types"

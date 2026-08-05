@@ -1,6 +1,0 @@
-export * from "./my-cv-blocks.module"
-export * from "./my-cv-blocks.resolver"
-export * from "./my-cv-blocks.service"
-export * from "./my-cv-blocks.handler"
-export * from "./my-cv-blocks.query"
-export * from "./graphql-types"

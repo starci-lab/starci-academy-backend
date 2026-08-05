@@ -1,6 +1,0 @@
-export * from "./tailor-cv-blocks.module"
-export * from "./tailor-cv-blocks.resolver"
-export * from "./tailor-cv-blocks.service"
-export * from "./tailor-cv-blocks.handler"
-export * from "./tailor-cv-blocks.command"
-export * from "./graphql-types"

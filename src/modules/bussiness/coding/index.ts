@@ -1,7 +1,0 @@
-export * from "./coding.module"
-export * from "./coding.module-definition"
-export * from "./coding-problem.service"
-export * from "./coding-progress.service"
-export * from "./coding-submission.service"
-export * from "../device"
-export * from "./types"

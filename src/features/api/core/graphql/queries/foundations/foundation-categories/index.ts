@@ -1,7 +1,0 @@
-export * from "./foundation-categories.module"
-export * from "./foundation-categories.module-definition"
-export * from "./graphql-types"
-export * from "./foundation-categories.query"
-export * from "./foundation-categories.handler"
-export * from "./foundation-categories.service"
-export * from "./foundation-categories.resolver"
