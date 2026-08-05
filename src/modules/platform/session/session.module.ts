@@ -2,9 +2,6 @@ import {
     Module
 } from "@nestjs/common"
 import {
-    JobsModule,
-} from "@modules/bussiness/jobs/jobs.module"
-import {
     ConfigurableModuleClass
 } from "./session.module-definition"
 import {
@@ -12,10 +9,6 @@ import {
 } from "./session.service"
 
 @Module({
-    imports: [
-        // provides EnqueueSendMailJobService for the new-device sign-in alert
-        JobsModule,
-    ],
     providers: [
         SessionService,
     ],
@@ -24,7 +17,8 @@ import {
     ],
 })
 /**
- * Exports SessionService (and pulls JobsModule) so sign-in can persist the session and
- * alert on new devices.
+ * Exports SessionService so sign-in can persist the session and alert on new
+ * devices. `EnqueueSendMailJobService` resolves from the globally registered
+ * `JobsModule` / `BussinessModule` at the app root -- do not re-import it here.
  */
 export class SessionModule extends ConfigurableModuleClass {}

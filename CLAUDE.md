@@ -74,7 +74,7 @@ build, not a warning to triage.
 | `no-nest-logger` · `no-interpolated-log-message` · `no-console` | observability | any logger but `WinstonService`; an interpolated log message (it takes a `WinstonLog` member plus a structured object) |
 | `must-deep-module-import` | naming-and-structure §3 | a barrel / module-root import (`@modules/ai`) -- name the declaring file |
 | `no-self-module-alias` | naming-and-structure §3 | a capability importing itself through `@modules` / `@features` / `@tests` -- use a relative path |
-| `no-non-global-module-import` | naming-and-structure §8 | a `@Module` under `src/modules` or `src/features` importing a cross-capability in-repo module -- register it globally at `apps/*/src/**`. Same-capability nesting / aggregators stay. Split: `src/modules/**/*.module.ts` and `src/features/**/*.module.ts`; severity follows the `nợ=` comment in `eslint.config.mjs`. |
+| `no-non-global-module-import` | naming-and-structure §8 | a `@Module` under `src/modules` or `src/features` importing a cross-capability in-repo module -- register it globally at `apps/*/src/**`. Same-capability nesting / aggregators stay. Split: `src/modules/**/*.module.ts` is `error` (nợ=0); `src/features/**/*.module.ts` is `warn` until burned down (count in `eslint.config.mjs`). |
 | `require-export-jsdoc` · `require-enum-member-jsdoc` | comments §3 · type-safety §3 | an undocumented export; an enum member that does not state its consequence |
 | `no-vietnamese` · `no-emoji` · `no-ai-symbol` | comments | non-English or non-ASCII in source — the bar is a stranger who does not read Vietnamese |
 

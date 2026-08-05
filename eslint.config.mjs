@@ -129,7 +129,7 @@ export default defineConfig([
         // the composition root and is intentionally out of this glob.
         files: ["src/modules/**/*.module.ts"],
         rules: {
-            "starci-be/no-non-global-module-import": "warn", // naming-and-structure §8 · nợ=1 → warn (session.module.ts -> JobsModule)
+            "starci-be/no-non-global-module-import": "error", // naming-and-structure §8 · nợ=0 → error
         },
     },
     {
