@@ -77,8 +77,13 @@ describe("KpiRewardService",
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
-            // raw `query` backs getCurrentWeekStart/lowerFloor/setTarget's jsonb write
-            entityManager.query = jest.fn().mockResolvedValue([])
+            // raw `query` backs getCurrentWeekStart (needs a weekStart row),
+            // lowerFloor, and setTarget's jsonb write (return value unused)
+            entityManager.query = jest.fn().mockResolvedValue([
+                {
+                    weekStart: new Date("2026-01-05T01:00:00.000Z"),
+                },
+            ])
 
             userStatsProjectionService = {
                 getStats: jest.fn(),
