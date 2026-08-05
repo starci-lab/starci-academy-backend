@@ -7,7 +7,7 @@ import {
 } from "@nestjs/graphql"
 import {
     UserService,
-} from "@modules/bussiness/user"
+} from "@modules/bussiness"
 import {
     GraphQLContextMissingRequestException,
     KeycloakAuthHeaderInvalidFormatException,

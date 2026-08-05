@@ -1,6 +1,6 @@
 import {
     ResolvedFilePath,
-} from "../../path"
+} from "../../../shared"
 
 /** Indices that locate a playground under mounted course data. */
 export interface ParsePlaygroundParams {

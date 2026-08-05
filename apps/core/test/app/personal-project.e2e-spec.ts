@@ -56,7 +56,7 @@ import {
 } from "../helpers/ping-resolver"
 import {
     UserService,
-} from "@modules/bussiness/user"
+} from "@modules/bussiness"
 import {
     CacheService,
 } from "@modules/cache"

@@ -10,8 +10,8 @@ import {
     PricingPhaseEntity,
 } from "@modules/databases"
 import {
-    ResolvedFilePath 
-} from "../../path"
+    ResolvedFilePath,
+} from "../../../shared"
 
 /** One pricing phase from course `# Course Data` JSON or root `data.json`. */
 export interface CoursePricingJson {

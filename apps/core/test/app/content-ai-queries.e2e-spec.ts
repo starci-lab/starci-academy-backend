@@ -47,10 +47,10 @@ import {
 } from "@modules/cache"
 import {
     ContentAiService,
-} from "@modules/bussiness/content-ai"
+} from "@modules/bussiness"
 import {
     UserService,
-} from "@modules/bussiness/user"
+} from "@modules/bussiness"
 import {
     ContentAiSessionsResolver,
 } from "@features/api/core/graphql/queries/contents/content-ai-sessions/content-ai-sessions.resolver"

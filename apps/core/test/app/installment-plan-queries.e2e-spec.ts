@@ -51,10 +51,10 @@ import {
 } from "@modules/mixin"
 import {
     SEPAY,
-} from "@modules/sepay/constants"
+} from "@modules/sepay"
 import {
     PAYOS,
-} from "@modules/payos/constants"
+} from "@modules/payos"
 import {
     MyInstallmentPlansResolver,
 } from "@features/api/core/graphql/queries/installment-plans/my-installment-plans.resolver"

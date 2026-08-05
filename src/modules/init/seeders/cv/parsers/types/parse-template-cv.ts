@@ -1,6 +1,6 @@
 import type {
     ResolvedFilePath,
-} from "../../path"
+} from "../../../shared"
 
 /** * Locates one template directory in the resolved path list (same shape as {@link ParseContentParams}).
  */

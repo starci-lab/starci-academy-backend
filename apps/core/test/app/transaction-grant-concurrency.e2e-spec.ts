@@ -62,7 +62,7 @@ import {
 } from "@modules/winston"
 import {
     SEPAY,
-} from "@modules/sepay/constants"
+} from "@modules/sepay"
 import {
     SepayWebhookController,
 } from "@features/api/core/http/sepay/webhook/webhook.controller"

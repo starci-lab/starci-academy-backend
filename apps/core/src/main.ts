@@ -1,5 +1,7 @@
 
-// we need to initialize sentry before anything else
+// Sentry must init before any other `@modules/sentry` symbol (filters/Nest
+// module) is loaded — a barrel import would pull those in too early.
+// eslint-disable-next-line starci-be/no-deep-module-import
 import "@modules/sentry/instrument"
 import {
     NestFactory
@@ -42,7 +44,7 @@ import {
 } from "@modules/docs"
 import {
     ResponseDelayInterceptor
-} from "@modules/api/interceptors"
+} from "@modules/api"
 
 const bootstrap = async () => {
     const app = await NestFactory.create<NestExpressApplication>(

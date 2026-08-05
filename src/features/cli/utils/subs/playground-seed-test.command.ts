@@ -20,6 +20,10 @@ import {
     clearRuntimeContextRoot,
     setRuntimeContextRoot,
 } from "@modules/filesystem"
+/* eslint-disable starci-be/no-deep-module-import --
+ * Same git-free subgraph as `UtilsModule`: `@modules/init` would pull
+ * SeedersService / DataGitBootstrapService into this command.
+ */
 import {
     CourseIdFactoryService,
 } from "@modules/init/seeders/courses/id-factories"
@@ -29,6 +33,7 @@ import {
 import type {
     ResolvedFileResult,
 } from "@modules/init/seeders/shared"
+/* eslint-enable starci-be/no-deep-module-import */
 import path from "path"
 import type {
     PlaygroundSeedTestRowCounts,

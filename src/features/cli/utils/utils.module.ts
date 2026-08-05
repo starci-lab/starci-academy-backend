@@ -12,6 +12,11 @@ import {
     PgSyncCommand,
     PlaygroundSeedTestCommand,
 } from "./subs"
+/* eslint-disable starci-be/no-deep-module-import --
+ * This CLI must not import `@modules/init`: that barrel evaluates InitModule /
+ * SeedersService / DataGitBootstrapService. Providers below are the seeder
+ * subgraph only — import those folders directly (see module JSDoc).
+ */
 import {
     CourseIdFactoryService,
     PlaygroundIdFactoryService,
@@ -39,6 +44,7 @@ import {
     S3ContextService,
     UpsertService,
 } from "@modules/init/seeders/shared"
+/* eslint-enable starci-be/no-deep-module-import */
 
 @Module({
     providers: [

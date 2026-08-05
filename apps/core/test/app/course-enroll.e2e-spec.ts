@@ -47,13 +47,13 @@ import {
 } from "@modules/mixin"
 import {
     SEPAY,
-} from "@modules/sepay/constants"
+} from "@modules/sepay"
 import {
     PAYOS,
-} from "@modules/payos/constants"
+} from "@modules/payos"
 import {
     STRIPE,
-} from "@modules/stripe/constants"
+} from "@modules/stripe"
 import {
     PaypalClient,
 } from "@modules/paypal"

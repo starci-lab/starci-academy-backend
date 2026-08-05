@@ -55,10 +55,10 @@ import {
 } from "@modules/ai"
 import {
     ContentAiService,
-} from "@modules/bussiness/content-ai"
+} from "@modules/bussiness"
 import {
     UserService,
-} from "@modules/bussiness/user"
+} from "@modules/bussiness"
 import {
     AskContentAiHandler,
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai/ask-content-ai.handler"

@@ -35,7 +35,7 @@ import {
 } from "@modules/bussiness"
 import {
     KPI_TARGET_MAX,
-} from "@modules/bussiness/kpi-reward/kpi-reward.catalog"
+} from "@modules/bussiness"
 import {
     KeycloakJwksService,
 } from "@modules/keycloak"

@@ -35,7 +35,7 @@ import {
 } from "@modules/rag"
 import {
     UserService,
-} from "@modules/bussiness/user"
+} from "@modules/bussiness"
 import {
     toUnknownRecord,
 } from "@modules/common"

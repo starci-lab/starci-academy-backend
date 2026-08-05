@@ -3,7 +3,7 @@ import type {
 } from "@modules/databases"
 import {
     ResolvedFilePath,
-} from "../../path"
+} from "../../../shared"
 
 /** Indices that locate a flashcard deck under mounted course data. */
 export interface ParseFlashcardDeckParams {

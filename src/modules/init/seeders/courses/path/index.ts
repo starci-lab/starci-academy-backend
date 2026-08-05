@@ -10,7 +10,3 @@ export * from "./module.service"
 export * from "./types"
 export * from "./milestone.service"
 export * from "./milestone-task.service"
-
-export type { ResolvedFilePath } from "../../shared"
-
-

@@ -26,7 +26,7 @@ import {
 } from "@modules/keycloak"
 import {
     UserService,
-} from "@modules/bussiness/user"
+} from "@modules/bussiness"
 import {
     MembershipService,
 } from "@modules/membership"

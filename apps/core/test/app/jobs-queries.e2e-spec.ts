@@ -54,7 +54,7 @@ import {
 } from "@modules/bussiness"
 import {
     UserService,
-} from "@modules/bussiness/user"
+} from "@modules/bussiness"
 import {
     CacheService,
 } from "@modules/cache"

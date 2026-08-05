@@ -40,7 +40,7 @@ import {
     AI_CREDIT_BOOST_REWARD_KEY,
     STREAK_FREEZE_REWARD_KEY,
     VOUCHER_10_REWARD_KEY,
-} from "@modules/bussiness/rewards/rewards.catalog"
+} from "@modules/bussiness"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

@@ -34,13 +34,13 @@ import {
 } from "@modules/membership"
 import {
     SEPAY,
-} from "@modules/sepay/constants"
+} from "@modules/sepay"
 import {
     PAYOS,
-} from "@modules/payos/constants"
+} from "@modules/payos"
 import {
     STRIPE,
-} from "@modules/stripe/constants"
+} from "@modules/stripe"
 import {
     SepayWebhookController,
 } from "@features/api/core/http/sepay/webhook/webhook.controller"

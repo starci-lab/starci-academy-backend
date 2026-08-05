@@ -3,7 +3,7 @@ import {
 } from "@modules/common"
 import {
     ResolvedFilePath,
-} from "../../path"
+} from "../../../shared"
 
 /** Ordinal of the course and module in the seed list (mount folders `{index}-{slug}`). */
 export interface ParseModuleParams {

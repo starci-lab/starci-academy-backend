@@ -23,6 +23,10 @@ import {
 import {
     EmbeddingModelService,
 } from "@modules/langchain"
+/* eslint-disable starci-be/no-deep-module-import --
+ * `@modules/init` evaluates init.module + data-git (octokit) into rag →
+ * flashcard → `@modules/bussiness`. Only seeder shared/CV parse helpers needed.
+ */
 import {
     ContextLoaderService,
     PathResolverService,
@@ -30,6 +34,7 @@ import {
 import {
     parseCvTemplateMarkdown,
 } from "@modules/init/seeders/cv/parsers/utils"
+/* eslint-enable starci-be/no-deep-module-import */
 import {
     WinstonLog,
     WinstonService,

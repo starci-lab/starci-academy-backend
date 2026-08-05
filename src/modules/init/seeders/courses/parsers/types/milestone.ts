@@ -3,7 +3,7 @@ import type {
 } from "@modules/databases"
 import {
     ResolvedFilePath,
-} from "../../path"
+} from "../../../shared"
 
 /** One aligned i18n translation row carried by a merged milestone-task block. */
 export interface MilestoneTaskTranslation {
