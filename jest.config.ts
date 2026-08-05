@@ -35,6 +35,7 @@ const sharedProjectConfig = {
             "<rootDir>/src/modules/integrations/$1",
         ],
         "^@features/(.*)$": "<rootDir>/src/features/$1",
+        "^@tests/(.*)$": "<rootDir>/src/tests/$1",
     },
     /** Node environment — no DOM. */
     testEnvironment: "node",
@@ -50,7 +51,9 @@ const sharedProjectConfig = {
  * - **unit** — pure jest-mocked specs (`*.spec.ts`), no infrastructure. This is
  *   what `npm test` / CI runs. E2E specs (`*.e2e-spec.ts`), integration specs
  *   (`*.int-spec.ts`), and LLM-eval harness specs (`*.harness-spec.ts`) are
- *   excluded — each of those has its own config under `apps/core/test`.
+ *   excluded BY SUFFIX, not by path -- which is why the e2e and harness suites
+ *   can live under `src/tests` without the fast unit run ever picking them up.
+ *   Each of those lanes has its own config under `src/tests/<lane>`.
  * - **integration** — `*.int-spec.ts` specs that need real infra (Testcontainers).
  *   Opt-in via `npm run test:int`; never part of the default fast unit run.
  */

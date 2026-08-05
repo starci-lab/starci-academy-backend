@@ -231,7 +231,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
         afterAll(async () => {
             // the "two-sum" / "retired-problem" fixtures are read-only WITHIN this
             // suite, but the Testcontainers Postgres is shared across the whole e2e
-            // run (see setup-e2e.ts) -- leaving them behind collides with
+            // run (see e2e/setup.ts) -- leaving them behind collides with
             // coding-queries.e2e-spec.ts's own same-slug "two-sum" fixture
             // (duplicate-key on the unique slug) whenever that file runs after this
             // one. CASCADE also clears coding_problem_solutions.

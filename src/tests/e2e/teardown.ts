@@ -1,9 +1,9 @@
 import type {
     E2eStackService,
-} from "../stack/e2e-stack.service"
+} from "../helpers/e2e-stack.service"
 
 /**
- * Jest globalTeardown for the `test:e2e:docker` lane: stop the
+ * Jest globalTeardown for the `test:e2e` lane: stop the
  * {@link E2eStackService} stashed on `globalThis` by {@link setup}.
  */
 const teardown = async (): Promise<void> => {

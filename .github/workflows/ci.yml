@@ -50,7 +50,7 @@ jobs:
   # E2E + harness are LOCAL-ONLY lanes now: e2e needs a Docker daemon and harness
   # needs Docker + Anthropic credentials, neither of which belongs in CI. CI stays
   # unit-only (lint -> build -> unit). Run e2e/harness on a dev machine:
-  #   npm run test:e2e:docker   (Docker Desktop up)
+  #   npm run test:e2e          (Docker Desktop up)
   #   npm run harness           (Docker up + `ant auth login` / ANTHROPIC_API_KEY)
   #
   # e2e:

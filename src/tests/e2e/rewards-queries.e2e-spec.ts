@@ -22,7 +22,6 @@ import {
 } from "@modules/api"
 import {
     CourseVoucherEntity,
-    Locale,
     PrimaryPostgreSQLModule,
     RewardRedemptionEntity,
     RewardRedemptionStatus,

@@ -4,11 +4,11 @@
     "json",
     "ts"
   ],
-  "rootDir": "../../../..",
+  "rootDir": "../../..",
   "testEnvironment": "node",
   "testRegex": "\\.e2e-spec\\.ts$",
   "roots": [
-    "<rootDir>/apps/core/test/app"
+    "<rootDir>/src/tests/e2e"
   ],
   "transform": {
     "^.+\\.(t|j)s$": [
@@ -26,10 +26,11 @@
       "<rootDir>/src/modules/platform/$1",
       "<rootDir>/src/modules/integrations/$1"
     ],
-    "^@features/(.*)$": "<rootDir>/src/features/$1"
+    "^@features/(.*)$": "<rootDir>/src/features/$1",
+    "^@tests/(.*)$": "<rootDir>/src/tests/$1"
   },
-  "globalSetup": "<rootDir>/apps/core/test/e2e/setup.ts",
-  "globalTeardown": "<rootDir>/apps/core/test/e2e/teardown.ts",
+  "globalSetup": "<rootDir>/src/tests/e2e/setup.ts",
+  "globalTeardown": "<rootDir>/src/tests/e2e/teardown.ts",
   "testTimeout": 120000,
-  "maxWorkers": 2
+  "maxWorkers": 1
 }

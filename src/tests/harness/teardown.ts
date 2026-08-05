@@ -1,6 +1,6 @@
 import type {
     E2eStackService,
-} from "../stack/e2e-stack.service"
+} from "../helpers/e2e-stack.service"
 
 /**
  * Jest globalTeardown for the `harness` lane: stop the

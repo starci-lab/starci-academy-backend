@@ -23,9 +23,9 @@ export type E2eStackProvider = "local" | "dockercloud" | "vps"
 
 /**
  * Shared Testcontainers-backed infra stack used by BOTH the e2e lane
- * (`apps/core/test`) and the harness lane.
+ * (`src/tests/e2e`) and the harness lane (`src/tests/harness`).
  *
- * Mirrors the boot sequence in {@link setup-e2e} -- same image, same
+ * Mirrors the boot sequence in {@link ../e2e/setup} -- same image, same
  * `POSTGRESQL_PRIMARY_*` env vars -- but packaged as an instance (rather than
  * Jest's globalSetup/globalTeardown pair) so a harness run can start/stop the
  * stack around a single flow.
@@ -61,7 +61,7 @@ export class E2eStackService {
      * Boot the infra this stack owns.
      *
      * "local" / "dockercloud": start a throwaway `postgres:16-alpine`
-     * container exactly like {@link setup-e2e} and wire the same
+     * container exactly like {@link ../e2e/setup} and wire the same
      * `POSTGRESQL_PRIMARY_*` env vars, so any code path that reads them
      * (e.g. `PrimaryPostgreSQLModule`) connects to the container transparently.
      *
@@ -74,7 +74,7 @@ export class E2eStackService {
             return
         }
 
-        // pin the same small, fast image setup-e2e uses; alpine keeps the pull/boot cheap
+        // pin the same small, fast image the e2e globalSetup uses; alpine keeps the pull/boot cheap
         this.postgresContainer = await new PostgreSqlContainer(
             "postgres:16-alpine",
         ).start()

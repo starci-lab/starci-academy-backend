@@ -6,9 +6,9 @@
   ],
   "rootDir": "../../..",
   "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "testRegex": "\\.harness-spec\\.ts$",
   "roots": [
-    "<rootDir>/apps/core/test"
+    "<rootDir>/src/tests/harness"
   ],
   "transform": {
     "^.+\\.(t|j)s$": [
@@ -26,10 +26,11 @@
       "<rootDir>/src/modules/platform/$1",
       "<rootDir>/src/modules/integrations/$1"
     ],
-    "^@features/(.*)$": "<rootDir>/src/features/$1"
+    "^@features/(.*)$": "<rootDir>/src/features/$1",
+    "^@tests/(.*)$": "<rootDir>/src/tests/$1"
   },
-  "globalSetup": "<rootDir>/apps/core/test/setup-e2e.ts",
-  "globalTeardown": "<rootDir>/apps/core/test/teardown-e2e.ts",
-  "testTimeout": 120000,
+  "globalSetup": "<rootDir>/src/tests/harness/setup.ts",
+  "globalTeardown": "<rootDir>/src/tests/harness/teardown.ts",
+  "testTimeout": 300000,
   "maxWorkers": 1
 }

@@ -317,7 +317,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
         afterAll(async () => {
             // the deck/card fixtures are read-only WITHIN this suite, but the
             // Testcontainers Postgres is shared across the whole e2e run (see
-            // setup-e2e.ts) -- leaving them behind pollutes any OTHER file's
+            // e2e/setup.ts) -- leaving them behind pollutes any OTHER file's
             // courseId-less "global" flashcard query (e.g. myDueFlashcards here
             // itself, run against a DIFFERENT file's leftover cards) with cards
             // this suite has no control over. CASCADE also clears flashcard_cards

@@ -71,6 +71,11 @@ export default defineConfig([
         ignores: [
             "**/*spec.ts",
             "apps/*/test/**",
+            // The e2e + harness lanes and the unit-mock module. All three are test
+            // infrastructure that stands up its own Testcontainers stack, which means
+            // reading and WRITING `process.env` to point the app at the container it
+            // just booted -- a different concern from the app's OWN typed config tree.
+            "src/tests/**",
             "src/modules/tests/**",
             // config-and-env §8: this file IS the only permitted process.env reader.
             "src/modules/platform/env/utils/parse-env.ts",
@@ -121,12 +126,19 @@ export default defineConfig([
     {
         // error-handling.md §1 states the auto-ban's own intended surface in so many words:
         // "a no-restricted-syntax rule banning `NewExpression[callee.name="Error"]` in `src/**`"
-        // — the e2e/harness runners under `apps/*/test/**` are Jest-side test infrastructure
-        // (poll-until-true helpers, forced-failure injection, doc-parsing assertions) that
-        // never crosses an API boundary and is never a production error representation; a raw
-        // `Error` there is a test-runner assertion, not a domain failure. Same carve-out the
-        // neighboring `no-restricted-syntax` block already applies for the same reason.
-        files: ["apps/*/test/**/*.ts"],
+        // — the e2e/harness runners are Jest-side test infrastructure (poll-until-true helpers,
+        // forced-failure injection, doc-parsing assertions) that never crosses an API boundary
+        // and is never a production error representation; a raw `Error` there is a test-runner
+        // assertion, not a domain failure. Same carve-out the neighboring `no-restricted-syntax`
+        // block already applies for the same reason.
+        //
+        // `src/tests/**` is named explicitly rather than relying on `src/**`: those lanes moved
+        // under `src/` so their specs sit in the same import universe as the services they
+        // exercise, which brought them INSIDE the canon rules' `files` glob for the first time.
+        files: [
+            "apps/*/test/**/*.ts",
+            "src/tests/**/*.ts",
+        ],
         rules: {
             "starci-be/throw-abstract-exception": "off",
         },
