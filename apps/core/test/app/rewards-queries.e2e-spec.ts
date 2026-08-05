@@ -327,7 +327,7 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
                         const body = response.body.data.rewards
                         expect(body.data).toHaveLength(5)
                         const voucherReward = body.data.find((r: { key: string }) => r.key === "voucher10")
-                        expect(voucherReward.title).toBe("Voucher giảm 10% mọi khóa học")
+                        expect(voucherReward.title).toBe("Voucher giảm 10% mọi khóa học") // vn-ok: asserts vi-locale catalog title under Accept-Language: vi
                     })
             })
 

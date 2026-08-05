@@ -156,11 +156,11 @@ describe("myAchievements (e2e)",
                         slug: "busy-bee",
                         name: {
                             en: "Busy Bee",
-                            vi: "Ong Chăm Chỉ",
+                            vi: "Ong Chăm Chỉ", // vn-ok: vi-locale fixture — the en sibling is asserted separately
                         },
                         description: {
                             en: "Gain 2 followers.",
-                            vi: "Có 2 người theo dõi.",
+                            vi: "Có 2 người theo dõi.", // vn-ok: vi-locale fixture — the en sibling is asserted separately
                         },
                         criteriaType: AchievementCriteriaType.Followers,
                         threshold: 2,

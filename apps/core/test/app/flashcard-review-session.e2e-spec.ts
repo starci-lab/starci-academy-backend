@@ -38,7 +38,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the resumable flashcard REVIEW session ("Học thẻ") bookkeeping
+ * e2e for the resumable flashcard REVIEW session bookkeeping
  * wrapper — `.claude/canon/be/enforce/authoring/testing.md` §2 names "a
  * flashcard review" as a write flow that must carry `*.e2e-spec.ts` coverage;
  * this is that coverage for {@link FlashcardReviewSessionService}'s

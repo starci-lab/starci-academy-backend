@@ -219,7 +219,7 @@ export class RagService {
                 sources 
             }
         } catch {
-            onAnswerChunk("[lỗi] không gọi được Ollama local — kiểm tra `ollama serve`.",
+            onAnswerChunk("[error] could not reach local Ollama — check that `ollama serve` is running.",
                 true)
             return {
                 sources: [] 

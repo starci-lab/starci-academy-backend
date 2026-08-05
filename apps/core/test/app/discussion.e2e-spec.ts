@@ -245,7 +245,7 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
                         expect(row.courseId).toBeNull()
                     })
 
-                it("createComment scoped to a course (course-general \"hỏi chung khóa\") persists course_id set, content_id null",
+                it("createComment scoped to a course (course-general question) persists course_id set, content_id null",
                     async () => {
                         const user = await seedUser("kc-comment-course-scope")
 

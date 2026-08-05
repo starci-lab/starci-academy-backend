@@ -229,11 +229,11 @@ const SHORT_ANSWERS: Record<number, string> = {
  * feedback can be judged as substantive, not just translated boilerplate.
  */
 const VI_ANSWERS: Record<number, string> = {
-    0: "Latency là thời gian một request đi hết một vòng, nên đo theo percentile P95/P99 thay vì trung bình. Throughput là số request xử lý được mỗi giây trên toàn hệ thống. Hai chỉ số này đánh đổi nhau: gộp batch tăng throughput nhưng khiến từng request chờ lâu hơn, còn chia tải qua nhiều node tăng throughput mà không làm tăng latency từng request.",
-    1: "Trước khi chọn công nghệ phải ước lượng quy mô, ví dụ peak QPS, vì một con số như vậy có thể lật ngược quyết định giữa dùng một database quan hệ hay cần một distributed store cộng cache. Nếu bỏ qua bước này thì dễ rơi vào over-engineering hoặc under-engineering.",
-    2: "Nâng cấp một máy duy nhất sớm muộn cũng đụng trần phần cứng và vẫn là một điểm lỗi duy nhất. Horizontal scaling đứng sau load balancer giải quyết cả hai vấn đề đó, đổi lại service phải trở nên stateless và cần đẩy state ra một kho lưu trữ dùng chung.",
-    3: "Nên đẩy session ra khỏi RAM của từng node, lưu vào một kho tập trung như Redis với các thao tác đọc, ghi kèm thời gian sống, và xoá. Nhờ vậy node nào cũng phục vụ được request bất kỳ, đổi lại là thêm một network hop mỗi lần truy cập session.",
-    4: "CAP chỉ nói về lúc có partition, còn PACELC bổ sung rằng ngay cả khi mạng khoẻ mạnh vẫn phải đánh đổi latency với consistency. Quorum với công thức W cộng R lớn hơn N đảm bảo tập ghi và tập đọc giao nhau nên lần đọc luôn thấy dữ liệu mới nhất.",
+    0: "Latency là thời gian một request đi hết một vòng, nên đo theo percentile P95/P99 thay vì trung bình. Throughput là số request xử lý được mỗi giây trên toàn hệ thống. Hai chỉ số này đánh đổi nhau: gộp batch tăng throughput nhưng khiến từng request chờ lâu hơn, còn chia tải qua nhiều node tăng throughput mà không làm tăng latency từng request.", // vn-ok: vi-locale grading harness answers paired with vi.md questions
+    1: "Trước khi chọn công nghệ phải ước lượng quy mô, ví dụ peak QPS, vì một con số như vậy có thể lật ngược quyết định giữa dùng một database quan hệ hay cần một distributed store cộng cache. Nếu bỏ qua bước này thì dễ rơi vào over-engineering hoặc under-engineering.", // vn-ok: vi-locale grading harness answers paired with vi.md questions
+    2: "Nâng cấp một máy duy nhất sớm muộn cũng đụng trần phần cứng và vẫn là một điểm lỗi duy nhất. Horizontal scaling đứng sau load balancer giải quyết cả hai vấn đề đó, đổi lại service phải trở nên stateless và cần đẩy state ra một kho lưu trữ dùng chung.", // vn-ok: vi-locale grading harness answers paired with vi.md questions
+    3: "Nên đẩy session ra khỏi RAM của từng node, lưu vào một kho tập trung như Redis với các thao tác đọc, ghi kèm thời gian sống, và xoá. Nhờ vậy node nào cũng phục vụ được request bất kỳ, đổi lại là thêm một network hop mỗi lần truy cập session.", // vn-ok: vi-locale grading harness answers paired with vi.md questions
+    4: "CAP chỉ nói về lúc có partition, còn PACELC bổ sung rằng ngay cả khi mạng khoẻ mạnh vẫn phải đánh đổi latency với consistency. Quorum với công thức W cộng R lớn hơn N đảm bảo tập ghi và tập đọc giao nhau nên lần đọc luôn thấy dữ liệu mới nhất.", // vn-ok: vi-locale grading harness answers paired with vi.md questions
 }
 
 /**

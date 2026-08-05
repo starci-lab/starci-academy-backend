@@ -60,7 +60,7 @@ const MAX_XP_PER_SESSION = 15
 const FLASHCARD_QUIZ_SESSION_POINTS = 5
 
 /**
- * e2e for the flashcard quick-quiz ("Hỏi nhanh") session's start → sync →
+ * e2e for the flashcard quick-quiz session's start → sync →
  * complete lifecycle — `.claude/canon/be/enforce/authoring/testing.md` §2
  * names "a flashcard review" as a write flow that must carry
  * `*.e2e-spec.ts` coverage; this is that coverage for
@@ -251,7 +251,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
                                     ],
                                     mode: "quick",
                                     level: null,
-                                    name: "Ôn trước phỏng vấn",
+                                    name: "Interview prep",
                                 },
                                 user,
                             }),
@@ -271,7 +271,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
                             cards[1].id,
                         ])
                         expect(session.mode).toBe("quick")
-                        expect(session.name).toBe("Ôn trước phỏng vấn")
+                        expect(session.name).toBe("Interview prep")
                         expect(session.currentIndex).toBe(0)
                         expect(session.results).toEqual([])
                     })

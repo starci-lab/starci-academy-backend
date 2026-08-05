@@ -75,7 +75,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the installment ("trả góp") plan surface — `myInstallmentPlans` (the
+ * e2e for the installment plan surface — `myInstallmentPlans` (the
  * viewer's non-completed plans, enriched with this cycle's minimum payment +
  * gated course titles) and `payNextInstallment` (charges exactly that cycle's
  * minimum via a fresh Sepay checkout). Drives the real

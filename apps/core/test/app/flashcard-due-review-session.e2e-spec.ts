@@ -451,7 +451,7 @@ describe("Flashcard due-review BATCH session — start/sync/complete lifecycle (
                         expect(session.status).toBe("completed")
                     })
 
-                it("completes a row that got RACED to 'abandoned' by a concurrent start() — the 2026-07-12 stuck-session regression (thầy: F5 lại ra flashcard cuối)",
+                it("completes a row that got RACED to 'abandoned' by a concurrent start() — the 2026-07-12 stuck-session regression (refresh still showed the last card)",
                     async () => {
                         const user = await seedUser("kc-complete-raced-abandon")
                         const started = await sessionService.start({
