@@ -116,6 +116,18 @@ export default defineConfig([
             "starci-be/no-nest-logger": "error", // observability · nợ=0 → error
             "starci-be/must-deep-module-import": "error", // naming-and-structure §3 · nợ=0 → error
             "starci-be/no-self-module-alias": "error", // naming-and-structure §3 · nợ=0 → error
+            // Eight rules added after a sweep for what the source ALREADY does without
+            // exception. Each count below was taken by running the rule, not by grepping:
+            // an estimate on this repo once missed a rule's debt by a factor of
+            // twenty-five. All land at `error` because all measured zero.
+            "starci-be/exception-extends-abstract": "error", // error-handling §1 · nợ=0 (305 vs 1, that 1 fixed)
+            "starci-be/exception-in-errors-folder": "error", // error-handling §1 · nợ=0
+            "starci-be/must-inject-entity-manager": "error", // data-access · nợ=0 (296/296)
+            "starci-be/no-injected-repository": "error", // data-access · nợ=0 (1341 EntityManager vs 0)
+            "starci-be/must-use-cache-service": "error", // caching · nợ=0 (raw tokens only inside the cache module)
+            "starci-be/no-const-enum": "error", // type-safety · nợ=0 (129/129)
+            "starci-be/require-entity-table-name": "error", // data-access · nợ=0 (181/181)
+            "starci-be/no-default-export": "error", // naming-and-structure · nợ=0 (Jest lifecycle entries carved out in the rule)
             "starci-be/require-export-jsdoc": "error", // comments §3 · nợ=0 → error
             "starci-be/require-enum-member-jsdoc": "error", // type-safety §3 · nợ=0 → error
         },

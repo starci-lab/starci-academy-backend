@@ -18,7 +18,7 @@ import {
 } from "./enums/s3"
 import {
     S3ProviderNotFoundException,
-} from "./exceptions/s3-provider-not-found.exception"
+} from "@modules/platform/exceptions/errors/s3/provider-not-found"
 import {
     DeleteObjectsParams,
 } from "./types/delete"

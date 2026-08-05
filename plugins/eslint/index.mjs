@@ -1037,9 +1037,278 @@ const noNonGlobalModuleImport = {
     },
 }
 
+// ── 14. exception-extends-abstract ───────────────────────────────────────────────────────────
+// error-handling §1. `throw-abstract-exception` guards the THROW site, which leaves the
+// declaration unguarded: a class that itself extends a Nest exception is thrown by its own name,
+// so the throw looks house-shaped and the rule sees nothing wrong. One such class was live and
+// thrown from four call sites while the gate stayed green. Measured 305 classes on
+// `AbstractException` against that single holdout, so this lands at zero debt.
+const EXCEPTION_BASE = "AbstractException"
+const exceptionExtendsAbstract = {
+    meta: {
+        type: "problem",
+        docs: { description: "An `*Exception` class extends `AbstractException`. [[error-handling §1]]" },
+        schema: [],
+        messages: {
+            base: "`{{name}}` extends `{{parent}}`. Every exception extends `AbstractException` -- a Nest base slips past `throw-abstract-exception`, because the throw site then reads as a house exception (error-handling §1).",
+        },
+    },
+    create(context) {
+        const filename = context.filename || context.getFilename()
+        // the base itself is the one class allowed to extend something else
+        if (/exceptions[\\/]errors[\\/]abstract\.ts$/.test(filename)) return {}
+        return {
+            ClassDeclaration(node) {
+                if (!node.id || !/Exception$/.test(node.id.name)) return
+                const parent = node.superClass
+                if (!parent || parent.type !== "Identifier") return
+                if (parent.name === EXCEPTION_BASE) return
+                context.report({
+                    node: parent,
+                    messageId: "base",
+                    data: { name: node.id.name, parent: parent.name },
+                })
+            },
+        }
+    },
+}
+
+// ── 15. exception-in-errors-folder ───────────────────────────────────────────────────────────
+// error-handling §1. One folder holds them all, so a reader looking for "what can this app throw"
+// has one place to look and a reviewer can see a new failure mode arrive. Measured: 305 of 306.
+const exceptionInErrorsFolder = {
+    meta: {
+        type: "problem",
+        docs: { description: "An `*Exception` class is declared under `platform/exceptions/errors`. [[error-handling §1]]" },
+        schema: [],
+        messages: {
+            place: "`{{name}}` is declared outside `src/modules/platform/exceptions/errors/`. Every exception lives there, so the set of failures this app can produce is readable in one place (error-handling §1).",
+        },
+    },
+    create(context) {
+        const filename = (context.filename || context.getFilename()).split("\\").join("/")
+        if (filename.includes("/platform/exceptions/errors/")) return {}
+        return {
+            ClassDeclaration(node) {
+                if (!node.id || !/Exception$/.test(node.id.name)) return
+                if (!node.superClass) return
+                context.report({ node: node.id, messageId: "place", data: { name: node.id.name } })
+            },
+        }
+    },
+}
+
+/** Constructor parameters, with any TS parameter property unwrapped. */
+function constructorParams(node) {
+    if (node.kind !== "constructor" || !node.value || !node.value.params) return []
+    return node.value.params.map(unwrapParam)
+}
+
+/** The type name a parameter is annotated with, or null. */
+function paramTypeName(param) {
+    const ann = param.typeAnnotation && param.typeAnnotation.typeAnnotation
+    if (!ann || ann.type !== "TSTypeReference" || ann.typeName.type !== "Identifier") return null
+    return ann.typeName.name
+}
+
+/** Decorator names on a parameter (or on the parameter property that wraps it). */
+function paramDecorators(original) {
+    const carriers = [original]
+    if (original.type === "TSParameterProperty") carriers.push(original.parameter)
+    const names = []
+    for (const carrier of carriers) {
+        for (const dec of carrier.decorators || []) {
+            const expr = dec.expression
+            if (expr.type === "CallExpression" && expr.callee.type === "Identifier") names.push(expr.callee.name)
+            else if (expr.type === "Identifier") names.push(expr.name)
+        }
+    }
+    return names
+}
+
+// ── 16. must-inject-entity-manager ───────────────────────────────────────────────────────────
+// data-access. The connection a manager belongs to is not visible from the type -- this app has
+// more than one datasource, and `EntityManager` alone says nothing about which. The house
+// decorators name it. Measured 296 of 296 already conform.
+const mustInjectEntityManager = {
+    meta: {
+        type: "problem",
+        docs: { description: "An injected `EntityManager` names its datasource through an `@Inject*EntityManager()` decorator. [[data-access]]" },
+        schema: [],
+        messages: {
+            undecorated: "`EntityManager` is injected without an `@Inject*EntityManager()` decorator. The type alone does not say WHICH datasource this is, and this app has more than one.",
+        },
+    },
+    create(context) {
+        return {
+            MethodDefinition(node) {
+                if (node.kind !== "constructor" || !node.value || !node.value.params) return
+                for (const original of node.value.params) {
+                    const param = unwrapParam(original)
+                    if (paramTypeName(param) !== "EntityManager") continue
+                    const decorators = paramDecorators(original)
+                    if (decorators.some((d) => /^Inject\w*EntityManager$/.test(d))) continue
+                    context.report({ node: param, messageId: "undecorated" })
+                }
+            },
+        }
+    },
+}
+
+// ── 17. no-injected-repository ───────────────────────────────────────────────────────────────
+// data-access: one persistence handle, and it must be passable. A repository binds a service to
+// one entity and cannot carry a transaction across two, so a use case that grows a second write
+// has to be rewritten rather than extended. Measured: 1341 `EntityManager` sites against zero
+// injected repositories -- the practice was already total, it had simply never been written down.
+const noInjectedRepository = {
+    meta: {
+        type: "problem",
+        docs: { description: "Persistence goes through `EntityManager`, never an injected repository. [[data-access]]" },
+        schema: [],
+        messages: {
+            repo: "Inject `EntityManager` instead of a repository. A repository is bound to one entity and cannot carry a transaction across two, so the unit of work stops being passable (data-access).",
+        },
+    },
+    create(context) {
+        return {
+            MethodDefinition(node) {
+                if (node.kind !== "constructor" || !node.value || !node.value.params) return
+                for (const original of node.value.params) {
+                    const param = unwrapParam(original)
+                    const decorators = paramDecorators(original)
+                    const ann = param.typeAnnotation && param.typeAnnotation.typeAnnotation
+                    const isRepositoryType = ann
+                        && ann.type === "TSTypeReference"
+                        && ann.typeName.type === "Identifier"
+                        && /^(Repository|TreeRepository|MongoRepository)$/.test(ann.typeName.name)
+                    if (decorators.includes("InjectRepository") || isRepositoryType) {
+                        context.report({ node: param, messageId: "repo" })
+                    }
+                }
+            },
+        }
+    },
+}
+
+// ── 18. must-use-cache-service ───────────────────────────────────────────────────────────────
+// caching. `CacheService` is the seam that decides memory vs redis and owns the key discipline;
+// reaching for a raw cache manager bypasses both. Measured: every raw-token site is inside the
+// cache module's own implementation, where it belongs, so this lands at zero debt.
+const CACHE_TOKENS = /^(REDIS_CACHE_MANAGER|MEMORY_CACHE_MANAGER|CACHE_MANAGER)$/
+const mustUseCacheService = {
+    meta: {
+        type: "problem",
+        docs: { description: "Caching goes through `CacheService`; raw cache-manager tokens stay inside the cache module. [[caching]]" },
+        schema: [],
+        messages: {
+            raw: "`{{token}}` is a cache-manager token. Inject `CacheService` instead -- it owns the memory/redis choice and the key discipline, and both are lost when a caller reaches past it (caching).",
+        },
+    },
+    create(context) {
+        const filename = (context.filename || context.getFilename()).split("\\").join("/")
+        // the wrapper's own implementation is where these tokens are supposed to appear
+        if (filename.includes("/modules/integrations/cache/")) return {}
+        return {
+            Identifier(node) {
+                if (!CACHE_TOKENS.test(node.name)) return
+                // only flag a real reference, not a property key of the same spelling
+                if (node.parent && node.parent.type === "Property" && node.parent.key === node && !node.parent.computed) return
+                context.report({ node, messageId: "raw", data: { token: node.name } })
+            },
+        }
+    },
+}
+
+// ── 19. no-const-enum ────────────────────────────────────────────────────────────────────────
+// type-safety. A `const enum` is inlined at compile time and has no runtime object, so it cannot
+// be iterated, reverse-mapped, or read across the `isolatedModules` boundary this repo compiles
+// under. Measured 129 of 129 already plain.
+const noConstEnum = {
+    meta: {
+        type: "problem",
+        docs: { description: "Enums are declared plain, never `const enum`. [[type-safety]]" },
+        schema: [],
+        messages: {
+            constEnum: "`const enum {{name}}` has no runtime object -- it cannot be iterated or reverse-mapped, and `isolatedModules` cannot inline it across files. Declare a plain `enum`.",
+        },
+    },
+    create(context) {
+        return {
+            TSEnumDeclaration(node) {
+                if (!node.const) return
+                context.report({ node, messageId: "constEnum", data: { name: node.id.name } })
+            },
+        }
+    },
+}
+
+// ── 20. require-entity-table-name ────────────────────────────────────────────────────────────
+// data-access: the schema is never inferred. An `@Entity()` with no argument derives the table
+// name from the class name, so renaming the class silently renames the table -- and with
+// `synchronize` on, that is a dropped table rather than a compile error. Measured 181 of 181.
+const requireEntityTableName = {
+    meta: {
+        type: "problem",
+        docs: { description: "`@Entity()` names its table explicitly. [[data-access]]" },
+        schema: [],
+        messages: {
+            inferred: "`@Entity()` here lets TypeORM infer the table name from the class name, so renaming the class renames the table -- which `synchronize` performs as a drop. Name the table.",
+        },
+    },
+    create(context) {
+        return {
+            Decorator(node) {
+                const expr = node.expression
+                if (expr.type !== "CallExpression") return
+                if (expr.callee.type !== "Identifier" || expr.callee.name !== "Entity") return
+                const named = expr.arguments.some((arg) =>
+                    (arg.type === "Literal" && typeof arg.value === "string")
+                    || arg.type === "TemplateLiteral")
+                if (named) return
+                context.report({ node, messageId: "inferred" })
+            },
+        }
+    },
+}
+
+// ── 21. no-default-export ────────────────────────────────────────────────────────────────────
+// naming-and-structure. A default export has no name at the import site, so the same symbol
+// arrives spelled three different ways and no grep finds all of them. Measured 4 of 4243, and all
+// four are Jest lifecycle entry points, which Jest loads BY PATH and requires to be default --
+// hence the carve-out below rather than an exception in the code.
+const JEST_LIFECYCLE = /[\\/](e2e|harness)-(setup|teardown)\.ts$/
+const noDefaultExport = {
+    meta: {
+        type: "problem",
+        docs: { description: "Modules export named symbols, never a default. [[naming-and-structure]]" },
+        schema: [],
+        messages: {
+            def: "`export default` gives the symbol no name at the import site, so the same thing arrives spelled differently in every file and no grep finds them all. Export it by name.",
+        },
+    },
+    create(context) {
+        const filename = context.filename || context.getFilename()
+        // Jest loads globalSetup/globalTeardown by path and calls the default export
+        if (JEST_LIFECYCLE.test(filename)) return {}
+        return {
+            ExportDefaultDeclaration(node) {
+                context.report({ node, messageId: "def" })
+            },
+        }
+    },
+}
+
 export default {
     meta: { name: "eslint-plugin-starci-be", version: "0.1.0" },
     rules: {
+        "exception-extends-abstract": exceptionExtendsAbstract,
+        "exception-in-errors-folder": exceptionInErrorsFolder,
+        "must-inject-entity-manager": mustInjectEntityManager,
+        "no-injected-repository": noInjectedRepository,
+        "must-use-cache-service": mustUseCacheService,
+        "no-const-enum": noConstEnum,
+        "require-entity-table-name": requireEntityTableName,
+        "no-default-export": noDefaultExport,
         "no-ai-symbol": noAiSymbol,
         "no-vietnamese": noVietnamese,
         "no-emoji": noEmoji,

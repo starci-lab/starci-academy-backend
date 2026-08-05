@@ -12,7 +12,7 @@ import type {
 } from "./types/upload"
 import {
     S3ProviderNotFoundException,
-} from "./exceptions/s3-provider-not-found.exception"
+} from "@modules/platform/exceptions/errors/s3/provider-not-found"
 import {
     S3UploadFailedException,
 } from "@modules/platform/exceptions/errors/s3/upload-failed"
