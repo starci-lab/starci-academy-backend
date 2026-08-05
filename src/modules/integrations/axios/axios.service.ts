@@ -13,6 +13,7 @@ import {
     AxiosCreateParams,
 } from "./types"
 
+@Injectable()
 /**
  * Service responsible for creating and managing Axios instances with retry logic.
  *
@@ -20,7 +21,6 @@ import {
  * const axiosService = new AxiosService()
  * const instance = axiosService.create({ key: "api", config: { baseURL: "https://api.example.com" } })
  */
-@Injectable()
 export class AxiosService {
     private readonly axiosMap: Map<string, AxiosInstance> = new Map()
     

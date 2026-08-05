@@ -24,10 +24,10 @@ import type {
     EntityManager,
 } from "typeorm"
 
+@Injectable()
 /**
  * Keycloak auth for REST controllers (`Authorization` on the HTTP request).
  */
-@Injectable()
 export class KeycloakAuthRestGuard extends AbstractKeycloakAuthGuard {
     constructor(
         keycloakJwksService: KeycloakJwksService,

@@ -12,11 +12,11 @@ import type {
     SentryModuleOptions,
 } from "./types"
 
+@Module({
+})
 /**
  * The module for the Sentry service.
  */
-@Module({
-})
 export class SentryModule extends ConfigurableModuleClass {
     static register(options: SentryModuleOptions): DynamicModule {
         const dynamicModule = super.register(options)

@@ -33,10 +33,10 @@ import {
     ReadTextParams,
 } from "./types"
 
+@Injectable()
 /**
  * Service for reading objects from S3.
  */
-@Injectable()
 export class S3ReadService {
     /**
      * Constructor.

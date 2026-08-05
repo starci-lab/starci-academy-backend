@@ -18,10 +18,10 @@ import type {
     LangchainModuleOptions,
 } from "./types"
 
+@Injectable()
 /**
  * Service exposing common LangChain helpers used by application modules.
  */
-@Injectable()
 export class LangchainService {
     constructor(
         @Optional()

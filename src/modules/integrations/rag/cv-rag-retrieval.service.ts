@@ -57,6 +57,7 @@ const DEFAULT_CV_RAG_TOP_K = 4
  */
 export const CV_RAG_COLLECTION = "cv_rag"
 
+@Injectable()
 /**
  * Retrieves CV-authoring reference material (rubric / skill catalog / sample
  * phrasing) most relevant to a query from the persistent `cv_rag` Qdrant
@@ -69,7 +70,6 @@ export const CV_RAG_COLLECTION = "cv_rag"
  * missing, embedder/Qdrant down) so the CV compose step's prompt is advisory —
  * retrieval never blocks CV generation.
  */
-@Injectable()
 export class CvRagRetrievalService {
     /** Scoped logger for (non-fatal) retrieval failures. */
     private readonly logger = new Logger(CvRagRetrievalService.name)

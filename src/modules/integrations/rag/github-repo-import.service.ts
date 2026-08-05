@@ -80,6 +80,7 @@ interface GithubTreeEntry {
     size?: number
 }
 
+@Injectable()
 /**
  * Imports a PUBLIC GitHub repository into LangChain {@link Document}s for the
  * RAG Playground — fetched entirely through the GitHub REST API (never a raw
@@ -88,7 +89,6 @@ interface GithubTreeEntry {
  * target is built from the validated `owner`/`repo`, never from user input
  * directly, closing the SSRF door.
  */
-@Injectable()
 export class GithubRepoImportService {
     /**
      * Fetch + filter a public repo's importable source files.

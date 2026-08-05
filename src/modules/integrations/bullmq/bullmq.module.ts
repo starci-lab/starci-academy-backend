@@ -31,6 +31,8 @@ import {
     JobRoomService,
 } from "./rooms"
 
+@Module({
+})
 /**
  * NestJS module for BullMQ queue registration and Redis connection.
  * Registers queues by name and provides forRoot with async Redis.
@@ -39,8 +41,6 @@ import {
  * BullModule.forRoot()
  * BullModule.registerQueue({ queueName: BullQueueName.OpenPosition, isGlobal: true })
  */
-@Module({
-})
 export class BullModule extends ConfigurableModuleClass {
     /**
      * Registers a single BullMQ queue with name/prefix from bullData and env job options.

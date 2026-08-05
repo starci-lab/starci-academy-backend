@@ -49,7 +49,9 @@ import {
 
 /** Supported identity providers for Keycloak broker callback flows. */
 export enum KeycloakIdentityProvider {
+    /** Broker via Google (`kc_idp_hint=google`); new users get `AuthenticationType.Google`. */
     Google = "google",
+    /** Broker via GitHub (`kc_idp_hint=github`); new users get `AuthenticationType.Github`. */
     Github = "github",
 }
 

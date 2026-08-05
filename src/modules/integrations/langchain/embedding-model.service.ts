@@ -48,6 +48,7 @@ import {
  */
 const OLLAMA_EMBED_MAX_CONCURRENCY = 8
 
+@Injectable()
 /**
  * Service for getting embedding models.
  *
@@ -62,7 +63,6 @@ const OLLAMA_EMBED_MAX_CONCURRENCY = 8
  *   health/latency-ordered embedding model — **local self-hosted first** when
  *   the GPU is up ($0), falling back to a cloud embedding model otherwise.
  */
-@Injectable()
 export class EmbeddingModelService {
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,

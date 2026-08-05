@@ -22,10 +22,10 @@ import {
 import type {
     KeycloakOidcPkceCacheResult,
 } from "@modules/cache"
+@Injectable()
 /**
  * Starts Keycloak broker OAuth from the backend: caches PKCE + client redirect URI, returns authorization URL.
  */
-@Injectable()
 export class KeycloakOidcRedirectService {
     /**
      * The Keycloak base URL.

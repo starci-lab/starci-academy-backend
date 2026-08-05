@@ -33,6 +33,7 @@ import type {
 /** Default per-criterion retrieval depth — each criterion pulls its own top matches. */
 const DEFAULT_PER_CRITERION_TOP_K = 6
 
+@Injectable()
 /**
  * Shared, hardened RAG retrieval for criteria-based grading (git + google-docs submissions).
  *
@@ -46,7 +47,6 @@ const DEFAULT_PER_CRITERION_TOP_K = 6
  * - **Graceful degradation**: a vector-store/embedding failure falls back to a raw-chunk excerpt
  *   (grading still proceeds) and is logged, rather than blackholing the job.
  */
-@Injectable()
 export class GradingRetrievalService {
     constructor(
         @InjectQdrantClient()

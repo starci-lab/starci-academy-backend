@@ -30,10 +30,10 @@ import type {
     KeycloakAuthGuardRequest,
 } from "../types"
 
+@Injectable()
 /**
  * Keycloak auth for GraphQL resolvers (`Authorization` on `context.req`).
  */
-@Injectable()
 export class KeycloakAuthGraphQLGuard extends AbstractKeycloakAuthGuard {
     constructor(
         keycloakJwksService: KeycloakJwksService,

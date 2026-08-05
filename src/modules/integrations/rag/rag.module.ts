@@ -32,24 +32,6 @@ import {
     CvRagIndexService,
 } from "./cv-rag-index.service"
 
-/**
- * RAG module — all vector-store retrieval for the app.
- *
- * Owns {@link ContentRagIndexService} (builds the persistent `content_rag` Qdrant
- * collection at init from MinIO content + code), {@link CourseRagRetrievalService}
- * (retrieves the chunks most relevant to a content-AI question at chat time),
- * {@link GradingRetrievalService} (per-run criteria-based retrieval shared by
- * challenge git/google-docs grading + personal-project milestone grading), and
- * the PUBLIC RAG Playground stack — {@link PublicRagPlaygroundService} (index +
- * retrieve for an anonymous session), {@link GithubRepoImportService} (public
- * repo import), {@link RagPlaygroundRunRegistryService} (in-memory prepared
- * asks, consumed by the streaming gateway), and
- * {@link PublicRagPlaygroundCleanupService} (idle-session cron).
- *
- * The Qdrant client (`@modules/databases`), embedder (`@modules/langchain`),
- * S3 readers (`@modules/s3`), Winston, and the entity manager all come from
- * globally-registered modules — no explicit imports needed here.
- */
 @Module({
     providers: [
         ContentRagIndexService,
@@ -73,5 +55,23 @@ import {
         CvRagIndexService,
     ],
 })
+/**
+ * RAG module — all vector-store retrieval for the app.
+ *
+ * Owns {@link ContentRagIndexService} (builds the persistent `content_rag` Qdrant
+ * collection at init from MinIO content + code), {@link CourseRagRetrievalService}
+ * (retrieves the chunks most relevant to a content-AI question at chat time),
+ * {@link GradingRetrievalService} (per-run criteria-based retrieval shared by
+ * challenge git/google-docs grading + personal-project milestone grading), and
+ * the PUBLIC RAG Playground stack — {@link PublicRagPlaygroundService} (index +
+ * retrieve for an anonymous session), {@link GithubRepoImportService} (public
+ * repo import), {@link RagPlaygroundRunRegistryService} (in-memory prepared
+ * asks, consumed by the streaming gateway), and
+ * {@link PublicRagPlaygroundCleanupService} (idle-session cron).
+ *
+ * The Qdrant client (`@modules/databases`), embedder (`@modules/langchain`),
+ * S3 readers (`@modules/s3`), Winston, and the entity manager all come from
+ * globally-registered modules — no explicit imports needed here.
+ */
 export class RagModule extends ConfigurableModuleClass {
 }

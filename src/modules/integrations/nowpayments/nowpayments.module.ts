@@ -12,6 +12,11 @@ import {
 
 @Module({
 })
+/**
+ * Registers {@link NowPaymentsClient} so crypto checkout/IPN verification shares
+ * one Axios-backed client (API key + IPN secret) rather than each webhook
+ * constructing its own HMAC verifier.
+ */
 export class NowPaymentsModule extends ConfigurableModuleClass {
     static register(
         options: typeof OPTIONS_TYPE,

@@ -16,11 +16,11 @@ import type {
     GpuInfo,
 } from "./types"
 
+@Injectable()
 /**
  * Service for detecting the dedicated GPU on the current machine.
  * Runs detection once at module init and caches the result.
  */
-@Injectable()
 export class GpuService implements OnModuleInit {
     private readonly logger = new Logger(GpuService.name)
     private _gpuInfo: GpuInfo = {

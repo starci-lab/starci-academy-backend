@@ -22,6 +22,11 @@ import {
 
 @Module({
 })
+/**
+ * Registers Redis + in-process cache managers and {@link CacheService}. Import
+ * once (typically global) so every feature shares the same stores — a second
+ * manager would split TTLs/invalidation and serve stale hits.
+ */
 export class CacheModule extends ConfigurableModuleClass {
     static register(
         options: typeof OPTIONS_TYPE

@@ -32,8 +32,8 @@ import {
 } from "@modules/mixin"
 import type SuperJson from "superjson"
 
-/** Service for creating and verifying OTP challenges. */
 @Injectable()
+/** Service for creating and verifying OTP challenges. */
 export class OtpChallengeService {
     /** Prefix for OTP challenge keys in Redis. */
     private readonly keyPrefix = "auth:login_otp:challenge"

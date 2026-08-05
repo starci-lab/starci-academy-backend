@@ -16,6 +16,7 @@ import type {
     SuggestionsQuery,
 } from "./types"
 
+@Injectable()
 /**
  * Reusable base for any entity's autocomplete (typeahead) CQRS handler.
  *
@@ -40,7 +41,6 @@ import type {
  *     protected readonly entityName = FoundationCategoryEntity.name
  * }
  */
-@Injectable()
 export abstract class AbstractSuggestionsHandler<TQuery extends SuggestionsQuery>
     extends ICQRSHandler<TQuery, SuggestionsPayloadShape> {
     constructor(

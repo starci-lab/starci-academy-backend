@@ -20,6 +20,7 @@ import type {
     VerifyCaptchaResult,
 } from "./types"
 
+@Injectable()
 /**
  * Verifies Cloudflare Turnstile tokens server-side.
  *
@@ -30,7 +31,6 @@ import type {
  * @example
  * const ok = await captchaService.verify({ token, remoteIp })
  */
-@Injectable()
 export class CaptchaService {
     private readonly axiosInstance: AxiosInstance
 

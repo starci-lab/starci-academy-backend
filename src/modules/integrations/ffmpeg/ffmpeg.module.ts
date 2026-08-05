@@ -17,4 +17,9 @@ import {
     exports: [FfmpegService,
         GpuService],
 })
+/**
+ * Wires {@link FfmpegService} + {@link GpuService} so the video worker encodes
+ * with NVENC/AMF/QSV when present and falls back to libx264 without each caller
+ * probing GPUs itself.
+ */
 export class FfmpegModule extends ConfigurableModuleClass { }

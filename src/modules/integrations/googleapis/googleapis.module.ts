@@ -12,6 +12,11 @@ import {
 
 @Module({
 })
+/**
+ * Registers {@link GoogleDriverAPIService} so Google-Docs grading can export
+ * plain text via a shared service-account client instead of each job building
+ * its own `GoogleAuth`.
+ */
 export class GoogleApisModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

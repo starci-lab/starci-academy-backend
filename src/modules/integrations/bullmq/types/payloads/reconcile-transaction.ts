@@ -1,3 +1,7 @@
+/**
+ * Delayed poll of a still-pending payment. `attempt` is 1-based so the worker
+ * can stop after maxAttempts instead of looping forever on a stuck gateway.
+ */
 export interface ReconcileTransactionPayload {
     /** The ID of the pending transaction to reconcile. */
     transactionId: string

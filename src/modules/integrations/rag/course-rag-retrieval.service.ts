@@ -112,6 +112,7 @@ export interface SearchCourseResult {
     hits: Array<SearchCourseHit>
 }
 
+@Injectable()
 /**
  * Retrieves the lesson chunks most relevant to a content-AI question from the
  * persistent `content_rag` Qdrant collection (built by `ContentRagIndexService`).
@@ -126,7 +127,6 @@ export interface SearchCourseResult {
  * Qdrant down) so the caller can fall back to whole-body stuffing — retrieval is
  * never allowed to blackhole the chat.
  */
-@Injectable()
 export class CourseRagRetrievalService {
     /** Scoped logger for the (non-fatal) retrieval failures. */
     private readonly logger = new Logger(CourseRagRetrievalService.name)

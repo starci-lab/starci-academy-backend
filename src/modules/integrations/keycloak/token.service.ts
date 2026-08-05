@@ -33,10 +33,10 @@ import {
     KeycloakUserService 
 } from "./user.service"
 
+@Injectable()
 /**
  * Keycloak OIDC: code exchange (client secret) and access-token verification via {@link KeycloakJwksService}.
  */
-@Injectable()
 export class KeycloakTokenService {
     /**
      * The Axios instance.

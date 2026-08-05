@@ -33,11 +33,11 @@ import {
     S3DeleteService,
 } from "./s3-delete.service"
 
+@Module({
+})
 /**
  * S3 module.
  */
-@Module({
-})
 export class S3Module extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

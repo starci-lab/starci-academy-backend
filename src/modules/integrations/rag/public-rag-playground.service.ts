@@ -212,6 +212,7 @@ volumes:
     },
 ]
 
+@Injectable()
 /**
  * The PUBLIC (anonymous, no login) RAG Playground core: chunk + embed (local
  * model, $0) + index into a per-session ephemeral Qdrant collection
@@ -222,7 +223,6 @@ volumes:
  * collection's lifecycle (source label, chunk count, last-accessed) so the
  * cleanup cron can drop idle sessions — no Q&A content is persisted anywhere.
  */
-@Injectable()
 export class PublicRagPlaygroundService {
     /** Scoped logger for retrieval degradation (never thrown, always logged). */
     private readonly logger = new Logger(PublicRagPlaygroundService.name)

@@ -21,10 +21,10 @@ import {
     S3CopyUnsupportedProviderException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Server-side copy within one S3-compatible bucket (used to freeze CV bytes under `attempts/…`).
  */
-@Injectable()
 export class S3CopyService {
     constructor(
         @InjectMinioS3()

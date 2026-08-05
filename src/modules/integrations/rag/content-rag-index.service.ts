@@ -85,6 +85,7 @@ export interface BuildContentRagIndexResult {
     indexed: number
 }
 
+@Injectable()
 /**
  * Builds the persistent, course-wide RAG index in Qdrant at init.
  *
@@ -121,7 +122,6 @@ export interface BuildContentRagIndexResult {
  * falls out of the same diff as "everything is new" — no separate full-rebuild
  * flag needed.
  */
-@Injectable()
 export class ContentRagIndexService {
     /** Scoped logger for the non-fatal index build. */
     private readonly logger = new Logger(ContentRagIndexService.name)

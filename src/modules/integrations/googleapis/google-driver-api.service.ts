@@ -24,10 +24,10 @@ import {
     getGcpServiceAccountCredentials,
 } from "@modules/filesystem"
 
+@Injectable()
 /**
  * Google APIs helper focused on fetching Google Docs content via Drive export (text/plain).
  */
-@Injectable()
 export class GoogleDriverAPIService {
     private readonly auth: GoogleAuth
     private readonly drive: drive_v3.Drive

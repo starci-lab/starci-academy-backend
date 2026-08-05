@@ -23,6 +23,7 @@ import {
 /** A session idle past this window is dropped (its Qdrant collection + DB row). */
 const IDLE_TTL_MS = 2 * 60 * 60_000
 
+@Injectable()
 /**
  * Cron driver that drops idle PUBLIC RAG Playground sessions — a visitor who
  * indexes code then abandons the tab would otherwise leak a Qdrant collection
@@ -31,7 +32,6 @@ const IDLE_TTL_MS = 2 * 60 * 60_000
  * failure never blocks the rest), and is idempotent — a session dropped by a
  * prior run simply won't be found again.
  */
-@Injectable()
 export class PublicRagPlaygroundCleanupService {
     private readonly logger = new Logger(PublicRagPlaygroundCleanupService.name)
 

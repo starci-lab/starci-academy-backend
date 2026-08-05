@@ -77,6 +77,7 @@ export interface BuildCvRagIndexResult {
     indexed: number
 }
 
+@Injectable()
 /**
  * Builds the persistent CV-authoring reference RAG index in Qdrant at init.
  *
@@ -100,7 +101,6 @@ export interface BuildCvRagIndexResult {
  * first run (empty/missing collection) falls out of the same diff as
  * "everything is new".
  */
-@Injectable()
 export class CvRagIndexService {
     /** Scoped logger for the non-fatal index build. */
     private readonly logger = new Logger(CvRagIndexService.name)

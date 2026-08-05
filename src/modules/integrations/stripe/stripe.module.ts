@@ -12,6 +12,10 @@ import {
 
 @Module({
 })
+/**
+ * Registers the Stripe SDK provider so card checkout/webhooks inject one shared
+ * client (secret from the mount file) instead of `new Stripe()` per call.
+ */
 export class StripeModule extends ConfigurableModuleClass {
     static register(
         options: typeof OPTIONS_TYPE,

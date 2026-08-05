@@ -20,11 +20,11 @@ import type {
     KeycloakAuthGuardRequest,
 } from "../types"
 
+@Injectable()
 /**
  * Like {@link KeycloakAuthGraphQLGuard}, but allows requests without `Authorization` (`req.user` unset).
  * If a Bearer token is present, it must be valid.
  */
-@Injectable()
 export class KeycloakOptionalAuthGraphQLGuard {
     constructor(
         private readonly keycloakJwksService: KeycloakJwksService,

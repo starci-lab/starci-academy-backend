@@ -12,6 +12,10 @@ import {
 
 @Module({
 })
+/**
+ * Registers {@link PaypalClient} so Orders v2 create/capture/webhook verify share
+ * one Axios + client-credentials client instead of each webhook minting tokens.
+ */
 export class PaypalModule extends ConfigurableModuleClass {
     static register(
         options: typeof OPTIONS_TYPE,

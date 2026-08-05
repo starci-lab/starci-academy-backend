@@ -8,9 +8,6 @@ import {
     TotpService,
 } from "./totp.service"
 
-/**
- * TOTP module — exposes {@link TotpService} for app-level two-factor auth.
- */
 @Module({
     providers: [
         TotpService,
@@ -19,4 +16,7 @@ import {
         TotpService,
     ],
 })
+/**
+ * TOTP module — exposes {@link TotpService} for app-level two-factor auth.
+ */
 export class TotpModule extends ConfigurableModuleClass {}

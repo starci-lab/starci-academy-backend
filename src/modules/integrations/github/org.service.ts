@@ -19,10 +19,10 @@ import type {
     RemoveGithubUserFromTeamInOrgResult,
 } from "./types"
 
+@Injectable()
 /**
  * GitHub organization API service (team membership operations).
  */
-@Injectable()
 export class GithubApiOrgService {
     constructor(
         private readonly mountStorageService: MountStorageService,

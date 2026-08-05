@@ -21,6 +21,7 @@ import {
     ElasticsearchService,
 } from "./elasticsearch.service"
 
+@Injectable()
 /**
  * Resets Elasticsearch indices on demand.
  *
@@ -31,7 +32,6 @@ import {
  * Destructive by design — called by the synchronizer phase for the entities listed
  * in `seed.yaml` `sync.reindex`, right before that data is repopulated.
  */
-@Injectable()
 export class ElasticsearchIndexResetService {
     constructor(
         private readonly elasticsearchService: ElasticsearchService,

@@ -14,9 +14,6 @@ import {
     GithubApiOrgService,
 } from "./org.service"
 
-/**
- * Module for GitHub OAuth.
- */
 @Module({
     providers: [
         GithubOauthRedirectService,
@@ -29,6 +26,9 @@ import {
         GithubApiOrgService,
     ],
 })
+/**
+ * Module for GitHub OAuth.
+ */
 export class GithubModule extends ConfigurableModuleClass {
 }
 

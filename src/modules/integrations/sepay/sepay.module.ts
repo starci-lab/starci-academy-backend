@@ -11,6 +11,11 @@ import {
 
 @Module({
 })
+/**
+ * Registers the SePay PG SDK provider so VN bank-transfer checkout injects one
+ * shared client (merchant + secret file) instead of constructing `SePayPgClient`
+ * per request.
+ */
 export class SepayModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

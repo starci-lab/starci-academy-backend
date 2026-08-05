@@ -21,10 +21,10 @@ import type {
     GetGithubAuthenticatedUserResult,
 } from "./types"
 
+@Injectable()
 /**
  * GitHub API service (OAuth + REST API) implemented with Octokit.
  */
-@Injectable()
 export class GithubApiAuthService {
     constructor(
         private readonly mountStorageService: MountStorageService,

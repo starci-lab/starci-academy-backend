@@ -5,10 +5,10 @@ import {
     SentryExceptionCaptured 
 } from "@sentry/nestjs"
 
+@Catch()
 /**
  * The Sentry catch all exception filter.
  */
-@Catch()
 export class SentryCatchAllExceptionFilter implements ExceptionFilter {
     /**
      * Catch all exceptions and capture them with Sentry.

@@ -27,6 +27,7 @@ import type {
     VerifyPaypalWebhookParams,
 } from "./types"
 
+@Injectable()
 /**
  * Thin PayPal Orders v2 REST client built on the repo's {@link AxiosService}
  * (no heavy SDK). Handles OAuth2 client-credentials auth, order creation,
@@ -35,7 +36,6 @@ import type {
  * TODO(real-keys): set `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` /
  * `PAYPAL_WEBHOOK_ID` so live calls authenticate and verify.
  */
-@Injectable()
 export class PaypalClient {
     constructor(
         private readonly axiosService: AxiosService,

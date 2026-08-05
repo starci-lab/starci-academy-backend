@@ -17,10 +17,10 @@ import {
     MountStorageService,
 } from "@modules/filesystem"
 
+@Injectable()
 /**
  * Service for interacting with Keycloak users
  */
-@Injectable()
 export class KeycloakUserService {
     private readonly axiosInstance: AxiosInstance
     private readonly baseUrl = envConfig().keycloak.url.replace(/\/$/,

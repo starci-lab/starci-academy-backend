@@ -12,6 +12,11 @@ import {
 
 @Module({
 })
+/**
+ * Registers the PayOS SDK provider so VN checkout/webhooks inject one shared
+ * client (apiKey + checksum + clientId) instead of constructing `new PayOS()`
+ * per call.
+ */
 export class PayOSModule extends ConfigurableModuleClass {
     static register(
         options: typeof OPTIONS_TYPE,

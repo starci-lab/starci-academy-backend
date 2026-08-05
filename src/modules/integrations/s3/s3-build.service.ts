@@ -25,10 +25,10 @@ import {
     BuildSignedPutUrlParams,
 } from "./types/build"
 
+@Injectable()
 /**
  * Helpers for building public URLs for objects in the configured S3-compatible bucket.
  */
-@Injectable()
 export class S3BuildService {
     /**
      * Constructor.

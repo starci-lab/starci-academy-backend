@@ -19,6 +19,7 @@ import {
     base32Encode,
 } from "./utils"
 
+@Injectable()
 /**
  * RFC 6238 TOTP (time-based one-time password) helper — secret generation,
  * otpauth URI building, and code verification with clock-skew tolerance.
@@ -31,7 +32,6 @@ import {
  * const uri = totpService.generateKeyUri({ secret, accountName: "bob@acme.dev" })
  * const ok = totpService.verify({ secret, token: "123456" })
  */
-@Injectable()
 export class TotpService {
     /**
      * Generate a fresh random base32 secret for a new enrollment.

@@ -26,11 +26,11 @@ import {
 /** Max keys S3 accepts in a single DeleteObjects request. */
 const DELETE_BATCH_SIZE = 1000
 
+@Injectable()
 /**
  * Service for deleting objects from S3 (used by the synchronizer reconcile pass
  * to prune orphaned CDN keys whose entity no longer exists in the database).
  */
-@Injectable()
 export class S3DeleteService {
     constructor(
         @InjectDigitalOceanS3()

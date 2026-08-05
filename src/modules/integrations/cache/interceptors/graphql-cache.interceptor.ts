@@ -42,6 +42,7 @@ export const GraphQLCacheResponse = (config: GraphQLCacheConfig) =>
     SetMetadata(GRAPHQL_CACHE_METADATA,
         config)
 
+@Injectable()
 /**
  * NestJS interceptor that caches GraphQL resolver responses in Redis.
  *
@@ -52,7 +53,6 @@ export const GraphQLCacheResponse = (config: GraphQLCacheConfig) =>
  * On cache hit, the handler is skipped entirely and the cached value is returned.
  * On cache miss, the handler runs and the result is stored in Redis.
  */
-@Injectable()
 export class GraphQLCacheInterceptor implements NestInterceptor {
     constructor(
         private readonly reflector: Reflector,

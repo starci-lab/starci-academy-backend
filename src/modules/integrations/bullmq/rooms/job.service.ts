@@ -2,8 +2,8 @@ import {
     Injectable 
 } from "@nestjs/common"
 
-/** Service to manage job rooms. */
 @Injectable()
+/** Service to manage job rooms. */
 export class JobRoomService {
     /** Get the name of a job room. */
     name(jobId: string) {

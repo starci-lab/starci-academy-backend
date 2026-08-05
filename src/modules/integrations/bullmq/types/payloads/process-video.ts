@@ -1,3 +1,8 @@
+/**
+ * One source video handed to the process-video worker. `url` is the download;
+ * start/end SQL callbacks mark asset state so a crash mid-encode does not leave
+ * the row looking finished.
+ */
 export type FilenameProcessData = {
     readonly assetId: string
     readonly filename: string

@@ -22,6 +22,11 @@ import {
 } from "./types"
 
 @Injectable()
+/**
+ * Bucket lifecycle for DigitalOcean (create/exists) and MinIO (public-read
+ * prefixes). Kept separate from upload/read so a missing bucket is fixed here
+ * instead of each synchronizer inventing its own Head/Create/Policy calls.
+ */
 export class S3BucketService {
     constructor(
         @InjectDigitalOceanS3()

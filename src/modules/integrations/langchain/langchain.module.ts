@@ -21,4 +21,9 @@ import {
         EmbeddingModelService,
     ],
 })
+/**
+ * Exposes {@link LangchainService} + {@link EmbeddingModelService} so RAG/grading
+ * share one embedder + prompt helper instead of each feature constructing its
+ * own LangChain stack (and drifting model/prompt defaults).
+ */
 export class LangchainModule extends ConfigurableModuleClass {}

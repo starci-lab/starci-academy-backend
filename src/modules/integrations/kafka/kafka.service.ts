@@ -22,6 +22,7 @@ import type {
     EnsureTopicsParams,
 } from "./types"
 
+@Injectable()
 /**
  * Thin infrastructure wrapper around the shared {@link Kafka} client. It hides
  * broker/connection details from domain code: callers ask for a connected
@@ -34,7 +35,6 @@ import type {
  * await consumer.subscribe({ topics, fromBeginning: false })
  * await consumer.run({ eachMessage })
  */
-@Injectable()
 export class KafkaService implements OnModuleDestroy {
     /** Scoped logger so broker wiring issues are easy to grep. */
     private readonly logger = new Logger(KafkaService.name)

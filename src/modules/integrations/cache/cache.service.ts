@@ -29,6 +29,7 @@ import {
     configMap
 } from "./constants/config"
 
+@Injectable()
 /**
  * Service for get/set/del cache entries by logical key and optional args.
  * Uses Redis (shared) or Memory (process-local) and SuperJSON for serialization.
@@ -36,7 +37,6 @@ import {
  * @example
  * await cacheService.set({ key: CacheKey.Withdraw, args: [id], cacheResult: data })
  */
-@Injectable()
 export class CacheService {
     constructor(
         @InjectRedisCache()

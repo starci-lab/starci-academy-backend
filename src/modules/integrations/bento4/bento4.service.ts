@@ -44,11 +44,11 @@ function exe(name: string): string {
     return platform() === "win32" ? `${name}.exe` : name
 }
 
+@Injectable()
 /**
  * Bento4 service for MPEG-DASH packaging.
  * Uses binaries from .exe/Bento4/bin/ directory.
  */
-@Injectable()
 export class Bento4Service {
     private readonly logger = new Logger(Bento4Service.name)
 

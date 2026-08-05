@@ -17,14 +17,14 @@ import {
     BREVO_MAILER,
 } from "./constants"
 
+@Module({
+})
 /**
  * Configures Nest Mailer transport and template engine.
  *
  * The send-mail worker injects `MailerService` from this module to perform
  * actual delivery through nodemailer + Brevo SMTP with Pug templates.
  */
-@Module({
-})
 export class MailModule extends ConfigurableModuleClass {
     /**
      * Register the mail module.

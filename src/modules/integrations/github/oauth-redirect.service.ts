@@ -8,12 +8,12 @@ import {
     BuildGithubAuthorizeRedirectUrlParams,
 } from "./types"
 
+@Injectable()
 /**
  * Builds GitHub OAuth authorization URL.
  *
  * Note: `redirectUri` is provided by FE; ensure FE uses a registered/allowed redirect URI.
  */
-@Injectable()
 export class GithubOauthRedirectService {
     /**
      * The GitHub OAuth authorization endpoint.

@@ -14,6 +14,8 @@ import {
     KafkaService,
 } from "./kafka.service"
 
+@Module({
+})
 /**
  * Infrastructure module exposing a single shared Kafka client + {@link KafkaService}.
  * Register once (typically `isGlobal: true`) so every CDC/event listener injects
@@ -23,8 +25,6 @@ import {
  * // app.module.ts
  * KafkaModule.register({ isGlobal: true })
  */
-@Module({
-})
 export class KafkaModule extends ConfigurableModuleClass {
     /**
      * Build the dynamic module, appending the Kafka client provider + service to

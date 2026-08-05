@@ -30,6 +30,7 @@ const NOWPAYMENTS_PAID_STATUSES = new Set<string>([
     "confirmed",
 ])
 
+@Injectable()
 /**
  * Thin NOWPayments REST client built on the repo's {@link AxiosService} (no
  * heavy SDK). Creates hosted crypto invoices (USDT/USDC) and verifies IPN
@@ -38,7 +39,6 @@ const NOWPAYMENTS_PAID_STATUSES = new Set<string>([
  * TODO(real-keys): set `NOWPAYMENTS_API_KEY` / `NOWPAYMENTS_IPN_SECRET` so live
  * invoice creation and IPN verification succeed.
  */
-@Injectable()
 export class NowPaymentsClient {
     constructor(
         private readonly axiosService: AxiosService,

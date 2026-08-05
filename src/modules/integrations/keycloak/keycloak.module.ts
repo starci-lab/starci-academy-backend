@@ -25,11 +25,11 @@ import {
     KeycloakOidcRedirectService,
 } from "./keycloak-oidc-redirect.service"
 
+@Module({
+})
 /**
  * Module for verifying Keycloak-issued access tokens (JWT) via realm JWKS.
  */
-@Module({
-})
 export class KeycloakModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

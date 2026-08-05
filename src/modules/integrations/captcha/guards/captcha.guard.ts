@@ -19,6 +19,7 @@ import {
     CAPTCHA_HEADER_NAME,
 } from "../constants"
 
+@Injectable()
 /**
  * Guard requiring a valid Cloudflare Turnstile token (in the `X-Captcha-Token`
  * header) on bot-sensitive entry mutations (sign-in / sign-up / forgot-password
@@ -28,7 +29,6 @@ import {
  * \@UseGuards(CaptchaGuard)
  * \@Mutation(() => SignInResponse)
  */
-@Injectable()
 export class CaptchaGuard implements CanActivate {
     constructor(
         private readonly captchaService: CaptchaService,

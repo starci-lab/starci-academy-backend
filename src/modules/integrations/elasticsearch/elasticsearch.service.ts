@@ -53,10 +53,10 @@ import type {
     DeleteEntityResult
 } from "./types"
 
+@Injectable()
 /**
  * The service for the Elasticsearch.
  */
-@Injectable()
 export class ElasticsearchService implements OnModuleInit {
     /**
      * The indices to create.

@@ -32,6 +32,11 @@ import {
     envConfig,
 } from "@modules/env"
 
+/**
+ * Shared Redis `cache-manager` store (`ttl: 0` at the store — per-key TTL comes
+ * from `configMap` on set). Optional debug ping fails boot if Redis is
+ * unreachable so later misses are not silent connectivity bugs.
+ */
 export const createRedisCacheManagerProvider = (): Provider => ({
     provide: REDIS_CACHE_MANAGER,
     inject: [
@@ -68,6 +73,11 @@ export const createRedisCacheManagerProvider = (): Provider => ({
     },
 })
 
+/**
+ * Process-local `cache-manager` store for values that must not leak across pods.
+ * Same debug ping as Redis so a broken in-memory store fails boot instead of
+ * silently never caching.
+ */
 export const createMemoryCacheManagerProvider = (): Provider => ({
     provide: MEMORY_CACHE_MANAGER,
     inject: [WinstonService],

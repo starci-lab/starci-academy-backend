@@ -2,12 +2,21 @@ import {
     estypes 
 } from "@elastic/elasticsearch"
 
+/**
+ * Inputs for a standard bool+optional multi_match query. Empty `search`/`searchFields`
+ * must stay filter-only — adding a match clause with no fields would match nothing.
+ */
 export interface BuildSearchQueryParams {
     filters?: estypes.QueryDslQueryContainer[];
     search?: string;
     searchFields?: string[];
 }
 
+/**
+ * Builds the house ES bool query (filters in `must`, optional fuzzy multi_match).
+ * Kept as a static helper so every search path shares fuzziness=`AUTO` instead of
+ * each handler inventing its own match clause.
+ */
 export class ElasticsearchQueryBuilder {
     /**
      * Builds a standard Elasticsearch boolean query with optional fuzzy searching.

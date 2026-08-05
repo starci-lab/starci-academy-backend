@@ -32,10 +32,10 @@ import {
 } from "@modules/mixin"
 import SuperJSON from "superjson"
 
+@Injectable()
 /**
  * Service for uploading files to S3.
  */
-@Injectable()
 export class S3UploadService {
     constructor(
         @InjectDigitalOceanS3()

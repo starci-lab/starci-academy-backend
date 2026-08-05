@@ -5,10 +5,10 @@ import {
     Injectable 
 } from "@nestjs/common"
 
+@Injectable()
 /**
  * Service for resolving S3 names.
  */
-@Injectable()
 export class S3NameResolverService {
     constructor() { }
 

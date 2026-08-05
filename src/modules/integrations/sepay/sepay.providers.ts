@@ -15,6 +15,7 @@ import {
     SEPAY,
 } from "./constants"
 
+/** Inject the shared SePay PG client (token {@link SEPAY}). */
 export const InjectSepay = () => Inject(
     SEPAY,
 )

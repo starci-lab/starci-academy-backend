@@ -13,6 +13,7 @@ import type {
     RecordModelLatencyParams,
 } from "./types"
 
+@Injectable()
 /**
  * Redis-backed store for per-MODEL latency probe snapshots.
  *
@@ -23,7 +24,6 @@ import type {
  * eligibility. TTL is effectively infinite ({@link CacheKey.AiModelLatency});
  * the scheduler keeps it fresh by overwriting every cycle.
  */
-@Injectable()
 export class AiModelLatencyCacheService implements OnModuleInit {
     constructor(
         private readonly cacheService: CacheService,

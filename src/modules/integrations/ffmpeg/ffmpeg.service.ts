@@ -23,12 +23,12 @@ ffmpeg.setFfmpegPath(
         process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg"),
 )
 
+@Injectable()
 /**
  * Service for encoding video using FFmpeg.
  * Automatically uses GPU-accelerated encoding (NVENC/AMF/QSV) when available,
  * with software (libx264) fallback.
  */
-@Injectable()
 export class FfmpegService {
     private readonly logger = new Logger(FfmpegService.name)
 

@@ -20,10 +20,10 @@ import {
 } from "jsonwebtoken"
 import jwksRsa from "jwks-rsa"
 
+@Injectable()
 /**
  * Verifies Keycloak access tokens locally using the realm JWKS (`/protocol/openid-connect/certs`).
  */
-@Injectable()
 export class KeycloakJwksService {
     private readonly jwksClient: ReturnType<typeof jwksRsa>
 

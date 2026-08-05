@@ -30,6 +30,7 @@ import type {
     Judge0GetBatchResponse,
 } from "./types"
 
+@Injectable()
 /**
  * Thin client over the self-hosted Judge0 REST API. Responsible for encoding
  * submissions, submitting them as a batch, polling until every run is terminal,
@@ -39,7 +40,6 @@ import type {
  * @example
  * const { results } = await judge0Service.judgeBatch({ submissions })
  */
-@Injectable()
 export class Judge0Service {
     /** Logger scoped to the Judge0 client. */
     private readonly logger = new Logger(Judge0Service.name)

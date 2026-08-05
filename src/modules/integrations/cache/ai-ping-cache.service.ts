@@ -23,13 +23,13 @@ import {
     DayjsService 
 } from "@modules/mixin"
 
+@Injectable()
 /**
  * Redis-backed store for AI mount-key ping snapshots.
  *
  * Shape: `Record<provider, Record<apiKey, { status, lastPing }>>`.
  * TTL is configured as effectively infinite via {@link CacheKey.AiPingKeyStatus}.
  */
-@Injectable()
 export class AiPingCacheService implements OnModuleInit {
     /** Cooldown (ms) for a failed background ping / generic transient failure. */
     private static readonly PING_FAIL_COOLDOWN_MS = 30_000

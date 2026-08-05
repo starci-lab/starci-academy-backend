@@ -16,11 +16,11 @@ import {
     ElasticsearchIndexResetService,
 } from "./elasticsearch-index-reset.service"
 
+@Module({
+})
 /**
  * Elasticsearch module.
  */
-@Module({
-})
 export class ElasticsearchModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

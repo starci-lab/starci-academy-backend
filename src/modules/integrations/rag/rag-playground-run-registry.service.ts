@@ -11,6 +11,7 @@ import type {
 /** A prepared run not consumed within this window is dropped (abandoned tab / never subscribed). */
 const RUN_TTL_MS = 3 * 60_000
 
+@Injectable()
 /**
  * In-memory holding pen for a prepared-but-not-yet-streamed RAG Playground ask.
  *
@@ -24,7 +25,6 @@ const RUN_TTL_MS = 3 * 60_000
  * Single-instance only (in-process Map) — acceptable for this surface's scale;
  * a multi-instance deployment would need a shared store (Redis) instead.
  */
-@Injectable()
 export class RagPlaygroundRunRegistryService {
     private readonly runs = new Map<string, PreparedRagPlaygroundRun>()
 

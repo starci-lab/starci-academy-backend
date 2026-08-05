@@ -26,13 +26,13 @@ import type {
     ExecaUnknownProcessError
 } from "./types"
 
+@Injectable()
 /**
  * Service to run shell commands via execa (no shell by default).
  *
  * @example
  * await execaService.exec({ command: "node", args: ["-v"] })
  */
-@Injectable()
 export class ExecaService {
     /**
      * Runs a command and returns stdout. Throws if stderr is non-empty or the process fails.
