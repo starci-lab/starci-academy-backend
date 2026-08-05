@@ -203,7 +203,7 @@ export interface Tier {
  * - `high` -- Opus 5 at low effort (highest-fidelity model, hard cases).
  *
  * Grading is a separate concern -- see {@link judge} in `./judge`, which is
- * pinned to Opus 4.8 at `high` effort regardless of which tier produced the
+ * pinned to Sonnet 5 at `high` effort regardless of which tier produced the
  * output under test, so grading rigor never varies with the SUT's cost tier.
  */
 export const HARNESS_TIER = {
