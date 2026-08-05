@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "The learner's most recent resumable flashcard review session for one deck.",
+})
 /**
  * The learner's most recent RESUMABLE flashcard review ("Học thẻ") session
  * for one deck. The query itself resolves to `null` (not this type) when
  * there is none.
  */
-@ObjectType({
-    description: "The learner's most recent resumable flashcard review session for one deck.",
-})
 export class MyInProgressFlashcardReviewSessionData {
     @Field(
         () => ID,
@@ -78,6 +78,11 @@ export class MyInProgressFlashcardReviewSessionData {
 @ObjectType({
     description: "Response wrapper for the myInProgressFlashcardReviewSession query.",
 })
+/**
+ * GraphQL envelope for `myInProgressFlashcardReviewSession`. `data` is
+ * null when the learner has no resumable single-deck "Học thẻ" session —
+ * the FE should start a new review rather than resume.
+ */
 export class MyInProgressFlashcardReviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyInProgressFlashcardReviewSessionData>

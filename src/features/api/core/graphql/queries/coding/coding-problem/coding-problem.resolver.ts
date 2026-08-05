@@ -31,11 +31,11 @@ import {
     CodingProblemResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Loads one coding problem by slug for the detail/editor view — statement,
  * starter code, and SAMPLE testcases only (hidden testcases are never exposed).
  */
-@Resolver()
 export class CodingProblemResolver {
     constructor(
         private readonly codingProblemService: CodingProblemService,

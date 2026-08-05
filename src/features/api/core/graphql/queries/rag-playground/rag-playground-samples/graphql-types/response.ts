@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One catalog entry's public listing shape — id + label only, never the code. */
 @ObjectType({
     description: "Summary of a RAG Playground built-in curated sample (id + label only, no code).",
 })
+/** One catalog entry's public listing shape — id + label only, never the code. */
 export class RagPlaygroundSampleSummary {
     @Field(
         () => ID,
@@ -33,6 +33,11 @@ export class RagPlaygroundSampleSummary {
 @ObjectType({
     description: "Response wrapper for the ragPlaygroundSamples query.",
 })
+/**
+ * GraphQL envelope for the public `ragPlaygroundSamples` catalog. Rows are
+ * id + label only — sample source code stays server-side until a session
+ * indexes the chosen sample.
+ */
 export class RagPlaygroundSamplesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<RagPlaygroundSampleSummary>>

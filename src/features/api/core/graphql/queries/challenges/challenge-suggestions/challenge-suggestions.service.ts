@@ -20,11 +20,11 @@ import {
     ChallengeSuggestionsQuery,
 } from "./challenge-suggestions.query"
 
+@Injectable()
 /**
  * Thin application service bridging the resolver and the CQRS query bus for the
  * challenge autocomplete (typeahead) query.
  */
-@Injectable()
 export class ChallengeSuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

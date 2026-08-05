@@ -11,6 +11,10 @@ import {
 @ObjectType({
     description: "Single entry on the course leaderboard.",
 })
+/**
+ * One ranked enrollment in the cached top window. Rank is 1-based; `totalXp`
+ * is the sort metric (challenge score + reads×3 + milestone×10).
+ */
 export class LeaderboardEntryData {
     @Field(
         () => Int,
@@ -98,6 +102,10 @@ export class LeaderboardEntryData {
 @ObjectType({
     description: "Current viewer's standing within the leaderboard (even when outside the top window).",
 })
+/**
+ * Viewer's standing across the whole course — returned even when they fall
+ * outside the top-N window. Null on the parent when they have no scored attempts.
+ */
 export class LeaderboardMyRankData {
     @Field(
         () => Int,
@@ -151,6 +159,10 @@ export class LeaderboardMyRankData {
 @ObjectType({
     description: "Leaderboard payload for a course.",
 })
+/**
+ * Cached course leaderboard snapshot: top entries, course totals, and optional
+ * `myRank`. `computedAt` is when the projection last recomputed, not request time.
+ */
 export class LeaderboardResponseData {
     @Field(
         () => String,
@@ -206,6 +218,9 @@ export class LeaderboardResponseData {
 @ObjectType({
     description: "Response wrapper for the leaderboard query.",
 })
+/**
+ * Envelope for `courseLeaderboard`. The snapshot itself is in `data`.
+ */
 export class LeaderboardResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<LeaderboardResponseData>

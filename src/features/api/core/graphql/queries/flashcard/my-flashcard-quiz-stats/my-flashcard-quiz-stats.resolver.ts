@@ -35,6 +35,7 @@ import {
     MyFlashcardQuizStatsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The viewer's aggregated flashcard quick-quiz ("Hỏi nhanh") stats for one
  * course — a coverage/XP trend line plus per-tag and per-deck breakdowns
@@ -42,7 +43,6 @@ import {
  * progress data without the client re-deriving any of it. Enrollment-scoped,
  * same as `myFlashcardQuizHistory`.
  */
-@Resolver()
 export class MyFlashcardQuizStatsResolver {
     constructor(
         private readonly myFlashcardQuizStatsService: MyFlashcardQuizStatsService,

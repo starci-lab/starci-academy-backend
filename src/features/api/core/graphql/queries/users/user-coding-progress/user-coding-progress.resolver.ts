@@ -33,6 +33,7 @@ import {
     UserCodingProgressResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a given user's coding-practice status (solved / attempted
  * / revealed problem ids + total points). Mirrors `myCodingProgress` but reads for
@@ -40,7 +41,6 @@ import {
  * Optional auth — anonymous viewers may call it; a locked profile is withheld from
  * non-owners by {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserCodingProgressResolver {
     constructor(
         private readonly codingProgressService: CodingProgressService,

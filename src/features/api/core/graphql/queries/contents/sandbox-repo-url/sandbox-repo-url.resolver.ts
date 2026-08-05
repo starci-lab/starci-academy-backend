@@ -25,6 +25,10 @@ import {
 } from "./graphql-types"
 
 @Resolver()
+/**
+ * GraphQL surface for `sandboxRepoUrl` — returns a short-lived Minio GET URL for
+ * a sandbox lesson's file tree (premium requires course enrollment).
+ */
 export class SandboxRepoUrlResolver {
 
     constructor(

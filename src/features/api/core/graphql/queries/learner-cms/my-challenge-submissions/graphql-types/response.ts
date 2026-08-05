@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A single challenge-submission attempt in the learner CMS list.",
+})
 /**
  * One of the viewer's challenge-submission attempts, flattened for the learner
  * CMS: the challenge + course it belongs to, the grading verdict bucket, the
  * score, the chosen language, the submitted link, and when it was submitted.
  */
-@ObjectType({
-    description: "A single challenge-submission attempt in the learner CMS list.",
-})
 export class ChallengeSubmissionItem {
     @Field(
         () => ID,
@@ -93,13 +93,13 @@ export class ChallengeSubmissionItem {
         submittedAt: string
 }
 
+@ObjectType({
+    description: "Paginated list of the viewer's challenge-submission attempts.",
+})
 /**
  * The challenge-submissions page payload: the list of attempts plus the total
  * number of attempts the viewer has (for client-side pagination).
  */
-@ObjectType({
-    description: "Paginated list of the viewer's challenge-submission attempts.",
-})
 export class MyChallengeSubmissionsData {
     @Field(
         () => [ChallengeSubmissionItem],
@@ -118,12 +118,12 @@ export class MyChallengeSubmissionsData {
         total: number
 }
 
-/**
- * Response wrapper for the myChallengeSubmissions query.
- */
 @ObjectType({
     description: "Response wrapper for the myChallengeSubmissions query.",
 })
+/**
+ * Response wrapper for the myChallengeSubmissions query.
+ */
 export class MyChallengeSubmissionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyChallengeSubmissionsData> {

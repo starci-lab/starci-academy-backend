@@ -13,6 +13,7 @@ import {
 @ObjectType({
     description: "Response wrapper for the foundation query.",
 })
+/** GraphQL envelope for the `foundation` detail query. */
 export class FoundationResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<FoundationEntity>

@@ -8,10 +8,10 @@ import {
     CodingProblemsResolver,
 } from "./coding-problems.resolver"
 
-/** Wires the `codingProblems` list query resolver as its own registrable module. */
 @Module({
     providers: [
         CodingProblemsResolver,
     ],
 })
+/** Wires the `codingProblems` list query resolver as its own registrable module. */
 export class CodingProblemsSingleQueryModule extends ConfigurableModuleClass {}

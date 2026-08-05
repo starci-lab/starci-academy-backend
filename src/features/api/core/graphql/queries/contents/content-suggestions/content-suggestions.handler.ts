@@ -14,6 +14,8 @@ import {
     ContentSuggestionsQuery,
 } from "./content-suggestions.query"
 
+@QueryHandler(ContentSuggestionsQuery)
+@Injectable()
 /**
  * Content autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -25,8 +27,6 @@ import {
  * ranked by weight, with built-in fuzzy typo tolerance. The only per-entity bit is
  * the {@link ContentSuggestionsHandler.entityName} used for index resolution.
  */
-@QueryHandler(ContentSuggestionsQuery)
-@Injectable()
 export class ContentSuggestionsHandler
     extends AbstractSuggestionsHandler<ContentSuggestionsQuery> {
     /** Drives per-locale index resolution to the `contents-*` indices. */

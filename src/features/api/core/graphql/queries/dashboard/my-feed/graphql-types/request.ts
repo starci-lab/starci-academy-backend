@@ -70,13 +70,13 @@ registerEnumType(
     },
 )
 
+@InputType({
+    description: "Cursor-paginated request for the home feed.",
+})
 /**
  * Cursor-paginated request for the home feed (append-only activity stream →
  * cursor, not page).
  */
-@InputType({
-    description: "Cursor-paginated request for the home feed.",
-})
 export class MyFeedRequest {
     @Field(
         () => GraphQLTypeMyFeedTab,

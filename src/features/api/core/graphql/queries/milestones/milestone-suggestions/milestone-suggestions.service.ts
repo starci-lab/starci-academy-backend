@@ -20,11 +20,11 @@ import {
     MilestoneSuggestionsQuery,
 } from "./milestone-suggestions.query"
 
+@Injectable()
 /**
  * Thin application service bridging the resolver and the CQRS query bus for the
  * milestone autocomplete (typeahead) query.
  */
-@Injectable()
 export class MilestoneSuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

@@ -25,10 +25,10 @@ import {
     HeadhuntingCompanySuggestionsService,
 } from "./headhunting-company-suggestions.service"
 
+@Resolver()
 /**
  * Resolver for the headhunting company autocomplete (typeahead) query.
  */
-@Resolver()
 export class HeadhuntingCompanySuggestionsResolver {
     constructor(
         private readonly headhuntingCompanySuggestionsService: HeadhuntingCompanySuggestionsService,

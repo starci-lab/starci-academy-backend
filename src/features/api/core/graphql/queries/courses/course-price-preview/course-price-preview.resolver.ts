@@ -32,12 +32,12 @@ import {
     CoursePricePreviewService,
 } from "./course-price-preview.service"
 
+@Resolver()
 /**
  * Pre-checkout course price preview: the original vs loyalty-discounted price the
  * viewer would be charged for a course, computed with the exact checkout pricing.
  * Drives the payment modal's order summary (what + how much + why discounted).
  */
-@Resolver()
 export class CoursePricePreviewResolver {
     constructor(
         private readonly coursePricePreviewService: CoursePricePreviewService,

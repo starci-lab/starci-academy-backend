@@ -12,10 +12,10 @@ import {
     CourseEntity,
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Service for performing global search on courses.
  */
-@Injectable()
 export class CourseGlobalSearchService {
     /**
      * The number of words to include in the snippet.

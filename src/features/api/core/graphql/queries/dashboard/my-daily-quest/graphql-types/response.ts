@@ -12,12 +12,12 @@ import {
     GraphQLTypeDailyQuestKey,
 } from "@modules/databases"
 
-/**
- * One daily-quest task: TODAY's `current` progress vs the static `target`.
- */
 @ObjectType({
     description: "One daily-quest task with its current progress and target.",
 })
+/**
+ * One daily-quest task: TODAY's `current` progress vs the static `target`.
+ */
 export class DailyQuestTaskObject {
     @Field(
         () => GraphQLTypeDailyQuestKey,
@@ -44,13 +44,13 @@ export class DailyQuestTaskObject {
         target: number
 }
 
+@ObjectType({
+    description: "The viewer's daily quest for today.",
+})
 /**
  * The viewer's daily quest for today: each task's progress, completion + claim
  * state, and the reward value granted on claim.
  */
-@ObjectType({
-    description: "The viewer's daily quest for today.",
-})
 export class MyDailyQuestData {
     @Field(
         () => String,
@@ -93,12 +93,12 @@ export class MyDailyQuestData {
         reward: number
 }
 
-/**
- * Response wrapper for the myDailyQuest query.
- */
 @ObjectType({
     description: "Response wrapper for the myDailyQuest query.",
 })
+/**
+ * Response wrapper for the myDailyQuest query.
+ */
 export class MyDailyQuestResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyDailyQuestData> {

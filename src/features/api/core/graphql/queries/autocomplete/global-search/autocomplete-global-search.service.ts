@@ -75,6 +75,12 @@ const EMPTY_RESULT: AutocompleteGlobalSearchExecuteResult = {
 }
 
 @Injectable()
+/**
+ * Orchestrates parallel per-entity ES searches, then hydrates each hit with a
+ * cached ancestor chain + a server-built route so the client can deep-link
+ * without a second round-trip. State flags (enrolled/free/premium) are
+ * best-effort — search must still return if enrichment fails.
+ */
 export class AutocompleteGlobalSearchService {
     private readonly logger = new Logger(AutocompleteGlobalSearchService.name)
 

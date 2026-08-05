@@ -21,4 +21,9 @@ import {
         TaskHandler,
     ],
 })
+/**
+ * Wires the enrolled `task` detail query (resolver + QueryBus service +
+ * S3-backed handler). Cached by task id at the resolver so repeat opens
+ * skip the object-store round-trip.
+ */
 export class TaskSingleQueryModule extends ConfigurableModuleClass {}

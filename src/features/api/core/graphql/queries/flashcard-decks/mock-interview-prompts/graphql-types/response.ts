@@ -8,13 +8,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "One selectable mock interview prompt (a course capstone system).",
+})
 /**
  * One selectable mock interview prompt (a capstone system reframed as an
  * interview problem). The grading rubric stays server-side.
  */
-@ObjectType({
-    description: "One selectable mock interview prompt (a course capstone system).",
-})
 export class MockInterviewPromptItem {
     @Field(
         () => ID,
@@ -49,13 +49,13 @@ export class MockInterviewPromptItem {
         source: string
 }
 
+@ObjectType({
+    description: "The mock interview prompt bank for a course.",
+})
 /**
  * The mock interview prompt bank for a course — the prompts the learner
  * can pick to work through.
  */
-@ObjectType({
-    description: "The mock interview prompt bank for a course.",
-})
 export class MockInterviewPromptsData {
     @Field(
         () => [MockInterviewPromptItem],
@@ -66,10 +66,10 @@ export class MockInterviewPromptsData {
         prompts: Array<MockInterviewPromptItem>
 }
 
-/** Response wrapper for the mockInterviewPrompts query. */
 @ObjectType({
     description: "Response wrapper for the mockInterviewPrompts query.",
 })
+/** Response wrapper for the mockInterviewPrompts query. */
 export class MockInterviewPromptsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MockInterviewPromptsData> {

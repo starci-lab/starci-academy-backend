@@ -20,11 +20,11 @@ import {
     CourseSuggestionsQuery,
 } from "./course-suggestions.query"
 
+@Injectable()
 /**
  * Thin application service bridging the resolver and the CQRS query bus for the
  * course autocomplete (typeahead) query.
  */
-@Injectable()
 export class CourseSuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

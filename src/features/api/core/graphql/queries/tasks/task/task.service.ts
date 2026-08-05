@@ -18,6 +18,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin QueryBus facade — wraps resolver params in {@link TaskQuery}. The
+ * S3 load and not-found throw live in {@link TaskHandler}.
+ */
 export class TaskService {
     constructor(
         private readonly queryBus: QueryBus,

@@ -13,4 +13,5 @@ import {
         UserCoursesResolver,
     ],
 })
+/** Feature-module boundary for the `userCourses` query — wires its resolver so the users group can mount this profile tab independently. */
 export class UserCoursesSingleQueryModule extends ConfigurableModuleClass {}

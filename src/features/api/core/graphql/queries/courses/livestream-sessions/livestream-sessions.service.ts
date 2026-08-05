@@ -16,6 +16,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Dispatches `LivestreamSessionsQuery` onto the CQRS bus. */
 export class LivestreamSessionsService {
     constructor(
         private readonly queryBus: QueryBus,

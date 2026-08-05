@@ -13,6 +13,7 @@ import {
 @ObjectType({
     description: "Data for the milestones query.",
 })
+/** Every milestone in the requested course, ordered by `sortIndex`. */
 export class MilestonesResponseData {
     @Field(
         () => [MilestoneEntity],
@@ -26,6 +27,7 @@ export class MilestonesResponseData {
 @ObjectType({
     description: "Response wrapper for the milestones query.",
 })
+/** GraphQL envelope for the `milestones` list query. */
 export class MilestonesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MilestonesResponseData>

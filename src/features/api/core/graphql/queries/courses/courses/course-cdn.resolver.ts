@@ -11,10 +11,10 @@ import {
     CourseEntity,
 } from "@modules/databases"
 
+@Resolver(() => CourseEntity)
 /**
  * Resolver for Course entity to handle secure CDN URLs.
  */
-@Resolver(() => CourseEntity)
 export class CourseCdnResolver {
     constructor(
         private readonly s3BuildService: S3BuildService,

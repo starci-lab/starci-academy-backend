@@ -43,6 +43,7 @@ import {
     ActiveAdvertisementResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public query returning the single banner to show in a placement right now.
  *
@@ -56,7 +57,6 @@ import {
  * all, and a viewer already enrolled in the supplied `courseId` is not shown a
  * lesson ad. Auth is optional — anonymous viewers always see ads.
  */
-@Resolver()
 export class ActiveAdvertisementResolver {
     /** Logger for soft-filter (exemption) failures that must not break ad serving. */
     private readonly logger = new Logger(ActiveAdvertisementResolver.name)

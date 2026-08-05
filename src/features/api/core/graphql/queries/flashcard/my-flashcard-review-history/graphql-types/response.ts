@@ -9,15 +9,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "One completed flashcard review session, as read back for the viewer's history.",
+})
 /**
  * One completed flashcard review ("Học thẻ") session, as read back for the
  * viewer's history — mirrors `MyFlashcardQuizHistoryItem`, but scoped to a
  * deck (not mode/level/coverage/weakTags, which are cloze-quiz-only
  * concepts).
  */
-@ObjectType({
-    description: "One completed flashcard review session, as read back for the viewer's history.",
-})
 export class MyFlashcardReviewHistoryItem {
     @Field(
         () => ID,
@@ -76,13 +76,13 @@ export class MyFlashcardReviewHistoryItem {
         xpEarned: number
 }
 
+@ObjectType({
+    description: "A page of the viewer's completed flashcard review sessions.",
+})
 /**
  * A page of the viewer's completed flashcard review sessions + the total
  * count for pagination.
  */
-@ObjectType({
-    description: "A page of the viewer's completed flashcard review sessions.",
-})
 export class MyFlashcardReviewHistoryData {
     @Field(
         () => Int,
@@ -101,12 +101,12 @@ export class MyFlashcardReviewHistoryData {
         items: Array<MyFlashcardReviewHistoryItem>
 }
 
-/**
- * Response wrapper for the myFlashcardReviewHistory query.
- */
 @ObjectType({
     description: "Response wrapper for the myFlashcardReviewHistory query.",
 })
+/**
+ * Response wrapper for the myFlashcardReviewHistory query.
+ */
 export class MyFlashcardReviewHistoryResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyFlashcardReviewHistoryData>

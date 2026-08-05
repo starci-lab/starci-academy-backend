@@ -21,4 +21,5 @@ import {
         HeadhuntingCompanyHandler,
     ],
 })
+/** Feature-module boundary for the `headhuntingCompany` query — wires its resolver + service + CQRS handler. */
 export class HeadhuntingCompanySingleQueryModule extends ConfigurableModuleClass {}

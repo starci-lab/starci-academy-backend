@@ -21,4 +21,7 @@ import {
         SavedContentsHandler,
     ],
 })
+/**
+ * Nest DI for `savedContents` — favorites list for the authenticated user.
+ */
 export class SavedContentsSingleQueryModule extends ConfigurableModuleClass {}

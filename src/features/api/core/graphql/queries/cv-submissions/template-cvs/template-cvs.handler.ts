@@ -22,6 +22,11 @@ import {
 
 @QueryHandler(TemplateCvsQuery)
 @Injectable()
+/**
+ * Lists every CV review template ordered by `sortIndex`, overlaying
+ * title/description/body from the requested locale (falls back to the
+ * entity's stored English fields).
+ */
 export class TemplateCvsHandler
     extends ICQRSHandler<TemplateCvsQuery, Array<TemplateCVEntity>>
     implements IQueryHandler<TemplateCvsQuery, Array<TemplateCVEntity>> {

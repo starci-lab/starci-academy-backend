@@ -60,6 +60,8 @@ import type {
     TaskProgressLookup,
 } from "./types"
 
+@QueryHandler(MyCourseOutlineQuery)
+@Injectable()
 /**
  * Assembles one enrolled course's full tree (modules → lessons → challenges and
  * milestones → tasks) with the signed-in viewer's progress overlaid. This is a
@@ -67,8 +69,6 @@ import type {
  * tree, the two progress services (challenge + capstone), and the lesson read
  * flags — it does NOT re-grade anything.
  */
-@QueryHandler(MyCourseOutlineQuery)
-@Injectable()
 export class MyCourseOutlineHandler
     extends ICQRSHandler<MyCourseOutlineQuery, MyCourseOutlineData>
     implements IQueryHandler<MyCourseOutlineQuery, MyCourseOutlineData> {

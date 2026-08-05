@@ -12,15 +12,15 @@ import {
     ModelProvider,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "Public-safe health of one key — masked label + healthy flag.",
+})
 /**
  * Public-safe view of one key: a masked label (`abc...def`) and a single
  * healthy flag. Deliberately omits the raw value, fail counts, cooldown and
  * disabled timestamps — those are operational intel kept behind the admin
  * `aiBalancerHealth` query.
  */
-@ObjectType({
-    description: "Public-safe health of one key — masked label + healthy flag.",
-})
 export class PublicKeyHealthData {
     @Field(
         () => String,
@@ -39,13 +39,13 @@ export class PublicKeyHealthData {
         healthy: boolean
 }
 
+@ObjectType({
+    description: "Public key health for one model.",
+})
 /**
  * Health of the keys behind one model (its `.key` file), masked for a public
  * "build in public" status page.
  */
-@ObjectType({
-    description: "Public key health for one model.",
-})
 export class AiKeyHealthGroupData {
     @Field(
         () => GraphQLTypeModelProvider,
@@ -91,6 +91,10 @@ export class AiKeyHealthGroupData {
 @ObjectType({
     description: "Public AI key health payload.",
 })
+/**
+ * Public status-page payload: masked key health grouped by model — no raw
+ * secrets, fail counts, or cooldown timestamps.
+ */
 export class AiKeyHealthResponseData {
     @Field(
         () => [AiKeyHealthGroupData],
@@ -104,6 +108,7 @@ export class AiKeyHealthResponseData {
 @ObjectType({
     description: "Response wrapper for the aiKeyHealth query.",
 })
+/** GraphQL envelope for the public `aiKeyHealth` status-page query. */
 export class AiKeyHealthResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<AiKeyHealthResponseData>

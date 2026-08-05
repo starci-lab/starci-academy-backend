@@ -35,6 +35,7 @@ import {
     MyMockInterviewStatsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The viewer's aggregated mock-interview stats for one course — an
  * overall-score trend, a mode split, per-phase (design) / per-kind (qna)
@@ -42,7 +43,6 @@ import {
  * screen's "Thống kê" tab has progress data without the client re-deriving
  * any of it. Enrolled-only, same surface as `myMockInterviewAttempts`.
  */
-@Resolver()
 export class MyMockInterviewStatsResolver {
     constructor(
         private readonly myMockInterviewStatsService: MyMockInterviewStatsService,

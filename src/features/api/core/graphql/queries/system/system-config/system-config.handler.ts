@@ -21,6 +21,10 @@ import {
 
 @QueryHandler(SystemConfigQuery)
 @Injectable()
+/**
+ * Reads challenge/task thresholds from mounted `app.json` and Auto-lane caps
+ * from the AI quota config service into the public `systemConfig` shape.
+ */
 export class SystemConfigHandler
     extends ICQRSHandler<SystemConfigQuery, SystemConfigData>
     implements IQueryHandler<SystemConfigQuery, SystemConfigData>

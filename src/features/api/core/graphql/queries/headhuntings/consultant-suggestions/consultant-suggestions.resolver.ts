@@ -25,10 +25,10 @@ import {
     ConsultantSuggestionsService,
 } from "./consultant-suggestions.service"
 
+@Resolver()
 /**
  * GraphQL resolver exposing the `consultantSuggestions` typeahead query.
  */
-@Resolver()
 export class ConsultantSuggestionsResolver {
     constructor(
         private readonly consultantSuggestionsService: ConsultantSuggestionsService,

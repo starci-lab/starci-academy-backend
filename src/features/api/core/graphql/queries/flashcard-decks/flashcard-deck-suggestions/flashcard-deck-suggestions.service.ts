@@ -20,11 +20,11 @@ import {
     FlashcardDeckSuggestionsQuery,
 } from "./flashcard-deck-suggestions.query"
 
+@Injectable()
 /**
  * Thin application service bridging the resolver and the CQRS query bus for the
  * flashcard-deck autocomplete (typeahead) query.
  */
-@Injectable()
 export class FlashcardDeckSuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

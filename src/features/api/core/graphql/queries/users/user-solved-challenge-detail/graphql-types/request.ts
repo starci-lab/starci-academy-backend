@@ -4,6 +4,9 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Request for a target user's single solved-challenge submission detail (public profile).",
+})
 /**
  * Request for a single passed challenge submission's detail on a user's
  * PUBLIC profile — `userId` is the profile owner (NOT necessarily the
@@ -11,9 +14,6 @@ import {
  * `KeycloakOptionalAuthGraphQLGuard` for the owner-bypass check inside
  * {@link GraphQLProfileVisibilityGuard}.
  */
-@InputType({
-    description: "Request for a target user's single solved-challenge submission detail (public profile).",
-})
 export class UserSolvedChallengeDetailRequest {
     @Field(
         () => ID,

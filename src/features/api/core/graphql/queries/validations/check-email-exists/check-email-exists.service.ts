@@ -15,8 +15,8 @@ import type {
     CheckEmailExistsRequest,
 } from "./graphql-types"
 
-/** Service responsible for checking email existence via bloom filter. */
 @Injectable()
+/** Service responsible for checking email existence via bloom filter. */
 export class CheckEmailExistsService {
     constructor(
         private readonly queryBus: QueryBus,

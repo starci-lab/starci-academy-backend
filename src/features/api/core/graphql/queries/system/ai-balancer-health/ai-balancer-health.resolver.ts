@@ -28,6 +28,7 @@ import {
     AiBalancerHealthResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Read-only GraphQL surface for the AI Balancer health snapshot.
  *
@@ -37,7 +38,6 @@ import {
  * `x-admin-api-key` header. Raw API key values never leave the server — only
  * the 4-char suffix is exposed.
  */
-@Resolver()
 export class AiBalancerHealthResolver {
     constructor(
         private readonly aiBalancerService: AiBalancerService,

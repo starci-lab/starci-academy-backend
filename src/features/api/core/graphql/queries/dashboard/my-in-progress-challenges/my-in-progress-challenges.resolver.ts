@@ -48,13 +48,13 @@ import {
 /** Max enrollments scanned for in-progress challenges (bounds the payload). */
 const DASHBOARD_LIMIT = 30
 
+@Resolver()
 /**
  * Rail query: challenges the viewer has started but not yet passed. Reuses the
  * cached ChallengeProgressService (the started-but-not-passed status logic already
  * lives there) instead of a hand-rolled GROUP BY / HAVING query, then fetches the
  * titles for the in-progress ids.
  */
-@Resolver()
 export class MyInProgressChallengesResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

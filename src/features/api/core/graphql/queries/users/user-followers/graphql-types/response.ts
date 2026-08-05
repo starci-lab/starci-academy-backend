@@ -7,14 +7,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A follower of a user (avatar-group item).",
+})
 /**
  * One follower rendered in the profile's "who follows" avatar group — the opaque
  * global id (resolved to the profile route on click) plus the header fields the
  * avatar + tooltip need.
  */
-@ObjectType({
-    description: "A follower of a user (avatar-group item).",
-})
 export class FollowerUserData {
     @Field(
         () => String,
@@ -51,12 +51,12 @@ export class FollowerUserData {
         avatar: string | null
 }
 
-/**
- * Response wrapper for the userFollowers query.
- */
 @ObjectType({
     description: "Response wrapper for the userFollowers query.",
 })
+/**
+ * Response wrapper for the userFollowers query.
+ */
 export class UserFollowersResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<FollowerUserData>> {

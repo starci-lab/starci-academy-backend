@@ -17,6 +17,7 @@ import type {
     ListMockInterviewPromptsResult,
 } from "./types"
 
+@Injectable()
 /**
  * Builds the mock interview prompt bank for a course.
  *
@@ -29,7 +30,6 @@ import type {
  * task's approach/outcome criteria for capstones, from the rubric prompt
  * alone for classics).
  */
-@Injectable()
 export class MockInterviewPromptsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

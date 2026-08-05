@@ -35,6 +35,7 @@ import type {
     PinnableCapstoneRow,
 } from "./types"
 
+@Resolver()
 /**
  * Owner-scoped query feeding the "pin a course project" picker: the current
  * user's enrollments that already have a capstone repo — either a submitted
@@ -45,7 +46,6 @@ import type {
  * rather than maintaining a projection. `isVerified` is `tasks_completed_at IS
  * NOT NULL`; `githubUrl` is the enrollment's submitted project URL.
  */
-@Resolver()
 export class MyPinnableCapstonesResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

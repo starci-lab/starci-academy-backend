@@ -50,6 +50,7 @@ import {
 /** Hard cap on page size to bound the query regardless of client input. */
 const MAX_LIMIT = 50
 
+@Resolver()
 /**
  * A single user's activity timeline — the profile "activity" tab. Unlike the
  * score-ranked home feed, ordering here is absolute newest-first
@@ -58,7 +59,6 @@ const MAX_LIMIT = 50
  * from id-only refs. Optional auth — anonymous viewers may read any user's
  * public timeline.
  */
-@Resolver()
 export class UserFeedResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

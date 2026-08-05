@@ -13,14 +13,14 @@ import {
     GraphQLTypeBlogCategory,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A blog post list card (locale-resolved, body omitted).",
+})
 /**
  * One render-ready blog card for the `/blog` listing. `title`/`excerpt` are
  * already resolved to the request locale; the body is intentionally omitted
  * (fetched on the detail query).
  */
-@ObjectType({
-    description: "A blog post list card (locale-resolved, body omitted).",
-})
 export class BlogPostListItemData {
     @Field(
         () => ID,
@@ -98,12 +98,12 @@ export class BlogPostListItemData {
         publishedAt: Date
 }
 
-/**
- * Response wrapper for the blogPosts query.
- */
 @ObjectType({
     description: "Response wrapper for the blogPosts query.",
 })
+/**
+ * Response wrapper for the blogPosts query.
+ */
 export class BlogPostsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<BlogPostListItemData>> {

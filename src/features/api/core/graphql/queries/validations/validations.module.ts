@@ -15,5 +15,9 @@ import {
         }),
     ],
 })
+/**
+ * Public pre-auth validation helpers. Currently just `checkEmailExists`
+ * (bloom filter, not a DB lookup) for signup / email fields.
+ */
 export class ValidationsModule extends ConfigurableModuleClass {}
 

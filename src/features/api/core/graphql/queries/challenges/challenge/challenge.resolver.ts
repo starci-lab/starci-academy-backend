@@ -31,6 +31,10 @@ import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 @Resolver(() => ChallengeEntity)
+/**
+ * GraphQL entry for `challenge`: one challenge by id, served from the locale
+ * S3 snapshot. Premium content is locked until the caller enrolls.
+ */
 export class ChallengeResolver {
     constructor(
         private readonly challengeQueryService: ChallengeQueryService,

@@ -7,14 +7,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A suggested user to follow (who-to-follow card).",
+})
 /**
  * One "who to follow" suggestion for the dashboard rail — a user the viewer does
  * not already follow, surfaced as a clickable card. Carries the opaque global id
  * (resolved to the profile route on click) plus the header fields the card shows.
  */
-@ObjectType({
-    description: "A suggested user to follow (who-to-follow card).",
-})
 export class SuggestedUserData {
     @Field(
         () => String,
@@ -59,12 +59,12 @@ export class SuggestedUserData {
         openToWork: boolean
 }
 
-/**
- * Response wrapper for the suggestedUsers query.
- */
 @ObjectType({
     description: "Response wrapper for the suggestedUsers query.",
 })
+/**
+ * Response wrapper for the suggestedUsers query.
+ */
 export class SuggestedUsersResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<SuggestedUserData>> {

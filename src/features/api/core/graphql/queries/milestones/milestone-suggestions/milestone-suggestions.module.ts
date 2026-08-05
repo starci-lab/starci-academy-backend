@@ -21,4 +21,5 @@ import {
         MilestoneSuggestionsHandler,
     ],
 })
+/** Feature-module boundary for the `milestoneSuggestions` typeahead query. */
 export class MilestoneSuggestionsSingleQueryModule extends ConfigurableModuleClass {}

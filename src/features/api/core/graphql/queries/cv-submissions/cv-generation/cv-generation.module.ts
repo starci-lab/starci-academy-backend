@@ -37,4 +37,8 @@ import {
         CvGenerationHandler,
     ],
 })
+/**
+ * Wires resolver, service, and handler for the `cvGeneration` leaf (one run
+ * with structured data + LaTeX/PDF). Register globally from the CV queries aggregator.
+ */
 export class CvGenerationSingleQueryModule extends ConfigurableModuleClass {}

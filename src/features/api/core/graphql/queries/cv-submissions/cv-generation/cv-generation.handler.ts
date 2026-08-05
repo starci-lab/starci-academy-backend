@@ -38,6 +38,12 @@ const VALID_SEVERITIES: ReadonlyArray<string> = Object.values(SubmissionFeedback
 
 @QueryHandler(CvGenerationQuery)
 @Injectable()
+/**
+ * Loads one CV generation run owned by the caller, resolving LaTeX text and
+ * presigned PDF/upload URLs server-side so the FE never talks to MinIO.
+ * Missing id or another user's row throws {@link CvGenerationNotFoundException}.
+ * Malformed `feedback` jsonb degrades to an empty item list.
+ */
 export class CvGenerationHandler
     extends ICQRSHandler<CvGenerationQuery, CvGenerationPayload>
     implements IQueryHandler<CvGenerationQuery, CvGenerationPayload> {

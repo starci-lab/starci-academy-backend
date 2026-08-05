@@ -61,6 +61,11 @@ const INDEX_MAP: Record<IndexSearchType, IndexSearchCatalogEntry> = {
 
 @QueryHandler(IndexSearchQuery)
 @Injectable()
+/**
+ * Fuzzy-searches one ES catalog index (bool_prefix + fuzziness) and hydrates
+ * each hit's ancestor displayIds from the sync-indexer parent-index cache so
+ * the client can deep-link without a second query.
+ */
 export class IndexSearchHandler
     extends ICQRSHandler<IndexSearchQuery, IndexSearchData>
     implements IQueryHandler<IndexSearchQuery, IndexSearchData> {

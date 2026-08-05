@@ -13,7 +13,11 @@ import {
 @ObjectType({
     description: "Response wrapper for the challenge query.",
 })
-export class ChallengeResponse
+/**
+ * Envelope for `challenge`. Missing or premium-locked challenges throw from
+ * the handler rather than returning a null `data` payload.
+ */
+export class ChallengeResponse {
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChallengeEntity>
 {

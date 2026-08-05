@@ -10,14 +10,14 @@ import {
     MockInterviewAttemptItem,
 } from "../../my-mock-interview-attempts/graphql-types"
 
+@ObjectType({
+    description: "Response wrapper for the myMockInterviewAttemptBySessionId query.",
+})
 /**
  * Response wrapper for the myMockInterviewAttemptBySessionId query — `data` is
  * `null` when no GRADED attempt exists yet for that session (still in
  * progress, or the session id doesn't belong to the viewer/course at all).
  */
-@ObjectType({
-    description: "Response wrapper for the myMockInterviewAttemptBySessionId query.",
-})
 export class MyMockInterviewAttemptBySessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MockInterviewAttemptItem>

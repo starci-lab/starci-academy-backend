@@ -34,6 +34,9 @@ import {
 } from "@modules/keycloak"
 
 @Resolver()
+/**
+ * GraphQL surface for `savedContents` — authenticated paginated favorites list.
+ */
 export class SavedContentsResolver {
     constructor(
         private readonly savedContentsService: SavedContentsService,

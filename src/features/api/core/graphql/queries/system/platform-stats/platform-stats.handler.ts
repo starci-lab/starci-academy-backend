@@ -30,6 +30,10 @@ import {
 
 @QueryHandler(PlatformStatsQuery)
 @Injectable()
+/**
+ * Counts distinct enrolled learners, lessons, courses, and earned badges in
+ * parallel for the public landing-page stats strip.
+ */
 export class PlatformStatsHandler
     extends ICQRSHandler<PlatformStatsQuery, PlatformStatsData>
     implements IQueryHandler<PlatformStatsQuery, PlatformStatsData>

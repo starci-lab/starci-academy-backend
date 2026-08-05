@@ -19,6 +19,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Dispatches `FoundationCategorySuggestionsQuery` onto the CQRS bus; `query`
+ * wraps the resolver's locale + request into the shared execute params.
+ */
 export class FoundationCategorySuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

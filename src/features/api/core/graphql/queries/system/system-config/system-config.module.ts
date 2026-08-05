@@ -21,5 +21,6 @@ import {
         SystemConfigHandler,
     ],
 })
+/** Feature-module boundary for the public `systemConfig` query. */
 export class SystemConfigSingleQueryModule
     extends ConfigurableModuleClass {}

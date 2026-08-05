@@ -15,12 +15,12 @@ import {
     MyPickableCvAchievementsViewData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin CQRS dispatch for `myPickableCvAchievements` — the CV block editor's
  * "pick from StarCi" data source. Delegates entirely to
  * {@link MyPickableCvAchievementsHandler} via the query bus.
  */
-@Injectable()
 export class MyPickableCvAchievementsService {
     constructor(
         private readonly queryBus: QueryBus,

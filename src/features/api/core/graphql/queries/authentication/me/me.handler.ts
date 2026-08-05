@@ -18,6 +18,8 @@ import {
     MeQuery,
 } from "./me.query"
 
+@QueryHandler(MeQuery)
+@Injectable()
 /**
  * Handles the `me` query: returns the authenticated user from the
  * request context and (optionally) fires side-effect events.
@@ -30,8 +32,6 @@ import {
  *   - The query/command is passed via `execute(query)` (NOT the
  *     constructor). Only true dependencies are injected.
  */
-@QueryHandler(MeQuery)
-@Injectable()
 export class MeHandler
     extends ICQRSHandler<MeQuery, UserEntity>
     implements IQueryHandler<MeQuery, UserEntity> {

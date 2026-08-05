@@ -8,10 +8,10 @@ import {
     CodingProblemHintResolver,
 } from "./coding-problem-hint.resolver"
 
-/** Wires the `codingProblemHint` query resolver as its own registrable module. */
 @Module({
     providers: [
         CodingProblemHintResolver,
     ],
 })
+/** Wires the `codingProblemHint` query resolver as its own registrable module. */
 export class CodingProblemHintSingleQueryModule extends ConfigurableModuleClass {}

@@ -25,6 +25,10 @@ import {
 } from "./ai-models.service"
 
 @Resolver()
+/**
+ * Public GraphQL entry for `aiModels` — returns the recommendation tier, per-
+ * task active models, and the selectable grading roster.
+ */
 export class AiModelsResolver {
     constructor(
         private readonly service: AiModelsService,

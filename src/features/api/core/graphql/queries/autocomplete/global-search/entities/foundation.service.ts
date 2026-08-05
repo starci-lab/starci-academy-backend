@@ -12,6 +12,7 @@ import {
     FoundationEntity,
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Service for performing global search on foundation items.
  *
@@ -19,7 +20,6 @@ import {
  * field, so it pairs a `match_phrase_prefix` (as-you-type prefixing) with a
  * fuzzy `multi_match` over `title`/`description`.
  */
-@Injectable()
 export class FoundationGlobalSearchService {
     /** The number of words to include around the match in a snippet. */
     private readonly snippetWindowWords = 4

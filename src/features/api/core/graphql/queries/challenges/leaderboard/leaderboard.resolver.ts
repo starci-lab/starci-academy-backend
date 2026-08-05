@@ -33,6 +33,10 @@ import {
 } from "./leaderboard.service"
 
 @Resolver()
+/**
+ * GraphQL entry for `courseLeaderboard`: cached top entries plus the viewer's
+ * rank, even when they sit outside the top window.
+ */
 export class LeaderboardResolver {
     constructor(
         private readonly service: LeaderboardSingleQueryService,

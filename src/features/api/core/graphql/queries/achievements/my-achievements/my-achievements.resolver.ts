@@ -35,6 +35,7 @@ import {
     MyAchievementsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Profile query: every achievement with the viewer's earned status + live
  * progress, PLUS the subset newly earned on this read (award-on-read) so the
@@ -43,7 +44,6 @@ import {
  * name/description to the request locale. Badge art is fetched from MinIO via
  * `iconKey`.
  */
-@Resolver()
 export class MyAchievementsResolver {
     constructor(
         private readonly achievementsService: AchievementsService,

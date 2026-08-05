@@ -10,6 +10,9 @@ import {
     PlaygroundEntity,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "Response wrapper for the playground query.",
+})
 /**
  * Response wrapper for the playground query.
  *
@@ -18,9 +21,6 @@ import {
  * `verifyResourceNamePattern` / `verifyExpectedStatus`) are plain `@Column`s
  * with no `@Field`, so they never reach the client.
  */
-@ObjectType({
-    description: "Response wrapper for the playground query.",
-})
 export class PlaygroundResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<PlaygroundEntity>

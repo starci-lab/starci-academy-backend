@@ -7,12 +7,12 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/**
- * Foundations response data.
- */
 @ObjectType({
     description: "Response data for foundations query.",
 })
+/**
+ * Foundations response data.
+ */
 export class FoundationsResponseData {
     /**
      * The total count.
@@ -39,12 +39,12 @@ export class FoundationsResponseData {
         data: Array<FoundationEntity>
 }
 
-/**
- * Foundations response payload.
- */
 @ObjectType({
     description: "Response for foundations query.",
 })
+/**
+ * Foundations response payload.
+ */
 export class FoundationsResponse {
     /**
      * The response data.

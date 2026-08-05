@@ -7,12 +7,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * One autocomplete suggestion (a foundation category).
- */
 @ObjectType({
     description: "A single foundation category autocomplete suggestion.",
 })
+/**
+ * One autocomplete suggestion (a foundation category).
+ */
 export class FoundationCategorySuggestionItem {
     /** Category id (used to deep-link / select on the client). */
     @Field(
@@ -33,14 +33,13 @@ export class FoundationCategorySuggestionItem {
         label: string
 }
 
-/**
- * Payload of foundation category autocomplete suggestions.
- */
 @ObjectType({
     description: "Foundation category autocomplete suggestions, best match first.",
 })
+/**
+ * Payload of foundation category autocomplete suggestions.
+ */
 export class FoundationCategorySuggestionsPayload {
-    /** The matching suggestions, ordered by relevance then display index. */
     @Field(
         () => [FoundationCategorySuggestionItem],
         {
@@ -53,6 +52,7 @@ export class FoundationCategorySuggestionsPayload {
 @ObjectType({
     description: "Response wrapper for the foundationCategorySuggestions query.",
 })
+    /** The matching suggestions, ordered by relevance then display index. */
 export class FoundationCategorySuggestionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<FoundationCategorySuggestionsPayload>

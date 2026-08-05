@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Per-grade (Again/Hard/Good/Easy) tally of one session's review events.",
+})
 /**
  * Per-SM-2-grade tally of the events graded within one review session
  * (Again/Hard/Good/Easy = grade 0/1/2/3). All zero in the degraded case (a
  * session whose events carry no `sessionId`).
  */
-@ObjectType({
-    description: "Per-grade (Again/Hard/Good/Easy) tally of one session's review events.",
-})
 export class FlashcardReviewSessionGradeCountsData {
     @Field(
         () => Int,
@@ -51,14 +51,14 @@ export class FlashcardReviewSessionGradeCountsData {
         easy: number
 }
 
+@ObjectType({
+    description: "A technology tag the learner forgot on this session, with its forgot count.",
+})
 /**
  * One weak-tag row — a technology tag the learner forgot ("Again") on during
  * this session, with the number of times. Feeds the FE weak-tags chips + the
  * RAG "study this" query.
  */
-@ObjectType({
-    description: "A technology tag the learner forgot on this session, with its forgot count.",
-})
 export class FlashcardReviewSessionWeakTagData {
     @Field(
         () => String,
@@ -77,6 +77,9 @@ export class FlashcardReviewSessionWeakTagData {
         forgotCount: number
 }
 
+@ObjectType({
+    description: "Computed recap (per-grade breakdown, weak-tags, duration, xp, next due) for one flashcard review session.",
+})
 /**
  * Computed recap for ONE flashcard review session, resolved by its id alone
  * (either kind — single-deck review or cross-deck due-review) REGARDLESS of
@@ -88,9 +91,6 @@ export class FlashcardReviewSessionWeakTagData {
  * `gradeCounts` are all zero, `weakTags` is empty, `durationSeconds` is null —
  * so the FE renders a count-only fallback instead of erroring.
  */
-@ObjectType({
-    description: "Computed recap (per-grade breakdown, weak-tags, duration, xp, next due) for one flashcard review session.",
-})
 export class MyFlashcardReviewSessionStatsBySessionIdData {
     @Field(
         () => ID,
@@ -159,13 +159,13 @@ export class MyFlashcardReviewSessionStatsBySessionIdData {
         weakTags: Array<FlashcardReviewSessionWeakTagData>
 }
 
+@ObjectType({
+    description: "Response wrapper for the myFlashcardReviewSessionStatsBySessionId query.",
+})
 /**
  * Response wrapper for the myFlashcardReviewSessionStatsBySessionId query —
  * `data` is `null` when the session id is not found / not owned by the caller.
  */
-@ObjectType({
-    description: "Response wrapper for the myFlashcardReviewSessionStatsBySessionId query.",
-})
 export class MyFlashcardReviewSessionStatsBySessionIdResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyFlashcardReviewSessionStatsBySessionIdData>

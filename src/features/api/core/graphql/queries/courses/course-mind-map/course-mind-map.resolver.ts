@@ -27,10 +27,10 @@ import {
     CourseMindMapService,
 } from "./course-mind-map.service"
 
+@Resolver()
 /**
  * GraphQL resolver exposing the computed course mind-map graph (`@xyflow/react` nodes + edges).
  */
-@Resolver()
 export class CourseMindMapResolver {
     constructor(
         private readonly courseMindMapService: CourseMindMapService,

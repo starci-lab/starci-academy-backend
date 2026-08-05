@@ -44,6 +44,7 @@ interface PresentPillar {
     weight: number
 }
 
+@Injectable()
 /**
  * Composes a learner's job-readiness as a PORTFOLIO of independent verified
  * tracks plus one global foundation — deliberately NEVER a single blended
@@ -63,7 +64,6 @@ interface PresentPillar {
  * Keyed purely by `userId`, so it serves both the viewer's own profile and a
  * recruiter viewing someone else's.
  */
-@Injectable()
 export class JobReadinessService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

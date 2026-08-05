@@ -12,6 +12,7 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/** Thin bridge from the `myGithubTeamStatus` resolver to its handler. */
 export class MyGithubTeamStatusService {
     constructor(
         private readonly handler: MyGithubTeamStatusHandler,

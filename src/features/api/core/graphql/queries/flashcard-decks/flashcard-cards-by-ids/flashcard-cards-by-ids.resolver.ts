@@ -35,6 +35,7 @@ import {
 /** Hard cap on how many ids one call may request. */
 const MAX_IDS = 100
 
+@Resolver()
 /**
  * Flashcards fetched by an EXACT set of ids, regardless of current due status —
  * rehydrates a resumable `DueReview` batch to its original draw (see
@@ -42,7 +43,6 @@ const MAX_IDS = 100
  * resume: a card graded since the batch was drawn is no longer "due" and would
  * silently drop out of a `myDueFlashcards`-filtered resume).
  */
-@Resolver()
 export class FlashcardCardsByIdsResolver {
     constructor(
         private readonly flashcardReviewService: FlashcardReviewService,

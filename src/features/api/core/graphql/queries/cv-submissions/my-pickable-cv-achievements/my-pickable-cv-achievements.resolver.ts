@@ -31,11 +31,11 @@ import {
     MyPickableCvAchievementsService,
 } from "./my-pickable-cv-achievements.service"
 
+@Resolver()
 /**
  * Resolver for the authenticated user's pickable StarCi achievements — the CV
  * block editor's "pick from StarCi" data source.
  */
-@Resolver()
 export class MyPickableCvAchievementsResolver {
     constructor(
         private readonly myPickableCvAchievementsService: MyPickableCvAchievementsService,

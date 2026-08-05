@@ -15,6 +15,9 @@ import {
     JobReadinessTrackItem,
 } from "../../job-readiness/graphql-types"
 
+@ObjectType({
+    description: "A recruiter-marketplace candidate ranked within a single filtered track.",
+})
 /**
  * One ranked candidate on the recruiter marketplace — the open-to-work user plus
  * their readiness card for the ONE filtered track. The `track` is a
@@ -22,9 +25,6 @@ import {
  * show the same `band` / `isQualified` badges it shows on a profile — a
  * qualitative signal, never a raw cross-track composite number.
  */
-@ObjectType({
-    description: "A recruiter-marketplace candidate ranked within a single filtered track.",
-})
 export class TalentCandidateItem {
     @Field(
         () => UserEntity,
@@ -51,14 +51,14 @@ export class TalentCandidateItem {
         verificationLevel: CvVerificationLevel
 }
 
+@ObjectType({
+    description: "Response wrapper for the talentCandidates query.",
+})
 /**
  * Response wrapper for the `talentCandidates` query — a page of open-to-work
  * candidates for ONE track, ranked by that track's `depthScore` DESC (never a
  * blended cross-track score).
  */
-@ObjectType({
-    description: "Response wrapper for the talentCandidates query.",
-})
 export class TalentCandidatesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<TalentCandidateItem>> {

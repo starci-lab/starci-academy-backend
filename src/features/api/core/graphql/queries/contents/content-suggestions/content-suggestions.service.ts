@@ -18,13 +18,13 @@ import {
     ContentSuggestionsQuery,
 } from "./content-suggestions.query"
 
+@Injectable()
 /**
  * Thin service that dispatches the content suggest query onto the CQRS bus.
  *
  * Mirrors the foundations precedent: the resolver passes locale + request here,
  * this builds the query object and lets {@link ContentSuggestionsHandler} resolve it.
  */
-@Injectable()
 export class ContentSuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

@@ -41,6 +41,7 @@ const DEFAULT_LIMIT = 6
 /** Upper bound so the client can never ask for an unbounded list. */
 const MAX_LIMIT = 20
 
+@Resolver()
 /**
  * Explore-feed discovery: the lessons read most across the platform in the last 7
  * days ("trending this week"). Reads the materialised top-N board from the CQRS
@@ -48,7 +49,6 @@ const MAX_LIMIT = 20
  * request); the projection also drops lessons the viewer already read so trending
  * reflects the crowd. Each item is a route-index token resolved on click.
  */
-@Resolver()
 export class TrendingContentsResolver {
     constructor(
         private readonly trendingContentsProjectionService: TrendingContentsProjectionService,

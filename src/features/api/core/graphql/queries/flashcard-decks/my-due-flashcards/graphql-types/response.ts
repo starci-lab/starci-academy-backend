@@ -12,12 +12,12 @@ import {
     FlashcardNextIntervalsObject,
 } from "@modules/databases"
 
-/**
- * One due flashcard in the spaced-repetition queue, localized.
- */
 @ObjectType({
     description: "A due flashcard (localized front/back + deck title).",
 })
+/**
+ * One due flashcard in the spaced-repetition queue, localized.
+ */
 export class DueFlashcardObject {
     @Field(
         () => ID,
@@ -77,12 +77,12 @@ export class DueFlashcardObject {
         nextIntervals: FlashcardNextIntervalsObject
 }
 
-/**
- * The viewer's due-flashcard queue: total due count + first page of cards.
- */
 @ObjectType({
     description: "Due-flashcard queue (count + first page of cards).",
 })
+/**
+ * The viewer's due-flashcard queue: total due count + first page of cards.
+ */
 export class MyDueFlashcardsData {
     @Field(
         () => Int,
@@ -126,12 +126,12 @@ export class MyDueFlashcardsData {
         cards: Array<DueFlashcardObject>
 }
 
-/**
- * Response wrapper for the myDueFlashcards query.
- */
 @ObjectType({
     description: "Response wrapper for the myDueFlashcards query.",
 })
+/**
+ * Response wrapper for the myDueFlashcards query.
+ */
 export class MyDueFlashcardsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyDueFlashcardsData> {

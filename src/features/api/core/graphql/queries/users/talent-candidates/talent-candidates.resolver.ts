@@ -34,6 +34,7 @@ import {
 /** Hard cap on page size to bound the ranking query regardless of client input. */
 const MAX_LIMIT = 48
 
+@Resolver()
 /**
  * Recruiter marketplace query: open-to-work candidates FILTERED to ONE track
  * (course) and RANKED by that track's `depthScore` DESC. Optional auth — anyone
@@ -46,7 +47,6 @@ const MAX_LIMIT = 48
  * track's `band` / `isQualified` so the FE shows qualitative badges, not just a
  * raw number.
  */
-@Resolver()
 export class TalentCandidatesResolver {
     constructor(
         private readonly talentCandidatesService: TalentCandidatesService,

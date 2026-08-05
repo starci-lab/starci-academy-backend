@@ -18,6 +18,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Dispatches `CourseQuery` onto the CQRS bus. */
 export class CourseService {
     constructor(
         private readonly queryBus: QueryBus,

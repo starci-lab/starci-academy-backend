@@ -8,15 +8,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A user's derived challenge-strength percentile + global rank.",
+})
 /**
  * A user's DERIVED challenge-strength standing — a percentile + 1-based global
  * rank by a difficulty-weighted sum of their distinct passed challenges. Purely
  * derived: it does NOT touch the points / XP / league economy. Both fields are
  * null when the user has no passes (unranked).
  */
-@ObjectType({
-    description: "A user's derived challenge-strength percentile + global rank.",
-})
 export class ChallengeStrengthObject {
     @Field(
         () => Int,
@@ -45,15 +45,15 @@ export class ChallengeStrengthObject {
         xp: number
 }
 
+@ObjectType({
+    description: "Response wrapper for the userChallengeStrength query.",
+})
 /**
  * Response wrapper for the userChallengeStrength query.
  *
  * Carries the derived challenge-strength standing ({@link ChallengeStrengthObject}),
  * nullable when the user has no passes (unranked).
  */
-@ObjectType({
-    description: "Response wrapper for the userChallengeStrength query.",
-})
 export class UserChallengeStrengthResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChallengeStrengthObject | null> {

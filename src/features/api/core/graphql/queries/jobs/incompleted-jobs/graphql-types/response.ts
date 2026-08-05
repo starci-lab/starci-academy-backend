@@ -12,10 +12,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** An incompleted job row exposed as job id and status only (no payload). */
 @ObjectType({
     description: "An incompleted job row exposed as job id and status only (no payload).",
 })
+/** An incompleted job row exposed as job id and status only (no payload). */
 export class IncompletedJobItem {
     @Field(
         () => ID,
@@ -34,10 +34,10 @@ export class IncompletedJobItem {
         status: JobStatus
 }
 
-/** Flat list of incompleted jobs for the user (challenge submission pipelines). */
 @ObjectType({
     description: "Flat list of incompleted jobs for the user (challenge submission pipelines).",
 })
+/** Flat list of incompleted jobs for the user (challenge submission pipelines). */
 export class IncompletedJobsResponseData {
     @Field(
         () => [IncompletedJobItem],
@@ -49,10 +49,10 @@ export class IncompletedJobsResponseData {
         items: Array<IncompletedJobItem>
 }
 
-/** Response wrapper for incompleted jobs. */
 @ObjectType({
     description: "Response wrapper for incompleted jobs.",
 })
+/** Response wrapper for incompleted jobs. */
 export class IncompletedJobsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<IncompletedJobsResponseData>

@@ -33,4 +33,8 @@ import {
         IndexSearchHandler,
     ],
 })
+/**
+ * Feature-module boundary for the `indexSearch` query — wires resolver + service +
+ * handler and imports Elasticsearch + Cache locally (not assumed global here).
+ */
 export class IndexSearchSingleQueryModule extends ConfigurableModuleClass {}

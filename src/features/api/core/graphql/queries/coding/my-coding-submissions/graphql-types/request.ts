@@ -4,10 +4,10 @@ import {
     Int,
 } from "@nestjs/graphql"
 
-/** Request for paging the current user's submissions to one problem. */
 @InputType({
     description: "Page the current user's submissions for a problem.",
 })
+/** Request for paging the current user's submissions to one problem. */
 export class MyCodingSubmissionsRequest {
     /** Slug of the problem to fetch submissions for. */
     @Field(

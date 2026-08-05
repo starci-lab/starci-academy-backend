@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request to fetch a single community post by id. */
 @InputType({
     description: "Request to fetch a single community post by id.",
 })
+/** Request to fetch a single community post by id. */
 export class CommunityPostRequest {
     /** Id of the post to fetch. */
     @Field(

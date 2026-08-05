@@ -13,4 +13,5 @@ import {
         MyLearningFeedbacksResolver,
     ],
 })
+/** Feature-module boundary for the `myLearningFeedbacks` query — wires its resolver. */
 export class MyLearningFeedbacksSingleQueryModule extends ConfigurableModuleClass {}

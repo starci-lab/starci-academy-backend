@@ -33,6 +33,10 @@ import {
 } from "./user-milestone-task-feedbacks.service"
 
 @Resolver()
+/**
+ * GraphQL surface for `userMilestoneTaskFeedbacks` — authenticated feedback page
+ * for the caller's own latest milestone-task attempt.
+ */
 export class UserMilestoneTaskFeedbacksResolver {
     constructor(
         private readonly service: UserMilestoneTaskFeedbacksService,

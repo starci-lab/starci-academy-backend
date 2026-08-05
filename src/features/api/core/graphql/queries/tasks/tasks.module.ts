@@ -21,4 +21,8 @@ import {
         }),
     ],
 })
+/**
+ * Milestone-task query group: the enrolled `task` detail page plus
+ * `milestoneTaskSuggestions` typeahead for editors and search.
+ */
 export class TasksQueriesModule extends ConfigurableModuleClass {}

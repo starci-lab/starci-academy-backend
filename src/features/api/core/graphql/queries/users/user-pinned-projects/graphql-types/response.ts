@@ -10,13 +10,13 @@ import {
     UserPinnedProjectItemData,
 } from "./item"
 
+@ObjectType({
+    description: "Response wrapper for the userPinnedProjects query.",
+})
 /**
  * Response wrapper for the userPinnedProjects query: the named user's pinned
  * projects ordered by `orderIndex`.
  */
-@ObjectType({
-    description: "Response wrapper for the userPinnedProjects query.",
-})
 export class UserPinnedProjectsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<UserPinnedProjectItemData>> {

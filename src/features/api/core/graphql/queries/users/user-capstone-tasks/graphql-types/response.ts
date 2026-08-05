@@ -8,14 +8,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A passed capstone (milestone) task on a user's profile.",
+})
 /**
  * One passed capstone (personal-project milestone) task on a user's profile —
  * a verified piece of project work: the task + its milestone + course, the score,
  * and when it was passed. Deduped to one row per task (the latest passing attempt).
  */
-@ObjectType({
-    description: "A passed capstone (milestone) task on a user's profile.",
-})
 export class UserCapstoneTaskItemData {
     @Field(
         () => String,
@@ -67,12 +67,12 @@ export class UserCapstoneTaskItemData {
         passedAt: Date | null
 }
 
-/**
- * Response wrapper for the userCapstoneTasks query.
- */
 @ObjectType({
     description: "Response wrapper for the userCapstoneTasks query.",
 })
+/**
+ * Response wrapper for the userCapstoneTasks query.
+ */
 export class UserCapstoneTasksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<UserCapstoneTaskItemData>> {

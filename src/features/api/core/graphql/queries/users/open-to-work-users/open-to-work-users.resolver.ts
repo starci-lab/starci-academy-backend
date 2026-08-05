@@ -34,6 +34,7 @@ import {
 /** Hard cap on page size to bound the directory query regardless of client input. */
 const MAX_LIMIT = 48
 
+@Resolver()
 /**
  * Public "talent directory" query: users who opted into "open to work", newest
  * first, for recruiters / headhunters to browse. Optional auth — anyone may
@@ -41,7 +42,6 @@ const MAX_LIMIT = 48
  * profile-visibility guard: it lists only the public header fields, and each card
  * links to the user's profile (which enforces its own lock). Offset-paginated.
  */
-@Resolver()
 export class OpenToWorkUsersResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

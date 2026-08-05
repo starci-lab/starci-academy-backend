@@ -37,12 +37,12 @@ import {
     MyDueFlashcardsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Spaced-repetition queue: the viewer's due flashcards (no review row yet OR past
  * due) across the decks of their enrolled courses, localized. Delegates the join
  * + localization to {@link FlashcardReviewService}.
  */
-@Resolver()
 export class MyDueFlashcardsResolver {
     constructor(
         private readonly flashcardReviewService: FlashcardReviewService,

@@ -15,9 +15,13 @@ import {
 
 /** Sort fields for listing submission feedbacks. */
 export enum UserChallengeSubmissionFeedbacksSortBy {
+    /** Default (Asc): scorer-written display order — reading order on the attempt. */
     SortIndex = "sortIndex",
+    /** Groups by severity so critical items can surface before nits. */
     Severity = "severity",
+    /** Chronological write time of each feedback item. */
     CreatedAt = "createdAt",
+    /** Recently edited feedback first when Desc. */
     UpdatedAt = "updatedAt",
 }
 
@@ -47,6 +51,10 @@ registerEnumType(GraphQLTypeUserChallengeSubmissionFeedbacksSortBy,
 @InputType({
     description: "Sort field and order for listing submission feedbacks.",
 })
+/**
+ * One sort key for attempt feedback. Default on the filters is SortIndex Asc
+ * (scorer display order).
+ */
 export class UserChallengeSubmissionFeedbacksRequestSort extends SortInput<UserChallengeSubmissionFeedbacksSortBy> {
     @Field(
         () => GraphQLTypeUserChallengeSubmissionFeedbacksSortBy,
@@ -60,6 +68,10 @@ export class UserChallengeSubmissionFeedbacksRequestSort extends SortInput<UserC
 @InputType({
     description: "Pagination, sort, and filters for listing submission feedbacks.",
 })
+/**
+ * Page + sort for `userChallengeSubmissionFeedbacks`. Missing page/limit use
+ * the API pagination defaults.
+ */
 export class UserChallengeSubmissionFeedbacksRequestPaginationFilters extends PaginationPageFilters<UserChallengeSubmissionFeedbacksSortBy> {
     @Field(
         () => [UserChallengeSubmissionFeedbacksRequestSort],
@@ -79,6 +91,11 @@ export class UserChallengeSubmissionFeedbacksRequestPaginationFilters extends Pa
 @InputType({
     description: "Request for listing submission feedbacks with pagination.",
 })
+/**
+ * Paginated scorer feedback for one submission attempt. `submissionAttemptId`
+ * is optional on the input type but the handler filters by it — omit it and
+ * the where-clause matches a null attempt id (empty page).
+ */
 export class UserChallengeSubmissionFeedbacksRequest {
     @Field(
         () => ID,

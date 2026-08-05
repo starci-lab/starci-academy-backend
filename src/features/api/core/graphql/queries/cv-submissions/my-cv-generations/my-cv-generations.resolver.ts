@@ -34,6 +34,10 @@ import {
 } from "./my-cv-generations.service"
 
 @Resolver()
+/**
+ * GraphQL entry for `myCvGenerations`: paginated lightweight history of the
+ * caller's CV runs. Detail fields are fetched separately via `cvGeneration`.
+ */
 export class MyCvGenerationsResolver {
     constructor(
         private readonly myCvGenerationsService: MyCvGenerationsService,

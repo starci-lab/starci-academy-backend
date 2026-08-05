@@ -10,13 +10,13 @@ import {
     WorkMode,
 } from "@modules/databases"
 
+@InputType({
+    description: "Request for listing job postings (public, no auth required).",
+})
 /**
  * Request for the public `jobPostings` list query. All filters are optional;
  * omitting them returns every posting, newest first.
  */
-@InputType({
-    description: "Request for listing job postings (public, no auth required).",
-})
 export class JobPostingsRequest {
     @Field(
         () => Int,

@@ -14,6 +14,8 @@ import {
     HeadhuntingCompanySuggestionsQuery,
 } from "./headhunting-company-suggestions.query"
 
+@QueryHandler(HeadhuntingCompanySuggestionsQuery)
+@Injectable()
 /**
  * Headhunting company autocomplete (typeahead) handler.
  *
@@ -22,8 +24,6 @@ import {
  * base resolves the per-locale `headhunting-companies-*` index and queries its
  * FST-backed `suggest` field (ranked by weight, de-duplicated, fuzzy/typo-tolerant).
  */
-@QueryHandler(HeadhuntingCompanySuggestionsQuery)
-@Injectable()
 export class HeadhuntingCompanySuggestionsHandler
     extends AbstractSuggestionsHandler<HeadhuntingCompanySuggestionsQuery> {
     /** Drives index resolution to the headhunting-companies indices. */

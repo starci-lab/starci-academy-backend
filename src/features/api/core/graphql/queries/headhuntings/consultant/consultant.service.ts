@@ -17,10 +17,10 @@ import {
     ConsultantRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Service for the single Headhunter query.
  */
-@Injectable()
 export class ConsultantService {
     constructor(
         private readonly queryBus: QueryBus,

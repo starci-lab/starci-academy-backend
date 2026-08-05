@@ -16,6 +16,7 @@ import type {
     MyFlashcardReviewHistoryResultData,
 } from "./types"
 
+@Injectable()
 /**
  * Reads back the viewer's completed flashcard review ("Học thẻ") sessions for
  * one course, newest first, so the recap/history surface can list past runs
@@ -23,7 +24,6 @@ import type {
  * structure (plain query service, no CQRS command bus), minus the
  * mode/level/coverage/weakTags snapshot fields (cloze-quiz-only concepts).
  */
-@Injectable()
 export class MyFlashcardReviewHistoryService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

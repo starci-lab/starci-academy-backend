@@ -8,12 +8,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * One day in the "last 7 days" streak strip (oldest → today).
- */
 @ObjectType({
     description: "A day in the last-7-days streak strip.",
 })
+/**
+ * One day in the "last 7 days" streak strip (oldest → today).
+ */
 export class MyWeeklyStatsDayData {
     @Field(
         () => String,
@@ -32,14 +32,14 @@ export class MyWeeklyStatsDayData {
         active: boolean
 }
 
+@ObjectType({
+    description: "Streak + rolling 7-day activity stats.",
+})
 /**
  * The viewer's recent-activity stats for the streak strip. The current + longest
  * consecutive-day streaks plus the last 7 days (active flags) and rolling XP /
  * lessons — all read from the user-stats projection (never computed inline).
  */
-@ObjectType({
-    description: "Streak + rolling 7-day activity stats.",
-})
 export class MyWeeklyStatsData {
     @Field(
         () => Int,
@@ -99,12 +99,12 @@ export class MyWeeklyStatsData {
         streakFreezes: number
 }
 
-/**
- * Response wrapper for the myWeeklyStats query.
- */
 @ObjectType({
     description: "Response wrapper for the myWeeklyStats query.",
 })
+/**
+ * Response wrapper for the myWeeklyStats query.
+ */
 export class MyWeeklyStatsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyWeeklyStatsData> {

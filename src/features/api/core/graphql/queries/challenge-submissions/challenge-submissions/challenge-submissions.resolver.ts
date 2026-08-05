@@ -33,6 +33,10 @@ import {
     ChallengeSubmissionsService,
 } from "./challenge-submissions.service"
 @Resolver()
+/**
+ * GraphQL entry for `challengeSubmissions`: unpaginated slots on one challenge,
+ * each carrying the caller's join row + latest attempt when present.
+ */
 export class ChallengeSubmissionsResolver {
     constructor(
         private readonly challengeSubmissionsService: ChallengeSubmissionsService,

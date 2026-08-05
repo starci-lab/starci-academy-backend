@@ -15,11 +15,11 @@ import {
     MilestoneTaskProgressResponseData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin wrapper dispatching {@link MilestoneTaskProgressQuery} onto the CQRS
  * query bus, so the resolver stays free of CQRS wiring.
  */
-@Injectable()
 export class MilestoneTaskProgressService {
     constructor(
         private readonly queryBus: QueryBus,

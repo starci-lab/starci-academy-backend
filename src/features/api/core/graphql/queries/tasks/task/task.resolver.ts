@@ -42,6 +42,11 @@ import {
 } from "@modules/cache"
 
 @Resolver(() => MilestoneTaskEntity)
+/**
+ * Authenticated `task` query for the milestone-task detail page. Requires
+ * enrolment (`GraphQLMustEnrolledGuard`) and is cached by task id so
+ * repeat opens of the same task skip the S3 round-trip.
+ */
 export class TaskResolver {
     constructor(
         private readonly taskService: TaskService,

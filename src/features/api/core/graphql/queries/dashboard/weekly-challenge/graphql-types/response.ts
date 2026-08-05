@@ -8,12 +8,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * One weekly-challenge leaderboard entry: a user who passed it this week.
- */
 @ObjectType({
     description: "A user who passed the weekly challenge this week.",
 })
+/**
+ * One weekly-challenge leaderboard entry: a user who passed it this week.
+ */
 export class WeeklyChallengeEntryObject {
     @Field(
         () => String,
@@ -41,12 +41,12 @@ export class WeeklyChallengeEntryObject {
         passedAt: Date
 }
 
-/**
- * The current ISO week's challenge event (auto-rotated, read-only).
- */
 @ObjectType({
     description: "The current week's auto-rotated challenge event.",
 })
+/**
+ * The current ISO week's challenge event (auto-rotated, read-only).
+ */
 export class WeeklyChallengeObject {
     @Field(
         () => String,
@@ -115,13 +115,13 @@ export class WeeklyChallengeObject {
         coinReward: number | null
 }
 
+@ObjectType({
+    description: "Response wrapper for the weeklyChallenge query.",
+})
 /**
  * Response wrapper for the weeklyChallenge query (data is nullable — null when
  * there are no challenges to rotate over).
  */
-@ObjectType({
-    description: "Response wrapper for the weeklyChallenge query.",
-})
 export class WeeklyChallengeResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<WeeklyChallengeObject> {

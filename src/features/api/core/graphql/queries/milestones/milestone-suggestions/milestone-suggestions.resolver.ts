@@ -25,10 +25,10 @@ import {
     MilestoneSuggestionsService,
 } from "./milestone-suggestions.service"
 
+@Resolver()
 /**
  * GraphQL resolver exposing the `milestoneSuggestions` autocomplete (typeahead) query.
  */
-@Resolver()
 export class MilestoneSuggestionsResolver {
     constructor(
         private readonly milestoneSuggestionsService: MilestoneSuggestionsService,

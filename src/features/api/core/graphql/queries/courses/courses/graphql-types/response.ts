@@ -34,12 +34,10 @@ export class CoursesResponseData
 
 
 
-/** GraphQL envelope for the courses query. */
-
 @ObjectType({
     description: "Response wrapper for the courses query.",
 })
-
+/** GraphQL envelope for the courses query. */
 export class CoursesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CoursesResponseData>

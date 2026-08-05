@@ -8,10 +8,10 @@ import {
     GraphQLTypeCommunityChannel,
 } from "@modules/databases"
 
-/** Cursor-paginated request for the community feed. */
 @InputType({
     description: "Cursor-paginated request for the community feed.",
 })
+/** Cursor-paginated request for the community feed. */
 export class CommunityFeedRequest {
     /** Channel to scope to; omit/null to read across all channels. */
     @Field(

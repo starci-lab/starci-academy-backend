@@ -15,11 +15,11 @@ import {
     MyCourseOutlineRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin service for the myCourseOutline query: dispatches the assembly work to the
  * CQRS handler via the query bus.
  */
-@Injectable()
 export class MyCourseOutlineService {
     constructor(
         private readonly queryBus: QueryBus,

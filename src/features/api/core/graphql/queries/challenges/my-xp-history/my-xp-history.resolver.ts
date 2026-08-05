@@ -39,12 +39,12 @@ import {
 /** Hard ceiling on page size to keep the query cheap. */
 const MAX_LIMIT = 200
 
+@Resolver()
 /**
  * Per-user XP-earning history (newest first), paginated, optionally scoped to one course.
  * Source of truth is `xp_histories`; read directly (not cached) since the history is viewed
  * on demand, not on a hot path.
  */
-@Resolver()
 export class MyXpHistoryResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

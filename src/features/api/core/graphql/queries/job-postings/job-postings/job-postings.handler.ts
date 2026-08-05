@@ -26,13 +26,13 @@ import type {
     JobPostingsData,
 } from "./graphql-types"
 
+@QueryHandler(JobPostingsQuery)
+@Injectable()
 /**
  * Lists job postings from Postgres (newest first), with optional work-mode /
  * employment-type filters and a case-insensitive title search. Public — no
  * auth/enrollment guard, this is an open job board.
  */
-@QueryHandler(JobPostingsQuery)
-@Injectable()
 export class JobPostingsHandler
     extends ICQRSHandler<JobPostingsQuery, JobPostingsData>
     implements IQueryHandler<JobPostingsQuery, JobPostingsData> {

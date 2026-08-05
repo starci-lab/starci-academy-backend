@@ -33,13 +33,13 @@ import {
     MyInProgressFlashcardReviewSessionResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The learner's most recent RESUMABLE flashcard review ("Học thẻ") session
  * for one deck — so the FE can offer "Tiếp tục ôn tập?" instead of forcing a
  * fresh draw. Null when there is none. Mirrors
  * `myInProgressFlashcardQuizSession`, scoped by deck instead of course.
  */
-@Resolver()
 export class MyInProgressFlashcardReviewSessionResolver {
     constructor(
         private readonly flashcardReviewSessionService: FlashcardReviewSessionService,

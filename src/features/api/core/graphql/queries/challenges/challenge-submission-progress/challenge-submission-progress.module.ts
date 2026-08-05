@@ -25,4 +25,9 @@ import {
         ChallengeSubmissionProgressListener,
     ],
 })
+/**
+ * Wires resolver, service, handler, and CDC listener for
+ * `challengeSubmissionProgress` (cached enrollment progress). Registered
+ * globally from {@link ChallengesModule}.
+ */
 export class ChallengeSubmissionProgressSingleQueryModule extends ConfigurableModuleClass {}

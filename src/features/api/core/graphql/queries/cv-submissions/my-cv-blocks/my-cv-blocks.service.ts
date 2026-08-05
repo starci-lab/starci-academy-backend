@@ -18,6 +18,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Dispatches `myCvBlocks` through QueryBus so the resolver never constructs
+ * the CQRS query itself.
+ */
 export class MyCvBlocksService {
     constructor(
         private readonly queryBus: QueryBus,

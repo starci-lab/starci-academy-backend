@@ -30,13 +30,13 @@ import {
     WeeklyChallengeResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The current ISO week's auto-rotated challenge event. Deterministically picks one
  * challenge for the week and reports who passed it this week. Optional auth — an
  * anonymous viewer gets `viewerPassed = false`. Read-only (the rotation is a pure
  * function of the calendar). Delegates to {@link WeeklyChallengeService}.
  */
-@Resolver()
 export class WeeklyChallengeResolver {
     constructor(
         private readonly weeklyChallengeService: WeeklyChallengeService,

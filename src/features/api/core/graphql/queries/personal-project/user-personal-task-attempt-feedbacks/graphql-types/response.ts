@@ -14,6 +14,9 @@ import {
 @ObjectType({
     description: "Paginated list of user personal task attempt feedbacks.",
 })
+/**
+ * Paginated feedback rows for one personal-task attempt id.
+ */
 export class UserPersonalTaskAttemptFeedbacksResponseData {
     @Field(
         () => [UserMilestoneTaskAttemptFeedbackEntity],
@@ -35,6 +38,9 @@ export class UserPersonalTaskAttemptFeedbacksResponseData {
 @ObjectType({
     description: "Response wrapper for the userPersonalTaskAttemptFeedbacks query.",
 })
+/**
+ * Envelope for `userPersonalTaskAttemptFeedbacks` — status metadata plus feedback page.
+ */
 export class UserPersonalTaskAttemptFeedbacksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserPersonalTaskAttemptFeedbacksResponseData>

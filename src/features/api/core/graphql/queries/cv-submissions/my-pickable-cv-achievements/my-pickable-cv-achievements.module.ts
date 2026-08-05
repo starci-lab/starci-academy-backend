@@ -21,4 +21,8 @@ import {
         MyPickableCvAchievementsHandler,
     ],
 })
+/**
+ * Wires resolver, service, and handler for `myPickableCvAchievements` (passed
+ * capstone tasks for the CV block editor). Register globally from the CV queries aggregator.
+ */
 export class MyPickableCvAchievementsSingleQueryModule extends ConfigurableModuleClass {}

@@ -21,4 +21,7 @@ import {
         ContentSuggestionsHandler,
     ],
 })
+/**
+ * Nest DI for `contentSuggestions` typeahead — ES-backed lesson title autocomplete.
+ */
 export class ContentSuggestionsSingleQueryModule extends ConfigurableModuleClass {}

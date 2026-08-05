@@ -10,6 +10,10 @@ import {
 @ObjectType({
     description: "GitHub team membership state for one enrolled course.",
 })
+/**
+ * One enrolled course's GitHub team mapping — used to decide whether the
+ * viewer still needs an invite / join modal for that course.
+ */
 export class GithubTeamEntryData {
     @Field(
         () => String,
@@ -55,6 +59,10 @@ export class GithubTeamEntryData {
 @ObjectType({
     description: "The viewer's GitHub link + per-course team membership status.",
 })
+/**
+ * Viewer's GitHub link state plus every required course-team membership —
+ * `allInTeam` tells the client it can skip the blocking join modal.
+ */
 export class MyGithubTeamStatusData {
     @Field(
         () => Boolean,
@@ -93,6 +101,7 @@ export class MyGithubTeamStatusData {
 @ObjectType({
     description: "Response wrapper for the myGithubTeamStatus query.",
 })
+/** GraphQL envelope for the `myGithubTeamStatus` query. */
 export class MyGithubTeamStatusResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyGithubTeamStatusData>

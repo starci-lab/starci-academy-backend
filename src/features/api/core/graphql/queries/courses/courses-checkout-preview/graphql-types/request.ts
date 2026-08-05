@@ -4,13 +4,13 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Course ids to price as one multi-course order (cart preview).",
+})
 /**
  * Request for the multi-course checkout preview: the set of courses the buyer is
  * considering, so the server can price them exactly as `coursesCheckout` would.
  */
-@InputType({
-    description: "Course ids to price as one multi-course order (cart preview).",
-})
 export class CoursesCheckoutPreviewRequest {
     /**
      * Ids of the courses in the cart. Duplicates and already-owned courses are

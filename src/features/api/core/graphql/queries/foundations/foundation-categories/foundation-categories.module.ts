@@ -21,4 +21,5 @@ import {
         FoundationCategoriesHandler,
     ],
 })
+/** Feature-module boundary for the `foundationCategories` list query. */
 export class FoundationCategoriesSingleQueryModule extends ConfigurableModuleClass {}

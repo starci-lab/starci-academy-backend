@@ -21,4 +21,5 @@ import {
         FoundationCategorySuggestionsHandler,
     ],
 })
+/** Feature-module boundary for the `foundationCategorySuggestions` typeahead. */
 export class FoundationCategorySuggestionsSingleQueryModule extends ConfigurableModuleClass {}

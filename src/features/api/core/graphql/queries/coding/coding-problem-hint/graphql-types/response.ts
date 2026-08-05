@@ -7,13 +7,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A coding problem's approach-hint markdown (from Elasticsearch).",
+})
 /**
  * A coding problem's "approach hint" — guidance markdown sourced from
  * Elasticsearch (never stored in Postgres / the CDN).
  */
-@ObjectType({
-    description: "A coding problem's approach-hint markdown (from Elasticsearch).",
-})
 export class CodingProblemHint {
     /** Stable URL slug of the problem. */
     @Field(
@@ -34,10 +34,10 @@ export class CodingProblemHint {
         hint: string
 }
 
-/** Response wrapper for the codingProblemHint query. */
 @ObjectType({
     description: "Response wrapper for the codingProblemHint query.",
 })
+/** Response wrapper for the codingProblemHint query. */
 export class CodingProblemHintResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CodingProblemHint | null>

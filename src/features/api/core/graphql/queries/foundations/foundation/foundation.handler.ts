@@ -24,6 +24,10 @@ import {
 
 @QueryHandler(FoundationQuery)
 @Injectable()
+/**
+ * Loads one foundation from the per-locale Elasticsearch index by primary id
+ * or display id; throws a typed not-found when neither hit exists.
+ */
 export class FoundationHandler
     extends ICQRSHandler<FoundationQuery, FoundationEntity>
     implements IQueryHandler<FoundationQuery, FoundationEntity> {

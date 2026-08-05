@@ -8,15 +8,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A user's derived coding rank + percentile by distinct solved problems.",
+})
 /**
  * A user's DERIVED coding standing — a 1-based global rank + a percentile by
  * distinct solved coding problems (same ordering as the coding leaderboard:
  * solvedCount DESC, tie-break updated_at ASC). Purely derived. Both fields are
  * null when the user has 0 solves (unranked).
  */
-@ObjectType({
-    description: "A user's derived coding rank + percentile by distinct solved problems.",
-})
 export class CodingRankObject {
     /** 1 is the top solver; null (not 0) signals unranked — do not render null as rank 0. */
     @Field(
@@ -39,15 +39,15 @@ export class CodingRankObject {
         percentile: number | null
 }
 
+@ObjectType({
+    description: "Response wrapper for the userCodingRank query.",
+})
 /**
  * Response wrapper for the userCodingRank query.
  *
  * Carries the derived coding standing ({@link CodingRankObject}), nullable when
  * the user has 0 solves (unranked).
  */
-@ObjectType({
-    description: "Response wrapper for the userCodingRank query.",
-})
 export class UserCodingRankResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CodingRankObject | null> {

@@ -35,6 +35,10 @@ import {
 } from "./course-questions.service"
 
 @Resolver()
+/**
+ * Login-only (not enrollment-gated) GraphQL entry for `courseQuestions` —
+ * aggregates top-level Q&A across every lesson so trial learners can browse.
+ */
 export class CourseQuestionsResolver {
     constructor(
         private readonly courseQuestionsService: CourseQuestionsService,

@@ -32,11 +32,11 @@ import {
     type MyCodingSubmissionsResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Returns the authenticated user's submission history for one problem
  * (newest first) — used by the editor's "Submissions" tab.
  */
-@Resolver()
 export class MyCodingSubmissionsResolver {
     constructor(
         private readonly codingSubmissionService: CodingSubmissionService,

@@ -7,6 +7,10 @@ import {
 @InputType({
     description: "Request for fetching saved (favorited) contents.",
 })
+/**
+ * Args for `savedContents` — optional title search plus skip/take over the
+ * caller's favorited user_contents rows.
+ */
 export class SavedContentsRequest {
     @Field(
         () => String,

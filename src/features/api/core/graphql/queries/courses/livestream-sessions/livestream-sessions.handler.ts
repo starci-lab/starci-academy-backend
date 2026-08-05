@@ -31,6 +31,10 @@ import {
 
 @QueryHandler(LivestreamSessionsQuery)
 @Injectable()
+/**
+ * Pages livestream sessions for one course from Postgres, applies the
+ * requested sorts, and localizes each row via `LivestreamSessionResolverService`.
+ */
 export class LivestreamSessionsHandler
     extends ICQRSHandler<LivestreamSessionsQuery, LivestreamSessionsResponseData>
     implements IQueryHandler<LivestreamSessionsQuery, LivestreamSessionsResponseData> {

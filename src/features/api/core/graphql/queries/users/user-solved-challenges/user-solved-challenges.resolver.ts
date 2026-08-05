@@ -35,13 +35,13 @@ import {
     UserSolvedChallengesResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a user's passed challenge submissions + their submitted
  * git / docs link + language. Thin read of the CQRS solved-challenges projection
  * (the DISTINCT-ON join runs in the projection's recompute). Optional auth; a
  * locked profile is withheld by {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserSolvedChallengesResolver {
     constructor(
         private readonly userSolvedChallengesProjectionService: UserSolvedChallengesProjectionService,

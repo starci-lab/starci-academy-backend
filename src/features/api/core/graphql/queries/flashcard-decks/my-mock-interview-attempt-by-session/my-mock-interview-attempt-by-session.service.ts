@@ -36,6 +36,7 @@ const coerceIdentifyingString = (value: unknown): string | null =>
 const coerceText = (value: unknown): string =>
     typeof value === "string" ? value : ""
 
+@Injectable()
 /**
  * Reads back ONE graded mock-interview attempt by its `sessionId` — a
  * per-viewer single-row edge check (exempt from the CQRS-projection rule),
@@ -43,7 +44,6 @@ const coerceText = (value: unknown): string =>
  * session that's no longer `in_progress` (already graded, or expired past the
  * resume window) — see `MockInterviewSession`'s rehydrate effect.
  */
-@Injectable()
 export class MyMockInterviewAttemptBySessionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

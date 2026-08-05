@@ -5,10 +5,10 @@ import {
     Int,
 } from "@nestjs/graphql"
 
-/** Request to list a community post's comments (top-level or one parent's replies). */
 @InputType({
     description: "Request to list a community post's comments.",
 })
+/** Request to list a community post's comments (top-level or one parent's replies). */
 export class CommunityPostCommentsRequest {
     /** Post whose comments are listed. */
     @Field(

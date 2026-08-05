@@ -12,13 +12,13 @@ import {
     ModelProvider,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "Health info for one API key in the balancer pool.",
+})
 /**
  * GraphQL surface of one API key — `value` is intentionally absent; only the
  * 4-char suffix leaves the server boundary.
  */
-@ObjectType({
-    description: "Health info for one API key in the balancer pool.",
-})
 export class AiBalancerKeyHealthData {
     @Field(
         () => GraphQLTypeModelProvider,
@@ -83,6 +83,10 @@ export class AiBalancerKeyHealthData {
 @ObjectType({
     description: "Aggregate health snapshot for one provider's key pool.",
 })
+/**
+ * Roll-up of one provider's key pool — totals plus per-key rows — so an admin
+ * can see at a glance whether rotation still has healthy keys left.
+ */
 export class AiBalancerProviderHealthData {
     @Field(
         () => GraphQLTypeModelProvider,
@@ -136,6 +140,7 @@ export class AiBalancerProviderHealthData {
 @ObjectType({
     description: "AI Balancer health snapshot payload.",
 })
+/** Admin-only payload: every provider pool the balancer currently mounts. */
 export class AiBalancerHealthResponseData {
     @Field(
         () => [AiBalancerProviderHealthData],
@@ -149,6 +154,7 @@ export class AiBalancerHealthResponseData {
 @ObjectType({
     description: "Response wrapper for the aiBalancerHealth query.",
 })
+/** GraphQL envelope for the admin `aiBalancerHealth` query. */
 export class AiBalancerHealthResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<AiBalancerHealthResponseData>

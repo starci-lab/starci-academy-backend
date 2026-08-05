@@ -27,11 +27,11 @@ const MAX_LIMIT = 50
 /** Default page size when the client omits `limit`. */
 const DEFAULT_LIMIT = 30
 
+@Injectable()
 /**
  * Query service for a conversation's messages. Access is enforced in the domain
  * service (member-only + DM ownership); this layer pages + maps to client nodes.
  */
-@Injectable()
 export class ChatMessagesService {
     constructor(
         private readonly chatService: ChatService,

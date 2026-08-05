@@ -13,4 +13,5 @@ import {
         UserPinnedProjectsResolver,
     ],
 })
+/** Feature-module boundary for the `userPinnedProjects` query — wires its resolver so the users group can mount this profile tab independently. */
 export class UserPinnedProjectsSingleQueryModule extends ConfigurableModuleClass {}

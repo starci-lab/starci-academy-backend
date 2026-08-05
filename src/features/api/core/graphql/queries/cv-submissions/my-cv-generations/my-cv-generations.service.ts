@@ -16,6 +16,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Dispatches `myCvGenerations` through QueryBus so the resolver never
+ * constructs the CQRS query itself.
+ */
 export class MyCvGenerationsService {
     constructor(
         private readonly queryBus: QueryBus,

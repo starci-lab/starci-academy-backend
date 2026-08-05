@@ -33,6 +33,7 @@ import {
     UserXpResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a user's XP aggregate — the per-source XP figures
  * (challenge / milestone / coding / lesson) summed from the `xp_histories` ledger
@@ -41,7 +42,6 @@ import {
  * request). Optional auth; a locked profile is withheld by
  * {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserXpResolver {
     constructor(
         private readonly userXpProjectionService: UserXpProjectionService,

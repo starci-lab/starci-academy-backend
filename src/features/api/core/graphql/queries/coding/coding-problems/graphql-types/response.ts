@@ -11,10 +11,10 @@ import {
     CodingProblemEntity,
 } from "@modules/databases"
 
-/** Page of coding problems (shared catalog — per-user state is myCodingProgress). */
 @ObjectType({
     description: "A page of coding problems (catalog only; solved state is myCodingProgress).",
 })
+/** Page of coding problems (shared catalog — per-user state is myCodingProgress). */
 export class CodingProblemsResponseData {
     /** The page of problems (title localized; no testcases). */
     @Field(
@@ -35,10 +35,10 @@ export class CodingProblemsResponseData {
         total: number
 }
 
-/** Response wrapper for the codingProblems query. */
 @ObjectType({
     description: "Response wrapper for the codingProblems query.",
 })
+/** Response wrapper for the codingProblems query. */
 export class CodingProblemsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CodingProblemsResponseData>

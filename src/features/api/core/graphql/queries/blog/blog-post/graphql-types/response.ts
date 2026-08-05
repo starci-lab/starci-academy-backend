@@ -13,15 +13,15 @@ import {
     GraphQLTypeBlogCategory,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A full blog article (locale-resolved; body gated when premium).",
+})
 /**
  * One render-ready blog article for `/blog/[slug]`. All bilingual fields are
  * resolved to the request locale. When the post is members-only and the viewer
  * is not an active member, `body` is truncated and `isLocked` is true so the FE
  * can render the membership paywall.
  */
-@ObjectType({
-    description: "A full blog article (locale-resolved; body gated when premium).",
-})
 export class BlogPostDetailData {
     @Field(
         () => ID,
@@ -142,12 +142,12 @@ export class BlogPostDetailData {
         publishedAt: Date
 }
 
-/**
- * Response wrapper for the blogPost query (data null when slug not found).
- */
 @ObjectType({
     description: "Response wrapper for the blogPost query.",
 })
+/**
+ * Response wrapper for the blogPost query (data null when slug not found).
+ */
 export class BlogPostResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<BlogPostDetailData | null> {

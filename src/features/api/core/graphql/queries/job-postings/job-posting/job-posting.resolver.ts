@@ -25,11 +25,11 @@ import {
     JobPostingService,
 } from "./job-posting.service"
 
+@Resolver()
 /**
  * Public job posting detail page — no auth required, mirrors
  * `headhuntingCompany` (read-only public directory data).
  */
-@Resolver()
 export class JobPostingResolver {
     constructor(
         private readonly jobPostingService: JobPostingService,

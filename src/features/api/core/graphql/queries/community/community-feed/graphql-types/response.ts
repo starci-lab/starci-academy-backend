@@ -10,10 +10,10 @@ import {
     CommunityFeedPageObject,
 } from "../../../../shared/community"
 
-/** Response wrapper for the communityFeed query. */
 @ObjectType({
     description: "Response wrapper for the communityFeed query.",
 })
+/** Response wrapper for the communityFeed query. */
 export class CommunityFeedResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CommunityFeedPageObject>

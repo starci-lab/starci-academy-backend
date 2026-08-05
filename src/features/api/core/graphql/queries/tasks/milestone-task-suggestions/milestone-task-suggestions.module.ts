@@ -21,4 +21,9 @@ import {
         MilestoneTaskSuggestionsHandler,
     ],
 })
+/**
+ * Wires the `milestoneTaskSuggestions` typeahead (ES prefix match on
+ * milestone tasks). Editors and search bars use this instead of loading the
+ * full task catalog.
+ */
 export class MilestoneTaskSuggestionsSingleQueryModule extends ConfigurableModuleClass {}

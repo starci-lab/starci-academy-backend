@@ -14,11 +14,6 @@ import {
     JobReadinessService,
 } from "./job-readiness.service"
 
-/**
- * Job-readiness query group — the self view (`myJobReadiness`) and the public
- * recruiter view (`userJobReadiness`), both backed by one
- * {@link JobReadinessService}.
- */
 @Module({
     providers: [
         MyJobReadinessResolver,
@@ -26,4 +21,9 @@ import {
         JobReadinessService,
     ],
 })
+/**
+ * Job-readiness query group — the self view (`myJobReadiness`) and the public
+ * recruiter view (`userJobReadiness`), both backed by one
+ * {@link JobReadinessService}.
+ */
 export class JobReadinessQueriesModule extends ConfigurableModuleClass {}

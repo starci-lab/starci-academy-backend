@@ -34,6 +34,10 @@ import {
 } from "@modules/keycloak"
 
 @Resolver()
+/**
+ * GraphQL surface for `contents` — module-scoped paginated list; enroll guard
+ * intentionally omitted so logged-in users can trial-browse truncated premiums.
+ */
 export class ContentsResolver {
     constructor(
         private readonly contentsService: ContentsService,

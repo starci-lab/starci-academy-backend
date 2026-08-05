@@ -17,4 +17,5 @@ import {
         CourseMindMapResolver,
     ],
 })
+/** Feature-module boundary for the `courseMindMap` query. */
 export class CourseMindMapSingleQueryModule extends ConfigurableModuleClass {}

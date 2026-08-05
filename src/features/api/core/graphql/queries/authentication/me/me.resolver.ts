@@ -31,6 +31,11 @@ import {
 } from "./me.service"
 
 @Resolver()
+/**
+ * Authenticated `me` query — returns the Keycloak-backed user and lets
+ * the handler bootstrap a local row on first valid-token access. Soft-
+ * throttled; the FE calls this on every authenticated shell mount.
+ */
 export class MeResolver {
     constructor(
         private readonly meService: MeService,

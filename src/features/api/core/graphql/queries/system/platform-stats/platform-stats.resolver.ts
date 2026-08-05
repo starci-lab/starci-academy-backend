@@ -26,6 +26,10 @@ import {
 } from "./platform-stats.service"
 
 @Resolver()
+/**
+ * Public GraphQL entry for `platformStats` — no auth; feeds the landing-page
+ * social-proof counters.
+ */
 export class PlatformStatsResolver {
     constructor(
         private readonly platformStatsService: PlatformStatsService,

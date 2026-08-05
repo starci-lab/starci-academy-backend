@@ -31,6 +31,7 @@ import {
     UserChallengeStrengthResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a user's DERIVED challenge-strength standing — a
  * percentile + 1-based global rank by a difficulty-weighted sum over their
@@ -40,7 +41,6 @@ import {
  * null when the user has no passes. Optional auth; a locked profile is withheld
  * by {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserChallengeStrengthResolver {
     constructor(
         private readonly userSolvedChallengesProjectionService: UserSolvedChallengesProjectionService,

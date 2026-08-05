@@ -42,12 +42,12 @@ const coerceIdentifyingString = (value: unknown): string | null =>
 const coerceText = (value: unknown): string =>
     typeof value === "string" ? value : ""
 
+@Injectable()
 /**
  * Reads back the viewer's persisted mock-interview attempts (each row = one
  * whole graded session, written by `gradeMockInterviewSession`) so the
  * scorecard's "history" can list and re-open past sessions.
  */
-@Injectable()
 export class MyMockInterviewAttemptsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -35,11 +35,11 @@ import {
     PlaygroundResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Returns a single playground by slug with its ordered steps (learner-facing
  * fields only — verify secrets are never exposed, see {@link PlaygroundResponse}).
  */
-@Resolver()
 export class PlaygroundResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

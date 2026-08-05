@@ -18,6 +18,7 @@ import {
 @ObjectType({
     description: "A single model choice (model name + provider).",
 })
+/** One concrete model + provider pair used in an active or fallback slot. */
 export class AiModelChoiceData {
     @Field(
         () => String,
@@ -39,6 +40,10 @@ export class AiModelChoiceData {
 @ObjectType({
     description: "Active model for a specific AI task.",
 })
+/**
+ * One AI task router as shown in the admin panel — human label, the model the
+ * balancer will try first, and the ordered fallback chain behind it.
+ */
 export class AiActiveModelData {
     @Field(
         () => String,
@@ -84,6 +89,11 @@ export class AiActiveModelData {
 @ObjectType({
     description: "A selectable model for the grading picker (name + provider + cost category).",
 })
+/**
+ * One row in the grading model picker — cost category, free-lane flag, live
+ * key availability (locked when the provider pool is empty), and which tasks
+ * the FE should offer it for.
+ */
 export class AiGradableModelData {
     @Field(
         () => String,
@@ -137,6 +147,10 @@ export class AiGradableModelData {
 @ObjectType({
     description: "AI models configuration data.",
 })
+/**
+ * Full `aiModels` payload: recommendation tier, per-task routers, and the
+ * selectable grading catalog.
+ */
 export class AiModelsResponseData {
     @Field(
         () => String,
@@ -166,6 +180,7 @@ export class AiModelsResponseData {
 @ObjectType({
     description: "Response wrapper for the aiModels query.",
 })
+/** GraphQL envelope for the `aiModels` query. */
 export class AiModelsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<AiModelsResponseData>

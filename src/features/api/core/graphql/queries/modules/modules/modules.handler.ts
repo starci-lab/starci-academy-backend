@@ -24,6 +24,10 @@ import {
 
 @QueryHandler(ModulesQuery)
 @Injectable()
+/**
+ * Lists every module for a course from the per-locale Elasticsearch index,
+ * ordered by `sortIndex` (cap 1000 — courses do not exceed this in practice).
+ */
 export class ModulesHandler
     extends ICQRSHandler<ModulesQuery, ModulesResponseData>
     implements IQueryHandler<ModulesQuery, ModulesResponseData> {

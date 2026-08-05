@@ -11,9 +11,6 @@ import {
     MyUnreadNotificationCountSingleQueryModule,
 } from "./my-unread-notification-count"
 
-/**
- * Per-user notifications query group (bell list + unread badge count).
- */
 @Module({
     imports: [
         MyNotificationsSingleQueryModule.register({
@@ -24,4 +21,7 @@ import {
         }),
     ],
 })
+/**
+ * Per-user notifications query group (bell list + unread badge count).
+ */
 export class NotificationsQueriesModule extends ConfigurableModuleClass {}

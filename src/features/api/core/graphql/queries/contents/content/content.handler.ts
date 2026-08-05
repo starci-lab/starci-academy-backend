@@ -58,6 +58,11 @@ const CONTENT_ACCESS_LIMIT = 200
 
 @QueryHandler(ContentQuery)
 @Injectable()
+/**
+ * Loads one lesson from S3, then applies anti-scrape rate limits, live DB
+ * premium flag, and enrollment gating so trial viewers get a truncated teaser
+ * instead of the full body / code assets.
+ */
 export class ContentHandler
     extends ICQRSHandler<ContentQuery, ContentEntity>
     implements IQueryHandler<ContentQuery, ContentEntity> {

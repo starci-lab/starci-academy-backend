@@ -26,13 +26,13 @@ const MAX_LIMIT = 50
 /** Default page size when the client omits `limit`. */
 const DEFAULT_LIMIT = 20
 
+@Injectable()
 /**
  * Query service for the community feed. Loads a page of posts (pinned-first, then
  * newest), then batch-resolves reaction summaries + comment counts so the client
  * gets ready-to-render nodes. Open to everyone (optional auth): the viewer's own
  * reaction + `isMine` are only populated when authenticated.
  */
-@Injectable()
 export class CommunityFeedService {
     constructor(
         private readonly communityPostService: CommunityPostService,

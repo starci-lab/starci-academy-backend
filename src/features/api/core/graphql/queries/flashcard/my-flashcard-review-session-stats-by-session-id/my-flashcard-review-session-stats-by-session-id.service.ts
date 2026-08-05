@@ -30,6 +30,7 @@ const FLASHCARD_FIRST_REVIEW_XP = 2
 /** How many weak-tag rows the recap surfaces (top-N most forgotten). */
 const WEAK_TAG_LIMIT = 5
 
+@Injectable()
 /**
  * Computes the per-session recap for ONE flashcard review session — resolved by
  * its id alone (either kind: single-deck "Học thẻ" review, or the cross-deck
@@ -45,7 +46,6 @@ const WEAK_TAG_LIMIT = 5
  * list). It is NOT a hot/repeated dashboard aggregate, so it does not warrant a
  * CDC projection.
  */
-@Injectable()
 export class MyFlashcardReviewSessionStatsBySessionIdService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

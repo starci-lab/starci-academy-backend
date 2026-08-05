@@ -13,6 +13,9 @@ import {
 @ObjectType({
     description: "Response wrapper for the publicContent query.",
 })
+/**
+ * Envelope for `publicContent` — unauthenticated free-lesson payload only.
+ */
 export class PublicContentResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ContentEntity>

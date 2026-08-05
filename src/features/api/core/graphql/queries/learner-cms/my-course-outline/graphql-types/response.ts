@@ -9,13 +9,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Identity of the course the outline belongs to.",
+})
 /**
  * Minimal identity of the course the outline belongs to: the primary-key id,
  * the human title, and the stable display id used for routing / CDN lookups.
  */
-@ObjectType({
-    description: "Identity of the course the outline belongs to.",
-})
 export class MyCourseOutlineCourse {
     @Field(
         () => ID,
@@ -42,13 +42,13 @@ export class MyCourseOutlineCourse {
         displayId: string
 }
 
+@ObjectType({
+    description: "A challenge under a lesson with the viewer's progress overlaid.",
+})
 /**
  * A single challenge under a lesson, with the viewer's progress overlaid:
  * lifecycle status, the latest score, and the completed flag.
  */
-@ObjectType({
-    description: "A challenge under a lesson with the viewer's progress overlaid.",
-})
 export class MyCourseOutlineChallenge {
     @Field(
         () => ID,
@@ -107,13 +107,13 @@ export class MyCourseOutlineChallenge {
         completed: boolean
 }
 
+@ObjectType({
+    description: "A lesson under a module with the viewer's read flag and its challenges.",
+})
 /**
  * A single lesson (content) under a module, with the viewer's read flag overlaid
  * and the lesson's challenges (each with their own progress).
  */
-@ObjectType({
-    description: "A lesson under a module with the viewer's read flag and its challenges.",
-})
 export class MyCourseOutlineLesson {
     @Field(
         () => ID,
@@ -181,13 +181,13 @@ export class MyCourseOutlineLesson {
         challenges: Array<MyCourseOutlineChallenge>
 }
 
+@ObjectType({
+    description: "A module (chapter) of the course with its ordered lessons.",
+})
 /**
  * A module (chapter) of the course, with its ordered lessons. The module's own
  * premium flag is surfaced so the client can paywall the whole chapter.
  */
-@ObjectType({
-    description: "A module (chapter) of the course with its ordered lessons.",
-})
 export class MyCourseOutlineModule {
     @Field(
         () => ID,
@@ -230,13 +230,13 @@ export class MyCourseOutlineModule {
         lessons: Array<MyCourseOutlineLesson>
 }
 
+@ObjectType({
+    description: "A capstone task under a milestone with the viewer's progress overlaid.",
+})
 /**
  * A single capstone (personal-project) task under a milestone, with the viewer's
  * progress overlaid: the completed flag and the latest score.
  */
-@ObjectType({
-    description: "A capstone task under a milestone with the viewer's progress overlaid.",
-})
 export class MyCourseOutlineTask {
     @Field(
         () => ID,
@@ -288,12 +288,12 @@ export class MyCourseOutlineTask {
         lastScore: number
 }
 
-/**
- * A capstone milestone (batch) of the course, with its ordered tasks.
- */
 @ObjectType({
     description: "A capstone milestone of the course with its ordered tasks.",
 })
+/**
+ * A capstone milestone (batch) of the course, with its ordered tasks.
+ */
 export class MyCourseOutlineMilestone {
     @Field(
         () => ID,
@@ -328,14 +328,14 @@ export class MyCourseOutlineMilestone {
         tasks: Array<MyCourseOutlineTask>
 }
 
+@ObjectType({
+    description: "Aggregate progress summary for the viewer across the course.",
+})
 /**
  * Aggregate progress summary for the viewer across the whole course: read
  * lessons, completed challenges, completed tasks, and an equal-weight overall
  * completion percentage.
  */
-@ObjectType({
-    description: "Aggregate progress summary for the viewer across the course.",
-})
 export class MyCourseOutlineProgress {
     @Field(
         () => Int,
@@ -394,14 +394,14 @@ export class MyCourseOutlineProgress {
         completionPercent: number
 }
 
+@ObjectType({
+    description: "Pointer to the next thing the viewer should work on.",
+})
 /**
  * Pointer to the next thing the viewer should work on: a milestone task, a
  * lesson, or a challenge. `kind` discriminates the target and `milestoneId` is
  * only set when the target is a milestone task.
  */
-@ObjectType({
-    description: "Pointer to the next thing the viewer should work on.",
-})
 export class MyCourseOutlineCurrentTask {
     @Field(
         () => String,
@@ -429,14 +429,14 @@ export class MyCourseOutlineCurrentTask {
         milestoneId: string | null
 }
 
+@ObjectType({
+    description: "Full course outline with the viewer's progress overlaid.",
+})
 /**
  * Full outline payload: the course identity, its module/lesson/challenge tree,
  * its milestone/task tree, the aggregate progress summary, and a pointer to the
  * viewer's current task.
  */
-@ObjectType({
-    description: "Full course outline with the viewer's progress overlaid.",
-})
 export class MyCourseOutlineData {
     @Field(
         () => MyCourseOutlineCourse,
@@ -493,12 +493,12 @@ export class MyCourseOutlineData {
         nextContentTask: MyCourseOutlineCurrentTask | null
 }
 
-/**
- * Response wrapper for the myCourseOutline query.
- */
 @ObjectType({
     description: "Response wrapper for the myCourseOutline query.",
 })
+/**
+ * Response wrapper for the myCourseOutline query.
+ */
 export class MyCourseOutlineResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCourseOutlineData> {

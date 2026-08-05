@@ -23,6 +23,10 @@ import {
 
 @QueryHandler(MilestoneQuery)
 @Injectable()
+/**
+ * Loads one fully-hydrated milestone (tasks + criteria + code implementations)
+ * from the per-locale Elasticsearch document — no DB hop for the detail page.
+ */
 export class MilestoneHandler
     extends ICQRSHandler<MilestoneQuery, MilestoneEntity>
     implements IQueryHandler<MilestoneQuery, MilestoneEntity> {

@@ -34,12 +34,12 @@ import {
     MockInterviewPromptsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The mock-interview prompt bank for a course — the capstone systems the
  * learner can pick to work through. Enrolled-only (the interview spends AI
  * credits, same guard as the flashcard interview).
  */
-@Resolver()
 export class MockInterviewPromptsResolver {
     constructor(
         private readonly mockInterviewPromptsService: MockInterviewPromptsService,

@@ -21,4 +21,8 @@ import {
         TemplateCvsHandler,
     ],
 })
+/**
+ * Wires resolver, service, and handler for `templateCvs` (review rubrics).
+ * Register globally from the CV queries aggregator.
+ */
 export class TemplateCvsSingleQueryModule extends ConfigurableModuleClass {}

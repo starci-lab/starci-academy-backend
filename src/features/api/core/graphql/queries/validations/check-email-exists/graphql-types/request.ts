@@ -3,10 +3,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request for checking whether an email exists (bloom-filter based). */
 @InputType({
     description: "Check if an email exists using a bloom filter (may contain false positives).",
 })
+/** Request for checking whether an email exists (bloom-filter based). */
 export class CheckEmailExistsRequest {
     @Field(
         () => String,

@@ -21,4 +21,7 @@ import {
         UserPersonalTaskAttemptsHandler,
     ],
 })
+/**
+ * Nest DI for `userPersonalTaskAttempts` — attempt history for one task.
+ */
 export class UserPersonalTaskAttemptsSingleQueryModule extends ConfigurableModuleClass {}

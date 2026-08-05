@@ -29,12 +29,12 @@ const DEFAULT_LIMIT = 10
 /** Hard cap on page size so a client cannot pull the whole index. */
 const MAX_LIMIT = 50
 
+@QueryHandler(FoundationCategoriesQuery)
+@Injectable()
 /**
  * Lists foundation categories from Elasticsearch (locale index), with optional
  * full-text search and page-based pagination.
  */
-@QueryHandler(FoundationCategoriesQuery)
-@Injectable()
 export class FoundationCategoriesHandler
     extends ICQRSHandler<FoundationCategoriesQuery, FoundationCategoriesPayload>
     implements IQueryHandler<FoundationCategoriesQuery, FoundationCategoriesPayload> {

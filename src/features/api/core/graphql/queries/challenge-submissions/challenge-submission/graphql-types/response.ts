@@ -13,6 +13,10 @@ import {
 @ObjectType({
     description: "Response wrapper for the challengeSubmission query.",
 })
+/**
+ * Envelope for `challengeSubmission`. `data` is the slot entity; the caller's
+ * join row is on `data.userSubmission` when they have attempted it.
+ */
 export class ChallengeSubmissionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChallengeSubmissionEntity>

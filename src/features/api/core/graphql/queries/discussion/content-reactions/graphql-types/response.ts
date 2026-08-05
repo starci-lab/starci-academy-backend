@@ -10,10 +10,10 @@ import {
     ReactionSummaryObject,
 } from "../../../../shared/discussion"
 
-/** Response wrapper for the content reactions query. */
 @ObjectType({
     description: "Response wrapper for the content reactions query.",
 })
+/** Response wrapper for the content reactions query. */
 export class ContentReactionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ReactionSummaryObject>

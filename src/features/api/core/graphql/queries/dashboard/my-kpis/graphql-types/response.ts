@@ -12,14 +12,14 @@ import {
     KpiKey,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "One weekly KPI with its current value and target.",
+})
 /**
  * One weekly KPI: the current-week `current` value (resets Monday 8am
  * Asia/Ho_Chi_Minh) vs the user's self-set `target` (null = no target set yet
  * for this KPI).
  */
-@ObjectType({
-    description: "One weekly KPI with its current value and target.",
-})
 export class KpiItemData {
     @Field(
         () => GraphQLTypeKpiKey,
@@ -72,12 +72,12 @@ export class KpiItemData {
         canClaim: boolean
 }
 
-/**
- * Composite KPI score across the KPIs that HAVE a target set.
- */
 @ObjectType({
     description: "Composite weekly KPI score (over KPIs with a target).",
 })
+/**
+ * Composite KPI score across the KPIs that HAVE a target set.
+ */
 export class KpiCompositeData {
     @Field(
         () => Int,
@@ -104,12 +104,12 @@ export class KpiCompositeData {
         total: number
 }
 
-/**
- * The viewer's weekly KPIs: every KPI's current/target + the composite score.
- */
 @ObjectType({
     description: "The viewer's weekly KPIs (per-KPI progress + composite score).",
 })
+/**
+ * The viewer's weekly KPIs: every KPI's current/target + the composite score.
+ */
 export class MyKpisData {
     @Field(
         () => [KpiItemData],
@@ -136,12 +136,12 @@ export class MyKpisData {
         resetAt: Date
 }
 
-/**
- * Response wrapper for the myKpis query.
- */
 @ObjectType({
     description: "Response wrapper for the myKpis query.",
 })
+/**
+ * Response wrapper for the myKpis query.
+ */
 export class MyKpisResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyKpisData> {

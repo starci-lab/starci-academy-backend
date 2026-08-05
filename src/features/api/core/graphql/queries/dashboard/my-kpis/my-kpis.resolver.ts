@@ -35,6 +35,7 @@ import {
     MyKpisResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Weekly-KPI query: every KPI's current-week value (resets Monday 8am
  * Asia/Ho_Chi_Minh) vs the user's self-set target, its coin reward + claim
@@ -43,7 +44,6 @@ import {
  * targets live on the user row (set via `setKpiTarget`); reward/floor state
  * comes from {@link KpiRewardService} (claimed via `claimKpiReward`).
  */
-@Resolver()
 export class MyKpisResolver {
     constructor(
         private readonly userStatsProjectionService: UserStatsProjectionService,

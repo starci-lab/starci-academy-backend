@@ -8,13 +8,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A trending lesson (read count over the last 7 days).",
+})
 /**
  * One trending lesson for the "discover what to learn" rail in the explore feed —
  * a route-index token (resolves its route on click) plus its recent read count.
  */
-@ObjectType({
-    description: "A trending lesson (read count over the last 7 days).",
-})
 export class TrendingContentItemData {
     @Field(
         () => String,
@@ -41,12 +41,12 @@ export class TrendingContentItemData {
         readCount: number
 }
 
-/**
- * Response wrapper for the trendingContents query.
- */
 @ObjectType({
     description: "Response wrapper for the trendingContents query.",
 })
+/**
+ * Response wrapper for the trendingContents query.
+ */
 export class TrendingContentsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<TrendingContentItemData>> {

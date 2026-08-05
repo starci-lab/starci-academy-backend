@@ -13,14 +13,14 @@ import {
     type AdvertisementMedia,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A dashboard advertisement banner (locale-resolved, render-ready).",
+})
 /**
  * Render-ready advertisement banner for the dashboard right rail. `title`/`ctaText`
  * are already resolved to the request locale; `media` is the discriminated jsonb
  * payload the client narrows by `mediaType`.
  */
-@ObjectType({
-    description: "A dashboard advertisement banner (locale-resolved, render-ready).",
-})
 export class ActiveAdvertisementResponseData {
     @Field(
         () => String,
@@ -81,12 +81,12 @@ export class ActiveAdvertisementResponseData {
         sponsorName: string | null
 }
 
-/**
- * Response wrapper for the activeAdvertisement query (data null when no active ad).
- */
 @ObjectType({
     description: "Response wrapper for the activeAdvertisement query.",
 })
+/**
+ * Response wrapper for the activeAdvertisement query (data null when no active ad).
+ */
 export class ActiveAdvertisementResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ActiveAdvertisementResponseData | null> {

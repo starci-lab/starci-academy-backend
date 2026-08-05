@@ -4,10 +4,10 @@ import {
     Int,
 } from "@nestjs/graphql"
 
-/** Request for the coding leaderboard. */
 @InputType({
     description: "Coding leaderboard parameters.",
 })
+/** Request for the coding leaderboard. */
 export class CodingLeaderboardRequest {
     /** Max number of ranked users to return (default 50). */
     @Field(

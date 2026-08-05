@@ -13,6 +13,10 @@ import {
 @ObjectType({
     description: "Response wrapper for the content query.",
 })
+/**
+ * Envelope for `content` — status metadata plus the lesson entity (body may
+ * already be truncated for non-enrolled premium viewers).
+ */
 export class ContentResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ContentEntity>

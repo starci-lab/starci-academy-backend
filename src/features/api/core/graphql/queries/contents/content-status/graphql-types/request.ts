@@ -7,6 +7,9 @@ import {
 @InputType({
     description: "Request for querying content status.",
 })
+/**
+ * Args for `contentStatus` — which lesson's user_contents row to inspect.
+ */
 export class ContentStatusRequest {
     @Field(
         () => ID,

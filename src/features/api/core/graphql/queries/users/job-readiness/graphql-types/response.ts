@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One verified track (a course the learner has built AI-graded proof in). */
 @ObjectType({
     description: "A verified per-course competency track on a learner's profile.",
 })
+/** One verified track (a course the learner has built AI-graded proof in). */
 export class JobReadinessTrackItem {
     @Field(
         () => ID,
@@ -91,10 +91,10 @@ export class JobReadinessTrackItem {
         isQualified: boolean
 }
 
-/** The global, person-level foundation signals (not scoped to any course). */
 @ObjectType({
     description: "Global foundation signals — one per learner regardless of course count.",
 })
+/** The global, person-level foundation signals (not scoped to any course). */
 export class JobReadinessFoundationData {
     @Field(
         () => Int,
@@ -115,10 +115,10 @@ export class JobReadinessFoundationData {
         cvScore: number | null
 }
 
-/** Job-readiness portfolio for one learner — per-track cards + global foundation, no blended composite. */
 @ObjectType({
     description: "Job-readiness portfolio — a global foundation plus independent per-track competency cards.",
 })
+/** Job-readiness portfolio for one learner — per-track cards + global foundation, no blended composite. */
 export class JobReadinessData {
     @Field(
         () => JobReadinessFoundationData,
@@ -140,6 +140,11 @@ export class JobReadinessData {
 @ObjectType({
     description: "Response wrapper for the job-readiness queries.",
 })
+/**
+ * GraphQL envelope for job-readiness reads. `data` is null only on the error
+ * path; a learner with no tracks still returns an empty `tracks` array plus
+ * the global foundation block.
+ */
 export class JobReadinessResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<JobReadinessData>

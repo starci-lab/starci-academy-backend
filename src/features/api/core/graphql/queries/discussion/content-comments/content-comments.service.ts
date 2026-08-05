@@ -19,11 +19,11 @@ import type {
     ContentCommentsRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Query service for listing a content's comments. Loads a page of comment rows, then
  * batch-resolves their reply counts + reaction summaries so the client gets ready nodes.
  */
-@Injectable()
 export class ContentCommentsService {
     constructor(
         private readonly commentService: CommentService,

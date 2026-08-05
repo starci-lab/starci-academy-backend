@@ -30,12 +30,12 @@ import {
     MyUnreadNotificationCountResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Lightweight unread-count query for the bell badge. Kept separate from
  * `myNotifications` so the FE can poll / refetch just the badge cheaply without
  * pulling the full page.
  */
-@Resolver()
 export class MyUnreadNotificationCountResolver {
     constructor(
         private readonly notificationService: NotificationService,

@@ -22,11 +22,11 @@ import {
     HeadhunterCompaniesQuery,
 } from "./headhunting-companies.query"
 
+@QueryHandler(HeadhunterCompaniesQuery)
+@Injectable()
 /**
  * Lists headhunting companies from Elasticsearch (locale index).
  */
-@QueryHandler(HeadhunterCompaniesQuery)
-@Injectable()
 export class HeadhuntingCompaniesHandler
     extends ICQRSHandler<HeadhunterCompaniesQuery, Array<HeadhuntingCompanyEntity>>
     implements IQueryHandler<HeadhunterCompaniesQuery, Array<HeadhuntingCompanyEntity>> {

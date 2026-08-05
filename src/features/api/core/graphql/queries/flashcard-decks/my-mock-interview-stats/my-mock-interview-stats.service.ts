@@ -27,6 +27,7 @@ const EMPTY_RESULT: MyMockInterviewStatsResultData = {
     byPhase: [],
 }
 
+@Injectable()
 /**
  * Reads the viewer's mock-interview stats for one course — the readiness
  * hero (vs the pass bar, projected from the trend delta) + the per-phase
@@ -37,7 +38,6 @@ const EMPTY_RESULT: MyMockInterviewStatsResultData = {
  * lazy-refresh), never re-scans/folds inline (per
  * `.claude/be/rules/cqrs-no-inline-aggregate.md`).
  */
-@Injectable()
 export class MyMockInterviewStatsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

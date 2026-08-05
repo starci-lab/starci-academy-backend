@@ -22,13 +22,13 @@ import {
     JobPostingQuery,
 } from "./job-posting.query"
 
+@QueryHandler(JobPostingQuery)
+@Injectable()
 /**
  * Fetches one job posting by its public `displayId`, resolving its employer
  * company eagerly so the FE can render name/logo/website without a second
  * round trip.
  */
-@QueryHandler(JobPostingQuery)
-@Injectable()
 export class JobPostingHandler
     extends ICQRSHandler<JobPostingQuery, JobPostingEntity>
     implements IQueryHandler<JobPostingQuery, JobPostingEntity> {

@@ -10,10 +10,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Response wrapper for the headhunting companies list query. */
 @ObjectType({
     description: "Response wrapper for the headhuntingCompanies query.",
 })
+/** Response wrapper for the headhunting companies list query. */
 export class HeadhuntingCompaniesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<HeadhuntingCompanyEntity>>

@@ -21,4 +21,7 @@ import {
         ContentHandler,
     ],
 })
+/**
+ * Nest DI for `content` — wires resolver → service → handler (S3 load + premium gate).
+ */
 export class ContentSingleQueryModule extends ConfigurableModuleClass {}

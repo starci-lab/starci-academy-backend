@@ -13,9 +13,6 @@ import {
     ContentReactionsService,
 } from "./content-reactions"
 
-/**
- * Aggregates the read-side (query) resolvers of the content discussion feature.
- */
 @Module({
     providers: [
         ContentCommentsResolver,
@@ -24,4 +21,7 @@ import {
         ContentReactionsService,
     ],
 })
+/**
+ * Aggregates the read-side (query) resolvers of the content discussion feature.
+ */
 export class DiscussionQueriesModule extends ConfigurableModuleClass {}

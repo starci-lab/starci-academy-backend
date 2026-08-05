@@ -31,13 +31,13 @@ import {
     UserCodingHistoryResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a user's solved coding problems + the language(s) used.
  * Thin read of the CQRS coding projection (the per-problem aggregation runs in the
  * projection's recompute). Optional auth; a locked profile is withheld by
  * {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserCodingHistoryResolver {
     constructor(
         private readonly userCodingProjectionService: UserCodingProjectionService,

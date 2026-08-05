@@ -35,6 +35,7 @@ import {
 /** Hard ceiling on page size to keep the query cheap. */
 const MAX_LIMIT = 200
 
+@Resolver()
 /**
  * Per-user AI credit charge history (newest first), paginated. Source of truth
  * is `credit_usage_histories`, written atomically by
@@ -42,7 +43,6 @@ const MAX_LIMIT = 200
  * directly here (not cached) since history is viewed on demand, not on the
  * grading hot path.
  */
-@Resolver()
 export class MyCreditUsageHistoryResolver {
     constructor(
         private readonly aiEntitlementService: AiEntitlementService,

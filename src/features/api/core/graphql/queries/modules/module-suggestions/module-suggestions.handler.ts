@@ -14,6 +14,8 @@ import {
     ModuleSuggestionsQuery,
 } from "./module-suggestions.query"
 
+@QueryHandler(ModuleSuggestionsQuery)
+@Injectable()
 /**
  * Module autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -24,8 +26,6 @@ import {
  * instantly. The base maps options to clean `{ id, label }` items, so the result
  * flows straight into the shared `SuggestionsPayload` with no extra mapping.
  */
-@QueryHandler(ModuleSuggestionsQuery)
-@Injectable()
 export class ModuleSuggestionsHandler
     extends AbstractSuggestionsHandler<ModuleSuggestionsQuery> {
     // index resolution targets the module index (drives `indicateName`)

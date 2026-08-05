@@ -33,13 +33,13 @@ import {
     JobReadinessResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * PUBLIC job-readiness for a given user id — the recruiter-facing view on a
  * public profile / the talent marketplace. Same portfolio the owner sees, but
  * addressable by user id. Optional auth; a locked profile is withheld by
  * {@link GraphQLProfileVisibilityGuard} (mirrors `userChallengeStrength`).
  */
-@Resolver()
 export class UserJobReadinessResolver {
     constructor(
         private readonly jobReadinessService: JobReadinessService,

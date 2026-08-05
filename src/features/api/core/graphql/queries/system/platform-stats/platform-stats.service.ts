@@ -15,6 +15,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Dispatches `PlatformStatsQuery` onto the CQRS bus. */
 export class PlatformStatsService {
     constructor(
         private readonly queryBus: QueryBus,

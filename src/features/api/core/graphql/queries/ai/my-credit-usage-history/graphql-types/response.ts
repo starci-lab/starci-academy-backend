@@ -13,12 +13,12 @@ import {
     GraphQLTypeAiCeilSurface,
 } from "@modules/databases"
 
-/**
- * One AI credit charge in the user's usage history.
- */
 @ObjectType({
     description: "One AI credit charge in the usage history.",
 })
+/**
+ * One AI credit charge in the user's usage history.
+ */
 export class CreditUsageHistoryItemObject {
     @Field(
         () => ID,
@@ -81,12 +81,12 @@ export class CreditUsageHistoryItemObject {
         surface: AiCeilSurface | null
 }
 
-/**
- * Paginated AI credit usage history (newest first).
- */
 @ObjectType({
     description: "Paginated AI credit usage history.",
 })
+/**
+ * Paginated AI credit usage history (newest first).
+ */
 export class MyCreditUsageHistoryResponseData {
     @Field(
         () => [CreditUsageHistoryItemObject],
@@ -105,12 +105,12 @@ export class MyCreditUsageHistoryResponseData {
         total: number
 }
 
-/**
- * Response wrapper for the myCreditUsageHistory query.
- */
 @ObjectType({
     description: "Response wrapper for the myCreditUsageHistory query.",
 })
+/**
+ * Response wrapper for the myCreditUsageHistory query.
+ */
 export class MyCreditUsageHistoryResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCreditUsageHistoryResponseData>

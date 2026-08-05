@@ -13,6 +13,7 @@ import {
 @ObjectType({
     description: "Response wrapper for the milestone query.",
 })
+/** GraphQL envelope for the `milestone` detail query. */
 export class MilestoneResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MilestoneEntity>

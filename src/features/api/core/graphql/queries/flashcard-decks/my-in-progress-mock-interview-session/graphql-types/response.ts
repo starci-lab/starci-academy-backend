@@ -9,13 +9,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "One programming-language variant of a mock-interview question's given code.",
+})
 /**
  * One authored programming-language variant of a debug/review/optimize
  * question's GIVEN code, read back for a resumable session.
  */
-@ObjectType({
-    description: "One programming-language variant of a mock-interview question's given code.",
-})
 export class MyInProgressMockInterviewGivenCodeVariantItem {
     @Field(
         () => String,
@@ -34,10 +34,10 @@ export class MyInProgressMockInterviewGivenCodeVariantItem {
         code: string
 }
 
-/** One drawn flashcard-card seed question, read back for a resumable session. */
 @ObjectType({
     description: "One drawn seed question of a resumable mock-interview session.",
 })
+/** One drawn flashcard-card seed question, read back for a resumable session. */
 export class MyInProgressMockInterviewSeedQuestionItem {
     @Field(
         () => ID,
@@ -72,10 +72,10 @@ export class MyInProgressMockInterviewSeedQuestionItem {
         givenCodes: Array<MyInProgressMockInterviewGivenCodeVariantItem>
 }
 
-/** One synced transcript turn, read back for a resumable session. */
 @ObjectType({
     description: "One synced turn of a resumable mock-interview session's transcript.",
 })
+/** One synced transcript turn, read back for a resumable session. */
 export class MyInProgressMockInterviewSessionTurnItem {
     @Field(
         () => String,
@@ -120,14 +120,14 @@ export class MyInProgressMockInterviewSessionTurnItem {
         artifactHint?: string
 }
 
+@ObjectType({
+    description: "The learner's most recent resumable mock-interview session for one course.",
+})
 /**
  * The learner's most recent RESUMABLE mock-interview session for one course —
  * "resume mock interview session" (2026-07-08). The query itself resolves to
  * `null` (not this type) when there is none.
  */
-@ObjectType({
-    description: "The learner's most recent resumable mock-interview session for one course.",
-})
 export class MyInProgressMockInterviewSessionData {
     @Field(
         () => ID,
@@ -228,11 +228,6 @@ export class MyInProgressMockInterviewSessionData {
     )
         updatedAt: string
 
-    /**
-     * ISO timestamp of the session's 1-hour ask-loop deadline (`createdAt` +
-     * 1h) — a RESUMED session's countdown reflects the TRUE remaining time
-     * (anchored to the original draw), never a freshly-reset hour.
-     */
     @Field(
         () => String,
         {
@@ -254,6 +249,11 @@ export class MyInProgressMockInterviewSessionData {
 @ObjectType({
     description: "Response wrapper for the myInProgressMockInterviewSession query.",
 })
+    /**
+     * ISO timestamp of the session's 1-hour ask-loop deadline (`createdAt` +
+     * 1h) — a RESUMED session's countdown reflects the TRUE remaining time
+     * (anchored to the original draw), never a freshly-reset hour.
+     */
 export class MyInProgressMockInterviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyInProgressMockInterviewSessionData>

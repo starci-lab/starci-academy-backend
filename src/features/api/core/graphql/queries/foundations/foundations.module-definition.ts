@@ -2,7 +2,9 @@ import {
     ConfigurableModuleBuilder
 } from "@nestjs/common"
 
+/** Nest dynamic-module options for the foundations query group. */
 export interface FoundationsModuleOptions {
+    /** When true, the module registers its providers in the global DI scope. */
     isGlobal?: boolean
 }
 

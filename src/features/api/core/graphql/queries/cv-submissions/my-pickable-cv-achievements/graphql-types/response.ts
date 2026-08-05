@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A passed milestone/capstone task attempt, pickable into a CV project block.",
+})
 /**
  * One PASSED milestone/capstone task attempt the learner can pick into a CV
  * "Project" block. Existence of this row (not its score) is the trust signal
  * — see `CvVerificationService`.
  */
-@ObjectType({
-    description: "A passed milestone/capstone task attempt, pickable into a CV project block.",
-})
 export class PickableMilestoneAchievement {
     @Field(
         () => ID,
@@ -50,6 +50,9 @@ export class PickableMilestoneAchievement {
         score: number
 }
 
+@ObjectType({
+    description: "The current user's pickable StarCi capstone projects (passed milestone tasks).",
+})
 /**
  * The authenticated user's pickable StarCi achievements — the raw material
  * for the CV block editor's "pick from StarCi" flow (block editor, Direction A
@@ -62,9 +65,6 @@ export class PickableMilestoneAchievement {
  * trust. Neither goes on the CV, so neither is exposed here. The single
  * legit, verifiable CV signal is a passed capstone project.
  */
-@ObjectType({
-    description: "The current user's pickable StarCi capstone projects (passed milestone tasks).",
-})
 export class MyPickableCvAchievementsViewData {
     @Field(
         () => [PickableMilestoneAchievement],
@@ -75,12 +75,12 @@ export class MyPickableCvAchievementsViewData {
         milestoneTaskAttempts: Array<PickableMilestoneAchievement>
 }
 
-/**
- * Response wrapper for the `myPickableCvAchievements` query.
- */
 @ObjectType({
     description: "Response for fetching the authenticated user's pickable StarCi achievements.",
 })
+/**
+ * Response wrapper for the `myPickableCvAchievements` query.
+ */
 export class MyPickableCvAchievementsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyPickableCvAchievementsViewData | null>

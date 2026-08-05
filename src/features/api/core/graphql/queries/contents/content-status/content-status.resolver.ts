@@ -34,6 +34,10 @@ import {
 } from "@modules/keycloak"
 
 @Resolver()
+/**
+ * GraphQL surface for `contentStatus` — authenticated read/favorite snapshot
+ * for a single content id (drives lesson chrome chips).
+ */
 export class ContentStatusResolver {
     constructor(
         private readonly contentStatusService: ContentStatusService,

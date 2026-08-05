@@ -33,6 +33,10 @@ import {
 } from "./user-personal-task-attempts.service"
 
 @Resolver()
+/**
+ * GraphQL surface for `userPersonalTaskAttempts` — authenticated attempt history
+ * for the caller's enrollment on a milestone task.
+ */
 export class UserPersonalTaskAttemptsResolver {
     constructor(
         private readonly service: UserPersonalTaskAttemptsService,

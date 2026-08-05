@@ -24,6 +24,7 @@ import {
     SystemHealthStatusResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * PUBLIC "build in public" system health — the live liveness of every
  * infrastructure component (Postgres, Redis, NATS, Kafka, MinIO, Qdrant,
@@ -33,7 +34,6 @@ import {
  * Operational internals that would actually help an attacker (fail counts,
  * cooldowns, credentials) stay behind the admin queries.
  */
-@Resolver()
 export class SystemHealthStatusResolver {
     constructor(
         private readonly systemHealthService: SystemHealthService,

@@ -8,10 +8,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Tally of graded reviews by SM-2 grade (Again/Hard/Good/Easy). */
 @ObjectType({
     description: "Tally of graded reviews by SM-2 grade (Again/Hard/Good/Easy).",
 })
+/** Tally of graded reviews by SM-2 grade (Again/Hard/Good/Easy). */
 export class FlashcardGradeDistribution {
     @Field(
         () => Int,
@@ -46,13 +46,13 @@ export class FlashcardGradeDistribution {
         easy: number
 }
 
+@ObjectType({
+    description: "A user's flashcard study stats (streak / retention / totals).",
+})
 /**
  * A user's flashcard study stats, derived from the `flashcard_review_events` log
  * via the per-user CQRS projection.
  */
-@ObjectType({
-    description: "A user's flashcard study stats (streak / retention / totals).",
-})
 export class MyFlashcardStatsData {
     @Field(
         () => Int,
@@ -104,12 +104,12 @@ export class MyFlashcardStatsData {
         gradeDistribution: FlashcardGradeDistribution
 }
 
-/**
- * Response wrapper for the myFlashcardStats query.
- */
 @ObjectType({
     description: "Response wrapper for the myFlashcardStats query.",
 })
+/**
+ * Response wrapper for the myFlashcardStats query.
+ */
 export class MyFlashcardStatsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyFlashcardStatsData> {

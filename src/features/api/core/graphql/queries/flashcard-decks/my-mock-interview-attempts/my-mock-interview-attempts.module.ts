@@ -11,11 +11,11 @@ import {
     MyMockInterviewAttemptsService,
 } from "./my-mock-interview-attempts.service"
 
-/** Feature-module boundary for the `myMockInterviewAttempts` query — wires its resolver + service. */
 @Module({
     providers: [
         MyMockInterviewAttemptsResolver,
         MyMockInterviewAttemptsService,
     ],
 })
+/** Feature-module boundary for the `myMockInterviewAttempts` query — wires its resolver + service. */
 export class MyMockInterviewAttemptsSingleQueryModule extends ConfigurableModuleClass {}

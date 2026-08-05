@@ -7,10 +7,10 @@ import {
     CourseQuestionNodeObject,
 } from "./course-question-node.object"
 
-/** A page of course questions plus the total count for the queried filter. */
 @ObjectType({
     description: "A page of course questions plus the total count for the queried filter.",
 })
+/** A page of course questions plus the total count for the queried filter. */
 export class CourseQuestionsPageObject {
     /** The page of question nodes. */
     @Field(

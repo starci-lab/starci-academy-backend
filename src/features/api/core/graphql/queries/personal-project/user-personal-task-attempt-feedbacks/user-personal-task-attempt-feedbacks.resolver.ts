@@ -31,6 +31,10 @@ import {
 } from "./user-personal-task-attempt-feedbacks.service"
 
 @Resolver()
+/**
+ * GraphQL surface for `userPersonalTaskAttemptFeedbacks` — paginated feedback
+ * for an explicit attemptId (history drill-down, not "latest").
+ */
 export class UserPersonalTaskAttemptFeedbacksResolver {
     constructor(
         private readonly service: UserPersonalTaskAttemptFeedbacksService,

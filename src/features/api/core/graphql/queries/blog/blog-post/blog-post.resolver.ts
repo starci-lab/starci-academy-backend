@@ -41,6 +41,7 @@ import {
 /** Characters of body shown to non-members on a premium post before the paywall. */
 const PREVIEW_CHARS = 600
 
+@Resolver()
 /**
  * Public query returning a single published blog article by slug for the
  * `/blog/[slug]` page. Auth is optional. All bilingual fields resolve to the
@@ -49,7 +50,6 @@ const PREVIEW_CHARS = 600
  * so the FE renders the membership paywall; deep-dive posts are not premium so
  * they always read in full (SEO).
  */
-@Resolver()
 export class BlogPostResolver {
     /** Logger for membership lookup failures (fail closed → treat as locked). */
     private readonly logger = new Logger(BlogPostResolver.name)

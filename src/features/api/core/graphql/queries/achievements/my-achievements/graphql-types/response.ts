@@ -12,14 +12,14 @@ import {
     GraphQLTypeAchievementCriteriaType,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "An achievement definition with the viewer's earned status and progress.",
+})
 /**
  * One achievement as shown on the profile: the definition fields plus the
  * viewer's earned status and live progress toward it. The badge art is fetched
  * by the client from MinIO using `iconKey`.
  */
-@ObjectType({
-    description: "An achievement definition with the viewer's earned status and progress.",
-})
 export class MyAchievementItemData {
     @Field(
         () => String,
@@ -113,13 +113,13 @@ export class MyAchievementItemData {
         rarityPercent: number | null
 }
 
+@ObjectType({
+    description: "Achievements list + earned count + the ones newly earned on this read.",
+})
 /**
  * The achievements payload: the full list, the earned count, and the subset
  * newly earned on this read (award-on-read).
  */
-@ObjectType({
-    description: "Achievements list + earned count + the ones newly earned on this read.",
-})
 export class MyAchievementsData {
     @Field(
         () => [MyAchievementItemData],
@@ -146,12 +146,12 @@ export class MyAchievementsData {
         newAchievements: Array<MyAchievementItemData>
 }
 
-/**
- * Response wrapper for the myAchievements query.
- */
 @ObjectType({
     description: "Response wrapper for the myAchievements query.",
 })
+/**
+ * Response wrapper for the myAchievements query.
+ */
 export class MyAchievementsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyAchievementsData> {

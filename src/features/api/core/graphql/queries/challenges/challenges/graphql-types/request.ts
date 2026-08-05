@@ -15,9 +15,13 @@ import {
 
 /** Sort fields for listing module challenges. */
 export enum ChallengesSortBy {
+    /** Alphabetical by title in the locale ES index — not curriculum order. */
     Title = "title",
+    /** Default (Asc): display order within the content item. */
     SortIndex = "sortIndex",
+    /** Chronological by challenge creation. */
     CreatedAt = "createdAt",
+    /** Recently edited challenges first when Desc. */
     UpdatedAt = "updatedAt",
 }
 
@@ -47,6 +51,10 @@ registerEnumType(GraphQLTypeChallengesSortBy,
 @InputType({
     description: "Sort field and order for listing challenges within a content item.",
 })
+/**
+ * One ES sort key for the content-scoped challenge list. Default on the
+ * filters is SortIndex Asc (curriculum order).
+ */
 export class ChallengesRequestSort extends SortInput<ChallengesSortBy> {
     @Field(
         () => GraphQLTypeChallengesSortBy,
@@ -60,6 +68,10 @@ export class ChallengesRequestSort extends SortInput<ChallengesSortBy> {
 @InputType({
     description: "Pagination, sort, and content scope for listing challenges.",
 })
+/**
+ * Page + sort for `challenges`. The handler searches Elasticsearch (locale
+ * index), not Postgres — missing page/limit use API pagination defaults.
+ */
 export class ChallengesRequestPaginationFilters extends PaginationPageFilters<ChallengesSortBy> {
     @Field(
         () => [ChallengesRequestSort],
@@ -79,6 +91,11 @@ export class ChallengesRequestPaginationFilters extends PaginationPageFilters<Ch
 @InputType({
     description: "Request for listing challenges in a content item with pagination.",
 })
+/**
+ * Paginated challenges belonging to one content item (`contentId` is a
+ * keyword term on the ES index). Title/description are searchable via the
+ * shared ES query builder.
+ */
 export class ChallengesRequest {
     @Field(
         () => ID,

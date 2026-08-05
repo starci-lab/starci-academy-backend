@@ -8,14 +8,14 @@ import {
     MyFeedResolver,
 } from "./my-feed.resolver"
 
-/**
- * Registers {@link MyFeedResolver} as a leaf query module — the schema
- * discovers the `myFeed` operation through this registration, per
- * [[naming-and-structure]] §5.
- */
 @Module({
     providers: [
         MyFeedResolver,
     ],
 })
+/**
+ * Registers {@link MyFeedResolver} as a leaf query module — the schema
+ * discovers the `myFeed` operation through this registration, per
+ * [[naming-and-structure]] §5.
+ */
 export class MyFeedSingleQueryModule extends ConfigurableModuleClass {}

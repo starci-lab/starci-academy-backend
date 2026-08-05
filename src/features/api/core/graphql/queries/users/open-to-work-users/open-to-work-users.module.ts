@@ -13,4 +13,5 @@ import {
         OpenToWorkUsersResolver,
     ],
 })
+/** Feature-module boundary for the `openToWorkUsers` query — wires its resolver so the users group can mount this profile tab independently. */
 export class OpenToWorkUsersSingleQueryModule extends ConfigurableModuleClass {}

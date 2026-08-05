@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One synced in-flight card result, read back for a resumable session. */
 @ObjectType({
     description: "One synced per-card result of a resumable flashcard quick-quiz session.",
 })
+/** One synced in-flight card result, read back for a resumable session. */
 export class MyInProgressFlashcardQuizSessionResultItem {
     @Field(
         () => ID,
@@ -39,14 +39,14 @@ export class MyInProgressFlashcardQuizSessionResultItem {
         totalBlanks: number
 }
 
+@ObjectType({
+    description: "The learner's most recent resumable flashcard quick-quiz session for one course.",
+})
 /**
  * The learner's most recent RESUMABLE flashcard quick-quiz session for one
  * course — "resume flashcard quiz session" (2026-07-08). The query itself
  * resolves to `null` (not this type) when there is none.
  */
-@ObjectType({
-    description: "The learner's most recent resumable flashcard quick-quiz session for one course.",
-})
 export class MyInProgressFlashcardQuizSessionData {
     @Field(
         () => ID,
@@ -88,13 +88,6 @@ export class MyInProgressFlashcardQuizSessionData {
     )
         updatedAt: string
 
-    /**
-     * ISO timestamp of the session's lazy-expiry deadline (`createdAt` +
-     * `FLASHCARD_QUIZ_SESSION_DURATION_MS`) — "session lazy-expiry"
-     * (2026-07-11): a RESUMED session's countdown reflects the TRUE
-     * remaining time (anchored to the original draw), never a freshly-reset
-     * window. Mirrors `myInProgressMockInterviewSession`'s own `deadlineAt`.
-     */
     @Field(
         () => String,
         {
@@ -116,6 +109,13 @@ export class MyInProgressFlashcardQuizSessionData {
 @ObjectType({
     description: "Response wrapper for the myInProgressFlashcardQuizSession query.",
 })
+    /**
+     * ISO timestamp of the session's lazy-expiry deadline (`createdAt` +
+     * `FLASHCARD_QUIZ_SESSION_DURATION_MS`) — "session lazy-expiry"
+     * (2026-07-11): a RESUMED session's countdown reflects the TRUE
+     * remaining time (anchored to the original draw), never a freshly-reset
+     * window. Mirrors `myInProgressMockInterviewSession`'s own `deadlineAt`.
+     */
 export class MyInProgressFlashcardQuizSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyInProgressFlashcardQuizSessionData>

@@ -21,4 +21,5 @@ import {
         CourseSuggestionsHandler,
     ],
 })
+/** Feature-module boundary for the `courseSuggestions` typeahead query. */
 export class CourseSuggestionsSingleQueryModule extends ConfigurableModuleClass {}

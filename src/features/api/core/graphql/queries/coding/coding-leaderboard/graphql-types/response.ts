@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One ranked user in the coding leaderboard. */
 @ObjectType({
     description: "A ranked user by number of solved problems.",
 })
+/** One ranked user in the coding leaderboard. */
 export class CodingLeaderboardEntryObject {
     /** The user's id. */
     @Field(
@@ -42,10 +42,10 @@ export class CodingLeaderboardEntryObject {
         solvedCount: number
 }
 
-/** Response wrapper for the codingLeaderboard query. */
 @ObjectType({
     description: "Response wrapper for the codingLeaderboard query.",
 })
+/** Response wrapper for the codingLeaderboard query. */
 export class CodingLeaderboardResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<CodingLeaderboardEntryObject>>

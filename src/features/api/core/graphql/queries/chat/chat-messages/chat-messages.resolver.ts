@@ -34,8 +34,8 @@ import {
     ChatMessagesService,
 } from "./chat-messages.service"
 
-/** GraphQL resolver for the `chatMessages` query. */
 @Resolver()
+/** GraphQL resolver for the `chatMessages` query. */
 export class ChatMessagesResolver {
     constructor(
         private readonly chatMessagesService: ChatMessagesService,

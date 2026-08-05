@@ -20,11 +20,11 @@ import {
     CodingProblemSuggestionsQuery,
 } from "./coding-problem-suggestions.query"
 
+@Injectable()
 /**
  * Thin application service bridging the resolver and the CQRS query bus for the
  * coding-problem autocomplete (typeahead) query.
  */
-@Injectable()
 export class CodingProblemSuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

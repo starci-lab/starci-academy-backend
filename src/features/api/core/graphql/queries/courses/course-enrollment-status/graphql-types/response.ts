@@ -10,10 +10,10 @@ import {
     EnrollmentEntity,
 } from "@modules/databases"
 
-/** Payload: whether the caller is enrolled. */
 @ObjectType({
     description: "Enrollment flag for the current user on a course.",
 })
+/** Payload: whether the caller is enrolled. */
 export class CourseEnrollmentStatusData {
     @Field(
         () => Boolean,
@@ -36,6 +36,7 @@ export class CourseEnrollmentStatusData {
 @ObjectType({
     description: "Response wrapper for the course enrollment status query.",
 })
+/** GraphQL envelope for the `courseEnrollmentStatus` query. */
 export class CourseEnrollmentStatusResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CourseEnrollmentStatusData>

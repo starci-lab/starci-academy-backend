@@ -13,4 +13,5 @@ import {
         MyContributionCalendarResolver,
     ],
 })
+/** Feature-module boundary for the `myContributionCalendar` query — wires its resolver so the dashboard group can mount this widget independently. */
 export class MyContributionCalendarSingleQueryModule extends ConfigurableModuleClass {}

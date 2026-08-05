@@ -47,6 +47,7 @@ import {
 /** Hard cap on page size to bound the query regardless of client input. */
 const MAX_LIMIT = 50
 
+@Resolver()
 /**
  * The viewer's learning events within a single course — the per-course
  * "learning history" tab the frontend groups by day. This is an explicit
@@ -62,7 +63,6 @@ const MAX_LIMIT = 50
  * Ordering is absolute newest-first (created_at DESC, id DESC) → plain offset
  * pagination, mirroring `userFeed`.
  */
-@Resolver()
 export class CourseLearningHistoryResolver {
     /** Logger for history-build failures (wrapped + rethrown as a typed exception). */
     private readonly logger = new Logger(CourseLearningHistoryResolver.name)

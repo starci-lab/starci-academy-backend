@@ -16,13 +16,13 @@ import type {
     CommunityPostCommentsRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Query service for listing a community post's comments. Loads a page of comment
  * rows, then batch-resolves their reply counts + reaction summaries so the client
  * gets ready nodes. Open to everyone (optional auth); `myReaction` only set when
  * authenticated.
  */
-@Injectable()
 export class CommunityPostCommentsService {
     constructor(
         private readonly communityCommentService: CommunityCommentService,

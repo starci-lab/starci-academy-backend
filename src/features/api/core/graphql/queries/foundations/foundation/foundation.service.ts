@@ -18,6 +18,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Dispatches `FoundationQuery` onto the CQRS bus. */
 export class FoundationService {
     constructor(
         private readonly queryBus: QueryBus,

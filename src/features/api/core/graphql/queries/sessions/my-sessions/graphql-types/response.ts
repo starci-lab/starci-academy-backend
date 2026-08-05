@@ -13,6 +13,10 @@ import {
 @ObjectType({
     description: "The current user's active login sessions (most-recently-seen first).",
 })
+/**
+ * Payload of `mySessions`: active devices newest-seen first so the
+ * security page can list them and flag the current one for revoke UX.
+ */
 export class MySessionsResponseData {
     @Field(
         () => [LoginSessionObject],
@@ -26,6 +30,10 @@ export class MySessionsResponseData {
 @ObjectType({
     description: "Response wrapper for the mySessions query.",
 })
+/**
+ * GraphQL envelope for `mySessions`. Auth-only — unauthenticated callers
+ * never see another user's device list.
+ */
 export class MySessionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MySessionsResponseData>

@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Payload of the resolveRoute query. */
 @ObjectType({
     description: "Resolved canonical route for a global id.",
 })
+/** Payload of the resolveRoute query. */
 export class ResolveRouteData {
     @Field(
         () => String,
@@ -24,10 +24,10 @@ export class ResolveRouteData {
         path: string | null
 }
 
-/** Response wrapper for the resolveRoute query. */
 @ObjectType({
     description: "Response wrapper for the resolveRoute query.",
 })
+/** Response wrapper for the resolveRoute query. */
 export class ResolveRouteResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ResolveRouteData>

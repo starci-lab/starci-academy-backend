@@ -26,10 +26,6 @@ import {
     MyCodingProgressSingleQueryModule,
 } from "./my-coding-progress"
 
-/**
- * Coding-practice query group: problem list/detail, per-user progress/status,
- * submission history, the solved-count leaderboard, and problem-title typeahead.
- */
 @Module({
     imports: [
         MyCodingProgressSingleQueryModule.register({
@@ -55,4 +51,8 @@ import {
         }),
     ],
 })
+/**
+ * Coding-practice query group: problem list/detail, per-user progress/status,
+ * submission history, the solved-count leaderboard, and problem-title typeahead.
+ */
 export class CodingQueriesModule extends ConfigurableModuleClass {}

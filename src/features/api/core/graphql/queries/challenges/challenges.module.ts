@@ -45,4 +45,8 @@ import {
         }),
     ],
 })
+/**
+ * Challenge query group: catalog list + single fetch, submission progress,
+ * course leaderboard, typeahead suggestions, and per-user XP history.
+ */
 export class ChallengesModule extends ConfigurableModuleClass {}

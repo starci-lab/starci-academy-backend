@@ -11,10 +11,10 @@ import {
     CodingSubmissionEntity,
 } from "@modules/databases"
 
-/** A page of the user's submissions for one problem. */
 @ObjectType({
     description: "A page of coding submissions (newest first).",
 })
+/** A page of the user's submissions for one problem. */
 export class MyCodingSubmissionsResponseData {
     /** The page of submissions (newest first). */
     @Field(
@@ -35,10 +35,10 @@ export class MyCodingSubmissionsResponseData {
         total: number
 }
 
-/** Response wrapper for the myCodingSubmissions query. */
 @ObjectType({
     description: "Response wrapper for the myCodingSubmissions query.",
 })
+/** Response wrapper for the myCodingSubmissions query. */
 export class MyCodingSubmissionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCodingSubmissionsResponseData>

@@ -10,10 +10,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** GraphQL envelope for the public `userProfile` query. */
 @ObjectType({
     description: "Response wrapper for the userProfile query.",
 })
+/** GraphQL envelope for the public `userProfile` query. */
 export class UserProfileResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserEntity>

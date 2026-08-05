@@ -14,12 +14,12 @@ import {
     IncompletedJobsResponseData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin wiring layer for the `incompletedJobs` resolver: dispatches to
  * {@link IncompletedJobsQuery} on the query bus. The actual logic lives in
  * {@link IncompletedJobsHandler}.
  */
-@Injectable()
 export class IncompletedJobsService {
     constructor(
         private readonly queryBus: QueryBus,

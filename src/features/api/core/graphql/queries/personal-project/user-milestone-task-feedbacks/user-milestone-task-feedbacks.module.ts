@@ -21,4 +21,7 @@ import {
         UserMilestoneTaskFeedbacksHandler,
     ],
 })
+/**
+ * Nest DI for `userMilestoneTaskFeedbacks` — latest-attempt feedback list.
+ */
 export class UserMilestoneTaskFeedbacksSingleQueryModule extends ConfigurableModuleClass {}

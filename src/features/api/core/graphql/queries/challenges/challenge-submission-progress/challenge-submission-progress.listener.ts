@@ -18,11 +18,11 @@ import type {
     EntityManager,
 } from "typeorm"
 
+@Injectable()
 /**
  * Listens for ChallengeSubmissionProgressUpdated events (via NATS + local)
  * and recomputes + caches the progress immediately so it's warm for the next query.
  */
-@Injectable()
 export class ChallengeSubmissionProgressListener implements OnModuleInit {
     constructor(
         private readonly eventEmitterService: EventEmitterService,

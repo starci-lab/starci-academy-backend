@@ -10,6 +10,9 @@ import {
     MyCodingProgressResponseData,
 } from "../../../coding/my-coding-progress/graphql-types"
 
+@ObjectType({
+    description: "Response wrapper for the userCodingProgress query.",
+})
 /**
  * Response wrapper for the userCodingProgress query.
  *
@@ -17,9 +20,6 @@ import {
  * solved / attempted / revealed problem ids + total coding points. Differs from
  * `myCodingProgress` only in subject — the user named in the route.
  */
-@ObjectType({
-    description: "Response wrapper for the userCodingProgress query.",
-})
 export class UserCodingProgressResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCodingProgressResponseData> {

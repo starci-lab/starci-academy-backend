@@ -8,12 +8,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * One past redemption in the viewer's reward wallet.
- */
 @ObjectType({
     description: "A past reward redemption.",
 })
+/**
+ * One past redemption in the viewer's reward wallet.
+ */
 export class RewardWalletRedemptionObject {
     @Field(
         () => String,
@@ -56,12 +56,12 @@ export class RewardWalletRedemptionObject {
         createdAt: Date
 }
 
-/**
- * The viewer's reward wallet: spendable balance, lifetime spent, and history.
- */
 @ObjectType({
     description: "The viewer's Coin wallet.",
 })
+/**
+ * The viewer's reward wallet: spendable balance, lifetime spent, and history.
+ */
 export class MyRewardWalletData {
     @Field(
         () => Int,
@@ -88,12 +88,12 @@ export class MyRewardWalletData {
         redemptions: Array<RewardWalletRedemptionObject>
 }
 
-/**
- * Response wrapper for the myRewardWallet query.
- */
 @ObjectType({
     description: "Response wrapper for the myRewardWallet query.",
 })
+/**
+ * Response wrapper for the myRewardWallet query.
+ */
 export class MyRewardWalletResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyRewardWalletData> {

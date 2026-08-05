@@ -5,6 +5,9 @@ import {
     ContentsRequest,
 } from "./graphql-types"
 
+/**
+ * CQRS message carrying contents ExecuteParams into ContentsHandler.
+ */
 export class ContentsQuery {
     constructor(
         readonly params: ExecuteParams<ContentsRequest>,

@@ -18,12 +18,12 @@ import type {
     CoursesCheckoutPreviewRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Prices a cart for display, reusing the SAME {@link CoursesCheckoutPricingService}
  * the real checkout uses — so the total shown in the cart equals the total charged
  * at checkout (progressive loyalty + order bundle bonus included).
  */
-@Injectable()
 export class CoursesCheckoutPreviewService {
     constructor(
         private readonly coursesCheckoutPricingService: CoursesCheckoutPricingService,

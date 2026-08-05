@@ -14,8 +14,8 @@ import {
     MyCartQuery,
 } from "./my-cart.query"
 
-/** Thin service that forwards the myCart request to the CQRS query bus. */
 @Injectable()
+/** Thin service that forwards the myCart request to the CQRS query bus. */
 export class MyCartService {
     constructor(
         private readonly queryBus: QueryBus,

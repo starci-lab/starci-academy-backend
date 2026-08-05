@@ -34,6 +34,10 @@ import {
 } from "@modules/keycloak"
 
 @Resolver(() => ContentEntity)
+/**
+ * GraphQL surface for `content` — authenticated single-lesson fetch with
+ * premium truncation and scrape-rate protection applied in the handler.
+ */
 export class ContentResolver {
     constructor(
         private readonly contentQueryService: ContentQueryService,

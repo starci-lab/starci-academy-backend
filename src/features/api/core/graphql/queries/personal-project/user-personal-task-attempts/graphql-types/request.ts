@@ -15,10 +15,15 @@ import {
 
 /** Sort fields for listing user personal task attempts. */
 export enum UserPersonalTaskAttemptsSortBy {
+    /** Best/worst graded runs float first — score leaderboard within one task. */
     Score = "score",
+    /** Submission sequence — default DESC so the latest attempt is first. */
     AttemptNumber = "attemptNumber",
+    /** When the attempt row was created — wall-clock history, not attemptNumber. */
     CreatedAt = "createdAt",
+    /** Last mutation time — surfaces in-progress updates ahead of stale rows. */
     UpdatedAt = "updatedAt",
+    /** When AI grading finished — unfinished attempts sort last / nulls last depending on DB. */
     ProcessedAt = "processedAt",
 }
 
@@ -51,6 +56,9 @@ registerEnumType(GraphQLTypeUserPersonalTaskAttemptsSortBy,
 @InputType({
     description: "Sort field and order for listing user personal task attempts.",
 })
+/**
+ * One sort clause for the caller's personal-task attempt history.
+ */
 export class UserPersonalTaskAttemptsRequestSort extends SortInput<UserPersonalTaskAttemptsSortBy> {
     @Field(
         () => GraphQLTypeUserPersonalTaskAttemptsSortBy,
@@ -64,6 +72,9 @@ export class UserPersonalTaskAttemptsRequestSort extends SortInput<UserPersonalT
 @InputType({
     description: "Pagination, sort, and filters for listing user personal task attempts.",
 })
+/**
+ * Page / sort filters for `userPersonalTaskAttempts` (default AttemptNumber DESC).
+ */
 export class UserPersonalTaskAttemptsRequestPaginationFilters extends PaginationPageFilters<UserPersonalTaskAttemptsSortBy> {
     @Field(
         () => [UserPersonalTaskAttemptsRequestSort],
@@ -83,6 +94,10 @@ export class UserPersonalTaskAttemptsRequestPaginationFilters extends Pagination
 @InputType({
     description: "Request for listing user personal task attempts with pagination.",
 })
+/**
+ * Args for `userPersonalTaskAttempts` — course + task bound to the caller's
+ * enrollment; missing enrollment returns an empty page.
+ */
 export class UserPersonalTaskAttemptsRequest {
     @Field(
         () => ID,

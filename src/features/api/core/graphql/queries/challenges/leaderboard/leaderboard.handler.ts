@@ -15,6 +15,11 @@ import {
 } from "@modules/bussiness"
 
 @QueryHandler(LeaderboardQuery)
+/**
+ * Serves the course leaderboard from the progress projection (inline recompute
+ * + CDC). Clamps `limit` to the cached window; `myRank` uses the cache when
+ * the viewer is inside it, otherwise a direct rank lookup.
+ */
 export class LeaderboardHandler
 implements IQueryHandler<LeaderboardQuery, LeaderboardResponseData>
 {

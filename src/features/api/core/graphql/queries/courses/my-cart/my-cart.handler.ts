@@ -24,6 +24,8 @@ import {
     MyCartQuery,
 } from "./my-cart.query"
 
+@QueryHandler(MyCartQuery)
+@Injectable()
 /**
  * Handler for the myCart query.
  *
@@ -39,8 +41,6 @@ import {
  * here and excluded from the response, so an enrolled course never shows in the
  * cart regardless of which path caused the staleness.
  */
-@QueryHandler(MyCartQuery)
-@Injectable()
 export class MyCartHandler
     extends ICQRSHandler<MyCartQuery, Array<CartItemEntity>>
     implements IQueryHandler<MyCartQuery, Array<CartItemEntity>> {

@@ -35,6 +35,7 @@ import {
     MyFlashcardQuizSessionBySessionIdResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The resolved recap for ONE flashcard quick-quiz ("Hỏi nhanh") session,
  * resolved by its id ALONE REGARDLESS of status. Powers the FE's post-quiz
@@ -46,7 +47,6 @@ import {
  * via the session's enrollment; resolves to `null` when the id is not found /
  * not owned by the caller.
  */
-@Resolver()
 export class MyFlashcardQuizSessionBySessionIdResolver {
     constructor(
         private readonly myFlashcardQuizSessionBySessionIdService: MyFlashcardQuizSessionBySessionIdService,

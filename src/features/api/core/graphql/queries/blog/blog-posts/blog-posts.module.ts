@@ -13,4 +13,9 @@ import {
         BlogPostsResolver,
     ],
 })
+/**
+ * Wires the public `blogPosts` listing (newest first, optional pillar
+ * filter). Resolver-only — bodies are omitted so the `/blog` grid stays
+ * light; detail fetches the full article.
+ */
 export class BlogPostsSingleQueryModule extends ConfigurableModuleClass {}

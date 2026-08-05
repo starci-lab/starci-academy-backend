@@ -34,6 +34,7 @@ import {
     UserCodingProblemDetailService,
 } from "./user-coding-problem-detail.service"
 
+@Resolver()
 /**
  * Public profile query: the detail of ONE coding problem, backing
  * `/profile/<username>/skills/<slug>` — the problem itself (statement, tags,
@@ -43,7 +44,6 @@ import {
  * `userCodingHistory` (optional auth + {@link GraphQLProfileVisibilityGuard})
  * so a locked profile withholds this the same way it withholds the list.
  */
-@Resolver()
 export class UserCodingProblemDetailResolver {
     constructor(
         private readonly userCodingProblemDetailService: UserCodingProblemDetailService,

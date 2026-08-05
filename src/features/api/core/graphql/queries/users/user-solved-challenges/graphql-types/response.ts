@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A passed challenge submission with its submission link + language.",
+})
 /**
  * One passed challenge submission on a user's profile — the challenge, the
  * submission link (a GitHub repo or Google Docs URL the user submitted), the
  * language they chose, and when it passed. The git link is the dev's "flex".
  */
-@ObjectType({
-    description: "A passed challenge submission with its submission link + language.",
-})
 export class UserSolvedChallengeItemData {
     @Field(
         () => ID,
@@ -115,12 +115,12 @@ export class UserSolvedChallengeItemData {
         passedAt: Date | null
 }
 
-/**
- * Response wrapper for the userSolvedChallenges query.
- */
 @ObjectType({
     description: "Response wrapper for the userSolvedChallenges query.",
 })
+/**
+ * Response wrapper for the userSolvedChallenges query.
+ */
 export class UserSolvedChallengesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<UserSolvedChallengeItemData>> {

@@ -9,15 +9,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "One distinct source matched by a course content search.",
+})
 /**
  * One distinct source matched by "Tìm nội dung khóa" — a lesson, a challenge
  * (which lives on a lesson page), a flashcard deck, or a milestone task. The
  * FE branches on {@link kind} to build the right jump link (via `pathConfig`)
  * — only the fields relevant to that kind are non-null.
  */
-@ObjectType({
-    description: "One distinct source matched by a course content search.",
-})
 export class SearchCourseContentItem {
     @Field(
         () => String,
@@ -97,10 +97,10 @@ export class SearchCourseContentItem {
         taskId: string | null
 }
 
-/** Payload of the `searchCourseContent` query. */
 @ObjectType({
     description: "Course content search results (RAG-based, spans lessons/challenges/flashcards/milestone tasks).",
 })
+/** Payload of the `searchCourseContent` query. */
 export class SearchCourseContentData {
     @Field(
         () => [SearchCourseContentItem],
@@ -111,10 +111,10 @@ export class SearchCourseContentData {
         results: Array<SearchCourseContentItem>
 }
 
-/** Response wrapper for the searchCourseContent query. */
 @ObjectType({
     description: "Response wrapper for the searchCourseContent query.",
 })
+/** Response wrapper for the searchCourseContent query. */
 export class SearchCourseContentResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SearchCourseContentData> {

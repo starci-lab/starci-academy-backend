@@ -28,6 +28,10 @@ import {
 } from "./public-content.service"
 
 @Resolver(() => ContentEntity)
+/**
+ * GraphQL surface for `publicContent` — no Keycloak guard; premium content is
+ * refused in the handler so this stays safe for anonymous clients.
+ */
 export class PublicContentResolver {
     constructor(
         private readonly publicContentService: PublicContentService,

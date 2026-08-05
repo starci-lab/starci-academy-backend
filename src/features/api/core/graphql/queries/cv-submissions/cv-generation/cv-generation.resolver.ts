@@ -34,6 +34,10 @@ import {
 } from "./cv-generation.service"
 
 @Resolver()
+/**
+ * GraphQL entry for `cvGeneration`: one owned run with structured data,
+ * LaTeX source, and presigned file URLs. Auth required.
+ */
 export class CvGenerationResolver {
     constructor(
         private readonly cvGenerationService: CvGenerationService,

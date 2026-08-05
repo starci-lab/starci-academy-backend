@@ -16,6 +16,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Dispatches `userChallengeSubmissionAttempts` through QueryBus so the
+ * resolver never constructs the CQRS query itself.
+ */
 export class UserChallengeSubmissionAttemptsService {
     constructor(
         private readonly queryBus: QueryBus,

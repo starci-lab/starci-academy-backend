@@ -14,6 +14,9 @@ import {
 @ObjectType({
     description: "Paginated list of user personal task attempts.",
 })
+/**
+ * Paginated attempt history for the caller on one course+task.
+ */
 export class UserPersonalTaskAttemptsResponseData {
     @Field(
         () => [UserMilestoneTaskAttemptEntity],
@@ -35,6 +38,9 @@ export class UserPersonalTaskAttemptsResponseData {
 @ObjectType({
     description: "Response wrapper for the userPersonalTaskAttempts query.",
 })
+/**
+ * Envelope for `userPersonalTaskAttempts` — status metadata plus attempt page.
+ */
 export class UserPersonalTaskAttemptsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserPersonalTaskAttemptsResponseData>

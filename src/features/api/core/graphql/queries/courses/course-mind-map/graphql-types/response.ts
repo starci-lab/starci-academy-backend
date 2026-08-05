@@ -13,13 +13,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "x/y coordinate of a mind-map node (@xyflow/react `position`).",
+})
 /**
  * `@xyflow/react` node coordinate. Server computes a tidy left-to-right tree layout so the client
  * can render without an extra layout pass.
  */
-@ObjectType({
-    description: "x/y coordinate of a mind-map node (@xyflow/react `position`).",
-})
 export class MindMapNodePosition {
     /** Horizontal coordinate in flow units. */
     @Field(() => Float,
@@ -36,13 +36,13 @@ export class MindMapNodePosition {
         y: number
 }
 
+@ObjectType({
+    description: "Custom payload of a mind-map node (label + navigation refs).",
+})
 /**
  * Payload carried on each node (`@xyflow/react` node `data`). Holds the label plus the ids the
  * client needs to build a navigation href (kind + entity/module ids + slug).
  */
-@ObjectType({
-    description: "Custom payload of a mind-map node (label + navigation refs).",
-})
 export class MindMapNodeData {
     /** Human-facing node label (course / module / lesson title). */
     @Field(() => String,
@@ -110,15 +110,15 @@ export class MindMapNodeData {
         popularity: string | null
 }
 
+@ObjectType({
+    description: "A cross-link from a concept node to a learning surface.",
+})
 /**
  * ONE cross-link from a concept node to a learning surface that teaches / drills / tests it.
  * A concept typically cuts across several surfaces (a lesson to learn it, a flashcard deck to
  * drill it, an interview bank to be tested on it), so concept nodes carry a LIST of these —
  * unlike the derived module graph, whose nodes point at a single entity.
  */
-@ObjectType({
-    description: "A cross-link from a concept node to a learning surface.",
-})
 export class MindMapNodeLink {
     /** Which surface kind this link opens. */
     @Field(() => GraphQLTypeMindMapNodeEntityType,
@@ -152,12 +152,12 @@ export class MindMapNodeLink {
         displayId: string | null
 }
 
-/**
- * A single graph node in `@xyflow/react` shape (`{ id, type, position, data }`).
- */
 @ObjectType({
     description: "A mind-map node in @xyflow/react node shape.",
 })
+/**
+ * A single graph node in `@xyflow/react` shape (`{ id, type, position, data }`).
+ */
 export class MindMapNode {
     /** Unique node id (e.g. `course-<id>`, `module-<id>`, `lesson-<id>`). */
     @Field(() => String,
@@ -189,12 +189,12 @@ export class MindMapNode {
         data: MindMapNodeData
 }
 
-/**
- * A single graph edge in `@xyflow/react` shape (`{ id, source, target }`).
- */
 @ObjectType({
     description: "A mind-map edge in @xyflow/react edge shape.",
 })
+/**
+ * A single graph edge in `@xyflow/react` shape (`{ id, source, target }`).
+ */
 export class MindMapEdge {
     /** Unique edge id (e.g. `<sourceId>--<targetId>`). */
     @Field(() => String,
@@ -234,12 +234,12 @@ export class MindMapEdge {
         animated: boolean | null
 }
 
-/**
- * Computed mind-map graph payload — nodes + edges ready to feed straight into `@xyflow/react`.
- */
 @ObjectType({
     description: "Computed course mind-map graph (nodes + edges) for @xyflow/react.",
 })
+/**
+ * Computed mind-map graph payload — nodes + edges ready to feed straight into `@xyflow/react`.
+ */
 export class CourseMindMapResponseData {
     /** Graph nodes (course root + module + lesson nodes). */
     @Field(() => [MindMapNode],
@@ -256,12 +256,12 @@ export class CourseMindMapResponseData {
         edges: Array<MindMapEdge>
 }
 
-/**
- * GraphQL envelope for the course mind-map query.
- */
 @ObjectType({
     description: "Response wrapper for the course mind-map query.",
 })
+/**
+ * GraphQL envelope for the course mind-map query.
+ */
 export class CourseMindMapResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CourseMindMapResponseData>

@@ -10,6 +10,10 @@ import {
 @ObjectType({
     description: "User's content interaction status.",
 })
+/**
+ * Caller-specific interaction flags for one lesson (read + favorite).
+ * Missing user_contents rows surface as both false, not null.
+ */
 export class ContentStatusData {
     @Field(
         () => Boolean,
@@ -31,6 +35,9 @@ export class ContentStatusData {
 @ObjectType({
     description: "Response wrapper for the contentStatus query.",
 })
+/**
+ * Envelope for `contentStatus` — status metadata plus the interaction flags.
+ */
 export class ContentStatusResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ContentStatusData>

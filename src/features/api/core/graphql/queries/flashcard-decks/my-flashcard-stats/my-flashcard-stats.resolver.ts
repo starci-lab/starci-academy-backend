@@ -32,12 +32,12 @@ import {
     MyFlashcardStatsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The viewer's flashcard study stats — review streak, retention rate, and total
  * reviewed — derived from the `flashcard_review_events` log. Thin read off the
  * per-user CQRS projection (the history scan runs in recompute, not per request).
  */
-@Resolver()
 export class MyFlashcardStatsResolver {
     constructor(
         private readonly userFlashcardStatsProjectionService: UserFlashcardStatsProjectionService,

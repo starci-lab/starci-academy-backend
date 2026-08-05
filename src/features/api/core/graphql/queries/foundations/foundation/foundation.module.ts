@@ -21,4 +21,5 @@ import {
         FoundationHandler,
     ],
 })
+/** Feature-module boundary for the `foundation` detail query. */
 export class FoundationSingleQueryModule extends ConfigurableModuleClass {}

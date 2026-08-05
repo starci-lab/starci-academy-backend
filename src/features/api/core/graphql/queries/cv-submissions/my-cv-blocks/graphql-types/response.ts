@@ -9,15 +9,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A user-authored CV document (ordered blocks + style), course-independent.",
+})
 /**
  * One user-authored CV document (a `cv_blocks` row), returned to the block
  * editor. `blocks` / `style` are opaque JSON owned by the FE block schema.
  * Shared by the `myCvBlocks` query and the create/update mutations so a CV
  * document has ONE GraphQL shape across the feature.
  */
-@ObjectType({
-    description: "A user-authored CV document (ordered blocks + style), course-independent.",
-})
 export class CvBlocksDocument {
     @Field(
         () => ID,
@@ -78,13 +78,13 @@ export class CvBlocksDocument {
         updatedAt: Date
 }
 
+@ObjectType({
+    description: "Response for the current user's CV documents.",
+})
 /**
  * Response wrapper for the `myCvBlocks` query — the signed-in user's CV
  * documents, most recently updated first.
  */
-@ObjectType({
-    description: "Response for the current user's CV documents.",
-})
 export class MyCvBlocksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<CvBlocksDocument> | null>

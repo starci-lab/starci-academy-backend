@@ -38,6 +38,10 @@ import {
 
 @Resolver(() => CourseEntity)
 @Injectable()
+/**
+ * GraphQL entry for `course` plus field resolvers for live pricing phase and
+ * enrollment count (from the course-stats projection, not a per-call count).
+ */
 export class CourseResolver {
     constructor(
         private readonly courseStatsProjectionService: CourseStatsProjectionService,

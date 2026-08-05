@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One playground summary row for a course's playground list. */
 @ObjectType({
     description: "Summary of a playground for a course's playground list.",
 })
+/** One playground summary row for a course's playground list. */
 export class PlaygroundSummary {
     @Field(
         () => ID,
@@ -59,6 +59,11 @@ export class PlaygroundSummary {
 @ObjectType({
     description: "Response wrapper for the playgrounds query.",
 })
+/**
+ * GraphQL envelope for the public `playgrounds` course listing. Rows are
+ * summaries (id/slug/title/icon/stepCount) — starting a session is a
+ * separate gated mutation.
+ */
 export class PlaygroundsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<PlaygroundSummary>>

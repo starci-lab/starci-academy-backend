@@ -12,10 +12,10 @@ import {
     ChallengeEntity 
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Service for performing global search on challenges.
  */
-@Injectable()
 export class ChallengeGlobalSearchService {
     /**
      * The number of words to include in the snippet.

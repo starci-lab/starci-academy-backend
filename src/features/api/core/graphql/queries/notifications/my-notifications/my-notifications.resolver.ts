@@ -37,12 +37,12 @@ import {
     MyNotificationsResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Per-user notification bell list (newest first), paginated, with the unread
  * total folded in so the FE renders the list + badge from one round trip.
  * Reads `notifications` directly (not cached) — the bell is viewed on demand.
  */
-@Resolver()
 export class MyNotificationsResolver {
     constructor(
         private readonly notificationService: NotificationService,

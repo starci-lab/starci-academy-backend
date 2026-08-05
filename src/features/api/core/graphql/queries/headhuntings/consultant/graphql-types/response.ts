@@ -10,10 +10,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Response wrapper for the single Headhunter query. */
 @ObjectType({
     description: "Response wrapper for the Headhunter query.",
 })
+/** Response wrapper for the single Headhunter query. */
 export class ConsultantResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ConsultantEntity>

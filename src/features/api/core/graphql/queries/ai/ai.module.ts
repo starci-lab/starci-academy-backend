@@ -20,9 +20,6 @@ import {
     MyCreditUsageHistorySingleQueryModule,
 } from "./my-credit-usage-history"
 
-/**
- * Per-user AI query group (quota snapshot, lane settings, tier catalog, …).
- */
 @Module({
     imports: [
         MyAiQuotaSingleQueryModule.register({
@@ -42,4 +39,7 @@ import {
         }),
     ],
 })
+/**
+ * Per-user AI query group (quota snapshot, lane settings, tier catalog, …).
+ */
 export class AiQueriesModule extends ConfigurableModuleClass {}

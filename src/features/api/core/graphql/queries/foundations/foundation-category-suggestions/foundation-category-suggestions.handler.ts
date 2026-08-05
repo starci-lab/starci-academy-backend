@@ -31,6 +31,8 @@ const MAX_LIMIT = 20
 /** Suggester name used in the ES request + response. */
 const SUGGESTER = "categories"
 
+@QueryHandler(FoundationCategorySuggestionsQuery)
+@Injectable()
 /**
  * Foundation category autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -40,8 +42,6 @@ const SUGGESTER = "categories"
  * suggest `text` is already the clean label and `_id` is the category id, so no
  * post-processing is needed on the client.
  */
-@QueryHandler(FoundationCategorySuggestionsQuery)
-@Injectable()
 export class FoundationCategorySuggestionsHandler
     extends ICQRSHandler<FoundationCategorySuggestionsQuery, FoundationCategorySuggestionsPayload>
     implements IQueryHandler<FoundationCategorySuggestionsQuery, FoundationCategorySuggestionsPayload> {

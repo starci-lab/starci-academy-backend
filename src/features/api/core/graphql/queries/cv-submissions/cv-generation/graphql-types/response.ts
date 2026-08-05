@@ -20,15 +20,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "One CV scoring observation (a strength or a gap), with an optional fix suggestion.",
+})
 /**
  * One observation (strength or gap) from the shared CV scoring rubric — mirrors
  * `CvScoreFeedbackItem` (`shared/cv-scoring/types`), typed for GraphQL. Reuses
  * the existing {@link SubmissionFeedbackSeverity} enum (`low`/`medium`/`high`)
  * rather than a CV-specific one — same semantic, no duplicate type.
  */
-@ObjectType({
-    description: "One CV scoring observation (a strength or a gap), with an optional fix suggestion.",
-})
 export class CvFeedbackItem {
     @Field(
         () => GraphQLTypeSubmissionFeedbackSeverity,
@@ -64,13 +64,13 @@ export class CvFeedbackItem {
         suggestion: string | null
 }
 
+@ObjectType({
+    description: "Structured CV scoring feedback: a one-line summary plus per-observation findings.",
+})
 /**
  * Structured CV scoring feedback (`cv_generations.feedback`) — a one-line
  * summary plus the per-observation breakdown. Null until scored.
  */
-@ObjectType({
-    description: "Structured CV scoring feedback: a one-line summary plus per-observation findings.",
-})
 export class CvFeedback {
     @Field(
         () => String,
@@ -97,6 +97,9 @@ export class CvFeedback {
         items: Array<CvFeedbackItem>
 }
 
+@ObjectType({
+    description: "A single CV generation run with resolved structured data + LaTeX source.",
+})
 /**
  * One CV generation run, resolved for the FE: the assembled `structuredData`
  * exposed as a JSON scalar, the generated `.tex` document resolved from MinIO
@@ -104,9 +107,6 @@ export class CvFeedback {
  * direct MinIO access — and the structured scoring `feedback` typed for the
  * findings accordion.
  */
-@ObjectType({
-    description: "A single CV generation run with resolved structured data + LaTeX source.",
-})
 export class CvGenerationPayload {
     @Field(
         () => ID,
@@ -287,6 +287,10 @@ export class CvGenerationPayload {
 @ObjectType({
     description: "Response wrapper for the cvGeneration query.",
 })
+/**
+ * Envelope for `cvGeneration`. The run must belong to the caller; ownership
+ * failures surface as not-found rather than a null `data` with a foreign row.
+ */
 export class CvGenerationResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CvGenerationPayload>

@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One technology tag's aggregate coverage across the scanned sessions. */
 @ObjectType({
     description: "One technology tag's aggregate coverage across the viewer's scanned quiz sessions.",
 })
+/** One technology tag's aggregate coverage across the scanned sessions. */
 export class FlashcardQuizStatsTagItem {
     @Field(
         () => String,
@@ -31,10 +31,10 @@ export class FlashcardQuizStatsTagItem {
         coverage: number
 }
 
-/** How many of the course's technology tags the learner has attempted at least once, vs how many exist. */
 @ObjectType({
     description: "Distinct tags attempted vs distinct tags existing in this course.",
 })
+/** How many of the course's technology tags the learner has attempted at least once, vs how many exist. */
 export class FlashcardQuizStatsConceptCoverage {
     @Field(() => Int, { description: "Distinct tags touched by at least one scanned quiz session's cards." })
         covered: number
@@ -43,14 +43,14 @@ export class FlashcardQuizStatsConceptCoverage {
         total: number
 }
 
+@ObjectType({
+    description: "The viewer's aggregated flashcard quick-quiz stats for one course.",
+})
 /**
  * The viewer's aggregated flashcard quick-quiz ("Hỏi nhanh") stats for one
  * course — the coverage-vs-target hero + weak-topic map that
  * `FlashcardQuizStats` renders (`stats-canonical-fold` — 1 hero + 1 zone).
  */
-@ObjectType({
-    description: "The viewer's aggregated flashcard quick-quiz stats for one course.",
-})
 export class MyFlashcardQuizStatsData {
     @Field(
         () => Boolean,
@@ -78,12 +78,12 @@ export class MyFlashcardQuizStatsData {
         conceptCoverage: FlashcardQuizStatsConceptCoverage | null
 }
 
-/**
- * Response wrapper for the myFlashcardQuizStats query.
- */
 @ObjectType({
     description: "Response wrapper for the myFlashcardQuizStats query.",
 })
+/**
+ * Response wrapper for the myFlashcardQuizStats query.
+ */
 export class MyFlashcardQuizStatsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyFlashcardQuizStatsData>

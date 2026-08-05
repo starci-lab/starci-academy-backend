@@ -16,10 +16,10 @@ import {
     HeadhunterCompaniesQuery,
 } from "./headhunting-companies.query"
 
+@Injectable()
 /**
  * Service for the headhunting companies list query.
  */
-@Injectable()
 export class HeadhuntingCompaniesService {
     constructor(
         private readonly queryBus: QueryBus,

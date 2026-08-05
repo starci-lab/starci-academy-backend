@@ -25,13 +25,13 @@ import {
     HeadhunterCompanyQuery,
 } from "./headhunting-company.query"
 
+@QueryHandler(HeadhunterCompanyQuery)
+@Injectable()
 /**
  * Handles the single headhunting company lookup query (by `id` or
  * `displayId`, Elasticsearch), then gates any nested consultants' contact
  * fields by the viewer's best CV score.
  */
-@QueryHandler(HeadhunterCompanyQuery)
-@Injectable()
 export class HeadhuntingCompanyHandler
     extends ICQRSHandler<HeadhunterCompanyQuery, HeadhuntingCompanyEntity>
     implements IQueryHandler<HeadhunterCompanyQuery, HeadhuntingCompanyEntity> {

@@ -33,10 +33,10 @@ import {
     CoursesCheckoutPreviewService,
 } from "./courses-checkout-preview.service"
 
+@Resolver()
 /**
  * GraphQL entry for previewing the price of a multi-course cart before checkout.
  */
-@Resolver()
 export class CoursesCheckoutPreviewResolver {
     constructor(
         private readonly coursesCheckoutPreviewService: CoursesCheckoutPreviewService,

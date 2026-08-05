@@ -25,13 +25,13 @@ import {
     AiKeyHealthResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * PUBLIC "build in public" AI key health — masked keys (`abc...def`) grouped per
  * model, with a healthy flag each. No raw values, no fail counts / cooldown /
  * disabled timestamps (those stay behind the admin `aiBalancerHealth` query).
  * Safe to show on a public status page.
  */
-@Resolver()
 export class AiKeyHealthResolver {
     constructor(
         private readonly aiBalancerService: AiBalancerService,

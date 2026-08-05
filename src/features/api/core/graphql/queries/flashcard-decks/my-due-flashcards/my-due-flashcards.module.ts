@@ -8,10 +8,10 @@ import {
     MyDueFlashcardsResolver,
 } from "./my-due-flashcards.resolver"
 
-/** Feature-module boundary for the `myDueFlashcards` query — wires its resolver (business logic lives in the shared `FlashcardReviewService`). */
 @Module({
     providers: [
         MyDueFlashcardsResolver,
     ],
 })
+/** Feature-module boundary for the `myDueFlashcards` query — wires its resolver (business logic lives in the shared `FlashcardReviewService`). */
 export class MyDueFlashcardsSingleQueryModule extends ConfigurableModuleClass {}

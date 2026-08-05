@@ -13,4 +13,5 @@ import {
         MyChallengeSubmissionsResolver,
     ],
 })
+/** Feature-module boundary for the `myChallengeSubmissions` query — wires its resolver. */
 export class MyChallengeSubmissionsSingleQueryModule extends ConfigurableModuleClass {}

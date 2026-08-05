@@ -13,14 +13,14 @@ import {
     SubmissionFeedbackSeverity,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "One AI feedback item from the passing attempt of a solved challenge submission.",
+})
 /**
  * One structured AI feedback item from the passing attempt of a solved
  * challenge submission (mirrors {@link UserChallengeSubmissionFeedbackEntity},
  * trimmed to what a profile visitor should see).
  */
-@ObjectType({
-    description: "One AI feedback item from the passing attempt of a solved challenge submission.",
-})
 export class UserSolvedChallengeDetailFeedbackData {
     @Field(
         () => String,
@@ -66,14 +66,14 @@ export class UserSolvedChallengeDetailFeedbackData {
         suggestion: string | null
 }
 
+@ObjectType({
+    description: "One recorded attempt against a solved challenge submission.",
+})
 /**
  * One recorded attempt against a solved challenge submission (mirrors
  * {@link UserChallengeSubmissionAttemptEntity}, trimmed to what a profile
  * visitor should see) — the attempts record, newest first.
  */
-@ObjectType({
-    description: "One recorded attempt against a solved challenge submission.",
-})
 export class UserSolvedChallengeDetailAttemptData {
     @Field(
         () => Int,
@@ -119,14 +119,14 @@ export class UserSolvedChallengeDetailAttemptData {
         processedAt: Date | null
 }
 
+@ObjectType({
+    description: "Detail of a single passed challenge submission, including AI feedback from the passing attempt.",
+})
 /**
  * Detail of one passed challenge submission on a user's public profile —
  * the same fields as a `userSolvedChallenges` list item, plus the structured
  * AI feedback list from the attempt that passed it.
  */
-@ObjectType({
-    description: "Detail of a single passed challenge submission, including AI feedback from the passing attempt.",
-})
 export class UserSolvedChallengeDetailData {
     @Field(
         () => ID,
@@ -222,12 +222,12 @@ export class UserSolvedChallengeDetailData {
         attempts: Array<UserSolvedChallengeDetailAttemptData>
 }
 
-/**
- * Response wrapper for the userSolvedChallengeDetail query.
- */
 @ObjectType({
     description: "Response wrapper for the userSolvedChallengeDetail query.",
 })
+/**
+ * Response wrapper for the userSolvedChallengeDetail query.
+ */
 export class UserSolvedChallengeDetailResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserSolvedChallengeDetailData> {

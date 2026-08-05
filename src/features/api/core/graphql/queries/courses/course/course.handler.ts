@@ -25,6 +25,10 @@ import {
 
 @QueryHandler(CourseQuery)
 @Injectable()
+/**
+ * Loads a single localized course JSON blob from MinIO by display id; throws
+ * when the object is missing so the client gets a typed not-found.
+ */
 export class CourseHandler
     extends ICQRSHandler<CourseQuery, CourseEntity>
     implements IQueryHandler<CourseQuery, CourseEntity> {

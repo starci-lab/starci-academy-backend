@@ -9,12 +9,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * One XP-earning event in the user's history.
- */
 @ObjectType({
     description: "One XP-earning event in the history.",
 })
+/**
+ * One XP-earning event in the user's history.
+ */
 export class XpHistoryItemObject {
     @Field(
         () => ID,
@@ -66,12 +66,12 @@ export class XpHistoryItemObject {
         createdAt: Date
 }
 
-/**
- * Paginated XP-earning history (newest first).
- */
 @ObjectType({
     description: "Paginated XP-earning history.",
 })
+/**
+ * Paginated XP-earning history (newest first).
+ */
 export class MyXpHistoryResponseData {
     @Field(
         () => [XpHistoryItemObject],
@@ -90,12 +90,12 @@ export class MyXpHistoryResponseData {
         total: number
 }
 
-/**
- * Response wrapper for the myXpHistory query.
- */
 @ObjectType({
     description: "Response wrapper for the myXpHistory query.",
 })
+/**
+ * Response wrapper for the myXpHistory query.
+ */
 export class MyXpHistoryResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyXpHistoryResponseData>

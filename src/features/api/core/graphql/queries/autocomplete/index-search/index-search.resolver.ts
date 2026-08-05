@@ -32,6 +32,10 @@ import {
 } from "@modules/databases"
 
 @Resolver()
+/**
+ * Auth-gated fuzzy search against one chosen ES catalog index. Unlike global
+ * search this returns a flat list (one kind) with parent displayIds attached.
+ */
 export class IndexSearchResolver {
     constructor(
         private readonly indexSearchService: IndexSearchService,

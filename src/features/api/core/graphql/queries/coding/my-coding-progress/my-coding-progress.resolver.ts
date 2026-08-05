@@ -30,12 +30,12 @@ import {
     type MyCodingProgressResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Returns the authenticated user's coding-practice status (solved/attempted/
  * revealed ids + total points) from the Redis-cached progress — decoupled from
  * the shared `codingProblems` catalog (served from Elasticsearch).
  */
-@Resolver()
 export class MyCodingProgressResolver {
     constructor(
         private readonly codingProgressService: CodingProgressService,

@@ -39,6 +39,7 @@ const DEFAULT_LIMIT = 20
 /** Upper bound so the client can never ask for an unbounded list. */
 const MAX_LIMIT = 50
 
+@Resolver()
 /**
  * Public list of the users a profile follows (most recent first), keyed by
  * username — the "following" side of the follow-list modal. Mirrors
@@ -46,7 +47,6 @@ const MAX_LIMIT = 50
  * `follower` is the target, mapped to the `following` user. Offset-paginated for
  * infinite scroll. Public (no auth).
  */
-@Resolver()
 export class UserFollowingResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

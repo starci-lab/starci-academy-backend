@@ -34,6 +34,10 @@ import {
 
 @QueryHandler(UserPersonalTaskAttemptsQuery)
 @Injectable()
+/**
+ * Pages the caller's UserMilestoneTaskAttempt rows for a course+task via
+ * enrollment → userMilestoneTask; empty when not enrolled / no task progress.
+ */
 export class UserPersonalTaskAttemptsHandler
     extends ICQRSHandler<UserPersonalTaskAttemptsQuery, UserPersonalTaskAttemptsResponseData>
     implements IQueryHandler<UserPersonalTaskAttemptsQuery, UserPersonalTaskAttemptsResponseData> {

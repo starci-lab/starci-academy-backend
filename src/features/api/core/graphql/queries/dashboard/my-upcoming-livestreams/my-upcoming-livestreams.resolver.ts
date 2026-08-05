@@ -48,6 +48,7 @@ const DEFAULT_LIMIT = 3
 /** Upper bound so the client can never ask for an unbounded list. */
 const MAX_LIMIT = 20
 
+@Resolver()
 /**
  * Dashboard rail: the viewer's soonest upcoming livestreams across the courses
  * they are enrolled in. Livestream slots are recurring weekly templates (weekday
@@ -55,7 +56,6 @@ const MAX_LIMIT = 20
  * occurrence on or after now, sort the whole set ascending, and return the
  * earliest few. Auth-only (the set is the viewer's own enrollments).
  */
-@Resolver()
 export class MyUpcomingLivestreamsResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

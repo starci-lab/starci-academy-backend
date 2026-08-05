@@ -10,10 +10,10 @@ import {
     CommentsPageObject,
 } from "../../../../shared/discussion"
 
-/** Response wrapper for the content comments query. */
 @ObjectType({
     description: "Response wrapper for the content comments query.",
 })
+/** Response wrapper for the content comments query. */
 export class ContentCommentsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CommentsPageObject>

@@ -11,11 +11,11 @@ import {
     MyFlashcardQuizHistoryService,
 } from "./my-flashcard-quiz-history.service"
 
-/** Feature-module boundary for the `myFlashcardQuizHistory` query — wires its resolver + service. */
 @Module({
     providers: [
         MyFlashcardQuizHistoryResolver,
         MyFlashcardQuizHistoryService,
     ],
 })
+/** Feature-module boundary for the `myFlashcardQuizHistory` query — wires its resolver + service. */
 export class MyFlashcardQuizHistorySingleQueryModule extends ConfigurableModuleClass {}

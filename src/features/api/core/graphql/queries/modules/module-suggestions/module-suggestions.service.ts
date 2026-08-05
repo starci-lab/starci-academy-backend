@@ -19,6 +19,10 @@ import {
 } from "./module-suggestions.query"
 
 @Injectable()
+/**
+ * Dispatches `ModuleSuggestionsQuery` onto the CQRS bus; `query` wraps the
+ * resolver's locale + request into the shared execute params.
+ */
 export class ModuleSuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

@@ -40,13 +40,13 @@ import {
     MyMockInterviewAttemptsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The viewer's mock-interview HISTORY for one course — every past graded
  * session (newest first), paginated, so the scorecard's "past attempts" can
  * list and re-open them. Enrolled-only (the same surface that spends AI
  * credits to grade a session).
  */
-@Resolver()
 export class MyMockInterviewAttemptsResolver {
     constructor(
         private readonly myMockInterviewAttemptsService: MyMockInterviewAttemptsService,

@@ -13,4 +13,5 @@ import {
         MyPinnableCapstonesResolver,
     ],
 })
+/** Feature-module boundary for the `myPinnableCapstones` query — wires its resolver so the users group can mount this profile tab independently. */
 export class MyPinnableCapstonesSingleQueryModule extends ConfigurableModuleClass {}

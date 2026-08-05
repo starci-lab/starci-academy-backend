@@ -42,13 +42,13 @@ const DEFAULT_LIMIT = 20
 /** Upper bound so the client can never ask for an unbounded list. */
 const MAX_LIMIT = 20
 
+@Resolver()
 /**
  * Dashboard "who to follow" rail: users the viewer does not already follow,
  * ranked by how many followers they have (most-followed first) so the most
  * notable accounts surface. Excludes the viewer themselves and everyone they
  * already follow. Auth-only — the suggestion set is viewer-specific.
  */
-@Resolver()
 export class SuggestedUsersResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

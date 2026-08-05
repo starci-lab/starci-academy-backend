@@ -34,8 +34,8 @@ import {
     CommunityPostQueryService,
 } from "./community-post.service"
 
-/** GraphQL resolver for the `communityPost` query. */
 @Resolver()
+/** GraphQL resolver for the `communityPost` query. */
 export class CommunityPostResolver {
     constructor(
         private readonly communityPostQueryService: CommunityPostQueryService,

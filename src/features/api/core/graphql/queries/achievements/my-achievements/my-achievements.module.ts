@@ -8,14 +8,14 @@ import {
     MyAchievementsResolver,
 } from "./my-achievements.resolver"
 
-/**
- * Registers {@link MyAchievementsResolver} as a leaf query module — the schema
- * discovers the `myAchievements` operation through this registration, per
- * [[naming-and-structure]] §5.
- */
 @Module({
     providers: [
         MyAchievementsResolver,
     ],
 })
+/**
+ * Registers {@link MyAchievementsResolver} as a leaf query module — the schema
+ * discovers the `myAchievements` operation through this registration, per
+ * [[naming-and-structure]] §5.
+ */
 export class MyAchievementsSingleQueryModule extends ConfigurableModuleClass {}

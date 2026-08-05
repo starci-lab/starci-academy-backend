@@ -19,6 +19,7 @@ import type {
     InstallmentPlanItem,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Reads a viewer's installment ("trả góp") plans for the "Kế hoạch trả góp của
  * tôi" surface — a per-viewer single-list read (exempt from the CQRS-projection
@@ -28,7 +29,6 @@ import type {
  * `payNextInstallment` charge always agree) and the titles of the courses it
  * gates.
  */
-@Injectable()
 export class MyInstallmentPlansService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

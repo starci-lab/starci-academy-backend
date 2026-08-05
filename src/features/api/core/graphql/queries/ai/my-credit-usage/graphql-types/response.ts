@@ -11,12 +11,12 @@ import {
     MyCreditUsageWindowData,
 } from "./credit-usage-window"
 
-/**
- * Per-user AI credit usage snapshot (source of truth: `credit_usage_histories`).
- */
 @ObjectType({
     description: "Per-user AI credit usage snapshot.",
 })
+/**
+ * Per-user AI credit usage snapshot (source of truth: `credit_usage_histories`).
+ */
 export class MyCreditUsageResponseData {
     @Field(
         () => Int,
@@ -79,6 +79,10 @@ export class MyCreditUsageResponseData {
 @ObjectType({
     description: "Response wrapper for the myCreditUsage query.",
 })
+/**
+ * GraphQL envelope for `myCreditUsage`. `data` is null only on the error path;
+ * `overQuota` inside the snapshot is what the client uses to block new AI calls.
+ */
 export class MyCreditUsageResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCreditUsageResponseData>

@@ -20,9 +20,6 @@ import {
     MyCvBlocksSingleQueryModule,
 } from "./my-cv-blocks"
 
-/**
- * Module for CV submission related queries.
- */
 @Module({
     imports: [
         TemplateCvsSingleQueryModule.register({
@@ -43,4 +40,7 @@ import {
     ],
 
 })
+/**
+ * Module for CV submission related queries.
+ */
 export class CvSubmissionsQueriesModule extends ConfigurableModuleClass {}

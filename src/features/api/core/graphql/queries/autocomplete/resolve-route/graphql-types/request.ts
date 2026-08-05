@@ -3,12 +3,12 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/**
- * Request to resolve an opaque entity global id into its canonical route.
- */
 @InputType({
     description: "Request to resolve a global id into a canonical route.",
 })
+/**
+ * Request to resolve an opaque entity global id into its canonical route.
+ */
 export class ResolveRouteRequest {
     @Field(
         () => String,

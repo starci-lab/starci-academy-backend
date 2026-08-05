@@ -32,6 +32,7 @@ import {
     MyContributionDayData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * GitHub-style contribution calendar for ONE year — the viewer's daily learning
  * activity counts (contents / challenges / milestones). Thin read of the
@@ -40,7 +41,6 @@ import {
  * the client fills the grid gaps with zero-cells. GitHub renders one year at a
  * time + lets you flip years — `year` selects which.
  */
-@Resolver()
 export class MyContributionCalendarResolver {
     constructor(
         private readonly contributionProjectionService: ContributionProjectionService,

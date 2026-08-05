@@ -16,14 +16,14 @@ import {
     GraphQLTypeCourseLearningEventType,
 } from "../enums"
 
+@ObjectType({
+    description: "A single per-course learning event (lesson/challenge/milestone).",
+})
 /**
  * One learning event in the per-course history timeline — a lesson the viewer
  * read, a challenge they passed, or a milestone task they completed within this
  * course. The frontend groups these by day using `at`.
  */
-@ObjectType({
-    description: "A single per-course learning event (lesson/challenge/milestone).",
-})
 export class CourseLearningHistoryItemData {
     @Field(
         () => ID,
@@ -76,10 +76,10 @@ export class CourseLearningHistoryItemData {
         difficulty: ContentDifficulty | null
 }
 
-/** One cursor-paginated page of the per-course learning history. */
 @ObjectType({
     description: "A cursor-paginated page of per-course learning events.",
 })
+/** One cursor-paginated page of the per-course learning history. */
 export class CourseLearningHistoryResponseData {
     @Field(
         () => [CourseLearningHistoryItemData],
@@ -99,13 +99,13 @@ export class CourseLearningHistoryResponseData {
         nextCursor: string | null
 }
 
+@ObjectType({
+    description: "Response wrapper for the courseLearningHistory query.",
+})
 /**
  * Response wrapper for the courseLearningHistory query — a page of learning
  * events (items + nextCursor) for the viewer within one course.
  */
-@ObjectType({
-    description: "Response wrapper for the courseLearningHistory query.",
-})
 export class CourseLearningHistoryResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CourseLearningHistoryResponseData> {

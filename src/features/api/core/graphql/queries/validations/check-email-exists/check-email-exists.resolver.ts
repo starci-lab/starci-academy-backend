@@ -28,6 +28,11 @@ import {
 } from "./check-email-exists.service"
 
 @Resolver()
+/**
+ * Public `checkEmailExists` query — bloom-filter probe with possible false
+ * positives. Unauthenticated on purpose so the signup form can call it
+ * before the user has a token.
+ */
 export class CheckEmailExistsResolver {
     constructor(
         private readonly checkEmailExistsService: CheckEmailExistsService,

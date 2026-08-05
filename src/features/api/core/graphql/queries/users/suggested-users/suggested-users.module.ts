@@ -13,4 +13,5 @@ import {
         SuggestedUsersResolver,
     ],
 })
+/** Feature-module boundary for the `suggestedUsers` query — wires its resolver so the users group can mount this profile tab independently. */
 export class SuggestedUsersSingleQueryModule extends ConfigurableModuleClass {}

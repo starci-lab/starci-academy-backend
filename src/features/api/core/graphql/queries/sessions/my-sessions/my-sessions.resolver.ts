@@ -40,6 +40,11 @@ import {
 } from "./graphql-types"
 
 @Resolver()
+/**
+ * Authenticated `mySessions` query for the logged-in-devices screen. Reads
+ * the request's session cookie so the result can flag `current` on this
+ * device; revoke itself is a separate mutation.
+ */
 export class MySessionsResolver {
     constructor(
         private readonly sessionService: SessionService,

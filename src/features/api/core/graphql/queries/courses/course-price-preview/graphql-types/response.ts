@@ -15,14 +15,14 @@ import {
     PricingPhase,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "One offered installment term (months + markup + total + per-month) for a course.",
+})
 /**
  * One offered installment ("trả góp") term for this course's discounted price —
  * the payment modal renders these as the 3/6/12-month choices with each term's
  * per-month + total (markup already applied). Empty for a free course.
  */
-@ObjectType({
-    description: "One offered installment term (months + markup + total + per-month) for a course.",
-})
 export class InstallmentOptionItem {
     @Field(
         () => Int,
@@ -57,6 +57,9 @@ export class InstallmentOptionItem {
         monthlyAmountVnd: number
 }
 
+@ObjectType({
+    description: "Pre-checkout price preview for a course, priced with the viewer's loyalty discount.",
+})
 /**
  * Pre-checkout price preview for a single course: the original vs loyalty-discounted
  * price (VND always; USD when the active phase has one) plus the discount metadata,
@@ -64,9 +67,6 @@ export class InstallmentOptionItem {
  * eventual charge. Lets the payment modal show "what + how much + why discounted"
  * before the buyer picks a gateway.
  */
-@ObjectType({
-    description: "Pre-checkout price preview for a course, priced with the viewer's loyalty discount.",
-})
 export class CoursePricePreviewData {
     @Field(
         () => Int,
@@ -205,12 +205,12 @@ export class CoursePricePreviewData {
         installmentOptions: Array<InstallmentOptionItem>
 }
 
-/**
- * Response wrapper for the coursePricePreview query.
- */
 @ObjectType({
     description: "Response wrapper for the coursePricePreview query.",
 })
+/**
+ * Response wrapper for the coursePricePreview query.
+ */
 export class CoursePricePreviewResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CoursePricePreviewData> {

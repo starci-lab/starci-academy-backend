@@ -30,6 +30,7 @@ import type {
  */
 const RESUME_WINDOW_HOURS = 24
 
+@Injectable()
 /**
  * Reads back the learner's most recent RESUMABLE flashcard quick-quiz
  * session for one course, so the FE can offer "Tiếp tục phiên hỏi nhanh?"
@@ -38,7 +39,6 @@ const RESUME_WINDOW_HOURS = 24
  * service, no CQRS command bus — a straight read has no command to
  * dispatch).
  */
-@Injectable()
 export class MyInProgressFlashcardQuizSessionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

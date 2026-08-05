@@ -3,10 +3,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request for loading one coding problem's approach hint by slug. */
 @InputType({
     description: "Lookup a coding problem's approach hint by its slug.",
 })
+/** Request for loading one coding problem's approach hint by slug. */
 export class CodingProblemHintRequest {
     /** Stable URL slug of the problem. */
     @Field(

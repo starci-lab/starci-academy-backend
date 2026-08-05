@@ -53,6 +53,11 @@ const callerMayViewAttempt = (
 
 @QueryHandler(LastPersonalTaskAttemptQuery)
 @Injectable()
+/**
+ * Latest UserMilestoneTaskAttempt for a subject user on a task — self may read;
+ * instructor/admin/mentor may read others; missing enrollment/task yields null
+ * (not an error) so staff UIs can show "no attempt yet".
+ */
 export class LastPersonalTaskAttemptHandler
     extends ICQRSHandler<LastPersonalTaskAttemptQuery, LastPersonalTaskAttemptResponseData>
     implements IQueryHandler<LastPersonalTaskAttemptQuery, LastPersonalTaskAttemptResponseData> {

@@ -16,6 +16,9 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin QueryBus adapter for userMilestoneTaskFeedbacks.
+ */
 export class UserMilestoneTaskFeedbacksService {
     constructor(
         private readonly queryBus: QueryBus,

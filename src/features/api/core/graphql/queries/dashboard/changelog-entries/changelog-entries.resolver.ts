@@ -32,11 +32,11 @@ import {
 /** Hard cap on how many entries the rail can request. */
 const MAX_LIMIT = 20
 
+@Resolver()
 /**
  * Public query returning recent published changelog entries (newest first) for
  * the dashboard right rail. `title`/`body` are resolved to the request locale.
  */
-@Resolver()
 export class ChangelogEntriesResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

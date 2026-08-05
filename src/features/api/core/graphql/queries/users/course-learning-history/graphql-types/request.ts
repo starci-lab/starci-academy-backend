@@ -5,15 +5,15 @@ import {
     Int,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Cursor-paginated request for the viewer's per-course learning history.",
+})
 /**
  * Cursor-paginated request for the current user's learning history within a
  * single course. The course is addressed by its opaque relay global id (decoded
  * server-side with `fromGlobalId`), matching how other course-scoped queries
  * accept a course reference.
  */
-@InputType({
-    description: "Cursor-paginated request for the viewer's per-course learning history.",
-})
 export class CourseLearningHistoryRequest {
     @Field(
         () => ID,

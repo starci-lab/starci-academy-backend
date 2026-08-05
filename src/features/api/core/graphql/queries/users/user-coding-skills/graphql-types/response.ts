@@ -8,14 +8,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A solved-count bucket keyed by language or difficulty value.",
+})
 /**
  * One bucket of solved coding problems — a `key` (a language value like
  * "python" / "typescript", or a difficulty value like "easy" / "medium" / "hard")
  * and how many DISTINCT problems the user solved in that bucket.
  */
-@ObjectType({
-    description: "A solved-count bucket keyed by language or difficulty value.",
-})
 export class UserCodingSkillCount {
     /** Which axis this bucket belongs to (language vs. difficulty) is determined by which list it's found in, not by this value alone. */
     @Field(
@@ -36,10 +36,10 @@ export class UserCodingSkillCount {
         solved: number
 }
 
-/** A user's coding-skill breakdown: solved counts by language and by difficulty. */
 @ObjectType({
     description: "A user's solved-coding breakdown by language and by difficulty.",
 })
+/** A user's coding-skill breakdown: solved counts by language and by difficulty. */
 export class UserCodingSkillsData {
     /** A problem solved in 2 languages counts once per language here, so the totals across buckets will not sum to the overall solved count. */
     @Field(
@@ -69,12 +69,12 @@ export class UserCodingSkillsData {
         byDomain: Array<UserCodingSkillCount>
 }
 
-/**
- * Response wrapper for the userCodingSkills query.
- */
 @ObjectType({
     description: "Response wrapper for the userCodingSkills query.",
 })
+/**
+ * Response wrapper for the userCodingSkills query.
+ */
 export class UserCodingSkillsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserCodingSkillsData> {

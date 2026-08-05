@@ -15,9 +15,13 @@ import {
 
 /** Sort fields for listing module contents. */
 export enum ContentsSortBy {
+    /** Alphabetical by lesson title — use when browsing, not curriculum order. */
     Title = "title",
+    /** Authoring order within the module — default so the syllabus order is preserved. */
     SortIndex = "sortIndex",
+    /** Newest/oldest authored first — useful for editorial review, not learner UX. */
     CreatedAt = "createdAt",
+    /** Recently edited lessons float first — editorial freshness, not syllabus order. */
     UpdatedAt = "updatedAt",
 }
 
@@ -47,6 +51,10 @@ registerEnumType(GraphQLTypeContentsSortBy,
 @InputType({
     description: "Sort field and order for listing module contents.",
 })
+/**
+ * One sort clause for the module contents list — field + ASC/DESC; default
+ * is SortIndex ASC so lessons follow authoring order.
+ */
 export class ContentsRequestSort extends SortInput<ContentsSortBy> {
     @Field(
         () => GraphQLTypeContentsSortBy,
@@ -60,6 +68,10 @@ export class ContentsRequestSort extends SortInput<ContentsSortBy> {
 @InputType({
     description: "Pagination, sort, and module scope for listing contents.",
 })
+/**
+ * Page size / offset / sorts for `contents`; scoped further by moduleId on
+ * the parent request so ES never returns cross-module rows.
+ */
 export class ContentsRequestPaginationFilters extends PaginationPageFilters<ContentsSortBy> {
     @Field(
         () => [ContentsRequestSort],
@@ -79,6 +91,10 @@ export class ContentsRequestPaginationFilters extends PaginationPageFilters<Cont
 @InputType({
     description: "Request for listing contents in a module with pagination.",
 })
+/**
+ * Args for `contents` — module scope plus pagination; without moduleId the
+ * ES filter would be empty and leak every indexed lesson.
+ */
 export class ContentsRequest {
     @Field(
         () => ID,

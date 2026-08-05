@@ -11,10 +11,6 @@ import {
     SearchUsersResolver,
 } from "./search-users.resolver"
 
-/**
- * Leaf query module for `searchUsers` — free-text search over the Elasticsearch
- * `users` index. Imports the Elasticsearch module for the shared client.
- */
 @Module({
     imports: [
         ElasticsearchModule,
@@ -23,4 +19,8 @@ import {
         SearchUsersResolver,
     ],
 })
+/**
+ * Leaf query module for `searchUsers` — free-text search over the Elasticsearch
+ * `users` index. Imports the Elasticsearch module for the shared client.
+ */
 export class SearchUsersSingleQueryModule extends ConfigurableModuleClass {}

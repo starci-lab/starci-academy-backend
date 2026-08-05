@@ -5,14 +5,14 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "List or search the current user's content-AI conversations for a scope.",
+})
 /**
  * Request for {@link ContentAiSessionsResponse}: list the current user's
  * content-AI conversations for a content, OR — when `search` is given — search
  * ALL their conversations in the content's course (title + message text).
  */
-@InputType({
-    description: "List or search the current user's content-AI conversations for a scope.",
-})
 export class ContentAiSessionsRequest {
     @Field(
         () => String,

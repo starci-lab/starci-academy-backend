@@ -13,13 +13,13 @@ import {
     QuizSessionWeakTagData,
 } from "@features/api/core/graphql/mutations/flashcard/complete-flashcard-quiz-session/graphql-types"
 
+@ObjectType({
+    description: "One completed flashcard quick-quiz session, as read back for the viewer's history.",
+})
 /**
  * One completed flashcard quick-quiz session, as read back for the viewer's
  * history — "history + stats" (2026-07-08).
  */
-@ObjectType({
-    description: "One completed flashcard quick-quiz session, as read back for the viewer's history.",
-})
 export class MyFlashcardQuizHistoryItem {
     @Field(
         () => ID,
@@ -105,13 +105,13 @@ export class MyFlashcardQuizHistoryItem {
         name: string | null
 }
 
+@ObjectType({
+    description: "A page of the viewer's completed flashcard quick-quiz sessions.",
+})
 /**
  * A page of the viewer's completed flashcard quick-quiz sessions + the total
  * count for pagination.
  */
-@ObjectType({
-    description: "A page of the viewer's completed flashcard quick-quiz sessions.",
-})
 export class MyFlashcardQuizHistoryData {
     @Field(
         () => Int,
@@ -130,12 +130,12 @@ export class MyFlashcardQuizHistoryData {
         items: Array<MyFlashcardQuizHistoryItem>
 }
 
-/**
- * Response wrapper for the myFlashcardQuizHistory query.
- */
 @ObjectType({
     description: "Response wrapper for the myFlashcardQuizHistory query.",
 })
+/**
+ * Response wrapper for the myFlashcardQuizHistory query.
+ */
 export class MyFlashcardQuizHistoryResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyFlashcardQuizHistoryData>

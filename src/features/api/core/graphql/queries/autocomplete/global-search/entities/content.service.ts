@@ -12,10 +12,10 @@ import {
     ContentEntity,
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Service for performing global search on content.
  */
-@Injectable()
 export class ContentGlobalSearchService {
     /**
      * The number of words to include in the snippet.

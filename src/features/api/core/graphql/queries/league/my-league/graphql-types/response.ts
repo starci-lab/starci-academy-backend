@@ -13,13 +13,13 @@ import {
     LeagueTier,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A ranked member of the viewer's weekly-league cohort.",
+})
 /**
  * One ranked member of the viewer's weekly-league cohort, as drawn on the
  * standing board (avatar + name + week points + rank).
  */
-@ObjectType({
-    description: "A ranked member of the viewer's weekly-league cohort.",
-})
 export class MyLeagueEntryData {
     @Field(
         () => ID,
@@ -73,13 +73,13 @@ export class MyLeagueEntryData {
         rankDelta: number | null
 }
 
+@ObjectType({
+    description: "The viewer's weekly-league standing (tier + cohort board).",
+})
 /**
  * The viewer's weekly-league standing: their tier, the week deadline, the
  * promote/demote zone sizes, and the ranked cohort entries.
  */
-@ObjectType({
-    description: "The viewer's weekly-league standing (tier + cohort board).",
-})
 export class MyLeagueData {
     @Field(
         () => GraphQLTypeLeagueTier,
@@ -122,12 +122,12 @@ export class MyLeagueData {
         entries: Array<MyLeagueEntryData>
 }
 
-/**
- * Response wrapper for the myLeague query.
- */
 @ObjectType({
     description: "Response wrapper for the myLeague query.",
 })
+/**
+ * Response wrapper for the myLeague query.
+ */
 export class MyLeagueResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyLeagueData> {

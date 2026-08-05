@@ -11,12 +11,12 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/**
- * Headhunters response data.
- */
 @ObjectType({
     description: "Response data for Headhunters query.",
 })
+/**
+ * Headhunters response data.
+ */
 export class ConsultantsResponseData {
     /**
      * The total count.
@@ -43,12 +43,12 @@ export class ConsultantsResponseData {
         data: Array<ConsultantEntity>
 }
 
-/**
- * Consultants query response wrapper.
- */
 @ObjectType({
     description: "Response for consultants query.",
 })
+/**
+ * Consultants query response wrapper.
+ */
 export class ConsultantsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ConsultantsResponseData>

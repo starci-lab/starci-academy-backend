@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One saved turn in a content-AI conversation. */
 @ObjectType({
     description: "One saved turn in a content-AI conversation.",
 })
+/** One saved turn in a content-AI conversation. */
 export class ContentAiHistoryTurnType {
     @Field(
         () => String,
@@ -29,10 +29,10 @@ export class ContentAiHistoryTurnType {
         content: string
 }
 
-/** The saved content-AI conversation for a content (oldest first). */
 @ObjectType({
     description: "A content-AI saved conversation.",
 })
+/** The saved content-AI conversation for a content (oldest first). */
 export class ContentAiHistoryData {
     @Field(
         () => [ContentAiHistoryTurnType],
@@ -46,6 +46,10 @@ export class ContentAiHistoryData {
 @ObjectType({
     description: "Response wrapper for the contentAiHistory query.",
 })
+/**
+ * Envelope for `contentAiSessionMessages` — status metadata plus the saved
+ * turns payload (null when the transform interceptor wraps a failure).
+ */
 export class ContentAiHistoryResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ContentAiHistoryData>

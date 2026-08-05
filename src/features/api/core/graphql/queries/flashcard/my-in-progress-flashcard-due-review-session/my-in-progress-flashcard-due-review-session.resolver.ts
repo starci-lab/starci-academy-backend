@@ -33,6 +33,7 @@ import {
     MyInProgressFlashcardDueReviewSessionResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The learner's most recent RESUMABLE cross-deck due-review batch session
  * for one course — so the FE can silently resume the batch instead of
@@ -40,7 +41,6 @@ import {
  * `myInProgressFlashcardReviewSession`, scoped by course instead of deck
  * (a due-review batch spans multiple decks).
  */
-@Resolver()
 export class MyInProgressFlashcardDueReviewSessionResolver {
     constructor(
         private readonly flashcardDueReviewSessionService: FlashcardDueReviewSessionService,

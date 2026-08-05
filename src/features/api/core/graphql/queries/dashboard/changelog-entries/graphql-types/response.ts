@@ -11,13 +11,13 @@ import {
     GraphQLTypeChangelogCategory,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A system changelog entry (locale-resolved).",
+})
 /**
  * One render-ready changelog entry for the dashboard right rail. `title`/`body`
  * are already resolved to the request locale.
  */
-@ObjectType({
-    description: "A system changelog entry (locale-resolved).",
-})
 export class ChangelogEntryItemData {
     @Field(
         () => String,
@@ -71,12 +71,12 @@ export class ChangelogEntryItemData {
         linkUrl: string | null
 }
 
-/**
- * Response wrapper for the changelogEntries query.
- */
 @ObjectType({
     description: "Response wrapper for the changelogEntries query.",
 })
+/**
+ * Response wrapper for the changelogEntries query.
+ */
 export class ChangelogEntriesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<ChangelogEntryItemData>> {

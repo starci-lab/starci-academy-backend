@@ -13,13 +13,13 @@ import {
     InstallmentOptionItem,
 } from "../../course-price-preview/graphql-types"
 
+@ObjectType({
+    description: "Preview price of one course in a multi-course order.",
+})
 /**
  * One priced line of the checkout preview: the list vs charged price of a single
  * course, keyed by course id so the client can match it to the cart row it holds.
  */
-@ObjectType({
-    description: "Preview price of one course in a multi-course order.",
-})
 export class CoursesCheckoutPreviewLine {
     /** Id of the course this line prices. */
     @Field(
@@ -78,14 +78,14 @@ export class CoursesCheckoutPreviewLine {
         discountPercent: number
 }
 
+@ObjectType({
+    description: "Preview of a multi-course order: per-course lines + order totals.",
+})
 /**
  * The full checkout preview: per-course lines + the summed order totals + the
  * bundle context, computed by the SAME service that prices the real checkout so
  * the shown total equals the charged total.
  */
-@ObjectType({
-    description: "Preview of a multi-course order: per-course lines + order totals.",
-})
 export class CoursesCheckoutPreviewData {
     /** One priced line per purchasable course (empty when nothing to buy). */
     @Field(
@@ -171,12 +171,12 @@ export class CoursesCheckoutPreviewData {
         installmentOptions: Array<InstallmentOptionItem>
 }
 
-/**
- * Response wrapper for the `coursesCheckoutPreview` query.
- */
 @ObjectType({
     description: "Response wrapper for the multi-course checkout preview query.",
 })
+/**
+ * Response wrapper for the `coursesCheckoutPreview` query.
+ */
 export class CoursesCheckoutPreviewResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CoursesCheckoutPreviewData>

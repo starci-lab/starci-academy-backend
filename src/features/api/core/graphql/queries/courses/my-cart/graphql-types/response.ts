@@ -10,6 +10,9 @@ import {
     CartItemEntity,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "Response wrapper for the myCart query.",
+})
 /**
  * Response wrapper for the myCart query.
  *
@@ -17,9 +20,6 @@ import {
  * on the error path — a non-nullable field would crash GraphQL and mask the real
  * error. On the happy path it is the (possibly empty) list of cart rows.
  */
-@ObjectType({
-    description: "Response wrapper for the myCart query.",
-})
 export class MyCartResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<CartItemEntity>>

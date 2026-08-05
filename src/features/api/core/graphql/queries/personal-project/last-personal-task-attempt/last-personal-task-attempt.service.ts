@@ -16,6 +16,9 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin QueryBus adapter for lastPersonalTaskAttempt (includes keycloakToken in params).
+ */
 export class LastPersonalTaskAttemptService {
     constructor(
         private readonly queryBus: QueryBus,

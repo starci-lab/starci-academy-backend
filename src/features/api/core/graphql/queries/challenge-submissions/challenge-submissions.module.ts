@@ -33,4 +33,8 @@ import {
         }),
     ],
 })
+/**
+ * Challenge-submission query group: one slot, the full list per challenge,
+ * the caller's attempts, and attempt feedbacks.
+ */
 export class ChallengeSubmissionsModule extends ConfigurableModuleClass {}

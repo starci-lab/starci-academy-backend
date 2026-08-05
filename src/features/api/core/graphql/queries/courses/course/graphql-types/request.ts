@@ -5,10 +5,10 @@ import {
 } from "@nestjs/graphql"
 
 
-/** Request for the course GraphQL query (by id). */
 @InputType({
     description: "Request for fetching a course by id.",
 })
+/** Request for the course GraphQL query (by id). */
 export class CourseRequest {
     /**
      * Course id to fetch.

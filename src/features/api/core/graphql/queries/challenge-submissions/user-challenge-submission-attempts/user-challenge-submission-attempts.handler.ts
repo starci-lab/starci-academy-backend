@@ -33,6 +33,11 @@ import {
 
 @QueryHandler(UserChallengeSubmissionAttemptsQuery)
 @Injectable()
+/**
+ * Paginated attempt history for the signed-in user on one challenge
+ * submission. Missing user throws; a missing join row returns an empty page
+ * instead of 404 — the UI can render "no attempts yet".
+ */
 export class UserChallengeSubmissionAttemptsHandler
     extends ICQRSHandler<UserChallengeSubmissionAttemptsQuery, UserChallengeSubmissionAttemptsResponseData>
     implements IQueryHandler<UserChallengeSubmissionAttemptsQuery, UserChallengeSubmissionAttemptsResponseData> {

@@ -14,13 +14,13 @@ import {
 } from "@modules/databases"
 import GraphQLJSON from "graphql-type-json"
 
+@ObjectType({
+    description: "i18n text (key + params) rendered client-side; no stored text.",
+})
 /**
  * An i18n-renderable text on a notification: a message key + interpolation
  * params. The FE renders `t(key, params)` — no server-side text.
  */
-@ObjectType({
-    description: "i18n text (key + params) rendered client-side; no stored text.",
-})
 export class NotificationI18nTextObject {
     @Field(
         () => String,
@@ -40,13 +40,13 @@ export class NotificationI18nTextObject {
         params: Record<string, string> | null
 }
 
+@ObjectType({
+    description: "Clickable destination snapshot carried on a notification.",
+})
 /**
  * Clickable destination snapshotted on a notification (resolved to a route on
  * the FE from `entityName` + `id`). Null on the notification when targetless.
  */
-@ObjectType({
-    description: "Clickable destination snapshot carried on a notification.",
-})
 export class NotificationTargetObject {
     @Field(
         () => String,
@@ -73,12 +73,12 @@ export class NotificationTargetObject {
         label: string
 }
 
-/**
- * One in-app notification in the recipient's bell list.
- */
 @ObjectType({
     description: "One in-app notification delivered to the recipient.",
 })
+/**
+ * One in-app notification in the recipient's bell list.
+ */
 export class NotificationObject {
     @Field(
         () => ID,
@@ -148,12 +148,12 @@ export class NotificationObject {
         createdAt: Date
 }
 
-/**
- * Paginated bell list for the current user (newest first) + unread total.
- */
 @ObjectType({
     description: "Paginated notifications for the current user.",
 })
+/**
+ * Paginated bell list for the current user (newest first) + unread total.
+ */
 export class MyNotificationsResponseData {
     @Field(
         () => [NotificationObject],
@@ -180,12 +180,12 @@ export class MyNotificationsResponseData {
         unreadCount: number
 }
 
-/**
- * Response wrapper for the myNotifications query.
- */
 @ObjectType({
     description: "Response wrapper for the myNotifications query.",
 })
+/**
+ * Response wrapper for the myNotifications query.
+ */
 export class MyNotificationsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyNotificationsResponseData>

@@ -9,13 +9,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Single task progress item.",
+})
 /**
  * One milestone task's progress for the viewer's enrollment: score,
  * completion, and attempt count.
  */
-@ObjectType({
-    description: "Single task progress item.",
-})
 export class MilestoneTaskProgressItemData {
     @Field(
         () => String,
@@ -58,13 +58,13 @@ export class MilestoneTaskProgressItemData {
         numAttempts: number
 }
 
+@ObjectType({
+    description: "Milestone task progress data.",
+})
 /**
  * All milestone tasks in the requested course, each with the viewer's
  * progress, plus the first uncompleted task.
  */
-@ObjectType({
-    description: "Milestone task progress data.",
-})
 export class MilestoneTaskProgressResponseData {
     @Field(
         () => [MilestoneTaskProgressItemData],
@@ -84,12 +84,12 @@ export class MilestoneTaskProgressResponseData {
         currentTask: MilestoneTaskProgressItemData | null
 }
 
-/**
- * Response wrapper for the `milestoneTaskProgress` query.
- */
 @ObjectType({
     description: "Response wrapper for the milestoneTaskProgress query.",
 })
+/**
+ * Response wrapper for the `milestoneTaskProgress` query.
+ */
 export class MilestoneTaskProgressResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MilestoneTaskProgressResponseData>

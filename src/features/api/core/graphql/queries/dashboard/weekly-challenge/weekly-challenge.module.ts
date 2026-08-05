@@ -13,4 +13,5 @@ import {
         WeeklyChallengeResolver,
     ],
 })
+/** Feature-module boundary for the `weeklyChallenge` query — wires its resolver so the dashboard group can mount this widget independently. */
 export class WeeklyChallengeSingleQueryModule extends ConfigurableModuleClass {}

@@ -14,12 +14,12 @@ import {
     GraphQLTypeAiSubTier,
 } from "@modules/databases"
 
-/**
- * Unified platform-credit quota for the current user, per window.
- */
 @ObjectType({
     description: "Unified platform credit quota (free base + tier).",
 })
+/**
+ * Unified platform-credit quota for the current user, per window.
+ */
 export class MyAiCreditQuotaData {
     @Field(
         () => Int,
@@ -70,16 +70,13 @@ export class MyAiCreditQuotaData {
         remainingWeek: number
 }
 
-/**
- * Full per-user quota snapshot — both lanes + window reset times.
- */
+@ObjectType({
+    description: "Per-surface AI model ceiling the user set (cost control).",
+})
 /**
  * Per-surface model CEILING the user set in settings (cost control). Null on a
  * field = inherit the default (or, for `default`, no cap → plan ceiling only).
  */
-@ObjectType({
-    description: "Per-surface AI model ceiling the user set (cost control).",
-})
 export class MyAiCeilData {
     @Field(
         () => GraphQLTypeAiModelCategory,
@@ -121,6 +118,12 @@ export class MyAiCeilData {
 @ObjectType({
     description: "Per-user AI quota snapshot (single credit pool).",
 })
+/**
+ * Per-user AI quota snapshot: active tier, the unified credit pool, when each
+ * window resets, which model categories the plan unlocks, and the user's
+ * per-surface ceiling. The UI uses this to gate model pickers and show
+ * remaining credits without a second round-trip.
+ */
 export class MyAiQuotaResponseData {
     @Field(
         () => GraphQLTypeAiSubTier,
@@ -177,6 +180,10 @@ export class MyAiQuotaResponseData {
 @ObjectType({
     description: "Response wrapper for the myAiQuota query.",
 })
+/**
+ * GraphQL envelope for `myAiQuota`. `data` is null only on the error path;
+ * a free-lane user still gets a snapshot (tier = null, free-base limits).
+ */
 export class MyAiQuotaResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyAiQuotaResponseData>

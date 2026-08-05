@@ -40,6 +40,7 @@ import {
     MyFlashcardQuizHistoryResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The viewer's flashcard quick-quiz ("Hỏi nhanh") HISTORY for one course —
  * every past completed session (newest first), paginated, so the recap
@@ -47,7 +48,6 @@ import {
  * joining `xp_histories`. Enrollment-scoped, same as
  * `myInProgressFlashcardQuizSession`.
  */
-@Resolver()
 export class MyFlashcardQuizHistoryResolver {
     constructor(
         private readonly myFlashcardQuizHistoryService: MyFlashcardQuizHistoryService,

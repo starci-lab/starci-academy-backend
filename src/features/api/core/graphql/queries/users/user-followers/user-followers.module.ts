@@ -13,4 +13,5 @@ import {
         UserFollowersResolver,
     ],
 })
+/** Feature-module boundary for the `userFollowers` query — wires its resolver so the users group can mount this profile tab independently. */
 export class UserFollowersSingleQueryModule extends ConfigurableModuleClass {}

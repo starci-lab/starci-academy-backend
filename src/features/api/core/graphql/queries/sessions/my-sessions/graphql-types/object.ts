@@ -7,6 +7,12 @@ import {
 @ObjectType({
     description: "One of the current user's logged-in device sessions.",
 })
+/**
+ * One device row on the account-security / "logged-in devices" screen.
+ * `sessionId` (not `id`) is what `revokeSession` consumes; `current` is
+ * true for the requesting device so the FE can highlight "this device"
+ * and avoid a self-revoke footgun.
+ */
 export class LoginSessionObject {
     @Field(
         () => ID,

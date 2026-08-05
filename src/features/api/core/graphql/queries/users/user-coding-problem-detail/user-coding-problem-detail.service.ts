@@ -13,6 +13,7 @@ import {
     UserCodingProblemDetailRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Live read backing the public profile's coding-problem-detail surface
  * (`/profile/<username>/skills/<slug>`) — the problem itself (no ownership
@@ -21,7 +22,6 @@ import {
  * by the resolved problem id. Visibility for locked profiles is enforced
  * upstream by `GraphQLProfileVisibilityGuard` on the resolver, not here.
  */
-@Injectable()
 export class UserCodingProblemDetailService {
     constructor(
         private readonly codingProblemService: CodingProblemService,

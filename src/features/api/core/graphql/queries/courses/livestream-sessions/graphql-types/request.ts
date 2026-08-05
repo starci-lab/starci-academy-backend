@@ -15,10 +15,15 @@ import {
 
 /** Sort fields for listing course livestream sessions. */
 export enum LivestreamSessionsSortBy {
+    /** Orders sessions by curated display order within the course. */
     SortIndex = "sortIndex",
+    /** Orders sessions by weekday (Mon→Sun). */
     DayOfWeek = "dayOfWeek",
+    /** Orders sessions by wall-clock start time within a day. */
     StartTime = "startTime",
+    /** Orders sessions by when the row was created. */
     CreatedAt = "createdAt",
+    /** Orders sessions by when the row was last modified. */
     UpdatedAt = "updatedAt",
 }
 
@@ -54,6 +59,7 @@ registerEnumType(
 @InputType({
     description: "Sort field and order for listing livestream sessions.",
 })
+/** One sort line (field + order) for a livestream-sessions list request. */
 export class LivestreamSessionsRequestSort extends SortInput<LivestreamSessionsSortBy> {
     @Field(
         () => GraphQLTypeLivestreamSessionsSortBy,
@@ -67,6 +73,10 @@ export class LivestreamSessionsRequestSort extends SortInput<LivestreamSessionsS
 @InputType({
     description: "Pagination and sort filters for livestream sessions.",
 })
+/**
+ * Page size, page number, and sort lines for listing a course's livestream
+ * sessions (defaults to ascending `sortIndex`).
+ */
 export class LivestreamSessionsRequestPaginationFilters
     extends PaginationPageFilters<LivestreamSessionsSortBy>
 {
@@ -88,6 +98,7 @@ export class LivestreamSessionsRequestPaginationFilters
 @InputType({
     description: "Request for listing livestream sessions for a course with pagination.",
 })
+/** Client args for `livestreamSessions` — course scope plus page/sort filters. */
 export class LivestreamSessionsRequest {
     @Field(
         () => ID,

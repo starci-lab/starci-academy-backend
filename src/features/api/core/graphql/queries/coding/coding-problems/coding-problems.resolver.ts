@@ -31,12 +31,12 @@ import {
     type CodingProblemsResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Lists enabled coding problems with optional difficulty/tag filters and
  * pagination, plus the ids the authenticated user has already solved (for the
  * "solved" badges in the list).
  */
-@Resolver()
 export class CodingProblemsResolver {
     constructor(
         private readonly codingProblemService: CodingProblemService,

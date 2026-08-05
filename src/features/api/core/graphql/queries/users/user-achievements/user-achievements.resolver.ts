@@ -34,6 +34,7 @@ import {
     UserAchievementsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: every achievement with a given user's earned status +
  * live progress. Mirrors `myAchievements` but reads for the user named in the
@@ -41,7 +42,6 @@ import {
  * can render anyone's badge wall. Optional auth — anonymous viewers may call it;
  * a locked profile is withheld from non-owners by {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserAchievementsResolver {
     constructor(
         private readonly achievementsService: AchievementsService,

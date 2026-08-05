@@ -34,13 +34,13 @@ import {
     PlaygroundSummary,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Lists a course's playgrounds (id/slug/title/icon/stepCount), in display
  * order. Optional auth: playground listing is readable by anonymous visitors
  * browsing a course page; `createPlaygroundSession` is what actually gates
  * on enrollment.
  */
-@Resolver()
 export class PlaygroundsResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

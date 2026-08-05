@@ -22,12 +22,12 @@ import {
     UserNotFoundException,
 } from "@modules/exceptions"
 
+@QueryHandler(ChallengeSubmissionProgressQuery)
 /**
  * CQRS handler for the `challengeSubmissionProgress` query: resolves the
  * viewer's enrollment for the requested course, then delegates to
  * {@link ChallengeProgressService} for the cached/recomputed progress.
  */
-@QueryHandler(ChallengeSubmissionProgressQuery)
 export class ChallengeSubmissionProgressHandler
 implements IQueryHandler<ChallengeSubmissionProgressQuery, ChallengeSubmissionProgressResponseData>
 {

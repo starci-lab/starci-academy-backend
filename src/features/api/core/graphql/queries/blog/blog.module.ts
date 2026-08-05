@@ -11,10 +11,6 @@ import {
     BlogPostSingleQueryModule,
 } from "./blog-post"
 
-/**
- * Blog query group — the public `/blog` listing (`blogPosts`) and the single
- * article page (`blogPost`). Both read team-authored, mount-seeded posts.
- */
 @Module({
     imports: [
         BlogPostsSingleQueryModule.register({
@@ -25,4 +21,8 @@ import {
         }),
     ],
 })
+/**
+ * Blog query group — the public `/blog` listing (`blogPosts`) and the single
+ * article page (`blogPost`). Both read team-authored, mount-seeded posts.
+ */
 export class BlogQueriesModule extends ConfigurableModuleClass {}

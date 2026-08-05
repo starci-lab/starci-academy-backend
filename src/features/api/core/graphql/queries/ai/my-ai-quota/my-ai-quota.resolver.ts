@@ -30,6 +30,7 @@ import {
     MyAiQuotaResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Per-user AI quota snapshot — the single credit pool (free base + tier) with
  * limit/used/remaining per 5h + weekly window, plus the reset times + the
@@ -38,7 +39,6 @@ import {
  * Reads from Postgres (`ai_subscriptions`), not Redis — counters live on the
  * entity with lazy window resets applied on read.
  */
-@Resolver()
 export class MyAiQuotaResolver {
     constructor(
         private readonly aiEntitlementService: AiEntitlementService,

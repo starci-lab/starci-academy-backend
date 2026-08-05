@@ -31,10 +31,10 @@ import {
     MyCvBlocksService,
 } from "./my-cv-blocks.service"
 
+@Resolver()
 /**
  * Resolver for the signed-in user's CV documents (block editor).
  */
-@Resolver()
 export class MyCvBlocksResolver {
     constructor(
         private readonly myCvBlocksService: MyCvBlocksService,

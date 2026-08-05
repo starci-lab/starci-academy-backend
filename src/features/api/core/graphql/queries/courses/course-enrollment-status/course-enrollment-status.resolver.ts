@@ -35,6 +35,10 @@ import {
 
 
 @Resolver()
+/**
+ * Auth-gated GraphQL entry for `courseEnrollmentStatus` — returns the caller's
+ * enrollment flag (and record) for one course.
+ */
 export class CourseEnrollmentStatusResolver {
     constructor(
         private readonly courseEnrollmentStatusService: CourseEnrollmentStatusService,

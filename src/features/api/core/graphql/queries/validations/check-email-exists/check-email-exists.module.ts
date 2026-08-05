@@ -21,5 +21,9 @@ import {
         CheckEmailExistsHandler,
     ],
 })
+/**
+ * Wires the public `checkEmailExists` bloom-filter probe (no auth). Used
+ * on signup before a slower authoritative uniqueness check.
+ */
 export class CheckEmailExistsSingleQueryModule extends ConfigurableModuleClass {}
 

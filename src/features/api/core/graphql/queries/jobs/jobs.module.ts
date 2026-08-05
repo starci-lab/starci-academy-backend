@@ -8,11 +8,6 @@ import {
     IncompletedJobsSingleQueryModule,
 } from "./incompleted-jobs"
 
-/**
- * Jobs query group — status leaves for polling background job progress.
- * Currently the single `incompletedJobs` leaf; registered global so its
- * resolver is picked up by the schema.
- */
 @Module({
     imports: [
         IncompletedJobsSingleQueryModule.register({
@@ -20,4 +15,9 @@ import {
         }),
     ],
 })
+/**
+ * Jobs query group — status leaves for polling background job progress.
+ * Currently the single `incompletedJobs` leaf; registered global so its
+ * resolver is picked up by the schema.
+ */
 export class JobsModule extends ConfigurableModuleClass {}

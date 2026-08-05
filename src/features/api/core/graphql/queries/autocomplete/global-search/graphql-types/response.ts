@@ -10,6 +10,10 @@ import {
 @ObjectType({
     description: "A resolved ancestor (course/module/content/challenge) of a search hit.",
 })
+/**
+ * One ancestor node — `id` for UUID-keyed learn URLs, `displayId` for the
+ * course slug segment. Without both, the client cannot assemble a deep-link.
+ */
 export class AutocompleteGlobalSearchParentRef {
     @Field(
         () => String,
@@ -31,6 +35,11 @@ export class AutocompleteGlobalSearchParentRef {
 @ObjectType({
     description: "Ancestor chain of a search hit, used by clients to build a navigation URL.",
 })
+/**
+ * Sparse ancestor chain for one hit. Only the levels that exist for that
+ * entity kind are set; missing levels stay undefined so the client does not
+ * invent a parent.
+ */
 export class AutocompleteGlobalSearchParentPath {
     @Field(
         () => AutocompleteGlobalSearchParentRef,
@@ -81,6 +90,11 @@ export class AutocompleteGlobalSearchParentPath {
 @ObjectType({
     description: "A single autocomplete item returned by global search.",
 })
+/**
+ * One typeahead row. `path` is the locale-agnostic route the server already
+ * built; `parentPath` is the fallback graph when path is null (cache miss).
+ * Course/content state flags are kind-specific and null elsewhere.
+ */
 export class AutocompleteGlobalSearchItem {
     @Field(() => String)
         id: string
@@ -148,6 +162,11 @@ export class AutocompleteGlobalSearchItem {
 @ObjectType({
     description: "Grouped global search autocomplete results.",
 })
+/**
+ * Hits grouped by catalog kind so the UI can render typed sections without
+ * re-bucketing a flat list. Empty arrays mean "searched, nothing matched",
+ * not "kind skipped".
+ */
 export class AutocompleteGlobalSearchData {
     @Field(() => [AutocompleteGlobalSearchItem])
         courses: Array<AutocompleteGlobalSearchItem>
@@ -177,6 +196,10 @@ export class AutocompleteGlobalSearchData {
 @ObjectType({
     description: "Response wrapper for the global search autocomplete query.",
 })
+/**
+ * GraphQL envelope for `autocompleteGlobalSearch`. `data` is null only on
+ * the error path; an empty search still returns empty buckets inside `data`.
+ */
 export class AutocompleteGlobalSearchResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<AutocompleteGlobalSearchData>

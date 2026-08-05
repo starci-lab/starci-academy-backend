@@ -32,12 +32,12 @@ import {
     RecommendedCoursesService,
 } from "./recommended-courses.service"
 
+@Resolver()
 /**
  * Recommended-courses query: the most popular courses the viewer does not
  * already own, each priced with the SAME engagement loyalty discount applied at
  * checkout (so the shown price equals the eventual charge).
  */
-@Resolver()
 export class RecommendedCoursesResolver {
     constructor(
         private readonly recommendedCoursesService: RecommendedCoursesService,

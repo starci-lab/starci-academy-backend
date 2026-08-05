@@ -8,14 +8,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A joined course with milestone progress (rail item).",
+})
 /**
  * One joined course with its milestone (personal-project) progress — the rail's
  * "my courses" item. A 0/0 row is a course with no milestone tasks yet (the
  * client renders it without a progress bar).
  */
-@ObjectType({
-    description: "A joined course with milestone progress (rail item).",
-})
 export class MyCourseItemData {
     @Field(
         () => String,
@@ -107,12 +107,12 @@ export class MyCourseItemData {
         isEnrolled: boolean
 }
 
-/**
- * Response wrapper for the myCourses query.
- */
 @ObjectType({
     description: "Response wrapper for the myCourses query.",
 })
+/**
+ * Response wrapper for the myCourses query.
+ */
 export class MyCoursesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<MyCourseItemData>> {

@@ -33,6 +33,7 @@ import {
     ConsultantsResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Resolver for the Headhunters (consultants) list query.
  *
@@ -40,7 +41,6 @@ import {
  * `contactUnlocked = false` (contact fields nulled out) on every consultant.
  * A logged-in viewer's CV score determines whether contact details unlock.
  */
-@Resolver()
 export class ConsultantsResolver {
     constructor(
         private readonly consultantsService: ConsultantsService,

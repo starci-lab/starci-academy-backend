@@ -29,6 +29,11 @@ import {
 
 @QueryHandler(UserChallengeSubmissionFeedbacksQuery)
 @Injectable()
+/**
+ * Paginated scorer feedback for one submission attempt. Does not verify the
+ * caller owns the attempt — the resolver's auth guard is the gate; passing a
+ * foreign attempt id still returns that attempt's feedback.
+ */
 export class UserChallengeSubmissionFeedbacksHandler
     extends ICQRSHandler<UserChallengeSubmissionFeedbacksQuery, UserChallengeSubmissionFeedbacksResponseData>
     implements IQueryHandler<UserChallengeSubmissionFeedbacksQuery, UserChallengeSubmissionFeedbacksResponseData> {

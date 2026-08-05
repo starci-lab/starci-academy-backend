@@ -14,6 +14,8 @@ import {
     FlashcardDeckSuggestionsQuery,
 } from "./flashcard-deck-suggestions.query"
 
+@QueryHandler(FlashcardDeckSuggestionsQuery)
+@Injectable()
 /**
  * Flashcard-deck autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -27,8 +29,6 @@ import {
  * The only contribution of this subclass is declaring which entity it serves; the
  * inherited constructor (injecting `ElasticsearchService`) covers all dependencies.
  */
-@QueryHandler(FlashcardDeckSuggestionsQuery)
-@Injectable()
 export class FlashcardDeckSuggestionsHandler
     extends AbstractSuggestionsHandler<FlashcardDeckSuggestionsQuery> {
     /** Entity this handler autocompletes — drives `flashcard-decks` index resolution. */

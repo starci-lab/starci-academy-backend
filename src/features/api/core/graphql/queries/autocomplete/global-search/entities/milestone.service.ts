@@ -12,6 +12,7 @@ import {
     MilestoneEntity,
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Service for performing global search on milestones.
  *
@@ -19,7 +20,6 @@ import {
  * field, so it pairs a `match_phrase_prefix` (as-you-type prefixing) with a
  * fuzzy `multi_match` over `title`/`description`.
  */
-@Injectable()
 export class MilestoneGlobalSearchService {
     /** The number of words to include around the match in a snippet. */
     private readonly snippetWindowWords = 4

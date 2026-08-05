@@ -8,14 +8,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A user search result (from the Elasticsearch `users` index).",
+})
 /**
  * One user search hit from the `users` Elasticsearch index — the header fields a
  * result row / who-to-follow card shows. Carries the opaque global id (resolved
  * to the profile route on click) plus identity + discovery fields.
  */
-@ObjectType({
-    description: "A user search result (from the Elasticsearch `users` index).",
-})
 export class SearchUserData {
     @Field(
         () => String,
@@ -77,12 +77,12 @@ export class SearchUserData {
         points: number
 }
 
-/**
- * Response wrapper for the searchUsers query.
- */
 @ObjectType({
     description: "Response wrapper for the searchUsers query.",
 })
+/**
+ * Response wrapper for the searchUsers query.
+ */
 export class SearchUsersResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<SearchUserData>> {

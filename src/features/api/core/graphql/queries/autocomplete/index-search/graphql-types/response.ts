@@ -8,6 +8,10 @@ import {
 } from "@modules/api"
 
 @ObjectType()
+/**
+ * Ancestor displayIds for an index-search hit. Only displayIds (not UUIDs) —
+ * enough for slug-based URLs, unlike global-search which also returns ids.
+ */
 export class IndexSearchParentPath {
     @Field(() => String,
         {
@@ -35,6 +39,10 @@ export class IndexSearchParentPath {
 }
 
 @ObjectType()
+/**
+ * One fuzzy hit from a single ES index, plus the cached parent displayIds
+ * used to assemble a navigation URL.
+ */
 export class IndexSearchItem {
     @Field(() => String)
         id: string
@@ -59,12 +67,20 @@ export class IndexSearchItem {
 }
 
 @ObjectType()
+/**
+ * Flat hit list for one index. Unlike global search, results are not grouped
+ * by kind — the request already pinned the index.
+ */
 export class IndexSearchData {
     @Field(() => [IndexSearchItem])
         items: Array<IndexSearchItem>
 }
 
 @ObjectType()
+/**
+ * GraphQL envelope for `indexSearch`. `data` is null only on the error path;
+ * a blank query still returns `{ items: [] }` inside `data`.
+ */
 export class IndexSearchResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<IndexSearchData>

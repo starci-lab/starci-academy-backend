@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One point on the viewer's overall-score trend line. */
 @ObjectType({
     description: "One point on the viewer's mock-interview overall-score trend line.",
 })
+/** One point on the viewer's overall-score trend line. */
 export class MockInterviewStatsTrendPoint {
     @Field(
         () => Int,
@@ -23,10 +23,10 @@ export class MockInterviewStatsTrendPoint {
         overallScore: number
 }
 
-/** One phase (design) breakdown entry, aggregated across the scanned attempts. */
 @ObjectType({
     description: "One phase (design) breakdown entry, aggregated across the viewer's scanned attempts.",
 })
+/** One phase (design) breakdown entry, aggregated across the scanned attempts. */
 export class MockInterviewStatsBreakdownItem {
     @Field(
         () => String,
@@ -69,10 +69,10 @@ export class MockInterviewStatsBreakdownItem {
         attemptCount: number
 }
 
-/** How many sessions of each top-level mode the scanned window contains. */
 @ObjectType({
     description: "Mode split across the viewer's scanned mock-interview attempts.",
 })
+/** How many sessions of each top-level mode the scanned window contains. */
 export class MockInterviewStatsModeSplit {
     @Field(
         () => Int,
@@ -91,15 +91,15 @@ export class MockInterviewStatsModeSplit {
         designCount: number
 }
 
+@ObjectType({
+    description: "The viewer's aggregated mock-interview stats for one course.",
+})
 /**
  * The viewer's aggregated mock-interview stats for one course — the
  * readiness hero (vs the pass bar, projected from the trend delta) +
  * the per-phase breakdown that `MockInterviewStats` renders
  * (`stats-canonical-fold` — 1 hero + 1 zone).
  */
-@ObjectType({
-    description: "The viewer's aggregated mock-interview stats for one course.",
-})
 export class MyMockInterviewStatsData {
     @Field(
         () => Boolean,
@@ -134,10 +134,10 @@ export class MyMockInterviewStatsData {
         byPhase: Array<MockInterviewStatsBreakdownItem>
 }
 
-/** Response wrapper for the myMockInterviewStats query. */
 @ObjectType({
     description: "Response wrapper for the myMockInterviewStats query.",
 })
+/** Response wrapper for the myMockInterviewStats query. */
 export class MyMockInterviewStatsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyMockInterviewStatsData>

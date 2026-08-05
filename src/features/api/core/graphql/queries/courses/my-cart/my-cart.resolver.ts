@@ -31,10 +31,10 @@ import {
     MyCartService,
 } from "./my-cart.service"
 
+@Resolver()
 /**
  * GraphQL entry for listing the current user's shopping cart.
  */
-@Resolver()
 export class MyCartResolver {
     constructor(
         private readonly myCartService: MyCartService,

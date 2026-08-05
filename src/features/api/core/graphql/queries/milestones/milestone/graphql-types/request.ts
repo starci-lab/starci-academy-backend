@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request for the milestone GraphQL query (by id). */
 @InputType({
     description: "Request for fetching a milestone by primary id.",
 })
+/** Request for the milestone GraphQL query (by id). */
 export class MilestoneRequest {
     @Field(
         () => ID,

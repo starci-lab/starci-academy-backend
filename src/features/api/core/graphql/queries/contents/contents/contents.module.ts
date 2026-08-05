@@ -27,4 +27,7 @@ import {
         ContentsHandler,
     ],
 })
+/**
+ * Nest DI for `contents` — includes ElasticsearchModule for the paginated list.
+ */
 export class ContentsSingleQueryModule extends ConfigurableModuleClass {}

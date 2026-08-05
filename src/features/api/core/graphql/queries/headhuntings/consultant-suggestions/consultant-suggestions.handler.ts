@@ -14,6 +14,8 @@ import {
     ConsultantSuggestionsQuery,
 } from "./consultant-suggestions.query"
 
+@QueryHandler(ConsultantSuggestionsQuery)
+@Injectable()
 /**
  * Consultant autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -25,8 +27,6 @@ import {
  * weight, with built-in fuzzy typo tolerance. The injected
  * `ElasticsearchService` constructor is inherited — no redeclaration needed.
  */
-@QueryHandler(ConsultantSuggestionsQuery)
-@Injectable()
 export class ConsultantSuggestionsHandler
     extends AbstractSuggestionsHandler<ConsultantSuggestionsQuery> {
     /** The consultant index this handler autocompletes against. */

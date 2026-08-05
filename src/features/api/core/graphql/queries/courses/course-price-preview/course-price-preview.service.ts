@@ -35,6 +35,7 @@ export interface PreviewCoursePriceParams {
     voucherCode?: string
 }
 
+@Injectable()
 /**
  * Prices a single course for the payment modal exactly as it would be charged at
  * checkout: the active pricing phase resolved by {@link CoursePricingService} with
@@ -43,7 +44,6 @@ export interface PreviewCoursePriceParams {
  * Coin-shop voucher code ON TOP (read-only — {@link VoucherService.previewDiscount}
  * validates but does not reserve/consume the code).
  */
-@Injectable()
 export class CoursePricePreviewService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

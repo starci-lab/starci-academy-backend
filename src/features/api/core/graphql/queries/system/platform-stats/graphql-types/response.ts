@@ -11,6 +11,10 @@ import {
 @ObjectType({
     description: "Platform-wide aggregate counters for the public landing page.",
 })
+/**
+ * Landing-page hero counters — distinct enrolled learners, lessons, courses,
+ * and badges earned across the whole platform.
+ */
 export class PlatformStatsData {
     @Field(
         () => Int,
@@ -48,6 +52,7 @@ export class PlatformStatsData {
 @ObjectType({
     description: "Response wrapper for platform-wide aggregate stats.",
 })
+/** GraphQL envelope for the public `platformStats` query. */
 export class PlatformStatsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<PlatformStatsData>

@@ -8,10 +8,10 @@ import {
     MyCodingProgressResolver,
 } from "./my-coding-progress.resolver"
 
-/** Wires the `myCodingProgress` query resolver as its own registrable module. */
 @Module({
     providers: [
         MyCodingProgressResolver,
     ],
 })
+/** Wires the `myCodingProgress` query resolver as its own registrable module. */
 export class MyCodingProgressSingleQueryModule extends ConfigurableModuleClass {}

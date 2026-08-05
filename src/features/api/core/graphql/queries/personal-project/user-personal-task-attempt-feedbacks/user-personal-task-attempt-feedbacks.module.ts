@@ -21,4 +21,7 @@ import {
         UserPersonalTaskAttemptFeedbacksHandler,
     ],
 })
+/**
+ * Nest DI for `userPersonalTaskAttemptFeedbacks` — feedback by attempt id.
+ */
 export class UserPersonalTaskAttemptFeedbacksSingleQueryModule extends ConfigurableModuleClass {}

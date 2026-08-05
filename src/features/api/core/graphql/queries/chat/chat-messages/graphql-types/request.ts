@@ -5,10 +5,10 @@ import {
     Int,
 } from "@nestjs/graphql"
 
-/** Cursor-paginated request for a conversation's messages. */
 @InputType({
     description: "Cursor-paginated request for a conversation's messages.",
 })
+/** Cursor-paginated request for a conversation's messages. */
 export class ChatMessagesRequest {
     /** Conversation whose messages are listed. */
     @Field(

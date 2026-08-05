@@ -38,10 +38,10 @@ registerEnumType(
     },
 )
 
-/** Request for the course questions Q&A roll-up query. */
 @InputType({
     description: "Request for aggregating a course's top-level questions across all lessons.",
 })
+/** Request for the course questions Q&A roll-up query. */
 export class CourseQuestionsRequest {
     /** Course whose lessons' questions are aggregated. */
     @Field(

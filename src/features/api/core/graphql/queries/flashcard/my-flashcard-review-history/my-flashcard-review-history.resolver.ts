@@ -40,13 +40,13 @@ import {
     MyFlashcardReviewHistoryResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The viewer's flashcard review ("Học thẻ") HISTORY for one course — every
  * past completed session (newest first), paginated, so the recap surface's
  * "past sessions" can list them. Mirrors `myFlashcardQuizHistory`.
  * Enrollment-scoped, same as `myInProgressFlashcardReviewSession`.
  */
-@Resolver()
 export class MyFlashcardReviewHistoryResolver {
     constructor(
         private readonly myFlashcardReviewHistoryService: MyFlashcardReviewHistoryService,

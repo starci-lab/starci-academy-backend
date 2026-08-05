@@ -29,11 +29,11 @@ import {
     ChallengeQuery,
 } from "./challenge.query"
 
+@QueryHandler(ChallengeQuery)
+@Injectable()
 /**
  * Handler for the challenge query.
  */
-@QueryHandler(ChallengeQuery)
-@Injectable()
 export class ChallengeHandler
     extends ICQRSHandler<ChallengeQuery, ChallengeEntity>
     implements IQueryHandler<ChallengeQuery, ChallengeEntity> {

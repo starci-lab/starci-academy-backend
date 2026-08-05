@@ -10,6 +10,7 @@ import type {
     MyFlashcardReviewStatsResultData,
 } from "./types"
 
+@Injectable()
 /**
  * Reads the viewer's flashcard review ("Học thẻ") stats for one course — the
  * memory-health hero (mature/young retention) + weak-topic map that
@@ -21,7 +22,6 @@ import type {
  * `flashcard_quiz_sessions` and `flashcard_review_sessions`) — no live
  * scan/fold at read time (per `.claude/be/rules/cqrs-no-inline-aggregate.md`).
  */
-@Injectable()
 export class MyFlashcardReviewStatsService {
     constructor(
         private readonly userService: UserService,

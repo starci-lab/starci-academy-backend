@@ -22,12 +22,12 @@ import {
     CvBlocksDocument,
 } from "./graphql-types"
 
+@QueryHandler(MyCvBlocksQuery)
+@Injectable()
 /**
  * Handler for `myCvBlocks` — the signed-in user's CV documents (block editor),
  * most recently updated first. Course-independent (no course scoping).
  */
-@QueryHandler(MyCvBlocksQuery)
-@Injectable()
 export class MyCvBlocksHandler
     extends ICQRSHandler<MyCvBlocksQuery, Array<CvBlocksDocument>>
     implements IQueryHandler<MyCvBlocksQuery, Array<CvBlocksDocument>> {

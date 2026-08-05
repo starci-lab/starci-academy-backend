@@ -21,4 +21,5 @@ import {
         LivestreamSessionsHandler,
     ],
 })
+/** Feature-module boundary for the `livestreamSessions` query. */
 export class LivestreamSessionsSingleQueryModule extends ConfigurableModuleClass {}

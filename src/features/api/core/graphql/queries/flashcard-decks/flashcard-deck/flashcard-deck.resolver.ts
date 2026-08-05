@@ -33,11 +33,11 @@ import {
     FlashcardDeckResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Returns a single interview-prep flashcard deck by id, with its cards, options,
  * and translations eagerly loaded for the study modes.
  */
-@Resolver()
 export class FlashcardDeckResolver {
     constructor(
         private readonly flashcardDeckReadService: FlashcardDeckReadService,

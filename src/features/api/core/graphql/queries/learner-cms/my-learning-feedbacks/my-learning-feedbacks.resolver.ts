@@ -35,6 +35,7 @@ import {
     MyLearningFeedbacksResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Learner-CMS query: the authenticated user's learning feedback, merged across
  * the two sources (challenge submission feedback, milestone-task feedback) and
@@ -47,7 +48,6 @@ import {
  * `cv_submissions`/`cv_submission_attempts` tables were retired — see
  * {@link LearningFeedbacksCmsService} for why it isn't a drop-in replacement.
  */
-@Resolver()
 export class MyLearningFeedbacksResolver {
     constructor(
         private readonly learningFeedbacksCmsService: LearningFeedbacksCmsService,

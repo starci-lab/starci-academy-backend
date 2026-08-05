@@ -13,4 +13,5 @@ import {
         MyKpisResolver,
     ],
 })
+/** Feature-module boundary for the `myKpis` query — wires its resolver so the dashboard group can mount this widget independently. */
 export class MyKpisSingleQueryModule extends ConfigurableModuleClass {}

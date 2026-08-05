@@ -25,12 +25,12 @@ import {
     RewardsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The redeemable reward catalog (the Coin shop), localized to the
  * request locale. Public (no auth) — the catalog is the same for everyone; the
  * viewer's balance lives in the separate `myRewardWallet` query.
  */
-@Resolver()
 export class RewardsResolver {
     constructor(
         private readonly rewardsService: RewardsService,

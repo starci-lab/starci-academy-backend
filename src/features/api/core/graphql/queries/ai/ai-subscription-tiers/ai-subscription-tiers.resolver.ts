@@ -24,12 +24,12 @@ import {
     AiSubscriptionTiersResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public catalog of purchasable AI subscription tiers, read from the mounted
  * `app.yaml` (`subscriptions.tiers`). Drives the pricing page. Only enabled
  * tiers are returned.
  */
-@Resolver()
 export class AiSubscriptionTiersResolver {
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,

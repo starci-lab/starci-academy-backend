@@ -13,4 +13,8 @@ import {
         ContentAiHistoryResolver,
     ],
 })
+/**
+ * Nest DI for `contentAiSessionMessages` — registers the resolver that reads
+ * saved content-AI turns for the authenticated user.
+ */
 export class ContentAiHistorySingleQueryModule extends ConfigurableModuleClass { }

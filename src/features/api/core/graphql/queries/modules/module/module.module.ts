@@ -21,4 +21,5 @@ import {
         ModuleHandler,
     ],
 })
+/** Feature-module boundary for the `module` detail query. */
 export class ModuleSingleQueryModule extends ConfigurableModuleClass {}

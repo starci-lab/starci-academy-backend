@@ -8,14 +8,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A user's XP aggregate (per-source XP + the total/reward balances).",
+})
 /**
  * A user's XP aggregate: every XP figure (per-source totals + the global
  * `totalPoints`) is derived live from the `xp_histories` ledger; `coinBalance`
  * is the one materialized balance (`users.coin_balance`).
  */
-@ObjectType({
-    description: "A user's XP aggregate (per-source XP + the total/reward balances).",
-})
 export class UserXpData {
     @Field(
         () => Int,
@@ -66,15 +66,15 @@ export class UserXpData {
         coinBalance: number
 }
 
+@ObjectType({
+    description: "Response wrapper for the userXp query.",
+})
 /**
  * Response wrapper for the userXp query.
  *
  * The named user's XP aggregate — per-source XP figures summed from the
  * `xp_histories` ledger, plus the total-XP and spendable Coin balances.
  */
-@ObjectType({
-    description: "Response wrapper for the userXp query.",
-})
 export class UserXpResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserXpData> {

@@ -7,13 +7,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A solved coding problem with the language(s) used.",
+})
 /**
  * One solved coding problem on a user's profile — the problem, its difficulty,
  * which language(s) the user solved it in, and when it was first solved.
  */
-@ObjectType({
-    description: "A solved coding problem with the language(s) used.",
-})
 export class UserCodingHistoryItemData {
     /** Display title shown for the problem entry. */
     @Field(
@@ -71,12 +71,12 @@ export class UserCodingHistoryItemData {
         firstSolvedAt: Date | null
 }
 
-/**
- * Response wrapper for the userCodingHistory query.
- */
 @ObjectType({
     description: "Response wrapper for the userCodingHistory query.",
 })
+/**
+ * Response wrapper for the userCodingHistory query.
+ */
 export class UserCodingHistoryResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<UserCodingHistoryItemData>> {

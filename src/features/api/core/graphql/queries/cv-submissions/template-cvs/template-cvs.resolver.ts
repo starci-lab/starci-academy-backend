@@ -21,10 +21,10 @@ import {
     Locale,
 } from "@modules/databases"
 
+@Resolver()
 /**
  * Resolver for listing all available CV review template rubrics.
  */
-@Resolver()
 export class TemplateCvsResolver {
     constructor(
         private readonly templateCvsService: TemplateCvsService,

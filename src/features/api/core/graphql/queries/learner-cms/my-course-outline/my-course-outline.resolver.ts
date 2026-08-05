@@ -33,6 +33,7 @@ import {
     MyCourseOutlineService,
 } from "./my-course-outline.service"
 
+@Resolver()
 /**
  * Learner-CMS query: the authenticated viewer's full outline for ONE enrolled
  * course — the module/lesson/challenge tree plus the milestone/task tree, with
@@ -40,7 +41,6 @@ import {
  * resolver stays thin: it resolves the viewer + locale and delegates assembly to
  * the service → CQRS handler.
  */
-@Resolver()
 export class MyCourseOutlineResolver {
     constructor(
         private readonly myCourseOutlineService: MyCourseOutlineService,

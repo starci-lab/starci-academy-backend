@@ -11,13 +11,13 @@ import {
     GraphQLTypeAiSubTier,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "Per-user AI capabilities (unlock + active tier).",
+})
 /**
  * The authenticated user's AI capabilities the UI needs to decide which models
  * are selectable (unlock + active tier).
  */
-@ObjectType({
-    description: "Per-user AI capabilities (unlock + active tier).",
-})
 export class MyAiSettingsResponseData {
     @Field(
         () => Boolean,
@@ -40,6 +40,11 @@ export class MyAiSettingsResponseData {
 @ObjectType({
     description: "Response wrapper for the myAiSettings query.",
 })
+/**
+ * GraphQL envelope for `myAiSettings`. `data` is null only on the error path;
+ * free users still return `{ canPremium, tier: null }` so the settings UI
+ * can render without a separate "are they paid?" query.
+ */
 export class MyAiSettingsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyAiSettingsResponseData>

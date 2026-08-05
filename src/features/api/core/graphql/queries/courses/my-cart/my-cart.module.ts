@@ -21,4 +21,5 @@ import {
         MyCartHandler,
     ],
 })
+/** Feature-module boundary for the `myCart` query. */
 export class MyCartSingleQueryModule extends ConfigurableModuleClass {}

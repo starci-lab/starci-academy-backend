@@ -31,6 +31,7 @@ import {
     UserCodingRankResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a user's DERIVED coding standing — a 1-based global rank
  * + a percentile by distinct solved coding problems (same ordering as the coding
@@ -39,7 +40,6 @@ import {
  * Both fields null when the user has 0 solves.
  * Optional auth; a locked profile is withheld by {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserCodingRankResolver {
     constructor(
         private readonly userCodingProjectionService: UserCodingProjectionService,

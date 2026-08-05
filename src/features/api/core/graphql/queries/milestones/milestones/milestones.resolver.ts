@@ -35,6 +35,10 @@ import {
 } from "@modules/bussiness"
 
 @Resolver()
+/**
+ * Auth + enrollment-gated GraphQL entry for `milestones` — full course outline
+ * ordered by `sortIndex`.
+ */
 export class MilestonesResolver {
     constructor(
         private readonly milestonesService: MilestonesService,

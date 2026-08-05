@@ -36,6 +36,10 @@ import {
 
 @QueryHandler(ContentsQuery)
 @Injectable()
+/**
+ * ES-paginated module lesson list with a single course-enrollment check; premium
+ * rows are truncated in-place so trial browsers still get a teaser + paywall signal.
+ */
 export class ContentsHandler
     extends ICQRSHandler<ContentsQuery, ContentsResponseData>
     implements IQueryHandler<ContentsQuery, ContentsResponseData> {

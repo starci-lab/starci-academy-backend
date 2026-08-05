@@ -11,11 +11,11 @@ import {
     MyFlashcardReviewSessionStatsBySessionIdService,
 } from "./my-flashcard-review-session-stats-by-session-id.service"
 
-/** Feature-module boundary for the `myFlashcardReviewSessionStatsBySessionId` query — wires its resolver + service. */
 @Module({
     providers: [
         MyFlashcardReviewSessionStatsBySessionIdResolver,
         MyFlashcardReviewSessionStatsBySessionIdService,
     ],
 })
+/** Feature-module boundary for the `myFlashcardReviewSessionStatsBySessionId` query — wires its resolver + service. */
 export class MyFlashcardReviewSessionStatsBySessionIdSingleQueryModule extends ConfigurableModuleClass {}

@@ -20,6 +20,7 @@ import type {
     GithubTeamEntryData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Build the viewer's GitHub link + team-membership status. Linking a GitHub
  * identity (githubUsername) and being a member of a course's GitHub team are
@@ -29,7 +30,6 @@ import type {
  * it checks live GitHub membership (active / pending / none). `allInTeam` is true
  * only when every such team is `active`, which is what un-blocks the app.
  */
-@Injectable()
 export class MyGithubTeamStatusHandler {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -13,10 +13,10 @@ import {
     FoundationEntity,
 } from "@modules/databases"
 
-/** Request for global search autocomplete query. */
 @InputType({
     description: "Global search autocomplete request.",
 })
+/** Request for global search autocomplete query. */
 export class AutocompleteGlobalSearchRequest {
     @Field(
         () => String,

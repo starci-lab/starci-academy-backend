@@ -45,6 +45,7 @@ const DEFAULT_LIMIT = 10
 /** Upper bound so the client can never ask for an unbounded list. */
 const MAX_LIMIT = 20
 
+@Resolver()
 /**
  * `searchUsers` query — free-text search over the non-localized `users`
  * Elasticsearch index (kept in sync by `es-sync`). Matches the keyword against
@@ -52,7 +53,6 @@ const MAX_LIMIT = 20
  * for typo tolerance), most-relevant first. Auth-only; returns the header fields
  * a result row / who-to-follow card needs.
  */
-@Resolver()
 export class SearchUsersResolver {
     constructor(
         private readonly elasticsearchService: ElasticsearchService,

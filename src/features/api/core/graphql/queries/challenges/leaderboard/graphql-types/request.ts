@@ -13,6 +13,10 @@ const MAX_LIMIT = 100
 @InputType({
     description: "Request for fetching the leaderboard of a course.",
 })
+/**
+ * Top-N course leaderboard plus the viewer's rank. `limit` is clamped to
+ * 1..MAX_LIMIT (100) so callers cannot pull past the cached window.
+ */
 export class LeaderboardRequest {
     @Field(
         () => ID,

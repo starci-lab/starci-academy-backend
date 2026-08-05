@@ -30,10 +30,10 @@ import {
 import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
+@Resolver()
 /**
  * Resolver for challenge submissions.
  */
-@Resolver()
 export class ChallengeSubmissionResolver {
     constructor(
         private readonly challengeSubmissionQueryService: ChallengeSubmissionQueryService,

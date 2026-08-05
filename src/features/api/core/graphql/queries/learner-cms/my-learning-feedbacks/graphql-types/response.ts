@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A single learning-feedback row in the learner CMS list.",
+})
 /**
  * One merged learning-feedback row for the viewer, from any of the three
  * sources (challenge submission feedback, milestone-task feedback, CV review).
  * Normalised to a single shape so the FE renders one unified timeline.
  */
-@ObjectType({
-    description: "A single learning-feedback row in the learner CMS list.",
-})
 export class LearningFeedbackItem {
     @Field(
         () => ID,
@@ -68,13 +68,13 @@ export class LearningFeedbackItem {
         createdAt: string
 }
 
+@ObjectType({
+    description: "Paginated list of the viewer's merged learning feedback.",
+})
 /**
  * The learning-feedbacks page payload: the merged list plus the total number of
  * feedback rows the viewer has (for client-side pagination).
  */
-@ObjectType({
-    description: "Paginated list of the viewer's merged learning feedback.",
-})
 export class MyLearningFeedbacksData {
     @Field(
         () => [LearningFeedbackItem],
@@ -93,12 +93,12 @@ export class MyLearningFeedbacksData {
         total: number
 }
 
-/**
- * Response wrapper for the myLearningFeedbacks query.
- */
 @ObjectType({
     description: "Response wrapper for the myLearningFeedbacks query.",
 })
+/**
+ * Response wrapper for the myLearningFeedbacks query.
+ */
 export class MyLearningFeedbacksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyLearningFeedbacksData> {

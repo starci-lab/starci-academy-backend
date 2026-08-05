@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "The learner's most recent resumable cross-deck due-review batch session for one course.",
+})
 /**
  * The learner's most recent RESUMABLE cross-deck due-review batch session
  * for one course. The query itself resolves to `null` (not this type) when
  * there is none.
  */
-@ObjectType({
-    description: "The learner's most recent resumable cross-deck due-review batch session for one course.",
-})
 export class MyInProgressFlashcardDueReviewSessionData {
     @Field(
         () => ID,
@@ -78,6 +78,11 @@ export class MyInProgressFlashcardDueReviewSessionData {
 @ObjectType({
     description: "Response wrapper for the myInProgressFlashcardDueReviewSession query.",
 })
+/**
+ * GraphQL envelope for `myInProgressFlashcardDueReviewSession`. `data` is
+ * null when the learner has no resumable cross-deck due batch — the FE
+ * should start a new session rather than resume.
+ */
 export class MyInProgressFlashcardDueReviewSessionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyInProgressFlashcardDueReviewSessionData>

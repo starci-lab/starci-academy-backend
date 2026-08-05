@@ -37,6 +37,10 @@ import {
 } from "./last-personal-task-attempt.service"
 
 @Resolver()
+/**
+ * GraphQL surface for `lastPersonalTaskAttempt` — forwards Keycloak realm roles
+ * so the handler can authorize staff viewing another learner's attempt.
+ */
 export class LastPersonalTaskAttemptResolver {
     constructor(
         private readonly service: LastPersonalTaskAttemptService,

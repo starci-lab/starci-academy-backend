@@ -18,10 +18,10 @@ import {
     ConsultantSuggestionsQuery,
 } from "./consultant-suggestions.query"
 
+@Injectable()
 /**
  * Thin façade dispatching consultant suggest requests onto the CQRS query bus.
  */
-@Injectable()
 export class ConsultantSuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

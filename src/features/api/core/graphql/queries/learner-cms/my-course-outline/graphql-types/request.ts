@@ -4,13 +4,13 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Request for the myCourseOutline query.",
+})
 /**
  * Request for the myCourseOutline query: the course whose outline to assemble
  * for the signed-in viewer.
  */
-@InputType({
-    description: "Request for the myCourseOutline query.",
-})
 export class MyCourseOutlineRequest {
     /** Primary-key id of the enrolled course to build the outline for. */
     @Field(

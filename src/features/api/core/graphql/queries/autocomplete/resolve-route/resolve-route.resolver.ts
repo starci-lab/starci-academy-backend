@@ -41,6 +41,7 @@ import {
     ResolveRouteResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Relay-style route index ("index server"): one door that turns an opaque entity
  * global id into its canonical, locale-agnostic route. Reuses the same
@@ -48,7 +49,6 @@ import {
  * (feed tokens, deep-links) resolves consistently. The client just prepends the
  * locale and pushes the returned path.
  */
-@Resolver()
 export class ResolveRouteResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

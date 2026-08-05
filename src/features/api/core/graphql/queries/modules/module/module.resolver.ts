@@ -32,6 +32,10 @@ import {
 } from "@modules/keycloak"
 
 @Resolver(() => ModuleEntity)
+/**
+ * Login-only (not enrollment-gated) GraphQL entry for `module` — trial readers
+ * may fetch a single module without lesson videos or challenges.
+ */
 export class ModuleResolver {
     constructor(
         private readonly moduleService: ModuleService,

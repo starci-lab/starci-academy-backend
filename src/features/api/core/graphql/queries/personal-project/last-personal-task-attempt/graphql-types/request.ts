@@ -7,6 +7,10 @@ import {
 @InputType({
     description: "Request for the latest personal-project review attempt for a given user (self or staff).",
 })
+/**
+ * Args for `lastPersonalTaskAttempt` — course, task, and subject userId
+ * (self or staff-viewed learner).
+ */
 export class LastPersonalTaskAttemptRequest {
     @Field(
         () => ID,

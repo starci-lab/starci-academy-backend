@@ -53,6 +53,7 @@ import {
 /** Hard cap on page size to bound the query regardless of client input. */
 const MAX_LIMIT = 50
 
+@Resolver()
 /**
  * Score-ranked home feed. Each activity gets `weight(type) × recencyDecay`, so
  * accomplishments (passing a milestone / challenge) surface above low-signal
@@ -63,7 +64,6 @@ const MAX_LIMIT = 50
  * with offset pagination so it stays stable across "load more". Target labels are
  * batch-resolved from ids (id-only refs).
  */
-@Resolver()
 export class MyFeedResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

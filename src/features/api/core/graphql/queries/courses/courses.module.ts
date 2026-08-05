@@ -69,4 +69,9 @@ import {
         }),
     ],
 })
+/**
+ * Courses query group — catalog, enrollment, cart/checkout preview, mind map,
+ * Q&A, suggestions, and livestream leaves. Registered global so each leaf
+ * resolver is picked up by the schema.
+ */
 export class CoursesQueriesModule extends ConfigurableModuleClass {}

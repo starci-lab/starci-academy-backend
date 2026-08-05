@@ -18,6 +18,9 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin QueryBus adapter so PublicContentResolver never constructs PublicContentQuery itself.
+ */
 export class PublicContentService {
     constructor(
         private readonly queryBus: QueryBus,

@@ -36,6 +36,10 @@ import {
 
 @QueryHandler(UserMilestoneTaskFeedbacksQuery)
 @Injectable()
+/**
+ * Resolves the caller's latest attempt for course+task, then pages its feedback
+ * rows; empty page when not enrolled / no attempts yet.
+ */
 export class UserMilestoneTaskFeedbacksHandler
     extends ICQRSHandler<UserMilestoneTaskFeedbacksQuery, UserMilestoneTaskFeedbacksResponseData>
     implements IQueryHandler<UserMilestoneTaskFeedbacksQuery, UserMilestoneTaskFeedbacksResponseData> {

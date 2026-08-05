@@ -16,6 +16,7 @@ import {
 } from "../../../../types"
 
 @Injectable()
+/** Dispatches `MilestonesQuery` onto the CQRS bus. */
 export class MilestonesService {
     constructor(
         private readonly queryBus: QueryBus,

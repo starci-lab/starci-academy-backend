@@ -21,4 +21,5 @@ import {
         CourseEnrollmentStatusHandler,
     ],
 })
+/** Feature-module boundary for the `courseEnrollmentStatus` query. */
 export class CourseEnrollmentStatusSingleQueryModule extends ConfigurableModuleClass {}

@@ -11,9 +11,6 @@ import {
     PlaygroundSingleQueryModule,
 } from "./playground"
 
-/**
- * Playground query group (course playground list + single-playground detail).
- */
 @Module({
     imports: [
         PlaygroundsSingleQueryModule.register({
@@ -24,4 +21,7 @@ import {
         }),
     ],
 })
+/**
+ * Playground query group (course playground list + single-playground detail).
+ */
 export class PlaygroundsQueriesModule extends ConfigurableModuleClass {}

@@ -17,12 +17,12 @@ import type {
     CommunityPostRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Query service for a single community post. Loads the post (404 if missing) and
  * assembles its reaction summary + comment count into a client-facing node. Open
  * to everyone (optional auth); `myReaction`/`isMine` only set when authenticated.
  */
-@Injectable()
 export class CommunityPostQueryService {
     constructor(
         private readonly communityPostService: CommunityPostService,

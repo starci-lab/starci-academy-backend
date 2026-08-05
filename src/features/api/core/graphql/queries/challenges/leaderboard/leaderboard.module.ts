@@ -21,4 +21,8 @@ import {
         LeaderboardHandler,
     ],
 })
+/**
+ * Wires resolver, service, and handler for `courseLeaderboard`. Registered
+ * globally from {@link ChallengesModule}.
+ */
 export class LeaderboardSingleQueryModule extends ConfigurableModuleClass {}

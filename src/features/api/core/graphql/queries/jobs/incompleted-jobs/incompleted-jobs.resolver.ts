@@ -34,12 +34,12 @@ import {
     IncompletedJobsService,
 } from "./incompleted-jobs.service"
 
+@Resolver()
 /**
  * Resolves the `incompletedJobs` query: a flat `{ jobId, status }` list for the
  * caller's still-queued-or-processing Git and Google Docs submission jobs, so a
  * client can poll a stuck grading run without knowing its id up front.
  */
-@Resolver()
 export class IncompletedJobsResolver {
     constructor(
         private readonly incompletedJobsService: IncompletedJobsService,

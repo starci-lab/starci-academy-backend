@@ -30,6 +30,7 @@ import {
     MyAiSettingsResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Per-user AI lane settings — the saved lane preference plus the capabilities
  * the UI needs to decide which lanes are selectable (Auto / Premium).
@@ -37,7 +38,6 @@ import {
  *
  * Reads from Postgres (`ai_subscriptions`).
  */
-@Resolver()
 export class MyAiSettingsResolver {
     constructor(
         private readonly aiEntitlementService: AiEntitlementService,

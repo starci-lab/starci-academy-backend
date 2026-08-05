@@ -24,6 +24,10 @@ import type {
 
 @QueryHandler(ContentStatusQuery)
 @Injectable()
+/**
+ * Reads `user_contents` for isRead/isFavorite; anonymous callers get both false
+ * so the FE can still render chips without inventing a logged-out state.
+ */
 export class ContentStatusHandler
     extends ICQRSHandler<ContentStatusQuery, ContentStatusData>
     implements IQueryHandler<ContentStatusQuery, ContentStatusData> {

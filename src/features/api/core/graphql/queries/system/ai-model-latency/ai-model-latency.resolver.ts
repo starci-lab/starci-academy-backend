@@ -28,6 +28,7 @@ import {
     AiModelLatencyResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * PUBLIC "build in public" AI model latency — the latest per-model probe
  * snapshot (up/down + latency + freshness) read from the latency cache. The
@@ -35,7 +36,6 @@ import {
  * render on a public status page. The realtime counterpart is the
  * `system_health` Socket.IO namespace.
  */
-@Resolver()
 export class AiModelLatencyResolver {
     constructor(
         private readonly aiModelLatencyCacheService: AiModelLatencyCacheService,

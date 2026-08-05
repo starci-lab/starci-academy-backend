@@ -25,10 +25,10 @@ import {
     CourseSuggestionsService,
 } from "./course-suggestions.service"
 
+@Resolver()
 /**
  * GraphQL resolver exposing the `courseSuggestions` autocomplete (typeahead) query.
  */
-@Resolver()
 export class CourseSuggestionsResolver {
     constructor(
         private readonly courseSuggestionsService: CourseSuggestionsService,

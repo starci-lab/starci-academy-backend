@@ -22,6 +22,12 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Builds the live AI roster for the admin/picker panel: derives each grading
+ * task's active model + fallback chain from the enabled catalog (so the UI
+ * never advertises a model the balancer cannot reach), and flags which
+ * gradable models still have a healthy provider key.
+ */
 export class AiModelsHandler {
     constructor(
         private readonly modelCatalog: AiModelCatalogService,

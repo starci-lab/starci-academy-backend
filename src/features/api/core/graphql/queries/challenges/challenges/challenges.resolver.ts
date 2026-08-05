@@ -31,6 +31,10 @@ import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 @Resolver()
+/**
+ * GraphQL entry for `challenges`: paginated catalog for one content item,
+ * served from the locale ES index.
+ */
 export class ChallengesResolver {
     constructor(
         private readonly challengesService: ChallengesService,

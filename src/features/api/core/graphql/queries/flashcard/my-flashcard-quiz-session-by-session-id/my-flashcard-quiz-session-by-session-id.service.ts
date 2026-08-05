@@ -13,6 +13,7 @@ import type {
     MyFlashcardQuizSessionBySessionIdResultData,
 } from "./types"
 
+@Injectable()
 /**
  * Resolves the recap for ONE flashcard quick-quiz ("Hỏi nhanh") session by its
  * id alone, owner-scoped via the session's enrollment.user, REGARDLESS of
@@ -30,7 +31,6 @@ import type {
  * (see `.claude/be/rules/cqrs-no-inline-aggregate.md`) — not a hot dashboard
  * aggregate, so no CDC projection is warranted.
  */
-@Injectable()
 export class MyFlashcardQuizSessionBySessionIdService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

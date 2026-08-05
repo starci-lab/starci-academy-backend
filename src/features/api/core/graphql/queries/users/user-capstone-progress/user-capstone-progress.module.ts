@@ -13,4 +13,5 @@ import {
         UserCapstoneProgressResolver,
     ],
 })
+/** Feature-module boundary for the `userCapstoneProgress` query — wires its resolver so the users group can mount this profile tab independently. */
 export class UserCapstoneProgressSingleQueryModule extends ConfigurableModuleClass {}

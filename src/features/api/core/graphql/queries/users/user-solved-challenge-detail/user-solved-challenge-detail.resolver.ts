@@ -33,6 +33,7 @@ import {
     UserSolvedChallengeDetailService,
 } from "./user-solved-challenge-detail.service"
 
+@Resolver()
 /**
  * Public profile query: the detail of ONE of a user's passed challenge
  * submissions — title, link, language, score, course, and the AI feedback
@@ -40,7 +41,6 @@ import {
  * (optional auth + {@link GraphQLProfileVisibilityGuard}) so a locked profile
  * withholds this the same way it withholds the list.
  */
-@Resolver()
 export class UserSolvedChallengeDetailResolver {
     constructor(
         private readonly userSolvedChallengeDetailService: UserSolvedChallengeDetailService,

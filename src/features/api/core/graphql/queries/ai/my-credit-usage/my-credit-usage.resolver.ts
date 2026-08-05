@@ -30,13 +30,13 @@ import {
     MyCreditUsageResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Per-user AI credit usage snapshot — used / quota / remaining / overQuota.
  * Source of truth is the unified pool (`ai_subscriptions`, tier-aware) via
  * {@link AiEntitlementService.snapshot} — the SAME source the quota gate reads,
  * so this can never drift from what actually blocks a grading call.
  */
-@Resolver()
 export class MyCreditUsageResolver {
     constructor(
         private readonly aiEntitlementService: AiEntitlementService,

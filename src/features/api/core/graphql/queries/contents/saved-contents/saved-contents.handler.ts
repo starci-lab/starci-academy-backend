@@ -25,6 +25,10 @@ import type {
 
 @QueryHandler(SavedContentsQuery)
 @Injectable()
+/**
+ * Lists the caller's isFavorite user_contents with content→module→course loaded
+ * so the FE can group "Đã lưu" by course; empty when unauthenticated.
+ */
 export class SavedContentsHandler
     extends ICQRSHandler<SavedContentsQuery, SavedContentsData>
     implements IQueryHandler<SavedContentsQuery, SavedContentsData> {

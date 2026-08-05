@@ -39,12 +39,12 @@ import {
 /** Max lessons surfaced on the rail (keeps the payload bounded). */
 const DASHBOARD_LIMIT = 30
 
+@Resolver()
 /**
  * Rail query: the lessons the viewer has recently read (newest first). Plain ORM
  * find over `user_contents` (is_read) joined to its content; each row becomes a
  * route-index token resolved on click.
  */
-@Resolver()
 export class MyLearnedLessonsResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -17,10 +17,10 @@ import type {
     ContentReactionsRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Query service returning a content's aggregate reaction summary from the viewer's view.
  */
-@Injectable()
 export class ContentReactionsService {
     constructor(
         private readonly reactionService: ReactionService,

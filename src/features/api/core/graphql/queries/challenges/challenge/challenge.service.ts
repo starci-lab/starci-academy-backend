@@ -18,6 +18,10 @@ import {
 } from "./challenge.query"
 
 @Injectable()
+/**
+ * Dispatches `challenge` through QueryBus so the resolver never constructs
+ * the CQRS query itself.
+ */
 export class ChallengeQueryService {
     constructor(
         private readonly queryBus: QueryBus,

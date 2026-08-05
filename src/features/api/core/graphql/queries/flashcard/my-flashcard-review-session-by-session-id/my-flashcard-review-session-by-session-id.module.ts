@@ -8,10 +8,10 @@ import {
     MyFlashcardReviewSessionBySessionIdResolver,
 } from "./my-flashcard-review-session-by-session-id.resolver"
 
-/** Feature-module boundary for the `myFlashcardReviewSessionBySessionId` query — wires its resolver (business logic lives in the shared `FlashcardReviewSessionService`). */
 @Module({
     providers: [
         MyFlashcardReviewSessionBySessionIdResolver,
     ],
 })
+/** Feature-module boundary for the `myFlashcardReviewSessionBySessionId` query — wires its resolver (business logic lives in the shared `FlashcardReviewSessionService`). */
 export class MyFlashcardReviewSessionBySessionIdSingleQueryModule extends ConfigurableModuleClass {}

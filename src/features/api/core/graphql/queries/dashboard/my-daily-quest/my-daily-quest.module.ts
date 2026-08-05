@@ -13,4 +13,5 @@ import {
         MyDailyQuestResolver,
     ],
 })
+/** Feature-module boundary for the `myDailyQuest` query — wires its resolver so the dashboard group can mount this widget independently. */
 export class MyDailyQuestSingleQueryModule extends ConfigurableModuleClass {}

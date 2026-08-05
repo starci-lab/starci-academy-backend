@@ -40,6 +40,7 @@ import {
     UserCoursesResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: every course a given user has joined with its milestone
  * progress. Mirrors `myCourses` but reads for the user named in the route (id
@@ -48,7 +49,6 @@ import {
  * non-owners by {@link GraphQLProfileVisibilityGuard}. Progress comes from the
  * CQRS projection (eager-maintained); `total` is counted live from milestone tasks.
  */
-@Resolver()
 export class UserCoursesResolver {
     constructor(
         private readonly progressProjectionService: ProgressProjectionService,

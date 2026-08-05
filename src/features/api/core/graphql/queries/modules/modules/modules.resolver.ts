@@ -32,6 +32,10 @@ import {
 } from "@modules/keycloak"
 
 @Resolver()
+/**
+ * Login-only (not enrollment-gated) GraphQL entry for `modules` — trial readers
+ * may browse a course's module list.
+ */
 export class ModulesResolver {
     constructor(
         private readonly modulesService: ModulesService,

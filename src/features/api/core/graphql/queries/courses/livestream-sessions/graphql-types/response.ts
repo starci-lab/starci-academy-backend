@@ -15,6 +15,7 @@ import {
 @ObjectType({
     description: "Paginated list of livestream sessions for a course.",
 })
+/** One page of localized livestream sessions plus the total matching count. */
 export class LivestreamSessionsResponseData
     extends PaginationPageResponseData
     implements IPaginationPageResponseData<LivestreamSessionEntity>
@@ -31,6 +32,7 @@ export class LivestreamSessionsResponseData
 @ObjectType({
     description: "Response wrapper for the livestreamSessions query.",
 })
+/** GraphQL envelope for the `livestreamSessions` query. */
 export class LivestreamSessionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<LivestreamSessionsResponseData>

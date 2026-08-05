@@ -34,6 +34,7 @@ import {
     MyFlashcardReviewSessionBySessionIdResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Resolve a flashcard "Học thẻ" session by its id ALONE — the FE's unified
  * `/review/sessions/[sessionId]` route (thầy 2026-07-11: "bỏ deck đi, only
@@ -46,7 +47,6 @@ import {
  * table — the two entities remain separate (thầy: keep 2 BE tables, unify
  * only FE), this resolver is the seam that hides that split from the client.
  */
-@Resolver()
 export class MyFlashcardReviewSessionBySessionIdResolver {
     constructor(
         private readonly flashcardReviewSessionService: FlashcardReviewSessionService,

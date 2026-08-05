@@ -17,9 +17,6 @@ import {
     ChatMessagesService,
 } from "./chat-messages"
 
-/**
- * Aggregates the read-side (query) resolvers of the community chat feature.
- */
 @Module({
     providers: [
         CommunityChatConversationResolver,
@@ -30,4 +27,7 @@ import {
         ChatMessagesService,
     ],
 })
+/**
+ * Aggregates the read-side (query) resolvers of the community chat feature.
+ */
 export class ChatQueriesModule extends ConfigurableModuleClass {}

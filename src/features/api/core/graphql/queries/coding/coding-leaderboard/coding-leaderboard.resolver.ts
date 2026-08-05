@@ -30,12 +30,12 @@ import {
     type CodingLeaderboardEntryObject,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Ranks users by the number of distinct problems they've solved (Accepted).
  * Reads the count from the per-user coding projection (CQRS) — the resolver
  * stays a thin ordered read, no aggregation per request.
  */
-@Resolver()
 export class CodingLeaderboardResolver {
     constructor(
         private readonly userCodingProjectionService: UserCodingProjectionService,

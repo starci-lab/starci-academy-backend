@@ -10,6 +10,9 @@ import {
     MyContributionDayData,
 } from "../../../dashboard/my-contribution-calendar/graphql-types"
 
+@ObjectType({
+    description: "Response wrapper for the userContributionCalendar query.",
+})
 /**
  * Response wrapper for the userContributionCalendar query.
  *
@@ -17,9 +20,6 @@ import {
  * of the profile owner's learning activity. Differs from `myContributionCalendar`
  * only in subject — the user named in the route, not the authenticated viewer.
  */
-@ObjectType({
-    description: "Response wrapper for the userContributionCalendar query.",
-})
 export class UserContributionCalendarResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<MyContributionDayData>> {

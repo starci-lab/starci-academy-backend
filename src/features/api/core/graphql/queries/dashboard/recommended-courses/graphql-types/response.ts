@@ -13,14 +13,14 @@ import {
     GraphQLTypeDiscountReason,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A recommended course priced with the viewer's loyalty discount.",
+})
 /**
  * One recommended course priced with the viewer's loyalty discount: the course
  * display fields, the original vs discounted price (VND always; USD when set),
  * and the discount metadata that drives the FE copy.
  */
-@ObjectType({
-    description: "A recommended course priced with the viewer's loyalty discount.",
-})
 export class RecommendedCourseObject {
     @Field(
         () => String,
@@ -115,12 +115,12 @@ export class RecommendedCourseObject {
         enrolledCount: number
 }
 
-/**
- * The recommended-courses payload: the priced course list.
- */
 @ObjectType({
     description: "The viewer's recommended courses, each priced with the loyalty discount.",
 })
+/**
+ * The recommended-courses payload: the priced course list.
+ */
 export class RecommendedCoursesData {
     @Field(
         () => [RecommendedCourseObject],
@@ -131,12 +131,12 @@ export class RecommendedCoursesData {
         items: Array<RecommendedCourseObject>
 }
 
-/**
- * Response wrapper for the recommendedCourses query.
- */
 @ObjectType({
     description: "Response wrapper for the recommendedCourses query.",
 })
+/**
+ * Response wrapper for the recommendedCourses query.
+ */
 export class RecommendedCoursesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RecommendedCoursesData> {

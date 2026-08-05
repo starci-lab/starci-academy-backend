@@ -15,10 +15,10 @@ import {
     ConsultantsResponseData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Service for the Headhunters query.
  */
-@Injectable()
 export class ConsultantsService {
     constructor(
         private readonly queryBus: QueryBus,

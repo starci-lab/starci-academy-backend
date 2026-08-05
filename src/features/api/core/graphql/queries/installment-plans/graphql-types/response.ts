@@ -15,10 +15,10 @@ import {
     InstallmentPlanType,
 } from "@modules/databases"
 
-/** One course an installment plan gates access to (id + title, for display). */
 @ObjectType({
     description: "One course an installment plan gates access to.",
 })
+/** One course an installment plan gates access to (id + title, for display). */
 export class InstallmentPlanCourseItem {
     @Field(
         () => ID,
@@ -37,15 +37,15 @@ export class InstallmentPlanCourseItem {
         title: string
 }
 
+@ObjectType({
+    description: "One of the viewer's installment (trả góp) plans.",
+})
 /**
  * One of the viewer's installment ("trả góp") plans, read back for the "Kế
  * hoạch trả góp của tôi" surface. Fixed vs FlexiblePool fields are both present
  * on the type (nullable) — the FE branches on {@link planType} to render either
  * the "N/M cycles" schedule or the "remaining balance + dynamic minimum" pool.
  */
-@ObjectType({
-    description: "One of the viewer's installment (trả góp) plans.",
-})
 export class InstallmentPlanItem {
     @Field(
         () => ID,
@@ -176,10 +176,10 @@ export class InstallmentPlanItem {
         createdAt: string
 }
 
-/** Payload of the `myInstallmentPlans` query. */
 @ObjectType({
     description: "The viewer's installment (trả góp) plans.",
 })
+/** Payload of the `myInstallmentPlans` query. */
 export class MyInstallmentPlansData {
     @Field(
         () => [InstallmentPlanItem],
@@ -190,10 +190,10 @@ export class MyInstallmentPlansData {
         plans: Array<InstallmentPlanItem>
 }
 
-/** Response wrapper for the myInstallmentPlans query. */
 @ObjectType({
     description: "Response wrapper for the myInstallmentPlans query.",
 })
+/** Response wrapper for the myInstallmentPlans query. */
 export class MyInstallmentPlansResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyInstallmentPlansData> {

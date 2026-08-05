@@ -7,10 +7,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Result of checking an email against the bloom filter. */
 @ObjectType({
     description: "Email existence check result (bloom-filter based).",
 })
+/** Result of checking an email against the bloom filter. */
 export class CheckEmailExistsData {
     @Field(
         () => Boolean,
@@ -32,6 +32,12 @@ export class CheckEmailExistsData {
 @ObjectType({
     description: "Response wrapper for the check email exists query.",
 })
+/**
+ * GraphQL envelope for `checkEmailExists`. The payload is bloom-filter
+ * based: `exists: true` is a maybe (false positives), `exists: false` is
+ * definite absence — signup UI must not treat a hit as proof the email is
+ * taken without a later authoritative check.
+ */
 export class CheckEmailExistsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CheckEmailExistsData>

@@ -4,12 +4,12 @@ import {
     Int,
 } from "@nestjs/graphql"
 
-/**
- * Request for the `foundationCategorySuggestions` autocomplete query.
- */
 @InputType({
     description: "Prefix + limit for foundation category autocomplete suggestions.",
 })
+/**
+ * Request for the `foundationCategorySuggestions` autocomplete query.
+ */
 export class FoundationCategorySuggestionsRequest {
     /** The typed prefix to autocomplete (e.g. "do" → "Docker"). */
     @Field(

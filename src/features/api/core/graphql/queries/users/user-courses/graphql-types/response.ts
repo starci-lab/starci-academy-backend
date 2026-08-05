@@ -10,6 +10,9 @@ import {
     MyCourseItemData,
 } from "../../../dashboard/my-courses/graphql-types"
 
+@ObjectType({
+    description: "Response wrapper for the userCourses query.",
+})
 /**
  * Response wrapper for the userCourses query.
  *
@@ -17,9 +20,6 @@ import {
  * profile owner has joined with its milestone / content / challenge progress.
  * Differs from `myCourses` only in subject — the user named in the route.
  */
-@ObjectType({
-    description: "Response wrapper for the userCourses query.",
-})
 export class UserCoursesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<MyCourseItemData>> {

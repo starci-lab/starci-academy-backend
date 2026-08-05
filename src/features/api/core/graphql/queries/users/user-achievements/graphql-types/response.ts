@@ -10,6 +10,9 @@ import {
     MyAchievementItemData,
 } from "../../../achievements/my-achievements/graphql-types"
 
+@ObjectType({
+    description: "Response wrapper for the userAchievements query.",
+})
 /**
  * Response wrapper for the userAchievements query.
  *
@@ -18,9 +21,6 @@ import {
  * difference from `myAchievements` is only the subject — here it is the user
  * named in the route, not the authenticated viewer.
  */
-@ObjectType({
-    description: "Response wrapper for the userAchievements query.",
-})
 export class UserAchievementsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<MyAchievementItemData>> {

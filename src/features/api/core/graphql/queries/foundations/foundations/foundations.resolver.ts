@@ -27,10 +27,10 @@ import {
     FoundationsResponseData,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Resolver for the foundations query.
  */
-@Resolver()
 export class FoundationsResolver {
     constructor(
         private readonly foundationsService: FoundationsService,

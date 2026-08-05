@@ -21,4 +21,8 @@ import {
         MeHandler,
     ],
 })
+/**
+ * Wires the authenticated `me` query (resolver + QueryBus service +
+ * handler). Registered global from {@link AuthenticationQueriesModule}.
+ */
 export class MeSingleQueryModule extends ConfigurableModuleClass {}

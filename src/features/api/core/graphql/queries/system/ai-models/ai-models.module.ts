@@ -21,4 +21,5 @@ import {
         AiModelsHandler,
     ],
 })
+/** Feature-module boundary for the `aiModels` query — wires resolver, service, and handler. */
 export class AiModelsSingleQueryModule extends ConfigurableModuleClass {}

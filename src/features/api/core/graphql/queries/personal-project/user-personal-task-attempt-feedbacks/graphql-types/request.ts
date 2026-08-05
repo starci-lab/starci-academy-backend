@@ -15,9 +15,13 @@ import {
 
 /** Sort fields for listing user personal task attempt feedbacks. */
 export enum UserPersonalTaskAttemptFeedbacksSortBy {
+    /** Authoring / AI display order — default so feedback reads top-to-bottom as written. */
     SortIndex = "sortIndex",
+    /** Cluster critical issues first — triage view, not narrative reading order. */
     Severity = "severity",
+    /** When the feedback row was written — chronological audit, not display order. */
     CreatedAt = "createdAt",
+    /** Last edit time — surfaces revised feedback ahead of untouched rows. */
     UpdatedAt = "updatedAt",
 }
 
@@ -47,6 +51,9 @@ registerEnumType(GraphQLTypeUserPersonalTaskAttemptFeedbacksSortBy,
 @InputType({
     description: "Sort field and order for listing user personal task attempt feedbacks.",
 })
+/**
+ * One sort clause for feedback rows on a specific personal-task attempt.
+ */
 export class UserPersonalTaskAttemptFeedbacksRequestSort extends SortInput<UserPersonalTaskAttemptFeedbacksSortBy> {
     @Field(
         () => GraphQLTypeUserPersonalTaskAttemptFeedbacksSortBy,
@@ -60,6 +67,9 @@ export class UserPersonalTaskAttemptFeedbacksRequestSort extends SortInput<UserP
 @InputType({
     description: "Pagination, sort, and filters for listing user personal task attempt feedbacks.",
 })
+/**
+ * Page / sort filters for `userPersonalTaskAttemptFeedbacks` (default SortIndex ASC).
+ */
 export class UserPersonalTaskAttemptFeedbacksRequestPaginationFilters extends PaginationPageFilters<UserPersonalTaskAttemptFeedbacksSortBy> {
     @Field(
         () => [UserPersonalTaskAttemptFeedbacksRequestSort],
@@ -79,6 +89,10 @@ export class UserPersonalTaskAttemptFeedbacksRequestPaginationFilters extends Pa
 @InputType({
     description: "Request for listing user personal task attempt feedbacks with pagination.",
 })
+/**
+ * Args for `userPersonalTaskAttemptFeedbacks` — attemptId scopes feedback to
+ * one review run (unlike the latest-attempt helper on the sibling query).
+ */
 export class UserPersonalTaskAttemptFeedbacksRequest {
     @Field(
         () => ID,

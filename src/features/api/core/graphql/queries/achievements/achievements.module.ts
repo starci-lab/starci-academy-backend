@@ -8,11 +8,6 @@ import {
     MyAchievementsSingleQueryModule,
 } from "./my-achievements"
 
-/**
- * Achievements query group — profile badge leaves. Currently the single
- * `myAchievements` leaf (every definition + the viewer's earned status +
- * progress); registered global so its resolver is picked up by the schema.
- */
 @Module({
     imports: [
         MyAchievementsSingleQueryModule.register({
@@ -20,4 +15,9 @@ import {
         }),
     ],
 })
+/**
+ * Achievements query group — profile badge leaves. Currently the single
+ * `myAchievements` leaf (every definition + the viewer's earned status +
+ * progress); registered global so its resolver is picked up by the schema.
+ */
 export class AchievementsQueriesModule extends ConfigurableModuleClass {}

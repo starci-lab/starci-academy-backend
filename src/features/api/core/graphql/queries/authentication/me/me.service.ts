@@ -14,12 +14,12 @@ import {
     MeQuery,
 } from "./me.query"
 
+@Injectable()
 /**
  * Thin facade over the `@nestjs/cqrs` {@link QueryBus} that wraps the
  * raw resolver params in a {@link MeQuery} and dispatches it. The
  * actual logic lives in {@link MeHandler}.
  */
-@Injectable()
 export class MeService {
     constructor(
         private readonly queryBus: QueryBus,

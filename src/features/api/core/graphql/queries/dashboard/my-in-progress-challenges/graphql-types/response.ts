@@ -7,13 +7,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "An in-progress challenge (rail token).",
+})
 /**
  * One challenge the viewer has started but not yet passed — a route-index token
  * (resolves its route on click), so it carries only an opaque global id + label.
  */
-@ObjectType({
-    description: "An in-progress challenge (rail token).",
-})
 export class MyInProgressChallengeItemData {
     @Field(
         () => String,
@@ -32,12 +32,12 @@ export class MyInProgressChallengeItemData {
         label: string
 }
 
-/**
- * Response wrapper for the myInProgressChallenges query.
- */
 @ObjectType({
     description: "Response wrapper for the myInProgressChallenges query.",
 })
+/**
+ * Response wrapper for the myInProgressChallenges query.
+ */
 export class MyInProgressChallengesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<MyInProgressChallengeItemData>> {

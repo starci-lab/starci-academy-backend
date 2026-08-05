@@ -18,6 +18,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Dispatches `MilestoneQuery` onto the CQRS bus. */
 export class MilestoneService {
     constructor(
         private readonly queryBus: QueryBus,

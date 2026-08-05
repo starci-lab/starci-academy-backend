@@ -21,4 +21,8 @@ import {
         ContentStatusHandler,
     ],
 })
+/**
+ * Nest DI for `contentStatus` — wires resolver → service → CQRS handler for
+ * the caller's read/favorite flags on one lesson.
+ */
 export class ContentStatusSingleQueryModule extends ConfigurableModuleClass {}

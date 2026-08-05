@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One content-AI conversation in the list / search results. */
 @ObjectType({
     description: "A content-AI conversation summary.",
 })
+/** One content-AI conversation in the list / search results. */
 export class ContentAiSessionType {
     @Field(
         () => ID,
@@ -83,10 +83,10 @@ export class ContentAiSessionType {
         snippet: string | null
 }
 
-/** The current user's content-AI conversations (recency-first). */
 @ObjectType({
     description: "A list of content-AI conversations.",
 })
+/** The current user's content-AI conversations (recency-first). */
 export class ContentAiSessionsData {
     @Field(
         () => [ContentAiSessionType],
@@ -100,6 +100,10 @@ export class ContentAiSessionsData {
 @ObjectType({
     description: "Response wrapper for the contentAiSessions query.",
 })
+/**
+ * Envelope for `contentAiSessions` — status metadata plus the conversation
+ * list (null when the transform interceptor wraps a failure).
+ */
 export class ContentAiSessionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ContentAiSessionsData>

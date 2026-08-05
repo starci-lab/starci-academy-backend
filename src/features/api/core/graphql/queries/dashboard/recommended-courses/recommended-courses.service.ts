@@ -21,6 +21,7 @@ import type {
     RecommendedCourseItem,
 } from "./types"
 
+@Injectable()
 /**
  * Lists recommended courses for a viewer: the most popular courses the viewer
  * does NOT already own, each priced with the SAME loyalty discount applied at
@@ -28,7 +29,6 @@ import type {
  * ordered by enrollment count (recency tiebreak); already-owned courses are
  * excluded with an `enrollments` subquery.
  */
-@Injectable()
 export class RecommendedCoursesService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

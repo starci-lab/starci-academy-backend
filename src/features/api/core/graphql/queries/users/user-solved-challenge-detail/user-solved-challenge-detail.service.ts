@@ -16,6 +16,7 @@ import {
     UserSolvedChallengeDetailRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Live read of a single passed challenge submission's detail, scoped to the
  * TARGET user (`request.userId`, the profile owner) rather than the caller —
@@ -24,7 +25,6 @@ import {
  * for locked profiles is enforced upstream by
  * {@link GraphQLProfileVisibilityGuard} on the resolver, not here.
  */
-@Injectable()
 export class UserSolvedChallengeDetailService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request for the foundation GraphQL query — provide `id` or `displayId`, not both required. */
 @InputType({
     description: "Fetch one foundation by primary key (`id`) or globally unique `displayId`.",
 })
+/** Request for the foundation GraphQL query — provide `id` or `displayId`, not both required. */
 export class FoundationRequest {
     /** Foundation UUID (preferred for FE routes). */
     @Field(

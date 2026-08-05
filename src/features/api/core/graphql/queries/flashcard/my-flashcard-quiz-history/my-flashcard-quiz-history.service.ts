@@ -16,6 +16,7 @@ import type {
     MyFlashcardQuizHistoryResultData,
 } from "./types"
 
+@Injectable()
 /**
  * Reads back the viewer's completed flashcard quick-quiz ("Hỏi nhanh")
  * sessions, newest first, so the recap/history surface can list past runs
@@ -24,7 +25,6 @@ import type {
  * join to `xp_histories`. Mirrors `MyMockInterviewAttemptsService`'s
  * structure (plain query service, no CQRS command bus).
  */
-@Injectable()
 export class MyFlashcardQuizHistoryService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

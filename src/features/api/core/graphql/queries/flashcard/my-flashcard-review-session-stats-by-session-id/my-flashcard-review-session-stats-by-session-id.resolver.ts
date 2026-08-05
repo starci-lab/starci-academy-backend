@@ -35,6 +35,7 @@ import {
     MyFlashcardReviewSessionStatsBySessionIdResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Computed recap for ONE flashcard review session, resolved by its id ALONE
  * (whichever kind — single-deck "Học thẻ" review or the cross-deck due-review
@@ -47,7 +48,6 @@ import {
  * id is not found / not owned by the caller. Degrades gracefully for legacy
  * sessions whose events predate `sessionId` (count-only recap, never an error).
  */
-@Resolver()
 export class MyFlashcardReviewSessionStatsBySessionIdResolver {
     constructor(
         private readonly myFlashcardReviewSessionStatsBySessionIdService: MyFlashcardReviewSessionStatsBySessionIdService,

@@ -33,6 +33,7 @@ import {
     UserWeeklyStatsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a given user's streak + rolling 7-day activity. Mirrors
  * `myWeeklyStats` but reads for the user named in the route (id from args), so a
@@ -40,7 +41,6 @@ import {
  * call it; a locked profile is withheld from non-owners by
  * {@link GraphQLProfileVisibilityGuard}. Reads the user-stats projection.
  */
-@Resolver()
 export class UserWeeklyStatsResolver {
     constructor(
         private readonly userStatsProjectionService: UserStatsProjectionService,

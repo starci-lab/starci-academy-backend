@@ -21,12 +21,12 @@ import type {
     CourseQuestionsRequest,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Query service for the course Q&A roll-up. Loads a page of top-level questions across
  * all lessons of a course (with reply counts + founder-answer flags already computed by
  * the domain service) and maps each row into a client-facing node.
  */
-@Injectable()
 export class CourseQuestionsService {
     constructor(
         private readonly commentService: CommentService,

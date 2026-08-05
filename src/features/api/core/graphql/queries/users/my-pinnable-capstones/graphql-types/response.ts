@@ -10,13 +10,13 @@ import {
     MyPinnableCapstoneItemData,
 } from "./item"
 
+@ObjectType({
+    description: "Response wrapper for the myPinnableCapstones query.",
+})
 /**
  * Response wrapper for the myPinnableCapstones query: the current user's
  * enrollments that have a capstone repo, for the pin picker.
  */
-@ObjectType({
-    description: "Response wrapper for the myPinnableCapstones query.",
-})
 export class MyPinnableCapstonesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<MyPinnableCapstoneItemData>> {

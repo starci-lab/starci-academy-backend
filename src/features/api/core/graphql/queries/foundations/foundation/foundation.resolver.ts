@@ -28,6 +28,9 @@ import {
 } from "./graphql-types"
 
 @Resolver()
+/**
+ * Public GraphQL entry for `foundation` — one catalog item by id or display id.
+ */
 export class FoundationResolver {
     constructor(
         private readonly foundationService: FoundationService,

@@ -22,4 +22,8 @@ import {
         ActiveAdvertisementResolver,
     ],
 })
+/**
+ * Feature-module boundary for the `activeAdvertisement` query — wires its resolver
+ * and locally imports MembershipModule so member-exemption can run (that service is not global).
+ */
 export class ActiveAdvertisementSingleQueryModule extends ConfigurableModuleClass {}

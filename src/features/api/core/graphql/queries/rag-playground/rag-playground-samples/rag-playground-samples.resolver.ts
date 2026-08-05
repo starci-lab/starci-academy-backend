@@ -24,13 +24,13 @@ import {
     RagPlaygroundSamplesResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * PUBLIC (no login) query — lists the RAG Playground's built-in curated
  * sample catalog (id + label only). The code itself stays server-side and is
  * only revealed once a session actually indexes the chosen sample via
  * `indexRagPlayground`.
  */
-@Resolver()
 export class RagPlaygroundSamplesResolver {
     constructor(
         private readonly publicRagPlaygroundService: PublicRagPlaygroundService,

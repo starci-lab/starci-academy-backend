@@ -25,10 +25,10 @@ import {
     ChallengeSuggestionsService,
 } from "./challenge-suggestions.service"
 
+@Resolver()
 /**
  * GraphQL resolver exposing the `challengeSuggestions` autocomplete (typeahead) query.
  */
-@Resolver()
 export class ChallengeSuggestionsResolver {
     constructor(
         private readonly challengeSuggestionsService: ChallengeSuggestionsService,

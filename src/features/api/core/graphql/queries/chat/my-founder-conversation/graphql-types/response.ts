@@ -10,10 +10,10 @@ import {
     ChatConversationObject,
 } from "../../../../shared/chat"
 
-/** Response wrapper for the myFounderConversation query. */
 @ObjectType({
     description: "Response wrapper for the myFounderConversation query.",
 })
+/** Response wrapper for the myFounderConversation query. */
 export class MyFounderConversationResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChatConversationObject>

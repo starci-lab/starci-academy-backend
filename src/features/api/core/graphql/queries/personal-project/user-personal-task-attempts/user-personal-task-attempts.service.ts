@@ -16,6 +16,9 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin QueryBus adapter for userPersonalTaskAttempts.
+ */
 export class UserPersonalTaskAttemptsService {
     constructor(
         private readonly queryBus: QueryBus,

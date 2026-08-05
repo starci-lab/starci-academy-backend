@@ -35,13 +35,13 @@ import {
     UserCapstoneTasksResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a user's passed capstone (milestone) tasks across courses.
  * Thin read of the CQRS capstone projection (the DISTINCT-ON join runs in the
  * projection's recompute). Maps each stored course id to an opaque global id.
  * Optional auth; a locked profile is withheld by {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserCapstoneTasksResolver {
     constructor(
         private readonly userCapstoneProjectionService: UserCapstoneProjectionService,

@@ -11,11 +11,11 @@ import {
     MyInProgressFlashcardQuizSessionService,
 } from "./my-in-progress-flashcard-quiz-session.service"
 
-/** Feature-module boundary for the `myInProgressFlashcardQuizSession` query — wires its resolver + service. */
 @Module({
     providers: [
         MyInProgressFlashcardQuizSessionResolver,
         MyInProgressFlashcardQuizSessionService,
     ],
 })
+/** Feature-module boundary for the `myInProgressFlashcardQuizSession` query — wires its resolver + service. */
 export class MyInProgressFlashcardQuizSessionSingleQueryModule extends ConfigurableModuleClass {}

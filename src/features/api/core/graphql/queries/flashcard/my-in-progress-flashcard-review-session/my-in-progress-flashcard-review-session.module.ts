@@ -8,10 +8,10 @@ import {
     MyInProgressFlashcardReviewSessionResolver,
 } from "./my-in-progress-flashcard-review-session.resolver"
 
-/** Feature-module boundary for the `myInProgressFlashcardReviewSession` query — wires its resolver (business logic lives in the shared `FlashcardReviewSessionService`). */
 @Module({
     providers: [
         MyInProgressFlashcardReviewSessionResolver,
     ],
 })
+/** Feature-module boundary for the `myInProgressFlashcardReviewSession` query — wires its resolver (business logic lives in the shared `FlashcardReviewSessionService`). */
 export class MyInProgressFlashcardReviewSessionSingleQueryModule extends ConfigurableModuleClass {}

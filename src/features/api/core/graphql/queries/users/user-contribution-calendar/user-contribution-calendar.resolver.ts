@@ -34,6 +34,7 @@ import {
     UserContributionCalendarResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a given user's GitHub-style contribution calendar for one
  * year — daily learning-activity counts (contents / challenges / milestones).
@@ -43,7 +44,6 @@ import {
  * non-owners by {@link GraphQLProfileVisibilityGuard}. Thin read of the
  * contribution projection keyed by `(user_id, year)`; only active days are returned.
  */
-@Resolver()
 export class UserContributionCalendarResolver {
     constructor(
         private readonly contributionProjectionService: ContributionProjectionService,

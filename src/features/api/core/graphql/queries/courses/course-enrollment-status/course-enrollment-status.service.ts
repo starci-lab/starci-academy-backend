@@ -16,6 +16,7 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/** Dispatches `CourseEnrollmentStatusQuery` onto the CQRS bus. */
 export class CourseEnrollmentStatusService {
     constructor(
         private readonly queryBus: QueryBus,

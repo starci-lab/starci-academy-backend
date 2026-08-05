@@ -8,13 +8,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A milestone task on a user's capstone roadmap.",
+})
 /**
  * One milestone task on a user's capstone roadmap — the task plus whether the
  * user has passed it (latest passing attempt), its score, and when it was passed.
  */
-@ObjectType({
-    description: "A milestone task on a user's capstone roadmap.",
-})
 export class CapstoneTaskItemObject {
     @Field(
         () => String,
@@ -58,13 +58,13 @@ export class CapstoneTaskItemObject {
         passedAt: Date | null
 }
 
+@ObjectType({
+    description: "A milestone on a user's capstone roadmap.",
+})
 /**
  * One milestone on a user's capstone roadmap — its ordered tasks plus how many
  * the user has passed.
  */
-@ObjectType({
-    description: "A milestone on a user's capstone roadmap.",
-})
 export class CapstoneMilestoneProgressObject {
     @Field(
         () => String,
@@ -115,13 +115,13 @@ export class CapstoneMilestoneProgressObject {
         tasks: Array<CapstoneTaskItemObject>
 }
 
+@ObjectType({
+    description: "An enrolled course's capstone roadmap on a user's profile.",
+})
 /**
  * One enrolled course on a user's capstone roadmap — its ordered milestones plus
  * the course-level totals and passed counts that power the project-showcase card.
  */
-@ObjectType({
-    description: "An enrolled course's capstone roadmap on a user's profile.",
-})
 export class CapstoneCourseProgressObject {
     @Field(
         () => String,
@@ -180,12 +180,12 @@ export class CapstoneCourseProgressObject {
         milestones: Array<CapstoneMilestoneProgressObject>
 }
 
-/**
- * Response wrapper for the userCapstoneProgress query.
- */
 @ObjectType({
     description: "Response wrapper for the userCapstoneProgress query.",
 })
+/**
+ * Response wrapper for the userCapstoneProgress query.
+ */
 export class UserCapstoneProgressResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<CapstoneCourseProgressObject>> {

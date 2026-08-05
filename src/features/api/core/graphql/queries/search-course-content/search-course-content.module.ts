@@ -11,14 +11,14 @@ import {
     SearchCourseContentService,
 } from "./search-course-content.service"
 
-/**
- * "Tìm nội dung khóa" query module — RAG search over a course's content,
- * powering the ContentAiChat panel's search view.
- */
 @Module({
     providers: [
         SearchCourseContentResolver,
         SearchCourseContentService,
     ],
 })
+/**
+ * "Tìm nội dung khóa" query module — RAG search over a course's content,
+ * powering the ContentAiChat panel's search view.
+ */
 export class SearchCourseContentQueriesModule extends ConfigurableModuleClass {}

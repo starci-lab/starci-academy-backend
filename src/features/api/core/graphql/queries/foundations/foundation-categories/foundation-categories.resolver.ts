@@ -28,6 +28,10 @@ import {
 } from "./graphql-types"
 
 @Resolver()
+/**
+ * Public GraphQL entry for `foundationCategories` — paginated + searchable
+ * category browse for the foundations catalog.
+ */
 export class FoundationCategoriesResolver {
     constructor(
         private readonly foundationCategoriesService: FoundationCategoriesService,

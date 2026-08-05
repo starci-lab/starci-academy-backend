@@ -17,9 +17,6 @@ import {
     CommunityPostCommentsService,
 } from "./community-post-comments"
 
-/**
- * Aggregates the read-side (query) resolvers of the community feature.
- */
 @Module({
     providers: [
         CommunityFeedResolver,
@@ -30,4 +27,7 @@ import {
         CommunityPostCommentsService,
     ],
 })
+/**
+ * Aggregates the read-side (query) resolvers of the community feature.
+ */
 export class CommunityQueriesModule extends ConfigurableModuleClass {}

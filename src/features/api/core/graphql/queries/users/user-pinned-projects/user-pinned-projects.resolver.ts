@@ -31,6 +31,7 @@ import {
     UserPinnedProjectsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: the pinned projects of the user named in the route,
  * ordered by `orderIndex`. Optional auth — anonymous viewers may call it; a
@@ -40,7 +41,6 @@ import {
  * `user_pinned_projects`, `enrollments`, and `courses`), consistent with the
  * other profile reads and ready for richer per-pin "project state" later.
  */
-@Resolver()
 export class UserPinnedProjectsResolver {
     constructor(
         private readonly userPinnedProjectsProjectionService: UserPinnedProjectsProjectionService,

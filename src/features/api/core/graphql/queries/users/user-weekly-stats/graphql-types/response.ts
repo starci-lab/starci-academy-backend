@@ -10,6 +10,9 @@ import {
     MyWeeklyStatsData,
 } from "../../../dashboard/my-weekly-stats/graphql-types"
 
+@ObjectType({
+    description: "Response wrapper for the userWeeklyStats query.",
+})
 /**
  * Response wrapper for the userWeeklyStats query.
  *
@@ -17,9 +20,6 @@ import {
  * longest streak and rolling 7-day activity. Differs from `myWeeklyStats` only
  * in subject — the user named in the route, not the authenticated viewer.
  */
-@ObjectType({
-    description: "Response wrapper for the userWeeklyStats query.",
-})
 export class UserWeeklyStatsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyWeeklyStatsData> {

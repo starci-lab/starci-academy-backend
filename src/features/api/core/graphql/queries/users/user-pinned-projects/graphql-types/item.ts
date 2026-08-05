@@ -9,6 +9,9 @@ import {
     ProjectPinType,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A single project pinned to a user's public profile.",
+})
 /**
  * A single pinned project as exposed to the public profile.
  *
@@ -18,9 +21,6 @@ import {
  * - `isVerified` — true only for a `course` pin whose linked enrollment has a
  *   completed task plan ("Verified by StarCi").
  */
-@ObjectType({
-    description: "A single project pinned to a user's public profile.",
-})
 export class UserPinnedProjectItemData {
     /**
      * Pin primary-key id.

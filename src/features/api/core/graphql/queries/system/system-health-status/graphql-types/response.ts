@@ -9,15 +9,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Live container resource usage (cAdvisor via Prometheus).",
+})
 /**
  * Live cAdvisor/Prometheus resource usage of one component's Docker
  * container. Every field is nullable: `null` means "no local container to
  * measure" (Judge0, Ollama, mail, the AI balancer) or "Prometheus has not
  * produced a sample yet" — never a fabricated zero.
  */
-@ObjectType({
-    description: "Live container resource usage (cAdvisor via Prometheus).",
-})
 export class ComponentMetricsData {
     @Field(
         () => Float,
@@ -65,6 +65,9 @@ export class ComponentMetricsData {
         networkTxBytesPerSec: number | null
 }
 
+@ObjectType({
+    description: "Public liveness of one infrastructure component.",
+})
 /**
  * Public-safe liveness of one infrastructure component. Exposes the
  * traffic-light status, a coarse latency, a short message, and — when the
@@ -72,9 +75,6 @@ export class ComponentMetricsData {
  * platform intentionally shows real operational numbers as a "build in
  * public" proof-of-work surface, not a fabricated demo.
  */
-@ObjectType({
-    description: "Public liveness of one infrastructure component.",
-})
 export class ComponentHealthData {
     @Field(
         () => String,
@@ -128,13 +128,13 @@ export class ComponentHealthData {
         metrics: ComponentMetricsData | null
 }
 
+@ObjectType({
+    description: "Public system health payload.",
+})
 /**
  * Payload of the public `systemHealthStatus` query — the liveness of every
  * probed infrastructure component.
  */
-@ObjectType({
-    description: "Public system health payload.",
-})
 export class SystemHealthStatusResponseData {
     @Field(
         () => [ComponentHealthData],
@@ -148,6 +148,7 @@ export class SystemHealthStatusResponseData {
 @ObjectType({
     description: "Response wrapper for the systemHealthStatus query.",
 })
+/** GraphQL envelope for the public `systemHealthStatus` status-page query. */
 export class SystemHealthStatusResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SystemHealthStatusResponseData>

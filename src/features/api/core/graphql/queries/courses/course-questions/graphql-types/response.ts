@@ -10,10 +10,10 @@ import {
     CourseQuestionsPageObject,
 } from "./course-questions-page.object"
 
-/** Response wrapper for the course questions query. */
 @ObjectType({
     description: "Response wrapper for the course questions query.",
 })
+/** Response wrapper for the course questions query. */
 export class CourseQuestionsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CourseQuestionsPageObject>

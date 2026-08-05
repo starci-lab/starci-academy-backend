@@ -21,4 +21,8 @@ import {
         ChallengeSubmissionsHandler,
     ],
 })
+/**
+ * Wires resolver, service, and handler for the `challengeSubmissions` leaf.
+ * Registered globally from {@link ChallengeSubmissionsModule}.
+ */
 export class ChallengeSubmissionsSingleQueryModule extends ConfigurableModuleClass {}

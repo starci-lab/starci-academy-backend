@@ -21,5 +21,6 @@ import {
         PlatformStatsHandler,
     ],
 })
+/** Feature-module boundary for the public `platformStats` query. */
 export class PlatformStatsSingleQueryModule
     extends ConfigurableModuleClass {}

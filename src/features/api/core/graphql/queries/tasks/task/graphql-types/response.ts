@@ -13,6 +13,11 @@ import {
 @ObjectType({
     description: "Response wrapper for the task query.",
 })
+/**
+ * GraphQL envelope for `task`. `data` is the full milestone-task JSON
+ * (nested criteria included) so the task page can render without a second
+ * fetch.
+ */
 export class TaskResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MilestoneTaskEntity>

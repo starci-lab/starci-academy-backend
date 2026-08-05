@@ -37,4 +37,8 @@ import {
         MyCvGenerationsHandler,
     ],
 })
+/**
+ * Wires resolver, service, and handler for `myCvGenerations` (lightweight
+ * history list). Register globally from the CV queries aggregator.
+ */
 export class MyCvGenerationsSingleQueryModule extends ConfigurableModuleClass {}

@@ -15,6 +15,9 @@ import {
     GraphQLTypeCodingVerdict,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A target user's accepted-submission summary for one coding problem (no source code, no reference solutions).",
+})
 /**
  * A target user's accepted-submission summary for one coding problem, shown
  * alongside the problem detail on their public profile. Deliberately trimmed:
@@ -22,9 +25,6 @@ import {
  * {@link AcceptedSubmissionSummaryResult} on the business side, which this
  * mirrors field-for-field).
  */
-@ObjectType({
-    description: "A target user's accepted-submission summary for one coding problem (no source code, no reference solutions).",
-})
 export class UserCodingProblemDetailSubmissionData {
     /** Every language ever accepted, not just the language of the earliest solve. */
     @Field(
@@ -72,6 +72,9 @@ export class UserCodingProblemDetailSubmissionData {
         firstSolvedAt: Date
 }
 
+@ObjectType({
+    description: "A coding problem's detail plus a target user's accepted-submission summary, for the public profile.",
+})
 /**
  * Detail of one coding problem for a public profile's
  * `/profile/<username>/skills/<slug>` surface — the problem itself (statement,
@@ -80,9 +83,6 @@ export class UserCodingProblemDetailSubmissionData {
  * summary for it (null when they haven't solved it, e.g. a visitor browsing
  * an unsolved problem via the catalog).
  */
-@ObjectType({
-    description: "A coding problem's detail plus a target user's accepted-submission summary, for the public profile.",
-})
 export class UserCodingProblemDetailData {
     /** Reused entity shape (never carries hidden testcases or reference solutions) — same as `codingProblem`. */
     @Field(
@@ -104,12 +104,12 @@ export class UserCodingProblemDetailData {
         submission: UserCodingProblemDetailSubmissionData | null
 }
 
-/**
- * Response wrapper for the userCodingProblemDetail query.
- */
 @ObjectType({
     description: "Response wrapper for the userCodingProblemDetail query.",
 })
+/**
+ * Response wrapper for the userCodingProblemDetail query.
+ */
 export class UserCodingProblemDetailResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserCodingProblemDetailData> {

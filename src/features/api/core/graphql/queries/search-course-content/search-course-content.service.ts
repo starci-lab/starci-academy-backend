@@ -38,6 +38,7 @@ export interface SearchCourseContentParams {
     kinds?: Array<string>
 }
 
+@Injectable()
 /**
  * "Tìm nội dung khóa" — resolves RAG hits (raw vectors, no entity knowledge)
  * into display-ready results per kind: joins each matched id back to its real
@@ -45,7 +46,6 @@ export interface SearchCourseContentParams {
  * resolved in whichever locale the winning chunk was embedded in (so a vi
  * query surfaces vi titles even if the learner's own UI locale differs).
  */
-@Injectable()
 export class SearchCourseContentService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

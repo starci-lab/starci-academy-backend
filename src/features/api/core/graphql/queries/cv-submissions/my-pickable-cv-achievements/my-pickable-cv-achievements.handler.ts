@@ -31,6 +31,8 @@ interface MilestoneTaskAttemptRow {
     score: number
 }
 
+@QueryHandler(MyPickableCvAchievementsQuery)
+@Injectable()
 /**
  * Handler for `myPickableCvAchievements` — exposes the passed capstone tasks
  * the CV block editor's "pick from StarCi" flow needs (block editor,
@@ -43,8 +45,6 @@ interface MilestoneTaskAttemptRow {
  * they don't go on the CV and don't count toward score. Every row here is
  * Verified by construction: it can only exist if a real, passed capstone does.
  */
-@QueryHandler(MyPickableCvAchievementsQuery)
-@Injectable()
 export class MyPickableCvAchievementsHandler
     extends ICQRSHandler<MyPickableCvAchievementsQuery, MyPickableCvAchievementsViewData>
     implements IQueryHandler<MyPickableCvAchievementsQuery, MyPickableCvAchievementsViewData> {

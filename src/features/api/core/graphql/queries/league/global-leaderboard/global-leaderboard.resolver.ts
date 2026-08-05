@@ -36,13 +36,13 @@ import {
 /** How many top users the global leaderboard returns. */
 const TOP_LIMIT = 50
 
+@Resolver()
 /**
  * Global-leaderboard query: the all-users board ranked by total reward points.
  * Returns the top {@link TOP_LIMIT} users (each user id encoded as an opaque
  * global id) plus the viewer's own rank + points so the client can append a
  * "you" row when the viewer sits outside the visible top.
  */
-@Resolver()
 export class GlobalLeaderboardResolver {
     constructor(
         private readonly leagueService: LeagueService,

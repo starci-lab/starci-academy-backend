@@ -14,6 +14,10 @@ import {
 @ObjectType({
     description: "Paginated list of submission attempts.",
 })
+/**
+ * One page of the caller's attempts on a submission, plus the unpaginated
+ * match count for building page controls.
+ */
 export class UserChallengeSubmissionAttemptsResponseData {
     @Field(
         () => [UserChallengeSubmissionAttemptEntity],
@@ -35,6 +39,10 @@ export class UserChallengeSubmissionAttemptsResponseData {
 @ObjectType({
     description: "Response wrapper for the userChallengeSubmissionAttempts query.",
 })
+/**
+ * Envelope for `userChallengeSubmissionAttempts`. An empty join (user never
+ * attempted) still succeeds with `{ data: [], count: 0 }`.
+ */
 export class UserChallengeSubmissionAttemptsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserChallengeSubmissionAttemptsResponseData>

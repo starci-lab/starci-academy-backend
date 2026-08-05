@@ -10,10 +10,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** GraphQL envelope for the course by id query. */
 @ObjectType({
     description: "Response wrapper for the course query.",
 })
+/** GraphQL envelope for the course by id query. */
 export class CourseResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<CourseEntity>

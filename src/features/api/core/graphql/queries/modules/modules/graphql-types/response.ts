@@ -13,6 +13,7 @@ import {
 @ObjectType({
     description: "Data for the modules query.",
 })
+/** Every module in the requested course, ordered by `sortIndex`. */
 export class ModulesResponseData {
     @Field(
         () => [ModuleEntity],
@@ -26,6 +27,7 @@ export class ModulesResponseData {
 @ObjectType({
     description: "Response wrapper for the modules query.",
 })
+/** GraphQL envelope for the `modules` list query. */
 export class ModulesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ModulesResponseData>

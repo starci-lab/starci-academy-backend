@@ -33,11 +33,11 @@ import {
     HeadhuntingCompanyResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Optional auth: any nested `consultants` this company carries are gated by
  * the viewer's CV score, same as the standalone `consultant(s)` queries.
  */
-@Resolver()
 export class HeadhuntingCompanyResolver {
     constructor(
         private readonly headhuntingCompanyService: HeadhuntingCompanyService,

@@ -12,6 +12,7 @@ import {
 @ObjectType({
     description: "Challenge-related tuning from mounted `app.json` (`systemConfig.challenge`).",
 })
+/** Mounted challenge pass threshold the FE uses to explain grading outcomes. */
 export class SystemConfigChallenge {
     @Field(
         () => Float,
@@ -25,6 +26,7 @@ export class SystemConfigChallenge {
 @ObjectType({
     description: "Task-related tuning from mounted `app.json` (`systemConfig.task`).",
 })
+/** Mounted personal-project task pass threshold mirrored to the client. */
 export class SystemConfigTask {
     @Field(
         () => Float,
@@ -38,6 +40,10 @@ export class SystemConfigTask {
 @ObjectType({
     description: "Free Auto-lane caps from `systemConfig.ai.auto` in mounted `app.yaml`.",
 })
+/**
+ * Free Auto-lane quota numbers (5h / week windows + per-grade cost) so the
+ * client can render remaining-credit UI without a second round-trip.
+ */
 export class SystemConfigAiAuto {
     @Field(
         () => Int,
@@ -67,6 +73,7 @@ export class SystemConfigAiAuto {
 @ObjectType({
     description: "AI quota section from mounted `systemConfig.ai`.",
 })
+/** AI section of mounted system config — currently just the free Auto lane. */
 export class SystemConfigAi {
     @Field(
         () => SystemConfigAiAuto,
@@ -80,6 +87,10 @@ export class SystemConfigAi {
 @ObjectType({
     description: "Payload matching `systemConfig` in `.mount/config/app.json`.",
 })
+/**
+ * Public subset of mounted `systemConfig` — pass thresholds plus Auto-lane
+ * quota caps the client needs without reading the mount filesystem itself.
+ */
 export class SystemConfigData {
     @Field(
         () => SystemConfigChallenge,
@@ -109,6 +120,7 @@ export class SystemConfigData {
 @ObjectType({
     description: "Response wrapper for mounted system config.",
 })
+/** GraphQL envelope for the public `systemConfig` query. */
 export class SystemConfigResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SystemConfigData>

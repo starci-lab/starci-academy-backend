@@ -35,4 +35,8 @@ import {
         FoundationGlobalSearchService,
     ],
 })
+/**
+ * Feature-module boundary for the `autocompleteGlobalSearch` query — wires the
+ * orchestrator plus per-entity ES searchers so each catalog kind runs in parallel.
+ */
 export class AutocompleteGlobalSearchSingleQueryModule extends ConfigurableModuleClass {}

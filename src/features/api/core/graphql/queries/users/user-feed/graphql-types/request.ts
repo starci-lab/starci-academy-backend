@@ -5,14 +5,14 @@ import {
     Int,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Cursor-paginated request for a user's activity timeline.",
+})
 /**
  * Cursor-paginated request for a single user's activity timeline (the profile
  * "activity" tab). Unlike the home feed there is no tab/category — it is always
  * the named user's own activity, newest first.
  */
-@InputType({
-    description: "Cursor-paginated request for a user's activity timeline.",
-})
 export class UserFeedRequest {
     @Field(
         () => ID,

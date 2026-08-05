@@ -33,12 +33,12 @@ import {
     FlashcardDecksByCourseResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Lists the multiple-choice flashcard decks owned by a course, in display order,
  * with their cards, options, linked contents, and translations eagerly loaded.
  * Optionally filters to decks linked to a specific content.
  */
-@Resolver()
 export class FlashcardDecksByCourseResolver {
     constructor(
         private readonly flashcardDeckReadService: FlashcardDeckReadService,

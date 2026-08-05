@@ -30,6 +30,11 @@ import {
 
 @QueryHandler(ChallengeSubmissionsQuery)
 @Injectable()
+/**
+ * Returns every submission slot on a challenge (no pagination), with
+ * translations. When a user is present, attaches that user's join row and
+ * latest attempt onto each slot — never a full `userSubmissions` list.
+ */
 export class ChallengeSubmissionsHandler
     extends ICQRSHandler<ChallengeSubmissionsQuery, ChallengeSubmissionsResponseData>
     implements IQueryHandler<ChallengeSubmissionsQuery, ChallengeSubmissionsResponseData> {

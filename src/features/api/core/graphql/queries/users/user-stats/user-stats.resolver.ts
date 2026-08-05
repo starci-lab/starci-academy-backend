@@ -20,6 +20,7 @@ import {
     UserStatsProjectionService,
 } from "@modules/bussiness"
 
+@Resolver(() => UserEntity)
 /**
  * Resolved follower / following counts layered onto the shared `UserEntity`
  * GraphQL type. Available anywhere a user is returned (`me`, public profile).
@@ -29,7 +30,6 @@ import {
  * per-viewer `isFollowedByMe` stays a live edge lookup. Each field is only
  * computed when the client actually selects it.
  */
-@Resolver(() => UserEntity)
 export class UserStatsResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -14,14 +14,14 @@ import {
     ModelProvider,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "Public-safe latency snapshot for one AI model.",
+})
 /**
  * Public-safe latency snapshot for one AI model — its identity plus the latest
  * probe outcome. Deliberately carries no raw keys; the per-provider key health
  * stays behind the admin `aiBalancerHealth` query.
  */
-@ObjectType({
-    description: "Public-safe latency snapshot for one AI model.",
-})
 export class AiModelLatencyData {
     @Field(
         () => String,
@@ -81,13 +81,13 @@ export class AiModelLatencyData {
         errorMessage: string | null
 }
 
+@ObjectType({
+    description: "Public AI model latency payload.",
+})
 /**
  * Payload of the public `aiModelLatency` query — the latest probe snapshot for
  * every enabled AI model.
  */
-@ObjectType({
-    description: "Public AI model latency payload.",
-})
 export class AiModelLatencyResponseData {
     @Field(
         () => [AiModelLatencyData],
@@ -101,6 +101,7 @@ export class AiModelLatencyResponseData {
 @ObjectType({
     description: "Response wrapper for the aiModelLatency query.",
 })
+/** GraphQL envelope for the public `aiModelLatency` status-page query. */
 export class AiModelLatencyResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<AiModelLatencyResponseData>

@@ -15,6 +15,10 @@ import {
 } from "../../../../types"
 
 @Injectable()
+/**
+ * Dispatches `templateCvs` through QueryBus so the resolver never constructs
+ * the CQRS query itself.
+ */
 export class TemplateCvsService {
     constructor(
         private readonly queryBus: QueryBus,

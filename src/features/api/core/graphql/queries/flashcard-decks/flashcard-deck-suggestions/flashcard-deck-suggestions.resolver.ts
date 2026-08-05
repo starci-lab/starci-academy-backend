@@ -25,10 +25,10 @@ import {
     FlashcardDeckSuggestionsService,
 } from "./flashcard-deck-suggestions.service"
 
+@Resolver()
 /**
  * GraphQL resolver exposing the `flashcardDeckSuggestions` autocomplete (typeahead) query.
  */
-@Resolver()
 export class FlashcardDeckSuggestionsResolver {
     constructor(
         private readonly flashcardDeckSuggestionsService: FlashcardDeckSuggestionsService,

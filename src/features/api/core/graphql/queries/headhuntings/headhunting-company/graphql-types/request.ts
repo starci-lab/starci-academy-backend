@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request for the Headhunter GraphQL query — provide `id` or `displayId`, not both required. */
 @InputType({
     description: "Fetch one headhunting company by primary key (`id`) or globally unique `displayId`.",
 })
+/** Request for the Headhunter GraphQL query — provide `id` or `displayId`, not both required. */
 export class HeadhuntingCompanyRequest {
     /** Headhunting company UUID (preferred for FE routes). */
     @Field(

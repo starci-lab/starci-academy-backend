@@ -54,6 +54,7 @@ const estimateLeafHeight = (label: string): number => {
     return NODE_CHROME_Y + lines * NODE_LINE_Y
 }
 
+@Injectable()
 /**
  * Serves the course "sơ đồ tư duy": the authored `mind_map` jsonb keyword tree, laid out as a tidy
  * left-to-right tree in `@xyflow/react` node/edge shape.
@@ -64,7 +65,6 @@ const estimateLeafHeight = (label: string): number => {
  * would only add staleness (needing manual purges on re-seed) for an already-O(1) read — thầy
  * 2026-07-18: *"cache redis chi, query thẳng chứ O(1) mà"*.
  */
-@Injectable()
 export class CourseMindMapService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

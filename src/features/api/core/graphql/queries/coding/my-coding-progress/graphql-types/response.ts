@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** The authenticated user's coding-practice status (decoupled from the catalog). */
 @ObjectType({
     description: "Per-user coding progress: solved/attempted/revealed ids + total points.",
 })
+/** The authenticated user's coding-practice status (decoupled from the catalog). */
 export class MyCodingProgressResponseData {
     /** Problem ids the user has solved (Accepted). */
     @Field(
@@ -51,10 +51,10 @@ export class MyCodingProgressResponseData {
         totalPoints: number
 }
 
-/** Response wrapper for the myCodingProgress query. */
 @ObjectType({
     description: "Response wrapper for the myCodingProgress query.",
 })
+/** Response wrapper for the myCodingProgress query. */
 export class MyCodingProgressResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCodingProgressResponseData>

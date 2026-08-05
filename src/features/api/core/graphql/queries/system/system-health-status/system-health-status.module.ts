@@ -21,4 +21,8 @@ import {
         SystemHealthStatusResolver,
     ],
 })
+/**
+ * Feature-module boundary for the public `systemHealthStatus` query — imports
+ * `HealthModule` and wires its resolver.
+ */
 export class SystemHealthStatusSingleQueryModule extends ConfigurableModuleClass {}

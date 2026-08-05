@@ -9,6 +9,7 @@ import type {
 } from "./graphql-types"
 
 @Injectable()
+/** Thin bridge from the `aiModels` resolver to `AiModelsHandler`. */
 export class AiModelsService {
     constructor(
         private readonly handler: AiModelsHandler,

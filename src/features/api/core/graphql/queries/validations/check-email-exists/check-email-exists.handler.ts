@@ -22,6 +22,12 @@ import type {
 
 @QueryHandler(CheckEmailExistsQuery)
 @Injectable()
+/**
+ * Bloom-filter email probe for signup / validation UIs. Never hits the
+ * users table — a cache miss or empty input returns `exists: false` with
+ * `isBloomFilterReady: false` so the client can fall back rather than
+ * assume the address is free.
+ */
 export class CheckEmailExistsHandler
     extends ICQRSHandler<CheckEmailExistsQuery, CheckEmailExistsData>
     implements IQueryHandler<CheckEmailExistsQuery, CheckEmailExistsData>

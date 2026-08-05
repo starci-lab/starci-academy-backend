@@ -16,6 +16,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Dispatches `courseLeaderboard` through QueryBus so the resolver never
+ * constructs the CQRS query itself.
+ */
 export class LeaderboardSingleQueryService {
     constructor(
         private readonly queryBus: QueryBus,

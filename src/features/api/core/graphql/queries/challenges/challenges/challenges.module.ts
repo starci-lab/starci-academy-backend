@@ -27,4 +27,8 @@ import {
         ChallengesHandler,
     ],
 })
+/**
+ * Wires resolver, service, handler, and Elasticsearch for the `challenges`
+ * leaf. Registered globally from {@link ChallengesModule}.
+ */
 export class ChallengesSingleQueryModule extends ConfigurableModuleClass {}

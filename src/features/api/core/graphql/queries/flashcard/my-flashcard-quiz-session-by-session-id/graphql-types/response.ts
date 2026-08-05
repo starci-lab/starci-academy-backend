@@ -10,6 +10,9 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A technology tag surfaced as weak on this quiz session, with its coverage and the module/content it maps to.",
+})
 /**
  * One weak-tag row snapshotted onto a finished quiz session — a technology tag
  * with its coverage across the session's cards carrying it, plus the module /
@@ -17,9 +20,6 @@ import {
  * ambiguous). Echoed verbatim from `flashcard_quiz_sessions.weak_tags`; feeds
  * the FE weak-tags chips + the "study this" links.
  */
-@ObjectType({
-    description: "A technology tag surfaced as weak on this quiz session, with its coverage and the module/content it maps to.",
-})
 export class FlashcardQuizSessionWeakTagData {
     @Field(
         () => String,
@@ -56,14 +56,14 @@ export class FlashcardQuizSessionWeakTagData {
         contentId?: string
 }
 
+@ObjectType({
+    description: "One card's per-card cloze-blank outcome within the quiz session.",
+})
 /**
  * One card's per-card outcome within the session — echoed verbatim from
  * `flashcard_quiz_sessions.results`. The FE re-fetches the card TEXT separately
  * by `cardId`; this only carries the correct/total cloze-blank counts.
  */
-@ObjectType({
-    description: "One card's per-card cloze-blank outcome within the quiz session.",
-})
 export class FlashcardQuizSessionResultData {
     @Field(
         () => ID,
@@ -90,6 +90,9 @@ export class FlashcardQuizSessionResultData {
         totalBlanks: number
 }
 
+@ObjectType({
+    description: "The resolved recap (mode, level, coverage, xp, per-card + weak-tag breakdown) for one flashcard quiz session.",
+})
 /**
  * The resolved recap for ONE flashcard quick-quiz ("Hỏi nhanh") session,
  * resolved by its id alone REGARDLESS of status (completed/abandoned/
@@ -98,9 +101,6 @@ export class FlashcardQuizSessionResultData {
  * recomputed. The query resolves to `null` (not this type) when the id is not
  * found / not owned by the caller.
  */
-@ObjectType({
-    description: "The resolved recap (mode, level, coverage, xp, per-card + weak-tag breakdown) for one flashcard quiz session.",
-})
 export class MyFlashcardQuizSessionBySessionIdData {
     @Field(
         () => ID,
@@ -202,13 +202,13 @@ export class MyFlashcardQuizSessionBySessionIdData {
         results: Array<FlashcardQuizSessionResultData>
 }
 
+@ObjectType({
+    description: "Response wrapper for the myFlashcardQuizSessionBySessionId query.",
+})
 /**
  * Response wrapper for the myFlashcardQuizSessionBySessionId query — `data` is
  * `null` when the session id is not found / not owned by the caller.
  */
-@ObjectType({
-    description: "Response wrapper for the myFlashcardQuizSessionBySessionId query.",
-})
 export class MyFlashcardQuizSessionBySessionIdResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyFlashcardQuizSessionBySessionIdData>

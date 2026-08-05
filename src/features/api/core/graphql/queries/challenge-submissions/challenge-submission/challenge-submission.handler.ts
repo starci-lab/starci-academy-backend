@@ -26,6 +26,12 @@ import {
 
 @QueryHandler(ChallengeSubmissionQuery)
 @Injectable()
+/**
+ * Loads one challenge submission by id and, for the signed-in user, attaches
+ * their join row with attempts (newest first) and nested feedbacks. Throws
+ * if the user is missing or the submission id does not exist. Other users'
+ * join rows are never attached.
+ */
 export class ChallengeSubmissionHandler
     extends ICQRSHandler<ChallengeSubmissionQuery, ChallengeSubmissionEntity>
     implements IQueryHandler<ChallengeSubmissionQuery, ChallengeSubmissionEntity> {

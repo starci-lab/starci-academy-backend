@@ -34,6 +34,10 @@ import {
 } from "./graphql-types"
 
 @Resolver()
+/**
+ * GraphQL entry for `userChallengeSubmissionAttempts`: the caller's paginated
+ * try history on one submission slot.
+ */
 export class UserChallengeSubmissionAttemptsResolver {
     constructor(
         private readonly userChallengeSubmissionAttemptsService: UserChallengeSubmissionAttemptsService,

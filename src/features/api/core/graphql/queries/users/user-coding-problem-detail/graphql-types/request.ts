@@ -4,6 +4,9 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
+@InputType({
+    description: "Request for a target user's coding-problem detail (public profile).",
+})
 /**
  * Request for a coding problem's detail on a user's PUBLIC profile
  * (`/profile/<username>/skills/<slug>`) — `userId` is the profile owner (NOT
@@ -11,9 +14,6 @@ import {
  * separately by `KeycloakOptionalAuthGraphQLGuard` for the owner-bypass check
  * inside {@link GraphQLProfileVisibilityGuard}.
  */
-@InputType({
-    description: "Request for a target user's coding-problem detail (public profile).",
-})
 export class UserCodingProblemDetailRequest {
     /** The profile being viewed, NOT the caller — determines whose submission summary is returned. */
     @Field(

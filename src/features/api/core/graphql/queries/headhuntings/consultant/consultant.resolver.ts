@@ -33,12 +33,12 @@ import {
     ConsultantResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Optional auth: an anonymous viewer still gets the consultant payload, just
  * with `contactUnlocked = false` (contact fields nulled out). A logged-in
  * viewer's CV score determines whether contact details unlock.
  */
-@Resolver()
 export class ConsultantResolver {
     constructor(
         private readonly consultantService: ConsultantService,

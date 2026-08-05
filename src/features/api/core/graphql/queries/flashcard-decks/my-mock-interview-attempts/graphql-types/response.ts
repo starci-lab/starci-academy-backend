@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One phase's score breakdown inside a persisted mock-interview attempt. */
 @ObjectType({
     description: "Score breakdown for one of the 5 canonical mock interview phases, on a past attempt.",
 })
+/** One phase's score breakdown inside a persisted mock-interview attempt. */
 export class MockInterviewAttemptPhaseScoreItem {
     @Field(
         () => String,
@@ -39,10 +39,10 @@ export class MockInterviewAttemptPhaseScoreItem {
         max: number
 }
 
-/** One named attribute's score inside a persisted mock-interview attempt. */
 @ObjectType({
     description: "Score for one named evaluation attribute, on a past attempt.",
 })
+/** One named attribute's score inside a persisted mock-interview attempt. */
 export class MockInterviewAttemptAttributeScoreItem {
     @Field(
         () => String,
@@ -61,15 +61,15 @@ export class MockInterviewAttemptAttributeScoreItem {
         score: number
 }
 
+@ObjectType({
+    description: "Per-question model-answer review for one mode=\"qna\" question, on a past attempt.",
+})
 /**
  * One persisted per-question model-answer review inside a past attempt —
  * mirrors {@link import("../../../../mutations/interview/grade-mock-interview-session/graphql-types/response").MockInterviewQuestionReviewItem}
  * exactly, so the history drawer renders it identically to the live
  * scorecard. Always empty on the parent for a `mode="design"` attempt.
  */
-@ObjectType({
-    description: "Per-question model-answer review for one mode=\"qna\" question, on a past attempt.",
-})
 export class MockInterviewAttemptQuestionReviewItem {
     @Field(
         () => Int,
@@ -146,10 +146,10 @@ export class MockInterviewAttemptQuestionReviewItem {
         matchedContentId: string | null
 }
 
-/** One past graded mock-interview session, for the viewer's history list. */
 @ObjectType({
     description: "One past graded mock-interview session.",
 })
+/** One past graded mock-interview session, for the viewer's history list. */
 export class MockInterviewAttemptItem {
     @Field(
         () => ID,
@@ -292,10 +292,10 @@ export class MockInterviewAttemptItem {
         name: string | null
 }
 
-/** Data payload for the `myMockInterviewAttempts` query. */
 @ObjectType({
     description: "A page of the viewer's mock-interview history.",
 })
+/** Data payload for the `myMockInterviewAttempts` query. */
 export class MyMockInterviewAttemptsData {
     @Field(
         () => Int,
@@ -317,6 +317,11 @@ export class MyMockInterviewAttemptsData {
 @ObjectType({
     description: "Response wrapper for the myMockInterviewAttempts query.",
 })
+/**
+ * GraphQL envelope for `myMockInterviewAttempts`. `data` is one page of
+ * the viewer's graded mock-interview history (newest first) so the
+ * practice history screen can paginate without loading session transcripts.
+ */
 export class MyMockInterviewAttemptsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyMockInterviewAttemptsData>

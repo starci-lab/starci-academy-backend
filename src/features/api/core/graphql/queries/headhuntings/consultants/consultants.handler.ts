@@ -36,11 +36,11 @@ import {
     ConsultantsSortBy,
 } from "./graphql-types"
 
+@QueryHandler(ConsultantsQuery)
+@Injectable()
 /**
  * Handles the Headhunters query (Elasticsearch, filtered by category).
  */
-@QueryHandler(ConsultantsQuery)
-@Injectable()
 export class ConsultantsHandler
     extends ICQRSHandler<ConsultantsQuery, ConsultantsResponseData>
     implements IQueryHandler<ConsultantsQuery, ConsultantsResponseData> {

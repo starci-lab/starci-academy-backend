@@ -10,10 +10,10 @@ import {
     ChatMessagesPageObject,
 } from "../../../../shared/chat"
 
-/** Response wrapper for the chatMessages query. */
 @ObjectType({
     description: "Response wrapper for the chatMessages query.",
 })
+/** Response wrapper for the chatMessages query. */
 export class ChatMessagesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChatMessagesPageObject>

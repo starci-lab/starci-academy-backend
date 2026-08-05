@@ -39,6 +39,7 @@ import {
     MyChallengeSubmissionsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Learner-CMS query: the authenticated user's challenge-submission attempts
  * (newest first), paginated with `{ items, total }`. A plain list read keyed by
@@ -46,7 +47,6 @@ import {
  * live tables and the resolver only wraps the course UUID into the opaque global
  * id the FE feeds to `resolveRoute`.
  */
-@Resolver()
 export class MyChallengeSubmissionsResolver {
     constructor(
         private readonly challengeSubmissionsCmsService: ChallengeSubmissionsCmsService,

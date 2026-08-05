@@ -4,12 +4,12 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
-/**
- * Credit usage for one rolling window (5 hours or 7 days).
- */
 @ObjectType({
     description: "AI credits consumed within a single rolling time window.",
 })
+/**
+ * Credit usage for one rolling window (5 hours or 7 days).
+ */
 export class MyCreditUsageWindowData {
     @Field(
         () => Int,

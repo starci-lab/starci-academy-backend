@@ -28,6 +28,10 @@ import {
 } from "./graphql-types"
 
 @Resolver()
+/**
+ * Public GraphQL entry for `foundationCategorySuggestions` — typeahead over
+ * foundation category titles.
+ */
 export class FoundationCategorySuggestionsResolver {
     constructor(
         private readonly foundationCategorySuggestionsService: FoundationCategorySuggestionsService,

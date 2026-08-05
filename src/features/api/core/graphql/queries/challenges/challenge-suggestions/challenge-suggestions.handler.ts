@@ -14,6 +14,8 @@ import {
     ChallengeSuggestionsQuery,
 } from "./challenge-suggestions.query"
 
+@QueryHandler(ChallengeSuggestionsQuery)
+@Injectable()
 /**
  * Challenge autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -27,8 +29,6 @@ import {
  * The only contribution of this subclass is declaring which entity it serves; the
  * inherited constructor (injecting `ElasticsearchService`) covers all dependencies.
  */
-@QueryHandler(ChallengeSuggestionsQuery)
-@Injectable()
 export class ChallengeSuggestionsHandler
     extends AbstractSuggestionsHandler<ChallengeSuggestionsQuery> {
     /** Entity this handler autocompletes — drives `challenges` index resolution. */

@@ -24,6 +24,10 @@ import {
 
 @QueryHandler(MilestonesQuery)
 @Injectable()
+/**
+ * Lists every milestone for a course from the per-locale Elasticsearch index,
+ * ordered by `sortIndex` (cap 1000).
+ */
 export class MilestonesHandler
     extends ICQRSHandler<MilestonesQuery, MilestonesResponseData>
     implements IQueryHandler<MilestonesQuery, MilestonesResponseData> {

@@ -14,6 +14,10 @@ import {
 @ObjectType({
     description: "Paginated list of submission feedbacks.",
 })
+/**
+ * One page of scorer feedback items for an attempt, plus the unpaginated
+ * match count for page controls.
+ */
 export class UserChallengeSubmissionFeedbacksResponseData {
     @Field(
         () => [UserChallengeSubmissionFeedbackEntity],
@@ -35,6 +39,10 @@ export class UserChallengeSubmissionFeedbacksResponseData {
 @ObjectType({
     description: "Response wrapper for the userChallengeSubmissionFeedbacks query.",
 })
+/**
+ * Envelope for `userChallengeSubmissionFeedbacks`. Auth is required at the
+ * resolver; the handler itself does not re-check ownership of the attempt.
+ */
 export class UserChallengeSubmissionFeedbacksResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserChallengeSubmissionFeedbacksResponseData>

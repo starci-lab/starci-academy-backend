@@ -39,4 +39,8 @@ import {
         }),
     ],
 })
+/**
+ * Aggregates personal-project query modules (attempts, feedbacks, progress,
+ * last attempt) as global Nest imports.
+ */
 export class PersonalProjectQueriesModule extends ConfigurableModuleClass {}

@@ -15,6 +15,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Dispatches `SystemConfigQuery` onto the CQRS bus. */
 export class SystemConfigService {
     constructor(
         private readonly queryBus: QueryBus,

@@ -7,13 +7,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A recently-read lesson (rail token).",
+})
 /**
  * One recently-read lesson on the rail — a route-index token (resolves its route
  * on click), so it carries only an opaque global id + a label.
  */
-@ObjectType({
-    description: "A recently-read lesson (rail token).",
-})
 export class MyLearnedLessonItemData {
     @Field(
         () => String,
@@ -32,12 +32,12 @@ export class MyLearnedLessonItemData {
         label: string
 }
 
-/**
- * Response wrapper for the myLearnedLessons query.
- */
 @ObjectType({
     description: "Response wrapper for the myLearnedLessons query.",
 })
+/**
+ * Response wrapper for the myLearnedLessons query.
+ */
 export class MyLearnedLessonsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<MyLearnedLessonItemData>> {

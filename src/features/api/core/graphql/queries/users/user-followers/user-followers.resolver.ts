@@ -37,6 +37,7 @@ const DEFAULT_LIMIT = 20
 /** Upper bound so the client can never ask for an unbounded list. */
 const MAX_LIMIT = 50
 
+@Resolver()
 /**
  * Public list of a user's followers (most recent first), keyed by username — the
  * data behind the profile's "who follows" avatar group. Returns the header
@@ -44,7 +45,6 @@ const MAX_LIMIT = 50
  * total count lives on `userProfile.followerCount`, so this is just the visible
  * slice. Public (no auth) — a logged-out recruiter can see who follows a profile.
  */
-@Resolver()
 export class UserFollowersResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

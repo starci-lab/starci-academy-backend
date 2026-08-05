@@ -21,4 +21,8 @@ import {
         MyCvBlocksHandler,
     ],
 })
+/**
+ * Wires resolver, service, and handler for `myCvBlocks` (block-editor CV
+ * documents, course-independent). Register globally from the CV queries aggregator.
+ */
 export class MyCvBlocksSingleQueryModule extends ConfigurableModuleClass {}

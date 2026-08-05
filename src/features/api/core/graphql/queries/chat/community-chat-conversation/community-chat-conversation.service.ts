@@ -8,11 +8,11 @@ import type {
     ChatConversationObject,
 } from "../../../shared/chat"
 
+@Injectable()
 /**
  * Query service returning the global community chat conversation handle
  * (lazily created on first access).
  */
-@Injectable()
 export class CommunityChatConversationService {
     constructor(
         private readonly chatService: ChatService,

@@ -89,13 +89,6 @@ import {
     TalentCandidatesSingleQueryModule,
 } from "./talent-candidates"
 
-/**
- * User query group — resolved fields layered onto the shared `UserEntity`
- * GraphQL type (follower / following counts) plus the public profile queries:
- * the profile header (`userProfile`) and the profile tabs / stats — achievements,
- * joined courses, the activity timeline, the contribution calendar, the weekly
- * streak, and coding progress — all keyed by user id.
- */
 @Module({
     imports: [
         UserStatsSingleQueryModule.register({
@@ -184,4 +177,11 @@ import {
         }),
     ],
 })
+/**
+ * User query group — resolved fields layered onto the shared `UserEntity`
+ * GraphQL type (follower / following counts) plus the public profile queries:
+ * the profile header (`userProfile`) and the profile tabs / stats — achievements,
+ * joined courses, the activity timeline, the contribution calendar, the weekly
+ * streak, and coding progress — all keyed by user id.
+ */
 export class UsersQueriesModule extends ConfigurableModuleClass {}

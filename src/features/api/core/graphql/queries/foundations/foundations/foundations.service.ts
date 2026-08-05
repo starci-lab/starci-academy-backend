@@ -15,10 +15,10 @@ import {
     FoundationsResponseData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Service for the foundations query.
  */
-@Injectable()
 export class FoundationsService {
     constructor(
         private readonly queryBus: QueryBus,

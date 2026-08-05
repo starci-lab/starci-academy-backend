@@ -27,6 +27,11 @@ import {
 
 @QueryHandler(MyCvGenerationsQuery)
 @Injectable()
+/**
+ * Paginated history of the caller's CV generation runs (newest first). Omits
+ * heavy fields (`structuredData`, LaTeX/upload keys, feedback) — open a row
+ * via `cvGeneration(id)` for those. Unauthenticated callers get `[]`.
+ */
 export class MyCvGenerationsHandler
     extends ICQRSHandler<MyCvGenerationsQuery, Array<CvGenerationListItem>>
     implements IQueryHandler<MyCvGenerationsQuery, Array<CvGenerationListItem>> {

@@ -2,6 +2,11 @@ import {
     ConfigurableModuleBuilder,
 } from "@nestjs/common"
 
+/**
+ * Nest register options for the job-postings query group. `isGlobal`
+ * publishes listing + detail resolvers app-wide so other GraphQL modules
+ * do not re-import this group.
+ */
 export interface JobPostingsModuleOptions {
     isGlobal?: boolean
 }

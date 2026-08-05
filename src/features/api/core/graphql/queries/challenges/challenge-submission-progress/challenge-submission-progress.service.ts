@@ -15,11 +15,11 @@ import {
     ChallengeSubmissionProgressResponseData,
 } from "./graphql-types"
 
+@Injectable()
 /**
  * Thin wrapper dispatching {@link ChallengeSubmissionProgressQuery} onto the
  * CQRS query bus, so the resolver stays free of CQRS wiring.
  */
-@Injectable()
 export class ChallengeSubmissionProgressService {
     constructor(
         private readonly queryBus: QueryBus,

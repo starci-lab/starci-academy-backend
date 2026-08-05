@@ -37,6 +37,7 @@ import {
     UserCapstoneProgressResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile query: a user's per-course capstone roadmap — for each enrolled
  * course, the ordered milestones with totals / passed counts plus every task and the
@@ -47,7 +48,6 @@ import {
  * viewer-gated `milestone`/`task` queries for that).
  * Optional auth; a locked profile is withheld by {@link GraphQLProfileVisibilityGuard}.
  */
-@Resolver()
 export class UserCapstoneProgressResolver {
     constructor(
         private readonly userCapstoneProjectionService: UserCapstoneProjectionService,

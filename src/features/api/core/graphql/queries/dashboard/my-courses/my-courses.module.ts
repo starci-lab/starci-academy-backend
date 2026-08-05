@@ -13,4 +13,5 @@ import {
         MyCoursesResolver,
     ],
 })
+/** Feature-module boundary for the `myCourses` query — wires its resolver so the dashboard group can mount this widget independently. */
 export class MyCoursesSingleQueryModule extends ConfigurableModuleClass {}

@@ -30,13 +30,13 @@ import {
     MyWeeklyStatsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Rail query: the "this week" widget stats. Reads straight from the user-stats
  * projection (streak / weekly XP / weekly lessons are precomputed there by a
  * scoped UPSERT, kept fresh via CDC + a TTL lazy-refresh on read), so the resolver
  * never runs the aggregates inline.
  */
-@Resolver()
 export class MyWeeklyStatsResolver {
     constructor(
         private readonly userStatsProjectionService: UserStatsProjectionService,

@@ -10,6 +10,9 @@ import {
     MyFeedResponseData,
 } from "../../../dashboard/my-feed/graphql-types"
 
+@ObjectType({
+    description: "Response wrapper for the userFeed query.",
+})
 /**
  * Response wrapper for the userFeed query.
  *
@@ -18,9 +21,6 @@ import {
  * only in subject and ordering — a single user's chronological timeline rather
  * than the score-ranked home feed.
  */
-@ObjectType({
-    description: "Response wrapper for the userFeed query.",
-})
 export class UserFeedResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyFeedResponseData> {

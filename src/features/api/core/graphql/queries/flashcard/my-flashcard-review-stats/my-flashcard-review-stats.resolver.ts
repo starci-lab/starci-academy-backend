@@ -35,6 +35,7 @@ import {
     MyFlashcardReviewStatsResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The viewer's aggregated flashcard review ("Học thẻ") stats for one course —
  * a reviewed-count/XP trend line plus a per-deck breakdown across their
@@ -42,7 +43,6 @@ import {
  * (see `MyFlashcardReviewStatsService`'s own doc). Enrollment-scoped, same
  * as `myFlashcardReviewHistory`.
  */
-@Resolver()
 export class MyFlashcardReviewStatsResolver {
     constructor(
         private readonly myFlashcardReviewStatsService: MyFlashcardReviewStatsService,

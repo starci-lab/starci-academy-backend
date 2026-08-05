@@ -9,13 +9,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A ranked user on the global points leaderboard.",
+})
 /**
  * One ranked user on the global (all-users) leaderboard, ordered by total
  * reward points.
  */
-@ObjectType({
-    description: "A ranked user on the global points leaderboard.",
-})
 export class GlobalLeaderboardEntryData {
     @Field(
         () => ID,
@@ -60,14 +60,14 @@ export class GlobalLeaderboardEntryData {
         rank: number
 }
 
+@ObjectType({
+    description: "The global points leaderboard (top users + the viewer's own standing).",
+})
 /**
  * The viewer's view of the global leaderboard: the top-ranked users plus the
  * viewer's own rank + points (so the UI can append a "you" row when the viewer
  * sits outside the visible top).
  */
-@ObjectType({
-    description: "The global points leaderboard (top users + the viewer's own standing).",
-})
 export class GlobalLeaderboardData {
     @Field(
         () => [GlobalLeaderboardEntryData],
@@ -94,12 +94,12 @@ export class GlobalLeaderboardData {
         myPoints: number
 }
 
-/**
- * Response wrapper for the globalLeaderboard query.
- */
 @ObjectType({
     description: "Response wrapper for the globalLeaderboard query.",
 })
+/**
+ * Response wrapper for the globalLeaderboard query.
+ */
 export class GlobalLeaderboardResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<GlobalLeaderboardData> {

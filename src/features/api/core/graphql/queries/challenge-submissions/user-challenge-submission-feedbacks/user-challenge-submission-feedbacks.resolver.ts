@@ -32,6 +32,10 @@ import {
 } from "./graphql-types"
 
 @Resolver()
+/**
+ * GraphQL entry for `userChallengeSubmissionFeedbacks`: paginated scorer
+ * notes on one attempt. Auth-gated; does not pass the user into the handler.
+ */
 export class UserChallengeSubmissionFeedbacksResolver {
     constructor(
         private readonly userChallengeSubmissionFeedbacksService: UserChallengeSubmissionFeedbacksService,

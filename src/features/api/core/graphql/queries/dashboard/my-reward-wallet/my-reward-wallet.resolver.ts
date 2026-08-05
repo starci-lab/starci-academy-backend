@@ -33,12 +33,12 @@ import {
     MyRewardWalletResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * The authenticated viewer's reward wallet: spendable Coin balance (derived
  * from lifetime points minus what they've spent — never touching the leaderboard
  * score), plus their redemption history with localized titles.
  */
-@Resolver()
 export class MyRewardWalletResolver {
     constructor(
         private readonly rewardsService: RewardsService,

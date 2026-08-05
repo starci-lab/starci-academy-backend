@@ -35,12 +35,12 @@ import {
 /** Hard cap on how many cards one listing page can request. */
 const MAX_LIMIT = 50
 
+@Resolver()
 /**
  * Public query returning published blog posts (newest first) for the `/blog`
  * listing page, optionally filtered by editorial pillar. `title`/`excerpt` are
  * resolved to the request locale; the body is omitted (detail query fetches it).
  */
-@Resolver()
 export class BlogPostsResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

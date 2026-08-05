@@ -15,9 +15,13 @@ import {
 
 /** Sort fields for listing foundations within a category. */
 export enum FoundationsSortBy {
+    /** Orders foundations alphabetically by title. */
     Title = "title",
+    /** Orders foundations by curated display order within the category. */
     SortIndex = "sortIndex",
+    /** Orders foundations by when the row was created. */
     CreatedAt = "createdAt",
+    /** Orders foundations by when the row was last modified. */
     UpdatedAt = "updatedAt",
 }
 
@@ -48,6 +52,7 @@ registerEnumType(
 @InputType({
     description: "Sort field and order for listing foundations within a category.",
 })
+/** One sort line (field + order) for a foundations list request. */
 export class FoundationsRequestSort extends SortInput<FoundationsSortBy> {
     @Field(
         () => GraphQLTypeFoundationsSortBy,
@@ -61,6 +66,10 @@ export class FoundationsRequestSort extends SortInput<FoundationsSortBy> {
 @InputType({
     description: "Pagination and sort filters for listing foundations.",
 })
+/**
+ * Page size, page number, and sort lines for foundations inside one category
+ * (defaults to ascending `sortIndex`).
+ */
 export class FoundationsFilters extends PaginationPageFilters<FoundationsSortBy> {
     @Field(
         () => [FoundationsRequestSort],
@@ -77,12 +86,12 @@ export class FoundationsFilters extends PaginationPageFilters<FoundationsSortBy>
         sorts: Array<FoundationsRequestSort>
 }
 
-/**
- * Foundations request.
- */
 @InputType({
     description: "Foundations request parameters.",
 })
+/**
+ * Foundations request.
+ */
 export class FoundationsRequest {
     /**
      * Category ID.

@@ -32,11 +32,11 @@ import {
     MilestoneTaskProgressService,
 } from "./milestone-task-progress.service"
 
+@Resolver()
 /**
  * GraphQL entry point for `milestoneTaskProgress`: forwards to the CQRS
  * query bus via {@link MilestoneTaskProgressService}.
  */
-@Resolver()
 export class MilestoneTaskProgressResolver {
     constructor(
         private readonly service: MilestoneTaskProgressService,

@@ -17,4 +17,5 @@ import {
         CourseQuestionsResolver,
     ],
 })
+/** Feature-module boundary for the `courseQuestions` query. */
 export class CourseQuestionsSingleQueryModule extends ConfigurableModuleClass {}

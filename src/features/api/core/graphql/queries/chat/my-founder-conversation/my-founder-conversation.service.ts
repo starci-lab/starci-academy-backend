@@ -11,11 +11,11 @@ import type {
     ChatConversationObject,
 } from "../../../shared/chat"
 
+@Injectable()
 /**
  * Query service returning the viewer's private founder DM conversation handle
  * (lazily created on first open).
  */
-@Injectable()
 export class MyFounderConversationService {
     constructor(
         private readonly chatService: ChatService,

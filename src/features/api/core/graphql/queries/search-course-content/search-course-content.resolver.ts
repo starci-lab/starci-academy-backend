@@ -30,6 +30,7 @@ import {
     SearchCourseContentResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * "Tìm nội dung khóa" — RAG-based search over a course's lessons, challenges,
  * flashcard decks, and milestone tasks (understands the MEANING of the query,
@@ -37,7 +38,6 @@ import {
  * view. Auth-only (mirrors the sibling course queries) — no extra enrollment
  * check here (the caller is already viewing the course's content).
  */
-@Resolver()
 export class SearchCourseContentResolver {
     constructor(
         private readonly searchCourseContentService: SearchCourseContentService,

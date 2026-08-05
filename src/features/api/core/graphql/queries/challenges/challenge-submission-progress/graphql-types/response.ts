@@ -9,13 +9,13 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Single challenge progress item.",
+})
 /**
  * One challenge's progress for the viewer's enrollment: score, completion,
  * and derived lifecycle status.
  */
-@ObjectType({
-    description: "Single challenge progress item.",
-})
 export class ChallengeSubmissionProgressItemData {
     @Field(
         () => String,
@@ -66,12 +66,12 @@ export class ChallengeSubmissionProgressItemData {
         numAttempts: number
 }
 
-/**
- * All challenges in the requested course, each with the viewer's progress.
- */
 @ObjectType({
     description: "Challenge submission progress data.",
 })
+/**
+ * All challenges in the requested course, each with the viewer's progress.
+ */
 export class ChallengeSubmissionProgressResponseData {
     @Field(
         () => [ChallengeSubmissionProgressItemData],
@@ -82,12 +82,12 @@ export class ChallengeSubmissionProgressResponseData {
         completionTasks: Array<ChallengeSubmissionProgressItemData>
 }
 
-/**
- * Response wrapper for the `challengeSubmissionProgress` query.
- */
 @ObjectType({
     description: "Response wrapper for the challengeSubmissionProgress query.",
 })
+/**
+ * Response wrapper for the `challengeSubmissionProgress` query.
+ */
 export class ChallengeSubmissionProgressResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChallengeSubmissionProgressResponseData>

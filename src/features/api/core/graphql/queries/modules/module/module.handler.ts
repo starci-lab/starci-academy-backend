@@ -25,6 +25,10 @@ import {
 
 @QueryHandler(ModuleQuery)
 @Injectable()
+/**
+ * Loads one module (with nested contents / preview contents) from Postgres by
+ * id or display id, then localizes via `ModuleResolverService`.
+ */
 export class ModuleHandler
     extends ICQRSHandler<ModuleQuery, ModuleEntity>
     implements IQueryHandler<ModuleQuery, ModuleEntity> {

@@ -21,4 +21,8 @@ import {
         ChallengeSuggestionsHandler,
     ],
 })
+/**
+ * Wires resolver, service, and handler for `challengeSuggestions` typeahead.
+ * Registered globally from {@link ChallengesModule}.
+ */
 export class ChallengeSuggestionsSingleQueryModule extends ConfigurableModuleClass {}

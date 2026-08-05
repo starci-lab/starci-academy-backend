@@ -15,6 +15,9 @@ import {
 @ObjectType({
     description: "Paginated list of module contents.",
 })
+/**
+ * Page of module lessons plus total hit count — bodies may already be premium-truncated.
+ */
 export class ContentsResponseData
     extends PaginationPageResponseData
     implements IPaginationPageResponseData<ContentEntity>
@@ -31,6 +34,9 @@ export class ContentsResponseData
 @ObjectType({
     description: "Response wrapper for the contents query.",
 })
+/**
+ * Envelope for `contents` — status metadata plus the paginated lesson page.
+ */
 export class ContentsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ContentsResponseData>

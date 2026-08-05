@@ -21,4 +21,5 @@ import {
         CourseHandler,
     ],
 })
+/** Feature-module boundary for the `course` query. */
 export class CourseSingleQueryModule extends ConfigurableModuleClass {}

@@ -27,4 +27,8 @@ import {
         }),
     ],
 })
+/**
+ * Modules query group — detail, course list, and typeahead leaves. Registered
+ * global so each leaf resolver is picked up by the schema.
+ */
 export class ModulesModule extends ConfigurableModuleClass {}

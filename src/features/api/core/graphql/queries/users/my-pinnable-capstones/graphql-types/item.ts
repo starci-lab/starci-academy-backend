@@ -4,14 +4,14 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 
+@ObjectType({
+    description: "A pinnable capstone candidate (enrollment with a project repo).",
+})
 /**
  * One of the current user's enrollments that has a capstone repo — a candidate
  * for the "pin a course project" picker. Only enrollments that have submitted a
  * personal-project repo OR completed their task plan appear here.
  */
-@ObjectType({
-    description: "A pinnable capstone candidate (enrollment with a project repo).",
-})
 export class MyPinnableCapstoneItemData {
     /**
      * Enrollment primary-key id — the value the pin mutation takes as

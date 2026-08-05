@@ -25,10 +25,10 @@ import {
     CodingProblemSuggestionsService,
 } from "./coding-problem-suggestions.service"
 
+@Resolver()
 /**
  * GraphQL resolver exposing the `codingProblemSuggestions` autocomplete (typeahead) query.
  */
-@Resolver()
 export class CodingProblemSuggestionsResolver {
     constructor(
         private readonly codingProblemSuggestionsService: CodingProblemSuggestionsService,

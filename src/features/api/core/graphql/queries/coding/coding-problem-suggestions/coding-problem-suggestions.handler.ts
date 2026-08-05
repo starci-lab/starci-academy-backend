@@ -14,6 +14,8 @@ import {
     CodingProblemSuggestionsQuery,
 } from "./coding-problem-suggestions.query"
 
+@QueryHandler(CodingProblemSuggestionsQuery)
+@Injectable()
 /**
  * Coding-problem autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -27,8 +29,6 @@ import {
  * The only contribution of this subclass is declaring which entity it serves; the
  * inherited constructor (injecting `ElasticsearchService`) covers all dependencies.
  */
-@QueryHandler(CodingProblemSuggestionsQuery)
-@Injectable()
 export class CodingProblemSuggestionsHandler
     extends AbstractSuggestionsHandler<CodingProblemSuggestionsQuery> {
     /** Entity this handler autocompletes — drives `coding-problems` index resolution. */

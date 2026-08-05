@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "A single milestone-task review attempt in the learner CMS list.",
+})
 /**
  * One of the viewer's milestone-task review attempts, flattened for the learner
  * CMS: the task, its milestone, the owning course, the pass/score state, and
  * when it was attempted.
  */
-@ObjectType({
-    description: "A single milestone-task review attempt in the learner CMS list.",
-})
 export class MilestoneTaskAttemptItem {
     @Field(
         () => ID,
@@ -83,13 +83,13 @@ export class MilestoneTaskAttemptItem {
         attemptedAt: string
 }
 
+@ObjectType({
+    description: "Paginated list of the viewer's milestone-task review attempts.",
+})
 /**
  * The milestone-task-attempts page payload: the list plus the total number of
  * attempts the viewer has (for client-side pagination).
  */
-@ObjectType({
-    description: "Paginated list of the viewer's milestone-task review attempts.",
-})
 export class MyMilestoneTaskAttemptsData {
     @Field(
         () => [MilestoneTaskAttemptItem],
@@ -108,12 +108,12 @@ export class MyMilestoneTaskAttemptsData {
         total: number
 }
 
-/**
- * Response wrapper for the myMilestoneTaskAttempts query.
- */
 @ObjectType({
     description: "Response wrapper for the myMilestoneTaskAttempts query.",
 })
+/**
+ * Response wrapper for the myMilestoneTaskAttempts query.
+ */
 export class MyMilestoneTaskAttemptsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyMilestoneTaskAttemptsData> {

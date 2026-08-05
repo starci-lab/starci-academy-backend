@@ -13,4 +13,8 @@ import {
         MySessionsResolver,
     ],
 })
+/**
+ * Wires the authenticated `mySessions` device list. Resolver-only — reads
+ * the session cookie to flag "this device", then lists owner-scoped rows.
+ */
 export class MySessionsSingleQueryModule extends ConfigurableModuleClass {}

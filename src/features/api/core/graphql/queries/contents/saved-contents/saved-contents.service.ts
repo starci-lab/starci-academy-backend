@@ -16,6 +16,9 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin QueryBus adapter so SavedContentsResolver never constructs SavedContentsQuery itself.
+ */
 export class SavedContentsService {
     constructor(
         private readonly queryBus: QueryBus,

@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One tag's full review-retention breakdown, worst-first. */
 @ObjectType({
     description: "One tag's full review-retention breakdown (worst first).",
 })
+/** One tag's full review-retention breakdown, worst-first. */
 export class FlashcardWeakTag {
     @Field(() => String, { description: "The technology tag (e.g. NestJS)." })
         tag: string
@@ -24,10 +24,10 @@ export class FlashcardWeakTag {
         cardCount: number
 }
 
-/** A "leech FOCUS" card — the card the learner keeps forgetting or getting stuck on. */
 @ObjectType({
     description: "A reason-tagged leech card (lapsed vs stuck-on-Hard), for the 'viết lại' fix-list.",
 })
+/** A "leech FOCUS" card — the card the learner keeps forgetting or getting stuck on. */
 export class FlashcardLeechFocusCard {
     @Field(() => ID, { description: "The card id (open it in the reviewer)." })
         cardId: string
@@ -48,10 +48,10 @@ export class FlashcardLeechFocusCard {
         reason: "lapsed" | "stuckHard"
 }
 
-/** One deck's review RETENTION (recalled/total) — the outcome analogue of the footprint `byDeck`. */
 @ObjectType({
     description: "One deck's review retention (outcome), weakest first.",
 })
+/** One deck's review RETENTION (recalled/total) — the outcome analogue of the footprint `byDeck`. */
 export class FlashcardDeckRetention {
     @Field(() => ID, { description: "The deck this retention is scoped to." })
         deckId: string
@@ -66,14 +66,14 @@ export class FlashcardDeckRetention {
         reviewCount: number
 }
 
+@ObjectType({
+    description: "The viewer's aggregated flashcard review stats for one course.",
+})
 /**
  * The viewer's aggregated flashcard review ("Học thẻ") stats for one course —
  * the memory-health hero (mature/young retention) + weak-topic map, rendered
  * by `FlashcardReviewStats` (`stats-canonical-fold` — 1 hero + 1 zone).
  */
-@ObjectType({
-    description: "The viewer's aggregated flashcard review stats for one course.",
-})
 export class MyFlashcardReviewStatsData {
     @Field(
         () => [FlashcardLeechFocusCard],
@@ -132,12 +132,12 @@ export class MyFlashcardReviewStatsData {
         deckRetention: Array<FlashcardDeckRetention>
 }
 
-/**
- * Response wrapper for the myFlashcardReviewStats query.
- */
 @ObjectType({
     description: "Response wrapper for the myFlashcardReviewStats query.",
 })
+/**
+ * Response wrapper for the myFlashcardReviewStats query.
+ */
 export class MyFlashcardReviewStatsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyFlashcardReviewStatsData>

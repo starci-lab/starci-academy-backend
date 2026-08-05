@@ -18,11 +18,11 @@ import {
     HeadhuntingCompanySuggestionsQuery,
 } from "./headhunting-company-suggestions.query"
 
+@Injectable()
 /**
  * Thin façade dispatching headhunting company suggest requests onto the CQRS
  * query bus.
  */
-@Injectable()
 export class HeadhuntingCompanySuggestionsService {
     constructor(
         private readonly queryBus: QueryBus,

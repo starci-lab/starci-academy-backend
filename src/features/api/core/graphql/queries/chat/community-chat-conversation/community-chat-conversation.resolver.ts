@@ -30,8 +30,8 @@ import {
     CommunityChatConversationService,
 } from "./community-chat-conversation.service"
 
-/** GraphQL resolver for the `communityChatConversation` query. */
 @Resolver()
+/** GraphQL resolver for the `communityChatConversation` query. */
 export class CommunityChatConversationResolver {
     constructor(
         private readonly communityChatConversationService: CommunityChatConversationService,

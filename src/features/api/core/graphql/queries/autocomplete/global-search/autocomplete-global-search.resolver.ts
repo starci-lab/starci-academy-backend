@@ -36,6 +36,11 @@ import {
 } from "./autocomplete-global-search.service"
 
 @Resolver()
+/**
+ * Public (optionally-authed) typeahead across every indexed catalog kind.
+ * Auth is optional so guests still get hits; enrollment/premium flags only
+ * appear when a user is present.
+ */
 export class AutocompleteGlobalSearchResolver {
     constructor(
         private readonly autocompleteGlobalSearchService: AutocompleteGlobalSearchService,

@@ -8,10 +8,10 @@ import {
     GraphQLTypeCodingDifficulty,
 } from "@modules/databases"
 
-/** Request for listing coding problems with optional filters + pagination. */
 @InputType({
     description: "Filters + pagination for the coding-problem list.",
 })
+/** Request for listing coding problems with optional filters + pagination. */
 export class CodingProblemsRequest {
     /** Filter by difficulty tier. */
     @Field(

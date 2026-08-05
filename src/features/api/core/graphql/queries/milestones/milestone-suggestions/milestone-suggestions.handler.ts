@@ -14,6 +14,8 @@ import {
     MilestoneSuggestionsQuery,
 } from "./milestone-suggestions.query"
 
+@QueryHandler(MilestoneSuggestionsQuery)
+@Injectable()
 /**
  * Milestone autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -27,8 +29,6 @@ import {
  * The only contribution of this subclass is declaring which entity it serves; the
  * inherited constructor (injecting `ElasticsearchService`) covers all dependencies.
  */
-@QueryHandler(MilestoneSuggestionsQuery)
-@Injectable()
 export class MilestoneSuggestionsHandler
     extends AbstractSuggestionsHandler<MilestoneSuggestionsQuery> {
     /** Entity this handler autocompletes — drives `milestones` index resolution. */

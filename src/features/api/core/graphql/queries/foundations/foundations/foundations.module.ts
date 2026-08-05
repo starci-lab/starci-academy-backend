@@ -21,4 +21,5 @@ import {
         FoundationsHandler,
     ],
 })
+/** Feature-module boundary for the `foundations` list-within-category query. */
 export class FoundationsSingleQueryModule extends ConfigurableModuleClass {}

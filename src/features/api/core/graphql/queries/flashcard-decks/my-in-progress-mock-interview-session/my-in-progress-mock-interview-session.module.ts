@@ -11,11 +11,11 @@ import {
     MyInProgressMockInterviewSessionService,
 } from "./my-in-progress-mock-interview-session.service"
 
-/** Feature-module boundary for the `myInProgressMockInterviewSession` query — wires its resolver + service. */
 @Module({
     providers: [
         MyInProgressMockInterviewSessionResolver,
         MyInProgressMockInterviewSessionService,
     ],
 })
+/** Feature-module boundary for the `myInProgressMockInterviewSession` query — wires its resolver + service. */
 export class MyInProgressMockInterviewSessionSingleQueryModule extends ConfigurableModuleClass {}

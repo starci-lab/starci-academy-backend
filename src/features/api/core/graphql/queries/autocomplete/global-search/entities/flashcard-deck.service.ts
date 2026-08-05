@@ -12,6 +12,7 @@ import {
     FlashcardDeckEntity,
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Service for performing global search on flashcard decks.
  *
@@ -20,7 +21,6 @@ import {
  * `match_phrase_prefix` (as-you-type prefixing) with a fuzzy `multi_match` over
  * `title`/`description` instead of the n-gram fields used by course search.
  */
-@Injectable()
 export class FlashcardDeckGlobalSearchService {
     /** The number of words to include around the match in a snippet. */
     private readonly snippetWindowWords = 4

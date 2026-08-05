@@ -30,6 +30,11 @@ import {
 
 @QueryHandler(ChallengesQuery)
 @Injectable()
+/**
+ * Paginated challenges for one content item, read from the locale Elasticsearch
+ * index (not Postgres). `contentId` is a keyword term; title is boosted over
+ * description in the shared search builder.
+ */
 export class ChallengesHandler
     extends ICQRSHandler<ChallengesQuery, ChallengesResponseData>
     implements IQueryHandler<ChallengesQuery, ChallengesResponseData> {

@@ -31,12 +31,12 @@ import {
     CodingProblemHintResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Loads a coding problem's "approach hint" markdown for the detail view. The
  * hint lives only in Elasticsearch (never Postgres / the CDN); returns null when
  * the problem has no hint authored.
  */
-@Resolver()
 export class CodingProblemHintResolver {
     constructor(
         private readonly codingProblemService: CodingProblemService,

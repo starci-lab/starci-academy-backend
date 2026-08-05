@@ -7,15 +7,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "An upcoming livestream occurrence from one of the viewer's enrolled courses.",
+})
 /**
  * One upcoming livestream occurrence for the dashboard rail — the soonest next
  * airing of a recurring weekly slot from one of the viewer's enrolled courses.
  * `nextStartAt` / `nextEndAt` are concrete instants computed from the slot's
  * weekday + wall-clock times, so the client can render an absolute countdown.
  */
-@ObjectType({
-    description: "An upcoming livestream occurrence from one of the viewer's enrolled courses.",
-})
 export class UpcomingLivestreamData {
     @Field(
         () => String,
@@ -68,12 +68,12 @@ export class UpcomingLivestreamData {
         nextEndAt: Date | null
 }
 
-/**
- * Response wrapper for the myUpcomingLivestreams query.
- */
 @ObjectType({
     description: "Response wrapper for the myUpcomingLivestreams query.",
 })
+/**
+ * Response wrapper for the myUpcomingLivestreams query.
+ */
 export class MyUpcomingLivestreamsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<UpcomingLivestreamData>> {

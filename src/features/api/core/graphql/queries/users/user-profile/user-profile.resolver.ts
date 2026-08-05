@@ -30,6 +30,7 @@ import {
     UserProfileResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Public profile of any user by username (avatar, name, bio, follow counts).
  * Username-addressable so the URL reads like GitHub (`/profile/<username>`); the
@@ -41,7 +42,6 @@ import {
  * viewers still get the public fields, just with `isFollowedByMe = false`.
  * Soft-deleted users resolve to `null`.
  */
-@Resolver()
 export class UserProfileResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

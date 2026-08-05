@@ -31,4 +31,8 @@ import {
         CoursesHandler,
     ],
 })
+/**
+ * Feature-module boundary for the `courses` list query — imports Elasticsearch
+ * and wires resolver, CDN field resolver, service, and handler.
+ */
 export class CoursesSingleQueryModule extends ConfigurableModuleClass {}

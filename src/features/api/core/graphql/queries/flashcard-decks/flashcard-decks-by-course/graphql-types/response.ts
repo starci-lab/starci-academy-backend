@@ -10,12 +10,12 @@ import {
     FlashcardDeckEntity,
 } from "@modules/databases"
 
-/**
- * Response wrapper for the flashcardDecksByCourse query.
- */
 @ObjectType({
     description: "Response wrapper for the flashcardDecksByCourse query.",
 })
+/**
+ * Response wrapper for the flashcardDecksByCourse query.
+ */
 export class FlashcardDecksByCourseResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<FlashcardDeckEntity>>

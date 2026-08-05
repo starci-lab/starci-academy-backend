@@ -38,10 +38,6 @@ import {
     MyMockInterviewStatsSingleQueryModule,
 } from "./my-mock-interview-stats"
 
-/**
- * Flashcard-deck query group (deck listing by course + single-deck detail +
- * typeahead + mock-interview prompt/history/resume reads).
- */
 @Module({
     imports: [
         FlashcardDecksByCourseSingleQueryModule.register({
@@ -79,4 +75,8 @@ import {
         }),
     ],
 })
+/**
+ * Flashcard-deck query group (deck listing by course + single-deck detail +
+ * typeahead + mock-interview prompt/history/resume reads).
+ */
 export class FlashcardDecksQueriesModule extends ConfigurableModuleClass {}

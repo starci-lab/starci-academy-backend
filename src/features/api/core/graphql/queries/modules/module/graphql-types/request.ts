@@ -4,10 +4,10 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-/** Request for the module GraphQL query (by id or displayId). */
 @InputType({
     description: "Request for fetching a module by primary id or display id.",
 })
+/** Request for the module GraphQL query (by id or displayId). */
 export class ModuleRequest {
     @Field(
         () => ID,

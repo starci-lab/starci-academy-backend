@@ -47,6 +47,7 @@ interface PresentPillar {
     weight: number
 }
 
+@Injectable()
 /**
  * Recruiter-marketplace ranking service. Given ONE track (a `courseId`), it
  * loads every open-to-work candidate PAID-enrolled in that course, computes each
@@ -61,7 +62,6 @@ interface PresentPillar {
  * shared depth/band CONSTANTS (not the private methods) of
  * `JobReadinessService`, so the per-track math stays single-sourced.
  */
-@Injectable()
 export class TalentCandidatesService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

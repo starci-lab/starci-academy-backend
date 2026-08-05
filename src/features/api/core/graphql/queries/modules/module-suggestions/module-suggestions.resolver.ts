@@ -26,6 +26,10 @@ import {
 } from "./module-suggestions.service"
 
 @Resolver()
+/**
+ * Public GraphQL entry for `moduleSuggestions` — ES completion-suggester
+ * typeahead over module titles.
+ */
 export class ModuleSuggestionsResolver {
     constructor(
         private readonly moduleSuggestionsService: ModuleSuggestionsService,

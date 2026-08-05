@@ -30,12 +30,12 @@ import {
     MyGithubTeamStatusService,
 } from "./my-github-team-status.service"
 
+@Resolver()
 /**
  * Query: the authenticated viewer's GitHub link + per-enrolled-course team
  * membership status. Drives the forced "join team" flow (link vs in-team are
  * separate states) — auth-only (no MustEnrolled, the FE handles the no-team case).
  */
-@Resolver()
 export class MyGithubTeamStatusResolver {
     constructor(
         private readonly service: MyGithubTeamStatusService,

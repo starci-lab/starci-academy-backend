@@ -13,10 +13,13 @@ import {
 } from "@modules/common"
 
 
-/** Sort by. */
+/** Sort fields for listing courses. */
 export enum SortBy {
+    /** Orders the list alphabetically by course title. */
     Title = "title",
+    /** Orders the list by when the course was created. */
     CreatedAt = "createdAt",
+    /** Orders the list by when the course was last modified. */
     UpdatedAt = "updatedAt",
 }
 
@@ -44,10 +47,10 @@ registerEnumType(GraphQLTypeSortBy,
 
 
 
-/** Sort line in a courses list request. */
 @InputType({
     description: "Sort field and order for listing courses.",
 })
+/** Sort line in a courses list request. */
 export class CoursesRequestSort extends SortInput<SortBy> {
     /** Sort by. */
     @Field(
@@ -81,11 +84,10 @@ export class CoursesRequestPaginationFilters extends PaginationPageFilters<SortB
 
 
 
-/** Request for the courses GraphQL query. */
-
 @InputType({
     description: "Request for listing courses with pagination.",
 })
+/** Request for the courses GraphQL query. */
 export class CoursesRequest {
     @Field(() => CoursesRequestPaginationFilters,
         {

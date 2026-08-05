@@ -13,6 +13,7 @@ import type {
 /** Fewer completed quiz sessions than this = "insufficient data" (mirrors `MIN_ATTEMPTS_FOR_STATS` on Mock Interview). */
 const MIN_SESSIONS_FOR_STATS = 3
 
+@Injectable()
 /**
  * Reads the viewer's flashcard quick-quiz ("Hỏi nhanh") stats for one course —
  * the coverage-vs-target hero + weak-topic map that `FlashcardQuizStats`
@@ -23,7 +24,6 @@ const MIN_SESSIONS_FOR_STATS = 3
  * a pure point-read (TTL lazy-refresh), never re-scans/folds inline (per
  * `.claude/be/rules/cqrs-no-inline-aggregate.md`).
  */
-@Injectable()
 export class MyFlashcardQuizStatsService {
     constructor(
         private readonly userService: UserService,

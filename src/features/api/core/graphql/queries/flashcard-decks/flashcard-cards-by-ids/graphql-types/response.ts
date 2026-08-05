@@ -9,14 +9,14 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "Per-grade next-interval preview (days) for a flashcard.",
+})
 /**
  * Per-grade next-interval preview (in days) computed from a card's current SM-2
  * state without persisting — mirrors `DueFlashcardObject`'s own field so the two
  * queries return interchangeable shapes for the FE.
  */
-@ObjectType({
-    description: "Per-grade next-interval preview (days) for a flashcard.",
-})
 export class FlashcardByIdNextIntervalsObject {
     @Field(
         () => Int,
@@ -51,13 +51,13 @@ export class FlashcardByIdNextIntervalsObject {
         easy: number
 }
 
+@ObjectType({
+    description: "A flashcard fetched by exact id (localized front/back + deck title), regardless of due status.",
+})
 /**
  * One flashcard fetched by exact id, localized — same shape as `DueFlashcardObject`
  * but not filtered by due status.
  */
-@ObjectType({
-    description: "A flashcard fetched by exact id (localized front/back + deck title), regardless of due status.",
-})
 export class FlashcardByIdObject {
     @Field(
         () => ID,
@@ -117,12 +117,12 @@ export class FlashcardByIdObject {
         nextIntervals: FlashcardByIdNextIntervalsObject
 }
 
-/**
- * The requested flashcards, in the same order as the input `cardIds`.
- */
 @ObjectType({
     description: "Flashcards fetched by exact id, in input order.",
 })
+/**
+ * The requested flashcards, in the same order as the input `cardIds`.
+ */
 export class FlashcardCardsByIdsData {
     @Field(
         () => [FlashcardByIdObject],
@@ -134,12 +134,12 @@ export class FlashcardCardsByIdsData {
         cards: Array<FlashcardByIdObject>
 }
 
-/**
- * Response wrapper for the flashcardCardsByIds query.
- */
 @ObjectType({
     description: "Response wrapper for the flashcardCardsByIds query.",
 })
+/**
+ * Response wrapper for the flashcardCardsByIds query.
+ */
 export class FlashcardCardsByIdsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<FlashcardCardsByIdsData> {

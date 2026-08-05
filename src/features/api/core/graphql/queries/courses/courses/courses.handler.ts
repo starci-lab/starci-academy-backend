@@ -28,11 +28,11 @@ import {
     CoursesResponseData,
 } from "./graphql-types"
 
+@QueryHandler(CoursesQuery)
+@Injectable()
 /**
  * Handles the courses query.
  */
-@QueryHandler(CoursesQuery)
-@Injectable()
 export class CoursesHandler
     extends ICQRSHandler<CoursesQuery, CoursesResponseData>
     implements IQueryHandler<CoursesQuery, CoursesResponseData> {

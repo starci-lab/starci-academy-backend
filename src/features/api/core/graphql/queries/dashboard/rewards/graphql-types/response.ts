@@ -11,10 +11,10 @@ import {
     GraphQLTypeVoucherDiscountType,
 } from "@modules/databases"
 
-/** The discount a `voucher`-kind reward mints, so the FE can show it before redeeming. */
 @ObjectType({
     description: "The discount a voucher-kind reward mints.",
 })
+/** The discount a `voucher`-kind reward mints, so the FE can show it before redeeming. */
 export class RewardVoucherObject {
     @Field(
         () => GraphQLTypeVoucherDiscountType,
@@ -41,10 +41,10 @@ export class RewardVoucherObject {
         validityDays: number
 }
 
-/** The bonus AI credit an `aiCredit`-kind reward grants, for the current window. */
 @ObjectType({
     description: "The bonus AI credit an aiCredit-kind reward grants.",
 })
+/** The bonus AI credit an `aiCredit`-kind reward grants, for the current window. */
 export class RewardAiCreditObject {
     @Field(
         () => Int,
@@ -63,12 +63,12 @@ export class RewardAiCreditObject {
         amountWeek: number
 }
 
-/**
- * One redeemable reward in the Coin shop, localized to the request locale.
- */
 @ObjectType({
     description: "A redeemable reward in the Coin shop.",
 })
+/**
+ * One redeemable reward in the Coin shop, localized to the request locale.
+ */
 export class RewardObject {
     @Field(
         () => String,
@@ -129,12 +129,12 @@ export class RewardObject {
         aiCredit?: RewardAiCreditObject
 }
 
-/**
- * Response wrapper for the rewards catalog query.
- */
 @ObjectType({
     description: "Response wrapper for the rewards query.",
 })
+/**
+ * Response wrapper for the rewards catalog query.
+ */
 export class RewardsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<RewardObject>> {

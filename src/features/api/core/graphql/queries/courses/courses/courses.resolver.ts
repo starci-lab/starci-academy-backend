@@ -40,6 +40,11 @@ import {
 } from "@modules/databases"
 
 @Resolver()
+/**
+ * Optional-auth GraphQL entry for `courses` — anonymous viewers get the page
+ * with `isEnrolled` unset; authenticated viewers get a single batched
+ * enrollment lookup across the page (never N+1 per row).
+ */
 export class CoursesResolver {
     constructor(
         private readonly coursesService: CoursesService,

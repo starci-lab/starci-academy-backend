@@ -14,10 +14,10 @@ import {
 import {
     ExecuteParams,
 } from "../../../../types"
+@Injectable()
 /**
  * Service for performing modules queries.
  */
-@Injectable()
 export class ModulesService {
     /**
      * Constructor.

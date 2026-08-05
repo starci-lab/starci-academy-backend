@@ -35,14 +35,6 @@ import {
     MyFlashcardQuizSessionBySessionIdSingleQueryModule,
 } from "./my-flashcard-quiz-session-by-session-id"
 
-/**
- * Flashcard quick-quiz ("Hỏi nhanh") + review ("Học thẻ") resumable-session
- * query group — a new, sensibly-named sibling of `flashcard-decks` (which
- * owns deck/card reads + the Mock Interview reads that historically ended up
- * nested there); this group is reserved for flashcard-SESSION reads so
- * future additions have a proper home instead of piling onto
- * `flashcard-decks`.
- */
 @Module({
     imports: [
         MyInProgressFlashcardQuizSessionSingleQueryModule.register({
@@ -77,4 +69,12 @@ import {
         }),
     ],
 })
+/**
+ * Flashcard quick-quiz ("Hỏi nhanh") + review ("Học thẻ") resumable-session
+ * query group — a new, sensibly-named sibling of `flashcard-decks` (which
+ * owns deck/card reads + the Mock Interview reads that historically ended up
+ * nested there); this group is reserved for flashcard-SESSION reads so
+ * future additions have a proper home instead of piling onto
+ * `flashcard-decks`.
+ */
 export class FlashcardQueriesModule extends ConfigurableModuleClass {}

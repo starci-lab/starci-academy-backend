@@ -30,12 +30,12 @@ import {
     MyInstallmentPlansResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Lists the authenticated viewer's installment ("trả góp") plans for the "Kế
  * hoạch trả góp của tôi" surface. Auth-only (NOT enrollment-scoped — a plan
  * spans whichever courses it gates), a per-viewer single-list read.
  */
-@Resolver()
 export class MyInstallmentPlansResolver {
     constructor(
         private readonly myInstallmentPlansService: MyInstallmentPlansService,

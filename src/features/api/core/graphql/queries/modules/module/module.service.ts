@@ -18,6 +18,7 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/** Dispatches `ModuleQuery` onto the CQRS bus. */
 export class ModuleService {
     constructor(
         private readonly queryBus: QueryBus,

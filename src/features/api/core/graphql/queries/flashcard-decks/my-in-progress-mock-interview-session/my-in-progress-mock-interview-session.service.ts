@@ -29,6 +29,7 @@ import type {
  */
 const RESUME_WINDOW_HOURS = 24
 
+@Injectable()
 /**
  * Reads back the learner's most recent RESUMABLE mock-interview session for
  * one course, so the FE can offer "Tiếp tục phiên phỏng vấn?" instead of
@@ -36,7 +37,6 @@ const RESUME_WINDOW_HOURS = 24
  * (plain query service, no CQRS command bus — a straight read has no command
  * to dispatch).
  */
-@Injectable()
 export class MyInProgressMockInterviewSessionService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

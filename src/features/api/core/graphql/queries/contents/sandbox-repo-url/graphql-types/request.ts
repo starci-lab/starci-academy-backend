@@ -7,6 +7,9 @@ import {
 @InputType({
     description: "Request for getting a presigned CDN URL for a premium sandbox lesson.",
 })
+/**
+ * Args for `sandboxRepoUrl` — which sandbox lesson's bundled tree to sign.
+ */
 export class SandboxRepoUrlRequest {
     @Field(
         () => ID,

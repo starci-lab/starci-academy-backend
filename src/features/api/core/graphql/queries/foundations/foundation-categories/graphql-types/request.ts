@@ -4,12 +4,12 @@ import {
     Int,
 } from "@nestjs/graphql"
 
-/**
- * Request for the paginated, searchable `foundationCategories` query.
- */
 @InputType({
     description: "Pagination + search filters for listing foundation categories.",
 })
+/**
+ * Request for the paginated, searchable `foundationCategories` query.
+ */
 export class FoundationCategoriesRequest {
     /** 1-based page number; defaults to 1 when omitted. */
     @Field(

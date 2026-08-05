@@ -11,10 +11,6 @@ import {
     JobPostingSingleQueryModule,
 } from "./job-posting"
 
-/**
- * Public "IT job board" queries — structured postings, distinct from the
- * `headhuntings` module's freestyle consultant directory.
- */
 @Module({
     imports: [
         JobPostingsSingleQueryModule.register({
@@ -25,4 +21,8 @@ import {
         }),
     ],
 })
+/**
+ * Public "IT job board" queries — structured postings, distinct from the
+ * `headhuntings` module's freestyle consultant directory.
+ */
 export class JobPostingsModule extends ConfigurableModuleClass {}

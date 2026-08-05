@@ -15,6 +15,10 @@ import {
 @ObjectType({
     description: "Paginated list of module challenges.",
 })
+/**
+ * One ES page of challenges for a content item, plus the hit count from the
+ * locale index (not a Postgres `COUNT`).
+ */
 export class ChallengesResponseData
     extends PaginationPageResponseData
     implements IPaginationPageResponseData<ChallengeEntity>
@@ -31,6 +35,9 @@ export class ChallengesResponseData
 @ObjectType({
     description: "Response wrapper for the challenges query.",
 })
+/**
+ * Envelope for `challenges`. Pagination count lives on `data`, not on this wrapper.
+ */
 export class ChallengesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ChallengesResponseData>

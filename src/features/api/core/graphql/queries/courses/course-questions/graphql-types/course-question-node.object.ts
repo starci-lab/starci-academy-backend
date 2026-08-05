@@ -8,14 +8,14 @@ import {
     UserEntity,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A course question (top-level content comment) with lesson context and answer aggregates.",
+})
 /**
  * A single course question shaped for the client: a top-level content comment with
  * its author, the lesson it belongs to, and answer aggregates (reply count + founder
  * flags) so the UI can render the Q&A roll-up without extra queries.
  */
-@ObjectType({
-    description: "A course question (top-level content comment) with lesson context and answer aggregates.",
-})
 export class CourseQuestionNodeObject {
     /** Question (comment) primary id. */
     @Field(

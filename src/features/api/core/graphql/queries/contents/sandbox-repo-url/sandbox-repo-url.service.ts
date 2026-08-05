@@ -26,6 +26,10 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Validates sandbox + github config, enforces enrollment for premium lessons,
+ * then builds a time-limited Minio signed GET for the bundled repo tree.
+ */
 export class SandboxRepoUrlService {
 
     constructor(

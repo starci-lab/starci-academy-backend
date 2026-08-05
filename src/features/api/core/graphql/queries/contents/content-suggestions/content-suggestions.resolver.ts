@@ -25,10 +25,10 @@ import {
     ContentSuggestionsService,
 } from "./content-suggestions.service"
 
+@Resolver()
 /**
  * GraphQL resolver exposing the `contentSuggestions` typeahead query.
  */
-@Resolver()
 export class ContentSuggestionsResolver {
     constructor(
         private readonly contentSuggestionsService: ContentSuggestionsService,

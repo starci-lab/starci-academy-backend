@@ -16,6 +16,9 @@ import {
 } from "./graphql-types"
 
 @Injectable()
+/**
+ * Thin QueryBus adapter so ContentsResolver never constructs ContentsQuery itself.
+ */
 export class ContentsService {
     constructor(
         private readonly queryBus: QueryBus,

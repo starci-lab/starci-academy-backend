@@ -37,6 +37,7 @@ import {
     computeCompletionPercent,
 } from "./utils"
 
+@Resolver()
 /**
  * Rail query: every course the viewer has joined, each with its milestone
  * progress. Reads the CQRS progress projection (`completed` is eager-maintained
@@ -44,7 +45,6 @@ import {
  * the way the old cache-aside did); the `total` denominator is counted live from
  * the course's milestone tasks. The list doubles as the rail's "my courses" list.
  */
-@Resolver()
 export class MyCoursesResolver {
     constructor(
         private readonly progressProjectionService: ProgressProjectionService,

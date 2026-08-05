@@ -11,12 +11,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * Paginated page of foundation categories.
- */
 @ObjectType({
     description: "A page of foundation categories plus the total match count.",
 })
+/**
+ * Paginated page of foundation categories.
+ */
 export class FoundationCategoriesPayload {
     /** Total number of categories matching the search (across all pages). */
     @Field(
@@ -27,7 +27,6 @@ export class FoundationCategoriesPayload {
     )
         totalCount: number
 
-    /** Categories for the requested page, ordered by display index. */
     @Field(
         () => [FoundationCategoryEntity],
         {
@@ -40,6 +39,7 @@ export class FoundationCategoriesPayload {
 @ObjectType({
     description: "Response wrapper for the foundationCategories query.",
 })
+    /** Categories for the requested page, ordered by display index. */
 export class FoundationCategoriesResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<FoundationCategoriesPayload>

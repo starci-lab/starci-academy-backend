@@ -31,13 +31,13 @@ import {
     UserNotFoundException
 } from "@modules/exceptions"
 
+@QueryHandler(IncompletedJobsQuery)
+@Injectable()
 /**
  * Handles the `incompletedJobs` query: reads `JobEntity` rows still `Queued` or
  * `Processing` for the caller, restricted to the Git and Google Docs submission
  * pipelines, ordered by `queueAt` desc.
  */
-@QueryHandler(IncompletedJobsQuery)
-@Injectable()
 export class IncompletedJobsHandler
     extends ICQRSHandler<IncompletedJobsQuery, IncompletedJobsResponseData>
     implements IQueryHandler<IncompletedJobsQuery, IncompletedJobsResponseData>

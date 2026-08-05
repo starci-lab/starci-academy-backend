@@ -25,11 +25,11 @@ import {
     EntityManager,
 } from "typeorm"
 
+@QueryHandler(CourseEnrollmentStatusQuery)
+@Injectable()
 /**
  * Handler for the course enrollment status query.
  */
-@QueryHandler(CourseEnrollmentStatusQuery)
-@Injectable()
 export class CourseEnrollmentStatusHandler
     extends ICQRSHandler<CourseEnrollmentStatusQuery, CourseEnrollmentStatusData>
     implements IQueryHandler<CourseEnrollmentStatusQuery, CourseEnrollmentStatusData> {

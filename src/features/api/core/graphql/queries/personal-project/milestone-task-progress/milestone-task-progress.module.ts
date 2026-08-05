@@ -25,4 +25,8 @@ import {
         MilestoneTaskProgressListener,
     ],
 })
+/**
+ * Nest DI for milestone-task progress query + SSE listener that pushes updates
+ * when personal-project grading completes.
+ */
 export class MilestoneTaskProgressSingleQueryModule extends ConfigurableModuleClass {}

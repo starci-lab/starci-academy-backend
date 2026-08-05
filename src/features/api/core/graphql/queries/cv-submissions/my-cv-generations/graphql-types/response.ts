@@ -17,15 +17,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+@ObjectType({
+    description: "One row of the caller's CV generation history (lightweight — no resolved file content).",
+})
 /**
  * One row of the caller's CV generation history — a lightweight projection of
  * `UserCvGenerationEntity` (list view: no `structuredData`/`latexSource`/
  * presigned file URL, which are resolved on-demand via the `cvGeneration(id)`
  * query to avoid an S3 round trip per row here).
  */
-@ObjectType({
-    description: "One row of the caller's CV generation history (lightweight — no resolved file content).",
-})
 export class CvGenerationListItem {
     @Field(
         () => ID,
@@ -140,13 +140,13 @@ export class CvGenerationListItem {
         createdAt: Date
 }
 
+@ObjectType({
+    description: "Response wrapper for the myCvGenerations query.",
+})
 /**
  * Response wrapper for `myCvGenerations` — the caller's CV generation runs
  * (newest first), as lightweight list rows (see {@link CvGenerationListItem}).
  */
-@ObjectType({
-    description: "Response wrapper for the myCvGenerations query.",
-})
 export class MyCvGenerationsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<CvGenerationListItem>>

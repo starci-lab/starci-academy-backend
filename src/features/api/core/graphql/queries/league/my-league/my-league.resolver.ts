@@ -35,13 +35,13 @@ import {
     MyLeagueResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Weekly-league query: the viewer's standing board. Reads their tier + ranked
  * cohort members from {@link LeagueService} (which lazily places a never-seen
  * user into Bronze + the current open cohort), then encodes each member's user id
  * as an opaque global id for the client.
  */
-@Resolver()
 export class MyLeagueResolver {
     constructor(
         private readonly leagueService: LeagueService,

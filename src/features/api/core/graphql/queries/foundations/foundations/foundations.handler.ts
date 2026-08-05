@@ -33,11 +33,11 @@ import {
     FoundationsSortBy,
 } from "./graphql-types"
 
+@QueryHandler(FoundationsQuery)
+@Injectable()
 /**
  * Handles the foundations query (Elasticsearch, filtered by category).
  */
-@QueryHandler(FoundationsQuery)
-@Injectable()
 export class FoundationsHandler
     extends ICQRSHandler<FoundationsQuery, FoundationsResponseData>
     implements IQueryHandler<FoundationsQuery, FoundationsResponseData> {

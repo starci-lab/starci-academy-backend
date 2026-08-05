@@ -17,15 +17,6 @@ import {
     MyCourseOutlineSingleQueryModule,
 } from "./my-course-outline"
 
-/**
- * Learner self-management CMS query group — the viewer's own paginated history:
- * challenge-submission attempts (`myChallengeSubmissions`), milestone-task review
- * attempts (`myMilestoneTaskAttempts`), merged learning feedback
- * (`myLearningFeedbacks`), and the per-course outline with progress overlaid
- * (`myCourseOutline`). The list reads are the LIST exception (no CQRS
- * projection); the outline is a read-only CQRS assembly. Each leaf is registered
- * global so its resolver is picked up by the schema.
- */
 @Module({
     imports: [
         MyChallengeSubmissionsSingleQueryModule.register({
@@ -42,4 +33,13 @@ import {
         }),
     ],
 })
+/**
+ * Learner self-management CMS query group — the viewer's own paginated history:
+ * challenge-submission attempts (`myChallengeSubmissions`), milestone-task review
+ * attempts (`myMilestoneTaskAttempts`), merged learning feedback
+ * (`myLearningFeedbacks`), and the per-course outline with progress overlaid
+ * (`myCourseOutline`). The list reads are the LIST exception (no CQRS
+ * projection); the outline is a read-only CQRS assembly. Each leaf is registered
+ * global so its resolver is picked up by the schema.
+ */
 export class LearnerCmsQueriesModule extends ConfigurableModuleClass {}

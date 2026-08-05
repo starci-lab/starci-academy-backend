@@ -63,4 +63,8 @@ import {
         }),
     ],
 })
+/**
+ * Aggregates every content-domain query module (list, single, status, public,
+ * saved, sandbox URL, suggestions, content-AI) as global Nest imports.
+ */
 export class ContentsModule extends ConfigurableModuleClass {}

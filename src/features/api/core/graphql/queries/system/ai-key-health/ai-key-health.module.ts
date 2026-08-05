@@ -13,4 +13,5 @@ import {
         AiKeyHealthResolver,
     ],
 })
+/** Feature-module boundary for the public `aiKeyHealth` query — wires its resolver. */
 export class AiKeyHealthSingleQueryModule extends ConfigurableModuleClass {}

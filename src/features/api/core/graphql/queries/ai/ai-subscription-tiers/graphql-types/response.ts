@@ -9,10 +9,10 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** One purchasable AI subscription tier from the mounted catalog. */
 @ObjectType({
     description: "One AI subscription tier (price + additive credits).",
 })
+/** One purchasable AI subscription tier from the mounted catalog. */
 export class AiSubscriptionTierData {
     @Field(
         () => String,
@@ -79,10 +79,10 @@ export class AiSubscriptionTierData {
         popular: boolean
 }
 
-/** Catalog of purchasable AI subscription tiers. */
 @ObjectType({
     description: "Purchasable AI subscription tiers.",
 })
+/** Catalog of purchasable AI subscription tiers. */
 export class AiSubscriptionTiersResponseData {
     @Field(
         () => [AiSubscriptionTierData],
@@ -96,6 +96,10 @@ export class AiSubscriptionTiersResponseData {
 @ObjectType({
     description: "Response wrapper for the aiSubscriptionTiers query.",
 })
+/**
+ * GraphQL envelope for `aiSubscriptionTiers`. `data` is null only on the
+ * error path; an empty catalog still returns `{ tiers: [] }` inside `data`.
+ */
 export class AiSubscriptionTiersResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<AiSubscriptionTiersResponseData>

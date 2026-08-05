@@ -14,6 +14,10 @@ import {
 @ObjectType({
     description: "Data returned by the savedContents query.",
 })
+/**
+ * Favorited lessons for the caller, newest-saved first, with total count for
+ * pagination; each content includes module→course for FE grouping.
+ */
 export class SavedContentsData {
     @Field(
         () => [ContentEntity],
@@ -35,6 +39,9 @@ export class SavedContentsData {
 @ObjectType({
     description: "Response wrapper for the savedContents query.",
 })
+/**
+ * Envelope for `savedContents` — status metadata plus the favorites page.
+ */
 export class SavedContentsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SavedContentsData>

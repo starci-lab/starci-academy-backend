@@ -37,6 +37,7 @@ import {
     MyMockInterviewAttemptBySessionResponse,
 } from "./graphql-types"
 
+@Resolver()
 /**
  * Looks up ONE graded mock-interview attempt by its `sessionId` — the
  * fallback read for a resume attempt on a session that's no longer
@@ -45,7 +46,6 @@ import {
  * timeout), this recovers that result instead of a plain "session expired"
  * error.
  */
-@Resolver()
 export class MyMockInterviewAttemptBySessionResolver {
     constructor(
         private readonly myMockInterviewAttemptBySessionService: MyMockInterviewAttemptBySessionService,

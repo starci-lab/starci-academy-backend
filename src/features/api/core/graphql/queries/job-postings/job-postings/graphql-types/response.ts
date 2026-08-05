@@ -11,12 +11,12 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/**
- * Paginated job postings (newest first).
- */
 @ObjectType({
     description: "Paginated job postings.",
 })
+/**
+ * Paginated job postings (newest first).
+ */
 export class JobPostingsData {
     @Field(
         () => [JobPostingEntity],
@@ -35,12 +35,12 @@ export class JobPostingsData {
         total: number
 }
 
-/**
- * Response wrapper for the jobPostings query.
- */
 @ObjectType({
     description: "Response wrapper for the jobPostings query.",
 })
+/**
+ * Response wrapper for the jobPostings query.
+ */
 export class JobPostingsResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<JobPostingsData>

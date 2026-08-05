@@ -30,6 +30,10 @@ import {
 
 @QueryHandler(PublicContentQuery)
 @Injectable()
+/**
+ * S3 lesson load for anonymous marketing/SEO; throws ContentNotFoundException
+ * for missing OR premium rows so premium ids never leak via this endpoint.
+ */
 export class PublicContentHandler
     extends ICQRSHandler<PublicContentQuery, ContentEntity>
     implements IQueryHandler<PublicContentQuery, ContentEntity> {

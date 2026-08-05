@@ -14,6 +14,8 @@ import {
     CourseSuggestionsQuery,
 } from "./course-suggestions.query"
 
+@QueryHandler(CourseSuggestionsQuery)
+@Injectable()
 /**
  * Course autocomplete (typeahead) handler — ES Completion Suggester.
  *
@@ -27,8 +29,6 @@ import {
  * The only contribution of this subclass is declaring which entity it serves; the
  * inherited constructor (injecting `ElasticsearchService`) covers all dependencies.
  */
-@QueryHandler(CourseSuggestionsQuery)
-@Injectable()
 export class CourseSuggestionsHandler
     extends AbstractSuggestionsHandler<CourseSuggestionsQuery> {
     /** Entity this handler autocompletes — drives `courses` index resolution. */

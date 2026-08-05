@@ -15,13 +15,13 @@ import {
     VoucherStatus,
 } from "@modules/databases"
 
+@ObjectType({
+    description: "A Coin-shop voucher owned by the viewer.",
+})
 /**
  * One voucher minted for the viewer by redeeming a `kind: "voucher"` Coin-shop
  * reward.
  */
-@ObjectType({
-    description: "A Coin-shop voucher owned by the viewer.",
-})
 export class MyVoucherObject {
     @Field(
         () => ID,
@@ -116,12 +116,12 @@ export class MyVoucherObject {
         createdAt: Date
 }
 
-/**
- * Response wrapper for the myVouchers query.
- */
 @ObjectType({
     description: "Response wrapper for the myVouchers query.",
 })
+/**
+ * Response wrapper for the myVouchers query.
+ */
 export class MyVouchersResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<Array<MyVoucherObject>> {

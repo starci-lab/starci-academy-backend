@@ -13,6 +13,7 @@ import {
 @ObjectType({
     description: "Response wrapper for the module query.",
 })
+/** GraphQL envelope for the `module` detail query. */
 export class ModuleResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ModuleEntity>
