@@ -1,6 +1,6 @@
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     Injectable 
 } from "@nestjs/common"
@@ -11,7 +11,7 @@ import axiosRetry from "axios-retry"
 import Decimal from "decimal.js"
 import {
     AxiosCreateParams,
-} from "./types"
+} from "./types/axios"
 
 @Injectable()
 /**

@@ -1,6 +1,6 @@
 import {
-    Locale 
-} from "@modules/databases"
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     Injectable 
 } from "@nestjs/common"

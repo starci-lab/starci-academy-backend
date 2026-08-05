@@ -1,14 +1,18 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserChallengeSubmissionAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission-attempt.entity"
+import {
+    UserChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserChallengeSubmissionAttemptEntity,
-    UserChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -24,12 +28,14 @@ import {
     UserChallengeSubmissionAttemptsQuery,
 } from "./user-challenge-submission-attempts.query"
 import {
-    UserChallengeSubmissionAttemptsResponseData,
     UserChallengeSubmissionAttemptsSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
-    UserNotFoundException 
-} from "@modules/exceptions"
+    UserChallengeSubmissionAttemptsResponseData,
+} from "./graphql-types/response"
+import {
+    UserNotFoundException,
+} from "@modules/platform/exceptions/errors/users/user"
 
 @QueryHandler(UserChallengeSubmissionAttemptsQuery)
 @Injectable()

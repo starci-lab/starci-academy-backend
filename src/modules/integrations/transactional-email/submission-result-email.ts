@@ -1,10 +1,12 @@
 import type {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
+    UserChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
 import {
     Locale,
-    UserChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     EntityManager,
 } from "typeorm"

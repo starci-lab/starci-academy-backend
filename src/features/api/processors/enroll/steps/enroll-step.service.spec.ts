@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the step pulls `@modules/bussiness` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -11,39 +11,61 @@ import {
 } from "@nestjs/typeorm"
 import {
     ActivityEntity,
+} from "@modules/databases/postgresql/primary/entities/activity.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    PricingPhase,
-    TransactionStatus,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    TransactionStatus,
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
+    EnqueueResolveGithubJobService,
+} from "@modules/bussiness/jobs/enqueue/resolve-github.service"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     CourseStatsProjectionService,
-    EnqueueResolveGithubJobService,
-    EnqueueSendMailJobService,
-    JobActionService,
-    TransactionActionService,
-    UserService,
+} from "@modules/bussiness/projections/course-stats/course-stats-projection.service"
+import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
+import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     JobEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/job.entity"
 import type {
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     EnrollPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/enroll"
 import {
     EnrollStepService,
 } from "./enroll-step.service"

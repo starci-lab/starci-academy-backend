@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its base classes are initialised before the
 // worker pulls its deps -- dodges a load-order "Class extends value undefined"
 // cycle (mirrors the CV handler specs).
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -17,23 +17,25 @@ import type {
 } from "bullmq"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     CvGenerationStatus,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
 import type {
     ScoreUploadedCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/score-uploaded-cv"
 import {
     ScoreUploadedCvService,
-} from "../shared/cv-scoring"
+} from "../shared/cv-scoring/score-uploaded-cv.service"
 import {
     ScoreUploadedCvWorker,
 } from "./score-uploaded-cv.worker"

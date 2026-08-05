@@ -5,9 +5,11 @@ import {
     ConfigurableModuleClass,
 } from "./process-git-submission.module-definition"
 import {
-    ProcessGitSubmissionGradeStepService,
     ProcessGitSubmissionCompleteStepService,
-} from "./steps"
+} from "./steps/process-git-submission-complete-step.service"
+import {
+    ProcessGitSubmissionGradeStepService,
+} from "./steps/process-git-submission-grade-step.service"
 import {
     ProcessGitSubmissionStepMappingService,
 } from "./step-mapping.service"
@@ -16,7 +18,7 @@ import {
 } from "./process-git-submission.worker"
 import {
     ChallengeEvaluationParseService,
-} from "../shared/challenge-evaluation"
+} from "../shared/challenge-evaluation/challenge-evaluation-parse.service"
 
 @Module({
     providers: [

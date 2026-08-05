@@ -24,20 +24,24 @@ import {
 } from "stream"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ArtifactType,
+} from "../store/enums/store"
+import {
     ToolsStoreService,
-} from "../store"
+} from "../store/tools-store.service"
 import type {
     DownloadOneParams,
     S3SnapshotParams,
     S3SnapshotResult,
-} from "./types"
+} from "./types/s3-snapshot"
 
 @Injectable()
 /**

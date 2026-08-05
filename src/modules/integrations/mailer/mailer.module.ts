@@ -15,7 +15,7 @@ import {
 } from "./mailer.providers"
 import {
     BREVO_MAILER,
-} from "./constants"
+} from "./constants/providers"
 
 @Module({
 })

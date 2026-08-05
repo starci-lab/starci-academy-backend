@@ -1,6 +1,6 @@
 // Side-effect import: load the elasticsearch barrel first to dodge the cqrs
 // barrel load-order cycle (see courses/course/course.handler.spec.ts for details).
-import "@modules/elasticsearch"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     Test,
     TestingModule,
@@ -13,22 +13,22 @@ import {
 } from "./consultants.query"
 import {
     ConsultantsSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     SortOrder,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ConsultantEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
 import {
     ConsultantContactGateService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/headhuntings/consultant-contact-gate.service"
 
 /** Build an ES search response with hit rows + a total count. */
 const buildSearchResponse = (

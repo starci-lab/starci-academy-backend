@@ -10,28 +10,30 @@ import {
 } from "./community-comment.service"
 import {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CommunityPostCommentForbiddenException,
     CommunityPostCommentNotFoundException,
     CommunityPostNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/post"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     NotificationService,
-} from "../notification"
+} from "../notification/notification.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

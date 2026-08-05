@@ -5,7 +5,7 @@ import Decimal from "decimal.js"
 import type {
     PaginateParams,
     PaginateResult,
-} from "../types"
+} from "../types/pagination"
 
 @Injectable()
 /**

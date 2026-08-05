@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CourseEnrollmentStatusQuery,
 } from "./course-enrollment-status.query"
 import type {
-    CourseEnrollmentStatusData,
     CourseEnrollmentStatusRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import type {
+    CourseEnrollmentStatusData,
+} from "./graphql-types/response"
 
 @Injectable()
 /** Dispatches `CourseEnrollmentStatusQuery` onto the CQRS bus. */

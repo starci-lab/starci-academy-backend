@@ -13,7 +13,7 @@ import {
 } from "./leaderboard.query"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 
 describe("LeaderboardSingleQueryService",
     () => {

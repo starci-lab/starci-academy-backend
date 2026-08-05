@@ -1,11 +1,15 @@
 import {
-    Locale,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     UseGuards,
     UseInterceptors,
@@ -17,15 +21,18 @@ import {
 } from "@nestjs/graphql"
 import {
     GenerateSubmitCvPresignUrlRequest,
+} from "./graphql-types/request"
+import {
     GenerateSubmitCvPresignUrlResponse,
     GenerateSubmitCvPresignUrlResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     GenerateSubmitCvPresignUrlService,
 } from "./generate-submit-cv-presign-url.service"
 import {
-    GraphQLSuccessMessage, GraphQLTransformInterceptor 
-} from "@modules/api"
+    GraphQLSuccessMessage,
+    GraphQLTransformInterceptor,
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 
 @Resolver()
 /**

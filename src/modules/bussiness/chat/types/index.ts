@@ -1,8 +1,12 @@
 import type {
     ChatConversationEntity,
+} from "@modules/databases/postgresql/primary/entities/chat-conversation.entity"
+import type {
     ChatMessageEntity,
+} from "@modules/databases/postgresql/primary/entities/chat-message.entity"
+import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 
 /** Params to get-or-create a member's founder DM conversation. */
 export interface GetOrCreateFounderDmParams {

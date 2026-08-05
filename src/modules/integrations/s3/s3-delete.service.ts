@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import _ from "lodash"
 import {
     InjectDigitalOceanS3,
@@ -15,13 +15,13 @@ import {
 } from "./s3.decorators"
 import {
     S3Provider,
-} from "./enums"
+} from "./enums/s3"
 import {
     S3ProviderNotFoundException,
 } from "./exceptions/s3-provider-not-found.exception"
 import {
     DeleteObjectsParams,
-} from "./types"
+} from "./types/delete"
 
 /** Max keys S3 accepts in a single DeleteObjects request. */
 const DELETE_BATCH_SIZE = 1000

@@ -9,25 +9,29 @@ import {
     CodingSubmissionService,
 } from "./coding-submission.service"
 import {
-    CodingLanguage,
     CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-submission.entity"
+import {
+    CodingLanguage,
+} from "@modules/databases/postgresql/primary/enums/coding-language"
+import {
     CodingVerdict,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
 import {
     CodingProblemNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/coding/coding-problem-not-found"
 import {
     EnqueueJudgeCodingSubmissionJobService,
-} from "../jobs"
+} from "../jobs/enqueue/judge-coding-submission.service"
 import {
     DeviceService,
-} from "../device"
+} from "../device/device.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

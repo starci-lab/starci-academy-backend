@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CartItemEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/cart-item.entity"
 import {
     AddToCartCommand,
 } from "./add-to-cart.command"
 import type {
     AddToCartRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /** Thin service that forwards the addToCart request to the CQRS command bus. */

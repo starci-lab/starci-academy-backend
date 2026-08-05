@@ -1,23 +1,33 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     CvBlocksEntity,
+} from "@modules/databases/postgresql/primary/entities/cv-blocks.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CvDocumentNotFoundException,
+} from "@modules/platform/exceptions/errors/cv/cv-document-not-found"
+import {
     CvLatexCompileFailedException,
+} from "@modules/platform/exceptions/errors/cv/cv-latex-compile-failed"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3BuildService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-build.service"
+import {
     S3UploadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-upload.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -51,7 +61,7 @@ import {
 } from "./render-cv-blocks.command"
 import {
     RenderCvBlocksResult,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     CvExportFormat,
 } from "./cv-export-format.enum"

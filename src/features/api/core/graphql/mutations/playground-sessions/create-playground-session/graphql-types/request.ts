@@ -6,7 +6,7 @@ import {
 import {
     GraphQLTypePlaygroundSessionMode,
     PlaygroundSessionMode,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/playground-session-mode"
 
 @InputType({
     description: "Playground to start a new pairing session for.",

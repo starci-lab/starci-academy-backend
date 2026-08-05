@@ -3,11 +3,11 @@ import {
 } from "@nestjs/common"
 import pRetry from "p-retry"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import type {
-    RetryParams
-} from "./types"
+    RetryParams,
+} from "./types/retry"
 
 @Injectable()
 /**

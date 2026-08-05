@@ -1,7 +1,9 @@
 import {
     InvalidPostgresUrlException,
+} from "@modules/platform/exceptions/errors/cli/invalid-postgres-url"
+import {
     InvalidUrlException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/cli/invalid-url"
 
 /**
  * Assert that a string is a syntactically valid PostgreSQL connection URL.

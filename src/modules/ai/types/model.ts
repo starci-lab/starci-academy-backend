@@ -1,6 +1,6 @@
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * AI model recommendation tier -- controls cost vs quality trade-off.

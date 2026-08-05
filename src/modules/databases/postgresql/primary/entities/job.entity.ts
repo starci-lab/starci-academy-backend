@@ -13,13 +13,17 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
-    JobStatus,
-    GraphQLTypeJobStatus,
     ActionType,
     GraphQLTypeActionType,
+} from "../enums/action-type"
+import {
     JobCategory,
     GraphQLTypeJobCategory,
-} from "../enums"
+} from "../enums/job-category"
+import {
+    JobStatus,
+    GraphQLTypeJobStatus,
+} from "../enums/job-status"
 
 /**
  * Loose, queryable correlation map a job carries to the domain rows it touches.

@@ -1,7 +1,9 @@
 import {
     JobCategory,
+} from "@modules/databases/postgresql/primary/enums/job-category"
+import {
     JobStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/job-status"
 /**
  * Payload emitted whenever a job changes state.
  *

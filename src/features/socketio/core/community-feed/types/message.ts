@@ -1,6 +1,6 @@
 import type {
     CommunityChannel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/community-channel"
 
 /** Server -> client message when a community post is created/updated/deleted. */
 export interface CommunityPostChangedSocketIoMessage {

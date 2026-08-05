@@ -1,19 +1,27 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     CvGenerationMode,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     Locale,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CvGenerationNotFoundException,
+} from "@modules/platform/exceptions/errors/api/cv-generation-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     EnqueueGenerateCvJobService,
-} from "@features/api/processors/ai/generate-cv"
+} from "../../../../../processors/ai/generate-cv/enqueue-generate-cv.service"
 import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
@@ -35,7 +43,7 @@ import {
 } from "./revise-cv.command"
 import {
     ReviseCvData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(ReviseCvCommand)
 @Injectable()

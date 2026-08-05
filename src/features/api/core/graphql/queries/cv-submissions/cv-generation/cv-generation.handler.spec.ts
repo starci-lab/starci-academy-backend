@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (mirrors sync-submission.handler.spec.ts).
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -11,27 +11,37 @@ import {
 } from "@nestjs/typeorm"
 import {
     CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     CvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import {
     CvSource,
+} from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
     SubmissionFeedbackSeverity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-feedback-severity"
 import {
     CvGenerationNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/cv-generation-not-found"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3BuildService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-build.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CvGenerationHandler,
 } from "./cv-generation.handler"

@@ -5,9 +5,11 @@ import {
     CommandBus,
 } from "@nestjs/cqrs"
 import type {
-    ExchangeCodeForTokenCommandResult,
     ExchangeCodeForTokenRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import type {
+    ExchangeCodeForTokenCommandResult,
+} from "./graphql-types/response"
 import {
     ExchangeCodeForTokenCommand,
 } from "./exchange-code-for-token.command"

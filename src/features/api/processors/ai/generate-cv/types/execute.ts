@@ -1,6 +1,6 @@
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
 
 /** Params for {@link import("../steps/extract-cv-text").extractCvText}. */
 export interface ExtractCvTextParams {

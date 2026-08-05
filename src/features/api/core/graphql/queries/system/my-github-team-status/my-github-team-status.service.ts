@@ -3,13 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     MyGithubTeamStatusHandler,
 } from "./my-github-team-status.handler"
 import type {
     MyGithubTeamStatusData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Thin bridge from the `myGithubTeamStatus` resolver to its handler. */

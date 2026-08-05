@@ -4,14 +4,26 @@ import {
     Int,
 } from "@nestjs/graphql"
 import {
-    CourseEntity,
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
-    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     FlashcardDeckEntity,
-    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FoundationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 
 @InputType({
     description: "Global search autocomplete request.",

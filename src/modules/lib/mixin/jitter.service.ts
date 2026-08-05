@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     JitterOptions,
-} from "./types"
+} from "./types/jitter"
 
 @Injectable()
 /**

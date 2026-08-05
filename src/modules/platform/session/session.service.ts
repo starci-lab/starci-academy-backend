@@ -16,39 +16,49 @@ import {
     type EntityManager
 } from "typeorm"
 import {
-    InjectIoRedis,
-    IoRedisInstanceKey
-} from "@modules/native"
+    IoRedisInstanceKey,
+} from "@modules/lib/native/ioredis/enums/instance-key"
 import {
-    envConfig
-} from "@modules/env"
+    InjectIoRedis,
+} from "@modules/lib/native/ioredis/ioredis.decorators"
+import {
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     CookieService,
-    CookieName
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
+import {
+    CookieName,
+} from "@modules/platform/cookie/enums"
+import {
+    LoginSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/login-session.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    LoginSessionEntity,
-    UserEntity
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    EnqueueSendMailJobService
-} from "@modules/bussiness"
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
-    enqueueLearnerEmail
-} from "@modules/transactional-email"
+    enqueueLearnerEmail,
+} from "@modules/integrations/transactional-email/enqueue-learner-email"
 import {
     LoginSessionNotFoundException,
+} from "@modules/platform/exceptions/errors/session/session-not-found"
+import {
     SessionSupersededException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/session/session-superseded"
 import {
     SESSION_KEY_PREFIX
 } from "./constants"
 import {
     parseUserAgent,
     extractClientIp,
-    resolveLocation
-} from "./utils"
+    resolveLocation,
+} from "./utils/parse-device-info"
 import type {
     AssertCurrentSessionParams,
     AssertCurrentSessionResult,

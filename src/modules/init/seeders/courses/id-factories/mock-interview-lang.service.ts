@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     Sha256Service,
-} from "@modules/crypto"
+} from "@modules/crypto/sha256.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     MockInterviewIdFactoryService,
 } from "./mock-interview.service"

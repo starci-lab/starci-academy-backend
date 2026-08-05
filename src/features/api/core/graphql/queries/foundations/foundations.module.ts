@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,16 +6,16 @@ import {
 } from "./foundations.module-definition"
 import {
     FoundationCategoriesSingleQueryModule,
-} from "./foundation-categories"
+} from "./foundation-categories/foundation-categories.module"
 import {
     FoundationCategorySuggestionsSingleQueryModule,
-} from "./foundation-category-suggestions"
+} from "./foundation-category-suggestions/foundation-category-suggestions.module"
 import {
     FoundationsSingleQueryModule,
 } from "./foundations/foundations.module"
 import {
     FoundationSingleQueryModule,
-} from "./foundation"
+} from "./foundation/foundation.module"
 
 @Module({
     imports: [

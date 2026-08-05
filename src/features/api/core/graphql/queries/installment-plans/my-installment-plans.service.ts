@@ -8,16 +8,22 @@ import {
 } from "typeorm"
 import {
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     InstallmentPlanEntity,
+} from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
+import {
     InstallmentPlanStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/installment-plan-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     InstallmentPlanService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import type {
     InstallmentPlanItem,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

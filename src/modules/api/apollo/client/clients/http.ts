@@ -4,7 +4,7 @@ import {
 import type {
     CreateHttpLinkParams,
     CreateHttpLinkResult,
-} from "../types"
+} from "../types/client"
 
 /**
  * Creates an HTTP link for Apollo Client with optional credentials and headers.

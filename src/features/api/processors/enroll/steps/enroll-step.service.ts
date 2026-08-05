@@ -1,15 +1,31 @@
 import {
-    ActivityType,
     CartItemEntity,
-    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/cart-item.entity"
+import {
     CourseMetadataEntity,
+} from "@modules/databases/postgresql/primary/entities/course-metadata.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ActivityType,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
     nextPricingPhase,
     PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
     TransactionStatus,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -17,38 +33,54 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
-    CourseStatsProjectionService,
-    EnqueueResolveGithubJobService,
-    EnqueueSendMailJobService,
-    JobActionService,
-    TransactionActionService,
-    UserService,
-    VoucherService,
     writeActivity,
-} from "@modules/bussiness"
+} from "@modules/bussiness/activity/write-activity"
+import {
+    JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
+    EnqueueResolveGithubJobService,
+} from "@modules/bussiness/jobs/enqueue/resolve-github.service"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
+    CourseStatsProjectionService,
+} from "@modules/bussiness/projections/course-stats/course-stats-projection.service"
+import {
+    VoucherService,
+} from "@modules/bussiness/rewards/voucher.service"
+import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     enqueueLearnerEmail,
-} from "@modules/transactional-email"
+} from "@modules/integrations/transactional-email/enqueue-learner-email"
 import type {
-    EnrollPayload
-} from "@modules/bullmq"
+    EnrollPayload,
+} from "@modules/integrations/bullmq/types/payloads/enroll"
 import {
     WinstonLog,
-    WinstonService
-} from "@modules/winston"
+} from "@modules/platform/winston/enums/winston-log"
 import {
-    CourseNotFoundException
-} from "@modules/exceptions"
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
+    CourseNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
 import {
     AbstractStepService,
-    JobExtendedContext
-} from "@modules/bussiness"
+    JobExtendedContext,
+} from "@modules/bussiness/jobs/types/context"
 import type {
-    EnrollStepExecutionResult
-} from "../types"
+    EnrollStepExecutionResult,
+} from "../types/execute"
 @Injectable()
 /**
  * Step service: create enrollment relation between user and course.

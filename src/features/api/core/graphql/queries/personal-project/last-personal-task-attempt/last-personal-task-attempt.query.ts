@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     LastPersonalTaskAttemptRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS message carrying lastPersonalTaskAttempt ExecuteParams into the handler.

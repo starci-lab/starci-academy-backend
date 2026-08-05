@@ -3,16 +3,16 @@ import {
     TokenExpiredError,
 } from "jsonwebtoken"
 import {
-    TypedSocket 
-} from "../types"
-import { 
+    TypedSocket,
+} from "../types/socket"
+import {
     SocketIoAccessTokenMissingException,
     SocketIoAccessTokenInvalidException,
-    SocketIoAccessTokenExpiredException
-} from "@modules/exceptions"
+    SocketIoAccessTokenExpiredException,
+} from "@modules/platform/exceptions/errors/socketio/auth"
 import {
     KeycloakTokenService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/token.service"
 
 /**
  * Rejects the handshake unless a live Keycloak access token is present -- otherwise

@@ -3,8 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     IQueryHandler,
     QueryBus,
@@ -15,27 +17,49 @@ import type {
 } from "typeorm"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
-    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
     ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
     UserContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-content.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChallengeProgressService,
+} from "@modules/bussiness/progress/challenge.service"
+import {
     PersonalProjectProgressService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/progress/personal-project.service"
 import {
     EnrollmentNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/enrollment-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     CourseQuery,
 } from "../../courses/course/course.query"
@@ -53,15 +77,15 @@ import {
     MyCourseOutlineMilestone,
     MyCourseOutlineModule,
     MyCourseOutlineTask,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     MilestoneTaskProgressItem,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/milestone-task-progress"
 import type {
     ChallengeProgressLookup,
     LessonReadLookup,
     TaskProgressLookup,
-} from "./types"
+} from "./types/lookups"
 
 @QueryHandler(MyCourseOutlineQuery)
 @Injectable()

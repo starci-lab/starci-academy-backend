@@ -3,10 +3,16 @@ import type {
 } from "@langchain/core/messages"
 import type {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import type {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import type {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     AiJobSelection,
 } from "./ai-job-selection"

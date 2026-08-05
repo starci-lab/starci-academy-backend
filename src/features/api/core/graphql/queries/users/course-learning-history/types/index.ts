@@ -1,6 +1,6 @@
 import type {
     ContentDifficulty,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/content-difficulty"
 import type {
     CourseLearningEventType,
 } from "../enums"

@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -11,9 +11,13 @@ import {
 } from "@nestjs/typeorm"
 import {
     EnqueueProcessGitSubmissionJobService,
+} from "@modules/bussiness/jobs/enqueue/process-git-submission.service"
+import {
     EnqueueProcessGoogleDocsSubmissionJobService,
+} from "@modules/bussiness/jobs/enqueue/process-google-docs-submission.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -22,27 +26,37 @@ import {
 } from "@modules/ai/grading-lane-validation.service"
 import {
     ModelProvider,
-    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
     SubmissionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-type"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
 import {
     ChallengeNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/challenge-not-found"
+import {
     ChallengeSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/challenge-submission-not-found"
+import {
     SubmissionUrlInvalidException,
+} from "@modules/platform/exceptions/errors/courses/submission-url-invalid"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     SubmitChallengeSubmissionCommand,
 } from "./submit-challenge-submission.command"

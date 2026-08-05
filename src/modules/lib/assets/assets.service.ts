@@ -14,30 +14,40 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getRuntimeContextRoot,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-seed"
+import {
+    S3_ASSETS_PREFIX,
+} from "@modules/integrations/s3/constants/s3"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
+import {
+    S3BucketService,
+} from "@modules/integrations/s3/s3-bucket.service"
 import {
     S3BuildService,
-    S3BucketService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-build.service"
+import {
     S3UploadService,
-    S3_ASSETS_PREFIX,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-upload.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ASSET_CONTENT_TYPE_BY_EXTENSION,
     ASSET_DEFAULT_CONTENT_TYPE,
-} from "./constants"
+} from "./constants/assets"
 import type {
     AssetFileEntry,
     SyncAssetsResult,
     SyncedAsset,
-} from "./types"
+} from "./types/assets"
 
 @Injectable()
 /**

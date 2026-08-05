@@ -6,16 +6,22 @@ import {
 } from "./chat.module-definition"
 import {
     CommunityChatConversationResolver,
+} from "./community-chat-conversation/community-chat-conversation.resolver"
+import {
     CommunityChatConversationService,
-} from "./community-chat-conversation"
+} from "./community-chat-conversation/community-chat-conversation.service"
 import {
     MyFounderConversationResolver,
+} from "./my-founder-conversation/my-founder-conversation.resolver"
+import {
     MyFounderConversationService,
-} from "./my-founder-conversation"
+} from "./my-founder-conversation/my-founder-conversation.service"
 import {
     ChatMessagesResolver,
+} from "./chat-messages/chat-messages.resolver"
+import {
     ChatMessagesService,
-} from "./chat-messages"
+} from "./chat-messages/chat-messages.service"
 
 @Module({
     providers: [

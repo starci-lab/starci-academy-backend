@@ -9,11 +9,13 @@ import {
 } from "./modules.query"
 import {
     ModulesRequest,
+} from "./graphql-types/request"
+import {
     ModulesResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 @Injectable()
 /**
  * Service for performing modules queries.

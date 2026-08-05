@@ -1,6 +1,6 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * One indexed payload row: entity graph after locale-specific transform.

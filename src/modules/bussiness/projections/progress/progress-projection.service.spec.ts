@@ -7,10 +7,10 @@ import {
 } from "@nestjs/typeorm"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     ProgressProjectionService,
 } from "./progress-projection.service"

@@ -1,9 +1,9 @@
 import {
     AbstractSuggestionsHandler,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/suggestions/abstract-suggestions.handler"
 import {
     ConsultantEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
 import {
     Injectable,
 } from "@nestjs/common"

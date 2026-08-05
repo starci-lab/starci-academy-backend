@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     LivestreamSessionsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS message that lists paginated livestream sessions for a course. */
 export class LivestreamSessionsQuery {

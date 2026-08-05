@@ -9,15 +9,25 @@ import {
 } from "uuid"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    CodingProblemSolutionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-solution.entity"
+import {
+    CodingProblemStarterCodeEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-starter-code.entity"
+import {
+    CodingProblemTestcaseEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-testcase.entity"
+import {
+    CodingProblemTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-translation.entity"
 import {
     CodingProblemEntity,
-    CodingProblemStarterCodeEntity,
-    CodingProblemSolutionEntity,
-    CodingProblemTestcaseEntity,
-    CodingProblemTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     ParsedCodingProblem,
 } from "../types"

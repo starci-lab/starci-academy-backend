@@ -3,18 +3,40 @@ import {
 } from "@nestjs/common"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     ConsultantEntity,
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
+import {
     FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
     HeadhuntingCompanyEntity,
-    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import type {
     InitConfig,
     InitSeedCourseValue,
@@ -29,7 +51,7 @@ import type {
     SeedSyncCourseSink,
     SeedSyncCourseTrack,
     SeedSyncDomainSink,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/seed"
 import type {
     IndexMeta,
     ResyncTarget,

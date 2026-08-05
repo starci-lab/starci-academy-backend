@@ -3,11 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     ExecaCommandCanceledException,
+} from "@modules/platform/exceptions/errors/execa/canceled"
+import {
     ExecaCommandNotFoundException,
-    ExecaCommandTimedOutException,
+} from "@modules/platform/exceptions/errors/execa/command-not-found"
+import {
     ExecaExecutionFailedException,
+} from "@modules/platform/exceptions/errors/execa/failed"
+import {
     ExecaInvalidParamsException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/execa/invalid-params"
+import {
+    ExecaCommandTimedOutException,
+} from "@modules/platform/exceptions/errors/execa/timed-out"
 import {
     execa,
     ExecaError
@@ -23,8 +31,8 @@ import type {
     ExecParams,
     ExecResult,
     ExecToFileParams,
-    ExecaUnknownProcessError
-} from "./types"
+    ExecaUnknownProcessError,
+} from "./types/exec"
 
 @Injectable()
 /**

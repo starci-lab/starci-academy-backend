@@ -1,15 +1,15 @@
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import type {
     EntityManager,
 } from "typeorm"
 import type {
     SyncPersonalProjectGithubRequest,
-} from "../graphql-types"
+} from "../graphql-types/request"
 import type {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 
 /** Params for `SyncPersonalProjectGithubService.execute`. */
 export type SyncPersonalProjectGithubParams =

@@ -1,9 +1,15 @@
 import {
     ContentEntity,
-    ContentHydrationService,
-    ContentResolverService,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ContentHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/content-hydration.service"
+import {
+    ContentResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/content-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,7 +18,7 @@ import type {
 } from "./types"
 import {
     S3NameResolverService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-name-resolver.service"
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"

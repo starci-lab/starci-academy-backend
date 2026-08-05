@@ -5,8 +5,8 @@ import {
     createIoRedisKey 
 } from "./constants"
 import {
-    IoRedisInstanceKey
-} from "./enums"
+    IoRedisInstanceKey,
+} from "./enums/instance-key"
 
 /**
  * Injects the IoRedis/Valkey client for `key`. Wrong key -> wrong Redis

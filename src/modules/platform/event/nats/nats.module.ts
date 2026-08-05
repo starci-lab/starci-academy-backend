@@ -5,8 +5,8 @@ import {
     DynamicModule, Module 
 } from "@nestjs/common"
 import {
-    InstanceService 
-} from "@modules/mixin"
+    InstanceService,
+} from "@modules/lib/mixin/instance.service"
 import {
     NatsBridgeService 
 } from "./nats-bridge.service"

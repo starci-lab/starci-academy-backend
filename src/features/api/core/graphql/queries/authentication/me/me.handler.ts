@@ -1,12 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"

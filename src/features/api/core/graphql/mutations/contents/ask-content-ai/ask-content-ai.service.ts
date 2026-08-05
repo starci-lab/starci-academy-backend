@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -11,9 +11,11 @@ import {
     AskContentAiCommand,
 } from "./ask-content-ai.command"
 import {
-    AskContentAiData,
     AskContentAiRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    AskContentAiData,
+} from "./graphql-types/response"
 
 @Injectable()
 /**

@@ -3,21 +3,23 @@ import {
 } from "@nestjs/common"
 import crypto from "crypto"
 import {
-    IV_LENGTH
-} from "./constants"
+    IV_LENGTH,
+} from "./constants/encryption"
 import type {
     DecryptParams,
     DecryptResult,
     EncryptParams,
-    EncryptResult
-} from "./types"
+    EncryptResult,
+} from "./types/encryption"
 import {
-    MountStorageService
-} from "@modules/filesystem"
+    MountStorageService,
+} from "@modules/filesystem/mount-storage.service"
 import {
     DecryptionFailedException,
+} from "@modules/platform/exceptions/errors/crypto/decryption-failed"
+import {
     InvalidIvLengthException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/crypto/invalid-iv-length"
 
 @Injectable()
 /**

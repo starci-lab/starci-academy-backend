@@ -10,25 +10,25 @@ import {
 } from "./challenge.service"
 import {
     ChallengeProgressStatus,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/challenge-submission-progress"
 import type {
     ChallengeSubmissionProgressCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/challenge-submission-progress"
 import {
     UserChallengeProgressProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-challenge-progress-projection.entity"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     ProgressEnrollmentType,
-} from "./types"
+} from "./types/progress"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

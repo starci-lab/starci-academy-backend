@@ -5,7 +5,7 @@ import {
 import {
     GraphQLTypeRagPlaygroundSourceKind,
     RagPlaygroundSourceKind,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/rag-playground-source-kind"
 
 @InputType({
     description: "Index a code source into a public RAG Playground session.",

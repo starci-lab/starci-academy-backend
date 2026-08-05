@@ -11,8 +11,8 @@ import {
     StepMappingService 
 } from "./step-mapping.service"
 import {
-    EnrollStepService
-} from "./steps"
+    EnrollStepService,
+} from "./steps/enroll-step.service"
 @Module({
     providers: [
         EnrollWorker,

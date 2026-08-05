@@ -11,11 +11,11 @@ import {
 
 import {
     SwaggerAuthenticationType,
-} from "../enums"
+} from "../enums/swagger-authentication"
 import type {
     SetupSwaggerParams,
     SetupSwaggerResult,
-} from "../types"
+} from "../types/swagger"
 
 /**
  * Configures OpenAPI (Swagger UI), optional Scalar docs, global prefix, and optional URI versioning.

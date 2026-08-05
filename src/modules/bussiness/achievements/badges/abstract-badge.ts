@@ -1,6 +1,6 @@
 import type {
     AchievementEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/achievement.entity"
 
 /**
  * Base class for ONE badge (one animal). Each subclass owns:

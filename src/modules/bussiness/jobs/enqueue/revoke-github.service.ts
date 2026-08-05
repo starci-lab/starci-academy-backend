@@ -8,22 +8,32 @@ import {
     Queue,
 } from "bullmq"
 import {
-    ActionType,
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     JobEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
     EnqueueRevokeGithubPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/revoke-github"
 import SuperJSON from "superjson"
 import {
     EntityManager,
@@ -33,18 +43,22 @@ import {
 } from "uuid"
 import {
     JobActionService,
-} from "../atomic"
+} from "../atomic/job-action.service"
 import {
     CourseGithubTeamSlugNotMappedException,
+} from "@modules/platform/exceptions/errors/courses/course-github-team-slug-not-mapped"
+import {
     CourseNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
+import {
     MissingRequiredParameterException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/stdlib/missing-required-parameter"
 import {
     sleepEnqueueUxDelay,
-} from "../utils"
+} from "../utils/enqueue-ux-delay"
 import type {
     EnqueueRevokeGithubParams,
-} from "../types"
+} from "../types/enqueue"
 
 @Injectable()
 /**

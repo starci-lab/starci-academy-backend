@@ -6,7 +6,7 @@ import {
 } from "./useform.module-definition"
 import {
     StoreModule,
-} from "../../store"
+} from "../../store/store.module"
 import {
     UseFormController,
 } from "./useform.controller"

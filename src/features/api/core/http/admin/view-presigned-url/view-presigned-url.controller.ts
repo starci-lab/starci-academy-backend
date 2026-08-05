@@ -12,13 +12,13 @@ import {
 } from "@nestjs/swagger"
 import {
     RestTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
     httpConfig,
 } from "../../http"
 import {
     ViewPresignedUrlRequest,
-} from "./dtos"
+} from "./dtos/view-presigned-url.request"
 import {
     ViewPresignedUrlService,
 } from "./view-presigned-url.service"

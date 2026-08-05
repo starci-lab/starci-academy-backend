@@ -2,8 +2,19 @@ import {
     Inject, Injectable 
 } from "@nestjs/common"
 import {
-    AGENT_META, type AgentMeta, BaseAgentService, DeviceService, EVENT, RESOURCE_INTERVAL_MS 
-} from "@modules/playground-agent-core"
+    AGENT_META,
+    type AgentMeta,
+} from "@modules/playground-agent-core/agent-meta"
+import {
+    BaseAgentService,
+} from "@modules/playground-agent-core/base-agent.service"
+import {
+    EVENT,
+    RESOURCE_INTERVAL_MS,
+} from "@modules/playground-agent-core/constants"
+import {
+    DeviceService,
+} from "@modules/playground-agent-core/device.service"
 import {
     DockerResourceService 
 } from "./docker-resource.service"

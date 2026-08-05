@@ -6,19 +6,29 @@ import {
     In,
 } from "typeorm"
 import {
-    FlashcardLevel,
-    InjectPrimaryPostgreSQLEntityManager,
     MockInterviewAttemptEntity,
-    MockInterviewPhase,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-attempt.entity"
+import {
     MockInterviewSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
+import {
     UserMockInterviewCourseStatsProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-mock-interview-course-stats-projection.entity"
+import {
+    FlashcardLevel,
+} from "@modules/databases/postgresql/primary/enums/flashcard-level"
+import {
+    MockInterviewPhase,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     toUnknownRecordArray,
-} from "@modules/common"
+} from "@modules/lib/common/utils/unknown-record"
 import type {
     MockInterviewCourseStatsBreakdownItemData,
     MockInterviewCourseStatsRecurringGapData,

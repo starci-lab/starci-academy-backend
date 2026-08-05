@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     UserChallengeSubmissionFeedbacksRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * QueryBus payload for `userChallengeSubmissionFeedbacks`: request + locale

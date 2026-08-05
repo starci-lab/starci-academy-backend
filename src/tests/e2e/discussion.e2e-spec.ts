@@ -18,62 +18,106 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    ActivityReactionEntity,
+} from "@modules/databases/postgresql/primary/entities/activity-reaction.entity"
 import {
     ActivityEntity,
-    ActivityReactionEntity,
-    ActivityType,
+} from "@modules/databases/postgresql/primary/entities/activity.entity"
+import {
     CommentReactionEntity,
+} from "@modules/databases/postgresql/primary/entities/comment-reaction.entity"
+import {
     ContentCommentEntity,
-    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content-comment.entity"
+import {
     ContentReactionEntity,
+} from "@modules/databases/postgresql/primary/entities/content-reaction.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     ModuleEntity,
-    PrimaryPostgreSQLModule,
-    ReactionType,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ActivityType,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ReactionType,
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     ActivityNotFoundException,
     ActivitySelfReactionException,
+} from "@modules/platform/exceptions/errors/discussion/activity-reaction"
+import {
     CommentForbiddenException,
     CommentInvalidScopeException,
     CommentNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/discussion/comment"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     EventEmitterService,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     CommentService,
-    ContentEngagementProjectionService,
-    GraphQLEnrollmentGuard,
+} from "@modules/bussiness/discussion/comment.service"
+import {
     ReactionService,
+} from "@modules/bussiness/discussion/reaction.service"
+import {
+    GraphQLEnrollmentGuard,
+} from "@modules/bussiness/guards/graphql-enrollment.guard"
+import {
+    ContentEngagementProjectionService,
+} from "@modules/bussiness/projections/content-engagement/content-engagement-projection.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     ContentCommentsResolver,
+} from "@features/api/core/graphql/queries/discussion/content-comments/content-comments.resolver"
+import {
     ContentCommentsService,
-} from "@features/api/core/graphql/queries/discussion/content-comments"
+} from "@features/api/core/graphql/queries/discussion/content-comments/content-comments.service"
 import {
     ContentReactionsResolver,
+} from "@features/api/core/graphql/queries/discussion/content-reactions/content-reactions.resolver"
+import {
     ContentReactionsService,
-} from "@features/api/core/graphql/queries/discussion/content-reactions"
+} from "@features/api/core/graphql/queries/discussion/content-reactions/content-reactions.service"
 import {
     ReactToContentResolver,
+} from "@features/api/core/graphql/mutations/discussion/react-to-content/react-to-content.resolver"
+import {
     ReactToContentService,
-} from "@features/api/core/graphql/mutations/discussion/react-to-content"
+} from "@features/api/core/graphql/mutations/discussion/react-to-content/react-to-content.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

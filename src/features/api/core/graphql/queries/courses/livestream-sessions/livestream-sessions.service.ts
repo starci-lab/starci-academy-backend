@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     LivestreamSessionsQuery,
 } from "./livestream-sessions.query"
 import {
     LivestreamSessionsRequest,
+} from "./graphql-types/request"
+import {
     LivestreamSessionsResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Dispatches `LivestreamSessionsQuery` onto the CQRS bus. */

@@ -2,7 +2,7 @@ import pdfParse from "pdf-parse"
 import mammoth from "mammoth"
 import type {
     ExtractCvTextParams,
-} from "../types"
+} from "../types/execute"
 
 /**
  * Extract plain text from an uploaded CV file buffer, branching on the file

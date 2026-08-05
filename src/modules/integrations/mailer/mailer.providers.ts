@@ -12,13 +12,13 @@ import {
 } from "@nestjs-modules/mailer/adapters/pug.adapter"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getBrevoSmtpPassword,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import {
-    BREVO_MAILER
-} from "./constants"
+    BREVO_MAILER,
+} from "./constants/providers"
 
 /**
  * Create a provider for the Brevo mailer.

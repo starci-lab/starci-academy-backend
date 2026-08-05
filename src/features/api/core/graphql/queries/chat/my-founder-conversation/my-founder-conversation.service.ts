@@ -3,13 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     ChatService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/chat/chat.service"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import type {
     ChatConversationObject,
-} from "../../../shared/chat"
+} from "../../../shared/chat/object-types/chat-conversation.object"
 
 @Injectable()
 /**

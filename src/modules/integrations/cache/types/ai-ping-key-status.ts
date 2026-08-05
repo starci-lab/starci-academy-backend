@@ -1,6 +1,6 @@
 import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * Cached health snapshot for one mount-file API key.

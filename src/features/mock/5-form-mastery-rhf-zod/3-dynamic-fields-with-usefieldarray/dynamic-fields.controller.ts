@@ -5,14 +5,17 @@ import {
     ApiOperation, ApiTags,
 } from "@nestjs/swagger"
 import {
-    CreateInvoiceDto, SessionStoreService,
-} from "../../store"
+    CreateInvoiceDto,
+} from "../../store/dtos/create-invoice"
+import {
+    SessionStoreService,
+} from "../../store/session-store.service"
 import type {
     CreateInvoiceResult,
-} from "../../store"
+} from "../../store/types/params"
 import {
     MockDelayInterceptor,
-} from "../../interceptors"
+} from "../../interceptors/mock-delay.interceptor"
 
 @ApiTags("mock")
 @UseInterceptors(MockDelayInterceptor)

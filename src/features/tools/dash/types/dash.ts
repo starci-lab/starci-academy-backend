@@ -1,9 +1,9 @@
 import type {
     MulterFile,
-} from "../../media"
+} from "../../media/types/media"
 import type {
     SyncArtifactResult,
-} from "../../sync"
+} from "../../sync/types/sync"
 
 /**
  * Parameters for {@link DashService.execute}.

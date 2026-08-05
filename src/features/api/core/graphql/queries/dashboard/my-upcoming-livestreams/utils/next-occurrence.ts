@@ -1,6 +1,6 @@
 import {
     DayOfWeek,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/day-of-week"
 
 /**
  * Maps a {@link DayOfWeek} to the JavaScript `Date.getDay()` index (0 = Sunday ...

@@ -6,28 +6,44 @@ import {
 } from "typeorm"
 import {
     ActivityReactionEntity,
+} from "@modules/databases/postgresql/primary/entities/activity-reaction.entity"
+import {
     CommentReactionEntity,
+} from "@modules/databases/postgresql/primary/entities/comment-reaction.entity"
+import {
     ContentCommentEntity,
-    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content-comment.entity"
+import {
     ContentReactionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/content-reaction.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     ReactionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ActivityNotFoundException,
     ActivitySelfReactionException,
+} from "@modules/platform/exceptions/errors/discussion/activity-reaction"
+import {
     CommentNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/discussion/comment"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     ContentEngagementProjectionService,
-} from "../projections"
+} from "../projections/content-engagement/content-engagement-projection.service"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 import type {
     ActivityOwnerRow,
     CommentReactionCountRow,
@@ -40,7 +56,7 @@ import type {
     ReactToContentParams,
     SummarizeCommentReactionsParams,
     SummarizeContentReactionsParams,
-} from "./types"
+} from "./types/reaction"
 
 @Injectable()
 /**

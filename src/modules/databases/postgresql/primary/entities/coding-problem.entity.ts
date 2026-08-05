@@ -10,10 +10,12 @@ import {
 } from "typeorm"
 import {
     CodingDifficulty,
-    CodingDomain,
     GraphQLTypeCodingDifficulty,
+} from "../enums/coding-difficulty"
+import {
+    CodingDomain,
     GraphQLTypeCodingDomain,
-} from "../enums"
+} from "../enums/coding-domain"
 import {
     UuidAbstractEntity,
 } from "./abstract"

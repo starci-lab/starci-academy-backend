@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 import {
     CoursesCheckoutRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS command carrying the multi-course checkout request + auth context.

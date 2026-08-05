@@ -1,8 +1,12 @@
 import type {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import type {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * Internal symbol used to brand API-key string types -- never exported, never

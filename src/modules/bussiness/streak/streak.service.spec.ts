@@ -12,17 +12,19 @@ import {
 } from "./streak.service"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     StreakFreezeInsufficientPointsException,
+} from "@modules/platform/exceptions/errors/streak/streak-freeze-insufficient-points"
+import {
     StreakFreezeLimitReachedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/streak/streak-freeze-limit-reached"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

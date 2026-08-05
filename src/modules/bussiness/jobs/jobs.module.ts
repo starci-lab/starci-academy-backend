@@ -8,29 +8,61 @@ import {
 } from "./jobs.module-definition"
 import {
     EnqueueEnrollJobService,
-    EnqueueProcessGitSubmissionJobService,
-    EnqueueProcessGoogleDocsSubmissionJobService,
-    EnqueueResolveGithubJobService,
-    EnqueueRevokeGithubJobService,
-    EnqueueSendMailJobService,
-    EnqueueSyncScyllaDBJobService,
-    EnqueueSyncEmailBloomFilterJobService,
-    EnqueueSyncIndexerJobService,
-    EnqueueSyncCdnJobService,
-    EnqueueSyncElasticsearchJobService,
-    EnqueueProcessPersonalProjectJobService,
+} from "./enqueue/enroll.service"
+import {
     EnqueueGeneratePersonalProjectTasksJobService,
-    EnqueueReviewPersonalProjectTaskJobService,
+} from "./enqueue/generate-personal-project-tasks.service"
+import {
     EnqueueJudgeCodingSubmissionJobService,
+} from "./enqueue/judge-coding-submission.service"
+import {
+    EnqueueProcessGitSubmissionJobService,
+} from "./enqueue/process-git-submission.service"
+import {
+    EnqueueProcessGoogleDocsSubmissionJobService,
+} from "./enqueue/process-google-docs-submission.service"
+import {
+    EnqueueProcessPersonalProjectJobService,
+} from "./enqueue/process-personal-project.service"
+import {
     EnqueueReconcileTransactionJobService,
-} from "./enqueue"
+} from "./enqueue/reconcile-transaction.service"
+import {
+    EnqueueResolveGithubJobService,
+} from "./enqueue/resolve-github.service"
+import {
+    EnqueueReviewPersonalProjectTaskJobService,
+} from "./enqueue/review-personal-project-task.service"
+import {
+    EnqueueRevokeGithubJobService,
+} from "./enqueue/revoke-github.service"
+import {
+    EnqueueSendMailJobService,
+} from "./enqueue/send-mail.service"
+import {
+    EnqueueSyncCdnJobService,
+} from "./enqueue/sync-cdn.service"
+import {
+    EnqueueSyncElasticsearchJobService,
+} from "./enqueue/sync-elasticsearch.service"
+import {
+    EnqueueSyncEmailBloomFilterJobService,
+} from "./enqueue/sync-email-bloom-filter.service"
+import {
+    EnqueueSyncIndexerJobService,
+} from "./enqueue/sync-indexer.service"
+import {
+    EnqueueSyncScyllaDBJobService,
+} from "./enqueue/sync-scylladb.service"
 import {
     JobActionService,
-    JobStalledService
-} from "./atomic"
+} from "./atomic/job-action.service"
+import {
+    JobStalledService,
+} from "./atomic/job-stalled.service"
 import {
     InstallmentPlanModule,
-} from "../installment-plan"
+} from "../installment-plan/installment-plan.module"
 
 @Module({
 })

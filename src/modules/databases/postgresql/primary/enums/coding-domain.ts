@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql"
 import {
     createEnumType,
-} from "@modules/common"
+} from "@modules/lib/common/utils/enum"
 
 /**
  * Topic domain for a LeetCode-style coding problem -- the primary interview

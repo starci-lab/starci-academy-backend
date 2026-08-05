@@ -8,11 +8,13 @@ import {
 } from "typeorm"
 import {
     FlashcardDueReviewSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-due-review-session.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 import type {
     CompleteFlashcardDueReviewSessionParams,
     CompleteFlashcardDueReviewSessionResult,

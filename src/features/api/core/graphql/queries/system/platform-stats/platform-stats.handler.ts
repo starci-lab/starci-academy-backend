@@ -1,13 +1,21 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserAchievementEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-achievement.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,7 +31,7 @@ import {
 } from "./platform-stats.query"
 import {
     PlatformStatsData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     DistinctLearnersRow,
 } from "./types"

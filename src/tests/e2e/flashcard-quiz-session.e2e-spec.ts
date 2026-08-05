@@ -14,28 +14,50 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ChallengeDifficulty,
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FlashcardQuizSessionEntity,
-    Locale,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/flashcard-quiz-session.entity"
+import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     FlashcardQuizSessionService,
+} from "@modules/bussiness/flashcard/flashcard-quiz-session.service"
+import {
     UserFlashcardStatsProjectionService,
+} from "@modules/bussiness/projections/user-flashcard-stats/user-flashcard-stats-projection.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     StartFlashcardQuizSessionHandler,
 } from "@features/api/core/graphql/mutations/flashcard/start-flashcard-quiz-session/start-flashcard-quiz-session.handler"
@@ -50,7 +72,7 @@ import {
 } from "@features/api/core/graphql/mutations/flashcard/sync-flashcard-quiz-session-progress/sync-flashcard-quiz-session-progress.command"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

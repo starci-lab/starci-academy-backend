@@ -6,7 +6,7 @@ import {
     DIGITAL_OCEAN_S3_PRESIGN,
     MINIO_S3,
     MINIO_S3_PRESIGN,
-} from "./constants"
+} from "./constants/s3"
 
 /** Inject the default S3 configuration. */
 export const InjectDigitalOceanS3 = () => Inject(DIGITAL_OCEAN_S3)

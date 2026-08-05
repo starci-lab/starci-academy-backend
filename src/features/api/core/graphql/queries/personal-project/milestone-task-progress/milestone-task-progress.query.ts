@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MilestoneTaskProgressRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS query carrying the `milestoneTaskProgress` request params (request

@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MyCourseOutlineQuery,
 } from "./my-course-outline.query"
 import {
-    MyCourseOutlineData,
     MyCourseOutlineRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    MyCourseOutlineData,
+} from "./graphql-types/response"
 
 @Injectable()
 /**

@@ -1,15 +1,21 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3BuildService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-build.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -25,13 +31,13 @@ import {
 } from "./verify-avatar-presign-url.command"
 import {
     VerifyAvatarPresignUrlResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     AVATAR_KEY_PREFIX,
 } from "../shared/avatar"
 import {
     AvatarKeyOwnershipMismatchException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/profile/avatar-key-ownership-mismatch"
 
 @CommandHandler(VerifyAvatarPresignUrlCommand)
 @Injectable()

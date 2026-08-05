@@ -7,11 +7,13 @@ import {
 import {
     GraphQLTypeMindMapNodeEntityType,
     MindMapNodeEntityType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mind-map-node-entity-type"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 
 @ObjectType({
     description: "x/y coordinate of a mind-map node (@xyflow/react `position`).",

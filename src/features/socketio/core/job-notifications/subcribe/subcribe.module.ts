@@ -6,8 +6,10 @@ import {
 } from "./subcribe.gateway"
 import {
     SubcribeJobNotificationHandler,
+} from "./handle-subcribe/subcribe.handler"
+import {
     SubcribeJobNotificationService,
-} from "./handle-subcribe"
+} from "./handle-subcribe/subcribe.service"
 import {
     ConfigurableModuleClass,
 } from "./subcribe.module-definition"

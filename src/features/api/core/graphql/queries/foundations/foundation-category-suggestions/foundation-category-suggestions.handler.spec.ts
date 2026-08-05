@@ -1,6 +1,6 @@
 // Side-effect import: load the elasticsearch barrel first to dodge the cqrs
 // barrel load-order cycle (see courses/course/course.handler.spec.ts for details).
-import "@modules/elasticsearch"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     Test,
     TestingModule,
@@ -13,10 +13,10 @@ import {
 } from "./foundation-category-suggestions.query"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** The suggester key the handler reads back from the ES suggest response. */
 const SUGGESTER = "categories"

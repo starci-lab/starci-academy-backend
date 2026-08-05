@@ -5,12 +5,14 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     LeagueCohortPointsProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/league-cohort-points-projection.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     LeagueStandingMember,
 } from "../../league/types"

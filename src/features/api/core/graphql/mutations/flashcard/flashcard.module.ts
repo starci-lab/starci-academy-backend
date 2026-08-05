@@ -6,34 +6,34 @@ import {
 } from "./flashcard.module-definition"
 import {
     CompleteFlashcardQuizSessionSingleMutationModule,
-} from "./complete-flashcard-quiz-session"
+} from "./complete-flashcard-quiz-session/complete-flashcard-quiz-session.module"
 import {
     ReviewFlashcardSingleMutationModule,
-} from "./review-flashcard"
+} from "./review-flashcard/review-flashcard.module"
 import {
     StartFlashcardQuizSessionSingleMutationModule,
-} from "./start-flashcard-quiz-session"
+} from "./start-flashcard-quiz-session/start-flashcard-quiz-session.module"
 import {
     SyncFlashcardQuizSessionProgressSingleMutationModule,
-} from "./sync-flashcard-quiz-session-progress"
+} from "./sync-flashcard-quiz-session-progress/sync-flashcard-quiz-session-progress.module"
 import {
     StartFlashcardReviewSessionSingleMutationModule,
-} from "./start-flashcard-review-session"
+} from "./start-flashcard-review-session/start-flashcard-review-session.module"
 import {
     SyncFlashcardReviewSessionProgressSingleMutationModule,
-} from "./sync-flashcard-review-session-progress"
+} from "./sync-flashcard-review-session-progress/sync-flashcard-review-session-progress.module"
 import {
     CompleteFlashcardReviewSessionSingleMutationModule,
-} from "./complete-flashcard-review-session"
+} from "./complete-flashcard-review-session/complete-flashcard-review-session.module"
 import {
     StartFlashcardDueReviewSessionSingleMutationModule,
-} from "./start-flashcard-due-review-session"
+} from "./start-flashcard-due-review-session/start-flashcard-due-review-session.module"
 import {
     SyncFlashcardDueReviewSessionProgressSingleMutationModule,
-} from "./sync-flashcard-due-review-session-progress"
+} from "./sync-flashcard-due-review-session-progress/sync-flashcard-due-review-session-progress.module"
 import {
     CompleteFlashcardDueReviewSessionSingleMutationModule,
-} from "./complete-flashcard-due-review-session"
+} from "./complete-flashcard-due-review-session/complete-flashcard-due-review-session.module"
 
 @Module({
     imports: [

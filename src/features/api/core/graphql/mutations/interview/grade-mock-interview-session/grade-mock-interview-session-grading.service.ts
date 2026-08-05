@@ -3,25 +3,43 @@ import {
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EntityManager,
     In,
 } from "typeorm"
 import {
-    AiCeilSurface,
-    AiModelTask,
     FlashcardCardEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     MockInterviewAttemptEntity,
-    MockInterviewEntity,
-    MockInterviewMode,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-attempt.entity"
+import {
     MockInterviewSeedQuestion,
     MockInterviewSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
+import {
+    MockInterviewEntity,
+} from "@modules/databases/postgresql/primary/entities/mock-interview.entity"
+import {
+    AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
+    AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     normalizeMockInterviewKind,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-kind"
+import {
+    MockInterviewMode,
     normalizeMockInterviewMode,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mock-interview-mode"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -39,17 +57,19 @@ import {
 } from "@modules/ai/utils/validated-lane-to-ai-job-selection"
 import {
     MockInterviewSessionTooShortException,
+} from "@modules/platform/exceptions/errors/ai/mock-interview-session-too-short"
+import {
     ParsingCriteriaResultsFromModelTextException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/parsing-criteria-results-from-model-text"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     toUnknownRecord,
-} from "@modules/common"
+} from "@modules/lib/common/utils/unknown-record"
 import {
     MockInterviewGradePromptService,
 } from "./grade-mock-interview-session-prompt.service"
@@ -65,7 +85,7 @@ import {
     type MockInterviewQuestionReview,
     type MockInterviewSeedGrounding,
     type MockInterviewTurnRecord,
-} from "./types"
+} from "./types/mock-interview-grade"
 
 /**
  * One `questionFeedback[]` entry as returned raw by the model (see

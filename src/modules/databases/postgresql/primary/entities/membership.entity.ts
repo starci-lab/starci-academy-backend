@@ -11,7 +11,7 @@ import {
 import {
     GraphQLTypeMembershipStatus,
     MembershipStatus,
-} from "../enums"
+} from "../enums/membership-status"
 import {
     UuidAbstractEntity,
 } from "./abstract"

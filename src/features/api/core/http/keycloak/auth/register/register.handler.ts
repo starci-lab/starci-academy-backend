@@ -1,17 +1,27 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    AuthenticationType,
+} from "@modules/databases/postgresql/primary/enums/authentication-type"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-    AuthenticationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    KeycloakTokenService,
+} from "@modules/integrations/keycloak/token.service"
 import {
     KeycloakJwtPayload,
-    KeycloakTokenService,
+} from "@modules/integrations/keycloak/types/jwt-jwks"
+import {
     KeycloakUserService,
+} from "@modules/integrations/keycloak/user.service"
+import {
     deriveUsername,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/utils/derive-username"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -27,14 +37,16 @@ import {
 } from "typeorm"
 import {
     KeycloakAuthResponse,
-} from "../dtos"
+} from "../dtos/response"
 import {
     KeycloakRegisterCommand,
 } from "./register.command"
 import {
     KeycloakTokenPayloadInvalidException,
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-token-payload-invalid"
+import {
     KeycloakTokenSubjectMissingException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-token-subject-missing"
 
 @CommandHandler(KeycloakRegisterCommand)
 @Injectable()

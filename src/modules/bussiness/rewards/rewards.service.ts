@@ -5,23 +5,41 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
     RewardRedemptionEntity,
-    RewardRedemptionStatus,
+} from "@modules/databases/postgresql/primary/entities/reward-redemption.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    RewardRedemptionStatus,
+} from "@modules/databases/postgresql/primary/enums/reward-redemption-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     RewardRedemptionMetadata,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/reward-redemption.entity"
 import {
     InsufficientRewardPointsException,
+} from "@modules/platform/exceptions/errors/rewards/insufficient-reward-points"
+import {
     RewardRedemptionAlreadyCancelledException,
+} from "@modules/platform/exceptions/errors/rewards/reward-redemption-already-cancelled"
+import {
     RewardRedemptionNotFoundException,
+} from "@modules/platform/exceptions/errors/rewards/reward-redemption-not-found"
+import {
     RewardRedemptionNotFulfillableException,
-    StreakFreezeLimitReachedException,
+} from "@modules/platform/exceptions/errors/rewards/reward-redemption-not-fulfillable"
+import {
     UnknownRewardException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/rewards/unknown-reward"
+import {
+    StreakFreezeLimitReachedException,
+} from "@modules/platform/exceptions/errors/streak/streak-freeze-limit-reached"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"

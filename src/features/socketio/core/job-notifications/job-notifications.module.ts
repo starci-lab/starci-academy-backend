@@ -9,7 +9,7 @@ import {
 } from "./job-notifications.gateway"
 import {
     SubcribeJobNotificationModule,
-} from "./subcribe"
+} from "./subcribe/subcribe.module"
 
 @Module({
     imports: [

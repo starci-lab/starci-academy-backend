@@ -3,23 +3,25 @@ import {
 } from "@nestjs/common"
 import {
     CommentService,
+} from "@modules/bussiness/discussion/comment.service"
+import {
     CourseQuestionFilter,
-} from "@modules/bussiness"
+} from "@modules/bussiness/discussion/types/comment"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import type {
     CourseQuestionsPageObject,
-} from "./graphql-types"
+} from "./graphql-types/course-questions-page.object"
 import type {
     CourseQuestionsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

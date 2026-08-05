@@ -1,6 +1,6 @@
 import {
     UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 
 /**
  * Extended context for the generate-cv pipeline: the `Pending` generation row

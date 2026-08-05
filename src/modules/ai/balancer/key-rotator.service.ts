@@ -1,7 +1,9 @@
 import {
     AiPingCacheService,
+} from "@modules/integrations/cache/ai-ping-cache.service"
+import {
     isPingEntryEligible,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/ai-ping-key-status"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -9,19 +11,23 @@ import type {
     Redis,
 } from "ioredis"
 import {
-    InjectIoRedis,
     IoRedisInstanceKey,
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
+    InjectIoRedis,
+} from "@modules/lib/native/ioredis/ioredis.decorators"
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     NoActiveBalancerKeyException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/no-active-balancer-key"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     NextKeyParams,
     NextKeyResult,

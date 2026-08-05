@@ -1,6 +1,6 @@
 import {
     KeycloakGithubCallbackQuery as KeycloakGithubCallbackQueryDto,
-} from "./dtos"
+} from "./dtos/request"
 
 /**
  * CQRS envelope for the Keycloak GitHub IdP code exchange so the callback controller stays

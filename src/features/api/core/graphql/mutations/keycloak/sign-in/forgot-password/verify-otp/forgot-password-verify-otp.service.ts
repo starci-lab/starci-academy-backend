@@ -9,11 +9,13 @@ import {
 } from "./forgot-password-verify-otp.command"
 import type {
     ForgotPasswordVerifyOtpRequest,
+} from "./graphql-types/request"
+import type {
     ForgotPasswordVerifyOtpCommandResult,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     ExecuteParams,
-} from "../../../../../../types"
+} from "../../../../../../types/execute"
 
 @Injectable()
 /** Forwards reset-OTP verify to the command bus so the resolver can set cookies. */

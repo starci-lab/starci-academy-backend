@@ -5,12 +5,14 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     DailyQuestKey,
     GraphQLTypeDailyQuestKey,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/daily-quest-key"
 
 @ObjectType({
     description: "One daily-quest task with its current progress and target.",

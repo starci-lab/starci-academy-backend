@@ -1,45 +1,71 @@
 import {
-    BullQueueName,
     bullData,
-    type ReconcileTransactionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import type {
+    ReconcileTransactionPayload,
+} from "@modules/integrations/bullmq/types/payloads/reconcile-transaction"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     EnqueueEnrollJobService,
+} from "@modules/bussiness/jobs/enqueue/enroll.service"
+import {
     EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
     EnqueueSendMailJobService,
-    InstallmentPlanService,
-    TransactionActionService,
-    TransactionReconcileQueryService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
+import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    TransactionReconcileQueryService,
+} from "@modules/bussiness/transactions/atomic/transaction-reconcile-query.service"
 import {
     enqueueMembershipActiveEmail,
     enqueuePaymentFailedEmail,
     enqueueSubscriptionActiveEmail,
-} from "@modules/transactional-email"
+} from "@modules/integrations/transactional-email/grant-emails"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
+import {
+    TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
     ActionType,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     PaymentType,
-    TransactionEntity,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     Processor as Worker,
     WorkerHost,

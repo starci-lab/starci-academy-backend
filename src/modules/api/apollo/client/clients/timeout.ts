@@ -2,8 +2,8 @@ import {
     ApolloLink, Observable 
 } from "@apollo/client"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 
 /**
  * Creates an Apollo link that fails the operation after a configured timeout (from env).

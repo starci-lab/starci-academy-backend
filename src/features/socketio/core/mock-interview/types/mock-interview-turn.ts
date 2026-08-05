@@ -3,10 +3,16 @@ import type {
 } from "@langchain/core/messages"
 import type {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import type {
     MockInterviewKind,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-kind"
+import type {
     MockInterviewMode,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-mode"
+import type {
     MockInterviewPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
 
 /**
  * One prior turn of the mock-interview transcript, replayed back to the model

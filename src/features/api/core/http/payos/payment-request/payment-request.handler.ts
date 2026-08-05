@@ -1,9 +1,9 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     InjectPayOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/payos.providers"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -16,7 +16,7 @@ import {
 } from "@payos/node"
 import {
     PaymentRequestResponseData,
-} from "./dtos"
+} from "./dtos/response"
 import {
     PaymentRequestQuery,
 } from "./payment-request.query"

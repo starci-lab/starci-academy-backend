@@ -6,40 +6,40 @@ import {
 } from "./profile.module-definition"
 import {
     UpdateProfileSingleMutationModule,
-} from "./update-profile"
+} from "./update-profile/update-profile.module"
 import {
     GenerateAvatarPresignUrlSingleMutationModule,
-} from "./generate-avatar-presign-url"
+} from "./generate-avatar-presign-url/generate-avatar-presign-url.module"
 import {
     VerifyAvatarPresignUrlSingleMutationModule,
-} from "./verify-avatar-presign-url"
+} from "./verify-avatar-presign-url/verify-avatar-presign-url.module"
 import {
     SetWeeklyGoalSingleMutationModule,
-} from "./set-weekly-goal"
+} from "./set-weekly-goal/set-weekly-goal.module"
 import {
     SetKpiTargetSingleMutationModule,
-} from "./set-kpi-target"
+} from "./set-kpi-target/set-kpi-target.module"
 import {
     PinCourseProjectSingleMutationModule,
-} from "./pin-course-project"
+} from "./pin-course-project/pin-course-project.module"
 import {
     PinExternalProjectSingleMutationModule,
-} from "./pin-external-project"
+} from "./pin-external-project/pin-external-project.module"
 import {
     UnpinProjectSingleMutationModule,
-} from "./unpin-project"
+} from "./unpin-project/unpin-project.module"
 import {
     ReorderPinnedProjectsSingleMutationModule,
-} from "./reorder-pinned-projects"
+} from "./reorder-pinned-projects/reorder-pinned-projects.module"
 import {
     ClaimDailyQuestRewardSingleMutationModule,
-} from "./claim-daily-quest-reward"
+} from "./claim-daily-quest-reward/claim-daily-quest-reward.module"
 import {
     ClaimKpiRewardSingleMutationModule,
-} from "./claim-kpi-reward"
+} from "./claim-kpi-reward/claim-kpi-reward.module"
 import {
     ClaimWeeklyChallengeRewardSingleMutationModule,
-} from "./claim-weekly-challenge-reward"
+} from "./claim-weekly-challenge-reward/claim-weekly-challenge-reward.module"
 
 @Module({
     imports: [

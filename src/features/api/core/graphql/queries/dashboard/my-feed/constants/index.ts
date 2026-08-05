@@ -1,6 +1,6 @@
 import {
     ActivityType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/activity-type"
 import {
     MyFeedCategory,
 } from "../graphql-types"

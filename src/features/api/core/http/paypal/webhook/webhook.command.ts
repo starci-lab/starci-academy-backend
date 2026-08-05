@@ -1,6 +1,6 @@
 import type {
     PaypalWebhookParams,
-} from "./types"
+} from "./types/webhook"
 
 /** CQRS command carrying the PayPal webhook body + signature headers. */
 export class PaypalWebhookCommand {

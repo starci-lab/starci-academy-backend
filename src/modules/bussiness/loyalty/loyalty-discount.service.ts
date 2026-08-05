@@ -6,8 +6,10 @@ import {
 } from "typeorm"
 import {
     DiscountReason,
+} from "@modules/databases/postgresql/primary/enums/discount-reason"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"

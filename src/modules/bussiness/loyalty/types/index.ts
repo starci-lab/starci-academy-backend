@@ -1,6 +1,6 @@
 import {
     DiscountReason,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/discount-reason"
 
 /** Row shape for the enrolled-courses count query. */
 export interface EnrolledCountRow {

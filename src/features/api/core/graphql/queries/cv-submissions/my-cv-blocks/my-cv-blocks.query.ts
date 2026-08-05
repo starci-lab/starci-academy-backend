@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
 
 /**
  * QueryBus payload for `myCvBlocks`: locale + user (empty request) into

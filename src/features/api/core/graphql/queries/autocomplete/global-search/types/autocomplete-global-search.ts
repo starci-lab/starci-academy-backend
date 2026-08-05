@@ -1,13 +1,15 @@
 import type {
-    Locale,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import type {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../../types/execute"
 import type {
     AutocompleteGlobalSearchRequest,
-} from "../graphql-types"
+} from "../graphql-types/request"
 import type {
     SearchableEntity,
 } from "./entity-search"

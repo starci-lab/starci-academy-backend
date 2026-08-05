@@ -1,14 +1,18 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    ModuleEntity,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
     ModuleResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/module-resolver.service"
 import {
     ModuleNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/module-not-found"
 import {
     Injectable,
 } from "@nestjs/common"

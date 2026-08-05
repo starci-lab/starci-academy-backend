@@ -8,14 +8,26 @@ import {
     IndexerSynchronizerService
 } from "./indexer-synchronizer.service"
 import {
-    IndexerCourseBuildService,
-    IndexerModuleBuildService,
-    IndexerContentBuildService,
     IndexerChallengeBuildService,
-    IndexerMilestoneBuildService,
-    IndexerMilestoneTaskBuildService,
+} from "./builder/challenge.service"
+import {
+    IndexerContentBuildService,
+} from "./builder/content.service"
+import {
+    IndexerCourseBuildService,
+} from "./builder/course.service"
+import {
     IndexerFlashcardDeckBuildService,
-} from "./builder"
+} from "./builder/flashcard-deck.service"
+import {
+    IndexerMilestoneTaskBuildService,
+} from "./builder/milestone-task.service"
+import {
+    IndexerMilestoneBuildService,
+} from "./builder/milestone.service"
+import {
+    IndexerModuleBuildService,
+} from "./builder/module.service"
 
 @Module({
     providers: [

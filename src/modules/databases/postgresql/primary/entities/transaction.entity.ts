@@ -12,9 +12,11 @@ import {
 } from "@nestjs/graphql"
 import {
     GraphQLTypeActionType,
+} from "../enums/action-type"
+import {
     GraphQLTypeTransactionStatus,
     TransactionStatus,
-} from "../enums"
+} from "../enums/transaction-status"
 import {
     CourseEntity,
 } from "./course.entity"
@@ -25,14 +27,20 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
-    GraphQLTypePricingPhase,
-    GraphQLTypePaymentType,
-    PaymentType,
-    PricingPhase,
     ActionType,
+} from "../enums/action-type"
+import {
     AiSubTier,
     GraphQLTypeAiSubTier,
-} from "../enums"
+} from "../enums/ai-sub-tier"
+import {
+    GraphQLTypePaymentType,
+    PaymentType,
+} from "../enums/payment-type"
+import {
+    GraphQLTypePricingPhase,
+    PricingPhase,
+} from "../enums/pricing-phase"
 
 @ObjectType({
     description: "Transaction capture the payment details of a user for a course (course may be null).",

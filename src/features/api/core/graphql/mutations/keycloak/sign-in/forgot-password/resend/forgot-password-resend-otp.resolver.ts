@@ -9,28 +9,30 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     SignInResponse,
     type SignInInitData,
-} from "../../init/graphql-types"
+} from "../../init/graphql-types/response"
 import {
     ForgotPasswordResendOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ForgotPasswordResendOtpService,
 } from "./forgot-password-resend-otp.service"
 
 @Resolver()
 /**
- * GraphQL entry for resending a reset OTP. Strict throttle only — captcha
+ * GraphQL entry for resending a reset OTP. Strict throttle only ï¿½ captcha
  * already gated init, and resend requires a live challenge id.
  */
 export class ForgotPasswordResendOtpResolver {
@@ -41,7 +43,7 @@ export class ForgotPasswordResendOtpResolver {
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "OTP sent successfully",
-        [Locale.Vi]: "G?i mã OTP thành công",
+        [Locale.Vi]: "G?i mï¿½ OTP thï¿½nh cï¿½ng",
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

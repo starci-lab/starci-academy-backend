@@ -6,7 +6,7 @@ import {
 } from "./github.module-definition"
 import {
     GithubOauthModule,
-} from "./oauth"
+} from "./oauth/oauth.module"
 
 @Module({
     imports: [

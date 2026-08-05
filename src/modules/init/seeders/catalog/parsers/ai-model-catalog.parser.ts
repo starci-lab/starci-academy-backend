@@ -3,18 +3,28 @@ import {
 } from "@nestjs/common"
 import type {
     AppConfigAiModel,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/config"
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
 import {
     computeModelWeight,
 } from "@modules/ai/utils/compute-model-weight"
@@ -24,10 +34,10 @@ import {
 } from "@modules/ai/utils/credit-for-typical-call"
 import {
     AiModelCatalogPathService,
-} from "../path"
+} from "../path/ai-model-catalog.path"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     AiModelCatalogMd,
     AiModelCatalogParsed,

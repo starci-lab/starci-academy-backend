@@ -1,13 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserMilestoneTaskAttemptFeedbackEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt-feedback.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserMilestoneTaskAttemptFeedbackEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,9 +25,11 @@ import {
     UserPersonalTaskAttemptFeedbacksQuery,
 } from "./user-personal-task-attempt-feedbacks.query"
 import {
-    UserPersonalTaskAttemptFeedbacksResponseData,
     UserPersonalTaskAttemptFeedbacksSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    UserPersonalTaskAttemptFeedbacksResponseData,
+} from "./graphql-types/response"
 
 @QueryHandler(UserPersonalTaskAttemptFeedbacksQuery)
 @Injectable()

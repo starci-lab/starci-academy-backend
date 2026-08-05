@@ -1,6 +1,6 @@
 import {
     KpiKey,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
 
 /**
  * Coin granted per unit of a KPI's FLOOR target when its reward is claimed

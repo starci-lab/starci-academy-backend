@@ -8,23 +8,23 @@ import {
     SynchronizersService,
 } from "./synchronizers.service"
 import {
-    CdnSynchronizerModule
-} from "./cdn-synchronizer"
+    CdnSynchronizerModule,
+} from "./cdn-synchronizer/cdn-synchronizer.module"
 import {
-    ElasticsearchSynchronizerModule
-} from "./elasticsearch-synchronizer"
+    ElasticsearchSynchronizerModule,
+} from "./elasticsearch-synchronizer/elasticsearch-synchronizer.module"
 import {
-    IndexerSynchronizerModule
-} from "./indexer-synchronizer"
+    IndexerSynchronizerModule,
+} from "./indexer-synchronizer/indexer-synchronizer.module"
 import {
-    BloomFiltersSynchronizerModule
-} from "./bloom-filters-synchronizer"
+    BloomFiltersSynchronizerModule,
+} from "./bloom-filters-synchronizer/bloom-filters-synchronizer.module"
 import {
-    RepoSynchronizerModule
-} from "./repo-synchronizer"
+    RepoSynchronizerModule,
+} from "./repo-synchronizer/repo-synchronizer.module"
 import {
-    ReconcileSynchronizerService
-} from "./reconcile-synchronizer"
+    ReconcileSynchronizerService,
+} from "./reconcile-synchronizer/reconcile-synchronizer.service"
 
 @Module({
     imports: [

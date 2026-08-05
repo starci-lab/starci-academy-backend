@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,16 +6,16 @@ import {
 } from "./personal-project.module-definition"
 import {
     SubmitPersonalGithubUrlSingleMutationModule,
-} from "./submit-personal-github-url"
+} from "./submit-personal-github-url/submit-personal-github-url.module"
 import {
     SyncPersonalProjectGithubSingleMutationModule,
-} from "./sync-personal-project-github"
+} from "./sync-personal-project-github/sync-personal-project-github.module"
 import {
     ReviewPersonalProjectTaskSingleMutationModule,
-} from "./review-personal-project-task"
+} from "./review-personal-project-task/review-personal-project-task.module"
 import {
     RequestToTeamSingleMutationModule,
-} from "./request-to-team"
+} from "./request-to-team/request-to-team.module"
 
 @Module({
     imports: [

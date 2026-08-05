@@ -1,15 +1,21 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ChallengeSubmissionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
     UserChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChallengeSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/challenge-submission-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"

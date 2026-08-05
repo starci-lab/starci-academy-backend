@@ -6,16 +6,22 @@ import {
 } from "typeorm"
 import {
     CodingProblemEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CodingProblemNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/coding/coding-problem-not-found"
+import {
+    codingProblemHintIndexName,
+} from "@modules/integrations/elasticsearch/constants/elasticsearch"
 import {
     ElasticsearchService,
-    codingProblemHintIndexName,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import type {
     CodingProblemHintResult,
     CodingProblemHintSource,

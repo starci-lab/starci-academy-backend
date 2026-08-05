@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     FoundationCategorySuggestionsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * Foundation category autocomplete suggestions query.

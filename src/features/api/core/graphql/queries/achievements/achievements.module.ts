@@ -6,7 +6,7 @@ import {
 } from "./achievements.module-definition"
 import {
     MyAchievementsSingleQueryModule,
-} from "./my-achievements"
+} from "./my-achievements/my-achievements.module"
 
 @Module({
     imports: [

@@ -1,13 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    JobPostingEntity,
+} from "@modules/databases/postgresql/primary/entities/job-posting.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    JobPostingEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     JobPostingNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job-postings/job-posting-not-found"
 import {
     Injectable,
 } from "@nestjs/common"

@@ -2,8 +2,8 @@ import {
     ConfigurableModuleBuilder 
 } from "@nestjs/common"
 import {
-    SeedersOptions 
-} from "./types"
+    SeedersOptions,
+} from "./types/options"
 
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
     new ConfigurableModuleBuilder<SeedersOptions>().setExtras(

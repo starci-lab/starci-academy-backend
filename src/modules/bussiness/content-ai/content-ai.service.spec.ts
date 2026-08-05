@@ -15,27 +15,31 @@ import {
 } from "./content-ai.service"
 import {
     S3NameResolverService,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ContentNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/content-not-found"
+import {
     PremiumContentAiAccessDeniedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/premium-content-ai-access-denied"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 // Control the hybrid stuff-vs-RAG threshold deterministically while keeping the
 // REST of the real env config intact -- the `@modules/rag` barrel transitively

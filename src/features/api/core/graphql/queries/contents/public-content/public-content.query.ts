@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     PublicContentRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS message carrying publicContent ExecuteParams into PublicContentHandler.

@@ -1,6 +1,6 @@
 import {
     CreatePaymentLinkRequest,
-} from "./dtos"
+} from "./dtos/request"
 
 /**
  * CQRS envelope for minting a PayOS checkout URL so the controller never imports the PayOS

@@ -1,10 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     KeycloakTokenService,
+} from "@modules/integrations/keycloak/token.service"
+import {
     KeycloakUserService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/user.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -14,22 +16,22 @@ import {
 } from "@nestjs/cqrs"
 import {
     OtpChallengeService,
-} from "@modules/code"
+} from "@modules/integrations/code/otp-challenge.service"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     SignUpInitCommand,
 } from "./sign-up-init.command"
 import type {
     SignUpInitData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     SignUpActionPayload,
-} from "../types"
+} from "../types/action"
 import {
     UserEmailAlreadyVerifiedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/sign-up"
 
 @CommandHandler(SignUpInitCommand)
 @Injectable()

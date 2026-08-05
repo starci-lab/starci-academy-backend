@@ -6,13 +6,13 @@ import {
 } from "./payos.module-definition"
 import {
     CreatePaymentLinkModule,
-} from "./create-payment-link"
+} from "./create-payment-link/create-payment-link.module"
 import {
     PaymentRequestModule,
-} from "./payment-request"
+} from "./payment-request/payment-request.module"
 import {
     PayosWebhookModule,
-} from "./webhook"
+} from "./webhook/webhook.module"
 
 @Module(
     {

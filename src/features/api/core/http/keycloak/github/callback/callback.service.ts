@@ -9,8 +9,10 @@ import {
 } from "./callback.command"
 import {
     KeycloakGithubCallbackQuery,
+} from "./dtos/request"
+import {
     KeycloakGithubCallbackResponse,
-} from "./dtos"
+} from "./dtos/response"
 
 @Injectable()
 /**

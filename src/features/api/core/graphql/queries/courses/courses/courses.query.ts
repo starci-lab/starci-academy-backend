@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CoursesRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS message that lists courses with page-based pagination. */
 export class CoursesQuery {

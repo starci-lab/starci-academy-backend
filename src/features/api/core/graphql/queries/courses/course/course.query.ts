@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CourseRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS message that loads one course by id / display id. */
 export class CourseQuery {

@@ -1,17 +1,21 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     CourseEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/course.entity"
 import {
     CourseNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3NameResolverService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     Injectable,
 } from "@nestjs/common"

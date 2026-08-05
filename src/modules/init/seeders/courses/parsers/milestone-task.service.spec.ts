@@ -11,37 +11,61 @@ import {
 } from "@nestjs/typeorm"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     PersonalProjectTaskType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/personal-project-task-type"
 import {
     Sha256Service,
-} from "@modules/crypto"
+} from "@modules/crypto/sha256.service"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
 import {
     ExtractJsonFromMdService,
-    CoerceMdScalarService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     MergeJsonService,
-    ContextLoaderService,
-} from "../../shared"
+} from "../../shared/merge/merge.service"
 import {
     CourseIdFactoryService,
-    ModuleIdFactoryService,
-    MilestoneIdFactoryService,
-    MilestoneTaskIdFactoryService,
-    MilestoneTaskBriefIdFactoryService,
-    MilestoneTaskOutcomeCriteriaIdFactoryService,
-    MilestoneTaskOutcomeCriteriaLangIdFactoryService,
-    MilestoneTaskApproachCriteriaIdFactoryService,
+} from "../id-factories/course.service"
+import {
     MilestoneTaskApproachCriteriaLangIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/milestone-task-approach-criteria-lang.service"
+import {
+    MilestoneTaskApproachCriteriaIdFactoryService,
+} from "../id-factories/milestone-task-approach-criteria.service"
+import {
+    MilestoneTaskBriefIdFactoryService,
+} from "../id-factories/milestone-task-brief.service"
+import {
+    MilestoneTaskOutcomeCriteriaLangIdFactoryService,
+} from "../id-factories/milestone-task-outcome-criteria-lang.service"
+import {
+    MilestoneTaskOutcomeCriteriaIdFactoryService,
+} from "../id-factories/milestone-task-outcome-criteria.service"
+import {
+    MilestoneTaskIdFactoryService,
+} from "../id-factories/milestone-task.service"
+import {
+    MilestoneIdFactoryService,
+} from "../id-factories/milestone.service"
+import {
+    ModuleIdFactoryService,
+} from "../id-factories/module.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     MilestoneTaskPathService,
-} from "../path"
+} from "../path/milestone-task.service"
 import {
     MilestoneTaskParserService,
 } from "./milestone-task.service"

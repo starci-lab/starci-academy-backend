@@ -1,6 +1,6 @@
 import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /** Params for {@link GradingLaneValidationService.validate}. */
 export interface ValidateGradingLaneParams {

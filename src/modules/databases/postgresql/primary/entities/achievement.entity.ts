@@ -11,7 +11,7 @@ import {
 import {
     AchievementCriteriaType,
     GraphQLTypeAchievementCriteriaType,
-} from "../enums"
+} from "../enums/achievement-criteria-type"
 import {
     UuidAbstractEntity,
 } from "./abstract"

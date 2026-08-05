@@ -3,17 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     ProcessGitSubmissionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/process-git-submission"
+import {
+    ProcessGitSubmissionCompleteStepService,
+} from "./steps/process-git-submission-complete-step.service"
 import {
     ProcessGitSubmissionGradeStepService,
-    ProcessGitSubmissionCompleteStepService,
-} from "./steps"
+} from "./steps/process-git-submission-grade-step.service"
 import type {
     ExtendedProcessGitSubmissionContext,
-} from "./types"
+} from "./types/extended"
 
 @Injectable()
 /**

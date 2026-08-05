@@ -1,5 +1,5 @@
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
 /** Execution result of the enroll step. */
 export type EnrollStepExecutionResult = EmptyObject

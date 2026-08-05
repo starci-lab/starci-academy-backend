@@ -2,9 +2,11 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     ContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     type EntityManager,
     IsNull,
@@ -13,29 +15,37 @@ import {
 } from "typeorm"
 import {
     S3Provider,
-    S3UploadService,
-    S3NameResolverService,
+} from "@modules/integrations/s3/enums/s3"
+import {
     S3BucketService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-bucket.service"
+import {
+    S3NameResolverService,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
+    S3UploadService,
+} from "@modules/integrations/s3/s3-upload.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import type {
     SynchronizerSyncScope,
-} from "../../types"
+} from "../../types/context"
 import type {
     SandpackFile,
-} from "./types"
+} from "./types/repo-synchronizer"
 import {
     shouldSyncContentEntity,
-} from "../../utils"
+} from "../../utils/entity-sync-filter"
 import * as fsp from "fs/promises"
 import * as path from "path"
 

@@ -4,13 +4,19 @@ import {
 } from "@nestjs/graphql"
 import {
     ContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
     AbstractGraphQLResponse,
-    IAbstractGraphQLResponse,
-    IPaginationPageResponseData,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     PaginationPageResponseData,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/object-types/pagination-page"
+import {
+    IAbstractGraphQLResponse,
+} from "@modules/api/apollo/server/types/graphql-response"
+import {
+    IPaginationPageResponseData,
+} from "@modules/api/apollo/server/types/pagination"
 
 @ObjectType({
     description: "Paginated list of module contents.",

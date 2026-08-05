@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ToggleFavouriteRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS envelope so favourite + activity-feed writes stay out of the resolver. */
 export class ToggleFavouriteCommand {

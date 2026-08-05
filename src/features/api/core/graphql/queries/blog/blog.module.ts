@@ -6,10 +6,10 @@ import {
 } from "./blog.module-definition"
 import {
     BlogPostsSingleQueryModule,
-} from "./blog-posts"
+} from "./blog-posts/blog-posts.module"
 import {
     BlogPostSingleQueryModule,
-} from "./blog-post"
+} from "./blog-post/blog-post.module"
 
 @Module({
     imports: [

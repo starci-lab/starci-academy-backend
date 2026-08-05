@@ -10,22 +10,28 @@ import {
 } from "@nestjs/typeorm"
 import {
     GraphQLContextMissingRequestException,
+} from "@modules/platform/exceptions/errors/keycloak/graphql-context-missing-request"
+import {
     KeycloakAuthHeaderInvalidFormatException,
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-auth-header-invalid-format"
+import {
     KeycloakAuthHeaderMissingException,
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-auth-header-missing"
+import {
     KeycloakTokenInactiveException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-token-inactive"
 import {
     KeycloakJwksService,
 } from "../jwks.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     KeycloakAuthRestGuard,
 } from "./keycloak-auth-rest.guard"
@@ -43,7 +49,7 @@ import type {
 } from "@nestjs/common"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

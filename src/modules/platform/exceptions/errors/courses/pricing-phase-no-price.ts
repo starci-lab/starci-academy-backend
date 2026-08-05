@@ -1,6 +1,6 @@
 import type {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import type {
     AbstractExceptionMetadata,
 } from "../abstract"

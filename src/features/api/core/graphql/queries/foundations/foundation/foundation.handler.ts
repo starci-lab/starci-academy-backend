@@ -1,16 +1,18 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     FoundationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ElasticsearchQueryBuilder,
-    ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/query-builder"
 import {
     FoundationNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/foundation-not-found"
 import {
     Injectable,
 } from "@nestjs/common"

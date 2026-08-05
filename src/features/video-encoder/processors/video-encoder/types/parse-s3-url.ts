@@ -1,6 +1,6 @@
 import type {
     S3Provider,
-} from "@modules/s3"
+} from "@modules/integrations/s3/enums/s3"
 
 /**
  * Result of detecting the S3 provider from a URL and extracting its object key.

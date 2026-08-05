@@ -12,9 +12,13 @@ import {
 } from "os"
 import {
     Bento4Mp4DashException,
+} from "@modules/platform/exceptions/errors/bento4/bento4-mp4-dash"
+import {
     Bento4Mp4FragmentException,
+} from "@modules/platform/exceptions/errors/bento4/bento4-mp4-fragment"
+import {
     Bento4NoMovieFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/bento4/bento4-no-movie-found"
 
 /**
  * Resolve the Bento4 binary directory based on the project root.

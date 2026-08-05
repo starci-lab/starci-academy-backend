@@ -6,15 +6,11 @@ import {
 import {
     MockSessionUserNotFoundException,
     MockSimulatedFailureException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mock/session-store"
 import {
     resolveMockDefinition,
 } from "./registry"
 import type {
-    MockSession,
-    MockSessionScope,
-    MockUser,
-    MockUsersPage,
     CreateSessionUserParams,
     DeleteSessionUserParams,
     PatchSessionUserParams,
@@ -23,7 +19,15 @@ import type {
     CheckUsernameResult,
     CreateInvoiceParams,
     CreateInvoiceResult,
-} from "./types"
+} from "./types/params"
+import type {
+    MockSession,
+    MockSessionScope,
+} from "./types/session"
+import type {
+    MockUser,
+    MockUsersPage,
+} from "./types/user"
 
 /** Sessions idle longer than this are evicted by the background cleaner. */
 const SESSION_TTL_MS = 30 * 60 * 1000

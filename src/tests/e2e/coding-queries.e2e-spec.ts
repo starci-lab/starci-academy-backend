@@ -21,37 +21,67 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
+    CodingSolutionRevealEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-solution-reveal.entity"
+import {
+    CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-submission.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CodingDifficulty,
+} from "@modules/databases/postgresql/primary/enums/coding-difficulty"
+import {
     CodingDomain,
+} from "@modules/databases/postgresql/primary/enums/coding-domain"
+import {
     CodingLanguage,
-    CodingProblemEntity,
-    CodingSolutionRevealEntity,
-    CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/enums/coding-language"
+import {
     CodingVerdict,
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
+import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     PrimaryPostgreSQLModule,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     CodingProblemService,
+} from "@modules/bussiness/coding/coding-problem.service"
+import {
     CodingProgressService,
+} from "@modules/bussiness/coding/coding-progress.service"
+import {
     CodingSubmissionService,
+} from "@modules/bussiness/coding/coding-submission.service"
+import {
     DeviceService,
+} from "@modules/bussiness/device/device.service"
+import {
     EnqueueJudgeCodingSubmissionJobService,
+} from "@modules/bussiness/jobs/enqueue/judge-coding-submission.service"
+import {
     UserCodingProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-coding/user-coding-projection.service"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     CodingProblemsResolver,
 } from "@features/api/core/graphql/queries/coding/coding-problems/coding-problems.resolver"
@@ -81,7 +111,7 @@ import {
 } from "@features/api/core/graphql/queries/coding/coding-leaderboard/coding-leaderboard.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

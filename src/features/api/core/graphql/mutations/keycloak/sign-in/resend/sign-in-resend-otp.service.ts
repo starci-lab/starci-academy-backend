@@ -9,13 +9,13 @@ import {
 } from "./sign-in-resend-otp.command"
 import type {
     SignInInitData,
-} from "../init/graphql-types"
+} from "../init/graphql-types/response"
 import type {
     SignInResendOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 
 @Injectable()
 /** Forwards sign-in OTP resend to the command bus so the resolver stays a thin leaf. */

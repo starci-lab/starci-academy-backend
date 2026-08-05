@@ -1,6 +1,6 @@
 import {
-    EventName 
-} from "../enums"
+    EventName,
+} from "../enums/event-name"
 
 /**
      * Get the event name.

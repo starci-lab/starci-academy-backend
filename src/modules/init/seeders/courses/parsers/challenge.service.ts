@@ -1,73 +1,145 @@
 import type {
-    ChallengesFromDatabaseParams,
     ParseChallengeManyParams,
     ParseChallengeParams,
     ParseChallengeSubmissionsParams,
     ParseCriteriaParams,
-} from "./types"
+} from "./types/challenge"
+import type {
+    ChallengesFromDatabaseParams,
+} from "./types/from-database"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ChallengeDifficulty,
-    ChallengeRequirementLangEntity,
-    ChallengeOutputLangEntity,
-    ChallengePrerequisiteLangEntity,
-    ChallengeStepLangEntity,
-    Locale,
-    SubmissionType,
-    ChallengeRequirementLangTranslationEntity,
-    ChallengeStepLangTranslationEntity,
     ChallengeOutputLangTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-output-lang-translation.entity"
+import {
+    ChallengeOutputLangEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-output-lang.entity"
+import {
     ChallengePrerequisiteLangTranslationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/challenge-prerequisite-lang-translation.entity"
+import {
+    ChallengePrerequisiteLangEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-prerequisite-lang.entity"
+import {
+    ChallengeRequirementLangTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-requirement-lang-translation.entity"
+import {
+    ChallengeRequirementLangEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-requirement-lang.entity"
+import {
+    ChallengeStepLangTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-step-lang-translation.entity"
+import {
+    ChallengeStepLangEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-step-lang.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    SubmissionType,
+} from "@modules/databases/postgresql/primary/enums/submission-type"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
 import {
     ExtractJsonFromMdService,
-    CoerceMdScalarService,
-    MergeJsonService,
-    MergeJsonResult,
-    ResolvedFileResult,
-    ContextLoaderService,
-    PathResolverService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
+import {
+    PathResolverService,
+} from "../../shared/path/resolver.service"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
+import {
+    ChallengeOutputIdFactoryService,
+} from "../id-factories/challenge-output.service"
+import {
+    ChallengePrerequisiteIdFactoryService,
+} from "../id-factories/challenge-prerequisite.service"
+import {
+    ChallengeRequirementIdFactoryService,
+} from "../id-factories/challenge-requirement.service"
+import {
+    ChallengeStepIdFactoryService,
+} from "../id-factories/challenge-step.service"
+import {
+    ChallengeSubmissionCriteriaIdFactoryService,
+} from "../id-factories/challenge-submission-criteria.service"
+import {
+    ChallengeSubmissionIdFactoryService,
+} from "../id-factories/challenge-submission.service"
 import {
     ChallengeIdFactoryService,
-    ChallengeOutputIdFactoryService,
-    ChallengePrerequisiteIdFactoryService,
-    ChallengeRequirementIdFactoryService,
-    ChallengeStepIdFactoryService,
-    ChallengeSubmissionCriteriaIdFactoryService,
-    ChallengeSubmissionIdFactoryService,
+} from "../id-factories/challenge.service"
+import {
     ContentIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/content.service"
 import {
     DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
-    ChallengeEntity,
-    InjectPrimaryPostgreSQLEntityManager,
     ChallengeOutputEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-output.entity"
+import {
     ChallengePrerequisiteEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-prerequisite.entity"
+import {
     ChallengeRequirementEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-requirement.entity"
+import {
     ChallengeStepEntity,
-    ChallengeSubmissionApproachCriteriaEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-step.entity"
+import {
     ChallengeSubmissionApproachCriteriaLangEntity,
-    ChallengeSubmissionEntity,
-    ChallengeSubmissionOutcomeCriteriaEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission-approach-criteria-lang.entity"
+import {
+    ChallengeSubmissionApproachCriteriaEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission-approach-criteria.entity"
+import {
     ChallengeSubmissionOutcomeCriteriaLangEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission-outcome-criteria-lang.entity"
+import {
+    ChallengeSubmissionOutcomeCriteriaEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission-outcome-criteria.entity"
+import {
     ChallengeSubmissionTranslationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/challenge-submission-translation.entity"
+import {
+    ChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
+    ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChallengePathService,
-} from "../path"
+} from "../path/challenge.service"
 import {
     ChallengePathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/challenge-path-not-found"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 @Injectable()
 /**
  * Challenge parser for mounted course files (`en.md`, `vi.md`).

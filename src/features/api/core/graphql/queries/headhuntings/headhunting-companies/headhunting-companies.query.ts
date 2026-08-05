@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 
 /**
  * headhuntingCompanies list query.

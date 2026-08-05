@@ -6,7 +6,7 @@ import {
 } from "./nowpayments.module-definition"
 import {
     NowPaymentsWebhookModule,
-} from "./webhook"
+} from "./webhook/webhook.module"
 
 @Module(
     {

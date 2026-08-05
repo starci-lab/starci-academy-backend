@@ -5,14 +5,20 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    AiModelEntity,
     AiModelTranslationEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/ai-model-translation.entity"
+import {
+    AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     AiModelCatalogParsed,
-} from "../parsers"
+} from "../parsers/types"
 
 /** Translatable catalog fields persisted into `ai_model_translations`. */
 const TRANSLATION_FIELD = {

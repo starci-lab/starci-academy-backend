@@ -9,37 +9,45 @@ import {
 } from "@nestjs/common"
 import {
     GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
 import {
     Locale,
-    MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     TaskRequest,
+} from "./graphql-types/request"
+import {
     TaskResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     TaskService,
 } from "./task.service"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
+} from "@modules/bussiness/guards/graphql-must-enrolled.guard"
 import {
     GraphQLCacheInterceptor,
     GraphQLCacheResponse,
-} from "@modules/cache"
+} from "@modules/integrations/cache/interceptors/graphql-cache.interceptor"
 import {
     CacheKey,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 
 @Resolver(() => MilestoneTaskEntity)
 /**

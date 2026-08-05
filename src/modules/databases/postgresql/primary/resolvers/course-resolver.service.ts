@@ -3,11 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     CourseEntity,
+} from "../entities/course.entity"
+import {
     ModuleEntity,
-} from "../entities"
+} from "../entities/module.entity"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     TranslationResolverService,
 } from "./translation.service"

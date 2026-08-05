@@ -6,10 +6,10 @@ import {
 } from "./courses-checkout-preview.module-definition"
 import {
     CoursePricingService,
-} from "@features/api/core/graphql/mutations/courses/course-enroll/course-pricing.service"
+} from "../../../mutations/courses/course-enroll/course-pricing.service"
 import {
     CoursesCheckoutPricingService,
-} from "@features/api/core/graphql/mutations/courses/courses-checkout"
+} from "../../../mutations/courses/courses-checkout/courses-checkout-pricing.service"
 import {
     CoursesCheckoutPreviewResolver,
 } from "./courses-checkout-preview.resolver"

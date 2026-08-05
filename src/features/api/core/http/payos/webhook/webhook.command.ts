@@ -1,6 +1,6 @@
 import {
     PayosWebhookRequest,
-} from "./dtos"
+} from "./dtos/request"
 
 /**
  * CQRS envelope for a PayOS IPN so signature verification and settlement stay out of the

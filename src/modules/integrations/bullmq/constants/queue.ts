@@ -1,9 +1,9 @@
 import type {
-    BullQueueData
-} from "../types"
+    BullQueueData,
+} from "../types/queue"
 import {
-    BullQueueName
-} from "../enums"
+    BullQueueName,
+} from "../enums/queue-name"
 
 /**
  * Wraps a string in braces for use as a Redis key prefix.

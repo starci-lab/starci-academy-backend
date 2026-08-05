@@ -3,15 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     CodingProblemService,
+} from "@modules/bussiness/coding/coding-problem.service"
+import {
     CodingSubmissionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/coding/coding-submission.service"
+import {
+    UserCodingProblemDetailRequest,
+} from "./graphql-types/request"
 import {
     UserCodingProblemDetailData,
-    UserCodingProblemDetailRequest,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

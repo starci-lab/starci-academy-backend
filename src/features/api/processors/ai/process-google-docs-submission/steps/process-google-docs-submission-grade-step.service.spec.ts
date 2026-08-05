@@ -1,13 +1,13 @@
 import {
     makeEntityManagerMock,
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     AiQuotaExhaustedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/ai-quota-exhausted"
 import {
     ProcessGoogleDocsSubmissionGradeStepService,
 } from "./process-google-docs-submission-grade-step.service"

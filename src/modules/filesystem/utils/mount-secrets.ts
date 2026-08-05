@@ -9,12 +9,14 @@ import {
     load as loadYaml,
 } from "js-yaml"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import type {
     AppConfig,
+} from "../types/config"
+import type {
     SecretKeycloakAdmin,
-} from "../types"
+} from "../types/secrets"
 
 let runtimeAppConfig: AppConfig | undefined
 

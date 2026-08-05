@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -10,23 +10,29 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    ProgressProjectionService,
     ReactionService,
+} from "@modules/bussiness/discussion/reaction.service"
+import {
+    ProgressProjectionService,
+} from "@modules/bussiness/projections/progress/progress-projection.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     MarkAsReadedCommand,
 } from "./mark-as-readed.command"

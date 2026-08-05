@@ -1,6 +1,6 @@
 import {
     SepayWebhookRequest,
-} from "./dtos"
+} from "./dtos/webhook.request"
 
 /**
  * CQRS envelope for a SePay PG notification so invoice matching stays out of the

@@ -9,12 +9,22 @@ import {
 } from "typeorm"
 import {
     FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardDueReviewSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-due-review-session.entity"
+import {
     FlashcardReviewEventEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-event.entity"
+import {
     FlashcardReviewSessionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-session.entity"
+import {
     UserFlashcardReviewEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-flashcard-review.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     ComputeFirstReviewXpParams,
     ComputeWeakTagsParams,
@@ -22,7 +32,7 @@ import type {
     FindNextDueAtParams,
     FlashcardReviewSessionWeakTag,
     MyFlashcardReviewSessionStatsBySessionIdResultData,
-} from "./types"
+} from "./types/my-flashcard-review-session-stats-by-session-id"
 
 /** XP granted per FIRST-EVER review of a card -- mirrors `FLASHCARD_FIRST_REVIEW_XP` in `flashcard-review.service.ts`. */
 const FLASHCARD_FIRST_REVIEW_XP = 2

@@ -3,28 +3,28 @@ import {
 } from "@nestjs/common"
 import {
     MarkAsReadedSingleMutationModule,
-} from "./mark-as-readed"
+} from "./mark-as-readed/mark-as-readed.module"
 import {
     ToggleFavouriteSingleMutationModule,
-} from "./toggle-favourite"
+} from "./toggle-favourite/toggle-favourite.module"
 import {
     AskContentAiSingleMutationModule,
-} from "./ask-content-ai"
+} from "./ask-content-ai/ask-content-ai.module"
 import {
     DeleteContentAiSessionSingleMutationModule,
-} from "./delete-content-ai-session"
+} from "./delete-content-ai-session/delete-content-ai-session.module"
 import {
     CreateContentAiSessionSingleMutationModule,
-} from "./create-content-ai-session"
+} from "./create-content-ai-session/create-content-ai-session.module"
 import {
     TouchContentAiSessionSingleMutationModule,
-} from "./touch-content-ai-session"
+} from "./touch-content-ai-session/touch-content-ai-session.module"
 import {
     RenameContentAiSessionSingleMutationModule,
-} from "./rename-content-ai-session"
+} from "./rename-content-ai-session/rename-content-ai-session.module"
 import {
     SetContentAiSessionArchivedSingleMutationModule,
-} from "./set-content-ai-session-archived"
+} from "./set-content-ai-session-archived/set-content-ai-session-archived.module"
 import {
     ConfigurableModuleClass
 } from "./contents.module-definition"

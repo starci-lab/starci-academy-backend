@@ -4,18 +4,22 @@ import {
 } from "@nestjs/testing"
 import {
     AiModelLatencyCacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/ai-model-latency-cache.service"
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     AiModelCatalogService,
 } from "../balancer/ai-model-catalog.service"
@@ -27,17 +31,17 @@ import {
 } from "./ai-model-latency.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     AiModelEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
 
 // `envConfig()` is a plain factory fn read at boot + per-probe; partially mock
 // the env module so each test can dial scope/enabled/cadence freely while the
 // REAL config (cache ttl etc., read at import time by sibling modules) still works.
-jest.mock("@modules/env",
+jest.mock("@modules/platform/env/config",
     () => {
-        const actual = jest.requireActual<typeof import("@modules/env")>("@modules/env")
+        const actual = jest.requireActual<typeof import("@modules/platform/env/config")>("@modules/platform/env/config")
         return {
             ...actual,
             envConfig: jest.fn(actual.envConfig),

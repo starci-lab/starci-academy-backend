@@ -27,35 +27,49 @@ import {
 import SuperJSON from "superjson"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     CvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import {
     CvSource,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
     JobCategory,
+} from "@modules/databases/postgresql/primary/enums/job-category"
+import {
     Locale,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     EntityManager,
 } from "typeorm"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     GenerateCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/generate-cv"
 import type {
     AiJobSelection,
 } from "@modules/ai/types/ai-job-selection"
 import {
     sleepEnqueueUxDelay,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/utils/enqueue-ux-delay"
 
 /** Parameters for {@link EnqueueGenerateCvJobService.enqueue}. */
 export interface EnqueueGenerateCvJobParams {

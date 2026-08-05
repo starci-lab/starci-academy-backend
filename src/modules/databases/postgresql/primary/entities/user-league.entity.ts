@@ -8,7 +8,7 @@ import {
 } from "typeorm"
 import {
     LeagueTier,
-} from "../enums"
+} from "../enums/league-tier"
 import {
     AbstractEntity,
 } from "./abstract"

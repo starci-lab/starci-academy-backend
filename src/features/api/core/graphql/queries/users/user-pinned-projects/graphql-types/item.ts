@@ -7,7 +7,7 @@ import {
 import {
     GraphQLTypeProjectPinType,
     ProjectPinType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/project-pin-type"
 
 @ObjectType({
     description: "A single project pinned to a user's public profile.",

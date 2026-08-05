@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     FlashcardCardEntity,
-} from "../entities"
+} from "../entities/flashcard-card.entity"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     TranslationResolverService,
 } from "./translation.service"

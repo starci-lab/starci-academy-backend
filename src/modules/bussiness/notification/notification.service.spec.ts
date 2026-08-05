@@ -9,22 +9,26 @@ import {
     NotificationService,
 } from "./notification.service"
 import {
-    EventEmitterService,
     EventName,
-} from "@modules/event"
+} from "@modules/platform/event/enums/event-name"
+import {
+    EventEmitterService,
+} from "@modules/platform/event/event-emitter.service"
 import {
     NotificationEntity,
+} from "@modules/databases/postgresql/primary/entities/notification.entity"
+import {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
 import {
     NotificationNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/notification/notification"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"

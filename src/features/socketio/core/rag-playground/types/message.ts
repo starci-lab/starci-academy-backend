@@ -1,6 +1,6 @@
 import type {
     RagPlaygroundSourceChunk,
-} from "@modules/rag"
+} from "@modules/integrations/rag/types/public-rag-playground"
 
 /**
  * Server -> client message carrying one streamed token delta for a RAG

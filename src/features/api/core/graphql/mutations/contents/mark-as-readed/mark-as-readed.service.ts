@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +12,10 @@ import {
 } from "./mark-as-readed.command"
 import {
     MarkAsReadedRequest,
+} from "./graphql-types/request"
+import {
     MarkAsReadedResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** CommandBus hop so the resolver never imports the handler or persistence. */

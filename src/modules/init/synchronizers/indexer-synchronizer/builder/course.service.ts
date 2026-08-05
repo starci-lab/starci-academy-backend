@@ -1,10 +1,12 @@
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CourseNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,12 +14,14 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    CacheKey, 
-    CourseParentIndexCacheResult
-} from "@modules/cache"
+    CacheKey,
+} from "@modules/integrations/cache/enums/cache-key"
 import {
-    CacheService 
-} from "@modules/cache"
+    CourseParentIndexCacheResult,
+} from "@modules/integrations/cache/types/cache-results/parent-index"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 
 @Injectable()
 /**

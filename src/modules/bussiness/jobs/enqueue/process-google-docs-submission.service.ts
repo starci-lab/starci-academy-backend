@@ -1,19 +1,27 @@
 import {
     JobActionService,
+} from "../atomic/job-action.service"
+import {
     JobStalledService,
-} from "../atomic"
+} from "../atomic/job-stalled.service"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ActionType,
     JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     JobCategory,
+} from "@modules/databases/postgresql/primary/enums/job-category"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import SuperJSON from "superjson"
 import {
     v4 as uuidv4,
@@ -26,18 +34,22 @@ import {
 } from "@nestjs/bullmq"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-    type ProcessGoogleDocsSubmissionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
+import type {
+    ProcessGoogleDocsSubmissionPayload,
+} from "@modules/integrations/bullmq/types/payloads/process-google-docs-submission"
 import type {
     EnqueueProcessGoogleDocsSubmissionJobParams,
-} from "../types"
+} from "../types/enqueue"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     sleepEnqueueUxDelay,
-} from "../utils"
+} from "../utils/enqueue-ux-delay"
 
 @Injectable()
 /**

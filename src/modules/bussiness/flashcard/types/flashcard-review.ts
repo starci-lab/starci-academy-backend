@@ -1,6 +1,6 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * The next interval (in days) each SM-2 grade would schedule a card to, computed

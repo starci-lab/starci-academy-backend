@@ -3,16 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     UseQueryModule,
-} from "./0-usequery-and-cache-lifecycle"
+} from "./0-usequery-and-cache-lifecycle/usequery.module"
 import {
     MutationsModule,
-} from "./1-mutations-and-invalidation-graph"
+} from "./1-mutations-and-invalidation-graph/mutations.module"
 import {
     OptimisticModule,
-} from "./2-optimistic-updates-with-rollback"
+} from "./2-optimistic-updates-with-rollback/optimistic.module"
 import {
     InfiniteModule,
-} from "./3-infinite-query-and-pagination"
+} from "./3-infinite-query-and-pagination/infinite.module"
 
 @Module({
     imports: [

@@ -13,7 +13,7 @@ import {
 import {
     CodingLanguage,
     GraphQLTypeCodingLanguage,
-} from "../enums"
+} from "../enums/coding-language"
 import {
     UuidAbstractEntity,
 } from "./abstract"

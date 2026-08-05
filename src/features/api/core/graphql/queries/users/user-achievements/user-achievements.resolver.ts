@@ -10,29 +10,35 @@ import {
 } from "@nestjs/common"
 import {
     GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     AchievementsService,
+} from "@modules/bussiness/achievements/achievements.service"
+import {
     GraphQLProfileVisibilityGuard,
-} from "@modules/bussiness"
+} from "@modules/bussiness/guards/graphql-profile-visibility.guard"
 import {
     MyAchievementItemData,
-} from "../../achievements/my-achievements/graphql-types"
+} from "../../achievements/my-achievements/graphql-types/response"
 import {
     UserAchievementsResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

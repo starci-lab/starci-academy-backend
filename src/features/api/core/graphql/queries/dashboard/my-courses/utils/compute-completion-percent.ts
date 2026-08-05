@@ -1,6 +1,6 @@
 import {
     MyCourseProgressResult,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/progress/types"
 
 /**
  * Overall course-completion percentage as the equal-weight average of the

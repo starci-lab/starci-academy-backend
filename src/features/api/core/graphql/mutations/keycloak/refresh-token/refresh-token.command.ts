@@ -1,6 +1,6 @@
 import type {
-    RefreshTokenRequest 
-} from "./graphql-types"
+    RefreshTokenRequest,
+} from "./graphql-types/request"
 
 /**
  * Cookie + optional bearer inputs for refresh. The refresh token is not on the

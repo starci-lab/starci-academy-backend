@@ -1,6 +1,6 @@
 import type {
     CacheType,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-type"
 
 /**
  * Structured fields when a cache GET throws -- key + backend so ops can tell Redis vs

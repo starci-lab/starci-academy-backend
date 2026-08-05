@@ -7,7 +7,7 @@ import {
 import {
     GraphQLTypePaymentType,
     PaymentType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 
 @InputType({
     description: "Course id, pricing tier, and return URLs for PayOS or Sepay checkout.",

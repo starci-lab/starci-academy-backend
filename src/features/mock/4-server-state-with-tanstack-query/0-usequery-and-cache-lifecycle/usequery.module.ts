@@ -6,7 +6,7 @@ import {
 } from "./usequery.module-definition"
 import {
     StoreModule,
-} from "../../store"
+} from "../../store/store.module"
 import {
     UseQueryController,
 } from "./usequery.controller"

@@ -13,14 +13,22 @@ import {
 } from "./kpi-reward.catalog"
 import {
     CoinHistoryEntity,
-    KpiKey,
+} from "@modules/databases/postgresql/primary/entities/coin-history.entity"
+import {
     KpiWeeklyRewardFloorEntity,
+} from "@modules/databases/postgresql/primary/entities/kpi-weekly-reward-floor.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    KpiKey,
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
 import {
     KpiRewardAlreadyClaimedException,
+} from "@modules/platform/exceptions/errors/kpi-reward/kpi-reward-already-claimed"
+import {
     KpiRewardNotEligibleException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/kpi-reward/kpi-reward-not-eligible"
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"
@@ -29,10 +37,10 @@ import type {
 } from "../projections/user-stats/types"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

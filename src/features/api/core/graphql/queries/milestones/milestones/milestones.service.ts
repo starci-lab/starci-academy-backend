@@ -9,11 +9,13 @@ import {
 } from "./milestones.query"
 import {
     MilestonesRequest,
+} from "./graphql-types/request"
+import {
     MilestonesResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 
 @Injectable()
 /** Dispatches `MilestonesQuery` onto the CQRS bus. */

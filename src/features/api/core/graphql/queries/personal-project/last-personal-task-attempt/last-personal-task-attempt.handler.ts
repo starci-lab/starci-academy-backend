@@ -7,18 +7,28 @@ import {
 } from "@nestjs/cqrs"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserMilestoneTaskAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
+import {
     UserMilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     PersonalTaskAttemptAccessDeniedException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-task-attempt-access-denied"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     type EntityManager,
 } from "typeorm"
@@ -27,7 +37,7 @@ import {
 } from "./last-personal-task-attempt.query"
 import {
     LastPersonalTaskAttemptResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /**
  * Keycloak realm roles that may read another user's last personal-task attempt.

@@ -12,23 +12,31 @@ import type {
 } from "typeorm"
 import {
     NotificationEntity,
-    NotificationType,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/notification.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    NotificationType,
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     NotificationNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/notification/notification"
 import {
     NotificationService,
+} from "@modules/bussiness/notification/notification.service"
+import {
     UserStatsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
 import {
     EventEmitterService,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

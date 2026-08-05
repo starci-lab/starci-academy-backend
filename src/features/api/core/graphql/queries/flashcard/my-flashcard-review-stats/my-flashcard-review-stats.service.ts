@@ -3,12 +3,14 @@ import {
 } from "@nestjs/common"
 import {
     UserFlashcardCourseStatsProjectionService,
+} from "@modules/bussiness/projections/user-flashcard-course-stats/user-flashcard-course-stats-projection.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import type {
     ComputeMyFlashcardReviewStatsParams,
     MyFlashcardReviewStatsResultData,
-} from "./types"
+} from "./types/my-flashcard-review-stats"
 
 @Injectable()
 /**

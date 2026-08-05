@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     RemoveFromCartCommand,
 } from "./remove-from-cart.command"
 import type {
     RemoveFromCartRequest,
+} from "./graphql-types/request"
+import type {
     RemoveFromCartResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Thin service that forwards the removeFromCart request to the CQRS command bus. */

@@ -5,30 +5,50 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
-    AiModelCategory,
-    AiSubStatus,
     AiSubscriptionEntity,
-    AiSubTier,
+} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+import {
     CreditUsageHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/credit-usage-history.entity"
+import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    AiSubStatus,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-status"
+import {
+    AiSubTier,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     AiCeilOverrides,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+import {
+    MountFilesystemService,
+} from "@modules/filesystem/mount.service"
 import {
     AppConfigSubscriptionTier,
-    MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/config"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     AiModeNotEntitledException,
+} from "@modules/platform/exceptions/errors/ai/ai-mode-not-entitled"
+import {
     AiQuotaExhaustedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/ai-quota-exhausted"
 import {
     SUBSCRIPTION_PERIOD_MONTHS,
     TIER_ALLOWED_CATEGORIES,
@@ -37,7 +57,7 @@ import {
 } from "./constants/ai-entitlement.constants"
 import {
     AiAutoQuotaConfigService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/ai-auto-quota-config.service"
 import type {
     AiEntitlement,
     AiQuotaSnapshot,

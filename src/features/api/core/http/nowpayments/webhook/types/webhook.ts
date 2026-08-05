@@ -1,6 +1,6 @@
 import type {
     NowPaymentsWebhookRequest,
-} from "../dtos"
+} from "../dtos/webhook.request"
 
 /** NOWPayments IPN body + the HMAC signature header needed to verify it. */
 export interface NowPaymentsWebhookParams {

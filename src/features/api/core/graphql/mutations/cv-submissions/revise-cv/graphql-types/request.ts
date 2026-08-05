@@ -6,7 +6,7 @@ import {
 import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
     description: "Revise an existing CV using the user's free-text prompts.",

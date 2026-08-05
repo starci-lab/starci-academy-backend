@@ -6,13 +6,13 @@ import type {
 } from "typeorm"
 import {
     HeadhuntingCompanyEntity,
-} from "../entities"
+} from "../entities/headhunting-company.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"
 import {
     HeadhuntingCompanyNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/headhunting-company-not-found"
 
 @Injectable()
 /**

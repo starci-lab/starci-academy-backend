@@ -6,19 +6,29 @@ import {
     In,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardDeckEntity,
-    FlashcardDeckResolverService,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     UserFlashcardReviewEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-flashcard-review.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-deck-resolver.service"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     FlashcardDeckNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/flashcard/flashcard-deck-not-found"
 import type {
     DeckStatRow,
 } from "./types/flashcard-deck"
@@ -31,7 +41,7 @@ import {
 } from "./flashcard-review.service"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 
 /** SM-2 repetition count at/above which a card is considered "mastered". */
 const MASTERED_REPETITIONS = 2

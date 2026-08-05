@@ -6,7 +6,7 @@ import {
 } from "./playground-sessions.module-definition"
 import {
     CreatePlaygroundSessionSingleMutationModule,
-} from "./create-playground-session"
+} from "./create-playground-session/create-playground-session.module"
 
 @Module({
     imports: [

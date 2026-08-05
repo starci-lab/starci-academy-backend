@@ -3,20 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     PlaygroundEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/playground.entity"
 import {
     PlaygroundParserService,
-} from "../parsers"
+} from "../parsers/playground.service"
 import {
     logInitSeederEntitySkipped,
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
     UpsertService,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     ProcessPlaygroundsParams,
-} from "../types"
+} from "../types/seeder-orchestration"
 import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"

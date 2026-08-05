@@ -18,16 +18,16 @@ jest.mock(
 import {
     makeEntityManagerMock,
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ChallengeEvaluation,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/evaluation/challenge-evaluation"
 import {
     ChallengeEvaluationParseService,
-} from "@features/api/processors/ai/shared/challenge-evaluation"
+} from "@features/api/processors/ai/shared/challenge-evaluation/challenge-evaluation-parse.service"
 import {
     ProcessGitSubmissionGradeStepService,
 } from "@features/api/processors/ai/process-git-submission/steps/process-git-submission-grade-step.service"
@@ -39,14 +39,20 @@ import {
 } from "@nestjs/testing"
 import {
     HarnessInvokeService,
+} from "@tests/helpers/harness-invoke.service"
+import {
     JudgeService,
+} from "@tests/helpers/judge.service"
+import {
     TestHelpersModule,
+} from "@tests/helpers/test-helpers.module"
+import {
     readVolumeDoc,
     volumeExists,
-} from "@tests/helpers"
+} from "@tests/helpers/volume"
 import type {
     HarnessTierName,
-} from "@tests/helpers"
+} from "@tests/helpers/models"
 
 /** Minimum judge score a produced evaluation must reach to count as passing. */
 const PASS_SCORE = 60

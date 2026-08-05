@@ -1,6 +1,6 @@
 import type {
     MockInterviewAttemptSummary,
-} from "../../my-mock-interview-attempts/types"
+} from "../../my-mock-interview-attempts/types/my-mock-interview-attempts"
 
 /** Params for {@link import("../my-mock-interview-attempt-by-session.service").MyMockInterviewAttemptBySessionService.find}. */
 export interface FindMyMockInterviewAttemptBySessionParams {

@@ -6,15 +6,17 @@ import {
 } from "typeorm"
 import {
     FlashcardReviewSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-session.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import type {
     FindMyFlashcardReviewHistoryParams,
     MyFlashcardReviewHistoryResultData,
-} from "./types"
+} from "./types/my-flashcard-review-history"
 
 @Injectable()
 /**

@@ -1,6 +1,6 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** One locale-specific markdown extract paired with its locale tag. */
 export interface LocaleJson<T extends Record<string, unknown>> {

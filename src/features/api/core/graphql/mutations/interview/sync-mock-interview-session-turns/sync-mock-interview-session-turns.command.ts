@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     SyncMockInterviewSessionTurnsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS envelope for a background transcript sync that must not fail loudly. */
 export class SyncMockInterviewSessionTurnsCommand {

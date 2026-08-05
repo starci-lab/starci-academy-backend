@@ -6,28 +6,40 @@ import {
 } from "./discussion.module-definition"
 import {
     CreateCommentResolver,
+} from "./create-comment/create-comment.resolver"
+import {
     CreateCommentService,
-} from "./create-comment"
+} from "./create-comment/create-comment.service"
 import {
     UpdateCommentResolver,
+} from "./update-comment/update-comment.resolver"
+import {
     UpdateCommentService,
-} from "./update-comment"
+} from "./update-comment/update-comment.service"
 import {
     DeleteCommentResolver,
+} from "./delete-comment/delete-comment.resolver"
+import {
     DeleteCommentService,
-} from "./delete-comment"
+} from "./delete-comment/delete-comment.service"
 import {
     ReactToContentResolver,
+} from "./react-to-content/react-to-content.resolver"
+import {
     ReactToContentService,
-} from "./react-to-content"
+} from "./react-to-content/react-to-content.service"
 import {
     ReactToCommentResolver,
+} from "./react-to-comment/react-to-comment.resolver"
+import {
     ReactToCommentService,
-} from "./react-to-comment"
+} from "./react-to-comment/react-to-comment.service"
 import {
     ReactToActivityResolver,
+} from "./react-to-activity/react-to-activity.resolver"
+import {
     ReactToActivityService,
-} from "./react-to-activity"
+} from "./react-to-activity/react-to-activity.service"
 
 @Module({
     providers: [

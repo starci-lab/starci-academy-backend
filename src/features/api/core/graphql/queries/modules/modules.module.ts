@@ -6,13 +6,13 @@ import {
 } from "./modules.module-definition"
 import {
     ModuleSingleQueryModule,
-} from "./module"
+} from "./module/module.module"
 import {
     ModulesSingleQueryModule,
-} from "./modules"
+} from "./modules/modules.module"
 import {
     ModuleSuggestionsSingleQueryModule,
-} from "./module-suggestions"
+} from "./module-suggestions/module-suggestions.module"
 
 @Module({
     imports: [

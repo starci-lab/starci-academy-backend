@@ -3,11 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import SuperJSON from "superjson"
 import {
     Queue,
@@ -17,18 +19,22 @@ import {
 } from "@nestjs/bullmq"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-    type ReconcileTransactionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
+import type {
+    ReconcileTransactionPayload,
+} from "@modules/integrations/bullmq/types/payloads/reconcile-transaction"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     v4 as uuidv4,
 } from "uuid"
 import {
     EnqueueReconcileTransactionJobParams,
-} from "../types"
+} from "../types/enqueue"
 
 @Injectable()
 /**

@@ -6,8 +6,10 @@ import {
 } from "./course.service"
 import {
     PathResolverService,
+} from "../../shared/path/resolver.service"
+import {
     ResolvedFilePath,
-} from "../../shared"
+} from "../../shared/path/types"
 
 @Injectable()
 /**

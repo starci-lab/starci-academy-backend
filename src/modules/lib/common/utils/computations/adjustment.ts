@@ -1,6 +1,6 @@
 import {
     bnMulDecimal,
-} from "../computations"
+} from "./operation"
 import BN from "bn.js"
 import Decimal from "decimal.js"
 

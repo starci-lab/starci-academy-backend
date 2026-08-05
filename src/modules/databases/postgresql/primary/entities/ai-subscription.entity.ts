@@ -11,11 +11,15 @@ import {
 } from "typeorm"
 import {
     AiModelCategory,
+} from "../enums/ai-model-category"
+import {
     AiSubStatus,
-    AiSubTier,
     GraphQLTypeAiSubStatus,
+} from "../enums/ai-sub-status"
+import {
+    AiSubTier,
     GraphQLTypeAiSubTier,
-} from "../enums"
+} from "../enums/ai-sub-tier"
 
 /**
  * Per-surface AI model CEILING overrides (the ceiling the user sets in settings).

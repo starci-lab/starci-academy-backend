@@ -13,11 +13,13 @@ import {
 } from "./sync-scylladb.event"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EnqueueSyncScyllaDBJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/sync-scylladb.service"
 
 @Injectable()
 @EventsHandler(SyncScyllaDBEvent)

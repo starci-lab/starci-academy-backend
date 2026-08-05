@@ -1,8 +1,12 @@
 import {
-    CodingProblemEntity,
     CodingProblemTestcaseEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-testcase.entity"
+import {
+    CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     CodingSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/coding-submission.entity"
 
 /** Extended context for the judge-coding-submission pipeline, loaded by the worker. */
 export interface ExtendedJudgeCodingSubmissionContext {

@@ -8,7 +8,7 @@ import {
 } from "typeorm"
 import {
     NotificationType,
-} from "../enums"
+} from "../enums/notification-type"
 import {
     UuidAbstractEntity,
 } from "./abstract"

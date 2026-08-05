@@ -3,15 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     GetEmbeddingModelParams,
-} from "./types"
+} from "./types/model"
 import {
     Embeddings,
 } from "@langchain/core/embeddings"
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     UseApiService,
 } from "@modules/ai/balancer/use-api.service"
@@ -20,10 +24,10 @@ import type {
 } from "@modules/ai/balancer/types/use-api"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     OpenAIEmbeddings,
 } from "@langchain/openai"
@@ -35,7 +39,7 @@ import {
 } from "@langchain/community/embeddings/ollama"
 import {
     UnsupportedEmbeddingProviderException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/unsupported-embedding-provider"
 
 /**
  * `OllamaEmbeddings` hardcodes `maxConcurrency: 1` internally (fully

@@ -5,14 +5,18 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     AiModelCategory,
-    AiSubTier,
     GraphQLTypeAiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    AiSubTier,
     GraphQLTypeAiSubTier,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
 
 @ObjectType({
     description: "Unified platform credit quota (free base + tier).",

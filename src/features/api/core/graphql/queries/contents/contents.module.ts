@@ -6,31 +6,31 @@ import {
 } from "./contents.module-definition"
 import {
     ContentsSingleQueryModule,
-} from "./contents"
+} from "./contents/contents.module"
 import {
     ContentSingleQueryModule,
-} from "./content"
+} from "./content/content.module"
 import {
     ContentStatusSingleQueryModule,
-} from "./content-status"
+} from "./content-status/content-status.module"
 import {
     PublicContentSingleQueryModule,
-} from "./public-content"
+} from "./public-content/public-content.module"
 import {
     SavedContentsSingleQueryModule,
-} from "./saved-contents"
+} from "./saved-contents/saved-contents.module"
 import {
     SandboxRepoUrlModule,
-} from "./sandbox-repo-url"
+} from "./sandbox-repo-url/sandbox-repo-url.module"
 import {
     ContentSuggestionsSingleQueryModule,
-} from "./content-suggestions"
+} from "./content-suggestions/content-suggestions.module"
 import {
     ContentAiHistorySingleQueryModule,
-} from "./content-ai-history"
+} from "./content-ai-history/content-ai-history.module"
 import {
     ContentAiSessionsSingleQueryModule,
-} from "./content-ai-sessions"
+} from "./content-ai-sessions/content-ai-sessions.module"
 
 @Module({
     imports: [

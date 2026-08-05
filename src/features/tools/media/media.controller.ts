@@ -19,20 +19,20 @@ import {
 } from "@nestjs/swagger"
 import {
     LocalOnlyGuard,
-} from "../guards"
+} from "../guards/local-only.guard"
 import {
     toolsRoutes,
-} from "../constants"
+} from "../constants/routes"
 import {
     parseTargetIds,
-} from "../utils"
+} from "../utils/target-ids"
 import {
     MediaService,
 } from "./media.service"
 import type {
     MulterFile,
     ProcessMediaResult,
-} from "./types"
+} from "./types/media"
 
 @ApiTags(toolsRoutes.media.tag)
 @Controller(

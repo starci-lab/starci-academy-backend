@@ -3,18 +3,20 @@ import {
 } from "@nestjs/common"
 import {
     MountFilesystemService,
-    type SeedSyncDomainSink,
-    type SeedSynchronizersConfig,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
+import type {
+    SeedSyncDomainSink,
+    SeedSynchronizersConfig,
+} from "@modules/filesystem/types/seed"
 import type {
     SynchronizerSyncScope,
-} from "../types"
+} from "../types/context"
 import type {
     SynchronizerSink,
 } from "./types"
 import {
     buildCourseIndexFilterByDisplayId,
-} from "./utils"
+} from "./utils/build-course-index-filter"
 
 @Injectable()
 /**

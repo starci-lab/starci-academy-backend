@@ -1,20 +1,22 @@
 import {
-    ContextType,
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    ContextType,
+} from "@modules/platform/env/enums/context"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     MountFoundationsFileNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mount/foundations-file-not-found"
 import fs from "fs/promises"
 import {
     join,
 } from "path"
 import type {
     ReadFoundationsFileResult,
-} from "./types"
+} from "./types/mount-foundations"
 
 @Injectable()
 /**

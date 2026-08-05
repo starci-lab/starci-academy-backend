@@ -7,9 +7,11 @@ import {
 import {
     FoundationKind,
     GraphQLTypeFoundationKind,
+} from "../enums/foundation-kind"
+import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     Column,
     Entity,

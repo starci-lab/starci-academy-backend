@@ -6,7 +6,7 @@ import {
 } from "./sepay.module-definition"
 import {
     SepayWebhookModule,
-} from "./webhook"
+} from "./webhook/webhook.module"
 
 @Module(
     {

@@ -20,7 +20,7 @@ import {
 import {
     ChatConversationType,
     GraphQLTypeChatConversationType,
-} from "../enums"
+} from "../enums/chat-conversation-type"
 
 @ObjectType({
     description: "A chat conversation (community room or founder DM).",

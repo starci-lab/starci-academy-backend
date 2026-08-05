@@ -18,21 +18,25 @@ import {
 } from "langchain/text_splitter"
 import {
     InjectQdrantClient,
-} from "@modules/databases"
+} from "@modules/databases/qdrant/qdrant.decorators"
 import {
     EmbeddingModelService,
-} from "@modules/langchain"
+} from "@modules/integrations/langchain/embedding-model.service"
 import {
     ContextLoaderService,
+} from "@modules/init/seeders/shared/contexts/loader.service"
+import {
     PathResolverService,
-} from "@modules/init/seeders/shared"
+} from "@modules/init/seeders/shared/path/resolver.service"
 import {
     parseCvTemplateMarkdown,
-} from "@modules/init/seeders/cv/parsers/utils"
+} from "@modules/init/seeders/cv/parsers/utils/parse-cv-template-markdown"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CV_RAG_COLLECTION,
     CvRagKind,

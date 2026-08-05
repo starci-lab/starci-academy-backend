@@ -1,6 +1,6 @@
 import {
     SocketIoPayload,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/ws-payload"
 
 /** One prior turn of the transcript, as sent by the client over the wire. */
 export interface AskMockInterviewTurnHistoryEntry {

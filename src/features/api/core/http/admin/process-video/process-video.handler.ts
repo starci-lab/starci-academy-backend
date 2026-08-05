@@ -3,15 +3,17 @@ import {
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CommandHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     InjectQueue,
 } from "@nestjs/bullmq"
@@ -20,22 +22,26 @@ import {
 } from "bullmq"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
 import {
     ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     EntityManager,
 } from "typeorm"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import SuperJSON from "superjson"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     v4 as uuidv4,
 } from "uuid"

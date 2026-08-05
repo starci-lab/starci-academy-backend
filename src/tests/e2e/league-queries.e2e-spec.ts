@@ -18,21 +18,31 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
+    XpSource,
+} from "@modules/databases/postgresql/primary/enums/xp-source"
 import {
     PrimaryPostgreSQLModule,
-    UserEntity,
-    XpHistoryEntity,
-    XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    LeagueService,
+} from "@modules/bussiness/league/league.service"
 import {
     LeagueCohortPointsProjectionService,
-    LeagueService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/league-cohort-points/league-cohort-points-projection.service"
 import {
     MyLeagueResolver,
 } from "@features/api/core/graphql/queries/league/my-league/my-league.resolver"
@@ -41,7 +51,7 @@ import {
 } from "@features/api/core/graphql/queries/league/global-leaderboard/global-leaderboard.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

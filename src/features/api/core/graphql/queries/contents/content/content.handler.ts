@@ -1,21 +1,33 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    ContentLearningOutcomeEntity,
+} from "@modules/databases/postgresql/primary/entities/content-learning-outcome.entity"
 import {
     ContentEntity,
-    ContentLearningOutcomeEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ContentContextNotFound,
+} from "@modules/platform/exceptions/errors/courses/content-context-not-found"
+import {
     ContentNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/content-not-found"
+import {
     ContentScrapeRateLimitException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/content-scrape-rate-limit"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3NameResolverService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -31,18 +43,22 @@ import {
 } from "typeorm"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
+import {
+    IoRedisInstanceKey,
+} from "@modules/lib/native/ioredis/enums/instance-key"
 import {
     InjectIoRedis,
-    IoRedisInstanceKey,
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/ioredis.decorators"
 import type {
     Redis,
 } from "ioredis"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 /**
  * Rolling window (seconds) over which a single user's lesson-content reads are

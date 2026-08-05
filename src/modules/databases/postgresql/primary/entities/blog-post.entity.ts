@@ -12,7 +12,7 @@ import type {
 } from "./advertisement.entity"
 import {
     BlogCategory,
-} from "../enums"
+} from "../enums/blog-category"
 
 // the listing reads published posts newest-first, optionally filtered by category
 @Index(["isPublished",

@@ -1,16 +1,18 @@
 import type {
-    ModelProvider,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import type {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     EntityManager,
 } from "typeorm"
 import type {
     SyncSubmissionRequest,
-} from "../graphql-types"
+} from "../graphql-types/request"
 import type {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 
 /** Params for `SyncSubmissionService.execute`. */
 export type SyncSubmissionParams =

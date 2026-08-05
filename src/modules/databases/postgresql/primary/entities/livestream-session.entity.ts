@@ -15,7 +15,7 @@ import {
 import {
     DayOfWeek,
     GraphQLTypeDayOfWeek,
-} from "../enums"
+} from "../enums/day-of-week"
 import {
     CourseEntity,
 } from "./course.entity"

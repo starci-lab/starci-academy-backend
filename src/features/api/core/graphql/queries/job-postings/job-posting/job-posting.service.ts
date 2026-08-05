@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     JobPostingEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/job-posting.entity"
 import {
     JobPostingQuery,
 } from "./job-posting.query"
 import type {
     JobPostingRequestParams,
-} from "./types"
+} from "./types/job-posting-request"
 
 @Injectable()
 /**

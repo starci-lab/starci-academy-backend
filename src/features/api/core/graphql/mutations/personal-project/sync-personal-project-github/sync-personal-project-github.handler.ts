@@ -1,17 +1,27 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     PersonalProjectBranchTooLongException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-branch-too-long"
+import {
     PersonalProjectGithubSyncInputMissingException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-github-sync-input-missing"
+import {
     PersonalProjectGithubUrlMissingException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-github-url-missing"
+import {
     PersonalProjectInvalidBranchNameException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-invalid-branch-name"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -28,13 +38,13 @@ import {
 import type {
     SyncPersonalProjectGithubResult,
     UpsertPersonalProjectGithubParams,
-} from "./types"
+} from "./types/sync-personal-project-github"
 import {
     UrlValidatorService,
-} from "@modules/validators"
+} from "@modules/lib/validators/url.service"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
 
 const BRANCH_PATTERN = /^[a-zA-Z0-9._/-]+$/
 const BRANCH_MAX = 255

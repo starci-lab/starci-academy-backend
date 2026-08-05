@@ -6,7 +6,7 @@ import {
 } from "./stripe.module-definition"
 import {
     StripeWebhookModule,
-} from "./webhook"
+} from "./webhook/webhook.module"
 
 @Module(
     {

@@ -1,6 +1,6 @@
 import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * Caller input when enqueueing or persisting a grading model pick.

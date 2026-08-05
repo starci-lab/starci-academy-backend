@@ -2,18 +2,26 @@ import {
     Injectable
 } from "@nestjs/common"
 import {
-    FilenameProcessData
-} from "@modules/bullmq"
+    FilenameProcessData,
+} from "@modules/integrations/bullmq/types/payloads/process-video"
+import {
+    ProcessVideoEncodeStepService,
+} from "./steps/process-video-encode-step.service"
+import {
+    ProcessVideoFinalizeStepService,
+} from "./steps/process-video-finalize-step.service"
 import {
     ProcessVideoInitStepService,
-    ProcessVideoEncodeStepService,
-    ProcessVideoPackageStepService,
-    ProcessVideoUploadStepService,
-    ProcessVideoFinalizeStepService,
-} from "./steps"
+} from "./steps/process-video-init-step.service"
 import {
-    AbstractStepService 
-} from "@modules/bussiness"
+    ProcessVideoPackageStepService,
+} from "./steps/process-video-package-step.service"
+import {
+    ProcessVideoUploadStepService,
+} from "./steps/process-video-upload-step.service"
+import {
+    AbstractStepService,
+} from "@modules/bussiness/jobs/types/context"
 
 @Injectable()
 /**

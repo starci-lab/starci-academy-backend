@@ -12,19 +12,19 @@ import {
 } from "@nestjs/swagger"
 import {
     LocalOnlyGuard,
-} from "../guards"
+} from "../guards/local-only.guard"
 import {
     toolsRoutes,
-} from "../constants"
+} from "../constants/routes"
 import {
     S3SnapshotRequest,
-} from "./dtos"
+} from "./dtos/s3-snapshot.request"
 import {
     S3SnapshotService,
 } from "./s3-snapshot.service"
 import type {
     S3SnapshotResult,
-} from "./types"
+} from "./types/s3-snapshot"
 
 @ApiTags(toolsRoutes.s3.tag)
 @Controller(

@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql"
 import {
     createEnumType,
-} from "@modules/common"
+} from "@modules/lib/common/utils/enum"
 
 /**
  * Three pricing tiers per course: Pioneer, EarlyBird, Regular.

@@ -5,10 +5,12 @@ import {
 } from "@nestjs/graphql"
 import {
     GraphQLTypeJobEmploymentType,
-    GraphQLTypeWorkMode,
     JobEmploymentType,
+} from "@modules/databases/postgresql/primary/enums/job-employment-type"
+import {
+    GraphQLTypeWorkMode,
     WorkMode,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/work-mode"
 
 @InputType({
     description: "Request for listing job postings (public, no auth required).",

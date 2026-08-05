@@ -1,22 +1,34 @@
 import type {
     ProcessGoogleDocsSubmissionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/process-google-docs-submission"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
-    EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -25,11 +37,13 @@ import {
 } from "typeorm"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     HumanMessage,
     SystemMessage,
@@ -39,7 +53,7 @@ import {
 } from "@langchain/core/documents"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import template from "./template.json"
 import {
     AiEntitlementService,
@@ -49,21 +63,25 @@ import {
 } from "@modules/ai/ai-invoke.service"
 import {
     GoogleDriverAPIService,
-} from "@modules/googleapis"
+} from "@modules/integrations/googleapis/google-driver-api.service"
 import {
     ChallengeEvaluationParseService,
-} from "../../shared/challenge-evaluation"
+} from "../../shared/challenge-evaluation/challenge-evaluation-parse.service"
+import type {
+    ProcessGoogleDocsSubmissionGradeStepExecuteResult,
+} from "../types/execute"
 import type {
     ExtendedProcessGoogleDocsSubmissionContext,
-    ProcessGoogleDocsSubmissionGradeStepExecuteResult,
-} from "../types"
+} from "../types/extended"
 import {
     collectSubmissionCriteria,
+} from "../../shared/challenge-submission/utils/collect-submission-criteria"
+import {
     renderCriteriaPromptSections,
-} from "../../shared/challenge-submission/utils"
+} from "../../shared/challenge-submission/utils/render-criteria-prompt-sections"
 import {
     GradingRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/grading-rag-retrieval.service"
 
 @Injectable()
 /**

@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -15,10 +15,10 @@ import {
 } from "./index-search.handler"
 import {
     ElasticsearchModule,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     CacheModule,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.module"
 
 @Module({
     imports: [

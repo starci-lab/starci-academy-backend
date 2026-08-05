@@ -6,7 +6,7 @@ import {
 } from "@nestjs/swagger"
 import {
     MockDelayInterceptor,
-} from "../../interceptors"
+} from "../../interceptors/mock-delay.interceptor"
 import {
     PresenceStoreService,
 } from "./presence-store.service"

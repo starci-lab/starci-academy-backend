@@ -11,11 +11,11 @@ import {
 } from "puppeteer"
 import type {
     NextJsQueryGetParams,
-    NextJsQueryGetResult
-} from "./types"
+    NextJsQueryGetResult,
+} from "./types/nextjs-query"
 import {
     NextJsQueryPageNotRegisteredException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mixin/nextjs-query-page-not-registered.exception"
 
 puppeteer.use(StealthPlugin())
 

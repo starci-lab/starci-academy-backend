@@ -2,30 +2,30 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    AxiosService 
-} from "@modules/axios"
+    AxiosService,
+} from "@modules/integrations/axios/axios.service"
 import axios, {
     AxiosInstance 
 } from "axios"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     KeycloakExchangeCodeForTokenParams,
     KeycloakExchangeCodeForTokenResponse,
     KeycloakTokenIntrospectResponse,
     KeycloakPasswordLoginParams,
     KeycloakRegisterUserParams,
-} from "./types"
+} from "./types/tokens"
 import {
     KeycloakUserIdResolutionFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-user-id-resolution-failed"
 import type {
     KeycloakUserSummary,
-} from "./types"
+} from "./types/user"
 import {
-    MountStorageService 
-} from "@modules/filesystem"
+    MountStorageService,
+} from "@modules/filesystem/mount-storage.service"
 import {
     KeycloakJwksService 
 } from "./jwks.service"

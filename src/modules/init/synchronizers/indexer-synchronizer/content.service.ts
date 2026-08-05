@@ -1,30 +1,28 @@
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     Injectable,
     OnApplicationBootstrap,
 } from "@nestjs/common"
 import {
     EnqueueSyncIndexerJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/sync-indexer.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     Interval
 } from "@nestjs/schedule"
-import {
-    IndexerSynchronizerService,
-} from "./indexer-synchronizer.service"
-
 @Injectable()
 /**
  * @deprecated Replaced by {@link IndexerSynchronizerService}. Kept for reference.

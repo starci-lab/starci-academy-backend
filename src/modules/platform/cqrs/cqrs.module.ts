@@ -5,8 +5,8 @@ import {
     ConfigurableModuleClass
 } from "./cqrs.module-definition"
 import {
-    EventBusModule 
-} from "./event-bus"
+    EventBusModule,
+} from "./event-bus/event-bus.module"
 
 @Module({
     imports: [

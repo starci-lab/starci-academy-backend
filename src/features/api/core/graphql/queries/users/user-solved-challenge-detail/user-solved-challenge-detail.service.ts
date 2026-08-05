@@ -5,16 +5,20 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UserChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserChallengeSubmissionNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/user-challenge-submission-not-found"
+import {
+    UserSolvedChallengeDetailRequest,
+} from "./graphql-types/request"
 import {
     UserSolvedChallengeDetailData,
-    UserSolvedChallengeDetailRequest,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

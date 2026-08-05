@@ -6,7 +6,7 @@ import {
 import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
     description: "Enqueue grading for one challenge submission; pass `githubUrl` on first submit to create the user row.",

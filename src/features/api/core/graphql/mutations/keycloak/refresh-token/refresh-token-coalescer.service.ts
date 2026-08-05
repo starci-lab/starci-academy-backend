@@ -8,12 +8,14 @@ import {
     createHash,
 } from "crypto"
 import {
-    InjectIoRedis,
     IoRedisInstanceKey,
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
+    InjectIoRedis,
+} from "@modules/lib/native/ioredis/ioredis.decorators"
 import {
     KeycloakTokenService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/token.service"
 import {
     REFRESH_LOCK_KEY_PREFIX,
     REFRESH_LOCK_TTL_MS,

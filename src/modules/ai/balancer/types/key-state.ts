@@ -1,6 +1,6 @@
 import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     KeyStatus,
 } from "../enums/key-status"

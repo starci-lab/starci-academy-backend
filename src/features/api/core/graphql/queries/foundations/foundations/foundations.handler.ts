@@ -1,16 +1,18 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     FoundationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ElasticsearchQueryBuilder,
-    ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/query-builder"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,15 +25,17 @@ import {
 } from "@elastic/elasticsearch"
 import {
     SortOrder,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
     FoundationsQuery,
 } from "./foundations.query"
 import {
     FoundationsFilters,
-    FoundationsResponseData,
     FoundationsSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    FoundationsResponseData,
+} from "./graphql-types/response"
 
 @QueryHandler(FoundationsQuery)
 @Injectable()

@@ -1,6 +1,6 @@
 import {
     SocketIoPayload,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/ws-payload"
 
 /** Data a client sends to join a conversation's chat room. */
 export interface SubscribeCommunityChatData {

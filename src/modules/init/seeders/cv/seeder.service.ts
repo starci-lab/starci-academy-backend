@@ -3,13 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     TemplateCvInsertService,
-} from "./inserts"
+} from "./inserts/template-cv-insert.service"
 import {
     TemplateCvParserService,
-} from "./parsers"
+} from "./parsers/template-cv.service"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 
 @Injectable()
 /**

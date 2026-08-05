@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 
 /** CQRS message that triggers the public platform-stats aggregate read. */
 export class PlatformStatsQuery {

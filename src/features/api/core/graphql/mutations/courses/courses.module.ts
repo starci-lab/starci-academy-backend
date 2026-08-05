@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,22 +6,22 @@ import {
 } from "./courses.module-definition"
 import {
     CourseEnrollSingleMutationModule,
-} from "./course-enroll"
+} from "./course-enroll/course-enroll.module"
 import {
     StartTrialSingleMutationModule,
-} from "./start-trial"
+} from "./start-trial/start-trial.module"
 import {
     CoursesCheckoutSingleMutationModule,
-} from "./courses-checkout"
+} from "./courses-checkout/courses-checkout.module"
 import {
     AddToCartSingleMutationModule,
-} from "./add-to-cart"
+} from "./add-to-cart/add-to-cart.module"
 import {
     RemoveFromCartSingleMutationModule,
-} from "./remove-from-cart"
+} from "./remove-from-cart/remove-from-cart.module"
 import {
     ClearCartSingleMutationModule,
-} from "./clear-cart"
+} from "./clear-cart/clear-cart.module"
 
 @Module({
     imports: [

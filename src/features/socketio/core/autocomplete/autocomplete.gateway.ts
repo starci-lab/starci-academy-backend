@@ -6,13 +6,13 @@ import {
 } from "@nestjs/websockets"
 import {
     AutocompleteWebSocketGateway,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/decorators/gateway"
 import {
-    socketIoKeycloakAuthMiddleware 
-} from "@modules/socketio"
+    socketIoKeycloakAuthMiddleware,
+} from "@modules/platform/socketio/middlewares/keycloak-auth"
 import {
     GlobalSearchService,
-} from "./global-search"
+} from "./global-search/handle-global-search/global-search.service"
 
 @AutocompleteWebSocketGateway()
 /**

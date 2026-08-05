@@ -1,6 +1,6 @@
 import type {
     DailyQuestKey,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/daily-quest-key"
 
 /**
  * One code-defined daily-quest task. Targets + reward live in code (no DB table)

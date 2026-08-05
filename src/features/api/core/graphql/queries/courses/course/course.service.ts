@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     CourseEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/course.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CourseQuery,
 } from "./course.query"
 import {
     CourseRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /** Dispatches `CourseQuery` onto the CQRS bus. */

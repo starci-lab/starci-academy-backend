@@ -9,16 +9,22 @@ import {
 } from "typeorm"
 import {
     FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FlashcardReviewSessionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-session.entity"
+import {
     UserFlashcardReviewEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-flashcard-review.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     FlashcardDeckNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/flashcard/flashcard-deck-not-found"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 import type {
     CompleteFlashcardReviewSessionParams,
     CompleteFlashcardReviewSessionResult,

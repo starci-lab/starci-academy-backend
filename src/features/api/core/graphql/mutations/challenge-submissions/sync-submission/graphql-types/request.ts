@@ -6,7 +6,7 @@ import {
 import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
     description: "Challenge submission id; optionally the URL and/or the grading model to sync onto the user row (upserts, creating the row if missing).",

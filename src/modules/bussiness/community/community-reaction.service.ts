@@ -5,25 +5,37 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    CommunityPostCommentEntity,
     CommunityPostCommentReactionEntity,
-    CommunityPostEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post-comment-reaction.entity"
+import {
+    CommunityPostCommentEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post-comment.entity"
+import {
     CommunityPostReactionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/community-post-reaction.entity"
+import {
+    CommunityPostEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import {
     ReactionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CommunityPostCommentNotFoundException,
     CommunityPostNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/post"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import type {
     ReactionCountResult,
     ReactionSummaryResult,
-} from "../discussion"
+} from "../discussion/types/reaction"
 import type {
     CommunityCommentReactionCountRow,
     CommunityCommentReactionRow,

@@ -1,15 +1,21 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserMilestoneTaskAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
+import {
     UserMilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -25,12 +31,14 @@ import {
     UserPersonalTaskAttemptsQuery,
 } from "./user-personal-task-attempts.query"
 import {
-    UserPersonalTaskAttemptsResponseData,
     UserPersonalTaskAttemptsSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    UserPersonalTaskAttemptsResponseData,
+} from "./graphql-types/response"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 
 @QueryHandler(UserPersonalTaskAttemptsQuery)
 @Injectable()

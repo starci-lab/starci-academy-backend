@@ -5,38 +5,38 @@ import {
     ConfigurableModuleClass,
 } from "./core.module-definition"
 import {
-    AutocompleteModule 
-} from "./autocomplete"
+    AutocompleteModule,
+} from "./autocomplete/autocomplete.module"
 import {
     JobNotificationsModule,
-} from "./job-notifications"
+} from "./job-notifications/job-notifications.module"
 import {
     ContentDiscussionModule,
-} from "./content-discussion"
+} from "./content-discussion/content-discussion.module"
 import {
     NotificationsModule,
-} from "./notifications"
+} from "./notifications/notifications.module"
 import {
     CommunityFeedModule,
-} from "./community-feed"
+} from "./community-feed/community-feed.module"
 import {
     CommunityChatModule,
-} from "./community-chat"
+} from "./community-chat/community-chat.module"
 import {
     ContentAiModule,
-} from "./content-ai"
+} from "./content-ai/content-ai.module"
 import {
     SystemHealthModule,
-} from "./system-health"
+} from "./system-health/system-health.module"
 import {
     RagPlaygroundSocketModule,
-} from "./rag-playground"
+} from "./rag-playground/rag-playground.module"
 import {
     MockInterviewModule,
-} from "./mock-interview"
+} from "./mock-interview/mock-interview.module"
 import {
     PlaygroundByomSocketModule,
-} from "./playground-byom"
+} from "./playground-byom/playground-byom.module"
 
 @Module({
     imports: [

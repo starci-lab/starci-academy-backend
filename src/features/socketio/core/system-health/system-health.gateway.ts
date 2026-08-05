@@ -9,21 +9,25 @@ import type {
 } from "socket.io"
 import {
     SystemHealthWebSocketGateway,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     WsResponseService,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/response.service"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import type {
     AiModelHealthUpdatedEventPayload,
-} from "@modules/event"
+} from "@modules/platform/event/types/event-payload/ai-model-health-updated"
 import {
     SubscriptionEvent,
-} from "../enums"
+} from "../enums/subscription-event"
 import type {
     AiModelHealthSocketIoMessage,
-} from "./types"
+} from "./types/message"
 
 @SystemHealthWebSocketGateway()
 /**

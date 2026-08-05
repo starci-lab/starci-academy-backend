@@ -1,7 +1,9 @@
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -9,10 +11,14 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    CacheKey,
     CacheService,
+} from "@modules/integrations/cache/cache.service"
+import {
+    CacheKey,
+} from "@modules/integrations/cache/enums/cache-key"
+import {
     MilestoneTaskParentIndexCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/parent-index"
 
 @Injectable()
 /**

@@ -5,20 +5,26 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    HeadhuntingCompanyEntity,
     ConsultantEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
+    HeadhuntingCompanyEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
+    ConsultantInsertService,
+} from "./inserts/consultant-insert.service"
 import {
     HeadhuntingCompanyInsertService,
-    ConsultantInsertService,
-} from "./inserts"
+} from "./inserts/headhunting-company-insert.service"
+import {
+    ConsultantParserService,
+} from "./parsers/consultant.service"
 import {
     HeadhuntingCompanyParserService,
-    ConsultantParserService,
-} from "./parsers"
+} from "./parsers/headhunting-company.service"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 
 @Injectable()
 /**

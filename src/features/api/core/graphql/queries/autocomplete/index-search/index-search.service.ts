@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     IndexSearchQuery,
 } from "./index-search.query"
 import type {
-    IndexSearchData,
     IndexSearchRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import type {
+    IndexSearchData,
+} from "./graphql-types/response"
 
 @Injectable()
 /**

@@ -5,25 +5,31 @@ import {
 } from "@nestjs/common"
 import {
     AiModelLatencyCacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/ai-model-latency-cache.service"
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import type {
     AiModelHealthSnapshot,
-} from "@modules/event"
+} from "@modules/platform/event/types/event-payload/ai-model-health-updated"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     AiModelCatalogService,
 } from "../balancer/ai-model-catalog.service"
@@ -32,7 +38,7 @@ import {
 } from "../balancer/use-api.service"
 import type {
     AiModelEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
 
 @Injectable()
 /**

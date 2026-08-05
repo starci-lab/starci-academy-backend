@@ -7,30 +7,44 @@ import {
 } from "@nestjs/cqrs"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
     GlobalSearchQuery,
 } from "./global-search.query"
 import type {
     GlobalSearchItem,
     GlobalSearchSocketIoMessage,
+} from "./types/message"
+import type {
     SearchableEntity,
-} from "./types"
+} from "./types/payload"
 import {
     DEFAULT_SIZE,
 } from "./constants"
 import {
     ChallengeGlobalSearchService,
+} from "./entities/challenge.service"
+import {
     ContentGlobalSearchService,
+} from "./entities/content.service"
+import {
     CourseGlobalSearchService,
+} from "./entities/course.service"
+import {
     ModuleGlobalSearchService,
-} from "./entities"
+} from "./entities/module.service"
 
 @QueryHandler(GlobalSearchQuery)
 @Injectable()

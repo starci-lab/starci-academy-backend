@@ -3,8 +3,8 @@ import type {
 } from "@nestjs/common"
 
 import type {
-    SwaggerAuthenticationType 
-} from "../enums"
+    SwaggerAuthenticationType,
+} from "../enums/swagger-authentication"
 
 /**
  * Params for setting up Swagger/OpenAPI and optional Scalar API docs on a Nest application.

@@ -4,10 +4,10 @@ import {
 } from "@nestjs/testing"
 import {
     CvVerificationLevel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/cv-verification-level"
 import type {
     ConsultantEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
 import {
     CvVerificationService,
 } from "./cv-verification.service"

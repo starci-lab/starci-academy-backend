@@ -1,16 +1,30 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
-    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     FlashcardDeckEntity,
-    MilestoneEntity,
-    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FoundationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 
 /**
  * Shared args every per-entity global-searcher receives. `size` is the per-kind

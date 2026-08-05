@@ -3,8 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     PathResolverService,
+} from "../../shared/path/resolver.service"
+import {
     ResolvedFilePath,
-} from "../../shared"
+} from "../../shared/path/types"
 
 @Injectable()
 /** Resolves indexed subscription tier folders under `.mount/data/subcriptions/`. */

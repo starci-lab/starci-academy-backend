@@ -1,6 +1,6 @@
 import type {
     ServiceName,
-} from "@modules/common"
+} from "@modules/lib/common/enums/service"
 import type {
     WinstonLevel,
 } from "./level"

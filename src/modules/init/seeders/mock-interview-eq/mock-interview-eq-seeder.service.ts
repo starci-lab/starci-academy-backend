@@ -3,23 +3,25 @@ import {
 } from "@nestjs/common"
 import {
     MockInterviewEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/mock-interview.entity"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 import {
     InterviewQuestionEqParserService,
-} from "./parsers"
+} from "./parsers/interview-question-eq-parser.service"
 import {
     logInitSeederEntitySkipped,
+} from "../shared/log-init-seeder-entity-skipped"
+import {
     UpsertService,
-} from "../shared"
+} from "../shared/upsert/upsert.service"
 import {
     UuidPartitionPersistProcessorService,
-} from "../courses/processors"
+} from "../courses/processors/uuid-partition-persist-processor.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 @Injectable()
 /**

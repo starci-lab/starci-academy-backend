@@ -6,16 +6,16 @@ import {
 } from "./learner-cms.module-definition"
 import {
     MyChallengeSubmissionsSingleQueryModule,
-} from "./my-challenge-submissions"
+} from "./my-challenge-submissions/my-challenge-submissions.module"
 import {
     MyMilestoneTaskAttemptsSingleQueryModule,
-} from "./my-milestone-task-attempts"
+} from "./my-milestone-task-attempts/my-milestone-task-attempts.module"
 import {
     MyLearningFeedbacksSingleQueryModule,
-} from "./my-learning-feedbacks"
+} from "./my-learning-feedbacks/my-learning-feedbacks.module"
 import {
     MyCourseOutlineSingleQueryModule,
-} from "./my-course-outline"
+} from "./my-course-outline/my-course-outline.module"
 
 @Module({
     imports: [

@@ -1,23 +1,37 @@
 import type {
     GenerateCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/generate-cv"
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
+import {
+    UserXpProjectionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-xp-projection.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     CvSource,
+} from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserCvGenerationEntity,
-    UserEntity,
-    UserXpProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     S3Provider,
+} from "@modules/integrations/s3/enums/s3"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -26,17 +40,21 @@ import {
 } from "typeorm"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
-    ExtendedGenerateCvContext,
     GatheredChallengeSubmission,
     GatheredCodingSolve,
     GatheredMilestoneTaskAttempt,
     GatheredUserProfile,
     GatheredXpBreakdown,
     GenerateCvGatherStepExecuteResult,
-} from "../types"
+} from "../types/execute"
+import type {
+    ExtendedGenerateCvContext,
+} from "../types/extended"
 import {
     extractCvText,
 } from "./extract-cv-text"

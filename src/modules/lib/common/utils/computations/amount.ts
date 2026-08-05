@@ -2,7 +2,7 @@ import Decimal from "decimal.js"
 import BN from "bn.js"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     pow10,
 } from "./pow-10"

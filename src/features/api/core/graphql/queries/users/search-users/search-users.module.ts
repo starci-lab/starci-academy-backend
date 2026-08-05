@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     ElasticsearchModule,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     ConfigurableModuleClass,
 } from "./search-users.module-definition"

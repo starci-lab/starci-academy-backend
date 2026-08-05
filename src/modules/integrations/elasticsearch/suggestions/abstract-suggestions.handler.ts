@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -10,11 +10,11 @@ import {
 import {
     DEFAULT_SUGGESTIONS_LIMIT,
     runCompletionSuggest,
-} from "../utils"
+} from "../utils/completion"
 import type {
     SuggestionsPayloadShape,
     SuggestionsQuery,
-} from "./types"
+} from "./types/suggestions"
 
 @Injectable()
 /**

@@ -3,19 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     EnvModule,
-} from "@modules/env"
+} from "@modules/platform/env/env.module"
 import {
     ExecaModule,
-} from "@modules/execa"
+} from "@modules/integrations/execa/execa.module"
 import {
     FfmpegModule,
-} from "@modules/ffmpeg"
+} from "@modules/integrations/ffmpeg/ffmpeg.module"
 import {
     Bento4Module,
-} from "@modules/bento4"
+} from "@modules/integrations/bento4/bento4.module"
 import {
     ToolsModule,
-} from "@features/tools"
+} from "@features/tools/tools.module"
 
 @Module({
     imports: [

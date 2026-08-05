@@ -10,7 +10,7 @@ import {
 } from "./generate-submit-cv-presign-url.command"
 import {
     GenerateSubmitCvPresignUrlResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** CommandBus hop so the resolver does not import S3 signing. */

@@ -1,10 +1,12 @@
 import type {
     ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ResolvedFilePath,
-} from "../../../shared"
+} from "../../../shared/path/types"
 /** Indices that locate a challenge under mounted course data. */
 export interface ParseChallengeParams {
     /** The paths of the challenge. */

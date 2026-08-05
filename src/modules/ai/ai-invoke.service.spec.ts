@@ -4,12 +4,16 @@ import {
 } from "@nestjs/testing"
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AiModeNotEntitledException,
+} from "@modules/platform/exceptions/errors/ai/ai-mode-not-entitled"
+import {
     UnsupportedAiProviderException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/unsupported-ai-provider"
 import {
     AiInvokeService,
 } from "./ai-invoke.service"

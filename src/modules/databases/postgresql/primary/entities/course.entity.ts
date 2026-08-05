@@ -28,7 +28,7 @@ import {
 import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     PricingPhaseEntity,
 } from "./pricing-phase.entity"

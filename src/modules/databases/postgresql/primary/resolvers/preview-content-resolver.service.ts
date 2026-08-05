@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     PreviewContentEntity,
-} from "../entities"
+} from "../entities/preview-content.entity"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     TranslationResolverService,
 } from "./translation.service"

@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MyPickableCvAchievementsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * QueryBus payload for `myPickableCvAchievements`: request + locale + user into

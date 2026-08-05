@@ -1,6 +1,6 @@
 import type {
     ParsedCvTemplateMarkdown,
-} from "../types"
+} from "../types/template-cv"
 
 /**
  * Parse a markdown file with `# title`, `# description`, `# body` sections.

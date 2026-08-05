@@ -6,15 +6,19 @@ import {
 } from "typeorm"
 import {
     CodingVerdict,
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import type {
     CodingProblemProgressCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/coding-problem-progress"
 import type {
     CodingPointsRow,
     CodingProblemIdRow,

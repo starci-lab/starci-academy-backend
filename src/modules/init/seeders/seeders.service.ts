@@ -3,37 +3,37 @@ import {
 } from "@nestjs/common"
 import {
     CourseSeederService,
-} from "./courses"
+} from "./courses/seeder.service"
 import {
     CvSeederService,
-} from "./cv"
+} from "./cv/seeder.service"
 import {
     FoundationSeederService,
-} from "./foundations"
+} from "./foundations/seeder.service"
 import {
     HeadhuntingSeederService,
-} from "./headhuntings"
+} from "./headhuntings/seeder.service"
 import {
     CatalogSeederService,
-} from "./catalog"
+} from "./catalog/catalog-seeder.service"
 import {
     CodingProblemSeederService,
-} from "./coding-problems"
+} from "./coding-problems/coding-problem-seeder.service"
 import {
     AdvertisementSeederService,
-} from "./advertisements"
+} from "./advertisements/advertisement-seeder.service"
 import {
     ChangelogSeederService,
-} from "./changelog"
+} from "./changelog/changelog-seeder.service"
 import {
     BlogSeederService,
-} from "./blog"
+} from "./blog/blog-seeder.service"
 import {
     AchievementSeederService,
-} from "./achievements"
+} from "./achievements/achievement-seeder.service"
 import {
     MockInterviewEqSeederService,
-} from "./mock-interview-eq"
+} from "./mock-interview-eq/mock-interview-eq-seeder.service"
 @Injectable()
 /**
  * Init seed orchestrator: each domain seeder reads envConfig().init seeders context itself.

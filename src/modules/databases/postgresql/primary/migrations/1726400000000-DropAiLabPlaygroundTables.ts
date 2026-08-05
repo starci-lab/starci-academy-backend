@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 import {
     IrreversibleMigrationException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/migrations/irreversible-migration"
 
 /**
  * Drops the three AI Lab Playground tables -- the prompt-sandbox lesson
@@ -61,7 +61,7 @@ export class DropAiLabPlaygroundTables1726400000000 implements MigrationInterfac
      * @param _queryRunner - Active TypeORM query runner (unused).
      * @throws Always -- this migration is not reversible.
      */
-    async down(_queryRunner: QueryRunner): Promise<void> {
+    async down(): Promise<void> {
         throw new IrreversibleMigrationException({
             migrationName: "DropAiLabPlaygroundTables1726400000000",
             reason: "the AI Lab Playground feature has been removed and its data cannot be restored.",

@@ -12,19 +12,19 @@ import {
 } from "@nestjs/swagger"
 import {
     LocalOnlyGuard,
-} from "../guards"
+} from "../guards/local-only.guard"
 import {
     toolsRoutes,
-} from "../constants"
+} from "../constants/routes"
 import {
     PgBackupRequest,
-} from "./dtos"
+} from "./dtos/pg-backup.request"
 import {
     PgBackupService,
 } from "./pg-backup.service"
 import type {
     PgBackupResult,
-} from "./types"
+} from "./types/pg-backup"
 
 @ApiTags(toolsRoutes.pg.tag)
 @Controller(

@@ -1,9 +1,13 @@
 import type {
     AdvertisementMedia,
-    AdvertisementMediaType,
-    AdvertisementPlacement,
     LocalizedText,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/advertisement.entity"
+import type {
+    AdvertisementMediaType,
+} from "@modules/databases/postgresql/primary/enums/advertisement-media-type"
+import type {
+    AdvertisementPlacement,
+} from "@modules/databases/postgresql/primary/enums/advertisement-placement"
 
 /**
  * One advertisement row as authored in `advertisements.md`. Upserted by `slug`.

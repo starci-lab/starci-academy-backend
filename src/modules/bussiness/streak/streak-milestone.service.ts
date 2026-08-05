@@ -6,16 +6,22 @@ import {
 } from "typeorm"
 import {
     CoinHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/coin-history.entity"
+import {
     CoinSource,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/coin-source"
+import {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     writeCoinHistory,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/write-coin-history"
 import {
     NotificationService,
-} from "../notification"
+} from "../notification/notification.service"
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"

@@ -1,6 +1,6 @@
 import {
     DailyQuestKey,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/daily-quest-key"
 import type {
     DailyQuestTaskDefinition,
 } from "./types"

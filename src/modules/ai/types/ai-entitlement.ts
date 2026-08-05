@@ -3,10 +3,16 @@ import type {
 } from "typeorm"
 import type {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import type {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import type {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import type {
     AiSubTier,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
 
 /** A user's resolved AI entitlement after lazy window reset. */
 export interface AiEntitlement {

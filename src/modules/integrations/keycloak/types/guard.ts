@@ -1,6 +1,6 @@
 import {
-    UserEntity 
-} from "@modules/databases"
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import type {
     KeycloakTokenIntrospectResponse,
 } from "./tokens"

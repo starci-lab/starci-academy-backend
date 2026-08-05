@@ -1,9 +1,9 @@
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ConnectGithubAccountInput,
-} from "./graphql-types"
+} from "./graphql-types/input"
 
 /**
  * Handler input for connectGithubAccount -- typed here (not ExecuteParams)

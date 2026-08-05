@@ -5,7 +5,7 @@ import {
 } from "typeorm"
 import {
     LeagueTier,
-} from "../enums"
+} from "../enums/league-tier"
 import {
     UuidAbstractEntity,
 } from "./abstract"

@@ -6,12 +6,16 @@ import {
 } from "typeorm"
 import {
     ContentEngagementProjectionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/content-engagement-projection.entity"
+import {
     ReactionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     ContentEngagementSummary,
     RecomputeContentEngagementParams,

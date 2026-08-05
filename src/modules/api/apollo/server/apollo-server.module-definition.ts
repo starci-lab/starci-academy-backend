@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     ApolloServerOptions,
-} from "./types"
+} from "./types/server"
 
 /** Dynamic module definition for ApolloServerModule (options and global flag). */
 export const {

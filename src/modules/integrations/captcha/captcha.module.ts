@@ -8,8 +8,8 @@ import {
     CaptchaService
 } from "./captcha.service"
 import {
-    CaptchaGuard
-} from "./guards"
+    CaptchaGuard,
+} from "./guards/captcha.guard"
 
 @Module({
     providers: [

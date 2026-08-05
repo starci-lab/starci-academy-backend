@@ -8,10 +8,10 @@ import type {
 } from "@nestjs/testing"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     MissingRequiredParameterException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/stdlib/missing-required-parameter"
 import {
     MergeJsonService,
 } from "./merge.service"

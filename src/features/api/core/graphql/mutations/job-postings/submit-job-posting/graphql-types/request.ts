@@ -21,12 +21,16 @@ import {
 } from "class-transformer"
 import {
     GraphQLTypeJobApplyMethod,
-    GraphQLTypeJobEmploymentType,
-    GraphQLTypeWorkMode,
     JobApplyMethod,
+} from "@modules/databases/postgresql/primary/enums/job-apply-method"
+import {
+    GraphQLTypeJobEmploymentType,
     JobEmploymentType,
+} from "@modules/databases/postgresql/primary/enums/job-employment-type"
+import {
+    GraphQLTypeWorkMode,
     WorkMode,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/work-mode"
 
 /** Upper bound on title length, mirroring the `job_postings.title` column. */
 const MAX_TITLE_LENGTH = 255

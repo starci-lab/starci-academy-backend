@@ -1,7 +1,9 @@
 import {
     FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
     MilestoneEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
 import {
     InitConfigParserService,
 } from "./init-config-parser.service"

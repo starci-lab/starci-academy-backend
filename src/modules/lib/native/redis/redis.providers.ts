@@ -8,14 +8,14 @@ import {
     createRedisKey 
 } from "./constants"
 import {
-    RedisInstanceKey
-} from "./enums"
+    RedisInstanceKey,
+} from "./enums/instance-key"
 import {
-    RedisInstanceKeyOptions 
-} from "./types"
+    RedisInstanceKeyOptions,
+} from "./types/options"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 
 /**
  * Builds a node-redis standalone or cluster client from env for `key`.

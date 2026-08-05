@@ -1,10 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     CvBlocksEntity,
+} from "@modules/databases/postgresql/primary/entities/cv-blocks.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -20,7 +22,7 @@ import {
 } from "./my-cv-blocks.query"
 import {
     CvBlocksDocument,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @QueryHandler(MyCvBlocksQuery)
 @Injectable()

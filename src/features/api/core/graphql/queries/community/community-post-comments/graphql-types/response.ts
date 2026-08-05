@@ -4,11 +4,13 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     CommunityCommentsPageObject,
-} from "../../../../shared/community"
+} from "../../../../shared/community/object-types/community-comments-page.object"
 
 @ObjectType({
     description: "Response wrapper for the communityPostComments query.",

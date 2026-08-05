@@ -3,16 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     HeaderKidNotFoundException,
-    InvalidJwtPayloadException,
-    JwksSigningKeyNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/header-kid-not-found"
 import {
-    envConfig 
-} from "@modules/env"
+    InvalidJwtPayloadException,
+} from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
+import {
+    JwksSigningKeyNotFoundException,
+} from "@modules/platform/exceptions/errors/keycloak/jwks-signing-key-not-found"
+import {
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     KeycloakJwtPayload,
+} from "./types/jwt-jwks"
+import {
     KeycloakTokenIntrospectResponse,
-} from "./types"
+} from "./types/tokens"
 import {
     GetPublicKeyOrSecret, 
     JwtPayload,

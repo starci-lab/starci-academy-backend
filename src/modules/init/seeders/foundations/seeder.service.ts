@@ -6,19 +6,25 @@ import {
 } from "typeorm"
 import {
     FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
+import {
     FoundationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
 import {
     FoundationCategoryInsertService,
+} from "./inserts/foundation-category-insert.service"
+import {
     FoundationInsertService,
-} from "./inserts"
+} from "./inserts/foundation-insert.service"
 import {
     FoundationCategoryParserService,
+} from "./parsers/foundation-category.service"
+import {
     FoundationParserService,
-} from "./parsers"
+} from "./parsers/foundation.service"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 
 @Injectable()
 /**

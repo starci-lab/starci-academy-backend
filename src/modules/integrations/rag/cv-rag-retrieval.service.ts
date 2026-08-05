@@ -12,14 +12,16 @@ import type {
 } from "@langchain/core/documents"
 import {
     InjectQdrantClient,
-} from "@modules/databases"
+} from "@modules/databases/qdrant/qdrant.decorators"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EmbeddingModelService,
-} from "@modules/langchain"
+} from "@modules/integrations/langchain/embedding-model.service"
 
 /**
  * Kinds of CV RAG reference material, used to scope a retrieval to a slice of the

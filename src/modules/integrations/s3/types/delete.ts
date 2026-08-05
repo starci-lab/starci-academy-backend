@@ -1,6 +1,6 @@
 import {
     S3Provider,
-} from "../enums"
+} from "../enums/s3"
 
 /** Params for batch-deleting objects from S3. */
 export interface DeleteObjectsParams {

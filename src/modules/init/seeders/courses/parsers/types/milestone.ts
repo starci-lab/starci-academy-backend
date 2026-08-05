@@ -1,9 +1,9 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ResolvedFilePath,
-} from "../../../shared"
+} from "../../../shared/path/types"
 
 /** One aligned i18n translation row carried by a merged milestone-task block. */
 export interface MilestoneTaskTranslation {

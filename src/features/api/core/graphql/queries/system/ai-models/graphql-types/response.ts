@@ -4,16 +4,22 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     AiModelCategory,
-    AiModelTask,
     GraphQLTypeAiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    AiModelTask,
     GraphQLTypeAiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @ObjectType({
     description: "A single model choice (model name + provider).",

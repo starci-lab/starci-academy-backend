@@ -24,19 +24,23 @@ import {
 } from "os"
 import * as tar from "tar"
 import {
-    ContextType,
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    ContextType,
+} from "@modules/platform/env/enums/context"
 import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     DataGitBootstrapException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/init/data-git-bootstrap"
 import {
     DATA_GIT_MANIFEST_FILE,
     DATA_GIT_MAX_SNAPSHOTS,
@@ -44,13 +48,13 @@ import {
 } from "./constants"
 import {
     diffSnapshots,
-} from "./utils"
+} from "./utils/diff-snapshots"
 import type {
     DownloadAndExtractParams,
     DownloadAndExtractResult,
     EnsureDataGitResult,
     SnapshotManifest,
-} from "./types"
+} from "./types/data-git"
 
 @Injectable()
 /**

@@ -3,7 +3,7 @@ import type {
 } from "@langchain/core/messages"
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AiInvokeService,
 } from "@modules/ai/ai-invoke.service"

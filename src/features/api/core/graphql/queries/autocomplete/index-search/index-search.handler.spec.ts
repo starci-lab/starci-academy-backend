@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -14,19 +14,19 @@ import {
 } from "./index-search.query"
 import {
     IndexSearchType,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ParentIndexCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/parent-index"
 
 /** Build an ES search response from raw hits. */
 const buildSearchResponse = (

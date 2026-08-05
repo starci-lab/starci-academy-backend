@@ -9,14 +9,14 @@ import {
 } from "./primary.decorators"
 import {
     SyncStateEntity,
-} from "./entities"
+} from "./entities/sync-state.entity"
 import {
     SyncStateStatus,
-} from "./enums"
+} from "./enums/sync-state"
 import type {
     SyncStateKey,
     SyncStateSyncInput,
-} from "./types"
+} from "./types/sync-state"
 
 @Injectable()
 /**

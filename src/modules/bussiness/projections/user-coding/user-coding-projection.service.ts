@@ -5,12 +5,14 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UserCodingProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-coding-projection.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     CodingLeaderboardEntryResult,
     CodingLeaderboardRow,

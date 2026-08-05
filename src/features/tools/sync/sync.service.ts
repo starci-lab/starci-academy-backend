@@ -9,7 +9,7 @@ import {
 import {
     ToolsArtifactNotFoundException,
     ToolsArtifactSyncTargetsMissingException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/tools/artifact"
 import type {
     S3Client,
 } from "@aws-sdk/client-s3"
@@ -27,23 +27,27 @@ import {
 } from "path"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ArtifactStatus,
+} from "../store/enums/store"
+import {
     ToolsStoreService,
-} from "../store"
+} from "../store/tools-store.service"
 import {
     buildS3Client,
     contentTypeForKey,
-} from "../utils"
+} from "../utils/s3-target"
 import type {
     PushResult,
     PushToTargetParams,
     SyncArtifactResult,
     SyncFileEntry,
     SyncTargetResult,
-} from "./types"
+} from "./types/sync"
 
 @Injectable()
 /**

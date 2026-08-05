@@ -1,12 +1,14 @@
 import type {
-    AppConfig,
     AppConfigSystemAiAuto,
-} from "../types"
+} from "../types/ai-auto-quota"
+import type {
+    AppConfig,
+} from "../types/config"
 import {
     DEFAULT_AI_AUTO_CREDIT_COST,
     DEFAULT_AI_AUTO_CREDITS_PER_5H,
     DEFAULT_AI_AUTO_CREDITS_PER_WEEK,
-} from "../constants"
+} from "../constants/ai-auto-quota-defaults"
 
 /**
  * Resolve free Auto-lane CREDIT caps from mounted `app.yaml` with product

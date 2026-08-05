@@ -17,14 +17,16 @@ import type {
 } from "express"
 import {
     MockInvalidUploadRequestException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mock/file-upload"
 import {
     FileStoreService,
-} from "../../file-store"
+} from "../../file-store/file-store.service"
 import {
     readRawBody,
+} from "../../utils/read-raw-body"
+import {
     resolveRequestOrigin,
-} from "../../utils"
+} from "../../utils/request-origin"
 
 /** tus protocol version this mock speaks. */
 const TUS_VERSION = "1.0.0"

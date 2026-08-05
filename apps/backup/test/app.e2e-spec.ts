@@ -6,8 +6,8 @@ import {
 } from "@nestjs/common"
 import * as request from "supertest"
 import {
-    BackupModule 
-} from "./../src/backup.module"
+    BackupModule,
+} from "../src/backup.module"
 
 describe("BackupController (e2e)",
     () => {

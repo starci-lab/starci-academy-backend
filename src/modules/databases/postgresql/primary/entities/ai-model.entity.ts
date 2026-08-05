@@ -12,14 +12,20 @@ import {
 } from "typeorm"
 import {
     AiModelCategory,
-    AiModelTask,
     GraphQLTypeAiModelCategory,
+} from "../enums/ai-model-category"
+import {
+    AiModelTask,
     GraphQLTypeAiModelTask,
+} from "../enums/ai-model-task"
+import {
     GraphQLTypeLocale,
-    GraphQLTypeModelProvider,
     Locale,
+} from "../enums/locale"
+import {
+    GraphQLTypeModelProvider,
     ModelProvider,
-} from "../enums"
+} from "../enums/model-provider"
 import {
     UuidAbstractEntity,
 } from "./abstract"

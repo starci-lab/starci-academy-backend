@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -17,21 +17,25 @@ import {
 } from "./challenge-submission.query"
 import {
     ChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
     UserChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
 import {
     ChallengeSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/challenge-submission-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

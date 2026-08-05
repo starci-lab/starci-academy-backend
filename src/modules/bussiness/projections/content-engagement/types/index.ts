@@ -3,7 +3,7 @@ import type {
 } from "typeorm"
 import type {
     ReactionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
 
 /**
  * Params for recomputing one content's engagement projection row.

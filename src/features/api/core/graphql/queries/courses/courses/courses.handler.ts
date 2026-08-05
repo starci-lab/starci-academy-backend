@@ -1,16 +1,18 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     CourseEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ElasticsearchQueryBuilder,
-    ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/query-builder"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -26,7 +28,7 @@ import {
 } from "./courses.query"
 import {
     CoursesResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @QueryHandler(CoursesQuery)
 @Injectable()

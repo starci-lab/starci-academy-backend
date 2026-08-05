@@ -7,22 +7,28 @@ import {
     UseInterceptors,
 } from "@nestjs/common"
 import {
+    GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-    GraphQLLocale,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     CourseMindMapRequest,
+} from "./graphql-types/request"
+import {
     CourseMindMapResponse,
     CourseMindMapResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     CourseMindMapService,
 } from "./course-mind-map.service"

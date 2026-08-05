@@ -1,6 +1,6 @@
 import {
     FoundationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
 import {
     Field,
     Int,

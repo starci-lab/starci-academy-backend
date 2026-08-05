@@ -3,16 +3,22 @@ import type {
 } from "typeorm"
 import type {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import type {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import type {
     MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import type {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import type {
     ResolvedFileResult,
-} from "../../shared"
+} from "../../shared/path/types"
 import type {
     CourseIndexFilterByDisplayId,
-} from "../../../types"
+} from "../../../types/context"
 
 /** {@link CourseProcessorService.process} input. */
 export interface ProcessCoursesParams {

@@ -6,13 +6,13 @@ import {
 } from "cassandra-driver"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectScyllaDBClient,
 } from "./scylladb.decorators"
 import {
     InvalidScyllaIdentifierException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/scylladb/invalid-scylla-identifier"
 
 @Injectable()
 /** Shared ScyllaDB helper for schema bootstrap and document upsert operations. */

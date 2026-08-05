@@ -1,18 +1,20 @@
 import {
     Injectable,
 } from "@nestjs/common"
-import {
-    type SeedConfig,
-    type SeedCourseTrack,
-    type SeedSyncCourseTrack,
-    type SeedSyncDomainSink,
-} from "@modules/filesystem"
+import type {
+    SeedConfig,
+    SeedCourseTrack,
+    SeedSyncCourseTrack,
+    SeedSyncDomainSink,
+} from "@modules/filesystem/types/seed"
 import type {
     BuildDiffOverlayResult,
     DataGitDiff,
     DataGitDomain,
+} from "./types/diff"
+import type {
     DomainFlags,
-} from "./types"
+} from "./types/domain-flags"
 
 /** All-off domain flags -- the baseline every builder starts from. */
 const NO_DOMAINS: DomainFlags = {

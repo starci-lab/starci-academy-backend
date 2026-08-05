@@ -1,15 +1,19 @@
 import {
     makeEntityManagerMock,
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     EnrollmentEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 
 /**
  * Stub `GithubRepoLoader` so no real clone/network happens -- every instance's

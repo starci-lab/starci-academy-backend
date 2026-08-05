@@ -4,16 +4,16 @@ import {
 } from "@nestjs/testing"
 import {
     AiPingCacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/ai-ping-cache.service"
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     AiModelEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
 import {
     NoActiveBalancerKeyException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/no-active-balancer-key"
 import {
     AiBalancerService,
 } from "./ai-balancer.service"

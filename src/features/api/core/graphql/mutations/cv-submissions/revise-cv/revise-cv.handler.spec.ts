@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (mirrors sync-submission.handler.spec.ts).
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -14,23 +14,25 @@ import {
 } from "@modules/ai/grading-lane-validation.service"
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     CvGenerationNotFoundException,
+} from "@modules/platform/exceptions/errors/api/cv-generation-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     EnqueueGenerateCvJobService,
-} from "@features/api/processors/ai/generate-cv"
+} from "../../../../../processors/ai/generate-cv/enqueue-generate-cv.service"
 import {
     ReviseCvCommand,
 } from "./revise-cv.command"

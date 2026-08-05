@@ -20,7 +20,7 @@ import {
 } from "../cache.service"
 import {
     GraphQLCacheConfig,
-} from "../types"
+} from "../types/graphql-cache"
 
 /**
  * Metadata key for cached GraphQL response config.

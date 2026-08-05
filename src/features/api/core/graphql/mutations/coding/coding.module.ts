@@ -6,10 +6,10 @@ import {
 } from "./coding.module-definition"
 import {
     SubmitCodingSolutionSingleMutationModule,
-} from "./submit-coding-solution"
+} from "./submit-coding-solution/submit-coding-solution.module"
 import {
     RevealCodingSolutionSingleMutationModule,
-} from "./reveal-coding-solution"
+} from "./reveal-coding-solution/reveal-coding-solution.module"
 
 @Module({
     imports: [

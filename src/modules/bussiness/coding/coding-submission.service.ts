@@ -6,24 +6,34 @@ import {
 } from "typeorm"
 import {
     CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     CodingSolutionRevealEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-solution-reveal.entity"
+import {
     CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-submission.entity"
+import {
     CodingVerdict,
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CodingProblemNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/coding/coding-problem-not-found"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EnqueueJudgeCodingSubmissionJobService,
-} from "../jobs"
+} from "../jobs/enqueue/judge-coding-submission.service"
 import {
     DeviceService,
-} from "../device"
+} from "../device/device.service"
 import type {
     AcceptedSubmissionSummaryRow,
     AcceptedSubmissionSummaryResult,
@@ -66,7 +76,6 @@ export class CodingSubmissionService {
         slug,
         language,
         sourceCode,
-        telemetry,
         ipAddress = null,
         userAgent = null,
         fingerprint = null,

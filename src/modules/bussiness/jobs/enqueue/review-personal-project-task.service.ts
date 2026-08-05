@@ -8,33 +8,39 @@ import {
     Queue,
 } from "bullmq"
 import {
-    ActionType,
     JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     JobCategory,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/job-category"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
 import type {
     ReviewPersonalProjectTaskPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/review-personal-project-task"
 import SuperJSON from "superjson"
 import {
     v4 as uuidv4,
 } from "uuid"
 import {
     JobActionService,
-} from "../atomic"
+} from "../atomic/job-action.service"
 import {
     sleepEnqueueUxDelay,
-} from "../utils"
+} from "../utils/enqueue-ux-delay"
 import type {
     EnqueueReviewPersonalProjectTaskParams,
-} from "../types"
+} from "../types/enqueue"
 
 @Injectable()
 /**

@@ -1,9 +1,9 @@
 import type {
     ChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
 import type {
     ResolvedChallengeCriterion,
-} from "../types"
+} from "../types/criteria"
 import {
     pickLangBody,
 } from "./pick-lang-body"

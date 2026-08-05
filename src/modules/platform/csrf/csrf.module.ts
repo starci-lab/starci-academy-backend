@@ -8,8 +8,8 @@ import {
     CsrfService
 } from "./csrf.service"
 import {
-    CsrfGuard
-} from "./guards"
+    CsrfGuard,
+} from "./guards/csrf.guard"
 
 @Module({
     providers: [

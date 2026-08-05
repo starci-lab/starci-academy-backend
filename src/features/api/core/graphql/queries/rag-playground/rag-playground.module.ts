@@ -6,7 +6,7 @@ import {
 } from "./rag-playground.module-definition"
 import {
     RagPlaygroundSamplesSingleQueryModule,
-} from "./rag-playground-samples"
+} from "./rag-playground-samples/rag-playground-samples.module"
 
 @Module({
     imports: [

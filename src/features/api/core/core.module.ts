@@ -2,18 +2,20 @@ import {
     Module 
 } from "@nestjs/common"
 import {
-    HttpModule 
-} from "./http"
+    HttpModule,
+} from "./http/http.module"
 import {
     GraphQLModule,
-} from "./graphql"
+} from "./graphql/graphql.module"
 import {
     ConfigurableModuleClass 
 } from "./core.module-definition"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
 
 @Module({
     imports: [

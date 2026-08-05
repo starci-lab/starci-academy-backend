@@ -1,9 +1,9 @@
 import type {
     ChallengeDifficulty,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
 import {
     ResolvedFilePath,
-} from "../../../shared"
+} from "../../../shared/path/types"
 
 /** Indices that locate a flashcard deck under mounted course data. */
 export interface ParseFlashcardDeckParams {

@@ -6,7 +6,7 @@ import {
 } from "./optimistic.module-definition"
 import {
     StoreModule,
-} from "../../store"
+} from "../../store/store.module"
 import {
     OptimisticController,
 } from "./optimistic.controller"

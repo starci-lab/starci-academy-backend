@@ -15,12 +15,20 @@ import {
     ConfigurableModuleClass,
 } from "./generate-cv.module-definition"
 import {
-    GenerateCvGatherStepService,
-    GenerateCvComposeStepService,
-    GenerateCvRenderStepService,
-    GenerateCvScoreStepService,
     GenerateCvCompleteStepService,
-} from "./steps"
+} from "./steps/generate-cv-complete-step.service"
+import {
+    GenerateCvComposeStepService,
+} from "./steps/generate-cv-compose-step.service"
+import {
+    GenerateCvGatherStepService,
+} from "./steps/generate-cv-gather-step.service"
+import {
+    GenerateCvRenderStepService,
+} from "./steps/generate-cv-render-step.service"
+import {
+    GenerateCvScoreStepService,
+} from "./steps/generate-cv-score-step.service"
 import {
     GenerateCvStepMappingService,
 } from "./step-mapping.service"
@@ -32,8 +40,10 @@ import {
 } from "./enqueue-generate-cv.service"
 import {
     CvScoringService,
+} from "../shared/cv-scoring/cv-scoring.service"
+import {
     ScoreUploadedCvService,
-} from "../shared/cv-scoring"
+} from "../shared/cv-scoring/score-uploaded-cv.service"
 
 @Module({
     providers: [

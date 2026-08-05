@@ -6,20 +6,26 @@ import {
     ObjectLiteral,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UuidAbstractEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/abstract"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    logInitSeederEntitySkipped,
+} from "../../shared/log-init-seeder-entity-skipped"
 import {
     UpsertService,
-    logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 import {
     DbSyncType,
+} from "@modules/platform/winston/types/messages/db-synchronizer"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     PersistUuidPartitionParams,
-} from "./types"
+} from "./types/persist-uuid-partition"
 
 @Injectable()
 /**

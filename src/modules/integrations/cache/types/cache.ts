@@ -1,7 +1,9 @@
 import type {
     CacheKey,
+} from "../enums/cache-key"
+import type {
     CacheType,
-} from "../enums"
+} from "../enums/cache-type"
 import {
     configMap
 } from "../constants/config"

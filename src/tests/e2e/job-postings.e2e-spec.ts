@@ -12,36 +12,50 @@ import type {
 } from "typeorm"
 import {
     HeadhuntingCompanyEntity,
-    JobApplyMethod,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
     JobPostingEntity,
-    JobPostingSource,
-    Locale,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/job-posting.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    JobApplyMethod,
+} from "@modules/databases/postgresql/primary/enums/job-apply-method"
+import {
+    JobPostingSource,
+} from "@modules/databases/postgresql/primary/enums/job-posting-source"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     HeadhuntingCompanyNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/headhunting-company-not-found"
+import {
     JobPostingInvalidRequestException,
     JobPostingInvalidRequestReason,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job-postings/job-posting-invalid-request"
 import {
     KeycloakJwksService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/jwks.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import {
     SubmitJobPostingResolver,
 } from "@features/api/core/graphql/mutations/job-postings/submit-job-posting/submit-job-posting.resolver"
 import type {
     SubmitJobPostingRequest,
-} from "@features/api/core/graphql/mutations/job-postings/submit-job-posting/graphql-types"
+} from "@features/api/core/graphql/mutations/job-postings/submit-job-posting/graphql-types/request"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

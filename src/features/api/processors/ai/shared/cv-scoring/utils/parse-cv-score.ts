@@ -6,10 +6,10 @@ import {
 } from "@modules/ai/utils/normalize-grading-score"
 import {
     CvModelOutputParseException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/cv/cv-model-output-parse"
 import {
     toUnknownRecord,
-} from "@modules/common"
+} from "@modules/lib/common/utils/unknown-record"
 import {
     CV_SCORE_MAX,
     CV_SCORE_MIN,

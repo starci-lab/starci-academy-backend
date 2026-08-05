@@ -5,28 +5,44 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ActionType,
     InstallmentPlanEntity,
-    InstallmentPlanStatus,
-    InstallmentPlanType,
-    PaymentType,
-    PricingPhase,
+} from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
+import {
     TransactionEntity,
-    TransactionStatus,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    InstallmentPlanStatus,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-status"
+import {
+    InstallmentPlanType,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-type"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    TransactionStatus,
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
     InstallmentPlanService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     createE2eApp,
-} from "@tests/helpers"
+} from "@tests/helpers/create-e2e-app"
 import type {
     E2eApp,
-} from "@tests/helpers"
+} from "@tests/helpers/types/e2e-app"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

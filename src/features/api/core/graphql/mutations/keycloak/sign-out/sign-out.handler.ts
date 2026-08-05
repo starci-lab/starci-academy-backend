@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -13,7 +13,7 @@ import {
 } from "./sign-out.command"
 import {
     KeycloakTokenService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/token.service"
 
 @CommandHandler(SignOutCommand)
 @Injectable()

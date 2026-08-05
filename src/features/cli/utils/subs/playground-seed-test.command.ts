@@ -2,16 +2,29 @@ import {
     CommandRunner, SubCommand,
 } from "nest-commander"
 import {
-    WinstonLog, WinstonService,
-} from "@modules/winston"
+    WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    PlaygroundEntity,
-    PlaygroundStepEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     PlaygroundStepTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/playground-step-translation.entity"
+import {
+    PlaygroundStepEntity,
+} from "@modules/databases/postgresql/primary/entities/playground-step.entity"
+import {
     PlaygroundTranslationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/playground-translation.entity"
+import {
+    PlaygroundEntity,
+} from "@modules/databases/postgresql/primary/entities/playground.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     DeepPartial,
     EntityManager,
@@ -19,20 +32,20 @@ import {
 import {
     clearRuntimeContextRoot,
     setRuntimeContextRoot,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-seed"
 import {
     CourseIdFactoryService,
-} from "@modules/init/seeders/courses/id-factories"
+} from "@modules/init/seeders/courses/id-factories/course.service"
 import {
     PlaygroundProcessorService,
-} from "@modules/init/seeders/courses/processors"
+} from "@modules/init/seeders/courses/processors/playground-processor.service"
 import type {
     ResolvedFileResult,
-} from "@modules/init/seeders/shared"
+} from "@modules/init/seeders/shared/path/types"
 import path from "path"
 import type {
     PlaygroundSeedTestRowCounts,
-} from "./types"
+} from "./types/playground-seed-test"
 
 /** Course folder ordinal for `courses/2-devops-mastery/` on the mount. */
 const DEVOPS_MASTERY_COURSE_INDEX = 2

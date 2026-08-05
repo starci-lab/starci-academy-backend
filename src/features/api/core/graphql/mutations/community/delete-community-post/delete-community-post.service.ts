@@ -3,19 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     CommunityPostService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/community/community-post.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import type {
     DeletedCommunityPostObject,
-} from "../../../shared/community"
+} from "../../../shared/community/object-types/community-comments-page.object"
 import type {
     DeleteCommunityPostRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

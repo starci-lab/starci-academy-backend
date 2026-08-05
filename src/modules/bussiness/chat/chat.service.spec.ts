@@ -10,28 +10,30 @@ import {
 } from "./chat.service"
 import {
     ChatConversationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ChatConversationNotFoundException,
     ChatForbiddenException,
     ChatMembershipRequiredException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/chat"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

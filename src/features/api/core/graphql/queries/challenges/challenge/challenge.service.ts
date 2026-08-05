@@ -6,13 +6,13 @@ import {
 } from "@nestjs/cqrs"
 import {
     ChallengeEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ChallengeRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ChallengeQuery,
 } from "./challenge.query"

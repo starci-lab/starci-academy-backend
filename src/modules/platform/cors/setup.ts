@@ -2,8 +2,8 @@ import {
     INestApplication 
 } from "@nestjs/common"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     CorsOptions 
 } from "@nestjs/common/interfaces/external/cors-options.interface"

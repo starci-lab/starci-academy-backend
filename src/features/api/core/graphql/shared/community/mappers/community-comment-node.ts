@@ -1,15 +1,15 @@
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     CommunityPostCommentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/community-post-comment.entity"
 import type {
     ReactionSummaryResult,
-} from "@modules/bussiness"
+} from "@modules/bussiness/discussion/types/reaction"
 import type {
     CommunityCommentNodeObject,
-} from "../object-types"
+} from "../object-types/community-comment-node.object"
 
 /** Placeholder body shown to clients in place of a soft-deleted comment's text. */
 export const DELETED_COMMUNITY_COMMENT_PLACEHOLDER = ""

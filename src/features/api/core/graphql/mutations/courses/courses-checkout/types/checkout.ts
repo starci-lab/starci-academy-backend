@@ -1,8 +1,12 @@
 import type {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import type {
     PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import type {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
 
 /**
  * Params for pricing a multi-course cart into line items + order totals. Shared by

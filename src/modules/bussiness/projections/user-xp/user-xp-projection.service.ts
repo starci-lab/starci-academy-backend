@@ -5,12 +5,14 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UserXpProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-xp-projection.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     RecomputeUserXpParams,
     UserXpParams,

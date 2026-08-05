@@ -1,7 +1,9 @@
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * Payload for the generate-personal-project-tasks BullMQ queue.

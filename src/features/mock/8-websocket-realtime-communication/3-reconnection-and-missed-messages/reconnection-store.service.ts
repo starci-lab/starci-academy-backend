@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     CHAT_RING_CAP,
-} from "./constants"
+} from "./constants/ring"
 import type {
     ChatMessage,
-} from "./types"
+} from "./types/chat"
 
 @Injectable()
 /**

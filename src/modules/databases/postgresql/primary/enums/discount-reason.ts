@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql"
 import {
     createEnumType,
-} from "@modules/common"
+} from "@modules/lib/common/utils/enum"
 
 /**
  * Why a loyalty discount was applied to a course price. Drives the FE copy

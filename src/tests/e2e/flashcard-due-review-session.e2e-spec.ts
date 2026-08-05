@@ -12,25 +12,43 @@ import type {
 } from "typeorm"
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     FlashcardCardEntity,
-    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FlashcardDueReviewSessionEntity,
-    Locale,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/flashcard-due-review-session.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     FlashcardDueReviewSessionService,
+} from "@modules/bussiness/flashcard/flashcard-due-review-session.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

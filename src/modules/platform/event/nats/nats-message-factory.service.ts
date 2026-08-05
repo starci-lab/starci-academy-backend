@@ -1,9 +1,12 @@
 import {
-    createHash 
-} from "@modules/common"
+    createHash,
+} from "@modules/lib/common/utils/crypto/hash"
 import {
-    InjectSuperJson, InstanceService 
-} from "@modules/mixin"
+    InstanceService,
+} from "@modules/lib/mixin/instance.service"
+import {
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import {
     Injectable 
 } from "@nestjs/common"

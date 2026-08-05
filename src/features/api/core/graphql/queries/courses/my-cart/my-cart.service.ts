@@ -6,10 +6,10 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CartItemEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/cart-item.entity"
 import {
     MyCartQuery,
 } from "./my-cart.query"

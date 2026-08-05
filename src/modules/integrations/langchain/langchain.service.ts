@@ -13,10 +13,12 @@ import {
     MODULE_OPTIONS_TOKEN,
 } from "./langchain.module-definition"
 import type {
+    LangchainModuleOptions,
+} from "./types/options"
+import type {
     FormatPromptParams,
     FormatPromptResult,
-    LangchainModuleOptions,
-} from "./types"
+} from "./types/prompt"
 
 @Injectable()
 /**

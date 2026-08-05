@@ -8,49 +8,49 @@ import {
 } from "./projections.module-definition"
 import {
     ProgressProjectionModule,
-} from "./progress"
+} from "./progress/progress-projection.module"
 import {
     ContentEngagementProjectionModule,
-} from "./content-engagement"
+} from "./content-engagement/content-engagement-projection.module"
 import {
     UserStatsProjectionModule,
-} from "./user-stats"
+} from "./user-stats/user-stats-projection.module"
 import {
     CourseStatsProjectionModule,
-} from "./course-stats"
+} from "./course-stats/course-stats-projection.module"
 import {
     ContributionProjectionModule,
-} from "./contribution"
+} from "./contribution/contribution-projection.module"
 import {
     UserCodingProjectionModule,
-} from "./user-coding"
+} from "./user-coding/user-coding-projection.module"
 import {
     UserXpProjectionModule,
-} from "./user-xp"
+} from "./user-xp/user-xp-projection.module"
 import {
     UserCapstoneProjectionModule,
-} from "./user-capstone"
+} from "./user-capstone/user-capstone-projection.module"
 import {
     UserPinnedProjectsProjectionModule,
-} from "./user-pinned-projects"
+} from "./user-pinned-projects/user-pinned-projects-projection.module"
 import {
     UserSolvedChallengesProjectionModule,
-} from "./user-solved-challenges"
+} from "./user-solved-challenges/user-solved-challenges-projection.module"
 import {
     TrendingContentsProjectionModule,
-} from "./trending-contents"
+} from "./trending-contents/trending-contents-projection.module"
 import {
     LeagueCohortPointsProjectionModule,
-} from "./league-cohort-points"
+} from "./league-cohort-points/league-cohort-points-projection.module"
 import {
     UserFlashcardStatsProjectionModule,
-} from "./user-flashcard-stats"
+} from "./user-flashcard-stats/user-flashcard-stats-projection.module"
 import {
     UserFlashcardCourseStatsProjectionModule,
-} from "./user-flashcard-course-stats"
+} from "./user-flashcard-course-stats/user-flashcard-course-stats-projection.module"
 import {
     UserMockInterviewCourseStatsProjectionModule,
-} from "./user-mock-interview-course-stats"
+} from "./user-mock-interview-course-stats/user-mock-interview-course-stats-projection.module"
 
 @Module({
 })

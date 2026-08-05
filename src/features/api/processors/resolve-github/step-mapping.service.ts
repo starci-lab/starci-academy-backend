@@ -3,18 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     EnqueueResolveGithubPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/resolve-github"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
+import {
+    ProcessResolveGithubCompleteStepService,
+} from "./steps/process-resolve-github-complete-step.service"
 import {
     ProcessResolveGithubSendStepService,
+} from "./steps/process-resolve-github-send-step.service"
+import {
     ProcessResolveGithubUpdateUserStepService,
-    ProcessResolveGithubCompleteStepService,
-} from "./steps"
+} from "./steps/process-resolve-github-update-user-step.service"
 
 @Injectable()
 /**

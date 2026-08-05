@@ -1,18 +1,22 @@
 import type {
     EnqueueResolveGithubPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/resolve-github"
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -21,11 +25,13 @@ import type {
 } from "typeorm"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 
 @Injectable()
 /**

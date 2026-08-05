@@ -1,6 +1,6 @@
 import type {
     AiModelHealthSnapshot,
-} from "@modules/event"
+} from "@modules/platform/event/types/event-payload/ai-model-health-updated"
 
 /**
  * Server -> client message broadcast when a per-model AI latency probe cycle

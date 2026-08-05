@@ -1,13 +1,21 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ChallengeSubmissionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
     UserChallengeSubmissionAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission-attempt.entity"
+import {
     UserChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -24,9 +32,11 @@ import {
     ChallengeSubmissionsQuery,
 } from "./challenge-submissions.query"
 import {
-    ChallengeSubmissionsResponseData,
     ChallengeSubmissionsSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    ChallengeSubmissionsResponseData,
+} from "./graphql-types/response"
 
 @QueryHandler(ChallengeSubmissionsQuery)
 @Injectable()

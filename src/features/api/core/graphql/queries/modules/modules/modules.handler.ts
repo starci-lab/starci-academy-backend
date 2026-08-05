@@ -1,13 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ElasticsearchQueryBuilder,
-    ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/query-builder"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -20,7 +22,7 @@ import {
 } from "./modules.query"
 import {
     ModulesResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @QueryHandler(ModulesQuery)
 @Injectable()

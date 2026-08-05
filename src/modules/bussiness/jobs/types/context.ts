@@ -1,6 +1,6 @@
 import {
-    JobEntity 
-} from "@modules/databases"
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
 
 /** Context handed to a job step: the decoded queue payload plus the owning job row. */
 export interface JobContext<T> {

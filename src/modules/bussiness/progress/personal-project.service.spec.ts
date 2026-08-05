@@ -9,24 +9,26 @@ import {
     PersonalProjectProgressService,
 } from "./personal-project.service"
 import {
-    CacheKey,
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
+import {
+    CacheKey,
+} from "@modules/integrations/cache/enums/cache-key"
 import type {
     MilestoneTaskProgressCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/milestone-task-progress"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     ProgressEnrollmentType,
-} from "./types"
+} from "./types/progress"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

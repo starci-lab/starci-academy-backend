@@ -1,9 +1,15 @@
 import type {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import type {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import type {
     ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import type {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
 
 /** payOS credentials stored in mounted {@link AppConfig} (see `.mount/config/app.yaml`). */
 export interface AppConfigPayos {

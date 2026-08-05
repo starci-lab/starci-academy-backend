@@ -10,10 +10,10 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getRuntimeContextRoot,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-seed"
 
 @Injectable()
 /**

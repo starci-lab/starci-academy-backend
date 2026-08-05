@@ -6,7 +6,7 @@ import {
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     ListLearnerCmsParams,
     PaginatedLearnerCmsResult,

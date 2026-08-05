@@ -2,8 +2,8 @@ import {
     Module
 } from "@nestjs/common"
 import {
-    JobsModule
-} from "@modules/bussiness"
+    JobsModule,
+} from "@modules/bussiness/jobs/jobs.module"
 import {
     ConfigurableModuleClass
 } from "./session.module-definition"

@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql"
 import {
     createEnumType,
-} from "@modules/common"
+} from "@modules/lib/common/utils/enum"
 
 /**
  * The five canonical phases of a mock interview, in interview-driven order.

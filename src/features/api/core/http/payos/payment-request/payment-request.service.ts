@@ -6,7 +6,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     PaymentRequestResponseData,
-} from "./dtos"
+} from "./dtos/response"
 import {
     PaymentRequestQuery,
 } from "./payment-request.query"

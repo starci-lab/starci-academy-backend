@@ -8,37 +8,49 @@ import {
 import SuperJSON from "superjson"
 import {
     DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
 import type {
     ScoreUploadedCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/score-uploaded-cv"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     CvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-    JobEntity,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     EntityManager,
 } from "typeorm"
 import {
     ScoreUploadedCvService,
-} from "../shared/cv-scoring"
+} from "../shared/cv-scoring/score-uploaded-cv.service"
 
 @Worker(
     bullData[BullQueueName.ScoreUploadedCv].name,

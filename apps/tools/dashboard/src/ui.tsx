@@ -4,11 +4,13 @@ import { Alert, Button, Input, Spinner } from "@heroui/react"
 import { getJson } from "./api"
 import type {
     Artifact,
+    Target,
+} from "./types/api"
+import type {
     BlockProps,
     SelectFieldProps,
     SubmitButtonProps,
-    Target,
-} from "./types"
+} from "./types/ui"
 
 /* ------------------------------------------------------------------ */
 /* Async action hook + outcome renderer                                */

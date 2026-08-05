@@ -12,7 +12,7 @@ import type {
 } from "./advertisement.entity"
 import {
     ChangelogCategory,
-} from "../enums"
+} from "../enums/changelog-category"
 
 // the rail lists published entries newest-first
 @Index(["isPublished",

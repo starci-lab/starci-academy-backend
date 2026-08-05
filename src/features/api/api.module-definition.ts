@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     ServiceOptions,
-} from "@modules/common"
+} from "@modules/lib/common/types/service"
 
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
     new ConfigurableModuleBuilder<ServiceOptions>()

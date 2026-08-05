@@ -2,11 +2,11 @@ import {
     SetMetadata 
 } from "@nestjs/common"
 import {
-    SUCCESS_MESSAGE_METADATA
-} from "../constants"
+    SUCCESS_MESSAGE_METADATA,
+} from "../constants/decorators"
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** Success message metadata for WS responses (supports localized map). */
 export type WsSuccessMessageValue = string | Partial<Record<Locale, string>>

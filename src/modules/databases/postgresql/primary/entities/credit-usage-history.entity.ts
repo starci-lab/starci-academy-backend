@@ -13,10 +13,12 @@ import {
 } from "typeorm"
 import {
     AiCeilSurface,
-    AiModelTask,
     GraphQLTypeAiCeilSurface,
+} from "../enums/ai-ceil-surface"
+import {
+    AiModelTask,
     GraphQLTypeAiModelTask,
-} from "../enums"
+} from "../enums/ai-model-task"
 import {
     UuidAbstractEntity,
 } from "./abstract"

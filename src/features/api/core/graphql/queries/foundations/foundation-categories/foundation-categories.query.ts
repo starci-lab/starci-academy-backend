@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     FoundationCategoriesRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * Foundation categories list query (paginated + searchable).

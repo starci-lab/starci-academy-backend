@@ -7,7 +7,7 @@ import {
 } from "./graphql-response"
 import {
     IAbstractGraphQLResponse,
-} from "../../types"
+} from "../../types/graphql-response"
 
 @ObjectType({
     description: "A single entity autocomplete suggestion.",

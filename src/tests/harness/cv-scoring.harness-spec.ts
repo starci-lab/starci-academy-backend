@@ -3,26 +3,34 @@ import {
 } from "@nestjs/testing"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     AiInvokeService,
 } from "@modules/ai/ai-invoke.service"
 import {
     CvRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/cv-rag-retrieval.service"
 import {
     CvScoringService,
 } from "@features/api/processors/ai/shared/cv-scoring/cv-scoring.service"
 import {
     HarnessInvokeService,
+} from "@tests/helpers/harness-invoke.service"
+import {
     JudgeService,
+} from "@tests/helpers/judge.service"
+import {
     TestHelpersModule,
+} from "@tests/helpers/test-helpers.module"
+import {
     VolumeService,
+} from "@tests/helpers/volume.service"
+import {
     volumeExists,
-} from "@tests/helpers"
+} from "@tests/helpers/volume"
 import type {
     HarnessTierName,
-} from "@tests/helpers"
+} from "@tests/helpers/models"
 
 /** Minimum judge score a produced grade must reach to count as passing. */
 const PASS_SCORE = 60

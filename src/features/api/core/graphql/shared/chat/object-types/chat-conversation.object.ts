@@ -6,7 +6,7 @@ import {
 import {
     ChatConversationType,
     GraphQLTypeChatConversationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
 
 @ObjectType({
     description: "A chat conversation (community room or founder DM).",

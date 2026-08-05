@@ -11,21 +11,25 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    PrimaryPostgreSQLModule,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     StreakFreezeInsufficientPointsException,
+} from "@modules/platform/exceptions/errors/streak/streak-freeze-insufficient-points"
+import {
     StreakFreezeLimitReachedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/streak/streak-freeze-limit-reached"
 import {
     STREAK_FREEZE_COST,
     STREAK_FREEZE_MAX,
     StreakService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/streak/streak.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

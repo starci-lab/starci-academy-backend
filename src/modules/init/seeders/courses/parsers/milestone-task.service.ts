@@ -1,52 +1,86 @@
 import type {
     MilestoneTasksFromDatabaseParams,
+} from "./types/from-database"
+import type {
     ParseMilestoneTaskParams,
     ParseMilestoneTaskManyParams,
     MergedCriterion,
     MergedLangBlock,
     MergedMilestoneTask,
-} from "./types"
+} from "./types/milestone"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ChallengeDifficulty,
-    Locale,
-    PersonalProjectTaskType,
-    InjectPrimaryPostgreSQLEntityManager,
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PersonalProjectTaskType,
+} from "@modules/databases/postgresql/primary/enums/personal-project-task-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
 import {
     ExtractJsonFromMdService,
-    CoerceMdScalarService,
-    ContextLoaderService,
-    ResolvedFileResult,
-    MergeJsonService,
-    MergeJsonResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
+import {
+    MilestoneTaskApproachCriteriaLangIdFactoryService,
+} from "../id-factories/milestone-task-approach-criteria-lang.service"
+import {
+    MilestoneTaskApproachCriteriaIdFactoryService,
+} from "../id-factories/milestone-task-approach-criteria.service"
+import {
+    MilestoneTaskBriefIdFactoryService,
+} from "../id-factories/milestone-task-brief.service"
+import {
+    MilestoneTaskOutcomeCriteriaLangIdFactoryService,
+} from "../id-factories/milestone-task-outcome-criteria-lang.service"
+import {
+    MilestoneTaskOutcomeCriteriaIdFactoryService,
+} from "../id-factories/milestone-task-outcome-criteria.service"
+import {
+    MilestoneTaskIdFactoryService,
+} from "../id-factories/milestone-task.service"
 import {
     MilestoneIdFactoryService,
-    MilestoneTaskIdFactoryService,
-    MilestoneTaskBriefIdFactoryService,
-    MilestoneTaskOutcomeCriteriaIdFactoryService,
-    MilestoneTaskOutcomeCriteriaLangIdFactoryService,
-    MilestoneTaskApproachCriteriaIdFactoryService,
-    MilestoneTaskApproachCriteriaLangIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/milestone.service"
 import {
     DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
     MilestoneTaskPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/milestone-task-path-not-found"
 import {
     MilestoneTaskPathService,
-} from "../path"
+} from "../path/milestone-task.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
     design: PersonalProjectTaskType.Design,

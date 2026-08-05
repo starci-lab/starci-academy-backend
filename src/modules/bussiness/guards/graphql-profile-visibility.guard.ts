@@ -8,13 +8,13 @@ import {
 } from "@nestjs/graphql"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ProfileNotVisibleException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/guards/profile-not-visible"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 
 @Injectable()
 /**

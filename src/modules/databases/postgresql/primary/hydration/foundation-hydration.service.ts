@@ -5,15 +5,17 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    FoundationEntity,
     FoundationTagEntity,
-} from "../entities"
+} from "../entities/foundation-tag.entity"
+import {
+    FoundationEntity,
+} from "../entities/foundation.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"
 import {
     FoundationNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/foundation-not-found"
 
 @Injectable()
 /**

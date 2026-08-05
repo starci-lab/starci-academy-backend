@@ -8,25 +8,29 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     AiModelLatencyCacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/ai-model-latency-cache.service"
 import {
     AiModelCatalogService,
 } from "@modules/ai/balancer/ai-model-catalog.service"
 import {
     AiModelLatencyResponse,
     AiModelLatencyResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

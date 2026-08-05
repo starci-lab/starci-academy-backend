@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     PurchaseMembershipSingleMutationModule,
-} from "./purchase-membership"
+} from "./purchase-membership/purchase-membership.module"
 import {
     ConfigurableModuleClass,
 } from "./membership.module-definition"

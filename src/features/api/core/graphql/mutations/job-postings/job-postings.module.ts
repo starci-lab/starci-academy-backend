@@ -6,7 +6,7 @@ import {
 } from "./job-postings.module-definition"
 import {
     SubmitJobPostingSingleMutationModule,
-} from "./submit-job-posting"
+} from "./submit-job-posting/submit-job-posting.module"
 
 @Module({
     imports: [

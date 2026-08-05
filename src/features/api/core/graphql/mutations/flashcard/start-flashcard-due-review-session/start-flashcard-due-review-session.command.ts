@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     StartFlashcardDueReviewSessionRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS command wrapping the `startFlashcardDueReviewSession` request + caller -- dispatched via

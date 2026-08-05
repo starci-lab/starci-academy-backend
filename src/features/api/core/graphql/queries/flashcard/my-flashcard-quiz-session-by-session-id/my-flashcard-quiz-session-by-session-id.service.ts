@@ -6,12 +6,14 @@ import {
 } from "typeorm"
 import {
     FlashcardQuizSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-quiz-session.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     FindMyFlashcardQuizSessionBySessionIdParams,
     MyFlashcardQuizSessionBySessionIdResultData,
-} from "./types"
+} from "./types/my-flashcard-quiz-session-by-session-id"
 
 @Injectable()
 /**

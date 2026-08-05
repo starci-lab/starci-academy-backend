@@ -7,31 +7,31 @@ import {
 } from "@nestjs/cqrs"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     SubcribeJobNotificationQuery,
 } from "./subcribe.query"
 import type {
     SubcribeJobNotificationSocketIoMessage,
-} from "./types"
+} from "./types/message"
 import {
     JobRoomService,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/rooms/job.service"
 import {
     WsResponseService,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/response.service"
 import {
-    JobStatusUpdatedSocketIoMessage 
-} from "../../types"
+    JobStatusUpdatedSocketIoMessage,
+} from "../../types/job-status-message"
 import {
-    SubscriptionEvent 
-} from "../../../enums"
+    SubscriptionEvent,
+} from "../../../enums/subscription-event"
 import {
     JobNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job/not-found"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 
 @QueryHandler(SubcribeJobNotificationQuery)
 @Injectable()

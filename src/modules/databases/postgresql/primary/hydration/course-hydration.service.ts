@@ -6,25 +6,43 @@ import type {
 } from "typeorm"
 import {
     AsyncService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/async.service"
 import {
     ChallengeEntity,
+} from "../entities/challenge.entity"
+import {
     ContentEntity,
+} from "../entities/content.entity"
+import {
     CourseEntity,
+} from "../entities/course.entity"
+import {
     LivestreamSessionEntity,
+} from "../entities/livestream-session.entity"
+import {
     ModuleEntity,
+} from "../entities/module.entity"
+import {
     PrerequisiteEntity,
+} from "../entities/prerequisite.entity"
+import {
     PreviewContentEntity,
+} from "../entities/preview-content.entity"
+import {
     PricingPhaseEntity,
+} from "../entities/pricing-phase.entity"
+import {
     QnaEntity,
+} from "../entities/qna.entity"
+import {
     ValuePropositionEntity,
-} from "../entities"
+} from "../entities/value-proposition.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"
 import {
     CourseNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
 
 @Injectable()
 /**

@@ -10,17 +10,19 @@ import {
 } from "./transaction-action.service"
 import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
     TransactionNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/transaction/transaction-not-found"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

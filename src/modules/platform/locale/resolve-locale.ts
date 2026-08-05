@@ -6,7 +6,7 @@ import {
 } from "@nestjs/graphql"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * Get the locale from the cookie.

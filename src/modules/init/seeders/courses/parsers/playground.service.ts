@@ -1,45 +1,63 @@
 import type {
+    PlaygroundsFromDatabaseParams,
+} from "./types/from-database"
+import type {
     ParsePlaygroundManyParams,
     ParsePlaygroundParams,
-    PlaygroundsFromDatabaseParams,
     RawPlayground,
-} from "./types"
+} from "./types/playground"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    Locale,
     PlaygroundEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/playground.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
     CourseIdFactoryService,
+} from "../id-factories/course.service"
+import {
     PlaygroundIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/playground.service"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     PlaygroundPathService,
-} from "../path"
+} from "../path/playground.service"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    MergeJsonResult,
-    MergeJsonService,
-    ResolvedFileResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     PlaygroundPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/playground-path-not-found"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     PlaygroundStepParserService,
 } from "./playground-step.service"

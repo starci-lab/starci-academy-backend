@@ -4,13 +4,19 @@ import {
 } from "@nestjs/testing"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
+import {
+    EnrollmentNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/enrollment-not-found"
 import {
     AdminApiKeyRequiredException,
+} from "@modules/platform/exceptions/errors/guards/admin-api-key-required"
+import {
     CourseIdRequiredException,
-    EnrollmentNotFoundException,
+} from "@modules/platform/exceptions/errors/guards/course-id-required"
+import {
     InvalidAdminApiKeyException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/guards/invalid-admin-api-key"
 import {
     AdminAccessGuard,
 } from "./admin-access.guard"
@@ -19,7 +25,7 @@ import {
 } from "./graphql-must-enrolled.guard"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 import type {
     ExecutionContext,
 } from "@nestjs/common"

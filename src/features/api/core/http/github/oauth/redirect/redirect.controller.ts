@@ -16,10 +16,13 @@ import {
 } from "../../../http"
 import {
     MissingRequiredParameterException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/stdlib/missing-required-parameter"
 import {
-    CookieName, RestCookie
-} from "@modules/cookie"
+    RestCookie,
+} from "@modules/platform/cookie/cookie.decorators"
+import {
+    CookieName,
+} from "@modules/platform/cookie/enums"
 import {
     GithubOauthRedirectCommandService,
 } from "./redirect.service"

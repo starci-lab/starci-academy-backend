@@ -1,6 +1,6 @@
 import {
     EnvModule,
-} from "@modules/env"
+} from "@modules/platform/env/env.module"
 import {
     Module
 } from "@nestjs/common"
@@ -8,58 +8,68 @@ import {
     ValidationPipe
 } from "@nestjs/common"
 import {
-    ElasticsearchModule
-} from "@modules/elasticsearch"
+    ElasticsearchModule,
+} from "@modules/integrations/elasticsearch/elasticsearch.module"
+import {
+    WinstonLevel,
+} from "@modules/platform/winston/types/level"
 import {
     WinstonModule,
-    WinstonLevel
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.module"
 import {
-    ServiceName
-} from "@modules/common"
+    ServiceName,
+} from "@modules/lib/common/enums/service"
 import {
     IoRedisInstanceKey,
-    IoRedisModule,
-    RedisInstanceKey,
-    RedisModule
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/enums/instance-key"
 import {
-    ThrottlerModule
-} from "@modules/throttler"
+    IoRedisModule,
+} from "@modules/lib/native/ioredis/ioredis.module"
+import {
+    RedisInstanceKey,
+} from "@modules/lib/native/redis/enums/instance-key"
+import {
+    RedisModule,
+} from "@modules/lib/native/redis/redis.module"
+import {
+    ThrottlerModule,
+} from "@modules/platform/throttler/throttler.module"
 import {
     FilesystemModule,
-} from "@modules/filesystem"
+} from "@modules/filesystem/filesystem.module"
 import {
-    SentryModule
-} from "@modules/sentry"
+    SentryModule,
+} from "@modules/integrations/sentry/sentry.module"
 import {
-    MixinModule
-} from "@modules/mixin"
+    MixinModule,
+} from "@modules/lib/mixin/mixin.module"
 import {
     PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
+import {
     QdrantModule,
-} from "@modules/databases"
+} from "@modules/databases/qdrant/qdrant.module"
 import {
-    S3Module
-} from "@modules/s3"
+    S3Module,
+} from "@modules/integrations/s3/s3.module"
 import {
-    AssetsModule
-} from "@modules/assets"
+    AssetsModule,
+} from "@modules/lib/assets/assets.module"
 import {
-    PayOSModule
-} from "@modules/payos"
+    PayOSModule,
+} from "@modules/integrations/payos/payos.module"
 import {
     ScheduleModule
 } from "@nestjs/schedule"
 import {
-    ApiModule
-} from "@features/api"
+    ApiModule,
+} from "@features/api/api.module"
 import {
-    AxiosModule
-} from "@modules/axios"
+    AxiosModule,
+} from "@modules/integrations/axios/axios.module"
 import {
-    KeycloakModule
-} from "@modules/keycloak"
+    KeycloakModule,
+} from "@modules/integrations/keycloak/keycloak.module"
 import {
     JwtModule
 } from "@nestjs/jwt"
@@ -69,120 +79,124 @@ import {
 } from "@nestjs/core"
 import {
     AbstractExceptionHttpFilter,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/filters/abstract-exception-http.filter"
 import {
-    BullModule
-} from "@modules/bullmq"
+    BullModule,
+} from "@modules/integrations/bullmq/bullmq.module"
 import {
-    BussinessModule
-} from "@modules/bussiness"
+    BussinessModule,
+} from "@modules/bussiness/bussiness.module"
 import {
-    RoutingModule
-} from "@modules/routing"
+    RoutingModule,
+} from "@modules/platform/routing/routing.module"
 import {
-    LangchainModule
-} from "@modules/langchain"
+    LangchainModule,
+} from "@modules/integrations/langchain/langchain.module"
 import {
-    RagModule
-} from "@modules/rag"
+    RagModule,
+} from "@modules/integrations/rag/rag.module"
 import {
-    CryptoModule
-} from "@modules/crypto"
+    CryptoModule,
+} from "@modules/crypto/crypto.module"
 import {
-    TotpModule
-} from "@modules/totp"
+    TotpModule,
+} from "@modules/integrations/totp/totp.module"
 import {
-    SepayModule
-} from "@modules/sepay"
+    SepayModule,
+} from "@modules/integrations/sepay/sepay.module"
 import {
-    StripeModule
-} from "@modules/stripe"
+    StripeModule,
+} from "@modules/integrations/stripe/stripe.module"
 import {
-    PaypalModule
-} from "@modules/paypal"
+    PaypalModule,
+} from "@modules/integrations/paypal/paypal.module"
 import {
-    NowPaymentsModule
-} from "@modules/nowpayments"
+    NowPaymentsModule,
+} from "@modules/integrations/nowpayments/nowpayments.module"
 import {
-    SocketIoModule
-} from "@modules/socketio"
+    SocketIoModule,
+} from "@modules/platform/socketio/socketio.module"
 import {
     CQRSModule,
-    EventBusModule
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/cqrs.module"
+import {
+    EventBusModule,
+} from "@modules/platform/cqrs/event-bus/event-bus.module"
 import {
     CqrsModule
 } from "@nestjs/cqrs"
 import {
-    SocketIoModule as SocketIoFeatureModule
-} from "@features/socketio"
+    SocketIoModule as SocketIoFeatureModule,
+} from "@features/socketio/socketio.module"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventModule,
-    EventName
-} from "@modules/event"
+} from "@modules/platform/event/event.module"
 import {
     EventEmitterModule
 } from "@nestjs/event-emitter"
 import {
-    CacheModule
-} from "@modules/cache"
+    CacheModule,
+} from "@modules/integrations/cache/cache.module"
 import {
-    StreamAsyncIteratorModule
-} from "@modules/stream-async-iterator"
+    StreamAsyncIteratorModule,
+} from "@modules/lib/stream-async-iterator/stream-async-iterator.module"
 import {
-    ValidatorsModule
-} from "@modules/validators"
+    ValidatorsModule,
+} from "@modules/lib/validators/validators.module"
 import {
-    GoogleApisModule
-} from "@modules/googleapis"
+    GoogleApisModule,
+} from "@modules/integrations/googleapis/googleapis.module"
 import {
-    MailModule
-} from "@modules/mailer"
+    MailModule,
+} from "@modules/integrations/mailer/mailer.module"
 import {
-    BackupModule
-} from "@features/backup"
+    BackupModule,
+} from "@features/backup/backup.module"
 import {
-    ExecaModule
-} from "@modules/execa"
+    ExecaModule,
+} from "@modules/integrations/execa/execa.module"
 import {
     CookieModule,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.module"
 import {
     CsrfModule,
-} from "@modules/csrf"
+} from "@modules/platform/csrf/csrf.module"
 import {
     SessionModule,
-} from "@modules/session"
+} from "@modules/platform/session/session.module"
 import {
     CaptchaModule,
-} from "@modules/captcha"
+} from "@modules/integrations/captcha/captcha.module"
 import {
-    CodeModule
-} from "@modules/code"
+    CodeModule,
+} from "@modules/integrations/code/code.module"
 import {
     GithubModule,
-} from "@modules/github"
+} from "@modules/integrations/github/github.module"
 import {
     InitModule,
-} from "@modules/init"
+} from "@modules/init/init.module"
 import {
-    FfmpegModule
-} from "@modules/ffmpeg"
+    FfmpegModule,
+} from "@modules/integrations/ffmpeg/ffmpeg.module"
 import {
-    Bento4Module
-} from "@modules/bento4"
+    Bento4Module,
+} from "@modules/integrations/bento4/bento4.module"
 import {
-    VideoEncoderModule
-} from "@features/video-encoder"
+    VideoEncoderModule,
+} from "@features/video-encoder/video-encoder.module"
 import {
     AiModule,
 } from "@modules/ai/ai.module"
 import {
-    MembershipModule
-} from "@modules/membership"
+    MembershipModule,
+} from "@modules/membership/membership.module"
 import {
-    KafkaModule
-} from "@modules/kafka"
+    KafkaModule,
+} from "@modules/integrations/kafka/kafka.module"
 @Module(
     {
         imports: [

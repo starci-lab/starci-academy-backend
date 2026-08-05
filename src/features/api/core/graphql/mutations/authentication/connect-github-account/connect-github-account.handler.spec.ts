@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -12,19 +12,19 @@ import {
 import {
     GithubUserNotFoundException,
     GithubUserVerificationFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/github"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ConnectGithubAccountCommand,
 } from "./connect-github-account.command"

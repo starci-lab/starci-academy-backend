@@ -9,15 +9,23 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     MembershipEntity,
-    MembershipStatus,
+} from "@modules/databases/postgresql/primary/entities/membership.entity"
+import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
+    MembershipStatus,
+} from "@modules/databases/postgresql/primary/enums/membership-status"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     MEMBERSHIP_PERIOD_MONTHS,
 } from "./constants"
@@ -26,7 +34,7 @@ import type {
     ExtendPeriodParams,
     GrantFreeMonthsParams,
     GrantMembershipParams,
-} from "./types"
+} from "./types/membership"
 
 @Injectable()
 /**

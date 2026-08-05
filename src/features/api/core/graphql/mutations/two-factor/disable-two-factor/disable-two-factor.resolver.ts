@@ -13,33 +13,43 @@ import type {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    Locale,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
 import {
     TotpService,
-} from "@modules/totp"
+} from "@modules/integrations/totp/totp.service"
 import {
     TwoFactorInvalidCodeException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/two-factor-invalid-code"
 import {
     DisableTwoFactorRequest,
+} from "./graphql-types/request"
+import {
     DisableTwoFactorResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

@@ -3,17 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     MissingRequiredParameterException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/stdlib/missing-required-parameter"
 import type {
     ArrayTrailEntry,
+} from "./types/array-trail"
+import type {
     LocaleJson,
     MergeJsonParams,
     MergeJsonResult,
     MergeJsonTranslationRow,
-} from "./types"
+} from "./types/merge-json"
 
 @Injectable()
 /**

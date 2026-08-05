@@ -3,11 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AiByokInvalidException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/ai-byok-invalid"
 import {
     AiModelCatalogService,
 } from "./balancer/ai-model-catalog.service"

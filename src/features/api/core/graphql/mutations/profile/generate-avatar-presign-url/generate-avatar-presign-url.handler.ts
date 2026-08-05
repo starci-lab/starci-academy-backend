@@ -1,13 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3BuildService,
-    S3Provider,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-build.service"
 import {
     NotAllowExtensionsException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/not-allow-extensions"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,7 +25,7 @@ import {
 } from "./generate-avatar-presign-url.command"
 import {
     GenerateAvatarPresignUrlResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     ALLOWED_AVATAR_MIME_TYPES,
     AVATAR_KEY_PREFIX,

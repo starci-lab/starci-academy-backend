@@ -3,17 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     ProcessGoogleDocsSubmissionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/process-google-docs-submission"
 import type {
     ExtendedProcessGoogleDocsSubmissionContext,
-} from "./types"
+} from "./types/extended"
 import {
     ProcessGoogleDocsSubmissionGradeStepService,
+} from "./steps/process-google-docs-submission-grade-step.service"
+import {
     ProcessGoogleDocsSubmissionCompleteStepService,
-} from "./steps"
+} from "./steps/process-submission-complete-step.service"
 
 @Injectable()
 /**

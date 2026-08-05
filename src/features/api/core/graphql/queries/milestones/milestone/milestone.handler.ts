@@ -1,15 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     MilestoneEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     MilestoneNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/milestone-not-found"
 import {
     Injectable,
 } from "@nestjs/common"

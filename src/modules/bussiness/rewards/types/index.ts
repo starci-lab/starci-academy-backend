@@ -1,7 +1,9 @@
 import type {
     RewardRedemptionEntity,
+} from "@modules/databases/postgresql/primary/entities/reward-redemption.entity"
+import type {
     RewardRedemptionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reward-redemption-status"
 
 /**
  * Whether a reward is delivered instantly (digital, status `granted`), must be

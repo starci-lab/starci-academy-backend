@@ -19,10 +19,10 @@ import type {
     FetchGoogleDocsTextParams,
     FetchGoogleDocsTextResult,
     GoogleApisModuleOptions,
-} from "./types"
+} from "./types/googleapis"
 import {
     getGcpServiceAccountCredentials,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 
 @Injectable()
 /**

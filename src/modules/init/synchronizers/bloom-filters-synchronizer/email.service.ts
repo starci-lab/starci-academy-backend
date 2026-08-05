@@ -1,20 +1,18 @@
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     EnqueueSyncEmailBloomFilterJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/sync-email-bloom-filter.service"
 import {
     WinstonLog,
-    WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/enums/winston-log"
 import {
-    BloomFilterSynchronizerService,
-} from "./bloom-filter-synchronizer.service"
-
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 @Injectable()
 /**
  * Service for synchronizing the email bloom filters.

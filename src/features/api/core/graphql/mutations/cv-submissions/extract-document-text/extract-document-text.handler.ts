@@ -1,17 +1,19 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     CvSubmissionExtractEmptyTextException,
     CvSubmissionExtractS3BufferEmptyException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/review-cv-submission-extract"
 import {
     S3Provider,
+} from "@modules/integrations/s3/enums/s3"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -21,13 +23,13 @@ import {
 } from "@nestjs/cqrs"
 import {
     extractCvText,
-} from "@features/api/processors/ai/generate-cv/steps/extract-cv-text"
+} from "../../../../../processors/ai/generate-cv/steps/extract-cv-text"
 import {
     ExtractDocumentTextCommand,
 } from "./extract-document-text.command"
 import {
     ExtractDocumentTextData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(ExtractDocumentTextCommand)
 @Injectable()

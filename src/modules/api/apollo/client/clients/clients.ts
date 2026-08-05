@@ -6,7 +6,7 @@ import {
 import type {
     CreateApolloClientParams,
     CreateApolloClientResult,
-} from "../types"
+} from "../types/client"
 import {
     createRetryLink 
 } from "./retry"

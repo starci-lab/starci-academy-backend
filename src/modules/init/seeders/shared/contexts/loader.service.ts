@@ -2,16 +2,20 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    FilesystemContextService, 
-    S3ContextService 
-} from "."
+    FilesystemContextService,
+} from "./filesystem.service"
 import {
-    ContextType, 
-    envConfig 
-} from "@modules/env"
+    S3ContextService,
+} from "./s3.service"
+import {
+    envConfig,
+} from "@modules/platform/env/config"
+import {
+    ContextType,
+} from "@modules/platform/env/enums/context"
 import {
     ContextFileNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/context-file-not-found"
 
 @Injectable()
 /**

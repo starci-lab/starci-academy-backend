@@ -11,16 +11,22 @@ import {
 } from "@nestjs/common"
 import {
     CodingDifficulty,
+} from "@modules/databases/postgresql/primary/enums/coding-difficulty"
+import {
     CodingDomain,
+} from "@modules/databases/postgresql/primary/enums/coding-domain"
+import {
     CodingLanguage,
+} from "@modules/databases/postgresql/primary/enums/coding-language"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     CodingProblemPathService,
-} from "../path"
+} from "../path/coding-problem-path.service"
 import {
     ExtractJsonFromMdService,
-} from "../../shared"
+} from "../../shared/extracts/extract-json-from-md.service"
 import type {
     ParsedCodingProblem,
     ParsedCodingProblemSolution,

@@ -9,37 +9,51 @@ import {
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EntityManager,
 } from "typeorm"
 import {
     GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    KeycloakOptionalAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
 import {
     KeycloakGraphQLUser,
-    KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     BlogPostEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/blog-post.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     BlogPostDetailData,
     BlogPostResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Characters of body shown to non-members on a premium post before the paywall. */
 const PREVIEW_CHARS = 600

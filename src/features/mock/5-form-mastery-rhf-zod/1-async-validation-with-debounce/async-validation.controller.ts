@@ -6,13 +6,13 @@ import {
 } from "@nestjs/swagger"
 import {
     SessionStoreService,
-} from "../../store"
+} from "../../store/session-store.service"
 import type {
     CheckUsernameResult,
-} from "../../store"
+} from "../../store/types/params"
 import {
     MockDelayInterceptor,
-} from "../../interceptors"
+} from "../../interceptors/mock-delay.interceptor"
 
 @ApiTags("mock")
 @UseInterceptors(MockDelayInterceptor)

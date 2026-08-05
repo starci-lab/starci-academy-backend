@@ -6,8 +6,10 @@ import {
 import GraphQLJSON from "graphql-type-json"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 
 @ObjectType({
     description: "A user-authored CV document (ordered blocks + style), course-independent.",

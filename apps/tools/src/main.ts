@@ -15,7 +15,7 @@ import {
 } from "path"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     AppModule,
 } from "./app.module"

@@ -3,7 +3,7 @@ import type {
 } from "@modules/ai/types/ai-invoke"
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * A jest-backed stand-in for {@link AiInvokeService}.

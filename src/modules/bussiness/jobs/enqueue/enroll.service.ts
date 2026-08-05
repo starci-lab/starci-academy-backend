@@ -1,23 +1,33 @@
 import {
     JobActionService,
-    JobStalledService
-} from "../atomic"
+} from "../atomic/job-action.service"
+import {
+    JobStalledService,
+} from "../atomic/job-stalled.service"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ActionType,
-    InjectPrimaryPostgreSQLEntityManager,
     InstallmentPlanEntity,
+} from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
+import {
     JobEntity,
-    TransactionItemEntity
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    TransactionItemEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction-item.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     InstallmentPlanService,
-} from "../../installment-plan"
+} from "../../installment-plan/installment-plan.service"
 import {
-    InjectSuperJson
-} from "@modules/mixin"
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import SuperJSON from "superjson"
 import {
     v4 as uuidv4
@@ -33,19 +43,21 @@ import {
 } from "@nestjs/bullmq"
 import {
     bullData,
-    BullQueueName
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
 import {
     EnqueueEnrollJobParams,
     EnqueueEnrollmentsForTransactionParams,
-    EnqueueEnrollmentsForTransactionResult
-} from "../types"
+    EnqueueEnrollmentsForTransactionResult,
+} from "../types/enqueue"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     sleepEnqueueUxDelay,
-} from "../utils"
+} from "../utils/enqueue-ux-delay"
 
 @Injectable()
 /**

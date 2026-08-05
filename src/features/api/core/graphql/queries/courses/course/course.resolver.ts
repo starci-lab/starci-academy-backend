@@ -12,26 +12,36 @@ import {
 } from "@nestjs/common"
 import {
     CourseEntity,
-    GraphQLTypePricingPhase,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    GraphQLTypePricingPhase,
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import {
     CourseStatsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/course-stats/course-stats-projection.service"
+import {
+    GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-    GraphQLLocale,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     CourseRequest,
+} from "./graphql-types/request"
+import {
     CourseResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     CourseService,
 } from "./course.service"

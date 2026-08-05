@@ -3,8 +3,8 @@ import {
 } from "@nestjs/common"
 import {
     MEMORY_CACHE_MANAGER,
-    REDIS_CACHE_MANAGER
-} from "./constants"
+    REDIS_CACHE_MANAGER,
+} from "./constants/keys"
 
 /** Shared Redis cache -- use for values that must be visible across pods. */
 export const InjectRedisCache = (): ReturnType<typeof Inject> =>

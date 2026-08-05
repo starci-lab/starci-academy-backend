@@ -1,19 +1,27 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    AuthenticationType,
+} from "@modules/databases/postgresql/primary/enums/authentication-type"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-    AuthenticationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    KeycloakTokenService,
+} from "@modules/integrations/keycloak/token.service"
 import {
     KeycloakJwtPayload,
-    KeycloakTokenService,
+} from "@modules/integrations/keycloak/types/jwt-jwks"
+import {
     deriveUsername,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/utils/derive-username"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -32,7 +40,7 @@ import {
 } from "./callback.command"
 import {
     KeycloakGoogleCallbackResponse,
-} from "./dtos"
+} from "./dtos/response"
 
 @CommandHandler(KeycloakGoogleCallbackCommand)
 @Injectable()

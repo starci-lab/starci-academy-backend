@@ -5,7 +5,7 @@ import type {
 } from "typeorm"
 import type {
     UuidAbstractEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/abstract"
 
 /**
  * Result of {@link UpsertService.partitionUuidSync}: seed rows and DB rows split into

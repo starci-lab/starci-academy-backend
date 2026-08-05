@@ -6,19 +6,23 @@ import {
 } from "typeorm"
 import {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     GithubApiOrgService,
-} from "@modules/github"
+} from "@modules/integrations/github/org.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     MyGithubTeamStatusData,
     GithubTeamEntryData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

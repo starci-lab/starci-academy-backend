@@ -1,13 +1,15 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserChallengeSubmissionFeedbackEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission-feedback.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserChallengeSubmissionFeedbackEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,9 +25,11 @@ import {
     UserChallengeSubmissionFeedbacksQuery,
 } from "./user-challenge-submission-feedbacks.query"
 import {
-    UserChallengeSubmissionFeedbacksResponseData,
     UserChallengeSubmissionFeedbacksSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    UserChallengeSubmissionFeedbacksResponseData,
+} from "./graphql-types/response"
 
 @QueryHandler(UserChallengeSubmissionFeedbacksQuery)
 @Injectable()

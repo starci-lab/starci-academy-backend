@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     PublicContentQuery,
 } from "./public-content.query"
 import {
     PublicContentRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

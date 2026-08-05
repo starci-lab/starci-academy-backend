@@ -1,6 +1,6 @@
 import {
     KeycloakGoogleCallbackQuery as KeycloakGoogleCallbackQueryDto,
-} from "./dtos"
+} from "./dtos/request"
 
 /**
  * CQRS envelope for the Keycloak Google IdP code exchange so the callback controller stays

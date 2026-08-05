@@ -6,10 +6,10 @@ import {
 } from "./tasks.module-definition"
 import {
     TaskSingleQueryModule,
-} from "./task"
+} from "./task/task.module"
 import {
     MilestoneTaskSuggestionsSingleQueryModule,
-} from "./milestone-task-suggestions"
+} from "./milestone-task-suggestions/milestone-task-suggestions.module"
 
 @Module({
     imports: [

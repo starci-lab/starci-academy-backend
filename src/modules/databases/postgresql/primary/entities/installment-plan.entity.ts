@@ -12,10 +12,12 @@ import {
 } from "typeorm"
 import {
     GraphQLTypeInstallmentPlanStatus,
-    GraphQLTypeInstallmentPlanType,
     InstallmentPlanStatus,
+} from "../enums/installment-plan-status"
+import {
+    GraphQLTypeInstallmentPlanType,
     InstallmentPlanType,
-} from "../enums"
+} from "../enums/installment-plan-type"
 import {
     UuidAbstractEntity,
 } from "./abstract"

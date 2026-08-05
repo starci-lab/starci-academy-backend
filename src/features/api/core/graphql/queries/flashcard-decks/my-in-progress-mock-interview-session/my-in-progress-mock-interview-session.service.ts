@@ -6,17 +6,19 @@ import {
     MoreThanOrEqual,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     MOCK_INTERVIEW_SESSION_DURATION_MS,
     MockInterviewSessionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import type {
     FindMyInProgressMockInterviewSessionParams,
     MyInProgressMockInterviewSessionResult,
-} from "./types"
+} from "./types/my-in-progress-mock-interview-session"
 
 /**
  * How far back a session's last sync may be for it to still be offered as

@@ -2,8 +2,8 @@ import {
     createHash
 } from "crypto"
 import type {
-    GetReadinessWatcherNameParams
-} from "../types"
+    GetReadinessWatcherNameParams,
+} from "../types/readiness-watcher"
 
 /**
  * Build a stable name for a readiness watcher from name and params (hashed).

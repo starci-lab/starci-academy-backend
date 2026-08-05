@@ -1,7 +1,9 @@
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ConnectedSocket,
     MessageBody,
@@ -13,31 +15,39 @@ import type {
 } from "socket.io"
 import {
     RagPlaygroundWebSocketGateway,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     WsResponseService,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/response.service"
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
 import {
     AiInvokeService,
 } from "@modules/ai/ai-invoke.service"
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
 import {
     RagPlaygroundRunRegistryService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/rag-playground-run-registry.service"
 import {
     PublicationEvent,
+} from "../enums/publication-event"
+import {
     SubscriptionEvent,
-} from "../enums"
+} from "../enums/subscription-event"
 import type {
-    AbortRagPlaygroundRunSocketIoPayload,
     EmitChunkParams,
     RagPlaygroundRunChunkSocketIoMessage,
+} from "./types/message"
+import type {
+    AbortRagPlaygroundRunSocketIoPayload,
     SubscribeRagPlaygroundRunSocketIoPayload,
-} from "./types"
+} from "./types/payload"
 
 @RagPlaygroundWebSocketGateway()
 /**

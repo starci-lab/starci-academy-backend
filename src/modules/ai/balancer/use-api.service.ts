@@ -1,28 +1,42 @@
 import {
     AiModelLatencyCacheService,
+} from "@modules/integrations/cache/ai-model-latency-cache.service"
+import {
     AiPingCacheService,
+} from "@modules/integrations/cache/ai-ping-cache.service"
+import {
     isPingEntryEligible,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/ai-ping-key-status"
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     AiModelEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     AllModelsExhaustedException,
+} from "@modules/platform/exceptions/errors/ai/all-models-exhausted"
+import {
     NoActiveBalancerKeyException,
+} from "@modules/platform/exceptions/errors/ai/no-active-balancer-key"
+import {
     UnsupportedAiProviderException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/unsupported-ai-provider"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     Injectable,
 } from "@nestjs/common"

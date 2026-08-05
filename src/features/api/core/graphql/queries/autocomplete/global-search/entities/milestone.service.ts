@@ -3,14 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import type {
     EntitySearchParams,
+} from "../types/entity-search"
+import type {
     GlobalSearchItem,
-} from "../types"
+} from "../types/message"
 import {
     MilestoneEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
 
 @Injectable()
 /**

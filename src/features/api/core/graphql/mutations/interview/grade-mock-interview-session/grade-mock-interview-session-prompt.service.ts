@@ -7,16 +7,20 @@ import {
 } from "@langchain/core/messages"
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     MockInterviewKind,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-kind"
+import {
     MockInterviewMode,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mock-interview-mode"
 import {
     MockInterviewVerdict,
     type BuildMockInterviewGradePromptParams,
     type BuildMockInterviewGradePromptResult,
     type MockInterviewSeedGrounding,
     type MockInterviewTurnRecord,
-} from "./types"
+} from "./types/mock-interview-grade"
 
 /**
  * Maps a {@link Locale} to the human-readable language name injected into the

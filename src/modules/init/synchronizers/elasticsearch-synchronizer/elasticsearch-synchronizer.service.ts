@@ -2,60 +2,106 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    CourseEntity,
-    ModuleEntity,
-    ContentEntity,
     ChallengeEntity,
-    Locale,
-    MilestoneEntity,
-    MilestoneTaskEntity,
-    FoundationEntity,
-    FoundationCategoryEntity,
-    ConsultantEntity,
-    HeadhuntingCompanyEntity,
-    FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     CodingProblemEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
+    ConsultantEntity,
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
+    FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
+import {
+    FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    HeadhuntingCompanyEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     MoreThan,
     type EntityManager,
 } from "typeorm"
 import {
-    ElasticsearchCourseBuildService,
-    ElasticsearchModuleBuildService,
-    ElasticsearchContentBuildService,
     ElasticsearchChallengeBuildService,
-    ElasticsearchMilestoneBuildService,
-    ElasticsearchMilestoneTaskBuildService,
-    ElasticsearchFoundationBuildService,
-    ElasticsearchFoundationCategoryBuildService,
-    ElasticsearchHeadhunterCompanyBuildService,
-    ElasticsearchConsultantBuildService,
-    ElasticsearchFlashcardDeckBuildService,
+} from "./builder/challenge.service"
+import {
     ElasticsearchCodingProblemBuildService,
-} from "./builder"
+} from "./builder/coding-problem.service"
+import {
+    ElasticsearchConsultantBuildService,
+} from "./builder/consultant.service"
+import {
+    ElasticsearchContentBuildService,
+} from "./builder/content.service"
+import {
+    ElasticsearchCourseBuildService,
+} from "./builder/course.service"
+import {
+    ElasticsearchFlashcardDeckBuildService,
+} from "./builder/flashcard-deck.service"
+import {
+    ElasticsearchFoundationCategoryBuildService,
+} from "./builder/foundation-category.service"
+import {
+    ElasticsearchFoundationBuildService,
+} from "./builder/foundation.service"
+import {
+    ElasticsearchHeadhunterCompanyBuildService,
+} from "./builder/headhunting-company.service"
+import {
+    ElasticsearchMilestoneTaskBuildService,
+} from "./builder/milestone-task.service"
+import {
+    ElasticsearchMilestoneBuildService,
+} from "./builder/milestone.service"
+import {
+    ElasticsearchModuleBuildService,
+} from "./builder/module.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
-    SyncElasticsearchEntityKind
-} from "@modules/bullmq"
+    SyncElasticsearchEntityKind,
+} from "@modules/integrations/bullmq/types/payloads/sync-elasticsearch"
 import {
-    ElasticsearchService 
-} from "@modules/elasticsearch"
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import type {
     SynchronizerSyncScope,
-} from "../../types"
+} from "../../types/context"
 import {
-    buildChallengeSyncSuccessLog,
-    buildContentSyncSuccessLog,
-    buildCourseSyncSuccessLog,
-    buildModuleSyncSuccessLog,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
     shouldSyncCourseEntity,
@@ -63,7 +109,13 @@ import {
     shouldSyncMilestoneTaskEntity,
     shouldSyncModuleEntity,
     shouldSynchronizerSyncEntityKind,
-} from "../../utils"
+} from "../../utils/entity-sync-filter"
+import {
+    buildChallengeSyncSuccessLog,
+    buildContentSyncSuccessLog,
+    buildCourseSyncSuccessLog,
+    buildModuleSyncSuccessLog,
+} from "../../utils/sync-success-log"
 
 @Injectable()
 /**

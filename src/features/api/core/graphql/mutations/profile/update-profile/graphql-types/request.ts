@@ -12,11 +12,13 @@ import {
     MaxLength,
 } from "class-validator"
 import {
-    WorkMode,
-    GraphQLTypeWorkMode,
     BackgroundEffect,
     GraphQLTypeBackgroundEffect,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/background-effect"
+import {
+    WorkMode,
+    GraphQLTypeWorkMode,
+} from "@modules/databases/postgresql/primary/enums/work-mode"
 
 @InputType({
     description: "Request to update the current user's editable profile fields.",

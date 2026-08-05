@@ -1,7 +1,9 @@
 import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import type {
     EntityManager,
 } from "typeorm"

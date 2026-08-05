@@ -14,7 +14,7 @@ import {
 import {
     GraphQLTypePaymentType,
     PaymentType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 
 @InputType({
     description: "Plan id + payment provider + redirect URLs for paying an installment plan's current cycle.",

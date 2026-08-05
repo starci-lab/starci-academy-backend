@@ -2,34 +2,40 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     type EntityManager,
     MoreThan,
 } from "typeorm"
 import {
     EmailBloomFilterService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/bloom-filters/email.service"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     BloomFilterType,
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import {
     ScalableBloomFilter,
 } from "bloom-filters"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 
 @Injectable()
 /**

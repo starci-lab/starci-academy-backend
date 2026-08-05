@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     SyncFlashcardReviewSessionProgressRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS command wrapping the `syncFlashcardReviewSessionProgress` request + caller -- dispatched via

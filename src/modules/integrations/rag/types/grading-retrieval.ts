@@ -6,7 +6,7 @@ import type {
 } from "@langchain/core/embeddings"
 import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /** One yes/no criterion whose prose steers retrieval toward the evidence that satisfies it. */
 export interface GradingRetrievalCriterion {

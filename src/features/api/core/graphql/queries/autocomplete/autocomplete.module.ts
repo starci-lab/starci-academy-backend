@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,13 +6,13 @@ import {
 } from "./autocomplete.module-definition"
 import {
     AutocompleteGlobalSearchSingleQueryModule,
-} from "./global-search"
+} from "./global-search/global-search.module"
 import {
     IndexSearchSingleQueryModule,
-} from "./index-search"
+} from "./index-search/index-search.module"
 import {
     ResolveRouteSingleQueryModule,
-} from "./resolve-route"
+} from "./resolve-route/resolve-route.module"
 
 @Module({
     imports: [

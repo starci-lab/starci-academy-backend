@@ -1,6 +1,6 @@
 import {
     EnqueueResolveGithubJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/resolve-github.service"
 import {
     AddGithubUserToTeamEvent,
 } from "./add-github-user-to-team.event"

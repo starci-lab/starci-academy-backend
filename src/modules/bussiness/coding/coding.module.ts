@@ -15,7 +15,7 @@ import {
 } from "./coding-submission.service"
 import {
     DeviceModule,
-} from "../device"
+} from "../device/device.module"
 
 @Module({
     imports: [

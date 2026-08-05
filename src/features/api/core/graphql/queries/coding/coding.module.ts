@@ -6,25 +6,25 @@ import {
 } from "./coding.module-definition"
 import {
     CodingProblemsSingleQueryModule,
-} from "./coding-problems"
+} from "./coding-problems/coding-problems.module"
 import {
     CodingProblemSingleQueryModule,
-} from "./coding-problem"
+} from "./coding-problem/coding-problem.module"
 import {
     CodingProblemHintSingleQueryModule,
-} from "./coding-problem-hint"
+} from "./coding-problem-hint/coding-problem-hint.module"
 import {
     MyCodingSubmissionsSingleQueryModule,
-} from "./my-coding-submissions"
+} from "./my-coding-submissions/my-coding-submissions.module"
 import {
     CodingLeaderboardSingleQueryModule,
-} from "./coding-leaderboard"
+} from "./coding-leaderboard/coding-leaderboard.module"
 import {
     CodingProblemSuggestionsSingleQueryModule,
-} from "./coding-problem-suggestions"
+} from "./coding-problem-suggestions/coding-problem-suggestions.module"
 import {
     MyCodingProgressSingleQueryModule,
-} from "./my-coding-progress"
+} from "./my-coding-progress/my-coding-progress.module"
 
 @Module({
     imports: [

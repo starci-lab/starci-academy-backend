@@ -4,10 +4,12 @@ import {
 } from "@nestjs/graphql"
 import {
     AiCeilSurface,
-    AiModelCategory,
     GraphQLTypeAiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
+    AiModelCategory,
     GraphQLTypeAiModelCategory,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
 
 @InputType({
     description: "Set the user's AI model ceiling for a surface (or the global default).",

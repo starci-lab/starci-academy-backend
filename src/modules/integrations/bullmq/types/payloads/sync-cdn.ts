@@ -1,10 +1,18 @@
 import {
     ChallengeEntity,
-    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     MilestoneTaskEntity,
-    ModuleEntity
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
     Dayjs
 } from "dayjs"

@@ -3,10 +3,16 @@ import type {
 } from "@langchain/core/messages"
 import type {
     Locale,
-    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import type {
     MockInterviewMode,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-mode"
+import type {
     MockInterviewPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
+import type {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * Coarse pass/borderline/fail band assigned to a graded mock-interview

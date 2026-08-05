@@ -3,7 +3,7 @@ import type {
 } from "@modules/ai/types/ai-job-selection"
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * Seniority rubric level the CV is graded against. Kept as a string union

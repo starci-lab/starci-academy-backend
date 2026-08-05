@@ -3,7 +3,7 @@ import type {
 } from "typeorm"
 import type {
     ProjectPinType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/project-pin-type"
 
 /** Params for recomputing one user's pinned-projects projection row. */
 export interface RecomputeUserPinnedProjectsParams {

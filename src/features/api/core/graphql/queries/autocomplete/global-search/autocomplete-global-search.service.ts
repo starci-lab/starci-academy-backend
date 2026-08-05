@@ -3,55 +3,97 @@ import {
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EntityManager,
     In,
 } from "typeorm"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
-    ModuleEntity,
-    FlashcardDeckEntity,
-    MilestoneEntity,
-    MilestoneTaskEntity,
-    FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
+    FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import type {
     ParentIndexCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/parent-index"
 import {
     buildEntityRoute,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/build-entity-route"
 import type {
     AttachParentPathsParams,
     AttachStateFlagsParams,
     AttachStateFlagsResult,
     AutocompleteGlobalSearchExecuteParams,
     AutocompleteGlobalSearchExecuteResult,
+} from "./types/autocomplete-global-search"
+import type {
+    SearchableEntity,
+} from "./types/entity-search"
+import type {
     GlobalSearchItem,
     GlobalSearchParentPath,
-    SearchableEntity,
-} from "./types"
+} from "./types/message"
 import {
     ChallengeGlobalSearchService,
+} from "./entities/challenge.service"
+import {
     ContentGlobalSearchService,
+} from "./entities/content.service"
+import {
     CourseGlobalSearchService,
-    ModuleGlobalSearchService,
+} from "./entities/course.service"
+import {
     FlashcardDeckGlobalSearchService,
-    MilestoneGlobalSearchService,
-    MilestoneTaskGlobalSearchService,
+} from "./entities/flashcard-deck.service"
+import {
     FoundationGlobalSearchService,
-} from "./entities"
+} from "./entities/foundation.service"
+import {
+    MilestoneTaskGlobalSearchService,
+} from "./entities/milestone-task.service"
+import {
+    MilestoneGlobalSearchService,
+} from "./entities/milestone.service"
+import {
+    ModuleGlobalSearchService,
+} from "./entities/module.service"
 
 const DEFAULT_SIZE = 5
 

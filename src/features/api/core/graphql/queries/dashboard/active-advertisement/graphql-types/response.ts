@@ -5,13 +5,17 @@ import {
 import GraphQLJSON from "graphql-type-json"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
+import type {
+    AdvertisementMedia,
+} from "@modules/databases/postgresql/primary/entities/advertisement.entity"
 import {
     AdvertisementMediaType,
     GraphQLTypeAdvertisementMediaType,
-    type AdvertisementMedia,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/advertisement-media-type"
 
 @ObjectType({
     description: "A dashboard advertisement banner (locale-resolved, render-ready).",

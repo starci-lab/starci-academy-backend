@@ -1,9 +1,9 @@
 import {
     CodingVerdict,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
 import {
     Judge0StatusId,
-} from "../enums"
+} from "../enums/judge0-status"
 import {
     isJudge0Terminal,
     mapJudge0StatusToVerdict,

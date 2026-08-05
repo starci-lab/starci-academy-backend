@@ -1,16 +1,18 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     EnqueueGenerateCvJobService,
-} from "@features/api/processors/ai/generate-cv"
+} from "../../../../../processors/ai/generate-cv/enqueue-generate-cv.service"
 import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
@@ -29,7 +31,7 @@ import {
 } from "./generate-cv.command"
 import {
     GenerateCvData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(GenerateCvCommand)
 @Injectable()

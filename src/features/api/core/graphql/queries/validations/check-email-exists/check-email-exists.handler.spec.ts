@@ -1,6 +1,6 @@
 // Side-effect import: load the elasticsearch barrel first to dodge the cqrs
 // barrel load-order cycle (see courses/course/course.handler.spec.ts for details).
-import "@modules/elasticsearch"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     Test,
     TestingModule,
@@ -13,7 +13,7 @@ import {
 } from "./check-email-exists.query"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 
 describe("CheckEmailExistsHandler",
     () => {

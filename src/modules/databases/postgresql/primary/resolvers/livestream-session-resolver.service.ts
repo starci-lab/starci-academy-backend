@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     LivestreamSessionEntity,
-} from "../entities"
+} from "../entities/livestream-session.entity"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     TranslationResolverService,
 } from "./translation.service"

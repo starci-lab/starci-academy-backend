@@ -1,14 +1,18 @@
 import type {
     GenerateCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/generate-cv"
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import {
     DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     Processor as Worker,
     WorkerHost,
@@ -19,30 +23,40 @@ import {
 import SuperJSON from "superjson"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     GenerateCvStepMappingService,
 } from "./step-mapping.service"
 import type {
     ExtendedGenerateCvContext,
-} from "./types"
+} from "./types/extended"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     CvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-    JobEntity,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     EntityManager,
 } from "typeorm"
 import {
     CvGenerationNotFoundException,
+} from "@modules/platform/exceptions/errors/api/cv-generation-not-found"
+import {
     StepNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job/not-found"
 
 // TODO(wire): replace the queue-name literal below with
 // `bullData[BullQueueName.GenerateCv].name` once `BullQueueName.GenerateCv` +

@@ -9,7 +9,7 @@ import {
 } from "./webhook.command"
 import type {
     PaypalWebhookParams,
-} from "./types"
+} from "./types/webhook"
 
 @Injectable()
 /**

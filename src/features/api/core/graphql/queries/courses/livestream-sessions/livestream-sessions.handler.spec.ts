@@ -1,6 +1,6 @@
 // Side-effect import: load the elasticsearch barrel first to dodge the cqrs
 // barrel load-order cycle (see course.handler.spec.ts for the full rationale).
-import "@modules/elasticsearch"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     Test,
     TestingModule,
@@ -16,20 +16,22 @@ import {
 } from "./livestream-sessions.query"
 import {
     LivestreamSessionsSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     SortOrder,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     LivestreamSessionResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/livestream-session-resolver.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

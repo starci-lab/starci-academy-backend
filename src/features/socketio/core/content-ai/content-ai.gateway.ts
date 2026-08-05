@@ -1,7 +1,9 @@
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ConnectedSocket,
     MessageBody,
@@ -13,12 +15,16 @@ import {
 } from "socket.io"
 import {
     ContentAiWebSocketGateway,
-    WsResponseService,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     socketIoKeycloakAuthMiddleware,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/middlewares/keycloak-auth"
+import {
+    WsResponseService,
+} from "@modules/platform/socketio/response.service"
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -30,23 +36,33 @@ import type {
 } from "@modules/ai/types/ai-job-selection"
 import {
     ContentAiService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/content-ai/content-ai.service"
 import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     PublicationEvent,
+} from "../enums/publication-event"
+import {
     SubscriptionEvent,
-} from "../enums"
+} from "../enums/subscription-event"
+import type {
+    ContentAiChunkSocketIoMessage,
+    EmitChunkParams,
+} from "./types/message"
 import type {
     AbortContentAiSocketIoPayload,
     AskContentAiSocketIoPayload,
-    ContentAiChunkSocketIoMessage,
-    EmitChunkParams,
-} from "./types"
+} from "./types/payload"
 
 @ContentAiWebSocketGateway()
 /**

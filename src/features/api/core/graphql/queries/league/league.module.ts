@@ -6,10 +6,10 @@ import {
 } from "./league.module-definition"
 import {
     MyLeagueSingleQueryModule,
-} from "./my-league"
+} from "./my-league/my-league.module"
 import {
     GlobalLeaderboardSingleQueryModule,
-} from "./global-leaderboard"
+} from "./global-leaderboard/global-leaderboard.module"
 
 @Module({
     imports: [

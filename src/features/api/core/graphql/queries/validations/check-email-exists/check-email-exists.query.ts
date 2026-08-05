@@ -1,9 +1,9 @@
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import type {
     CheckEmailExistsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS query for checking whether an email exists using bloom filter. */
 export class CheckEmailExistsQuery {

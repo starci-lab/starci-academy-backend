@@ -15,7 +15,7 @@ import {
 import {
     GraphQLTypeProjectPinType,
     ProjectPinType,
-} from "../enums"
+} from "../enums/project-pin-type"
 import {
     UuidAbstractEntity,
 } from "./abstract"

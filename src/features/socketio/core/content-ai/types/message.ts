@@ -1,6 +1,6 @@
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
 
 /**
  * Server -> client message carrying one streamed token delta for a content-AI

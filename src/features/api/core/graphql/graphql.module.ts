@@ -1,12 +1,12 @@
 import {
     Module,
 } from "@nestjs/common"
-import {
-    MutationsModule,
-} from "./mutations"
-import {
-    QueriesModule,
-} from "./queries"
+import {
+    MutationsModule,
+} from "./mutations/mutations.module"
+import {
+    QueriesModule,
+} from "./queries/queries.module"
 import {
     ConfigurableModuleClass 
 } from "./graphql.module-definition"

@@ -13,33 +13,47 @@ import type {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import {
     CodingProblemEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     buildEntityRoute,
+} from "@modules/platform/routing/utils/build-entity-route"
+import {
     fromGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
+import {
+    ResolveRouteRequest,
+} from "./graphql-types/request"
 import {
     ResolveRouteData,
-    ResolveRouteRequest,
     ResolveRouteResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

@@ -9,8 +9,8 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore"
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter"
 import Decimal from "decimal.js"
 import type {
-    AlignTimeToIntervalUtcParams
-} from "./types"
+    AlignTimeToIntervalUtcParams,
+} from "./types/dayjs"
 
 dayjs.extend(utc)
 dayjs.extend(timezone)

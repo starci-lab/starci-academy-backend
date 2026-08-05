@@ -9,20 +9,26 @@ import {
     AchievementsService,
 } from "./achievements.service"
 import {
-    ACHIEVEMENT_BADGES,
     AbstractBadge,
+} from "./badges/abstract-badge"
+import {
+    ACHIEVEMENT_BADGES,
 } from "./badges"
 import {
-    AchievementCriteriaType,
     AchievementEntity,
+} from "@modules/databases/postgresql/primary/entities/achievement.entity"
+import {
     UserAchievementEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-achievement.entity"
+import {
+    AchievementCriteriaType,
+} from "@modules/databases/postgresql/primary/enums/achievement-criteria-type"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Params for the local `build` test helper (wires a SUT with programmed badges/definitions/rows). */
 interface BuildParams {

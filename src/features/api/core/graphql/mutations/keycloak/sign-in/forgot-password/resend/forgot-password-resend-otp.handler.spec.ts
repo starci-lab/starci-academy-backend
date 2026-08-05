@@ -1,20 +1,20 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
 } from "@nestjs/testing"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     OtpChallengeService,
-} from "@modules/code"
+} from "@modules/integrations/code/otp-challenge.service"
 import {
     ChallengeOtpNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/otp"
 import {
     ForgotPasswordResendOtpCommand,
 } from "./forgot-password-resend-otp.command"

@@ -12,7 +12,7 @@ import type {
 } from "express"
 import {
     MountFoundationsFileNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mount/foundations-file-not-found"
 import {
     httpConfig,
 } from "../../http"

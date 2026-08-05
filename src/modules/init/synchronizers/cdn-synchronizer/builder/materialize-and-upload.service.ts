@@ -1,6 +1,9 @@
 import {
-    S3Provider, S3UploadService
-} from "@modules/s3"
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
+import {
+    S3UploadService,
+} from "@modules/integrations/s3/s3-upload.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -9,19 +12,23 @@ import type {
     LocalizedCdnEntity,
 } from "./types"
 import {
-    Locale
-} from "@modules/databases"
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     AsyncService,
+} from "@modules/lib/mixin/async.service"
+import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     CdnMaterializeContext,
-} from "../types"
+} from "../types/materialize-context"
 import type SuperJSON from "superjson"
 
 @Injectable()

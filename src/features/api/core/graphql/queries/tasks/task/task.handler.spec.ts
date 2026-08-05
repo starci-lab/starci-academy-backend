@@ -1,6 +1,6 @@
 // Side-effect import: load the elasticsearch barrel first to dodge the cqrs
 // barrel load-order cycle (see courses/course/course.handler.spec.ts for details).
-import "@modules/elasticsearch"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     Test,
     TestingModule,
@@ -13,14 +13,16 @@ import {
 } from "./task.query"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     MilestoneNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/milestone-not-found"
 import {
     S3NameResolverService,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 
 describe("TaskHandler",
     () => {

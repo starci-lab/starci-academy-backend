@@ -18,7 +18,7 @@ import {
 } from "./service-installer.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 
 /** Parsed CLI options for {@link AgentCommand}. */
 interface AgentCommandOptions {

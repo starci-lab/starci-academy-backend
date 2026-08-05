@@ -12,13 +12,13 @@ import {
 } from "./auth.service"
 import {
     KeycloakLoginHandler,
-} from "./login"
+} from "./login/login.handler"
 import {
     KeycloakRegisterHandler,
-} from "./register"
+} from "./register/register.handler"
 import {
     KeycloakConfigureMailAdapterHandler,
-} from "./configure-mail-adapter"
+} from "./configure-mail-adapter/configure-mail-adapter.handler"
 
 @Module({
     controllers: [

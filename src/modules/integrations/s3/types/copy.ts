@@ -1,6 +1,6 @@
 import {
     S3Provider,
-} from "../enums"
+} from "../enums/s3"
 
 /** Params for copying an object to a new key within the same bucket. */
 export interface S3CopySameBucketParams {

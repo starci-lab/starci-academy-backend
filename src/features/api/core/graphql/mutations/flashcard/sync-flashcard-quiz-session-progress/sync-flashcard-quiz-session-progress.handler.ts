@@ -1,17 +1,19 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     EntityManager,
 } from "typeorm"
 import {
     FlashcardQuizSessionEntity,
     FlashcardQuizSessionResult,
+} from "@modules/databases/postgresql/primary/entities/flashcard-quiz-session.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -24,7 +26,7 @@ import {
 } from "./sync-flashcard-quiz-session-progress.command"
 import {
     SyncFlashcardQuizSessionProgressData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(SyncFlashcardQuizSessionProgressCommand)
 @Injectable()

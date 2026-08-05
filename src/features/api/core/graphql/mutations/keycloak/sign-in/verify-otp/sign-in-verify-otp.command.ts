@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 import type {
     SignInVerifyOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS envelope for releasing parked tokens after OTP succeeds. */
 export class SignInVerifyOtpCommand {

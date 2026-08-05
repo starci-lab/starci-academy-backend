@@ -9,17 +9,19 @@ import {
 } from "nodemailer"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getBrevoSmtpPassword,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import {
     AiBalancerService,
 } from "@modules/ai/balancer/ai-balancer.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     PrometheusMetricsService,
 } from "./prometheus-metrics.service"
@@ -28,7 +30,7 @@ import {
     PROBE_DEGRADED_THRESHOLD_MS,
     PROBE_CACHE_TTL_MS,
     EXTERNAL_PROBE_CACHE_TTL_MS,
-} from "./constants"
+} from "./constants/probe"
 import type {
     ComponentHealth,
     ComponentStatus,
@@ -37,7 +39,7 @@ import type {
     HttpProbeTarget,
     ReachableHealthParams,
     TcpProbeTarget,
-} from "./types"
+} from "./types/probe"
 
 @Injectable()
 /**

@@ -2,7 +2,7 @@
 // initialised before ConnectGithubAccountHandler pulls `@modules/cqrs` -- dodges
 // a load-order "Class extends value undefined" cycle (same gotcha documented in
 // connect-github-account.handler.spec.ts).
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
 } from "@nestjs/testing"
@@ -16,35 +16,47 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    KpiKey,
     KpiWeeklyRewardFloorEntity,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/kpi-weekly-reward-floor.entity"
+import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    KpiKey,
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
+import {
     WorkMode,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/work-mode"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     GithubUserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/github"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     KpiRewardService,
-    UserService,
+} from "@modules/bussiness/kpi-reward/kpi-reward.service"
+import {
     UserStatsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
+import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
 import {
     KPI_TARGET_MAX,
-} from "@modules/bussiness"
+} from "@modules/bussiness/kpi-reward/kpi-reward.catalog"
 import {
     KeycloakJwksService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/jwks.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import {
     UpdateProfileResolver,
 } from "@features/api/core/graphql/mutations/profile/update-profile/update-profile.resolver"
@@ -59,7 +71,7 @@ import {
 } from "@features/api/core/graphql/mutations/authentication/connect-github-account/connect-github-account.handler"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

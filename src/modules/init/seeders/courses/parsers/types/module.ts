@@ -1,9 +1,9 @@
 import {
-    EmptyObject 
-} from "@modules/common"
+    EmptyObject,
+} from "@modules/lib/common/types/atomic"
 import {
     ResolvedFilePath,
-} from "../../../shared"
+} from "../../../shared/path/types"
 
 /** Ordinal of the course and module in the seed list (mount folders `{index}-{slug}`). */
 export interface ParseModuleParams {

@@ -11,45 +11,59 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ActionType,
-    PaymentType,
-    PricingPhase,
-    PrimaryPostgreSQLModule,
     TransactionEntity,
-    TransactionStatus,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    TransactionStatus,
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     MembershipNotAvailableException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/membership/membership-not-available"
 import {
     EnqueueReconcileTransactionJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import type {
     AppConfig,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/config"
 import {
     DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
     RetryService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/retry.service"
 import {
     SEPAY,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/constants/sepay"
 import {
     PAYOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/constants/payos"
 import {
     STRIPE,
-} from "@modules/stripe"
+} from "@modules/integrations/stripe/constants/stripe"
 import {
     PaypalClient,
-} from "@modules/paypal"
+} from "@modules/integrations/paypal/paypal.client"
 import {
     NowPaymentsClient,
-} from "@modules/nowpayments"
+} from "@modules/integrations/nowpayments/nowpayments.client"
 import {
     PurchaseMembershipHandler,
 } from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.handler"
@@ -58,10 +72,10 @@ import {
 } from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.command"
 import type {
     PurchaseMembershipRequest,
-} from "@features/api/core/graphql/mutations/membership/purchase-membership/graphql-types"
+} from "@features/api/core/graphql/mutations/membership/purchase-membership/graphql-types/request"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

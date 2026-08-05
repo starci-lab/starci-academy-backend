@@ -3,14 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     MountFilesystemService,
-    type SeedSeedersConfig,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
+import type {
+    SeedSeedersConfig,
+} from "@modules/filesystem/types/seed"
 import type {
     CourseSeedScope,
 } from "./types"
 import {
     buildCourseIndexFilterByDisplayId,
-} from "./utils"
+} from "./utils/build-course-index-filter"
 
 @Injectable()
 /**

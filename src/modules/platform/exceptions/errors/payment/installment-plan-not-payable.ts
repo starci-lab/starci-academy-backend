@@ -6,7 +6,7 @@ import {
 } from "../abstract"
 import type {
     InstallmentPlanStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/installment-plan-status"
 
 /** Metadata for an installment plan that has nothing left to pay. */
 export interface InstallmentPlanNotPayableExceptionMetadata extends AbstractExceptionMetadata {

@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql"
 import {
     createEnumType,
-} from "@modules/common"
+} from "@modules/lib/common/utils/enum"
 
 /**
  * The employment arrangement advertised on a job posting (`job_postings.employment_type`).

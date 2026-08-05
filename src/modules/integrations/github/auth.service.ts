@@ -3,23 +3,25 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     Octokit,
 } from "octokit"
 import {
     GithubProfileMissingLoginException,
+} from "@modules/platform/exceptions/errors/github/github-profile-missing-login"
+import {
     GithubTokenExchangeFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/github/github-token-exchange-failed"
 import type {
     ExchangeGithubOAuthCodeForAccessTokenParams,
     ExchangeGithubOAuthCodeForAccessTokenResult,
     GetGithubAuthenticatedUserParams,
     GetGithubAuthenticatedUserResult,
-} from "./types"
+} from "./types/github-oauth"
 
 @Injectable()
 /**

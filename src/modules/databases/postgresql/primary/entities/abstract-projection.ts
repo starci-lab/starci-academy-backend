@@ -9,7 +9,7 @@ import {
 } from "./abstract"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 
 @ObjectType({
     isAbstract: true,

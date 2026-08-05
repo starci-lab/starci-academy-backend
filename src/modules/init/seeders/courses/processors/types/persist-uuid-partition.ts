@@ -3,10 +3,10 @@ import type {
 } from "typeorm"
 import type {
     UuidAbstractEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/abstract"
 import type {
     PartitionUuidSyncResult,
-} from "../../../shared/upsert/types"
+} from "../../../shared/upsert/types/partition-uuid-sync"
 
 /** {@link UuidPartitionPersistProcessorService.process} input. */
 export interface PersistUuidPartitionParams<Entity extends UuidAbstractEntity> {

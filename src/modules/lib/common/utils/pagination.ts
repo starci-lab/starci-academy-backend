@@ -1,7 +1,7 @@
 import {
     DEFAULT_PAGINATION_LIMIT,
     MAX_PAGINATION_LIMIT,
-} from "../constants"
+} from "../constants/pagination"
 
 /** A clamped, SQL/TypeORM-ready `limit`/`offset` pair. */
 export interface PaginationWindow {

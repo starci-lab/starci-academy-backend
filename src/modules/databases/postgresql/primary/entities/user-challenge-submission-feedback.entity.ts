@@ -18,11 +18,13 @@ import {
     UserChallengeSubmissionAttemptEntity,
 } from "./user-challenge-submission-attempt.entity"
 import {
-    SubmissionFeedbackSeverity,
-    GraphQLTypeSubmissionFeedbackSeverity,
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
+import {
+    SubmissionFeedbackSeverity,
+    GraphQLTypeSubmissionFeedbackSeverity,
+} from "../enums/submission-feedback-severity"
 @ObjectType({
     description: "Structured feedback item attached to a user challenge submission.",
 })

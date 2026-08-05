@@ -1,8 +1,12 @@
 import type {
     ActivityMetadata,
+} from "@modules/databases/postgresql/primary/entities/activity.entity"
+import type {
     ActivityType,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import type {
     ReactionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
 
 /**
  * Raw activity row for the score-ranked feed (joined with its actor). Carries

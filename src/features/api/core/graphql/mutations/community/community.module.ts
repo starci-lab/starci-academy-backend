@@ -6,40 +6,58 @@ import {
 } from "./community.module-definition"
 import {
     CreateCommunityPostResolver,
+} from "./create-community-post/create-community-post.resolver"
+import {
     CreateCommunityPostService,
-} from "./create-community-post"
+} from "./create-community-post/create-community-post.service"
 import {
     UpdateCommunityPostResolver,
+} from "./update-community-post/update-community-post.resolver"
+import {
     UpdateCommunityPostService,
-} from "./update-community-post"
+} from "./update-community-post/update-community-post.service"
 import {
     DeleteCommunityPostResolver,
+} from "./delete-community-post/delete-community-post.resolver"
+import {
     DeleteCommunityPostService,
-} from "./delete-community-post"
+} from "./delete-community-post/delete-community-post.service"
 import {
     CreateCommunityPostCommentResolver,
+} from "./create-community-post-comment/create-community-post-comment.resolver"
+import {
     CreateCommunityPostCommentService,
-} from "./create-community-post-comment"
+} from "./create-community-post-comment/create-community-post-comment.service"
 import {
     UpdateCommunityPostCommentResolver,
+} from "./update-community-post-comment/update-community-post-comment.resolver"
+import {
     UpdateCommunityPostCommentService,
-} from "./update-community-post-comment"
+} from "./update-community-post-comment/update-community-post-comment.service"
 import {
     DeleteCommunityPostCommentResolver,
+} from "./delete-community-post-comment/delete-community-post-comment.resolver"
+import {
     DeleteCommunityPostCommentService,
-} from "./delete-community-post-comment"
+} from "./delete-community-post-comment/delete-community-post-comment.service"
 import {
     ReactToCommunityPostResolver,
+} from "./react-to-community-post/react-to-community-post.resolver"
+import {
     ReactToCommunityPostService,
-} from "./react-to-community-post"
+} from "./react-to-community-post/react-to-community-post.service"
 import {
     ReactToCommunityPostCommentResolver,
+} from "./react-to-community-post-comment/react-to-community-post-comment.resolver"
+import {
     ReactToCommunityPostCommentService,
-} from "./react-to-community-post-comment"
+} from "./react-to-community-post-comment/react-to-community-post-comment.service"
 import {
     SetCommunityPostPinnedResolver,
+} from "./set-community-post-pinned/set-community-post-pinned.resolver"
+import {
     SetCommunityPostPinnedService,
-} from "./set-community-post-pinned"
+} from "./set-community-post-pinned/set-community-post-pinned.service"
 
 @Module({
     providers: [

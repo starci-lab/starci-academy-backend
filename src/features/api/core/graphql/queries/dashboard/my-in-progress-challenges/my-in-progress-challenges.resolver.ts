@@ -15,35 +15,47 @@ import type {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChallengeProgressService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/progress/challenge.service"
 import {
     ChallengeProgressStatus,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/challenge-submission-progress"
 import {
     toGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
 import {
     MyInProgressChallengeItemData,
     MyInProgressChallengesResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Max enrollments scanned for in-progress challenges (bounds the payload). */
 const DASHBOARD_LIMIT = 30

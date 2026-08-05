@@ -7,7 +7,7 @@ import {
 import {
     GraphQLTypePaymentType,
     PaymentType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 
 @InputType({
     description: "Course ids, payment provider, and redirect URLs for a multi-course checkout.",

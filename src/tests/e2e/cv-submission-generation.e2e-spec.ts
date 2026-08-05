@@ -1,4 +1,4 @@
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import request from "supertest"
 import {
     Test,
@@ -25,46 +25,70 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     CvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import {
     CvSource,
+} from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
     JobCategory,
-    JobEntity,
+} from "@modules/databases/postgresql/primary/enums/job-category"
+import {
     JobStatus,
+} from "@modules/databases/postgresql/primary/enums/job-status"
+import {
     PrimaryPostgreSQLModule,
-    UserCvGenerationEntity,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
 import {
     createSuperJsonServiceProvider,
-    DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     EventEmitterService,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
 import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
 import {
     EnqueueGenerateCvJobService,
-} from "@features/api/processors/ai/generate-cv"
+} from "@features/api/processors/ai/generate-cv/enqueue-generate-cv.service"
 import {
     EnqueueScoreUploadedCvJobService,
-} from "@features/api/processors/ai/score-uploaded-cv"
+} from "@features/api/processors/ai/score-uploaded-cv/enqueue-score-uploaded-cv.service"
 import {
     UploadCvHandler,
 } from "@features/api/core/graphql/mutations/cv-submissions/upload-cv/upload-cv.handler"
@@ -94,7 +118,7 @@ import {
 } from "@features/api/core/graphql/mutations/cv-submissions/revise-cv/revise-cv.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

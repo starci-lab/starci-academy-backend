@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     CourseParserService,
-} from "./parsers"
+} from "./parsers/course.service"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 import {
     CourseProcessorService,
 } from "./processors/course-processor.service"

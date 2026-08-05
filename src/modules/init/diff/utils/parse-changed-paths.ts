@@ -1,7 +1,7 @@
 import type {
     DataGitDiff,
     DataGitDomain,
-} from "../types"
+} from "../types/diff"
 
 /**
  * Maps a changed top-level repo folder to the standalone seed domain it feeds.

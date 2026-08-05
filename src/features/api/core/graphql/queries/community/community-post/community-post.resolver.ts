@@ -10,26 +10,34 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     Locale,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    KeycloakOptionalAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
 import {
     KeycloakGraphQLUser,
-    KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     CommunityPostNodeObject,
-} from "../../../shared/community"
+} from "../../../shared/community/object-types/community-post-node.object"
 import {
     CommunityPostRequest,
+} from "./graphql-types/request"
+import {
     CommunityPostResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     CommunityPostQueryService,
 } from "./community-post.service"

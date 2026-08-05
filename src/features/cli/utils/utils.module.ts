@@ -10,35 +10,61 @@ import {
 } from "./utils.command"
 import {
     PgSyncCommand,
+} from "./subs/pg-sync.command"
+import {
     PlaygroundSeedTestCommand,
-} from "./subs"
+} from "./subs/playground-seed-test.command"
 import {
     CourseIdFactoryService,
-    PlaygroundIdFactoryService,
+} from "@modules/init/seeders/courses/id-factories/course.service"
+import {
     PlaygroundStepIdFactoryService,
-} from "@modules/init/seeders/courses/id-factories"
+} from "@modules/init/seeders/courses/id-factories/playground-step.service"
+import {
+    PlaygroundIdFactoryService,
+} from "@modules/init/seeders/courses/id-factories/playground.service"
+import {
+    PlaygroundStepParserService,
+} from "@modules/init/seeders/courses/parsers/playground-step.service"
 import {
     PlaygroundParserService,
-    PlaygroundStepParserService,
-} from "@modules/init/seeders/courses/parsers"
+} from "@modules/init/seeders/courses/parsers/playground.service"
+import {
+    PlaygroundStepPathService,
+} from "@modules/init/seeders/courses/path/playground-step.service"
 import {
     PlaygroundPathService,
-    PlaygroundStepPathService,
-} from "@modules/init/seeders/courses/path"
+} from "@modules/init/seeders/courses/path/playground.service"
 import {
     PlaygroundProcessorService,
+} from "@modules/init/seeders/courses/processors/playground-processor.service"
+import {
     UuidPartitionPersistProcessorService,
-} from "@modules/init/seeders/courses/processors"
+} from "@modules/init/seeders/courses/processors/uuid-partition-persist-processor.service"
+import {
+    FilesystemContextService,
+} from "@modules/init/seeders/shared/contexts/filesystem.service"
+import {
+    ContextLoaderService,
+} from "@modules/init/seeders/shared/contexts/loader.service"
+import {
+    S3ContextService,
+} from "@modules/init/seeders/shared/contexts/s3.service"
 import {
     CoerceMdScalarService,
-    ContextLoaderService,
+} from "@modules/init/seeders/shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    FilesystemContextService,
+} from "@modules/init/seeders/shared/extracts/extract-json-from-md.service"
+import {
     MergeJsonService,
+} from "@modules/init/seeders/shared/merge/merge.service"
+import {
     PathResolverService,
-    S3ContextService,
+} from "@modules/init/seeders/shared/path/resolver.service"
+import {
     UpsertService,
-} from "@modules/init/seeders/shared"
+} from "@modules/init/seeders/shared/upsert/upsert.service"
 
 @Module({
     providers: [

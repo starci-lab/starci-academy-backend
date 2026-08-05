@@ -1,16 +1,39 @@
 import {
     ChallengeEntity,
-    ContentEntity,
-    CourseEntity,    MilestoneEntity,
-    MilestoneTaskEntity,
-    ModuleEntity,
-    FoundationEntity,
-    FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     ConsultantEntity,
-    HeadhuntingCompanyEntity,
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     FlashcardDeckEntity,
-    CodingProblemEntity
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
+    FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
+import {
+    FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    HeadhuntingCompanyEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
     Dayjs
 } from "dayjs"

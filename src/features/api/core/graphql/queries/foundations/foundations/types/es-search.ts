@@ -1,6 +1,6 @@
 import type {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 
 /**
  * Minimal Elasticsearch `_source` row shape used by the foundations handler

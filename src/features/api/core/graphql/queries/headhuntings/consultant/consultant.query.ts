@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ConsultantRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** Single Headhunter lookup query. */
 export class ConsultantQuery {

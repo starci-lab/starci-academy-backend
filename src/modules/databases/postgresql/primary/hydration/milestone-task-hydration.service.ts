@@ -6,7 +6,7 @@ import type {
 } from "typeorm"
 import {
     MilestoneTaskEntity,
-} from "../entities"
+} from "../entities/milestone-task.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"

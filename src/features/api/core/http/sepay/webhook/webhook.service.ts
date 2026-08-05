@@ -6,7 +6,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     SepayWebhookRequest,
-} from "./dtos"
+} from "./dtos/webhook.request"
 import {
     SepayWebhookCommand,
 } from "./webhook.command"

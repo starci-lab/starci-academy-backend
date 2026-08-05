@@ -6,8 +6,8 @@ import {
 } from "lokijs"
 import type {
     CreateCollectionParams,
-    CreateCollectionResult
-} from "./types"
+    CreateCollectionResult,
+} from "./types/lokijs"
 
 @Injectable()
 /**

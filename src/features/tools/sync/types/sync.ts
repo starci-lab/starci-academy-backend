@@ -1,7 +1,9 @@
 import type {
     ArtifactStatus,
+} from "../../store/enums/store"
+import type {
     S3TargetRow,
-} from "../../store"
+} from "../../store/types/store"
 
 /**
  * Parameters for {@link SyncService.pushToTarget}.

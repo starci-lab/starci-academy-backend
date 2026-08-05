@@ -2,8 +2,8 @@ import type {
     KeycloakJwtPayload,
 } from "./jwt-jwks"
 import {
-    createEnumType 
-} from "@modules/common"
+    createEnumType,
+} from "@modules/lib/common/utils/enum"
 /**
  * Request body for exchanging username/password for a token.
  */

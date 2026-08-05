@@ -6,11 +6,11 @@ import {
     S3Client,
 } from "@aws-sdk/client-s3"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    InjectSuperJson
-} from "@modules/mixin"
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import {
     Injectable
 } from "@nestjs/common"
@@ -19,8 +19,8 @@ import {
 } from "stream"
 import SuperJSON from "superjson"
 import {
-    S3Provider
-} from "./enums"
+    S3Provider,
+} from "./enums/s3"
 import {
     InjectDigitalOceanS3,
     InjectMinioS3,
@@ -31,7 +31,7 @@ import {
     ReadBufferParams,
     ReadJsonParams,
     ReadTextParams,
-} from "./types"
+} from "./types/read"
 
 @Injectable()
 /**

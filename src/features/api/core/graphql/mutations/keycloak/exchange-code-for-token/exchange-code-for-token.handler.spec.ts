@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -14,21 +14,25 @@ import {
 } from "@nestjs/jwt"
 import {
     EmailBloomFilterService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/bloom-filters/email.service"
+import {
+    KeycloakOidcRedirectService,
+} from "@modules/integrations/keycloak/keycloak-oidc-redirect.service"
+import {
+    KeycloakTokenService,
+} from "@modules/integrations/keycloak/token.service"
 import {
     KeycloakIdentityProvider,
-    KeycloakOidcRedirectService,
-    KeycloakTokenService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/types/tokens"
 import {
     InvalidJwtPayloadException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     ExchangeCodeForTokenCommand,
 } from "./exchange-code-for-token.command"

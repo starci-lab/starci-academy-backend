@@ -9,11 +9,13 @@ import {
 } from "./review-milestone-task.module-definition"
 import {
     ProjectEvaluationParseService,
-} from "../shared/project-evaluation"
+} from "../shared/project-evaluation/project-evaluation-parse.service"
+import {
+    ReviewMilestoneTaskCompleteStepService,
+} from "./steps/review-milestone-task-complete-step.service"
 import {
     ReviewMilestoneTaskGradeStepService,
-    ReviewMilestoneTaskCompleteStepService,
-} from "./steps"
+} from "./steps/review-milestone-task-grade-step.service"
 import {
     ReviewMilestoneTaskStepMappingService,
 } from "./step-mapping.service"

@@ -10,9 +10,11 @@ import {
 import {
     ContentDifficulty,
     GraphQLTypeContentDifficulty,
+} from "../enums/content-difficulty"
+import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     Column,
     Entity,

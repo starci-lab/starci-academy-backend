@@ -12,13 +12,17 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
     UserFollowEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-follow.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserStatsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
 
 @Resolver(() => UserEntity)
 /**

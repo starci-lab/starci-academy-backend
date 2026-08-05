@@ -5,14 +5,14 @@ import {
     SuperJSON
 } from "superjson"
 import {
-    InjectSuperJson
-} from "@modules/mixin"
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import type {
     SuccessParams,
     SuccessToRoomParams,
     BroadcastParams,
     ErrorParams,
-} from "./types"
+} from "./types/response"
 
 @Injectable()
 /**

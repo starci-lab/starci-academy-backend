@@ -6,37 +6,37 @@ import {
 } from "./flashcard-decks.module-definition"
 import {
     FlashcardDecksByCourseSingleQueryModule,
-} from "./flashcard-decks-by-course"
+} from "./flashcard-decks-by-course/flashcard-decks-by-course.module"
 import {
     FlashcardDeckSingleQueryModule,
-} from "./flashcard-deck"
+} from "./flashcard-deck/flashcard-deck.module"
 import {
     FlashcardDeckSuggestionsSingleQueryModule,
-} from "./flashcard-deck-suggestions"
+} from "./flashcard-deck-suggestions/flashcard-deck-suggestions.module"
 import {
     MyDueFlashcardsSingleQueryModule,
-} from "./my-due-flashcards"
+} from "./my-due-flashcards/my-due-flashcards.module"
 import {
     FlashcardCardsByIdsSingleQueryModule,
-} from "./flashcard-cards-by-ids"
+} from "./flashcard-cards-by-ids/flashcard-cards-by-ids.module"
 import {
     MyFlashcardStatsSingleQueryModule,
-} from "./my-flashcard-stats"
+} from "./my-flashcard-stats/my-flashcard-stats.module"
 import {
     MockInterviewPromptsSingleQueryModule,
-} from "./mock-interview-prompts"
+} from "./mock-interview-prompts/mock-interview-prompts.module"
 import {
     MyMockInterviewAttemptsSingleQueryModule,
-} from "./my-mock-interview-attempts"
+} from "./my-mock-interview-attempts/my-mock-interview-attempts.module"
 import {
     MyMockInterviewAttemptBySessionSingleQueryModule,
-} from "./my-mock-interview-attempt-by-session"
+} from "./my-mock-interview-attempt-by-session/my-mock-interview-attempt-by-session.module"
 import {
     MyInProgressMockInterviewSessionSingleQueryModule,
-} from "./my-in-progress-mock-interview-session"
+} from "./my-in-progress-mock-interview-session/my-in-progress-mock-interview-session.module"
 import {
     MyMockInterviewStatsSingleQueryModule,
-} from "./my-mock-interview-stats"
+} from "./my-mock-interview-stats/my-mock-interview-stats.module"
 
 @Module({
     imports: [

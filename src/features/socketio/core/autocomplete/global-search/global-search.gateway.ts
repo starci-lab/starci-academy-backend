@@ -5,21 +5,25 @@ import {
 } from "@nestjs/websockets"
 import {
     AutocompleteWebSocketGateway,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     WsResponseService,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/response.service"
 import type {
-    TypedSocket, 
-} from "@modules/socketio"
+    TypedSocket,
+} from "@modules/platform/socketio/types/socket"
 import {
     PublicationEvent,
+} from "../../enums/publication-event"
+import {
     SubscriptionEvent,
-} from "../../enums"
+} from "../../enums/subscription-event"
 import type {
     GlobalSearchSocketIoPayload,
-} from "./handle-global-search"
+} from "./handle-global-search/types/payload"
 import {
     GlobalSearchService,
-} from "./handle-global-search"
+} from "./handle-global-search/global-search.service"
 @AutocompleteWebSocketGateway()
 /**
  * WebSocket gateway that streams autocomplete suggestions in real-time.

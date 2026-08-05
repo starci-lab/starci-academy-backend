@@ -1,6 +1,6 @@
 // Side-effect import: load the elasticsearch barrel first to dodge the cqrs
 // barrel load-order cycle (see courses/course/course.handler.spec.ts for details).
-import "@modules/elasticsearch"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     Test,
     TestingModule,
@@ -16,17 +16,19 @@ import {
 } from "./module.query"
 import {
     ModuleNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/module-not-found"
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     ModuleResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/module-resolver.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

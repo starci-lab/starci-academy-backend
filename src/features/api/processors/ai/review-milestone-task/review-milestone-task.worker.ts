@@ -1,19 +1,21 @@
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import {
     StepNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job/not-found"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     Processor as Worker,
     WorkerHost,
@@ -23,20 +25,26 @@ import {
 } from "bullmq"
 import {
     JobEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/job.entity"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
 import SuperJSON from "superjson"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
+import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
 import {
     BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
     ReviewPersonalProjectTaskPayload,
-    bullData,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/review-personal-project-task"
 import {
     ReviewMilestoneTaskStepMappingService,
 } from "./step-mapping.service"

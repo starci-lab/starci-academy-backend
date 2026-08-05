@@ -6,24 +6,34 @@ import {
 } from "typeorm"
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     nextPricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CourseNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
 import {
     InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
+import {
     LoyaltyDiscountService,
+} from "@modules/bussiness/loyalty/loyalty-discount.service"
+import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
 import {
     CoursePricingService,
 } from "../../../mutations/courses/course-enroll/course-pricing.service"
 import type {
     CoursePricePreviewData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Params for previewing a course's pre-checkout price for a viewer. */
 export interface PreviewCoursePriceParams {

@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     SuggestionsRequest,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/inputs/suggestions"
 import {
     SuggestionsPayloadShape,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/suggestions/types/suggestions"
 import {
     MilestoneSuggestionsQuery,
 } from "./milestone-suggestions.query"

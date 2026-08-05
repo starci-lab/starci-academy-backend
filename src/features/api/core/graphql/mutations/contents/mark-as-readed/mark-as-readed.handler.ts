@@ -1,16 +1,24 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    UserContentEntity,
+} from "@modules/databases/postgresql/primary/entities/user-content.entity"
 import {
     ActivityType,
-    ContentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    UserContentEntity,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -22,18 +30,26 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ProgressProjectionService,
-    ReactionService,
-    UserService,
     writeActivity,
-} from "@modules/bussiness"
+} from "@modules/bussiness/activity/write-activity"
+import {
+    ReactionService,
+} from "@modules/bussiness/discussion/reaction.service"
+import {
+    ProgressProjectionService,
+} from "@modules/bussiness/projections/progress/progress-projection.service"
+import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
 import {
     MarkAsReadedCommand,
 } from "./mark-as-readed.command"
 import {
     FLAT_POINTS,
+} from "../../../../../processors/ai/shared/xp/points-config"
+import {
     writeXpHistory,
-} from "@features/api/processors/ai/shared/xp"
+} from "../../../../../processors/ai/shared/xp/write-xp-history"
 
 /** Per-course weighted XP for a first lesson read (matches the leaderboard x3 signal). */
 const LESSON_READ_XP = 3

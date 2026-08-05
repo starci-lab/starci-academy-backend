@@ -1,9 +1,9 @@
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
 import type {
     ChallengeEvaluation,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/evaluation/challenge-evaluation"
 import type {
     GradingStepAiUsage,
 } from "@modules/ai/types/grading"

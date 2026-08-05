@@ -5,13 +5,13 @@ import {
 } from "@nestjs/common"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     GqlExecutionContext,
 } from "@nestjs/graphql"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 
 @Injectable()
 /**

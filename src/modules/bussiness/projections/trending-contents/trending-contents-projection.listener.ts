@@ -3,16 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     KafkaService,
-} from "@modules/kafka"
+} from "@modules/integrations/kafka/kafka.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     AbstractProjectionListener,
-} from "@modules/projection"
+} from "@modules/platform/projection/abstract-projection.listener"
 import {
     TrendingContentsProjectionService,
 } from "./trending-contents-projection.service"

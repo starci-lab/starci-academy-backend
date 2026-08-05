@@ -6,14 +6,16 @@ import {
 } from "typeorm"
 import {
     APP_TIMEZONE,
-} from "@modules/common"
+} from "@modules/lib/common/constants/timezone"
+import {
+    UserStatsProjectionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-stats-projection.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserStatsProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     RecomputeUserStatsParams,
     StreakDay,

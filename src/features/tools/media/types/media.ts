@@ -1,6 +1,6 @@
 import type {
     SyncArtifactResult,
-} from "../../sync"
+} from "../../sync/types/sync"
 
 /**
  * Minimal shape of a multer in-memory file. Declared locally so the module does

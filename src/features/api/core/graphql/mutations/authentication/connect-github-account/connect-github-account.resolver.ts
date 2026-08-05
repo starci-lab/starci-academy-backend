@@ -10,19 +10,25 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ConnectGithubAccountInput,
+} from "./graphql-types/input"
+import {
     ConnectGithubAccountResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     ConnectGithubAccountService,
 } from "./connect-github-account.service"

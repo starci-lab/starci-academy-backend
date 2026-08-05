@@ -3,8 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     CvVerificationLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-verification-level"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     EntityManager,
 } from "typeorm"
@@ -12,7 +14,7 @@ import type {
     CvVerificationUserIdRow,
     ResolveCvVerificationLevelForCourseParams,
     ResolveCvVerificationLevelsParams,
-} from "./types"
+} from "./types/cv-verification"
 
 @Injectable()
 /**

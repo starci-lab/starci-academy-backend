@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 
 /** CQRS message that loads the public mounted `systemConfig` subset. */
 export class SystemConfigQuery {

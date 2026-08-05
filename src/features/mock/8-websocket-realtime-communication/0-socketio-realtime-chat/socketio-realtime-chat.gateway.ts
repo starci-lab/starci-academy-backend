@@ -5,11 +5,13 @@ import {
     Server, Socket,
 } from "socket.io"
 import {
-    ChatToServerDto, JoinRoomDto,
-} from "./dtos"
+    ChatToServerDto,
+    JoinRoomDto,
+} from "./dtos/chat-message"
 import type {
-    ChatBroadcast, JoinAck,
-} from "./types"
+    ChatBroadcast,
+    JoinAck,
+} from "./types/chat"
 
 @WebSocketGateway({
     namespace: "/8-websocket-realtime-communication/0-socketio-realtime-chat",

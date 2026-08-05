@@ -1,6 +1,6 @@
 import type {
     CriterionLangProse,
-} from "../types"
+} from "../types/criteria"
 
 /**
  * Pick a criterion's prose for the learner's chosen language; fall back to the first language bucket

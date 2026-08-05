@@ -7,40 +7,52 @@ import {
 } from "@nestjs/typeorm"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EnqueueEnrollJobService,
+} from "@modules/bussiness/jobs/enqueue/enroll.service"
+import {
     EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
     NotificationService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/notification/notification.service"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     AiSubTier,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
     AiSubscriptionTierNotAvailableException,
-    TransactionCourseNotFoundException,
+} from "@modules/platform/exceptions/errors/ai/ai-subscription-tier-not-available"
+import {
     UnsupportedTransactionActionException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/payment/unsupported-transaction-action"
+import {
+    TransactionCourseNotFoundException,
+} from "@modules/platform/exceptions/errors/transaction/transaction-course-not-found"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     PAYOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/constants/payos"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     PayosWebhookCommand,
 } from "./webhook.command"
@@ -49,7 +61,7 @@ import {
 } from "./webhook.handler"
 import type {
     PayosWebhookRequest,
-} from "./dtos"
+} from "./dtos/request"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

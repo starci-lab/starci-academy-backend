@@ -10,33 +10,39 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     Response,
     Request,
 } from "express"
 import {
-    CookieName,
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
+import {
+    CookieName,
+} from "@modules/platform/cookie/enums"
 import {
     CsrfService,
-} from "@modules/csrf"
+} from "@modules/platform/csrf/csrf.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     SignInVerifyOtpRequest,
+} from "./graphql-types/request"
+import {
     SignInVerifyOtpResponse,
     type SignInVerifyOtpData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     SignInVerifyOtpService,
 } from "./sign-in-verify-otp.service"

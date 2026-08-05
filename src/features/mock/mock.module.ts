@@ -3,19 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     ServerStateMockModule,
-} from "./4-server-state-with-tanstack-query"
+} from "./4-server-state-with-tanstack-query/server-state.module"
 import {
     FormMasteryMockModule,
-} from "./5-form-mastery-rhf-zod"
+} from "./5-form-mastery-rhf-zod/form-mastery.module"
 import {
     RealtimeMockModule,
-} from "./8-websocket-realtime-communication"
+} from "./8-websocket-realtime-communication/realtime.module"
 import {
     FileUploadMockModule,
-} from "./11-file-upload-and-storage"
+} from "./11-file-upload-and-storage/file-upload.module"
 import {
     ResponsiveMockModule,
-} from "./14-responsive-and-adaptive-rendering"
+} from "./14-responsive-and-adaptive-rendering/responsive.module"
 
 @Module({
     imports: [ServerStateMockModule,

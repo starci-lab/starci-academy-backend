@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -13,16 +13,16 @@ import {
 } from "./forgot-password-resend-otp.command"
 import type {
     SignInInitData,
-} from "../../init/graphql-types"
+} from "../../init/graphql-types/response"
 import {
     ChallengeOtpNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/otp"
 import {
     OtpChallengeService,
-} from "@modules/code"
+} from "@modules/integrations/code/otp-challenge.service"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 
 @CommandHandler(ForgotPasswordResendOtpCommand)
 @Injectable()

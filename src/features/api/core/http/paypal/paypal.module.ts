@@ -6,7 +6,7 @@ import {
 } from "./paypal.module-definition"
 import {
     PaypalWebhookModule,
-} from "./webhook"
+} from "./webhook/webhook.module"
 
 @Module(
     {

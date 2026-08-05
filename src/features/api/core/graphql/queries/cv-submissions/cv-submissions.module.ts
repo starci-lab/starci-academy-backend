@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,19 +6,19 @@ import {
 } from "./cv-submissions.module-definition"
 import {
     TemplateCvsSingleQueryModule,
-} from "./template-cvs"
+} from "./template-cvs/template-cvs.module"
 import {
     CvGenerationSingleQueryModule,
-} from "./cv-generation"
+} from "./cv-generation/cv-generation.module"
 import {
     MyCvGenerationsSingleQueryModule,
-} from "./my-cv-generations"
+} from "./my-cv-generations/my-cv-generations.module"
 import {
     MyPickableCvAchievementsSingleQueryModule,
-} from "./my-pickable-cv-achievements"
+} from "./my-pickable-cv-achievements/my-pickable-cv-achievements.module"
 import {
     MyCvBlocksSingleQueryModule,
-} from "./my-cv-blocks"
+} from "./my-cv-blocks/my-cv-blocks.module"
 
 @Module({
     imports: [

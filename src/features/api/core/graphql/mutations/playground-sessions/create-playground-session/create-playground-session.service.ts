@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CreatePlaygroundSessionCommand,
 } from "./create-playground-session.command"
 import type {
     CreatePlaygroundSessionRequest,
+} from "./graphql-types/request"
+import type {
     CreatePlaygroundSessionResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

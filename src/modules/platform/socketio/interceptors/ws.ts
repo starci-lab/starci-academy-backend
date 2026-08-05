@@ -1,18 +1,18 @@
 import {
-    SUCCESS_MESSAGE_METADATA
-} from "../constants"
+    SUCCESS_MESSAGE_METADATA,
+} from "../constants/decorators"
 import type {
     WsSuccessMessageValue,
 } from "../decorators/success"
 import {
-    InjectSuperJson 
-} from "@modules/mixin"
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import {
-    TypedSocket 
-} from "@modules/socketio"
+    TypedSocket,
+} from "../types/socket"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     Injectable, 
     NestInterceptor, 

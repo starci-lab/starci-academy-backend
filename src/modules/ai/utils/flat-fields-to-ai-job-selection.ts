@@ -1,9 +1,9 @@
 import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AiByokInvalidException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/ai-byok-invalid"
 import type {
     AiJobSelection,
 } from "../types/ai-job-selection"

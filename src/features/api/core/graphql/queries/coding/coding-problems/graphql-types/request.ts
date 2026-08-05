@@ -6,7 +6,7 @@ import {
 import {
     CodingDifficulty,
     GraphQLTypeCodingDifficulty,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/coding-difficulty"
 
 @InputType({
     description: "Filters + pagination for the coding-problem list.",

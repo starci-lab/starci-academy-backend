@@ -1,7 +1,9 @@
 import type {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * One model's latency snapshot inside an {@link AiModelHealthUpdatedEventPayload}.

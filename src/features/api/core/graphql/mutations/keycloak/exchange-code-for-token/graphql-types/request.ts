@@ -9,7 +9,7 @@ import {
 import {
     GraphQLKeycloakIdentityProvider,
     KeycloakIdentityProvider,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/types/tokens"
 
 @InputType({
     description: "Request for exchanging OIDC authorization code for tokens.",

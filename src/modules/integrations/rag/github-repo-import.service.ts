@@ -6,11 +6,11 @@ import type {
 } from "@langchain/core/documents"
 import {
     RagPlaygroundImportException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/rag-playground/import-failed"
 import type {
     FetchFilesInBatchesParams,
     FetchRawFileParams,
-} from "./types"
+} from "./types/github-repo-import"
 
 /** Only `https://github.com/<owner>/<repo>` URLs are accepted -- never fetch an arbitrary host (SSRF guard). */
 const GITHUB_URL_PATTERN = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/

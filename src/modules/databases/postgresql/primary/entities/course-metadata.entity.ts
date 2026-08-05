@@ -9,7 +9,7 @@ import {
 } from "./course.entity"
 import {
     PricingPhase,
-} from "../enums"
+} from "../enums/pricing-phase"
 import {
     UuidAbstractEntity,
 } from "./abstract"

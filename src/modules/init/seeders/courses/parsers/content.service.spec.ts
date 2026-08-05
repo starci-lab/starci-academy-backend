@@ -14,34 +14,52 @@ import type {
 } from "@nestjs/testing"
 import {
     ContentBodyEntity,
+} from "@modules/databases/postgresql/primary/entities/content-body.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     Sha256Service,
-} from "@modules/crypto"
+} from "@modules/crypto/sha256.service"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
 import {
     ExtractJsonFromMdService,
-    CoerceMdScalarService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     MergeJsonService,
-    ContextLoaderService,
+} from "../../shared/merge/merge.service"
+import {
     PathResolverService,
-} from "../../shared"
+} from "../../shared/path/resolver.service"
 import type {
     ResolvedFilePath,
-} from "../../shared"
+} from "../../shared/path/types"
+import {
+    ContentBodyIdFactoryService,
+} from "../id-factories/content-body.service"
+import {
+    ContentLearningOutcomeIdFactoryService,
+} from "../id-factories/content-learning-outcome.service"
 import {
     ContentIdFactoryService,
-    ContentBodyIdFactoryService,
-    ContentLearningOutcomeIdFactoryService,
+} from "../id-factories/content.service"
+import {
     CourseIdFactoryService,
+} from "../id-factories/course.service"
+import {
     ModuleIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/module.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ContentPathService,
-} from "../path"
+} from "../path/content.service"
 import {
     ContentLegacyParserService,
 } from "./content-legacy.service"

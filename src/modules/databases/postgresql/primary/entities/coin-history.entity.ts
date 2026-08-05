@@ -16,7 +16,7 @@ import {
 import {
     GraphQLTypeCoinSource,
     CoinSource,
-} from "../enums"
+} from "../enums/coin-source"
 import {
     UuidAbstractEntity,
 } from "./abstract"

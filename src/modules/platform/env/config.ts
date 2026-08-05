@@ -9,10 +9,10 @@ import {
     parseEnvMs,
     parseEnvJson,
     parseEnvSecond,
-} from "./utils"
+} from "./utils/parse-env"
 import {
-    ContextType
-} from "./enums"
+    ContextType,
+} from "./enums/context"
 
 /**
  * Builds the application config from environment variables.

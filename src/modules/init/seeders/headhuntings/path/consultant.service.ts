@@ -3,8 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     PathResolverService,
+} from "../../shared/path/resolver.service"
+import {
     ResolvedFilePath,
-} from "../../shared"
+} from "../../shared/path/types"
 import {
     HeadhuntingCompanyPathService,
 } from "./headhunting-company.service"
@@ -13,7 +15,7 @@ import {
 } from "./constants"
 import type {
     ConsultantPathParams,
-} from "./types"
+} from "./types/consultant"
 
 /** Subfolder under each company that holds headhunting profiles. */
 const CONSULTANTS_ITEMS_DIR = "consultants"

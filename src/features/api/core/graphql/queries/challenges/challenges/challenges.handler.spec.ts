@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -14,16 +14,16 @@ import {
 } from "./challenges.query"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     SortOrder,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ChallengeEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
 
 /** Build an ES search response hit envelope from a list of source documents. */
 const buildSearchResponse = (

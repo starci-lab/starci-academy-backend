@@ -7,22 +7,30 @@ import {
 } from "typeorm"
 import {
     CommunityPostCommentEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post-comment.entity"
+import {
     CommunityPostEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CommunityPostCommentForbiddenException,
     CommunityPostCommentNotFoundException,
     CommunityPostNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/post"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     NotificationService,
-} from "../notification"
+} from "../notification/notification.service"
 import type {
     CommunityPostCommentCountRow,
     CommunityReplyCountRow,

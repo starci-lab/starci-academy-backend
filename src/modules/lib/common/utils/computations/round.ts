@@ -1,6 +1,6 @@
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import Decimal from "decimal.js"
 
 /**

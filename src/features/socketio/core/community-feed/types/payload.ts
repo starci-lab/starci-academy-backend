@@ -1,9 +1,9 @@
 import {
     SocketIoPayload,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/ws-payload"
 import type {
     CommunityChannel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/community-channel"
 
 /** Data a client sends to join community feed rooms. */
 export interface SubscribeCommunityFeedData {

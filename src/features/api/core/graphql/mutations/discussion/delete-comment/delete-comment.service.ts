@@ -3,19 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     CommentService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/discussion/comment.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import type {
     DeletedCommentObject,
-} from "../../../shared/discussion"
+} from "../../../shared/discussion/object-types/comments-page.object"
 import type {
     DeleteCommentRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

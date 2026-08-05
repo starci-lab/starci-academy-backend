@@ -7,20 +7,22 @@ import {
 } from "./challenge-submission-progress.query"
 import {
     ChallengeSubmissionProgressResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    EnrollmentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     EntityManager,
 } from "typeorm"
 import {
     ChallengeProgressService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/progress/challenge.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 
 @QueryHandler(ChallengeSubmissionProgressQuery)
 /**

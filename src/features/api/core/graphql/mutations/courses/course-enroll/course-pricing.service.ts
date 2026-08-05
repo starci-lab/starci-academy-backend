@@ -1,21 +1,25 @@
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import {
     CourseNoRegularPriceException,
+} from "@modules/platform/exceptions/errors/courses/course-no-regular-price"
+import {
     PricingPhaseNoPriceException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/pricing-phase-no-price"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
 import type {
     ResolveCourseAmountUsdParams,
     ResolveCourseAmountVndParams,
-} from "./types"
+} from "./types/course-pricing"
 
 /**
  * In non-production (local/dev) every course checkout is charged the REAL tiered

@@ -10,14 +10,16 @@ import {
 } from "os"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     GpuVendor,
-} from "./enums"
+} from "./enums/gpu"
 import type {
     GpuInfo,
-} from "./types"
+} from "./types/gpu"
 
 @Injectable()
 /**

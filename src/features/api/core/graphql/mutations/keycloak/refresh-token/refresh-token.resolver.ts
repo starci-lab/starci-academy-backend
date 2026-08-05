@@ -11,37 +11,41 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     SkipThrottle,
-} from "@modules/throttler"
+} from "@nestjs/throttler"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    RefreshTokenRequest,
+} from "./graphql-types/request"
 import {
     RefreshTokenResponse,
     type RefreshTokenData,
-    RefreshTokenRequest,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     RefreshTokenService,
 } from "./refresh-token.service"
 import {
-    CookieService,
     GraphQLCookie,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.decorators"
+import {
+    CookieService,
+} from "@modules/platform/cookie/cookie.service"
 import {
     CookieName,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/enums"
 import {
     CsrfGuard,
-} from "@modules/csrf"
+} from "@modules/platform/csrf/guards/csrf.guard"
 import type {
     Response,
 } from "express"
 import {
-    BearerJwt
-} from "@modules/passport"
+    BearerJwt,
+} from "@modules/platform/passport/decorators/bearer-jwt.decorators"
 
 @Resolver()
 /**

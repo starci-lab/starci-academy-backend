@@ -11,40 +11,74 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ChallengeDifficulty,
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    FlashcardCardEntity,
-    FlashcardCardResolverService,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     FlashcardCardTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card-translation.entity"
+import {
+    FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardDeckEntity,
-    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FlashcardReviewEventEntity,
-    Locale,
-    PricingPhase,
-    PrimaryPostgreSQLModule,
-    TranslationResolverService,
-    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-event.entity"
+import {
     UserFlashcardReviewEntity,
+} from "@modules/databases/postgresql/primary/entities/user-flashcard-review.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
+import {
+    FlashcardCardResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-card-resolver.service"
+import {
+    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-deck-resolver.service"
+import {
+    TranslationResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/translation.service"
 import {
     FlashcardCardNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/flashcard/flashcard-card-not-found"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     FlashcardReviewService,
+} from "@modules/bussiness/flashcard/flashcard-review.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     FLAT_POINTS,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/points-config"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -13,22 +13,22 @@ import {
 } from "./forgot-password-init.command"
 import type {
     SignInInitData,
-} from "../../init/graphql-types"
+} from "../../init/graphql-types/response"
 import {
     OtpChallengeService,
-} from "@modules/code"
+} from "@modules/integrations/code/otp-challenge.service"
 import {
     KeycloakUserService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/user.service"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ForgotPasswordActionPayload,
-} from "../../types"
+} from "../../types/forgot-password-action"
 
 @CommandHandler(ForgotPasswordInitCommand)
 @Injectable()

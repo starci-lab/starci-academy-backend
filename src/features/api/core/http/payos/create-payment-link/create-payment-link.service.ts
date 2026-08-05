@@ -9,7 +9,7 @@ import {
 } from "./create-payment-link.command"
 import {
     CreatePaymentLinkRequest,
-} from "./dtos"
+} from "./dtos/request"
 import {
     CreatePaymentLinkResponseData,
 } from "./dtos/response"

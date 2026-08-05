@@ -6,14 +6,16 @@ import {
 } from "kafkajs"
 import {
     KafkaCdcMessageException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/kafka/kafka-cdc-message"
 import {
     KafkaService,
-} from "@modules/kafka"
+} from "@modules/integrations/kafka/kafka.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     ProjectionCdcEnvelope,
     ProjectionCdcMessage,

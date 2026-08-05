@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +12,10 @@ import {
 } from "./split-cv-from-text.command"
 import {
     SplitCvFromTextRequest,
+} from "./graphql-types/request"
+import {
     SplitCvFromTextData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** CommandBus hop so the resolver does not import the parser. */

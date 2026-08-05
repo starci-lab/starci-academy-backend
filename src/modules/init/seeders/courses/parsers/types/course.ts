@@ -3,15 +3,19 @@ import {
 } from "typeorm"
 import {
     DayOfWeek,
+} from "@modules/databases/postgresql/primary/enums/day-of-week"
+import {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     PricingPhaseEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/pricing-phase.entity"
 import {
     ResolvedFilePath,
-} from "../../../shared"
+} from "../../../shared/path/types"
 
 /** One pricing phase from course `# Course Data` JSON or root `data.json`. */
 export interface CoursePricingJson {

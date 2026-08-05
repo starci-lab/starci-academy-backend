@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     ResolveTranslationOptions,
-} from "../types"
+} from "../types/translate"
 
 
 @Injectable()

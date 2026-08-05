@@ -8,15 +8,17 @@ import {
 import {
     FLASHCARD_QUIZ_SESSION_DURATION_MS,
     FlashcardQuizSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-quiz-session.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import type {
     FindMyInProgressFlashcardQuizSessionParams,
     MyInProgressFlashcardQuizSessionResultData,
-} from "./types"
+} from "./types/my-in-progress-flashcard-quiz-session"
 
 /**
  * How far back a session's last sync may be for it to still be offered as

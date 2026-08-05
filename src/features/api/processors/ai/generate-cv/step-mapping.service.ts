@@ -3,20 +3,28 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     GenerateCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/generate-cv"
+import {
+    GenerateCvCompleteStepService,
+} from "./steps/generate-cv-complete-step.service"
+import {
+    GenerateCvComposeStepService,
+} from "./steps/generate-cv-compose-step.service"
 import {
     GenerateCvGatherStepService,
-    GenerateCvComposeStepService,
+} from "./steps/generate-cv-gather-step.service"
+import {
     GenerateCvRenderStepService,
+} from "./steps/generate-cv-render-step.service"
+import {
     GenerateCvScoreStepService,
-    GenerateCvCompleteStepService,
-} from "./steps"
+} from "./steps/generate-cv-score-step.service"
 import type {
     ExtendedGenerateCvContext,
-} from "./types"
+} from "./types/extended"
 
 @Injectable()
 /**

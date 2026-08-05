@@ -4,7 +4,7 @@ import {
 } from "@nestjs/testing"
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AiPingService,
 } from "./ai-ping.service"

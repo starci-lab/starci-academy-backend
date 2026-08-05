@@ -6,14 +6,16 @@ import {
 } from "@nestjs/schedule"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     LeagueWeeklyResetException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/league/league-weekly-reset"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     LeagueService,
 } from "./league.service"

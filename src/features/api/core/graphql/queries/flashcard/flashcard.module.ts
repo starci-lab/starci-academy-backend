@@ -6,34 +6,34 @@ import {
 } from "./flashcard.module-definition"
 import {
     MyInProgressFlashcardQuizSessionSingleQueryModule,
-} from "./my-in-progress-flashcard-quiz-session"
+} from "./my-in-progress-flashcard-quiz-session/my-in-progress-flashcard-quiz-session.module"
 import {
     MyFlashcardQuizHistorySingleQueryModule,
-} from "./my-flashcard-quiz-history"
+} from "./my-flashcard-quiz-history/my-flashcard-quiz-history.module"
 import {
     MyFlashcardQuizStatsSingleQueryModule,
-} from "./my-flashcard-quiz-stats"
+} from "./my-flashcard-quiz-stats/my-flashcard-quiz-stats.module"
 import {
     MyInProgressFlashcardReviewSessionSingleQueryModule,
-} from "./my-in-progress-flashcard-review-session"
+} from "./my-in-progress-flashcard-review-session/my-in-progress-flashcard-review-session.module"
 import {
     MyFlashcardReviewHistorySingleQueryModule,
-} from "./my-flashcard-review-history"
+} from "./my-flashcard-review-history/my-flashcard-review-history.module"
 import {
     MyFlashcardReviewStatsSingleQueryModule,
-} from "./my-flashcard-review-stats"
+} from "./my-flashcard-review-stats/my-flashcard-review-stats.module"
 import {
     MyInProgressFlashcardDueReviewSessionSingleQueryModule,
-} from "./my-in-progress-flashcard-due-review-session"
+} from "./my-in-progress-flashcard-due-review-session/my-in-progress-flashcard-due-review-session.module"
 import {
     MyFlashcardReviewSessionBySessionIdSingleQueryModule,
-} from "./my-flashcard-review-session-by-session-id"
+} from "./my-flashcard-review-session-by-session-id/my-flashcard-review-session-by-session-id.module"
 import {
     MyFlashcardReviewSessionStatsBySessionIdSingleQueryModule,
-} from "./my-flashcard-review-session-stats-by-session-id"
+} from "./my-flashcard-review-session-stats-by-session-id/my-flashcard-review-session-stats-by-session-id.module"
 import {
     MyFlashcardQuizSessionBySessionIdSingleQueryModule,
-} from "./my-flashcard-quiz-session-by-session-id"
+} from "./my-flashcard-quiz-session-by-session-id/my-flashcard-quiz-session-by-session-id.module"
 
 @Module({
     imports: [

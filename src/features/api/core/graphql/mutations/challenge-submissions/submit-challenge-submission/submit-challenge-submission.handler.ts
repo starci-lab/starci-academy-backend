@@ -1,8 +1,12 @@
 import {
     EnqueueProcessGitSubmissionJobService,
+} from "@modules/bussiness/jobs/enqueue/process-git-submission.service"
+import {
     EnqueueProcessGoogleDocsSubmissionJobService,
+} from "@modules/bussiness/jobs/enqueue/process-google-docs-submission.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -14,30 +18,58 @@ import {
 } from "@modules/ai/utils/validated-lane-to-ai-job-selection"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    ChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
 import {
     ChallengeEntity,
-    ChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     JobEntity,
-    PostgreSqlAdvisoryLockService,
-    SubmissionType,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
     UserChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    SubmissionType,
+} from "@modules/databases/postgresql/primary/enums/submission-type"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChallengeNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/challenge-not-found"
+import {
     ChallengePremiumLockedException,
+} from "@modules/platform/exceptions/errors/courses/challenge-premium-locked"
+import {
     ChallengeSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/challenge-submission-not-found"
+import {
     SubmissionQuotaExceededException,
+} from "@modules/platform/exceptions/errors/courses/submission-quota-exceeded"
+import {
     SubmissionUrlInvalidException,
+} from "@modules/platform/exceptions/errors/courses/submission-url-invalid"
+import {
     UserChallengeSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/user-challenge-submission-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -53,7 +85,7 @@ import {
 } from "./submit-challenge-submission.command"
 import type {
     SubmitChallengeSubmissionResult,
-} from "./types"
+} from "./types/submit-challenge-submission"
 
 @CommandHandler(SubmitChallengeSubmissionCommand)
 @Injectable()

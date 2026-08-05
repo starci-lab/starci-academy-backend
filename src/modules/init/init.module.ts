@@ -11,22 +11,22 @@ import {
 } from "./init.service"
 import {
     DataGitBootstrapService,
-} from "./data-git"
+} from "./data-git/data-git.service"
 import {
     SeedDiffOverlayService,
-} from "./diff"
+} from "./diff/seed-config-overlay.service"
 import {
     InitConfigParserService,
-} from "./config"
+} from "./config/init-config-parser.service"
 import {
     ScopeModule,
-} from "./scope"
+} from "./scope/scope.module"
 import {
     SeedersModule,
-} from "./seeders"
+} from "./seeders/seeders.module"
 import {
     SynchronizersModule,
-} from "./synchronizers"
+} from "./synchronizers/synchronizers.module"
 
 @Module({
 })

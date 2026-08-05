@@ -7,20 +7,24 @@ import {
 } from "typeorm"
 import {
     ContentCommentEntity,
+} from "@modules/databases/postgresql/primary/entities/content-comment.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     CommentForbiddenException,
     CommentInvalidScopeException,
     CommentNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/discussion/comment"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import type {
     CreateCommentParams,
     DeleteCommentParams,
@@ -32,10 +36,10 @@ import type {
     ListCourseQuestionsResult,
     ReplyCountRow,
     UpdateCommentParams,
-} from "./types"
+} from "./types/comment"
 import {
     CourseQuestionFilter,
-} from "./types"
+} from "./types/comment"
 
 /** Default page size for comment listings. */
 const DEFAULT_LIMIT = 20

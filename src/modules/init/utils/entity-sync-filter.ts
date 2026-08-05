@@ -1,14 +1,24 @@
 import type {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import type {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import type {
     CourseEntity,
-    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import type {
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import type {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import type {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import type {
     SynchronizerSyncScope,
-} from "../types"
+} from "../types/context"
 import {
     shouldIncludeCourseModule,
     shouldIncludeCourseMilestone,

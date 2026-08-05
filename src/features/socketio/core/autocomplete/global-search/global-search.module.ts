@@ -8,14 +8,26 @@ import {
     GlobalSearchGateway
 } from "./global-search.gateway"
 import {
-    GlobalSearchHandler,
-    GlobalSearchService,
-    CourseGlobalSearchService,
-    ModuleGlobalSearchService,
     ChallengeGlobalSearchService,
+} from "./handle-global-search/entities/challenge.service"
+import {
     ContentGlobalSearchService,
-    GlobalSearchEntityUtilsService
-} from "./handle-global-search"
+} from "./handle-global-search/entities/content.service"
+import {
+    CourseGlobalSearchService,
+} from "./handle-global-search/entities/course.service"
+import {
+    ModuleGlobalSearchService,
+} from "./handle-global-search/entities/module.service"
+import {
+    GlobalSearchEntityUtilsService,
+} from "./handle-global-search/entities/utils.service"
+import {
+    GlobalSearchHandler,
+} from "./handle-global-search/global-search.handler"
+import {
+    GlobalSearchService,
+} from "./handle-global-search/global-search.service"
 
 @Module({
     providers: [

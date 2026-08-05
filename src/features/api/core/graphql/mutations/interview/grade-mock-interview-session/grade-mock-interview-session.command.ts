@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     GradeMockInterviewSessionRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS envelope so grading runs off the bus, not inside the GraphQL resolver. */
 export class GradeMockInterviewSessionCommand {

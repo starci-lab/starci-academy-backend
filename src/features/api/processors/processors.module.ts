@@ -6,37 +6,37 @@ import {
 } from "./processors.module-definition"
 import {
     SendMailModule,
-} from "./send-mail"
+} from "./send-mail/send-mail.module"
 import {
     ResolveGithubModule,
-} from "./resolve-github"
+} from "./resolve-github/resolve-github.module"
 import {
     RevokeGithubModule,
-} from "./revoke-github"
+} from "./revoke-github/revoke-github.module"
 import {
     ReviewMilestoneTaskModule,
-} from "./ai/review-milestone-task"
+} from "./ai/review-milestone-task/review-milestone-task.module"
 import {
     ProcessGitSubmissionModule,
-} from "./ai/process-git-submission"
+} from "./ai/process-git-submission/process-git-submission.module"
 import {
     ProcessGoogleDocsSubmissionModule,
-} from "./ai/process-google-docs-submission"
+} from "./ai/process-google-docs-submission/process-google-docs-submission.module"
 import {
     JudgeCodingSubmissionModule,
-} from "./judge-coding-submission"
+} from "./judge-coding-submission/judge-coding-submission.module"
 import {
     ReconcileTransactionModule,
-} from "./reconcile-transaction"
+} from "./reconcile-transaction/reconcile-transaction.module"
 import {
     EnrollModule,
-} from "./enroll"
+} from "./enroll/enroll.module"
 import {
     GenerateCvModule,
-} from "./ai/generate-cv"
+} from "./ai/generate-cv/generate-cv.module"
 import {
     ScoreUploadedCvModule,
-} from "./ai/score-uploaded-cv"
+} from "./ai/score-uploaded-cv/score-uploaded-cv.module"
 
 @Module({
     imports: [

@@ -1,56 +1,76 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
     ActionType,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
     PricingPhase,
-    TransactionEntity,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+} from "@modules/platform/exceptions/errors/courses/payos-return-url-and-payos-cancel-url-must-be-required"
 import {
     MembershipNotAvailableException,
+} from "@modules/platform/exceptions/errors/membership/membership-not-available"
+import {
     MissingUsdPriceException,
-    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+} from "@modules/platform/exceptions/errors/payment/missing-usd-price"
+import {
     UnsupportedPaymentTypeException,
+} from "@modules/platform/exceptions/errors/payment/unsupported-payment-type"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     EnqueueReconcileTransactionJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
     RetryService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/retry.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectPayOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/payos.providers"
 import {
     PayOS,
 } from "@payos/node"
 import {
     InjectSepay,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/sepay.providers"
 import {
     SePayPgClient,
 } from "sepay-pg-node"
 import {
     InjectStripe,
-} from "@modules/stripe"
+} from "@modules/integrations/stripe/stripe.providers"
 import Stripe from "stripe"
 import {
     PaypalClient,
-} from "@modules/paypal"
+} from "@modules/integrations/paypal/paypal.client"
 import {
     NowPaymentsClient,
-} from "@modules/nowpayments"
+} from "@modules/integrations/nowpayments/nowpayments.client"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -66,12 +86,12 @@ import {
 } from "./purchase-membership.command"
 import {
     PurchaseMembershipResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     BuildSepayCheckoutParams,
     ResolveCheckoutParams,
     ResolveCheckoutResult,
-} from "./types"
+} from "./types/checkout"
 
 /** Label used in provider descriptions and missing-USD-price metadata. */
 const MEMBERSHIP_LABEL = "community-membership"

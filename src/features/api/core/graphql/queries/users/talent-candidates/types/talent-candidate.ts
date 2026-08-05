@@ -1,11 +1,13 @@
 import type {
-    CvVerificationLevel,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import type {
+    CvVerificationLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-verification-level"
 import type {
     JobReadinessBand,
     JobReadinessTrack,
-} from "../../job-readiness/types"
+} from "../../job-readiness/types/job-readiness"
 
 /**
  * The single-track readiness snapshot a recruiter sees for a candidate on the

@@ -1,6 +1,6 @@
 import type {
     LocalizedText,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/advertisement.entity"
 
 /**
  * One achievement definition as authored in `achievements/achievements.md`

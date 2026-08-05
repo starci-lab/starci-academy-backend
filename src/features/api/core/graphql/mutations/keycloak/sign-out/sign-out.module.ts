@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -15,7 +15,7 @@ import {
 } from "./sign-out.handler"
 import {
     CookieModule,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.module"
 
 @Module({
     imports: [

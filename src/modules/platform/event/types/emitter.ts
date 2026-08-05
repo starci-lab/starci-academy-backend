@@ -1,6 +1,6 @@
 import {
     EventName,
-} from "../enums"
+} from "../enums/event-name"
 import {
     configMap,
 } from "../config"

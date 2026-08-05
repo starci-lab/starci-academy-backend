@@ -1,6 +1,6 @@
 import type {
     CourseIndexFilterByDisplayId,
-} from "../types"
+} from "../types/context"
 
 /**
  * Whether a module/milestone should be included for the given course.

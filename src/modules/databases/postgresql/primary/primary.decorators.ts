@@ -2,8 +2,8 @@ import {
     InjectEntityManager 
 } from "@nestjs/typeorm"
 import {
-    POSTGRESQL_PRIMARY 
-} from "./constants"
+    POSTGRESQL_PRIMARY,
+} from "./constants/connection"
 
 /**
  * Nest param decorator that binds the PRIMARY postgres EntityManager. Injecting

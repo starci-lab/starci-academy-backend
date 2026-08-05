@@ -1,46 +1,62 @@
 import type {
     MilestonesFromDatabaseParams,
+} from "./types/from-database"
+import type {
     ParseMilestoneParams,
     ParseMilestoneManyParams,
-} from "./types"
+} from "./types/milestone"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    Locale,
-    MilestoneEntity,
     MilestoneTranslationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-translation.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ExtractJsonFromMdService,
-    MergeJsonService,
-    MergeJsonResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
 import {
     CourseIdFactoryService,
+} from "../id-factories/course.service"
+import {
     MilestoneIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/milestone.service"
 import {
     DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     ResolvedFileResult,
-} from "../../shared"
+} from "../../shared/path/types"
 import {
     MilestonePathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/milestone-path-not-found"
 import {
     MilestonePathService,
-} from "../path"
+} from "../path/milestone.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 @Injectable()
 /**
  * Parses milestone data from mounted course files (`en.md`, `vi.md`).

@@ -3,12 +3,15 @@ import {
 } from "@nestjs/common"
 import {
     AppConfig,
-    SeedConfig,
+} from "./types/config"
+import {
     SecretKeycloakAdmin,
-} from "./types"
+} from "./types/secrets"
+import {
+    SeedConfig,
+} from "./types/seed"
 import {
     getAppConfig,
-    getSeedConfig,
     getS3SecretAccessKey,
     getPayosApiKey,
     getKeycloakClientSecret,
@@ -34,7 +37,10 @@ import {
     getOpenRouterApiKeys,
     getAnthropicApiKeys,
     readAiKeysFile,
-} from "./utils"
+} from "./utils/mount-secrets"
+import {
+    getSeedConfig,
+} from "./utils/mount-seed"
 @Injectable()
 /**
  * Service responsible for reading secrets mounted into the container filesystem.

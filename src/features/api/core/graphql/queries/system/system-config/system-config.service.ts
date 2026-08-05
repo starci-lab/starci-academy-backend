@@ -6,13 +6,13 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     SystemConfigQuery,
 } from "./system-config.query"
 import {
     SystemConfigData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Dispatches `SystemConfigQuery` onto the CQRS bus. */

@@ -11,34 +11,40 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     GraphQLProfileVisibilityGuard,
+} from "@modules/bussiness/guards/graphql-profile-visibility.guard"
+import {
     ProgressProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/progress/progress-projection.service"
 import {
     toGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
 import {
     MyCourseItemData,
-} from "../../dashboard/my-courses/graphql-types"
+} from "../../dashboard/my-courses/graphql-types/response"
 import {
     computeCompletionPercent,
-} from "../../dashboard/my-courses/utils"
+} from "../../dashboard/my-courses/utils/compute-completion-percent"
 import {
     UserCoursesResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

@@ -9,30 +9,36 @@ import {
 } from "@nestjs/common"
 import {
     GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     LivestreamSessionsRequest,
+} from "./graphql-types/request"
+import {
     LivestreamSessionsResponse,
     LivestreamSessionsResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     LivestreamSessionsService,
 } from "./livestream-sessions.service"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
+} from "@modules/bussiness/guards/graphql-must-enrolled.guard"
 
 @Resolver()
 /**

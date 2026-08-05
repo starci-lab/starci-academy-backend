@@ -5,17 +5,23 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     LeagueCohortEntity,
-    LeagueTier,
+} from "@modules/databases/postgresql/primary/entities/league-cohort.entity"
+import {
     UserLeagueEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-league.entity"
+import {
+    LeagueTier,
+} from "@modules/databases/postgresql/primary/enums/league-tier"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     LeagueCohortPointsProjectionService,
-} from "../projections"
+} from "../projections/league-cohort-points/league-cohort-points-projection.service"
 import {
     LEAGUE_TIER_ORDER,
 } from "./constants"

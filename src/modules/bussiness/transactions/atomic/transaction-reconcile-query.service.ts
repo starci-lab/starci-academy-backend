@@ -2,34 +2,36 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    PaymentType,
     TransactionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
     InjectPayOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/payos.providers"
 import {
     PayOS,
 } from "@payos/node"
 import {
     InjectStripe,
-} from "@modules/stripe"
+} from "@modules/integrations/stripe/stripe.providers"
 import Stripe from "stripe"
 import {
     InjectSepay,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/sepay.providers"
 import {
     SePayPgClient,
 } from "sepay-pg-node"
 import {
     PaypalClient,
-} from "@modules/paypal"
+} from "@modules/integrations/paypal/paypal.client"
 import {
     NowPaymentsClient,
-} from "@modules/nowpayments"
+} from "@modules/integrations/nowpayments/nowpayments.client"
 import type {
     TransactionReconcileStatus,
-} from "../types"
+} from "../types/transaction"
 
 @Injectable()
 /**

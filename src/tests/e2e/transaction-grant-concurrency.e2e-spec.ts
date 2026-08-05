@@ -19,50 +19,86 @@ import {
     CqrsModule,
 } from "@nestjs/cqrs"
 import {
-    ActionType,
-    AiSubStatus,
     AiSubscriptionEntity,
-    AiSubTier,
-    PaymentType,
-    PricingPhase,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+import {
     TransactionEntity,
-    TransactionStatus,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    AiSubStatus,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-status"
+import {
+    AiSubTier,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    TransactionStatus,
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
-    createSuperJsonServiceProvider,
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    createSuperJsonServiceProvider,
+} from "@modules/lib/mixin/superjson.providers"
+import {
+    AiAutoQuotaConfigService,
+} from "@modules/filesystem/ai-auto-quota-config.service"
 import {
     MountFilesystemService,
-    AiAutoQuotaConfigService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     EnqueueEnrollJobService,
+} from "@modules/bussiness/jobs/enqueue/enroll.service"
+import {
     EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
     EnqueueSendMailJobService,
-    InstallmentPlanService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
     NotificationService,
-    TransactionActionService,
-    TransactionReconcileQueryService,
+} from "@modules/bussiness/notification/notification.service"
+import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
+import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    TransactionReconcileQueryService,
+} from "@modules/bussiness/transactions/atomic/transaction-reconcile-query.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     SEPAY,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/constants/sepay"
 import {
     SepayWebhookController,
 } from "@features/api/core/http/sepay/webhook/webhook.controller"
@@ -77,10 +113,10 @@ import {
 } from "@features/api/processors/reconcile-transaction/reconcile-transaction.worker"
 import type {
     SepayClientMock,
-} from "@tests/helpers"
+} from "@tests/helpers/types/webhook-client-mocks"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

@@ -1,7 +1,9 @@
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     AiEntitlementService,
 } from "../ai-entitlement.service"

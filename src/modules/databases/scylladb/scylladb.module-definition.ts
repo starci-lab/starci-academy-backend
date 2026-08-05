@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import type {
     ScyllaDBModuleOptions,
-} from "./types"
+} from "./types/options"
 
 export const { 
     ConfigurableModuleClass: ScyllaConfigurableModuleClass, 

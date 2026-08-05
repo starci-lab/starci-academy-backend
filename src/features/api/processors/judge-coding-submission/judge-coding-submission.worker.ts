@@ -1,20 +1,30 @@
 import {
-    BullQueueName,
-    JudgeCodingSubmissionPayload,
     bullData,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    JudgeCodingSubmissionPayload,
+} from "@modules/integrations/bullmq/types/payloads/judge-coding-submission"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     JobExtendedContext,
+} from "@modules/bussiness/jobs/types/context"
+import {
     NotificationService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/notification/notification.service"
 import {
     DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     Processor as Worker,
     WorkerHost,
@@ -25,31 +35,49 @@ import {
 import SuperJSON from "superjson"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EntityManager,
 } from "typeorm"
 import {
-    CodingProblemEntity,
     CodingProblemTestcaseEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-testcase.entity"
+import {
+    CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     CodingSubmissionEntity,
-    CodingVerdict,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/coding-submission.entity"
+import {
     JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    CodingVerdict,
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
+import {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CodingProblemNotFoundException,
+} from "@modules/platform/exceptions/errors/coding/coding-problem-not-found"
+import {
     CodingSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/coding/coding-submission-not-found"
+import {
     Judge0TimedOutException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/coding/judge0-timed-out"
 import {
     JudgeCodingSubmissionStepMappingService,
 } from "./step-mapping.service"
 import type {
     ExtendedJudgeCodingSubmissionContext,
-} from "./types"
+} from "./types/extended"
 
 @Worker(
     bullData[BullQueueName.JudgeCodingSubmission].name,

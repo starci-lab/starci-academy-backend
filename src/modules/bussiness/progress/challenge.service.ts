@@ -6,27 +6,33 @@ import {
     In,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     UserChallengeProgressProjectionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-progress-projection.entity"
+import {
     UserChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChallengeProgressStatus,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/challenge-submission-progress"
 import type {
     ChallengeSubmissionProgressCacheResult,
     ChallengeSubmissionProgressItem,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/challenge-submission-progress"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     ProgressEnrollmentType,
-} from "./types"
+} from "./types/progress"
 
 @Injectable()
 /**

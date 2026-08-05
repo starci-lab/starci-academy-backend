@@ -1,6 +1,6 @@
 import {
-    ResolvedFilePath 
-} from "../../../shared"
+    ResolvedFilePath,
+} from "../../../shared/path/types"
 import type {
     ExtractChallengeBlockBothParams,
     ExtractChallengeBlockBothResult,

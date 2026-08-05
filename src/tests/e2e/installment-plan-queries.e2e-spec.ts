@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handlers pull `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (same guard as `course-enroll.e2e-spec.ts`).
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import request from "supertest"
 import {
     Test,
@@ -25,36 +25,58 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     InstallmentPlanEntity,
-    InstallmentPlanStatus,
-    InstallmentPlanType,
-    Locale,
-    PaymentType,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
+import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InstallmentPlanStatus,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-status"
+import {
+    InstallmentPlanType,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-type"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     EnqueueReconcileTransactionJobService,
-    InstallmentPlanService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
     DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
     RetryService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/retry.service"
 import {
     SEPAY,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/constants/sepay"
 import {
     PAYOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/constants/payos"
 import {
     MyInstallmentPlansResolver,
 } from "@features/api/core/graphql/queries/installment-plans/my-installment-plans.resolver"
@@ -72,7 +94,7 @@ import {
 } from "@features/api/core/graphql/mutations/installment-plans/pay-next-installment/pay-next-installment.handler"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

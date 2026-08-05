@@ -7,13 +7,13 @@ import {
 } from "sepay-pg-node"
 import {
     getSepayApiKey,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     SEPAY,
-} from "./constants"
+} from "./constants/sepay"
 
 /** Inject the shared SePay PG client (token {@link SEPAY}). */
 export const InjectSepay = () => Inject(

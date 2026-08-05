@@ -1,6 +1,6 @@
 import type {
     SyncPersonalProjectGithubParams,
-} from "./types"
+} from "./types/sync-personal-project-github"
 
 /**
  * CQRS envelope for the enrollment GitHub patch -- kept off submit-url so

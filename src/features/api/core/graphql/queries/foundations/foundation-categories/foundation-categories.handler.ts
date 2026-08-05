@@ -1,12 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     FoundationCategoryEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     estypes,
 } from "@elastic/elasticsearch"
@@ -22,7 +22,7 @@ import {
 } from "./foundation-categories.query"
 import {
     FoundationCategoriesPayload,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Default page size when the request omits `limit`. */
 const DEFAULT_LIMIT = 10

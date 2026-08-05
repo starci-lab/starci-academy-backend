@@ -12,10 +12,10 @@ import {
     ClearCookieParams,
     ClearCookieResult,
     CookieRequestLike,
-} from "./types"
+} from "./types/cookie"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     CookieName
 } from "./enums"

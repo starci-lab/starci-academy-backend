@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MyCourseOutlineRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS query carrying the myCourseOutline request together with the resolved

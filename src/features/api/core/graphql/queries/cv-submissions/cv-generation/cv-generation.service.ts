@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CvGenerationQuery,
 } from "./cv-generation.query"
 import {
-    CvGenerationPayload,
     CvGenerationRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    CvGenerationPayload,
+} from "./graphql-types/response"
 
 @Injectable()
 /**

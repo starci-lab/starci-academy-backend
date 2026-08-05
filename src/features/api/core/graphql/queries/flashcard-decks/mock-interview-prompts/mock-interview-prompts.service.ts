@@ -5,17 +5,21 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    ChallengeDifficulty,
-    InjectPrimaryPostgreSQLEntityManager,
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     MOCK_INTERVIEW_CLASSIC_PROMPTS,
-} from "./constants"
+} from "./constants/classic-prompts"
 import type {
     ListMockInterviewPromptsParams,
     ListMockInterviewPromptsResult,
-} from "./types"
+} from "./types/mock-interview-prompts"
 
 @Injectable()
 /**

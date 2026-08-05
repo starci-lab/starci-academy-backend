@@ -3,7 +3,7 @@ import type {
 } from "typeorm"
 import type {
     LeagueTier,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/league-tier"
 
 /**
  * One ranked member of a cohort, as shown in the league standing board.

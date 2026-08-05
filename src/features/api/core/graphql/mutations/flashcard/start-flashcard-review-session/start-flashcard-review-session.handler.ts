@@ -1,12 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     FlashcardReviewSessionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/flashcard/flashcard-review-session.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -19,7 +19,7 @@ import {
 } from "./start-flashcard-review-session.command"
 import {
     StartFlashcardReviewSessionData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(StartFlashcardReviewSessionCommand)
 @Injectable()

@@ -1,9 +1,15 @@
 import type {
     CodingDifficulty,
+} from "@modules/databases/postgresql/primary/enums/coding-difficulty"
+import type {
     CodingDomain,
+} from "@modules/databases/postgresql/primary/enums/coding-domain"
+import type {
     CodingLanguage,
+} from "@modules/databases/postgresql/primary/enums/coding-language"
+import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** One raw tag item parsed from a problem's `# tags` block (`## <n>` -> `### value`). */
 export interface RawCodingProblemTag {

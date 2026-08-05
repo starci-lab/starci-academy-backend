@@ -4,26 +4,28 @@ import {
 import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import {
     FilenameProcessData,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/process-video"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     EntityManager,
 } from "typeorm"
 import {
-    WinstonService,
     WinstonLog,
-} from "@modules/winston"
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     FfmpegService,
-} from "@modules/ffmpeg"
+} from "@modules/integrations/ffmpeg/ffmpeg.service"
 import {
     join,
 } from "path"

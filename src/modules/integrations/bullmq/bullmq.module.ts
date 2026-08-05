@@ -10,26 +10,32 @@ import {
     Module
 } from "@nestjs/common"
 import {
-    BullQueueName 
-} from "./enums"
+    BullQueueName,
+} from "./enums/queue-name"
 import {
-    RegisterQueueOptions
-} from "./types"
+    RegisterQueueOptions,
+} from "./types/queue"
 import {
-    bullData
-} from "./constants"
+    bullData,
+} from "./constants/queue"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     createIoRedisKey,
+} from "@modules/lib/native/ioredis/constants"
+import {
     IoRedisInstanceKey,
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
     IoRedisModule,
-    RedisOrCluster
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/ioredis.module"
+import {
+    RedisOrCluster,
+} from "@modules/lib/native/ioredis/types/client"
 import {
     JobRoomService,
-} from "./rooms"
+} from "./rooms/job.service"
 
 @Module({
 })

@@ -1,6 +1,6 @@
 import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 /**
  * One provider/file pair the `KeyStoreService` should load at boot.

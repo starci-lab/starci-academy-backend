@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CvGenerationRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * QueryBus payload for `cvGeneration`: request + locale + user into

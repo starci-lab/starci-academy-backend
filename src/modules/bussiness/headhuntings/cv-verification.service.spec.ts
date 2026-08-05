@@ -7,7 +7,7 @@ import {
 } from "@nestjs/typeorm"
 import {
     CvVerificationLevel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/cv-verification-level"
 import type {
     EntityManager,
 } from "typeorm"

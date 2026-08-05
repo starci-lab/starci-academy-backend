@@ -17,7 +17,7 @@ import type {
 import {
     base32Decode,
     base32Encode,
-} from "./utils"
+} from "./utils/base32"
 
 @Injectable()
 /**

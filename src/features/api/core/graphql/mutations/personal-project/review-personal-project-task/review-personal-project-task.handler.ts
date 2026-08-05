@@ -1,11 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -18,7 +22,7 @@ import type {
 } from "typeorm"
 import {
     EnqueueReviewPersonalProjectTaskJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/review-personal-project-task.service"
 import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
@@ -30,17 +34,25 @@ import {
 } from "./review-personal-project-task.command"
 import {
     NoPersonalProjectTasksFoundException,
+} from "@modules/platform/exceptions/errors/courses/no-personal-project-tasks-found"
+import {
     PersonalProjectBranchTooLongException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-branch-too-long"
+import {
     PersonalProjectGithubUrlMissingException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-github-url-missing"
+import {
     PersonalProjectInvalidBranchNameException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-invalid-branch-name"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ReviewPersonalProjectTaskResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     UrlValidatorService,
-} from "@modules/validators"
+} from "@modules/lib/validators/url.service"
 
 const BRANCH_PATTERN = /^[a-zA-Z0-9._/-]+$/
 const BRANCH_MAX = 255

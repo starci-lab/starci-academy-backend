@@ -6,9 +6,11 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     TemplateCVEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/template-cv.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 
 @Injectable()
 /**

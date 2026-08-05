@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -11,25 +11,31 @@ import {
 } from "@nestjs/typeorm"
 import {
     PersonalProjectGithubSyncInputMissingException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-github-sync-input-missing"
+import {
     PersonalProjectGithubUrlMissingException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-github-url-missing"
+import {
     PersonalProjectInvalidBranchNameException,
+} from "@modules/platform/exceptions/errors/personal-project/personal-project-invalid-branch-name"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     UrlValidatorService,
-} from "@modules/validators"
+} from "@modules/lib/validators/url.service"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     SyncPersonalProjectGithubCommand,
 } from "./sync-personal-project-github.command"

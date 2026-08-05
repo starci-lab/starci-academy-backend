@@ -18,29 +18,55 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
 import {
     CoinHistoryEntity,
-    CoinSource,
+} from "@modules/databases/postgresql/primary/entities/coin-history.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     DailyQuestCompletionEntity,
-    DailyQuestKey,
+} from "@modules/databases/postgresql/primary/entities/daily-quest-completion.entity"
+import {
     EnrollmentEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     MockInterviewAttemptEntity,
-    PricingPhase,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-attempt.entity"
+import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
+    CoinSource,
+} from "@modules/databases/postgresql/primary/enums/coin-source"
+import {
+    DailyQuestKey,
+} from "@modules/databases/postgresql/primary/enums/daily-quest-key"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     DailyQuestService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/daily-quest/daily-quest.service"
 import {
     MyDailyQuestResolver,
 } from "@features/api/core/graphql/queries/dashboard/my-daily-quest/my-daily-quest.resolver"
@@ -49,7 +75,7 @@ import {
 } from "@features/api/core/graphql/mutations/profile/claim-daily-quest-reward/claim-daily-quest-reward.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

@@ -5,39 +5,55 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    FoundationEntity,
-    FoundationKind,
     FoundationTranslationEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/foundation-translation.entity"
+import {
+    FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    FoundationKind,
     normalizeFoundationKind,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/foundation-kind"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     FoundationPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/foundation-path-not-found"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    ResolvedFileResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     FoundationCategoryIdFactoryService,
+} from "../id-factories/foundation-category.service"
+import {
     FoundationIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/foundation.service"
 import {
     FoundationPathService,
-} from "../path"
+} from "../path/foundation.service"
 import {
     FoundationTagParserService,
 } from "./foundation-tag.service"
 import type {
     ParseFoundationManyParams,
     ParseFoundationParams,
-} from "./types"
+} from "./types/foundation"
 
 @Injectable()
 /**

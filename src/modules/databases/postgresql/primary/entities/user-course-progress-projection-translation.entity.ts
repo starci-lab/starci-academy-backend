@@ -18,7 +18,7 @@ import {
 import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 
 @ObjectType({
     description: "Localized value for a user-course-progress projection field.",

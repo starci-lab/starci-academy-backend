@@ -7,24 +7,36 @@ import {
 import {
     EntityManager,
 } from "typeorm"
+import type {
+    LocalizedText,
+} from "@modules/databases/postgresql/primary/entities/advertisement.entity"
+import {
+    BlogPostEntity,
+} from "@modules/databases/postgresql/primary/entities/blog-post.entity"
 import {
     BlogCategory,
-    BlogPostEntity,
+} from "@modules/databases/postgresql/primary/enums/blog-category"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-    type LocalizedText,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
+import {
+    ContextLoaderService,
+} from "../shared/contexts/loader.service"
 import {
     CoerceMdScalarService,
-    ContextLoaderService,
+} from "../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
+} from "../shared/extracts/extract-json-from-md.service"
+import {
     PathResolverService,
-} from "../shared"
+} from "../shared/path/resolver.service"
 import type {
     BlogPostLangFields,
-} from "./types"
+} from "./types/blog-seed"
 
 /** Mount data domain prefix -- posts live under `<contextRoot>/blog/`. */
 const BLOG_BASE_DIR = "blog"

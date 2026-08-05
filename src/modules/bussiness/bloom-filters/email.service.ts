@@ -1,11 +1,13 @@
 import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
+import {
     BloomFilterType,
     CacheKey,
-    CacheService
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import type {
     BloomFilterCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/bloom-filter"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -14,7 +16,7 @@ import {
 } from "bloom-filters"
 import type {
     GetEmailBloomFilterResult,
-} from "./types"
+} from "./types/email-bloom-filter"
 
 @Injectable()
 /**

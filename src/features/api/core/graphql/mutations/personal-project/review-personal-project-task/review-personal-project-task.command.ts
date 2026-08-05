@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 import {
     ReviewPersonalProjectTaskRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS envelope for per-task review enqueue -- branch validation and job

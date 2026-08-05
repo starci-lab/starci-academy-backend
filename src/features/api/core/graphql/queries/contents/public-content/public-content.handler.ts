@@ -1,19 +1,27 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ContentContextNotFound,
+} from "@modules/platform/exceptions/errors/courses/content-context-not-found"
+import {
     ContentNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/content-not-found"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3NameResolverService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     Injectable,
 } from "@nestjs/common"

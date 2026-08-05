@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CheckEmailExistsQuery,
 } from "./check-email-exists.query"
 import type {
-    CheckEmailExistsData,
     CheckEmailExistsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import type {
+    CheckEmailExistsData,
+} from "./graphql-types/response"
 
 @Injectable()
 /** Service responsible for checking email existence via bloom filter. */

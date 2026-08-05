@@ -13,26 +13,36 @@ import type {
 } from "typeorm"
 import {
     GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    PlaygroundEntity,
+} from "@modules/databases/postgresql/primary/entities/playground.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    Locale,
-    PlaygroundEntity,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
     PlaygroundResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/playground-resolver.service"
 import {
     KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
 import {
     PlaygroundsResponse,
     PlaygroundSummary,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

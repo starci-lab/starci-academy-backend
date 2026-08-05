@@ -7,14 +7,14 @@ import {
     createIoRedisKey 
 } from "./constants"
 import {
-    IoRedisInstanceKey
-} from "./enums"
+    IoRedisInstanceKey,
+} from "./enums/instance-key"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    IoRedisInstanceKeyOptions 
-} from "./types"
+    IoRedisInstanceKeyOptions,
+} from "./types/options"
 
 /**
  * Builds the client for `key`: Cache -> Valkey (cluster-capable), others ->

@@ -8,8 +8,10 @@ import {
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     Request,
 } from "express"
@@ -19,7 +21,7 @@ import {
 } from "@nestjs/swagger"
 import {
     RestTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
     httpConfig,
 } from "../../http"

@@ -1,11 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    KeycloakTokenService,
+} from "@modules/integrations/keycloak/token.service"
 import {
     KeycloakJwtPayload,
-    KeycloakTokenService,
+} from "@modules/integrations/keycloak/types/jwt-jwks"
+import {
     KeycloakUserService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/user.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -21,37 +25,43 @@ import {
 } from "./forgot-password-verify-otp.command"
 import type {
     ForgotPasswordVerifyOtpCommandResult,
-} from "./graphql-types"
+} from "./graphql-types/response"
+import {
+    InvalidJwtPayloadException,
+} from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     ChallengeTokensNotFoundException,
     ChallengeEmailNotFoundException,
     ChallengeOtpNotFoundException,
     ChallengeOtpMismatchException,
-    InvalidJwtPayloadException,
+} from "@modules/platform/exceptions/errors/users/otp"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     OtpChallengeService,
-} from "@modules/code"
+} from "@modules/integrations/code/otp-challenge.service"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     EntityManager,
 } from "typeorm"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     enqueueLearnerEmail,
-} from "@modules/transactional-email"
+} from "@modules/integrations/transactional-email/enqueue-learner-email"
 import type {
     ForgotPasswordActionPayload,
-} from "../../types"
+} from "../../types/forgot-password-action"
 
 @CommandHandler(ForgotPasswordVerifyOtpCommand)
 @Injectable()

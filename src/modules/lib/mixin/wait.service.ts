@@ -3,15 +3,17 @@ import {
 } from "@nestjs/common"
 import pRetry from "p-retry"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     WaitConditionNotMetException,
-    WaitTimeoutException
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mixin/wait-condition-not-met.exception"
+import {
+    WaitTimeoutException,
+} from "@modules/platform/exceptions/errors/mixin/wait-timeout.exception"
 import type {
-    WaitParams
-} from "./types"
+    WaitParams,
+} from "./types/wait"
 
 @Injectable()
 /**

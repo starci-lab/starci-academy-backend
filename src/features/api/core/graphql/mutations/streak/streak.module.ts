@@ -6,7 +6,7 @@ import {
 } from "./streak.module-definition"
 import {
     BuyStreakFreezeSingleMutationModule,
-} from "./buy-streak-freeze"
+} from "./buy-streak-freeze/buy-streak-freeze.module"
 
 @Module({
     imports: [

@@ -6,10 +6,10 @@ import {
 } from "./github.module-definition"
 import {
     KeycloakGithubCallbackModule,
-} from "./callback"
+} from "./callback/callback.module"
 import {
     KeycloakGithubRedirectModule,
-} from "./redirect"
+} from "./redirect/redirect.module"
 
 @Module({
     imports: [

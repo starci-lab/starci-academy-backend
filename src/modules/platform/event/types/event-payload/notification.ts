@@ -1,7 +1,9 @@
 import type {
     NotificationMetadata,
+} from "@modules/databases/postgresql/primary/entities/notification.entity"
+import type {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
 
 /**
  * Self-contained snapshot of a freshly created notification, carried on the

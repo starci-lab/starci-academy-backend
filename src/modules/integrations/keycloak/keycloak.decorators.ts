@@ -7,7 +7,7 @@ import {
 } from "@nestjs/graphql"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 
 /**
  * Inject the Keycloak user.

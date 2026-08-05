@@ -19,21 +19,21 @@ import type {
 } from "express"
 import {
     FileStoreService,
-} from "../../file-store"
+} from "../../file-store/file-store.service"
 import type {
     InitChunkResult,
     ChunkStatus,
     FinalizeResult,
-} from "../../file-store"
+} from "../../file-store/types"
 import {
     MockDelayInterceptor,
-} from "../../interceptors"
+} from "../../interceptors/mock-delay.interceptor"
 import {
     readRawBody,
-} from "../../utils"
+} from "../../utils/read-raw-body"
 import {
     InitUploadDto,
-} from "./dtos"
+} from "./dtos/init-upload"
 
 /** Per-chunk byte cap (a generous multiple of the 256 KB chunk size). */
 const MAX_CHUNK_BYTES = 2 * 1024 * 1024

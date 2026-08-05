@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,22 +6,22 @@ import {
 } from "./headhuntings.module-definition"
 import {
     HeadhuntingCompaniesSingleQueryModule,
-} from "./headhunting-companies"
+} from "./headhunting-companies/headhunting-companies.module"
 import {
     HeadhuntingCompanySingleQueryModule,
-} from "./headhunting-company"
+} from "./headhunting-company/headhunting-company.module"
 import {
     ConsultantsSingleQueryModule,
-} from "./consultants"
+} from "./consultants/consultants.module"
 import {
     ConsultantSingleQueryModule,
-} from "./consultant"
+} from "./consultant/consultant.module"
 import {
     HeadhuntingCompanySuggestionsSingleQueryModule,
-} from "./headhunting-company-suggestions"
+} from "./headhunting-company-suggestions/headhunting-company-suggestions.module"
 import {
     ConsultantSuggestionsSingleQueryModule,
-} from "./consultant-suggestions"
+} from "./consultant-suggestions/consultant-suggestions.module"
 
 @Module({
     imports: [

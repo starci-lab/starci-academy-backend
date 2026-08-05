@@ -1,12 +1,12 @@
 import {
-    Locale 
-} from "@modules/databases"
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    UserEntity 
-} from "@modules/databases"
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import type {
     KeycloakTokenIntrospectResponse,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/types/tokens"
 
 /** Params for executing a GraphQL query. */
 export interface ExecuteParams<T> {

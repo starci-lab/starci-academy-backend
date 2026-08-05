@@ -6,10 +6,10 @@ import {
 } from "./google.module-definition"
 import {
     KeycloakGoogleCallbackModule,
-} from "./callback"
+} from "./callback/callback.module"
 import {
     KeycloakGoogleRedirectModule,
-} from "./redirect"
+} from "./redirect/redirect.module"
 
 @Module({
     imports: [

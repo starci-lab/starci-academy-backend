@@ -10,17 +10,17 @@ import {
 } from "./leaderboard.query"
 import {
     LeaderboardRequestDefaults,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ProgressProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/progress/progress-projection.service"
 import type {
     CourseLeaderboardCacheResult,
     CourseLeaderboardEntry,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/course-leaderboard"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 
 const buildEntry = (
     overrides: Partial<CourseLeaderboardEntry> = {

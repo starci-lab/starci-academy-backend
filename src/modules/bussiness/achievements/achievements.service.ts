@@ -7,28 +7,38 @@ import {
 } from "typeorm"
 import {
     AchievementEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    UserAchievementEntity,
+} from "@modules/databases/postgresql/primary/entities/achievement.entity"
+import {
     UserAchievementProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-achievement-projection.entity"
+import {
+    UserAchievementEntity,
+} from "@modules/databases/postgresql/primary/entities/user-achievement.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    AbstractBadge,
+} from "./badges/abstract-badge"
 import {
     ACHIEVEMENT_BADGES,
-    AbstractBadge,
 } from "./badges"
 import type {
     AchievementCountRow,
     AchievementHolderCountRow,
-    CachedMyAchievementsValue,
-    EarnedAchievementEntry,
     InsertedIdRow,
     MyAchievementResult,
     MyAchievementsResult,
     NewlyEarnedAchievement,
     RecomputeAchievementsForUserParams,
 } from "./types"
+import type {
+    CachedMyAchievementsValue,
+    EarnedAchievementEntry,
+} from "./types/my-achievements"
 
 @Injectable()
 /**

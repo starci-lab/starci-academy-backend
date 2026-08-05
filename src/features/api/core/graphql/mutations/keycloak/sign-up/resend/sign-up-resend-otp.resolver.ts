@@ -9,21 +9,23 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     SignUpResponse,
     type SignUpInitData,
-} from "../init/graphql-types"
+} from "../init/graphql-types/response"
 import {
     SignUpResendOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     SignUpResendOtpService,
 } from "./sign-up-resend-otp.service"

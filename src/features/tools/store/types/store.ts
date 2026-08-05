@@ -1,7 +1,7 @@
 import type {
     ArtifactStatus,
     ArtifactType,
-} from "../enums"
+} from "../enums/store"
 
 /**
  * A saved S3-compatible target (credentials live locally in SQLite so the

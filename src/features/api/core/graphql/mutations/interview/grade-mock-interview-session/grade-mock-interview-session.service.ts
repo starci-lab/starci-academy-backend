@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +12,10 @@ import {
 } from "./grade-mock-interview-session.command"
 import {
     GradeMockInterviewSessionRequest,
+} from "./graphql-types/request"
+import {
     MockInterviewGradeSessionData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Forwards grading to the command bus so the resolver stays a thin GraphQL leaf. */

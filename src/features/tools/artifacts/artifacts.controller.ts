@@ -16,19 +16,19 @@ import {
 } from "fs/promises"
 import {
     ToolsArtifactNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/tools/artifact"
 import {
     LocalOnlyGuard,
-} from "../guards"
+} from "../guards/local-only.guard"
 import {
     toolsRoutes,
-} from "../constants"
+} from "../constants/routes"
 import {
     ToolsStoreService,
-} from "../store"
+} from "../store/tools-store.service"
 import {
     SyncService,
-} from "../sync"
+} from "../sync/sync.service"
 
 @ApiTags(toolsRoutes.artifacts.tag)
 @UseGuards(LocalOnlyGuard)

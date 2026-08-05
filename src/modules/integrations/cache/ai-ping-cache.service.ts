@@ -1,6 +1,6 @@
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     Injectable,
     OnModuleInit,
@@ -10,7 +10,7 @@ import {
 } from "./cache.service"
 import {
     CacheKey,
-} from "./enums"
+} from "./enums/cache-key"
 import type {
     AiPingKeyStatusMap,
     ProviderPingKeyStatusMap,
@@ -18,10 +18,10 @@ import type {
     RecordKeyPickedParams,
     RecordKeySuccessParams,
     RecordPingKeyStatusParams,
-} from "./types"
+} from "./types/ai-ping-key-status"
 import {
-    DayjsService 
-} from "@modules/mixin"
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
 
 @Injectable()
 /**

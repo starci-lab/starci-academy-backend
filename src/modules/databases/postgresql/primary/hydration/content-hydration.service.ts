@@ -6,17 +6,25 @@ import type {
 } from "typeorm"
 import {
     ChallengeEntity,
+} from "../entities/challenge.entity"
+import {
     CodeExplainingEntity,
+} from "../entities/code-explaining.entity"
+import {
     CodeImplementationEntity,
+} from "../entities/code-implementation.entity"
+import {
     ContentBodyEntity,
+} from "../entities/content-body.entity"
+import {
     ContentEntity,
-} from "../entities"
+} from "../entities/content.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"
 import {
     ContentNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/content-not-found"
 
 @Injectable()
 /**

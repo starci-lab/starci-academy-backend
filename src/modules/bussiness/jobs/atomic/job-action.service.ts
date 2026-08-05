@@ -1,8 +1,12 @@
 import {
     JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
     JobStatus,
+} from "@modules/databases/postgresql/primary/enums/job-status"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -22,24 +26,26 @@ import type {
     SaveExecutionResultParams,
     LoadExecutionResultParams,
     ProcessingJobParams,
-} from "../types"
+} from "../types/job"
 import {
     DayjsService,
-    InjectSuperJson
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import {
     SuperJSON,
 } from "superjson"
 import {
     JobFencedOutException,
     JobNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job/not-found"
 import {
     EventName,
-} from "@modules/event"
+} from "@modules/platform/event/enums/event-name"
 import {
-    EventEmitterService
-} from "@modules/event"
+    EventEmitterService,
+} from "@modules/platform/event/event-emitter.service"
 
 @Injectable()
 /**

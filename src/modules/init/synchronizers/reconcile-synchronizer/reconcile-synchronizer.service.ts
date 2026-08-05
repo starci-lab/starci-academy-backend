@@ -5,45 +5,77 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
-    CourseEntity,
     ChallengeEntity,
-    ContentEntity,
-    ModuleEntity,
-    MilestoneEntity,
-    MilestoneTaskEntity,
-    FoundationEntity,
-    FoundationCategoryEntity,
-    HeadhuntingCompanyEntity,
-    ConsultantEntity,
-    FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     CodingProblemEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
+    ConsultantEntity,
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
+    FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
+import {
+    FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    HeadhuntingCompanyEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3DeleteService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-delete.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     exceedsPruneRatio,
     partitionOrphanCdnKeys,
-} from "./utils"
+} from "./utils/reconcile"
 import type {
     CdnTarget,
     ReconcileIdsResult,
     LiveColumnsRow,
-} from "./types"
+} from "./types/reconcile"
 
 /**
  * Every content entity type with an Elasticsearch index -- reconciled per locale.

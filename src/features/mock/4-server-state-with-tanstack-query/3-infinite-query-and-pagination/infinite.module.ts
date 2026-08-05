@@ -6,7 +6,7 @@ import {
 } from "./infinite.module-definition"
 import {
     StoreModule,
-} from "../../store"
+} from "../../store/store.module"
 import {
     InfiniteController,
 } from "./infinite.controller"

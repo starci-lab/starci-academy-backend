@@ -14,16 +14,16 @@ import {
 } from "@nestjs/swagger"
 import {
     RestTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
     AdminAccessGuard,
-} from "@modules/bussiness"
+} from "@modules/bussiness/guards/admin-access.guard"
 import {
     httpConfig,
 } from "../../http"
 import {
     ProcessVideoRequest,
-} from "./dtos"
+} from "./dtos/process-video.request"
 import {
     ProcessVideoService,
 } from "./process-video.service"

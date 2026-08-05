@@ -6,13 +6,13 @@ import type {
 } from "typeorm"
 import {
     ConsultantEntity,
-} from "../entities"
+} from "../entities/consultant.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"
 import {
     ConsultantNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/consultant-not-found"
 
 @Injectable()
 /**

@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     MilestoneEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MilestoneQuery,
 } from "./milestone.query"
 import {
     MilestoneRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /** Dispatches `MilestoneQuery` onto the CQRS bus. */

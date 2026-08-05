@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,7 +6,7 @@ import {
 } from "./jobs.module-definition"
 import {
     IncompletedJobsSingleQueryModule,
-} from "./incompleted-jobs"
+} from "./incompleted-jobs/incompleted-jobs.module"
 
 @Module({
     imports: [

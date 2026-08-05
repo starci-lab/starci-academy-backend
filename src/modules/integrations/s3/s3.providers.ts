@@ -6,16 +6,16 @@ import {
     DIGITAL_OCEAN_S3_PRESIGN,
     MINIO_S3,
     MINIO_S3_PRESIGN,
-} from "./constants"
+} from "./constants/s3"
 import {
     S3Client,
 } from "@aws-sdk/client-s3"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    getS3SecretAccessKey 
-} from "@modules/filesystem"
+    getS3SecretAccessKey,
+} from "@modules/filesystem/utils/mount-secrets"
 
 /**
  * Provider for AWS S3 specifically.

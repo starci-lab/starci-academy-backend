@@ -6,20 +6,22 @@ import {
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     KafkaService,
-} from "@modules/kafka"
+} from "@modules/integrations/kafka/kafka.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     AbstractProjectionListener,
-    type ProjectionCdcMessage,
-} from "@modules/projection"
+} from "@modules/platform/projection/abstract-projection.listener"
+import type {
+    ProjectionCdcMessage,
+} from "@modules/platform/projection/types"
 import {
     UserPinnedProjectsProjectionService,
 } from "./user-pinned-projects-projection.service"

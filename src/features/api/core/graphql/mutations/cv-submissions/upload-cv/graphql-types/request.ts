@@ -6,7 +6,7 @@ import {
 import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
     description: "Register an uploaded CV into the unified table + enqueue scoring.",

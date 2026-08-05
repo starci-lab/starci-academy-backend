@@ -10,16 +10,22 @@ import {
 } from "@modules/ai/ai-invoke.service"
 import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     CvRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/cv-rag-retrieval.service"
 import {
     CvScoringInputMissingException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/cv/cv-scoring-input-missing"
 import {
     CV_LEVEL_EXPECTATIONS,
     CV_SCORE_MAX,
@@ -29,7 +35,7 @@ import {
 } from "./constants"
 import {
     parseCvScore,
-} from "./utils"
+} from "./utils/parse-cv-score"
 import type {
     BuildCvContentParams,
     BuildSystemPromptParams,

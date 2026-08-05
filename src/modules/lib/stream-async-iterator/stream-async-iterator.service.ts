@@ -3,11 +3,11 @@ import {
 } from "@nestjs/common"
 import {
     StreamConnectionAbortedException,
-    StreamConnectionClosedException
-} from "@modules/exceptions"
+    StreamConnectionClosedException,
+} from "@modules/platform/exceptions/errors/stream/connection"
 import type {
     CreateStreamParams,
-} from "./types"
+} from "./types/create-stream"
 
 @Injectable()
 /**

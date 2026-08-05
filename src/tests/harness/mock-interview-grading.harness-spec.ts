@@ -15,23 +15,25 @@ import {
 } from "@modules/ai/grading-lane-validation.service"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     MockInterviewPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
 import {
     MockInterviewSessionTooShortException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/mock-interview-session-too-short"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     MockInterviewGradingService,
 } from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session-grading.service"
@@ -42,19 +44,27 @@ import {
     MockInterviewVerdict,
     type GradeMockInterviewSessionParams,
     type MockInterviewTurnRecord,
-} from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/types"
+} from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/types/mock-interview-grade"
 import {
     HarnessInvokeService,
+} from "@tests/helpers/harness-invoke.service"
+import {
     JudgeService,
+} from "@tests/helpers/judge.service"
+import {
     TestHelpersModule,
+} from "@tests/helpers/test-helpers.module"
+import {
     VolumeService,
+} from "@tests/helpers/volume.service"
+import {
     listVolumeDir,
     readVolumeDoc,
     volumeExists,
-} from "@tests/helpers"
+} from "@tests/helpers/volume"
 import type {
     HarnessTierName,
-} from "@tests/helpers"
+} from "@tests/helpers/models"
 
 /** Minimum judge score a produced grade must reach to count as passing. */
 const PASS_SCORE = 60

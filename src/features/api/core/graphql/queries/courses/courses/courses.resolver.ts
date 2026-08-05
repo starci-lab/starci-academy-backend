@@ -12,32 +12,46 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-    GraphQLLocale,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    KeycloakOptionalAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
 import {
     KeycloakGraphQLUser,
-    KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     CoursesRequest,
+} from "./graphql-types/request"
+import {
     CoursesResponse,
     CoursesResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     CoursesService,
 } from "./courses.service"
 import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 
 @Resolver()
 /**

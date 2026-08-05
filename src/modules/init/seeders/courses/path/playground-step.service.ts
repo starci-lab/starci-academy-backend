@@ -1,13 +1,15 @@
 import type {
     PlaygroundStepPathsParams,
-} from "./types"
+} from "./types/playground"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     PathResolverService,
+} from "../../shared/path/resolver.service"
+import {
     ResolvedFilePath,
-} from "../../shared"
+} from "../../shared/path/types"
 
 @Injectable()
 /**

@@ -3,14 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     InvalidUrlException,
+} from "@modules/platform/exceptions/errors/cli/invalid-url"
+import {
     SubmissionUrlInvalidException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/submission-url-invalid"
 import {
     SubmissionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-type"
 import type {
     IsUrlValidParams,
-} from "./types"
+} from "./types/url"
 
 @Injectable()
 /** Service for validating URLs. */

@@ -1,6 +1,6 @@
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 
 /**
  * Minimal shape shared by all *TranslationEntity rows (locale + field + value).

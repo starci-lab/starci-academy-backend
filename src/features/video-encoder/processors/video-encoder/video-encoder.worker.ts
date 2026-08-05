@@ -1,23 +1,33 @@
 import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
     FilenameProcessData,
-    bullData
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/process-video"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    JobActionService
-} from "@modules/bussiness"
+    JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
-    InjectSuperJson, DayjsService
-} from "@modules/mixin"
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
 import {
-    WinstonLog, WinstonService
-} from "@modules/winston"
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import {
-    JobEntity
-} from "@modules/databases"
+    WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
 import {
     Processor as Worker, WorkerHost
 } from "@nestjs/bullmq"

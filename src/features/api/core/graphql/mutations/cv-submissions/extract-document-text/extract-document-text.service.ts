@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +12,10 @@ import {
 } from "./extract-document-text.command"
 import {
     ExtractDocumentTextRequest,
+} from "./graphql-types/request"
+import {
     ExtractDocumentTextData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** CommandBus hop so the resolver does not import S3 or parser code. */

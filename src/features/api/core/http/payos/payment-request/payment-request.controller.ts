@@ -11,7 +11,7 @@ import {
 import {
     RestSuccessMessage,
     RestTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
     httpConfig,
 } from "../../http"
@@ -20,7 +20,7 @@ import {
 } from "./payment-request.service"
 import {
     PaymentRequestResponse,
-} from "./dtos"
+} from "./dtos/response"
 
 @Controller(
     {

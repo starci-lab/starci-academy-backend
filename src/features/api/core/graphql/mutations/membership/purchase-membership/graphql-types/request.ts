@@ -5,7 +5,7 @@ import {
 import {
     GraphQLTypePaymentType,
     PaymentType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 
 @InputType({
     description: "Payment provider for a community membership checkout.",

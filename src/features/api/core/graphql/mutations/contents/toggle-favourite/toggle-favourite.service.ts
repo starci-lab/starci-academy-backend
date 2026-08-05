@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,7 +12,7 @@ import {
 } from "./toggle-favourite.command"
 import {
     ToggleFavouriteRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /** CommandBus hop so the resolver stays persistence-free. */

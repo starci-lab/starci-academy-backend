@@ -1,9 +1,9 @@
 import type {
     ForgotPasswordResendOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ExecuteParams,
-} from "../../../../../../types"
+} from "../../../../../../types/execute"
 
 /** CQRS envelope for rotating a reset OTP without restarting the password challenge. */
 export class ForgotPasswordResendOtpCommand {

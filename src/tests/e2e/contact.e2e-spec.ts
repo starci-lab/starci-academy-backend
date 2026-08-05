@@ -6,16 +6,16 @@ import type {
 } from "@nestjs/common"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     SubmitContactResolver,
 } from "@features/api/core/graphql/mutations/contact/submit-contact/submit-contact.resolver"
 import type {
     SubmitContactRequest,
-} from "@features/api/core/graphql/mutations/contact/submit-contact/graphql-types"
+} from "@features/api/core/graphql/mutations/contact/submit-contact/graphql-types/request"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Inbox that receives contact-form messages -- mirrors the private constant in the resolver. */
 const CONTACT_INBOX = "cuongnvtse160875@gmail.com"

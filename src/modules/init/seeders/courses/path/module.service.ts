@@ -3,11 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     PathResolverService,
+} from "../../shared/path/resolver.service"
+import {
     ResolvedFilePath,
-} from "../../shared"
+} from "../../shared/path/types"
 import type {
     ModulePathParams,
-} from "./types"
+} from "./types/module"
 import {
     CoursePathService 
 } from "./course.service"

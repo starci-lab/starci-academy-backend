@@ -11,28 +11,40 @@ import {
 } from "@nestjs/typeorm"
 import {
     ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     Sha256Service,
-} from "@modules/crypto"
+} from "@modules/crypto/sha256.service"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
 import {
     ExtractJsonFromMdService,
-    CoerceMdScalarService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     MergeJsonService,
-    ContextLoaderService,
-} from "../../shared"
+} from "../../shared/merge/merge.service"
 import {
     CourseIdFactoryService,
-    FlashcardDeckIdFactoryService,
+} from "../id-factories/course.service"
+import {
     FlashcardCardIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/flashcard-card.service"
+import {
+    FlashcardDeckIdFactoryService,
+} from "../id-factories/flashcard-deck.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     FlashcardDeckPathService,
-} from "../path"
+} from "../path/flashcard-deck.service"
 import {
     FlashcardDeckParserService,
 } from "./flashcard-deck.service"

@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     ChatService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/chat/chat.service"
 import type {
     ChatConversationObject,
-} from "../../../shared/chat"
+} from "../../../shared/chat/object-types/chat-conversation.object"
 
 @Injectable()
 /**

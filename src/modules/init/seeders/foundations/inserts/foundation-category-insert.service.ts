@@ -5,12 +5,14 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    FoundationCategoryEntity,
     FoundationCategoryTranslationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation-category-translation.entity"
+import {
+    FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
 import {
     UpsertService,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 
 @Injectable()
 /**

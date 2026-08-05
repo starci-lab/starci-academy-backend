@@ -9,13 +9,19 @@ import {
 } from "kafkajs"
 import {
     KafkaConsumerConnectException,
+} from "@modules/platform/exceptions/errors/kafka/kafka-consumer-connect"
+import {
     KafkaConsumerDisconnectException,
+} from "@modules/platform/exceptions/errors/kafka/kafka-consumer-disconnect"
+import {
     KafkaEnsureTopicsException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/kafka/kafka-ensure-topics"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     KAFKA,
 } from "./constants"

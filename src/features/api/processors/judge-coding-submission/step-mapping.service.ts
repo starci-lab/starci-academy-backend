@@ -3,16 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     JudgeCodingSubmissionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/judge-coding-submission"
 import {
     JudgeCodingSubmissionJudgeStepService,
-} from "./steps"
+} from "./steps/judge-coding-submission-judge-step.service"
 import type {
     ExtendedJudgeCodingSubmissionContext,
-} from "./types"
+} from "./types/extended"
 
 @Injectable()
 /**

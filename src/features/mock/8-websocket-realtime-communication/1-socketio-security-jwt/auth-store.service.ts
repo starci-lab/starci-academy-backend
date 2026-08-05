@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import type {
     JwtUser,
-} from "./types"
+} from "./types/auth"
 
 /** Internal record kept per registered username. */
 interface StoredUser {

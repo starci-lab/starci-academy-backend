@@ -6,112 +6,112 @@ import {
 } from "./queries.module-definition"
 import {
     AuthenticationQueriesModule,
-} from "./authentication"
+} from "./authentication/authentication.module"
 import {
     CoursesQueriesModule,
-} from "./courses"
+} from "./courses/courses.module"
 import {
     ContentsModule,
-} from "./contents"
+} from "./contents/contents.module"
 import {
     ChallengesModule,
-} from "./challenges"
+} from "./challenges/challenges.module"
 import {
     ModulesModule,
-} from "./modules"
+} from "./modules/modules.module"
 import {
     ChallengeSubmissionsModule,
-} from "./challenge-submissions"
+} from "./challenge-submissions/challenge-submissions.module"
 import {
     CvSubmissionsQueriesModule,
 } from "./cv-submissions/cv-submissions.module"
 import {
     JobsModule,
-} from "./jobs"
+} from "./jobs/jobs.module"
 import {
     SystemModule,
-} from "./system"
+} from "./system/system.module"
 import {
     ValidationsModule,
-} from "./validations"
+} from "./validations/validations.module"
 import {
     AutocompleteQueriesModule,
-} from "./autocomplete"
+} from "./autocomplete/autocomplete.module"
 import {
     TasksQueriesModule,
-} from "./tasks"
+} from "./tasks/tasks.module"
 import {
     PersonalProjectQueriesModule,
-} from "./personal-project"
+} from "./personal-project/personal-project.module"
 import {
     MilestonesModule,
-} from "./milestones"
+} from "./milestones/milestones.module"
 import {
     FoundationsModule,
-} from "./foundations"
+} from "./foundations/foundations.module"
 import {
     HeadhuntingsModule,
-} from "./headhuntings"
+} from "./headhuntings/headhuntings.module"
 import {
     JobPostingsModule,
-} from "./job-postings"
+} from "./job-postings/job-postings.module"
 import {
     AiQueriesModule,
-} from "./ai"
+} from "./ai/ai.module"
 import {
     FlashcardDecksQueriesModule,
-} from "./flashcard-decks"
+} from "./flashcard-decks/flashcard-decks.module"
 import {
     FlashcardQueriesModule,
-} from "./flashcard"
+} from "./flashcard/flashcard.module"
 import {
     CodingQueriesModule,
-} from "./coding"
+} from "./coding/coding.module"
 import {
     DiscussionQueriesModule,
-} from "./discussion"
+} from "./discussion/discussion.module"
 import {
     SessionsQueriesModule,
-} from "./sessions"
+} from "./sessions/sessions.module"
 import {
     DashboardQueriesModule,
-} from "./dashboard"
+} from "./dashboard/dashboard.module"
 import {
     LeagueQueriesModule,
-} from "./league"
+} from "./league/league.module"
 import {
     AchievementsQueriesModule,
-} from "./achievements"
+} from "./achievements/achievements.module"
 import {
     UsersQueriesModule,
-} from "./users"
+} from "./users/users.module"
 import {
     NotificationsQueriesModule,
-} from "./notifications"
+} from "./notifications/notifications.module"
 import {
     LearnerCmsQueriesModule,
-} from "./learner-cms"
+} from "./learner-cms/learner-cms.module"
 import {
     BlogQueriesModule,
-} from "./blog"
+} from "./blog/blog.module"
 import {
     CommunityQueriesModule,
-} from "./community"
+} from "./community/community.module"
 import {
     ChatQueriesModule,
-} from "./chat"
+} from "./chat/chat.module"
 import {
     InstallmentPlansQueriesModule,
-} from "./installment-plans"
+} from "./installment-plans/installment-plans.module"
 import {
     SearchCourseContentQueriesModule,
-} from "./search-course-content"
+} from "./search-course-content/search-course-content.module"
 import {
     PlaygroundsQueriesModule,
-} from "./playgrounds"
+} from "./playgrounds/playgrounds.module"
 import {
     RagPlaygroundQueriesModule,
-} from "./rag-playground"
+} from "./rag-playground/rag-playground.module"
 
 @Module({
     imports: [

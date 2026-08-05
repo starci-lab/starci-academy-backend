@@ -6,10 +6,10 @@ import type {
 } from "@nestjs/common"
 import {
     ELASTICSEARCH,
-} from "./constants"
+} from "./constants/elasticsearch"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 
 /**
  * Create a provider for the Elasticsearch client.

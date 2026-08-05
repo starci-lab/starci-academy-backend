@@ -10,42 +10,44 @@ import {
 } from "./social-digest-cron.service"
 import {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
 import {
     enqueueLearnerEmail,
-} from "@modules/transactional-email"
+} from "@modules/integrations/transactional-email/enqueue-learner-email"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EnqueueSendMailJobService,
-} from "../jobs"
+} from "../jobs/enqueue/send-mail.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
 // the cron calls the free `enqueueLearnerEmail(...)` helper directly rather than
 // through DI -- mock the module so each test can program success/failure per user
-jest.mock("@modules/transactional-email",
+jest.mock("@modules/integrations/transactional-email/enqueue-learner-email",
     () => ({
         enqueueLearnerEmail: jest.fn(),
     }))
 
 // `envConfig()` is read for the web base URL used in the digest email context --
 // mock only the module so tests can stub the slice actually read
-jest.mock("@modules/env",
+jest.mock("@modules/platform/env/config",
     () => {
-        const actual = jest.requireActual<typeof import("@modules/env")>("@modules/env")
+        const actual = jest.requireActual<typeof import("@modules/platform/env/config")>("@modules/platform/env/config")
         return {
             ...actual,
             // default to the real envConfig so a module-load-time call (e.g. the

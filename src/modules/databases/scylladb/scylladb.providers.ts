@@ -7,10 +7,10 @@ import {
 } from "cassandra-driver"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     SCYLLADB_CLIENT,
-} from "./constants"
+} from "./constants/client"
 
 /**
  * Creates provider for shared ScyllaDB client.

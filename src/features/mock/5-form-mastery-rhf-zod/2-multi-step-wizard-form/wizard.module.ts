@@ -6,7 +6,7 @@ import {
 } from "./wizard.module-definition"
 import {
     StoreModule,
-} from "../../store"
+} from "../../store/store.module"
 import {
     WizardController,
 } from "./wizard.controller"

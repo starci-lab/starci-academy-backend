@@ -7,19 +7,19 @@ import {
 } from "@nestjs/graphql"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     GraphQLContextMissingRequestException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/graphql-context-missing-request"
 import {
     KeycloakJwksService,
 } from "../jwks.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import type {
     EntityManager,
 } from "typeorm"
@@ -28,7 +28,7 @@ import {
 } from "./abstract"
 import type {
     KeycloakAuthGuardRequest,
-} from "../types"
+} from "../types/guard"
 
 @Injectable()
 /**

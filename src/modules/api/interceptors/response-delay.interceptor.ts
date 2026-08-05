@@ -16,7 +16,7 @@ import {
 } from "rxjs/operators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 
 @Injectable()
 /**

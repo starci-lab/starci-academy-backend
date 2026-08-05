@@ -1,19 +1,27 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    UserContentEntity,
+} from "@modules/databases/postgresql/primary/entities/user-content.entity"
 import {
     ActivityType,
-    ContentEntity,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    writeActivity,
+} from "@modules/bussiness/activity/write-activity"
 import {
     UserService,
-    writeActivity,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"

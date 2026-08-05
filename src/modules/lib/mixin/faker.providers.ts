@@ -7,8 +7,8 @@ import {
     faker
 } from "@faker-js/faker"
 import {
-    FAKER
-} from "./constants"
+    FAKER,
+} from "./constants/faker"
 
 /**
  * Injects the shared Faker token so seed/test code does not import `@faker-js/faker`

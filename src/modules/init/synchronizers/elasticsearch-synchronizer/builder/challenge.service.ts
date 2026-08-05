@@ -1,9 +1,15 @@
 import {
     ChallengeEntity,
-    ChallengeHydrationService,
-    ChallengeResolverService,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ChallengeHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/challenge-hydration.service"
+import {
+    ChallengeResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/challenge-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -11,9 +17,11 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
-    buildCompletionSuggest,
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
+    buildCompletionSuggest,
+} from "@modules/integrations/elasticsearch/utils/completion"
 import _ from "lodash"
 
 @Injectable()

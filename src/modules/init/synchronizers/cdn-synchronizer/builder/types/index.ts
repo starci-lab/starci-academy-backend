@@ -1,6 +1,6 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * One CDN payload row: entity graph after locale-specific transform (ready to stringify / upload).

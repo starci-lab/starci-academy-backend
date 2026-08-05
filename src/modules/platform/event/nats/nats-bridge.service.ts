@@ -20,20 +20,26 @@ import {
 } from "@nestjs/event-emitter"
 import _ from "lodash"
 import {
-    CacheKey, CacheService, CacheType 
-} from "@modules/cache"
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
-    InstanceService
-} from "@modules/mixin"
+    CacheKey,
+} from "@modules/integrations/cache/enums/cache-key"
+import {
+    CacheType,
+} from "@modules/integrations/cache/enums/cache-type"
+import {
+    InstanceService,
+} from "@modules/lib/mixin/instance.service"
 import {
     configMap 
 } from "../config"
 import {
-    EventName 
-} from "../enums"
+    EventName,
+} from "../enums/event-name"
 import {
-    getEventName 
-} from "../utils"
+    getEventName,
+} from "../utils/event"
 import {
     NatsMessageFactoryService
 } from "./nats-message-factory.service"
@@ -42,11 +48,11 @@ import {
     OPTIONS_TYPE,
 } from "./nats.module-definition"
 import {
-    RetryService
-} from "@modules/mixin"
+    RetryService,
+} from "@modules/lib/mixin/retry.service"
 import {
-    NatsStreamConnection 
-} from "@modules/stream-async-iterator"
+    NatsStreamConnection,
+} from "@modules/lib/stream-async-iterator/adapters/nats.adapter"
 import {
     InjectNats 
 } from "./nats.decorators"
@@ -57,18 +63,20 @@ import {
     Dayjs 
 } from "dayjs"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    StreamAsyncIteratorService 
-} from "@modules/stream-async-iterator"
+    StreamAsyncIteratorService,
+} from "@modules/lib/stream-async-iterator/stream-async-iterator.service"
 import {
     WinstonLog,
-    WinstonService 
-} from "@modules/winston"
+} from "@modules/platform/winston/enums/winston-log"
 import {
-    DayjsService 
-} from "@modules/mixin"
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
 import {
     v4 
 } from "uuid"

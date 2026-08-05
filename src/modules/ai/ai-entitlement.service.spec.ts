@@ -9,27 +9,39 @@ import {
     AiEntitlementService,
 } from "./ai-entitlement.service"
 import {
-    AiCeilSurface,
-    AiSubStatus,
     AiSubscriptionEntity,
-    AiSubTier,
+} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+import {
     CreditUsageHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/credit-usage-history.entity"
+import {
+    AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
+    AiSubStatus,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-status"
+import {
+    AiSubTier,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    AiAutoQuotaConfigService,
+} from "@modules/filesystem/ai-auto-quota-config.service"
 import {
     MountFilesystemService,
-    AiAutoQuotaConfigService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
     QueryBuilderMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

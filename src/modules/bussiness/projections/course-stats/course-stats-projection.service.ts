@@ -6,11 +6,13 @@ import {
 } from "typeorm"
 import {
     CourseStatsProjectionEntity,
+} from "@modules/databases/postgresql/primary/entities/course-stats-projection.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     CourseStatsResult,
     RecomputeCourseStatsParams,

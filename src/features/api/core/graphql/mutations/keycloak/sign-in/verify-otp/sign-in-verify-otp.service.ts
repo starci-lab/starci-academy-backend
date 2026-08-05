@@ -8,12 +8,14 @@ import {
     SignInVerifyOtpCommand,
 } from "./sign-in-verify-otp.command"
 import type {
-    SignInVerifyOtpCommandResult,
     SignInVerifyOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import type {
+    SignInVerifyOtpCommandResult,
+} from "./graphql-types/response"
 import {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 
 @Injectable()
 /** Forwards sign-in OTP verify to the command bus so the resolver can set cookies. */

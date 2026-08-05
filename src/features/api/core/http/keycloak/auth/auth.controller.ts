@@ -11,7 +11,7 @@ import {
 import {
     RestSuccessMessage,
     RestTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
     httpConfig,
 } from "../../http"
@@ -19,12 +19,18 @@ import {
     KeycloakAuthService,
 } from "./auth.service"
 import {
-    KeycloakAuthResponse,
     KeycloakConfigureMailAdapterRequest,
-    KeycloakConfigureMailAdapterResponse,
+} from "./dtos/configure-mail-adapter.request"
+import {
     KeycloakLoginRequest,
+} from "./dtos/login.request"
+import {
     KeycloakRegisterRequest,
-} from "./dtos"
+} from "./dtos/register.request"
+import {
+    KeycloakAuthResponse,
+    KeycloakConfigureMailAdapterResponse,
+} from "./dtos/response"
 
 @Controller({
     path: httpConfig().keycloak().auth().tags,

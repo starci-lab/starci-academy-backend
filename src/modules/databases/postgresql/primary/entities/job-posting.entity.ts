@@ -14,14 +14,20 @@ import {
 } from "typeorm"
 import {
     GraphQLTypeJobApplyMethod,
-    GraphQLTypeJobEmploymentType,
-    GraphQLTypeJobPostingSource,
-    GraphQLTypeWorkMode,
     JobApplyMethod,
+} from "../enums/job-apply-method"
+import {
+    GraphQLTypeJobEmploymentType,
     JobEmploymentType,
+} from "../enums/job-employment-type"
+import {
+    GraphQLTypeJobPostingSource,
     JobPostingSource,
+} from "../enums/job-posting-source"
+import {
+    GraphQLTypeWorkMode,
     WorkMode,
-} from "../enums"
+} from "../enums/work-mode"
 import {
     UuidAbstractEntity,
 } from "./abstract"

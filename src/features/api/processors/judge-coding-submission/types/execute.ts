@@ -1,6 +1,6 @@
 import {
     CodingVerdict,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
 
 /**
  * Per-testcase judging detail. Input/expected/stdout are populated ONLY for

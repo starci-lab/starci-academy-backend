@@ -6,88 +6,88 @@ import {
 } from "./users.module-definition"
 import {
     UserStatsSingleQueryModule,
-} from "./user-stats"
+} from "./user-stats/user-stats.module"
 import {
     UserProfileSingleQueryModule,
-} from "./user-profile"
+} from "./user-profile/user-profile.module"
 import {
     UserAchievementsSingleQueryModule,
-} from "./user-achievements"
+} from "./user-achievements/user-achievements.module"
 import {
     UserCoursesSingleQueryModule,
-} from "./user-courses"
+} from "./user-courses/user-courses.module"
 import {
     UserFeedSingleQueryModule,
-} from "./user-feed"
+} from "./user-feed/user-feed.module"
 import {
     UserContributionCalendarSingleQueryModule,
-} from "./user-contribution-calendar"
+} from "./user-contribution-calendar/user-contribution-calendar.module"
 import {
     UserWeeklyStatsSingleQueryModule,
-} from "./user-weekly-stats"
+} from "./user-weekly-stats/user-weekly-stats.module"
 import {
     UserCodingProgressSingleQueryModule,
-} from "./user-coding-progress"
+} from "./user-coding-progress/user-coding-progress.module"
 import {
     UserCapstoneTasksSingleQueryModule,
-} from "./user-capstone-tasks"
+} from "./user-capstone-tasks/user-capstone-tasks.module"
 import {
     UserCapstoneProgressSingleQueryModule,
-} from "./user-capstone-progress"
+} from "./user-capstone-progress/user-capstone-progress.module"
 import {
     UserCodingSkillsSingleQueryModule,
-} from "./user-coding-skills"
+} from "./user-coding-skills/user-coding-skills.module"
 import {
     OpenToWorkUsersSingleQueryModule,
-} from "./open-to-work-users"
+} from "./open-to-work-users/open-to-work-users.module"
 import {
     UserCodingHistorySingleQueryModule,
-} from "./user-coding-history"
+} from "./user-coding-history/user-coding-history.module"
 import {
     UserCodingRankSingleQueryModule,
-} from "./user-coding-rank"
+} from "./user-coding-rank/user-coding-rank.module"
 import {
     UserXpSingleQueryModule,
-} from "./user-xp"
+} from "./user-xp/user-xp.module"
 import {
     UserSolvedChallengesSingleQueryModule,
-} from "./user-solved-challenges"
+} from "./user-solved-challenges/user-solved-challenges.module"
 import {
     UserSolvedChallengeDetailSingleQueryModule,
-} from "./user-solved-challenge-detail"
+} from "./user-solved-challenge-detail/user-solved-challenge-detail.module"
 import {
     UserCodingProblemDetailSingleQueryModule,
-} from "./user-coding-problem-detail"
+} from "./user-coding-problem-detail/user-coding-problem-detail.module"
 import {
     UserChallengeStrengthSingleQueryModule,
-} from "./user-challenge-strength"
+} from "./user-challenge-strength/user-challenge-strength.module"
 import {
     SuggestedUsersSingleQueryModule,
-} from "./suggested-users"
+} from "./suggested-users/suggested-users.module"
 import {
     SearchUsersSingleQueryModule,
-} from "./search-users"
+} from "./search-users/search-users.module"
 import {
     UserPinnedProjectsSingleQueryModule,
-} from "./user-pinned-projects"
+} from "./user-pinned-projects/user-pinned-projects.module"
 import {
     MyPinnableCapstonesSingleQueryModule,
-} from "./my-pinnable-capstones"
+} from "./my-pinnable-capstones/my-pinnable-capstones.module"
 import {
     UserFollowersSingleQueryModule,
-} from "./user-followers"
+} from "./user-followers/user-followers.module"
 import {
     UserFollowingSingleQueryModule,
-} from "./user-following"
+} from "./user-following/user-following.module"
 import {
     CourseLearningHistorySingleQueryModule,
-} from "./course-learning-history"
+} from "./course-learning-history/course-learning-history.module"
 import {
     JobReadinessQueriesModule,
-} from "./job-readiness"
+} from "./job-readiness/job-readiness.module"
 import {
     TalentCandidatesSingleQueryModule,
-} from "./talent-candidates"
+} from "./talent-candidates/talent-candidates.module"
 
 @Module({
     imports: [

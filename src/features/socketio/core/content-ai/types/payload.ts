@@ -1,6 +1,6 @@
 import {
     SocketIoPayload,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/ws-payload"
 
 /** One prior turn replayed to the model for short-term chat memory. */
 export interface ContentAiHistoryTurn {

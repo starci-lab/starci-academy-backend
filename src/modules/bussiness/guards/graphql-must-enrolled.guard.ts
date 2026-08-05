@@ -5,17 +5,19 @@ import {
 } from "@nestjs/common"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     GqlExecutionContext
 } from "@nestjs/graphql"
 import {
-    CourseIdRequiredException,
     EnrollmentNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/enrollment-not-found"
+import {
+    CourseIdRequiredException,
+} from "@modules/platform/exceptions/errors/guards/course-id-required"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 
 @Injectable()
 /**

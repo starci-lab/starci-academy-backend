@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     PayNextInstallmentRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS command carrying the "pay next installment cycle" request + auth context.

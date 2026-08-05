@@ -1,17 +1,19 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     GithubUserNotFoundException,
     GithubUserVerificationFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/github"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     Injectable,
 } from "@nestjs/common"

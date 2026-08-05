@@ -1,9 +1,9 @@
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     GenerateSubmitCvPresignUrlRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** Named params bag (user + request) so the command does not inline an object type and stays free of GraphQL-only types. */
 export interface GenerateSubmitCvPresignUrlCommandParams {

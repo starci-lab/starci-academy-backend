@@ -9,27 +9,29 @@ import type {
     UploadBufferParams,
     UploadJsonParams,
     UploadStreamParams,
-} from "./types"
+} from "./types/upload"
 import {
     S3ProviderNotFoundException,
 } from "./exceptions/s3-provider-not-found.exception"
 import {
     S3UploadFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/s3/upload-failed"
 import {
     InjectDigitalOceanS3,
     InjectMinioS3,
 } from "./s3.decorators"
 import {
-    S3Provider 
-} from "./enums"
+    S3Provider,
+} from "./enums/s3"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    AsyncService, 
-    InjectSuperJson
-} from "@modules/mixin"
+    AsyncService,
+} from "@modules/lib/mixin/async.service"
+import {
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import SuperJSON from "superjson"
 
 @Injectable()

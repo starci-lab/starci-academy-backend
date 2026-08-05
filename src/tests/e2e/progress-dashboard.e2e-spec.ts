@@ -21,50 +21,88 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    ChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
+    ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    UserChallengeSubmissionAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission-attempt.entity"
+import {
+    UserChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    UserContentEntity,
+} from "@modules/databases/postgresql/primary/entities/user-content.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ChallengeDifficulty,
-    ChallengeEntity,
-    ChallengeSubmissionEntity,
-    ContentEntity,
-    CourseEntity,
-    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
     Locale,
-    MilestoneEntity,
-    MilestoneTaskEntity,
-    ModuleEntity,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     PricingPhase,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
     SubmissionType,
-    UserChallengeSubmissionAttemptEntity,
-    UserChallengeSubmissionEntity,
-    UserContentEntity,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     ChallengeProgressService,
+} from "@modules/bussiness/progress/challenge.service"
+import {
     PersonalProjectProgressService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/progress/personal-project.service"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     S3NameResolverService,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     toGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
 import {
     MyInProgressChallengesResolver,
 } from "@features/api/core/graphql/queries/dashboard/my-in-progress-challenges/my-in-progress-challenges.resolver"
@@ -85,7 +123,7 @@ import {
 } from "@features/api/core/graphql/queries/milestones/milestones/milestones.handler"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

@@ -6,13 +6,13 @@ import {
 } from "./rewards.module-definition"
 import {
     RedeemRewardSingleMutationModule,
-} from "./redeem-reward"
+} from "./redeem-reward/redeem-reward.module"
 import {
     FulfillRedemptionSingleMutationModule,
-} from "./fulfill-redemption"
+} from "./fulfill-redemption/fulfill-redemption.module"
 import {
     CancelRedemptionSingleMutationModule,
-} from "./cancel-redemption"
+} from "./cancel-redemption/cancel-redemption.module"
 
 @Module({
     imports: [

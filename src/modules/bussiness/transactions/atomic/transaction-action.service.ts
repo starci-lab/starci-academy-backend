@@ -1,22 +1,22 @@
 import {
     TransactionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
     Injectable,
 } from "@nestjs/common"
 import type {
     UpdateTransactionStatusIfExpectedParams,
     UpdateTransactionStatusParams,
-} from "../types"
+} from "../types/transaction"
 import {
     EntityManager,
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    TransactionNotFoundException 
-} from "@modules/exceptions"
+    TransactionNotFoundException,
+} from "@modules/platform/exceptions/errors/transaction/transaction-not-found"
 
 @Injectable()
 /**

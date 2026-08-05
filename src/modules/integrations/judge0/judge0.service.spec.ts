@@ -4,20 +4,22 @@ import {
 } from "@nestjs/testing"
 import {
     Judge0RequestFailedException,
+} from "@modules/platform/exceptions/errors/coding/judge0-request-failed"
+import {
     Judge0TimedOutException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/coding/judge0-timed-out"
 import {
     Judge0Service,
 } from "./judge0.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     Judge0StatusId,
-} from "./enums"
+} from "./enums/judge0-status"
 import type {
     Judge0SubmissionInput,
-} from "./types"
+} from "./types/judge0"
 
 // the service reads its auth token lazily from the mount file via this helper;
 // stub it (keeping the rest of the real barrel intact) so no real fs is touched

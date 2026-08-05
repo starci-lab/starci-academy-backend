@@ -10,13 +10,13 @@ import {
 import {
     RestSuccessMessage,
     RestTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
     KeycloakGoogleCallbackService 
 } from "./callback.service"
 import {
     KeycloakGoogleCallbackResponse,
-} from "./dtos"
+} from "./dtos/response"
 import {
     httpConfig,
 } from "../../../http"

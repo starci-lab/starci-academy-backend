@@ -6,12 +6,16 @@ import {
 } from "typeorm"
 import {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CvVerificationService,
+} from "@modules/bussiness/headhuntings/cv-verification.service"
+import {
     UserSolvedChallengesProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-solved-challenges/user-solved-challenges-projection.service"
 import {
     JOB_READINESS_BUILDING_THRESHOLD,
     JOB_READINESS_INTERVIEW_RECENT_WINDOW,
@@ -20,17 +24,19 @@ import {
     JOB_READINESS_TRACK_CAPSTONE_WEIGHT,
     JOB_READINESS_TRACK_CV_WEIGHT,
     JOB_READINESS_TRACK_INTERVIEW_WEIGHT,
-} from "./constants"
+} from "./constants/bands"
 import type {
-    CapstonePassedRow,
-    CapstoneTotalRow,
     ComputeJobReadinessParams,
-    CvScoreRow,
-    InterviewAvgRow,
     JobReadinessBand,
     JobReadinessResult,
     JobReadinessTrack,
-} from "./types"
+} from "./types/job-readiness"
+import type {
+    CapstonePassedRow,
+    CapstoneTotalRow,
+    CvScoreRow,
+    InterviewAvgRow,
+} from "./types/rows"
 
 /**
  * One PRESENT pillar contribution to a track's depth -- its 0-100 score and the

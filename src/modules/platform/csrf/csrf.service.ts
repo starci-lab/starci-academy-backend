@@ -7,12 +7,14 @@ import {
     timingSafeEqual
 } from "crypto"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     CookieService,
-    CookieName
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
+import {
+    CookieName,
+} from "@modules/platform/cookie/enums"
 import {
     CSRF_PAYLOAD_BYTES,
     CSRF_TOKEN_SEPARATOR

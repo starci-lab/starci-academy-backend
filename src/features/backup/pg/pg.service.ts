@@ -2,11 +2,14 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    S3UploadService, S3Provider 
-} from "@modules/s3"
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
-    envConfig 
-} from "@modules/env"
+    S3UploadService,
+} from "@modules/integrations/s3/s3-upload.service"
+import {
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     mkdtemp, 
     rm 
@@ -16,20 +19,23 @@ import {
     tmpdir 
 } from "os"
 import {
-    WinstonLog, WinstonService 
-} from "@modules/winston"
+    WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     BackupEncryptionPasswordNotSetException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/backup/backup-encryption-password-not-set"
 import {
-    ExecaService
-} from "@modules/execa"
+    ExecaService,
+} from "@modules/integrations/execa/execa.service"
 import {
     createReadStream
 } from "fs"
 import type {
-    PgBackupParams
-} from "./types"
+    PgBackupParams,
+} from "./types/pg-backup"
 
 @Injectable()
 /**

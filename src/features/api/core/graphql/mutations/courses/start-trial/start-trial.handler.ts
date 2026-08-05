@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,21 +12,29 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    EnrollmentEntity,
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CourseNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     StartTrialCommand,
 } from "./start-trial.command"
 import type {
     StartTrialResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(StartTrialCommand)
 @Injectable()

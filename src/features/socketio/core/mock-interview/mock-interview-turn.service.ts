@@ -7,18 +7,24 @@ import {
 } from "@langchain/core/messages"
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     MockInterviewKind,
-    MockInterviewMode,
-    MockInterviewPhase,
     normalizeMockInterviewKind,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mock-interview-kind"
+import {
+    MockInterviewMode,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-mode"
+import {
+    MockInterviewPhase,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import type {
     PrepareMockInterviewTurnParams,
     PrepareMockInterviewTurnResult,
-} from "./types"
+} from "./types/mock-interview-turn"
 
 /**
  * Maps a {@link Locale} to the human-readable language name injected into the

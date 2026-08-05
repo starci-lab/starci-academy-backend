@@ -11,7 +11,7 @@ import type {
 } from "express"
 import {
     CaptchaVerificationFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/guards/captcha-verification-failed"
 import {
     CaptchaService,
 } from "../captcha.service"

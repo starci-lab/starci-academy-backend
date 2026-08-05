@@ -1,6 +1,6 @@
 import {
     MilestoneSeverity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/milestone-severity"
 
 /**
  * Detailed feedback for a specific occurrence within a criteria.

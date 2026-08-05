@@ -10,37 +10,43 @@ import {
 } from "@nestjs/cqrs"
 import {
     PrimaryPostgreSQLModule,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    AiAutoQuotaConfigService,
+} from "@modules/filesystem/ai-auto-quota-config.service"
 import {
     MountFilesystemService,
-    AiAutoQuotaConfigService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
 import {
     EnqueueEnrollJobService,
+} from "@modules/bussiness/jobs/enqueue/enroll.service"
+import {
     EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
     NotificationService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/notification/notification.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     SEPAY,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/constants/sepay"
 import {
     PAYOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/constants/payos"
 import {
     STRIPE,
-} from "@modules/stripe"
+} from "@modules/integrations/stripe/constants/stripe"
 import {
     SepayWebhookController,
 } from "@features/api/core/http/sepay/webhook/webhook.controller"
@@ -68,12 +74,33 @@ import {
 import {
     StripeWebhookHandler,
 } from "@features/api/core/http/stripe/webhook/webhook.handler"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import type {
+    E2eApp,
+} from "./types/e2e-app"
 import type {
     SepayClientMock,
     PayosClientMock,
     StripeClientMock,
-    E2eApp,
-} from "./types"
+} from "./types/webhook-client-mocks"
+
+/**
+ * A stand-in for {@link WinstonService} that swallows every log line.
+ *
+ * The real service injects three Winston `Logger` instances, one of which ships
+ * to Loki -- a test must never open that transport, and an assertion cares about
+ * the rows a handler wrote, never about what it logged. Exported so the specs
+ * that build their OWN testing module reuse this exact stub rather than each
+ * inventing a slightly different one.
+ */
+export const winstonServiceMock = {
+    provide: WinstonService,
+    useValue: {
+        log: jest.fn(),
+    },
+}
 
 /**
  * Boot a focused e2e application around the SePay webhook flow.

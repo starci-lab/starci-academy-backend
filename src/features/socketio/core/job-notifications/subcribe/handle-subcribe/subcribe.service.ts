@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import type {
     ExecuteParams,
-} from "@features/socketio/core/types"
+} from "../../../types/execute"
 import {
     SubcribeJobNotificationQuery,
 } from "./subcribe.query"
 import type {
-    SubcribeJobNotificationSocketIoPayload,
     SubcribeJobNotificationSocketIoMessage,
-} from "./types"
+} from "./types/message"
+import type {
+    SubcribeJobNotificationSocketIoPayload,
+} from "./types/payload"
 
 @Injectable()
 /** Service to handle job notification subscription. */

@@ -7,14 +7,16 @@ import {
 } from "typeorm"
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CoursePricingService,
 } from "../../../mutations/courses/course-enroll/course-pricing.service"
 import {
     LoyaltyDiscountService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/loyalty/loyalty-discount.service"
 import type {
     ListRecommendedCoursesParams,
     RecommendedCourseIdRow,

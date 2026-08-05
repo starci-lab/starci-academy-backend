@@ -6,13 +6,13 @@ import {
 } from "./keycloak.module-definition"
 import {
     KeycloakGoogleModule,
-} from "./google"
+} from "./google/google.module"
 import {
     KeycloakGithubModule,
-} from "./github"
+} from "./github/github.module"
 import {
     KeycloakAuthModule,
-} from "./auth"
+} from "./auth/auth.module"
 
 @Module({
     imports: [

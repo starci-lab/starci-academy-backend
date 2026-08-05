@@ -1,6 +1,6 @@
 import {
     SubmissionFeedbackSeverity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-feedback-severity"
 
 /**
  * Detailed feedback for a specific occurrence within a requirement.

@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 import {
     TaskRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS envelope carrying the `task` lookup (id + locale) from the resolver

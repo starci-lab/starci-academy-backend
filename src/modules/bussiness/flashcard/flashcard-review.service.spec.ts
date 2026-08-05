@@ -11,21 +11,25 @@ import {
 } from "./flashcard-review.service"
 import {
     FlashcardCardEntity,
-    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-deck-resolver.service"
 import {
     FlashcardCardNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/flashcard/flashcard-card-not-found"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

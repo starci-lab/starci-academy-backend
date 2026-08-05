@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CoursesCheckoutCommand,
 } from "./courses-checkout.command"
 import type {
     CoursesCheckoutRequest,
+} from "./graphql-types/request"
+import type {
     CoursesCheckoutResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

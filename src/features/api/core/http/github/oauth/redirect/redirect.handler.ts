@@ -7,28 +7,32 @@ import {
 } from "@nestjs/cqrs"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     KeycloakTokenService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/token.service"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import type SuperJson from "superjson"
 import {
     GithubOauthRedirectService,
-} from "@modules/github"
+} from "@modules/integrations/github/oauth-redirect.service"
 import {
     InvalidRefreshTokenException,
+} from "@modules/platform/exceptions/errors/github/invalid-refresh-token"
+import {
     MissingRequiredParameterException,
+} from "@modules/platform/exceptions/errors/stdlib/missing-required-parameter"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     GithubOauthRedirectCommand,
     type GithubOauthRedirectCommandResult,

@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,19 +6,19 @@ import {
 } from "./personal-project.module-definition"
 import {
     UserPersonalTaskAttemptsSingleQueryModule,
-} from "./user-personal-task-attempts"
+} from "./user-personal-task-attempts/user-personal-task-attempts.module"
 import {
     UserPersonalTaskAttemptFeedbacksSingleQueryModule,
-} from "./user-personal-task-attempt-feedbacks"
+} from "./user-personal-task-attempt-feedbacks/user-personal-task-attempt-feedbacks.module"
 import {
     MilestoneTaskProgressSingleQueryModule,
-} from "./milestone-task-progress"
+} from "./milestone-task-progress/milestone-task-progress.module"
 import {
     LastPersonalTaskAttemptSingleQueryModule,
-} from "./last-personal-task-attempt"
+} from "./last-personal-task-attempt/last-personal-task-attempt.module"
 import {
     UserMilestoneTaskFeedbacksSingleQueryModule,
-} from "./user-milestone-task-feedbacks"
+} from "./user-milestone-task-feedbacks/user-milestone-task-feedbacks.module"
 
 @Module({
     imports: [

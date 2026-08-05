@@ -3,14 +3,20 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    AiModelCategory,
     AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AiByokInvalidException,
+} from "@modules/platform/exceptions/errors/ai/ai-byok-invalid"
+import {
     AiModeNotEntitledException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/ai-mode-not-entitled"
 import {
     GradingLaneValidationService,
 } from "./grading-lane-validation.service"

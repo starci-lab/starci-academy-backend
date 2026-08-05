@@ -6,13 +6,13 @@ import type {
 } from "typeorm"
 import {
     FoundationCategoryEntity,
-} from "../entities"
+} from "../entities/foundation-category.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"
 import {
     FoundationCategoryNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/foundation-category-not-found"
 
 @Injectable()
 /**

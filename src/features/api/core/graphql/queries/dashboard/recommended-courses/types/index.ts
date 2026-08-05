@@ -1,6 +1,6 @@
 import {
     DiscountReason,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/discount-reason"
 
 /** Row shape for the recommended-course id selection (popularity-ordered). */
 export interface RecommendedCourseIdRow {

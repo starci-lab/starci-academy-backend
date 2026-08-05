@@ -8,7 +8,7 @@ import {
 } from "./video-encoder.module-definition"
 import {
     ProcessorsModule,
-} from "./processors"
+} from "./processors/processors.module"
 
 @Module({
 })

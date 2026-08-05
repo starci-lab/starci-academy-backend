@@ -275,6 +275,15 @@ function resolveBindingTarget(
         })
         return null
     }
+    if (norm(declFile) === norm(importerFile)) {
+        unresolved.push({
+            file: repoRel(importerFile),
+            specifier,
+            binding: bindingLabel,
+            reason: "resolved to the importing file (unresolvable or circular) -- left untouched",
+        })
+        return null
+    }
     stats.bindingsResolved++
     return declFile
 }
@@ -832,16 +841,26 @@ function rewriteFile(
             visit(node)
             return
         }
-        if (ts.isCallExpression(node)) visit(node)
+        if (ts.isCallExpression(node)) {
+            visit(node)
+            return
+        }
         ts.forEachChild(node, visitRest)
     }
     visitRest(sf)
 
     if (replacements.length === 0) return null
+    const seen = new Set<string>()
+    const unique = replacements.filter((rep) => {
+        const key = `${rep.start}:${rep.end}:${rep.text}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+    })
     const text = sf.getFullText()
-    replacements.sort((a, b) => b.start - a.start)
+    unique.sort((a, b) => b.start - a.start)
     let next = text
-    for (const rep of replacements) {
+    for (const rep of unique) {
         next = next.slice(0, rep.start) + rep.text + next.slice(rep.end)
     }
     return next

@@ -10,29 +10,37 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     Locale,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     ContentAiService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/content-ai/content-ai.service"
 import {
     DeleteContentAiSessionRequest,
+} from "./graphql-types/request"
+import {
     DeleteContentAiSessionResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     DeleteContentAiSessionData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /** GraphQL entry that removes a conversation the user no longer wants in the sidebar. */

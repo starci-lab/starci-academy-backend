@@ -17,11 +17,11 @@ import {
     Interval 
 } from "@nestjs/schedule"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    EventName 
-} from "../enums"
+    EventName,
+} from "../enums/event-name"
 
 @Injectable()
 /**

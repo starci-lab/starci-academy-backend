@@ -5,19 +5,29 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    CoinSource,
-    InjectPrimaryPostgreSQLEntityManager,
-    KpiKey,
     KpiWeeklyRewardFloorEntity,
+} from "@modules/databases/postgresql/primary/entities/kpi-weekly-reward-floor.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    CoinSource,
+} from "@modules/databases/postgresql/primary/enums/coin-source"
+import {
+    KpiKey,
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     KpiRewardAlreadyClaimedException,
+} from "@modules/platform/exceptions/errors/kpi-reward/kpi-reward-already-claimed"
+import {
     KpiRewardNotEligibleException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/kpi-reward/kpi-reward-not-eligible"
 import {
     writeCoinHistory,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/write-coin-history"
 import {
     KPI_WEEK_START_SQL,
 } from "../projections/user-stats/kpi-week.util"

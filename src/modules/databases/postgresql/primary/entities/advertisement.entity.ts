@@ -9,8 +9,10 @@ import {
 } from "./abstract"
 import {
     AdvertisementMediaType,
+} from "../enums/advertisement-media-type"
+import {
     AdvertisementPlacement,
-} from "../enums"
+} from "../enums/advertisement-placement"
 
 /**
  * Inline bilingual text (no translation table -- these are small config rows).

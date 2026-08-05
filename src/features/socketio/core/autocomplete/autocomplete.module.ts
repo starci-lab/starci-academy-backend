@@ -9,7 +9,7 @@ import {
 } from "./autocomplete.gateway"
 import {
     GlobalSearchModule,
-} from "./global-search"
+} from "./global-search/global-search.module"
 
 @Module({
     imports: [

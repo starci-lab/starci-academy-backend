@@ -3,14 +3,16 @@ import {
 } from "./write-activity"
 import {
     ActivityEntity,
+} from "@modules/databases/postgresql/primary/entities/activity.entity"
+import {
     ActivityType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/activity-type"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /**
  * `writeActivity` is a plain function (no DI) -- the caller's transaction

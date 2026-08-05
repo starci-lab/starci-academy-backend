@@ -1,6 +1,6 @@
 import type {
-    BullQueueName 
-} from "../enums"
+    BullQueueName,
+} from "../enums/queue-name"
 
 /** Standardized configuration structure for a BullMQ queue (name and prefix). */
 export interface BullQueueData {

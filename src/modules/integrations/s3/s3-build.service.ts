@@ -8,13 +8,13 @@ import {
 } from "@aws-sdk/s3-request-presigner"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     S3Provider,
-} from "./enums"
+} from "./enums/s3"
 import {
     InjectDigitalOceanS3Presign,
     InjectMinioS3Presign,

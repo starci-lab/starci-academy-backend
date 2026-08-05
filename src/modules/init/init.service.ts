@@ -10,52 +10,60 @@ import {
 } from "path"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     clearRuntimeContextRoot,
     clearRuntimeSeedConfig,
     getInitConfig,
     setRuntimeContextRoot,
     setRuntimeSeedConfig,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-seed"
 import type {
     InitConfig,
     SeedConfig,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/seed"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     AssetsService,
-} from "@modules/assets"
+} from "@modules/lib/assets/assets.service"
 import {
     ContentRagIndexService,
+} from "@modules/integrations/rag/content-rag-index.service"
+import {
     CvRagIndexService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/cv-rag-index.service"
 import {
     SeedScopeService,
+} from "./scope/seed-scope.service"
+import {
     SyncScopeService,
-} from "./scope"
+} from "./scope/sync-scope.service"
 import {
     SeedersService,
-} from "./seeders"
+} from "./seeders/seeders.service"
 import {
     SynchronizersService,
-} from "./synchronizers"
+} from "./synchronizers/synchronizers.service"
 import {
     DataGitBootstrapService,
-} from "./data-git"
+} from "./data-git/data-git.service"
 import type {
     EnsureDataGitResult,
-} from "./data-git"
+} from "./data-git/types/data-git"
 import {
     SeedDiffOverlayService,
+} from "./diff/seed-config-overlay.service"
+import {
     parseDataGitDiff,
-} from "./diff"
+} from "./diff/utils/parse-changed-paths"
 import {
     InitConfigParserService,
-} from "./config"
+} from "./config/init-config-parser.service"
 
 @Injectable()
 /**

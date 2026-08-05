@@ -12,9 +12,13 @@ import {
 } from "./step-mapping.service"
 import {
     ProcessResolveGithubCompleteStepService,
+} from "./steps/process-resolve-github-complete-step.service"
+import {
     ProcessResolveGithubSendStepService,
+} from "./steps/process-resolve-github-send-step.service"
+import {
     ProcessResolveGithubUpdateUserStepService,
-} from "./steps"
+} from "./steps/process-resolve-github-update-user-step.service"
 
 @Module({
     providers: [

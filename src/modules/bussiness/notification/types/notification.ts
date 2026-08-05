@@ -5,8 +5,10 @@ import type {
     NotificationEntity,
     NotificationI18nText,
     NotificationTargetRef,
+} from "@modules/databases/postgresql/primary/entities/notification.entity"
+import type {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
 
 /** Params for {@link NotificationService.createNotification}. */
 export interface CreateNotificationParams {

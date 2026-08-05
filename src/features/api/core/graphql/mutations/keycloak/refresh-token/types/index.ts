@@ -1,6 +1,6 @@
 import type {
     KeycloakExchangeCodeForTokenResponse,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/types/tokens"
 
 /**
  * Parameters for a coalesced refresh-token exchange.

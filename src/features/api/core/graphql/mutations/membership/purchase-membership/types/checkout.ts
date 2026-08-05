@@ -1,6 +1,6 @@
 import type {
     PaymentType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 
 /** Params for resolving a provider checkout link for the membership purchase. */
 export interface ResolveCheckoutParams {

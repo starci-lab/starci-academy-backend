@@ -1,7 +1,7 @@
 // Side-effect import: fully load the elasticsearch barrel before the handler so
 // the @modules/cqrs barrel resolves ICQRSHandler ahead of AbstractSuggestionsHandler
 // (avoids a "Class extends value undefined" load-order cycle in the cqrs barrel).
-import "@modules/elasticsearch"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     Test,
     TestingModule,
@@ -14,17 +14,19 @@ import {
 } from "./course.query"
 import {
     CourseNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
 import {
     S3NameResolverService,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     CourseEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/course.entity"
 
 /** Minimal course entity stand-in -- only the id matters for assertions. */
 const fakeCourse = (

@@ -10,7 +10,7 @@ import {
 import {
     SubmitChallengeSubmissionParams,
     SubmitChallengeSubmissionResult,
-} from "./types"
+} from "./types/submit-challenge-submission"
 
 @Injectable()
 /**

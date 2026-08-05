@@ -6,17 +6,19 @@ import {
 } from "@nestjs/cqrs"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     FoundationCategoriesQuery,
 } from "./foundation-categories.query"
 import {
-    FoundationCategoriesPayload,
     FoundationCategoriesRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    FoundationCategoriesPayload,
+} from "./graphql-types/response"
 
 @Injectable()
 /**

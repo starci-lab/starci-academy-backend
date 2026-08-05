@@ -1,9 +1,9 @@
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     GenerateAvatarPresignUrlRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** Params carried by {@link GenerateAvatarPresignUrlCommand}. */
 export interface GenerateAvatarPresignUrlCommandParams {

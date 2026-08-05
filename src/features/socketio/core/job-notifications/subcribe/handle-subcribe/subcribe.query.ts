@@ -1,9 +1,9 @@
 import type {
     ExecuteParams,
-} from "@features/socketio/core/types"
+} from "../../../types/execute"
 import type {
     SubcribeJobNotificationSocketIoPayload,
-} from "./types"
+} from "./types/payload"
 
 /** Query to subscribe to job notifications. */
 export class SubcribeJobNotificationQuery {

@@ -25,7 +25,7 @@ import type {
 } from "graphql"
 import {
     AbstractException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/abstract"
 
 /**
  * Reads the `extensions.http.status` Apollo convention (set by `formatError`

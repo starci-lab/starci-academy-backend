@@ -1,9 +1,13 @@
 import {
-    ActionType,
-    JobCategory,
     JobEntity,
     JobRefs,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    JobCategory,
+} from "@modules/databases/postgresql/primary/enums/job-category"
 import type {
     EntityManager,
 } from "typeorm"

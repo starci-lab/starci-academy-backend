@@ -6,8 +6,10 @@ import {
 } from "@nestjs/websockets"
 import {
     JobNotificationsWebSocketGateway,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     socketIoKeycloakAuthMiddleware,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/middlewares/keycloak-auth"
 
 @JobNotificationsWebSocketGateway()
 /**

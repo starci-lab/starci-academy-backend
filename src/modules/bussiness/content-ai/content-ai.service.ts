@@ -14,47 +14,58 @@ import type {
 } from "@langchain/core/messages"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentAiMessageEntity,
+} from "@modules/databases/postgresql/primary/entities/content-ai-message.entity"
+import {
     ContentAiSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/content-ai-session.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     FlashcardDeckEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3NameResolverService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     ContentAiSessionTitleTooLongException,
+} from "@modules/platform/exceptions/errors/courses/content-ai-session-title-too-long"
+import {
     ContentNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/content-not-found"
+import {
     PremiumContentAiAccessDeniedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/premium-content-ai-access-denied"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 import type {
     BuildSystemPromptParams,
-    ContentAiHistoryMessage,
-    ContentAiScope,
-    ContentAiSessionSummary,
-    CreateContentAiSessionParams,
-    ContentAiSessionsParams,
-    DeleteContentAiSessionParams,
-    ListScopedContentAiSessionsParams,
-    LoadContentAiSessionMessagesParams,
     PageGroundingResult,
-    PrepareContentAiMessagesParams,
-    PrepareContentAiMessagesResult,
-    RenameContentAiSessionParams,
     ResolveBaseGroundingParams,
     ResolveChallengeGroundingParams,
     ResolveFoundationGroundingParams,
@@ -62,11 +73,28 @@ import type {
     ResolveLessonGroundingParams,
     ResolveQuizGroundingParams,
     ResolveTaskGroundingParams,
+} from "./types/grounding"
+import type {
+    PrepareContentAiMessagesParams,
+    PrepareContentAiMessagesResult,
+} from "./types/messages"
+import type {
+    CreateContentAiSessionParams,
+    ContentAiSessionsParams,
+    DeleteContentAiSessionParams,
+    ListScopedContentAiSessionsParams,
+    LoadContentAiSessionMessagesParams,
+    RenameContentAiSessionParams,
     ResolvedContentAiSessionOwner,
     SaveContentAiTurnParams,
     SetContentAiSessionArchivedParams,
     TouchContentAiSessionParams,
-} from "./types"
+} from "./types/session-crud"
+import type {
+    ContentAiHistoryMessage,
+    ContentAiScope,
+    ContentAiSessionSummary,
+} from "./types/session"
 
 /**
  * Rolling TOKEN-BUDGET window for replayed history (behaves like a general chat

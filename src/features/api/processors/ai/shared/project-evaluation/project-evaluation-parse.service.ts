@@ -1,12 +1,12 @@
 import type {
     ProjectEvaluation,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/evaluation/project-evaluation"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     parseProjectEvaluation,
-} from "./utils"
+} from "./utils/parse-project-evaluation"
 
 @Injectable()
 /**

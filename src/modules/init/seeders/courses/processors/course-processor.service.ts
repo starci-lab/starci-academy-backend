@@ -5,15 +5,25 @@ import {
 } from "@nestjs/common"
 import {
     ContentEntity,
-    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseMetadataEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/course-metadata.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     getAppConfig,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import {
     In,
 } from "typeorm"
@@ -22,10 +32,10 @@ import type {
 } from "typeorm"
 import {
     UpsertService,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 import type {
     ProcessCoursesParams,
-} from "../types"
+} from "../types/seeder-orchestration"
 import {
     ModuleProcessorService,
 } from "./module-processor.service"

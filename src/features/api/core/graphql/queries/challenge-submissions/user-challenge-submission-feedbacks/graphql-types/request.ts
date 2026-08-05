@@ -6,12 +6,14 @@ import {
 } from "@nestjs/graphql"
 import {
     PaginationPageFilters,
+} from "@modules/api/apollo/server/graphql-types/inputs/pagination-page"
+import {
     SortInput,
     SortOrder,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
     createEnumType,
-} from "@modules/common"
+} from "@modules/lib/common/utils/enum"
 
 /** Sort fields for listing submission feedbacks. */
 export enum UserChallengeSubmissionFeedbacksSortBy {

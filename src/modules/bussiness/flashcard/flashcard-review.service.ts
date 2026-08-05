@@ -7,25 +7,43 @@ import {
 } from "typeorm"
 import {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardDeckEntity,
-    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FlashcardReviewEventEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-event.entity"
+import {
     UserFlashcardReviewEntity,
+} from "@modules/databases/postgresql/primary/entities/user-flashcard-review.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-deck-resolver.service"
 import {
     FlashcardCardNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/flashcard/flashcard-card-not-found"
 import {
     FLAT_POINTS,
+} from "@features/api/processors/ai/shared/xp/points-config"
+import {
     writeXpHistory,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/write-xp-history"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 import type {
     ApplySm2Params,
     ApplySm2Result,

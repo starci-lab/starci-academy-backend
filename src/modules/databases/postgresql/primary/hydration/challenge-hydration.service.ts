@@ -5,18 +5,26 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ChallengeEntity,
     ChallengeOutputEntity,
+} from "../entities/challenge-output.entity"
+import {
     ChallengePrerequisiteEntity,
+} from "../entities/challenge-prerequisite.entity"
+import {
     ChallengeRequirementEntity,
+} from "../entities/challenge-requirement.entity"
+import {
     ChallengeStepEntity,
-} from "../entities"
+} from "../entities/challenge-step.entity"
+import {
+    ChallengeEntity,
+} from "../entities/challenge.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"
 import {
     ChallengeNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/challenge-not-found"
 
 @Injectable()
 /**

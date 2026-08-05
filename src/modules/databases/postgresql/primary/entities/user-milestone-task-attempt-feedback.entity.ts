@@ -6,10 +6,12 @@ import {
 } from "@nestjs/graphql"
 import {
     GraphQLTypeLocale,
-    GraphQLTypeMilestoneSeverity,
     Locale,
+} from "../enums/locale"
+import {
+    GraphQLTypeMilestoneSeverity,
     MilestoneSeverity,
-} from "../enums"
+} from "../enums/milestone-severity"
 import {
     Column,
     Entity,

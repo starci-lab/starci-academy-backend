@@ -5,14 +5,15 @@ import {
     Server, Socket,
 } from "socket.io"
 import {
-    JoinDto, TypingDto,
-} from "./dtos"
+    JoinDto,
+    TypingDto,
+} from "./dtos/presence"
 import {
     PresenceStoreService,
 } from "./presence-store.service"
 import type {
     JoinAck,
-} from "./types"
+} from "./types/presence"
 
 @WebSocketGateway({
     namespace: "/8-websocket-realtime-communication/2-presence-and-typing-indicators",

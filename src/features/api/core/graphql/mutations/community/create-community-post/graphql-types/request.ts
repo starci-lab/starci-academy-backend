@@ -5,7 +5,7 @@ import {
 import {
     CommunityChannel,
     GraphQLTypeCommunityChannel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/community-channel"
 
 @InputType({
     description: "Request to create a community post.",

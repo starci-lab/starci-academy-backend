@@ -1,9 +1,15 @@
 import {
     ConsultantEntity,
-    ConsultantHydrationService,
-    ConsultantResolverService,
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ConsultantHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/consultant-hydration.service"
+import {
+    ConsultantResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/consultant-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -11,9 +17,11 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
-    buildCompletionSuggest,
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
+    buildCompletionSuggest,
+} from "@modules/integrations/elasticsearch/utils/completion"
 import _ from "lodash"
 
 @Injectable()

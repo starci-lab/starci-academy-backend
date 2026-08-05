@@ -14,28 +14,38 @@ import type {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    UserFollowEntity,
+} from "@modules/databases/postgresql/primary/entities/user-follow.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    Locale,
-    UserEntity,
-    UserFollowEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     toGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
 import {
     SuggestedUserData,
     SuggestedUsersResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Default + hard-cap on how many "who to follow" suggestions to surface. */
 const DEFAULT_LIMIT = 20

@@ -24,7 +24,7 @@ import {
 import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 
 @ObjectType({
     description: "Value proposition line for a course."

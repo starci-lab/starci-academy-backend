@@ -1,11 +1,13 @@
-﻿import type {
+import type {
     BuildOutcomesParams,
-    ContentsFromDatabaseParams,
     IsContentV2Params,
     ParseContentBodiesParams,
     ParseContentManyParams,
     ParseContentParams,
-} from "./types"
+} from "./types/content"
+import type {
+    ContentsFromDatabaseParams,
+} from "./types/from-database"
 import {
     ContentLegacyParserService,
 } from "./content-legacy.service"
@@ -14,45 +16,77 @@ import {
 } from "@nestjs/common"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ContentBodyIdFactoryService,
-    ContentIdFactoryService,
+} from "../id-factories/content-body.service"
+import {
     ContentLearningOutcomeIdFactoryService,
+} from "../id-factories/content-learning-outcome.service"
+import {
+    ContentIdFactoryService,
+} from "../id-factories/content.service"
+import {
     ModuleIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/module.service"
 import {
     DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
-    ContentBodyEntity,
     ContentBodyTranslationEntity,
-    ContentDifficulty,
-    ContentEntity,
-    ContentLearningOutcomeEntity,
+} from "@modules/databases/postgresql/primary/entities/content-body-translation.entity"
+import {
+    ContentBodyEntity,
+} from "@modules/databases/postgresql/primary/entities/content-body.entity"
+import {
     ContentLearningOutcomeTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/content-learning-outcome-translation.entity"
+import {
+    ContentLearningOutcomeEntity,
+} from "@modules/databases/postgresql/primary/entities/content-learning-outcome.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    ContentDifficulty,
+} from "@modules/databases/postgresql/primary/enums/content-difficulty"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
 import {
     ExtractJsonFromMdService,
-    CoerceMdScalarService,
-    MergeJsonService,
-    ResolvedFileResult,
-    ContextLoaderService,
-    PathResolverService,
-    MergeJsonResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
+import {
+    PathResolverService,
+} from "../../shared/path/resolver.service"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     ContentPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/content-path-not-found"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ContentPathService,
-} from "../path"
+} from "../path/content.service"
 
 @Injectable()
 /**

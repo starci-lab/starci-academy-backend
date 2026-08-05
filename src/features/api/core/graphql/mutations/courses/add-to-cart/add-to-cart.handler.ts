@@ -1,17 +1,27 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    CartItemEntity,
+} from "@modules/databases/postgresql/primary/entities/cart-item.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    CartItemEntity,
-    CourseEntity,
-    EnrollmentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    CourseAlreadyEnrolledError,
+} from "@modules/platform/exceptions/errors/courses/course-already-enrolled"
 import {
     CourseNotFoundException,
-    CourseAlreadyEnrolledError,
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"

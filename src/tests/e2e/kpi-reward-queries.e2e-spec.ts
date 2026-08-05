@@ -18,22 +18,34 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
 import {
     KpiKey,
-    PrimaryPostgreSQLModule,
-    UserEntity,
-    XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     KpiRewardService,
+} from "@modules/bussiness/kpi-reward/kpi-reward.service"
+import {
     UserStatsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
 import {
     MyKpisResolver,
 } from "@features/api/core/graphql/queries/dashboard/my-kpis/my-kpis.resolver"
@@ -42,7 +54,7 @@ import {
 } from "@features/api/core/graphql/mutations/profile/claim-kpi-reward/claim-kpi-reward.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

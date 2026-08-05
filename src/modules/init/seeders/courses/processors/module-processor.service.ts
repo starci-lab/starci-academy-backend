@@ -8,30 +8,34 @@ import {
 } from "typeorm"
 import {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import {
     ModuleParserService,
-} from "../parsers"
+} from "../parsers/module.service"
 import {
     ModulePathService,
-} from "../path"
+} from "../path/module.service"
+import {
+    logInitSeederEntitySkipped,
+} from "../../shared/log-init-seeder-entity-skipped"
 import {
     ResolvedFileResult,
-    logInitSeederEntitySkipped,
+} from "../../shared/path/types"
+import {
     UpsertService,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 import type {
     PartitionUuidSyncResult,
-} from "../../shared/upsert/types"
+} from "../../shared/upsert/types/partition-uuid-sync"
 import {
     shouldIncludeCourseModule,
-} from "../../../utils"
+} from "../../../utils/course-module-filter"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     ProcessModulesParams,
-} from "../types"
+} from "../types/seeder-orchestration"
 import {
     ContentProcessorService,
 } from "./content-processor.service"

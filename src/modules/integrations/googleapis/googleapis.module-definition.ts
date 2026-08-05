@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import type {
     GoogleApisModuleOptions,
-} from "./types"
+} from "./types/googleapis"
 
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
     new ConfigurableModuleBuilder<GoogleApisModuleOptions>()

@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,28 +6,28 @@ import {
 } from "./system.module-definition"
 import {
     SystemConfigSingleQueryModule,
-} from "./system-config"
+} from "./system-config/system-config.module"
 import {
     AiModelsSingleQueryModule,
-} from "./ai-models"
+} from "./ai-models/ai-models.module"
 import {
     AiBalancerHealthSingleQueryModule,
-} from "./ai-balancer-health"
+} from "./ai-balancer-health/ai-balancer-health.module"
 import {
     AiKeyHealthSingleQueryModule,
-} from "./ai-key-health"
+} from "./ai-key-health/ai-key-health.module"
 import {
     PlatformStatsSingleQueryModule,
-} from "./platform-stats"
+} from "./platform-stats/platform-stats.module"
 import {
     MyGithubTeamStatusSingleQueryModule,
-} from "./my-github-team-status"
+} from "./my-github-team-status/my-github-team-status.module"
 import {
     SystemHealthStatusSingleQueryModule,
-} from "./system-health-status"
+} from "./system-health-status/system-health-status.module"
 import {
     AiModelLatencySingleQueryModule,
-} from "./ai-model-latency"
+} from "./ai-model-latency/ai-model-latency.module"
 
 @Module({
     imports: [

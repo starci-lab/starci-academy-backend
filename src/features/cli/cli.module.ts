@@ -6,8 +6,8 @@ import {
     ConfigurableModuleClass,
 } from "./cli.module-definition"
 import {
-    UtilsModule 
-} from "./utils" 
+    UtilsModule,
+} from "./utils/utils.module" 
 
 @Module({
     imports: [

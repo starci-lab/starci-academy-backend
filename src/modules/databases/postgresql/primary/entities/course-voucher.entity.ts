@@ -13,10 +13,12 @@ import {
 } from "@nestjs/graphql"
 import {
     GraphQLTypeVoucherDiscountType,
-    GraphQLTypeVoucherStatus,
     VoucherDiscountType,
+} from "../enums/voucher-discount-type"
+import {
+    GraphQLTypeVoucherStatus,
     VoucherStatus,
-} from "../enums"
+} from "../enums/voucher-status"
 import {
     UuidAbstractEntity,
 } from "./abstract"

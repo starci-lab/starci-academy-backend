@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     PayNextInstallmentSingleMutationModule,
-} from "./pay-next-installment"
+} from "./pay-next-installment/pay-next-installment.module"
 import {
     ConfigurableModuleClass,
 } from "./installment-plans.module-definition"

@@ -8,10 +8,10 @@ import {
 import {
     getAppConfig,
     getPayosApiKey,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import {
     PAYOS,
-} from "./constants"
+} from "./constants/payos"
 
 /** Inject the shared PayOS SDK client (token {@link PAYOS}). */
 export const InjectPayOS = () => Inject(

@@ -1,13 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
+import {
+    MOCK_INTERVIEW_SESSION_DURATION_MS,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
 import {
     Locale,
-    MOCK_INTERVIEW_SESSION_DURATION_MS,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,7 +25,7 @@ import {
 } from "./start-mock-interview-session.command"
 import {
     StartMockInterviewSessionData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(StartMockInterviewSessionCommand)
 @Injectable()

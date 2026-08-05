@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     HeadhuntingCompanyEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     HeadhunterCompanyQuery,
 } from "./headhunting-company.query"
 import {
     HeadhuntingCompanyRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

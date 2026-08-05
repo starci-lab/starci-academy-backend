@@ -1,6 +1,6 @@
 import {
     SocketIoPayload,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/ws-payload"
 
 /**
  * Client -> server payload to subscribe to the caller's own notification stream.

@@ -3,44 +3,66 @@ import {
 } from "@nestjs/common"
 import {
     CourseContentTier,
+} from "@modules/databases/postgresql/primary/enums/course-content-tier"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
 import {
     ExtractJsonFromMdService,
-    MergeJsonService,
-    MergeJsonResult,
-    ResolvedFileResult,
-    ContextLoaderService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     CourseIdFactoryService,
+} from "../id-factories/course.service"
+import {
     ModuleIdFactoryService,
+} from "../id-factories/module.service"
+import {
     PreviewContentIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/preview-content.service"
 import type {
     ModulesFromDatabaseParams,
+} from "./types/from-database"
+import type {
     ParseModuleManyParams,
     ParseModuleParams,
-} from "./types"
+} from "./types/module"
 import {
     DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
     PreviewContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/preview-content.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ModulePathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/module-path-not-found"
 import {
     ModulePathService,
-} from "../path"
+} from "../path/module.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 @Injectable()
 /**
  * Parses module readme from `en.md` / `vi.md` with camelCase `#` headings and indexed lists.

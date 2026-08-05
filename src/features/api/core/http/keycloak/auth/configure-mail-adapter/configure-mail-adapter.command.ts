@@ -1,6 +1,6 @@
 import {
     KeycloakConfigureMailAdapterRequest,
-} from "../dtos"
+} from "../dtos/configure-mail-adapter.request"
 
 /**
  * CQRS envelope for swapping Keycloak's SMTP adapter so the REST leaf never imports the

@@ -1,25 +1,27 @@
 import {
     JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
     JobStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/job-status"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     Injectable,
 } from "@nestjs/common"
 import type {
     RequeueJobParams,
-} from "../types"
+} from "../types/job"
 import {
-    InjectPrimaryPostgreSQLEntityManager
-} from "@modules/databases"
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     EntityManager,
 } from "typeorm"
 import {
     JobNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job/not-found"
 
 @Injectable()
 /**

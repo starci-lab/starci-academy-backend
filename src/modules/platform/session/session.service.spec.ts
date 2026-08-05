@@ -7,24 +7,28 @@ import {
 } from "@nestjs/typeorm"
 import {
     createIoRedisKey,
+} from "@modules/lib/native/ioredis/constants"
+import {
     IoRedisInstanceKey,
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/enums/instance-key"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     LoginSessionNotFoundException,
+} from "@modules/platform/exceptions/errors/session/session-not-found"
+import {
     SessionSupersededException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/session/session-superseded"
 import {
     SessionService,
 } from "./session.service"
 import {
     parseUserAgent,
-} from "./utils"
+} from "./utils/parse-device-info"
 import type {
     Redis,
 } from "ioredis"

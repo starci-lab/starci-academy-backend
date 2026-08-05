@@ -1,9 +1,15 @@
 import {
     HeadhuntingCompanyEntity,
-    HeadhuntingCompanyHydrationService,
-    HeadhuntingCompanyResolverService,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    HeadhuntingCompanyHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/headhunting-company-hydration.service"
+import {
+    HeadhuntingCompanyResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/headhunting-company-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -11,9 +17,11 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
-    buildCompletionSuggest,
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
+    buildCompletionSuggest,
+} from "@modules/integrations/elasticsearch/utils/completion"
 import _ from "lodash"
 
 @Injectable()

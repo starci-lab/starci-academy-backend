@@ -1,7 +1,9 @@
 import type {
-    ReactionType,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import type {
+    ReactionType,
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
 
 /** A single emotion bucket with its count. */
 export interface ReactionCountResult {

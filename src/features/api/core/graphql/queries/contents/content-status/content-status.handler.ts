@@ -1,10 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserContentEntity,
+} from "@modules/databases/postgresql/primary/entities/user-content.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -20,7 +22,7 @@ import {
 } from "./content-status.query"
 import type {
     ContentStatusData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @QueryHandler(ContentStatusQuery)
 @Injectable()

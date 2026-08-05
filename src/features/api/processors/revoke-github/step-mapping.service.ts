@@ -3,16 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     EnqueueRevokeGithubPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/revoke-github"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
 import {
     ProcessRevokeGithubRemoveStepService,
-} from "./steps"
+} from "./steps/process-revoke-github-remove-step.service"
 
 @Injectable()
 /**

@@ -10,23 +10,31 @@ import {
 } from "./installment-plan.service"
 import {
     InstallmentPlanEntity,
-    InstallmentPlanStatus,
-    InstallmentPlanType,
+} from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
+import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
+    InstallmentPlanStatus,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-status"
+import {
+    InstallmentPlanType,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-type"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     InstallmentPlanNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/payment/installment-plan-not-found"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

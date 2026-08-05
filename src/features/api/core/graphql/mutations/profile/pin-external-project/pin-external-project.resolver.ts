@@ -13,29 +13,43 @@ import type {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    UserPinnedProjectEntity,
+} from "@modules/databases/postgresql/primary/entities/user-pinned-project.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ProjectPinType,
+} from "@modules/databases/postgresql/primary/enums/project-pin-type"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    Locale,
-    ProjectPinType,
-    UserEntity,
-    UserPinnedProjectEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     PinnedProjectLimitReachedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/profile/pinned-project"
 import {
     PinExternalProjectRequest,
+} from "./graphql-types/request"
+import {
     PinExternalProjectResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     MAX_PINNED_PROJECTS,
 } from "./constants"

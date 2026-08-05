@@ -12,7 +12,7 @@ import {
     MockInvalidUploadRequestException,
     MockResourceNotFoundException,
     MockUploadOffsetConflictException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mock/file-upload"
 import type {
     StoredObject,
     ChunkSession,

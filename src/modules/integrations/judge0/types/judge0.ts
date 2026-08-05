@@ -1,6 +1,6 @@
 import type {
     Judge0StatusId,
-} from "../enums"
+} from "../enums/judge0-status"
 
 /**
  * A single program-run request for Judge0: the user's source, the language,

@@ -2,12 +2,14 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ElasticsearchService,
     codingProblemHintIndexName,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/constants/elasticsearch"
+import {
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ParsedCodingProblem,
 } from "../types"

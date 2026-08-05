@@ -18,40 +18,88 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    ChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
+    ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    UserChallengeSubmissionAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission-attempt.entity"
+import {
+    UserChallengeSubmissionFeedbackEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission-feedback.entity"
+import {
+    UserChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    UserMilestoneTaskAttemptFeedbackEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt-feedback.entity"
+import {
+    UserMilestoneTaskAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
+import {
+    UserMilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ChallengeDifficulty,
-    ChallengeEntity,
-    ChallengeSubmissionEntity,
-    ContentEntity,
-    CourseEntity,
-    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
     Locale,
-    MilestoneEntity,
-    MilestoneTaskEntity,
-    ModuleEntity,
-    PricingPhase,
-    PrimaryPostgreSQLModule,
-    SubmissionType,
-    SubmissionFeedbackSeverity,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     MilestoneSeverity,
-    UserChallengeSubmissionAttemptEntity,
-    UserChallengeSubmissionEntity,
-    UserChallengeSubmissionFeedbackEntity,
-    UserEntity,
-    UserMilestoneTaskAttemptEntity,
-    UserMilestoneTaskAttemptFeedbackEntity,
-    UserMilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/milestone-severity"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    SubmissionFeedbackSeverity,
+} from "@modules/databases/postgresql/primary/enums/submission-feedback-severity"
+import {
+    SubmissionType,
+} from "@modules/databases/postgresql/primary/enums/submission-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     ChallengeSubmissionsCmsService,
+} from "@modules/bussiness/learner-cms/challenge-submissions-cms.service"
+import {
     LearningFeedbacksCmsService,
+} from "@modules/bussiness/learner-cms/learning-feedbacks-cms.service"
+import {
     MilestoneTaskAttemptsCmsService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/learner-cms/milestone-task-attempts-cms.service"
 import {
     MyChallengeSubmissionsResolver,
 } from "@features/api/core/graphql/queries/learner-cms/my-challenge-submissions/my-challenge-submissions.resolver"
@@ -63,7 +111,7 @@ import {
 } from "@features/api/core/graphql/queries/learner-cms/my-learning-feedbacks/my-learning-feedbacks.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

@@ -6,40 +6,52 @@ import {
 } from "./tools.module-definition"
 import {
     ToolsStoreService,
-} from "./store"
+} from "./store/tools-store.service"
 import {
     SyncService,
-} from "./sync"
+} from "./sync/sync.service"
 import {
     TargetsController,
-} from "./targets"
+} from "./targets/targets.controller"
 import {
     ArtifactsController,
-} from "./artifacts"
+} from "./artifacts/artifacts.controller"
 import {
     UploadController,
+} from "./upload/upload.controller"
+import {
     UploadService,
-} from "./upload"
+} from "./upload/upload.service"
 import {
     MediaController,
+} from "./media/media.controller"
+import {
     MediaService,
-} from "./media"
+} from "./media/media.service"
 import {
     DashController,
+} from "./dash/dash.controller"
+import {
     DashService,
-} from "./dash"
+} from "./dash/dash.service"
 import {
     PgSnapshotController,
+} from "./pg-snapshot/pg-snapshot.controller"
+import {
     PgSnapshotService,
-} from "./pg-snapshot"
+} from "./pg-snapshot/pg-snapshot.service"
 import {
     PgBackupController,
+} from "./pg-backup/pg-backup.controller"
+import {
     PgBackupService,
-} from "./pg-backup"
+} from "./pg-backup/pg-backup.service"
 import {
     S3SnapshotController,
+} from "./s3-snapshot/s3-snapshot.controller"
+import {
     S3SnapshotService,
-} from "./s3-snapshot"
+} from "./s3-snapshot/s3-snapshot.service"
 
 @Module({
     controllers: [

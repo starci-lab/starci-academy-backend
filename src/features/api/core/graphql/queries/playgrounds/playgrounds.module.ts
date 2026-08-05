@@ -6,10 +6,10 @@ import {
 } from "./playgrounds.module-definition"
 import {
     PlaygroundsSingleQueryModule,
-} from "./playgrounds"
+} from "./playgrounds/playgrounds.module"
 import {
     PlaygroundSingleQueryModule,
-} from "./playground"
+} from "./playground/playground.module"
 
 @Module({
     imports: [

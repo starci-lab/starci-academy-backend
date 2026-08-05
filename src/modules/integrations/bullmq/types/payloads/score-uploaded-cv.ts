@@ -3,7 +3,7 @@ import type {
 } from "@modules/ai/types/ai-job-selection"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * BullMQ job body for the UPLOAD-scoring pipeline (WF-07): grade a user-UPLOADED

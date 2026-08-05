@@ -5,14 +5,18 @@ import {
     Server, Socket,
 } from "socket.io"
 import {
-    ChatDto, JoinDto, ReplaySinceDto,
-} from "./dtos"
+    ChatDto,
+    JoinDto,
+    ReplaySinceDto,
+} from "./dtos/reconnection"
 import {
     ReconnectionStoreService,
 } from "./reconnection-store.service"
 import type {
-    ChatAck, JoinAck, ReplayAck,
-} from "./types"
+    ChatAck,
+    JoinAck,
+    ReplayAck,
+} from "./types/chat"
 
 @WebSocketGateway({
     namespace: "/8-websocket-realtime-communication/3-reconnection-and-missed-messages",

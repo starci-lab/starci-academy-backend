@@ -5,8 +5,8 @@ import {
     ConfigurableModuleClass, 
 } from "./processors.module-definition"
 import {
-    VideoEncoderProcessorsModule 
-} from "./video-encoder"
+    VideoEncoderProcessorsModule,
+} from "./video-encoder/video-encoder.module"
 
 @Module({
     imports: [

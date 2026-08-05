@@ -7,27 +7,31 @@ import {
 } from "@nestjs/typeorm"
 import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
     EnqueueReconcileTransactionJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import {
@@ -39,9 +43,9 @@ dayjs.extend(utc)
 // `envConfig()` is a plain factory fn read at boot; partially mock the env
 // module so each test can dial delayMs/maxAttempts freely while the REAL
 // config (read at import time by sibling modules) still works.
-jest.mock("@modules/env",
+jest.mock("@modules/platform/env/config",
     () => {
-        const actual = jest.requireActual<typeof import("@modules/env")>("@modules/env")
+        const actual = jest.requireActual<typeof import("@modules/platform/env/config")>("@modules/platform/env/config")
         return {
             ...actual,
             envConfig: jest.fn(actual.envConfig),

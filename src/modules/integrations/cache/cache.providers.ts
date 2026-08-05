@@ -13,24 +13,30 @@ import {
 } from "cacheable"
 import {
     createRedisKey,
+} from "@modules/lib/native/redis/constants"
+import {
     RedisInstanceKey,
-    RedisClient
-} from "@modules/native"
+} from "@modules/lib/native/redis/enums/instance-key"
+import {
+    RedisClient,
+} from "@modules/lib/native/redis/types/client"
 import assert from "assert"
 import {
     WinstonLog,
-    WinstonService
-} from "@modules/winston"
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     v4
 } from "uuid"
 import {
     MEMORY_CACHE_MANAGER,
     REDIS_CACHE_MANAGER,
-} from "./constants"
+} from "./constants/keys"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 
 /**
  * Shared Redis `cache-manager` store (`ttl: 0` at the store -- per-key TTL comes

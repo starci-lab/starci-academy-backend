@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     FoundationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     FoundationQuery,
 } from "./foundation.query"
 import {
     FoundationRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /** Dispatches `FoundationQuery` onto the CQRS bus. */

@@ -5,21 +5,29 @@ import {
     EntityManager 
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     CacheKey,
-    CacheService 
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import {
-    UserNotFoundException
-} from "@modules/exceptions"
+    UserNotFoundException,
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     EnrolledCourseIdRow,
-} from "./types"
+} from "./types/user"
 
 @Injectable()
 /**

@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CreatePlaygroundSessionRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS envelope for starting a playground run -- pairing-code mint and

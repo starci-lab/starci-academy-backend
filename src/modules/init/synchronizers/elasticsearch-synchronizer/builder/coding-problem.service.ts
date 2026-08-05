@@ -1,9 +1,15 @@
 import {
-    CodingProblemEntity,
     CodingProblemTranslationEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-translation.entity"
+import {
+    CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -14,9 +20,11 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
-    buildCompletionSuggest,
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
+    buildCompletionSuggest,
+} from "@modules/integrations/elasticsearch/utils/completion"
 
 @Injectable()
 /**

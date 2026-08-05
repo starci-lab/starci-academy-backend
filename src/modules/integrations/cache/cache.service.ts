@@ -10,21 +10,25 @@ import {
 } from "./cache.decorators"
 import {
     CacheKey,
-    CacheType
-} from "./enums"
+} from "./enums/cache-key"
+import {
+    CacheType,
+} from "./enums/cache-type"
 import {
     DelParams,
     GetParams,
-    SetParams
-} from "./types"
+    SetParams,
+} from "./types/cache"
 import {
-    InjectSuperJson
-} from "@modules/mixin"
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import type SuperJSON from "superjson"
 import {
     WinstonLog,
-    WinstonService
-} from "@modules/winston"
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     configMap
 } from "./constants/config"

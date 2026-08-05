@@ -1,7 +1,9 @@
 import type {
     FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** Dual-locale markdown maps passed from {@link FoundationParserService}. */
 export interface ParseFoundationTagsParams {

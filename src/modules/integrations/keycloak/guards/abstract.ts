@@ -3,30 +3,38 @@ import {
     ExecutionContext,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     KeycloakAuthHeaderInvalidFormatException,
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-auth-header-invalid-format"
+import {
     KeycloakAuthHeaderMissingException,
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-auth-header-missing"
+import {
     KeycloakTokenInactiveException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-token-inactive"
 import {
     KeycloakJwksService,
 } from "../jwks.service"
 import {
     deriveUsername,
-} from "../utils"
+} from "../utils/derive-username"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
+} from "@modules/platform/cookie/cookie.service"
+import {
     CookieName,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/enums"
 import type {
     KeycloakAuthGuardRequest,
-} from "../types"
+} from "../types/guard"
 import type {
     EntityManager,
 } from "typeorm"

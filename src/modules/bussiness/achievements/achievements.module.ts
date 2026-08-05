@@ -11,9 +11,11 @@ import {
     AchievementProjectionListener,
 } from "./achievements.projection.listener"
 import {
+    AbstractBadge,
+} from "./badges/abstract-badge"
+import {
     ACHIEVEMENT_BADGES,
     ACHIEVEMENT_BADGE_PROVIDERS,
-    AbstractBadge,
 } from "./badges"
 
 @Module({

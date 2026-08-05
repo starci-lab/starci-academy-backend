@@ -12,21 +12,31 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    Locale,
-    UserEntity,
-    XpHistoryEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     EntityManager,
     FindOptionsWhere,
@@ -34,7 +44,7 @@ import type {
 import {
     MyXpHistoryResponse,
     MyXpHistoryResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Hard ceiling on page size to keep the query cheap. */
 const MAX_LIMIT = 200

@@ -3,16 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     MulterMockModule,
-} from "./0-multer-single-file-upload"
+} from "./0-multer-single-file-upload/multer.module"
 import {
     PresignMockModule,
-} from "./1-s3-minio-presigned-urls"
+} from "./1-s3-minio-presigned-urls/presign.module"
 import {
     ChunkedMockModule,
-} from "./2-chunked-upload-with-progress"
+} from "./2-chunked-upload-with-progress/chunked.module"
 import {
     TusMockModule,
-} from "./3-resumable-upload-tus-protocol"
+} from "./3-resumable-upload-tus-protocol/tus.module"
 
 @Module({
     imports: [

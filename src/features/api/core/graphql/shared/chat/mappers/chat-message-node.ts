@@ -1,12 +1,12 @@
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     ChatMessageEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/chat-message.entity"
 import type {
     ChatMessageNodeObject,
-} from "../object-types"
+} from "../object-types/chat-message-node.object"
 
 /** Params to map a chat message entity into a client-facing node. */
 export interface MapChatMessageNodeParams {

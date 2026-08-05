@@ -1,6 +1,6 @@
 import {
-    S3Provider 
-} from "../enums"
+    S3Provider,
+} from "../enums/s3"
 
 /** Params for building a public URL. */
 export interface BuildPublicUrlParams {

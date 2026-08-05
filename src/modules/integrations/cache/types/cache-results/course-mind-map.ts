@@ -1,6 +1,6 @@
 import type {
     MindMapNodeEntityType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mind-map-node-entity-type"
 
 /** `@xyflow/react` node coordinate cached for a course mind-map node. */
 export interface CourseMindMapCacheNodePosition {

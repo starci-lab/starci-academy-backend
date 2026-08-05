@@ -14,9 +14,11 @@ import {
 import {
     CodingLanguage,
     GraphQLTypeCodingLanguage,
+} from "../enums/coding-language"
+import {
     CodingVerdict,
     GraphQLTypeCodingVerdict,
-} from "../enums"
+} from "../enums/coding-verdict"
 import {
     UuidAbstractEntity,
 } from "./abstract"

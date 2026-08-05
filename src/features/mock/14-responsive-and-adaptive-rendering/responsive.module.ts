@@ -3,13 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     ResponsiveLayoutMockModule,
-} from "./0-responsive-layout-without-media-query-soup"
+} from "./0-responsive-layout-without-media-query-soup/responsive-layout.module"
 import {
     ResponsiveImagesMockModule,
-} from "./1-responsive-images-with-srcset-and-picture"
+} from "./1-responsive-images-with-srcset-and-picture/responsive-images.module"
 import {
     LqipImageMockModule,
-} from "./2-zero-cls-image-loading-with-lqip"
+} from "./2-zero-cls-image-loading-with-lqip/lqip-image.module"
 
 @Module({
     imports: [

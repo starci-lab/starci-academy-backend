@@ -2,8 +2,8 @@ import type {
     RedisOptions
 } from "ioredis"
 import type {
-    IoRedisInstanceKey
-} from "../enums"
+    IoRedisInstanceKey,
+} from "../enums/instance-key"
 
 /** Options for IoRedis module (instance keys). */
 export interface IoRedisOptions {

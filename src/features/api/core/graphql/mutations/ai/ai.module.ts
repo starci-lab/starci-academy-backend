@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     PurchaseAiSubscriptionSingleMutationModule,
-} from "./purchase-ai-subscription"
+} from "./purchase-ai-subscription/purchase-ai-subscription.module"
 import {
     SetAiCeilSingleMutationModule,
-} from "./set-ai-ceil"
+} from "./set-ai-ceil/set-ai-ceil.module"
 import {
     ConfigurableModuleClass,
 } from "./ai.module-definition"

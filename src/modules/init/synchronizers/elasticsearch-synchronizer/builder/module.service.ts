@@ -1,9 +1,15 @@
 import {
-    Locale,
     ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     ModuleHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/module-hydration.service"
+import {
     ModuleResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/module-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +18,10 @@ import type {
 } from "./types"
 import {
     ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
     buildCompletionSuggest,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/completion"
 import _ from "lodash"
 
 @Injectable()

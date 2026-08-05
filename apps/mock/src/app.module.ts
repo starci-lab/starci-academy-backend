@@ -2,11 +2,11 @@ import {
     Module
 } from "@nestjs/common"
 import {
-    EnvModule
-} from "@modules/env"
+    EnvModule,
+} from "@modules/platform/env/env.module"
 import {
-    MockModule
-} from "@features/mock"
+    MockModule,
+} from "@features/mock/mock.module"
 
 @Module({
     imports: [

@@ -2,17 +2,21 @@ import {
     Injectable
 } from "@nestjs/common"
 import {
+    envConfig,
+} from "@modules/platform/env/config"
+import {
     ContextType,
-    envConfig
-} from "@modules/env"
+} from "@modules/platform/env/enums/context"
 import {
     getRuntimeContextRoot,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-seed"
 import fs from "fs/promises"
 import {
     S3Provider,
-    S3ReadService
-} from "@modules/s3"
+} from "@modules/integrations/s3/enums/s3"
+import {
+    S3ReadService,
+} from "@modules/integrations/s3/s3-read.service"
 import type {
     ResolvedFilePath,
 } from "./types"

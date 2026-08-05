@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -11,9 +11,11 @@ import {
     GenerateCvCommand,
 } from "./generate-cv.command"
 import {
-    GenerateCvData,
     GenerateCvRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    GenerateCvData,
+} from "./graphql-types/response"
 
 @Injectable()
 /** CommandBus hop so the resolver does not import the job-enqueue service. */

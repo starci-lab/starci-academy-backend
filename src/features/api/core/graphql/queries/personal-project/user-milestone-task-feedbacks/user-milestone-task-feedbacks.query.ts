@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     UserMilestoneTaskFeedbacksRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS message carrying userMilestoneTaskFeedbacks ExecuteParams into the handler.

@@ -1,10 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -17,13 +19,13 @@ import {
 } from "typeorm"
 import {
     clampPagination,
-} from "@modules/common"
+} from "@modules/lib/common/utils/pagination"
 import {
     MyCvGenerationsQuery,
 } from "./my-cv-generations.query"
 import {
     CvGenerationListItem,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @QueryHandler(MyCvGenerationsQuery)
 @Injectable()

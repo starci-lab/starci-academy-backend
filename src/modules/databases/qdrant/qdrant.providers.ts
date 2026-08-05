@@ -6,10 +6,10 @@ import {
 } from "@qdrant/qdrant-js"
 import {
     QDRANT_CLIENT,
-} from "./constants"
+} from "./constants/client"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 
 /**
  * Creates provider for shared Qdrant REST client.

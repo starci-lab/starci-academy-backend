@@ -4,11 +4,13 @@ import {
 } from "@nestjs/graphql"
 import {
     UserMilestoneTaskAttemptEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 
 @ObjectType({
     description: "Latest personal task review attempt for a user (or null if none).",

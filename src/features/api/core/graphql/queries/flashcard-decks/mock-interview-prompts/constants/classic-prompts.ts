@@ -1,10 +1,12 @@
 import {
     ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     MockInterviewClassicPrompt,
-} from "../types"
+} from "../types/mock-interview-prompts"
 
 /**
  * Curated "classic" system-design interview prompts (Pha 3) -- supplement the

@@ -7,10 +7,10 @@ import {
 } from "@nestjs/graphql"
 import {
     createEnumType,
-} from "@modules/common"
+} from "@modules/lib/common/utils/enum"
 import {
     CourseQuestionFilter,
-} from "@modules/bussiness"
+} from "@modules/bussiness/discussion/types/comment"
 
 /** GraphQL type for the course-question answer-status filter. */
 const GraphQLTypeCourseQuestionFilter = createEnumType(CourseQuestionFilter)

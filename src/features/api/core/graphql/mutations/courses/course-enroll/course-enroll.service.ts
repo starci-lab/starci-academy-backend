@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CourseEnrollCommand,
 } from "./course-enroll.command"
 import type {
     CourseEnrollRequest,
+} from "./graphql-types/request"
+import type {
     CourseEnrollResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** CommandBus hop so the resolver does not import gateway services. */

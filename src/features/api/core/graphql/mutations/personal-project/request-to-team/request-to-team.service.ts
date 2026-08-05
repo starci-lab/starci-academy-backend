@@ -3,14 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     RequestToTeamHandler,
 } from "./request-to-team.handler"
 import type {
     RequestToTeamRequest,
+} from "./graphql-types/request"
+import type {
     RequestToTeamData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

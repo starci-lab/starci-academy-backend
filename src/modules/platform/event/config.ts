@@ -1,22 +1,38 @@
 import {
     EventName,
-} from "./enums"
+} from "./enums/event-name"
 import {
-    JobStatusUpdatedEventPayload,
-    MilestoneTaskProgressUpdatedEventPayload,
-    PingEventPayload,
     AiModelHealthUpdatedEventPayload,
+} from "./types/event-payload/ai-model-health-updated"
+import {
     ChallengeSubmissionProgressUpdatedEventPayload,
-    CommentChangedEventPayload,
-    ContentReactionChangedEventPayload,
-    CommentReactionChangedEventPayload,
-    NotificationCreatedEventPayload,
+} from "./types/event-payload/challenge-submission-progress-updated"
+import {
+    ChatMessageChangedEventPayload,
+} from "./types/event-payload/chat"
+import {
     CommunityPostChangedEventPayload,
     CommunityCommentChangedEventPayload,
     CommunityPostReactionChangedEventPayload,
     CommunityCommentReactionChangedEventPayload,
-    ChatMessageChangedEventPayload,
-} from "./types"
+} from "./types/event-payload/community"
+import {
+    CommentChangedEventPayload,
+    ContentReactionChangedEventPayload,
+    CommentReactionChangedEventPayload,
+} from "./types/event-payload/content-discussion"
+import {
+    JobStatusUpdatedEventPayload,
+} from "./types/event-payload/job-status-updated"
+import {
+    MilestoneTaskProgressUpdatedEventPayload,
+} from "./types/event-payload/milestone-task-progress-updated"
+import {
+    NotificationCreatedEventPayload,
+} from "./types/event-payload/notification"
+import {
+    PingEventPayload,
+} from "./types/event-payload/ping"
 
 /** Map of event names to NATS/local usage and payload type. */
 export const configMap = {

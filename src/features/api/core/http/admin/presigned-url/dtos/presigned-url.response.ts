@@ -3,7 +3,7 @@ import {
 } from "@nestjs/swagger"
 import {
     S3Provider,
-} from "@modules/s3"
+} from "@modules/integrations/s3/enums/s3"
 
 /**
  * Single presigned URL item in the response.

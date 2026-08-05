@@ -1,9 +1,9 @@
 import type {
     SignUpResendOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 
 /** CQRS envelope for rotating a sign-up OTP without recreating the Keycloak user. */
 export class SignUpResendOtpCommand {

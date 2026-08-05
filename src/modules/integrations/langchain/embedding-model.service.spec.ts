@@ -4,14 +4,16 @@ import {
 } from "@nestjs/testing"
 import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     UseApiService,
 } from "@modules/ai/balancer/use-api.service"
 import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     EmbeddingModelService,
 } from "./embedding-model.service"

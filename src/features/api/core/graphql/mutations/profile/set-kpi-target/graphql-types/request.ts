@@ -9,7 +9,7 @@ import {
 import {
     GraphQLTypeKpiKey,
     KpiKey,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
 
 @InputType({
     description: "Request to set one weekly KPI target for the current user.",

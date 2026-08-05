@@ -1,9 +1,9 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     KeycloakJwtPayload,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/types/jwt-jwks"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -22,7 +22,7 @@ import {
 } from "./refresh-token-coalescer.service"
 import type {
     RefreshTokenCommandResult,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(RefreshTokenCommand)
 @Injectable()

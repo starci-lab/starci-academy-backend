@@ -24,11 +24,15 @@ import {
 import {
     AuthenticationType,
     GraphQLTypeAuthenticationType,
-    WorkMode,
-    GraphQLTypeWorkMode,
+} from "../enums/authentication-type"
+import {
     BackgroundEffect,
     GraphQLTypeBackgroundEffect,
-} from "../enums"
+} from "../enums/background-effect"
+import {
+    WorkMode,
+    GraphQLTypeWorkMode,
+} from "../enums/work-mode"
 
 @ObjectType({
     description: "Application user entity mapped from Keycloak identity."

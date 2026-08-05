@@ -13,24 +13,32 @@ import type {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    UserFollowEntity,
+} from "@modules/databases/postgresql/primary/entities/user-follow.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    Locale,
-    UserEntity,
-    UserFollowEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     toGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
 import {
     FollowerUserData,
     UserFollowersResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Default + hard-cap on how many followers to surface in the avatar group. */
 const DEFAULT_LIMIT = 20

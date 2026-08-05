@@ -8,8 +8,10 @@ import {
 } from "./transactions.module-definition"
 import {
     TransactionActionService,
+} from "./atomic/transaction-action.service"
+import {
     TransactionReconcileQueryService,
-} from "./atomic"
+} from "./atomic/transaction-reconcile-query.service"
 
 @Module({
 })

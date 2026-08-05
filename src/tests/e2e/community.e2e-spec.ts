@@ -18,70 +18,112 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    CommunityPostCommentReactionEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post-comment-reaction.entity"
+import {
+    CommunityPostCommentEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post-comment.entity"
+import {
+    CommunityPostReactionEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post-reaction.entity"
+import {
+    CommunityPostEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import {
+    MembershipEntity,
+} from "@modules/databases/postgresql/primary/entities/membership.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CommunityChannel,
-    CommunityPostCommentEntity,
-    CommunityPostCommentReactionEntity,
-    CommunityPostEntity,
-    CommunityPostReactionEntity,
-    MembershipEntity,
+} from "@modules/databases/postgresql/primary/enums/community-channel"
+import {
     MembershipStatus,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/enums/membership-status"
+import {
     ReactionType,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     CommunityPostCommentForbiddenException,
     CommunityPostCommentNotFoundException,
     CommunityPostForbiddenException,
     CommunityPostNotFoundException,
+} from "@modules/platform/exceptions/errors/community/post"
+import {
     CommunityPostQuotaExceededException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/quota"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     EventEmitterService,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     CommunityCommentService,
+} from "@modules/bussiness/community/community-comment.service"
+import {
     CommunityPostQuotaService,
+} from "@modules/bussiness/community/community-post-quota.service"
+import {
     CommunityPostService,
+} from "@modules/bussiness/community/community-post.service"
+import {
     CommunityReactionService,
+} from "@modules/bussiness/community/community-reaction.service"
+import {
     NotificationService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/notification/notification.service"
 import {
     CommunityFeedResolver,
+} from "@features/api/core/graphql/queries/community/community-feed/community-feed.resolver"
+import {
     CommunityFeedService,
-} from "@features/api/core/graphql/queries/community/community-feed"
+} from "@features/api/core/graphql/queries/community/community-feed/community-feed.service"
 import {
     CommunityPostResolver,
+} from "@features/api/core/graphql/queries/community/community-post/community-post.resolver"
+import {
     CommunityPostQueryService,
-} from "@features/api/core/graphql/queries/community/community-post"
+} from "@features/api/core/graphql/queries/community/community-post/community-post.service"
 import {
     CommunityPostCommentsResolver,
+} from "@features/api/core/graphql/queries/community/community-post-comments/community-post-comments.resolver"
+import {
     CommunityPostCommentsService,
-} from "@features/api/core/graphql/queries/community/community-post-comments"
+} from "@features/api/core/graphql/queries/community/community-post-comments/community-post-comments.service"
 import {
     CreateCommunityPostCommentResolver,
+} from "@features/api/core/graphql/mutations/community/create-community-post-comment/create-community-post-comment.resolver"
+import {
     CreateCommunityPostCommentService,
-} from "@features/api/core/graphql/mutations/community/create-community-post-comment"
+} from "@features/api/core/graphql/mutations/community/create-community-post-comment/create-community-post-comment.service"
 import {
     ReactToCommunityPostCommentResolver,
+} from "@features/api/core/graphql/mutations/community/react-to-community-post-comment/react-to-community-post-comment.resolver"
+import {
     ReactToCommunityPostCommentService,
-} from "@features/api/core/graphql/mutations/community/react-to-community-post-comment"
+} from "@features/api/core/graphql/mutations/community/react-to-community-post-comment/react-to-community-post-comment.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

@@ -7,9 +7,11 @@ import {
 import {
     ChallengeDifficulty,
     GraphQLTypeChallengeDifficulty,
+} from "../enums/challenge-difficulty"
+import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     Column,
     Entity,

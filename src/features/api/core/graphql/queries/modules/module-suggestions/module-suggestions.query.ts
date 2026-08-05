@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     SuggestionsRequest,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/inputs/suggestions"
 
 /**
  * Module autocomplete (typeahead) suggestions query.

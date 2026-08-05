@@ -10,7 +10,7 @@ import {
 } from "./sentry.module-definition"
 import type {
     SentryModuleOptions,
-} from "./types"
+} from "./types/options"
 
 @Module({
 })

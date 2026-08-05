@@ -3,13 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     GradeMockInterviewSessionSingleMutationModule,
-} from "./grade-mock-interview-session"
+} from "./grade-mock-interview-session/grade-mock-interview-session.module"
 import {
     StartMockInterviewSessionSingleMutationModule,
-} from "./start-mock-interview-session"
+} from "./start-mock-interview-session/start-mock-interview-session.module"
 import {
     SyncMockInterviewSessionTurnsSingleMutationModule,
-} from "./sync-mock-interview-session-turns"
+} from "./sync-mock-interview-session-turns/sync-mock-interview-session-turns.module"
 import {
     ConfigurableModuleClass,
 } from "./interview.module-definition"

@@ -1,6 +1,6 @@
 import type {
     SeedConfig,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/seed"
 
 /**
  * Standalone seed domains that map 1:1 to `SeedSeedersConfig` boolean flags.

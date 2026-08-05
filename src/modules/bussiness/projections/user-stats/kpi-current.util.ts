@@ -1,6 +1,6 @@
 import {
     KpiKey,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
 import type {
     UserStatsResult,
 } from "./types"

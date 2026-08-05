@@ -1,9 +1,9 @@
 import {
     AiPingCacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/ai-ping-cache.service"
 import type {
     PingKeyStatusEntry,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/ai-ping-key-status"
 import {
     Injectable,
 } from "@nestjs/common"

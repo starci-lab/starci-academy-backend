@@ -6,7 +6,7 @@ import {
 } from "./mutations.module-definition"
 import {
     StoreModule,
-} from "../../store"
+} from "../../store/store.module"
 import {
     MutationsController,
 } from "./mutations.controller"

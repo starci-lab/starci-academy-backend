@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     HealthModule,
-} from "@modules/health"
+} from "@modules/platform/health/health.module"
 import {
     ConfigurableModuleClass,
 } from "./system-health-status.module-definition"

@@ -12,7 +12,7 @@ import {
 } from "./social-digest-cron.service"
 import {
     JobsModule,
-} from "../jobs"
+} from "../jobs/jobs.module"
 
 @Module({
     imports: [

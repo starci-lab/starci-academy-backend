@@ -2,14 +2,14 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    PresignedUrlModule 
-} from "./presigned-url"
+    PresignedUrlModule,
+} from "./presigned-url/presigned-url.module"
 import {
-    ProcessVideoModule 
-} from "./process-video"
+    ProcessVideoModule,
+} from "./process-video/process-video.module"
 import {
-    ViewPresignedUrlModule 
-} from "./view-presigned-url"
+    ViewPresignedUrlModule,
+} from "./view-presigned-url/view-presigned-url.module"
 import {
     ConfigurableModuleClass 
 } from "./admin.module-definition"

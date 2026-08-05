@@ -11,30 +11,38 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     ContentEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     TrendingContentsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/trending-contents/trending-contents-projection.service"
 import {
     toGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
 import {
     TrendingContentItemData,
     TrendingContentsResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Default + hard-cap on how many trending lessons to surface. */
 const DEFAULT_LIMIT = 6

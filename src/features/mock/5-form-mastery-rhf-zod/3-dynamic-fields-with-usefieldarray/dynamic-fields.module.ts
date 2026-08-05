@@ -6,7 +6,7 @@ import {
 } from "./dynamic-fields.module-definition"
 import {
     StoreModule,
-} from "../../store"
+} from "../../store/store.module"
 import {
     DynamicFieldsController,
 } from "./dynamic-fields.controller"

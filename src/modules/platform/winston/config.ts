@@ -1,20 +1,61 @@
 
 import {
-    WinstonLog
-} from "./enums"
+    WinstonLog,
+} from "./enums/winston-log"
 import {
     WinstonLevel,
+} from "./types/level"
+import {
     CoursesSeededSuccessfullyMessage,
     InitSeederEntitySkippedMessage,
     ContextFileLoadedSuccessfullyMessage,
+} from "./types/messages/courses"
+import {
     DbSynchronizerSyncedSuccessfullyMessage,
+} from "./types/messages/db-synchronizer"
+import {
     EnrollmentAlreadyExistsMessage,
     EnrollmentCreatedMessage,
+} from "./types/messages/enrollment"
+import {
     StepExecutedMessage,
-    JobExecutedMessage
-} from "./types"
+    JobExecutedMessage,
+} from "./types/messages/worker"
 import type {
-    CommandLogMessage,
+    SeederFinishedMessage,
+    AiBalancerKeysReloadedMessage,
+    AiBalancerKeyDisabledMessage,
+    AiBalancerKeyRecoveredMessage,
+    AiBalancerKeyPickedMessage,
+    AiBalancerNoActiveKeyMessage,
+} from "./types/messages/ai-balancer"
+import type {
+    AiModelRouterResolvedMessage,
+    AiModelRouterFailureMessage,
+    AiModelRouterRecheckMessage,
+    AiPingResultMessage,
+} from "./types/messages/ai-model-router"
+import type {
+    PgBackupCompletedSuccessfullyMessage,
+    PgBackupFailedMessage,
+    PgBackupStepFailedMessage,
+} from "./types/messages/backup"
+import type {
+    BloomFilterSynchronizerSyncStartedMessage,
+    BloomFilterSynchronizerFilterCreatedMessage,
+    BloomFilterSynchronizerFilterAlreadyExistsMessage,
+    BloomFilterSynchronizerEmailsSyncedMessage,
+    BloomFilterSynchronizerSyncDoneMessage,
+    BloomFilterSynchronizerEntitySyncFailedMessage,
+} from "./types/messages/bloom-filter-synchronizer"
+import type {
+    ErrorDeletingCacheMessage,
+    ErrorGettingCacheMessage,
+    ErrorSettingCacheMessage,
+    CacheDebugOkMemoryMessage,
+    CacheDebugOkRedisMessage,
+} from "./types/messages/cache"
+import type {
     CdnSynchronizerCourseAlreadySyncedMessage,
     CdnSynchronizerCourseSyncFailedAttemptMessage,
     CdnSynchronizerCourseSyncFailedMessage,
@@ -36,8 +77,25 @@ import type {
     CdnSynchronizerReconcileOrphansFoundMessage,
     CdnSynchronizerReconcileOrphansDeletedMessage,
     CdnSynchronizerReconcileSkippedBySafetyMessage,
+} from "./types/messages/cdn-synchronizer"
+import type {
+    CommandLogMessage,
+} from "./types/messages/cli"
+import type {
+    ContentScrapeDetectedMessage,
+} from "./types/messages/courses"
+import type {
+    DataGitBootstrapStartedMessage,
+    DataGitBootstrapUpToDateMessage,
+    DataGitBootstrapUpdatedMessage,
+    DataGitBootstrapFailedMessage,
+    DataGitDiffScopedMessage,
+} from "./types/messages/data-git"
+import type {
     ElasticsearchIndexResetStartedMessage,
     ElasticsearchIndexResetDoneMessage,
+} from "./types/messages/elasticsearch-index-reset"
+import type {
     EsSynchronizerSyncStartedMessage,
     EsSynchronizerSyncedSuccessfullyMessage,
     EsSynchronizerSyncDoneMessage,
@@ -45,54 +103,38 @@ import type {
     EsSynchronizerReconcileOrphansFoundMessage,
     EsSynchronizerReconcileOrphansDeletedMessage,
     EsSynchronizerReconcileSkippedBySafetyMessage,
+} from "./types/messages/elasticsearch-synchronizer"
+import type {
     IndexerSynchronizerSyncStartedMessage,
     IndexerSynchronizerSyncedSuccessfullyMessage,
     IndexerSynchronizerSyncDoneMessage,
     IndexerSynchronizerEntitySyncFailedMessage,
-    BloomFilterSynchronizerSyncStartedMessage,
-    BloomFilterSynchronizerFilterCreatedMessage,
-    BloomFilterSynchronizerFilterAlreadyExistsMessage,
-    BloomFilterSynchronizerEmailsSyncedMessage,
-    BloomFilterSynchronizerSyncDoneMessage,
-    BloomFilterSynchronizerEntitySyncFailedMessage,
+} from "./types/messages/indexer-synchronizer"
+import type {
+    NatsConsumerClosedMessage,
+    NatsConsumerErrorMessage,
+    NatsConsumerOpenedMessage,
+} from "./types/messages/nats"
+import type {
+    OpsLogMessage,
+} from "./types/messages/ops"
+import type {
+    ReconcileOrphansSkippedMessage,
+    ReconcileOrphansDoneMessage,
+} from "./types/messages/reconcile"
+import type {
     RepoSynchronizerSyncStartedMessage,
     RepoSynchronizerContentSyncedMessage,
     RepoSynchronizerContentSyncFailedMessage,
     RepoSynchronizerSyncDoneMessage,
+} from "./types/messages/repo-synchronizer"
+import type {
     SyncOrchestratorStartedMessage,
     SyncOrchestratorDoneMessage,
-    NatsConsumerClosedMessage,
-    NatsConsumerErrorMessage,
-    NatsConsumerOpenedMessage,
-    ErrorDeletingCacheMessage,
-    ErrorGettingCacheMessage,
-    ErrorSettingCacheMessage,
-    CacheDebugOkMemoryMessage,
-    CacheDebugOkRedisMessage,
-    PgBackupCompletedSuccessfullyMessage,
-    PgBackupFailedMessage,
-    PgBackupStepFailedMessage,
-    AiModelRouterResolvedMessage,
-    AiModelRouterFailureMessage,
-    AiModelRouterRecheckMessage,
-    AiPingResultMessage,
-    SeederFinishedMessage,
-    AiBalancerKeysReloadedMessage,
-    AiBalancerKeyDisabledMessage,
-    AiBalancerKeyRecoveredMessage,
-    AiBalancerKeyPickedMessage,
-    AiBalancerNoActiveKeyMessage,
+} from "./types/messages/sync-orchestrator"
+import type {
     TransactionReconcileMessage,
-    DataGitBootstrapStartedMessage,
-    DataGitBootstrapUpToDateMessage,
-    DataGitBootstrapUpdatedMessage,
-    DataGitBootstrapFailedMessage,
-    DataGitDiffScopedMessage,
-    ReconcileOrphansSkippedMessage,
-    ReconcileOrphansDoneMessage,
-    ContentScrapeDetectedMessage,
-    OpsLogMessage,
-} from "./types"
+} from "./types/messages/transaction"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
 export const configMap = {

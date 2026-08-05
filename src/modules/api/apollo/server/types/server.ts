@@ -1,6 +1,6 @@
 import type {
     ApolloServerType,
-} from "../enums"
+} from "../enums/server"
 
 /** Options for registering the Apollo server module (type and optional services). */
 export interface ApolloServerOptions {

@@ -7,23 +7,25 @@ import {
 } from "kafkajs"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     KafkaCdcMessageException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/kafka/kafka-cdc-message"
 import {
     KafkaService,
-} from "@modules/kafka"
+} from "@modules/integrations/kafka/kafka.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EsSyncUserService,
 } from "./es-sync-user.service"
 import type {
     UserCdcEnvelope,
-} from "./types"
+} from "./types/user"
 
 /**
  * Stable Kafka consumer group for the user -> Elasticsearch sync. A fixed id

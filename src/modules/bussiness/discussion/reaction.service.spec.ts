@@ -10,32 +10,34 @@ import {
 } from "./reaction.service"
 import {
     ContentEngagementProjectionService,
-} from "../projections"
+} from "../projections/content-engagement/content-engagement-projection.service"
 import type {
     ContentEngagementSummary,
-} from "../projections"
+} from "../projections/content-engagement/types"
 import {
     UserService,
-} from "../user"
+} from "../user/user.service"
 import {
     ReactionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CommentNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/discussion/comment"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

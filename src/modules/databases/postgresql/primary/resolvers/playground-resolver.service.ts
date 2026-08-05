@@ -2,12 +2,14 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    PlaygroundEntity,
     PlaygroundStepEntity,
-} from "../entities"
+} from "../entities/playground-step.entity"
+import {
+    PlaygroundEntity,
+} from "../entities/playground.entity"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     TranslationResolverService,
 } from "./translation.service"

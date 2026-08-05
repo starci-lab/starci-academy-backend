@@ -12,47 +12,79 @@ import type {
 } from "typeorm"
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    Locale,
-    PaymentType,
-    PricingPhase,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     PricingPhaseEntity,
-    PrimaryPostgreSQLModule,
-    TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/pricing-phase.entity"
+import {
     TransactionItemEntity,
-    TransactionStatus,
+} from "@modules/databases/postgresql/primary/entities/transaction-item.entity"
+import {
+    TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    TransactionStatus,
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     CoursesCheckoutEmptyException,
+} from "@modules/platform/exceptions/errors/payment/courses-checkout-empty"
+import {
     MissingUsdPriceException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/payment/missing-usd-price"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     EnqueueReconcileTransactionJobService,
-    InstallmentPlanService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
     LoyaltyDiscountService,
+} from "@modules/bussiness/loyalty/loyalty-discount.service"
+import {
     UserStatsProjectionService,
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
+import {
     UserXpProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-xp/user-xp-projection.service"
 import {
     DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
     RetryService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/retry.service"
 import {
     SEPAY,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/constants/sepay"
 import {
     PAYOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/constants/payos"
 import {
     STRIPE,
-} from "@modules/stripe"
+} from "@modules/integrations/stripe/constants/stripe"
 import {
     PaypalClient,
-} from "@modules/paypal"
+} from "@modules/integrations/paypal/paypal.client"
 import {
     NowPaymentsClient,
-} from "@modules/nowpayments"
+} from "@modules/integrations/nowpayments/nowpayments.client"
 import {
     CoursesCheckoutHandler,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.handler"
@@ -67,10 +99,10 @@ import {
 } from "@features/api/core/graphql/mutations/courses/course-enroll/course-pricing.service"
 import type {
     CoursesCheckoutRequest,
-} from "@features/api/core/graphql/mutations/courses/courses-checkout/graphql-types"
+} from "@features/api/core/graphql/mutations/courses/courses-checkout/graphql-types/request"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

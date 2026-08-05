@@ -1,9 +1,9 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     KeycloakJwtPayload,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/types/jwt-jwks"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -19,30 +19,34 @@ import {
 } from "./sign-in-verify-otp.command"
 import type {
     SignInVerifyOtpCommandResult,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     ChallengeTokensNotFoundException,
     ChallengeEmailNotFoundException,
     ChallengeOtpNotFoundException,
     ChallengeOtpMismatchException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/otp"
 import {
     InvalidJwtPayloadException,
+} from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     OtpChallengeService,
-} from "@modules/code"
+} from "@modules/integrations/code/otp-challenge.service"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     EntityManager,
 } from "typeorm"
 import type {
     SignInActionPayload,
-} from "../types"
+} from "../types/action"
 
 @CommandHandler(SignInVerifyOtpCommand)
 @Injectable()

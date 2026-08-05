@@ -4,19 +4,31 @@ import {
 } from "@nestjs/testing"
 import {
     AiModelLatencyCacheService,
+} from "@modules/integrations/cache/ai-model-latency-cache.service"
+import {
     AiPingCacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/ai-ping-cache.service"
+import {
+    AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
 import {
     AiModelCategory,
-    AiModelEntity,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AllModelsExhaustedException,
+} from "@modules/platform/exceptions/errors/ai/all-models-exhausted"
+import {
     NoActiveBalancerKeyException,
+} from "@modules/platform/exceptions/errors/ai/no-active-balancer-key"
+import {
     UnsupportedAiProviderException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/unsupported-ai-provider"
 import {
     UseApiService,
 } from "./use-api.service"
@@ -31,7 +43,7 @@ import {
 } from "./key-store.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 /** Build an enabled catalog row with a name + provider. */
 const buildModelRow = (

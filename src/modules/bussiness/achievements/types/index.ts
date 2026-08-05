@@ -2,9 +2,11 @@ import type {
     EntityManager,
 } from "typeorm"
 import type {
-    AchievementCriteriaType,
     LocalizedText,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/advertisement.entity"
+import type {
+    AchievementCriteriaType,
+} from "@modules/databases/postgresql/primary/enums/achievement-criteria-type"
 // AchievementCriteriaType is used only by MyAchievementResult below.
 
 /**

@@ -1,6 +1,6 @@
 import type {
     FlashcardReviewEventEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-event.entity"
 
 /** Params for {@link import("../my-flashcard-review-session-stats-by-session-id.service").MyFlashcardReviewSessionStatsBySessionIdService.find}. */
 export interface FindMyFlashcardReviewSessionStatsBySessionIdParams {

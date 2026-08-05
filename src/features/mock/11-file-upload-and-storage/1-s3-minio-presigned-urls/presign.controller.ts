@@ -22,17 +22,19 @@ import {
 } from "crypto"
 import {
     FileStoreService,
-} from "../../file-store"
+} from "../../file-store/file-store.service"
 import {
     MockDelayInterceptor,
-} from "../../interceptors"
+} from "../../interceptors/mock-delay.interceptor"
 import {
     readRawBody,
+} from "../../utils/read-raw-body"
+import {
     resolveRequestOrigin,
-} from "../../utils"
+} from "../../utils/request-origin"
 import {
     PresignPutDto,
-} from "./dtos"
+} from "./dtos/presign-put"
 import type {
     PresignPutResponse,
     PresignGetResponse,

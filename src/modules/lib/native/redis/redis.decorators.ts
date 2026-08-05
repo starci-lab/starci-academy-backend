@@ -5,8 +5,8 @@ import {
     createRedisKey 
 } from "./constants"
 import {
-    RedisInstanceKey
-} from "./enums"
+    RedisInstanceKey,
+} from "./enums/instance-key"
 
 /**
  * Injects the node-redis client for `key`. Wrong key binds a feature to the

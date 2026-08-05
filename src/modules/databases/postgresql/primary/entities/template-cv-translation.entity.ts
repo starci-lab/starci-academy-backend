@@ -18,7 +18,7 @@ import {
 import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 
 @ObjectType({
     description: "Localized value for a specific template CV field.",

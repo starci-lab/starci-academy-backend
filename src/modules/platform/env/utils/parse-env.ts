@@ -8,7 +8,7 @@ import type {
     ParseEnvSecondParams,
     ParseEnvStringParams,
     ParseEnvStringListParams,
-} from "../types"
+} from "../types/parse-env"
 
 /**
  * Parse an env var as integer (radix 10). Uses default when unset.

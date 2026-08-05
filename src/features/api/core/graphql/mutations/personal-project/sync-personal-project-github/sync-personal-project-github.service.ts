@@ -10,7 +10,7 @@ import {
 import type {
     SyncPersonalProjectGithubParams,
     SyncPersonalProjectGithubResult,
-} from "./types"
+} from "./types/sync-personal-project-github"
 
 @Injectable()
 /**

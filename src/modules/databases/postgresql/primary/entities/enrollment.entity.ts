@@ -21,11 +21,13 @@ import {
     UserEntity,
 } from "./user.entity"
 import {
-    GraphQLTypeTaskPlanStatus,
     GraphQLTypePricingPhase,
-    TaskPlanStatus,
     PricingPhase,
-} from "../enums"
+} from "../enums/pricing-phase"
+import {
+    GraphQLTypeTaskPlanStatus,
+    TaskPlanStatus,
+} from "../enums/task-plan-status"
 import {
     UserMilestoneTaskEntity,
 } from "./user-milestone-task.entity"

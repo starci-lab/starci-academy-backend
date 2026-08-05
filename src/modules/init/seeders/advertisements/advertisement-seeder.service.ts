@@ -13,23 +13,31 @@ import {
 } from "typeorm"
 import {
     AdvertisementEntity,
+} from "@modules/databases/postgresql/primary/entities/advertisement.entity"
+import {
     AdvertisementMediaType,
+} from "@modules/databases/postgresql/primary/enums/advertisement-media-type"
+import {
     AdvertisementPlacement,
+} from "@modules/databases/postgresql/primary/enums/advertisement-placement"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getRuntimeContextRoot,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-seed"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 import {
     CoerceMdScalarService,
+} from "../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-} from "../shared"
+} from "../shared/extracts/extract-json-from-md.service"
 import type {
     AdvertisementSeedFileRoot,
 } from "./types"

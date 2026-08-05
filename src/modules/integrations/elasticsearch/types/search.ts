@@ -1,6 +1,6 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     SearchParam,
 } from "./param"

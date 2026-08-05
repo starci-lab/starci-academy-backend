@@ -3,19 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     ReactionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/discussion/reaction.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import type {
     ReactionSummaryObject,
-} from "../../../shared/discussion"
+} from "../../../shared/discussion/object-types/reaction-summary.object"
 import type {
     ReactToContentRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

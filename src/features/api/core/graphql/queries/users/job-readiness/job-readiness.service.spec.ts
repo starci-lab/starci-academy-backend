@@ -7,17 +7,19 @@ import {
 } from "@nestjs/typeorm"
 import {
     CvVerificationService,
+} from "@modules/bussiness/headhuntings/cv-verification.service"
+import {
     UserSolvedChallengesProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-solved-challenges/user-solved-challenges-projection.service"
 import {
     CvVerificationLevel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/cv-verification-level"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     JobReadinessService,
 } from "./job-readiness.service"

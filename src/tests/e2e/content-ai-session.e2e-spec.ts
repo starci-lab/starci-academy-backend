@@ -21,34 +21,58 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
 import {
     ContentAiMessageEntity,
+} from "@modules/databases/postgresql/primary/entities/content-ai-message.entity"
+import {
     ContentAiSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/content-ai-session.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    Locale,
-    ModelProvider,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     ModuleEntity,
-    PricingPhase,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     S3NameResolverService,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -57,10 +81,10 @@ import {
 } from "@modules/ai/ai-invoke.service"
 import {
     ContentAiService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/content-ai/content-ai.service"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     AskContentAiHandler,
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai/ask-content-ai.handler"
@@ -69,7 +93,7 @@ import {
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai/ask-content-ai.resolver"
 import {
     AskContentAiService,
-} from "@features/api/core/graphql/mutations/contents/ask-content-ai"
+} from "@features/api/core/graphql/mutations/contents/ask-content-ai/ask-content-ai.service"
 import {
     CreateContentAiSessionResolver,
 } from "@features/api/core/graphql/mutations/contents/create-content-ai-session/create-content-ai-session.resolver"
@@ -87,7 +111,7 @@ import {
 } from "@features/api/core/graphql/mutations/contents/touch-content-ai-session/touch-content-ai-session.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

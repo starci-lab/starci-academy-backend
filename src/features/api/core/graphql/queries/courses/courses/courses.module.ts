@@ -18,7 +18,7 @@ import {
 } from "./courses.handler"
 import {
     ElasticsearchModule,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.module"
 
 @Module({
     imports: [

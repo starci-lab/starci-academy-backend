@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     MembershipModule,
-} from "@modules/membership"
+} from "@modules/membership/membership.module"
 import {
     ConfigurableModuleClass,
 } from "./active-advertisement.module-definition"

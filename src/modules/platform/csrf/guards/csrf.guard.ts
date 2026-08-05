@@ -13,19 +13,29 @@ import type {
     Request
 } from "express"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     CookieService,
-    CookieName
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
+import {
+    CookieName,
+} from "@modules/platform/cookie/enums"
 import {
     CsrfMissingHttpRequestException,
+} from "@modules/platform/exceptions/errors/guards/csrf-missing-http-request"
+import {
     CsrfMissingTokenException,
+} from "@modules/platform/exceptions/errors/guards/csrf-missing-token"
+import {
     CsrfTokenMismatchException,
+} from "@modules/platform/exceptions/errors/guards/csrf-token-mismatch"
+import {
     InvalidCsrfTokenException,
+} from "@modules/platform/exceptions/errors/guards/invalid-csrf-token"
+import {
     UntrustedRequestOriginException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/guards/untrusted-request-origin"
 import {
     CsrfService
 } from "../csrf.service"

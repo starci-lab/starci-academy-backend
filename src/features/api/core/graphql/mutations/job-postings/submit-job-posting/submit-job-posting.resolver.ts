@@ -13,45 +13,67 @@ import type {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     HeadhuntingCompanyEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    JobApplyMethod,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
     JobPostingEntity,
-    JobPostingSource,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/job-posting.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    JobApplyMethod,
+} from "@modules/databases/postgresql/primary/enums/job-apply-method"
+import {
+    JobPostingSource,
+} from "@modules/databases/postgresql/primary/enums/job-posting-source"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     HeadhuntingCompanyNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/headhunting-company-not-found"
+import {
     JobPostingInvalidRequestException,
     JobPostingInvalidRequestReason,
+} from "@modules/platform/exceptions/errors/job-postings/job-posting-invalid-request"
+import {
     JobPostingSlugGenerationFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job-postings/job-posting-slug-generation-failed"
 import {
     SubmitJobPostingRequest,
+} from "./graphql-types/request"
+import {
     SubmitJobPostingResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     MAX_SLUG_ATTEMPTS,
     SLUG_SUFFIX_LENGTH,
 } from "./constants"
 import {
     slugify,
-} from "./utils"
+} from "./utils/slugify"
 import type {
     ValidateApplyMethodParams,
     ValidateCompanySelectionParams,
-} from "./types"
+} from "./types/submit-job-posting"
 
 @Resolver()
 /**

@@ -3,11 +3,16 @@ import {
 } from "nest-commander"
 import {
     PgSyncCommand,
-    PlaygroundSeedTestCommand,
-} from "./subs"
+} from "./subs/pg-sync.command"
 import {
-    WinstonLog, WinstonService,
-} from "@modules/winston"
+    PlaygroundSeedTestCommand,
+} from "./subs/playground-seed-test.command"
+import {
+    WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 
 @Command({
     name: "utils",

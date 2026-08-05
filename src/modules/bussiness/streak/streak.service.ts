@@ -5,13 +5,17 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     StreakFreezeInsufficientPointsException,
+} from "@modules/platform/exceptions/errors/streak/streak-freeze-insufficient-points"
+import {
     StreakFreezeLimitReachedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/streak/streak-freeze-limit-reached"
 import type {
     BuyStreakFreezeResult,
 } from "./types"

@@ -1,20 +1,20 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
 } from "@nestjs/testing"
 import {
     S3BuildService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-build.service"
 import {
     NotAllowExtensionsException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/not-allow-extensions"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     GenerateSubmitCvPresignUrlCommand,
 } from "./generate-submit-cv-presign-url.command"

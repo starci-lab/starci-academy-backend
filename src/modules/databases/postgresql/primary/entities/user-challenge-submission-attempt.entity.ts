@@ -25,7 +25,7 @@ import {
 import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 
 @ObjectType({
     description: "A single attempt of a user challenge submission.",

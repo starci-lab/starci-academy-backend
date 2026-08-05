@@ -6,19 +6,23 @@ import {
 } from "typeorm"
 import {
     CommunityPostEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CommunityPostForbiddenException,
     CommunityPostNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/post"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     CommunityPostQuotaService,
 } from "./community-post-quota.service"

@@ -10,21 +10,25 @@ import {
 } from "./flashcard-deck.service"
 import {
     FlashcardDeckEntity,
-    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-deck-resolver.service"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     FlashcardDeckNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/flashcard/flashcard-deck-not-found"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     FlashcardReviewService,
 } from "./flashcard-review.service"

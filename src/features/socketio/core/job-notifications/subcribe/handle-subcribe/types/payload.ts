@@ -1,6 +1,6 @@
 import {
     SocketIoPayload,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/ws-payload"
 
 /** Track-by-job params from client. */
 export type SubcribeJobNotificationSocketIoPayload = SocketIoPayload<{

@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MilestoneRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS message that loads one milestone by id. */
 export class MilestoneQuery {

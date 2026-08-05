@@ -9,26 +9,32 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     PublicRagPlaygroundService,
+} from "@modules/integrations/rag/public-rag-playground.service"
+import {
     RagPlaygroundRunRegistryService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/rag-playground-run-registry.service"
 import {
     RagPlaygroundInvalidQuestionException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/rag-playground/invalid-question"
+import {
+    AskRagPlaygroundRequest,
+} from "./graphql-types/request"
 import {
     AskRagPlaygroundData,
-    AskRagPlaygroundRequest,
     AskRagPlaygroundResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Hard cap on question length -- bounds prompt size on a public, unauthenticated endpoint. */
 const MAX_QUESTION_CHARS = 500

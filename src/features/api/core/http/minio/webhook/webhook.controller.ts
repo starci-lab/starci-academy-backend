@@ -12,13 +12,13 @@ import {
 } from "@nestjs/swagger"
 import {
     RestTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
     httpConfig,
 } from "../../http"
 import {
     MinioWebhookRequest,
-} from "./dtos"
+} from "./dtos/webhook.request"
 import {
     MinioWebhookService,
 } from "./webhook.service"

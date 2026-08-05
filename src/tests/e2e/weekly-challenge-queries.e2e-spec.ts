@@ -18,29 +18,55 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    ChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
+    ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    UserChallengeSubmissionAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission-attempt.entity"
+import {
+    UserChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ChallengeDifficulty,
-    ChallengeEntity,
-    ChallengeSubmissionEntity,
-    ContentEntity,
-    CourseEntity,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
     Locale,
-    ModuleEntity,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     SubmissionType,
-    UserChallengeSubmissionAttemptEntity,
-    UserChallengeSubmissionEntity,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
 import {
     WeeklyChallengeService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/weekly-challenge/weekly-challenge.service"
 import {
     WeeklyChallengeResolver,
 } from "@features/api/core/graphql/queries/dashboard/weekly-challenge/weekly-challenge.resolver"
@@ -49,7 +75,7 @@ import {
 } from "@features/api/core/graphql/mutations/profile/claim-weekly-challenge-reward/claim-weekly-challenge-reward.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

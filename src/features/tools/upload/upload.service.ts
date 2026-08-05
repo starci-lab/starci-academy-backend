@@ -6,8 +6,10 @@ import {
 } from "crypto"
 import {
     ToolsFileRequiredException,
+} from "@modules/platform/exceptions/errors/tools/file-required"
+import {
     ToolsTargetReferenceInvalidException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/tools/target"
 import {
     mkdir,
     writeFile,
@@ -17,23 +19,27 @@ import {
 } from "path"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ArtifactType,
+} from "../store/enums/store"
+import {
     ToolsStoreService,
-} from "../store"
+} from "../store/tools-store.service"
 import {
     SyncService,
-} from "../sync"
+} from "../sync/sync.service"
 import type {
     ProcessUploadParams,
     ProcessUploadResult,
     UploadItemResult,
-} from "./types"
+} from "./types/upload"
 
 @Injectable()
 /**

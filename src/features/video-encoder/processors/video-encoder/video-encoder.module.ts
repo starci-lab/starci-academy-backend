@@ -11,12 +11,20 @@ import {
     StepMappingService
 } from "./step-mapping.service"
 import {
-    ProcessVideoInitStepService,
     ProcessVideoEncodeStepService,
-    ProcessVideoPackageStepService,
-    ProcessVideoUploadStepService,
+} from "./steps/process-video-encode-step.service"
+import {
     ProcessVideoFinalizeStepService,
-} from "./steps"
+} from "./steps/process-video-finalize-step.service"
+import {
+    ProcessVideoInitStepService,
+} from "./steps/process-video-init-step.service"
+import {
+    ProcessVideoPackageStepService,
+} from "./steps/process-video-package-step.service"
+import {
+    ProcessVideoUploadStepService,
+} from "./steps/process-video-upload-step.service"
 
 @Module({
     providers: [

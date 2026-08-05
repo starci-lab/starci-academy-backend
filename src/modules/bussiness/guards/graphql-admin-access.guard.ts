@@ -8,12 +8,16 @@ import {
 } from "@nestjs/graphql"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     AdminApiKeyNotConfiguredException,
+} from "@modules/platform/exceptions/errors/guards/admin-api-key-not-configured"
+import {
     AdminApiKeyRequiredException,
+} from "@modules/platform/exceptions/errors/guards/admin-api-key-required"
+import {
     InvalidAdminApiKeyException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/guards/invalid-admin-api-key"
 
 @Injectable()
 /**

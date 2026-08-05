@@ -18,30 +18,46 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    AchievementEntity,
+} from "@modules/databases/postgresql/primary/entities/achievement.entity"
+import {
+    UserAchievementEntity,
+} from "@modules/databases/postgresql/primary/entities/user-achievement.entity"
+import {
+    UserFollowEntity,
+} from "@modules/databases/postgresql/primary/entities/user-follow.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     AchievementCriteriaType,
-    AchievementEntity,
+} from "@modules/databases/postgresql/primary/enums/achievement-criteria-type"
+import {
     PrimaryPostgreSQLModule,
-    UserAchievementEntity,
-    UserEntity,
-    UserFollowEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    AchievementsService,
+} from "@modules/bussiness/achievements/achievements.service"
+import {
+    BusyBeeBadge,
+} from "@modules/bussiness/achievements/badges/busy-bee.badge"
 import {
     ACHIEVEMENT_BADGES,
-    AchievementsService,
-    BusyBeeBadge,
-} from "@modules/bussiness"
+} from "@modules/bussiness/achievements/badges"
 import {
     MyAchievementsResolver,
 } from "@features/api/core/graphql/queries/achievements/my-achievements/my-achievements.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

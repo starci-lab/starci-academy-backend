@@ -6,7 +6,7 @@ import {
 } from "@nestjs/graphql"
 import {
     MockInterviewTurnInput,
-} from "../../grade-mock-interview-session/graphql-types"
+} from "../../grade-mock-interview-session/graphql-types/request"
 
 @InputType({
     description: "Sync an in-flight mock-interview session's transcript + position for later resume.",

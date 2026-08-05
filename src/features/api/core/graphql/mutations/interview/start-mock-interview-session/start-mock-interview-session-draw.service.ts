@@ -6,45 +6,73 @@ import {
     In,
 } from "typeorm"
 import {
-    ChallengeDifficulty,
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     EnrollmentEntity,
-    FlashcardLevel,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     MilestoneTaskEntity,
-    ModuleEntity,
-    MockInterviewEntity,
-    MockInterviewKind,
-    MockInterviewMode,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
     MockInterviewSessionEntity,
-    MOCK_INTERVIEW_QNA_KINDS,
-    normalizeMockInterviewMode,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
+import {
+    MockInterviewEntity,
+} from "@modules/databases/postgresql/primary/entities/mock-interview.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
     UserContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-content.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    FlashcardLevel,
+} from "@modules/databases/postgresql/primary/enums/flashcard-level"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    MockInterviewKind,
+    MOCK_INTERVIEW_QNA_KINDS,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-kind"
+import {
+    MockInterviewMode,
+    normalizeMockInterviewMode,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-mode"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     FlashcardDeckReadService,
+} from "@modules/bussiness/flashcard/flashcard-deck.service"
+import {
     PersonalProjectProgressService,
+} from "@modules/bussiness/progress/personal-project.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     MOCK_INTERVIEW_CLASSIC_PROMPTS,
-} from "../../../queries/flashcard-decks/mock-interview-prompts/constants"
+} from "../../../queries/flashcard-decks/mock-interview-prompts/constants/classic-prompts"
 import type {
     MockInterviewClassicPrompt,
-} from "../../../queries/flashcard-decks/mock-interview-prompts/types"
+} from "../../../queries/flashcard-decks/mock-interview-prompts/types/mock-interview-prompts"
 import {
     MockInterviewNoSeedCardsException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/mock-interview-no-seed-cards"
 import type {
     DrawMockInterviewSeedTopic,
     DrawMockInterviewSessionParams,
     DrawMockInterviewSessionResult,
     MockInterviewGivenCodeVariant,
-} from "./types"
+} from "./types/start-mock-interview-session"
 
 /** One candidate prompt in the draw pool, normalized to a common shape regardless of source (mode="design" only). */
 interface MockInterviewPromptCandidate {

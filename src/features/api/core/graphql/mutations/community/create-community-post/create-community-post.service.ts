@@ -3,23 +3,25 @@ import {
 } from "@nestjs/common"
 import {
     CommunityPostService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/community/community-post.service"
 import {
     CommunityChannel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/community-channel"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
+import {
+    mapCommunityPostNode,
+} from "../../../shared/community/mappers/community-post-node"
 import {
     CommunityPostNodeObject,
-    mapCommunityPostNode,
-} from "../../../shared/community"
+} from "../../../shared/community/object-types/community-post-node.object"
 import type {
     CreateCommunityPostRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

@@ -1,6 +1,6 @@
 import {
     SubmissionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-type"
 
 /** Params for `UrlValidatorService.isValid`. */
 export interface IsUrlValidParams {

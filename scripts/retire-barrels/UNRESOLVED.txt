@@ -1,0 +1,34 @@
+# Phase 2 unresolved / left-untouched
+
+Codemod stats (write pass): filesVisited=5817 filesRewritten=2551
+declsSeen=12459 declsRewritten=8076 declsSplit=2870
+bindingsResolved=19401 jestMocksRewritten=13
+
+Side-effect module-root barrels (`import "@modules/bussiness"`,
+`import "@modules/elasticsearch"`) were retargeted after the codemod to
+`@modules/bussiness/bussiness.module` and
+`@modules/integrations/elasticsearch/elasticsearch.module` so
+`must-deep-module-import` stays at error with nợ=0.
+
+## Left untouched (by design or unresolvable)
+
+apps/core/src/main.ts :: @modules/sentry/instrument :: side-effect file import (already deep)
+apps/tools/dashboard/src/main.tsx :: ./styles.css :: CSS side-effect
+
+## Manual alias (symbol never exported from the barrel)
+
+src/modules/integrations/github/events/add-github-user-to-team.event.ts
+  InviteGithubPayload -> EnqueueResolveGithubPayload
+  @modules/integrations/bullmq/types/payloads/resolve-github
+
+## Self-resolution skip (importer === declaring file)
+
+Restored rather than rewritten to a self-import:
+- github.module-definition `./types`
+- personal-project-context-resolver `../entities`
+- keycloak spec `../../bussiness/user`
+- rewrite-cv-block types `../rewrite-cv-block.handler`
+
+## JSDoc `{@link import("@modules/...")}` strings
+
+Comment-only. Not ImportDeclarations. Left as documentation.

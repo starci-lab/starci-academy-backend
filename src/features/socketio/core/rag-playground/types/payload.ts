@@ -1,6 +1,6 @@
 import {
     SocketIoPayload,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/ws-payload"
 
 /** Client -> server payload to subscribe to (and start streaming) a RAG Playground run. */
 export type SubscribeRagPlaygroundRunSocketIoPayload = SocketIoPayload<{

@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import type {
     AppConfigSystemAiAuto,
-} from "./types"
+} from "./types/ai-auto-quota"
 import {
     MountFilesystemService,
 } from "./mount.service"

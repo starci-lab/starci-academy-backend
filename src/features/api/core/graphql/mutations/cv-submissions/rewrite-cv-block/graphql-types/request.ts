@@ -6,7 +6,7 @@ import GraphQLJSON from "graphql-type-json"
 import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
     description: "Rewrite / improve a single CV block (optionally grounded in a real capstone).",

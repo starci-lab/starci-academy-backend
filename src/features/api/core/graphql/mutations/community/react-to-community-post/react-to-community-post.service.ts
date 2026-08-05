@@ -3,19 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     CommunityReactionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/community/community-reaction.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import type {
     ReactionSummaryObject,
-} from "../../../shared/discussion"
+} from "../../../shared/discussion/object-types/reaction-summary.object"
 import type {
     ReactToCommunityPostRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

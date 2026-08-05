@@ -6,15 +6,15 @@ import type {
 } from "axios"
 import {
     AxiosService,
-} from "@modules/axios"
+} from "@modules/integrations/axios/axios.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getPaypalClientId,
     getPaypalClientSecret,
     getPaypalWebhookId,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import type {
     CapturePaypalOrderParams,
     CapturePaypalOrderResult,
@@ -25,7 +25,7 @@ import type {
     PaypalPurchaseUnit,
     RetrievePaypalOrderParams,
     VerifyPaypalWebhookParams,
-} from "./types"
+} from "./types/paypal"
 
 @Injectable()
 /**

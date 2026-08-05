@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ModulesRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS message that lists every module in a course. */
 export class ModulesQuery {

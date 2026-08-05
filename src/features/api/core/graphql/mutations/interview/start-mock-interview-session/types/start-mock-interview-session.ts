@@ -1,6 +1,6 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** Params for {@link import("../start-mock-interview-session-draw.service").MockInterviewSessionDrawService.draw}. */
 export interface DrawMockInterviewSessionParams {

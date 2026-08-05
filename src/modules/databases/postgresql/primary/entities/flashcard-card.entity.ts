@@ -7,9 +7,11 @@ import {
 import {
     FlashcardLevel,
     GraphQLTypeFlashcardLevel,
+} from "../enums/flashcard-level"
+import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     Column,
     Entity,

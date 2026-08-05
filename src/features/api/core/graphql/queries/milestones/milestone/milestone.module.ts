@@ -15,7 +15,7 @@ import {
 } from "./milestone.handler"
 import {
     ElasticsearchModule,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.module"
 
 @Module({
     imports: [

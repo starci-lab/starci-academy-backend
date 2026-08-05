@@ -21,31 +21,55 @@ import {
 } from "langchain/text_splitter"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FoundationEntity,
-    AiModelCategory,
-    InjectPrimaryPostgreSQLEntityManager,
-    InjectQdrantClient,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
     TranslationResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/translation.service"
+import {
+    InjectQdrantClient,
+} from "@modules/databases/qdrant/qdrant.decorators"
 import {
     EmbeddingModelService,
-} from "@modules/langchain"
+} from "@modules/integrations/langchain/embedding-model.service"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3NameResolverService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-name-resolver.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     extToLang,
 } from "./utils"

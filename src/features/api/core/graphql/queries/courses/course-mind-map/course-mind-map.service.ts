@@ -6,22 +6,28 @@ import type {
 } from "typeorm"
 import {
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     MindMapNodeEntityType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mind-map-node-entity-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     CourseMindMapNode,
     CourseMindMapTree,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import type {
     Locale as LocaleType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     CourseNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
 import {
     CourseMindMapResponseData,
     MindMapEdge,
     MindMapNode,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     BuildCourseMindMapParams,
 } from "./types"

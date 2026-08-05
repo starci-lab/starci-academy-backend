@@ -3,20 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     FlashcardDeckEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
 import {
     FlashcardDeckParserService,
-} from "../parsers"
+} from "../parsers/flashcard-deck.service"
 import {
     logInitSeederEntitySkipped,
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
     UpsertService,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     ProcessFlashcardDecksParams,
-} from "../types"
+} from "../types/seeder-orchestration"
 import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"

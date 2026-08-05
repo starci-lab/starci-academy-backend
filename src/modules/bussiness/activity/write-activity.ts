@@ -1,8 +1,10 @@
 import {
     ActivityEntity,
     ActivityMetadata,
+} from "@modules/databases/postgresql/primary/entities/activity.entity"
+import {
     ActivityType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/activity-type"
 import type {
     EntityManager,
 } from "typeorm"

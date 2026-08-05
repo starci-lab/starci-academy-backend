@@ -7,19 +7,19 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectMinioS3,
 } from "./s3.decorators"
 import {
     S3Provider,
-} from "./enums"
+} from "./enums/s3"
 import {
     S3CopySameBucketParams,
-} from "./types"
+} from "./types/copy"
 import {
     S3CopyUnsupportedProviderException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/s3/copy-unsupported-provider"
 
 @Injectable()
 /**

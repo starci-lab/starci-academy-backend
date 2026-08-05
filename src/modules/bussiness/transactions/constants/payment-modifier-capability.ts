@@ -1,6 +1,6 @@
 import {
     PaymentType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 
 /** The currency a `PaymentType` gateway settles in. */
 export type PaymentCurrency = "VND" | "USD"

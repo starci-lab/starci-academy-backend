@@ -9,16 +9,22 @@ import type {
 } from "typeorm"
 import {
     CourseVoucherEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/course-voucher.entity"
+import {
     VoucherDiscountType,
+} from "@modules/databases/postgresql/primary/enums/voucher-discount-type"
+import {
     VoucherStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/voucher-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     InvalidVoucherException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/vouchers/invalid-voucher"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import type {
     RewardVoucherConfig,
 } from "./types"

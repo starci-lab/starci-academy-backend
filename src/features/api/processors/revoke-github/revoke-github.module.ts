@@ -12,7 +12,7 @@ import {
 } from "./step-mapping.service"
 import {
     ProcessRevokeGithubRemoveStepService,
-} from "./steps"
+} from "./steps/process-revoke-github-remove-step.service"
 
 @Module({
     providers: [

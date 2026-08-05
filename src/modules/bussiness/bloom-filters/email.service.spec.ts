@@ -6,10 +6,12 @@ import {
     EmailBloomFilterService,
 } from "./email.service"
 import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
+import {
     BloomFilterType,
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import {
     ScalableBloomFilter,
 } from "bloom-filters"

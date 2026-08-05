@@ -1,7 +1,7 @@
 import type {
     SyncStateSourceType,
     SyncStateTarget,
-} from "../enums"
+} from "../enums/sync-state"
 
 /** Composite key identifying a single sync-state row (target + source pair). */
 export interface SyncStateKey {

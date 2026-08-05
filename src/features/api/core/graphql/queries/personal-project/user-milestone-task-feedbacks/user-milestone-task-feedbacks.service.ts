@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     UserMilestoneTaskFeedbacksQuery,
 } from "./user-milestone-task-feedbacks.query"
 import {
     UserMilestoneTaskFeedbacksRequest,
+} from "./graphql-types/request"
+import {
     UserMilestoneTaskFeedbacksResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

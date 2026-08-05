@@ -6,8 +6,10 @@ import {
 } from "./retry.service"
 import type {
     ResolveTupleResult,
-    RetryOptions
-} from "./types"
+} from "./types/async"
+import type {
+    RetryOptions,
+} from "./types/retry"
 @Injectable()
 /**
   * Service for asynchronous operations.

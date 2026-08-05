@@ -1,15 +1,19 @@
 import type {
     GenerateCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/generate-cv"
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -21,26 +25,30 @@ import type {
 } from "typeorm/query-builder/QueryPartialEntity"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CvGenerationStepResultMissingException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/cv/cv-generation-step-result-missing"
 import {
     toUnknownRecord,
-} from "@modules/common"
+} from "@modules/lib/common/utils/unknown-record"
 import {
     CvScoringService,
-} from "../../shared/cv-scoring"
+} from "../../shared/cv-scoring/cv-scoring.service"
 import type {
     CvTemplateLevel,
-} from "../../shared/cv-scoring"
+} from "../../shared/cv-scoring/types"
 import type {
-    ExtendedGenerateCvContext,
     GenerateCvComposeStepExecuteResult,
     GenerateCvGatherStepExecuteResult,
     GenerateCvScoreStepExecuteResult,
-} from "../types"
+} from "../types/execute"
+import type {
+    ExtendedGenerateCvContext,
+} from "../types/extended"
 
 @Injectable()
 /**

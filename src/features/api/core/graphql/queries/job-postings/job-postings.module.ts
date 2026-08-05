@@ -6,10 +6,10 @@ import {
 } from "./job-postings.module-definition"
 import {
     JobPostingsSingleQueryModule,
-} from "./job-postings"
+} from "./job-postings/job-postings.module"
 import {
     JobPostingSingleQueryModule,
-} from "./job-posting"
+} from "./job-posting/job-posting.module"
 
 @Module({
     imports: [

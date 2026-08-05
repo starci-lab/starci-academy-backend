@@ -1,7 +1,9 @@
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     Ack,
     ConnectedSocket,
@@ -15,33 +17,43 @@ import type {
 } from "socket.io"
 import {
     PlaygroundByomWebSocketGateway,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     WsResponseService,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/response.service"
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
 import {
     type EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     PlaygroundSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/playground-session.entity"
+import {
     PlaygroundStepEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/playground-step.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     PublicationEvent,
+} from "../enums/publication-event"
+import {
     SubscriptionEvent,
-} from "../enums"
+} from "../enums/subscription-event"
 import {
     PlaygroundByomRoomService,
 } from "./playground-byom-room.service"
 import {
     KeycloakTokenService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/token.service"
+import {
+    IoRedisInstanceKey,
+} from "@modules/lib/native/ioredis/enums/instance-key"
 import {
     InjectIoRedis,
-    IoRedisInstanceKey,
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/ioredis.decorators"
 import type {
     Redis,
 } from "ioredis"
@@ -56,7 +68,7 @@ import type {
     ResourcesReportSocketIoPayload,
     VerifyCurrentStepParams,
     VerifyNowSocketIoPayload,
-} from "./types"
+} from "./types/payload"
 
 /** Pairing code lifetime (ms). After this, `agent:pair` is rejected -- bounds how
  * long a leaked pairing code stays usable (the code is a UUID, so this + the rate

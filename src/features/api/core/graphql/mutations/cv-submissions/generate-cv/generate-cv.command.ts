@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     GenerateCvRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS envelope for enqueueing a generate-mode CV job. */
 export class GenerateCvCommand {

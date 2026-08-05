@@ -1,9 +1,9 @@
 import type {
     JobApplyMethod,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/job-apply-method"
 import type {
     SubmitJobPostingRequest,
-} from "../graphql-types"
+} from "../graphql-types/request"
 
 /** Params for {@link import("../submit-job-posting.resolver").SubmitJobPostingResolver.validateCompanySelection}. */
 export interface ValidateCompanySelectionParams {

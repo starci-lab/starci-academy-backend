@@ -7,27 +7,37 @@ import {
 } from "@nestjs/common"
 import {
     MockInterviewEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/mock-interview.entity"
 import {
     DeepPartial,
 } from "typeorm"
 import {
     InterviewQuestionEqIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/interview-question-eq-id-factory.service"
 import {
     InterviewQuestionEqPathService,
-} from "../path"
+} from "../path/interview-question-eq-path.service"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
 import {
     CoerceMdScalarService,
-    ContextLoaderService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     InterviewQuestionFieldsService,
+} from "../../shared/interview-question-fields.service"
+import {
     logInitSeederEntitySkipped,
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
     ResolvedFilePath,
-} from "../../shared"
+} from "../../shared/path/types"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 @Injectable()
 /**

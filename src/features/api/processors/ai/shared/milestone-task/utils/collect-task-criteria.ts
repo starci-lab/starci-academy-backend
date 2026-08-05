@@ -1,15 +1,19 @@
 import type {
-    MilestoneTaskEntity,
-    MilestoneTaskOutcomeCriteriaEntity,
     MilestoneTaskApproachCriteriaEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task-approach-criteria.entity"
+import type {
+    MilestoneTaskOutcomeCriteriaEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task-outcome-criteria.entity"
+import type {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
 import type {
     CriterionLangProse,
     ResolvedChallengeCriterion,
-} from "../../challenge-submission"
+} from "../../challenge-submission/types/criteria"
 import {
     pickLangBody,
-} from "../../challenge-submission"
+} from "../../challenge-submission/utils/pick-lang-body"
 
 /**
  * Collect the grading criteria for a SCHEMA V2 milestone task -- mirrors the Challenge V2

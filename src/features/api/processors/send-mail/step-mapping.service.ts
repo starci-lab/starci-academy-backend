@@ -3,17 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     SendMailPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/send-mail"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
+import {
+    ProcessSendMailCompleteStepService,
+} from "./steps/process-send-mail-complete-step.service"
 import {
     ProcessSendMailStepService,
-    ProcessSendMailCompleteStepService,
-} from "./steps"
+} from "./steps/process-send-mail-step.service"
 
 @Injectable()
 /**

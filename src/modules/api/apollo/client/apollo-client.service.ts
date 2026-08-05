@@ -5,15 +5,17 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    createApolloClient 
-} from "./clients"
+    createApolloClient,
+} from "./clients/clients"
 import type {
-    CreateClientParams, CreateClientResult 
-} from "./types"
+    CreateClientParams,
+    CreateClientResult,
+} from "./types/client"
 
 export type {
-    CreateClientParams, CreateClientResult 
-} from "./types"
+    CreateClientParams,
+    CreateClientResult,
+} from "./types/client"
 
 @Injectable()
 /**

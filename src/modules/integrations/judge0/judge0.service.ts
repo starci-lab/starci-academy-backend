@@ -3,24 +3,28 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getJudge0AuthToken,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     Judge0RequestFailedException,
+} from "@modules/platform/exceptions/errors/coding/judge0-request-failed"
+import {
     Judge0TimedOutException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/coding/judge0-timed-out"
 import {
     Judge0StatusId,
-} from "./enums"
+} from "./enums/judge0-status"
 import {
     isJudge0Terminal,
-} from "./utils"
+} from "./utils/map-verdict"
 import type {
     Judge0Token,
     Judge0SubmissionResult,
@@ -31,7 +35,7 @@ import type {
     Judge0RawStatus,
     Judge0RawSubmission,
     Judge0GetBatchResponse,
-} from "./types"
+} from "./types/judge0"
 
 @Injectable()
 /**

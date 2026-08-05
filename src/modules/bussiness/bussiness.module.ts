@@ -7,83 +7,83 @@ import {
     ConfigurableModuleClass
 } from "./bussiness.module-definition"
 import {
-    JobsModule
-} from "./jobs"
+    JobsModule,
+} from "./jobs/jobs.module"
 import {
     OPTIONS_TYPE,
 } from "./bussiness.module-definition"
 import {
     TransactionsModule,
-} from "./transactions"
+} from "./transactions/transactions.module"
 import {
     BloomFiltersModule,
-} from "./bloom-filters"
+} from "./bloom-filters/bloom-filters.module"
 import {
     UserModule,
-} from "./user"
+} from "./user/user.module"
 import {
     ProgressModule,
-} from "./progress"
+} from "./progress/progress.module"
 import {
     FlashcardModule,
-} from "./flashcard"
+} from "./flashcard/flashcard.module"
 import {
     CodingModule,
-} from "./coding"
+} from "./coding/coding.module"
 import {
     DiscussionModule,
-} from "./discussion"
+} from "./discussion/discussion.module"
 import {
     NotificationModule,
-} from "./notification"
+} from "./notification/notification.module"
 import {
     ProjectionsModule,
-} from "./projections"
+} from "./projections/projections.module"
 import {
     LeagueModule,
-} from "./league"
+} from "./league/league.module"
 import {
     AchievementsModule,
-} from "./achievements"
+} from "./achievements/achievements.module"
 import {
     StreakModule,
-} from "./streak"
+} from "./streak/streak.module"
 import {
     InstallmentPlanModule,
-} from "./installment-plan"
+} from "./installment-plan/installment-plan.module"
 import {
     RewardsModule,
-} from "./rewards"
+} from "./rewards/rewards.module"
 import {
     DailyQuestModule,
-} from "./daily-quest"
+} from "./daily-quest/daily-quest.module"
 import {
     KpiRewardModule,
-} from "./kpi-reward"
+} from "./kpi-reward/kpi-reward.module"
 import {
     LearnerCmsModule,
-} from "./learner-cms"
+} from "./learner-cms/learner-cms.module"
 import {
     WeeklyChallengeModule,
-} from "./weekly-challenge"
+} from "./weekly-challenge/weekly-challenge.module"
 import {
     EsSyncModule,
-} from "./es-sync"
+} from "./es-sync/es-sync.module"
 import {
     LoyaltyModule,
-} from "./loyalty"
+} from "./loyalty/loyalty.module"
 import {
     CommunityModule,
-} from "./community"
+} from "./community/community.module"
 import {
     ChatModule,
-} from "./chat"
+} from "./chat/chat.module"
 import {
     ContentAiModule,
-} from "./content-ai"
+} from "./content-ai/content-ai.module"
 import {
     HeadhuntingsBussinessModule,
-} from "./headhuntings"
+} from "./headhuntings/headhuntings.module"
 
 @Module({
 })

@@ -1,10 +1,18 @@
 import type {
-    CommunityChannel,
     CommunityPostCommentEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post-comment.entity"
+import type {
     CommunityPostEntity,
-    ReactionType,
+} from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import type {
+    CommunityChannel,
+} from "@modules/databases/postgresql/primary/enums/community-channel"
+import type {
+    ReactionType,
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
 
 /** Params to create a community post. */
 export interface CreateCommunityPostParams {

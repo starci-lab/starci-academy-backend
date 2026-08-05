@@ -7,11 +7,13 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     QuizSessionWeakTagData,
-} from "@features/api/core/graphql/mutations/flashcard/complete-flashcard-quiz-session/graphql-types"
+} from "../../../../mutations/flashcard/complete-flashcard-quiz-session/graphql-types/response"
 
 @ObjectType({
     description: "One completed flashcard quick-quiz session, as read back for the viewer's history.",

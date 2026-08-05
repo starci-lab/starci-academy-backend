@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     Judge0Module,
-} from "@modules/judge0"
+} from "@modules/integrations/judge0/judge0.module"
 import {
     ConfigurableModuleClass,
 } from "./judge-coding-submission.module-definition"
@@ -15,7 +15,7 @@ import {
 } from "./step-mapping.service"
 import {
     JudgeCodingSubmissionJudgeStepService,
-} from "./steps"
+} from "./steps/judge-coding-submission-judge-step.service"
 
 @Module({
     imports: [

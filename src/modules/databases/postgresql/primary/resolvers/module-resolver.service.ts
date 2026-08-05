@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     ModuleEntity,
-} from "../entities"
+} from "../entities/module.entity"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     TranslationResolverService,
 } from "./translation.service"

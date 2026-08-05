@@ -12,38 +12,42 @@ import {
     AppModule
 } from "./app.module"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import compression from "compression"
 import {
-    setupCors
-} from "@modules/cors"
+    setupCors,
+} from "@modules/platform/cors/setup"
 import {
-    setupHelmet
-} from "@modules/helmet"
+    setupHelmet,
+} from "@modules/platform/helmet/setup"
 import {
-    setupCookie
-} from "@modules/cookie"
+    setupCookie,
+} from "@modules/platform/cookie/setup"
 import {
-    setupSwagger 
-} from "@modules/docs"
+    setupSwagger,
+} from "@modules/docs/utils/setup-swagger"
 import {
-    RedisIoAdapter 
-} from "@modules/socketio"
+    RedisIoAdapter,
+} from "@modules/platform/socketio/adapters/redis-io-adapter"
 import {
-    createRedisKey, 
+    createRedisKey,
+} from "@modules/lib/native/redis/constants"
+import {
+    RedisInstanceKey,
+} from "@modules/lib/native/redis/enums/instance-key"
+import {
     RedisClient,
-    RedisInstanceKey
-} from "@modules/native"
+} from "@modules/lib/native/redis/types/client"
 import {
-    ContextLoggerService 
-} from "@modules/logger"
+    ContextLoggerService,
+} from "@modules/platform/logger/context-logger.service"
 import {
-    SwaggerAuthenticationType
-} from "@modules/docs"
+    SwaggerAuthenticationType,
+} from "@modules/docs/enums/swagger-authentication"
 import {
-    ResponseDelayInterceptor
-} from "@modules/api"
+    ResponseDelayInterceptor,
+} from "@modules/api/interceptors/response-delay.interceptor"
 
 const bootstrap = async () => {
     const app = await NestFactory.create<NestExpressApplication>(

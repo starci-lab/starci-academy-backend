@@ -1,6 +1,6 @@
 import type {
     SignInVerifyOtpData,
-} from "../../../verify-otp/graphql-types"
+} from "../../../verify-otp/graphql-types/response"
 
 /**
  * Internal command result: GraphQL data plus the refresh token kept off the

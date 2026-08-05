@@ -1,6 +1,6 @@
 import {
     CacheKey,
-} from "../enums"
+} from "../enums/cache-key"
 
 /**
  * Configuration for the GraphQL cache interceptor.

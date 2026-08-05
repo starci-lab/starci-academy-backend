@@ -6,7 +6,7 @@ import GraphQLJSON from "graphql-type-json"
 import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
     description: "Tailor the whole CV blocks array toward a job description (no persistence).",

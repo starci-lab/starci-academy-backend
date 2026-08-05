@@ -3,20 +3,26 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-    ContextType
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    ContextType,
+} from "@modules/platform/env/enums/context"
 import {
     ContextNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/context-not-found"
+import {
     ContextTypeMismatchException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/context-type-mismatch"
 import {
     getRuntimeContextRoot,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-seed"
 import fs from "fs/promises"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 @Injectable()
 /**

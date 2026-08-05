@@ -1,6 +1,6 @@
 import {
     SubmitChallengeSubmissionParams,
-} from "./types"
+} from "./types/submit-challenge-submission"
 
 /**
  * CQRS envelope for enqueue-grading -- quota, premium lock, and job dispatch

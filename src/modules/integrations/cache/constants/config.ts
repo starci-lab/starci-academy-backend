@@ -1,26 +1,54 @@
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    CacheKey
-} from "../enums"
+    CacheKey,
+} from "../enums/cache-key"
+import type {
+    AiModelLatencyCacheResult,
+} from "../types/cache-results/ai-model-latency"
+import type {
+    AiPingKeyStatusCacheResult,
+} from "../types/cache-results/ai-ping-key-status"
 import type {
     BloomFilterCacheResult,
-    UserEnrolledCoursesCacheResult,
-    UserProfileLockedCacheResult,
-    EnrollmentMilestonesCacheResult,
-    JobSubscriberClientIdCacheResult,
-    KeycloakUserCacheResult,
-    MilestoneTaskProgressCacheResult,
-    ParentIndexCacheResult,
-    KeycloakOidcPkceCacheResult,
+} from "../types/cache-results/bloom-filter"
+import type {
     CodingProblemProgressCacheResult,
-    CreditUsageCacheResult,
+} from "../types/cache-results/coding-problem-progress"
+import type {
     CourseMindMapCacheResult,
-    AiPingKeyStatusCacheResult,
-    AiModelLatencyCacheResult,
+} from "../types/cache-results/course-mind-map"
+import type {
+    CreditUsageCacheResult,
+} from "../types/cache-results/credit-usage"
+import type {
+    EnrollmentMilestonesCacheResult,
+} from "../types/cache-results/enrollment-milestones"
+import type {
     EntityLabelCacheResult,
-} from "../types"
+} from "../types/cache-results/entity-label"
+import type {
+    JobSubscriberClientIdCacheResult,
+} from "../types/cache-results/job-subscriber-client-id"
+import type {
+    KeycloakOidcPkceCacheResult,
+} from "../types/cache-results/keycloak-oidc-pkce"
+import type {
+    KeycloakUserCacheResult,
+} from "../types/cache-results/keycloak-user"
+import type {
+    MilestoneTaskProgressCacheResult,
+} from "../types/cache-results/milestone-task-progress"
+import type {
+    ParentIndexCacheResult,
+} from "../types/cache-results/parent-index"
+import type {
+    UserEnrolledCoursesCacheResult,
+} from "../types/cache-results/user-enrolled-courses"
+import type {
+    UserProfileLockedCacheResult,
+} from "../types/cache-results/user-profile-locked"
 
 /**
  * Map of cache key to TTL and default cache result shape.

@@ -7,11 +7,11 @@ import {
 } from "./cache.service"
 import {
     CacheKey,
-} from "./enums"
+} from "./enums/cache-key"
 import type {
     AiModelLatencyMap,
     RecordModelLatencyParams,
-} from "./types"
+} from "./types/ai-model-latency"
 
 @Injectable()
 /**

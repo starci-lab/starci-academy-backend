@@ -7,11 +7,11 @@ import {
 } from "js-yaml"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     InitConfig,
     SeedConfig,
-} from "../types"
+} from "../types/seed"
 
 /**
  * Active seed/sync control config.

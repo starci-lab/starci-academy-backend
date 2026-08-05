@@ -2,8 +2,8 @@ import type {
     RedisClientOptions
 } from "redis"
 import type {
-    RedisInstanceKey
-} from "../enums"
+    RedisInstanceKey,
+} from "../enums/instance-key"
 
 /** Options for Redis module (instance keys). */
 export interface RedisOptions {

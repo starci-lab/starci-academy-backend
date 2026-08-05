@@ -1,7 +1,9 @@
 import {
     CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     AiJobSelection,
 } from "@modules/ai/types/ai-job-selection"

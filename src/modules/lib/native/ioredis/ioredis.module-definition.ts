@@ -2,8 +2,8 @@ import {
     ConfigurableModuleBuilder 
 } from "@nestjs/common"
 import {
-    IoRedisOptions 
-} from "./types"
+    IoRedisOptions,
+} from "./types/options"
 
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
   new ConfigurableModuleBuilder<IoRedisOptions>()

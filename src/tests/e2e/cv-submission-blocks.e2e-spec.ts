@@ -1,4 +1,4 @@
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import request from "supertest"
 import {
     Test,
@@ -22,16 +22,22 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
 import {
     CvBlocksEntity,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/cv-blocks.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     CreateCvBlocksHandler,
 } from "@features/api/core/graphql/mutations/cv-submissions/create-cv-blocks/create-cv-blocks.handler"
@@ -61,7 +67,7 @@ import {
 } from "@features/api/core/graphql/mutations/cv-submissions/delete-cv-blocks/delete-cv-blocks.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

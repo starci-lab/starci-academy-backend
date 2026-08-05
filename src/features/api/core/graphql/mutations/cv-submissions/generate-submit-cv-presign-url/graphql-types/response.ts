@@ -3,9 +3,11 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
-    AbstractGraphQLResponse, 
-    IAbstractGraphQLResponse
-} from "@modules/api"
+    AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
+    IAbstractGraphQLResponse,
+} from "@modules/api/apollo/server/types/graphql-response"
 
 @ObjectType({
     description: "Response for generating a CV submission pre-signed URL.",

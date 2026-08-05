@@ -1,6 +1,6 @@
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
 
 /** Params for executing a GraphQL query. */
 export interface ExecuteParams<T> {

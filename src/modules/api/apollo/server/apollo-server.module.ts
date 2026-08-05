@@ -8,16 +8,16 @@ import {
 } from "./apollo-server.module-definition"
 import {
     ApolloServerType,
-} from "./enums"
+} from "./enums/server"
 import {
     MonolithicApolloServerModule,
-} from "./monolithic"
+} from "./monolithic/monolithic-apollo-server.module"
 import {
     FederationApolloServerModule,
-} from "./federation"
+} from "./federation/federation-apollo-server.module"
 import {
     ServicesModule,
-} from "./services"
+} from "./services/services.module"
 
 @Module({
 })

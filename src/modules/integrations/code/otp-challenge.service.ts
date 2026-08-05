@@ -2,15 +2,17 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectIoRedis,
     IoRedisInstanceKey,
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
+    InjectIoRedis,
+} from "@modules/lib/native/ioredis/ioredis.decorators"
 import type {
     Redis,
 } from "ioredis"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     createHash,
     randomInt,
@@ -26,10 +28,10 @@ import type {
     RefreshActionChallengeOtpResult,
     VerifyActionChallengeResult,
     VerifyLoginChallengeParams,
-} from "./types"
-import { 
-    InjectSuperJson 
-} from "@modules/mixin"
+} from "./types/otp-challenge"
+import {
+    InjectSuperJson,
+} from "@modules/lib/mixin/superjson.providers"
 import type SuperJson from "superjson"
 
 @Injectable()

@@ -3,7 +3,7 @@ import type {
 } from "@langchain/core/messages"
 import type {
     RagPlaygroundSourceKind,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/rag-playground-source-kind"
 
 /** Params for {@link PublicRagPlaygroundService.index}. */
 export interface IndexRagPlaygroundParams {

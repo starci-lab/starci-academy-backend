@@ -5,11 +5,11 @@ import {
     connect 
 } from "nats"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
-    NATS 
-} from "./constants"
+    NATS,
+} from "./constants/nats"
 
 /**
  * Creates a provider for the NATS connection.

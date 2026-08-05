@@ -2,52 +2,74 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    CourseEntity,
-    ModuleEntity,
-    ContentEntity,
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     MoreThan,
     type EntityManager,
 } from "typeorm"
 import {
-    CdnCourseBuildService,
-    CdnModuleBuildService,
-    CdnContentBuildService,
     CdnChallengeBuildService,
+} from "./builder/challenge.service"
+import {
+    CdnContentBuildService,
+} from "./builder/content.service"
+import {
+    CdnCourseBuildService,
+} from "./builder/course.service"
+import {
     CdnMilestoneTaskBuildService,
-} from "./builder"
+} from "./builder/milestone-task.service"
+import {
+    CdnModuleBuildService,
+} from "./builder/module.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
-    SyncCdnEntityKind
-} from "@modules/bullmq"
+    SyncCdnEntityKind,
+} from "@modules/integrations/bullmq/types/payloads/sync-cdn"
 import {
-    S3BucketService
-} from "@modules/s3"
+    S3BucketService,
+} from "@modules/integrations/s3/s3-bucket.service"
 import type {
     SynchronizerSyncScope,
-} from "../../types"
+} from "../../types/context"
+import {
+    shouldSyncChallengeEntity,
+    shouldSyncContentEntity,
+    shouldSyncCourseEntity,
+    shouldSyncMilestoneTaskEntity,
+    shouldSyncModuleEntity,
+} from "../../utils/entity-sync-filter"
 import {
     buildChallengeSyncSuccessLog,
     buildContentSyncSuccessLog,
     buildCourseSyncSuccessLog,
     buildMilestoneTaskSyncSuccessLog,
     buildModuleSyncSuccessLog,
-    shouldSyncChallengeEntity,
-    shouldSyncContentEntity,
-    shouldSyncCourseEntity,
-    shouldSyncMilestoneTaskEntity,
-    shouldSyncModuleEntity,
-} from "../../utils"
+} from "../../utils/sync-success-log"
 
 @Injectable()
 /**

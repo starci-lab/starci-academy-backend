@@ -6,8 +6,8 @@ import {
     ServerOptions 
 } from "http"
 import {
-    RedisClient 
-} from "@modules/native"
+    RedisClient,
+} from "@modules/lib/native/redis/types/client"
 import {
     IoAdapter 
 } from "@nestjs/platform-socket.io"

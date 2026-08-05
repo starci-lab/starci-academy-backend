@@ -1,34 +1,46 @@
 import type {
     ParseContentParams,
     ParseContentManyParams,
-} from "./types"
+} from "./types/content"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    Locale,
     ContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ContentIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/content.service"
 import {
     DeepPartial,
 } from "typeorm"
 import {
-    ExtractJsonFromMdService,
-    CoerceMdScalarService,
     ContextLoaderService,
-    ResolvedFileResult,
+} from "../../shared/contexts/loader.service"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
+    ExtractJsonFromMdService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
     MergeJsonResult,
-} from "../../shared"
+} from "../../shared/merge/types/merge-json"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     ContentPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/content-path-not-found"
 import {
     ContentPathService,
-} from "../path"
+} from "../path/content.service"
 
 @Injectable()
 /**

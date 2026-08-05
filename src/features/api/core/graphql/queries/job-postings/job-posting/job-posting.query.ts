@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import type {
     JobPostingRequestParams,
-} from "./types"
+} from "./types/job-posting-request"
 
 /** jobPosting single-lookup query, by `displayId`. */
 export class JobPostingQuery {

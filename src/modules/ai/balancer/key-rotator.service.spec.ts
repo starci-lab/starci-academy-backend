@@ -4,21 +4,25 @@ import {
 } from "@nestjs/testing"
 import {
     AiPingCacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/ai-ping-cache.service"
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     NoActiveBalancerKeyException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/no-active-balancer-key"
 import {
     createIoRedisKey,
+} from "@modules/lib/native/ioredis/constants"
+import {
     IoRedisInstanceKey,
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/enums/instance-key"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     KeyRotatorService,
 } from "./key-rotator.service"

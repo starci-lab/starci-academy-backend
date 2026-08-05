@@ -1,6 +1,6 @@
 import {
     AbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
 import {
     Field,
     ID,

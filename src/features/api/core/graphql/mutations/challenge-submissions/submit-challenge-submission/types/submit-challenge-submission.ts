@@ -1,9 +1,9 @@
 import type {
     SubmitChallengeSubmissionRequest,
-} from "../graphql-types"
+} from "../graphql-types/request"
 import type {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 
 /** Params for `SubmitChallengeSubmissionService.execute`. */
 export type SubmitChallengeSubmissionParams =

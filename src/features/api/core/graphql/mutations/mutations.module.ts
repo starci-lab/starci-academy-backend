@@ -3,85 +3,85 @@ import {
 } from "@nestjs/common"
 import {
     AuthenticationMutationsModule,
-} from "./authentication"
+} from "./authentication/authentication.module"
 import {
     ChallengeSubmissionsMutationsModule,
-} from "./challenge-submissions"
+} from "./challenge-submissions/challenge-submissions.module"
 import {
     CvSubmissionsMutationsModule,
-} from "./cv-submissions"
+} from "./cv-submissions/cv-submissions.module"
 import {
     CoursesMutationsModule,
-} from "./courses"
+} from "./courses/courses.module"
 import {
     ContentsMutationModule,
-} from "./contents"
+} from "./contents/contents.module"
 import {
     ConfigurableModuleClass,
 } from "./mutations.module-definition"
 import {
     KeycloakMutationsModule,
-} from "./keycloak"
+} from "./keycloak/keycloak.module"
 import {
     PersonalProjectMutationsModule,
-} from "./personal-project"
+} from "./personal-project/personal-project.module"
 import {
     AiMutationsModule,
-} from "./ai"
+} from "./ai/ai.module"
 import {
     CodingMutationsModule,
-} from "./coding"
+} from "./coding/coding.module"
 import {
     DiscussionMutationsModule,
-} from "./discussion"
+} from "./discussion/discussion.module"
 import {
     InterviewMutationsModule,
-} from "./interview"
+} from "./interview/interview.module"
 import {
     MembershipMutationsModule,
-} from "./membership"
+} from "./membership/membership.module"
 import {
     FollowsMutationsModule,
-} from "./follows"
+} from "./follows/follows.module"
 import {
     ProfileMutationsModule,
-} from "./profile"
+} from "./profile/profile.module"
 import {
     TwoFactorMutationsModule,
-} from "./two-factor"
+} from "./two-factor/two-factor.module"
 import {
     NotificationsMutationsModule,
-} from "./notifications"
+} from "./notifications/notifications.module"
 import {
     RewardsMutationsModule,
-} from "./rewards"
+} from "./rewards/rewards.module"
 import {
     FlashcardMutationsModule,
-} from "./flashcard"
+} from "./flashcard/flashcard.module"
 import {
     ContactMutationsModule,
-} from "./contact"
+} from "./contact/contact.module"
 import {
     CommunityMutationsModule,
-} from "./community"
+} from "./community/community.module"
 import {
     ChatMutationsModule,
-} from "./chat"
+} from "./chat/chat.module"
 import {
     RagPlaygroundMutationsModule,
-} from "./rag-playground"
+} from "./rag-playground/rag-playground.module"
 import {
     JobPostingsMutationsModule,
-} from "./job-postings"
+} from "./job-postings/job-postings.module"
 import {
     InstallmentPlansMutationsModule,
-} from "./installment-plans"
+} from "./installment-plans/installment-plans.module"
 import {
     PlaygroundSessionsMutationsModule,
-} from "./playground-sessions"
+} from "./playground-sessions/playground-sessions.module"
 import {
     StreakMutationsModule,
-} from "./streak"
+} from "./streak/streak.module"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).

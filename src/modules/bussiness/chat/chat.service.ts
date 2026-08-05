@@ -6,25 +6,33 @@ import {
 } from "typeorm"
 import {
     ChatConversationEntity,
-    ChatConversationType,
+} from "@modules/databases/postgresql/primary/entities/chat-conversation.entity"
+import {
     ChatMessageEntity,
+} from "@modules/databases/postgresql/primary/entities/chat-message.entity"
+import {
+    ChatConversationType,
+} from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChatConversationNotFoundException,
     ChatForbiddenException,
     ChatMembershipRequiredException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/chat"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import type {
     AssertChatAccessParams,
     GetOrCreateFounderDmParams,

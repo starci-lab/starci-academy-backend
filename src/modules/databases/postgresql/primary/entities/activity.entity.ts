@@ -9,7 +9,7 @@ import {
 } from "typeorm"
 import {
     ActivityType,
-} from "../enums"
+} from "../enums/activity-type"
 import {
     UuidAbstractEntity,
 } from "./abstract"

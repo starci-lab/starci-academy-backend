@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     JobPostingsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** jobPostings list query. */
 export class JobPostingsQuery {

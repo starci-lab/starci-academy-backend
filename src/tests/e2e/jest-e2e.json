@@ -29,6 +29,9 @@
     "^@features/(.*)$": "<rootDir>/src/features/$1",
     "^@tests/(.*)$": "<rootDir>/src/tests/$1"
   },
+  "setupFilesAfterEnv": [
+    "<rootDir>/src/tests/helpers/e2e-db-reset.ts"
+  ],
   "globalSetup": "<rootDir>/src/tests/helpers/e2e-setup.ts",
   "globalTeardown": "<rootDir>/src/tests/helpers/e2e-teardown.ts",
   "testTimeout": 120000,

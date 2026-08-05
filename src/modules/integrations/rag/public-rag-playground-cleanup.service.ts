@@ -14,14 +14,20 @@ import type {
     QdrantClient,
 } from "@qdrant/qdrant-js"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    InjectQdrantClient,
     RagPlaygroundSessionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/rag-playground-session.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    InjectQdrantClient,
+} from "@modules/databases/qdrant/qdrant.decorators"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 /** A session idle past this window is dropped (its Qdrant collection + DB row). */
 const IDLE_TTL_MS = 2 * 60 * 60_000

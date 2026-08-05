@@ -10,24 +10,34 @@ import {
 } from "typeorm"
 import {
     AbstractEntity,
-    InjectPrimaryPostgreSQLEntityManager,
     UuidAbstractEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/abstract"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     WinstonLog,
-    WinstonService,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     DbSyncType,
-} from "@modules/winston"
+} from "@modules/platform/winston/types/messages/db-synchronizer"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import _ from "lodash"
 import type {
     DbSyncLogEntityShape,
+} from "./types/db-sync-log"
+import type {
     PartitionUuidSyncParams,
     PartitionUuidSyncResult,
+} from "./types/partition-uuid-sync"
+import type {
     UpsertManyResult,
-} from "./types"
+} from "./types/upsert"
 import {
     buildDbSyncLogDisplayFields,
-} from "./utils"
+} from "./utils/db-sync-log-metadata"
 
 @Injectable()
 /**

@@ -6,7 +6,7 @@ import {
 } from "./ai-models.handler"
 import type {
     AiModelsResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Thin bridge from the `aiModels` resolver to `AiModelsHandler`. */

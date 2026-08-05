@@ -6,7 +6,7 @@ import {
 import {
     GraphQLTypeReactionType,
     ReactionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
 
 @InputType({
     description: "Request to set/change/remove a reaction on a community post.",

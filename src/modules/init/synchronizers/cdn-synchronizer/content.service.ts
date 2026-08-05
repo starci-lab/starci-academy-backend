@@ -1,22 +1,22 @@
 import {
-    DayjsService
-} from "@modules/mixin"
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
 import {
     Injectable,
     OnApplicationBootstrap,
 } from "@nestjs/common"
 import {
-    EnqueueSyncCdnJobService
-} from "@modules/bussiness"
+    EnqueueSyncCdnJobService,
+} from "@modules/bussiness/jobs/enqueue/sync-cdn.service"
 import {
-    ContentEntity
-} from "@modules/databases"
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
     Interval 
 } from "@nestjs/schedule"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 
 @Injectable()
 /**

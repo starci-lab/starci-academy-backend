@@ -5,13 +5,15 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     CommunityChannel,
     GraphQLTypeCommunityChannel,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/community-channel"
 import {
     ReactionSummaryObject,
-} from "../../discussion"
+} from "../../discussion/object-types/reaction-summary.object"
 
 @ObjectType({
     description: "A community feed post with author, comment count and reaction summary.",

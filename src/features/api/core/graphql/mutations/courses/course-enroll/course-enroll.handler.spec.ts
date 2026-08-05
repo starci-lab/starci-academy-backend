@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -11,24 +11,28 @@ import {
 } from "@nestjs/typeorm"
 import {
     PaymentType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
     CourseAlreadyEnrolledError,
+} from "@modules/platform/exceptions/errors/courses/course-already-enrolled"
+import {
     UnsupportedPaymentTypeException,
+} from "@modules/platform/exceptions/errors/payment/unsupported-payment-type"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
 import {
     CourseEnrollCommand,
 } from "./course-enroll.command"

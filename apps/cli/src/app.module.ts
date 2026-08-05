@@ -1,37 +1,39 @@
 import {
     EnvModule,
-} from "@modules/env"
+} from "@modules/platform/env/env.module"
 import {
     Module,
 } from "@nestjs/common"
 import {
-    WinstonModule,
     WinstonLevel,
-} from "@modules/winston"
+} from "@modules/platform/winston/types/level"
+import {
+    WinstonModule,
+} from "@modules/platform/winston/winston.module"
 import {
     ServiceName,
-} from "@modules/common"
+} from "@modules/lib/common/enums/service"
 import {
     ExecaModule,
-} from "@modules/execa"
+} from "@modules/integrations/execa/execa.module"
 import {
     MixinModule,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/mixin.module"
 import {
     PrimaryPostgreSQLModule,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     CryptoModule,
-} from "@modules/crypto"
+} from "@modules/crypto/crypto.module"
 import {
     FilesystemModule,
-} from "@modules/filesystem"
+} from "@modules/filesystem/filesystem.module"
 import {
     S3Module,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3.module"
 import {
     CliModule,
-} from "@features/cli"
+} from "@features/cli/cli.module"
 
 @Module({
     imports: [

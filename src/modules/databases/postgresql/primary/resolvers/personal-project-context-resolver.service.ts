@@ -6,7 +6,7 @@ import {
 } from "../entities"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 
 @Injectable()
 /**

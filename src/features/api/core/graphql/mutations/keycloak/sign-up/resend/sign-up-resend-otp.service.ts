@@ -9,13 +9,13 @@ import {
 } from "./sign-up-resend-otp.command"
 import type {
     SignUpInitData,
-} from "../init/graphql-types"
+} from "../init/graphql-types/response"
 import type {
     SignUpResendOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 
 @Injectable()
 /** Forwards sign-up OTP resend to the command bus so the resolver stays a thin leaf. */

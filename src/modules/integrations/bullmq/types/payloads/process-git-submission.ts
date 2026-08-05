@@ -1,7 +1,9 @@
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     AiJobSelection,
 } from "@modules/ai/types/ai-job-selection"

@@ -11,23 +11,37 @@ import type {
 } from "typeorm"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import {
     toUnknownRecord,
-} from "@modules/common"
+} from "@modules/lib/common/utils/unknown-record"
 import {
     toGlobalId,
-} from "./utils"
+} from "./utils/global-id"
 import type {
     EntityRef,
     FillFromCacheParams,
@@ -35,7 +49,7 @@ import type {
     LabelKind,
     LabelRow,
     ResolveLabelsParams,
-} from "./types"
+} from "./types/label"
 
 @Injectable()
 /**

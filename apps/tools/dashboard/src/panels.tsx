@@ -1,7 +1,9 @@
 import { useState } from "react"
 import { Button, Chip } from "@heroui/react"
 import { del, postForm, postJson } from "./api"
-import type { PgSnapshotRow } from "./types"
+import type {
+    PgSnapshotRow,
+} from "./types/panels"
 import {
     Block,
     Field,

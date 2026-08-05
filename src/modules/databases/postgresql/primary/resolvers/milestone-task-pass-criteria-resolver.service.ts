@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     MilestoneTaskCriteriaEntity,
-} from "../entities"
+} from "../entities/milestone-task-criteria.entity"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     TranslationResolverService,
 } from "./translation.service"

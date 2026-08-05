@@ -9,8 +9,10 @@ import {
 } from "uuid"
 import {
     envConfig,
-    runInKubernetes
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    runInKubernetes,
+} from "@modules/platform/env/utils/parse-env"
 
 @Injectable()
 /**

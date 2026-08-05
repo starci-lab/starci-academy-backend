@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     SplitCvFromTextRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS envelope for parsing pasted text into editor blocks. */
 export class SplitCvFromTextCommand {

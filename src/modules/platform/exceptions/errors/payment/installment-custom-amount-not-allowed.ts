@@ -9,7 +9,7 @@ import {
 } from "../abstract"
 import type {
     InstallmentPlanType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/installment-plan-type"
 
 /** Metadata for a custom `amountVnd` requested on a plan that doesn't allow one. */
 export interface InstallmentCustomAmountNotAllowedExceptionMetadata extends AbstractExceptionMetadata {

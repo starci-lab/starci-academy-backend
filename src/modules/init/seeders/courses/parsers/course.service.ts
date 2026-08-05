@@ -1,33 +1,57 @@
 import type {
-    CourseFromDatabaseParams,
     ParseCourseParams,
-} from "./types"
+} from "./types/course"
+import type {
+    CourseFromDatabaseParams,
+} from "./types/from-database"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
+    CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
 import {
     ExtractJsonFromMdService,
-    CoerceMdScalarService,
-    MergeJsonService,
-    ResolvedFileResult,
-    ContextLoaderService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import type {
     MergeJsonResult,
-} from "../../shared"
+} from "../../shared/merge/types/merge-json"
 import {
     CourseIdFactoryService,
+} from "../id-factories/course.service"
+import {
     LivestreamSessionIdFactoryService,
+} from "../id-factories/livestream-session.service"
+import {
     PrerequisiteIdFactoryService,
+} from "../id-factories/prerequisite.service"
+import {
     PricingPhaseIdFactoryService,
+} from "../id-factories/pricing-phase.service"
+import {
     QnaIdFactoryService,
+} from "../id-factories/qna.service"
+import {
     ValuePropositionIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/value-proposition.service"
 import {
     DeepPartial,
     EntityManager,
@@ -35,21 +59,25 @@ import {
 import {
     CourseEntity,
     CourseMindMapTree,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CoursePathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/course-path-not-found"
 import {
     CoursePathService,
-} from "../path"
+} from "../path/course.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3BuildService,
-    S3Provider,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-build.service"
 
 @Injectable()
 /**

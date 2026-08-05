@@ -1,6 +1,6 @@
 // Side-effect import: load the elasticsearch barrel first to dodge the cqrs
 // barrel load-order cycle (see courses/course/course.handler.spec.ts for details).
-import "@modules/elasticsearch"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
 import {
     Test,
     TestingModule,
@@ -13,19 +13,19 @@ import {
 } from "./consultant.query"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ConsultantNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/consultant-not-found"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ConsultantEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
 import {
     ConsultantContactGateService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/headhuntings/consultant-contact-gate.service"
 
 describe("ConsultantHandler",
     () => {

@@ -1,29 +1,39 @@
 import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ContentNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/content-not-found"
+import {
     CourseNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
+import {
     ModuleNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/module-not-found"
 import {
     Injectable,
 } from "@nestjs/common"
 import type {
     EntityManager,
 } from "typeorm"
-import { 
-    ContentParentIndexCacheResult 
-} from "@modules/cache"
 import {
-    CacheKey 
-} from "@modules/cache"
+    ContentParentIndexCacheResult,
+} from "@modules/integrations/cache/types/cache-results/parent-index"
 import {
-    CacheService 
-} from "@modules/cache"
+    CacheKey,
+} from "@modules/integrations/cache/enums/cache-key"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 
 @Injectable()
 /**

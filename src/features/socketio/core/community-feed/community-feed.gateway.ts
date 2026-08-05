@@ -12,25 +12,31 @@ import type {
 } from "socket.io"
 import {
     CommunityFeedWebSocketGateway,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     WsResponseService,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/response.service"
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import type {
     CommunityCommentChangedEventPayload,
     CommunityCommentReactionChangedEventPayload,
     CommunityPostChangedEventPayload,
     CommunityPostReactionChangedEventPayload,
-} from "@modules/event"
+} from "@modules/platform/event/types/event-payload/community"
 import {
     PublicationEvent,
+} from "../enums/publication-event"
+import {
     SubscriptionEvent,
-} from "../enums"
+} from "../enums/subscription-event"
 import {
     CommunityFeedRoomService,
 } from "./community-feed-room.service"
@@ -39,8 +45,10 @@ import type {
     CommunityCommentReactionChangedSocketIoMessage,
     CommunityPostChangedSocketIoMessage,
     CommunityPostReactionChangedSocketIoMessage,
+} from "./types/message"
+import type {
     SubscribeCommunityFeedSocketIoPayload,
-} from "./types"
+} from "./types/payload"
 
 @CommunityFeedWebSocketGateway()
 /**

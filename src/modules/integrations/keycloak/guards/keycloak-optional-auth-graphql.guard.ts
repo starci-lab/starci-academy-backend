@@ -7,18 +7,22 @@ import {
 } from "@nestjs/graphql"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     GraphQLContextMissingRequestException,
+} from "@modules/platform/exceptions/errors/keycloak/graphql-context-missing-request"
+import {
     KeycloakAuthHeaderInvalidFormatException,
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-auth-header-invalid-format"
+import {
     KeycloakTokenInactiveException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/keycloak-token-inactive"
 import {
     KeycloakJwksService,
 } from "../jwks.service"
 import type {
     KeycloakAuthGuardRequest,
-} from "../types"
+} from "../types/guard"
 
 @Injectable()
 /**

@@ -1,16 +1,24 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ChallengeSubmissionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
     UserChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ChallengeSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/challenge-submission-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -27,16 +35,16 @@ import {
 import type {
     SyncSubmissionResult,
     UpsertSubmissionParams,
-} from "./types"
+} from "./types/sync-submission"
 import {
     UrlValidatorService,
-} from "@modules/validators"
+} from "@modules/lib/validators/url.service"
 import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 
 @CommandHandler(SyncSubmissionCommand)
 @Injectable()

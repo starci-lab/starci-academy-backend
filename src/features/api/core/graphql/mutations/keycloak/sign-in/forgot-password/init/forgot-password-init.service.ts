@@ -9,13 +9,13 @@ import {
 } from "./forgot-password-init.command"
 import type {
     ForgotPasswordInitRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import type {
     SignInInitData,
-} from "../../init/graphql-types"
+} from "../../init/graphql-types/response"
 import {
     ExecuteParams,
-} from "../../../../../../types"
+} from "../../../../../../types/execute"
 
 @Injectable()
 /** Forwards forgot-password init to the command bus so the resolver stays a thin leaf. */

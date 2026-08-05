@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import type {
     CommunityChannel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/community-channel"
 
 @Injectable()
 /**

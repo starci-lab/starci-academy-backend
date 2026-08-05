@@ -3,17 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import type {
     ReviewPersonalProjectTaskPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/review-personal-project-task"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
+import {
+    ReviewMilestoneTaskCompleteStepService,
+} from "./steps/review-milestone-task-complete-step.service"
 import {
     ReviewMilestoneTaskGradeStepService,
-    ReviewMilestoneTaskCompleteStepService,
-} from "./steps"
+} from "./steps/review-milestone-task-grade-step.service"
 
 @Injectable()
 /**

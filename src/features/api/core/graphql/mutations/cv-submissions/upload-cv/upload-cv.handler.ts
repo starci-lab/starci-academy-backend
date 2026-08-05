@@ -1,20 +1,30 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     CvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import {
     CvSource,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
     Locale,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     EnqueueScoreUploadedCvJobService,
-} from "@features/api/processors/ai/score-uploaded-cv"
+} from "../../../../../processors/ai/score-uploaded-cv/enqueue-score-uploaded-cv.service"
 import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
@@ -36,7 +46,7 @@ import {
 } from "./upload-cv.command"
 import {
     UploadCvData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(UploadCvCommand)
 @Injectable()

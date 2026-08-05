@@ -5,13 +5,17 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    CvVerificationLevel,
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    CvVerificationLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-verification-level"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CvVerificationService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/headhuntings/cv-verification.service"
 import {
     JOB_READINESS_BUILDING_THRESHOLD,
     JOB_READINESS_INTERVIEW_RECENT_WINDOW,
@@ -20,18 +24,20 @@ import {
     JOB_READINESS_TRACK_CAPSTONE_WEIGHT,
     JOB_READINESS_TRACK_CV_WEIGHT,
     JOB_READINESS_TRACK_INTERVIEW_WEIGHT,
-} from "../job-readiness/constants"
+} from "../job-readiness/constants/bands"
 import type {
     JobReadinessBand,
-} from "../job-readiness/types"
+} from "../job-readiness/types/job-readiness"
 import type {
     CandidateCapstonePassedRow,
     CandidateCvScoreRow,
     CandidateInterviewAvgRow,
     CourseCapstoneTotalRow,
+} from "./types/rows"
+import type {
     RankTalentCandidatesByTrackParams,
     TalentCandidate,
-} from "./types"
+} from "./types/talent-candidate"
 
 /**
  * One PRESENT pillar contribution to a track's depth -- its 0-100 score and the

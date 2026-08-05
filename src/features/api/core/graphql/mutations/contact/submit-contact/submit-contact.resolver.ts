@@ -9,21 +9,25 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     SubmitContactRequest,
+} from "./graphql-types/request"
+import {
     SubmitContactResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Inbox that receives contact-form messages (the founder). */
 const CONTACT_INBOX = "cuongnvtse160875@gmail.com"

@@ -1,9 +1,9 @@
 import type {
     ForgotPasswordVerifyOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import {
     ExecuteParams,
-} from "../../../../../../types"
+} from "../../../../../../types/execute"
 
 /** CQRS envelope for applying the parked reset password after OTP succeeds. */
 export class ForgotPasswordVerifyOtpCommand {

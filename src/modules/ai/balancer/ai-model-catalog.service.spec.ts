@@ -6,16 +6,20 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    AiModelCategory,
     AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     AiModelCatalogService,
     AI_MODEL_CATALOG_CACHE_KEY,

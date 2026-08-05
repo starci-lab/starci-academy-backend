@@ -6,55 +6,55 @@ import {
 } from "./dashboard.module-definition"
 import {
     MyCoursesSingleQueryModule,
-} from "./my-courses"
+} from "./my-courses/my-courses.module"
 import {
     MyLearnedLessonsSingleQueryModule,
-} from "./my-learned-lessons"
+} from "./my-learned-lessons/my-learned-lessons.module"
 import {
     MyInProgressChallengesSingleQueryModule,
-} from "./my-in-progress-challenges"
+} from "./my-in-progress-challenges/my-in-progress-challenges.module"
 import {
     MyWeeklyStatsSingleQueryModule,
-} from "./my-weekly-stats"
+} from "./my-weekly-stats/my-weekly-stats.module"
 import {
     MyKpisSingleQueryModule,
-} from "./my-kpis"
+} from "./my-kpis/my-kpis.module"
 import {
     MyContributionCalendarSingleQueryModule,
-} from "./my-contribution-calendar"
+} from "./my-contribution-calendar/my-contribution-calendar.module"
 import {
     TrendingContentsSingleQueryModule,
-} from "./trending-contents"
+} from "./trending-contents/trending-contents.module"
 import {
     MyFeedSingleQueryModule,
-} from "./my-feed"
+} from "./my-feed/my-feed.module"
 import {
     ActiveAdvertisementSingleQueryModule,
-} from "./active-advertisement"
+} from "./active-advertisement/active-advertisement.module"
 import {
     ChangelogEntriesSingleQueryModule,
-} from "./changelog-entries"
+} from "./changelog-entries/changelog-entries.module"
 import {
     MyUpcomingLivestreamsSingleQueryModule,
-} from "./my-upcoming-livestreams"
+} from "./my-upcoming-livestreams/my-upcoming-livestreams.module"
 import {
     WeeklyChallengeSingleQueryModule,
-} from "./weekly-challenge"
+} from "./weekly-challenge/weekly-challenge.module"
 import {
     RewardsSingleQueryModule,
-} from "./rewards"
+} from "./rewards/rewards.module"
 import {
     MyRewardWalletSingleQueryModule,
-} from "./my-reward-wallet"
+} from "./my-reward-wallet/my-reward-wallet.module"
 import {
     MyVouchersSingleQueryModule,
-} from "./my-vouchers"
+} from "./my-vouchers/my-vouchers.module"
 import {
     MyDailyQuestSingleQueryModule,
-} from "./my-daily-quest"
+} from "./my-daily-quest/my-daily-quest.module"
 import {
     RecommendedCoursesSingleQueryModule,
-} from "./recommended-courses"
+} from "./recommended-courses/recommended-courses.module"
 
 @Module({
     imports: [

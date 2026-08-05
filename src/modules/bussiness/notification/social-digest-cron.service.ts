@@ -9,26 +9,32 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     NotificationEntity,
+} from "@modules/databases/postgresql/primary/entities/notification.entity"
+import {
     NotificationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     enqueueLearnerEmail,
-} from "@modules/transactional-email"
+} from "@modules/integrations/transactional-email/enqueue-learner-email"
 import {
     SocialDigestFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/notification/social-digest-failed"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     EnqueueSendMailJobService,
-} from "../jobs"
+} from "../jobs/enqueue/send-mail.service"
 
 /** One grouped `(recipient, type) -> count` row from the digest aggregation query. */
 interface DigestCountRow {

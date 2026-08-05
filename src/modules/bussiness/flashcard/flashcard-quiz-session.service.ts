@@ -8,32 +8,44 @@ import {
 } from "typeorm"
 import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardQuizSessionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/flashcard-quiz-session.entity"
+import {
     XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CourseRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     FLAT_POINTS,
+} from "@features/api/processors/ai/shared/xp/points-config"
+import {
     writeXpHistory,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/write-xp-history"
 import {
     JOB_READINESS_BUILDING_THRESHOLD,
-} from "@features/api/core/graphql/queries/users/job-readiness/constants"
+} from "@features/api/core/graphql/queries/users/job-readiness/constants/bands"
 import {
     UserFlashcardStatsProjectionService,
-} from "../projections/user-flashcard-stats"
+} from "../projections/user-flashcard-stats/user-flashcard-stats-projection.service"
 import type {
     CompleteFlashcardQuizSessionParams,
     CompleteFlashcardQuizSessionResult,
     QuizSessionAnswerParams,
     QuizSessionWeakTagResult,
     QuizXpSumRow,
-} from "./types"
+} from "./types/flashcard-quiz-session"
 
 /** XP awarded per answered card, before the coverage weighting is applied. */
 const PER_CARD_XP = 3

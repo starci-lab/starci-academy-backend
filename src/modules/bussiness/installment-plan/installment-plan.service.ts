@@ -9,23 +9,37 @@ import type {
 } from "typeorm"
 import {
     CartItemEntity,
+} from "@modules/databases/postgresql/primary/entities/cart-item.entity"
+import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     InstallmentPlanEntity,
-    InstallmentPlanStatus,
-    InstallmentPlanType,
+} from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
+import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
+    InstallmentPlanStatus,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-status"
+import {
+    InstallmentPlanType,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-type"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InstallmentPlanNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/payment/installment-plan-not-found"
 import type {
     ApplyInstallmentPaymentForTransactionParams,
     CreateFixedInstallmentPlanParams,

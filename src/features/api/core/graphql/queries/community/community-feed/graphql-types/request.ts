@@ -6,7 +6,7 @@ import {
 import {
     CommunityChannel,
     GraphQLTypeCommunityChannel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/community-channel"
 
 @InputType({
     description: "Cursor-paginated request for the community feed.",

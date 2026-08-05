@@ -18,52 +18,72 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
 import {
     ChatConversationEntity,
-    ChatConversationType,
+} from "@modules/databases/postgresql/primary/entities/chat-conversation.entity"
+import {
     ChatMessageEntity,
+} from "@modules/databases/postgresql/primary/entities/chat-message.entity"
+import {
     MembershipEntity,
-    MembershipStatus,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/membership.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ChatConversationType,
+} from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
+import {
+    MembershipStatus,
+} from "@modules/databases/postgresql/primary/enums/membership-status"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     ChatConversationNotFoundException,
     ChatForbiddenException,
     ChatMembershipRequiredException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/chat"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     ChatService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/chat/chat.service"
 import {
     EventEmitterService,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     ChatMessagesResolver,
+} from "@features/api/core/graphql/queries/chat/chat-messages/chat-messages.resolver"
+import {
     ChatMessagesService,
-} from "@features/api/core/graphql/queries/chat/chat-messages"
+} from "@features/api/core/graphql/queries/chat/chat-messages/chat-messages.service"
 import {
     CommunityChatConversationResolver,
+} from "@features/api/core/graphql/queries/chat/community-chat-conversation/community-chat-conversation.resolver"
+import {
     CommunityChatConversationService,
-} from "@features/api/core/graphql/queries/chat/community-chat-conversation"
+} from "@features/api/core/graphql/queries/chat/community-chat-conversation/community-chat-conversation.service"
 import {
     MyFounderConversationResolver,
+} from "@features/api/core/graphql/queries/chat/my-founder-conversation/my-founder-conversation.resolver"
+import {
     MyFounderConversationService,
-} from "@features/api/core/graphql/queries/chat/my-founder-conversation"
+} from "@features/api/core/graphql/queries/chat/my-founder-conversation/my-founder-conversation.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

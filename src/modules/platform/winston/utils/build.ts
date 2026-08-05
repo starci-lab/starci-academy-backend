@@ -1,6 +1,6 @@
 import {
     ServiceName,
-} from "@modules/common"
+} from "@modules/lib/common/enums/service"
 
 /** Build application name from service name and ID. */
 export const buildAppName = (

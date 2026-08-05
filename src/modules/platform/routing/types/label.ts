@@ -4,7 +4,7 @@ import type {
 } from "typeorm"
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * A single entity reference to resolve into a display label.

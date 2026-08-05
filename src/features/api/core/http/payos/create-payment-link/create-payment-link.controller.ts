@@ -9,7 +9,7 @@ import {
 } from "../../http"
 import {
     CreatePaymentLinkRequest,
-} from "./dtos"
+} from "./dtos/request"
 import {
     CreatePaymentLinkService,
 } from "./create-payment-link.service"
@@ -18,11 +18,11 @@ import {
 } from "@nestjs/swagger"
 import {
     CreatePaymentLinkResponse,
-} from "./dtos"
+} from "./dtos/response"
 import {
     RestSuccessMessage,
     RestTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
     ApiOperation 
 } from "@nestjs/swagger"

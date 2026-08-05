@@ -3,11 +3,16 @@ import {
 } from "nest-commander"
 import {
     InvalidPostgresUrlException,
-    InvalidUrlException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/cli/invalid-postgres-url"
 import {
-    WinstonLog, WinstonService,
-} from "@modules/winston"
+    InvalidUrlException,
+} from "@modules/platform/exceptions/errors/cli/invalid-url"
+import {
+    WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     mkdtemp,
 } from "fs/promises"
@@ -16,17 +21,17 @@ import {
 } from "os"
 import path from "path"
 import {
-    AsyncService
-} from "@modules/mixin"
+    AsyncService,
+} from "@modules/lib/mixin/async.service"
 import {
-    ExecaService
-} from "@modules/execa"
+    ExecaService,
+} from "@modules/integrations/execa/execa.service"
 import {
     v4
 } from "uuid"
 import type {
-    PgSyncCommandOptions
-} from "./types"
+    PgSyncCommandOptions,
+} from "./types/pg-sync"
 
 @SubCommand({
     name: "pg-sync",

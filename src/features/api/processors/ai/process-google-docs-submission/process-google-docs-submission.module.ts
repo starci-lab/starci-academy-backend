@@ -12,11 +12,13 @@ import {
 } from "./process-google-docs-submission.worker"
 import {
     ProcessGoogleDocsSubmissionGradeStepService,
+} from "./steps/process-google-docs-submission-grade-step.service"
+import {
     ProcessGoogleDocsSubmissionCompleteStepService,
-} from "./steps"
+} from "./steps/process-submission-complete-step.service"
 import {
     ChallengeEvaluationParseService,
-} from "../shared/challenge-evaluation"
+} from "../shared/challenge-evaluation/challenge-evaluation-parse.service"
 
 @Module({
     providers: [

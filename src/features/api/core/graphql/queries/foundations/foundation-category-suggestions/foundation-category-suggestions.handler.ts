@@ -1,12 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     FoundationCategoryEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -19,10 +19,10 @@ import {
 } from "./foundation-category-suggestions.query"
 import {
     FoundationCategorySuggestionsPayload,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     CategorySuggestionOption,
-} from "./types"
+} from "./types/category-suggestion-option"
 
 /** Default number of suggestions returned. */
 const DEFAULT_LIMIT = 8

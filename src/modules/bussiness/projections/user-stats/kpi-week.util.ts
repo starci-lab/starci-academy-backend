@@ -1,6 +1,6 @@
 import {
     APP_TIMEZONE,
-} from "@modules/common"
+} from "@modules/lib/common/constants/timezone"
 
 /**
  * SQL expr for the start of the CURRENT KPI week: the most recent Monday 08:00

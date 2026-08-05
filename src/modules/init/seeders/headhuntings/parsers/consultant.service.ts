@@ -5,35 +5,51 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    ConsultantEntity,
     ConsultantTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/consultant-translation.entity"
+import {
+    ConsultantEntity,
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ConsultantPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/consultant-path-not-found"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    ResolvedFileResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
+import {
+    ConsultantIdFactoryService,
+} from "../id-factories/consultant.service"
 import {
     HeadhuntingCompanyIdFactoryService,
-    ConsultantIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/headhunting-company.service"
 import {
     HEADHUNTINGS_MOUNT_DIR,
+} from "../path/constants"
+import {
     ConsultantPathService,
-} from "../path"
+} from "../path/consultant.service"
 import type {
     ParseConsultantManyParams,
     ParseConsultantParams,
-} from "./types"
+} from "./types/consultant"
 
 @Injectable()
 /**

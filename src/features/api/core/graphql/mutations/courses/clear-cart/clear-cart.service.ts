@@ -6,13 +6,13 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ClearCartCommand,
 } from "./clear-cart.command"
 import type {
     ClearCartResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Thin service that forwards the clearCart request to the CQRS command bus. */

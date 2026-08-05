@@ -6,8 +6,10 @@ import {
 } from "crypto"
 import {
     ToolsFileRequiredException,
+} from "@modules/platform/exceptions/errors/tools/file-required"
+import {
     ToolsTargetReferenceInvalidException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/tools/target"
 import {
     mkdir,
     writeFile,
@@ -17,28 +19,32 @@ import {
 } from "path"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     FfmpegService,
-} from "@modules/ffmpeg"
+} from "@modules/integrations/ffmpeg/ffmpeg.service"
 import {
     Bento4Service,
-} from "@modules/bento4"
+} from "@modules/integrations/bento4/bento4.service"
 import {
     ArtifactType,
+} from "../store/enums/store"
+import {
     ToolsStoreService,
-} from "../store"
+} from "../store/tools-store.service"
 import {
     SyncService,
-} from "../sync"
+} from "../sync/sync.service"
 import type {
     ProcessDashParams,
     ProcessDashResult,
-} from "./types"
+} from "./types/dash"
 
 @Injectable()
 /**

@@ -1,18 +1,30 @@
 import type {
-    Locale,
-    ModelProvider,
     TransactionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import type {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import type {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     AiJobSelection,
 } from "@modules/ai/types/ai-job-selection"
 import type {
     SendMailPayload,
+} from "@modules/integrations/bullmq/types/payloads/send-mail"
+import type {
     SyncCdnPayload,
+} from "@modules/integrations/bullmq/types/payloads/sync-cdn"
+import type {
     SyncElasticsearchPayload,
+} from "@modules/integrations/bullmq/types/payloads/sync-elasticsearch"
+import type {
     SyncIndexerPayload,
+} from "@modules/integrations/bullmq/types/payloads/sync-indexer"
+import type {
     SyncScyllaDBPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/sync-scylladb"
 
 /** Params for enqueuing an enroll job. */
 export interface EnqueueEnrollJobParams {

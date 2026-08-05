@@ -1,13 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    CartItemEntity,
+} from "@modules/databases/postgresql/primary/entities/cart-item.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    CartItemEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,7 +25,7 @@ import {
 } from "./clear-cart.command"
 import type {
     ClearCartResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(ClearCartCommand)
 @Injectable()

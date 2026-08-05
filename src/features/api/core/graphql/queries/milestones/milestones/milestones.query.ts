@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MilestonesRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS message that lists every milestone in a course. */
 export class MilestonesQuery {

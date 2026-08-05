@@ -6,7 +6,7 @@ import {
 } from "./sessions.module-definition"
 import {
     MySessionsSingleQueryModule,
-} from "./my-sessions"
+} from "./my-sessions/my-sessions.module"
 
 @Module({
     imports: [

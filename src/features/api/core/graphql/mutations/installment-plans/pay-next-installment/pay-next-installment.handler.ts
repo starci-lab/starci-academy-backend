@@ -1,46 +1,78 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    InstallmentPlanEntity,
+} from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
+import {
+    TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
     ActionType,
-    InjectPrimaryPostgreSQLEntityManager,
-    InstallmentPlanEntity,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     InstallmentPlanStatus,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-status"
+import {
     InstallmentPlanType,
+} from "@modules/databases/postgresql/primary/enums/installment-plan-type"
+import {
     PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
     PricingPhase,
-    TransactionEntity,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+} from "@modules/platform/exceptions/errors/courses/payos-return-url-and-payos-cancel-url-must-be-required"
 import {
     InstallmentAmountBelowMinimumException,
+} from "@modules/platform/exceptions/errors/payment/installment-amount-below-minimum"
+import {
     InstallmentCurrencyNotSupportedException,
+} from "@modules/platform/exceptions/errors/payment/installment-currency-not-supported"
+import {
     InstallmentCustomAmountNotAllowedException,
+} from "@modules/platform/exceptions/errors/payment/installment-custom-amount-not-allowed"
+import {
     InstallmentPlanNotFoundException,
+} from "@modules/platform/exceptions/errors/payment/installment-plan-not-found"
+import {
     InstallmentPlanNotPayableException,
-    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+} from "@modules/platform/exceptions/errors/payment/installment-plan-not-payable"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     EnqueueReconcileTransactionJobService,
-    InstallmentPlanService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
     DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
     RetryService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/retry.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectPayOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/payos.providers"
 import {
     PayOS,
 } from "@payos/node"
 import {
     InjectSepay,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/sepay.providers"
 import {
     SePayPgClient,
 } from "sepay-pg-node"
@@ -59,12 +91,12 @@ import {
 } from "./pay-next-installment.command"
 import {
     PayNextInstallmentResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     BuildSepayInstallmentCheckoutParams,
     ResolveInstallmentCheckoutParams,
     ResolveInstallmentCheckoutResult,
-} from "./types"
+} from "./types/checkout"
 
 /** Label used in provider descriptions. */
 const INSTALLMENT_PAYMENT_LABEL = "installment-payment"

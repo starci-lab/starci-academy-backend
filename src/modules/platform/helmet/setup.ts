@@ -3,8 +3,8 @@ import {
 } from "@nestjs/common"
 import helmet from "helmet"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import type {
     HelmetOptions
 } from "helmet"

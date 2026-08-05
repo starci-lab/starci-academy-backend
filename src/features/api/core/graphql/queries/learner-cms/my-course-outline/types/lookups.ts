@@ -1,7 +1,9 @@
 import type {
     ChallengeSubmissionProgressItem,
+} from "@modules/integrations/cache/types/cache-results/challenge-submission-progress"
+import type {
     MilestoneTaskProgressItem,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/milestone-task-progress"
 
 /**
  * Per-challenge progress keyed by challenge id, built from

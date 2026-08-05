@@ -1,6 +1,6 @@
 import type {
     NotificationSnapshot,
-} from "@modules/event"
+} from "@modules/platform/event/types/event-payload/notification"
 
 /**
  * Server -> client message pushed when a new notification is created for the

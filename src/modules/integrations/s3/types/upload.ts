@@ -3,8 +3,8 @@ import type {
     PutObjectAclCommandOutput,
 } from "@aws-sdk/client-s3"
 import type {
-    S3Provider 
-} from "../enums"
+    S3Provider,
+} from "../enums/s3"
 import {
     Readable 
 } from "stream"

@@ -1,14 +1,18 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     CvBlocksEntity,
+} from "@modules/databases/postgresql/primary/entities/cv-blocks.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CvDocumentNotFoundException,
+} from "@modules/platform/exceptions/errors/cv/cv-document-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -24,7 +28,7 @@ import {
 } from "./delete-cv-blocks.command"
 import {
     DeleteCvBlocksData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(DeleteCvBlocksCommand)
 @Injectable()

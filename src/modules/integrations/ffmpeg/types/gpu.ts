@@ -1,6 +1,6 @@
 import {
     GpuVendor,
-} from "../enums"
+} from "../enums/gpu"
 
 /**
  * Detected GPU information.

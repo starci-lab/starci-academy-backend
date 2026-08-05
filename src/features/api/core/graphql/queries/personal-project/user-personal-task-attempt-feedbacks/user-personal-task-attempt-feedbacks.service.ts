@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     UserPersonalTaskAttemptFeedbacksQuery,
 } from "./user-personal-task-attempt-feedbacks.query"
 import {
     UserPersonalTaskAttemptFeedbacksRequest,
+} from "./graphql-types/request"
+import {
     UserPersonalTaskAttemptFeedbacksResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

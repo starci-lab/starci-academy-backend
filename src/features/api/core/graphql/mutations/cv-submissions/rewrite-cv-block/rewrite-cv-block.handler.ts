@@ -1,18 +1,30 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelTask,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CvBlockNotFoundException,
+} from "@modules/platform/exceptions/errors/cv/cv-block-not-found"
+import {
     CvModelOutputParseException,
+} from "@modules/platform/exceptions/errors/cv/cv-model-output-parse"
+import {
     CvModelOutputShapeException,
+} from "@modules/platform/exceptions/errors/cv/cv-model-output-shape"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     AiInvokeService,
 } from "@modules/ai/ai-invoke.service"
@@ -44,11 +56,11 @@ import {
 } from "./rewrite-cv-block.command"
 import {
     RewriteCvBlockData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     BuildSystemPromptParams,
     LoadCapstoneGroundingParams,
-} from "./types"
+} from "./types/rewrite-cv-block"
 
 /** Real StarCi capstone grounding pulled from Postgres for an accurate rewrite. */
 interface CapstoneGroundingRow {

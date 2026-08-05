@@ -11,30 +11,38 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    MOCK_INTERVIEW_SESSION_DURATION_MS,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     Locale,
-    MOCK_INTERVIEW_SESSION_DURATION_MS,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
+} from "@modules/bussiness/guards/graphql-must-enrolled.guard"
 import {
     MyInProgressMockInterviewSessionService,
 } from "./my-in-progress-mock-interview-session.service"
 import {
     MyInProgressMockInterviewSessionData,
     MyInProgressMockInterviewSessionResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

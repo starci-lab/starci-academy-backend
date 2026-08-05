@@ -13,32 +13,52 @@ import type {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    UserFollowEntity,
+} from "@modules/databases/postgresql/primary/entities/user-follow.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ActivityType,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     NotificationType,
-    UserEntity,
-    UserFollowEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
+    writeActivity,
+} from "@modules/bussiness/activity/write-activity"
 import {
     NotificationService,
+} from "@modules/bussiness/notification/notification.service"
+import {
     UserStatsProjectionService,
-    writeActivity,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
 import {
     SetFollowRequest,
+} from "./graphql-types/request"
+import {
     SetFollowResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

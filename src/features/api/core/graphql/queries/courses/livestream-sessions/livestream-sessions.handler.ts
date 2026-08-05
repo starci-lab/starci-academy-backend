@@ -1,15 +1,21 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    LivestreamSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/livestream-session.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    LivestreamSessionEntity,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
     LivestreamSessionResolverService,
-    Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/livestream-session-resolver.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -25,9 +31,11 @@ import {
     LivestreamSessionsQuery,
 } from "./livestream-sessions.query"
 import {
-    LivestreamSessionsResponseData,
     LivestreamSessionsSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    LivestreamSessionsResponseData,
+} from "./graphql-types/response"
 
 @QueryHandler(LivestreamSessionsQuery)
 @Injectable()

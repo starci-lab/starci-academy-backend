@@ -6,7 +6,7 @@ import {
 } from "./backup.module"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 
 async function bootstrap() {
     const app = await NestFactory.create(BackupModule)

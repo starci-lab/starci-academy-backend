@@ -1,6 +1,6 @@
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 /** Params for reading the same markdown heading in EN and VI documents. */
 export interface ExtractParams {
     /** Heading text without hashes, e.g. `"Title"`. */

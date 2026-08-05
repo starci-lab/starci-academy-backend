@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -9,16 +9,18 @@ import {
     QueryHandler,
 } from "@nestjs/cqrs"
 import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
+import {
     BloomFilterType,
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import {
     CheckEmailExistsQuery,
 } from "./check-email-exists.query"
 import type {
     CheckEmailExistsData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @QueryHandler(CheckEmailExistsQuery)
 @Injectable()

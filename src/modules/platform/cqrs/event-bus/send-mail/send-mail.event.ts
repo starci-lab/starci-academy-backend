@@ -1,6 +1,6 @@
 import {
     SendMailPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/send-mail"
 
 /**
  * CQRS event that asks a handler to enqueue a mail job -- emitters stay free of BullMQ

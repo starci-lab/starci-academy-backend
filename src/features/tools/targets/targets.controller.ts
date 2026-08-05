@@ -15,20 +15,22 @@ import {
 } from "@nestjs/swagger"
 import {
     ToolsTargetNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/tools/target"
 import {
     LocalOnlyGuard,
-} from "../guards"
+} from "../guards/local-only.guard"
 import {
     toolsRoutes,
-} from "../constants"
+} from "../constants/routes"
 import {
     ToolsStoreService,
-} from "../store"
+} from "../store/tools-store.service"
 import {
     CreateTargetRequest,
+} from "./dtos/create-target.request"
+import {
     UpdateTargetRequest,
-} from "./dtos"
+} from "./dtos/update-target.request"
 
 @ApiTags(toolsRoutes.targets.tag)
 @UseGuards(LocalOnlyGuard)

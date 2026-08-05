@@ -1,10 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     AiAutoQuotaConfigService,
+} from "@modules/filesystem/ai-auto-quota-config.service"
+import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -17,7 +19,7 @@ import {
 } from "./system-config.query"
 import {
     SystemConfigData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @QueryHandler(SystemConfigQuery)
 @Injectable()

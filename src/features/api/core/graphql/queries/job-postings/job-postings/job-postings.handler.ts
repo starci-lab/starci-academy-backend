@@ -1,10 +1,12 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    JobPostingEntity,
+} from "@modules/databases/postgresql/primary/entities/job-posting.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    JobPostingEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -18,13 +20,13 @@ import {
 } from "typeorm"
 import {
     clampPagination,
-} from "@modules/common"
+} from "@modules/lib/common/utils/pagination"
 import {
     JobPostingsQuery,
 } from "./job-postings.query"
 import type {
     JobPostingsData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @QueryHandler(JobPostingsQuery)
 @Injectable()

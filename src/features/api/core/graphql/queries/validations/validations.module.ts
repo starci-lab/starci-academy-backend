@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,7 +6,7 @@ import {
 } from "./validations.module-definition"
 import {
     CheckEmailExistsSingleQueryModule,
-} from "./check-email-exists"
+} from "./check-email-exists/check-email-exists.module"
 
 @Module({
     imports: [

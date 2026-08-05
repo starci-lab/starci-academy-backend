@@ -11,7 +11,7 @@ import {
 import type {
     GraphQLRequestResponseContext,
     ThrottlerTrackedRequest,
-} from "../types"
+} from "../types/request-response"
 
 @Injectable()
 /**

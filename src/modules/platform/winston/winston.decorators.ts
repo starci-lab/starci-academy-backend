@@ -5,7 +5,7 @@ import {
     CONSOLE_WINSTON,
     LOKI_WINSTON,
     WINSTON_AND_CONSOLE,
-} from "./constants"
+} from "./constants/winston"
 
 /** Injects the console-only Winston instance -- use when the line must never ship to Loki. */
 export const InjectConsoleWinston = () => Inject(CONSOLE_WINSTON)

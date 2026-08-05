@@ -1,7 +1,9 @@
 import type {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import type {
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
 
 /** Params for {@link getCoursePricingPhaseRow}. */
 export interface GetCoursePricingPhaseRowParams {

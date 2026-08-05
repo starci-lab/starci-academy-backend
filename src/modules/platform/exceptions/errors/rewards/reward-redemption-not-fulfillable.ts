@@ -6,7 +6,7 @@ import {
 } from "../abstract"
 import type {
     RewardRedemptionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reward-redemption-status"
 
 /** Metadata for {@link RewardRedemptionNotFulfillableException}. */
 export interface RewardRedemptionNotFulfillableExceptionMetadata extends AbstractExceptionMetadata {

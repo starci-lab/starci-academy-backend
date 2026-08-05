@@ -1,9 +1,15 @@
 import {
     ContentEntity,
-    ContentHydrationService,
-    ContentResolverService,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ContentHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/content-hydration.service"
+import {
+    ContentResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/content-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -11,9 +17,11 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
-    buildCompletionSuggest,
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
+    buildCompletionSuggest,
+} from "@modules/integrations/elasticsearch/utils/completion"
 import _ from "lodash"
 
 @Injectable()

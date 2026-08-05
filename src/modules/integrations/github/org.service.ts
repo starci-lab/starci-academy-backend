@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     Octokit,
 } from "octokit"
@@ -17,7 +17,7 @@ import type {
     GetGithubUserTeamMembershipResult,
     RemoveGithubUserFromTeamInOrgParams,
     RemoveGithubUserFromTeamInOrgResult,
-} from "./types"
+} from "./types/github-org"
 
 @Injectable()
 /**

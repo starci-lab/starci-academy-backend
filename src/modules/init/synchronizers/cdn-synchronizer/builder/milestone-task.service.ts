@@ -1,9 +1,15 @@
 import {
-    Locale,
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     MilestoneTaskHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/milestone-task-hydration.service"
+import {
     MilestoneTaskResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/milestone-task-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,7 +18,7 @@ import type {
 } from "./types"
 import {
     S3NameResolverService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-name-resolver.service"
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"

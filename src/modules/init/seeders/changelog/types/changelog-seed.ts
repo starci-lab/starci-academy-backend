@@ -1,7 +1,9 @@
 import type {
-    ChangelogCategory,
     LocalizedText,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/advertisement.entity"
+import type {
+    ChangelogCategory,
+} from "@modules/databases/postgresql/primary/enums/changelog-category"
 
 /**
  * One changelog row as authored in `changelog.md`. Upserted by `slug`.

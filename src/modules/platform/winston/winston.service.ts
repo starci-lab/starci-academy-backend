@@ -12,11 +12,13 @@ import {
 } from "./config"
 import {
     WinstonLog,
-} from "./enums"
+} from "./enums/winston-log"
+import {
+    WinstonLevel,
+} from "./types/level"
 import {
     GetLoggerParams,
-    WinstonLevel,
-} from "./types"
+} from "./types/params"
 import {
     Logger,
 } from "winston"

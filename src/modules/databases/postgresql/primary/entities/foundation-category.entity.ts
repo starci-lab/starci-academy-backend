@@ -11,7 +11,7 @@ import {
 import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     UuidAbstractEntity,
 } from "./abstract"

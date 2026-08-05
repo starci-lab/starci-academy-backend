@@ -3,20 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 import {
     CodingProblemParserService,
-} from "./parsers"
+} from "./parsers/coding-problem-parser.service"
 import {
     CodingProblemInsertService,
-} from "./inserts"
+} from "./inserts/coding-problem-insert.service"
 import {
     CodingProblemHintIndexService,
-} from "./hints"
+} from "./hints/coding-problem-hint-index.service"
 
 @Injectable()
 /**

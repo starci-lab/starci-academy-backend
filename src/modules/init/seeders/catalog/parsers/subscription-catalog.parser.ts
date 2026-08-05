@@ -3,22 +3,28 @@ import {
 } from "@nestjs/common"
 import type {
     AppConfigSubscriptionTier,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/config"
 import {
     AiSubTier,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
 import {
     SubscriptionCatalogPathService,
-} from "../path"
+} from "../path/subscription-catalog.path"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     SubscriptionCatalogMd,
 } from "./types"

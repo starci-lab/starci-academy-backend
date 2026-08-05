@@ -1,6 +1,6 @@
 import {
-    Locale 
-} from "@modules/databases"
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 /** Payload for sending a WS message. */
 export interface SocketIoPayload<T = unknown> {
     /** The data to send */

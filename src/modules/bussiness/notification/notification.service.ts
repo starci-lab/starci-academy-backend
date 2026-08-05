@@ -6,16 +6,20 @@ import {
     IsNull,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     NotificationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/notification.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     NotificationNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/notification/notification"
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"
@@ -26,7 +30,7 @@ import type {
     MarkAllNotificationsAsReadParams,
     MarkAllNotificationsAsReadResult,
     MarkNotificationAsReadParams,
-} from "./types"
+} from "./types/notification"
 
 @Injectable()
 /**

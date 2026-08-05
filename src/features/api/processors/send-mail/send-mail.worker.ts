@@ -1,16 +1,18 @@
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     Processor as Worker,
     WorkerHost,
@@ -20,20 +22,26 @@ import {
 } from "bullmq"
 import {
     JobEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/job.entity"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
 import SuperJSON from "superjson"
 import {
     WinstonLog,
-    WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/enums/winston-log"
 import {
-    BullQueueName, 
-    SendMailPayload, 
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
     bullData,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    SendMailPayload,
+} from "@modules/integrations/bullmq/types/payloads/send-mail"
 import {
     SendMailStepMappingService,
 } from "./step-mapping.service"

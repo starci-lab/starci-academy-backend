@@ -1,18 +1,30 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     CvModelOutputParseException,
+} from "@modules/platform/exceptions/errors/cv/cv-model-output-parse"
+import {
     CvModelOutputShapeException,
+} from "@modules/platform/exceptions/errors/cv/cv-model-output-shape"
+import {
     CvSplitEmptyTextException,
+} from "@modules/platform/exceptions/errors/cv/cv-split-empty-text"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     AiInvokeService,
 } from "@modules/ai/ai-invoke.service"
@@ -35,7 +47,7 @@ import {
 } from "./split-cv-from-text.command"
 import {
     SplitCvFromTextData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Block `type` values the FE block editor understands (mirror of `CvBlockType`). */
 const BLOCK_TYPES = [

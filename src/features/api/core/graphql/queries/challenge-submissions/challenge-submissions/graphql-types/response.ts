@@ -4,11 +4,13 @@ import {
 } from "@nestjs/graphql"
 import {
     ChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 
 @ObjectType({
     description: "All challenge submissions for a challenge (no pagination).",

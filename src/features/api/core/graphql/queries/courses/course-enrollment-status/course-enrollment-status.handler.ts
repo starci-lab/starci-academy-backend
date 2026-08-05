@@ -1,9 +1,9 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -16,11 +16,13 @@ import {
 } from "./course-enrollment-status.query"
 import type {
     CourseEnrollmentStatusData,
-} from "./graphql-types"
+} from "./graphql-types/response"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    EnrollmentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     EntityManager,
 } from "typeorm"

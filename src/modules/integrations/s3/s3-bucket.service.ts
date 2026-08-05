@@ -9,17 +9,17 @@ import {
 } from "@nestjs/common"
 import {
     S3BucketCreationFailedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/s3/bucket"
 import {
     InjectDigitalOceanS3,
     InjectMinioS3
 } from "./s3.decorators"
 import {
     S3_PUBLIC_READ_PREFIXES,
-} from "./constants"
+} from "./constants/s3"
 import {
     S3LikeError,
-} from "./types"
+} from "./types/bucket"
 
 @Injectable()
 /**

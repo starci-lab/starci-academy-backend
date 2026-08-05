@@ -5,7 +5,7 @@ import {
 import {
     CodingLanguage,
     GraphQLTypeCodingLanguage,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/coding-language"
 import {
     CodingTelemetryInput,
 } from "./telemetry.input"

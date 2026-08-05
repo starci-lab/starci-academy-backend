@@ -3,20 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     CommunityCommentService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/community/community-comment.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
+import {
+    mapCommunityCommentNode,
+} from "../../../shared/community/mappers/community-comment-node"
 import {
     CommunityCommentNodeObject,
-    mapCommunityCommentNode,
-} from "../../../shared/community"
+} from "../../../shared/community/object-types/community-comment-node.object"
 import type {
     CreateCommunityPostCommentRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

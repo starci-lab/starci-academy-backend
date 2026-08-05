@@ -1,9 +1,15 @@
 import {
     CourseEntity,
-    CourseHydrationService,
-    CourseResolverService,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    CourseHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/course-hydration.service"
+import {
+    CourseResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/course-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +18,10 @@ import type {
 } from "./types"
 import {
     ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
     buildCompletionSuggest,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/completion"
 import _ from "lodash"
 
 @Injectable()

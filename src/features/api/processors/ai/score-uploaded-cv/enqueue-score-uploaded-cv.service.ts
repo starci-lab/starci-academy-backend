@@ -13,23 +13,31 @@ import {
 import SuperJSON from "superjson"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     JobCategory,
+} from "@modules/databases/postgresql/primary/enums/job-category"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     sleepEnqueueUxDelay,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/utils/enqueue-ux-delay"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
 import type {
     ScoreUploadedCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/score-uploaded-cv"
 import type {
     AiJobSelection,
 } from "@modules/ai/types/ai-job-selection"

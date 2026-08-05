@@ -9,19 +9,19 @@ import {
 } from "@nestjs/swagger"
 import {
     MockInvalidCredentialsException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mock/auth"
 import {
     MockDelayInterceptor,
-} from "../../interceptors"
+} from "../../interceptors/mock-delay.interceptor"
 import {
     AuthStoreService,
 } from "./auth-store.service"
 import {
     CredentialsDto,
-} from "./dtos"
+} from "./dtos/credentials"
 import type {
     JwtUser,
-} from "./types"
+} from "./types/auth"
 
 @ApiTags("mock")
 @UseInterceptors(MockDelayInterceptor)

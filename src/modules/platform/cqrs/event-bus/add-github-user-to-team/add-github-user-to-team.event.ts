@@ -1,6 +1,6 @@
-import {
-    InviteGithubPayload,
-} from "@modules/bullmq"
+import type {
+    EnqueueResolveGithubPayload,
+} from "@modules/integrations/bullmq/types/payloads/resolve-github"
 
 /**
  * Event emitted when a user's GitHub identity has been verified and the
@@ -12,6 +12,6 @@ import {
  */
 export class AddGithubUserToTeamEvent {
     constructor(
-        readonly payload: InviteGithubPayload,
+        readonly payload: EnqueueResolveGithubPayload,
     ) {}
 }

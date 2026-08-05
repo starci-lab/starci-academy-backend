@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     AiModelCatalogService,
 } from "@modules/ai/balancer/ai-model-catalog.service"
@@ -19,13 +19,13 @@ import {
 } from "@modules/ai/utils/resolve-grading-chain"
 import {
     AiModelTask,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
 import type {
     AiModelsResponseData,
     AiActiveModelData,
     AiGradableModelData,
     AiModelChoiceData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

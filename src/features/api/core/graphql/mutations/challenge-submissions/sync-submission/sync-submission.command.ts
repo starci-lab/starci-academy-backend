@@ -1,6 +1,6 @@
 import {
     SyncSubmissionParams,
-} from "./types"
+} from "./types/sync-submission"
 
 /**
  * CQRS envelope for the draft-save path -- kept distinct from submit so a

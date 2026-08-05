@@ -4,8 +4,8 @@
 // bussiness barrel so its CQRS/elasticsearch base classes initialise before
 // this file's own CQRS handlers pull `@modules/cqrs` (same guard
 // `course-enroll.e2e-spec.ts` uses).
-import "@modules/elasticsearch"
-import "@modules/bussiness"
+import "@modules/integrations/elasticsearch/elasticsearch.module"
+import "@modules/bussiness/bussiness.module"
 import request from "supertest"
 import {
     Test,
@@ -29,32 +29,58 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    Locale,
-    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     MilestoneTaskEntity,
-    PricingPhase,
-    PrimaryPostgreSQLModule,
-    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
     UserMilestoneTaskAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
+import {
     UserMilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakOptionalAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-optional-auth-graphql.guard"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ConsultantContactGateService,
+} from "@modules/bussiness/headhuntings/consultant-contact-gate.service"
+import {
     CvVerificationService,
+} from "@modules/bussiness/headhuntings/cv-verification.service"
+import {
     UserSolvedChallengesProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-solved-challenges/user-solved-challenges-projection.service"
 import {
     ConsultantsHandler,
 } from "@features/api/core/graphql/queries/headhuntings/consultants/consultants.handler"
@@ -87,7 +113,7 @@ import {
 } from "@features/api/core/graphql/queries/users/job-readiness/job-readiness.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

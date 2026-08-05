@@ -5,30 +5,44 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    HeadhuntingCompanyEntity,
     HeadhuntingCompanyTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company-translation.entity"
+import {
+    HeadhuntingCompanyEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     HeadhuntingCompanyPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/headhunting-company-path-not-found"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    ResolvedFileResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     HeadhuntingCompanyIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/headhunting-company.service"
 import {
     HEADHUNTINGS_MOUNT_DIR,
+} from "../path/constants"
+import {
     HeadhuntingCompanyPathService,
-} from "../path"
+} from "../path/headhunting-company.service"
 
 @Injectable()
 /**

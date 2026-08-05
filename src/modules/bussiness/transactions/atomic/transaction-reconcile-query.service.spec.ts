@@ -6,24 +6,26 @@ import {
     TransactionReconcileQueryService,
 } from "./transaction-reconcile-query.service"
 import {
-    PaymentType,
     TransactionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
     PAYOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/constants/payos"
 import {
     STRIPE,
-} from "@modules/stripe"
+} from "@modules/integrations/stripe/constants/stripe"
 import {
     SEPAY,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/constants/sepay"
 import {
     PaypalClient,
-} from "@modules/paypal"
+} from "@modules/integrations/paypal/paypal.client"
 import {
     NowPaymentsClient,
-} from "@modules/nowpayments"
+} from "@modules/integrations/nowpayments/nowpayments.client"
 
 /**
  * Build a pending transaction for a given gateway with the id columns the

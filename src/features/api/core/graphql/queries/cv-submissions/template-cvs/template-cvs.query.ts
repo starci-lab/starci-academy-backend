@@ -1,6 +1,6 @@
 import {
-    ExecuteParams 
-} from "../../../../types"
+    ExecuteParams,
+} from "../../../../types/execute"
 
 /**
  * QueryBus payload for `templateCvs`: locale only (no request body) into

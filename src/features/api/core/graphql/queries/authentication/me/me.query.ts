@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 
 /**
  * Query for the Me query.

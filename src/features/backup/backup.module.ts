@@ -5,8 +5,8 @@ import {
     ConfigurableModuleClass,
 } from "./backup.module-definition"
 import {
-    PgBackupModule 
-} from "./pg"
+    PgBackupModule,
+} from "./pg/pg.module"
 
 @Module({
     imports: [

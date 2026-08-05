@@ -1,12 +1,18 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
 import {
     ActionType,
-    InjectPrimaryPostgreSQLEntityManager,
-    JobEntity,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     JobStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/job-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -26,10 +32,10 @@ import {
 import {
     IncompletedJobItem,
     IncompletedJobsResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
-    UserNotFoundException
-} from "@modules/exceptions"
+    UserNotFoundException,
+} from "@modules/platform/exceptions/errors/users/user"
 
 @QueryHandler(IncompletedJobsQuery)
 @Injectable()

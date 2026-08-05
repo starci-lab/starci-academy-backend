@@ -1,8 +1,12 @@
 import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
 import type {
     EntityManager,
 } from "typeorm"

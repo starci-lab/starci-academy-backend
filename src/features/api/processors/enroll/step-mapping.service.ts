@@ -2,14 +2,14 @@ import {
     Injectable
 } from "@nestjs/common"
 import {
-    AbstractStepService
-} from "@modules/bussiness"
+    AbstractStepService,
+} from "@modules/bussiness/jobs/types/context"
 import {
-    EnrollStepService
-} from "./steps"
+    EnrollStepService,
+} from "./steps/enroll-step.service"
 import type {
     EnrollPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/enroll"
 
 @Injectable()
 /**

@@ -17,13 +17,13 @@ import {
 } from "rxjs/operators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     resolveLocale,
-} from "@modules/locale"
+} from "@modules/platform/locale/resolve-locale"
 import {
     GraphQLResponse,
-} from "../types"
+} from "../types/graphql-response"
 
 const SUCCESS_MESSAGE_METADATA = "graphqlSuccessMessage"
 

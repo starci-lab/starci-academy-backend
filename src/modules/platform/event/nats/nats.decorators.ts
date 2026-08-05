@@ -2,8 +2,8 @@ import {
     Inject 
 } from "@nestjs/common"
 import {
-    NATS 
-} from "./constants"
+    NATS,
+} from "./constants/nats"
 
 /**
  * Decorator for injecting the NATS connection.

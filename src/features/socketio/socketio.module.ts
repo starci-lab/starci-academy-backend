@@ -6,7 +6,7 @@ import {
 } from "./socketio.module-definition"
 import {
     CoreModule,
-} from "./core"
+} from "./core/core.module"
 @Module({
     imports: [
         CoreModule.register({

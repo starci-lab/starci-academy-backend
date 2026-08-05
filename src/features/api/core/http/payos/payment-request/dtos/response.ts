@@ -1,6 +1,6 @@
 import {
-    AbstractRestResponse 
-} from "@modules/api"
+    AbstractRestResponse,
+} from "@modules/api/rest/dtos/abstracts"
 import {
     ApiProperty 
 } from "@nestjs/swagger"

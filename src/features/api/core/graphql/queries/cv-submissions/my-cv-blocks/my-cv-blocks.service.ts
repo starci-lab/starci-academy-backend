@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
 import {
     MyCvBlocksQuery,
 } from "./my-cv-blocks.query"
 import {
     CvBlocksDocument,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

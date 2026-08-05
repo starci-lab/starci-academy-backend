@@ -10,7 +10,7 @@ import {
 } from "./generate-avatar-presign-url.command"
 import {
     GenerateAvatarPresignUrlResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

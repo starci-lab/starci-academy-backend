@@ -1,13 +1,15 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     HeadhuntingCompanyEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ElasticsearchQueryBuilder,
-    ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/query-builder"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -17,7 +19,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     ConsultantContactGateService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/headhuntings/consultant-contact-gate.service"
 import {
     HeadhunterCompaniesQuery,
 } from "./headhunting-companies.query"

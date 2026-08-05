@@ -8,24 +8,28 @@ import {
 } from "typeorm"
 import {
     ContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
     ContentParserService,
-} from "../parsers"
+} from "../parsers/content.service"
 import {
     ContentPathService,
-} from "../path"
+} from "../path/content.service"
+import {
+    logInitSeederEntitySkipped,
+} from "../../shared/log-init-seeder-entity-skipped"
 import {
     ResolvedFileResult,
-    logInitSeederEntitySkipped,
+} from "../../shared/path/types"
+import {
     UpsertService,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     ProcessContentsParams,
-} from "../types"
+} from "../types/seeder-orchestration"
 import {
     ChallengeProcessorService,
 } from "./challenge-processor.service"

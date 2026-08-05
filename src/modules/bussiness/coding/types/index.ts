@@ -1,12 +1,24 @@
 import type {
-    CodingDifficulty,
-    CodingLanguage,
-    CodingProblemEntity,
     CodingProblemSolutionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-solution.entity"
+import type {
+    CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import type {
     CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-submission.entity"
+import type {
+    CodingDifficulty,
+} from "@modules/databases/postgresql/primary/enums/coding-difficulty"
+import type {
+    CodingLanguage,
+} from "@modules/databases/postgresql/primary/enums/coding-language"
+import type {
     CodingVerdict,
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
+import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * Client-measured behavioural telemetry sent alongside a coding submission.

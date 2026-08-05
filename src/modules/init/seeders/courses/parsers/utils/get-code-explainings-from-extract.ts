@@ -1,7 +1,9 @@
 import type {
     CodeExplainingEntity,
+} from "@modules/databases/postgresql/primary/entities/code-explaining.entity"
+import type {
     ContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/content.entity"
 
 /** Mount `# codeExplaining` extracts as `codeExplaining`; entity field is `codeExplainings`. */
 export type ContentExtractJson = Partial<ContentEntity> & {

@@ -1,12 +1,12 @@
 import type {
     ChallengeEvaluation,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/evaluation/challenge-evaluation"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     parseChallengeEvaluation,
-} from "./utils"
+} from "./utils/parse-challenge-evaluation"
 
 @Injectable()
 /**

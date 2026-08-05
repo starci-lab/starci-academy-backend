@@ -5,12 +5,14 @@ import {
     QueryBus,
 } from "@nestjs/cqrs"
 import type {
-    GlobalSearchSocketIoPayload,
     GlobalSearchSocketIoMessage,
-} from "./types"
+} from "./types/message"
+import type {
+    GlobalSearchSocketIoPayload,
+} from "./types/payload"
 import type {
     ExecuteParams,
-} from "../../../types"
+} from "../../../types/execute"
 import {
     GlobalSearchQuery,
 } from "./global-search.query"

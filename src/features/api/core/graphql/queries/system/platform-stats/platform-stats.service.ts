@@ -6,13 +6,13 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     PlatformStatsQuery,
 } from "./platform-stats.query"
 import {
     PlatformStatsData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Dispatches `PlatformStatsQuery` onto the CQRS bus. */

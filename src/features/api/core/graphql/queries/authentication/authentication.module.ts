@@ -6,7 +6,7 @@ import {
 } from "./authentication.module-definition"
 import {
     MeSingleQueryModule,
-} from "./me"
+} from "./me/me.module"
 
 @Module({
     imports: [

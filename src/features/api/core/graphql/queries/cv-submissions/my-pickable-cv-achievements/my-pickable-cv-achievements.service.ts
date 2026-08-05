@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MyPickableCvAchievementsQuery,
 } from "./my-pickable-cv-achievements.query"
 import {
     MyPickableCvAchievementsRequest,
+} from "./graphql-types/request"
+import {
     MyPickableCvAchievementsViewData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

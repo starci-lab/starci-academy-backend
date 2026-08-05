@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import type {
     RagModuleOptions,
-} from "./types"
+} from "./types/options"
 
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
     new ConfigurableModuleBuilder<RagModuleOptions>()

@@ -10,7 +10,7 @@ import {
 } from "./refresh-token.command"
 import type {
     RefreshTokenCommandResult,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Forwards refresh to the command bus so the resolver can re-cookie the rotated token. */

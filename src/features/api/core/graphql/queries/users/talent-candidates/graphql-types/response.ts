@@ -4,16 +4,20 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CvVerificationLevel,
     GraphQLTypeCvVerificationLevel,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/cv-verification-level"
 import {
     JobReadinessTrackItem,
-} from "../../job-readiness/graphql-types"
+} from "../../job-readiness/graphql-types/response"
 
 @ObjectType({
     description: "A recruiter-marketplace candidate ranked within a single filtered track.",

@@ -4,14 +4,14 @@ import {
 } from "@nestjs/common"
 import {
     CoreModule,
-} from "./core"
+} from "./core/core.module"
 import {
     ConfigurableModuleClass, 
     OPTIONS_TYPE
 } from "./api.module-definition"
 import {
-    ProcessorsModule 
-} from "./processors"
+    ProcessorsModule,
+} from "./processors/processors.module"
 
 @Module({
     imports: [

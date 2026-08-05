@@ -16,7 +16,7 @@ import {
 import {
     GraphQLTypeXpSource,
     XpSource,
-} from "../enums"
+} from "../enums/xp-source"
 import {
     UuidAbstractEntity,
 } from "./abstract"

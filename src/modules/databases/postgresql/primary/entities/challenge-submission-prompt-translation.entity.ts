@@ -12,7 +12,7 @@ import {
 import {
     GraphQLTypeLocale,
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     AbstractEntity,
 } from "./abstract"

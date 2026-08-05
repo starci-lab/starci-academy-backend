@@ -10,38 +10,44 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     Request,
     Response,
 } from "express"
 import {
-    CookieName,
     GraphQLCookie,
+} from "@modules/platform/cookie/cookie.decorators"
+import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
+import {
+    CookieName,
+} from "@modules/platform/cookie/enums"
 import {
     SignOutResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     SignOutService,
 } from "./sign-out.service"
 import {
     CsrfGuard,
-} from "@modules/csrf"
+} from "@modules/platform/csrf/guards/csrf.guard"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 
 @Resolver()
 /**

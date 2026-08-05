@@ -2,8 +2,24 @@ import {
     Module 
 } from "@nestjs/common"
 import {
-    AGENT_META, type AgentMeta, AgentCommand, BaseAgentService, CommandProbeService, DeviceService, ServiceInstallerService 
-} from "@modules/playground-agent-core"
+    AGENT_META,
+    type AgentMeta,
+} from "@modules/playground-agent-core/agent-meta"
+import {
+    AgentCommand,
+} from "@modules/playground-agent-core/agent.command"
+import {
+    BaseAgentService,
+} from "@modules/playground-agent-core/base-agent.service"
+import {
+    CommandProbeService,
+} from "@modules/playground-agent-core/command-probe.service"
+import {
+    DeviceService,
+} from "@modules/playground-agent-core/device.service"
+import {
+    ServiceInstallerService,
+} from "@modules/playground-agent-core/service-installer.service"
 import {
     K8sAgentService 
 } from "./k8s-agent.service"

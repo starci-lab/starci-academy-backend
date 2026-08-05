@@ -8,7 +8,7 @@ import {
 } from "typeorm"
 import {
     RewardRedemptionStatus,
-} from "../enums"
+} from "../enums/reward-redemption-status"
 import {
     UuidAbstractEntity,
 } from "./abstract"

@@ -8,20 +8,22 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import {
     KeycloakIdentityProvider,
-} from "./types"
+} from "./types/tokens"
 import {
     OidcStateExpiredException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/keycloak/oidc-state-expired"
 import type {
     KeycloakOidcPkceCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/keycloak-oidc-pkce"
 @Injectable()
 /**
  * Starts Keycloak broker OAuth from the backend: caches PKCE + client redirect URI, returns authorization URL.

@@ -7,22 +7,34 @@ import {
 } from "@nestjs/cqrs"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     CacheKey,
-    CacheService,
+} from "@modules/integrations/cache/enums/cache-key"
+import {
     ParentIndexCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/parent-index"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import type {
     estypes,
 } from "@elastic/elasticsearch"
@@ -30,15 +42,17 @@ import {
     IndexSearchQuery,
 } from "./index-search.query"
 import {
+    IndexSearchType,
+} from "./graphql-types/request"
+import {
     IndexSearchData,
     IndexSearchItem,
     IndexSearchParentPath,
-    IndexSearchType,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     IndexSearchCatalogEntry,
     IndexSearchHitSource,
-} from "./types"
+} from "./types/index-search"
 
 const INDEX_MAP: Record<IndexSearchType, IndexSearchCatalogEntry> = {
     [IndexSearchType.CourseIndex]: {

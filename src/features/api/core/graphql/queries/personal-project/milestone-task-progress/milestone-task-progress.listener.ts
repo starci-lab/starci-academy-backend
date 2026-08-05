@@ -3,17 +3,23 @@ import {
     OnModuleInit,
 } from "@nestjs/common"
 import {
-    EventEmitterService,
     EventName,
-    type MilestoneTaskProgressUpdatedEventPayload,
-} from "@modules/event"
+} from "@modules/platform/event/enums/event-name"
+import {
+    EventEmitterService,
+} from "@modules/platform/event/event-emitter.service"
+import type {
+    MilestoneTaskProgressUpdatedEventPayload,
+} from "@modules/platform/event/types/event-payload/milestone-task-progress-updated"
 import {
     PersonalProjectProgressService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/progress/personal-project.service"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    EnrollmentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     EntityManager,
 } from "typeorm"

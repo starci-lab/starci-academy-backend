@@ -1,12 +1,12 @@
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     BuildGithubAuthorizeRedirectUrlParams,
-} from "./types"
+} from "./types/github-oauth"
 
 @Injectable()
 /**

@@ -6,15 +6,17 @@ import {
 } from "typeorm"
 import {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserMockInterviewCourseStatsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-mock-interview-course-stats/user-mock-interview-course-stats-projection.service"
 import type {
     ComputeMyMockInterviewStatsParams,
     MyMockInterviewStatsResultData,
-} from "./types"
+} from "./types/my-mock-interview-stats"
 
 /** Empty/zeroed result shape when the viewer has no enrollment (nothing to aggregate) at all. */
 const EMPTY_RESULT: MyMockInterviewStatsResultData = {

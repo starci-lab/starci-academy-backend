@@ -16,14 +16,16 @@ import {
 } from "path"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ArtifactStatus,
-} from "./enums"
+} from "./enums/store"
 import type {
     ArtifactRow,
     CreateArtifactParams,
@@ -31,7 +33,7 @@ import type {
     S3TargetRow,
     UpdateArtifactSyncParams,
     UpdateS3TargetParams,
-} from "./types"
+} from "./types/store"
 
 @Injectable()
 /**

@@ -6,14 +6,18 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     DiscountReason,
     GraphQLTypeDiscountReason,
+} from "@modules/databases/postgresql/primary/enums/discount-reason"
+import {
     GraphQLTypePricingPhase,
     PricingPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
 
 @ObjectType({
     description: "One offered installment term (months + markup + total + per-month) for a course.",

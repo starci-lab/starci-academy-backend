@@ -1,6 +1,6 @@
 import type {
     ProjectEvaluation,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/evaluation/project-evaluation"
 import type {
     GradingStepAiUsage,
 } from "@modules/ai/types/grading"

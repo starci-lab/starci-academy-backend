@@ -9,23 +9,25 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     ChatConversationObject,
-} from "../../../shared/chat"
+} from "../../../shared/chat/object-types/chat-conversation.object"
 import {
     CommunityChatConversationResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     CommunityChatConversationService,
 } from "./community-chat-conversation.service"

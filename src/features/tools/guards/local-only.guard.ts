@@ -4,10 +4,10 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     ToolsRouteNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/guards/tools-route-not-found"
 
 @Injectable()
 /**

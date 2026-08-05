@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     TailorCvBlocksRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS envelope for JD-aligning block wording in memory. */
 export class TailorCvBlocksCommand {

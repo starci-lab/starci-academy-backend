@@ -12,23 +12,29 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    ChangelogCategory,
     ChangelogEntryEntity,
+} from "@modules/databases/postgresql/primary/entities/changelog-entry.entity"
+import {
+    ChangelogCategory,
+} from "@modules/databases/postgresql/primary/enums/changelog-category"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getRuntimeContextRoot,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-seed"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 import {
     CoerceMdScalarService,
+} from "../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-} from "../shared"
+} from "../shared/extracts/extract-json-from-md.service"
 import type {
     ChangelogSeedFileRoot,
 } from "./types"

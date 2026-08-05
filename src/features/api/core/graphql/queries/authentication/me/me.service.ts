@@ -6,10 +6,10 @@ import {
 } from "@nestjs/cqrs"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MeQuery,
 } from "./me.query"

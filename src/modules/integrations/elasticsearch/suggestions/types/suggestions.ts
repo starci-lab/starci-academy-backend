@@ -1,6 +1,6 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** Prefix + optional limit a suggest query carries (mirrors `SuggestionsRequest`). */
 export interface SuggestionsRequestShape {

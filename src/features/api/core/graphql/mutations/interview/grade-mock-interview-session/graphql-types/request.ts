@@ -5,11 +5,13 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
-    GraphQLTypeModelProvider,
     GraphQLTypeMockInterviewPhase,
-    ModelProvider,
     MockInterviewPhase,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
+import {
+    GraphQLTypeModelProvider,
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
     description: "One turn of a recorded mock-interview transcript.",

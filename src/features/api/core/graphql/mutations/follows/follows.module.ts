@@ -6,7 +6,7 @@ import {
 } from "./follows.module-definition"
 import {
     SetFollowSingleMutationModule,
-} from "./set-follow"
+} from "./set-follow/set-follow.module"
 
 @Module({
     imports: [

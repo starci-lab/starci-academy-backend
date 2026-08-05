@@ -1,8 +1,12 @@
 import {
     CoinHistoryEntity,
-    CoinSource,
+} from "@modules/databases/postgresql/primary/entities/coin-history.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    CoinSource,
+} from "@modules/databases/postgresql/primary/enums/coin-source"
 import type {
     EntityManager,
 } from "typeorm"

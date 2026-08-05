@@ -1,6 +1,6 @@
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /**
  * Pick the Vietnamese or English variant of a value by locale.

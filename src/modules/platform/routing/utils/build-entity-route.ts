@@ -1,15 +1,27 @@
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     FlashcardDeckEntity,
-    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
     ModuleEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/module.entity"
 import type {
     ParentIndexCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/parent-index"
 
 /** Params for {@link buildEntityRoute}. */
 export interface BuildEntityRouteParams {

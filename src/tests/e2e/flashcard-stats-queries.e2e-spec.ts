@@ -11,45 +11,83 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ChallengeDifficulty,
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
-    FlashcardCardEntity,
-    FlashcardCardResolverService,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     FlashcardCardTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card-translation.entity"
+import {
+    FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardDeckEntity,
-    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     FlashcardQuizSessionEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-quiz-session.entity"
+import {
     FlashcardReviewEventEntity,
-    Locale,
-    PricingPhase,
-    PrimaryPostgreSQLModule,
-    TranslationResolverService,
-    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-event.entity"
+import {
     UserFlashcardReviewEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-flashcard-review.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
+import {
+    FlashcardCardResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-card-resolver.service"
+import {
+    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-deck-resolver.service"
+import {
+    TranslationResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/translation.service"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     KeycloakJwksService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/jwks.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     FlashcardDeckReadService,
+} from "@modules/bussiness/flashcard/flashcard-deck.service"
+import {
     FlashcardReviewService,
+} from "@modules/bussiness/flashcard/flashcard-review.service"
+import {
     UserFlashcardCourseStatsProjectionService,
+} from "@modules/bussiness/projections/user-flashcard-course-stats/user-flashcard-course-stats-projection.service"
+import {
     UserFlashcardStatsProjectionService,
+} from "@modules/bussiness/projections/user-flashcard-stats/user-flashcard-stats-projection.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     MyDueFlashcardsResolver,
 } from "@features/api/core/graphql/queries/flashcard-decks/my-due-flashcards/my-due-flashcards.resolver"
@@ -73,7 +111,7 @@ import {
 } from "@features/api/core/graphql/queries/flashcard-decks/flashcard-decks-by-course/flashcard-decks-by-course.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

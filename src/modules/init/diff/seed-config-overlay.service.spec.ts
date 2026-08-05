@@ -4,7 +4,7 @@ import {
 import type {
     DataGitDiff,
     DataGitDomain,
-} from "./types"
+} from "./types/diff"
 
 /**
  * Build an empty (all-clean) {@link DataGitDiff}; each test mutates only the

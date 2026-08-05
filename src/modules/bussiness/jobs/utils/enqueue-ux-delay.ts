@@ -1,9 +1,9 @@
 import {
-    sleep
-} from "@modules/common"
+    sleep,
+} from "@modules/lib/common/utils/sleep"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 
 /**
  * Short delay used immediately before `Queue.add` so DB/requeue work is not stalled;

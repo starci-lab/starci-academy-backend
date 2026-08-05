@@ -1,13 +1,21 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    KeycloakOidcRedirectService,
+} from "@modules/integrations/keycloak/keycloak-oidc-redirect.service"
+import {
+    KeycloakTokenService,
+} from "@modules/integrations/keycloak/token.service"
 import {
     KeycloakJwtPayload,
-    KeycloakOidcRedirectService,
-    KeycloakTokenService,
+} from "@modules/integrations/keycloak/types/jwt-jwks"
+import {
     KeycloakIdentityProvider,
+} from "@modules/integrations/keycloak/types/tokens"
+import {
     deriveUsername,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/utils/derive-username"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -20,24 +28,28 @@ import {
 } from "./exchange-code-for-token.command"
 import type {
     ExchangeCodeForTokenCommandResult,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     AuthenticationType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/authentication-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     JwtService,
 } from "@nestjs/jwt"
 import {
-    InvalidJwtPayloadException 
-} from "@modules/exceptions"
-import { 
-    EmailBloomFilterService 
-} from "@modules/bussiness"
+    InvalidJwtPayloadException,
+} from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
+import {
+    EmailBloomFilterService,
+} from "@modules/bussiness/bloom-filters/email.service"
 
 @CommandHandler(ExchangeCodeForTokenCommand)
 @Injectable()

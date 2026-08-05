@@ -6,34 +6,34 @@ import {
 } from "./http.module-definition"
 import {
     KeycloakModule,
-} from "./keycloak"
+} from "./keycloak/keycloak.module"
 import {
     PayosModule,
-} from "./payos"
+} from "./payos/payos.module"
 import {
     SepayModule,
-} from "./sepay"
+} from "./sepay/sepay.module"
 import {
     StripeModule,
-} from "./stripe"
+} from "./stripe/stripe.module"
 import {
     PaypalModule,
-} from "./paypal"
+} from "./paypal/paypal.module"
 import {
     NowPaymentsModule,
-} from "./nowpayments"
+} from "./nowpayments/nowpayments.module"
 import {
     MinioWebhookModule,
-} from "./minio"
+} from "./minio/webhook/webhook.module"
 import {
     GithubModule,
-} from "./github"
+} from "./github/github.module"
 import {
     AdminModule,
-} from "./admin"
+} from "./admin/admin.module"
 import {
     MountFoundationsModule,
-} from "./mount/foundations"
+} from "./mount/foundations/mount-foundations.module"
 
 
 @Module({

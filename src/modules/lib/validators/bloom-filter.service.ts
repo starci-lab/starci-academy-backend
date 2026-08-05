@@ -7,7 +7,7 @@ import {
 import type {
     BloomFilterOptions,
     BloomFilterState,
-} from "./types"
+} from "./types/bloom-filter"
 
 @Injectable()
 /** Simple Bloom filter helper (in-memory). */

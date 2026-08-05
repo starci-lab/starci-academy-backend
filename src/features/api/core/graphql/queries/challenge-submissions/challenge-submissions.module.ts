@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,13 +6,13 @@ import {
 } from "./challenge-submissions.module-definition"
 import {
     ChallengeSubmissionSingleQueryModule,
-} from "./challenge-submission"
+} from "./challenge-submission/challenge-submission.module"
 import {
     UserChallengeSubmissionAttemptsSingleQueryModule,
-} from "./user-challenge-submission-attempts"
+} from "./user-challenge-submission-attempts/user-challenge-submission-attempts.module"
 import {
     UserChallengeSubmissionFeedbacksSingleQueryModule,
-} from "./user-challenge-submission-feedbacks"
+} from "./user-challenge-submission-feedbacks/user-challenge-submission-feedbacks.module"
 import {
     ChallengeSubmissionsSingleQueryModule 
 } from "./challenge-submissions/challenge-submissions.module"

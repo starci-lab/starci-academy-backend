@@ -5,8 +5,9 @@ import {
     JwtModule,
 } from "@nestjs/jwt"
 import {
-    JWT_EXPIRES_IN, JWT_SECRET,
-} from "./constants"
+    JWT_EXPIRES_IN,
+    JWT_SECRET,
+} from "./constants/jwt"
 import {
     AuthController,
 } from "./auth.controller"

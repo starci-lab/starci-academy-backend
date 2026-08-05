@@ -6,13 +6,13 @@ import {
 } from "./two-factor.module-definition"
 import {
     SetupTwoFactorSingleMutationModule,
-} from "./setup-two-factor"
+} from "./setup-two-factor/setup-two-factor.module"
 import {
     ConfirmTwoFactorSingleMutationModule,
-} from "./confirm-two-factor"
+} from "./confirm-two-factor/confirm-two-factor.module"
 import {
     DisableTwoFactorSingleMutationModule,
-} from "./disable-two-factor"
+} from "./disable-two-factor/disable-two-factor.module"
 
 @Module({
     imports: [

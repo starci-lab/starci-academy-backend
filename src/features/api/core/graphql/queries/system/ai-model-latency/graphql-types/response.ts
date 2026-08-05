@@ -5,14 +5,18 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     AiModelCategory,
     GraphQLTypeAiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @ObjectType({
     description: "Public-safe latency snapshot for one AI model.",

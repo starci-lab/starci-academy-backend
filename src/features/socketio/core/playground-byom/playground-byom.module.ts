@@ -2,9 +2,11 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    IoRedisModule,
     IoRedisInstanceKey,
-} from "@modules/native"
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
+    IoRedisModule,
+} from "@modules/lib/native/ioredis/ioredis.module"
 import {
     ConfigurableModuleClass,
 } from "./playground-byom.module-definition"

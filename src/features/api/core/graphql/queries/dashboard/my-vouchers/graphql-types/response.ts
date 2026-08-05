@@ -6,14 +6,18 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     GraphQLTypeVoucherDiscountType,
-    GraphQLTypeVoucherStatus,
     VoucherDiscountType,
+} from "@modules/databases/postgresql/primary/enums/voucher-discount-type"
+import {
+    GraphQLTypeVoucherStatus,
     VoucherStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/voucher-status"
 
 @ObjectType({
     description: "A Coin-shop voucher owned by the viewer.",

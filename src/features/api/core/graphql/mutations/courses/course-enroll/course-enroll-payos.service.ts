@@ -1,19 +1,33 @@
 import {
-    ActionType,
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    PaymentType,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    CourseNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
 import {
     PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
-    CourseNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/payos-return-url-and-payos-cancel-url-must-be-required"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     InjectPayOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/payos.providers"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -25,29 +39,37 @@ import type {
 } from "typeorm"
 import type {
     CourseEnrollResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
-    DayjsService, 
-    RetryService
-} from "@modules/mixin"
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
 import {
-    envConfig 
-} from "@modules/env"
+    RetryService,
+} from "@modules/lib/mixin/retry.service"
+import {
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     CoursePricingService 
 } from "./course-pricing.service"
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 import {
     CourseEnrollRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     EnqueueReconcileTransactionJobService,
-    InstallmentPlanService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
     LoyaltyDiscountService,
+} from "@modules/bussiness/loyalty/loyalty-discount.service"
+import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
 
 @Injectable()
 /**

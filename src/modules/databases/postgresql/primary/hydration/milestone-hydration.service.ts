@@ -5,9 +5,11 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    MilestoneEntity,
     MilestoneTaskEntity,
-} from "../entities"
+} from "../entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "../entities/milestone.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"

@@ -5,16 +5,18 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     MockInterviewAttemptEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/mock-interview-attempt.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     toUnknownRecordArray,
-} from "@modules/common"
+} from "@modules/lib/common/utils/unknown-record"
 import type {
     FindMyMockInterviewAttemptBySessionParams,
     MyMockInterviewAttemptBySessionResult,
-} from "./types"
+} from "./types/my-mock-interview-attempt-by-session"
 
 /**
  * Sanitizes `phaseScores`/`attributeScores`/`questionReviews`-shaped jsonb --

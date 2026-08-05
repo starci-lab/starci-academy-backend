@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     CourseEnrollmentStatusRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS message that checks whether the caller is enrolled in a course. */
 export class CourseEnrollmentStatusQuery {

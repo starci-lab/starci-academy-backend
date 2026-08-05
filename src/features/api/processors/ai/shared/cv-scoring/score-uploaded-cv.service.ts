@@ -8,22 +8,30 @@ import type {
     QueryDeepPartialEntity,
 } from "typeorm/query-builder/QueryPartialEntity"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     S3Provider,
+} from "@modules/integrations/s3/enums/s3"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     CvGenerationNotFoundException,
+} from "@modules/platform/exceptions/errors/api/cv-generation-not-found"
+import {
     CvSubmissionExtractS3BufferEmptyException,
     CvSubmissionExtractEmptyTextException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/review-cv-submission-extract"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     extractCvText,
 } from "../../generate-cv/steps/extract-cv-text"

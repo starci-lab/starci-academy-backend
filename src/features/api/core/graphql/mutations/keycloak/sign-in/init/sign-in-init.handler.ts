@@ -1,9 +1,9 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     KeycloakTokenService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/token.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -16,16 +16,16 @@ import {
 } from "./sign-in-init.command"
 import type {
     SignInInitData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
-    OtpChallengeService 
-} from "@modules/code"
-import { 
-    EnqueueSendMailJobService 
-} from "@modules/bussiness"
+    OtpChallengeService,
+} from "@modules/integrations/code/otp-challenge.service"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import type {
     SignInActionPayload,
-} from "../types"
+} from "../types/action"
 
 @CommandHandler(SignInInitCommand)
 @Injectable()

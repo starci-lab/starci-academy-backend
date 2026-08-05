@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +12,10 @@ import {
 } from "./start-flashcard-due-review-session.command"
 import {
     StartFlashcardDueReviewSessionRequest,
+} from "./graphql-types/request"
+import {
     StartFlashcardDueReviewSessionData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

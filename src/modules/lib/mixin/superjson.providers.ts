@@ -12,8 +12,8 @@ import dayjs, {
     Dayjs
 } from "dayjs"
 import {
-    SUPERJSON
-} from "./constants"
+    SUPERJSON,
+} from "./constants/superjson"
 import {
     ScalableBloomFilter 
 } from "bloom-filters"

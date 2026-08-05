@@ -6,21 +6,31 @@ import {
 } from "typeorm"
 import {
     ChallengeEntity,
-    CoinSource,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     WeeklyChallengeClaimEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/weekly-challenge-claim.entity"
+import {
+    CoinSource,
+} from "@modules/databases/postgresql/primary/enums/coin-source"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     toGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
 import {
     WeeklyChallengeRewardAlreadyClaimedException,
+} from "@modules/platform/exceptions/errors/weekly-challenge/weekly-challenge-reward-already-claimed"
+import {
     WeeklyChallengeRewardNotEligibleException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/weekly-challenge/weekly-challenge-reward-not-eligible"
 import {
     writeCoinHistory,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/write-coin-history"
 import {
     WEEKLY_CHALLENGE_REWARD_COIN,
 } from "./weekly-challenge.catalog"

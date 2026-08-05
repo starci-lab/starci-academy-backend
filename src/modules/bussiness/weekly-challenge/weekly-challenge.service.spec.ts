@@ -13,23 +13,31 @@ import {
 } from "./weekly-challenge.catalog"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     CoinHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/coin-history.entity"
+import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     WeeklyChallengeClaimEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/weekly-challenge-claim.entity"
 import {
     WeeklyChallengeRewardAlreadyClaimedException,
+} from "@modules/platform/exceptions/errors/weekly-challenge/weekly-challenge-reward-already-claimed"
+import {
     WeeklyChallengeRewardNotEligibleException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/weekly-challenge/weekly-challenge-reward-not-eligible"
 import {
     toGlobalId,
-} from "@modules/routing"
+} from "@modules/platform/routing/utils/global-id"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

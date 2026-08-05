@@ -1,6 +1,5 @@
 import type {
     DataSource,
-    QueryRunner,
 } from "typeorm"
 import type {
     QueryResultCache,

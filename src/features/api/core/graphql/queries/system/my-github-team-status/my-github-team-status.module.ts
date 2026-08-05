@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     GithubModule,
-} from "@modules/github"
+} from "@modules/integrations/github/github.module"
 import {
     ConfigurableModuleClass,
 } from "./my-github-team-status.module-definition"

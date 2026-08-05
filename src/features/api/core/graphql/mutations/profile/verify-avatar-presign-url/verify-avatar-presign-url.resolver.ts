@@ -1,11 +1,15 @@
 import {
-    Locale,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
 import {
     UseGuards,
     UseInterceptors,
@@ -18,12 +22,14 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     VerifyAvatarPresignUrlRequest,
+} from "./graphql-types/request"
+import {
     VerifyAvatarPresignUrlResponse,
     VerifyAvatarPresignUrlResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     VerifyAvatarPresignUrlService,
 } from "./verify-avatar-presign-url.service"

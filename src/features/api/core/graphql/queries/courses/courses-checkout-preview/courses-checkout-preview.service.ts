@@ -3,20 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     InstallmentPlanService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     CoursesCheckoutPricingService,
-} from "@features/api/core/graphql/mutations/courses/courses-checkout"
+} from "../../../mutations/courses/courses-checkout/courses-checkout-pricing.service"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
+import type {
+    CoursesCheckoutPreviewRequest,
+} from "./graphql-types/request"
 import type {
     CoursesCheckoutPreviewData,
-    CoursesCheckoutPreviewRequest,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

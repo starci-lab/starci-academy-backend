@@ -6,20 +6,26 @@ import {
 } from "@nestjs/cqrs"
 import {
     KeycloakConfigureMailAdapterRequest,
-    KeycloakConfigureMailAdapterResponse,
+} from "./dtos/configure-mail-adapter.request"
+import {
     KeycloakLoginRequest,
+} from "./dtos/login.request"
+import {
     KeycloakRegisterRequest,
+} from "./dtos/register.request"
+import {
+    KeycloakConfigureMailAdapterResponse,
     KeycloakAuthResponse,
-} from "./dtos"
+} from "./dtos/response"
 import {
     KeycloakLoginCommand,
-} from "./login"
+} from "./login/login.command"
 import {
     KeycloakRegisterCommand,
-} from "./register"
+} from "./register/register.command"
 import {
     KeycloakConfigureMailAdapterCommand,
-} from "./configure-mail-adapter"
+} from "./configure-mail-adapter/configure-mail-adapter.command"
 
 @Injectable()
 /**

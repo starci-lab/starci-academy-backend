@@ -1,6 +1,6 @@
 import {
     SocketIoPayload,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/ws-payload"
 
 /** Client -> server payload to join a content's discussion room. */
 export type SubscribeContentDiscussionSocketIoPayload = SocketIoPayload<{

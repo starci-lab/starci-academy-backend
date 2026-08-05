@@ -5,9 +5,11 @@ import {
 import {
     AiSubTier,
     GraphQLTypeAiSubTier,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
+import {
     GraphQLTypePaymentType,
     PaymentType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/payment-type"
 
 @InputType({
     description: "AI subscription tier + payment provider for checkout.",

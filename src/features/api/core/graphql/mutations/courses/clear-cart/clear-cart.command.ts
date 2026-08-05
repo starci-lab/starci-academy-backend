@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 
 /** CQRS command carrying the user context for the clearCart mutation (no request args). */
 export class ClearCartCommand {

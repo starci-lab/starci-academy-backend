@@ -1,9 +1,9 @@
 import type {
     ProjectEvaluation,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/evaluation/project-evaluation"
 import {
     ParsingCriteriaResultsFromModelTextException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/parsing-criteria-results-from-model-text"
 import {
     extractJsonBlock,
 } from "@modules/ai/utils/extract-json-block"

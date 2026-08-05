@@ -13,26 +13,32 @@ import {
 } from "./reconcile-transaction.service"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-    type ReconcileTransactionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
+import type {
+    ReconcileTransactionPayload,
+} from "@modules/integrations/bullmq/types/payloads/reconcile-transaction"
 import {
     SUPERJSON,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/constants/superjson"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 
 // `envConfig()` is a plain factory fn read on every `enqueue()` call; mock only
 // the module so each test can dial the reconcile master switch / delay freely
 // (delegates to the real implementation until a test overrides it).
-jest.mock("@modules/env",
+jest.mock("@modules/platform/env/config",
     () => {
-        const actual = jest.requireActual<typeof import("@modules/env")>("@modules/env")
+        const actual = jest.requireActual<typeof import("@modules/platform/env/config")>("@modules/platform/env/config")
         return {
             ...actual,
             envConfig: jest.fn(actual.envConfig),

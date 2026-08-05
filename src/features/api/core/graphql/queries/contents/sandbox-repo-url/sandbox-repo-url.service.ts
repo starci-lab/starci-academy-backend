@@ -2,28 +2,44 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     ContentNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/content-not-found"
+import {
     ContentNotSandboxException,
+} from "@modules/platform/exceptions/errors/courses/content-not-sandbox"
+import {
     EnrollmentNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/enrollment-not-found"
+import {
     SandboxSourceNotConfiguredException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/sandbox-source-not-configured"
 import {
     type EntityManager,
 } from "typeorm"
 import {
-    S3BuildService,
-    S3NameResolverService,
     S3Provider,
-} from "@modules/s3"
+} from "@modules/integrations/s3/enums/s3"
+import {
+    S3BuildService,
+} from "@modules/integrations/s3/s3-build.service"
+import {
+    S3NameResolverService,
+} from "@modules/integrations/s3/s3-name-resolver.service"
 import {
     SandboxRepoUrlRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

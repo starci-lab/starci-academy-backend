@@ -1,55 +1,79 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    TransactionItemEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction-item.entity"
+import {
+    TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
     ActionType,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     PaymentType,
-    TransactionEntity,
-    TransactionItemEntity,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+} from "@modules/platform/exceptions/errors/courses/payos-return-url-and-payos-cancel-url-must-be-required"
 import {
     CoursesCheckoutEmptyException,
+} from "@modules/platform/exceptions/errors/payment/courses-checkout-empty"
+import {
     InstallmentCurrencyNotSupportedException,
+} from "@modules/platform/exceptions/errors/payment/installment-currency-not-supported"
+import {
     MissingUsdPriceException,
-    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+} from "@modules/platform/exceptions/errors/payment/missing-usd-price"
+import {
     UnsupportedPaymentTypeException,
+} from "@modules/platform/exceptions/errors/payment/unsupported-payment-type"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     EnqueueReconcileTransactionJobService,
-    InstallmentPlanService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
     PAYMENT_MODIFIER_CAPABILITY,
-} from "@modules/bussiness"
+} from "@modules/bussiness/transactions/constants/payment-modifier-capability"
 import {
     RetryService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/retry.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectPayOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/payos.providers"
 import {
     PayOS,
 } from "@payos/node"
 import {
     InjectSepay,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/sepay.providers"
 import {
     SePayPgClient,
 } from "sepay-pg-node"
 import {
     InjectStripe,
-} from "@modules/stripe"
+} from "@modules/integrations/stripe/stripe.providers"
 import Stripe from "stripe"
 import {
     PaypalClient,
-} from "@modules/paypal"
+} from "@modules/integrations/paypal/paypal.client"
 import {
     NowPaymentsClient,
-} from "@modules/nowpayments"
+} from "@modules/integrations/nowpayments/nowpayments.client"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -68,12 +92,12 @@ import {
 } from "./courses-checkout.command"
 import {
     CoursesCheckoutResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import type {
     BuildSepayCoursesCheckoutParams,
     ResolveCoursesCheckoutParams,
     ResolveCoursesCheckoutResult,
-} from "./types"
+} from "./types/checkout"
 
 /** Label used in provider descriptions and missing-USD-price metadata. */
 const COURSES_CHECKOUT_LABEL = "courses-checkout"

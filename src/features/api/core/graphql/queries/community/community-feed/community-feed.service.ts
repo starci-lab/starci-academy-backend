@@ -3,19 +3,25 @@ import {
 } from "@nestjs/common"
 import {
     CommunityCommentService,
+} from "@modules/bussiness/community/community-comment.service"
+import {
     CommunityPostService,
+} from "@modules/bussiness/community/community-post.service"
+import {
     CommunityReactionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/community/community-reaction.service"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
+import {
+    mapCommunityPostNode,
+} from "../../../shared/community/mappers/community-post-node"
 import {
     CommunityFeedPageObject,
-    mapCommunityPostNode,
-} from "../../../shared/community"
+} from "../../../shared/community/object-types/community-feed-page.object"
 import type {
     CommunityFeedRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import type {
     DecodedCommunityFeedCursor,
 } from "./types"

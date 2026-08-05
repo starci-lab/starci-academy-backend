@@ -5,28 +5,38 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    CommentService,
     writeActivity,
-} from "@modules/bussiness"
+} from "@modules/bussiness/activity/write-activity"
+import {
+    CommentService,
+} from "@modules/bussiness/discussion/comment.service"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
 import {
     ActivityType,
-    ContentEntity,
-    CourseEntity,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
+import {
+    mapCommentNode,
+} from "../../../shared/discussion/mappers/comment-node"
 import {
     CommentNodeObject,
-    mapCommentNode,
-} from "../../../shared/discussion"
+} from "../../../shared/discussion/object-types/comment-node.object"
 import type {
     CreateCommentRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

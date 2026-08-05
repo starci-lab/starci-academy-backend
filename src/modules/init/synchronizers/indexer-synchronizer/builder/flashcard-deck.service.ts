@@ -1,10 +1,12 @@
 import {
     FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     FlashcardDeckNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/flashcard/flashcard-deck-not-found"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,10 +14,14 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    CacheKey,
     CacheService,
+} from "@modules/integrations/cache/cache.service"
+import {
+    CacheKey,
+} from "@modules/integrations/cache/enums/cache-key"
+import {
     FlashcardDeckParentIndexCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/parent-index"
 
 @Injectable()
 /**

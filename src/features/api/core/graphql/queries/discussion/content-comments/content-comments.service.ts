@@ -3,21 +3,25 @@ import {
 } from "@nestjs/common"
 import {
     CommentService,
+} from "@modules/bussiness/discussion/comment.service"
+import {
     ReactionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/discussion/reaction.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
+import {
+    mapCommentNode,
+} from "../../../shared/discussion/mappers/comment-node"
 import {
     CommentsPageObject,
-    mapCommentNode,
-} from "../../../shared/discussion"
+} from "../../../shared/discussion/object-types/comments-page.object"
 import type {
     ContentCommentsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

@@ -1,51 +1,73 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     EnqueueEnrollJobService,
+} from "@modules/bussiness/jobs/enqueue/enroll.service"
+import {
     EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
     NotificationService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/notification/notification.service"
 import {
     enqueueMembershipActiveEmail,
     enqueueSubscriptionActiveEmail,
-} from "@modules/transactional-email"
+} from "@modules/integrations/transactional-email/grant-emails"
+import {
+    TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
     ActionType,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     NotificationType,
-    TransactionEntity,
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     AiSubscriptionTierNotAvailableException,
+} from "@modules/platform/exceptions/errors/ai/ai-subscription-tier-not-available"
+import {
     PaymentUnderpaidException,
-    TransactionCourseNotFoundException,
-    TransactionExpiredError,
+} from "@modules/platform/exceptions/errors/payment/payment-underpaid"
+import {
     UnsupportedTransactionActionException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/payment/unsupported-transaction-action"
+import {
+    TransactionCourseNotFoundException,
+} from "@modules/platform/exceptions/errors/transaction/transaction-course-not-found"
+import {
+    TransactionExpiredError,
+} from "@modules/platform/exceptions/errors/transaction/transaction-expired"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     InjectPayOS,
-} from "@modules/payos"
+} from "@modules/integrations/payos/payos.providers"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CommandHandler,
     ICommandHandler,

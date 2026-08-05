@@ -1,6 +1,6 @@
 import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** Params for deleting a single document from a (per-locale) Elasticsearch index. */
 export interface DeleteEntityParams {

@@ -7,11 +7,15 @@ import {
 import {
     ChallengeDifficulty,
     GraphQLTypeChallengeDifficulty,
+} from "../enums/challenge-difficulty"
+import {
     GraphQLTypeLocale,
-    GraphQLTypePersonalProjectTaskType,
     Locale,
+} from "../enums/locale"
+import {
+    GraphQLTypePersonalProjectTaskType,
     PersonalProjectTaskType,
-} from "../enums"
+} from "../enums/personal-project-task-type"
 import {
     Column,
     Entity,

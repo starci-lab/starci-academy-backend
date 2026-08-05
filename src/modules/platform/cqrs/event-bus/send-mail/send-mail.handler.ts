@@ -3,15 +3,17 @@ import {
 } from "@nestjs/common"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     EventsHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ICQRSHandler,
 } from "../../icqrs-handler"

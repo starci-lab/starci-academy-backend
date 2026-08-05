@@ -6,12 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     HeadhuntingCompanyEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 import {
     HeadhunterCompaniesQuery,
 } from "./headhunting-companies.query"

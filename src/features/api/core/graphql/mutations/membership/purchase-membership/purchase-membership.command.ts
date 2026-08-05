@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     PurchaseMembershipRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS envelope for membership checkout -- provider branching stays in the

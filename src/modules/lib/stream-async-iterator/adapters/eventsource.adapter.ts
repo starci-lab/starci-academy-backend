@@ -1,6 +1,6 @@
 import {
-    StreamConnection 
-} from "../types"
+    StreamConnection,
+} from "../types/stream-connection"
 import {
     EventSource 
 } from "eventsource"

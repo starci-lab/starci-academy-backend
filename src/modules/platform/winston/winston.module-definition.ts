@@ -3,8 +3,8 @@ import {
     ConfigurableModuleBuilder 
 } from "@nestjs/common"
 import {
-    WinstonOptions 
-} from "./types"
+    WinstonOptions,
+} from "./types/options"
 
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
   new ConfigurableModuleBuilder<WinstonOptions>().setExtras(

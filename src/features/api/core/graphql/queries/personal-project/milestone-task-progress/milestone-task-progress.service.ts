@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     MilestoneTaskProgressQuery,
 } from "./milestone-task-progress.query"
 import {
     MilestoneTaskProgressRequest,
+} from "./graphql-types/request"
+import {
     MilestoneTaskProgressResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

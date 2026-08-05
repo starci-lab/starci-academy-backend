@@ -2,8 +2,18 @@ import {
     Inject, Injectable 
 } from "@nestjs/common"
 import {
-    AGENT_META, type AgentMeta, BaseAgentService, DeviceService, EVENT 
-} from "@modules/playground-agent-core"
+    AGENT_META,
+    type AgentMeta,
+} from "@modules/playground-agent-core/agent-meta"
+import {
+    BaseAgentService,
+} from "@modules/playground-agent-core/base-agent.service"
+import {
+    EVENT,
+} from "@modules/playground-agent-core/constants"
+import {
+    DeviceService,
+} from "@modules/playground-agent-core/device.service"
 import {
     OLLAMA_STATUS_INTERVAL_MS 
 } from "./rag-constants"

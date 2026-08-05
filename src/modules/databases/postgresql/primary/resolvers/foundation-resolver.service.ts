@@ -2,12 +2,14 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    FoundationEntity,
     FoundationTagEntity,
-} from "../entities"
+} from "../entities/foundation-tag.entity"
+import {
+    FoundationEntity,
+} from "../entities/foundation.entity"
 import {
     Locale,
-} from "../enums"
+} from "../enums/locale"
 import {
     TranslationResolverService,
 } from "./translation.service"

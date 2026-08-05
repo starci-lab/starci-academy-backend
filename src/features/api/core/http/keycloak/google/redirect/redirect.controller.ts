@@ -15,9 +15,11 @@ import {
     httpConfig,
 } from "../../../http"
 import {
-    KeycloakIdentityProvider,
     KeycloakOidcRedirectService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak-oidc-redirect.service"
+import {
+    KeycloakIdentityProvider,
+} from "@modules/integrations/keycloak/types/tokens"
 
 @Controller(
     {

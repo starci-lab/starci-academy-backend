@@ -2,20 +2,20 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    AxiosService 
-} from "@modules/axios"
+    AxiosService,
+} from "@modules/integrations/axios/axios.service"
 import type {
     AxiosInstance 
 } from "axios"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import type {
     KeycloakUser,
-} from "./types"
+} from "./types/user"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 
 @Injectable()
 /**

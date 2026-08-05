@@ -1,7 +1,9 @@
 import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiSubTier,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
 
 /** Length of the short rolling window: 5 hours, in milliseconds. */
 export const WINDOW_5H_MS = 5 * 60 * 60 * 1000

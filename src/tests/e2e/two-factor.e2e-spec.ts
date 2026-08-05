@@ -11,35 +11,37 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    PrimaryPostgreSQLModule,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     TwoFactorInvalidCodeException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/two-factor-invalid-code"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
 import type {
     DecryptParams,
     EncryptParams,
     EncryptResult,
-} from "@modules/crypto"
+} from "@modules/crypto/types/encryption"
 import {
     TotpService,
-} from "@modules/totp"
+} from "@modules/integrations/totp/totp.service"
 import type {
     VerifyTotpParams,
-} from "@modules/totp"
+} from "@modules/integrations/totp/types"
 import {
     KeycloakJwksService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/jwks.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import {
     SetupTwoFactorResolver,
 } from "@features/api/core/graphql/mutations/two-factor/setup-two-factor/setup-two-factor.resolver"
@@ -51,7 +53,7 @@ import {
 } from "@features/api/core/graphql/mutations/two-factor/disable-two-factor/disable-two-factor.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

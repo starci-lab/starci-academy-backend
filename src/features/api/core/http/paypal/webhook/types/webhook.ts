@@ -1,6 +1,6 @@
 import type {
     PaypalWebhookRequest,
-} from "../dtos"
+} from "../dtos/webhook.request"
 
 /** PayPal webhook body + the signature headers needed to verify it. */
 export interface PaypalWebhookParams {

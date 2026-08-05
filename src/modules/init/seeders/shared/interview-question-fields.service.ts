@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     CoerceMdScalarService,
-} from "./extracts"
+} from "./extracts/coerce-md-scalar.service"
 
 /** A single indexed-value item (`## N` sibling under an array-shaped section). */
 export interface RawInterviewQuestionRef {

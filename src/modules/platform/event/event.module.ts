@@ -12,8 +12,8 @@ import {
     EventEmitterService 
 } from "./event-emitter.service"
 import {
-    NatsModule 
-} from "./nats"
+    NatsModule,
+} from "./nats/nats.module"
 
 @Module({
 })

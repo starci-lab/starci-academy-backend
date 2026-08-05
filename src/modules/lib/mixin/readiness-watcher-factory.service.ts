@@ -4,12 +4,14 @@ import {
 import pDefer from "p-defer"
 import type {
     ReadinessWatcher,
-    WatcherState
-} from "./types"
+    WatcherState,
+} from "./types/readiness-watcher"
 import {
     ReadinessWatcherAlreadyExistsException,
+} from "@modules/platform/exceptions/errors/mixin/readiness-watcher-already-exists.exception"
+import {
     ReadinessWatcherNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mixin/readiness-watcher-not-found.exception"
 
 @Injectable()
 /**

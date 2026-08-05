@@ -12,38 +12,54 @@ import type {
 } from "typeorm"
 import {
     CourseVoucherEntity,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/course-voucher.entity"
+import {
     RewardRedemptionEntity,
-    RewardRedemptionStatus,
+} from "@modules/databases/postgresql/primary/entities/reward-redemption.entity"
+import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    RewardRedemptionStatus,
+} from "@modules/databases/postgresql/primary/enums/reward-redemption-status"
+import {
     VoucherDiscountType,
+} from "@modules/databases/postgresql/primary/enums/voucher-discount-type"
+import {
     VoucherStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/voucher-status"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     InsufficientRewardPointsException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/rewards/insufficient-reward-points"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     AiAutoQuotaConfigService,
+} from "@modules/filesystem/ai-auto-quota-config.service"
+import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     RewardsService,
+} from "@modules/bussiness/rewards/rewards.service"
+import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
 import {
     AI_CREDIT_BOOST_REWARD_KEY,
     STREAK_FREEZE_REWARD_KEY,
     VOUCHER_10_REWARD_KEY,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/rewards.catalog"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

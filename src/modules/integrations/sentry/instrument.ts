@@ -1,11 +1,11 @@
 import Sentry from "@sentry/nestjs"
 import dotenv from "dotenv"
 import {
-    getAppConfig 
-} from "@modules/filesystem"
+    getAppConfig,
+} from "@modules/filesystem/utils/mount-secrets"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 // config dotenv
 dotenv.config()
 // init sentry

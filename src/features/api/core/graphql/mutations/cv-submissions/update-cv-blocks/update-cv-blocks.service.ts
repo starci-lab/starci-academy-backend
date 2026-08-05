@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,10 +12,10 @@ import {
 } from "./update-cv-blocks.command"
 import {
     UpdateCvBlocksRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import type {
     CvBlocksDocument,
-} from "./graphql-types"
+} from "../../../queries/cv-submissions/my-cv-blocks/graphql-types/response"
 
 @Injectable()
 /** CommandBus hop so the resolver stays persistence-free. */

@@ -7,18 +7,26 @@ import {
 import GraphQLJSON from "graphql-type-json"
 import {
     CvGenerationMode,
-    CvGenerationStatus,
-    CvSource,
     GraphQLTypeCvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
+    CvGenerationStatus,
     GraphQLTypeCvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import {
+    CvSource,
     GraphQLTypeCvSource,
+} from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
     GraphQLTypeSubmissionFeedbackSeverity,
     SubmissionFeedbackSeverity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-feedback-severity"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 
 @ObjectType({
     description: "One CV scoring observation (a strength or a gap), with an optional fix suggestion.",

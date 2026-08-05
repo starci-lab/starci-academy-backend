@@ -3,12 +3,16 @@ import {
 } from "@nestjs/testing"
 import {
     JudgeService,
+} from "@tests/helpers/judge.service"
+import {
     ModelsService,
+} from "@tests/helpers/models.service"
+import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 import type {
     HarnessTierName,
-} from "@tests/helpers"
+} from "@tests/helpers/models"
 
 /**
  * Shared tutor persona every query case generates under -- the StarCi Academy

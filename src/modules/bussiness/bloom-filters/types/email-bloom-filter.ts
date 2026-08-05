@@ -1,6 +1,6 @@
 import type {
     BloomFilterCacheResult,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/bloom-filter"
 
 /**
  * Result of {@link EmailBloomFilterService.get}: the cached email bloom

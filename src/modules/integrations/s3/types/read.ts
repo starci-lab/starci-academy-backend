@@ -1,6 +1,6 @@
 import {
-    S3Provider 
-} from "../enums"
+    S3Provider,
+} from "../enums/s3"
 
 /** Payload for reading from S3. */
 export interface ReadTextParams {

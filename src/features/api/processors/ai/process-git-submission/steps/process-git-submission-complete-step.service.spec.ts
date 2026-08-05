@@ -1,18 +1,22 @@
 import {
     makeEntityManagerMock,
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     EnrollmentEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserChallengeSubmissionAttemptEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission-attempt.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     MissingOrInvalidGradeExecutionResultException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/missing-or-invalid-grade-execution-result"
 import {
     ProcessGitSubmissionCompleteStepService,
 } from "./process-git-submission-complete-step.service"

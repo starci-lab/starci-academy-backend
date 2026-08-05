@@ -1,9 +1,9 @@
 import type {
     SeedScopeIndexes,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/seed"
 import type {
     CourseIndexFilterByDisplayId,
-} from "../../types"
+} from "../../types/context"
 import {
     parseScopeIndexes,
 } from "./parse-scope-indexes"

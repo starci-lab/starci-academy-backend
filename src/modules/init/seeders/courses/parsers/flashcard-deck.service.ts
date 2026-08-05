@@ -1,51 +1,77 @@
 import type {
     ParseFlashcardDeckManyParams,
     ParseFlashcardDeckParams,
-    FlashcardDecksFromDatabaseParams,
     RawFlashcardCardTag,
     RawFlashcardDeck,
     RawFlashcardCard,
-} from "./types"
+} from "./types/flashcard-deck"
+import type {
+    FlashcardDecksFromDatabaseParams,
+} from "./types/from-database"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ChallengeDifficulty,
-    FlashcardLevel,
-    Locale,
     FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardDeckEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
+    ChallengeDifficulty,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
+    FlashcardLevel,
+} from "@modules/databases/postgresql/primary/enums/flashcard-level"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
     CourseIdFactoryService,
+} from "../id-factories/course.service"
+import {
     FlashcardCardIdFactoryService,
+} from "../id-factories/flashcard-card.service"
+import {
     FlashcardDeckIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/flashcard-deck.service"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     FlashcardDeckPathService,
-} from "../path"
+} from "../path/flashcard-deck.service"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    MergeJsonResult,
-    MergeJsonService,
-    ResolvedFileResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     FlashcardDeckPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/flashcard/flashcard-deck-path-not-found"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 @Injectable()
 /**

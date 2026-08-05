@@ -1,7 +1,9 @@
 import type {
     ContentCommentEntity,
+} from "@modules/databases/postgresql/primary/entities/content-comment.entity"
+import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 
 /**
  * Params to create a comment (top-level or reply). A top-level comment is scoped to

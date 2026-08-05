@@ -1,24 +1,26 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
 } from "@nestjs/testing"
 import {
     EnqueueSendMailJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     OtpChallengeService,
-} from "@modules/code"
+} from "@modules/integrations/code/otp-challenge.service"
 import {
     KeycloakTokenService,
+} from "@modules/integrations/keycloak/token.service"
+import {
     KeycloakUserService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/user.service"
 import {
     UserEmailAlreadyVerifiedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/sign-up"
 import {
     SignUpInitCommand,
 } from "./sign-up-init.command"

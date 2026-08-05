@@ -8,30 +8,36 @@ import {
     Queue,
 } from "bullmq"
 import {
-    ActionType,
     JobEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
     SendMailPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/send-mail"
 import SuperJSON from "superjson"
 import {
     v4 as uuidv4,
 } from "uuid"
 import {
     JobActionService,
-} from "../atomic"
+} from "../atomic/job-action.service"
 import {
     sleepEnqueueUxDelay,
-} from "../utils"
+} from "../utils/enqueue-ux-delay"
 import type {
     EnqueueSendMailParams,
-} from "../types"
+} from "../types/enqueue"
 
 @Injectable()
 /**

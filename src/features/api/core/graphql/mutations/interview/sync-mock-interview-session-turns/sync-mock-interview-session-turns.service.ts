@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +12,10 @@ import {
 } from "./sync-mock-interview-session-turns.command"
 import {
     SyncMockInterviewSessionTurnsRequest,
+} from "./graphql-types/request"
+import {
     SyncMockInterviewSessionTurnsData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /** Forwards transcript sync to the command bus so the resolver stays a thin leaf. */

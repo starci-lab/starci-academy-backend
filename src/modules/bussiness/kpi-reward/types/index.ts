@@ -1,6 +1,6 @@
 import type {
     KpiKey,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
 
 /**
  * This KPI's anti-gaming floor state for the current KPI week, as read for

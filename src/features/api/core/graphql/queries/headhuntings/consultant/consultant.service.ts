@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ConsultantEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ConsultantQuery,
 } from "./consultant.query"
 import {
     ConsultantRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

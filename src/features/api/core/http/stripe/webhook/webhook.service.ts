@@ -9,7 +9,7 @@ import {
 } from "./webhook.command"
 import type {
     StripeWebhookParams,
-} from "./types"
+} from "./types/webhook"
 
 @Injectable()
 /**

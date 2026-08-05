@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     InjectQdrantClient,
-} from "@modules/databases"
+} from "@modules/databases/qdrant/qdrant.decorators"
 import type {
     QdrantClient,
 } from "@qdrant/qdrant-js"
@@ -18,17 +18,19 @@ import {
 } from "langchain/text_splitter"
 import {
     EmbeddingModelService,
-} from "@modules/langchain"
+} from "@modules/integrations/langchain/embedding-model.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     RetrieveGradingExcerptParams,
     RetrieveGradingSourceParams,
     RetrieveGradingSourceResult,
     RetrieveWithVectorStoreParams,
-} from "./types"
+} from "./types/grading-retrieval"
 
 /** Default per-criterion retrieval depth -- each criterion pulls its own top matches. */
 const DEFAULT_PER_CRITERION_TOP_K = 6

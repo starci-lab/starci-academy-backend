@@ -5,7 +5,7 @@ import {
 } from "@nestjs/graphql"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 
 @ObjectType({
     description: "A chat message with author + viewer flags.",

@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     FoundationsRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * Foundations query.

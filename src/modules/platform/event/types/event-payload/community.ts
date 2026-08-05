@@ -1,6 +1,6 @@
 import type {
     CommunityChannel,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/community-channel"
 
 /**
  * Payload emitted when a community post is created/updated/soft-deleted.

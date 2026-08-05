@@ -3,20 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     ChatService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/chat/chat.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
+import {
+    mapChatMessageNode,
+} from "../../../shared/chat/mappers/chat-message-node"
 import {
     ChatMessageNodeObject,
-    mapChatMessageNode,
-} from "../../../shared/chat"
+} from "../../../shared/chat/object-types/chat-message-node.object"
 import type {
     SendChatMessageRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

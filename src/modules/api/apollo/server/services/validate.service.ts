@@ -1,7 +1,7 @@
 import {
     PaginationLimitOutOfRangeException,
     PaginationPageNumberOutOfRangeException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/pagination/page"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -11,7 +11,7 @@ import {
 import type {
     ValidateLimitParams,
     ValidatePageNumberParams,
-} from "../types"
+} from "../types/validate"
 
 @Injectable()
 /**

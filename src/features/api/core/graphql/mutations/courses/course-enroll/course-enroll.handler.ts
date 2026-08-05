@@ -1,23 +1,39 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
     VoucherDiscountType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/voucher-discount-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CourseAlreadyEnrolledError,
+} from "@modules/platform/exceptions/errors/courses/course-already-enrolled"
+import {
     InstallmentCurrencyNotSupportedException,
+} from "@modules/platform/exceptions/errors/payment/installment-currency-not-supported"
+import {
     UnsupportedPaymentTypeException,
-    UserNotFoundException,
+} from "@modules/platform/exceptions/errors/payment/unsupported-payment-type"
+import {
     VoucherNotSupportedForGatewayException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/payment/voucher-not-supported-for-gateway"
+import {
+    UserNotFoundException,
+} from "@modules/platform/exceptions/errors/users/user"
+import {
+    VoucherService,
+} from "@modules/bussiness/rewards/voucher.service"
 import {
     PAYMENT_MODIFIER_CAPABILITY,
-    VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/transactions/constants/payment-modifier-capability"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -48,7 +64,7 @@ import {
 } from "./course-enroll-crypto.service"
 import {
     CourseEnrollResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @CommandHandler(CourseEnrollCommand)
 @Injectable()

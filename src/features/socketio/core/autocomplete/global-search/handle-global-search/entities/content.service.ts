@@ -3,14 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import type {
     EntitySearchParams,
+} from "../types/entity-search"
+import type {
     GlobalSearchItem,
-} from "../types"
+} from "../types/message"
 import {
     ContentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/content.entity"
 import {
     GlobalSearchEntityUtilsService,
 } from "./utils.service"

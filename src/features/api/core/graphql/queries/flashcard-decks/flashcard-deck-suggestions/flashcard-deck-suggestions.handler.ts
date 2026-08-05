@@ -1,9 +1,9 @@
 import {
     FlashcardDeckEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
 import {
     AbstractSuggestionsHandler,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/suggestions/abstract-suggestions.handler"
 import {
     Injectable,
 } from "@nestjs/common"

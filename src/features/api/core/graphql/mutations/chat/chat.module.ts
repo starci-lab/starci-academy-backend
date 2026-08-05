@@ -6,8 +6,10 @@ import {
 } from "./chat.module-definition"
 import {
     SendChatMessageResolver,
+} from "./send-chat-message/send-chat-message.resolver"
+import {
     SendChatMessageService,
-} from "./send-chat-message"
+} from "./send-chat-message/send-chat-message.service"
 
 @Module({
     providers: [

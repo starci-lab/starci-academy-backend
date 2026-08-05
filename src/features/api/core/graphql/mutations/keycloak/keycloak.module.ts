@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,29 +6,43 @@ import {
 } from "./keycloak.module-definition"
 import {
     ExchangeCodeForTokenSingleMutationModule,
-} from "./exchange-code-for-token"
+} from "./exchange-code-for-token/exchange-code-for-token.module"
 import {
     RefreshTokenSingleMutationModule,
-} from "./refresh-token"
+} from "./refresh-token/refresh-token.module"
 import {
     SignOutSingleMutationModule,
-} from "./sign-out"
+} from "./sign-out/sign-out.module"
 import {
     RevokeSessionSingleMutationModule,
-} from "./revoke-session"
+} from "./revoke-session/revoke-session.module"
+import {
+    ForgotPasswordInitSingleMutationModule,
+} from "./sign-in/forgot-password/init/forgot-password-init.module"
+import {
+    ForgotPasswordResendOtpSingleMutationModule,
+} from "./sign-in/forgot-password/resend/forgot-password-resend-otp.module"
+import {
+    ForgotPasswordVerifyOtpSingleMutationModule,
+} from "./sign-in/forgot-password/verify-otp/forgot-password-verify-otp.module"
+import {
+    SignInInitSingleMutationModule,
+} from "./sign-in/init/sign-in-init.module"
+import {
+    SignInResendOtpSingleMutationModule,
+} from "./sign-in/resend/sign-in-resend-otp.module"
 import {
     SignInVerifyOtpSingleMutationModule,
-    SignInInitSingleMutationModule,
-    SignInResendOtpSingleMutationModule,
-    ForgotPasswordInitSingleMutationModule,
-    ForgotPasswordResendOtpSingleMutationModule,
-    ForgotPasswordVerifyOtpSingleMutationModule,
-} from "./sign-in"
+} from "./sign-in/verify-otp/sign-in-verify-otp.module"
 import {
     SignUpInitSingleMutationModule,
-    SignUpVerifyOtpSingleMutationModule,
+} from "./sign-up/init/sign-up-init.module"
+import {
     SignUpResendOtpSingleMutationModule,
-} from "./sign-up"
+} from "./sign-up/resend/sign-up-resend-otp.module"
+import {
+    SignUpVerifyOtpSingleMutationModule,
+} from "./sign-up/verify-otp/sign-up-verify-otp.module"
 @Module({
     imports: [
         ExchangeCodeForTokenSingleMutationModule.register({

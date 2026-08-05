@@ -9,13 +9,13 @@ import {
 } from "./forgot-password-resend-otp.command"
 import type {
     ForgotPasswordResendOtpRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import type {
     SignInInitData,
-} from "../../init/graphql-types"
+} from "../../init/graphql-types/response"
 import {
     ExecuteParams,
-} from "../../../../../../types"
+} from "../../../../../../types/execute"
 
 @Injectable()
 /** Forwards reset-OTP resend to the command bus so the resolver stays a thin leaf. */

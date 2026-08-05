@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS base classes initialise before
 // the handler pulls `@modules/cqrs` -- dodges a load-order "Class extends value
 // undefined" cycle (mirrors generate-cv.handler.spec.ts).
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -11,13 +11,13 @@ import {
 } from "@modules/ai/ai-invoke.service"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     SplitCvFromTextCommand,
 } from "./split-cv-from-text.command"

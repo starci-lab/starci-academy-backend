@@ -3,18 +3,32 @@ import {
 } from "@nestjs/common"
 import {
     ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     FlashcardDeckEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
     ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
     TranslationResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/translation.service"
 import {
     CourseRagRetrievalService,
     SearchCourseHit,
-} from "@modules/rag"
+} from "@modules/integrations/rag/course-rag-retrieval.service"
 import {
     In,
 } from "typeorm"
@@ -23,7 +37,7 @@ import type {
 } from "typeorm"
 import {
     SearchCourseContentItem,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Params for {@link SearchCourseContentService.search}. */
 export interface SearchCourseContentParams {

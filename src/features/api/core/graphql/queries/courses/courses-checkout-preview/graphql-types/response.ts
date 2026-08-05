@@ -7,11 +7,13 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     InstallmentOptionItem,
-} from "../../course-price-preview/graphql-types"
+} from "../../course-price-preview/graphql-types/response"
 
 @ObjectType({
     description: "Preview price of one course in a multi-course order.",

@@ -1,7 +1,9 @@
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ConnectedSocket,
     MessageBody,
@@ -16,12 +18,16 @@ import {
 } from "typeorm"
 import {
     MockInterviewWebSocketGateway,
-    WsResponseService,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     socketIoKeycloakAuthMiddleware,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/middlewares/keycloak-auth"
+import {
+    WsResponseService,
+} from "@modules/platform/socketio/response.service"
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -33,33 +39,55 @@ import type {
 } from "@modules/ai/types/ai-job-selection"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
-    AiCeilSurface,
-    AiModelCategory,
-    AiModelTask,
-    InjectPrimaryPostgreSQLEntityManager,
-    ModelProvider,
-    MockInterviewPhase,
     MockInterviewSessionEntity,
     MOCK_INTERVIEW_SESSION_DURATION_MS,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
+import {
+    AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     normalizeMockInterviewKind,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-kind"
+import {
     normalizeMockInterviewMode,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/mock-interview-mode"
+import {
+    MockInterviewPhase,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
+import {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     PublicationEvent,
+} from "../enums/publication-event"
+import {
     SubscriptionEvent,
-} from "../enums"
+} from "../enums/subscription-event"
 import {
     MockInterviewTurnService,
 } from "./mock-interview-turn.service"
 import type {
-    AbortMockInterviewTurnSocketIoPayload,
-    AskMockInterviewTurnSocketIoPayload,
     EmitChunkParams,
     MockInterviewChunkSocketIoMessage,
+} from "./types/message"
+import type {
     MockInterviewTurnHistoryEntry,
-} from "./types"
+} from "./types/mock-interview-turn"
+import type {
+    AbortMockInterviewTurnSocketIoPayload,
+    AskMockInterviewTurnSocketIoPayload,
+} from "./types/payload"
 
 @MockInterviewWebSocketGateway()
 /**

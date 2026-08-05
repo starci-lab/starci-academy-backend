@@ -6,7 +6,7 @@ import {
 } from "kafkajs"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     KAFKA,
 } from "./constants"

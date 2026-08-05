@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
 // initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (mirrors generate-cv.handler.spec.ts).
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -16,21 +16,29 @@ import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
 import {
-    CvGenerationMode,
-    CvGenerationStatus,
-    CvSource,
-    ModelProvider,
     UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
+import {
+    CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
+    CvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import {
+    CvSource,
+} from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import type {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     EnqueueScoreUploadedCvJobService,
-} from "@features/api/processors/ai/score-uploaded-cv"
+} from "../../../../../processors/ai/score-uploaded-cv/enqueue-score-uploaded-cv.service"
 import {
     UploadCvCommand,
 } from "./upload-cv.command"

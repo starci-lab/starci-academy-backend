@@ -1,7 +1,9 @@
 import {
-    S3BuildService,
     S3Provider,
-} from "@modules/s3"
+} from "@modules/integrations/s3/enums/s3"
+import {
+    S3BuildService,
+} from "@modules/integrations/s3/s3-build.service"
 import {
     Parent,
     ResolveField,
@@ -9,7 +11,7 @@ import {
 } from "@nestjs/graphql"
 import {
     CourseEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/course.entity"
 
 @Resolver(() => CourseEntity)
 /**

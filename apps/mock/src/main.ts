@@ -5,8 +5,8 @@ import {
     ValidationPipe
 } from "@nestjs/common"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     AppModule
 } from "./app.module"

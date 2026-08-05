@@ -5,62 +5,92 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    AbstractStepService,
-    CodingProgressService,
-    EnqueueSendMailJobService,
-    JobActionService,
-    JobExtendedContext,
-    NotificationService,
     writeActivity,
-} from "@modules/bussiness"
+} from "@modules/bussiness/activity/write-activity"
+import {
+    CodingProgressService,
+} from "@modules/bussiness/coding/coding-progress.service"
+import {
+    JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
+    AbstractStepService,
+    JobExtendedContext,
+} from "@modules/bussiness/jobs/types/context"
+import {
+    NotificationService,
+} from "@modules/bussiness/notification/notification.service"
 import {
     FLAT_POINTS,
+} from "../../ai/shared/xp/points-config"
+import {
     writeXpHistory,
-} from "../../ai/shared/xp"
+} from "../../ai/shared/xp/write-xp-history"
 import {
     enqueueLearnerEmail,
-} from "@modules/transactional-email"
+} from "@modules/integrations/transactional-email/enqueue-learner-email"
 import type {
     JudgeCodingSubmissionPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/judge-coding-submission"
+import {
+    CodingSolutionRevealEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-solution-reveal.entity"
+import {
+    CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-submission.entity"
 import {
     ActivityType,
-    CodingSolutionRevealEntity,
-    CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
     CodingVerdict,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
+import {
     NotificationType,
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Judge0Service,
+} from "@modules/integrations/judge0/judge0.service"
+import {
     mapJudge0StatusToVerdict,
-} from "@modules/judge0"
+} from "@modules/integrations/judge0/utils/map-verdict"
 import type {
     Judge0SubmissionInput,
     Judge0SubmissionResult,
-} from "@modules/judge0"
+} from "@modules/integrations/judge0/types/judge0"
 import {
     CodingLanguageNotSupportedException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/coding/coding-language-not-supported"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CodingProblemEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
 import type {
     CodingProblemTestcaseEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/coding-problem-testcase.entity"
 import type {
-    ExtendedJudgeCodingSubmissionContext,
     CodingPerCaseResult,
     JudgeCodingSubmissionJudgeStepExecuteResult,
-} from "../types"
+} from "../types/execute"
+import type {
+    ExtendedJudgeCodingSubmissionContext,
+} from "../types/extended"
 
 @Injectable()
 /**

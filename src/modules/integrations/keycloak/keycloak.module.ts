@@ -9,9 +9,13 @@ import {
 } from "./keycloak.module-definition"
 import {
     KeycloakAuthGraphQLGuard,
+} from "./guards/keycloak-auth-graphql.guard"
+import {
     KeycloakAuthRestGuard,
+} from "./guards/keycloak-auth-rest.guard"
+import {
     KeycloakOptionalAuthGraphQLGuard,
-} from "./guards"
+} from "./guards/keycloak-optional-auth-graphql.guard"
 import {
     KeycloakJwksService,
 } from "./jwks.service"

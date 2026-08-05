@@ -10,18 +10,22 @@ import {
 } from "./league.service"
 import {
     LeagueCohortEntity,
-    LeagueTier,
+} from "@modules/databases/postgresql/primary/entities/league-cohort.entity"
+import {
     UserLeagueEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-league.entity"
+import {
+    LeagueTier,
+} from "@modules/databases/postgresql/primary/enums/league-tier"
 import {
     LeagueCohortPointsProjectionService,
-} from "../projections"
+} from "../projections/league-cohort-points/league-cohort-points-projection.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

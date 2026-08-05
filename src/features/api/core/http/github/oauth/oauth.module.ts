@@ -6,10 +6,10 @@ import {
 } from "./oauth.module-definition"
 import {
     GithubOauthRedirectModule,
-} from "./redirect"
+} from "./redirect/redirect.module"
 import {
     GithubOauthCallbackModule,
-} from "./callback"
+} from "./callback/callback.module"
 
 @Module({
     imports: [

@@ -2,8 +2,11 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    CommandProbeService, type PlaygroundResource 
-} from "@modules/playground-agent-core"
+    CommandProbeService,
+} from "@modules/playground-agent-core/command-probe.service"
+import type {
+    PlaygroundResource,
+} from "@modules/playground-agent-core/types"
 
 @Injectable()
 /**

@@ -3,11 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     PathResolverService,
+} from "../../shared/path/resolver.service"
+import {
     ResolvedFilePath,
-} from "../../shared"
+} from "../../shared/path/types"
 import type {
     FoundationPathParams,
-} from "./types"
+} from "./types/foundation"
 import {
     FoundationCategoryPathService,
 } from "./foundation-category.service"

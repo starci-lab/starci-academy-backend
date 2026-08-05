@@ -6,14 +6,14 @@ import {
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     CourseLeaderboardCacheResult,
     CourseLeaderboardEntry,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/course-leaderboard"
 import {
     DEFAULT_TOP_LIMIT,
-} from "../../progress/constants"
+} from "../../progress/constants/leaderboard"
 import type {
     CourseTotalsRow,
     GetMyRankResult,

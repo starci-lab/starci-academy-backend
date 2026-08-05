@@ -2,8 +2,8 @@ import {
     WebSocketGateway 
 } from "@nestjs/websockets"
 import {
-    createCorsOptions 
-} from "@modules/cors"
+    createCorsOptions,
+} from "@modules/platform/cors/setup"
 
 export const AUTOCOMPLETE_NAMESPACE = "autocomplete"
 export const JOB_NOTIFICATIONS_NAMESPACE = "job_notifications"

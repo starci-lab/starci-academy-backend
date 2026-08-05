@@ -8,12 +8,14 @@ import {
     SignUpInitCommand,
 } from "./sign-up-init.command"
 import type {
-    SignUpInitData,
     SignUpInitRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import type {
+    SignUpInitData,
+} from "./graphql-types/response"
 import {
     ExecuteParams,
-} from "../../../../../types"
+} from "../../../../../types/execute"
 
 @Injectable()
 /** Forwards sign-up init to the command bus so the resolver stays a thin leaf. */

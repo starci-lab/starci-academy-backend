@@ -18,23 +18,31 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     NotificationType,
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
     PrimaryPostgreSQLModule,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     NotificationService,
+} from "@modules/bussiness/notification/notification.service"
+import {
     UserStatsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
 import {
     EventEmitterService,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     MyNotificationsResolver,
 } from "@features/api/core/graphql/queries/notifications/my-notifications/my-notifications.resolver"
@@ -43,7 +51,7 @@ import {
 } from "@features/api/core/graphql/queries/notifications/my-unread-notification-count/my-unread-notification-count.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

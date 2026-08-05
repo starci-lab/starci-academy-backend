@@ -6,22 +6,38 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ActionType,
-    AiSubStatus,
     AiSubscriptionEntity,
-    AiSubTier,
-    PaymentType,
-    PricingPhase,
+} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+import {
     TransactionEntity,
-    TransactionStatus,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    AiSubStatus,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-status"
+import {
+    AiSubTier,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
+    TransactionStatus,
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
     createE2eApp,
-} from "@tests/helpers"
+} from "@tests/helpers/create-e2e-app"
 import type {
     E2eApp,
-} from "@tests/helpers"
+} from "@tests/helpers/types/e2e-app"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

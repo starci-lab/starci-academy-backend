@@ -3,20 +3,28 @@ import {
 } from "@nestjs/common"
 import {
     S3Provider,
+} from "@modules/integrations/s3/enums/s3"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     S3ContextNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/s3-context-not-found"
+import {
     S3ContextTypeMismatchException,
-} from "@modules/exceptions"
-import { 
-    envConfig, 
-    ContextType 
-} from "@modules/env"
+} from "@modules/platform/exceptions/errors/courses/s3-context-type-mismatch"
+import {
+    envConfig,
+} from "@modules/platform/env/config"
+import {
+    ContextType,
+} from "@modules/platform/env/enums/context"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 @Injectable()
 /**

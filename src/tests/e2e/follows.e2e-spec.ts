@@ -12,31 +12,43 @@ import type {
 } from "typeorm"
 import {
     ActivityEntity,
-    ActivityType,
-    NotificationType,
-    PrimaryPostgreSQLModule,
-    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/activity.entity"
+import {
     UserFollowEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-follow.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    ActivityType,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
+    NotificationType,
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     NotificationService,
+} from "@modules/bussiness/notification/notification.service"
+import {
     UserStatsProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
 import {
     KeycloakJwksService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/jwks.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import {
     SetFollowResolver,
 } from "@features/api/core/graphql/mutations/follows/set-follow/set-follow.resolver"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

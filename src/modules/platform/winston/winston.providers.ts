@@ -6,7 +6,7 @@ import {
     CONSOLE_WINSTON,
     LOKI_WINSTON,
     WINSTON_AND_CONSOLE,
-} from "./constants"
+} from "./constants/winston"
 import {
     utilities
 } from "nest-winston"
@@ -15,11 +15,11 @@ import {
 } from "./winston.module-definition"
 import LokiTransport from "winston-loki"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import {
     buildAppName,
-} from "./utils"
+} from "./utils/build"
 
 /**
  * Create a console transport.

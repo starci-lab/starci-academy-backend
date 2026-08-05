@@ -1,7 +1,7 @@
 // Load the bussiness barrel first so its base classes are initialised before the
 // worker pulls its deps -- dodges a load-order "Class extends value undefined"
 // cycle (mirrors the CV-scoring worker specs).
-import "@modules/bussiness"
+import "@modules/bussiness/bussiness.module"
 import {
     Test,
     TestingModule,
@@ -16,38 +16,60 @@ import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
-    EnqueueEnrollJobService,
-    EnqueueReconcileTransactionJobService,
-    EnqueueSendMailJobService,
     InstallmentPlanService,
-    TransactionActionService,
-    TransactionReconcileQueryService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
+import {
+    EnqueueEnrollJobService,
+} from "@modules/bussiness/jobs/enqueue/enroll.service"
+import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
+import {
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    TransactionReconcileQueryService,
+} from "@modules/bussiness/transactions/atomic/transaction-reconcile-query.service"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
+import {
+    TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
     ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     AiSubTier,
+} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
+import {
     PaymentType,
-    TransactionEntity,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
-import * as transactionalEmail from "@modules/transactional-email"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
+import * as transactionalEmail from "@modules/integrations/transactional-email/grant-emails"
 import {
     ReconcileTransactionWorker,
 } from "./reconcile-transaction.worker"
@@ -55,7 +77,7 @@ import {
 // the worker calls these three free functions directly (not through DI) -- stub
 // the whole module so a "finalize"/"unpaid" branch never touches the real
 // mailer plumbing (which needs its own deep dependency chain).
-jest.mock("@modules/transactional-email",
+jest.mock("@modules/integrations/transactional-email/grant-emails",
     () => ({
         enqueueSubscriptionActiveEmail: jest.fn(),
         enqueueMembershipActiveEmail: jest.fn(),

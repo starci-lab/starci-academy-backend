@@ -1,9 +1,9 @@
 import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AiByokInvalidException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/ai/ai-byok-invalid"
 import type {
     FlatAiSelectionFields,
 } from "./flat-fields-to-ai-job-selection"

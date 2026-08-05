@@ -3,20 +3,22 @@ import {
 } from "@nestjs/common"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CONTAINER_METRICS_CACHE_TTL_MS,
     CONTAINER_NAME_PREFIX,
     PROMETHEUS_QUERY_TIMEOUT_MS,
     UNBOUNDED_MEMORY_LIMIT_BYTES,
-} from "./constants"
+} from "./constants/probe"
 import type {
     ContainerMetrics,
-} from "./types"
+} from "./types/probe"
 
 /** Raw shape of a Prometheus instant-query response we actually read. */
 interface PrometheusInstantQueryResponse {

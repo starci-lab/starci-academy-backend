@@ -1,6 +1,6 @@
 import type {
     SubmissionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-type"
 import type {
     AbstractExceptionMetadata,
 } from "../abstract"

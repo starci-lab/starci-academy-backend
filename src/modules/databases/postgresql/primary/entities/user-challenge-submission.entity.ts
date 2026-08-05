@@ -13,7 +13,7 @@ import {
 import {
     GraphQLTypeModelProvider,
     ModelProvider,
-} from "../enums"
+} from "../enums/model-provider"
 import {
     UuidAbstractEntity,
 } from "./abstract"

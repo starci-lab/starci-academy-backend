@@ -10,16 +10,16 @@ import type {
 } from "typeorm"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CvScoringService,
-} from "../../shared/cv-scoring"
+} from "../../shared/cv-scoring/cv-scoring.service"
 import {
     GenerateCvScoreStepService,
 } from "./generate-cv-score-step.service"

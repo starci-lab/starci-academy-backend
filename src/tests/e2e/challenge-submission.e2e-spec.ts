@@ -22,32 +22,70 @@ import type {
 } from "bullmq"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    ChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
+import {
+    ChallengeEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    UserChallengeSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/user-challenge-submission.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     ChallengeDifficulty,
-    ChallengeEntity,
-    ChallengeSubmissionEntity,
-    ContentEntity,
-    CourseEntity,
-    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/enums/challenge-difficulty"
+import {
     JobCategory,
-    JobEntity,
+} from "@modules/databases/postgresql/primary/enums/job-category"
+import {
     JobStatus,
+} from "@modules/databases/postgresql/primary/enums/job-status"
+import {
     Locale,
-    ModuleEntity,
-    PostgreSqlAdvisoryLockService,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     SubmissionType,
-    UserChallengeSubmissionEntity,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-type"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     ChallengePremiumLockedException,
+} from "@modules/platform/exceptions/errors/courses/challenge-premium-locked"
+import {
     ChallengeSubmissionNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/challenge-submission-not-found"
+import {
     SubmissionUrlInvalidException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/submission-url-invalid"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -58,29 +96,41 @@ import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
 import {
-    createSuperJsonServiceProvider,
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    createSuperJsonServiceProvider,
+} from "@modules/lib/mixin/superjson.providers"
 import {
     AiAutoQuotaConfigService,
+} from "@modules/filesystem/ai-auto-quota-config.service"
+import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
 import {
     EventEmitterService,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     UrlValidatorService,
-} from "@modules/validators"
+} from "@modules/lib/validators/url.service"
+import {
+    JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
+    JobStalledService,
+} from "@modules/bussiness/jobs/atomic/job-stalled.service"
 import {
     EnqueueProcessGitSubmissionJobService,
+} from "@modules/bussiness/jobs/enqueue/process-git-submission.service"
+import {
     EnqueueProcessGoogleDocsSubmissionJobService,
-    JobActionService,
-    JobStalledService,
+} from "@modules/bussiness/jobs/enqueue/process-google-docs-submission.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     SubmitChallengeSubmissionCommand,
 } from "@features/api/core/graphql/mutations/challenge-submissions/submit-challenge-submission/submit-challenge-submission.command"
@@ -89,7 +139,7 @@ import {
 } from "@features/api/core/graphql/mutations/challenge-submissions/submit-challenge-submission/submit-challenge-submission.handler"
 import type {
     SubmitChallengeSubmissionResult,
-} from "@features/api/core/graphql/mutations/challenge-submissions/submit-challenge-submission/types"
+} from "@features/api/core/graphql/mutations/challenge-submissions/submit-challenge-submission/types/submit-challenge-submission"
 import {
     SyncSubmissionCommand,
 } from "@features/api/core/graphql/mutations/challenge-submissions/sync-submission/sync-submission.command"
@@ -98,7 +148,7 @@ import {
 } from "@features/api/core/graphql/mutations/challenge-submissions/sync-submission/sync-submission.handler"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

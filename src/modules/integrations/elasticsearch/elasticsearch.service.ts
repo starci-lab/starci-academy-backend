@@ -10,28 +10,52 @@ import {
 } from "./elasticsearch.decorators"
 import {
     ChallengeEntity,
-    ContentEntity,
-    CourseEntity,
-    ModuleEntity,
-    FoundationEntity,
-    FoundationCategoryEntity,
-    ConsultantEntity,
-    HeadhuntingCompanyEntity,
-    FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
     CodingProblemEntity,
-    Locale
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
+    ConsultantEntity,
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
+    FlashcardDeckEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
+    FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
+import {
+    FoundationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
+    HeadhuntingCompanyEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ObjectLiteral
 } from "typeorm"
 import {
     AsyncService,
-    ReadinessWatcherFactoryService
-} from "@modules/mixin"
+} from "@modules/lib/mixin/async.service"
+import {
+    ReadinessWatcherFactoryService,
+} from "@modules/lib/mixin/readiness-watcher-factory.service"
 import {
     ElasticsearchBulkIndexException,
+} from "@modules/platform/exceptions/errors/elasticsearch/elasticsearch-bulk-index"
+import {
     ElasticsearchIndexConfigMissingException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/elasticsearch/elasticsearch-index-config-missing"
 import {
     configMap
 } from "./config"
@@ -39,19 +63,27 @@ import {
     resolveElasticsearchIndexMapping
 } from "./mappings"
 import {
-    envConfig
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 import type {
-    IndicateNameParams,
-    IndexEntityParams,
-    IndexEntityResult,
+    DeleteEntityParams,
+    DeleteEntityResult,
+} from "./types/delete-entity"
+import type {
     IndexEntitiesParams,
     IndexEntitiesResult,
+} from "./types/index-entities"
+import type {
+    IndexEntityParams,
+    IndexEntityResult,
+} from "./types/index-entity"
+import type {
+    IndicateNameParams,
+} from "./types/indicate-name"
+import type {
     CountDocsParams,
     PruneOrphansParams,
-    DeleteEntityParams,
-    DeleteEntityResult
-} from "./types"
+} from "./types/prune"
 
 @Injectable()
 /**

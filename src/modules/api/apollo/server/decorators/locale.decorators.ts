@@ -4,7 +4,7 @@ import {
 } from "@nestjs/common"
 import {
     resolveLocale,
-} from "@modules/locale"
+} from "@modules/platform/locale/resolve-locale"
 
 /**
  * Inject the locale from the request.

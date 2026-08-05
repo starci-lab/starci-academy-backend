@@ -10,7 +10,7 @@ import {
 import type {
     SyncSubmissionParams,
     SyncSubmissionResult,
-} from "./types"
+} from "./types/sync-submission"
 
 @Injectable()
 /**

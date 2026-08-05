@@ -7,16 +7,24 @@ import {
 } from "typeorm"
 import {
     FlashcardCardEntity,
+} from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
+import {
     FlashcardQuizSessionEntity,
     FlashcardQuizSessionResult,
     FlashcardQuizSessionWeakTag,
+} from "@modules/databases/postgresql/primary/entities/flashcard-quiz-session.entity"
+import {
     FlashcardReviewSessionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/entities/flashcard-review-session.entity"
+import {
     UserFlashcardCourseStatsProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-flashcard-course-stats-projection.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     FlashcardBestReviewHourData,
     FlashcardConceptCoverageData,

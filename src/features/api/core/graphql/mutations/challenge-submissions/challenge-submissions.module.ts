@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,10 +6,10 @@ import {
 } from "./challenge-submissions.module-definition"
 import {
     SubmitChallengeSubmissionSingleMutationModule,
-} from "./submit-challenge-submission"
+} from "./submit-challenge-submission/submit-challenge-submission.module"
 import {
     SyncSubmissionSingleMutationModule,
-} from "./sync-submission"
+} from "./sync-submission/sync-submission.module"
 
 @Module({
     imports: [

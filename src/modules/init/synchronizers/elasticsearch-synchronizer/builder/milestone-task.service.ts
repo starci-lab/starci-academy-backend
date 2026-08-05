@@ -1,9 +1,15 @@
 import {
-    Locale,
     MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     MilestoneTaskHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/milestone-task-hydration.service"
+import {
     MilestoneTaskResolverService,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/resolvers/milestone-task-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,8 +18,10 @@ import type {
 } from "./types"
 import {
     ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
+import {
     buildCompletionSuggest,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/completion"
 import _ from "lodash"
 
 @Injectable()

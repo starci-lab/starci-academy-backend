@@ -6,13 +6,13 @@ import {
 } from "./milestones.module-definition"
 import {
     MilestoneSingleQueryModule,
-} from "./milestone"
+} from "./milestone/milestone.module"
 import {
     MilestonesSingleQueryModule,
-} from "./milestones"
+} from "./milestones/milestones.module"
 import {
     MilestoneSuggestionsSingleQueryModule,
-} from "./milestone-suggestions"
+} from "./milestone-suggestions/milestone-suggestions.module"
 
 @Module({
     imports: [

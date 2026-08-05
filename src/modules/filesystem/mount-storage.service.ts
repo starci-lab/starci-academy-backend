@@ -3,17 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     AppConfig,
+} from "./types/config"
+import {
     SecretKeycloakAdmin,
-} from "./types"
+} from "./types/secrets"
 import {
     MountFilesystemService
 } from "./mount.service"
 import {
     setRuntimeAppConfig,
-} from "./utils"
+} from "./utils/mount-secrets"
 import {
-    ReadinessWatcherFactoryService
-} from "@modules/mixin"
+    ReadinessWatcherFactoryService,
+} from "@modules/lib/mixin/readiness-watcher-factory.service"
 
 @Injectable()
 /**

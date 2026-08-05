@@ -1,6 +1,6 @@
 import {
     KeycloakRegisterRequest,
-} from "../dtos"
+} from "../dtos/register.request"
 
 /**
  * CQRS envelope for register-then-login so the controller does not sequence Keycloak admin

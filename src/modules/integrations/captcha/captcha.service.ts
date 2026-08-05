@@ -6,10 +6,10 @@ import {
 } from "axios"
 import {
     AxiosService,
-} from "@modules/axios"
+} from "@modules/integrations/axios/axios.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     CAPTCHA_AXIOS_KEY,
     TURNSTILE_SITEVERIFY_URL,

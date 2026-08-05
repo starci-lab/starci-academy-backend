@@ -3,17 +3,19 @@ import {
 } from "@nestjs/common"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     EnqueueResolveGithubJobService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/enqueue/resolve-github.service"
 import {
     MissingRequiredParameterException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/stdlib/missing-required-parameter"
 import type {
     RequestToTeamRequest,
+} from "./graphql-types/request"
+import type {
     RequestToTeamData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

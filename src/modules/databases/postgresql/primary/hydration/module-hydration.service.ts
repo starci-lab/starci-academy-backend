@@ -6,16 +6,22 @@ import type {
 } from "typeorm"
 import {
     ChallengeEntity,
+} from "../entities/challenge.entity"
+import {
     ContentEntity,
+} from "../entities/content.entity"
+import {
     ModuleEntity,
+} from "../entities/module.entity"
+import {
     PreviewContentEntity,
-} from "../entities"
+} from "../entities/preview-content.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "../primary.decorators"
 import {
     ModuleNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/module-not-found"
 
 @Injectable()
 /**

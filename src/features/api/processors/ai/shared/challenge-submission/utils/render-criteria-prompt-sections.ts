@@ -1,6 +1,6 @@
 import type {
     ResolvedChallengeCriterion,
-} from "../types"
+} from "../types/criteria"
 
 /**
  * Render the criteria list into the LLM prompt sections (one block per criterion).

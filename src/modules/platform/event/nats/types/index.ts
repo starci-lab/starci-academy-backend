@@ -2,8 +2,8 @@ import type {
     NatsConnection, Msg, Subscription 
 } from "nats"
 import type {
-    StreamConnection 
-} from "@modules/stream-async-iterator"
+    StreamConnection,
+} from "@modules/lib/stream-async-iterator/types/stream-connection"
 
 /** Options for configuring the NATS module. */
 export interface NatsOptions {

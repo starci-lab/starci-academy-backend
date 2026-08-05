@@ -15,7 +15,7 @@ import {
 import {
     GraphQLTypePricingPhase,
     PricingPhase,
-} from "../enums"
+} from "../enums/pricing-phase"
 import {
     UuidAbstractEntity,
 } from "./abstract"

@@ -6,18 +6,20 @@ import {
 } from "typeorm"
 import {
     FoundationTagEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-tag.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     CoerceMdScalarService,
-} from "../../shared"
+} from "../../shared/extracts/coerce-md-scalar.service"
 import {
     FoundationTagIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/foundation-tag.service"
 import type {
     ParseFoundationTagsParams,
     RawFoundationTagItem,
-} from "./types"
+} from "./types/foundation-tag"
 
 @Injectable()
 /**

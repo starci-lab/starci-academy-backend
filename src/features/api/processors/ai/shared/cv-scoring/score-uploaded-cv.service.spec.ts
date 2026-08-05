@@ -10,18 +10,20 @@ import type {
 } from "typeorm"
 import {
     UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CvGenerationNotFoundException,
+} from "@modules/platform/exceptions/errors/api/cv-generation-not-found"
+import {
     CvSubmissionExtractS3BufferEmptyException,
     CvSubmissionExtractEmptyTextException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/review-cv-submission-extract"
 import {
     extractCvText,
 } from "../../generate-cv/steps/extract-cv-text"

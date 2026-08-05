@@ -1,9 +1,15 @@
 import {
     CourseEntity,
-    CourseHydrationService,
-    CourseResolverService,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    CourseHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/course-hydration.service"
+import {
+    CourseResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/course-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,14 +18,16 @@ import type {
 } from "./types"
 import {
     S3NameResolverService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-name-resolver.service"
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import _ from "lodash"
 
 @Injectable()

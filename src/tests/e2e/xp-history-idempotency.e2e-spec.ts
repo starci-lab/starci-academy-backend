@@ -6,18 +6,22 @@ import type {
 } from "typeorm"
 import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
 import {
     writeXpHistory,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/write-xp-history"
 import {
     createE2eApp,
-} from "@tests/helpers"
+} from "@tests/helpers/create-e2e-app"
 import type {
     E2eApp,
-} from "@tests/helpers"
+} from "@tests/helpers/types/e2e-app"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

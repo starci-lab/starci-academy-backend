@@ -5,10 +5,10 @@ import {
 import Stripe from "stripe"
 import {
     getStripeSecretKey,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import {
     STRIPE,
-} from "./constants"
+} from "./constants/stripe"
 
 /** Inject the shared Stripe SDK client (token {@link STRIPE}). */
 export const InjectStripe = () => Inject(

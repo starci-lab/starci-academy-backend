@@ -8,30 +8,40 @@ import {
     UseInterceptors,
 } from "@nestjs/common"
 import {
+    GraphQLLocale,
+} from "@modules/api/apollo/server/decorators/locale.decorators"
+import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-    GraphQLLocale,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakGraphQLUser,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/keycloak.decorators"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
+import {
+    CourseEnrollmentStatusRequest,
+} from "./graphql-types/request"
 import {
     CourseEnrollmentStatusData,
-    CourseEnrollmentStatusRequest,
     CourseEnrollmentStatusResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     CourseEnrollmentStatusService,
 } from "./course-enrollment-status.service"
 import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 
 @Resolver()

@@ -3,7 +3,7 @@ import type {
 } from "typeorm"
 import type {
     InstallmentPlanEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
 
 /**
  * One offered `Fixed`-plan term for a given base price -- the shape the price

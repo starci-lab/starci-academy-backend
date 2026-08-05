@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 import {
     SubmitPersonalGithubUrlRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS envelope for the first-time GitHub URL bind on an enrollment.

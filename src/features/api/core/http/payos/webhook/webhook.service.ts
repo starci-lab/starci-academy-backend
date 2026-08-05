@@ -6,7 +6,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     PayosWebhookRequest,
-} from "./dtos"
+} from "./dtos/request"
 import {
     PayosWebhookCommand,
 } from "./webhook.command"

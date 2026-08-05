@@ -6,7 +6,7 @@ import {
 import {
     GraphQLTypeReactionType,
     ReactionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/reaction-type"
 
 @ObjectType({
     description: "A single emotion bucket with its count.",

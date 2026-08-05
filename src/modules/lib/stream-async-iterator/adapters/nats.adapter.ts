@@ -2,8 +2,8 @@ import type {
     NatsConnection, Msg, Subscription 
 } from "nats"
 import {
-    StreamConnection 
-} from "../types"
+    StreamConnection,
+} from "../types/stream-connection"
 
 /**
  * Ctor bag for {@link NatsStreamConnection}. `nc` must already be connected;

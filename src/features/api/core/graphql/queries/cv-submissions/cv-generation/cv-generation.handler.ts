@@ -1,20 +1,30 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
 import {
     CvSource,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
     SubmissionFeedbackSeverity,
-    UserCvGenerationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-feedback-severity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3BuildService,
-    S3Provider,
+} from "@modules/integrations/s3/s3-build.service"
+import {
     S3ReadService,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-read.service"
 import {
     CvGenerationNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/api/cv-generation-not-found"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -31,7 +41,7 @@ import {
 import {
     CvFeedback,
     CvGenerationPayload,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 /** Enum members of {@link SubmissionFeedbackSeverity}, for defensive coercion. */
 const VALID_SEVERITIES: ReadonlyArray<string> = Object.values(SubmissionFeedbackSeverity)

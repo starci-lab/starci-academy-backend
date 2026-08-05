@@ -1,15 +1,27 @@
 import {
-    ActionType,
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    PaymentType,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     TransactionEntity,
+} from "@modules/databases/postgresql/primary/entities/transaction.entity"
+import {
+    ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
+    PaymentType,
+} from "@modules/databases/postgresql/primary/enums/payment-type"
+import {
     TransactionStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/transaction-status"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CourseNotFoundException,
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -18,16 +30,16 @@ import type {
 } from "typeorm"
 import type {
     CourseEnrollResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     InjectSepay,
-} from "@modules/sepay"
+} from "@modules/integrations/sepay/sepay.providers"
 import {
     SePayPgClient,
 } from "sepay-pg-node"
@@ -36,19 +48,25 @@ import {
 } from "./course-pricing.service"
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 import {
     CourseEnrollRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 import type {
     SignSepayFieldsParams,
-} from "./types"
+} from "./types/sepay-checkout"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
     EnqueueReconcileTransactionJobService,
-    InstallmentPlanService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
     LoyaltyDiscountService,
+} from "@modules/bussiness/loyalty/loyalty-discount.service"
+import {
     VoucherService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/rewards/voucher.service"
 
 @Injectable()
 /**

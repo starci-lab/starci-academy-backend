@@ -19,22 +19,22 @@ import {
 } from "@nestjs/swagger"
 import {
     LocalOnlyGuard,
-} from "../guards"
+} from "../guards/local-only.guard"
 import {
     toolsRoutes,
-} from "../constants"
+} from "../constants/routes"
 import {
     parseTargetIds,
-} from "../utils"
+} from "../utils/target-ids"
 import {
     DashService,
 } from "./dash.service"
 import type {
     MulterFile,
-} from "../media"
+} from "../media/types/media"
 import type {
     ProcessDashResult,
-} from "./types"
+} from "./types/dash"
 
 @ApiTags(toolsRoutes.dash.tag)
 @Controller(

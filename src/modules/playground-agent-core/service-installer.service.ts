@@ -18,8 +18,8 @@ import {
     dirname, join 
 } from "node:path"
 import {
-    PlaygroundAgentUnsupportedPlatformException 
-} from "@modules/exceptions"
+    PlaygroundAgentUnsupportedPlatformException,
+} from "@modules/platform/exceptions/errors/playground-agent/unsupported-platform"
 import {
     AGENT_META, type AgentMeta 
 } from "./agent-meta"

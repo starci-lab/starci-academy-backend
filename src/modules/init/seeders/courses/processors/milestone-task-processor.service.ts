@@ -3,16 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
 import {
     MilestoneTaskParserService,
-} from "../parsers"
+} from "../parsers/milestone-task.service"
 import {
     UpsertService,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 import type {
     ProcessMilestoneTasksParams,
-} from "../types"
+} from "../types/seeder-orchestration"
 import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"

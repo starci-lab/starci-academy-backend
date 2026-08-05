@@ -7,20 +7,22 @@ import {
 } from "typeorm"
 import {
     CommunityPostEntity,
+} from "@modules/databases/postgresql/primary/entities/community-post.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     MembershipService,
-} from "@modules/membership"
+} from "@modules/membership/membership.service"
 import {
     CommunityPostQuotaExceededException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/community/quota"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     AssertCanCreateCommunityPostParams,
 } from "./types"

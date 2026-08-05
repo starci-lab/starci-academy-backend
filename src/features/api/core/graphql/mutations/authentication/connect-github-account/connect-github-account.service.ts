@@ -6,13 +6,13 @@ import {
 } from "@nestjs/cqrs"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ConnectGithubAccountCommand,
 } from "./connect-github-account.command"
 import {
     ConnectGithubAccountInput,
-} from "./graphql-types"
+} from "./graphql-types/input"
 
 @Injectable()
 /**

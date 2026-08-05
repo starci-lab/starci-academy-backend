@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     EnrollmentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     SubmitPersonalGithubUrlCommand,
 } from "./submit-personal-github-url.command"
 import type {
     SubmitPersonalGithubUrlRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

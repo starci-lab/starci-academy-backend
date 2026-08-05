@@ -1,6 +1,6 @@
 import type {
-    S3Provider 
-} from "@modules/s3"
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 
 /** Message for when courses are seeded successfully. */
 export interface CoursesSeededSuccessfullyMessage {

@@ -1,6 +1,6 @@
 import type {
     AiModelCategory,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
 
 /** Params for {@link resolveGradingChain}. */
 export interface ResolveGradingChainParams {

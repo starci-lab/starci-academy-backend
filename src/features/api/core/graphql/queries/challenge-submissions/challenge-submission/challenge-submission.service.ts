@@ -6,16 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ChallengeSubmissionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/challenge-submission.entity"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ChallengeSubmissionQuery,
 } from "./challenge-submission.query"
 import {
     ChallengeSubmissionRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 @Injectable()
 /**

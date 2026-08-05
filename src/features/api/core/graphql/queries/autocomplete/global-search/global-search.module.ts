@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -12,14 +12,28 @@ import {
 } from "./autocomplete-global-search.service"
 import {
     ChallengeGlobalSearchService,
+} from "./entities/challenge.service"
+import {
     ContentGlobalSearchService,
+} from "./entities/content.service"
+import {
     CourseGlobalSearchService,
-    ModuleGlobalSearchService,
+} from "./entities/course.service"
+import {
     FlashcardDeckGlobalSearchService,
-    MilestoneGlobalSearchService,
-    MilestoneTaskGlobalSearchService,
+} from "./entities/flashcard-deck.service"
+import {
     FoundationGlobalSearchService,
-} from "./entities"
+} from "./entities/foundation.service"
+import {
+    MilestoneTaskGlobalSearchService,
+} from "./entities/milestone-task.service"
+import {
+    MilestoneGlobalSearchService,
+} from "./entities/milestone.service"
+import {
+    ModuleGlobalSearchService,
+} from "./entities/module.service"
 
 @Module({
     providers: [

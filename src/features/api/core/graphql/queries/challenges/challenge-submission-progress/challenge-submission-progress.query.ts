@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ChallengeSubmissionProgressRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS query carrying the `challengeSubmissionProgress` request params

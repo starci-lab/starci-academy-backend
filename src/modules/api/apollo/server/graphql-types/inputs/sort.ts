@@ -1,6 +1,6 @@
 import {
-    createEnumType 
-} from "@modules/common"
+    createEnumType,
+} from "@modules/lib/common/utils/enum"
 import {
     registerEnumType,
     InputType, 

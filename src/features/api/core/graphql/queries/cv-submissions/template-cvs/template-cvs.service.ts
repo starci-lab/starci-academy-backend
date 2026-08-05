@@ -9,10 +9,10 @@ import {
 } from "./template-cvs.query"
 import {
     TemplateCVEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/template-cv.entity"
 import {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../../types/execute"
 
 @Injectable()
 /**

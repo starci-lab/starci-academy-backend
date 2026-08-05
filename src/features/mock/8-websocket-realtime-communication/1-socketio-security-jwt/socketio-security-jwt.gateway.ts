@@ -8,11 +8,13 @@ import {
     Server, Socket,
 } from "socket.io"
 import {
-    ChatToServerDto, JoinRoomDto,
-} from "./dtos"
+    ChatToServerDto,
+    JoinRoomDto,
+} from "./dtos/chat"
 import type {
-    JwtUser, SecureChatBroadcast,
-} from "./types"
+    JwtUser,
+    SecureChatBroadcast,
+} from "./types/auth"
 
 @WebSocketGateway({
     namespace: "/8-websocket-realtime-communication/1-socketio-security-jwt",

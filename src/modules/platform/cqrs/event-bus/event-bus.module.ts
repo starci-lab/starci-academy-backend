@@ -8,13 +8,13 @@ import {
 } from "./event-bus.module-definition"
 import {
     AddGithubUserToTeamHandler,
-} from "./add-github-user-to-team"
+} from "./add-github-user-to-team/add-github-user-to-team.handler"
 import {
     SendMailEventHandler,
-} from "./send-mail"
+} from "./send-mail/send-mail.handler"
 import {
     SyncScyllaDBEventHandler,
-} from "./sync-scylladb"
+} from "./sync-scylladb/sync-scylladb.handler"
 
 @Module({
 })

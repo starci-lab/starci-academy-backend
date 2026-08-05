@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     DeleteCvBlocksRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /** CQRS envelope for deleting a saved CV document. */
 export class DeleteCvBlocksCommand {

@@ -20,7 +20,7 @@ import {
 import {
     CommunityChannel,
     GraphQLTypeCommunityChannel,
-} from "../enums"
+} from "../enums/community-channel"
 
 @ObjectType({
     description: "A user-authored community feed post (text/markdown).",

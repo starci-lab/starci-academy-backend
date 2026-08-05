@@ -2,46 +2,70 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    CourseEntity,
-    ModuleEntity,
-    ContentEntity,
     ChallengeEntity,
-    MilestoneEntity,
-    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     FlashcardDeckEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    MilestoneEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     MoreThan,
     type EntityManager,
 } from "typeorm"
 import {
-    IndexerCourseBuildService,
-    IndexerModuleBuildService,
-    IndexerContentBuildService,
     IndexerChallengeBuildService,
-    IndexerMilestoneBuildService,
-    IndexerMilestoneTaskBuildService,
+} from "./builder/challenge.service"
+import {
+    IndexerContentBuildService,
+} from "./builder/content.service"
+import {
+    IndexerCourseBuildService,
+} from "./builder/course.service"
+import {
     IndexerFlashcardDeckBuildService,
-} from "./builder"
+} from "./builder/flashcard-deck.service"
+import {
+    IndexerMilestoneTaskBuildService,
+} from "./builder/milestone-task.service"
+import {
+    IndexerMilestoneBuildService,
+} from "./builder/milestone.service"
+import {
+    IndexerModuleBuildService,
+} from "./builder/module.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
-    SyncIndexerEntityKind
-} from "@modules/bullmq"
+    SyncIndexerEntityKind,
+} from "@modules/integrations/bullmq/types/payloads/sync-indexer"
 import type {
     SynchronizerSyncScope,
-} from "../../types"
+} from "../../types/context"
 import {
-    buildChallengeSyncSuccessLog,
-    buildContentSyncSuccessLog,
-    buildCourseSyncSuccessLog,
-    buildModuleSyncSuccessLog,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
     shouldSyncCourseEntity,
@@ -49,7 +73,13 @@ import {
     shouldSyncMilestoneTaskEntity,
     shouldSyncModuleEntity,
     shouldSynchronizerSyncEntityKind,
-} from "../../utils"
+} from "../../utils/entity-sync-filter"
+import {
+    buildChallengeSyncSuccessLog,
+    buildContentSyncSuccessLog,
+    buildCourseSyncSuccessLog,
+    buildModuleSyncSuccessLog,
+} from "../../utils/sync-success-log"
 
 @Injectable()
 /**

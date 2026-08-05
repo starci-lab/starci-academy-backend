@@ -21,43 +21,73 @@ import type {
 } from "typeorm"
 import {
     ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
     ApolloServerType,
-} from "@modules/api"
+} from "@modules/api/apollo/server/enums/server"
 import {
     ActivityEntity,
-    ActivityType,
+} from "@modules/databases/postgresql/primary/entities/activity.entity"
+import {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
     CourseEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     ModuleEntity,
-    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
     UserContentEntity,
+} from "@modules/databases/postgresql/primary/entities/user-content.entity"
+import {
     UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
+    ActivityType,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakJwksService,
-} from "@modules/keycloak"
+} from "@modules/integrations/keycloak/jwks.service"
 import {
     SessionService,
-} from "@modules/session"
+} from "@modules/platform/session/session.service"
 import {
     CookieService,
-} from "@modules/cookie"
+} from "@modules/platform/cookie/cookie.service"
 import {
     CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/cache.service"
+import {
+    ReactionService,
+} from "@modules/bussiness/discussion/reaction.service"
 import {
     GraphQLEnrollmentGuard,
+} from "@modules/bussiness/guards/graphql-enrollment.guard"
+import {
     ProgressProjectionService,
-    ReactionService,
+} from "@modules/bussiness/projections/progress/progress-projection.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     FLAT_POINTS,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/points-config"
 import {
     MarkAsReadedHandler,
 } from "@features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.handler"
@@ -78,7 +108,7 @@ import {
 } from "@features/api/core/graphql/mutations/contents/toggle-favourite/toggle-favourite.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

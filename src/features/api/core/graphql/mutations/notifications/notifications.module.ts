@@ -6,10 +6,10 @@ import {
 } from "./notifications.module-definition"
 import {
     MarkNotificationAsReadSingleMutationModule,
-} from "./mark-notification-as-read"
+} from "./mark-notification-as-read/mark-notification-as-read.module"
 import {
     MarkAllNotificationsAsReadSingleMutationModule,
-} from "./mark-all-notifications-as-read"
+} from "./mark-all-notifications-as-read/mark-all-notifications-as-read.module"
 
 @Module({
     imports: [

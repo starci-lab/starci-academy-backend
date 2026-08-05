@@ -1,31 +1,43 @@
 import type {
     ParsePlaygroundStepsParams,
     RawPlaygroundStep,
-} from "./types"
+} from "./types/playground"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    Locale,
-    PlaygroundStepEntity,
     PlaygroundStepTranslationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/playground-step-translation.entity"
+import {
+    PlaygroundStepEntity,
+} from "@modules/databases/postgresql/primary/entities/playground-step.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     DeepPartial,
 } from "typeorm"
 import {
     PlaygroundStepIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/playground-step.service"
 import {
     PlaygroundStepPathService,
-} from "../path"
+} from "../path/playground-step.service"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    MergeJsonResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     MergeJsonService,
-} from "../../shared"
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
 
 @Injectable()
 /**

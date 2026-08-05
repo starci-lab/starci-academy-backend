@@ -5,7 +5,7 @@ import {
 import {
     GraphQLTypeKpiKey,
     KpiKey,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/kpi-key"
 
 @InputType({
     description: "Request to claim one weekly KPI's coin reward.",

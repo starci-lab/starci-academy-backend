@@ -5,10 +5,10 @@ import {
 } from "@nestjs/graphql"
 import {
     GraphQLTypeModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import type {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 
 @InputType({
     description: "Request to review a single task of a personal project.",

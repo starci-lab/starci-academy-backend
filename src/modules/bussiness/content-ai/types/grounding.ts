@@ -1,7 +1,9 @@
 import type {
     ContentEntity,
+} from "@modules/databases/postgresql/primary/entities/content.entity"
+import type {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import type {
     ContentAiScope,
 } from "./session"

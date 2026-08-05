@@ -7,21 +7,25 @@ import {
 } from "./milestone-task-progress.query"
 import {
     MilestoneTaskProgressResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    EnrollmentEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     EntityManager,
 } from "typeorm"
 import {
-    UserService,
     PersonalProjectProgressService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/progress/personal-project.service"
+import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 
 @QueryHandler(MilestoneTaskProgressQuery)
 /**

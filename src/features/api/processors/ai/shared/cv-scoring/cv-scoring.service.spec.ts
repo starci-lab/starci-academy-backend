@@ -4,17 +4,25 @@ import {
 } from "@nestjs/testing"
 import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     AiInvokeService,
 } from "@modules/ai/ai-invoke.service"
 import {
     CvRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/cv-rag-retrieval.service"
 import {
     CvScoringService,
 } from "./cv-scoring.service"

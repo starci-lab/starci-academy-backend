@@ -6,44 +6,68 @@ import type {
     RawMockInterviewListItem,
     RawMockInterviewChecklistItem,
     RawMockInterviewQuestion,
-} from "./types"
+} from "./types/mock-interview"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    Locale,
-    ModuleEntity,
-    MockInterviewEntity,
-    MockInterviewLangEntity,
     MockInterviewChecklistEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/mock-interview-checklist.entity"
+import {
+    MockInterviewLangEntity,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-lang.entity"
+import {
+    MockInterviewEntity,
+} from "@modules/databases/postgresql/primary/entities/mock-interview.entity"
+import {
+    ModuleEntity,
+} from "@modules/databases/postgresql/primary/entities/module.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
-    MockInterviewIdFactoryService,
-    MockInterviewLangIdFactoryService,
     MockInterviewChecklistIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/mock-interview-checklist.service"
+import {
+    MockInterviewLangIdFactoryService,
+} from "../id-factories/mock-interview-lang.service"
+import {
+    MockInterviewIdFactoryService,
+} from "../id-factories/mock-interview.service"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     MockInterviewPathService,
-} from "../path"
+} from "../path/mock-interview.service"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    MergeJsonResult,
-    MergeJsonService,
-    ResolvedFileResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    MergeJsonService,
+} from "../../shared/merge/merge.service"
+import {
+    MergeJsonResult,
+} from "../../shared/merge/types/merge-json"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 
 @Injectable()
 /**

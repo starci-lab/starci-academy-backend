@@ -1,13 +1,21 @@
 import type {
     ReviewPersonalProjectTaskPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/review-personal-project-task"
+import {
+    writeActivity,
+} from "@modules/bussiness/activity/write-activity"
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
     NotificationService,
+} from "@modules/bussiness/notification/notification.service"
+import {
     ProgressProjectionService,
-    writeActivity,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/progress/progress-projection.service"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -19,27 +27,47 @@ import {
 } from "@modules/ai/constants/credit-cost"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    UserMilestoneTaskAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
+import {
+    UserMilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task.entity"
 import {
     ActivityType,
+} from "@modules/databases/postgresql/primary/enums/activity-type"
+import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelTask,
-    EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     Locale,
-    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     NotificationType,
-    UserMilestoneTaskAttemptEntity,
-    UserMilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
     XpSource,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -51,32 +79,40 @@ import type {
 } from "typeorm"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     ReviewMilestoneTaskGradeStepService,
 } from "./review-milestone-task-grade-step.service"
 import type {
     ReviewMilestoneTaskGradeResult,
-} from "../types"
+} from "../types/grade"
+import {
+    MissingOrInvalidGradeExecutionResultException,
+} from "@modules/platform/exceptions/errors/ai/missing-or-invalid-grade-execution-result"
 import {
     JobFencedOutException,
-    MissingOrInvalidGradeExecutionResultException
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/job/not-found"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     FLAT_POINTS,
+} from "../../shared/xp/points-config"
+import {
     writeXpHistory,
-} from "../../shared/xp"
+} from "../../shared/xp/write-xp-history"
 import {
     enqueueLearnerEmail,
-} from "@modules/transactional-email"
+} from "@modules/integrations/transactional-email/enqueue-learner-email"
 
 /** Postgres unique-violation SQLSTATE -- a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"

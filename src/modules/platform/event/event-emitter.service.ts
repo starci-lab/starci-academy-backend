@@ -8,20 +8,22 @@ import {
     configMap 
 } from "./config"
 import {
-    EventName 
-} from "./enums"
+    EventName,
+} from "./enums/event-name"
 import {
-    getEventName 
-} from "./utils"
+    getEventName,
+} from "./utils/event"
 import {
     NatsMessageFactoryService,
-    NatsProducerService
-} from "./nats"
+} from "./nats/nats-message-factory.service"
+import {
+    NatsProducerService,
+} from "./nats/producer.service"
 import {
     EmitParams,
     OffParams,
     OnParams,
-} from "./types"
+} from "./types/emitter"
 
 @Injectable()
 /** Event emitter service. */

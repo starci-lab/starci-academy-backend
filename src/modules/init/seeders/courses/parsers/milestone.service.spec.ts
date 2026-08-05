@@ -11,28 +11,34 @@ import {
 } from "@nestjs/typeorm"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     Sha256Service,
-} from "@modules/crypto"
+} from "@modules/crypto/sha256.service"
+import {
+    ContextLoaderService,
+} from "../../shared/contexts/loader.service"
 import {
     ExtractJsonFromMdService,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     MergeJsonService,
-    ContextLoaderService,
-} from "../../shared"
+} from "../../shared/merge/merge.service"
 import {
     CourseIdFactoryService,
+} from "../id-factories/course.service"
+import {
     MilestoneIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/milestone.service"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     MilestonePathService,
-} from "../path"
+} from "../path/milestone.service"
 import {
     MilestoneParserService,
 } from "./milestone.service"

@@ -3,8 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     ConnectedSocket,
     SubscribeMessage,
@@ -15,32 +17,40 @@ import type {
 } from "socket.io"
 import {
     NotificationsWebSocketGateway,
-    WsResponseService,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     socketIoKeycloakAuthMiddleware,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/middlewares/keycloak-auth"
+import {
+    WsResponseService,
+} from "@modules/platform/socketio/response.service"
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import type {
     NotificationCreatedEventPayload,
-} from "@modules/event"
+} from "@modules/platform/event/types/event-payload/notification"
 import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import {
     PublicationEvent,
+} from "../enums/publication-event"
+import {
     SubscriptionEvent,
-} from "../enums"
+} from "../enums/subscription-event"
 import {
     NotificationRoomService,
 } from "./notification-room.service"
 import type {
     NotificationCreatedSocketIoMessage,
-} from "./types"
+} from "./types/message"
 
 @NotificationsWebSocketGateway()
 /**

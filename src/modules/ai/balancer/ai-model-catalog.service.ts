@@ -6,8 +6,10 @@ import {
 } from "typeorm"
 import {
     AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     CreditForRunParams,
     EnabledModelsParams,

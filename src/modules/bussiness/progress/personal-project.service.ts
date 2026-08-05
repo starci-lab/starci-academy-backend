@@ -5,25 +5,33 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     MilestoneTaskEntity,
-    UserMilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
     UserMilestoneTaskAttemptEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
+import {
+    UserMilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     CacheKey,
-    CacheService,
-} from "@modules/cache"
+} from "@modules/integrations/cache/enums/cache-key"
 import type {
     MilestoneTaskProgressCacheResult,
     MilestoneTaskProgressItem,
-} from "@modules/cache"
+} from "@modules/integrations/cache/types/cache-results/milestone-task-progress"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import type {
     ProgressEnrollmentType,
-} from "./types"
+} from "./types/progress"
 
 @Injectable()
 /**

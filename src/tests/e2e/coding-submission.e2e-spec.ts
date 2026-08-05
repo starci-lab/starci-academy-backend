@@ -18,44 +18,82 @@ import type {
 } from "bullmq"
 import {
     bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
     BullQueueName,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    CodingProblemSolutionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-solution.entity"
+import {
+    CodingProblemEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
+    CodingSolutionRevealEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-solution-reveal.entity"
+import {
+    CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-submission.entity"
+import {
+    DeviceEntity,
+} from "@modules/databases/postgresql/primary/entities/device.entity"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ActionType,
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import {
     CodingDifficulty,
+} from "@modules/databases/postgresql/primary/enums/coding-difficulty"
+import {
     CodingLanguage,
-    CodingProblemEntity,
-    CodingProblemSolutionEntity,
-    CodingSolutionRevealEntity,
-    CodingSubmissionEntity,
+} from "@modules/databases/postgresql/primary/enums/coding-language"
+import {
     CodingVerdict,
-    DeviceEntity,
+} from "@modules/databases/postgresql/primary/enums/coding-verdict"
+import {
     JobCategory,
-    JobEntity,
+} from "@modules/databases/postgresql/primary/enums/job-category"
+import {
     JobStatus,
+} from "@modules/databases/postgresql/primary/enums/job-status"
+import {
     PrimaryPostgreSQLModule,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     CodingProblemNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/coding/coding-problem-not-found"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
 import {
     createSuperJsonServiceProvider,
-    DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import {
     EventEmitterService,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import {
     CodingSubmissionService,
+} from "@modules/bussiness/coding/coding-submission.service"
+import {
     DeviceService,
-    EnqueueJudgeCodingSubmissionJobService,
+} from "@modules/bussiness/device/device.service"
+import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     JobStalledService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-stalled.service"
+import {
+    EnqueueJudgeCodingSubmissionJobService,
+} from "@modules/bussiness/jobs/enqueue/judge-coding-submission.service"
 import {
     TestHelpersModule,
-} from "@tests/helpers"
+} from "@tests/helpers/test-helpers.module"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

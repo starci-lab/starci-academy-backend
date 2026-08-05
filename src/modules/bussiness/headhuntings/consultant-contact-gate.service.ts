@@ -3,13 +3,13 @@ import {
 } from "@nestjs/common"
 import {
     ConsultantEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
 import {
     CV_SCORE_UNLOCK_THRESHOLD,
 } from "./constants"
 import type {
     GetBestCvScoreParams,
-} from "./types"
+} from "./types/best-cv-score"
 import {
     CvVerificationService,
 } from "./cv-verification.service"

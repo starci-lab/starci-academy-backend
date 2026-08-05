@@ -3,12 +3,20 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    AiCeilSurface,
-    AiModelCategory,
-    AiModelTask,
-    Locale,
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -17,10 +25,10 @@ import {
 } from "@modules/ai/ai-invoke.service"
 import {
     ContentAiService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/content-ai/content-ai.service"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     AskContentAiHandler,
 } from "./ask-content-ai.handler"

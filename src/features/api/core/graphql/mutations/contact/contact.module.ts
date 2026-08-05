@@ -6,7 +6,7 @@ import {
 } from "./contact.module-definition"
 import {
     SubmitContactSingleMutationModule,
-} from "./submit-contact"
+} from "./submit-contact/submit-contact.module"
 
 @Module({
     imports: [

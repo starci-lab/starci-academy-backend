@@ -6,14 +6,16 @@ import {
 } from "@nestjs/common"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     AsyncService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/async.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     configMap,
 } from "./config"

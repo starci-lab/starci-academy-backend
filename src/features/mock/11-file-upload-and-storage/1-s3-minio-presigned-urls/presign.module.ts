@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     FileStoreModule,
-} from "../../file-store"
+} from "../../file-store/file-store.module"
 import {
     PresignController,
 } from "./presign.controller"

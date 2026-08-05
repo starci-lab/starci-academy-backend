@@ -6,8 +6,10 @@ import {
 } from "typeorm"
 import {
     DeviceEntity,
+} from "@modules/databases/postgresql/primary/entities/device.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     RecordDeviceParams,
     RecordDeviceResult,

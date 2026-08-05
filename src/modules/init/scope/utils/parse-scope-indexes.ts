@@ -1,6 +1,6 @@
 import type {
     SeedScopeIndexes,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/seed"
 
 /**
  * Expand one comma part into order indexes.

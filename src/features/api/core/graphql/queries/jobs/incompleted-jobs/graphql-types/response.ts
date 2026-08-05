@@ -6,11 +6,13 @@ import {
 import {
     GraphQLTypeJobStatus,
     JobStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/job-status"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 
 @ObjectType({
     description: "An incompleted job row exposed as job id and status only (no payload).",

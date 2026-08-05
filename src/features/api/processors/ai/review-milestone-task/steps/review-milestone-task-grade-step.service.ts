@@ -1,29 +1,43 @@
 import type {
     ReviewPersonalProjectTaskPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/review-personal-project-task"
 import type {
     ReviewMilestoneTaskGradeResult,
-} from "../types"
+} from "../types/grade"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import {
     EmptyObject,
-} from "@modules/common"
+} from "@modules/lib/common/types/atomic"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
+    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
 import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
-    EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     Locale,
-    MilestoneTaskEntity,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -32,14 +46,16 @@ import {
 } from "typeorm"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     HumanMessage,
     SystemMessage,
@@ -49,19 +65,25 @@ import {
 } from "@langchain/community/document_loaders/web/github"
 import {
     GradingRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/grading-rag-retrieval.service"
 import {
     GitRepositoryAccessDeniedException,
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-access-denied"
+import {
     GitRepositoryEmptyException,
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-empty"
+import {
     GitRepositoryLoadFailedException,
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-load-failed"
+import {
     GitRepositoryNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/submission-review/git-repository-not-found"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
 import template from "./template.json"
 import {
     Document,
@@ -74,13 +96,13 @@ import {
 } from "@modules/ai/ai-invoke.service"
 import {
     ProjectEvaluationParseService,
-} from "../../shared/project-evaluation"
+} from "../../shared/project-evaluation/project-evaluation-parse.service"
 import {
     collectMilestoneTaskCriteria,
-} from "../../shared/milestone-task"
+} from "../../shared/milestone-task/utils/collect-task-criteria"
 import {
     renderCriteriaPromptSections,
-} from "../../shared/challenge-submission"
+} from "../../shared/challenge-submission/utils/render-criteria-prompt-sections"
 
 @Injectable()
 /**

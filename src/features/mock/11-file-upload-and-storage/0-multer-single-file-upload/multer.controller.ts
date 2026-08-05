@@ -17,10 +17,10 @@ import {
 import {
     MockFileRequiredException,
     MockFileTooLargeException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/mock/file-upload"
 import {
     MockDelayInterceptor,
-} from "../../interceptors"
+} from "../../interceptors/mock-delay.interceptor"
 import type {
     MulterFile,
     UploadedFileInfo,

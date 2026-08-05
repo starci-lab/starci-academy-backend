@@ -6,16 +6,22 @@ import {
 } from "./community.module-definition"
 import {
     CommunityFeedResolver,
+} from "./community-feed/community-feed.resolver"
+import {
     CommunityFeedService,
-} from "./community-feed"
+} from "./community-feed/community-feed.service"
 import {
     CommunityPostResolver,
+} from "./community-post/community-post.resolver"
+import {
     CommunityPostQueryService,
-} from "./community-post"
+} from "./community-post/community-post.service"
 import {
     CommunityPostCommentsResolver,
+} from "./community-post-comments/community-post-comments.resolver"
+import {
     CommunityPostCommentsService,
-} from "./community-post-comments"
+} from "./community-post-comments/community-post-comments.service"
 
 @Module({
     providers: [

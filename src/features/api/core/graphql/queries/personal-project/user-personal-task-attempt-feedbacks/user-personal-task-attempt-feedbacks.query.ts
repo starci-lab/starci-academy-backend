@@ -1,9 +1,9 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     UserPersonalTaskAttemptFeedbacksRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS message carrying userPersonalTaskAttemptFeedbacks ExecuteParams into the handler.

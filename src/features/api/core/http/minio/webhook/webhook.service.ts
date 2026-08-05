@@ -6,7 +6,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     MinioWebhookRequest,
-} from "./dtos"
+} from "./dtos/webhook.request"
 import {
     MinioWebhookCommand,
 } from "./webhook.command"

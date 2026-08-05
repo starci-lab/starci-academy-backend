@@ -12,24 +12,30 @@ import type {
 } from "socket.io"
 import {
     ContentDiscussionWebSocketGateway,
+} from "@modules/platform/socketio/decorators/gateway"
+import {
     WsResponseService,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/response.service"
 import type {
     TypedSocket,
-} from "@modules/socketio"
+} from "@modules/platform/socketio/types/socket"
+import {
+    EventName,
+} from "@modules/platform/event/enums/event-name"
 import {
     EventEmitterService,
-    EventName,
-} from "@modules/event"
+} from "@modules/platform/event/event-emitter.service"
 import type {
     CommentChangedEventPayload,
     CommentReactionChangedEventPayload,
     ContentReactionChangedEventPayload,
-} from "@modules/event"
+} from "@modules/platform/event/types/event-payload/content-discussion"
 import {
     PublicationEvent,
+} from "../enums/publication-event"
+import {
     SubscriptionEvent,
-} from "../enums"
+} from "../enums/subscription-event"
 import {
     ContentDiscussionRoomService,
 } from "./content-discussion-room.service"
@@ -37,8 +43,10 @@ import type {
     CommentChangedSocketIoMessage,
     CommentReactionChangedSocketIoMessage,
     ContentReactionChangedSocketIoMessage,
+} from "./types/message"
+import type {
     SubscribeContentDiscussionSocketIoPayload,
-} from "./types"
+} from "./types/payload"
 
 @ContentDiscussionWebSocketGateway()
 /**

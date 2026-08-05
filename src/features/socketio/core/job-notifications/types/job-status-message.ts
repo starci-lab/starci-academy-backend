@@ -1,8 +1,12 @@
 import type {
-    JobCategory,
-    JobStatus,
     ActionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/action-type"
+import type {
+    JobCategory,
+} from "@modules/databases/postgresql/primary/enums/job-category"
+import type {
+    JobStatus,
+} from "@modules/databases/postgresql/primary/enums/job-status"
 
 /** Job status updated socket io message. */
 export interface JobStatusUpdatedSocketIoMessage {

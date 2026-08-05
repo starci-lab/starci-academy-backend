@@ -21,52 +21,62 @@ import {
 } from "@modules/ai/ai-invoke.service"
 import {
     JobActionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
     EncryptionService,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
 import {
     EnrollmentEntity,
-    Locale,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     MilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     GradingRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/grading-rag-retrieval.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import type {
     ProjectEvaluation,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/evaluation/project-evaluation"
 import {
     ProjectEvaluationParseService,
-} from "@features/api/processors/ai/shared/project-evaluation"
+} from "@features/api/processors/ai/shared/project-evaluation/project-evaluation-parse.service"
 import type {
     ReviewMilestoneTaskGradeResult,
-} from "@features/api/processors/ai/review-milestone-task/types"
+} from "@features/api/processors/ai/review-milestone-task/types/grade"
 import {
     HarnessInvokeService,
+} from "@tests/helpers/harness-invoke.service"
+import {
     JudgeService,
+} from "@tests/helpers/judge.service"
+import {
     TestHelpersModule,
+} from "@tests/helpers/test-helpers.module"
+import {
     readVolumeDoc,
     volumeExists,
-} from "@tests/helpers"
+} from "@tests/helpers/volume"
 import type {
     HarnessTierName,
-} from "@tests/helpers"
+} from "@tests/helpers/models"
 
 /** Params for the `GradingRetrievalService.retrieveGradingExcerpt` mock. */
 interface RetrieveGradingExcerptParams {

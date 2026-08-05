@@ -10,28 +10,38 @@ import {
 } from "typeorm"
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     EncryptionService,
-    type EncryptedPayload,
-} from "@modules/crypto"
+} from "@modules/crypto/encryption.service"
+import type {
+    EncryptedPayload,
+} from "@modules/crypto/types/encrypted-payload"
 import {
     InjectSuperJson,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/superjson.providers"
 import type SuperJson from "superjson"
 import {
     InvalidOAuthStatePayloadException,
-    MissingRequiredParameterException,
+} from "@modules/platform/exceptions/errors/github/invalid-oauth-state-payload"
+import {
     OAuthStateFieldMissingException,
+} from "@modules/platform/exceptions/errors/github/oauth-state-field-missing"
+import {
+    MissingRequiredParameterException,
+} from "@modules/platform/exceptions/errors/stdlib/missing-required-parameter"
+import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 import {
     GithubApiAuthService,
-} from "@modules/github"
+} from "@modules/integrations/github/auth.service"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     GithubOauthCallbackCommand,
     type GithubOauthCallbackResult,

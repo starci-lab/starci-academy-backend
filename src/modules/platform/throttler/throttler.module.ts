@@ -14,19 +14,24 @@ import {
     ThrottlerStorageRedisService,
 } from "@nest-lab/throttler-storage-redis"
 import {
-    createIoRedisKey, IoRedisInstanceKey,
-    IoRedisModule
-} from "@modules/native"
+    createIoRedisKey,
+} from "@modules/lib/native/ioredis/constants"
 import {
-    RedisOrCluster
-} from "@modules/native"
+    IoRedisInstanceKey,
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
+    IoRedisModule,
+} from "@modules/lib/native/ioredis/ioredis.module"
+import {
+    RedisOrCluster,
+} from "@modules/lib/native/ioredis/types/client"
 import Redis from "ioredis"
 import {
     getModuleThrottlers
 } from "./config"
 import {
-    ThrottlerBehindProxyGuard
-} from "./guards"
+    ThrottlerBehindProxyGuard,
+} from "./guards/throttler-behind-proxy.guard"
 @Module({
 })
 /**

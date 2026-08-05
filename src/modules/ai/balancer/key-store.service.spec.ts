@@ -4,15 +4,19 @@ import {
 } from "@nestjs/testing"
 import {
     AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import {
     ModelProvider,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
     MountFilesystemService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     KeyStoreService,
 } from "./key-store.service"

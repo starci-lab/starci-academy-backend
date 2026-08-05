@@ -2,8 +2,8 @@ import {
     RetryLink 
 } from "@apollo/client/link/retry"
 import {
-    envConfig 
-} from "@modules/env"
+    envConfig,
+} from "@modules/platform/env/config"
 
 /**
  * Creates a retry link with delay and max attempts from env config.

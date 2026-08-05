@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,7 +6,7 @@ import {
 } from "./authentication.module-definition"
 import {
     ConnectGithubAccountSingleMutationModule,
-} from "./connect-github-account"
+} from "./connect-github-account/connect-github-account.module"
 
 @Module({
     imports: [

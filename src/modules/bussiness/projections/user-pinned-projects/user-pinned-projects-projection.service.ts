@@ -5,13 +5,17 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    ProjectPinType,
     UserPinnedProjectsProjectionEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-pinned-projects-projection.entity"
+import {
+    ProjectPinType,
+} from "@modules/databases/postgresql/primary/enums/project-pin-type"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import type {
     RecomputeUserPinnedProjectsParams,
     UserPinnedProjectResult,

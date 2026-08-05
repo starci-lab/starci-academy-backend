@@ -1,6 +1,6 @@
 import type {
     ParseTemplateCvParams,
-} from "./types"
+} from "./types/parse-template-cv"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,26 +12,32 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    Locale,
-    TemplateCVEntity,
     TemplateCVTranslationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/template-cv-translation.entity"
+import {
+    TemplateCVEntity,
+} from "@modules/databases/postgresql/primary/entities/template-cv.entity"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
 import type {
     ResolvedFileResult,
-} from "../../shared"
+} from "../../shared/path/types"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     TemplateCvIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/template-cv.service"
 import {
     parseCvTemplateMarkdown,
-} from "./utils"
+} from "./utils/parse-cv-template-markdown"
 import {
     TemplateCvPathService 
 } from "../path/template-cv.service"

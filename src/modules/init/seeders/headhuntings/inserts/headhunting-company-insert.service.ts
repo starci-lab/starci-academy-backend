@@ -5,12 +5,14 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    HeadhuntingCompanyEntity,
     HeadhuntingCompanyTranslationEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/headhunting-company-translation.entity"
+import {
+    HeadhuntingCompanyEntity,
+} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
 import {
     UpsertService,
-} from "../../shared"
+} from "../../shared/upsert/upsert.service"
 
 @Injectable()
 /**
@@ -29,9 +31,10 @@ export class HeadhuntingCompanyInsertService {
         const companyId = company.id as string
         const {
             translations,
-            consultants,
+            consultants: unusedConsultants,
             ...rest
         } = company
+        void unusedConsultants
         await this.upsertService.upsertMany(
             HeadhuntingCompanyEntity,
             [rest],

@@ -2,8 +2,8 @@ import {
     ThrottlerOptions
 } from "@nestjs/throttler"
 import {
-    ThrottlerConfig
-} from "./enums"
+    ThrottlerConfig,
+} from "./enums/throttler-config"
 import {
     ThrottleTierOptions,
     ThrottleWindowOptions

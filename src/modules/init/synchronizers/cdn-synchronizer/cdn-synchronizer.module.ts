@@ -8,13 +8,23 @@ import {
     CdnSynchronizerService
 } from "./cdn-synchronizer.service"
 import {
-    CdnCourseBuildService,
-    CdnModuleBuildService,
-    CdnContentBuildService,
     CdnChallengeBuildService,
+} from "./builder/challenge.service"
+import {
+    CdnContentBuildService,
+} from "./builder/content.service"
+import {
+    CdnCourseBuildService,
+} from "./builder/course.service"
+import {
+    MaterializeAndUploadService,
+} from "./builder/materialize-and-upload.service"
+import {
     CdnMilestoneTaskBuildService,
-    MaterializeAndUploadService
-} from "./builder"
+} from "./builder/milestone-task.service"
+import {
+    CdnModuleBuildService,
+} from "./builder/module.service"
 @Module({
     providers: [
         MaterializeAndUploadService,

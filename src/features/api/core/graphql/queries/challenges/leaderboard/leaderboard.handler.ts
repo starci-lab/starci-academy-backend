@@ -6,13 +6,15 @@ import {
     LeaderboardQuery,
 } from "./leaderboard.query"
 import {
+    LeaderboardRequestDefaults,
+} from "./graphql-types/request"
+import {
     LeaderboardMyRankData,
     LeaderboardResponseData,
-    LeaderboardRequestDefaults,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     ProgressProjectionService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/projections/progress/progress-projection.service"
 
 @QueryHandler(LeaderboardQuery)
 /**

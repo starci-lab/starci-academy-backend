@@ -1,16 +1,18 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ConsultantEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/consultant.entity"
+import {
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ElasticsearchQueryBuilder,
-    ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/query-builder"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,18 +25,20 @@ import {
 } from "@elastic/elasticsearch"
 import {
     SortOrder,
-} from "@modules/api"
+} from "@modules/api/apollo/server/graphql-types/inputs/sort"
 import {
     ConsultantContactGateService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/headhuntings/consultant-contact-gate.service"
 import {
     ConsultantsQuery,
 } from "./consultants.query"
 import {
     ConsultantsFilters,
-    ConsultantsResponseData,
     ConsultantsSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    ConsultantsResponseData,
+} from "./graphql-types/response"
 
 @QueryHandler(ConsultantsQuery)
 @Injectable()

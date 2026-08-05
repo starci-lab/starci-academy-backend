@@ -1,16 +1,18 @@
 import {
-    ICQRSHandler
-} from "@modules/cqrs"
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     ChallengeEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/challenge.entity"
+import {
+    ElasticsearchService,
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import {
     ElasticsearchQueryBuilder,
-    ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/utils/query-builder"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,7 +25,7 @@ import {
 } from "./challenges.query"
 import {
     ChallengesResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 import {
     estypes,
 } from "@elastic/elasticsearch"

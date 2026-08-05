@@ -1,6 +1,6 @@
 import type {
     AppConfigAiModel,
-} from "@modules/filesystem"
+} from "@modules/filesystem/types/config"
 
 /**
  * Mount markdown shape for `.mount/data/ai-models/<index>-<slug>/{en,vi}.md`.

@@ -6,10 +6,10 @@ import {
 } from "./notifications.module-definition"
 import {
     MyNotificationsSingleQueryModule,
-} from "./my-notifications"
+} from "./my-notifications/my-notifications.module"
 import {
     MyUnreadNotificationCountSingleQueryModule,
-} from "./my-unread-notification-count"
+} from "./my-unread-notification-count/my-unread-notification-count.module"
 
 @Module({
     imports: [

@@ -5,36 +5,50 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    FoundationCategoryEntity,
     FoundationCategoryTranslationEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category-translation.entity"
+import {
+    FoundationCategoryEntity,
+} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     FoundationCategoryPathNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/foundation-category-path-not-found"
 import {
     ContextLoaderService,
+} from "../../shared/contexts/loader.service"
+import {
     CoerceMdScalarService,
+} from "../../shared/extracts/coerce-md-scalar.service"
+import {
     ExtractJsonFromMdService,
-    ResolvedFileResult,
+} from "../../shared/extracts/extract-json-from-md.service"
+import {
     logInitSeederEntitySkipped,
-} from "../../shared"
+} from "../../shared/log-init-seeder-entity-skipped"
+import {
+    ResolvedFileResult,
+} from "../../shared/path/types"
 import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
+import {
+    S3Provider,
+} from "@modules/integrations/s3/enums/s3"
 import {
     S3BuildService,
-    S3Provider,
-} from "@modules/s3"
+} from "@modules/integrations/s3/s3-build.service"
 import {
     FoundationCategoryIdFactoryService,
-} from "../id-factories"
+} from "../id-factories/foundation-category.service"
 import {
     FoundationCategoryPathService,
-} from "../path"
+} from "../path/foundation-category.service"
 import type {
     ParseFoundationCategoryParams,
-} from "./types"
+} from "./types/foundation-category"
 
 @Injectable()
 /**

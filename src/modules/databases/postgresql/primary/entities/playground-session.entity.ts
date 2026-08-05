@@ -25,7 +25,7 @@ import {
 import {
     GraphQLTypePlaygroundSessionMode,
     PlaygroundSessionMode,
-} from "../enums"
+} from "../enums/playground-session-mode"
 
 @ObjectType({
     description: "One learner's run of a playground.",

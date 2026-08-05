@@ -1,9 +1,9 @@
 import type {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import type {
     IndexSearchRequest,
-} from "./graphql-types"
+} from "./graphql-types/request"
 
 /**
  * CQRS envelope for `indexSearch`. Carries the typed request + locale across

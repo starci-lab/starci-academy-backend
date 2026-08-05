@@ -2,9 +2,11 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    getAppConfig,
     MountStorageService,
-} from "@modules/filesystem"
+} from "@modules/filesystem/mount-storage.service"
+import {
+    getAppConfig,
+} from "@modules/filesystem/utils/mount-secrets"
 import {
     AiModelCatalogService,
 } from "@modules/ai/balancer/ai-model-catalog.service"
@@ -13,18 +15,22 @@ import {
 } from "@modules/ai/balancer/key-store.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     SeedScopeService,
-} from "../../scope"
+} from "../../scope/seed-scope.service"
 import {
     AiModelCatalogParserService,
+} from "./parsers/ai-model-catalog.parser"
+import {
     SubscriptionCatalogParserService,
-} from "./parsers"
+} from "./parsers/subscription-catalog.parser"
 import {
     AiModelInsertService,
-} from "./inserts"
+} from "./inserts/ai-model-insert.service"
 
 @Injectable()
 /**

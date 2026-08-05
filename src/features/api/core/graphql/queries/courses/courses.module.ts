@@ -1,4 +1,4 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
@@ -6,34 +6,34 @@ import {
 } from "./courses.module-definition"
 import {
     CourseEnrollmentStatusSingleQueryModule,
-} from "./course-enrollment-status"
+} from "./course-enrollment-status/course-enrollment-status.module"
 import {
     CourseSingleQueryModule,
-} from "./course"
+} from "./course/course.module"
 import {
     CoursesSingleQueryModule,
-} from "./courses"
+} from "./courses/courses.module"
 import {
     LivestreamSessionsSingleQueryModule,
-} from "./livestream-sessions"
+} from "./livestream-sessions/livestream-sessions.module"
 import {
     CourseMindMapSingleQueryModule,
-} from "./course-mind-map"
+} from "./course-mind-map/course-mind-map.module"
 import {
     CourseSuggestionsSingleQueryModule,
-} from "./course-suggestions"
+} from "./course-suggestions/course-suggestions.module"
 import {
     CoursePricePreviewSingleQueryModule,
-} from "./course-price-preview"
+} from "./course-price-preview/course-price-preview.module"
 import {
     MyCartSingleQueryModule,
-} from "./my-cart"
+} from "./my-cart/my-cart.module"
 import {
     CoursesCheckoutPreviewSingleQueryModule,
-} from "./courses-checkout-preview"
+} from "./courses-checkout-preview/courses-checkout-preview.module"
 import {
     CourseQuestionsSingleQueryModule,
-} from "./course-questions"
+} from "./course-questions/course-questions.module"
 
 @Module({
     imports: [

@@ -23,7 +23,7 @@ import {
 import {
     GraphQLTypeReactionType,
     ReactionType,
-} from "../enums"
+} from "../enums/reaction-type"
 
 @ObjectType({
     description: "A user's Facebook-style reaction on a feed activity.",

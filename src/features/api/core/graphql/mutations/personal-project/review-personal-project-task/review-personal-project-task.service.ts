@@ -6,14 +6,16 @@ import {
 } from "@nestjs/cqrs"
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types/execute"
 import {
     ReviewPersonalProjectTaskCommand,
 } from "./review-personal-project-task.command"
 import type {
     ReviewPersonalProjectTaskRequest,
+} from "./graphql-types/request"
+import type {
     ReviewPersonalProjectTaskResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Injectable()
 /**

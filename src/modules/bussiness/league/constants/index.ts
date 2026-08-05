@@ -1,6 +1,6 @@
 import {
     LeagueTier,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/league-tier"
 
 /**
  * The league tiers in ascending order (lowest -> highest). The array INDEX is the

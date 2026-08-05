@@ -3,12 +3,14 @@ import {
 } from "@nestjs/common"
 import {
     UserFlashcardCourseStatsProjectionService,
+} from "@modules/bussiness/projections/user-flashcard-course-stats/user-flashcard-course-stats-projection.service"
+import {
     UserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/user/user.service"
 import type {
     ComputeMyFlashcardQuizStatsParams,
     MyFlashcardQuizStatsResultData,
-} from "./types"
+} from "./types/my-flashcard-quiz-stats"
 
 /** Fewer completed quiz sessions than this = "insufficient data" (mirrors `MIN_ATTEMPTS_FOR_STATS` on Mock Interview). */
 const MIN_SESSIONS_FOR_STATS = 3

@@ -3,38 +3,40 @@ import {
 } from "@nestjs/common"
 import {
     CdnSynchronizerService,
-} from "./cdn-synchronizer"
+} from "./cdn-synchronizer/cdn-synchronizer.service"
 import {
     ElasticsearchSynchronizerService,
-} from "./elasticsearch-synchronizer"
+} from "./elasticsearch-synchronizer/elasticsearch-synchronizer.service"
 import {
     IndexerSynchronizerService,
-} from "./indexer-synchronizer"
+} from "./indexer-synchronizer/indexer-synchronizer.service"
 import {
     BloomFilterSynchronizerService,
-} from "./bloom-filters-synchronizer"
+} from "./bloom-filters-synchronizer/bloom-filter-synchronizer.service"
 import {
     RepoSynchronizerService,
-} from "./repo-synchronizer"
+} from "./repo-synchronizer/repo-synchronizer.service"
 import {
     ReconcileSynchronizerService,
-} from "./reconcile-synchronizer"
+} from "./reconcile-synchronizer/reconcile-synchronizer.service"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     ElasticsearchIndexResetService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch-index-reset.service"
 import {
     EsSyncUserService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/es-sync/es-sync-user.service"
 import {
     SyncScopeService,
-} from "../scope"
+} from "../scope/sync-scope.service"
 
 @Injectable()
 /**

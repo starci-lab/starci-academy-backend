@@ -1,6 +1,6 @@
 import type {
     SyncArtifactResult,
-} from "../../sync"
+} from "../../sync/types/sync"
 
 /**
  * Parameters for {@link PgBackupService.execute}.

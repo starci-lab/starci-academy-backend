@@ -1,27 +1,27 @@
-﻿import {
+import {
     Module,
 } from "@nestjs/common"
 import {
     ChallengeSingleQueryModule,
-} from "./challenge"
+} from "./challenge/challenge.module"
 import {
     ChallengesSingleQueryModule,
-} from "./challenges"
+} from "./challenges/challenges.module"
 import {
     ConfigurableModuleClass,
 } from "./challenges.module-definition"
 import {
     ChallengeSubmissionProgressSingleQueryModule,
-} from "./challenge-submission-progress"
+} from "./challenge-submission-progress/challenge-submission-progress.module"
 import {
     LeaderboardSingleQueryModule,
-} from "./leaderboard"
+} from "./leaderboard/leaderboard.module"
 import {
     ChallengeSuggestionsSingleQueryModule,
-} from "./challenge-suggestions"
+} from "./challenge-suggestions/challenge-suggestions.module"
 import {
     MyXpHistorySingleQueryModule,
-} from "./my-xp-history"
+} from "./my-xp-history/my-xp-history.module"
 
 @Module({
     imports: [

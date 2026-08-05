@@ -1,19 +1,31 @@
 import type {
     GenerateCvPayload,
-} from "@modules/bullmq"
+} from "@modules/integrations/bullmq/types/payloads/generate-cv"
 import {
     JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/types/context"
 import {
     AiCeilSurface,
+} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
+import {
     AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
     CvGenerationMode,
-    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     AiInvokeService,
 } from "@modules/ai/ai-invoke.service"
@@ -22,7 +34,7 @@ import {
 } from "@modules/ai/utils/extract-json-block"
 import {
     CvRagRetrievalService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/cv-rag-retrieval.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -35,22 +47,28 @@ import {
 } from "@langchain/core/messages"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     CvGenerationStepResultMissingException,
+} from "@modules/platform/exceptions/errors/cv/cv-generation-step-result-missing"
+import {
     CvModelOutputParseException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/cv/cv-model-output-parse"
 import type {
     BuildRagContextParams,
     BuildSystemPromptParams,
     ComposedEducation,
     ComposedExperience,
     ComposedSkillGroup,
-    ExtendedGenerateCvContext,
     GenerateCvComposeStepExecuteResult,
     GenerateCvGatherStepExecuteResult,
-} from "../types"
+} from "../types/execute"
+import type {
+    ExtendedGenerateCvContext,
+} from "../types/extended"
 
 /** Number of RAG chunks to pull per CV-context query. */
 const RAG_TOP_K = 4

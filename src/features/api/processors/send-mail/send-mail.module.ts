@@ -8,9 +8,11 @@ import {
     ConfigurableModuleClass,
 } from "./send-mail.module-definition"
 import {
-    ProcessSendMailStepService,
     ProcessSendMailCompleteStepService,
-} from "./steps"
+} from "./steps/process-send-mail-complete-step.service"
+import {
+    ProcessSendMailStepService,
+} from "./steps/process-send-mail-step.service"
 import {
     SendMailStepMappingService,
 } from "./step-mapping.service"

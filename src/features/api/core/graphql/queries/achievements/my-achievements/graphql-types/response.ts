@@ -5,12 +5,14 @@ import {
 } from "@nestjs/graphql"
 import {
     AbstractGraphQLResponse,
+} from "@modules/api/apollo/server/graphql-types/object-types/graphql-response"
+import {
     IAbstractGraphQLResponse,
-} from "@modules/api"
+} from "@modules/api/apollo/server/types/graphql-response"
 import {
     AchievementCriteriaType,
     GraphQLTypeAchievementCriteriaType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/achievement-criteria-type"
 
 @ObjectType({
     description: "An achievement definition with the viewer's earned status and progress.",

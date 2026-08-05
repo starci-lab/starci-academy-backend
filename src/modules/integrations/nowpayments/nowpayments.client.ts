@@ -9,20 +9,20 @@ import type {
 } from "axios"
 import {
     AxiosService,
-} from "@modules/axios"
+} from "@modules/integrations/axios/axios.service"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     getNowpaymentsApiKey,
     getNowpaymentsIpnSecret,
-} from "@modules/filesystem"
+} from "@modules/filesystem/utils/mount-secrets"
 import type {
     CreateNowPaymentsInvoiceParams,
     CreateNowPaymentsInvoiceResult,
     NowPaymentsInvoiceStatusResult,
     VerifyNowPaymentsSignatureParams,
-} from "./types"
+} from "./types/nowpayments"
 
 /** NOWPayments `payment_status` values that mean the crypto payment cleared. */
 const NOWPAYMENTS_PAID_STATUSES = new Set<string>([

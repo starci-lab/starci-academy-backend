@@ -6,7 +6,7 @@ import {
 } from "@nestjs/graphql"
 import {
     UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     ReactionSummaryObject,
 } from "./reaction-summary.object"

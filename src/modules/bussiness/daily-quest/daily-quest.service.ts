@@ -7,21 +7,31 @@ import {
 } from "typeorm"
 import {
     APP_TIMEZONE,
-} from "@modules/common"
+} from "@modules/lib/common/constants/timezone"
+import {
+    DailyQuestCompletionEntity,
+} from "@modules/databases/postgresql/primary/entities/daily-quest-completion.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
     CoinSource,
-    DailyQuestCompletionEntity,
+} from "@modules/databases/postgresql/primary/enums/coin-source"
+import {
     DailyQuestKey,
+} from "@modules/databases/postgresql/primary/enums/daily-quest-key"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     DailyQuestAlreadyClaimedException,
+} from "@modules/platform/exceptions/errors/daily-quest/daily-quest-already-claimed"
+import {
     DailyQuestNotCompleteException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/daily-quest/daily-quest-not-complete"
 import {
     writeCoinHistory,
-} from "@features/api/processors/ai/shared/xp"
+} from "@features/api/processors/ai/shared/xp/write-coin-history"
 import {
     DAILY_QUEST_MIN_TASKS_REQUIRED,
     DAILY_QUEST_REWARD,

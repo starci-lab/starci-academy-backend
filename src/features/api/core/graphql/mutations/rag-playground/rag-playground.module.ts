@@ -3,10 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     IndexRagPlaygroundSingleMutationModule,
-} from "./index-rag-playground"
+} from "./index-rag-playground/index-rag-playground.module"
 import {
     AskRagPlaygroundSingleMutationModule,
-} from "./ask-rag-playground"
+} from "./ask-rag-playground/ask-rag-playground.module"
 import {
     ConfigurableModuleClass,
 } from "./rag-playground.module-definition"

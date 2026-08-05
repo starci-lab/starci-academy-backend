@@ -1,6 +1,6 @@
 import {
     JobsModule,
-} from "@modules/bussiness"
+} from "@modules/bussiness/jobs/jobs.module"
 import {
     Module,
 } from "@nestjs/common"

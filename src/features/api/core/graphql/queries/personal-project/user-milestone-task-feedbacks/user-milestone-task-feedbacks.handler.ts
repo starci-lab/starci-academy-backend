@@ -1,17 +1,27 @@
 import {
     ICQRSHandler,
-} from "@modules/cqrs"
+} from "@modules/platform/cqrs/icqrs-handler"
 import {
     EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-    UserMilestoneTaskAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     UserMilestoneTaskAttemptFeedbackEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt-feedback.entity"
+import {
+    UserMilestoneTaskAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
+import {
     UserMilestoneTaskEntity,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     envConfig,
-} from "@modules/env"
+} from "@modules/platform/env/config"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -27,12 +37,14 @@ import {
     UserMilestoneTaskFeedbacksQuery,
 } from "./user-milestone-task-feedbacks.query"
 import {
-    UserMilestoneTaskFeedbacksResponseData,
     UserMilestoneTaskFeedbacksSortBy,
-} from "./graphql-types"
+} from "./graphql-types/request"
+import {
+    UserMilestoneTaskFeedbacksResponseData,
+} from "./graphql-types/response"
 import {
     UserNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/users/user"
 
 @QueryHandler(UserMilestoneTaskFeedbacksQuery)
 @Injectable()

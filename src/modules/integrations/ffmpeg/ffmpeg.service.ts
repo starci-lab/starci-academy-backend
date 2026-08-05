@@ -7,14 +7,16 @@ import {
 } from "path"
 import type {
     EncodeProfile,
-} from "./types"
+} from "./types/profile"
 import {
     GpuVendor,
-} from "./enums"
+} from "./enums/gpu"
 import {
     WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
     WinstonService,
-} from "@modules/winston"
+} from "@modules/platform/winston/winston.service"
 import {
     GpuService,
 } from "./gpu.service"

@@ -1,9 +1,9 @@
 import type {
     ExecuteParams,
-} from "@features/socketio/core/types"
+} from "../../../types/execute"
 import type {
     GlobalSearchSocketIoPayload,
-} from "./types"
+} from "./types/payload"
 
 /**
  * CQRS query for global fuzzy search.

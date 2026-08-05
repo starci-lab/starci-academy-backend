@@ -14,7 +14,7 @@ import {
 import {
     GraphQLTypeSubmissionType,
     SubmissionType,
-} from "../enums"
+} from "../enums/submission-type"
 import {
     UuidAbstractEntity,
 } from "./abstract"

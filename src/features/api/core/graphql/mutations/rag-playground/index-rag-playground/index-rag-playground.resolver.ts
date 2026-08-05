@@ -9,22 +9,26 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     PublicRagPlaygroundService,
-} from "@modules/rag"
+} from "@modules/integrations/rag/public-rag-playground.service"
+import {
+    IndexRagPlaygroundRequest,
+} from "./graphql-types/request"
 import {
     IndexRagPlaygroundData,
-    IndexRagPlaygroundRequest,
     IndexRagPlaygroundResponse,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**

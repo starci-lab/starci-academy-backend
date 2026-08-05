@@ -10,21 +10,25 @@ import {
 } from "./voucher.service"
 import {
     CourseVoucherEntity,
+} from "@modules/databases/postgresql/primary/entities/course-voucher.entity"
+import {
     VoucherDiscountType,
+} from "@modules/databases/postgresql/primary/enums/voucher-discount-type"
+import {
     VoucherStatus,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/voucher-status"
 import {
     InvalidVoucherException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/vouchers/invalid-voucher"
 import {
     DayjsService,
-} from "@modules/mixin"
+} from "@modules/lib/mixin/dayjs.service"
 import {
     makeEntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
-} from "@modules/tests"
+} from "@modules/tests/utils/mocks/entity-manager.mock"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

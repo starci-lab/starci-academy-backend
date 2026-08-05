@@ -1,14 +1,18 @@
 import {
     CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
+import {
     InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     CourseNotFoundException,
-} from "@modules/exceptions"
+} from "@modules/platform/exceptions/errors/courses/course-not-found"
 import {
     LoyaltyDiscountService,
-} from "@modules/bussiness"
+} from "@modules/bussiness/loyalty/loyalty-discount.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -23,7 +27,7 @@ import type {
     CartPricedLine,
     PriceCartParams,
     PriceCartResult,
-} from "./types"
+} from "./types/checkout"
 
 @Injectable()
 /**

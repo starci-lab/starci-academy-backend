@@ -1,9 +1,15 @@
 import {
     FoundationEntity,
-    FoundationHydrationService,
-    FoundationResolverService,
+} from "@modules/databases/postgresql/primary/entities/foundation.entity"
+import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    FoundationHydrationService,
+} from "@modules/databases/postgresql/primary/hydration/foundation-hydration.service"
+import {
+    FoundationResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/foundation-resolver.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,7 +18,7 @@ import type {
 } from "./types"
 import {
     ElasticsearchService,
-} from "@modules/elasticsearch"
+} from "@modules/integrations/elasticsearch/elasticsearch.service"
 import _ from "lodash"
 
 @Injectable()

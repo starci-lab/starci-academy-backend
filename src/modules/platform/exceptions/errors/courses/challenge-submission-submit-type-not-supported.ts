@@ -6,7 +6,7 @@ import {
 } from "../abstract"
 import type {
     SubmissionType,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/submission-type"
 
 /** Submission type + id that cannot use automated git grading. */
 export interface ChallengeSubmissionSubmitTypeNotSupportedExceptionMetadata extends AbstractExceptionMetadata {

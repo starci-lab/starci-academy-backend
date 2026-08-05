@@ -8,25 +8,27 @@ import {
 } from "@nestjs/common"
 import {
     GraphQLAdminAccessGuard,
-} from "@modules/bussiness"
+} from "@modules/bussiness/guards/graphql-admin-access.guard"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-} from "@modules/api"
+} from "@modules/api/apollo/server/interceptors/graphql-transform.interceptor"
+import {
+    ThrottlerConfig,
+} from "@modules/platform/throttler/enums/throttler-config"
 import {
     UseThrottler,
-    ThrottlerConfig,
-} from "@modules/throttler"
+} from "@modules/platform/throttler/throttler.decorators"
 import {
     Locale,
-} from "@modules/databases"
+} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     AiBalancerService,
 } from "@modules/ai/balancer/ai-balancer.service"
 import {
     AiBalancerHealthResponse,
     AiBalancerHealthResponseData,
-} from "./graphql-types"
+} from "./graphql-types/response"
 
 @Resolver()
 /**
