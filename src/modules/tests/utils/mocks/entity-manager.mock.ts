@@ -16,16 +16,66 @@ export interface QueryBuilderMock {
     where: jest.Mock
     /** Chainable: records an additional AND clause, returns the builder. */
     andWhere: jest.Mock
-    /** Chainable: records an eager join, returns the builder. */
+    /** Chainable: records an additional OR clause, returns the builder. */
+    orWhere: jest.Mock
+    /** Chainable: records an inner join, returns the builder. */
+    innerJoin: jest.Mock
+    /** Chainable: records an eager inner join, returns the builder. */
+    innerJoinAndSelect: jest.Mock
+    /** Chainable: records a left join, returns the builder. */
+    leftJoin: jest.Mock
+    /** Chainable: records an eager left join, returns the builder. */
     leftJoinAndSelect: jest.Mock
+    /** Chainable: records the root SELECT, returns the builder. */
+    select: jest.Mock
+    /** Chainable: records an additional SELECT, returns the builder. */
+    addSelect: jest.Mock
+    /** Chainable: records DISTINCT, returns the builder. */
+    distinct: jest.Mock
     /** Chainable: records an ordering, returns the builder. */
     orderBy: jest.Mock
+    /** Chainable: records an additional ordering, returns the builder. */
+    addOrderBy: jest.Mock
+    /** Chainable: records a GROUP BY, returns the builder. */
+    groupBy: jest.Mock
+    /** Chainable: records an additional GROUP BY, returns the builder. */
+    addGroupBy: jest.Mock
+    /** Chainable: records a HAVING clause, returns the builder. */
+    having: jest.Mock
+    /** Chainable: records a named parameter, returns the builder. */
+    setParameter: jest.Mock
+    /** Chainable: records a parameter map, returns the builder. */
+    setParameters: jest.Mock
     /** Chainable: records a row limit, returns the builder. */
     limit: jest.Mock
+    /** Chainable: records a row offset, returns the builder. */
+    offset: jest.Mock
+    /** Chainable: records a take (TypeORM pagination), returns the builder. */
+    take: jest.Mock
+    /** Chainable: records a skip (TypeORM pagination), returns the builder. */
+    skip: jest.Mock
+    /** Chainable: switches the builder to UPDATE, returns the builder. */
+    update: jest.Mock
+    /** Chainable: switches the builder to DELETE, returns the builder. */
+    delete: jest.Mock
+    /** Chainable: records the FROM target, returns the builder. */
+    from: jest.Mock
+    /** Chainable: records SET values for an UPDATE, returns the builder. */
+    set: jest.Mock
     /** Terminal: resolves the single row the test programmed (null by default). */
     getOne: jest.Mock
     /** Terminal: resolves the row list the test programmed (empty by default). */
     getMany: jest.Mock
+    /** Terminal: resolves a single raw row (null by default). */
+    getRawOne: jest.Mock
+    /** Terminal: resolves the raw row list (empty by default). */
+    getRawMany: jest.Mock
+    /** Terminal: resolves a count (0 by default). */
+    getCount: jest.Mock
+    /** Terminal: resolves `[rows, total]` (`[[], 0]` by default). */
+    getManyAndCount: jest.Mock
+    /** Terminal: resolves a write-query result (`{ affected: 1 }` by default). */
+    execute: jest.Mock
 }
 
 /**
@@ -88,13 +138,43 @@ export const makeQueryBuilderMock = (): QueryBuilderMock => {
     builder.setLock = jest.fn(() => builder)
     builder.where = jest.fn(() => builder)
     builder.andWhere = jest.fn(() => builder)
+    builder.orWhere = jest.fn(() => builder)
+    builder.innerJoin = jest.fn(() => builder)
+    builder.innerJoinAndSelect = jest.fn(() => builder)
+    builder.leftJoin = jest.fn(() => builder)
     builder.leftJoinAndSelect = jest.fn(() => builder)
+    builder.select = jest.fn(() => builder)
+    builder.addSelect = jest.fn(() => builder)
+    builder.distinct = jest.fn(() => builder)
     builder.orderBy = jest.fn(() => builder)
+    builder.addOrderBy = jest.fn(() => builder)
+    builder.groupBy = jest.fn(() => builder)
+    builder.addGroupBy = jest.fn(() => builder)
+    builder.having = jest.fn(() => builder)
+    builder.setParameter = jest.fn(() => builder)
+    builder.setParameters = jest.fn(() => builder)
     builder.limit = jest.fn(() => builder)
+    builder.offset = jest.fn(() => builder)
+    builder.take = jest.fn(() => builder)
+    builder.skip = jest.fn(() => builder)
+    builder.update = jest.fn(() => builder)
+    builder.delete = jest.fn(() => builder)
+    builder.from = jest.fn(() => builder)
+    builder.set = jest.fn(() => builder)
 
     // terminals resolve "nothing found" until a test programs them
     builder.getOne = jest.fn().mockResolvedValue(null)
     builder.getMany = jest.fn().mockResolvedValue([])
+    builder.getRawOne = jest.fn().mockResolvedValue(null)
+    builder.getRawMany = jest.fn().mockResolvedValue([])
+    builder.getCount = jest.fn().mockResolvedValue(0)
+    builder.getManyAndCount = jest.fn().mockResolvedValue([
+        [],
+        0,
+    ])
+    builder.execute = jest.fn().mockResolvedValue({
+        affected: 1,
+    })
 
     return builder
 }

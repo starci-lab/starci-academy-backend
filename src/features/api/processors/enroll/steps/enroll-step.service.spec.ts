@@ -168,7 +168,7 @@ describe("EnrollStepService",
         let module: TestingModule
         let service: EnrollStepService
         let entityManager: EntityManagerMock
-        let transactionActionService: jest.Mocked<Pick<TransactionActionService, "updateTransactionStatus">>
+        let transactionActionService: jest.Mocked<Pick<TransactionActionService, "updateTransactionStatusIfExpected">>
         let jobActionService: jest.Mocked<Pick<JobActionService, "increaseJob" | "saveExecutionResult">>
         let enqueueResolveGithubJobService: jest.Mocked<Pick<EnqueueResolveGithubJobService, "enqueue">>
         let winstonService: jest.Mocked<Pick<WinstonService, "log">>
@@ -184,8 +184,8 @@ describe("EnrollStepService",
             entityManager.count = jest.fn().mockResolvedValue(1)
 
             transactionActionService = {
-                updateTransactionStatus: jest.fn(),
-            } as unknown as jest.Mocked<Pick<TransactionActionService, "updateTransactionStatus">>
+                updateTransactionStatusIfExpected: jest.fn(),
+            } as unknown as jest.Mocked<Pick<TransactionActionService, "updateTransactionStatusIfExpected">>
             jobActionService = {
                 increaseJob: jest.fn(),
                 saveExecutionResult: jest.fn(),
@@ -289,10 +289,11 @@ describe("EnrollStepService",
 
                 // it is NOT treated as a duplicate -> the transaction is marked succeeded
                 // AND the post-steps run (stats recompute + cache invalidation + welcome mail)
-                expect(transactionActionService.updateTransactionStatus).toHaveBeenCalledWith(
+                expect(transactionActionService.updateTransactionStatusIfExpected).toHaveBeenCalledWith(
                     expect.objectContaining({
                         id: transactionId,
                         status: TransactionStatus.Succeeded,
+                        expectedStatus: TransactionStatus.Pending,
                     }),
                 )
                 expect(courseStatsProjectionService.recompute).toHaveBeenCalledWith(
@@ -358,10 +359,11 @@ describe("EnrollStepService",
                 await service.process(makeContext())
 
                 // the transaction is still finalized as succeeded ...
-                expect(transactionActionService.updateTransactionStatus).toHaveBeenCalledWith(
+                expect(transactionActionService.updateTransactionStatusIfExpected).toHaveBeenCalledWith(
                     expect.objectContaining({
                         id: transactionId,
                         status: TransactionStatus.Succeeded,
+                        expectedStatus: TransactionStatus.Pending,
                     }),
                 )
                 // ... but nothing is converted/created and NONE of the post-steps fire

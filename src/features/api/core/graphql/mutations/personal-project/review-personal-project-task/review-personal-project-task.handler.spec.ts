@@ -35,6 +35,7 @@ import {
 } from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     EntityManagerMock,
+    QueryBuilderMock,
 } from "@modules/tests/utils/mocks/entity-manager.mock"
 import type {
     UserEntity,
@@ -193,8 +194,12 @@ describe("ReviewPersonalProjectTaskHandler",
                     personalProjectGithubUrl: "https://github.com/me/repo",
                     personalProjectGithubBranch: null,
                 })
-                // first milestone task lookup resolves the default task
-                entityManager.findOne.mockResolvedValueOnce({
+                // first milestone task lookup is a QueryBuilder (not findOne) so
+                // the ORDER BY sort_index + LIMIT 1 path stays off TypeORM's
+                // DISTINCT subquery; program the shared builder's getOne.
+                const queryBuilder = entityManager
+                    .createQueryBuilder() as unknown as QueryBuilderMock
+                queryBuilder.getOne.mockResolvedValueOnce({
                     id: "task-default",
                 })
 
@@ -217,13 +222,7 @@ describe("ReviewPersonalProjectTaskHandler",
 
         it("throws when no taskId is given and the course has no milestone tasks",
             async () => {
-                // enrollment loads, but the first-task lookup finds nothing
-                entityManager.findOneOrFail.mockResolvedValueOnce({
-                    id: "enroll-1",
-                    personalProjectGithubUrl: "https://github.com/me/repo",
-                    personalProjectGithubBranch: null,
-                })
-                entityManager.findOne.mockResolvedValueOnce(null)
+                // enrollment loads; QueryBuilder getOne defaults to null -> no tasks
 
                 await expect(
                     handler.execute(
