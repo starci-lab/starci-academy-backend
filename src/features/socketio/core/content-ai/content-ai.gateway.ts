@@ -42,6 +42,7 @@ import type {
     AbortContentAiSocketIoPayload,
     AskContentAiSocketIoPayload,
     ContentAiChunkSocketIoMessage,
+    EmitChunkParams,
 } from "./types"
 
 /**
@@ -323,10 +324,7 @@ export class ContentAiGateway {
         {
             client,
             data,
-        }: {
-            client: TypedSocket
-            data: ContentAiChunkSocketIoMessage
-        },
+        }: EmitChunkParams,
     ): void {
         this.wsResponseService.success<ContentAiChunkSocketIoMessage>({
             message: "content ai chunk",

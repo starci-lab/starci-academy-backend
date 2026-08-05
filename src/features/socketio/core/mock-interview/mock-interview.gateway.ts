@@ -53,6 +53,7 @@ import {
 import type {
     AbortMockInterviewTurnSocketIoPayload,
     AskMockInterviewTurnSocketIoPayload,
+    EmitChunkParams,
     MockInterviewChunkSocketIoMessage,
     MockInterviewTurnHistoryEntry,
 } from "./types"
@@ -405,10 +406,7 @@ export class MockInterviewGateway {
         {
             client,
             data,
-        }: {
-            client: TypedSocket
-            data: MockInterviewChunkSocketIoMessage
-        },
+        }: EmitChunkParams,
     ): void {
         this.wsResponseService.success<MockInterviewChunkSocketIoMessage>({
             message: "mock interview chunk",

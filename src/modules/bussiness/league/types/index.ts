@@ -1,4 +1,7 @@
 import type {
+    EntityManager,
+} from "typeorm"
+import type {
     LeagueTier,
 } from "@modules/databases"
 
@@ -76,6 +79,48 @@ export interface ActiveUserBucketRow {
 export interface LeagueCohortIdRow {
     /** The matching `league_cohorts.id`. */
     id: string
+}
+
+/** Params for {@link import("../league.service").LeagueService.findOrCreateOpenCohort}. */
+export interface FindOrCreateOpenCohortParams {
+    /** Transaction manager the caller is running inside. */
+    manager: EntityManager
+    /** Target tier to find/create a cohort for. */
+    tier: LeagueTier
+    /** Start of the target week window. */
+    weekStartAt: Date
+    /** Exclusive end of the target week window. */
+    weekEndAt: Date
+}
+
+/** Params for {@link import("../league.service").LeagueService.settleEndingCohorts}. */
+export interface SettleEndingCohortsParams {
+    /** Transaction manager the caller is running inside. */
+    manager: EntityManager
+    /** Start of the week whose cohorts are being settled (unused by the current implementation, kept for the caller's symmetry with {@link FormNewCohortsParams}). */
+    previousWeekStart: Date
+    /** Start of the just-ended week whose cohorts should be settled. */
+    endingWeekStart: Date
+}
+
+/** Params for {@link import("../league.service").LeagueService.formNewCohorts}. */
+export interface FormNewCohortsParams {
+    /** Transaction manager the caller is running inside. */
+    manager: EntityManager
+    /** Start of the new week to form cohorts for. */
+    newWeekStart: Date
+    /** Start of the week that just ended (used to find active users + as the shuffle salt). */
+    previousWeekStart: Date
+}
+
+/** Params for {@link import("../league.service").LeagueService.shiftTier}. */
+export interface ShiftTierParams {
+    /** The member's current tier. */
+    tier: LeagueTier
+    /** Whether the member is being promoted one rung up. */
+    promote: boolean
+    /** Whether the member is being demoted one rung down. */
+    demote: boolean
 }
 
 /**

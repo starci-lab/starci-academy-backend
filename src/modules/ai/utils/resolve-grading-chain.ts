@@ -1,6 +1,9 @@
 import {
     AiModelCategory,
 } from "@modules/databases"
+import type {
+    ResolveGradingChainParams,
+} from "../types"
 
 /**
  * Category ladder, cheapest → strongest. The Auto lane climbs this in order
@@ -51,11 +54,7 @@ export const resolveGradingChain = (
         floor,
         tierCategories,
         ceil,
-    }: {
-        floor: AiModelCategory
-        tierCategories: Array<AiModelCategory>
-        ceil?: AiModelCategory | null
-    },
+    }: ResolveGradingChainParams,
 ): Array<AiModelCategory> => {
     const floorRank = CATEGORY_LADDER.indexOf(floor)
     // a user-set cap can only lower the ceiling, never raise it past the

@@ -10,6 +10,7 @@ import type {
 } from "typeorm"
 import type {
     CvVerificationUserIdRow,
+    ResolveCvVerificationLevelForCourseParams,
     ResolveCvVerificationLevelsParams,
 } from "./types"
 
@@ -186,7 +187,7 @@ export class CvVerificationService {
         {
             userId,
             courseId,
-        }: { userId: string, courseId: string },
+        }: ResolveCvVerificationLevelForCourseParams,
     ): Promise<CvVerificationLevel> {
         const [
             capstoneRow,
