@@ -140,7 +140,12 @@ export default defineConfig([
         // counted those aggregators; this rule does not.
         files: ["src/features/**/*.module.ts"],
         rules: {
-            "starci-be/no-non-global-module-import": "warn", // naming-and-structure §8 · nợ=17 → warn
+            // naming-and-structure §8 · nợ=4 → warn. The 13 already-global imports are
+            // burned down; the 4 left (ApolloServerModule, HealthModule, JobsModule,
+            // Judge0Module) are NOT registered globally in any app, so each needs a
+            // registration decision at an app root before it can be un-imported --
+            // deleting the import without that fails at runtime, not at build.
+            "starci-be/no-non-global-module-import": "warn",
         },
     },
     {
