@@ -89,26 +89,3 @@ SPA and is out of scope for the back-end-shaped rules; the `*spec.ts` family, `a
 `process.env` to stand up Testcontainers; `apps/*/test/**` may `throw new Error`, which there is a
 test-runner assertion rather than a domain failure. Vietnamese a literal matches on or emits at
 runtime stays, marked `vn-ok: <reason>` on the line.
-
-## Semantic code search over this repo (MCP)
-
-`.mcp.json` registers `starci-code`, an MCP server that answers "which module handles refunds"
-— the question grep cannot ask. Grep still wins for an exact identifier, so the server runs
-hybrid (vector plus keyword) rather than vector alone.
-
-```bash
-docker run -d --name starci-code-qdrant --restart unless-stopped \
-  -p 6360:6333 -p 6361:6334 -e QDRANT__SERVICE__API_KEY=starci-code-local \
-  -v starci-code-qdrant-data:/qdrant/storage qdrant/qdrant:latest
-ollama pull bge-m3            # embeddings run locally: no API cost, no source leaves the machine
-npm i -g @mhalder/qdrant-mcp-server
-```
-
-Then run `claude` in this folder and approve `starci-code` when prompted — a server declared by
-a repo file is deliberately not trusted until a human says so. Index with the `index_codebase`
-tool, and after pulling work, `reindex_changes` — a stale index answers confidently and wrongly,
-which is worse than having none.
-
-It points at its **own** Qdrant on `:6360`, never the app's on `:6333`: a code index must not
-touch the `content_rag` collections the product serves, and the app's instance is pinned to a
-Qdrant version this client cannot talk to.
