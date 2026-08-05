@@ -32,6 +32,9 @@ import {
 import type {
     EntityManagerMock,
 } from "@modules/tests/utils/mocks/entity-manager.mock"
+import {
+    winstonServiceMock,
+} from "@tests/helpers/create-e2e-app"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -87,6 +90,7 @@ describe("CodingSubmissionService",
                         provide: DeviceService,
                         useValue: deviceService,
                     },
+                    winstonServiceMock,
                 ],
             }).compile()
 

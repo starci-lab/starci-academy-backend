@@ -32,6 +32,9 @@ import type {
 import {
     FlashcardReviewService,
 } from "./flashcard-review.service"
+import {
+    UserService,
+} from "../user/user.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -98,6 +101,14 @@ describe("FlashcardDeckReadService",
                         provide: FlashcardReviewService,
                         useValue: {
                             previewIntervals: jest.fn(),
+                        },
+                    },
+                    {
+                        // premium-card gating calls checkEnrollment only when a userId is
+                        // passed; these cases never do, so a no-op stub is enough.
+                        provide: UserService,
+                        useValue: {
+                            checkEnrollment: jest.fn(),
                         },
                     },
                 ],
