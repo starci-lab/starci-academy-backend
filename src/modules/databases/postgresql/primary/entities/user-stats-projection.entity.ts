@@ -15,6 +15,7 @@ import {
     UserStatsProjectionTranslationEntity,
 } from "./user-stats-projection-translation.entity"
 
+@Entity("user_stats_projections")
 /**
  * CQRS projection of a user's social + inbox counters (Kiểu A — single key).
  *
@@ -22,7 +23,6 @@ import {
  * unreadNotificationCount }`) lives in the inherited jsonb `value`. Recomputed
  * on follow/notification changes + CDC, read with a TTL lazy-refresh.
  */
-@Entity("user_stats_projections")
 export class UserStatsProjectionEntity extends AbstractProjectionEntity {
     /** Target user id — the natural primary key (one row per user). */
     @PrimaryColumn({

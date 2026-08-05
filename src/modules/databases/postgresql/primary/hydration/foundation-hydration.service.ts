@@ -16,6 +16,10 @@ import {
 } from "@modules/exceptions"
 
 @Injectable()
+/**
+ * Loads a foundation item plus category and tags (with translations) so the
+ * catalog page can render without per-tag queries.
+ */
 export class FoundationHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

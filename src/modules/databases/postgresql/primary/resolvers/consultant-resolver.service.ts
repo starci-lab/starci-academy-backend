@@ -15,6 +15,10 @@ import {
 } from "./headhunting-company-resolver.service"
 
 @Injectable()
+/**
+ * Overwrites consultant fields in-place with locale-resolved strings and drops
+ * the translations array so GraphQL never leaks raw translation rows.
+ */
 export class ConsultantResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

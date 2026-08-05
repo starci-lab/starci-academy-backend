@@ -12,11 +12,11 @@ import {
     MilestoneTaskApproachCriteriaEntity,
 } from "./milestone-task-approach-criteria.entity"
 
+@Entity("milestone_task_approach_criteria_langs")
 /**
  * Per-language prose for a SCHEMA V2 approach criterion (one row per programming language).
  * English-only grading rubric — INTERNAL, no GraphQL, no per-locale translation.
  */
-@Entity("milestone_task_approach_criteria_langs")
 export class MilestoneTaskApproachCriteriaLangEntity extends UuidAbstractEntity {
     /**
      * Programming language for this prose (typescript/java/csharp/go).

@@ -20,13 +20,13 @@ import {
     ContentBodyEntity,
 } from "./content-body.entity"
 
-/**
- * Localized lesson body for a SCHEMA V2 content body bucket. One row per (body × locale).
- */
 @ObjectType({
     description: "Localized lesson body for a content body bucket.",
 })
 @Entity("content_body_translations")
+/**
+ * Localized lesson body for a SCHEMA V2 content body bucket. One row per (body × locale).
+ */
 export class ContentBodyTranslationEntity extends AbstractEntity {
     /**
      * Parent content body id (composite PK part).

@@ -28,15 +28,15 @@ import {
     FlashcardCardTranslationEntity,
 } from "./flashcard-card-translation.entity"
 
+@ObjectType({
+    description: "Per-grade next-interval preview (days) for a flashcard.",
+})
 /**
  * Per-grade next-interval preview (in days) computed from a card's current SM-2
  * state without persisting — powers the rating buttons. Lives in the databases
  * layer (not `features/api`) so entities like {@link FlashcardCardEntity} can
  * reference it directly.
  */
-@ObjectType({
-    description: "Per-grade next-interval preview (days) for a flashcard.",
-})
 export class FlashcardNextIntervalsObject {
     @Field(
         () => Int,
@@ -71,15 +71,15 @@ export class FlashcardNextIntervalsObject {
         easy: number
 }
 
+@ObjectType({
+    description: "Open-ended interview flashcard: Markdown question + answer.",
+})
+@Entity("flashcard_cards")
 /**
  * A single open-ended interview flashcard within a deck. `question` holds the
  * prompt (front), `answer` the model answer revealed on flip (back), and
  * `explanation` optional depth (follow-ups, gotchas) — all Markdown.
  */
-@ObjectType({
-    description: "Open-ended interview flashcard: Markdown question + answer.",
-})
-@Entity("flashcard_cards")
 export class FlashcardCardEntity extends UuidAbstractEntity {
     /**
      * The question prompt (Markdown).

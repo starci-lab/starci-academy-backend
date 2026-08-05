@@ -19,6 +19,10 @@ import {
 } from "@modules/exceptions"
 
 @Injectable()
+/**
+ * Loads a challenge plus SCHEMA V2 langs/steps/outputs/prerequisites for the
+ * CDN/API read path so each resolver does not invent its own relation set.
+ */
 export class ChallengeHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

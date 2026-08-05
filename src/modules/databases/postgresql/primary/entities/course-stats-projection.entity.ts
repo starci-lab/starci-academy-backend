@@ -15,6 +15,7 @@ import {
     CourseStatsProjectionTranslationEntity,
 } from "./course-stats-projection-translation.entity"
 
+@Entity("course_stats_projections")
 /**
  * CQRS projection of a course's counters (Kiểu A — single key).
  *
@@ -22,7 +23,6 @@ import {
  * inherited jsonb `value`. Recomputed on enroll/unenroll + CDC, read with a TTL
  * lazy-refresh — replaces the old Redis enrollment-count cache.
  */
-@Entity("course_stats_projections")
 export class CourseStatsProjectionEntity extends AbstractProjectionEntity {
     /** Target course id — the natural primary key (one row per course). */
     @PrimaryColumn({

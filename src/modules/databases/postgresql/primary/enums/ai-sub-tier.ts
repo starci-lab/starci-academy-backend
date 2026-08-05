@@ -20,8 +20,11 @@ import {
  * - Max: +2000 credits/5h, +20000 credits/week
  */
 export enum AiSubTier {
+    /** Entry AI sub — adds +250 credits/5h and +2500/week on top of enrollments. */
     Plus = "plus",
+    /** Popular AI sub — adds +500 credits/5h and +5000/week on top of enrollments. */
     Pro = "pro",
+    /** Power-user AI sub — adds +2000 credits/5h and +20000/week on top of enrollments. */
     Max = "max",
 }
 

@@ -30,10 +30,10 @@ import {
     LivestreamSessionResolverService,
 } from "./livestream-session-resolver.service"
 
+@Injectable()
 /**
  * Applies loaded translations for a course tree; nested module payloads use shared resolvers.
  */
-@Injectable()
 export class CourseResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

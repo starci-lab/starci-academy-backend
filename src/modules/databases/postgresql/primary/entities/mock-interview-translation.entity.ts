@@ -12,6 +12,7 @@ import {
     MockInterviewEntity,
 } from "./mock-interview.entity"
 
+@Entity("mock_interview_translations")
 /**
  * Bilingual override for one field of {@link MockInterviewEntity}, keyed
  * `(mockInterviewId, locale, field)` — same house pattern as
@@ -24,7 +25,6 @@ import {
  * `JSON.parse` it back when reading a non-default-locale override for one of
  * those fields.
  */
-@Entity("mock_interview_translations")
 export class MockInterviewTranslationEntity extends AbstractEntity {
     @PrimaryColumn({
         name: "mock_interview_id",

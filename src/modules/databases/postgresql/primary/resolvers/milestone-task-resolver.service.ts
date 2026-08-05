@@ -18,10 +18,10 @@ import {
     MilestoneTaskCodeImplementationResolverService,
 } from "./milestone-task-code-implementation-resolver.service"
 
+@Injectable()
 /**
  * Applies translations to a milestone task row and its criteria.
  */
-@Injectable()
 export class MilestoneTaskResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

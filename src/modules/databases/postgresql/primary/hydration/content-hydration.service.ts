@@ -18,10 +18,10 @@ import {
     ContentNotFoundException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Loads a content row and child tables as plain objects for CDN / Elasticsearch.
  */
-@Injectable()
 export class ContentHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

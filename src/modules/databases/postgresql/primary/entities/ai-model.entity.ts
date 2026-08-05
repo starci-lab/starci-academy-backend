@@ -27,13 +27,6 @@ import {
     AiModelTranslationEntity,
 } from "./ai-model-translation.entity"
 
-/**
- * One AI model in the rotation catalog (seeded from `.mount/data/ai-models`).
- *
- * Mirrors `AppConfigAiModel` but persisted so the admin UI + model picker can
- * query it. Translatable fields (label, description) live in translations.
- * Upserted by `(provider, name)`.
- */
 @ObjectType({
     description: "An AI model in the rotation catalog.",
 })
@@ -46,6 +39,13 @@ import {
     },
 )
 @Entity("ai_models")
+/**
+ * One AI model in the rotation catalog (seeded from `.mount/data/ai-models`).
+ *
+ * Mirrors `AppConfigAiModel` but persisted so the admin UI + model picker can
+ * query it. Translatable fields (label, description) live in translations.
+ * Upserted by `(provider, name)`.
+ */
 export class AiModelEntity extends UuidAbstractEntity {
     /** Concrete model name accepted by the provider SDK (e.g. "gpt-4o-mini"). */
     @Field(

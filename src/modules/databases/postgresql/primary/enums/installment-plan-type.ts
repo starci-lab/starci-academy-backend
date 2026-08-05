@@ -16,7 +16,9 @@ import {
  *   every cycle against the CURRENT remaining balance.
  */
 export enum InstallmentPlanType {
+    /** New purchase: every cycle's minimum is the locked `monthlyAmountVnd` (markup snapshotted at checkout). */
     Fixed = "fixed",
+    /** Legacy Pioneer arrears: minimum is recomputed each cycle from remaining balance — no markup, no schedule. */
     FlexiblePool = "flexible_pool",
 }
 

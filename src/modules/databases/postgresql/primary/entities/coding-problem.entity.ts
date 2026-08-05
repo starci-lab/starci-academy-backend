@@ -33,11 +33,6 @@ import {
     CodingSubmissionEntity,
 } from "./coding-submission.entity"
 
-/**
- * A LeetCode-style coding-practice problem. Admin-authored (seeded from
- * `.mount/data/coding-problems/`). The default `title`/`statement` are the
- * English source; per-locale overrides live in {@link CodingProblemTranslationEntity}.
- */
 @ObjectType(
     "CodingProblem",
     {
@@ -45,6 +40,11 @@ import {
     },
 )
 @Entity("coding_problems")
+/**
+ * A LeetCode-style coding-practice problem. Admin-authored (seeded from
+ * `.mount/data/coding-problems/`). The default `title`/`statement` are the
+ * English source; per-locale overrides live in {@link CodingProblemTranslationEntity}.
+ */
 export class CodingProblemEntity extends UuidAbstractEntity {
     @Field(
         () => String,

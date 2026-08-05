@@ -9,8 +9,11 @@ import {
  * UI-facing job categories for realtime status rendering.
  */
 export enum JobCategory {
+    /** Realtime UI treats this job as challenge-submission grading (Docs / Git). */
     SubmitChallenge = "submitChallenge",
+    /** Realtime UI treats this job as CV review / generate progress. */
     ReviewCv = "reviewCv",
+    /** Realtime UI treats this job as personal-project task review progress. */
     ReviewTask = "reviewTask",
     /** Judge a coding-practice submission against testcases. */
     JudgeCoding = "judgeCoding",

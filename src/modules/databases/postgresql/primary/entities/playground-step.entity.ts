@@ -23,6 +23,11 @@ import {
     PlaygroundStepTranslationEntity,
 } from "./playground-step-translation.entity"
 
+@ObjectType({
+    description: "One ordered step of a playground.",
+})
+@Index(["playground"])
+@Entity("playground_steps")
 /**
  * One ordered step of a {@link PlaygroundEntity}. Carries the learner-facing
  * instructions (`title`/`body`/`commandHint`) plus the server-only "lite"
@@ -30,11 +35,6 @@ import {
  * (`verifyResourceKind`/`verifyResourceNamePattern`/`verifyExpectedStatus`) —
  * the verify fields are never exposed to GraphQL clients.
  */
-@ObjectType({
-    description: "One ordered step of a playground.",
-})
-@Index(["playground"])
-@Entity("playground_steps")
 export class PlaygroundStepEntity extends UuidAbstractEntity {
     /**
      * Playground this step belongs to.

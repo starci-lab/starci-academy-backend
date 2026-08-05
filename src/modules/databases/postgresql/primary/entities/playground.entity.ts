@@ -27,18 +27,18 @@ import {
     PlaygroundTranslationEntity,
 } from "./playground-translation.entity"
 
-/**
- * An in-course hands-on Docker/Kubernetes playground (e.g. "docker",
- * "kubernetes") owned by a course. A learner runs a local CLI agent that
- * pairs with a {@link PlaygroundSessionEntity} and works through the
- * playground's ordered {@link PlaygroundStepEntity} list.
- */
 @ObjectType({
     description: "An in-course hands-on Docker/Kubernetes playground.",
 })
 @Index(["course"])
 @Unique(["slug"])
 @Entity("playgrounds")
+/**
+ * An in-course hands-on Docker/Kubernetes playground (e.g. "docker",
+ * "kubernetes") owned by a course. A learner runs a local CLI agent that
+ * pairs with a {@link PlaygroundSessionEntity} and works through the
+ * playground's ordered {@link PlaygroundStepEntity} list.
+ */
 export class PlaygroundEntity extends UuidAbstractEntity {
     /**
      * URL-facing stable identifier (e.g. "docker", "kubernetes").

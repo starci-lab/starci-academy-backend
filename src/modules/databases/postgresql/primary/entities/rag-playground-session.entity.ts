@@ -7,6 +7,12 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 
+@Entity("rag_playground_sessions")
+// cron cleanup scans idle sessions by lastAccessedAt
+@Index("idx_rag_playground_sessions_last_accessed",
+    [
+        "lastAccessedAt",
+    ])
 /**
  * One PUBLIC (no-login) RAG Playground session: an anonymous visitor's
  * imported code (paste / upload / sample / GitHub repo), indexed into an
@@ -16,12 +22,6 @@ import {
  * ONE piece of this demo feature that is persisted (Q&A turns are NOT stored;
  * see {@link import("../../../../rag").RagPlaygroundRunRegistryService}, in-memory only).
  */
-@Entity("rag_playground_sessions")
-// cron cleanup scans idle sessions by lastAccessedAt
-@Index("idx_rag_playground_sessions_last_accessed",
-    [
-        "lastAccessedAt",
-    ])
 export class RagPlaygroundSessionEntity extends UuidAbstractEntity {
     /** Client-generated session id (also drives the Qdrant collection name). */
     @Column({

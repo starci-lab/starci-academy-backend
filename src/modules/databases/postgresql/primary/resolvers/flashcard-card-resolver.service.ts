@@ -11,10 +11,10 @@ import {
     TranslationResolverService,
 } from "./translation.service"
 
+@Injectable()
 /**
  * Applies translations to a single flashcard card (question / answer / explanation).
  */
-@Injectable()
 export class FlashcardCardResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

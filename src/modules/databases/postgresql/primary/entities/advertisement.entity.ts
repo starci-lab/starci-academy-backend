@@ -68,12 +68,6 @@ export type AdvertisementMedia =
     | AdvertisementVideoMedia
     | AdvertisementCarouselMedia
 
-/**
- * A dashboard advertisement banner. A paid slot carries a `sponsorName` + higher
- * `priority`; the internal "advertise here" promo is a `isHouseAd` row shown when
- * no paid ad is currently active. The banner media (image / video / carousel) is
- * stored as a discriminated jsonb `media` keyed by `mediaType`.
- */
 // the active-ad lookup filters by placement + is_active then orders by priority
 @Index(["placement",
     "isActive"])
@@ -81,6 +75,12 @@ export type AdvertisementMedia =
 @Unique("UQ_advertisement_slug",
     ["slug"])
 @Entity("advertisements")
+/**
+ * A dashboard advertisement banner. A paid slot carries a `sponsorName` + higher
+ * `priority`; the internal "advertise here" promo is a `isHouseAd` row shown when
+ * no paid ad is currently active. The banner media (image / video / carousel) is
+ * stored as a discriminated jsonb `media` keyed by `mediaType`.
+ */
 export class AdvertisementEntity extends UuidAbstractEntity {
     /** Stable slug from the seed file — used to upsert idempotently. */
     @Column({

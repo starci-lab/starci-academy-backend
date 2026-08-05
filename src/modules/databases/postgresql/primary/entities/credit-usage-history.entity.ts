@@ -24,6 +24,10 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@ObjectType({
+    description: "One AI credit charge, recorded atomically with the unified pool debit.",
+})
+@Entity("credit_usage_histories")
 /**
  * Audit row recording one AI credit charge — written ATOMICALLY by
  * {@link AiEntitlementService.consume} alongside the unified pool debit (same
@@ -34,10 +38,6 @@ import {
  * happen before that row exists, e.g. at grade-time before the attempt is
  * persisted) — correlate by `userId` + `createdAt` + `surface`/`task` instead.
  */
-@ObjectType({
-    description: "One AI credit charge, recorded atomically with the unified pool debit.",
-})
-@Entity("credit_usage_histories")
 export class CreditUsageHistoryEntity extends UuidAbstractEntity {
     /**
      * User the credits were charged to.

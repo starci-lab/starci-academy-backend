@@ -26,15 +26,15 @@ import {
     ChallengeRequirementLangTranslationEntity,
 } from "./challenge-requirement-lang-translation.entity"
 
+@ObjectType({
+    description: "Per-language content of a V2 requirement item (score + title/body + translations).",
+})
+@Entity("challenge_requirement_langs")
 /**
  * Per-programming-language content of a SCHEMA V2 requirement item: non-localized `score` plus
  * default-locale `title` / `body`; per-locale overrides live in
  * {@link ChallengeRequirementLangTranslationEntity}.
  */
-@ObjectType({
-    description: "Per-language content of a V2 requirement item (score + title/body + translations).",
-})
-@Entity("challenge_requirement_langs")
 export class ChallengeRequirementLangEntity extends UuidAbstractEntity {
     /**
      * Programming language (e.g. typescript, java, csharp, go).

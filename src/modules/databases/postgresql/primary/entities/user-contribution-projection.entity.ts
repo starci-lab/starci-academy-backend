@@ -11,6 +11,7 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@Entity("user_contribution_projections")
 /**
  * CQRS projection of a user's GitHub-style contribution calendar, ONE ROW PER
  * (user, calendar year) — GitHub renders a single year at a time and lets you flip
@@ -19,7 +20,6 @@ import {
  * challenges, milestones }] }` for that year. The current year is read with a TTL
  * lazy-refresh (it still grows); past years are immutable once recomputed.
  */
-@Entity("user_contribution_projections")
 export class UserContributionProjectionEntity extends AbstractProjectionEntity {
     /** Target user id — part of the composite primary key. */
     @PrimaryColumn({

@@ -24,15 +24,15 @@ import {
     ContentEntity,
 } from "./content.entity"
 
-/**
- * Tracks a user's interaction with a specific content row (read status, favorites).
- */
 @ObjectType({
     description: "User's interaction state with a specific content (read, favorite).",
 })
 @Entity("user_contents")
 @Unique(["userId",
     "contentId"])
+/**
+ * Tracks a user's interaction with a specific content row (read status, favorites).
+ */
 export class UserContentEntity extends UuidAbstractEntity {
     /**
      * User who owns this state. Nullable during the enrollment re-key transition;

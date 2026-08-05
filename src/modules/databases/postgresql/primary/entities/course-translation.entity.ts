@@ -20,15 +20,15 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a specific course field.",
+})
+@Entity("course_translations")
 /**
  * Translation entity storing localized values for course fields.
  *
  * Primary key: (courseId, locale, field).
  */
-@ObjectType({
-    description: "Localized value for a specific course field.",
-})
-@Entity("course_translations")
 export class CourseTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

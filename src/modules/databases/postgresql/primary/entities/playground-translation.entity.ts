@@ -20,6 +20,10 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a specific playground field.",
+})
+@Entity("playground_translations")
 /**
  * Translation entity storing localized values for playground fields.
  *
@@ -29,10 +33,6 @@ import {
  * Primary key is the composite (playgroundId, locale, field). Mirrors
  * {@link import("./content-translation.entity").ContentTranslationEntity}.
  */
-@ObjectType({
-    description: "Localized value for a specific playground field.",
-})
-@Entity("playground_translations")
 export class PlaygroundTranslationEntity extends AbstractEntity {
     /**
      * Target playground ID (part of composite primary key).

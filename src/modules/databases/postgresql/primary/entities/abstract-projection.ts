@@ -11,6 +11,9 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    isAbstract: true,
+})
 /**
  * Shared base for every CQRS projection entity.
  *
@@ -22,9 +25,6 @@ import {
  * lazy-refresh; `defaultLocale` is the fallback locale for any display text the
  * projection may snapshot (localized via its `*_projection_translations` table).
  */
-@ObjectType({
-    isAbstract: true,
-})
 export abstract class AbstractProjectionEntity extends AbstractEntity {
     /** The aggregate payload (shape is projection-specific; read back as a typed view). */
     @Column({

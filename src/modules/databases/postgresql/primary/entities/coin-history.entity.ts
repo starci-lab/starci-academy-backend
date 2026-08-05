@@ -24,6 +24,13 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@ObjectType({
+    description: "Append-only record of Coin granted to a user (coin-only, never XP).",
+})
+@Unique(["source",
+    "refId"])
+@Index(["user"])
+@Entity("coin_histories")
 /**
  * Append-only audit ledger of Coin a user was granted — SEPARATE from
  * {@link XpHistoryEntity} (real, weighted XP): every row here is a flat,
@@ -37,13 +44,6 @@ import {
  * synchronize-DROP-TYPE trap that a shared native enum column would (see
  * `KpiWeeklyRewardFloorEntity.kpiKey` for the same choice).
  */
-@ObjectType({
-    description: "Append-only record of Coin granted to a user (coin-only, never XP).",
-})
-@Unique(["source",
-    "refId"])
-@Index(["user"])
-@Entity("coin_histories")
 export class CoinHistoryEntity extends UuidAbstractEntity {
     /** User who was granted the Coin. */
     @Field(

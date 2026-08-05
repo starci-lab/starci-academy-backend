@@ -11,6 +11,7 @@ import {
     EnrollmentEntity,
 } from "./enrollment.entity"
 
+@Entity("user_flashcard_course_stats_projections")
 /**
  * CQRS projection of a user's flashcard quick-quiz + review stats for ONE
  * course — ONE ROW PER enrollment. `enrollment_id` alone already uniquely
@@ -28,7 +29,6 @@ import {
  * which used to compute this live on every read). Read with a TTL
  * lazy-refresh; kept fresh by CDC on both source tables.
  */
-@Entity("user_flashcard_course_stats_projections")
 export class UserFlashcardCourseStatsProjectionEntity extends AbstractProjectionEntity {
     /** Owning enrollment id — the natural (primary) key. */
     @PrimaryColumn({

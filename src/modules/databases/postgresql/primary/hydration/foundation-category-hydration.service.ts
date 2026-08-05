@@ -15,6 +15,10 @@ import {
 } from "@modules/exceptions"
 
 @Injectable()
+/**
+ * Loads a foundation category with translations so the public catalog can
+ * resolve locale without a second round-trip.
+ */
 export class FoundationCategoryHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

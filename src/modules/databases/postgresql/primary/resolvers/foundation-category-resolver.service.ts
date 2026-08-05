@@ -11,10 +11,10 @@ import {
     TranslationResolverService,
 } from "./translation.service"
 
+@Injectable()
 /**
  * Applies translations to a foundation category row.
  */
-@Injectable()
 export class FoundationCategoryResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

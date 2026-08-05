@@ -22,13 +22,13 @@ import {
     FoundationCategoryTranslationEntity,
 } from "./foundation-category-translation.entity"
 
-/**
- * Foundation Category entity representing groups of foundations like docker, kubernetes, nodejs, etc.
- */
 @ObjectType({
     description: "Foundation category entity representing groups of technical foundations.",
 })
 @Entity("foundation_categories")
+/**
+ * Foundation Category entity representing groups of foundations like docker, kubernetes, nodejs, etc.
+ */
 export class FoundationCategoryEntity extends UuidAbstractEntity {
     /**
      * Human-readable category title.

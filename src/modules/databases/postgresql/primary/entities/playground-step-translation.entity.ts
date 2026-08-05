@@ -20,6 +20,10 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a specific playground step field.",
+})
+@Entity("playground_step_translations")
 /**
  * Translation entity storing localized values for playground step fields.
  *
@@ -29,10 +33,6 @@ import {
  * Primary key is the composite (playgroundStepId, locale, field). Mirrors
  * {@link import("./content-translation.entity").ContentTranslationEntity}.
  */
-@ObjectType({
-    description: "Localized value for a specific playground step field.",
-})
-@Entity("playground_step_translations")
 export class PlaygroundStepTranslationEntity extends AbstractEntity {
     /**
      * Target playground step ID (part of composite primary key).

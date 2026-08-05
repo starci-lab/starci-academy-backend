@@ -26,13 +26,13 @@ import {
     PreviewContentTranslationEntity,
 } from "./preview-content-translation.entity"
 
-/**
- * A preview content line item in a module (typically bullet/paragraph data).
- */
 @ObjectType({
     description: "A preview content line item in a module.",
 })
 @Entity("preview_contents")
+/**
+ * A preview content line item in a module (typically bullet/paragraph data).
+ */
 export class PreviewContentEntity extends UuidAbstractEntity {
     /**
      * Content line text/body.

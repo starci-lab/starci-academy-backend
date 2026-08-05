@@ -20,14 +20,14 @@ import {
     FlashcardDeckEntity,
 } from "./flashcard-deck.entity"
 
-/**
- * Translation for flashcard deck fields (title, description).
- * Primary key: (flashcardDeckId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a flashcard deck field.",
 })
 @Entity("flashcard_deck_translations")
+/**
+ * Translation for flashcard deck fields (title, description).
+ * Primary key: (flashcardDeckId, locale, field).
+ */
 export class FlashcardDeckTranslationEntity extends AbstractEntity {
     /**
      * Target flashcard deck ID.

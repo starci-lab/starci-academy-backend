@@ -23,13 +23,13 @@ import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
-/**
- * Structured feedback item for a user submission (1:n with user challenge submission).
- */
 @ObjectType({
     description: "Structured feedback item attached to a user challenge submission.",
 })
 @Entity("user_challenge_submission_feedbacks")
+/**
+ * Structured feedback item for a user submission (1:n with user challenge submission).
+ */
 export class UserChallengeSubmissionFeedbackEntity extends UuidAbstractEntity {
     @Field(
         () => String,

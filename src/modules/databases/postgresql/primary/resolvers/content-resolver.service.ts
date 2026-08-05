@@ -20,10 +20,10 @@ import {
     CodeImplementationResolverService,
 } from "./code-implementation-resolver.service"
 
+@Injectable()
 /**
  * Applies translations to a content row.
  */
-@Injectable()
 export class ContentResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

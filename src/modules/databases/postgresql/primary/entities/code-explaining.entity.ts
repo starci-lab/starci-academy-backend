@@ -26,13 +26,13 @@ import {
     CodeExplainingTranslationEntity,
 } from "./code-explaining-translation.entity"
 
-/**
- * Critical code snippet attached to a content (lesson) with explanation.
- */
 @ObjectType({
     description: "Critical code snippet attached to a content with explanation.",
 })
 @Entity("code_explainings")
+/**
+ * Critical code snippet attached to a content (lesson) with explanation.
+ */
 export class CodeExplainingEntity extends UuidAbstractEntity {
     /**
      * The critical code snippet from the lesson repository.

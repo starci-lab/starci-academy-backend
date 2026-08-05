@@ -18,13 +18,13 @@ import {
     QnaTranslationEntity,
 } from "./qna-translation.entity"
 
-/**
- * Frequently asked question and answer pair for a course landing page.
- */
 @ObjectType({
     description: "Question and answer entry for a course."
 })
 @Entity("qnas")
+/**
+ * Frequently asked question and answer pair for a course landing page.
+ */
 export class QnaEntity extends UuidAbstractEntity {
     /**
      * FAQ question text.

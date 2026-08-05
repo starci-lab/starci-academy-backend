@@ -20,14 +20,14 @@ import {
     CodingProblemEntity,
 } from "./coding-problem.entity"
 
-/**
- * Per-locale override for a translatable coding-problem field (`title` or
- * `statement`). Composite primary key: (codingProblemId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a coding-problem field (title or statement).",
 })
 @Entity("coding_problem_translations")
+/**
+ * Per-locale override for a translatable coding-problem field (`title` or
+ * `statement`). Composite primary key: (codingProblemId, locale, field).
+ */
 export class CodingProblemTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

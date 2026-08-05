@@ -20,14 +20,14 @@ import {
     Locale,
 } from "../enums"
 
-/**
- * Translation entity for module fields.
- * Primary key: (moduleId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific module field.",
 })
 @Entity("module_translations")
+/**
+ * Translation entity for module fields.
+ * Primary key: (moduleId, locale, field).
+ */
 export class ModuleTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

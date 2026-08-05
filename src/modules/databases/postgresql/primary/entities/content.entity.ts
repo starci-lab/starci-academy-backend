@@ -46,13 +46,13 @@ import {
     ContentLearningOutcomeEntity,
 } from "./content-learning-outcome.entity"
 
-/**
- * Content attached to a module (title, optional description, body).
- */
 @ObjectType({
     description: "Content attached to a module (title, description, body).",
 })
 @Entity("contents")
+/**
+ * Content attached to a module (title, optional description, body).
+ */
 export class ContentEntity extends UuidAbstractEntity {
     /**
      * Content title.

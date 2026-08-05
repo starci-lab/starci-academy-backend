@@ -22,6 +22,9 @@ import {
     ContentAiSessionEntity,
 } from "./content-ai-session.entity"
 
+@Index(["session"])
+@Index(["enrollment", "content"])
+@Entity("content_ai_messages")
 /**
  * One persisted content-AI chat turn, belonging to a
  * {@link ContentAiSessionEntity} (a named conversation). A content-scope turn also
@@ -33,9 +36,6 @@ import {
  * raw **user** — so `enrollment` and `content` are both nullable. No AI-usage /
  * credit ledger is written for these — content-AI runs on the free local tier.
  */
-@Index(["session"])
-@Index(["enrollment", "content"])
-@Entity("content_ai_messages")
 export class ContentAiMessageEntity extends UuidAbstractEntity {
     /**
      * Conversation this turn belongs to. Nullable for back-compat with legacy

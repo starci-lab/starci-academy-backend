@@ -20,13 +20,13 @@ import {
     MilestoneTaskCodeImplementationEntity,
 } from "./milestone-task-code-implementation.entity"
 
-/**
- * Translation for {@link MilestoneTaskCodeImplementationEntity} fields (`guide`, `example`).
- */
 @ObjectType({
     description: "Localized value for a milestone task code implementation field.",
 })
 @Entity("milestone_task_code_implementation_translations")
+/**
+ * Translation for {@link MilestoneTaskCodeImplementationEntity} fields (`guide`, `example`).
+ */
 export class MilestoneTaskCodeImplementationTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

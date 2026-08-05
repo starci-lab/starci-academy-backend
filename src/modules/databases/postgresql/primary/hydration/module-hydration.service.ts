@@ -18,6 +18,10 @@ import {
 } from "@modules/exceptions"
 
 @Injectable()
+/**
+ * Loads a module with preview contents and lessons (plus nested challenges)
+ * so the learn shell can render the module tree from one hydration call.
+ */
 export class ModuleHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

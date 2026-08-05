@@ -45,15 +45,15 @@ import {
     MilestoneTaskBriefEntity,
 } from "./milestone-task-brief.entity"
 
+@ObjectType({
+    description: "A task belonging to a milestone.",
+})
+@Entity("milestone_tasks")
 /**
  * A task belonging to a milestone.
  * Seeded from `.mount/data/courses/{course}/tasks/{milestone}/{task}/`.
  * Translatable fields (title, description) live in translations.
  */
-@ObjectType({
-    description: "A task belonging to a milestone.",
-})
-@Entity("milestone_tasks")
 export class MilestoneTaskEntity extends UuidAbstractEntity {
     /**
      * Human-facing stable identifier = the task mount folder slug (the numeric index

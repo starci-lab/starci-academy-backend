@@ -17,6 +17,15 @@ import {
     MockInterviewLangTranslationEntity,
 } from "./mock-interview-lang-translation.entity"
 
+@Entity("mock_interview_langs")
+@Index("idx_mock_interview_langs_interview",
+    ["mockInterview"])
+@Index("uq_mock_interview_langs_interview_lang",
+    ["mockInterview",
+        "lang"],
+    {
+        unique: true,
+    })
 /**
  * Per-programming-language variant of a {@link MockInterviewEntity}'s GIVEN CODE
  * (`kind ∈ {debug, review, optimize, coding}`) — one row per language
@@ -27,15 +36,6 @@ import {
  * The conceptual `prompt`/`rubric`/`idealAnswer` stay on the parent, shared
  * across every language variant.
  */
-@Entity("mock_interview_langs")
-@Index("idx_mock_interview_langs_interview",
-    ["mockInterview"])
-@Index("uq_mock_interview_langs_interview_lang",
-    ["mockInterview",
-        "lang"],
-    {
-        unique: true,
-    })
 export class MockInterviewLangEntity extends UuidAbstractEntity {
     /** Programming language of this variant (or `agnostic`). */
     @Column({

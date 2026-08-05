@@ -26,6 +26,10 @@ import {
     TransactionEntity,
 } from "./transaction.entity"
 
+@ObjectType({
+    description: "An installment (trả góp) payment plan — a fixed new-purchase schedule or a legacy flexible arrears pool.",
+})
+@Entity("installment_plans")
 /**
  * An installment (trả góp) payment plan — either:
  * - `Fixed` — a NEW purchase paying in installments (fixed 3/6/12-month
@@ -41,10 +45,6 @@ import {
  * single course — see `originTransaction` (the transaction may itself fan out
  * to several `TransactionItemEntity` lines / enrollments).
  */
-@ObjectType({
-    description: "An installment (trả góp) payment plan — a fixed new-purchase schedule or a legacy flexible arrears pool.",
-})
-@Entity("installment_plans")
 export class InstallmentPlanEntity extends UuidAbstractEntity {
     /** The learner this plan belongs to. */
     @Field(

@@ -14,12 +14,12 @@ import {
     FlashcardCardResolverService,
 } from "./flashcard-card-resolver.service"
 
+@Injectable()
 /**
  * Applies translations to a flashcard deck (title / description) and recurses
  * into its cards. Mutates in place and strips the consumed `translations` arrays,
  * mirroring {@link ContentResolverService}.
  */
-@Injectable()
 export class FlashcardDeckResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

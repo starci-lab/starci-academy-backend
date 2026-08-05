@@ -6,6 +6,7 @@ import {
     AbstractProjectionEntity,
 } from "./abstract-projection"
 
+@Entity("trending_contents_projections")
 /**
  * CQRS projection of the platform-wide "trending lessons this week" board — a
  * SINGLE GLOBAL ROW keyed by the constant `key` ("global"). The inherited jsonb
@@ -14,7 +15,6 @@ import {
  * runs only in the projection's recompute, never inline at read time). Read with a
  * TTL lazy-refresh; kept fresh by CDC on `user_contents`.
  */
-@Entity("trending_contents_projections")
 export class TrendingContentsProjectionEntity extends AbstractProjectionEntity {
     /** Constant partition key ("global") — there is exactly one trending row. */
     @PrimaryColumn({

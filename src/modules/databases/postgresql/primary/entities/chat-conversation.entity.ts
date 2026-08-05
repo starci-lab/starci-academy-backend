@@ -22,11 +22,6 @@ import {
     GraphQLTypeChatConversationType,
 } from "../enums"
 
-/**
- * A chat conversation. There is exactly one `community` conversation (the global
- * member room, `member` = null) and one `founderDm` conversation per member (the
- * owning `member`). Messages ({@link ChatMessageEntity}) hang off a conversation.
- */
 @ObjectType({
     description: "A chat conversation (community room or founder DM).",
 })
@@ -38,6 +33,11 @@ import {
         "member",
     ],
 )
+/**
+ * A chat conversation. There is exactly one `community` conversation (the global
+ * member room, `member` = null) and one `founderDm` conversation per member (the
+ * owning `member`). Messages ({@link ChatMessageEntity}) hang off a conversation.
+ */
 export class ChatConversationEntity extends UuidAbstractEntity {
     /**
      * Kind of conversation (community room vs founder DM).

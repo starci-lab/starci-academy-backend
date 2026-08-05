@@ -21,11 +21,6 @@ import {
     CodingProblemEntity,
 } from "./coding-problem.entity"
 
-/**
- * Boilerplate starter code shown in the editor for one (problem, language)
- * pair — e.g. the function signature the user fills in. One row per supported
- * language; uniqueness is enforced on (codingProblemId, language).
- */
 @ObjectType(
     "CodingProblemStarterCode",
     {
@@ -38,6 +33,11 @@ import {
     ["problem",
         "language"],
 )
+/**
+ * Boilerplate starter code shown in the editor for one (problem, language)
+ * pair — e.g. the function signature the user fills in. One row per supported
+ * language; uniqueness is enforced on (codingProblemId, language).
+ */
 export class CodingProblemStarterCodeEntity extends UuidAbstractEntity {
     @Field(
         () => GraphQLTypeCodingLanguage,

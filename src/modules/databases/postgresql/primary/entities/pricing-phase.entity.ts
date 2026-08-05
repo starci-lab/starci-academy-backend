@@ -23,13 +23,13 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 
-/**
- * Each course has exactly three pricing tiers: Pioneer, EarlyBird, Regular. 
- */
 @ObjectType({
     description: "Each course has exactly three pricing tiers: Pioneer, EarlyBird, Regular.",
 })
 @Entity("pricing_phases")
+/**
+ * Each course has exactly three pricing tiers: Pioneer, EarlyBird, Regular. 
+ */
 export class PricingPhaseEntity extends UuidAbstractEntity {
     /**
      * Course this pricing phase belongs to.

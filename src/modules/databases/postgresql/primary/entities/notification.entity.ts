@@ -41,6 +41,10 @@ export interface NotificationI18nText {
     params?: Record<string, string>
 }
 
+/**
+ * Jsonb blob on a {@link NotificationEntity} so the bell list can render i18n
+ * title/body plus an optional click target without joining the source table.
+ */
 export interface NotificationMetadata {
     /** Headline, rendered via i18n (key + params) — no stored text. */
     title: NotificationI18nText
@@ -50,6 +54,10 @@ export interface NotificationMetadata {
     target?: NotificationTargetRef
 }
 
+@Index(["user",
+    "readAt"])
+@Index(["user"])
+@Entity("notifications")
 /**
  * A single in-app notification delivered to one recipient (`user`). Unlike the
  * public {@link ActivityEntity} feed, this row is private and carries a read
@@ -58,10 +66,6 @@ export interface NotificationMetadata {
  * `readAt IS NULL` rows. The composite `(user, readAt)` index keeps both the
  * unread count and the unread-only listing cheap.
  */
-@Index(["user",
-    "readAt"])
-@Index(["user"])
-@Entity("notifications")
 export class NotificationEntity extends UuidAbstractEntity {
     /**
      * The recipient the notification is delivered to.

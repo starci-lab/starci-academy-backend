@@ -24,14 +24,14 @@ import {
     UserMilestoneTaskAttemptEntity,
 } from "./user-milestone-task-attempt.entity"
 
-/**
- * Structured feedback item for a user milestone task attempt.
- * Describes what implementation is missing or wrong.
- */
 @ObjectType({
     description: "Structured feedback item for a user milestone task attempt.",
 })
 @Entity("user_milestone_task_attempt_feedbacks")
+/**
+ * Structured feedback item for a user milestone task attempt.
+ * Describes what implementation is missing or wrong.
+ */
 export class UserMilestoneTaskAttemptFeedbackEntity extends UuidAbstractEntity {
     /**
      * Short summary message for this feedback item.

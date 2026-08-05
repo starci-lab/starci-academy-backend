@@ -20,14 +20,14 @@ import {
     LivestreamSessionEntity,
 } from "./livestream-session.entity"
 
-/**
- * Localized overrides for livestream session fields (e.g. note).
- * Primary key: (livestreamSessionId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a livestream session field.",
 })
 @Entity("livestream_session_translations")
+/**
+ * Localized overrides for livestream session fields (e.g. note).
+ * Primary key: (livestreamSessionId, locale, field).
+ */
 export class LivestreamSessionTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

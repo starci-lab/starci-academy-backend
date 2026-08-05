@@ -10,10 +10,10 @@ import {
 import {
     TranslationResolverService,
 } from "./translation.service"
+@Injectable()
 /**
  * Applies translations to a course Q&A row.
  */
-@Injectable()
 export class QnaResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

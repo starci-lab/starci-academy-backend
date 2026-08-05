@@ -19,13 +19,6 @@ import {
     FlashcardCardEntity,
 } from "./flashcard-card.entity"
 
-/**
- * Spaced-repetition (SM-2) review state for one user × one flashcard card. Holds
- * the SM-2 scheduling fields (ease / interval / repetitions) plus the computed
- * `dueAt` that drives the "due cards" queue. One row is upserted per
- * (user, card) on each `reviewFlashcard` mutation; a card with NO row yet is
- * treated as brand-new (immediately due).
- */
 @Entity("user_flashcard_reviews")
 // fast lookup of a user's review rows (and their due-ness) for the due queue
 @Index("idx_user_flashcard_reviews_user_due",
@@ -33,6 +26,13 @@ import {
         "userId",
         "dueAt",
     ])
+/**
+ * Spaced-repetition (SM-2) review state for one user × one flashcard card. Holds
+ * the SM-2 scheduling fields (ease / interval / repetitions) plus the computed
+ * `dueAt` that drives the "due cards" queue. One row is upserted per
+ * (user, card) on each `reviewFlashcard` mutation; a card with NO row yet is
+ * treated as brand-new (immediately due).
+ */
 export class UserFlashcardReviewEntity extends UuidAbstractEntity {
     /**
      * The user this review state belongs to. Nullable during the enrollment

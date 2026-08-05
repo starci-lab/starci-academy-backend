@@ -20,14 +20,14 @@ import {
     PrerequisiteEntity,
 } from "./prerequisite.entity"
 
-/**
- * Translation entity for prerequisite fields.
- * Primary key: (prerequisiteId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific prerequisite field.",
 })
 @Entity("prerequisite_translations")
+/**
+ * Translation entity for prerequisite fields.
+ * Primary key: (prerequisiteId, locale, field).
+ */
 export class PrerequisiteTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

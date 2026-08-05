@@ -27,6 +27,13 @@ import {
     CourseEntity,
 } from "./course.entity"
 
+@ObjectType({
+    description: "Append-only record of XP earned by a user.",
+})
+@Unique(["source",
+    "refId"])
+@Index(["user"])
+@Entity("xp_histories")
 /**
  * Append-only audit ledger of XP a user earned. One row per earning event
  * (passed challenge attempt, first lesson read, passed milestone task). The
@@ -36,13 +43,6 @@ import {
  * `(source, refId)` is unique so the same event can never be double-recorded
  * (e.g. a re-graded attempt, a re-read lesson, a re-passed milestone task).
  */
-@ObjectType({
-    description: "Append-only record of XP earned by a user.",
-})
-@Unique(["source",
-    "refId"])
-@Index(["user"])
-@Entity("xp_histories")
 export class XpHistoryEntity extends UuidAbstractEntity {
     /**
      * User who earned the XP.

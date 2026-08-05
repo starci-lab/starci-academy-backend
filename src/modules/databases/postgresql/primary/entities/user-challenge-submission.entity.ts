@@ -30,13 +30,13 @@ import {
     UserChallengeSubmissionAttemptEntity,
 } from "./user-challenge-submission-attempt.entity"
 
-/**
- * Join table between user and a challenge submission.
- */
 @ObjectType({
     description: "Join table between user and a challenge submission.",
 })
 @Entity("user_challenge_submissions")
+/**
+ * Join table between user and a challenge submission.
+ */
 export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     /**
      * User who is linked to the submission. Nullable during the enrollment re-key

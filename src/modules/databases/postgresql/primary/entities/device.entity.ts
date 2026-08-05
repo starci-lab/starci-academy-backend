@@ -13,12 +13,6 @@ import {
     UserEntity,
 } from "./user.entity"
 
-/**
- * A device/browser a user has authenticated from, identified by its
- * client-generated fingerprint. Used for audit and anti-cheat correlation
- * (which IPs/devices a user submits from). One row per (user, fingerprint);
- * `lastSeenAt` is bumped on each login from that device.
- */
 @Entity("devices")
 @Unique(
     "UQ_devices_user_fingerprint",
@@ -27,6 +21,12 @@ import {
         "fingerprint",
     ],
 )
+/**
+ * A device/browser a user has authenticated from, identified by its
+ * client-generated fingerprint. Used for audit and anti-cheat correlation
+ * (which IPs/devices a user submits from). One row per (user, fingerprint);
+ * `lastSeenAt` is bumped on each login from that device.
+ */
 export class DeviceEntity extends UuidAbstractEntity {
     @ManyToOne(
         () => UserEntity,

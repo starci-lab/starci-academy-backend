@@ -22,13 +22,6 @@ import {
     UserEntity,
 } from "./user.entity"
 
-/**
- * A threaded comment on a community post. Replies point at a parent comment via
- * `parentComment` (self relation), enabling arbitrarily nested discussion.
- * Mirrors {@link ContentCommentEntity} but scoped to a {@link CommunityPostEntity}
- * instead of a lesson content. Deletion is soft (`isDeleted`) so the thread shape
- * and child replies survive.
- */
 @ObjectType({
     description: "A threaded comment on a community post (supports nested replies).",
 })
@@ -40,6 +33,13 @@ import {
         "parentComment",
     ],
 )
+/**
+ * A threaded comment on a community post. Replies point at a parent comment via
+ * `parentComment` (self relation), enabling arbitrarily nested discussion.
+ * Mirrors {@link ContentCommentEntity} but scoped to a {@link CommunityPostEntity}
+ * instead of a lesson content. Deletion is soft (`isDeleted`) so the thread shape
+ * and child replies survive.
+ */
 export class CommunityPostCommentEntity extends UuidAbstractEntity {
     /**
      * Raw markdown/plain body authored by the user.

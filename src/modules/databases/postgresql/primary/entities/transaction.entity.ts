@@ -34,13 +34,13 @@ import {
     GraphQLTypeAiSubTier,
 } from "../enums"
 
-/**
- * Transaction entity: capture the payment details of a user for a course (course may be null).
- */
 @ObjectType({
     description: "Transaction capture the payment details of a user for a course (course may be null).",
 })
 @Entity("transactions")
+/**
+ * Transaction entity: capture the payment details of a user for a course (course may be null).
+ */
 export class TransactionEntity extends UuidAbstractEntity {
     /**
      * The user who made the preflight transaction.

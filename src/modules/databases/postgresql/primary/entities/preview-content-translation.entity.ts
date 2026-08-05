@@ -20,14 +20,14 @@ import {
     Locale,
 } from "../enums"
 
-/**
- * Translation entity for preview content fields.
- * Primary key: (previewContentId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific preview content field.",
 })
 @Entity("preview_content_translations")
+/**
+ * Translation entity for preview content fields.
+ * Primary key: (previewContentId, locale, field).
+ */
 export class PreviewContentTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

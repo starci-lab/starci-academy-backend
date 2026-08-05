@@ -11,6 +11,11 @@ import {
 @ObjectType({
     isAbstract: true
 })
+/**
+ * Shared TypeORM + GraphQL timestamp base. Every table inherits `createdAt` /
+ * `updatedAt` from here so projections and TTL refresh can key off one contract
+ * instead of each entity inventing its own timestamp columns.
+ */
 export abstract class AbstractEntity {
     @Exclude()
     @Field(
@@ -49,6 +54,11 @@ export abstract class AbstractEntity {
 @ObjectType({
     isAbstract: true
 })
+/**
+ * Adds a generated UUID primary key on top of {@link AbstractEntity}. Use this
+ * for rows that other tables / GraphQL leaves address by `id`; composite-key
+ * tables (translations) stay on {@link AbstractEntity} alone.
+ */
 export abstract class UuidAbstractEntity extends AbstractEntity {
     @Field(
         () => ID,

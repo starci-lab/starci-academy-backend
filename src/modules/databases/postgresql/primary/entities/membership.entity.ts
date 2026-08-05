@@ -19,6 +19,10 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@ObjectType({
+    description: "Per-user community membership: premium blog + community + course discount.",
+})
+@Entity("memberships")
 /**
  * Per-user community membership (1-1 with {@link UserEntity}).
  *
@@ -30,10 +34,6 @@ import {
  * Membership is intentionally separate from course enrollment — it never
  * grants access to course content, only the member perks listed above.
  */
-@ObjectType({
-    description: "Per-user community membership: premium blog + community + course discount.",
-})
-@Entity("memberships")
 export class MembershipEntity extends UuidAbstractEntity {
     /** Lifecycle status of the membership. */
     @Field(

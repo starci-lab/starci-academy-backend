@@ -7,7 +7,9 @@ import {
 
 /** Supported locales for translations. */
 export enum Locale {
+    /** Serve Vietnamese copy; missing Vi falls through to `fallbackLocale`. */
     Vi = "vi",
+    /** Serve English copy; also the usual `defaultLocale` / fallback. */
     En = "en",
 }
 

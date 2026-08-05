@@ -26,13 +26,13 @@ import {
     FoundationTagTranslationEntity,
 } from "./foundation-tag-translation.entity"
 
-/**
- * Tag attached to a foundation item (e.g. Docker, Video).
- */
 @ObjectType({
     description: "Tag value attached to a foundation item.",
 })
 @Entity("foundation_tags")
+/**
+ * Tag attached to a foundation item (e.g. Docker, Video).
+ */
 export class FoundationTagEntity extends UuidAbstractEntity {
     /**
      * Display value (default locale); override per locale via `translations` field `value`.

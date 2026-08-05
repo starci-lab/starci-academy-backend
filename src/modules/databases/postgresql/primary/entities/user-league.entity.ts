@@ -19,6 +19,7 @@ import {
     LeagueCohortEntity,
 } from "./league-cohort.entity"
 
+@Entity("user_leagues")
 /**
  * A user's standing in the global weekly league — exactly one row per user.
  *
@@ -28,7 +29,6 @@ import {
  * current cohort). The natural primary key is `user_id`, so the table is a flat
  * per-user projection of league state, recomputed only at the weekly reset.
  */
-@Entity("user_leagues")
 export class UserLeagueEntity extends AbstractEntity {
     /** Owning user id — the natural primary key (one row per user). */
     @PrimaryColumn({

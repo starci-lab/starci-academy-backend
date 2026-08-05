@@ -12,12 +12,6 @@ import {
     UserEntity,
 } from "./user.entity"
 
-/**
- * Directed follow edge between two users (GitHub-style social graph).
- *
- * A row means `follower` follows `following`. The pair is unique so a user can
- * follow another at most once; both sides cascade-delete with the user.
- */
 @Entity("user_follows")
 @Unique(
     "UQ_user_follows_follower_following",
@@ -26,6 +20,12 @@ import {
         "following",
     ],
 )
+/**
+ * Directed follow edge between two users (GitHub-style social graph).
+ *
+ * A row means `follower` follows `following`. The pair is unique so a user can
+ * follow another at most once; both sides cascade-delete with the user.
+ */
 export class UserFollowEntity extends UuidAbstractEntity {
     /** The user who initiated the follow. */
     @ManyToOne(

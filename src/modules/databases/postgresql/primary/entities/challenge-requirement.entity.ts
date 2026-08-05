@@ -26,15 +26,15 @@ import {
     ChallengeRequirementLangEntity,
 } from "./challenge-requirement-lang.entity"
 
+@ObjectType({
+    description: "A SCHEMA V2 challenge requirement item (one per position).",
+})
+@Entity("challenge_requirements")
 /**
  * SCHEMA V2 requirement ITEM for a challenge (normalized — no jsonb). One row per requirement
  * position; per-programming-language `score`, `title`, and `body` live under
  * {@link ChallengeRequirementLangEntity}.
  */
-@ObjectType({
-    description: "A SCHEMA V2 challenge requirement item (one per position).",
-})
-@Entity("challenge_requirements")
 export class ChallengeRequirementEntity extends UuidAbstractEntity {
     /**
      * Display order of this requirement within the challenge (agnostic position).

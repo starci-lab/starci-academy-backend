@@ -9,9 +9,13 @@ import {
  * The status of a job.
  */
 export enum JobStatus {
+    /** Worker has not claimed it yet — client keeps polling / subscribing. */
     Queued = "queued",
+    /** In-flight — UI shows progress and must not resubmit as a new job. */
     Processing = "processing",
+    /** Finished successfully — result payload is safe to read. */
     Completed = "completed",
+    /** Terminal error recorded — UI may offer retry as a new enqueue. */
     Failed = "failed",
 }
 

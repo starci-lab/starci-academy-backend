@@ -20,6 +20,10 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a content-engagement projection field.",
+})
+@Entity("content_engagement_projection_translations")
 /**
  * Localized overrides for {@link ContentEngagementProjectionEntity} fields.
  *
@@ -28,10 +32,6 @@ import {
  * display text on the projection can be localized without a schema change.
  * Composite primary key (contentId, locale, field).
  */
-@ObjectType({
-    description: "Localized value for a content-engagement projection field.",
-})
-@Entity("content_engagement_projection_translations")
 export class ContentEngagementProjectionTranslationEntity extends AbstractEntity {
     /** Target projection natural key (content id) — part of the composite PK. */
     @Field(

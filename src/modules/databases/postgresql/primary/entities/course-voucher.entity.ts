@@ -30,13 +30,6 @@ import {
     UserEntity,
 } from "./user.entity"
 
-/**
- * One discount voucher minted by redeeming a `kind: "voucher"` Coin-shop
- * reward. Percent- or flat-VND-off, scoped to one course or any course
- * (`course = null`), redeemable once. `status` tracks its lifecycle across a
- * checkout attempt: `unused` → `reserved` (a pending transaction claimed it) →
- * `used` (that transaction succeeded) or back to `unused` (it failed/expired).
- */
 @Index(["user"])
 @Index(
     "uq_course_vouchers_code",
@@ -49,6 +42,13 @@ import {
     description: "A discount voucher minted from the Coin shop.",
 })
 @Entity("course_vouchers")
+/**
+ * One discount voucher minted by redeeming a `kind: "voucher"` Coin-shop
+ * reward. Percent- or flat-VND-off, scoped to one course or any course
+ * (`course = null`), redeemable once. `status` tracks its lifecycle across a
+ * checkout attempt: `unused` → `reserved` (a pending transaction claimed it) →
+ * `used` (that transaction succeeded) or back to `unused` (it failed/expired).
+ */
 export class CourseVoucherEntity extends UuidAbstractEntity {
     /** The user who redeemed the reward that minted this voucher. */
     @ManyToOne(

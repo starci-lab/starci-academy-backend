@@ -23,6 +23,8 @@ import {
     UserCourseProgressProjectionTranslationEntity,
 } from "./user-course-progress-projection-translation.entity"
 
+@Index(["courseId"])
+@Entity("user_course_progress_projections")
 /**
  * CQRS projection of a user's progress in a course (Kiểu B — composite key of
  * two foreign keys).
@@ -34,8 +36,6 @@ import {
  * that ordering (created out-of-band — TypeORM `synchronize` does not emit
  * expression indexes). The plain `course_id` index here covers the WHERE filter.
  */
-@Index(["courseId"])
-@Entity("user_course_progress_projections")
 export class UserCourseProgressProjectionEntity extends AbstractProjectionEntity {
     /** Owner user id — first half of the composite primary key. */
     @PrimaryColumn({

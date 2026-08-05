@@ -5,11 +5,11 @@ import type {
     EntityManager,
 } from "typeorm"
 
+@Injectable()
 /**
  * PostgreSQL transaction-scoped advisory locks (`pg_advisory_xact_lock`).
  * Use the **same** {@link EntityManager} as the active transaction when calling these methods.
  */
-@Injectable()
 export class PostgreSqlAdvisoryLockService {
     /**
      * Blocks until this session holds an exclusive advisory lock for `lockKey`,

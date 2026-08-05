@@ -14,6 +14,13 @@ import {
     BlogCategory,
 } from "../enums"
 
+// the listing reads published posts newest-first, optionally filtered by category
+@Index(["isPublished",
+    "publishedAt"])
+// stable natural key for idempotent seeding from mount data
+@Unique("UQ_blog_post_slug",
+    ["slug"])
+@Entity("blog_posts")
 /**
  * A blog post authored by the team and seeded from `.mount/data/blog/blog.md`
  * (mount markdown grammar). Bilingual `title` / `excerpt` / `body` / `ctaLabel`
@@ -24,13 +31,6 @@ import {
  * Pure persistence entity: GraphQL exposes only locale-resolved projections via
  * the blog query response types, so this carries no `@Field` decorators.
  */
-// the listing reads published posts newest-first, optionally filtered by category
-@Index(["isPublished",
-    "publishedAt"])
-// stable natural key for idempotent seeding from mount data
-@Unique("UQ_blog_post_slug",
-    ["slug"])
-@Entity("blog_posts")
 export class BlogPostEntity extends UuidAbstractEntity {
     /** Stable slug from the seed file — used to upsert idempotently and as the FE `/blog/[slug]` route key. */
     @Column({

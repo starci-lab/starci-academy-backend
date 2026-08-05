@@ -8,10 +8,10 @@ import {
     Locale,
 } from "../enums"
 
+@Injectable()
 /**
  * Applies locale content resolution to personal project context rows.
  */
-@Injectable()
 export class PersonalProjectContextResolverService {
     /**
      * Transforms a personal project context row to the requested locale.

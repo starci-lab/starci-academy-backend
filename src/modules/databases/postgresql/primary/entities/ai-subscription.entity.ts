@@ -41,6 +41,10 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@ObjectType({
+    description: "Per-user AI entitlement: Auto allowance + Premium credits.",
+})
+@Entity("ai_subscriptions")
 /**
  * Per-user AI entitlement (1-1 with {@link UserEntity}).
  *
@@ -54,10 +58,6 @@ import {
  * Counters track credits spent WITHIN the current window; remaining = limit −
  * used, where the limit = free base + (tier catalog credits when subscribed).
  */
-@ObjectType({
-    description: "Per-user AI entitlement: Auto allowance + Premium credits.",
-})
-@Entity("ai_subscriptions")
 export class AiSubscriptionEntity extends UuidAbstractEntity {
     /** Paid tier; null = free (Auto only). */
     @Field(

@@ -14,6 +14,15 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@Index(["user"])
+@Unique(
+    "uq_weekly_challenge_claims_user_week",
+    [
+        "userId",
+        "weekStartAt",
+    ],
+)
+@Entity("weekly_challenge_claims")
 /**
  * One per (user, ISO week): proof that a user claimed the coin reward for
  * passing that week's auto-rotated weekly-challenge event. The row exists ONLY
@@ -24,15 +33,6 @@ import {
  * `weekEndAt`, so the leaderboard window and the claim window can never drift
  * apart. `coin_reward` snapshots the catalog value at claim time.
  */
-@Index(["user"])
-@Unique(
-    "uq_weekly_challenge_claims_user_week",
-    [
-        "userId",
-        "weekStartAt",
-    ],
-)
-@Entity("weekly_challenge_claims")
 export class WeeklyChallengeClaimEntity extends UuidAbstractEntity {
     /** The user who claimed the reward. */
     @ManyToOne(

@@ -65,6 +65,14 @@ export interface FlashcardQuizSessionWeakTag {
     contentId?: string
 }
 
+@Entity("flashcard_quiz_sessions")
+// fast per-enrollment session lookup (mirrors mock_interview_sessions' own
+// index) — not the primary lookup path (that's by `id`), but useful for
+// cleanup/debug queries scoped to one enrollment
+@Index("idx_flashcard_quiz_sessions_enrollment",
+    [
+        "enrollmentId",
+    ])
 /**
  * One resumable draw of the flashcard quick-quiz ("Hỏi nhanh") flow —
  * "resume flashcard quiz session" (2026-07-08), mirroring the SAME
@@ -77,14 +85,6 @@ export interface FlashcardQuizSessionWeakTag {
  * `completeFlashcardQuizSession` flips the row to "completed" once the XP
  * grant succeeds.
  */
-@Entity("flashcard_quiz_sessions")
-// fast per-enrollment session lookup (mirrors mock_interview_sessions' own
-// index) — not the primary lookup path (that's by `id`), but useful for
-// cleanup/debug queries scoped to one enrollment
-@Index("idx_flashcard_quiz_sessions_enrollment",
-    [
-        "enrollmentId",
-    ])
 export class FlashcardQuizSessionEntity extends UuidAbstractEntity {
     /**
      * Enrollment this quiz draw belongs to (user × course) — the anchor every

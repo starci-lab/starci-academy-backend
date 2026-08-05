@@ -12,12 +12,12 @@ import {
     MockInterviewLangEntity,
 } from "./mock-interview-lang.entity"
 
+@Entity("mock_interview_lang_translations")
 /**
  * Bilingual override for one field of {@link MockInterviewLangEntity} (currently
  * only `givenCode`), keyed `(mockInterviewLangId, locale, field)` — same shape as
  * {@link MockInterviewTranslationEntity}/`MilestoneTaskBriefTranslationEntity`.
  */
-@Entity("mock_interview_lang_translations")
 export class MockInterviewLangTranslationEntity extends AbstractEntity {
     @PrimaryColumn({
         name: "mock_interview_lang_id",

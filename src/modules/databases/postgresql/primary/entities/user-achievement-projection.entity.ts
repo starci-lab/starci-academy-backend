@@ -11,6 +11,7 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@Entity("user_achievement_projections")
 /**
  * CQRS projection of a user's achievement wall, ONE ROW PER user. The inherited
  * jsonb `value` holds `{ data: [...achievements], count }` — the computed badge
@@ -18,7 +19,6 @@ import {
  * net); the achievement CDC listener INVALIDATES the row (hard delete) whenever a
  * source metric changes, so the next read recomputes + re-awards on the spot.
  */
-@Entity("user_achievement_projections")
 export class UserAchievementProjectionEntity extends AbstractProjectionEntity {
     /** Target user id — the primary key. */
     @PrimaryColumn({

@@ -26,14 +26,14 @@ import {
     ChallengePrerequisiteLangTranslationEntity,
 } from "./challenge-prerequisite-lang-translation.entity"
 
-/**
- * Per-programming-language row of a SCHEMA V2 prerequisite item. The default-locale `text` is stored
- * on this row; per-locale overrides live in {@link ChallengePrerequisiteLangTranslationEntity}.
- */
 @ObjectType({
     description: "Per-language row of a V2 prerequisite item (text + per-locale translations).",
 })
 @Entity("challenge_prerequisite_langs")
+/**
+ * Per-programming-language row of a SCHEMA V2 prerequisite item. The default-locale `text` is stored
+ * on this row; per-locale overrides live in {@link ChallengePrerequisiteLangTranslationEntity}.
+ */
 export class ChallengePrerequisiteLangEntity extends UuidAbstractEntity {
     /**
      * Programming language (e.g. typescript, java, csharp, go).

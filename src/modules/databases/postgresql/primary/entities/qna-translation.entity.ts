@@ -20,14 +20,14 @@ import {
     QnaEntity,
 } from "./qna.entity"
 
-/**
- * Translation entity for Q&A fields.
- * Primary key: (qnaId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific Q&A field.",
 })
 @Entity("qna_translations")
+/**
+ * Translation entity for Q&A fields.
+ * Primary key: (qnaId, locale, field).
+ */
 export class QnaTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

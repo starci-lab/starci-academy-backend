@@ -14,11 +14,6 @@ import {
     ChangelogCategory,
 } from "../enums"
 
-/**
- * A system changelog entry shown in the dashboard right rail ("Latest from our
- * changelog"). Bilingual title/body are inline jsonb; ordered by `publishedAt`
- * newest-first. Seeded from `.mount/data/changelog`.
- */
 // the rail lists published entries newest-first
 @Index(["isPublished",
     "publishedAt"])
@@ -26,6 +21,11 @@ import {
 @Unique("UQ_changelog_entry_slug",
     ["slug"])
 @Entity("changelog_entries")
+/**
+ * A system changelog entry shown in the dashboard right rail ("Latest from our
+ * changelog"). Bilingual title/body are inline jsonb; ordered by `publishedAt`
+ * newest-first. Seeded from `.mount/data/changelog`.
+ */
 export class ChangelogEntryEntity extends UuidAbstractEntity {
     /** Stable slug from the seed file — used to upsert idempotently. */
     @Column({

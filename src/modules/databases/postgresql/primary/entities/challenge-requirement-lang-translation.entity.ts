@@ -20,14 +20,14 @@ import {
     ChallengeRequirementLangEntity,
 } from "./challenge-requirement-lang.entity"
 
-/**
- * Translation for V2 requirement language-row fields (`title`, `body`).
- * Primary key: (challengeRequirementLangId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a V2 requirement language-row field.",
 })
 @Entity("challenge_requirement_lang_translations")
+/**
+ * Translation for V2 requirement language-row fields (`title`, `body`).
+ * Primary key: (challengeRequirementLangId, locale, field).
+ */
 export class ChallengeRequirementLangTranslationEntity extends AbstractEntity {
     /** Parent requirement language row id (composite PK part). */
     @Field(() => String)

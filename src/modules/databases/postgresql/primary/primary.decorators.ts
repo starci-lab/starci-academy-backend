@@ -5,5 +5,9 @@ import {
     POSTGRESQL_PRIMARY 
 } from "./constants"
 
-// InjectPostgresql function to inject the postgresql connection based on options
+/**
+ * Nest param decorator that binds the PRIMARY postgres EntityManager. Injecting
+ * the wrong connection would read/write sandbox or analytics instead of live
+ * course data.
+ */
 export const InjectPrimaryPostgreSQLEntityManager = () => InjectEntityManager(POSTGRESQL_PRIMARY)

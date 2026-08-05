@@ -20,14 +20,14 @@ import {
     CodeExplainingEntity,
 } from "./code-explaining.entity"
 
-/**
- * Translation for code explaining fields (`code`, `explain`).
- * Primary key: (codeExplainingId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a code explaining field.",
 })
 @Entity("code_explaining_translations")
+/**
+ * Translation for code explaining fields (`code`, `explain`).
+ * Primary key: (codeExplainingId, locale, field).
+ */
 export class CodeExplainingTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

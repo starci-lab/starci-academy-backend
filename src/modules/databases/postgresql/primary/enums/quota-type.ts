@@ -9,7 +9,9 @@ import {
  * Type of quota applied to a payment gateway.
  */
 export enum QuotaType {
+    /** Fixed total for the package lifetime — remaining quota never auto-resets. */
     Package = "package",
+    /** Remaining quota resets at month start; unused units do not roll over. */
     Monthly = "monthly",
 }
 

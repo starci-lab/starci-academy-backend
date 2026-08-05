@@ -19,14 +19,14 @@ import {
     TemplateCVTranslationEntity,
 } from "./template-cv-translation.entity"
 
-/**
- * A CV review template with grading rubric and rules for a specific seniority level.
- * Each template contains the full review rules markdown seeded from `.mount/data/cv/`.
- */
 @ObjectType({
     description: "A CV review template with grading rubric and rules for a specific seniority level.",
 })
 @Entity("template_cvs")
+/**
+ * A CV review template with grading rubric and rules for a specific seniority level.
+ * Each template contains the full review rules markdown seeded from `.mount/data/cv/`.
+ */
 export class TemplateCVEntity extends UuidAbstractEntity {
     /**
      * Unique key identifying the template level, e.g. "0-standard", "1-mid", "2-senior".

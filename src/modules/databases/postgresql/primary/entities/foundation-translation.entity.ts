@@ -20,15 +20,15 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a specific foundation field.",
+})
+@Entity("foundation_translations")
 /**
  * Translation entity storing localized values for foundation fields.
  *
  * Primary key: (foundationId, locale, field).
  */
-@ObjectType({
-    description: "Localized value for a specific foundation field.",
-})
-@Entity("foundation_translations")
 export class FoundationTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

@@ -13,14 +13,6 @@ import {
     EnrollmentEntity,
 } from "./enrollment.entity"
 
-/**
- * One graded mock-interview SESSION (not one question — the whole 5-phase
- * interview is graded once, at the end). Mirrors {@link import("./interview-attempt.entity").InterviewAttemptEntity}'s
- * append-only-log shape, but the unit is a full interview run rather than a
- * single flashcard answer: `phaseScores` + `attributeScores` carry the rubric
- * breakdown the scorecard renders, and `promptId` snapshots WHICH capstone
- * system (or, later, AI-generated classic) the learner designed.
- */
 @Entity("mock_interview_attempts")
 // fast scan of a user's mock-interview history, optionally scoped to a course
 // (enrollment already scopes to one course × user, so the composite mirrors
@@ -29,6 +21,14 @@ import {
     [
         "enrollmentId",
     ])
+/**
+ * One graded mock-interview SESSION (not one question — the whole 5-phase
+ * interview is graded once, at the end). Mirrors {@link import("./interview-attempt.entity").InterviewAttemptEntity}'s
+ * append-only-log shape, but the unit is a full interview run rather than a
+ * single flashcard answer: `phaseScores` + `attributeScores` carry the rubric
+ * breakdown the scorecard renders, and `promptId` snapshots WHICH capstone
+ * system (or, later, AI-generated classic) the learner designed.
+ */
 export class MockInterviewAttemptEntity extends UuidAbstractEntity {
     /**
      * Enrollment this interview session belongs to (user × course) — the anchor

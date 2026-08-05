@@ -10,10 +10,15 @@ import {
  * Stored in `challenges.difficulty` (nullable when unset).
  */
 export enum ChallengeDifficulty {
+    /** Catalog + junior mock-interview design draws; lowest expected effort. */
     Easy = "easy",
+    /** Catalog filter; default when a prompt/task omits difficulty; middle interview draws. */
     Medium = "medium",
+    /** Catalog filter; senior mock-interview design draws (with Insane). */
     Hard = "hard",
+    /** Catalog filter; senior mock-interview design draws (with Hard). */
     Insane = "insane",
+    /** Top catalog badge — mock-interview design mode never draws Expert prompts. */
     Expert = "expert",
 }
 

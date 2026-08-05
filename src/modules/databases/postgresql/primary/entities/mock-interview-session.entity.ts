@@ -82,6 +82,14 @@ export interface MockInterviewSessionTurn {
     artifactHint?: "code"
 }
 
+@Entity("mock_interview_sessions")
+// fast per-enrollment session lookup (mirrors the attempts table's index) —
+// not the primary lookup path (that's by `id`), but useful for cleanup/debug
+// queries scoped to one enrollment
+@Index("idx_mock_interview_sessions_enrollment",
+    [
+        "enrollmentId",
+    ])
 /**
  * One SERVER-PICKED mock-interview prompt draw — created by
  * `startMockInterviewSession` at the moment the learner starts a session, so
@@ -92,14 +100,6 @@ export interface MockInterviewSessionTurn {
  * shape for the identity columns (`promptId` / `promptTitle` / `level`), but is
  * a much thinner, PRE-grade row — no scorecard, just the draw itself.
  */
-@Entity("mock_interview_sessions")
-// fast per-enrollment session lookup (mirrors the attempts table's index) —
-// not the primary lookup path (that's by `id`), but useful for cleanup/debug
-// queries scoped to one enrollment
-@Index("idx_mock_interview_sessions_enrollment",
-    [
-        "enrollmentId",
-    ])
 export class MockInterviewSessionEntity extends UuidAbstractEntity {
     /**
      * Enrollment this session draw belongs to (user × course) — the anchor

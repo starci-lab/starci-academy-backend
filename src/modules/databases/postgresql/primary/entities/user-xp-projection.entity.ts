@@ -11,6 +11,7 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@Entity("user_xp_projections")
 /**
  * CQRS projection of a user's XP aggregate — ONE ROW PER user. The inherited
  * jsonb `value` holds `{ challengeXp, milestoneXp, codingXp, lessonXp,
@@ -22,7 +23,6 @@ import {
  * recompute, never inline at read time. Read with a TTL lazy-refresh; kept fresh
  * by CDC on `xp_histories` + `users`.
  */
-@Entity("user_xp_projections")
 export class UserXpProjectionEntity extends AbstractProjectionEntity {
     /** Target user id — the natural (primary) key. */
     @PrimaryColumn({

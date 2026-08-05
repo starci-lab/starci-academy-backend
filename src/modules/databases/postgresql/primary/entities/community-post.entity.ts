@@ -22,14 +22,6 @@ import {
     GraphQLTypeCommunityChannel,
 } from "../enums"
 
-/**
- * A user-authored community post (the Facebook/Twitter-style feed item). Unlike
- * {@link ActivityEntity} (a system-generated activity ledger), a post is free-text
- * content the author writes themselves. Posts carry threaded comments
- * ({@link CommunityPostCommentEntity}) and reactions
- * ({@link CommunityPostReactionEntity}). Deletion is soft (`isDeleted`) so a
- * deleted post keeps its comment thread shape.
- */
 @ObjectType({
     description: "A user-authored community feed post (text/markdown).",
 })
@@ -41,6 +33,14 @@ import {
         "createdAt",
     ],
 )
+/**
+ * A user-authored community post (the Facebook/Twitter-style feed item). Unlike
+ * {@link ActivityEntity} (a system-generated activity ledger), a post is free-text
+ * content the author writes themselves. Posts carry threaded comments
+ * ({@link CommunityPostCommentEntity}) and reactions
+ * ({@link CommunityPostReactionEntity}). Deletion is soft (`isDeleted`) so a
+ * deleted post keeps its comment thread shape.
+ */
 export class CommunityPostEntity extends UuidAbstractEntity {
     /**
      * Raw markdown/plain body authored by the user.

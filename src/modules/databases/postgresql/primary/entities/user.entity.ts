@@ -30,6 +30,10 @@ import {
     GraphQLTypeBackgroundEffect,
 } from "../enums"
 
+@ObjectType({
+    description: "Application user entity mapped from Keycloak identity."
+})
+@Entity("users")
 /**
  * Represents an application-level user.
  *
@@ -41,10 +45,6 @@ import {
  * - This table should only contain data required by the application domain.
  * - The `keycloakId` maps to the `sub` claim in the Keycloak JWT.
  */
-@ObjectType({
-    description: "Application user entity mapped from Keycloak identity."
-})
-@Entity("users")
 export class UserEntity extends UuidAbstractEntity {
 
     /**

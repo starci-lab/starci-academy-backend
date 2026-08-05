@@ -16,18 +16,6 @@ import {
     FlashcardDeckEntity,
 } from "./flashcard-deck.entity"
 
-/**
- * One resumable draw of the SM-2 flashcard reviewer ("Học thẻ") over ONE deck —
- * mirrors {@link import("./flashcard-quiz-session.entity").FlashcardQuizSessionEntity}'s
- * resumable-session shape, but scoped to a single deck (not the whole course) and
- * without any cloze-quiz concept (no mode/level/coverage/weakTags — grading itself
- * still runs through the existing `reviewFlashcard` mutation per card; this table is
- * purely a resumable progress/stats wrapper around a sequence of those calls):
- * `startFlashcardReviewSession` persists the deck's card order, `syncFlashcardReviewSessionProgress`
- * periodically snapshots the in-flight position + reviewed count so a learner who
- * navigates away mid-review can pick it back up via `myInProgressFlashcardReviewSession`,
- * and `completeFlashcardReviewSession` flips the row to "completed".
- */
 @Entity("flashcard_review_sessions")
 // fast per-enrollment session lookup (mirrors flashcard_quiz_sessions' own index)
 @Index("idx_flashcard_review_sessions_enrollment",
@@ -40,6 +28,18 @@ import {
     [
         "deckId",
     ])
+/**
+ * One resumable draw of the SM-2 flashcard reviewer ("Học thẻ") over ONE deck —
+ * mirrors {@link import("./flashcard-quiz-session.entity").FlashcardQuizSessionEntity}'s
+ * resumable-session shape, but scoped to a single deck (not the whole course) and
+ * without any cloze-quiz concept (no mode/level/coverage/weakTags — grading itself
+ * still runs through the existing `reviewFlashcard` mutation per card; this table is
+ * purely a resumable progress/stats wrapper around a sequence of those calls):
+ * `startFlashcardReviewSession` persists the deck's card order, `syncFlashcardReviewSessionProgress`
+ * periodically snapshots the in-flight position + reviewed count so a learner who
+ * navigates away mid-review can pick it back up via `myInProgressFlashcardReviewSession`,
+ * and `completeFlashcardReviewSession` flips the row to "completed".
+ */
 export class FlashcardReviewSessionEntity extends UuidAbstractEntity {
     /**
      * Enrollment this review draw belongs to (user × course) — the anchor every

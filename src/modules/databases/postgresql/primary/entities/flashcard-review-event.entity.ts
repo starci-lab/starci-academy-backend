@@ -20,14 +20,6 @@ import {
     FlashcardCardEntity,
 } from "./flashcard-card.entity"
 
-/**
- * Append-only log of every flashcard review the user has graded. Unlike
- * {@link UserFlashcardReviewEntity} (which keeps only the CURRENT SM-2 state per
- * card), this records each grading event (grade + timestamp) so history-based
- * stats — review streak, retention rate, total reviewed — can be computed. One
- * row is appended per `reviewFlashcard` mutation; CDC on this table refreshes the
- * `user_flashcard_stats` projection.
- */
 @Entity("flashcard_review_events")
 // fast scan of a user's review history, ordered by time (streak / retention)
 @Index("idx_flashcard_review_events_user_reviewed",
@@ -40,6 +32,14 @@ import {
     [
         "sessionId",
     ])
+/**
+ * Append-only log of every flashcard review the user has graded. Unlike
+ * {@link UserFlashcardReviewEntity} (which keeps only the CURRENT SM-2 state per
+ * card), this records each grading event (grade + timestamp) so history-based
+ * stats — review streak, retention rate, total reviewed — can be computed. One
+ * row is appended per `reviewFlashcard` mutation; CDC on this table refreshes the
+ * `user_flashcard_stats` projection.
+ */
 export class FlashcardReviewEventEntity extends UuidAbstractEntity {
     /** The user who graded the review. */
     @ManyToOne(

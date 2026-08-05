@@ -26,14 +26,14 @@ import {
     MilestoneTaskCriteriaTranslationEntity,
 } from "./milestone-task-criteria-translation.entity"
 
-/**
- * A pass criterion belonging to a milestone task.
- * Translatable fields (text, promptText) live in translations.
- */
 @ObjectType({
     description: "A pass criterion for a milestone task.",
 })
 @Entity("milestone_task_criteria")
+/**
+ * A pass criterion belonging to a milestone task.
+ * Translatable fields (text, promptText) live in translations.
+ */
 export class MilestoneTaskCriteriaEntity extends UuidAbstractEntity {
     /**
      * Criterion text.

@@ -26,14 +26,14 @@ import {
     ChallengeOutputLangTranslationEntity,
 } from "./challenge-output-lang-translation.entity"
 
-/**
- * Per-programming-language row of a SCHEMA V2 output item. The default-locale `text` is stored on
- * this row; per-locale overrides live in {@link ChallengeOutputLangTranslationEntity}.
- */
 @ObjectType({
     description: "Per-language row of a V2 output item (text + per-locale translations).",
 })
 @Entity("challenge_output_langs")
+/**
+ * Per-programming-language row of a SCHEMA V2 output item. The default-locale `text` is stored on
+ * this row; per-locale overrides live in {@link ChallengeOutputLangTranslationEntity}.
+ */
 export class ChallengeOutputLangEntity extends UuidAbstractEntity {
     /**
      * Programming language (e.g. typescript, java, csharp, go).

@@ -13,11 +13,11 @@ import {
     ScyllaDBService,
 } from "./scylladb.service"
 
+@Module({
+})
 /**
  * Module registering a shared ScyllaDB client.
  */
-@Module({
-})
 export class ScyllaDBModule extends ScyllaConfigurableModuleClass {
     static register(options: typeof SCYLLADB_OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

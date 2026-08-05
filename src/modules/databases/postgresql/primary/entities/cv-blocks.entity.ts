@@ -18,6 +18,10 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@ObjectType({
+    description: "A user-authored CV document stored as an ordered list of blocks (course-independent).",
+})
+@Entity("cv_blocks")
 /**
  * **A user-authored CV document, stored as an ordered list of blocks.** One
  * row = one CV the user owns; a user may own MANY (`label` names each). This is
@@ -38,10 +42,6 @@ import {
  * users (1) ─────< cv_blocks (N)
  * ```
  */
-@ObjectType({
-    description: "A user-authored CV document stored as an ordered list of blocks (course-independent).",
-})
-@Entity("cv_blocks")
 export class CvBlocksEntity extends UuidAbstractEntity {
     /**
      * Owner user (`user_id` foreign key, CASCADE delete).

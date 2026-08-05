@@ -16,6 +16,7 @@ import {
     MilestoneTaskOutcomeCriteriaLangEntity,
 } from "./milestone-task-outcome-criteria-lang.entity"
 
+@Entity("milestone_task_outcome_criteria")
 /**
  * SCHEMA V2 OUTCOME criterion of a milestone task (one yes/no item grading observable behaviour).
  *
@@ -24,7 +25,6 @@ import {
  * {@link MilestoneTaskOutcomeCriteriaLangEntity}. Outcome prose is agnostic, so a single
  * `lang = "agnostic"` row is stored. English-only grading rubric — INTERNAL, NOT in GraphQL.
  */
-@Entity("milestone_task_outcome_criteria")
 export class MilestoneTaskOutcomeCriteriaEntity extends UuidAbstractEntity {
     /**
      * Display/grading order within the task's outcome rubric.

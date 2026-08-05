@@ -27,14 +27,14 @@ import {
     UserMilestoneTaskAttemptFeedbackEntity,
 } from "./user-milestone-task-attempt-feedback.entity"
 
-/**
- * A single review attempt for a user milestone task.
- */
 @ObjectType({
     description: "A single review attempt for a user milestone task.",
 })
 @Unique(["idempotencyKey"])
 @Entity("user_milestone_task_attempts")
+/**
+ * A single review attempt for a user milestone task.
+ */
 export class UserMilestoneTaskAttemptEntity extends UuidAbstractEntity {
     /**
      * Idempotency key (= grading job id) — one attempt per review job; a retried

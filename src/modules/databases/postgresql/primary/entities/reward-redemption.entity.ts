@@ -24,6 +24,8 @@ import {
  */
 export type RewardRedemptionMetadata = Record<string, unknown>
 
+@Index(["user"])
+@Entity("reward_redemptions")
 /**
  * One redemption of a code-defined reward by a user. The `cost` is the snapshot
  * of the reward's price at redeem time (catalog prices can change without
@@ -32,8 +34,6 @@ export type RewardRedemptionMetadata = Record<string, unknown>
  * is NEVER debited here, so the balance that ranks the global leaderboard stays
  * intact.
  */
-@Index(["user"])
-@Entity("reward_redemptions")
 export class RewardRedemptionEntity extends UuidAbstractEntity {
     /** The user who redeemed the reward. */
     @ManyToOne(

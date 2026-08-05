@@ -20,14 +20,14 @@ import {
     ChallengeEntity,
 } from "./challenge.entity"
 
-/**
- * Translation for challenge fields (title, brief, description).
- * Primary key: (challengeId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a challenge field.",
 })
 @Entity("challenge_translations")
+/**
+ * Translation for challenge fields (title, brief, description).
+ * Primary key: (challengeId, locale, field).
+ */
 export class ChallengeTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

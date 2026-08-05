@@ -26,15 +26,15 @@ import {
     MilestoneTaskBriefTranslationEntity,
 } from "./milestone-task-brief-translation.entity"
 
+@ObjectType({
+    description: "Per-language learner-facing brief for a milestone task.",
+})
+@Entity("milestone_task_briefs")
 /**
  * SCHEMA V2 per-language task brief (the learner-facing "what to build" for one programming
  * language, Markdown with `:::muted` callouts). Separate from the grading criteria; this IS exposed
  * via GraphQL for the FE to render. Translatable (locale lives in translations).
  */
-@ObjectType({
-    description: "Per-language learner-facing brief for a milestone task.",
-})
-@Entity("milestone_task_briefs")
 export class MilestoneTaskBriefEntity extends UuidAbstractEntity {
     /**
      * Programming language of this brief (typescript/java/csharp/go, or `agnostic`).

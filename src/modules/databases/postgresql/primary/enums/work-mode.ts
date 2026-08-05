@@ -11,8 +11,11 @@ import {
  * `users.work_mode` (nullable when the user has not stated a preference).
  */
 export enum WorkMode {
+    /** Profile matches remote-only recruiter filters. */
     Remote = "remote",
+    /** Profile matches hybrid filters; excluded from remote-only and onsite-only lists. */
     Hybrid = "hybrid",
+    /** Profile matches onsite-only recruiter filters. */
     Onsite = "onsite",
 }
 

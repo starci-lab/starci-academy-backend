@@ -15,6 +15,12 @@ import {
     CodingProblemEntity,
 } from "./coding-problem.entity"
 
+@Entity("coding_solution_reveals")
+@Unique(
+    "uq_coding_solution_reveals_user_problem",
+    ["user",
+        "problem"],
+)
 /**
  * Records that a user revealed a problem's reference solution. Used to gate the
  * coding-points award: a problem only awards points on a first clean solve when
@@ -23,12 +29,6 @@ import {
  *
  * Internal bookkeeping only — not exposed via GraphQL.
  */
-@Entity("coding_solution_reveals")
-@Unique(
-    "uq_coding_solution_reveals_user_problem",
-    ["user",
-        "problem"],
-)
 export class CodingSolutionRevealEntity extends UuidAbstractEntity {
     @ManyToOne(
         () => UserEntity,

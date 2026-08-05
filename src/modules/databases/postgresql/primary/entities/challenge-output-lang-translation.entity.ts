@@ -20,14 +20,14 @@ import {
     ChallengeOutputLangEntity,
 } from "./challenge-output-lang.entity"
 
-/**
- * Translation for V2 output language-row fields (`text`).
- * Primary key: (challengeOutputLangId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a V2 output language-row field.",
 })
 @Entity("challenge_output_lang_translations")
+/**
+ * Translation for V2 output language-row fields (`text`).
+ * Primary key: (challengeOutputLangId, locale, field).
+ */
 export class ChallengeOutputLangTranslationEntity extends AbstractEntity {
     /** Parent output language row id (composite PK part). */
     @Field(() => String)

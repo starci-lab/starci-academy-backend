@@ -26,15 +26,15 @@ import {
     ChallengeOutputLangEntity,
 } from "./challenge-output-lang.entity"
 
+@ObjectType({
+    description: "A SCHEMA V2 challenge output item (one per position).",
+})
+@Entity("challenge_outputs")
 /**
  * SCHEMA V2 output ITEM for a challenge (normalized — no jsonb). One row per output position; the
  * per-language `text` lives under {@link ChallengeOutputLangEntity}. Outputs carry no item-level
  * title, so there is no item translation table.
  */
-@ObjectType({
-    description: "A SCHEMA V2 challenge output item (one per position).",
-})
-@Entity("challenge_outputs")
 export class ChallengeOutputEntity extends UuidAbstractEntity {
     /**
      * Display order of this output within the challenge (agnostic position).

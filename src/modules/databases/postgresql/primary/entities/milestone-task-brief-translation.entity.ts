@@ -20,13 +20,13 @@ import {
     MilestoneTaskBriefEntity,
 } from "./milestone-task-brief.entity"
 
-/**
- * Translation for {@link MilestoneTaskBriefEntity} fields (`body`).
- */
 @ObjectType({
     description: "Localized value for a milestone task brief field.",
 })
 @Entity("milestone_task_brief_translations")
+/**
+ * Translation for {@link MilestoneTaskBriefEntity} fields (`body`).
+ */
 export class MilestoneTaskBriefTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

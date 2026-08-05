@@ -11,6 +11,7 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@Entity("user_flashcard_stats_projections")
 /**
  * CQRS projection of a user's flashcard study stats — ONE ROW PER user. The
  * inherited jsonb `value` holds `{ currentStreak, longestStreak, retentionRate,
@@ -19,7 +20,6 @@ import {
  * read time. Read with a TTL lazy-refresh; kept fresh by CDC on
  * `flashcard_review_events`.
  */
-@Entity("user_flashcard_stats_projections")
 export class UserFlashcardStatsProjectionEntity extends AbstractProjectionEntity {
     /** Target user id — the natural (primary) key. */
     @PrimaryColumn({

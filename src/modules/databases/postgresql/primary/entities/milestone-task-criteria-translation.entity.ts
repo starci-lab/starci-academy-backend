@@ -20,14 +20,14 @@ import {
     MilestoneTaskCriteriaEntity,
 } from "./milestone-task-criteria.entity"
 
-/**
- * Translation entity for milestone task criteria fields (text, promptText).
- * Primary key: (milestoneTaskCriteriaId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific milestone task criterion field.",
 })
 @Entity("milestone_task_criteria_translations")
+/**
+ * Translation entity for milestone task criteria fields (text, promptText).
+ * Primary key: (milestoneTaskCriteriaId, locale, field).
+ */
 export class MilestoneTaskCriteriaTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

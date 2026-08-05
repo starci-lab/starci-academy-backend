@@ -24,6 +24,10 @@ import {
     description: "Localized value for a headhunting company field.",
 })
 @Entity("headhunting_company_translations")
+/**
+ * Locale-scoped override for one headhunting-company display field. Lets the
+ * same company render Vi/En without duplicating the company row.
+ */
 export class HeadhuntingCompanyTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

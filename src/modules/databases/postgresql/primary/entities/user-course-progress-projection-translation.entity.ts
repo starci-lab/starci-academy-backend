@@ -20,6 +20,10 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a user-course-progress projection field.",
+})
+@Entity("user_course_progress_projection_translations")
 /**
  * Localized overrides for {@link UserCourseProgressProjectionEntity} fields.
  *
@@ -28,10 +32,6 @@ import {
  * (userId, courseId, locale, field); the (userId, courseId) pair is also the FK
  * back to the projection.
  */
-@ObjectType({
-    description: "Localized value for a user-course-progress projection field.",
-})
-@Entity("user_course_progress_projection_translations")
 export class UserCourseProgressProjectionTranslationEntity extends AbstractEntity {
     /** Owner user id — part of the composite PK + composite FK. */
     @Field(

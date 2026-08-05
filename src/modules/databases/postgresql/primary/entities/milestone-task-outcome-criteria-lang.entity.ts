@@ -12,12 +12,12 @@ import {
     MilestoneTaskOutcomeCriteriaEntity,
 } from "./milestone-task-outcome-criteria.entity"
 
+@Entity("milestone_task_outcome_criteria_langs")
 /**
  * Per-language prose for a SCHEMA V2 outcome criterion (one row per programming language; outcome is
  * agnostic so usually a single `agnostic` row). English-only grading rubric — INTERNAL, no GraphQL,
  * no per-locale translation (the rubric is never translated).
  */
-@Entity("milestone_task_outcome_criteria_langs")
 export class MilestoneTaskOutcomeCriteriaLangEntity extends UuidAbstractEntity {
     /**
      * Programming language for this prose (typescript/java/csharp/go, or `agnostic`).

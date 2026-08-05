@@ -20,16 +20,16 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a user-stats projection field.",
+})
+@Entity("user_stats_projection_translations")
 /**
  * Localized overrides for {@link UserStatsProjectionEntity} fields.
  *
  * Each row: (userId, locale, field) -> translated value. Starts EMPTY (the
  * projection is numeric-only today). Composite primary key (userId, locale, field).
  */
-@ObjectType({
-    description: "Localized value for a user-stats projection field.",
-})
-@Entity("user_stats_projection_translations")
 export class UserStatsProjectionTranslationEntity extends AbstractEntity {
     /** Target projection natural key (user id) — part of the composite PK. */
     @Field(

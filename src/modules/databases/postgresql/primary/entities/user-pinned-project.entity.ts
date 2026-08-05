@@ -26,6 +26,11 @@ import {
     EnrollmentEntity,
 } from "./enrollment.entity"
 
+@ObjectType({
+    description: "A project pinned to a user's public profile.",
+})
+@Entity("user_pinned_projects")
+@Index(["user"])
 /**
  * A project pinned to a user's public profile.
  *
@@ -38,11 +43,6 @@ import {
  *
  * A user may pin at most 6 projects; `orderIndex` drives display order.
  */
-@ObjectType({
-    description: "A project pinned to a user's public profile.",
-})
-@Entity("user_pinned_projects")
-@Index(["user"])
 export class UserPinnedProjectEntity extends UuidAbstractEntity {
     /**
      * Owner of this pin.

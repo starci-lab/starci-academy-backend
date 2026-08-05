@@ -27,13 +27,6 @@ import {
     PlaygroundSessionMode,
 } from "../enums"
 
-/**
- * One learner's run of a {@link PlaygroundEntity}. The learner's browser
- * shows `pairingCode`; the CLI agent pairs with it over Socket.IO
- * (`/playground_byom` namespace), flipping `connected` to true and joining
- * the room keyed by this row's id. Progress (`currentStepIndex`,
- * `passedStepIndexes`) is advanced by the "lite" resource-report verify.
- */
 @ObjectType({
     description: "One learner's run of a playground.",
 })
@@ -41,6 +34,13 @@ import {
 @Index(["playground"])
 @Unique(["pairingCode"])
 @Entity("playground_sessions")
+/**
+ * One learner's run of a {@link PlaygroundEntity}. The learner's browser
+ * shows `pairingCode`; the CLI agent pairs with it over Socket.IO
+ * (`/playground_byom` namespace), flipping `connected` to true and joining
+ * the room keyed by this row's id. Progress (`currentStepIndex`,
+ * `passedStepIndexes`) is advanced by the "lite" resource-report verify.
+ */
 export class PlaygroundSessionEntity extends UuidAbstractEntity {
     /**
      * Learner running this session.

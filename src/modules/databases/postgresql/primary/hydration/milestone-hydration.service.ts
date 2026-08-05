@@ -13,6 +13,10 @@ import {
 } from "../primary.decorators"
 
 @Injectable()
+/**
+ * Loads a milestone and attaches its tasks (briefs/criteria, not the internal
+ * grading rubric) so the FE/CDN read path does not N+1 task rows.
+ */
 export class MilestoneHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

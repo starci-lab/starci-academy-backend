@@ -18,13 +18,13 @@ import {
     PrerequisiteTranslationEntity,
 } from "./prerequisite-translation.entity"
 
-/**
- * A single prerequisite line item for a course (e.g. prior knowledge).
- */
 @ObjectType({
     description: "Prerequisite text belonging to a course."
 })
 @Entity("prerequisites")
+/**
+ * A single prerequisite line item for a course (e.g. prior knowledge).
+ */
 export class PrerequisiteEntity extends UuidAbstractEntity {
     /**
      * Requirement or prior knowledge description.

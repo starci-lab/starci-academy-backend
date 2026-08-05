@@ -17,10 +17,10 @@ import {
     PreviewContentResolverService,
 } from "./preview-content-resolver.service"
 
+@Injectable()
 /**
  * Applies loaded translations for a module row and delegates nested entities to focused resolvers.
  */
-@Injectable()
 export class ModuleResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

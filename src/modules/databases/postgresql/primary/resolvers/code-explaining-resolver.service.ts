@@ -11,10 +11,10 @@ import {
     TranslationResolverService,
 } from "./translation.service"
 
+@Injectable()
 /**
  * Applies translations to a code explaining row.
  */
-@Injectable()
 export class CodeExplainingResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

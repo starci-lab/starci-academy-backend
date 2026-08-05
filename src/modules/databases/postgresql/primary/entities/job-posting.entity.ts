@@ -32,6 +32,11 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@ObjectType({
+    description: "A structured IT job posting.",
+})
+@Entity("job_postings")
+@Index(["company"])
 /**
  * A structured "IT job" listing (title, salary, location, apply method), as
  * opposed to the freestyle headhunter/consultant relationship modeled by
@@ -44,11 +49,6 @@ import {
  * `UserPinnedProjectEntity`: this is user-submitted-capable content, not
  * admin-curated CMS copy that needs multi-locale fan-out.
  */
-@ObjectType({
-    description: "A structured IT job posting.",
-})
-@Entity("job_postings")
-@Index(["company"])
 export class JobPostingEntity extends UuidAbstractEntity {
     @Field(
         () => String,

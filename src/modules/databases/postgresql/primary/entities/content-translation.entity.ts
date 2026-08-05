@@ -20,6 +20,10 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a specific content field.",
+})
+@Entity("content_translations")
 /**
  * Translation entity storing localized values for content fields.
  *
@@ -28,10 +32,6 @@ import {
  *
  * Primary key is the composite (contentId, locale, field).
  */
-@ObjectType({
-    description: "Localized value for a specific content field.",
-})
-@Entity("content_translations")
 export class ContentTranslationEntity extends AbstractEntity {
     /**
      * Target content ID (part of composite primary key).

@@ -32,6 +32,11 @@ import {
 })
 @Unique(["idempotencyKey"])
 @Entity("user_challenge_submission_attempts")
+/**
+ * One grading outcome for one job (`idempotencyKey` = job id). A retried job
+ * reusing the key must hit the unique constraint instead of granting a second
+ * score / XP.
+ */
 export class UserChallengeSubmissionAttemptEntity extends UuidAbstractEntity {
     /**
      * Idempotency key (= grading job id) — one attempt per grading job. A retried

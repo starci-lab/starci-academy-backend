@@ -44,15 +44,15 @@ export interface JobRefs {
     cvSubmissionId?: string
 }
 
-/**
- * Tracks lifecycle status of worker jobs. Pure infrastructure: no FK to domain
- * tables — correlate via {@link JobRefs} (`refs`) and the serialized `payload`.
- */
 @ObjectType({
     description: "Worker job status record.",
 })
 @Index(["userId"])
 @Entity("jobs")
+/**
+ * Tracks lifecycle status of worker jobs. Pure infrastructure: no FK to domain
+ * tables — correlate via {@link JobRefs} (`refs`) and the serialized `payload`.
+ */
 export class JobEntity extends UuidAbstractEntity {
     /**
      * Loose owner id (no FK) — the user this job is associated with, when applicable.

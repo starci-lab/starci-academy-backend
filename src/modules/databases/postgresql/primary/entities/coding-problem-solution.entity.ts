@@ -21,11 +21,6 @@ import {
     CodingProblemEntity,
 } from "./coding-problem.entity"
 
-/**
- * Full reference solution for one (problem, language) pair — the worked answer a
- * learner can reveal in their language of choice. One row per supported language;
- * uniqueness is enforced on (codingProblemId, language).
- */
 @ObjectType(
     "CodingProblemSolution",
     {
@@ -38,6 +33,11 @@ import {
     ["problem",
         "language"],
 )
+/**
+ * Full reference solution for one (problem, language) pair — the worked answer a
+ * learner can reveal in their language of choice. One row per supported language;
+ * uniqueness is enforced on (codingProblemId, language).
+ */
 export class CodingProblemSolutionEntity extends UuidAbstractEntity {
     @Field(
         () => GraphQLTypeCodingLanguage,

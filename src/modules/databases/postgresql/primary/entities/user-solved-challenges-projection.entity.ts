@@ -11,6 +11,7 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@Entity("user_solved_challenges_projections")
 /**
  * CQRS projection of a user's passed challenge submissions (with their submitted
  * git / docs link) — ONE ROW PER user. The inherited jsonb `value` holds
@@ -19,7 +20,6 @@ import {
  * join). Read with a TTL lazy-refresh; kept fresh by CDC on
  * `user_challenge_submission_attempts`.
  */
-@Entity("user_solved_challenges_projections")
 export class UserSolvedChallengesProjectionEntity extends AbstractProjectionEntity {
     /** Target user id — the natural (primary) key. */
     @PrimaryColumn({

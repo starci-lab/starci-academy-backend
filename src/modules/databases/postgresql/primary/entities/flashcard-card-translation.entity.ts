@@ -20,14 +20,14 @@ import {
     FlashcardCardEntity,
 } from "./flashcard-card.entity"
 
-/**
- * Translation for flashcard card fields (front, back, explanation).
- * Primary key: (flashcardCardId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a flashcard card field.",
 })
 @Entity("flashcard_card_translations")
+/**
+ * Translation for flashcard card fields (front, back, explanation).
+ * Primary key: (flashcardCardId, locale, field).
+ */
 export class FlashcardCardTranslationEntity extends AbstractEntity {
     /**
      * Target flashcard card ID.

@@ -11,6 +11,7 @@ import {
     EnrollmentEntity,
 } from "./enrollment.entity"
 
+@Entity("user_mock_interview_course_stats_projections")
 /**
  * CQRS projection of a user's mock-interview COURSE stats — one row per
  * enrollment (Kiểu A — single key `enrollment_id`, mirrors
@@ -22,7 +23,6 @@ import {
  * to fold live on every read from a bounded ≤50-row scan, a rule violation
  * per `.claude/be/rules/cqrs-no-inline-aggregate.md` ("kể cả scale nhỏ").
  */
-@Entity("user_mock_interview_course_stats_projections")
 export class UserMockInterviewCourseStatsProjectionEntity extends AbstractProjectionEntity {
     /** Enrollment this course-stats row belongs to — the natural primary key. */
     @PrimaryColumn({

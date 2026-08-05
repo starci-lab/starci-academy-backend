@@ -26,6 +26,11 @@ import {
     TransactionEntity,
 } from "./transaction.entity"
 
+@ObjectType({
+    description: "A single course line of a multi-course checkout transaction.",
+})
+@Entity("transaction_items")
+@Index(["transaction"])
 /**
  * A single course line of a multi-course (cart) checkout transaction.
  *
@@ -38,11 +43,6 @@ import {
  * `courseEnroll` checkouts do NOT create item rows (they carry `transaction.course`
  * directly); items exist only for multi-course orders.
  */
-@ObjectType({
-    description: "A single course line of a multi-course checkout transaction.",
-})
-@Entity("transaction_items")
-@Index(["transaction"])
 export class TransactionItemEntity extends UuidAbstractEntity {
     /**
      * The parent order (transaction) this line belongs to.

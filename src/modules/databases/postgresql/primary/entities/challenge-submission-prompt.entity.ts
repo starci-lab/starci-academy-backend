@@ -16,10 +16,10 @@ import {
     ChallengeSubmissionPromptTranslationEntity,
 } from "./challenge-submission-prompt-translation.entity"
 
+@Entity("challenge_submission_prompts")
 /**
  * LLM / grading prompt attached to a challenge submission slot (English; internal — not in GraphQL).
  */
-@Entity("challenge_submission_prompts")
 export class ChallengeSubmissionPromptEntity extends UuidAbstractEntity {
     /**
      * The text of the prompt.

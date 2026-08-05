@@ -27,12 +27,6 @@ import {
     UserEntity,
 } from "./user.entity"
 
-/**
- * One attempt by a user to solve a coding problem — the submitted source plus
- * the judging outcome. Created in `pending` state by the submit mutation, then
- * updated by the judging worker to a terminal verdict with timing/score detail.
- * Full history is retained (one row per submit).
- */
 @ObjectType(
     "CodingSubmission",
     {
@@ -45,6 +39,12 @@ import {
     ["user",
         "problem"],
 )
+/**
+ * One attempt by a user to solve a coding problem — the submitted source plus
+ * the judging outcome. Created in `pending` state by the submit mutation, then
+ * updated by the judging worker to a terminal verdict with timing/score detail.
+ * Full history is retained (one row per submit).
+ */
 export class CodingSubmissionEntity extends UuidAbstractEntity {
     @ManyToOne(
         () => UserEntity,

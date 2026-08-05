@@ -20,14 +20,14 @@ import {
     AiModelEntity,
 } from "./ai-model.entity"
 
-/**
- * Translation entity for AI model catalog fields (label, description).
- * Primary key: (aiModelId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific AI model catalog field.",
 })
 @Entity("ai_model_translations")
+/**
+ * Translation entity for AI model catalog fields (label, description).
+ * Primary key: (aiModelId, locale, field).
+ */
 export class AiModelTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

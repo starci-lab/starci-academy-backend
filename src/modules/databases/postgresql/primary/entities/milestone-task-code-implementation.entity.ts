@@ -26,14 +26,14 @@ import {
     MilestoneTaskCodeImplementationTranslationEntity,
 } from "./milestone-task-code-implementation-translation.entity"
 
-/**
- * Multi-language implementation guide for a milestone task (mount `# codeImplementations`).
- * Translatable fields (guide, example) live in translations.
- */
 @ObjectType({
     description: "Implementation guide for a milestone task in a specific programming language.",
 })
 @Entity("milestone_task_code_implementations")
+/**
+ * Multi-language implementation guide for a milestone task (mount `# codeImplementations`).
+ * Translatable fields (guide, example) live in translations.
+ */
 export class MilestoneTaskCodeImplementationEntity extends UuidAbstractEntity {
     /**
      * Programming language (e.g. typescript, go, csharp, java).

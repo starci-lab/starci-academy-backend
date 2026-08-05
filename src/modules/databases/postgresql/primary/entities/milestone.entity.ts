@@ -29,15 +29,15 @@ import {
     MilestoneTaskEntity,
 } from "./milestone-task.entity"
 
+@ObjectType({
+    description: "A milestone belonging to a course.",
+})
+@Entity("milestones")
 /**
  * A milestone (batch) belonging to a course.
  * Seeded from `.mount/data/courses/{course}/tasks/{milestone}/`.
  * Translatable fields (title, description) live in translations.
  */
-@ObjectType({
-    description: "A milestone belonging to a course.",
-})
-@Entity("milestones")
 export class MilestoneEntity extends UuidAbstractEntity {
     /**
      * Milestone title.

@@ -11,6 +11,7 @@ import {
     LeagueCohortEntity,
 } from "./league-cohort.entity"
 
+@Entity("league_cohort_points_projections")
 /**
  * CQRS projection of a league cohort's ranked week-points board — ONE ROW PER
  * cohort. The inherited jsonb `value` holds `{ members: [{ userId, username,
@@ -19,7 +20,6 @@ import {
  * aggregate runs only in the projection's recompute, never inline at read time).
  * Read with a TTL lazy-refresh; kept fresh by CDC on `xp_histories`.
  */
-@Entity("league_cohort_points_projections")
 export class LeagueCohortPointsProjectionEntity extends AbstractProjectionEntity {
     /** Target cohort id — the natural (primary) key. */
     @PrimaryColumn({

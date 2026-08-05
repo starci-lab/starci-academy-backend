@@ -19,6 +19,13 @@ import type {
     LocalizedText,
 } from "./advertisement.entity"
 
+@ObjectType({
+    description: "Definition of an earnable achievement / badge.",
+})
+// stable natural key — idempotent upsert from the boot seeder
+@Unique("UQ_achievement_slug",
+    ["slug"])
+@Entity("achievements")
 /**
  * Definition row for a GitHub-style achievement / badge. These are a small,
  * curated reference set (seeded on boot, upserted by `slug`); they describe WHAT
@@ -31,13 +38,6 @@ import type {
  * `badges/achievements/<slug>.png`; only the `slug` is stored here (`iconKey`
  * keeps the resolved object key for clients that prefer it verbatim).
  */
-@ObjectType({
-    description: "Definition of an earnable achievement / badge.",
-})
-// stable natural key — idempotent upsert from the boot seeder
-@Unique("UQ_achievement_slug",
-    ["slug"])
-@Entity("achievements")
 export class AchievementEntity extends UuidAbstractEntity {
     /**
      * Stable slug — the badge identity, also the MinIO art filename stem.

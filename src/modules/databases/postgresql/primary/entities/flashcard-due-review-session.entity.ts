@@ -13,6 +13,15 @@ import {
     EnrollmentEntity,
 } from "./enrollment.entity"
 
+@Entity("flashcard_due_review_sessions")
+// fast per-enrollment session lookup (mirrors flashcard_quiz_sessions' /
+// flashcard_review_sessions' own index) — not the primary lookup path
+// (that's by `id`), but useful for cleanup/debug queries scoped to one
+// enrollment
+@Index("idx_flashcard_due_review_sessions_enrollment",
+    [
+        "enrollmentId",
+    ])
 /**
  * One resumable draw of the CROSS-DECK due-review batch ("ôn tập" surfaced
  * from `DueReview`) — mirrors
@@ -31,15 +40,6 @@ import {
  * pick it back up via `myInProgressFlashcardDueReviewSession`, and
  * `completeFlashcardDueReviewSession` flips the row to "completed".
  */
-@Entity("flashcard_due_review_sessions")
-// fast per-enrollment session lookup (mirrors flashcard_quiz_sessions' /
-// flashcard_review_sessions' own index) — not the primary lookup path
-// (that's by `id`), but useful for cleanup/debug queries scoped to one
-// enrollment
-@Index("idx_flashcard_due_review_sessions_enrollment",
-    [
-        "enrollmentId",
-    ])
 export class FlashcardDueReviewSessionEntity extends UuidAbstractEntity {
     /**
      * Enrollment this due-review batch belongs to (user × course) — the

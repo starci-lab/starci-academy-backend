@@ -20,15 +20,15 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a specific foundation category field.",
+})
+@Entity("foundation_category_translations")
 /**
  * Translation entity storing localized values for foundation category fields.
  *
  * Primary key: (categoryId, locale, field).
  */
-@ObjectType({
-    description: "Localized value for a specific foundation category field.",
-})
-@Entity("foundation_category_translations")
 export class FoundationCategoryTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

@@ -26,13 +26,13 @@ import {
     Locale,
 } from "../enums"
 
-/**
- * Bullet value proposition line for a course (1:N from {@link CourseEntity}).
- */
 @ObjectType({
     description: "Value proposition line for a course."
 })
 @Entity("value_propositions")
+/**
+ * Bullet value proposition line for a course (1:N from {@link CourseEntity}).
+ */
 export class ValuePropositionEntity extends UuidAbstractEntity {
     /**
      * Value proposition line content.

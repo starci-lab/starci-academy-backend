@@ -42,16 +42,16 @@ export interface ActivityMetadata {
     target?: ActivityTargetRef
 }
 
+@Unique(["type",
+    "idempotencyKey"])
+@Index(["user"])
+@Entity("activities")
 /**
  * Append-only ledger of "trend-worthy" learner activity (reads, bookmarks,
  * passes, enrolls, comments, follows). One row per event; the GitHub-style home
  * feed reads these. `(type, refId)` is unique so an event can never be recorded
  * twice (re-read lesson, re-graded attempt, re-follow), mirroring `xp_histories`.
  */
-@Unique(["type",
-    "idempotencyKey"])
-@Index(["user"])
-@Entity("activities")
 export class ActivityEntity extends UuidAbstractEntity {
     /**
      * The user who performed the activity (the feed actor).

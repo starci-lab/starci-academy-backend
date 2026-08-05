@@ -17,6 +17,16 @@ import type {
     KpiKey,
 } from "../enums/kpi-key"
 
+@Index(["user"])
+@Unique(
+    "uq_kpi_weekly_reward_floors_user_kpi_week",
+    [
+        "userId",
+        "kpiKey",
+        "weekStartAt",
+    ],
+)
+@Entity("kpi_weekly_reward_floors")
 /**
  * One per (user, KPI, KPI-week): the anti-gaming FLOOR target for that KPI this
  * week, plus (once claimed) the coin-reward snapshot. `floor_target` starts at
@@ -33,16 +43,6 @@ import type {
  * `claimed_at`/`coin_reward` are null until the reward is claimed; the unique
  * constraint is the idempotency backstop against a double claim.
  */
-@Index(["user"])
-@Unique(
-    "uq_kpi_weekly_reward_floors_user_kpi_week",
-    [
-        "userId",
-        "kpiKey",
-        "weekStartAt",
-    ],
-)
-@Entity("kpi_weekly_reward_floors")
 export class KpiWeeklyRewardFloorEntity extends UuidAbstractEntity {
     /** The user this floor/claim row belongs to. */
     @ManyToOne(

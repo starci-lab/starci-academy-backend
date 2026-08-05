@@ -8,20 +8,6 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 
-/**
- * An authenticated login session bound to a single device/browser. One row per
- * (keycloakId, sessionId); the `sessionId` mirrors the value stored in the Redis
- * enforcement hash and handed to the device as the `session_id` cookie.
- *
- * Linked by `keycloakId` (the Keycloak subject) rather than a foreign key to
- * `UserEntity`: a session is created at login time, which can happen before the
- * local `UserEntity` mirror row exists (the auth guard creates that lazily on the
- * first authenticated request). Keying by subject keeps this table consistent with
- * the Redis layer, which is also keyed by subject.
- *
- * Used to power the "logged-in devices" UI (list + revoke) and to enforce the
- * max-devices-per-account policy. `revokedAt` is null while the session is active.
- */
 @Entity("login_sessions")
 @Unique(
     "UQ_login_sessions_keycloak_session",
@@ -38,6 +24,20 @@ import {
         "revokedAt",
     ],
 )
+/**
+ * An authenticated login session bound to a single device/browser. One row per
+ * (keycloakId, sessionId); the `sessionId` mirrors the value stored in the Redis
+ * enforcement hash and handed to the device as the `session_id` cookie.
+ *
+ * Linked by `keycloakId` (the Keycloak subject) rather than a foreign key to
+ * `UserEntity`: a session is created at login time, which can happen before the
+ * local `UserEntity` mirror row exists (the auth guard creates that lazily on the
+ * first authenticated request). Keying by subject keeps this table consistent with
+ * the Redis layer, which is also keyed by subject.
+ *
+ * Used to power the "logged-in devices" UI (list + revoke) and to enforce the
+ * max-devices-per-account policy. `revokedAt` is null while the session is active.
+ */
 export class LoginSessionEntity extends UuidAbstractEntity {
     @Column({
         name: "keycloak_id",

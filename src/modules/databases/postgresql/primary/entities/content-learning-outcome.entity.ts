@@ -26,14 +26,14 @@ import {
     ContentLearningOutcomeTranslationEntity,
 } from "./content-learning-outcome-translation.entity"
 
-/**
- * A single "what you will learn" bullet attached to a content (lesson). Ordered, localized;
- * sourced from the mount `# outcomes` section. Mirrors the challenge-output shape.
- */
 @ObjectType({
     description: "A 'what you will learn' outcome bullet belonging to a content (lesson).",
 })
 @Entity("content_learning_outcomes")
+/**
+ * A single "what you will learn" bullet attached to a content (lesson). Ordered, localized;
+ * sourced from the mount `# outcomes` section. Mirrors the challenge-output shape.
+ */
 export class ContentLearningOutcomeEntity extends UuidAbstractEntity {
     /** Default-locale outcome text (short bullet, plain text or light markdown). */
     @Field(

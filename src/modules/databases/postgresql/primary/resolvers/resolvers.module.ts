@@ -105,12 +105,12 @@ const resolverProviders: Array<Provider> = [
     FlashcardDeckResolverService,
 ]
 
-/**
- * Translation + entity locale resolvers for the primary PostgreSQL connection.
- */
 @Module({
     providers: resolverProviders,
     exports: resolverProviders,
 })
+/**
+ * Translation + entity locale resolvers for the primary PostgreSQL connection.
+ */
 export class ResolversModule extends ConfigurableModuleClass {
 }

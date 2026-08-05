@@ -15,6 +15,7 @@ import {
     ContentEngagementProjectionTranslationEntity,
 } from "./content-engagement-projection-translation.entity"
 
+@Entity("content_engagement_projections")
 /**
  * CQRS projection of a content's engagement (Kiểu A — single natural key).
  *
@@ -24,7 +25,6 @@ import {
  * CDC, read with a TTL lazy-refresh — the table stands in for the old Redis
  * view-count cache.
  */
-@Entity("content_engagement_projections")
 export class ContentEngagementProjectionEntity extends AbstractProjectionEntity {
     /** Target content id — the natural primary key (one row per content). */
     @PrimaryColumn({

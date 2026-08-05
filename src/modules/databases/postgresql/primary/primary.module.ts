@@ -213,11 +213,11 @@ import {
     PostgreSqlAdvisoryLockService
 } from "./lock"
 
+@Module({
+})
 /**
  * Primary PostgreSQL module for the primary PostgreSQL connection.
  */
-@Module({
-})
 export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
     /**
      * Register.

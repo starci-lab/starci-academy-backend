@@ -12,6 +12,10 @@ import {
 } from "./translation.service"
 
 @Injectable()
+/**
+ * Overwrites company title/description in-place with locale-resolved strings
+ * and strips translations/consultants so GraphQL returns a flat display shape.
+ */
 export class HeadhuntingCompanyResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

@@ -30,6 +30,11 @@ import {
     description: "A module belonging to a course."
 })
 @Entity("modules")
+/**
+ * Ordered unit inside a course that owns lessons and challenges. Progress,
+ * hydration, paywall (`isPremium`), and CDN sync all key off module id — a
+ * lesson never hangs directly off the course.
+ */
 export class ModuleEntity extends UuidAbstractEntity {
     /**
      * Human-readable module title.

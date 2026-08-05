@@ -15,13 +15,13 @@ import {
     UuidAbstractEntity 
 } from "./abstract"
 
-/**
- * A single submission resource: either a list of folder paths or a Git URL.
- */
 @ObjectType({
     description: "Resource item (driver URL or Git URL)."
 })
 @Entity("resources")
+/**
+ * A single submission resource: either a list of folder paths or a Git URL.
+ */
 export class ResourceEntity extends UuidAbstractEntity {
     @Field(() => GraphQLTypeResourceType,
         {

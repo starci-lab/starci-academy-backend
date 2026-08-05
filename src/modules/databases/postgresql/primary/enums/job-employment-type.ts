@@ -9,9 +9,13 @@ import {
  * The employment arrangement advertised on a job posting (`job_postings.employment_type`).
  */
 export enum JobEmploymentType {
+    /** Posting matches full-time-only recruiter / catalog filters. */
     Fulltime = "fulltime",
+    /** Posting matches part-time-only filters (excluded from full-time lists). */
     Parttime = "parttime",
+    /** Posting matches internship filters. */
     Internship = "internship",
+    /** Posting matches contract / freelance filters. */
     Contract = "contract",
 }
 

@@ -21,12 +21,6 @@ import {
     UserEntity,
 } from "./user.entity"
 
-/**
- * A single chat message inside a {@link ChatConversationEntity}. `isDeleted`
- * is reserved for a future author-delete affordance (soft-delete, so the
- * thread shape would survive) — no service method or GraphQL mutation sets it
- * today, so it always reads `false`.
- */
 @ObjectType({
     description: "A single chat message in a conversation.",
 })
@@ -38,6 +32,12 @@ import {
         "createdAt",
     ],
 )
+/**
+ * A single chat message inside a {@link ChatConversationEntity}. `isDeleted`
+ * is reserved for a future author-delete affordance (soft-delete, so the
+ * thread shape would survive) — no service method or GraphQL mutation sets it
+ * today, so it always reads `false`.
+ */
 export class ChatMessageEntity extends UuidAbstractEntity {
     /**
      * Raw message body authored by the user.

@@ -11,6 +11,7 @@ import {
     EnrollmentEntity,
 } from "./enrollment.entity"
 
+@Entity("user_challenge_progress_projections")
 /**
  * CQRS projection of a user's per-challenge progress in a course (Kiểu A — single
  * key `enrollment_id`).
@@ -22,7 +23,6 @@ import {
  * replaces the old Redis `challenge.submission.progress` cache (the projection
  * table IS the cache now).
  */
-@Entity("user_challenge_progress_projections")
 export class UserChallengeProgressProjectionEntity extends AbstractProjectionEntity {
     /** Enrollment this progress row belongs to — the natural primary key. */
     @PrimaryColumn({

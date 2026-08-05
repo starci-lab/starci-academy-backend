@@ -12,6 +12,7 @@ import {
     TranslationResolverService,
 } from "./translation.service"
 
+@Injectable()
 /**
  * Applies translations to a playground (and its steps) at request time.
  *
@@ -22,7 +23,6 @@ import {
  * the canonical English-first merge value, so an entity with no translation
  * rows falls back to that column rather than blanking out.
  */
-@Injectable()
 export class PlaygroundResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

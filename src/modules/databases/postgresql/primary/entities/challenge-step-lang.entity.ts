@@ -26,14 +26,14 @@ import {
     ChallengeStepLangTranslationEntity,
 } from "./challenge-step-lang-translation.entity"
 
-/**
- * Per-programming-language row of a SCHEMA V2 step item. Default-locale `title` / `body` are stored
- * on this row; per-locale overrides live in {@link ChallengeStepLangTranslationEntity}.
- */
 @ObjectType({
     description: "Per-language row of a V2 step item (title/body + per-locale translations).",
 })
 @Entity("challenge_step_langs")
+/**
+ * Per-programming-language row of a SCHEMA V2 step item. Default-locale `title` / `body` are stored
+ * on this row; per-locale overrides live in {@link ChallengeStepLangTranslationEntity}.
+ */
 export class ChallengeStepLangEntity extends UuidAbstractEntity {
     /**
      * Programming language (e.g. typescript, java, csharp, go).

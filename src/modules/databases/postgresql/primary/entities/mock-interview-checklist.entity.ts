@@ -13,6 +13,15 @@ import {
     MockInterviewEntity,
 } from "./mock-interview.entity"
 
+@Entity("mock_interview_checklists")
+@Index("idx_mock_interview_checklists_interview",
+    ["mockInterview"])
+@Index("uq_mock_interview_checklists_interview_order",
+    ["mockInterview",
+        "orderIndex"],
+    {
+        unique: true,
+    })
 /**
  * One coverage CHECKPOINT of a {@link MockInterviewEntity} — the grading anchor that
  * succeeds the parent's flat `rubric` jsonb array.
@@ -30,15 +39,6 @@ import {
  * English-only in both locales (same as `keywords`/`tags`), so unlike the lang variants
  * there is no translation child table.
  */
-@Entity("mock_interview_checklists")
-@Index("idx_mock_interview_checklists_interview",
-    ["mockInterview"])
-@Index("uq_mock_interview_checklists_interview_order",
-    ["mockInterview",
-        "orderIndex"],
-    {
-        unique: true,
-    })
 export class MockInterviewChecklistEntity extends UuidAbstractEntity {
     /** The checkpoint itself — a declarative statement of what a complete answer establishes. */
     @Column({

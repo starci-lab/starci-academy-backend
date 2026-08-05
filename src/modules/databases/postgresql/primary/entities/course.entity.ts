@@ -49,14 +49,14 @@ import {
 } from "./flashcard-deck.entity"
 
 
-/**
- * Course entity representing a sellable learning program
- * with ordered modules, pricing phases, and localized content.
- */
 @ObjectType({
     description: "Course entity representing a sellable learning program with ordered modules, pricing phases, and localized content.",
 })
 @Entity("courses")
+/**
+ * Course entity representing a sellable learning program
+ * with ordered modules, pricing phases, and localized content.
+ */
 export class CourseEntity extends UuidAbstractEntity {
     /**
      * Human-readable course title.

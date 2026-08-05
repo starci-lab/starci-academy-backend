@@ -20,14 +20,14 @@ import {
     ChallengePrerequisiteLangEntity,
 } from "./challenge-prerequisite-lang.entity"
 
-/**
- * Translation for V2 prerequisite language-row fields (`text`).
- * Primary key: (challengePrerequisiteLangId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a V2 prerequisite language-row field.",
 })
 @Entity("challenge_prerequisite_lang_translations")
+/**
+ * Translation for V2 prerequisite language-row fields (`text`).
+ * Primary key: (challengePrerequisiteLangId, locale, field).
+ */
 export class ChallengePrerequisiteLangTranslationEntity extends AbstractEntity {
     /** Parent prerequisite language row id (composite PK part). */
     @Field(() => String)

@@ -17,12 +17,6 @@ import {
     CodingProblemEntity,
 } from "./coding-problem.entity"
 
-/**
- * A single testcase for a coding problem: one stdin fed to the user's program
- * and the exact stdout it must produce. `isSample` testcases are shown to the
- * user (to illustrate the problem); the rest are hidden and used only for
- * judging — they must never be exposed through non-admin GraphQL fields.
- */
 @ObjectType(
     "CodingProblemTestcase",
     {
@@ -30,6 +24,12 @@ import {
     },
 )
 @Entity("coding_problem_testcases")
+/**
+ * A single testcase for a coding problem: one stdin fed to the user's program
+ * and the exact stdout it must produce. `isSample` testcases are shown to the
+ * user (to illustrate the problem); the rest are hidden and used only for
+ * judging — they must never be exposed through non-admin GraphQL fields.
+ */
 export class CodingProblemTestcaseEntity extends UuidAbstractEntity {
     @Field(
         () => String,

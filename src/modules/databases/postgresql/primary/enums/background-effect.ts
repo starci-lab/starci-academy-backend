@@ -12,15 +12,25 @@ import {
  * light/dark mode. Stored in `users.background_effect`, default `None`.
  */
 export enum BackgroundEffect {
+    /** No chrome overlay is mounted (default; lesson column is unaffected either way). */
     None = "none",
+    /** Chrome plays warm embers drifting upward. */
     Ember = "ember",
+    /** Chrome plays layered waves along the bottom edge. */
     Wave = "wave",
+    /** Chrome plays snowflakes drifting downward. */
     Snow = "snow",
+    /** Chrome plays rain streaks falling. */
     Rain = "rain",
+    /** Chrome plays rising, wobbling bubbles. */
     Bubbles = "bubbles",
+    /** Chrome plays slow-drifting fireflies that flicker. */
     Fireflies = "fireflies",
+    /** Chrome plays a twinkling starfield. */
     Stars = "stars",
+    /** Chrome plays soft moving aurora ribbons. */
     Aurora = "aurora",
+    /** Chrome plays a pulsing circuit-board grid. */
     Circuit = "circuit",
 }
 

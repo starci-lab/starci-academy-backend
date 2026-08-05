@@ -20,14 +20,14 @@ import {
     MilestoneEntity,
 } from "./milestone.entity"
 
-/**
- * Translation entity for milestone fields (title, description).
- * Primary key: (milestoneId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific milestone field.",
 })
 @Entity("milestone_translations")
+/**
+ * Translation entity for milestone fields (title, description).
+ * Primary key: (milestoneId, locale, field).
+ */
 export class MilestoneTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

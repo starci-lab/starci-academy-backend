@@ -14,6 +14,15 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@Index(["user"])
+@Unique(
+    "uq_daily_quest_completions_user_id_quest_date",
+    [
+        "userId",
+        "questDate",
+    ],
+)
+@Entity("daily_quest_completions")
 /**
  * One per (user, calendar day): proof that a user completed ALL of their daily
  * quest tasks that day AND claimed the reward. The row exists ONLY after a
@@ -24,15 +33,6 @@ import {
  * user can claim once per VN day. `coin_reward` snapshots the Coin granted at
  * claim time (the catalog value can change without rewriting history).
  */
-@Index(["user"])
-@Unique(
-    "uq_daily_quest_completions_user_id_quest_date",
-    [
-        "userId",
-        "questDate",
-    ],
-)
-@Entity("daily_quest_completions")
 export class DailyQuestCompletionEntity extends UuidAbstractEntity {
     /** The user who completed + claimed the daily quest. */
     @ManyToOne(

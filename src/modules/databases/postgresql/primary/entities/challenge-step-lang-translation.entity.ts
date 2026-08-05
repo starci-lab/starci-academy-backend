@@ -20,14 +20,14 @@ import {
     ChallengeStepLangEntity,
 } from "./challenge-step-lang.entity"
 
-/**
- * Translation for V2 step language-row fields (`title`, `body`).
- * Primary key: (challengeStepLangId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a V2 step language-row field.",
 })
 @Entity("challenge_step_lang_translations")
+/**
+ * Translation for V2 step language-row fields (`title`, `body`).
+ * Primary key: (challengeStepLangId, locale, field).
+ */
 export class ChallengeStepLangTranslationEntity extends AbstractEntity {
     /** Parent step language row id (composite PK part). */
     @Field(() => String)

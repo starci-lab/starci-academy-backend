@@ -22,13 +22,13 @@ import {
     ConsultantEntity,
 } from "./consultant.entity"
 
-/**
- * Recruitment company (e.g. Pegasi) that employs consultants.
- */
 @ObjectType({
     description: "IT recruitment company profile.",
 })
 @Entity("headhunting_companies")
+/**
+ * Recruitment company (e.g. Pegasi) that employs consultants.
+ */
 export class HeadhuntingCompanyEntity extends UuidAbstractEntity {
     @Field(
         () => String,

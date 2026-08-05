@@ -43,13 +43,13 @@ import {
     ChallengePrerequisiteEntity,
 } from "./challenge-prerequisite.entity"
 
-/**
- * Hands-on challenge attached to a module (title, prerequisites, description, steps).
- */
 @ObjectType({
     description: "Challenge attached to a module with localized copy and steps.",
 })
 @Entity("challenges")
+/**
+ * Hands-on challenge attached to a module (title, prerequisites, description, steps).
+ */
 export class ChallengeEntity extends UuidAbstractEntity {
     /**
      * Challenge title.

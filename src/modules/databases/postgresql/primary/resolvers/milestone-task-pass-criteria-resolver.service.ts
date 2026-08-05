@@ -11,10 +11,10 @@ import {
     TranslationResolverService,
 } from "./translation.service"
 
+@Injectable()
 /**
  * Applies translations to a milestone task criteria row.
  */
-@Injectable()
 export class MilestoneTaskPassCriteriaResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

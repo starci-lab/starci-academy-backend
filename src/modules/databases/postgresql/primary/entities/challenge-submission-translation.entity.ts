@@ -20,14 +20,14 @@ import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
 
-/**
- * Translation for challenge submission fields (e.g. name, description). URL is not translated.
- * Primary key: (challengeSubmissionId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a challenge submission field (e.g. name, description).",
 })
 @Entity("challenge_submission_translations")
+/**
+ * Translation for challenge submission fields (e.g. name, description). URL is not translated.
+ * Primary key: (challengeSubmissionId, locale, field).
+ */
 export class ChallengeSubmissionTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

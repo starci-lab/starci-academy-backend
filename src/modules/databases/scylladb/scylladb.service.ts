@@ -14,8 +14,8 @@ import {
     InvalidScyllaIdentifierException,
 } from "@modules/exceptions"
 
-/** Shared ScyllaDB helper for schema bootstrap and document upsert operations. */
 @Injectable()
+/** Shared ScyllaDB helper for schema bootstrap and document upsert operations. */
 export class ScyllaDBService {
     private readonly ensuredTables = new Set<string>()
 

@@ -31,14 +31,14 @@ import {
     FoundationTranslationEntity,
 } from "./foundation-translation.entity"
 
-/**
- * Foundation item within a specific category.
- * Represents a single learning resource with a kind (external_link | video | document).
- */
 @ObjectType({
     description: "Foundation resource item attached to a foundation category.",
 })
 @Entity("foundations")
+/**
+ * Foundation item within a specific category.
+ * Represents a single learning resource with a kind (external_link | video | document).
+ */
 export class FoundationEntity extends UuidAbstractEntity {
     /**
      * Display title of the foundation item.

@@ -12,13 +12,13 @@ import {
     ChallengeSubmissionOutcomeCriteriaEntity,
 } from "./challenge-submission-outcome-criteria.entity"
 
+@Entity("challenge_submission_outcome_criteria_langs")
 /**
  * Per-language prose for a SCHEMA V2 outcome criterion (one row per programming language).
  *
  * English-only grading rubric (internal — NOT exposed via GraphQL); no per-locale translation table
  * because the rubric is never translated. Holds the criterion's `body` text for one language.
  */
-@Entity("challenge_submission_outcome_criteria_langs")
 export class ChallengeSubmissionOutcomeCriteriaLangEntity extends UuidAbstractEntity {
     /**
      * Programming language for this criterion prose (e.g. typescript, java, csharp, go).

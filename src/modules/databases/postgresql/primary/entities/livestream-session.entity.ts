@@ -26,15 +26,15 @@ import {
     LivestreamSessionTranslationEntity,
 } from "./livestream-session-translation.entity"
 
-/**
- * Recurring weekly livestream slot for a course (calendar template).
- * Optional {@link LivestreamSessionEntity.note} uses default locale; use {@link LivestreamSessionTranslationEntity} for overrides.
- */
 @ObjectType({
     description:
         "Recurring weekly livestream slot for a course; superseded rows are ignored after overrides.",
 })
 @Entity("livestream_sessions")
+/**
+ * Recurring weekly livestream slot for a course (calendar template).
+ * Optional {@link LivestreamSessionEntity.note} uses default locale; use {@link LivestreamSessionTranslationEntity} for overrides.
+ */
 export class LivestreamSessionEntity extends UuidAbstractEntity {
     @ManyToOne(
         () => CourseEntity,

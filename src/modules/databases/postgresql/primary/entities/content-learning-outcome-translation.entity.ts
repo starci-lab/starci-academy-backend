@@ -20,13 +20,13 @@ import {
     ContentLearningOutcomeEntity,
 } from "./content-learning-outcome.entity"
 
-/**
- * Localized value for a content learning-outcome field (composite PK: outcome id + locale + field).
- */
 @ObjectType({
     description: "Localized value for a content learning-outcome field.",
 })
 @Entity("content_learning_outcome_translations")
+/**
+ * Localized value for a content learning-outcome field (composite PK: outcome id + locale + field).
+ */
 export class ContentLearningOutcomeTranslationEntity extends AbstractEntity {
     /** Parent learning-outcome id this translation overrides. */
     @Field(() => String)

@@ -26,13 +26,13 @@ import {
     CodeImplementationTranslationEntity,
 } from "./code-implementation-translation.entity"
 
-/**
- * Multi-language implementation guide for a lesson (mount `# codeImplementations`).
- */
 @ObjectType({
     description: "Implementation guide for a content lesson in a specific programming language.",
 })
 @Entity("code_implementations")
+/**
+ * Multi-language implementation guide for a lesson (mount `# codeImplementations`).
+ */
 export class CodeImplementationEntity extends UuidAbstractEntity {
     @Field(
         () => String,

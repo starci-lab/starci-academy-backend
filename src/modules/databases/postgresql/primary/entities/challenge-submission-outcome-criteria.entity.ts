@@ -16,6 +16,7 @@ import {
     ChallengeSubmissionOutcomeCriteriaLangEntity,
 } from "./challenge-submission-outcome-criteria-lang.entity"
 
+@Entity("challenge_submission_outcome_criteria")
 /**
  * SCHEMA V2 OUTCOME-criteria item attached to a challenge submission slot (one row per criterion).
  *
@@ -25,7 +26,6 @@ import {
  * Authored in `criterias/<submissionIndex>/outcome.md`. Per-item score is NOT stored — the 70/30
  * weighting lives on the submission.
  */
-@Entity("challenge_submission_outcome_criteria")
 export class ChallengeSubmissionOutcomeCriteriaEntity extends UuidAbstractEntity {
     /**
      * Display order of this criterion within the submission's outcome rubric.

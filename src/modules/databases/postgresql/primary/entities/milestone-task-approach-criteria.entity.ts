@@ -16,6 +16,7 @@ import {
     MilestoneTaskApproachCriteriaLangEntity,
 } from "./milestone-task-approach-criteria-lang.entity"
 
+@Entity("milestone_task_approach_criteria")
 /**
  * SCHEMA V2 APPROACH criterion of a milestone task (one yes/no item grading the per-language
  * mechanism / how it was built).
@@ -25,7 +26,6 @@ import {
  * {@link MilestoneTaskApproachCriteriaLangEntity} (one row per language: typescript/java/csharp/go).
  * English-only grading rubric — INTERNAL, NOT in GraphQL.
  */
-@Entity("milestone_task_approach_criteria")
 export class MilestoneTaskApproachCriteriaEntity extends UuidAbstractEntity {
     /**
      * Display/grading order within the task's approach rubric.

@@ -17,6 +17,14 @@ import {
     MockInterviewChecklistEntity,
 } from "./mock-interview-checklist.entity"
 
+@Entity("mock_interviews")
+// technical draw scopes by (course, reached module) + tier; behavioral by tier only
+@Index("idx_mock_interviews_course_module",
+    ["courseId",
+        "moduleId"])
+@Index("idx_mock_interviews_family_tier",
+    ["family",
+        "tier"])
 /**
  * One authored MOCK-INTERVIEW question — the static side of the "đề tĩnh · phản
  * hồi sống" split. Unlike a flashcard (a recall fact you read the answer to),
@@ -46,14 +54,6 @@ import {
  * on this row stay as the single-language default; `langs` is populated only
  * when a question needs more than one language variant.
  */
-@Entity("mock_interviews")
-// technical draw scopes by (course, reached module) + tier; behavioral by tier only
-@Index("idx_mock_interviews_course_module",
-    ["courseId",
-        "moduleId"])
-@Index("idx_mock_interviews_family_tier",
-    ["family",
-        "tier"])
 export class MockInterviewEntity extends UuidAbstractEntity {
     /** `technical` | `behavioral` — routes source, grading model + surfaced tools. */
     @Column({

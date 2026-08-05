@@ -20,13 +20,13 @@ import {
     CodeImplementationEntity,
 } from "./code-implementation.entity"
 
-/**
- * Translation for {@link CodeImplementationEntity} fields (`guide`, `example`).
- */
 @ObjectType({
     description: "Localized value for a code implementation field.",
 })
 @Entity("code_implementation_translations")
+/**
+ * Translation for {@link CodeImplementationEntity} fields (`guide`, `example`).
+ */
 export class CodeImplementationTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

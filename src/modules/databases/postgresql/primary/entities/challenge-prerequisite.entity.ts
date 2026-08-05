@@ -26,15 +26,15 @@ import {
     ChallengePrerequisiteLangEntity,
 } from "./challenge-prerequisite-lang.entity"
 
+@ObjectType({
+    description: "A SCHEMA V2 challenge prerequisite item (one per position).",
+})
+@Entity("challenge_prerequisites")
 /**
  * SCHEMA V2 prerequisite ITEM for a challenge (normalized — no jsonb). One row per prerequisite
  * position; the per-language `text` lives under {@link ChallengePrerequisiteLangEntity}.
  * Prerequisites carry no item-level title, so there is no item translation table.
  */
-@ObjectType({
-    description: "A SCHEMA V2 challenge prerequisite item (one per position).",
-})
-@Entity("challenge_prerequisites")
 export class ChallengePrerequisiteEntity extends UuidAbstractEntity {
     /**
      * Display order of this prerequisite within the challenge (agnostic position).

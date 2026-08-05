@@ -26,14 +26,14 @@ import {
     ChallengeStepLangEntity,
 } from "./challenge-step-lang.entity"
 
-/**
- * SCHEMA V2 step ITEM for a challenge (normalized — no jsonb). One row per step position;
- * per-programming-language `title` and `body` live under {@link ChallengeStepLangEntity}.
- */
 @ObjectType({
     description: "A SCHEMA V2 challenge step item (one per position).",
 })
 @Entity("challenge_steps")
+/**
+ * SCHEMA V2 step ITEM for a challenge (normalized — no jsonb). One row per step position;
+ * per-programming-language `title` and `body` live under {@link ChallengeStepLangEntity}.
+ */
 export class ChallengeStepEntity extends UuidAbstractEntity {
     /**
      * Display order of this step within the challenge (agnostic position).

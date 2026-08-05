@@ -9,7 +9,9 @@ import {
  * How the learner attached their work: local folder paths vs a Git remote URL.
  */
 export enum ResourceType {
+    /** Payload is `foldersJson` local/Drive folder paths — not a Git remote. */
     DriverUrl = "driverUrl",
+    /** Payload is a Git remote URL the processor clones; `foldersJson` is ignored. */
     GitUrl = "gitUrl",
 }
 

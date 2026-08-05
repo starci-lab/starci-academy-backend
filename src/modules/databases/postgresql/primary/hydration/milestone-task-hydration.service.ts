@@ -12,6 +12,10 @@ import {
 } from "../primary.decorators"
 
 @Injectable()
+/**
+ * Loads one milestone task with learner-facing briefs/criteria for FE/CDN.
+ * The internal outcome/approach rubric is deliberately omitted here.
+ */
 export class MilestoneTaskHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -16,6 +16,7 @@ import {
     ChallengeSubmissionApproachCriteriaLangEntity,
 } from "./challenge-submission-approach-criteria-lang.entity"
 
+@Entity("challenge_submission_approach_criteria")
 /**
  * SCHEMA V2 APPROACH-criteria item attached to a challenge submission slot (one row per criterion).
  *
@@ -25,7 +26,6 @@ import {
  * `criterias/<submissionIndex>/approach.md` on the course mount. Per-item score is NOT stored — the
  * 70/30 weighting lives on the submission (`approachScore`/`outcomeScore`).
  */
-@Entity("challenge_submission_approach_criteria")
 export class ChallengeSubmissionApproachCriteriaEntity extends UuidAbstractEntity {
     /**
      * Display order of this criterion within the submission's approach rubric.

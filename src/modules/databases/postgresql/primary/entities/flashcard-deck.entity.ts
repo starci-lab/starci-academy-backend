@@ -31,16 +31,16 @@ import {
     FlashcardCardEntity,
 } from "./flashcard-card.entity"
 
+@ObjectType({
+    description: "Multiple-choice flashcard deck owned by a course, optionally linked to contents.",
+})
+@Entity("flashcard_decks")
 /**
  * Flashcardlet-style multiple-choice flashcard deck. Lives at the course level (shown in
  * its own course tab) and may optionally be linked to one or more contents
  * (many-to-many) for topical grouping. Seeded from `.mount` markdown and
  * localized via a translation table.
  */
-@ObjectType({
-    description: "Multiple-choice flashcard deck owned by a course, optionally linked to contents.",
-})
-@Entity("flashcard_decks")
 export class FlashcardDeckEntity extends UuidAbstractEntity {
     /**
      * Deck title.

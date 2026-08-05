@@ -49,12 +49,12 @@ const hydrationProviders: Array<Provider> = [
     HeadhuntingCompanyHydrationService,
 ]
 
-/**
- * Loads entity graphs from PostgreSQL as plain objects for CDN / Elasticsearch materialization.
- */
 @Module({
     providers: hydrationProviders,
     exports: hydrationProviders,
 })
+/**
+ * Loads entity graphs from PostgreSQL as plain objects for CDN / Elasticsearch materialization.
+ */
 export class HydrationModule extends ConfigurableModuleClass {
 }

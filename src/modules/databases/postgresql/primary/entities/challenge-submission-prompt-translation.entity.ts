@@ -20,14 +20,14 @@ import {
     ChallengeSubmissionPromptEntity,
 } from "./challenge-submission-prompt.entity"
 
-/**
- * Localized title/text for a challenge submission prompt (e.g. for `title` and `text` fields).
- * Primary key: (challengeSubmissionPromptId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a challenge submission grading prompt field.",
 })
 @Entity("challenge_submission_prompt_translations")
+/**
+ * Localized title/text for a challenge submission prompt (e.g. for `title` and `text` fields).
+ * Primary key: (challengeSubmissionPromptId, locale, field).
+ */
 export class ChallengeSubmissionPromptTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

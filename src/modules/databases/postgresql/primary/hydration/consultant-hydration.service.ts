@@ -15,6 +15,10 @@ import {
 } from "@modules/exceptions"
 
 @Injectable()
+/**
+ * Loads a consultant with translations and company so locale resolution can
+ * run in memory — a bare `findOne` would leave those relations unloaded.
+ */
 export class ConsultantHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

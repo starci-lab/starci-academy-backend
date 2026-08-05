@@ -20,14 +20,14 @@ import {
     MilestoneTaskEntity,
 } from "./milestone-task.entity"
 
-/**
- * Translation entity for milestone task fields (title, description).
- * Primary key: (milestoneTaskId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific milestone task field.",
 })
 @Entity("milestone_task_translations")
+/**
+ * Translation entity for milestone task fields (title, description).
+ * Primary key: (milestoneTaskId, locale, field).
+ */
 export class MilestoneTaskTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

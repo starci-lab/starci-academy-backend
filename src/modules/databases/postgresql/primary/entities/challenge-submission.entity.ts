@@ -47,6 +47,11 @@ import {
     },
 )
 @Entity("challenge_submissions")
+/**
+ * One submission slot on a challenge (Docs vs GitHub, score weights, prompts).
+ * Attempts and grading jobs hang off this row — without it there is nothing to
+ * submit against, even if the parent challenge exists.
+ */
 export class ChallengeSubmissionEntity extends UuidAbstractEntity {
     @Field(
         () => GraphQLTypeSubmissionType,

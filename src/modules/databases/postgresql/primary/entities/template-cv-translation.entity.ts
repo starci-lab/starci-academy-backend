@@ -20,6 +20,10 @@ import {
     Locale,
 } from "../enums"
 
+@ObjectType({
+    description: "Localized value for a specific template CV field.",
+})
+@Entity("template_cv_translations")
 /**
  * Translation entity storing localized values for template CV fields.
  *
@@ -28,10 +32,6 @@ import {
  *
  * Primary key is the composite (templateCVId, locale, field).
  */
-@ObjectType({
-    description: "Localized value for a specific template CV field.",
-})
-@Entity("template_cv_translations")
 export class TemplateCVTranslationEntity extends AbstractEntity {
     /**
      * Target template CV ID (part of composite primary key).

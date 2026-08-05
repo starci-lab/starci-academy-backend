@@ -24,6 +24,11 @@ import {
     description: "Localized value for a consultant field.",
 })
 @Entity("consultant_translations")
+/**
+ * Locale-scoped override for one consultant display field. Same consultant row
+ * can render Vi and En without duplicating the consultant; missing locale falls
+ * back to the consultant's `defaultLocale`.
+ */
 export class ConsultantTranslationEntity extends AbstractEntity {
     @Field(() => String,
         {

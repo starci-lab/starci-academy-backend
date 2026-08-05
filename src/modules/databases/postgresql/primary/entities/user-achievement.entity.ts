@@ -23,15 +23,6 @@ import {
     AchievementEntity,
 } from "./achievement.entity"
 
-/**
- * Append-only ledger of achievements a user has earned. One row per
- * `(user, achievement, tier)` so a tiered badge produces one row per tier
- * reached, and `earnedAt` for each is captured exactly once.
- *
- * `(user, achievement, tier)` is unique so the idempotent award INSERT (run by
- * the recompute path on every relevant event) can never double-record the same
- * milestone. A single-tier achievement stores `tier = null`.
- */
 @ObjectType({
     description: "Record of an achievement (and tier) earned by a user.",
 })
@@ -43,6 +34,15 @@ import {
 // profile read filters by user
 @Index(["user"])
 @Entity("user_achievements")
+/**
+ * Append-only ledger of achievements a user has earned. One row per
+ * `(user, achievement, tier)` so a tiered badge produces one row per tier
+ * reached, and `earnedAt` for each is captured exactly once.
+ *
+ * `(user, achievement, tier)` is unique so the idempotent award INSERT (run by
+ * the recompute path on every relevant event) can never double-record the same
+ * milestone. A single-tier achievement stores `tier = null`.
+ */
 export class UserAchievementEntity extends UuidAbstractEntity {
     /**
      * User who earned the achievement.

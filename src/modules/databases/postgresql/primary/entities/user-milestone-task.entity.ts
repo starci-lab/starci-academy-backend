@@ -25,14 +25,14 @@ import {
     UserMilestoneTaskAttemptEntity,
 } from "./user-milestone-task-attempt.entity"
 
-/**
- * Links a user's enrollment to a specific milestone task.
- * Created when a user starts working on a milestone task.
- */
 @ObjectType({
     description: "Links a user enrollment to a milestone task.",
 })
 @Entity("user_milestone_tasks")
+/**
+ * Links a user's enrollment to a specific milestone task.
+ * Created when a user starts working on a milestone task.
+ */
 export class UserMilestoneTaskEntity extends UuidAbstractEntity {
     /**
      * Display order within the enrollment's task list.

@@ -20,14 +20,14 @@ import {
     ValuePropositionEntity,
 } from "./value-proposition.entity"
 
-/**
- * Translation entity for value proposition fields.
- * Primary key: (valuePropositionId, locale, field).
- */
 @ObjectType({
     description: "Localized value for a specific value proposition field.",
 })
 @Entity("value_proposition_translations")
+/**
+ * Translation entity for value proposition fields.
+ * Primary key: (valuePropositionId, locale, field).
+ */
 export class ValuePropositionTranslationEntity extends AbstractEntity {
     @Field(
         () => String,

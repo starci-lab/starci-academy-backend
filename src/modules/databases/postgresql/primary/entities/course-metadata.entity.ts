@@ -14,10 +14,10 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 
+@Entity("course_metadata")
 /**
  * One-to-one operational metadata for a course (e.g. active pricing tier).
  */
-@Entity("course_metadata")
 export class CourseMetadataEntity extends UuidAbstractEntity {
     @OneToOne(
         () => CourseEntity,

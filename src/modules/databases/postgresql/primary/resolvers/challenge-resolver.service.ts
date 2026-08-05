@@ -11,11 +11,11 @@ import {
     TranslationResolverService,
 } from "./translation.service"
 
+@Injectable()
 /**
  * Applies translations to a challenge and its nested SCHEMA V2 items
  * (requirements/steps/outputs/prerequisites) for CDN materialization.
  */
-@Injectable()
 export class ChallengeResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

@@ -26,13 +26,13 @@ import {
     ConsultantTranslationEntity,
 } from "./consultant-translation.entity"
 
-/**
- * IT recruitment consultant profile under a headhunting company.
- */
 @ObjectType({
     description: "IT recruitment consultant profile.",
 })
 @Entity("consultants")
+/**
+ * IT recruitment consultant profile under a headhunting company.
+ */
 export class ConsultantEntity extends UuidAbstractEntity {
     @Field(() => String,
         {

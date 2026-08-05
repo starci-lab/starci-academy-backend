@@ -30,9 +30,6 @@ import {
     UserMilestoneTaskEntity,
 } from "./user-milestone-task.entity"
 
-/**
- * Join entity representing many-to-many enrollment between users and courses.
- */
 @ObjectType({
     description: "Enrollment relation between a user and a course.",
 })
@@ -44,6 +41,9 @@ import {
         "course",
     ],
 )
+/**
+ * Join entity representing many-to-many enrollment between users and courses.
+ */
 export class EnrollmentEntity extends UuidAbstractEntity {
     @Field(
         () => UserEntity,

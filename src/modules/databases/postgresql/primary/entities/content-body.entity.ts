@@ -26,15 +26,15 @@ import {
     ContentBodyTranslationEntity,
 } from "./content-body-translation.entity"
 
+@ObjectType({
+    description: "Per-language lesson body for a content (SCHEMA V2); per-locale text in the translation table.",
+})
+@Entity("content_bodies")
 /**
  * SCHEMA V2 per-programming-language lesson body for a content (mount `bodies/<N>-<lang>/`).
  * One row per language; the markdown `body` holds the default locale and per-locale variants
  * live in the translation table.
  */
-@ObjectType({
-    description: "Per-language lesson body for a content (SCHEMA V2); per-locale text in the translation table.",
-})
-@Entity("content_bodies")
 export class ContentBodyEntity extends UuidAbstractEntity {
     /**
      * Programming language for this body (e.g. typescript, java, csharp, go).

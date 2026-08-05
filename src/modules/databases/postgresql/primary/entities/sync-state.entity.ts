@@ -23,6 +23,11 @@ import {
 @Index("ix_sync_state_status_next_retry",
     ["status",
         "nextRetryAt"])
+/**
+ * Per-(target, sourceType, sourceId) sync cursor. Lets ES/Scylla workers skip
+ * already-synced snapshots and retry failures without re-walking the source
+ * table; the unique index forbids a second cursor for the same triple.
+ */
 export class SyncStateEntity extends UuidAbstractEntity {
     @Column({
         name: "target",

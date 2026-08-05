@@ -45,6 +45,9 @@ import {
  */
 export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course" | "global"
 
+@Index(["enrollment", "originContent"])
+@Index(["user"])
+@Entity("content_ai_sessions")
 /**
  * One content-AI conversation thread — a named chat a learner keeps about a lesson,
  * a capstone task, a foundation doc, or a whole course. A surface can hold MANY
@@ -58,9 +61,6 @@ export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | 
  * course-agnostic sessions (a GLOBAL foundation doc) key off the raw **user**,
  * which is why both `enrollment` and `originContent` are nullable.
  */
-@Index(["enrollment", "originContent"])
-@Index(["user"])
-@Entity("content_ai_sessions")
 export class ContentAiSessionEntity extends UuidAbstractEntity {
     /**
      * Which surface the conversation grounds on. Drives which anchor column is set

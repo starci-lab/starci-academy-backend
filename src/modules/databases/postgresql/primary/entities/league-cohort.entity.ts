@@ -10,6 +10,9 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 
+@Index(["tier",
+    "weekStartAt"])
+@Entity("league_cohorts")
 /**
  * One weekly competition group ("cohort") for a single {@link LeagueTier}.
  *
@@ -20,9 +23,6 @@ import {
  * promote and the bottom 5 demote at the next reset. The composite index on
  * `(tier, weekStartAt)` makes "all cohorts for this tier this week" cheap.
  */
-@Index(["tier",
-    "weekStartAt"])
-@Entity("league_cohorts")
 export class LeagueCohortEntity extends UuidAbstractEntity {
     /** Tier this cohort competes in (all members share it for the week). */
     @Column({

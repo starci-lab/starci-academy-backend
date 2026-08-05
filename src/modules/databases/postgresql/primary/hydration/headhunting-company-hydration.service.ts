@@ -15,6 +15,10 @@ import {
 } from "@modules/exceptions"
 
 @Injectable()
+/**
+ * Loads a headhunting company with translations so locale resolution can run
+ * in memory before GraphQL returns the company.
+ */
 export class HeadhuntingCompanyHydrationService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

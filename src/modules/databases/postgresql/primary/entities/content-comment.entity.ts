@@ -25,15 +25,6 @@ import {
     UserEntity,
 } from "./user.entity"
 
-/**
- * A threaded comment — either on a lesson content (per-lesson "Thảo luận"), OR a
- * course-general question with no specific lesson ("hỏi chung khóa"). Exactly one of
- * `content`/`course` is set (never both, never neither); enforced by a DB CHECK
- * constraint (see the migration) since TypeORM cannot express XOR at the entity level.
- * Replies point at a parent comment via `parentComment` (self relation), enabling
- * arbitrarily nested discussion. Deletion is soft (`isDeleted`) so the thread shape and
- * child replies survive.
- */
 @ObjectType({
     description: "A threaded comment on a lesson content or a course-general question.",
 })
@@ -52,6 +43,15 @@ import {
         "parentComment",
     ],
 )
+/**
+ * A threaded comment — either on a lesson content (per-lesson "Thảo luận"), OR a
+ * course-general question with no specific lesson ("hỏi chung khóa"). Exactly one of
+ * `content`/`course` is set (never both, never neither); enforced by a DB CHECK
+ * constraint (see the migration) since TypeORM cannot express XOR at the entity level.
+ * Replies point at a parent comment via `parentComment` (self relation), enabling
+ * arbitrarily nested discussion. Deletion is soft (`isDeleted`) so the thread shape and
+ * child replies survive.
+ */
 export class ContentCommentEntity extends UuidAbstractEntity {
     /**
      * Raw markdown/plain body authored by the user.

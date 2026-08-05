@@ -25,11 +25,6 @@ import {
     ReactionType,
 } from "../enums"
 
-/**
- * A single user's reaction on a community post. A user holds at most one reaction
- * per post (enforced by the composite unique); changing the emotion updates the
- * row. Mirrors {@link ActivityReactionEntity}.
- */
 @ObjectType({
     description: "A user's Facebook-style reaction on a community post.",
 })
@@ -41,6 +36,11 @@ import {
         "user",
     ],
 )
+/**
+ * A single user's reaction on a community post. A user holds at most one reaction
+ * per post (enforced by the composite unique); changing the emotion updates the
+ * row. Mirrors {@link ActivityReactionEntity}.
+ */
 export class CommunityPostReactionEntity extends UuidAbstractEntity {
     /**
      * The emotion kind the user dropped on the post.

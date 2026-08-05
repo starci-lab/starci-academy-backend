@@ -11,10 +11,10 @@ import {
     TranslationResolverService,
 } from "./translation.service"
 
+@Injectable()
 /**
  * Applies translations to a course prerequisite row.
  */
-@Injectable()
 export class PrerequisiteResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,

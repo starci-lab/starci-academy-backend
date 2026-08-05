@@ -14,10 +14,10 @@ import {
     MilestoneTaskResolverService,
 } from "./milestone-task-resolver.service"
 
+@Injectable()
 /**
  * Applies translations to a milestone row and delegates nested tasks.
  */
-@Injectable()
 export class MilestoneResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,
