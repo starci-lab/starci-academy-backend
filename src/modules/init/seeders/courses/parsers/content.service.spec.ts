@@ -69,7 +69,7 @@ import {
 
 const COURSES_MOUNT_ROOT = path.join(
     process.cwd(),
-    ".mount/data/courses",
+    ".volume/data/courses",
 )
 
 /** Mount folder for the NestJS "frameworks in backend" lesson (SCHEMA V2 sample). */
@@ -85,7 +85,7 @@ const FRAMEWORKS_IN_BACKEND_RELATIVE_PATH =
 /**
  * Lists indexed mount folders (`{orderIndex}-{slug}`) under a courses-relative directory.
  *
- * @param relativeDir - Path under `.mount/data/courses/`.
+ * @param relativeDir - Path under `.volume/data/courses/`.
  * @returns Resolved paths sorted by `orderIndex`.
  */
 async function listIndexedMountDirs(

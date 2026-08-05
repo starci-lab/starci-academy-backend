@@ -51,7 +51,7 @@ import {
 
 const COURSES_MOUNT_ROOT = path.join(
     process.cwd(),
-    ".mount/data/courses",
+    ".volume/data/courses",
 )
 
 /** Relative path to the Module 1 (backend foundations) flashcard deck (themed deck 0). */
