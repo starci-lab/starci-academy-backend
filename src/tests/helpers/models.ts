@@ -165,6 +165,34 @@ const retryAfterMs = (error: unknown): number | undefined => {
     return Number.isFinite(seconds) ? seconds * 1_000 : undefined
 }
 
+/**
+ * How long the retry budget is allowed to wait in total before it stops calling
+ * the wait a retry and starts calling it a wall.
+ *
+ * The account's quota resets on a five-hour window. When that window is spent,
+ * every attempt returns 429 and no amount of backing off inside one test will
+ * change that -- retrying it only converts a three-second failure into a
+ * seventy-three-minute one, which is exactly what a full harness run did. Past
+ * this budget the run stops and says WHEN the window resets, which is the only
+ * actionable thing left.
+ */
+const RETRY_BUDGET_MS = 120_000
+
+/**
+ * The quota window's reset time, as the API reported it on the failing response.
+ *
+ * `anthropic-ratelimit-unified-reset` is a unix timestamp in seconds. It is the
+ * difference between "the service is busy, come back in a moment" and "this
+ * account has nothing left until a fixed clock time" -- the first is worth
+ * retrying and the second is not.
+ */
+const resetAtMs = (error: unknown): number | undefined => {
+    const headers = (error as ThrottleError)?.headers
+    const raw = headers?.["anthropic-ratelimit-unified-reset"]
+    const seconds = raw === undefined ? Number.NaN : Number(raw)
+    return Number.isFinite(seconds) ? seconds * 1_000 : undefined
+}
+
 const sleep = (ms: number): Promise<void> =>
     new Promise((resolve) => setTimeout(resolve,
         ms))
@@ -182,6 +210,12 @@ const sleep = (ms: number): Promise<void> =>
  * Errors that are not throttling (a bad request, a missing credential) rethrow
  * immediately -- retrying those only hides a real defect.
  *
+ * So does an exhausted quota window. Retrying a wall is not resilience: the
+ * first full run of this lane spent 4366 seconds on ONE spec, backing off
+ * against a five-hour window that had nothing left, and every test still failed.
+ * Once {@link RETRY_BUDGET_MS} is spent the run stops and names the reset time,
+ * because that is the only thing a reader can act on.
+ *
  * @param fn - the API call to run
  * @returns whatever `fn` resolves to
  */
@@ -189,6 +223,7 @@ export const withRateLimitRetry = async <TResult>(
     fn: () => Promise<TResult>,
 ): Promise<TResult> => {
     let lastError: unknown
+    let waited = 0
 
     for (let attempt = 1; attempt <= MAX_OUTER_ATTEMPTS; attempt += 1) {
         try {
@@ -198,10 +233,27 @@ export const withRateLimitRetry = async <TResult>(
             if (!isRetryable(error) || attempt === MAX_OUTER_ATTEMPTS) {
                 throw error
             }
+
             const backoff = Math.min(MAX_BACKOFF_MS,
                 2 ** attempt * 1_000)
             const jitter = Math.floor(Math.random() * 1_000)
-            await sleep(retryAfterMs(error) ?? backoff + jitter)
+            const wait = retryAfterMs(error) ?? backoff + jitter
+
+            if (waited + wait > RETRY_BUDGET_MS) {
+                const resetAt = resetAtMs(error)
+                const when = resetAt === undefined
+                    ? "an unreported time"
+                    : new Date(resetAt).toISOString()
+                throw new Error(
+                    `Anthropic quota is exhausted, not merely throttled: ${Math.round(waited / 1_000)}s `
+                    + `of backoff spent over ${attempt} attempts and the API is still returning 429. `
+                    + `The window resets at ${when}. Re-run the harness after that, and do not run other `
+                    + "agents against the same account meanwhile -- they draw on the same quota.",
+                )
+            }
+
+            waited += wait
+            await sleep(wait)
         }
     }
 
