@@ -74,15 +74,15 @@ const PRODUCTS: ReadonlyArray<LqipProduct> = SEEDS.map(({
     lqip: LQIP,
 }))
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller()
 /**
  * Mock controller for lesson `2-zero-cls-image-loading-with-lqip`.
  *
  * Root-mounted because this lesson's frontend fetches `/api/products` off
  * `new URL(VITE_API_BASE).origin` (the session path is stripped).
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller()
 export class LqipImageController {
     /**
      * Returns the product catalog with fixed dimensions + LQIP placeholders.

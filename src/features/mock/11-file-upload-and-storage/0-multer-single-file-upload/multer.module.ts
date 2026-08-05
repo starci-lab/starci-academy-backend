@@ -5,8 +5,8 @@ import {
     MulterController,
 } from "./multer.controller"
 
-/** Leaf module for the single-file multipart upload lesson mock. */
 @Module({
     controllers: [MulterController],
 })
+/** Leaf module for the single-file multipart upload lesson mock. */
 export class MulterMockModule {}

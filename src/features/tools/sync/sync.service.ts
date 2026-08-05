@@ -40,6 +40,7 @@ import type {
     SyncTargetResult,
 } from "./types"
 
+@Injectable()
 /**
  * Pushes local artifacts up to a saved S3 target.
  *
@@ -49,7 +50,6 @@ import type {
  * re-run later ({@link syncArtifact}) without recomputing it — a re-PUT simply
  * overwrites the object.
  */
-@Injectable()
 export class SyncService {
     private readonly logger = new Logger(SyncService.name)
 

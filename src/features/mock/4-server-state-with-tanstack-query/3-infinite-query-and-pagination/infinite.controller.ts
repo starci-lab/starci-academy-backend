@@ -14,13 +14,13 @@ import {
     MockDelayInterceptor,
 } from "../../interceptors"
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/4-server-state-with-tanstack-query/3-infinite-query-and-pagination/sessions/:sessionId")
 /**
  * Mock controller for lesson `3-infinite-query-and-pagination` — exposes a
  * cursor-paginated user list the infinite-query demo fetches page by page.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/4-server-state-with-tanstack-query/3-infinite-query-and-pagination/sessions/:sessionId")
 export class InfiniteController {
     /** Module display id this controller is hardcoded to serve. */
     private readonly moduleId = "4-server-state-with-tanstack-query"

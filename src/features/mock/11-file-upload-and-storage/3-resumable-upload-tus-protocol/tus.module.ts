@@ -8,9 +8,9 @@ import {
     TusController,
 } from "./tus.controller"
 
-/** Leaf module for the resumable (tus protocol) upload lesson mock. */
 @Module({
     imports: [FileStoreModule],
     controllers: [TusController],
 })
+/** Leaf module for the resumable (tus protocol) upload lesson mock. */
 export class TusMockModule {}

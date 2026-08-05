@@ -14,13 +14,13 @@ import {
     MockDelayInterceptor,
 } from "../../interceptors"
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/5-form-mastery-rhf-zod/1-async-validation-with-debounce/sessions/:sessionId")
 /**
  * Mock controller for lesson `1-async-validation-with-debounce` — exposes a
  * username-availability check the debounced async validator polls as the user types.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/5-form-mastery-rhf-zod/1-async-validation-with-debounce/sessions/:sessionId")
 export class AsyncValidationController {
     /** Module display id this controller is hardcoded to serve. */
     private readonly moduleId = "5-form-mastery-rhf-zod"

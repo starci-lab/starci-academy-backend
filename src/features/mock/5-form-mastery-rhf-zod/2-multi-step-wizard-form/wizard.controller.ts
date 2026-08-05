@@ -14,13 +14,13 @@ import {
     MockDelayInterceptor,
 } from "../../interceptors"
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/5-form-mastery-rhf-zod/2-multi-step-wizard-form/sessions/:sessionId")
 /**
  * Mock controller for lesson `2-multi-step-wizard-form` — accepts the merged
  * payload from the final wizard step and returns the created user.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/5-form-mastery-rhf-zod/2-multi-step-wizard-form/sessions/:sessionId")
 export class WizardController {
     /** Module display id this controller is hardcoded to serve. */
     private readonly moduleId = "5-form-mastery-rhf-zod"

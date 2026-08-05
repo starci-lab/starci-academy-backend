@@ -29,6 +29,7 @@ import type {
     UploadItemResult,
 } from "./types"
 
+@Injectable()
 /**
  * Uploads raw file(s) as-is to one or more S3 targets.
  *
@@ -37,7 +38,6 @@ import type {
  * stays as a cache so the same file can be re-synced later without re-uploading
  * from the operator's browser.
  */
-@Injectable()
 export class UploadService {
     private readonly logger = new Logger(UploadService.name)
 

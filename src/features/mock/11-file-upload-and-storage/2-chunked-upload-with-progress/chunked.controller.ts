@@ -38,6 +38,8 @@ import {
 /** Per-chunk byte cap (a generous multiple of the 256 KB chunk size). */
 const MAX_CHUNK_BYTES = 2 * 1024 * 1024
 
+@ApiTags("mock")
+@Controller()
 /**
  * Mock controller for lesson `2-chunked-upload-with-progress`.
  *
@@ -48,8 +50,6 @@ const MAX_CHUNK_BYTES = 2 * 1024 * 1024
  * the per-chunk progress bar stays smooth; init/status/finalize keep the delay.
  * Mounted at the bare origin (the frontend uses `new URL(VITE_API_BASE).origin`).
  */
-@ApiTags("mock")
-@Controller()
 export class ChunkedController {
     constructor(private readonly store: FileStoreService) {}
 

@@ -5,8 +5,8 @@ import {
     ResponsiveImagesController,
 } from "./responsive-images.controller"
 
-/** Leaf module for the responsive-images lesson mock. */
 @Module({
     controllers: [ResponsiveImagesController],
 })
+/** Leaf module for the responsive-images lesson mock. */
 export class ResponsiveImagesMockModule {}

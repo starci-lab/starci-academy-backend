@@ -14,12 +14,12 @@ import {
     envConfig,
 } from "@modules/env"
 
+@Injectable()
 /**
  * Delays every mock response by a configured amount so lesson sandboxes show
  * their loading/skeleton states (real APIs are never instant). Tunable via
  * `MOCK_DELAY_MS` (default 1000ms). Preflight OPTIONS never reach here.
  */
-@Injectable()
 export class MockDelayInterceptor implements NestInterceptor {
     intercept(_context: ExecutionContext, next: CallHandler): Observable<unknown> {
         // pull the configured artificial latency and delay the response stream

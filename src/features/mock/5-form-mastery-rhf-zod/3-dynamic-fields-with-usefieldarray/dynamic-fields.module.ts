@@ -11,9 +11,9 @@ import {
     DynamicFieldsController,
 } from "./dynamic-fields.controller"
 
-/** Leaf module for the dynamic-fields-with-useFieldArray lesson mock. */
 @Module({
     imports: [StoreModule],
     controllers: [DynamicFieldsController],
 })
+/** Leaf module for the dynamic-fields-with-useFieldArray lesson mock. */
 export class DynamicFieldsModule extends ConfigurableModuleClass {}

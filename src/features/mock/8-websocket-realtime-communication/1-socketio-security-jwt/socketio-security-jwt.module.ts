@@ -17,12 +17,6 @@ import {
     SocketioSecurityJwtGateway,
 } from "./socketio-security-jwt.gateway"
 
-/**
- * Lesson module for `1-socketio-security-jwt`.
- *
- * Wires the JWT signer/verifier shared by the REST auth controller (issues
- * tokens) and the Socket.IO gateway (validates them at handshake).
- */
 @Module({
     imports: [
         JwtModule.register({
@@ -36,4 +30,10 @@ import {
     providers: [AuthStoreService,
         SocketioSecurityJwtGateway],
 })
+/**
+ * Lesson module for `1-socketio-security-jwt`.
+ *
+ * Wires the JWT signer/verifier shared by the REST auth controller (issues
+ * tokens) and the Socket.IO gateway (validates them at handshake).
+ */
 export class SocketioSecurityJwtMockModule {}

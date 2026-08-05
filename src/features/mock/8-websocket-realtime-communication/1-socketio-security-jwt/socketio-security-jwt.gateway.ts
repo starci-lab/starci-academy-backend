@@ -14,6 +14,12 @@ import type {
     JwtUser, SecureChatBroadcast,
 } from "./types"
 
+@WebSocketGateway({
+    namespace: "/8-websocket-realtime-communication/1-socketio-security-jwt",
+    cors: {
+        origin: true,
+    },
+})
 /**
  * Socket.IO gateway for lesson `1-socketio-security-jwt`.
  *
@@ -24,12 +30,6 @@ import type {
  * always derived from the verified token (`socket.data.user`), never from the
  * client-supplied message body — that is the core security invariant.
  */
-@WebSocketGateway({
-    namespace: "/8-websocket-realtime-communication/1-socketio-security-jwt",
-    cors: {
-        origin: true,
-    },
-})
 export class SocketioSecurityJwtGateway implements OnGatewayInit {
     /** The underlying Socket.IO namespace server, injected by Nest. */
     @WebSocketServer()

@@ -30,6 +30,7 @@ import type {
     PgSnapshotResult,
 } from "./types"
 
+@Injectable()
 /**
  * Dumps a list of (cloud) PostgreSQL databases to local `.dump` files.
  *
@@ -38,7 +39,6 @@ import type {
  * collected and returned. Files land under `<TOOLS_SNAPSHOT_DIR>/pg` so the
  * operator can inspect or restore them by hand.
  */
-@Injectable()
 export class PgSnapshotService {
     private readonly logger = new Logger(PgSnapshotService.name)
 

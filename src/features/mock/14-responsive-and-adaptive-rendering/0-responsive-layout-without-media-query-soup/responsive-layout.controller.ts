@@ -64,15 +64,15 @@ const PRODUCTS: ReadonlyArray<ResponsiveLayoutProduct> = [
     },
 ]
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/14-responsive-and-adaptive-rendering/0-responsive-layout-without-media-query-soup/sessions/:sessionId")
 /**
  * Mock controller for lesson `0-responsive-layout-without-media-query-soup`.
  *
  * Session-scoped path because this lesson's frontend uses the full injected
  * `VITE_API_BASE` (not just its origin) when fetching `/api/products`.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/14-responsive-and-adaptive-rendering/0-responsive-layout-without-media-query-soup/sessions/:sessionId")
 export class ResponsiveLayoutController {
     /**
      * Returns the product catalog rendered by the responsive grid.

@@ -36,9 +36,6 @@ import type {
     ProcessUploadResult,
 } from "./types"
 
-/**
- * Local-only controller for raw file uploads to one or more S3 targets.
- */
 @ApiTags(toolsRoutes.upload.tag)
 @Controller(
     {
@@ -46,6 +43,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Local-only controller for raw file uploads to one or more S3 targets.
+ */
 export class UploadController {
     constructor(
         private readonly uploadService: UploadService,

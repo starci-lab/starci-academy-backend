@@ -5,8 +5,8 @@ import {
     LqipImageController,
 } from "./lqip-image.controller"
 
-/** Leaf module for the LQIP / zero-CLS image lesson mock. */
 @Module({
     controllers: [LqipImageController],
 })
+/** Leaf module for the LQIP / zero-CLS image lesson mock. */
 export class LqipImageMockModule {}

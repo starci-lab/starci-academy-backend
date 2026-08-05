@@ -65,15 +65,15 @@ const buildProduct = (
 /** Pre-built product catalog for the responsive-images lesson. */
 const PRODUCTS: ReadonlyArray<ResponsiveImageProduct> = CATALOG.map(buildProduct)
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/14-responsive-and-adaptive-rendering/1-responsive-images-with-srcset-and-picture/sessions/:sessionId")
 /**
  * Mock controller for lesson `1-responsive-images-with-srcset-and-picture`.
  *
  * Session-scoped path because this lesson's frontend fetches `/api/products`
  * off the full injected `VITE_API_BASE` (not just its origin).
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/14-responsive-and-adaptive-rendering/1-responsive-images-with-srcset-and-picture/sessions/:sessionId")
 export class ResponsiveImagesController {
     /**
      * Returns the product catalog with multi-resolution / art-direction URLs.

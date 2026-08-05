@@ -34,9 +34,6 @@ import type {
     ProcessMediaResult,
 } from "./types"
 
-/**
- * Local-only controller for encoding an uploaded video to MinIO.
- */
 @ApiTags(toolsRoutes.media.tag)
 @Controller(
     {
@@ -44,6 +41,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Local-only controller for encoding an uploaded video to MinIO.
+ */
 export class MediaController {
     constructor(
         private readonly mediaService: MediaService,

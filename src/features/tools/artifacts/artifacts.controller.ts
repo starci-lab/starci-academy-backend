@@ -28,9 +28,6 @@ import {
     SyncService,
 } from "../sync"
 
-/**
- * Local-only controller for the artifact registry: list, re-sync, delete.
- */
 @ApiTags(toolsRoutes.artifacts.tag)
 @UseGuards(LocalOnlyGuard)
 @Controller(
@@ -39,6 +36,9 @@ import {
         version: "1",
     },
 )
+/**
+ * Local-only controller for the artifact registry: list, re-sync, delete.
+ */
 export class ArtifactsController {
     constructor(
         private readonly toolsStoreService: ToolsStoreService,

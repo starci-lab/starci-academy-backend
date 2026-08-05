@@ -2,8 +2,11 @@ import {
     Injectable,
     OnModuleInit,
     OnModuleDestroy,
-    BadRequestException,
 } from "@nestjs/common"
+import {
+    MockSessionUserNotFoundException,
+    MockSimulatedFailureException,
+} from "@modules/exceptions"
 import {
     resolveMockDefinition,
 } from "./registry"
@@ -28,6 +31,7 @@ const SESSION_TTL_MS = 30 * 60 * 1000
 /** How often the cleanup interval runs (every 5 minutes). */
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000
 
+@Injectable()
 /**
  * Shared in-memory store for sandbox mock sessions.
  *
@@ -37,7 +41,6 @@ const CLEANUP_INTERVAL_MS = 5 * 60 * 1000
  * other's mutations. Sessions are evicted after 30 minutes idle. Every lesson
  * controller injects this one service for its data operations.
  */
-@Injectable()
 export class SessionStoreService implements OnModuleInit, OnModuleDestroy {
     /** Map from composite key to session data. */
     private readonly sessions = new Map<string, MockSession>()
@@ -142,7 +145,9 @@ export class SessionStoreService implements OnModuleInit, OnModuleDestroy {
 
         // surface a clear error if the id did not exist
         if (session.users.length === before) {
-            throw new BadRequestException(`User ${userId} not found in session`)
+            throw new MockSessionUserNotFoundException({
+                userId,
+            })
         }
     }
 
@@ -157,7 +162,8 @@ export class SessionStoreService implements OnModuleInit, OnModuleDestroy {
     ): MockUser {
         // intentional server-side failure to demonstrate onError rollback
         if (fail) {
-            throw new BadRequestException("Simulated server error (fail=true)")
+            throw new MockSimulatedFailureException({
+            })
         }
 
         const session = this.touchOrCreate(scope)
@@ -165,7 +171,9 @@ export class SessionStoreService implements OnModuleInit, OnModuleDestroy {
         // find the target user and update in place
         const user = session.users.find((candidate) => candidate.id === userId)
         if (!user) {
-            throw new BadRequestException(`User ${userId} not found in session`)
+            throw new MockSessionUserNotFoundException({
+                userId,
+            })
         }
 
         user.name = name

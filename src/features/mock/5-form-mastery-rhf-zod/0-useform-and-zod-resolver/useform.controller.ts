@@ -14,14 +14,14 @@ import {
     MockDelayInterceptor,
 } from "../../interceptors"
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/5-form-mastery-rhf-zod/0-useform-and-zod-resolver/sessions/:sessionId")
 /**
  * Mock controller for lesson `0-useform-and-zod-resolver` — accepts the form
  * submission and returns the created user so the demo can show the resolved
  * `{ id, email }`.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/5-form-mastery-rhf-zod/0-useform-and-zod-resolver/sessions/:sessionId")
 export class UseFormController {
     /** Module display id this controller is hardcoded to serve. */
     private readonly moduleId = "5-form-mastery-rhf-zod"

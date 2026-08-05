@@ -6,7 +6,6 @@ import {
     Param,
     Req,
     Res,
-    BadRequestException,
 } from "@nestjs/common"
 import {
     ApiOperation,
@@ -16,6 +15,9 @@ import type {
     Request,
     Response,
 } from "express"
+import {
+    MockInvalidUploadRequestException,
+} from "@modules/exceptions"
 import {
     FileStoreService,
 } from "../../file-store"
@@ -30,6 +32,8 @@ const TUS_VERSION = "1.0.0"
 /** Per-PATCH byte cap (the client uses 2 MB chunks). */
 const MAX_PATCH_BYTES = 10 * 1024 * 1024
 
+@ApiTags("mock")
+@Controller()
 /**
  * Mock controller for lesson `3-resumable-upload-tus-protocol`.
  *
@@ -42,8 +46,6 @@ const MAX_PATCH_BYTES = 10 * 1024 * 1024
  * Note: the tus response headers (`Location`, `Upload-Offset`, …) are only
  * readable cross-origin because `main.ts` lists them under `exposedHeaders`.
  */
-@ApiTags("mock")
-@Controller()
 export class TusController {
     constructor(private readonly store: FileStoreService) {}
 
@@ -62,7 +64,9 @@ export class TusController {
         const lengthHeader = request.headers["upload-length"]
         const length = Number(lengthHeader)
         if (typeof lengthHeader !== "string" || !Number.isFinite(length)) {
-            throw new BadRequestException("Missing or invalid Upload-Length header")
+            throw new MockInvalidUploadRequestException({
+                reason: "Missing or invalid Upload-Length header",
+            })
         }
 
         // Upload-Metadata is opaque to us — store and echo it back verbatim
@@ -92,7 +96,9 @@ export class TusController {
         // the client tells us where it believes the upload currently ends
         const offset = Number(request.headers["upload-offset"])
         if (!Number.isFinite(offset)) {
-            throw new BadRequestException("Missing or invalid Upload-Offset header")
+            throw new MockInvalidUploadRequestException({
+                reason: "Missing or invalid Upload-Offset header",
+            })
         }
 
         const buffer = await readRawBody(request,

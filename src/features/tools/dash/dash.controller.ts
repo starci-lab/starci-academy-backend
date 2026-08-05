@@ -36,9 +36,6 @@ import type {
     ProcessDashResult,
 } from "./types"
 
-/**
- * Local-only controller for packaging an uploaded video to MPEG-DASH.
- */
 @ApiTags(toolsRoutes.dash.tag)
 @Controller(
     {
@@ -46,6 +43,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Local-only controller for packaging an uploaded video to MPEG-DASH.
+ */
 export class DashController {
     constructor(
         private readonly dashService: DashService,

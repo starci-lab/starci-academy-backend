@@ -11,9 +11,9 @@ import {
     WizardController,
 } from "./wizard.controller"
 
-/** Leaf module for the multi-step-wizard-form lesson mock. */
 @Module({
     imports: [StoreModule],
     controllers: [WizardController],
 })
+/** Leaf module for the multi-step-wizard-form lesson mock. */
 export class WizardModule extends ConfigurableModuleClass {}

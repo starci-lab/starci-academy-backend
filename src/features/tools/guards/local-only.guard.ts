@@ -9,6 +9,7 @@ import {
     ToolsRouteNotFoundException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Guard that hard-blocks every tools route in production.
  *
@@ -18,7 +19,6 @@ import {
  * routes that do not exist — this is the API-layer half of the prod lockdown
  * (the static `/dashboard` is gated by a sibling middleware in `main.ts`).
  */
-@Injectable()
 export class LocalOnlyGuard implements CanActivate {
     /**
      * Allow the request only when not running in production.

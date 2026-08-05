@@ -11,9 +11,9 @@ import {
     MutationsController,
 } from "./mutations.controller"
 
-/** Leaf module for the mutations + invalidation-graph lesson mock. */
 @Module({
     imports: [StoreModule],
     controllers: [MutationsController],
 })
+/** Leaf module for the mutations + invalidation-graph lesson mock. */
 export class MutationsModule extends ConfigurableModuleClass {}

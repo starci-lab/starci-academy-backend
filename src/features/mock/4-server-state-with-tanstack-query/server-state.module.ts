@@ -14,7 +14,6 @@ import {
     InfiniteModule,
 } from "./3-infinite-query-and-pagination"
 
-/** Aggregator module bundling every leaf mock for the server-state module. */
 @Module({
     imports: [
         UseQueryModule.register({
@@ -31,4 +30,5 @@ import {
         }),
     ],
 })
+/** Aggregator module bundling every leaf mock for the server-state module. */
 export class ServerStateMockModule {}

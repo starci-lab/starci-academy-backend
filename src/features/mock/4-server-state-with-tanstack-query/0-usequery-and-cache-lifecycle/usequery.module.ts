@@ -11,9 +11,9 @@ import {
     UseQueryController,
 } from "./usequery.controller"
 
-/** Leaf module for the useQuery cache-lifecycle lesson mock. */
 @Module({
     imports: [StoreModule],
     controllers: [UseQueryController],
 })
+/** Leaf module for the useQuery cache-lifecycle lesson mock. */
 export class UseQueryModule extends ConfigurableModuleClass {}

@@ -8,9 +8,9 @@ import {
     PresignController,
 } from "./presign.controller"
 
-/** Leaf module for the presigned-URL upload lesson mock. */
 @Module({
     imports: [FileStoreModule],
     controllers: [PresignController],
 })
+/** Leaf module for the presigned-URL upload lesson mock. */
 export class PresignMockModule {}

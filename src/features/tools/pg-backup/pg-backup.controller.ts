@@ -26,9 +26,6 @@ import type {
     PgBackupResult,
 } from "./types"
 
-/**
- * Local-only controller for backing up a database to disk + optionally cloud.
- */
 @ApiTags(toolsRoutes.pg.tag)
 @Controller(
     {
@@ -36,6 +33,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Local-only controller for backing up a database to disk + optionally cloud.
+ */
 export class PgBackupController {
     constructor(
         private readonly pgBackupService: PgBackupService,

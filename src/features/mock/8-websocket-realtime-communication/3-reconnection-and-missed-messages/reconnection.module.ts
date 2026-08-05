@@ -8,9 +8,9 @@ import {
     ReconnectionStoreService,
 } from "./reconnection-store.service"
 
-/** Lesson module for `3-reconnection-and-missed-messages`. */
 @Module({
     providers: [ReconnectionStoreService,
         ReconnectionGateway],
 })
+/** Lesson module for `3-reconnection-and-missed-messages`. */
 export class ReconnectionMockModule {}

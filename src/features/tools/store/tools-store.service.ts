@@ -30,6 +30,7 @@ import type {
     UpdateS3TargetParams,
 } from "./types"
 
+@Injectable()
 /**
  * Local SQLite store for the ops console: saved S3 targets + an artifact
  * registry.
@@ -39,7 +40,6 @@ import type {
  * every produced artifact is registered with its local path and (optionally) a
  * target, so it can be listed and pushed again without recomputing.
  */
-@Injectable()
 export class ToolsStoreService implements OnModuleInit {
     private readonly logger = new Logger(ToolsStoreService.name)
     private db!: DatabaseSync

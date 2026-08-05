@@ -13,6 +13,7 @@ interface StoredUser {
     password: string
 }
 
+@Injectable()
 /**
  * In-memory user store for the JWT security lesson mock.
  *
@@ -20,7 +21,6 @@ interface StoredUser {
  * mint a stable subject id and login can verify the password. Reset on process
  * restart, which is fine for a sandbox.
  */
-@Injectable()
 export class AuthStoreService {
     /** Registered users keyed by username. */
     private readonly users = new Map<string, StoredUser>()

@@ -2,15 +2,17 @@ import {
     Injectable,
     OnModuleInit,
     OnModuleDestroy,
-    BadRequestException,
-    NotFoundException,
-    ConflictException,
-    PayloadTooLargeException,
 } from "@nestjs/common"
 import {
     randomUUID,
     createHash,
 } from "crypto"
+import {
+    MockFileTooLargeException,
+    MockInvalidUploadRequestException,
+    MockResourceNotFoundException,
+    MockUploadOffsetConflictException,
+} from "@modules/exceptions"
 import type {
     StoredObject,
     ChunkSession,
@@ -35,6 +37,7 @@ const MAX_CHUNK_SESSION_BYTES = 25 * 1024 * 1024
 /** Fixed chunk size the chunked-upload client slices by (256 KB → visible progress). */
 const CHUNK_SIZE = 256 * 1024
 
+@Injectable()
 /**
  * Shared in-memory binary store for the file-upload lesson mocks.
  *
@@ -45,7 +48,6 @@ const CHUNK_SIZE = 256 * 1024
  * evicted after 30 minutes idle and every write is byte-capped so the public
  * mock cannot be used to exhaust memory.
  */
-@Injectable()
 export class FileStoreService implements OnModuleInit, OnModuleDestroy {
     /** Presigned-URL objects keyed by object key. */
     private readonly objects = new Map<string, StoredObject>()
@@ -101,7 +103,10 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
     ): void {
         // enforce the per-object cap before retaining the bytes
         if (buffer.length > MAX_OBJECT_BYTES) {
-            throw new PayloadTooLargeException(`Object exceeds ${MAX_OBJECT_BYTES} bytes`)
+            throw new MockFileTooLargeException({
+                reason: "presigned object",
+                maxBytes: MAX_OBJECT_BYTES,
+            })
         }
 
         this.objects.set(key,
@@ -119,7 +124,9 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
     getObject(key: string): StoredObject {
         const object = this.objects.get(key)
         if (!object) {
-            throw new NotFoundException(`Object ${key} not found`)
+            throw new MockResourceNotFoundException({
+                reason: `Object ${key} not found`,
+            })
         }
 
         // bump last-accessed so an actively-previewed object is not evicted
@@ -136,10 +143,15 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
     initChunkSession(filename: string, size: number): InitChunkResult {
         // a declared size beyond the cap is rejected up front
         if (size > MAX_CHUNK_SESSION_BYTES) {
-            throw new PayloadTooLargeException(`File exceeds ${MAX_CHUNK_SESSION_BYTES} bytes`)
+            throw new MockFileTooLargeException({
+                reason: "chunked-upload session",
+                maxBytes: MAX_CHUNK_SESSION_BYTES,
+            })
         }
         if (!Number.isFinite(size) || size <= 0) {
-            throw new BadRequestException("size must be a positive number")
+            throw new MockInvalidUploadRequestException({
+                reason: "size must be a positive number",
+            })
         }
 
         const sessionId = randomUUID()
@@ -173,13 +185,18 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
 
         // index must fall inside the expected range for this file
         if (!Number.isInteger(index) || index < 0 || index >= session.totalChunks) {
-            throw new BadRequestException(`index ${index} out of range`)
+            throw new MockInvalidUploadRequestException({
+                reason: `index ${index} out of range`,
+            })
         }
 
         // reject if this chunk would push the session over its byte cap
         const projected = this.sessionBytes(session) - (session.chunks.get(index)?.length ?? 0) + buffer.length
         if (projected > MAX_CHUNK_SESSION_BYTES) {
-            throw new PayloadTooLargeException(`Session exceeds ${MAX_CHUNK_SESSION_BYTES} bytes`)
+            throw new MockFileTooLargeException({
+                reason: "chunked-upload session",
+                maxBytes: MAX_CHUNK_SESSION_BYTES,
+            })
         }
 
         session.chunks.set(index,
@@ -222,7 +239,9 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
 
         // every index must be present before we can assemble
         if (session.chunks.size !== session.totalChunks) {
-            throw new BadRequestException(`Cannot finalize: ${session.totalChunks - session.chunks.size} chunk(s) missing`)
+            throw new MockInvalidUploadRequestException({
+                reason: `Cannot finalize: ${session.totalChunks - session.chunks.size} chunk(s) missing`,
+            })
         }
 
         // concatenate chunks strictly in index order
@@ -250,10 +269,15 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
      */
     createTusUpload(length: number, metadata: string): string {
         if (!Number.isFinite(length) || length < 0) {
-            throw new BadRequestException("Upload-Length must be a non-negative number")
+            throw new MockInvalidUploadRequestException({
+                reason: "Upload-Length must be a non-negative number",
+            })
         }
         if (length > MAX_OBJECT_BYTES) {
-            throw new PayloadTooLargeException(`Upload exceeds ${MAX_OBJECT_BYTES} bytes`)
+            throw new MockFileTooLargeException({
+                reason: "tus upload",
+                maxBytes: MAX_OBJECT_BYTES,
+            })
         }
 
         const id = randomUUID()
@@ -273,7 +297,9 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
     getTusUpload(id: string): TusUpload {
         const upload = this.tusUploads.get(id)
         if (!upload) {
-            throw new NotFoundException(`Upload ${id} not found`)
+            throw new MockResourceNotFoundException({
+                reason: `Upload ${id} not found`,
+            })
         }
         upload.lastAccessedAt = Date.now()
         return upload
@@ -288,12 +314,16 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
 
         // tus requires the PATCH offset to match exactly where we left off
         if (offset !== upload.buffer.length) {
-            throw new ConflictException(`Offset ${offset} does not match current ${upload.buffer.length}`)
+            throw new MockUploadOffsetConflictException({
+                reason: `Offset ${offset} does not match current ${upload.buffer.length}`,
+            })
         }
 
         // never let the appended bytes exceed the declared length
         if (upload.buffer.length + buffer.length > upload.length) {
-            throw new BadRequestException("Appended bytes exceed declared Upload-Length")
+            throw new MockInvalidUploadRequestException({
+                reason: "Appended bytes exceed declared Upload-Length",
+            })
         }
 
         upload.buffer = Buffer.concat([upload.buffer,
@@ -307,7 +337,9 @@ export class FileStoreService implements OnModuleInit, OnModuleDestroy {
     private requireChunkSession(sessionId: string): ChunkSession {
         const session = this.chunkSessions.get(sessionId)
         if (!session) {
-            throw new NotFoundException(`Upload session ${sessionId} not found`)
+            throw new MockResourceNotFoundException({
+                reason: `Upload session ${sessionId} not found`,
+            })
         }
         session.lastAccessedAt = Date.now()
         return session

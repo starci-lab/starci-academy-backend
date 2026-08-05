@@ -36,6 +36,7 @@ import type {
     S3SnapshotResult,
 } from "./types"
 
+@Injectable()
 /**
  * Downloads every object of a remote S3-compatible bucket into a local
  * snapshot directory, preserving the key hierarchy as folders.
@@ -45,7 +46,6 @@ import type {
  * DigitalOcean clients. The local snapshot can then be inspected or pushed back
  * up to another bucket by hand.
  */
-@Injectable()
 export class S3SnapshotService {
     private readonly logger = new Logger(S3SnapshotService.name)
 

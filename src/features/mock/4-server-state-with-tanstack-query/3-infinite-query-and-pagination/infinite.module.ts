@@ -11,9 +11,9 @@ import {
     InfiniteController,
 } from "./infinite.controller"
 
-/** Leaf module for the infinite-query-and-pagination lesson mock. */
 @Module({
     imports: [StoreModule],
     controllers: [InfiniteController],
 })
+/** Leaf module for the infinite-query-and-pagination lesson mock. */
 export class InfiniteModule extends ConfigurableModuleClass {}

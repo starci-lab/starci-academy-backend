@@ -14,13 +14,13 @@ import {
     MockDelayInterceptor,
 } from "../../interceptors"
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/5-form-mastery-rhf-zod/3-dynamic-fields-with-usefieldarray/sessions/:sessionId")
 /**
  * Mock controller for lesson `3-dynamic-fields-with-usefieldarray` — accepts an
  * invoice with a dynamic list of line items and returns the new id plus computed total.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/5-form-mastery-rhf-zod/3-dynamic-fields-with-usefieldarray/sessions/:sessionId")
 export class DynamicFieldsController {
     /** Module display id this controller is hardcoded to serve. */
     private readonly moduleId = "5-form-mastery-rhf-zod"

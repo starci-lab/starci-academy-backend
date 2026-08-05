@@ -14,7 +14,6 @@ import {
     DynamicFieldsModule,
 } from "./3-dynamic-fields-with-usefieldarray"
 
-/** Aggregator module bundling every leaf mock for the form-mastery module. */
 @Module({
     imports: [
         UseFormModule.register({
@@ -31,4 +30,5 @@ import {
         }),
     ],
 })
+/** Aggregator module bundling every leaf mock for the form-mastery module. */
 export class FormMasteryMockModule {}

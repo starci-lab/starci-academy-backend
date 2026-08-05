@@ -26,9 +26,6 @@ import type {
     S3SnapshotResult,
 } from "./types"
 
-/**
- * Local-only controller for snapshotting a remote S3 bucket to local disk.
- */
 @ApiTags(toolsRoutes.s3.tag)
 @Controller(
     {
@@ -36,6 +33,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Local-only controller for snapshotting a remote S3 bucket to local disk.
+ */
 export class S3SnapshotController {
     constructor(
         private readonly s3SnapshotService: S3SnapshotService,

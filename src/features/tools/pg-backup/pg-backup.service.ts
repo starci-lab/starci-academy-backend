@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Injectable,
     Logger,
 } from "@nestjs/common"
@@ -21,6 +20,10 @@ import {
     ExecaService,
 } from "@modules/execa"
 import {
+    BackupEncryptionPasswordNotSetException,
+    ToolsTargetReferenceInvalidException,
+} from "@modules/exceptions"
+import {
     ArtifactType,
     ToolsStoreService,
 } from "../store"
@@ -36,6 +39,7 @@ import type {
     PgBackupResult,
 } from "./types"
 
+@Injectable()
 /**
  * Backs up one PostgreSQL database to a local disk as an encrypted artifact,
  * registers it, and (optionally) syncs it to a saved S3 target.
@@ -45,7 +49,6 @@ import type {
  * dump/gz files go to a throwaway temp dir. The artifact stays on disk so it can
  * be re-synced later. Encryption is mandatory (`BACKUP_ENCRYPT_PASSWORD`).
  */
-@Injectable()
 export class PgBackupService {
     private readonly logger = new Logger(PgBackupService.name)
 
@@ -76,14 +79,15 @@ export class PgBackupService {
         // encryption is mandatory — refuse rather than write a plaintext dump
         const encryptPassword = envConfig().backup.encrypt.password
         if (!encryptPassword) {
-            throw new BadRequestException(
-                "BACKUP_ENCRYPT_PASSWORD is not set; refusing to write an unencrypted backup.",
-            )
+            throw new BackupEncryptionPasswordNotSetException({
+            })
         }
         // validate every target up-front so we fail before the heavy dump
         for (const targetId of targetIds) {
             if (!this.toolsStoreService.getTarget(targetId)) {
-                throw new BadRequestException(`Target ${targetId} not found.`)
+                throw new ToolsTargetReferenceInvalidException({
+                    targetId,
+                })
             }
         }
 

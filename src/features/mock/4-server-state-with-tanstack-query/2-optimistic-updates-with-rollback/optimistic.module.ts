@@ -11,9 +11,9 @@ import {
     OptimisticController,
 } from "./optimistic.controller"
 
-/** Leaf module for the optimistic-updates-with-rollback lesson mock. */
 @Module({
     imports: [StoreModule],
     controllers: [OptimisticController],
 })
+/** Leaf module for the optimistic-updates-with-rollback lesson mock. */
 export class OptimisticModule extends ConfigurableModuleClass {}

@@ -1,8 +1,6 @@
 import {
     Controller,
     Post,
-    BadRequestException,
-    PayloadTooLargeException,
     UseInterceptors,
     UploadedFile,
 } from "@nestjs/common"
@@ -17,6 +15,10 @@ import {
     randomUUID,
 } from "crypto"
 import {
+    MockFileRequiredException,
+    MockFileTooLargeException,
+} from "@modules/exceptions"
+import {
     MockDelayInterceptor,
 } from "../../interceptors"
 import type {
@@ -27,6 +29,9 @@ import type {
 /** Per-file byte cap for the single-file upload demo (10 MB). */
 const MAX_FILE_BYTES = 10 * 1024 * 1024
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller()
 /**
  * Mock controller for lesson `0-multer-single-file-upload`.
  *
@@ -35,9 +40,6 @@ const MAX_FILE_BYTES = 10 * 1024 * 1024
  * single multipart `file` field and echoes back the metadata multer would
  * report — without persisting anything to disk.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller()
 export class MulterController {
     /**
      * Accepts a single multipart `file` field and returns its metadata.
@@ -52,12 +54,17 @@ export class MulterController {
     ): UploadedFileInfo {
         // the field is required — mirror multer's "no file" error
         if (!file) {
-            throw new BadRequestException("No file uploaded (expected multipart field \"file\")")
+            throw new MockFileRequiredException({
+                fieldName: "file",
+            })
         }
 
         // guard the in-memory buffer against oversized uploads
         if (file.size > MAX_FILE_BYTES) {
-            throw new PayloadTooLargeException(`File exceeds ${MAX_FILE_BYTES} bytes`)
+            throw new MockFileTooLargeException({
+                reason: "single-file upload",
+                maxBytes: MAX_FILE_BYTES,
+            })
         }
 
         // derive a uuid-prefixed storage filename, preserving the original

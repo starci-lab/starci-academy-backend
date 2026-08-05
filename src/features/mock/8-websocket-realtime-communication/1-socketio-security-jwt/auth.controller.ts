@@ -1,5 +1,5 @@
 import {
-    Body, Controller, HttpCode, Post, UnauthorizedException, UseInterceptors,
+    Body, Controller, HttpCode, Post, UseInterceptors,
 } from "@nestjs/common"
 import {
     JwtService,
@@ -7,6 +7,9 @@ import {
 import {
     ApiOperation, ApiTags,
 } from "@nestjs/swagger"
+import {
+    MockInvalidCredentialsException,
+} from "@modules/exceptions"
 import {
     MockDelayInterceptor,
 } from "../../interceptors"
@@ -20,6 +23,9 @@ import type {
     JwtUser,
 } from "./types"
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/8-websocket-realtime-communication/1-socketio-security-jwt/sessions/:sessionId")
 /**
  * REST auth controller for lesson `1-socketio-security-jwt`.
  *
@@ -27,9 +33,6 @@ import type {
  * Mounted under the session path so the sandbox `VITE_API_BASE` (which already
  * ends in `/sessions/<uuid>`) can reach `auth/register` and `auth/login`.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/8-websocket-realtime-communication/1-socketio-security-jwt/sessions/:sessionId")
 export class AuthController {
     constructor(
         private readonly jwt: JwtService,
@@ -71,7 +74,8 @@ export class AuthController {
         const user = this.store.verify(body.username,
             body.password)
         // reject mismatches so the client surfaces a 401
-        if (!user) throw new UnauthorizedException("Invalid credentials")
+        if (!user) throw new MockInvalidCredentialsException({
+        })
         // mint and return the signed JWT
         return {
             access_token: this.sign(user) 

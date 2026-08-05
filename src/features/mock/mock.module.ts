@@ -17,6 +17,13 @@ import {
     ResponsiveMockModule,
 } from "./14-responsive-and-adaptive-rendering"
 
+@Module({
+    imports: [ServerStateMockModule,
+        FormMasteryMockModule,
+        RealtimeMockModule,
+        FileUploadMockModule,
+        ResponsiveMockModule],
+})
 /**
  * Feature module for the standalone mock-sandbox service.
  *
@@ -26,11 +33,4 @@ import {
  * applies `MockDelayInterceptor` per-controller (binary upload endpoints opt
  * out so transfer progress stays smooth).
  */
-@Module({
-    imports: [ServerStateMockModule,
-        FormMasteryMockModule,
-        RealtimeMockModule,
-        FileUploadMockModule,
-        ResponsiveMockModule],
-})
 export class MockModule {}

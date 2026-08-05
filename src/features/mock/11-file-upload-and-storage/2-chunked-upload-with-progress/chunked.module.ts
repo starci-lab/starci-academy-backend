@@ -8,9 +8,9 @@ import {
     ChunkedController,
 } from "./chunked.controller"
 
-/** Leaf module for the chunked-upload-with-progress lesson mock. */
 @Module({
     imports: [FileStoreModule],
     controllers: [ChunkedController],
 })
+/** Leaf module for the chunked-upload-with-progress lesson mock. */
 export class ChunkedMockModule {}

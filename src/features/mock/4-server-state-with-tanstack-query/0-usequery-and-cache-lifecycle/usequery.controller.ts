@@ -14,13 +14,13 @@ import {
     MockDelayInterceptor,
 } from "../../interceptors"
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/4-server-state-with-tanstack-query/0-usequery-and-cache-lifecycle/sessions/:sessionId")
 /**
  * Mock controller for lesson `0-usequery-and-cache-lifecycle` — exposes a single
  * read endpoint the useQuery cache-lifecycle demo polls.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/4-server-state-with-tanstack-query/0-usequery-and-cache-lifecycle/sessions/:sessionId")
 export class UseQueryController {
     /** Module display id this controller is hardcoded to serve. */
     private readonly moduleId = "4-server-state-with-tanstack-query"

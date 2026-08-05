@@ -1,11 +1,14 @@
 import {
-    BadRequestException,
     Injectable,
     Logger,
 } from "@nestjs/common"
 import {
     randomUUID,
 } from "crypto"
+import {
+    ToolsFileRequiredException,
+    ToolsTargetReferenceInvalidException,
+} from "@modules/exceptions"
 import {
     mkdir,
     stat,
@@ -33,6 +36,7 @@ import type {
     ProcessMediaResult,
 } from "./types"
 
+@Injectable()
 /**
  * Encodes an uploaded video into multi-bitrate mp4 renditions locally,
  * registers them as a kept artifact, and (optionally) syncs to a saved S3
@@ -43,7 +47,6 @@ import type {
  * target. The renditions stay on disk as a cache so the same artifact can be
  * re-synced later without re-encoding.
  */
-@Injectable()
 export class MediaService {
     private readonly logger = new Logger(MediaService.name)
 
@@ -68,12 +71,16 @@ export class MediaService {
     ): Promise<ProcessMediaResult> {
         // the multipart `file` field is required
         if (!file) {
-            throw new BadRequestException("No file uploaded (expected multipart field \"file\").")
+            throw new ToolsFileRequiredException({
+                fieldName: "file",
+            })
         }
         // validate every target up-front so we fail before spending CPU on encoding
         for (const targetId of targetIds) {
             if (!this.toolsStoreService.getTarget(targetId)) {
-                throw new BadRequestException(`Target ${targetId} not found.`)
+                throw new ToolsTargetReferenceInvalidException({
+                    targetId,
+                })
             }
         }
 

@@ -14,6 +14,12 @@ import type {
     ChatAck, JoinAck, ReplayAck,
 } from "./types"
 
+@WebSocketGateway({
+    namespace: "/8-websocket-realtime-communication/3-reconnection-and-missed-messages",
+    cors: {
+        origin: true,
+    },
+})
 /**
  * Socket.IO gateway for lesson `3-reconnection-and-missed-messages`.
  *
@@ -23,12 +29,6 @@ import type {
  * and the server returns exactly the messages it missed — no auth, this lesson
  * is purely about reconnection + replay.
  */
-@WebSocketGateway({
-    namespace: "/8-websocket-realtime-communication/3-reconnection-and-missed-messages",
-    cors: {
-        origin: true,
-    },
-})
 export class ReconnectionGateway {
     /** The underlying Socket.IO namespace server, injected by Nest. */
     @WebSocketServer()

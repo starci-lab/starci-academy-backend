@@ -11,9 +11,9 @@ import {
     UseFormController,
 } from "./useform.controller"
 
-/** Leaf module for the useForm-and-zod-resolver lesson mock. */
 @Module({
     imports: [StoreModule],
     controllers: [UseFormController],
 })
+/** Leaf module for the useForm-and-zod-resolver lesson mock. */
 export class UseFormModule extends ConfigurableModuleClass {}

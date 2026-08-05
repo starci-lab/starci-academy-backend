@@ -11,6 +11,13 @@ import {
     LqipImageMockModule,
 } from "./2-zero-cls-image-loading-with-lqip"
 
+@Module({
+    imports: [
+        ResponsiveLayoutMockModule,
+        ResponsiveImagesMockModule,
+        LqipImageMockModule,
+    ],
+})
 /**
  * Aggregator module for the responsive-and-adaptive-rendering lessons.
  *
@@ -19,11 +26,4 @@ import {
  * the full injected `VITE_API_BASE` (session-scoped controllers); lesson 2
  * fetches off its origin (root-mounted controller).
  */
-@Module({
-    imports: [
-        ResponsiveLayoutMockModule,
-        ResponsiveImagesMockModule,
-        LqipImageMockModule,
-    ],
-})
 export class ResponsiveMockModule {}

@@ -11,9 +11,9 @@ import {
     AsyncValidationController,
 } from "./async-validation.controller"
 
-/** Leaf module for the async-validation-with-debounce lesson mock. */
 @Module({
     imports: [StoreModule],
     controllers: [AsyncValidationController],
 })
+/** Leaf module for the async-validation-with-debounce lesson mock. */
 export class AsyncValidationModule extends ConfigurableModuleClass {}

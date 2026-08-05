@@ -44,6 +44,8 @@ const URL_TTL_SECONDS = 15 * 60
 /** Per-object byte cap for a presigned PUT (10 MB). */
 const MAX_OBJECT_BYTES = 10 * 1024 * 1024
 
+@ApiTags("mock")
+@Controller()
 /**
  * Mock controller for lesson `1-s3-minio-presigned-urls`.
  *
@@ -54,8 +56,6 @@ const MAX_OBJECT_BYTES = 10 * 1024 * 1024
  * lesson's image preview actually renders. Mounted at the bare origin because
  * the lesson frontend talks to `new URL(VITE_API_BASE).origin`.
  */
-@ApiTags("mock")
-@Controller()
 export class PresignController {
     constructor(private readonly store: FileStoreService) {}
 

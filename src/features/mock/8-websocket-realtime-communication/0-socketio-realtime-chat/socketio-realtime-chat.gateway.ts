@@ -11,6 +11,12 @@ import type {
     ChatBroadcast, JoinAck,
 } from "./types"
 
+@WebSocketGateway({
+    namespace: "/8-websocket-realtime-communication/0-socketio-realtime-chat",
+    cors: {
+        origin: true,
+    },
+})
 /**
  * Socket.IO gateway for lesson `0-socketio-realtime-chat`.
  *
@@ -22,12 +28,6 @@ import type {
  * mirrors the real 4-language backend so the same Playwright specs pass against
  * either, and it backs both the web (single-client) and sandbox (two-tab) UIs.
  */
-@WebSocketGateway({
-    namespace: "/8-websocket-realtime-communication/0-socketio-realtime-chat",
-    cors: {
-        origin: true,
-    },
-})
 export class SocketioRealtimeChatGateway implements OnGatewayDisconnect {
     /** The underlying Socket.IO namespace server, injected by Nest. */
     @WebSocketServer()

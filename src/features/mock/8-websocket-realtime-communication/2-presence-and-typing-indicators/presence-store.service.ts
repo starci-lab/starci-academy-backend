@@ -10,6 +10,7 @@ interface TabChange {
     isLastTab: boolean
 }
 
+@Injectable()
 /**
  * In-memory presence store for lesson `2-presence-and-typing-indicators`.
  *
@@ -18,7 +19,6 @@ interface TabChange {
  * `room -> (userId -> set of socket ids)`. A user is "online" while they hold at
  * least one socket; multiple tabs of the same user count as one presence entry.
  */
-@Injectable()
 export class PresenceStoreService {
     /** room -> userId -> set of live socket ids. */
     private readonly rooms = new Map<string, Map<string, Set<string>>>()

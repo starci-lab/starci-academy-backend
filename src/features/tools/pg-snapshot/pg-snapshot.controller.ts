@@ -26,9 +26,6 @@ import type {
     PgSnapshotResult,
 } from "./types"
 
-/**
- * Local-only controller for dumping a list of cloud databases to local files.
- */
 @ApiTags(toolsRoutes.pg.tag)
 @Controller(
     {
@@ -36,6 +33,9 @@ import type {
         version: "1",
     },
 )
+/**
+ * Local-only controller for dumping a list of cloud databases to local files.
+ */
 export class PgSnapshotController {
     constructor(
         private readonly pgSnapshotService: PgSnapshotService,

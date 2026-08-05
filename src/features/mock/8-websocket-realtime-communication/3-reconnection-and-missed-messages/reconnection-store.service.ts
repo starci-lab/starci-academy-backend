@@ -8,6 +8,7 @@ import type {
     ChatMessage,
 } from "./types"
 
+@Injectable()
 /**
  * In-memory ring-buffer chat store for lesson `3-reconnection-and-missed-messages`.
  *
@@ -15,7 +16,6 @@ import type {
  * counter that never resets while the process is alive. `replaySince` returns
  * the messages a reconnecting client missed, capped to the ring size.
  */
-@Injectable()
 export class ReconnectionStoreService {
     /** room -> fixed-size message history (oldest first). */
     private readonly history = new Map<string, Array<ChatMessage>>()

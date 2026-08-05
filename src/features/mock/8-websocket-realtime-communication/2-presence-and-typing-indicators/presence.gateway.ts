@@ -14,6 +14,12 @@ import type {
     JoinAck,
 } from "./types"
 
+@WebSocketGateway({
+    namespace: "/8-websocket-realtime-communication/2-presence-and-typing-indicators",
+    cors: {
+        origin: true,
+    },
+})
 /**
  * Socket.IO gateway for lesson `2-presence-and-typing-indicators`.
  *
@@ -23,12 +29,6 @@ import type {
  * does not double-announce. `typing` is relayed to the room EXCEPT the sender to
  * avoid a self-echo.
  */
-@WebSocketGateway({
-    namespace: "/8-websocket-realtime-communication/2-presence-and-typing-indicators",
-    cors: {
-        origin: true,
-    },
-})
 export class PresenceGateway implements OnGatewayDisconnect {
     /** The underlying Socket.IO namespace server, injected by Nest. */
     @WebSocketServer()

@@ -11,6 +11,9 @@ import {
     PresenceStoreService,
 } from "./presence-store.service"
 
+@ApiTags("mock")
+@UseInterceptors(MockDelayInterceptor)
+@Controller("mocks/8-websocket-realtime-communication/2-presence-and-typing-indicators/sessions/:sessionId")
 /**
  * REST presence controller for lesson `2-presence-and-typing-indicators`.
  *
@@ -18,9 +21,6 @@ import {
  * `join` ack returns — so the demo can show that presence is queryable out of
  * band. Mounted under the session path used by the sandbox `VITE_API_BASE`.
  */
-@ApiTags("mock")
-@UseInterceptors(MockDelayInterceptor)
-@Controller("mocks/8-websocket-realtime-communication/2-presence-and-typing-indicators/sessions/:sessionId")
 export class PresenceController {
     constructor(private readonly store: PresenceStoreService) {}
 

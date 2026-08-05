@@ -1,11 +1,14 @@
 import {
-    BadRequestException,
     Injectable,
     Logger,
 } from "@nestjs/common"
 import {
     randomUUID,
 } from "crypto"
+import {
+    ToolsFileRequiredException,
+    ToolsTargetReferenceInvalidException,
+} from "@modules/exceptions"
 import {
     mkdir,
     writeFile,
@@ -34,6 +37,7 @@ import type {
     ProcessDashResult,
 } from "./types"
 
+@Injectable()
 /**
  * Encodes an uploaded video to MPEG-DASH locally, registers it as an artifact,
  * and (optionally) syncs it to a saved S3 target.
@@ -43,7 +47,6 @@ import type {
  * whole working directory as a kept artifact → push to the target. The artifact
  * stays on disk so it can be re-synced later without re-encoding.
  */
-@Injectable()
 export class DashService {
     private readonly logger = new Logger(DashService.name)
 
@@ -69,12 +72,16 @@ export class DashService {
     ): Promise<ProcessDashResult> {
         // the multipart `file` field is required
         if (!file) {
-            throw new BadRequestException("No file uploaded (expected multipart field \"file\").")
+            throw new ToolsFileRequiredException({
+                fieldName: "file",
+            })
         }
         // validate every requested target up-front so we fail before encoding
         for (const targetId of targetIds) {
             if (!this.toolsStoreService.getTarget(targetId)) {
-                throw new BadRequestException(`Target ${targetId} not found.`)
+                throw new ToolsTargetReferenceInvalidException({
+                    targetId,
+                })
             }
         }
 

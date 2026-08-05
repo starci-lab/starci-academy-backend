@@ -17,13 +17,6 @@ import {
     ReconnectionMockModule,
 } from "./3-reconnection-and-missed-messages/reconnection.module"
 
-/**
- * Aggregator module for the realtime (WebSocket) sandbox lessons.
- *
- * Each lesson owns its own Socket.IO namespace gateway (and, where needed, a REST
- * controller) so their event contracts stay isolated while sharing the single
- * mock HTTP/WS port (3002) and the cloudflared tunnel (`wss://mock.starci.org`).
- */
 @Module({
     imports: [
         SocketioRealtimeChatMockModule,
@@ -32,4 +25,11 @@ import {
         ReconnectionMockModule,
     ],
 })
+/**
+ * Aggregator module for the realtime (WebSocket) sandbox lessons.
+ *
+ * Each lesson owns its own Socket.IO namespace gateway (and, where needed, a REST
+ * controller) so their event contracts stay isolated while sharing the single
+ * mock HTTP/WS port (3002) and the cloudflared tunnel (`wss://mock.starci.org`).
+ */
 export class RealtimeMockModule extends ConfigurableModuleClass {}

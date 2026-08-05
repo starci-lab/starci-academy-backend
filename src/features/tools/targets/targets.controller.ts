@@ -28,9 +28,6 @@ import {
     UpdateTargetRequest,
 } from "./dtos"
 
-/**
- * Local-only controller for managing saved S3 targets (stored in SQLite).
- */
 @ApiTags(toolsRoutes.targets.tag)
 @UseGuards(LocalOnlyGuard)
 @Controller(
@@ -39,6 +36,9 @@ import {
         version: "1",
     },
 )
+/**
+ * Local-only controller for managing saved S3 targets (stored in SQLite).
+ */
 export class TargetsController {
     constructor(
         private readonly toolsStoreService: ToolsStoreService,
