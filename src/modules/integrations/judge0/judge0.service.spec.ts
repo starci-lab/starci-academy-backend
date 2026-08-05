@@ -22,10 +22,10 @@ import type {
 } from "./types/judge0"
 
 // the service reads its auth token lazily from the mount file via this helper;
-// stub it (keeping the rest of the real barrel intact) so no real fs is touched
-jest.mock("@modules/filesystem",
+// stub it (keeping the rest of the real helpers intact) so no real fs is touched
+jest.mock("@modules/filesystem/utils/mount-secrets",
     () => ({
-        ...jest.requireActual("@modules/filesystem"),
+        ...jest.requireActual("@modules/filesystem/utils/mount-secrets"),
         getJudge0AuthToken: jest.fn(() => "test-auth-token"),
     }))
 

@@ -42,13 +42,13 @@ import type {
 } from "@modules/tests/utils/mocks/entity-manager.mock"
 
 // Control the hybrid stuff-vs-RAG threshold deterministically while keeping the
-// REST of the real env config intact -- the `@modules/rag` barrel transitively
-// loads cache/ai modules that read other env fields at module-init, so a bare
-// stub would crash boot. Spread the real config and override only the threshold.
+// REST of the real env config intact -- rag/cache/ai modules read other env
+// fields at module-init, so a bare stub would crash boot. Spread the real
+// config and override only the threshold.
 // NOTE: the factory is hoisted above module init -> inline the literal (no outer const).
-jest.mock("@modules/env",
+jest.mock("@modules/platform/env/config",
     () => {
-        const actual = jest.requireActual("@modules/env")
+        const actual = jest.requireActual("@modules/platform/env/config")
         return {
             ...actual,
             envConfig: () => {

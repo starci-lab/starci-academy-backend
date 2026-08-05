@@ -65,7 +65,7 @@ import {
 
 // the handler reads the signing secret from a mounted file via this helper;
 // stub it so the spec never touches the real filesystem
-jest.mock("@modules/filesystem",
+jest.mock("@modules/filesystem/utils/mount-secrets",
     () => ({
         getStripeWebhookSecret: jest.fn(() => "whsec_test"),
     }))

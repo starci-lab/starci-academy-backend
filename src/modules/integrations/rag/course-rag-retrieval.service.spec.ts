@@ -17,7 +17,7 @@ jest.mock("@langchain/qdrant",
         },
     }))
 
-jest.mock("@modules/env",
+jest.mock("@modules/platform/env/config",
     () => ({
         envConfig: () => ({
             services: {
@@ -29,15 +29,15 @@ jest.mock("@modules/env",
         }),
     }))
 
-// break the heavy barrel imports the SUT pulls (langchain -> ai -> cache -> config that
+// break the heavy import chain the SUT pulls (langchain -> ai -> cache -> config that
 // reads the real env at module load) -- we only need the injected instances, not the modules
-jest.mock("@modules/langchain",
+jest.mock("@modules/integrations/langchain/embedding-model.service",
     () => ({
         EmbeddingModelService: class {
         },
     }))
 
-jest.mock("@modules/databases",
+jest.mock("@modules/databases/qdrant/qdrant.decorators",
     () => ({
         InjectQdrantClient: () => () => undefined,
     }))

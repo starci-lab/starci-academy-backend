@@ -16,9 +16,9 @@ jest.mock("@langchain/qdrant",
     }))
 
 // cut the heavy embedding/ai/cache import chain pulled in transitively by the
-// SUT's `@modules/langchain` barrel -- we construct the service manually, so the
-// real EmbeddingModelService class is never needed
-jest.mock("@modules/langchain",
+// SUT -- we construct the service manually, so the real EmbeddingModelService
+// class is never needed
+jest.mock("@modules/integrations/langchain/embedding-model.service",
     () => ({
         EmbeddingModelService: class {
         },
@@ -26,9 +26,9 @@ jest.mock("@modules/langchain",
 
 // pin only the lesson-rag knobs; keep the rest of env real so other modules
 // (cache config etc.) still read their defaults
-jest.mock("@modules/env",
+jest.mock("@modules/platform/env/config",
     () => {
-        const actual = jest.requireActual("@modules/env")
+        const actual = jest.requireActual("@modules/platform/env/config")
         return {
             ...actual,
             envConfig: () => {
