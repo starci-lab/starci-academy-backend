@@ -15,10 +15,16 @@ import {
 } from "@modules/exceptions"
 import {
     AiInvokeService,
+} from "@modules/ai/ai-invoke.service"
+import {
     GradingLaneValidationService,
+} from "@modules/ai/grading-lane-validation.service"
+import {
     extractJsonBlock,
+} from "@modules/ai/utils/extract-json-block"
+import {
     validatedLaneToAiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/utils/validated-lane-to-ai-job-selection"
 import {
     Injectable,
 } from "@nestjs/common"

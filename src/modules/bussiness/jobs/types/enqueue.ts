@@ -5,7 +5,7 @@ import type {
 } from "@modules/databases"
 import type {
     AiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/types/ai-job-selection"
 import type {
     SendMailPayload,
     SyncCdnPayload,

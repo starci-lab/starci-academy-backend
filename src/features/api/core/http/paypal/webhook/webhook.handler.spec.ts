@@ -15,7 +15,7 @@ import {
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
 import {
     MembershipService,
 } from "@modules/membership"

@@ -32,7 +32,7 @@ import {
 } from "@modules/databases"
 import {
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
 import {
     createSuperJsonServiceProvider,
     DayjsService,

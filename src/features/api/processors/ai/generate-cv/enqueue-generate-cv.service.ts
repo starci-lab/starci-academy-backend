@@ -52,7 +52,7 @@ import type {
 } from "@modules/bullmq"
 import type {
     AiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/types/ai-job-selection"
 import {
     sleepEnqueueUxDelay,
 } from "@modules/bussiness"

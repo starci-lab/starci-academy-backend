@@ -1,6 +1,6 @@
 import type {
     AiRunResult,
-} from "@modules/ai"
+} from "@modules/ai/types/ai-invoke"
 import {
     ModelProvider,
 } from "@modules/databases"

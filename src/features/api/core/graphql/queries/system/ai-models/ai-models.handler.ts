@@ -6,11 +6,17 @@ import {
 } from "@modules/env"
 import {
     AiModelCatalogService,
-    AiTaskKind,
-    GRADING_FLOOR_CATEGORY,
-    ModelRecommendation,
+} from "@modules/ai/balancer/ai-model-catalog.service"
+import {
     UseApiService,
-} from "@modules/ai"
+} from "@modules/ai/balancer/use-api.service"
+import {
+    AiTaskKind,
+    ModelRecommendation,
+} from "@modules/ai/types/model"
+import {
+    GRADING_FLOOR_CATEGORY,
+} from "@modules/ai/utils/resolve-grading-chain"
 import {
     AiModelTask,
 } from "@modules/databases"

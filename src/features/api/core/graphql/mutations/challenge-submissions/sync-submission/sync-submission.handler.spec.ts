@@ -11,7 +11,7 @@ import {
 } from "@nestjs/typeorm"
 import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     ModelProvider,
     PostgreSqlAdvisoryLockService,

@@ -42,9 +42,11 @@ import {
 } from "@modules/filesystem"
 import template from "./template.json"
 import {
-    AiInvokeService,
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
+import {
+    AiInvokeService,
+} from "@modules/ai/ai-invoke.service"
 import {
     GoogleDriverAPIService,
 } from "@modules/googleapis"

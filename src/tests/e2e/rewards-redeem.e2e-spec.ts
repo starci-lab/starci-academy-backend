@@ -24,7 +24,7 @@ import {
 } from "@modules/exceptions"
 import {
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
 import {
     DayjsService,
 } from "@modules/mixin"

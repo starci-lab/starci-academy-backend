@@ -13,11 +13,13 @@ import {
 } from "@modules/winston"
 import {
     KeyStatus,
-} from "./enums"
+} from "./enums/key-status"
 import type {
     KeyState,
+} from "./types/key-state"
+import type {
     ProviderKeyFile,
-} from "./types"
+} from "./types/key-store"
 import {
     AiModelCatalogService,
 } from "./ai-model-catalog.service"

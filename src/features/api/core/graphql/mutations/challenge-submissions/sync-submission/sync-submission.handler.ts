@@ -33,7 +33,7 @@ import {
 } from "@modules/validators"
 import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     UserService,
 } from "@modules/bussiness"

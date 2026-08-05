@@ -10,14 +10,16 @@ import {
 } from "@modules/exceptions"
 import {
     AiModelCatalogService,
-} from "./balancer"
+} from "./balancer/ai-model-catalog.service"
 import {
     AiEntitlementService,
 } from "./ai-entitlement.service"
 import type {
-    ValidatedGradingLane,
     ValidateGradingLaneParams,
-} from "./types"
+} from "./types/grading-lane-validation-params"
+import type {
+    ValidatedGradingLane,
+} from "./types/grading"
 
 @Injectable()
 /**

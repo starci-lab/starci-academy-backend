@@ -6,7 +6,7 @@ import type {
 } from "@modules/bullmq"
 import type {
     GradingStepAiUsage,
-} from "@modules/ai"
+} from "@modules/ai/types/grading"
 
 /** Result of the process-google-docs-submission grade step. */
 export interface ProcessGoogleDocsSubmissionGradeStepExecuteResult {

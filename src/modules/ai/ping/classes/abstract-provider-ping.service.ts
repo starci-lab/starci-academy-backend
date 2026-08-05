@@ -21,11 +21,11 @@ import type {
 } from "@nestjs/common"
 import type {
     PingKeyResult,
-} from "../types"
+} from "../types/ping"
 import {
     dedupeNonEmptyKeys,
     toKeySuffix,
-} from "../utils"
+} from "../utils/dedupe-keys"
 
 /**
  * Shared staggered sweep scheduler for one {@link ModelProvider} ping service.

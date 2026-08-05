@@ -22,11 +22,11 @@ const NEST_BUILTIN_EXCEPTIONS = new Set([
 ])
 const WINSTON_LOG_METHODS = new Set(["log", "error", "warn", "info", "debug"])
 // `@modules/*` resolves against FOUR tsconfig roots (see tsconfig.json `paths`): the plain
-// capability root plus three "meta" category roots — `modules/lib/*`, `modules/platform/*`,
-// `modules/integrations/*`. A specifier under one of those three legitimately carries one extra
-// path segment (category + module name) and is still a single-level module entry, not a deep
-// import — `@modules/platform/exceptions` IS the exceptions module's own barrel, not a reach into
-// its internals. Anything else with more than one segment after `@modules/` is a deep import.
+// capability root plus three "meta" category roots -- `modules/lib/*`, `modules/platform/*`,
+// `modules/integrations/*`. A specifier under one of those three carries one extra path
+// segment (category + module name) and is still the module's BARREL entry
+// (`@modules/platform/exceptions`), not a file. `must-deep-module-import` requires at least
+// one segment past that entry so the specifier names a file, not the barrel.
 const MODULES_META_ROOTS = new Set(["lib", "platform", "integrations"])
 
 /** Object node is a destructured parameter pattern (also unwraps a TS parameter property). */
@@ -293,31 +293,64 @@ const requireEnumMemberJsdoc = {
     },
 }
 
-// ── 8. no-deep-module-import ─────────────────────────────────────────────────────────────────
-// naming-and-structure.md §3: one public entry per module — importing past a module's barrel
-// into its internals is a bug. Scoped to `@modules/*` only: `@features/*` is the COMPOSITION
-// root (§2), whose own manifest (`app.module.ts`, per-app bootstrap) is REQUIRED to reach every
-// leaf operation folder directly (§5, "one operation, one folder") — the same segment-count
-// heuristic against `@features/*` would flag hundreds of correct composition-root imports as
-// violations. See the plugin's rollout comment in `eslint.config.mjs` for that deviation.
-const noDeepModuleImport = {
+// ── 8. must-deep-module-import ───────────────────────────────────────────────────────────────
+// naming-and-structure.md §3 (barrel retirement): every import names the FILE that declares
+// the symbol. A module-root specifier (`@modules/ai`, `@modules/winston`,
+// `@modules/platform/exceptions`, `@features/video-encoder`, `@tests/helpers`) is a barrel
+// and is now the bug -- the inverse of the retired `no-deep-module-import` rule.
+//
+// Segment heuristic, same cut the old rule used, flipped:
+//   @modules/<name>                         barrel (1 segment; 2 if meta-root)
+//   @modules/<name>/<file...>               deep -- required
+//   @features/<name> / @tests/<name>        barrel
+//   @features/<name>/<file...>              deep -- required
+const mustDeepModuleImport = {
     meta: {
         type: "problem",
-        docs: { description: "Import a capability at its `@modules/<name>` entry only, never deeper. [[naming-and-structure §3]]" },
+        docs: {
+            description:
+                "Import the declaring file, never a module/feature/tests barrel. [[naming-and-structure §3]]",
+        },
         schema: [],
         messages: {
-            deep: "`{{specifier}}` reaches past the module's public entry — import from `@modules/{{entry}}` instead (naming-and-structure §3).",
+            barrel: "`{{specifier}}` is a barrel import -- name the declaring file instead (must-deep-module-import, naming-and-structure §3).",
         },
     },
     create(context) {
         function check(node, specifier) {
-            if (!specifier.startsWith("@modules/")) return
-            const rest = specifier.slice("@modules/".length)
+            let prefix = null
+            let metaAware = false
+            if (specifier.startsWith("@modules/")) {
+                prefix = "@modules/"
+                metaAware = true
+            } else if (specifier.startsWith("@features/")) {
+                prefix = "@features/"
+            } else if (specifier.startsWith("@tests/")) {
+                prefix = "@tests/"
+            } else {
+                return
+            }
+            const rest = specifier.slice(prefix.length)
+            if (!rest) {
+                context.report({
+                    node,
+                    messageId: "barrel",
+                    data: {
+                        specifier,
+                    },
+                })
+                return
+            }
             const parts = rest.split("/")
-            const maxAllowed = MODULES_META_ROOTS.has(parts[0]) ? 2 : 1
-            if (parts.length > maxAllowed) {
-                const entry = parts.slice(0, maxAllowed).join("/")
-                context.report({ node, messageId: "deep", data: { specifier, entry } })
+            const barrelDepth = metaAware && MODULES_META_ROOTS.has(parts[0]) ? 2 : 1
+            if (parts.length <= barrelDepth) {
+                context.report({
+                    node,
+                    messageId: "barrel",
+                    data: {
+                        specifier,
+                    },
+                })
             }
         }
         return {
@@ -605,6 +638,6 @@ export default {
         "throw-abstract-exception": throwAbstractException,
         "require-export-jsdoc": requireExportJsdoc,
         "require-enum-member-jsdoc": requireEnumMemberJsdoc,
-        "no-deep-module-import": noDeepModuleImport,
+        "must-deep-module-import": mustDeepModuleImport,
     },
 }

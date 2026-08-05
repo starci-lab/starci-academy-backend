@@ -6,9 +6,13 @@ import {
 } from "@nestjs/typeorm"
 import {
     AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
     AiInvokeService,
+} from "@modules/ai/ai-invoke.service"
+import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     CourseRagRetrievalService,
 } from "@modules/rag"

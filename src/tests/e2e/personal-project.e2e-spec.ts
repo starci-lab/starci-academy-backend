@@ -68,7 +68,7 @@ import {
 } from "@modules/bussiness"
 import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     SubmitPersonalGithubUrlResolver,
 } from "@features/api/core/graphql/mutations/personal-project/submit-personal-github-url/submit-personal-github-url.resolver"

@@ -15,18 +15,20 @@ import {
 } from "./ai-invoke.service"
 import {
     AiModelCatalogService,
+} from "./balancer/ai-model-catalog.service"
+import {
     UseApiService,
-} from "./balancer"
+} from "./balancer/use-api.service"
 import type {
     UseApiActionContext,
     UseApiParams,
-} from "./balancer"
+} from "./balancer/types/use-api"
 import {
     AiEntitlementService,
 } from "./ai-entitlement.service"
 import type {
     StreamActionResult,
-} from "./types"
+} from "./types/ai-invoke"
 
 /**
  * Tests the lane-routing logic of {@link AiInvokeService.invoke} and

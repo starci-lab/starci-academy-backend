@@ -10,9 +10,13 @@ import {
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
     AiModelCatalogService,
+} from "@modules/ai/balancer/ai-model-catalog.service"
+import {
     DEFAULT_MODEL_CREDIT,
-} from "@modules/ai"
+} from "@modules/ai/constants/credit-cost"
 import {
     envConfig,
 } from "@modules/env"

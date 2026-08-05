@@ -14,7 +14,7 @@ import type {
 } from "bullmq"
 import {
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
 import {
     EnqueueEnrollJobService,
     EnqueueReconcileTransactionJobService,

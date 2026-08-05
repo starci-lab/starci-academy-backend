@@ -5,7 +5,7 @@ import {
 } from "../constants/credit-cost"
 import type {
     ComputeModelWeightParams,
-} from "../types"
+} from "../types/model"
 
 /**
  * Credits charged per million tokens, derived from a real USD price.

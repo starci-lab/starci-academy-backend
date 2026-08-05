@@ -7,7 +7,7 @@ import type {
 } from "../ai-entitlement.service"
 import type {
     AiJobSelection,
-} from "../types"
+} from "../types/ai-job-selection"
 import {
     GRADING_FLOOR_CATEGORY,
     resolveGradingChain,

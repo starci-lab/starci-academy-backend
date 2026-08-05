@@ -19,7 +19,7 @@ import {
 } from "./ai-entitlement.service"
 import {
     AiModelCatalogService,
-} from "./balancer"
+} from "./balancer/ai-model-catalog.service"
 
 /**
  * Build a minimal enabled catalog row -- only the fields the validator reads

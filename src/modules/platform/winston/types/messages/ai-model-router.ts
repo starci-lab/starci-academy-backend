@@ -1,6 +1,6 @@
 import type {
-    AiTaskKind
-} from "@modules/ai"
+    AiTaskKind,
+} from "@modules/ai/types/model"
 
 /** AI model router log messages. */
 export interface AiModelRouterResolvedMessage {

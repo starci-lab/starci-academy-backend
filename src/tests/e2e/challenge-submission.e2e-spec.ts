@@ -50,9 +50,13 @@ import {
 } from "@modules/exceptions"
 import {
     AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
     AiModelCatalogService,
+} from "@modules/ai/balancer/ai-model-catalog.service"
+import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     createSuperJsonServiceProvider,
     DayjsService,

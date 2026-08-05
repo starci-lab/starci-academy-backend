@@ -3,7 +3,7 @@ import type {
 } from "@modules/databases"
 import type {
     KeyStatus,
-} from "../enums"
+} from "../enums/key-status"
 
 /**
  * Runtime state of a single API key held in memory by `KeyStoreService`.

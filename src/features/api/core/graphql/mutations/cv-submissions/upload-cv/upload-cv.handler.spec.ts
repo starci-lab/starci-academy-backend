@@ -14,7 +14,7 @@ import type {
 } from "typeorm"
 import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     CvGenerationMode,
     CvGenerationStatus,

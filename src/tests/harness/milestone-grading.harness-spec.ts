@@ -15,8 +15,10 @@ import type {
 } from "@langchain/core/documents"
 import {
     AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
     AiInvokeService,
-} from "@modules/ai"
+} from "@modules/ai/ai-invoke.service"
 import {
     JobActionService,
 } from "@modules/bussiness"

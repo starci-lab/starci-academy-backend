@@ -7,7 +7,7 @@ import {
 } from "@langchain/core/messages"
 import {
     AiInvokeService,
-} from "@modules/ai"
+} from "@modules/ai/ai-invoke.service"
 import {
     AiCeilSurface,
     AiModelCategory,

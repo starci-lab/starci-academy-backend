@@ -20,7 +20,7 @@ import type {
 } from "@modules/socketio"
 import {
     AiInvokeService,
-} from "@modules/ai"
+} from "@modules/ai/ai-invoke.service"
 import {
     AiModelCategory,
     AiModelTask,

@@ -16,7 +16,7 @@ import {
 import type {
     PingKeyParams,
     PingKeyResult,
-} from "./types"
+} from "./types/ping"
 
 @Injectable()
 /**

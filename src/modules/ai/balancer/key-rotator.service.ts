@@ -23,10 +23,12 @@ import {
     WinstonService,
 } from "@modules/winston"
 import type {
-    KeyState,
     NextKeyParams,
     NextKeyResult,
-} from "./types"
+} from "./types/key-rotator"
+import type {
+    KeyState,
+} from "./types/key-state"
 import {
     KeyStoreService,
 } from "./key-store.service"

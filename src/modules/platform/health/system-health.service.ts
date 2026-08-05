@@ -15,7 +15,7 @@ import {
 } from "@modules/filesystem"
 import {
     AiBalancerService,
-} from "@modules/ai"
+} from "@modules/ai/balancer/ai-balancer.service"
 import {
     WinstonLog,
     WinstonService,

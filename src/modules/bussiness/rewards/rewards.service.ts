@@ -24,7 +24,7 @@ import {
 } from "@modules/exceptions"
 import {
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
 import {
     STREAK_FREEZE_MAX,
 } from "../streak/streak.service"

@@ -102,7 +102,7 @@ export default defineConfig([
         // "how a SERVER-SIDE application represents a failure" — and that app is a plain
         // Vite/React SPA with no NestJS, no `@modules/*`, no `AbstractException` in its
         // dependency graph; `throw-abstract-exception`, `no-nest-logger` and
-        // `no-deep-module-import` are backend-shaped rules that do not apply to it.
+        // `must-deep-module-import` are backend-shaped rules that do not apply to it.
         files: ["src/**/*.ts", "apps/**/*.ts"],
         ignores: ["apps/tools/dashboard/**"],
         plugins: {
@@ -118,7 +118,7 @@ export default defineConfig([
             "starci-be/throw-abstract-exception": "error", // error-handling §1 · nợ=0 → error
             "starci-be/no-inline-param-type": "error", // type-safety §4 · nợ=0 → error
             "starci-be/no-nest-logger": "error", // observability · nợ=0 → error
-            "starci-be/no-deep-module-import": "error", // naming-and-structure §3 · nợ=0 → error
+            "starci-be/must-deep-module-import": "warn", // naming-and-structure §3 · nợ=5465 → warn until barrel retirement finishes
             "starci-be/require-export-jsdoc": "error", // comments §3 · nợ=0 → error
             "starci-be/require-enum-member-jsdoc": "error", // type-safety §3 · nợ=0 → error
         },

@@ -10,9 +10,13 @@ import {
 } from "./ai-models.handler"
 import {
     AiModelCatalogService,
-    AiTaskKind,
+} from "@modules/ai/balancer/ai-model-catalog.service"
+import {
     UseApiService,
-} from "@modules/ai"
+} from "@modules/ai/balancer/use-api.service"
+import {
+    AiTaskKind,
+} from "@modules/ai/types/model"
 
 describe("AiModelsHandler",
     () => {

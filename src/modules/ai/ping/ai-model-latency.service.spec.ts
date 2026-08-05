@@ -18,8 +18,10 @@ import {
 } from "@modules/env"
 import {
     AiModelCatalogService,
+} from "../balancer/ai-model-catalog.service"
+import {
     UseApiService,
-} from "../balancer"
+} from "../balancer/use-api.service"
 import {
     AiModelLatencyService,
 } from "./ai-model-latency.service"

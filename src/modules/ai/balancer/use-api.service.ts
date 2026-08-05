@@ -37,13 +37,15 @@ import {
 } from "./key-store.service"
 import {
     AiErrorKind,
-} from "./enums"
+} from "./enums/ai-error-kind"
 import {
     classifyAiError,
     extractRetryAfterMs,
 } from "./utils/classify-ai-error"
 import type {
     AcquireKeyResult,
+} from "./types/ai-balancer"
+import type {
     AnthropicApiKey,
     BuildProbeRequestParams,
     GeminiApiKey,
@@ -58,7 +60,7 @@ import type {
     UseApiParams,
     UseApiPremiumParams,
     UseApiResult,
-} from "./types"
+} from "./types/use-api"
 
 /** Category ladder cheapest -> strongest -- the macro fallback order. */
 const CATEGORY_RANK: ReadonlyArray<AiModelCategory> = [

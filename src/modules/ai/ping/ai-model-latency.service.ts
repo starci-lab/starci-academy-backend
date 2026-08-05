@@ -26,8 +26,10 @@ import {
 } from "@modules/winston"
 import {
     AiModelCatalogService,
+} from "../balancer/ai-model-catalog.service"
+import {
     UseApiService,
-} from "../balancer"
+} from "../balancer/use-api.service"
 import type {
     AiModelEntity,
 } from "@modules/databases"

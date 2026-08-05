@@ -8,7 +8,7 @@ import {
 } from "@nestjs/testing"
 import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     ModelProvider,
 } from "@modules/databases"

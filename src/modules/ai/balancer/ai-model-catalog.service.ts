@@ -11,7 +11,7 @@ import {
 import type {
     CreditForRunParams,
     EnabledModelsParams,
-} from "./types"
+} from "./types/ai-model-catalog"
 import {
     CACHE_READ_RATE_MULTIPLIER,
     DEFAULT_ESTIMATE_COMPLETION_TOKENS,

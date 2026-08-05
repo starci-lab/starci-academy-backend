@@ -25,7 +25,7 @@ import {
 } from "@modules/keycloak"
 import {
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
 import {
     SetAiCeilRequest,
     SetAiCeilResponse,

@@ -21,16 +21,16 @@ import {
 } from "@nestjs/common"
 import {
     AbstractProviderPingService,
-} from "./classes"
+} from "./classes/abstract-provider-ping.service"
 import {
     GEMINI_PING_AXIOS_KEY,
-} from "./constants"
+} from "./constants/axios-instance-key"
 import type {
     PingKeyResult,
-} from "./types"
+} from "./types/ping"
 import {
     toPingErrorMessage,
-} from "./utils"
+} from "./utils/to-error-message"
 
 @Injectable()
 /**

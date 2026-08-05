@@ -1,7 +1,6 @@
 
 // Sentry must init before any other `@modules/sentry` symbol (filters/Nest
 // module) is loaded -- a barrel import would pull those in too early.
-// eslint-disable-next-line starci-be/no-deep-module-import
 import "@modules/sentry/instrument"
 import {
     NestFactory

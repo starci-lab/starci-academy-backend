@@ -34,7 +34,7 @@ import {
     TIER_ALLOWED_CATEGORIES,
     WINDOW_5H_MS,
     WINDOW_WEEK_MS,
-} from "./constants"
+} from "./constants/ai-entitlement.constants"
 import {
     AiAutoQuotaConfigService,
 } from "@modules/filesystem"
@@ -51,7 +51,7 @@ import type {
     ResolveCeilParams,
     ResolveEntitlementParams,
     SetCeilParams,
-} from "./types"
+} from "./types/ai-entitlement"
 
 @Injectable()
 /**

@@ -17,8 +17,10 @@ import {
 } from "@features/api/processors/ai/score-uploaded-cv"
 import {
     GradingLaneValidationService,
+} from "@modules/ai/grading-lane-validation.service"
+import {
     validatedLaneToAiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/utils/validated-lane-to-ai-job-selection"
 import {
     Injectable,
 } from "@nestjs/common"

@@ -1,6 +1,6 @@
 import type {
     AiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/types/ai-job-selection"
 import type {
     Locale,
 } from "@modules/databases"

@@ -3,7 +3,7 @@ import {
 } from "@modules/databases"
 import type {
     AiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/types/ai-job-selection"
 
 /**
  * Payload for the review-personal-project-task BullMQ queue.

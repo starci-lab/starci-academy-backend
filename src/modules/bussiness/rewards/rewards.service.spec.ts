@@ -21,7 +21,7 @@ import {
 } from "../streak/streak.service"
 import {
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
 import {
     RewardRedemptionEntity,
     RewardRedemptionStatus,

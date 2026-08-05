@@ -24,11 +24,13 @@ import type {
 } from "@modules/socketio"
 import {
     AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
     AiInvokeService,
-} from "@modules/ai"
+} from "@modules/ai/ai-invoke.service"
 import type {
     AiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/types/ai-job-selection"
 import {
     UserService,
 } from "@modules/bussiness"

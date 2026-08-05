@@ -14,10 +14,10 @@ import {
 } from "@modules/databases"
 import {
     UseApiService,
-} from "@modules/ai"
+} from "@modules/ai/balancer/use-api.service"
 import type {
     UseApiActionContext,
-} from "@modules/ai"
+} from "@modules/ai/balancer/types/use-api"
 import {
     envConfig,
 } from "@modules/env"

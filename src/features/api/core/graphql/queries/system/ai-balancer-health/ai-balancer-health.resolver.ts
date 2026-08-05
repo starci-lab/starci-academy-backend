@@ -22,7 +22,7 @@ import {
 } from "@modules/databases"
 import {
     AiBalancerService,
-} from "@modules/ai"
+} from "@modules/ai/balancer/ai-balancer.service"
 import {
     AiBalancerHealthResponse,
     AiBalancerHealthResponseData,

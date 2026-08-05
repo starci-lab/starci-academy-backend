@@ -22,13 +22,13 @@ import {
 import OpenAI from "openai"
 import {
     AbstractProviderPingService,
-} from "./classes"
+} from "./classes/abstract-provider-ping.service"
 import type {
     PingKeyResult,
-} from "./types"
+} from "./types/ping"
 import {
     toPingErrorMessage,
-} from "./utils"
+} from "./utils/to-error-message"
 
 @Injectable()
 /**

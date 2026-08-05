@@ -18,8 +18,10 @@ import {
 } from "@modules/databases"
 import {
     AiBalancerService,
+} from "@modules/ai/balancer/ai-balancer.service"
+import {
     KeyStatus,
-} from "@modules/ai"
+} from "@modules/ai/balancer/enums/key-status"
 import {
     AiKeyHealthResponse,
     AiKeyHealthResponseData,

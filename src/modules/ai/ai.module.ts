@@ -2,9 +2,11 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    AiPingModule,
     AiModelLatencyService,
-} from "./ping"
+} from "./ping/ai-model-latency.service"
+import {
+    AiPingModule,
+} from "./ping/ai-ping.module"
 import {
     AiInvokeService,
 } from "./ai-invoke.service"
@@ -16,7 +18,7 @@ import {
 } from "./grading-lane-validation.service"
 import {
     AiBalancerModule,
-} from "./balancer"
+} from "./balancer/ai-balancer.module"
 import {
     ConfigurableModuleClass,
 } from "./ai.module-definition"

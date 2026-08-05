@@ -16,8 +16,10 @@ import {
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     ModelProvider,
     PostgreSqlAdvisoryLockService,

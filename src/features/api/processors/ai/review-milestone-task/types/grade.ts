@@ -3,7 +3,7 @@ import type {
 } from "@modules/bullmq"
 import type {
     GradingStepAiUsage,
-} from "@modules/ai"
+} from "@modules/ai/types/grading"
 
 /**
  * Review milestone task grade result interface.

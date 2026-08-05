@@ -15,8 +15,10 @@ import {
 } from "@modules/exceptions"
 import {
     AiInvokeService,
+} from "@modules/ai/ai-invoke.service"
+import {
     extractJsonBlock,
-} from "@modules/ai"
+} from "@modules/ai/utils/extract-json-block"
 import {
     Injectable,
 } from "@nestjs/common"

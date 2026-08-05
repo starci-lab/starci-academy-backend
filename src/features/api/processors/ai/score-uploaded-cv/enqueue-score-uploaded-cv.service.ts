@@ -32,7 +32,7 @@ import type {
 } from "@modules/bullmq"
 import type {
     AiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/types/ai-job-selection"
 
 /** Parameters for {@link EnqueueScoreUploadedCvJobService.enqueue}. */
 export interface EnqueueScoreUploadedCvJobParams {

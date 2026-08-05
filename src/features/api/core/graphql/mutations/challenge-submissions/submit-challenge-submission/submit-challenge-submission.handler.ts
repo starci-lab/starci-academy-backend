@@ -5,9 +5,13 @@ import {
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
     GradingLaneValidationService,
+} from "@modules/ai/grading-lane-validation.service"
+import {
     validatedLaneToAiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/utils/validated-lane-to-ai-job-selection"
 import {
     ICQRSHandler,
 } from "@modules/cqrs"

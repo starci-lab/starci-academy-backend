@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common"
 import {
     AiInvokeService,
-} from "@modules/ai"
+} from "@modules/ai/ai-invoke.service"
 import {
     createHarnessInvoke,
     messagesToPrompt,

@@ -16,8 +16,10 @@ import {
 } from "@modules/databases"
 import {
     AiInvokeService,
+} from "@modules/ai/ai-invoke.service"
+import {
     extractJsonBlock,
-} from "@modules/ai"
+} from "@modules/ai/utils/extract-json-block"
 import {
     CvRagRetrievalService,
 } from "@modules/rag"

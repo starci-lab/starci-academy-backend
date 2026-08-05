@@ -1,6 +1,6 @@
 import {
     PING_ERROR_MESSAGE_MAX_LEN,
-} from "../constants"
+} from "../constants/error-message"
 
 /**
  * Pull the provider's RESPONSE BODY detail out of an axios-style error -- e.g.

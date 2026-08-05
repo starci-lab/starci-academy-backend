@@ -22,7 +22,7 @@ import {
 } from "@modules/cache"
 import {
     AiModelCatalogService,
-} from "@modules/ai"
+} from "@modules/ai/balancer/ai-model-catalog.service"
 import {
     AiModelLatencyResponse,
     AiModelLatencyResponseData,

@@ -3,7 +3,7 @@ import {
 } from "@modules/databases"
 import type {
     ResolveGradingChainParams,
-} from "../types"
+} from "../types/resolve-grading-chain"
 
 /**
  * Category ladder, cheapest -> strongest. The Auto lane climbs this in order

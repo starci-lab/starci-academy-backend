@@ -7,8 +7,10 @@ import {
 } from "@modules/filesystem"
 import {
     AiModelCatalogService,
+} from "@modules/ai/balancer/ai-model-catalog.service"
+import {
     KeyStoreService,
-} from "@modules/ai"
+} from "@modules/ai/balancer/key-store.service"
 import {
     WinstonLog,
     WinstonService,

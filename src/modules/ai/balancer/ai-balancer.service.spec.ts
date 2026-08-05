@@ -28,10 +28,10 @@ import {
 } from "./ai-model-catalog.service"
 import {
     KeyStatus,
-} from "./enums"
+} from "./enums/key-status"
 import type {
     KeyState,
-} from "./types"
+} from "./types/key-state"
 
 /** Build an Active key state with the given raw value. */
 const buildKeyState = (

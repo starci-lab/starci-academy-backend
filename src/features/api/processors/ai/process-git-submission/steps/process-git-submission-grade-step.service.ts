@@ -48,9 +48,11 @@ import {
     Document,
 } from "@langchain/core/documents"
 import {
-    AiInvokeService,
     AiEntitlementService,
-} from "@modules/ai"
+} from "@modules/ai/ai-entitlement.service"
+import {
+    AiInvokeService,
+} from "@modules/ai/ai-invoke.service"
 import {
     ChallengeEvaluationParseService,
 } from "../../shared/challenge-evaluation"

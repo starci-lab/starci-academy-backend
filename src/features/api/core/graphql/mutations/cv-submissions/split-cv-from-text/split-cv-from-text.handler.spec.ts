@@ -8,7 +8,7 @@ import {
 } from "@nestjs/testing"
 import {
     AiInvokeService,
-} from "@modules/ai"
+} from "@modules/ai/ai-invoke.service"
 import {
     Locale,
 } from "@modules/databases"

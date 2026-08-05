@@ -27,10 +27,10 @@ import {
 } from "./key-store.service"
 import {
     KeyStatus,
-} from "./enums"
+} from "./enums/key-status"
 import type {
     KeyState,
-} from "./types"
+} from "./types/key-state"
 
 /** Build a fresh Active key state with the given raw value. */
 const buildKeyState = (

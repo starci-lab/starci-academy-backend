@@ -51,8 +51,10 @@ import {
 } from "@modules/rag"
 import {
     AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
     AiInvokeService,
-} from "@modules/ai"
+} from "@modules/ai/ai-invoke.service"
 import {
     ContentAiService,
 } from "@modules/bussiness"

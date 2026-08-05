@@ -21,8 +21,10 @@ import {
 } from "@modules/bussiness"
 import {
     GradingLaneValidationService,
+} from "@modules/ai/grading-lane-validation.service"
+import {
     validatedLaneToAiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/utils/validated-lane-to-ai-job-selection"
 import {
     ReviewPersonalProjectTaskCommand,
 } from "./review-personal-project-task.command"

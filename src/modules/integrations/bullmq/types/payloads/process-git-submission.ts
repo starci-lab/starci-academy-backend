@@ -4,7 +4,7 @@ import {
 } from "@modules/databases"
 import type {
     AiJobSelection,
-} from "@modules/ai"
+} from "@modules/ai/types/ai-job-selection"
 
 /**
  * BullMQ job body for Git challenge submission grading pipelines.

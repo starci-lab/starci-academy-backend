@@ -21,7 +21,7 @@ import {
 } from "./ai-model-catalog.service"
 import {
     KeyStatus,
-} from "./enums"
+} from "./enums/key-status"
 
 /**
  * Build an enabled catalog row carrying the (provider, keysFilePath) pair the

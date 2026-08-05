@@ -14,7 +14,7 @@ import {
 } from "@modules/bussiness"
 import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     UrlValidatorService,
 } from "@modules/validators"

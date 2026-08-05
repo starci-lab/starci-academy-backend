@@ -17,9 +17,11 @@ import {
 } from "../../shared"
 import {
     computeModelWeight,
+} from "@modules/ai/utils/compute-model-weight"
+import {
     creditForTypicalCall,
     creditRateFromUsd,
-} from "@modules/ai"
+} from "@modules/ai/utils/credit-for-typical-call"
 import {
     AiModelCatalogPathService,
 } from "../path"

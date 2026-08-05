@@ -175,8 +175,8 @@ import {
     VideoEncoderModule
 } from "@features/video-encoder"
 import {
-    AiModule
-} from "@modules/ai"
+    AiModule,
+} from "@modules/ai/ai.module"
 import {
     MembershipModule
 } from "@modules/membership"

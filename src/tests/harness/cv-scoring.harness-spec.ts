@@ -6,7 +6,7 @@ import {
 } from "@modules/databases"
 import {
     AiInvokeService,
-} from "@modules/ai"
+} from "@modules/ai/ai-invoke.service"
 import {
     CvRagRetrievalService,
 } from "@modules/rag"

@@ -9,17 +9,19 @@ import {
 } from "@nestjs/common"
 import {
     KeyStatus,
-} from "./enums"
+} from "./enums/key-status"
 import type {
     AcquireKeyParams,
     AcquireKeyResult,
     HealthSnapshotResult,
-    KeyHealthInfo,
-    KeyState,
     ModelKeyHealthGroup,
     ModelKeyHealthResult,
+} from "./types/ai-balancer"
+import type {
+    KeyHealthInfo,
+    KeyState,
     ProviderHealthSnapshot,
-} from "./types"
+} from "./types/key-state"
 import {
     AiModelCatalogService,
 } from "./ai-model-catalog.service"

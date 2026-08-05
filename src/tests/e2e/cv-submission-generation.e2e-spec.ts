@@ -58,7 +58,7 @@ import {
 } from "@modules/bullmq"
 import {
     GradingLaneValidationService,
-} from "@modules/ai"
+} from "@modules/ai/grading-lane-validation.service"
 import {
     EnqueueGenerateCvJobService,
 } from "@features/api/processors/ai/generate-cv"

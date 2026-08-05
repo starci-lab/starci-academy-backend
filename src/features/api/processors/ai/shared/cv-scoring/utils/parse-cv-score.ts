@@ -1,7 +1,9 @@
 import {
     extractJsonBlock,
+} from "@modules/ai/utils/extract-json-block"
+import {
     normalizeGradingScore,
-} from "@modules/ai"
+} from "@modules/ai/utils/normalize-grading-score"
 import {
     CvModelOutputParseException,
 } from "@modules/exceptions"

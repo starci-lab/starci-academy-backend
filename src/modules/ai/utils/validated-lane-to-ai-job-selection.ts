@@ -1,7 +1,9 @@
 import type {
     AiJobSelection,
+} from "../types/ai-job-selection"
+import type {
     ValidatedGradingLane,
-} from "../types"
+} from "../types/grading"
 
 /**
  * Maps a {@link ValidatedGradingLane} into the {@link AiJobSelection} carried on

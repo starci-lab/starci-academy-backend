@@ -4,7 +4,7 @@ import {
 } from "../constants/credit-cost"
 import type {
     ComputeModelWeightParams,
-} from "../types"
+} from "../types/model"
 
 /**
  * Context window that scores a neutral `capacity` factor of 1.0. A model with a

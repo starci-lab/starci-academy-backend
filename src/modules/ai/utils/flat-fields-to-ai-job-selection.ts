@@ -6,7 +6,7 @@ import {
 } from "@modules/exceptions"
 import type {
     AiJobSelection,
-} from "../types"
+} from "../types/ai-job-selection"
 
 /** Loose model-pick fields carried on a GraphQL input (mirrors the submit-challenge shape). */
 export interface FlatAiSelectionFields {
