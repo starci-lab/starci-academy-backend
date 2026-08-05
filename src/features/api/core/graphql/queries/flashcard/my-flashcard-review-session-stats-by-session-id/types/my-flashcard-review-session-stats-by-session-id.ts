@@ -1,9 +1,37 @@
+import type {
+    FlashcardReviewEventEntity,
+} from "@modules/databases"
+
 /** Params for {@link import("../my-flashcard-review-session-stats-by-session-id.service").MyFlashcardReviewSessionStatsBySessionIdService.find}. */
 export interface FindMyFlashcardReviewSessionStatsBySessionIdParams {
     /** Viewer the session (and every event aggregated) must belong to. */
     userId: string
     /** The review-session id to resolve + aggregate — resolved in EITHER session table (deck-review or cross-deck due-review). */
     sessionId: string
+}
+
+/** Params for {@link import("../my-flashcard-review-session-stats-by-session-id.service").MyFlashcardReviewSessionStatsBySessionIdService.computeFirstReviewXp}. */
+export interface ComputeFirstReviewXpParams {
+    /** Viewer whose globally-earliest event per card decides the first-review attribution. */
+    userId: string
+    /** The session whose XP is being computed — a card counts only if ITS earliest event carries this id. */
+    sessionId: string
+    /** This session's graded events, oldest-first. */
+    events: Array<FlashcardReviewEventEntity>
+}
+
+/** Params for {@link import("../my-flashcard-review-session-stats-by-session-id.service").MyFlashcardReviewSessionStatsBySessionIdService.findNextDueAt}. */
+export interface FindNextDueAtParams {
+    /** Viewer whose scheduling rows are consulted. */
+    userId: string
+    /** The session's drawn cards (full snapshotted set, not just the graded ones). */
+    cardIds: Array<string>
+}
+
+/** Params for {@link import("../my-flashcard-review-session-stats-by-session-id.service").MyFlashcardReviewSessionStatsBySessionIdService.computeWeakTags}. */
+export interface ComputeWeakTagsParams {
+    /** This session's graded events, filtered internally down to the "Again" (grade 0) ones. */
+    events: Array<FlashcardReviewEventEntity>
 }
 
 /** Per-SM-2-grade tally of the events graded within one session (grade 0/1/2/3). */

@@ -24,6 +24,7 @@ import {
     slugifyForFilename,
 } from "../utils"
 import type {
+    DumpOneParams,
     PgSnapshotItemResult,
     PgSnapshotParams,
     PgSnapshotResult,
@@ -98,11 +99,7 @@ export class PgSnapshotService {
             target,
             directory,
             runStamp,
-        }: {
-            target: PgSnapshotParams["targets"][number]
-            directory: string
-            runStamp: number
-        },
+        }: DumpOneParams,
     ): Promise<PgSnapshotItemResult> {
         try {
             // reject malformed/non-postgres URLs before spawning pg_dump

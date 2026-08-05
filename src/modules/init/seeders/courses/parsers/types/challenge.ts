@@ -165,3 +165,23 @@ export interface MapChallengeLangSectionV2Params {
     /** Factory for the (item × programming-language) lang row id. */
     generateLangId: (itemIndex: number, langOrderIndex: number) => string
 }
+
+/** Params for {@link ChallengeParserService.parseCriteria}. */
+export interface ParseCriteriaParams {
+    /** Raw rubric criteria array from mount JSON (unvalidated shape). */
+    criteria: unknown
+    /** Rubric section this criteria array belongs to. */
+    kind: "approach" | "outcome"
+    /** Parent submission id written into every criteria row's FK relation. */
+    challengeSubmissionId: string
+    /** Course ordinal on the mount. */
+    courseIndex: number
+    /** Module ordinal within the course. */
+    moduleIndex: number
+    /** Content ordinal within the module. */
+    contentIndex: number
+    /** Challenge ordinal within the content. */
+    challengeIndex: number
+    /** Submission ordinal — matches `submissions/<n>/` folder name. */
+    submissionIndex: number
+}

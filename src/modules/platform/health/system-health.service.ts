@@ -29,8 +29,10 @@ import {
 import type {
     ComponentHealth,
     ComponentStatus,
+    DownHealthParams,
     ExternalProbeCacheEntry,
     HttpProbeTarget,
+    ReachableHealthParams,
     TcpProbeTarget,
 } from "./types"
 
@@ -534,12 +536,7 @@ export class SystemHealthService {
     private reachableHealth({
         name,
         latencyMs,
-    }: {
-        /** Component name being reported. */
-        name: string
-        /** Measured probe latency in ms. */
-        latencyMs: number
-    }): ComponentHealth {
+    }: ReachableHealthParams): ComponentHealth {
         // anything slower than the threshold is reachable-but-struggling
         const status: ComponentStatus =
             latencyMs > PROBE_DEGRADED_THRESHOLD_MS ? "degraded" : "up"
@@ -564,14 +561,7 @@ export class SystemHealthService {
         name,
         message,
         latencyMs,
-    }: {
-        /** Component name being reported. */
-        name: string
-        /** Short failure reason surfaced to the client. */
-        message: string
-        /** Latency if one was measured, else `null`. */
-        latencyMs: number | null
-    }): ComponentHealth {
+    }: DownHealthParams): ComponentHealth {
         return {
             name,
             status: "down",

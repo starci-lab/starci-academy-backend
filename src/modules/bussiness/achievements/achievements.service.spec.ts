@@ -24,6 +24,16 @@ import type {
     EntityManagerMock,
 } from "@modules/tests"
 
+/** Params for the local `build` test helper (wires a SUT with programmed badges/definitions/rows). */
+interface BuildParams {
+    badges: Array<AbstractBadge>
+    definitions: Array<AchievementEntity>
+    earned?: Array<UserAchievementEntity>
+    // each badge's metric value, in the badges' order (→ v0, v1, …)
+    values: Array<number>
+    inserted?: boolean
+}
+
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
@@ -85,14 +95,7 @@ describe("AchievementsService",
                 earned = [],
                 values,
                 inserted = true,
-            }: {
-            badges: Array<AbstractBadge>
-            definitions: Array<AchievementEntity>
-            earned?: Array<UserAchievementEntity>
-            // each badge's metric value, in the badges' order (→ v0, v1, …)
-            values: Array<number>
-            inserted?: boolean
-        },
+            }: BuildParams,
         ): Promise<AchievementsService> => {
             entityManager = makeEntityManagerMock()
             entityManager.find.mockImplementation(async (entity: unknown) =>

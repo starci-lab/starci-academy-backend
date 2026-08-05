@@ -23,6 +23,7 @@ import {
     REFRESH_WAIT_TIMEOUT_MS,
 } from "./constants"
 import type {
+    ExchangeAndPublishParams,
     ExchangeRefreshTokenParams,
     ExchangeRefreshTokenResult,
 } from "./types"
@@ -117,11 +118,7 @@ export class RefreshTokenCoalescerService {
             refreshToken,
             resultKey,
             lockKey,
-        }: {
-            refreshToken: string
-            resultKey: string
-            lockKey: string
-        },
+        }: ExchangeAndPublishParams,
     ): Promise<ExchangeRefreshTokenResult> {
         try {
             const token = await this.keycloakTokenService.exchangeRefreshTokenForToken({

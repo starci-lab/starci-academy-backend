@@ -1,4 +1,5 @@
 ﻿import type {
+    BuildOutcomesParams,
     ContentsFromDatabaseParams,
     IsContentV2Params,
     ParseContentBodiesParams,
@@ -483,12 +484,7 @@ export class ContentParserService {
             moduleIndex,
             contentIndex,
             contentId,
-        }: {
-            courseIndex: number
-            moduleIndex: number
-            contentIndex: number
-            contentId: string
-        },
+        }: BuildOutcomesParams,
     ): Array<DeepPartial<ContentLearningOutcomeEntity>> {
         return items.map((item) => {
             const orderIndex = item.orderIndex ?? 0

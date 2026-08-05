@@ -40,6 +40,8 @@ import {
     CvModelOutputParseException,
 } from "@modules/exceptions"
 import type {
+    BuildRagContextParams,
+    BuildSystemPromptParams,
     ComposedEducation,
     ComposedExperience,
     ComposedSkillGroup,
@@ -184,11 +186,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             inferredLevel,
             inferredRole,
             techStack,
-        }: {
-            inferredLevel: string
-            inferredRole: string
-            techStack: Array<string>
-        },
+        }: BuildRagContextParams,
     ): Promise<string> {
         try {
             const [
@@ -236,14 +234,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             inferredLevel,
             inferredRole,
             isRevise,
-        }: {
-            targetLanguage: string
-            extraPrompts: string
-            ragContext: string
-            inferredLevel: string
-            inferredRole: string
-            isRevise: boolean
-        },
+        }: BuildSystemPromptParams,
     ): string {
         const jsonTemplate = {
             fullName: "string",

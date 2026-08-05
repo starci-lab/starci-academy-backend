@@ -39,6 +39,7 @@ import {
     GithubRepoImportService,
 } from "./github-repo-import.service"
 import type {
+    BuildAskMessagesParams,
     IndexRagPlaygroundParams,
     IndexRagPlaygroundResult,
     RagPlaygroundSampleEntry,
@@ -390,10 +391,7 @@ export class PublicRagPlaygroundService {
         {
             question,
             chunks,
-        }: {
-            question: string
-            chunks: Array<RagPlaygroundSourceChunk>
-        },
+        }: BuildAskMessagesParams,
     ): [SystemMessage, HumanMessage] {
         const context = chunks.length > 0
             ? chunks

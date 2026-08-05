@@ -45,13 +45,14 @@ import {
 import type {
     AcquireKeyResult,
     AnthropicApiKey,
+    BuildProbeRequestParams,
     GeminiApiKey,
+    InvokeWithCacheParams,
     LocalApiKey,
     OpenAiApiKey,
     OpenRouterApiKey,
     ProbeModelParams,
     ProbeModelResult,
-    UseApiAction,
     UseApiActionContext,
     UseApiAutoParams,
     UseApiParams,
@@ -435,12 +436,7 @@ export class UseApiService {
         key,
         model,
         action,
-    }: {
-        provider: ModelProvider
-        key: string
-        model: string
-        action: UseApiAction<TResult>
-    }): Promise<
+    }: InvokeWithCacheParams<TResult>): Promise<
         | { ok: true, result: TResult }
         | { ok: false, error: Error, kind: AiErrorKind }
     > {
@@ -730,11 +726,7 @@ export class UseApiService {
             provider,
             model,
             apiKey,
-        }: {
-            provider: ModelProvider
-            model: string
-            apiKey: string
-        },
+        }: BuildProbeRequestParams,
     ): { url: string, headers: Record<string, string>, body: unknown } {
         // shared OpenAI-style chat body — reused by every OpenAI-compatible gateway.
         // `tokens` defaults to 1 (cheapest possible probe) but REASONING-family

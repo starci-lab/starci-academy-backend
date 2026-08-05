@@ -217,6 +217,20 @@ export interface AiRunResult {
     cachedTokens?: number
 }
 
+/** Params for {@link AiInvokeService.buildClient}. */
+export interface BuildClientParams {
+    /** The resolved provider to build a client for. */
+    provider: ModelProvider
+    /** The provider-specific model name. */
+    model: string
+    /** The raw API key to authenticate the client with. */
+    apiKey: string
+    /** Sampling temperature to configure on the client. */
+    temperature: number
+    /** See {@link AiInvokeParams.cacheSessionId}. */
+    cacheSessionId?: string
+}
+
 /** Result of {@link AiInvokeService.stream}. */
 export interface AiStreamResult {
     /** The full concatenated response text produced by the stream. */

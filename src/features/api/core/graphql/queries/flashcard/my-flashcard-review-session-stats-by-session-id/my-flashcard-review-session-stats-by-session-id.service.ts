@@ -16,7 +16,10 @@ import {
     UserFlashcardReviewEntity,
 } from "@modules/databases"
 import type {
+    ComputeFirstReviewXpParams,
+    ComputeWeakTagsParams,
     FindMyFlashcardReviewSessionStatsBySessionIdParams,
+    FindNextDueAtParams,
     FlashcardReviewSessionWeakTag,
     MyFlashcardReviewSessionStatsBySessionIdResultData,
 } from "./types"
@@ -203,11 +206,7 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
             userId,
             sessionId,
             events,
-        }: {
-            userId: string
-            sessionId: string
-            events: Array<FlashcardReviewEventEntity>
-        },
+        }: ComputeFirstReviewXpParams,
     ): Promise<number> {
         const cardIds = Array.from(new Set(events.map((event) => event.flashcardCardId)))
         if (cardIds.length === 0) {
@@ -257,10 +256,7 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
         {
             userId,
             cardIds,
-        }: {
-            userId: string
-            cardIds: Array<string>
-        },
+        }: FindNextDueAtParams,
     ): Promise<Date | null> {
         if (cardIds.length === 0) {
             return null
@@ -292,9 +288,7 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
     private async computeWeakTags(
         {
             events,
-        }: {
-            events: Array<FlashcardReviewEventEntity>
-        },
+        }: ComputeWeakTagsParams,
     ): Promise<Array<FlashcardReviewSessionWeakTag>> {
         const againEvents = events.filter((event) => event.grade === 0)
         if (againEvents.length === 0) {

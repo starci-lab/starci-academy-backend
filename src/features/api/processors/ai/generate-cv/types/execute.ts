@@ -2,6 +2,40 @@ import {
     EmptyObject,
 } from "@modules/common"
 
+/** Params for {@link import("../steps/extract-cv-text").extractCvText}. */
+export interface ExtractCvTextParams {
+    /** Raw bytes of the uploaded source CV file. */
+    buffer: Buffer
+    /** The file's MinIO object key — its extension selects the extractor. */
+    key: string
+}
+
+/** Params for {@link import("../steps/generate-cv-compose-step.service").GenerateCvComposeStepService.buildRagContext}. */
+export interface BuildRagContextParams {
+    /** Rough seniority signal, steers the rubric/sample queries. */
+    inferredLevel: string
+    /** Inferred target role, steers the sample-phrasing query. */
+    inferredRole: string
+    /** Tech-stack hint, steers the skill-catalog query. */
+    techStack: Array<string>
+}
+
+/** Params for {@link import("../steps/generate-cv-compose-step.service").GenerateCvComposeStepService.buildSystemPrompt}. */
+export interface BuildSystemPromptParams {
+    /** Human-readable output language for the LLM's response. */
+    targetLanguage: string
+    /** The user's free-text emphasis/target-role notes. */
+    extraPrompts: string
+    /** Concatenated RAG excerpts (rubric / catalog / sample), or "" when retrieval failed. */
+    ragContext: string
+    /** Rough seniority signal from {@link BuildRagContextParams.inferredLevel}. */
+    inferredLevel: string
+    /** Inferred target role from {@link BuildRagContextParams.inferredRole}. */
+    inferredRole: string
+    /** Whether this run is revising an uploaded CV rather than generating from scratch. */
+    isRevise: boolean
+}
+
 /** One PASSED milestone/capstone task attempt, flattened for the CV prompt. */
 export interface GatheredMilestoneTaskAttempt {
     taskTitle: string

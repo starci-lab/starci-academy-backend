@@ -55,10 +55,10 @@ import {
 } from "@modules/ai"
 import {
     ContentAiService,
-} from "@modules/bussiness/content-ai"
+} from "@modules/bussiness"
 import {
     UserService,
-} from "@modules/bussiness/user"
+} from "@modules/bussiness"
 import {
     AskContentAiHandler,
 } from "@features/api/core/graphql/mutations/contents/ask-content-ai/ask-content-ai.handler"
@@ -74,6 +74,11 @@ import {
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
+
+/** Params for the `AiInvokeService.run` mock used to echo the system prompt back as the answer. */
+interface AiInvokeServiceRunParams {
+    messages: Array<{ content: unknown }>
+}
 
 /**
  * SECURITY e2e for `askContentAi`: proves the per-scope entitlement gate holds
@@ -179,7 +184,7 @@ describe("askContentAi entitlement per scope (e2e)",
             // observe, from the HTTP response alone, exactly what grounding text
             // reached the model (a real model response would make leak/no-leak
             // unobservable from outside).
-            run: jest.fn(async ({ messages }: { messages: Array<{ content: unknown }> }) => ({
+            run: jest.fn(async ({ messages }: AiInvokeServiceRunParams) => ({
                 text: String(messages[0]?.content ?? ""),
                 model: "test-model",
                 provider: ModelProvider.Local,

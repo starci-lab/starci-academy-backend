@@ -76,6 +76,14 @@ export interface RetrieveRagPlaygroundContextResult {
     chunks: Array<RagPlaygroundSourceChunk>
 }
 
+/** Params for {@link PublicRagPlaygroundService.buildAskMessages}. */
+export interface BuildAskMessagesParams {
+    /** The visitor's question. */
+    question: string
+    /** The retrieved chunks to ground the answer in. */
+    chunks: Array<RagPlaygroundSourceChunk>
+}
+
 /** One prepared (not-yet-streamed) ask, held in-memory by the run registry. */
 export interface PreparedRagPlaygroundRun {
     /** The system + human messages ready for the model. */

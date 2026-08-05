@@ -1,5 +1,8 @@
 import pdfParse from "pdf-parse"
 import mammoth from "mammoth"
+import type {
+    ExtractCvTextParams,
+} from "../types"
 
 /**
  * Extract plain text from an uploaded CV file buffer, branching on the file
@@ -21,10 +24,7 @@ export const extractCvText = async (
     {
         buffer,
         key,
-    }: {
-        buffer: Buffer
-        key: string
-    },
+    }: ExtractCvTextParams,
 ): Promise<string> => {
     const lowerKey = key.toLowerCase()
     try {

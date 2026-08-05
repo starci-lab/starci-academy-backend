@@ -18,6 +18,9 @@ import type {
 import type {
     CodingPointsRow,
     CodingProblemIdRow,
+    GetCodingProgressParams,
+    InvalidateCodingProgressParams,
+    UpdateCodingProgressParams,
 } from "./types"
 
 /**
@@ -43,10 +46,7 @@ export class CodingProgressService {
      */
     async getProgress({
         userId,
-    }: {
-        /** The requesting user's id. */
-        userId: string
-    }): Promise<CodingProblemProgressCacheResult> {
+    }: GetCodingProgressParams): Promise<CodingProblemProgressCacheResult> {
         const cached = await this.cacheService.get({
             key: CacheKey.CodingProblemProgress,
             args: [userId],
@@ -68,10 +68,7 @@ export class CodingProgressService {
      */
     async updateProgress({
         userId,
-    }: {
-        /** The requesting user's id. */
-        userId: string
-    }): Promise<CodingProblemProgressCacheResult> {
+    }: UpdateCodingProgressParams): Promise<CodingProblemProgressCacheResult> {
         const result = await this.compute(userId)
         await this.cacheService.set({
             key: CacheKey.CodingProblemProgress,
@@ -89,10 +86,7 @@ export class CodingProgressService {
      */
     async invalidate({
         userId,
-    }: {
-        /** The user whose progress cache to drop. */
-        userId: string
-    }): Promise<void> {
+    }: InvalidateCodingProgressParams): Promise<void> {
         await this.cacheService.del({
             key: CacheKey.CodingProblemProgress,
             args: [userId],

@@ -3,6 +3,7 @@ import type {
     ParseChallengeManyParams,
     ParseChallengeParams,
     ParseChallengeSubmissionsParams,
+    ParseCriteriaParams,
 } from "./types"
 import {
     Injectable,
@@ -581,16 +582,7 @@ export class ChallengeParserService {
             contentIndex,
             challengeIndex,
             submissionIndex,
-        }: {
-            criteria: unknown
-            kind: "approach" | "outcome"
-            challengeSubmissionId: string
-            courseIndex: number
-            moduleIndex: number
-            contentIndex: number
-            challengeIndex: number
-            submissionIndex: number
-        },
+        }: ParseCriteriaParams,
     ): {
         rows: Array<DeepPartial<ChallengeSubmissionApproachCriteriaEntity>>
         totalScore: number

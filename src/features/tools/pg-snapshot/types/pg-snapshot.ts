@@ -43,3 +43,15 @@ export interface PgSnapshotResult {
     /** Per-target outcomes, in request order. */
     items: Array<PgSnapshotItemResult>
 }
+
+/**
+ * Params for {@link PgSnapshotService.dumpOne}.
+ */
+export interface DumpOneParams {
+    /** The target database to dump. */
+    target: PgSnapshotParams["targets"][number]
+    /** Directory the dump file is written into. */
+    directory: string
+    /** Run timestamp shared by every target in the same snapshot run, used in the filename. */
+    runStamp: number
+}

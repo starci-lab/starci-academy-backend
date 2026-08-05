@@ -20,3 +20,11 @@ export interface RagPlaygroundRunChunkSocketIoMessage {
     /** Present on a failed/expired run — a short, visitor-facing reason. */
     error?: string
 }
+
+/** Params for {@link RagPlaygroundGateway.emitChunk}. */
+export interface EmitChunkParams {
+    /** Run room to emit the chunk into. */
+    room: string
+    /** The chunk message to broadcast. */
+    data: RagPlaygroundRunChunkSocketIoMessage
+}

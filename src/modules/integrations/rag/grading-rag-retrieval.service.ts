@@ -13,9 +13,6 @@ import {
 import type {
     Document,
 } from "@langchain/core/documents"
-import type {
-    EmbeddingsInterface,
-} from "@langchain/core/embeddings"
 import {
     RecursiveCharacterTextSplitter,
 } from "langchain/text_splitter"
@@ -30,6 +27,7 @@ import type {
     RetrieveGradingExcerptParams,
     RetrieveGradingSourceParams,
     RetrieveGradingSourceResult,
+    RetrieveWithVectorStoreParams,
 } from "./types"
 
 /** Default per-criterion retrieval depth — each criterion pulls its own top matches. */
@@ -203,15 +201,7 @@ export class GradingRetrievalService {
             maxChars,
             jobId,
             perCriterionTopK,
-        }: {
-            runKey: string
-            chunks: Array<Document>
-            queries: Array<string>
-            embeddingModel: EmbeddingsInterface
-            maxChars: number
-            jobId: string
-            perCriterionTopK: number
-        },
+        }: RetrieveWithVectorStoreParams,
     ): Promise<RetrieveGradingSourceResult> {
         const collectionName = `grading-${runKey}`
         try {

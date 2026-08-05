@@ -209,3 +209,25 @@ export interface ProbeModelResult {
     /** Short failure reason when {@link ok} is false, else null. */
     errorMessage: string | null
 }
+
+/** Params for {@link UseApiService.invokeWithCache}. */
+export interface InvokeWithCacheParams<TResult> {
+    /** Provider the picked key belongs to. */
+    provider: ModelProvider
+    /** The picked API key. */
+    key: string
+    /** Concrete model name being invoked. */
+    model: string
+    /** Worker callback — receives the picked key/model, returns the result. */
+    action: UseApiAction<TResult>
+}
+
+/** Params for {@link UseApiService.buildProbeRequest}. */
+export interface BuildProbeRequestParams {
+    /** Provider that serves {@link model}. */
+    provider: ModelProvider
+    /** Concrete model name to build the probe request for. */
+    model: string
+    /** API key to authenticate the probe request with. */
+    apiKey: string
+}

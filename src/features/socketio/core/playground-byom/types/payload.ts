@@ -100,3 +100,13 @@ export interface VerifyNowSocketIoPayload {
     /** Session whose paired agent should report its resources immediately. */
     sessionId: string
 }
+
+/** Params for {@link PlaygroundByomGateway.verifyCurrentStep}. */
+export interface VerifyCurrentStepParams {
+    /** Session whose current step is being checked. */
+    sessionId: string
+    /** Room to emit `step:verified` into on a fresh match. */
+    room: string
+    /** Resources self-reported by the agent to match against the step pattern. */
+    resources: ResourcesReportSocketIoPayload["resources"]
+}

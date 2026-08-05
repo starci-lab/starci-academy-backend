@@ -33,6 +33,7 @@ import {
 } from "../enums"
 import type {
     AbortRagPlaygroundRunSocketIoPayload,
+    EmitChunkParams,
     RagPlaygroundRunChunkSocketIoMessage,
     SubscribeRagPlaygroundRunSocketIoPayload,
 } from "./types"
@@ -193,10 +194,7 @@ export class RagPlaygroundGateway {
         {
             room,
             data,
-        }: {
-            room: string
-            data: RagPlaygroundRunChunkSocketIoMessage
-        },
+        }: EmitChunkParams,
     ): void {
         this.wsResponseService.successToRoom<RagPlaygroundRunChunkSocketIoMessage>({
             message: "RAG Playground run chunk",

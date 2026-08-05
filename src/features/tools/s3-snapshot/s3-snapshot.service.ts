@@ -31,6 +31,7 @@ import {
     ToolsStoreService,
 } from "../store"
 import type {
+    DownloadOneParams,
     S3SnapshotParams,
     S3SnapshotResult,
 } from "./types"
@@ -170,12 +171,7 @@ export class S3SnapshotService {
             bucket,
             key,
             directory,
-        }: {
-            client: S3Client
-            bucket: string
-            key: string
-            directory: string
-        },
+        }: DownloadOneParams,
     ): Promise<number> {
         // mirror the object key as a relative path under the bucket directory
         const destination = join(directory,

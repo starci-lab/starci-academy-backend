@@ -70,6 +70,24 @@ export interface RetrieveGradingSourceParams {
     perCriterionTopK?: number
 }
 
+/** Params for {@link GradingRetrievalService.retrieveWithVectorStore}. */
+export interface RetrieveWithVectorStoreParams {
+    /** Per-run Qdrant collection namespace. */
+    runKey: string
+    /** Pre-split source chunks (code files / document text). */
+    chunks: Array<Document>
+    /** Per-criterion similarity queries (one per {@link GradingRetrievalCriterion}). */
+    queries: Array<string>
+    /** Resolved embedding model used to vectorize the chunks + queries. */
+    embeddingModel: EmbeddingsInterface
+    /** Hard ceiling on the assembled excerpt length (characters). */
+    maxChars: number
+    /** Job id, for log correlation. */
+    jobId: string
+    /** Per-criterion retrieval depth. */
+    perCriterionTopK: number
+}
+
 /** Result of a retrieval run: the excerpt plus observability stats. */
 export interface RetrieveGradingSourceResult {
     /** The assembled, budget-bounded source excerpt to feed the grader. */

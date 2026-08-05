@@ -31,6 +31,12 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
+/** Params for the local `seedFixedPlan` helper. */
+interface SeedFixedPlanParams {
+    months: number
+    installmentsPaid: number
+}
+
 /**
  * Exercises `InstallmentPlanService.applyPaymentForTransaction` against a
  * real Postgres connection — the exact call `ReconcileTransactionWorker
@@ -96,7 +102,7 @@ describe("Installment payment reconcile (e2e)",
             {
                 months,
                 installmentsPaid,
-            }: { months: number, installmentsPaid: number },
+            }: SeedFixedPlanParams,
         ): Promise<InstallmentPlanEntity> => {
             const monthlyAmountVnd = 500_000
             return entityManager.save(

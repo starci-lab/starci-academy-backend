@@ -84,6 +84,24 @@ export interface CodingProblemHintResult {
     hint: string
 }
 
+/** Params for reading a user's cached coding progress. */
+export interface GetCodingProgressParams {
+    /** The requesting user's id. */
+    userId: string
+}
+
+/** Params for recomputing and caching a user's coding progress. */
+export interface UpdateCodingProgressParams {
+    /** The requesting user's id. */
+    userId: string
+}
+
+/** Params for dropping a user's cached coding progress. */
+export interface InvalidateCodingProgressParams {
+    /** The user whose progress cache to drop. */
+    userId: string
+}
+
 /** Params for the coding leaderboard. */
 export interface CodingLeaderboardParams {
     /** Max number of ranked users to return. */
@@ -126,6 +144,14 @@ export interface SubmitCodingSolutionResult {
     submissionId: string
     /** The judging `jobs.id` to subscribe to over Socket.IO. */
     jobId: string
+}
+
+/** Params for recording that a user revealed a problem's reference solution. */
+export interface RecordSolutionRevealParams {
+    /** The viewing user's id. */
+    userId: string
+    /** Slug of the problem whose solution was revealed. */
+    slug: string
 }
 
 /**

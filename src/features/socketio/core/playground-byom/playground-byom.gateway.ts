@@ -53,6 +53,7 @@ import type {
     CommandOutputSocketIoPayload,
     CommandRunSocketIoPayload,
     ResourcesReportSocketIoPayload,
+    VerifyCurrentStepParams,
     VerifyNowSocketIoPayload,
 } from "./types"
 
@@ -527,11 +528,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
             sessionId,
             room,
             resources,
-        }: {
-            sessionId: string
-            room: string
-            resources: ResourcesReportSocketIoPayload["resources"]
-        },
+        }: VerifyCurrentStepParams,
     ): Promise<void> {
         const session = await this.entityManager.findOne(
             PlaygroundSessionEntity,

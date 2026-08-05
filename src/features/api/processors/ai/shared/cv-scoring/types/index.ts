@@ -42,6 +42,31 @@ export interface ScoreCvParams {
     selection?: AiJobSelection
 }
 
+/** Params for {@link CvScoringService.buildCvContent}. */
+export interface BuildCvContentParams {
+    /**
+     * The composed CV JSON (header / summary / skills / experience / education).
+     * Preferred grading input; used by the generate pipeline. Omit for a
+     * text-only (uploaded) CV.
+     */
+    structuredData?: Record<string, unknown> | null
+    /**
+     * Extracted plain text of the CV. Used by the upload pipeline (WF-03c) and,
+     * for a generated CV, may accompany `structuredData` as extra context.
+     */
+    cvText?: string | null
+}
+
+/** Params for {@link CvScoringService.buildSystemPrompt}. */
+export interface BuildSystemPromptParams {
+    /** Seniority rubric level to grade against. */
+    level: CvTemplateLevel
+    /** Advisory rubric excerpt from `cv_rag`, or "" when retrieval failed. */
+    rubricContext: string
+    /** Human-readable output language for the LLM's feedback. */
+    targetLanguage: string
+}
+
 /** One structured feedback item on a CV (a strength or a gap). */
 export interface CvScoreFeedbackItem {
     /** Severity of the observation (`low` | `medium` | `high`). */

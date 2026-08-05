@@ -17,6 +17,11 @@ import {
     ProcessGitSubmissionCompleteStepService,
 } from "./process-git-submission-complete-step.service"
 
+/** Params the mocked `jobActionService.loadExecutionResult` is invoked with. */
+interface LoadExecutionResultMockParams {
+    key: string
+}
+
 /** A passing grade result as the grade step would persist it. */
 const gradeResult = {
     evaluation: {
@@ -70,7 +75,7 @@ describe("ProcessGitSubmissionCompleteStepService",
             // grade result is loaded by key; the "creditCharged" marker is absent by default
             jobActionService = {
                 loadExecutionResult: jest.fn().mockImplementation(
-                    ({ key }: { key: string }) => (key === "grade" ? gradeResult : undefined),
+                    ({ key }: LoadExecutionResultMockParams) => (key === "grade" ? gradeResult : undefined),
                 ),
                 increaseJob: jest.fn(),
                 saveExecutionResult: jest.fn(),

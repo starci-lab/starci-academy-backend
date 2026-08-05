@@ -48,6 +48,7 @@ import type {
     AiRunResult,
     AiStreamParams,
     AiStreamResult,
+    BuildClientParams,
 } from "./types"
 import type {
     StreamActionResult,
@@ -513,13 +514,7 @@ export class AiInvokeService {
             apiKey,
             temperature,
             cacheSessionId,
-        }: {
-            provider: ModelProvider
-            model: string
-            apiKey: string
-            temperature: number
-            cacheSessionId?: string
-        },
+        }: BuildClientParams,
     ): ChatOpenAI | ChatGoogleGenerativeAI | ChatAnthropic {
         // OpenRouter reuses a warm prompt-cache only when follow-up requests
         // route to the same upstream provider; its `x-session-id` header pins

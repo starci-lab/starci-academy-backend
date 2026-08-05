@@ -9,6 +9,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import type {
+    CreditForRunParams,
     EnabledModelsParams,
 } from "./types"
 import {
@@ -97,13 +98,7 @@ export class AiModelCatalogService {
             completionTokens,
             cachedTokens,
             fallback,
-        }: {
-            name: string
-            promptTokens?: number
-            completionTokens?: number
-            cachedTokens?: number
-            fallback: number
-        },
+        }: CreditForRunParams,
     ): Promise<number> {
         const models = await this.enabledModels()
         const found = models.find((model) => model.name === name)

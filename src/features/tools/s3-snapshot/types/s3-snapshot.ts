@@ -1,3 +1,7 @@
+import type {
+    S3Client,
+} from "@aws-sdk/client-s3"
+
 /**
  * Parameters for {@link S3SnapshotService.execute}.
  *
@@ -36,4 +40,18 @@ export interface S3SnapshotResult {
     failed: Array<string>
     /** Total bytes written across all downloaded objects. */
     totalBytes: number
+}
+
+/**
+ * Params for {@link S3SnapshotService.downloadOne}.
+ */
+export interface DownloadOneParams {
+    /** Client bound to the remote server's credentials/endpoint. */
+    client: S3Client
+    /** Bucket the object lives in. */
+    bucket: string
+    /** Object key to download. */
+    key: string
+    /** Local directory the object is mirrored into. */
+    directory: string
 }

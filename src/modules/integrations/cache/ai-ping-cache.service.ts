@@ -15,6 +15,8 @@ import type {
     AiPingKeyStatusMap,
     ProviderPingKeyStatusMap,
     RecordKeyCooldownParams,
+    RecordKeyPickedParams,
+    RecordKeySuccessParams,
     RecordPingKeyStatusParams,
 } from "./types"
 import {
@@ -77,10 +79,7 @@ export class AiPingCacheService implements OnModuleInit {
     async recordKeySuccess({
         provider,
         key,
-    }: {
-        provider: ModelProvider
-        key: string
-    }): Promise<void> {
+    }: RecordKeySuccessParams): Promise<void> {
         const map = await this.getOrCreateMap()
         const providerMap = map[provider] ?? {
         }
@@ -140,10 +139,7 @@ export class AiPingCacheService implements OnModuleInit {
     async recordKeyPicked({
         provider,
         key,
-    }: {
-        provider: ModelProvider
-        key: string
-    }): Promise<void> {
+    }: RecordKeyPickedParams): Promise<void> {
         const map = await this.getOrCreateMap()
         const providerMap = map[provider] ?? {
         }

@@ -71,3 +71,15 @@ export interface ContentIndexesParams {
 
 /** Sorted `contentIndex` values found under `contents/`. */
 export type ListContentIndexesResult = Array<number>
+
+/** Params for {@link ContentParserService.buildOutcomes}. */
+export interface BuildOutcomesParams {
+    /** Course ordinal on the mount. */
+    courseIndex: number
+    /** Module ordinal within the course. */
+    moduleIndex: number
+    /** Content ordinal within the module. */
+    contentIndex: number
+    /** Parent content id (FK for each outcome row). */
+    contentId: string
+}

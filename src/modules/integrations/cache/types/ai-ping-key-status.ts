@@ -89,3 +89,23 @@ export interface RecordKeyCooldownParams {
     /** Hard-disable until the pool reloads (invalid/revoked key). */
     disabled?: boolean
 }
+
+/**
+ * Params for {@link AiPingCacheService.recordKeySuccess}.
+ */
+export interface RecordKeySuccessParams {
+    /** Provider whose key succeeded. */
+    provider: ModelProvider
+    /** Raw API key value. */
+    key: string
+}
+
+/**
+ * Params for {@link AiPingCacheService.recordKeyPicked}.
+ */
+export interface RecordKeyPickedParams {
+    /** Provider whose key was picked. */
+    provider: ModelProvider
+    /** Raw API key value. */
+    key: string
+}

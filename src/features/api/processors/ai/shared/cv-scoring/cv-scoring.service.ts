@@ -31,6 +31,8 @@ import {
     parseCvScore,
 } from "./utils"
 import type {
+    BuildCvContentParams,
+    BuildSystemPromptParams,
     CvTemplateLevel,
     ScoreCvParams,
     ScoreCvResult,
@@ -139,10 +141,7 @@ export class CvScoringService {
         {
             structuredData,
             cvText,
-        }: {
-            structuredData?: Record<string, unknown> | null
-            cvText?: string | null
-        },
+        }: BuildCvContentParams,
     ): string {
         const parts: Array<string> = []
         if (structuredData && Object.keys(structuredData).length > 0) {
@@ -195,11 +194,7 @@ export class CvScoringService {
             level,
             rubricContext,
             targetLanguage,
-        }: {
-            level: CvTemplateLevel
-            rubricContext: string
-            targetLanguage: string
-        },
+        }: BuildSystemPromptParams,
     ): string {
         return [
             `You are a strict, experienced technical recruiter grading a ${level}-level engineer's CV.`,

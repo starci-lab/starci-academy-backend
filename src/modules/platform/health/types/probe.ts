@@ -80,3 +80,21 @@ export interface ExternalProbeCacheEntry {
     /** Epoch ms the result was produced (drives TTL expiry). */
     at: number
 }
+
+/** Params for {@link SystemHealthService.reachableHealth}. */
+export interface ReachableHealthParams {
+    /** Component name being reported. */
+    name: string
+    /** Measured probe latency in ms. */
+    latencyMs: number
+}
+
+/** Params for {@link SystemHealthService.downHealth}. */
+export interface DownHealthParams {
+    /** Component name being reported. */
+    name: string
+    /** Short failure reason surfaced to the client. */
+    message: string
+    /** Latency if one was measured, else `null`. */
+    latencyMs: number | null
+}

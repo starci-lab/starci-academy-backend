@@ -27,6 +27,7 @@ import type {
     GetAcceptedSubmissionSummaryParams,
     ListMyCodingSubmissionsParams,
     ListMyCodingSubmissionsResult,
+    RecordSolutionRevealParams,
     RecordSolutionRevealResult,
     SubmitCodingSolutionParams,
     SubmitCodingSolutionResult,
@@ -143,12 +144,7 @@ export class CodingSubmissionService {
     async recordSolutionReveal({
         userId,
         slug,
-    }: {
-        /** The viewing user's id. */
-        userId: string
-        /** Slug of the problem whose solution was revealed. */
-        slug: string
-    }): Promise<RecordSolutionRevealResult> {
+    }: RecordSolutionRevealParams): Promise<RecordSolutionRevealResult> {
         // resolve the target problem (must exist + be enabled) and load its reference
         // solutions — this gated mutation is the ONLY place they are served to the client
         // (the problem detail read never carries them: not a GraphQL field, not indexed).

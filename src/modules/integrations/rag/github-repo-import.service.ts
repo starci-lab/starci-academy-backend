@@ -7,6 +7,10 @@ import type {
 import {
     RagPlaygroundImportException,
 } from "@modules/exceptions"
+import type {
+    FetchFilesInBatchesParams,
+    FetchRawFileParams,
+} from "./types"
 
 /** Only `https://github.com/<owner>/<repo>` URLs are accepted — never fetch an arbitrary host (SSRF guard). */
 const GITHUB_URL_PATTERN = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/
@@ -188,12 +192,7 @@ export class GithubRepoImportService {
             repo,
             ref,
             paths,
-        }: {
-            owner: string
-            repo: string
-            ref: string
-            paths: Array<string>
-        },
+        }: FetchFilesInBatchesParams,
     ): Promise<Array<Document>> {
         const documents: Array<Document> = []
         for (let index = 0; index < paths.length; index += FETCH_CONCURRENCY) {
@@ -226,12 +225,7 @@ export class GithubRepoImportService {
             repo,
             ref,
             path,
-        }: {
-            owner: string
-            repo: string
-            ref: string
-            path: string
-        },
+        }: FetchRawFileParams,
     ): Promise<Document | null> {
         try {
             const response = await fetch(

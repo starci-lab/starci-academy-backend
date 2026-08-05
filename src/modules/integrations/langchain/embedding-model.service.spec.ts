@@ -16,6 +16,11 @@ import {
     EmbeddingModelService,
 } from "./embedding-model.service"
 
+/** Params shape of the mocked `useApi` call driven by `wireUseApi` below. */
+interface UseApiMockParams {
+    action: (ctx: unknown) => Promise<unknown>
+}
+
 /**
  * Mock the heavy LangChain embedding clients with tagged stubs so the test can
  * assert WHICH class was built + with WHAT options, without importing real
@@ -186,7 +191,7 @@ describe("EmbeddingModelService",
                  */
                 const wireUseApi = (context: unknown) => {
                     useApiService.useApi.mockImplementation(
-                        async ({ action }: { action: (ctx: unknown) => Promise<unknown> }) => ({
+                        async ({ action }: UseApiMockParams) => ({
                             result: await action(context),
                             model: (context as { model: string }).model,
                             provider: (context as { provider: ModelProvider }).provider,

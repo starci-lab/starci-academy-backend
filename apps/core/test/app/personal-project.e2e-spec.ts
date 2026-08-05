@@ -103,6 +103,11 @@ import {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
+/** Params for the `EncryptionService.encrypt` mock. */
+interface EncryptionServiceEncryptParams {
+    plainText: string
+}
+
 /**
  * e2e for the three personal-project mutations — `.claude` task brief
  * "personal-project mutations (submit / sync-personal-project-github /
@@ -176,7 +181,7 @@ describe("Personal-project mutations (e2e)",
             }),
         }
         const encryptionServiceMock = {
-            encrypt: jest.fn(({ plainText }: { plainText: string }) => ({
+            encrypt: jest.fn(({ plainText }: EncryptionServiceEncryptParams) => ({
                 iv: "iv-mock",
                 authTag: "authtag-mock",
                 ciphertext: `ct-${plainText}`,
