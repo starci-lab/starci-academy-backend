@@ -3,10 +3,8 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bussiness"
-import {
     JobExtendedContext,
-} from "../types"
+} from "@modules/bussiness"
 import {
     FilenameProcessData,
 } from "@modules/bullmq"

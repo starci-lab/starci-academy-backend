@@ -1,4 +1,3 @@
-export type { JobExtendedContext } from "@modules/bussiness"
 /**
  * Empty on purpose -- steps persist side-effects via `JobActionService`, and the
  * worker loop never reads a typed return. Pinning `{}` stops a future step from

@@ -113,7 +113,4 @@ export interface AchievementSourceRow {
     following_id?: string
 }
 
-export type {
-    CachedMyAchievementsValue,
-    EarnedAchievementEntry,
-} from "./my-achievements"
+export * from "./my-achievements"

@@ -33,7 +33,7 @@ export default defineConfig([
         files: ["src/**/*.ts", "apps/**/*.ts", "libs/**/*.ts", "test/**/*.ts", "tests/**/*.ts"],
         rules: {
             '@typescript-eslint/no-empty-object-type': 'off',
-            '@typescript-eslint/no-explicit-any': 'warn', // type-safety §1 — canon: no `any`, use `unknown` + narrow
+            '@typescript-eslint/no-explicit-any': 'error', // type-safety §1 — canon: no `any`, use `unknown` + narrow
             "array-element-newline": ["error",
                 "always"],
             "object-curly-newline": [
@@ -104,6 +104,7 @@ export default defineConfig([
             "starci-be": starciBe,
         },
         rules: {
+            "starci-be/barrel-export-star-only": "error", // naming-and-structure §3 · nợ=0 -> error
             "starci-be/no-ai-symbol": "error", // nợ=0 -> error · comments stay ASCII (auto-fixable)
             "starci-be/no-emoji": "error", // nợ=0 → error · emoji carry tone, not information
             "starci-be/no-vietnamese": "error", // comments.md · nợ=0 → error
