@@ -58,6 +58,7 @@ import {
     InitConfigParserService,
 } from "./config"
 
+@Injectable()
 /**
  * Boot-time initialization orchestrator — the canonical, git-sourced init.
  *
@@ -73,7 +74,6 @@ import {
  * A first pull, a pull failure, or an untrustable diff is promoted to a full
  * reseed so the database is never under-seeded.
  */
-@Injectable()
 export class InitService implements OnModuleInit {
 
     /** Scoped logger for the non-fatal post-seed asset mirror. */

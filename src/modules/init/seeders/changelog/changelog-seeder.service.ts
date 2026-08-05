@@ -33,6 +33,7 @@ import type {
     ChangelogSeedFileRoot,
 } from "./types"
 
+@Injectable()
 /**
  * Seeds system changelog entries from `changelog/changelog.md` (git-sourced data
  * root during init, else the local `.mount/data` fallback). The file uses the
@@ -40,7 +41,6 @@ import type {
  * `title` / `body` become bilingual jsonb objects. Idempotent: each row is
  * upserted by its `slug`.
  */
-@Injectable()
 export class ChangelogSeederService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

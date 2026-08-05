@@ -29,6 +29,7 @@ import type {
 /** Mount data domain prefix — posts live under `<contextRoot>/blog/`. */
 const BLOG_BASE_DIR = "blog"
 
+@Injectable()
 /**
  * Seeds blog posts from `blog/<index>-<slug>/{en,vi}.md` (git-sourced data root
  * during init, else the local `.mount/data` fallback) — the same folder-per-item
@@ -38,7 +39,6 @@ const BLOG_BASE_DIR = "blog"
  * while scalar metadata is read from whichever file has it. The folder name is
  * the stable `slug` (its `{index}-` prefix stripped). Idempotent on `slug`.
  */
-@Injectable()
 export class BlogSeederService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

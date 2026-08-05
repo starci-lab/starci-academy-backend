@@ -14,10 +14,10 @@ import type {
     GenerateTemplateCvIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Template CV UUIDs: SHA-256 over typed preimage segments, then UUID v5 under {@link envConfig} `uuidNamespace.course`.
  */
-@Injectable()
 export class TemplateCvIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

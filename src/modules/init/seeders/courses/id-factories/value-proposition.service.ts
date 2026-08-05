@@ -17,10 +17,10 @@ import type {
     GenerateValuePropositionIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Landing-page value-prop bullets; scoped to {@link CourseIdFactoryService}.
  */
-@Injectable()
 export class ValuePropositionIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

@@ -22,9 +22,6 @@ import {
     ElasticsearchCodingProblemBuildService
 } from "./builder"
 
-/**
- * Module for synchronizing the Elasticsearch.
- */
 @Module({
     providers: [
         ElasticsearchCourseBuildService,
@@ -46,4 +43,7 @@ import {
         ElasticsearchSynchronizerService,
     ]
 })
+/**
+ * Module for synchronizing the Elasticsearch.
+ */
 export class ElasticsearchSynchronizerModule extends ConfigurableModuleClass { }

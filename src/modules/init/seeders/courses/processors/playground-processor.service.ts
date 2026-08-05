@@ -21,10 +21,10 @@ import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
+@Injectable()
 /**
  * Parses and upserts course-level playgrounds (cascading into their ordered steps).
  */
-@Injectable()
 export class PlaygroundProcessorService {
     constructor(
         private readonly playgroundParserService: PlaygroundParserService,

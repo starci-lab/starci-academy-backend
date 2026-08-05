@@ -31,6 +31,11 @@ import {
 } from "../path"
 
 @Injectable()
+/**
+ * Reads `{index}-{slug}/{en,vi}.md` under `.mount/data/headhuntings/` into a
+ * company row + title/description translations. `parseMany` skips a broken
+ * folder rather than aborting the whole headhunting seed.
+ */
 export class HeadhuntingCompanyParserService {
     constructor(
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,

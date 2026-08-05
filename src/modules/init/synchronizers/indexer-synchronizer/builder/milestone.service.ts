@@ -17,6 +17,7 @@ import {
     MilestoneParentIndexCacheResult,
 } from "@modules/cache"
 
+@Injectable()
 /**
  * Primes the parent-index cache for a milestone so global-search hits can build a deep-link URL.
  *
@@ -24,7 +25,6 @@ import {
  * first task. The cached ref therefore carries the owning course (for the URL slug) plus the
  * milestone's first task (lowest sort order), when it has any.
  */
-@Injectable()
 export class IndexerMilestoneBuildService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

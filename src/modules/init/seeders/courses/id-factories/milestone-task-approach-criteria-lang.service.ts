@@ -17,11 +17,11 @@ import type {
     GenerateMilestoneTaskApproachCriteriaLangIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Deterministic ids for the per-language prose rows under a SCHEMA V2 milestone-task APPROACH
  * criterion; chains from the parent approach-criterion id string for idempotent re-seed.
  */
-@Injectable()
 export class MilestoneTaskApproachCriteriaLangIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

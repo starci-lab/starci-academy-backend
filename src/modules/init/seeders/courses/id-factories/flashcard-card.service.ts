@@ -17,10 +17,10 @@ import type {
     GenerateFlashcardCardIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Flashcard card UUIDs nest under the owning {@link FlashcardDeckIdFactoryService} id.
  */
-@Injectable()
 export class FlashcardCardIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

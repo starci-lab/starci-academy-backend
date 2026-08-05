@@ -13,6 +13,7 @@ import type {
     HeadingSlice,
 } from "./types"
 
+@Injectable()
 /**
  * Mount markdown → JSON.
  *
@@ -30,7 +31,6 @@ import type {
  * - `@starci/jsonb` … `@starci/jsonb` wraps an inline array-of-objects stored
  *   as a single jsonb column; its scalar fields are type-coerced.
  */
-@Injectable()
 export class ExtractJsonFromMdService {
     /**
      * Extracts a JSON value from a mount markdown string.

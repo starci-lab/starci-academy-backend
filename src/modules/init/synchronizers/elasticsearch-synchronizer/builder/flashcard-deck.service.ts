@@ -19,6 +19,7 @@ import {
 } from "@modules/elasticsearch"
 import _ from "lodash"
 
+@Injectable()
 /**
  * Builds + indexes Elasticsearch documents for a flashcard deck across all locales.
  *
@@ -29,7 +30,6 @@ import _ from "lodash"
  * document also carries a `suggest` completion field (deck title + popularity
  * weight) powering the `flashcardDeckSuggestions` autocomplete query.
  */
-@Injectable()
 export class ElasticsearchFlashcardDeckBuildService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -18,10 +18,10 @@ import {
     envConfig 
 } from "@modules/env"
 
+@Injectable()
 /**
  * @deprecated Replaced by {@link CdnSynchronizerService}. Kept for reference.
  */
-@Injectable()
 export class ContentCdnSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,

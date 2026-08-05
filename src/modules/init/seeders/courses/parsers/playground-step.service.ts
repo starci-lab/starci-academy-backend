@@ -27,6 +27,7 @@ import {
     MergeJsonService,
 } from "../../shared"
 
+@Injectable()
 /**
  * Parses the per-step folders under a playground's `steps/` directory — one folder
  * per ordered step (`{index}-{slug}/{en,vi}.md`). Each step folder holds `{en,vi}.md`
@@ -38,7 +39,6 @@ import {
  * (English-first) value while the per-locale `translations` rows feed
  * {@link PlaygroundStepTranslationEntity} for request-time locale projection.
  */
-@Injectable()
 export class PlaygroundStepParserService {
     constructor(
         private readonly playgroundStepPathService: PlaygroundStepPathService,

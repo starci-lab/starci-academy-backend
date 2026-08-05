@@ -27,11 +27,11 @@ import {
     CacheService 
 } from "@modules/cache"
 
+@Injectable()
 /**
  * Loads a challenge (steps + references) from PostgreSQL and materializes **per-locale** plain objects
  * (after `ChallengeResolverService`) for Elasticsearch JSON.
  */
-@Injectable()
 export class IndexerChallengeBuildService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

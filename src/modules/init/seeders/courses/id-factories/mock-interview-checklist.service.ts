@@ -17,11 +17,11 @@ import type {
     GenerateMockInterviewChecklistIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * One coverage checkpoint of a mock-interview question; nests under the owning
  * {@link MockInterviewIdFactoryService} id.
  */
-@Injectable()
 export class MockInterviewChecklistIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

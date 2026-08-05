@@ -158,12 +158,12 @@ import {
 } from "./shared"
 
 
+@Module({
+})
 /**
  * Module for the Seeders.
  * Provides all parser services and the SeedersService.
  */
-@Module({
-})
 export class SeedersModule extends ConfigurableModuleClass {
     static register(
         options: typeof OPTIONS_TYPE

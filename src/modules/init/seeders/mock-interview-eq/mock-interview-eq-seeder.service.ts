@@ -21,6 +21,7 @@ import {
     WinstonService,
 } from "@modules/winston"
 
+@Injectable()
 /**
  * Seeds behavioral (global, non-course-scoped) EQ mock-interview questions from
  * `mock-interview-eq/{bank}/questions/{question}/vi.md`. Sibling of the technical
@@ -28,7 +29,6 @@ import {
  * {@link AchievementSeederService} since this family has no owning course/module to
  * hang off — every row's `courseId`/`moduleId` is `null`.
  */
-@Injectable()
 export class MockInterviewEqSeederService {
     constructor(
         private readonly seedScopeService: SeedScopeService,

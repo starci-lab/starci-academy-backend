@@ -36,10 +36,10 @@ import {
     TemplateCvPathService 
 } from "../path/template-cv.service"
 
+@Injectable()
 /**
  * Parses `.mount/data/cv/<key>/{en,vi}.md` into `TemplateCVEntity` partials for insert.
  */
-@Injectable()
 export class TemplateCvParserService {
     constructor(
         private readonly templateCvPathService: TemplateCvPathService,

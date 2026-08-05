@@ -33,6 +33,7 @@ import type {
     AchievementSeedFileRoot,
 } from "./types"
 
+@Injectable()
 /**
  * Seeds achievement definitions from `achievements/achievements.md` (git-sourced
  * data root during init, else the local `.mount/data` fallback). The file uses the
@@ -41,7 +42,6 @@ import type {
  * by its `slug`. Badge art ships in the data repo (`assets/badges/achievements/<slug>.png`)
  * and is synced to MinIO under the public `assets/` prefix (client renders + falls back).
  */
-@Injectable()
 export class AchievementSeederService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

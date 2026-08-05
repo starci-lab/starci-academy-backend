@@ -9,10 +9,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed playground mount folders under a course's `playgrounds/` directory (`{index}-{slug}`).
  */
-@Injectable()
 export class PlaygroundPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

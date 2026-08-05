@@ -14,11 +14,11 @@ import {
     UpsertService,
 } from "../../shared"
 
+@Injectable()
 /**
  * Inserts/updates/deletes foundation-level tables:
  * foundations, foundation_translations, foundation_tags, foundation_tag_translations.
  */
-@Injectable()
 export class FoundationInsertService {
     constructor(
         private readonly upsertService: UpsertService,

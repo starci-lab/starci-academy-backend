@@ -20,12 +20,12 @@ const TRANSLATION_FIELD = {
     Description: "description",
 } as const
 
+@Injectable()
 /**
  * Persists parsed AI model catalog rows into `ai_models` + their localized
  * `ai_model_translations`. Upserts are keyed by the unique `(provider, name)`
  * pair so re-running the seeder is idempotent.
  */
-@Injectable()
 export class AiModelInsertService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

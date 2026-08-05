@@ -6,13 +6,13 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed mock-interview-eq (behavioral, global) bank + question mount
  * folders. Unlike the technical {@link MockInterviewPathService} this walks
  * from the `mockInterviewEq` context root directly — there is no owning course to
  * scope under (`mock-interview-eq/{bank}/questions/{question}/`).
  */
-@Injectable()
 export class InterviewQuestionEqPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

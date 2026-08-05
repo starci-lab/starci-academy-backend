@@ -17,10 +17,10 @@ import type {
     GeneratePreviewContentIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Module teaser bullets; parent id is the module id from {@link ModuleIdFactoryService}.
  */
-@Injectable()
 export class PreviewContentIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

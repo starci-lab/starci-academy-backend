@@ -54,6 +54,7 @@ const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
     business: PersonalProjectTaskType.Business,
 }
 
+@Injectable()
 /**
  * Parses milestone-task data from mounted course files (`en.md`, `vi.md`).
  * Criteria are parsed inline from the same markdown file (`# criterias` section).
@@ -62,7 +63,6 @@ const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
  * locale, merge via {@link MergeJsonService} with dot-path `translateFields`, then render straight
  * from `merged` — every array item already carries its aligned `translations[]`.
  */
-@Injectable()
 export class MilestoneTaskParserService {
     constructor(
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,

@@ -31,10 +31,10 @@ import {
     DayjsService,
 } from "@modules/mixin"
 
+@Injectable()
 /**
  * Email bloom filter synchronizer — creates bloom filter and batch-adds all user emails.
  */
-@Injectable()
 export class BloomFilterSynchronizerService {
 
     constructor(

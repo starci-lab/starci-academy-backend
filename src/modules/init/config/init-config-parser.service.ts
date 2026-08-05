@@ -100,6 +100,7 @@ const offSink = (): SeedSyncCourseSink => ({
     repo: [],
 })
 
+@Injectable()
 /**
  * Expands the friendly `seed.yaml` {@link InitConfig} surface into the runtime
  * {@link SeedConfig} the seed/sync pipeline consumes.
@@ -107,7 +108,6 @@ const offSink = (): SeedSyncCourseSink => ({
  * Pure transform (shorthand expansion + sink-master gating + reindex resolution),
  * so it is unit-testable without any infrastructure.
  */
-@Injectable()
 export class InitConfigParserService {
 
     /**

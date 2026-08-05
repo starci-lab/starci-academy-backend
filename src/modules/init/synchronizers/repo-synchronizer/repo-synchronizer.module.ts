@@ -8,9 +8,6 @@ import {
     RepoSynchronizerService,
 } from "./repo-synchronizer.service"
 
-/**
- * Module for synchronizing `.repo/` sandbox code to CDN.
- */
 @Module({
     providers: [
         RepoSynchronizerService,
@@ -19,4 +16,7 @@ import {
         RepoSynchronizerService,
     ],
 })
+/**
+ * Module for synchronizing `.repo/` sandbox code to CDN.
+ */
 export class RepoSynchronizerModule extends ConfigurableModuleClass { }

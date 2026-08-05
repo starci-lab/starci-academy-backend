@@ -22,10 +22,10 @@ import {
     Interval
 } from "@nestjs/schedule"
 
+@Injectable()
 /**
  * @deprecated Replaced by {@link CdnSynchronizerService}. Kept for reference.
  */
-@Injectable()
 export class ChallengeCdnSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,

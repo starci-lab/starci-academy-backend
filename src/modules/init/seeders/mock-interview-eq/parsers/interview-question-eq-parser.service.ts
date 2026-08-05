@@ -29,6 +29,7 @@ import {
     WinstonService,
 } from "@modules/winston"
 
+@Injectable()
 /**
  * Parses behavioral (global, non-course-scoped) EQ mock-interview questions from
  * `mock-interview-eq/{bank}/questions/{question}/vi.md` (`vi.md` only — no `en.md` /
@@ -37,7 +38,6 @@ import {
  * `courseId`/`moduleId` are ALWAYS `null` on every row — this family carries
  * universal EQ competencies, never grounded in a course/module.
  */
-@Injectable()
 export class InterviewQuestionEqParserService {
     constructor(
         private readonly interviewQuestionEqPathService: InterviewQuestionEqPathService,

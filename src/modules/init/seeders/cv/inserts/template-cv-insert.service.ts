@@ -10,10 +10,10 @@ import {
     TemplateCVEntity,
 } from "@modules/databases"
 
+@Injectable()
 /**
  * Persists parsed CV rubric templates (`template_cvs` + translations).
  */
-@Injectable()
 export class TemplateCvInsertService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

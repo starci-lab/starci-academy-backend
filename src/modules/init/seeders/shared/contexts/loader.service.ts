@@ -13,10 +13,10 @@ import {
     ContextFileNotFoundException,
 } from "@modules/exceptions"
 
+@Injectable()
 /**
  * Service for loading context files.
  */
-@Injectable()
 export class ContextLoaderService {
     constructor(
         private readonly s3ContextService: S3ContextService,

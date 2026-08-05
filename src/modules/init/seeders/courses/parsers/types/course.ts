@@ -72,6 +72,10 @@ export interface ParsePricingResult {
     pricingPhases: Array<DeepPartial<PricingPhaseEntity>>
 }
 
+/**
+ * One parsed course folder: the upsert payload plus mount ordinal/path so later
+ * steps (modules, milestones) can attach without re-walking `data/courses/`.
+ */
 export interface ParseCourseResult {
     /** The course of the course. */
     data: DeepPartial<CourseEntity>

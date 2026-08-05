@@ -2,13 +2,13 @@ import {
     Injectable,
 } from "@nestjs/common"
 
+@Injectable()
 /**
  * Coerce markdown-extracted scalar values (often strings) into DB-friendly types.
  *
  * Note: The markdown extractor returns leaf bodies as raw strings. A markdown body of `null`
  * becomes the string `"null"`, which must be converted to SQL NULL for nullable DB columns.
  */
-@Injectable()
 export class CoerceMdScalarService {
     /**
      * Convert a value into a SQL nullable string value (string or null).

@@ -17,10 +17,10 @@ import type {
     GenerateChallengeStepIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * SCHEMA V2 step item and per-language row UUIDs chain from the parent challenge id.
  */
-@Injectable()
 export class ChallengeStepIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

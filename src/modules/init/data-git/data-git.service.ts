@@ -52,6 +52,7 @@ import type {
     SnapshotManifest,
 } from "./types"
 
+@Injectable()
 /**
  * Materializes the private `data` GitHub repo into a versioned snapshot store.
  *
@@ -72,7 +73,6 @@ import type {
  * // ...seed from result.snapshotRoot...
  * await dataGitBootstrapService.commitSnapshot(result)
  */
-@Injectable()
 export class DataGitBootstrapService {
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,

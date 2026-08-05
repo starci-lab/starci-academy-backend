@@ -39,10 +39,10 @@ import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
+@Injectable()
 /**
  * Parses and upserts modules for one course, then nested contents and challenges.
  */
-@Injectable()
 export class ModuleProcessorService {
     constructor(
         private readonly moduleParserService: ModuleParserService,

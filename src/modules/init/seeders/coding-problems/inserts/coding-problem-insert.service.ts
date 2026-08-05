@@ -22,13 +22,13 @@ import type {
     ParsedCodingProblem,
 } from "../types"
 
+@Injectable()
 /**
  * Upserts parsed coding problems into the database. Problem ids are derived
  * deterministically from the slug (uuid v5) so re-seeding is idempotent; child
  * rows (testcases, starter codes, translations) are replaced wholesale to
  * reflect mount edits/removals.
  */
-@Injectable()
 export class CodingProblemInsertService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

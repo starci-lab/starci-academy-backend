@@ -17,10 +17,10 @@ import type {
     GenerateFoundationTagIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Tag rows on a foundation entity; parent id comes from {@link FoundationIdFactoryService}.
  */
-@Injectable()
 export class FoundationTagIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

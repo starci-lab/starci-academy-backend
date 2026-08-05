@@ -17,10 +17,10 @@ import type {
     GeneratePlaygroundStepIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Playground step UUIDs nest under the owning {@link PlaygroundIdFactoryService} id.
  */
-@Injectable()
 export class PlaygroundStepIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

@@ -14,6 +14,11 @@ import {
     shouldIncludeCourseMilestone,
 } from "./course-module-filter"
 
+/**
+ * Course-root gate: skip rows with no `displayId` (cannot match `seed.yaml`)
+ * and skip tracks not explicitly enabled. Missing map entry means off — otherwise
+ * a typo would sync every course.
+ */
 export const shouldSyncCourseEntity = (
     scope: SynchronizerSyncScope,
     course: CourseEntity,
@@ -25,6 +30,11 @@ export const shouldSyncCourseEntity = (
     return scope.courseEnabledByDisplayId.get(courseDisplayId) === true
 }
 
+/**
+ * Module gate: fail-open when the parent course was not hydrated (avoids
+ * silently dropping rows on a partial load); otherwise apply the per-course
+ * module-index allow-list from `seed.yaml`.
+ */
 export const shouldSyncModuleEntity = (
     scope: SynchronizerSyncScope,
     module: ModuleEntity,
@@ -40,6 +50,11 @@ export const shouldSyncModuleEntity = (
     )
 }
 
+/**
+ * Content gate: inherit the parent module allow-list. Fail-open when the
+ * module→course chain is missing so a builder that loaded content alone still
+ * syncs.
+ */
 export const shouldSyncContentEntity = (
     scope: SynchronizerSyncScope,
     content: ContentEntity,
@@ -56,6 +71,10 @@ export const shouldSyncContentEntity = (
     )
 }
 
+/**
+ * Challenge gate: same inherit-from-module rule as content (challenges live
+ * under a lesson). Fail-open without the hydrated chain.
+ */
 export const shouldSyncChallengeEntity = (
     scope: SynchronizerSyncScope,
     challenge: ChallengeEntity,
@@ -72,6 +91,11 @@ export const shouldSyncChallengeEntity = (
     )
 }
 
+/**
+ * Milestone gate: separate allow-list from modules so a course can sync lessons
+ * without capstone milestones (and vice versa). Fail-open without course /
+ * orderIndex.
+ */
 export const shouldSyncMilestoneEntity = (
     scope: SynchronizerSyncScope,
     milestone: MilestoneEntity,
@@ -91,6 +115,10 @@ export const shouldSyncMilestoneEntity = (
     )
 }
 
+/**
+ * Milestone-task gate: no independent task filter in `seed.yaml` — a task
+ * follows its parent milestone. Fail-open when the milestone relation is absent.
+ */
 export const shouldSyncMilestoneTaskEntity = (
     scope: SynchronizerSyncScope,
     milestoneTask: MilestoneTaskEntity,
@@ -103,6 +131,11 @@ export const shouldSyncMilestoneTaskEntity = (
         milestone)
 }
 
+/**
+ * Sink-level track switches (foundations / headhunting / flashcards /
+ * coding problems). Lets a synchronizer skip whole indexes without walking rows
+ * when that track is off in `seed.yaml`.
+ */
 export const shouldSynchronizerSyncEntityKind = (
     scope: SynchronizerSyncScope,
     entityKind: string,

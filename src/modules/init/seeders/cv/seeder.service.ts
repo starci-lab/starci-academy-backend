@@ -11,10 +11,10 @@ import {
     SeedScopeService,
 } from "../../scope"
 
+@Injectable()
 /**
  * CV mount seeder: parse mount markdown → upsert `template_cvs` (same orchestration role as {@link CourseSeederService} for courses).
  */
-@Injectable()
 export class CvSeederService {
     constructor(
         private readonly templateCvParserService: TemplateCvParserService,

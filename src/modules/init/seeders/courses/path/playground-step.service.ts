@@ -9,10 +9,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed step mount folders under a playground's `steps/` directory (`{index}-{slug}`).
  */
-@Injectable()
 export class PlaygroundStepPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

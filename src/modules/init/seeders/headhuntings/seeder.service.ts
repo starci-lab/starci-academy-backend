@@ -20,10 +20,10 @@ import {
     SeedScopeService,
 } from "../../scope"
 
+@Injectable()
 /**
  * Parse headhuntings mount data and upsert PostgreSQL (companies → consultants).
  */
-@Injectable()
 export class HeadhuntingSeederService {
     constructor(
         private readonly headhuntingCompanyParserService: HeadhuntingCompanyParserService,

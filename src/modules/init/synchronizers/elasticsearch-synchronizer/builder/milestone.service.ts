@@ -17,6 +17,10 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a milestone and indexes **per-locale** ES docs with title completion.
+ * Capstone search is a separate index from lessons/modules.
+ */
 export class ElasticsearchMilestoneBuildService {
     constructor(
         private readonly milestoneHydration: MilestoneHydrationService,

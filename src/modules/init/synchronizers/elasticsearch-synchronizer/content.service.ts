@@ -25,10 +25,10 @@ import {
     ElasticsearchSynchronizerService,
 } from "./elasticsearch-synchronizer.service"
 
+@Injectable()
 /**
  * @deprecated Replaced by {@link ElasticsearchSynchronizerService}. Kept for reference.
  */
-@Injectable()
 export class ContentElasticsearchSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,

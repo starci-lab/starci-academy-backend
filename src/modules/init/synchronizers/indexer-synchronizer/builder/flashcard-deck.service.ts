@@ -17,13 +17,13 @@ import {
     FlashcardDeckParentIndexCacheResult,
 } from "@modules/cache"
 
+@Injectable()
 /**
  * Primes the parent-index cache for a flashcard deck so global-search hits can build a deep-link URL.
  *
  * Decks live at the course level (their own course tab), so the cached ref only needs the owning
  * course; the client routes a deck hit to that course's `/learn/flashcards` page.
  */
-@Injectable()
 export class IndexerFlashcardDeckBuildService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

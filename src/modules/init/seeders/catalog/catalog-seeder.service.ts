@@ -24,6 +24,7 @@ import {
     AiModelInsertService,
 } from "./inserts"
 
+@Injectable()
 /**
  * Seeds the catalog from `.mount/data/*`:
  *
@@ -33,7 +34,6 @@ import {
  * - **Subscriptions** → merged into the runtime `MountStorageService.appConfig`
  *   (tiers are still served from `appConfig().subscriptions`).
  */
-@Injectable()
 export class CatalogSeederService {
     constructor(
         private readonly aiModelCatalogParserService: AiModelCatalogParserService,

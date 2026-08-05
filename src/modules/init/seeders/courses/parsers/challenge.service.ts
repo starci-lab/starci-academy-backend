@@ -68,11 +68,11 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
+@Injectable()
 /**
  * Challenge parser for mounted course files (`en.md`, `vi.md`).
  * Routes V2 vs legacy via {@link isV2} (`# verified`); V2 scalars merge via {@link MergeJsonService}.
  */
-@Injectable()
 export class ChallengeParserService {
     constructor(
         private readonly challengePathService: ChallengePathService,

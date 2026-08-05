@@ -19,6 +19,10 @@ import {
 } from "@nestjs/schedule"
 
 @Injectable()
+/**
+ * @deprecated Replaced by {@link CdnSynchronizerService}. Per-module interval
+ * enqueue kept for reference; not registered on {@link CdnSynchronizerModule}.
+ */
 export class ModuleCdnSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,

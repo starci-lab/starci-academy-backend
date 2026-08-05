@@ -17,6 +17,11 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a course and indexes **per-locale** ES docs with title completion.
+ * Same hydrate-once / fan-out as the CDN course builder, but writes search
+ * documents instead of S3 JSON.
+ */
 export class ElasticsearchCourseBuildService {
     constructor(
         private readonly courseHydration: CourseHydrationService,

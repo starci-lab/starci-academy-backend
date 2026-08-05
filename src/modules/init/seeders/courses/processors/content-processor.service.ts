@@ -33,10 +33,10 @@ import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
+@Injectable()
 /**
  * Parses and upserts contents for one module, then nested challenges.
  */
-@Injectable()
 export class ContentProcessorService {
     constructor(
         private readonly contentParserService: ContentParserService,

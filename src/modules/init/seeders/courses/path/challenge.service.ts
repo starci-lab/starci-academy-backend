@@ -9,10 +9,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed challenge mount folders under a content’s `challenges/` directory (`{index}-{slug}` or legacy `{index}`).
  */
-@Injectable()
 export class ChallengePathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

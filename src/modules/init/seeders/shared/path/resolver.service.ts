@@ -16,10 +16,10 @@ import {
 import type {
     ResolvedFilePath,
 } from "./types"
+@Injectable()
 /**
  * Resolves indexed content folders under a module’s `contents/` directory (`{index}-{slug}` or legacy `{index}`).
  */
-@Injectable()
 export class PathResolverService {
     constructor(
         private readonly s3ReadService: S3ReadService,

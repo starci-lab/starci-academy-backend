@@ -14,11 +14,11 @@ import type {
     GenerateCourseIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Builds deterministic course UUIDs: SHA-256 over typed preimage segments, then UUID v5
  * under {@link envConfig} `uuidNamespace.course`.
  */
-@Injectable()
 export class CourseIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

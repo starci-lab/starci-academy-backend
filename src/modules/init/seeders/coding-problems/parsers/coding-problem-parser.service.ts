@@ -39,6 +39,7 @@ const POINTS_BY_DIFFICULTY: Record<CodingDifficulty, number> = {
     [CodingDifficulty.Hard]: 20,
 }
 
+@Injectable()
 /**
  * Parses each coding-problem mount directory into a {@link ParsedCodingProblem}.
  * Problems use the house heading-markdown grammar (see {@link ExtractJsonFromMdService}):
@@ -46,7 +47,6 @@ const POINTS_BY_DIFFICULTY: Record<CodingDifficulty, number> = {
  * sections — per-language `starterCodes` + `solutions`, plus two IO arrays
  * (`# example` = public samples, `# testcases` = hidden judging cases).
  */
-@Injectable()
 export class CodingProblemParserService {
     /** Supported difficulty values (mount string → enum). */
     private readonly difficulties = new Set<string>(Object.values(CodingDifficulty))

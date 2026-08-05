@@ -37,6 +37,7 @@ import {
     SyncScopeService,
 } from "../scope"
 
+@Injectable()
 /**
  * Sequential sync orchestrator.
  *
@@ -44,7 +45,6 @@ import {
  * sequentially — one domain completes before the next starts.
  * Called by InitService as a plugin.
  */
-@Injectable()
 export class SynchronizersService {
 
     private readonly logger = new Logger(SynchronizersService.name)

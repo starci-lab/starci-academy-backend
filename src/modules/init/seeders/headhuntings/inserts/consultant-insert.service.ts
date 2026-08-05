@@ -13,6 +13,11 @@ import {
 } from "../../shared"
 
 @Injectable()
+/**
+ * Upserts one consultant + `consultant_translations`. Nested `company` is
+ * stripped after {@link HeadhuntingSeederService} sets the FK; `deleteStale`
+ * prunes consultants removed from a company's mount so re-seed leaves no orphans.
+ */
 export class ConsultantInsertService {
     constructor(
         private readonly upsertService: UpsertService,

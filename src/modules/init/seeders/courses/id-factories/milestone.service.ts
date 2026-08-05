@@ -17,10 +17,10 @@ import type {
     GenerateMilestoneIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Milestone UUIDs chain from the parent course id string.
  */
-@Injectable()
 export class MilestoneIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

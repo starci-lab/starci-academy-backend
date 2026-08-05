@@ -6,8 +6,8 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
-/** Resolves indexed subscription tier folders under `.mount/data/subcriptions/`. */
 @Injectable()
+/** Resolves indexed subscription tier folders under `.mount/data/subcriptions/`. */
 export class SubscriptionCatalogPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

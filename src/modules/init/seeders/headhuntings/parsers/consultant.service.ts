@@ -35,10 +35,10 @@ import type {
     ParseConsultantParams,
 } from "./types"
 
+@Injectable()
 /**
  * Parses headhunting profiles from `{company}/consultants/{index}-{slug}/{en,vi}.md`.
  */
-@Injectable()
 export class ConsultantParserService {
     constructor(
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,

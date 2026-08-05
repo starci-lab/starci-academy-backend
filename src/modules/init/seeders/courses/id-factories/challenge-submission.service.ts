@@ -17,10 +17,10 @@ import type {
     GenerateChallengeSubmissionIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Expected submission artifacts (GitHub URL, etc.); parent {@link ChallengeIdFactoryService}.
  */
-@Injectable()
 export class ChallengeSubmissionIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

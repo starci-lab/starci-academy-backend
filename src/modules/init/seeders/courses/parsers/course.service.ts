@@ -51,11 +51,11 @@ import {
     S3Provider,
 } from "@modules/s3"
 
+@Injectable()
 /**
  * Parses a course root (`en.md`, `vi.md`, optional `data.json`) under `courses/{index}-{slug}/`.
  * Structured fields use camelCase `#` headings in `en.md`; `data.json` fills gaps when present.
  */
-@Injectable()
 export class CourseParserService {
     constructor(
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,

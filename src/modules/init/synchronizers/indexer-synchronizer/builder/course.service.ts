@@ -19,11 +19,11 @@ import {
     CacheService 
 } from "@modules/cache"
 
+@Injectable()
 /**
  * Loads a course (steps + references) from PostgreSQL and materializes **per-locale** plain objects
  * (after `ContentResolverService`) for Elasticsearch JSON.
  */
-@Injectable()
 export class IndexerCourseBuildService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

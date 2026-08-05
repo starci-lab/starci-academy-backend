@@ -11,10 +11,10 @@ import {
     CourseProcessorService,
 } from "./processors/course-processor.service"
 
+@Injectable()
 /**
  * Course init seeder entry: scope checks, parse courses, delegate to {@link CourseProcessorService}.
  */
-@Injectable()
 export class CourseSeederService {
     constructor(
         private readonly courseParserService: CourseParserService,

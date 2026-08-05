@@ -12,11 +12,11 @@ import {
     UpsertService,
 } from "../../shared"
 
+@Injectable()
 /**
  * Inserts/updates foundation category rows and category_translations.
  * Child foundations are NOT handled here.
  */
-@Injectable()
 export class FoundationCategoryInsertService {
     constructor(
         private readonly upsertService: UpsertService,

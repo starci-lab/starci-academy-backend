@@ -67,6 +67,7 @@ export interface ParsedInterviewQuestionCommonFields {
     defaultLocale: string
 }
 
+@Injectable()
 /**
  * Parses the `# field` headings shared by every mock-interview question document
  * (technical `courses/{c}/mock-interview/…` and behavioral `mock-interview-eq/…`)
@@ -74,7 +75,6 @@ export interface ParsedInterviewQuestionCommonFields {
  * fields (technical `diagram`/`givenCode`/`langs`, behavioral `competency`/`ownershipSignal`)
  * are parsed separately by each caller.
  */
-@Injectable()
 export class InterviewQuestionFieldsService {
     constructor(
         private readonly coerceMdScalarService: CoerceMdScalarService,

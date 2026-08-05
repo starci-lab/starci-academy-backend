@@ -17,6 +17,10 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a consultant (falls back to company locale) and indexes **per-locale**
+ * ES docs. Suggest uses `fullName` after the resolver flattens translations.
+ */
 export class ElasticsearchConsultantBuildService {
     constructor(
         private readonly consultantHydration: ConsultantHydrationService,

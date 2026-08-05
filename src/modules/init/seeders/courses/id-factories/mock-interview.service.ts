@@ -17,12 +17,12 @@ import type {
     GenerateMockInterviewIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * One authored mock-interview question row; parent id is {@link CourseIdFactoryService}.
  * Banks have no entity of their own, so the bank ordinal is hashed straight into
  * the question preimage instead of going through an intermediate bank factory.
  */
-@Injectable()
 export class MockInterviewIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

@@ -25,10 +25,10 @@ import {
     IndexerSynchronizerService,
 } from "./indexer-synchronizer.service"
 
+@Injectable()
 /**
  * @deprecated Replaced by {@link IndexerSynchronizerService}. Kept for reference.
  */
-@Injectable()
 export class CourseIndexerSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,

@@ -20,11 +20,11 @@ import {
     SeedScopeService,
 } from "../../scope"
 
+@Injectable()
 /**
  * Wraps the full foundations init seed pipeline (parse → upsert per table).
  * Keeps orchestration colocated under `seeders/foundations` instead of `SeedersService`.
  */
-@Injectable()
 export class FoundationSeederService {
     constructor(
         private readonly foundationCategoryParserService: FoundationCategoryParserService,

@@ -6,10 +6,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed course mount directories (`{index}-{slug}`) under the data courses root.
  */
-@Injectable()
 export class CoursePathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

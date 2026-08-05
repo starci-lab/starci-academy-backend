@@ -17,11 +17,11 @@ import type {
     GenerateMilestoneTaskApproachCriteriaIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Deterministic ids for SCHEMA V2 milestone-task APPROACH criteria (per-language prose differs
  * across brief blocks); chains from the parent milestone-task id string for idempotent re-seed.
  */
-@Injectable()
 export class MilestoneTaskApproachCriteriaIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

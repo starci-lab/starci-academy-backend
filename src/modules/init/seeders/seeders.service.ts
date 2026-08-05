@@ -34,10 +34,10 @@ import {
 import {
     MockInterviewEqSeederService,
 } from "./mock-interview-eq"
+@Injectable()
 /**
  * Init seed orchestrator: each domain seeder reads envConfig().init seeders context itself.
  */
-@Injectable()
 export class SeedersService {
     constructor(
         private readonly courseSeederService: CourseSeederService,

@@ -19,6 +19,11 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates one module and uploads **per-locale** CDN JSON. Split from the
+ * course builder so a single module edit can refresh CDN without rewriting the
+ * whole course blob.
+ */
 export class CdnModuleBuildService {
     constructor(
         private readonly moduleHydration: ModuleHydrationService,

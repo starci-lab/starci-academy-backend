@@ -9,10 +9,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed content folders under a module’s `contents/` directory (`{index}-{slug}` or legacy `{index}`).
  */
-@Injectable()
 export class ContentPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

@@ -15,9 +15,6 @@ import {
     CdnMilestoneTaskBuildService,
     MaterializeAndUploadService
 } from "./builder"
-/**
- * Module for synchronizing the CDN.
- */
 @Module({
     providers: [
         MaterializeAndUploadService,
@@ -32,4 +29,7 @@ import {
         CdnSynchronizerService,
     ]
 })
+/**
+ * Module for synchronizing the CDN.
+ */
 export class CdnSynchronizerModule extends ConfigurableModuleClass { }

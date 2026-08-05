@@ -12,6 +12,7 @@ import type {
     ParsedCodingProblem,
 } from "../types"
 
+@Injectable()
 /**
  * Indexes coding-problem "approach hint" markdown into Elasticsearch only.
  *
@@ -20,7 +21,6 @@ import type {
  * in the per-locale index `coding-problem-hints-<locale>` keyed by problem slug,
  * so the detail-view query can fetch it by `get(index, id=slug)`.
  */
-@Injectable()
 export class CodingProblemHintIndexService {
     constructor(
         private readonly elasticsearchService: ElasticsearchService,

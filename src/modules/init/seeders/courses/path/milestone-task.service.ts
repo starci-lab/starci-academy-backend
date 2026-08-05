@@ -6,10 +6,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves the milestone-tasks mount directory under a milestone folder.
  */
-@Injectable()
 export class MilestoneTaskPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

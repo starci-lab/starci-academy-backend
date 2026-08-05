@@ -12,6 +12,7 @@ import {
     buildCourseIndexFilterByDisplayId,
 } from "./utils"
 
+@Injectable()
 /**
  * Resolves the seed-phase scope from `seed.yaml` (`seeders` block).
  *
@@ -19,7 +20,6 @@ import {
  * functions: every domain seeder injects this service to learn whether it is
  * enabled and (for courses) which module/milestone order indexes to seed.
  */
-@Injectable()
 export class SeedScopeService {
 
     constructor(

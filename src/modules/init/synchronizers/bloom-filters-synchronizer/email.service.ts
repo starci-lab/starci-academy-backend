@@ -15,11 +15,11 @@ import {
     BloomFilterSynchronizerService,
 } from "./bloom-filter-synchronizer.service"
 
+@Injectable()
 /**
  * Service for synchronizing the email bloom filters.
  * @deprecated Replaced by {@link BloomFilterSynchronizerService}. Kept for reference.
  */
-@Injectable()
 export class EmailBloomFiltersSynchronizerService {
     constructor(
         private readonly dayjsService: DayjsService,

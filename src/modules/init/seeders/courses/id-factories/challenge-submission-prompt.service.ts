@@ -17,10 +17,10 @@ import type {
     GenerateChallengeSubmissionPromptIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Grading prompt rows; parent id is {@link ChallengeSubmissionIdFactoryService}.
  */
-@Injectable()
 export class ChallengeSubmissionPromptIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

@@ -26,11 +26,11 @@ import {
     SUBSCRIPTION_CATALOG_ENTITY,
 } from "./constants"
 
+@Injectable()
 /**
  * Parses `.mount/data/subcriptions/<index>-<tier>/{en,vi}.md` into catalog rows
  * (same mount markdown convention as courses / ai-models).
  */
-@Injectable()
 export class SubscriptionCatalogParserService {
     constructor(
         private readonly subscriptionCatalogPathService: SubscriptionCatalogPathService,

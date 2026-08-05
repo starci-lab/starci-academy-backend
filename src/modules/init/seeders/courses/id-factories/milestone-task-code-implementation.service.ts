@@ -17,10 +17,10 @@ import type {
     GenerateMilestoneTaskCodeImplementationIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Milestone task code-implementation UUIDs chain from the parent milestone task id string.
  */
-@Injectable()
 export class MilestoneTaskCodeImplementationIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

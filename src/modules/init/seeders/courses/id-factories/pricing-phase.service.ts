@@ -17,10 +17,10 @@ import type {
     GeneratePricingPhaseIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Pricing-phase rows on a course; parent id is {@link CourseIdFactoryService}.
  */
-@Injectable()
 export class PricingPhaseIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

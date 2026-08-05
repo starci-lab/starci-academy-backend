@@ -41,10 +41,10 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
+@Injectable()
 /**
  * Parses milestone data from mounted course files (`en.md`, `vi.md`).
  */
-@Injectable()
 export class MilestoneParserService {
     constructor(
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,

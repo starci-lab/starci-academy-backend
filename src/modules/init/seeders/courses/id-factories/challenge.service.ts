@@ -17,10 +17,10 @@ import type {
     GenerateChallengeIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Challenge root entity; parent id is {@link ModuleIdFactoryService}.
  */
-@Injectable()
 export class ChallengeIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

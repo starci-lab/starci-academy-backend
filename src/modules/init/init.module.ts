@@ -28,6 +28,8 @@ import {
     SynchronizersModule,
 } from "./synchronizers"
 
+@Module({
+})
 /**
  * Init module — canonical git-sourced initialization orchestrator.
  *
@@ -36,8 +38,6 @@ import {
  * and seeds before pulling the source into `.contexts`. The local-file variant
  * lives in the parked `_init` module.
  */
-@Module({
-})
 export class InitModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

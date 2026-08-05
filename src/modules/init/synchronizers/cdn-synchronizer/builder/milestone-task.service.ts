@@ -18,11 +18,11 @@ import {
 } from "./materialize-and-upload.service"
 import _ from "lodash"
 
+@Injectable()
 /**
  * Loads a milestone task (with briefs, criteria, code implementations) from PostgreSQL and
  * materializes **per-locale** plain objects (after `MilestoneTaskResolverService`) for CDN JSON.
  */
-@Injectable()
 export class CdnMilestoneTaskBuildService {
     constructor(
         private readonly milestoneTaskHydration: MilestoneTaskHydrationService,

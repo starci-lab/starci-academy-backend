@@ -17,10 +17,10 @@ import type {
     GenerateFoundationIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Builds deterministic foundation UUIDs chained from the parent category ID.
  */
-@Injectable()
 export class FoundationIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

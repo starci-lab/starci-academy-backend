@@ -23,6 +23,11 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a course tree from PostgreSQL and fans it into **per-locale** CDN
+ * JSON. CDN pages cannot join translations at request time, so each locale is
+ * materialized and uploaded under its S3 key.
+ */
 export class CdnCourseBuildService {
     constructor(
         private readonly courseHydration: CourseHydrationService,

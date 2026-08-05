@@ -17,10 +17,10 @@ import type {
     GenerateContentIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Content (article) UUIDs nest under the owning {@link ModuleIdFactoryService} id.
  */
-@Injectable()
 export class ContentIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

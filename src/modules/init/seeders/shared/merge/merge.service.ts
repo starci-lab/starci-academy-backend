@@ -15,6 +15,7 @@ import type {
     MergeJsonTranslationRow,
 } from "./types"
 
+@Injectable()
 /**
  * Builds one canonical mount JSON tree (English/default locale) and attaches
  * `translations` on the root and on every array item located by
@@ -25,7 +26,6 @@ import type {
  * `requirements[].data[].title` from English and Vietnamese end up on the
  * same `data` item even though both `requirements` and `data` are arrays.
  */
-@Injectable()
 export class MergeJsonService {
     /**
      * @param params - Locale extracts + dot-paths to translatable scalar leaves.

@@ -92,6 +92,7 @@ const CDN_TARGETS: Array<CdnTarget> = [
     },
 ]
 
+@Injectable()
 /**
  * Deletes Elasticsearch docs + CDN objects whose entity no longer exists in
  * PostgreSQL — the ghosts left behind when content is removed or renumbered.
@@ -103,7 +104,6 @@ const CDN_TARGETS: Array<CdnTarget> = [
  * `pruneMaxRatio` of a type would be deleted — so an empty DB (seed hiccup) can
  * never wipe the search index or CDN.
  */
-@Injectable()
 export class ReconcileSynchronizerService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

@@ -18,6 +18,11 @@ import type {
 } from "./types"
 
 @Injectable()
+/**
+ * Deterministic UUIDs for per-lesson code-implementation samples. Same parent
+ * chain as explainings ({@link ContentIdFactoryService}) so both stay stable
+ * across re-seed without colliding (different hash prefix).
+ */
 export class CodeImplementationIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

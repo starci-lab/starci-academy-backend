@@ -9,12 +9,12 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed mock-interview bank mount folders under a course's
  * `mock-interview/` directory (`{index}-{slug}`), and per-question folders
  * under a bank's `questions/` directory.
  */
-@Injectable()
 export class MockInterviewPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

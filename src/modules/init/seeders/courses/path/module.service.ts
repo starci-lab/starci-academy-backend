@@ -12,10 +12,10 @@ import {
     CoursePathService 
 } from "./course.service"
     
+@Injectable()
 /**
  * Resolves indexed module mount directories under a course’s `modules/` folder.
  */
-@Injectable()
 export class ModulePathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

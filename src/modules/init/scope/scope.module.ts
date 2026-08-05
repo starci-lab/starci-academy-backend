@@ -13,6 +13,8 @@ import {
     SyncScopeService,
 } from "./sync-scope.service"
 
+@Module({
+})
 /**
  * Scope module — resolves the init seed/sync scope from `seed.yaml`.
  *
@@ -20,8 +22,6 @@ import {
  * synchronizers, and the init orchestrator can inject them. Reads config via
  * the (global) `MountFilesystemService`.
  */
-@Module({
-})
 export class ScopeModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)

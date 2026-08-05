@@ -17,10 +17,10 @@ import type {
     GeneratePlaygroundIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Playground root entity; parent id is {@link CourseIdFactoryService}.
  */
-@Injectable()
 export class PlaygroundIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

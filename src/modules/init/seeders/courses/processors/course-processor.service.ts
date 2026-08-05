@@ -45,10 +45,10 @@ import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
+@Injectable()
 /**
  * Upserts course rows and orchestrates nested module / flashcard / milestone processors.
  */
-@Injectable()
 export class CourseProcessorService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

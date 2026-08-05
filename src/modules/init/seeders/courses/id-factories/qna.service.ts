@@ -17,10 +17,10 @@ import type {
     GenerateQnaIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Course FAQ rows; parent id is {@link CourseIdFactoryService}.
  */
-@Injectable()
 export class QnaIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

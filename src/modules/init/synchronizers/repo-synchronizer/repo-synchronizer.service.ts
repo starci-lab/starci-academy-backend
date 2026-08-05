@@ -105,11 +105,11 @@ const TEXT_EXTENSIONS = new Set([
     ".Dockerfile",
 ])
 
+@Injectable()
 /**
  * Repo synchronizer — reads `.repo/` code directories for sandbox lessons and
  * uploads per-lesson Sandpack file trees to CDN, replacing direct GitHub API calls.
  */
-@Injectable()
 export class RepoSynchronizerService {
 
     constructor(

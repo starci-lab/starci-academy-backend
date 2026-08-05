@@ -17,6 +17,11 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a headhunting company and indexes **per-locale** ES docs with title
+ * completion. Company search is a standalone index gated by `seed.yaml`
+ * headhunting scope.
+ */
 export class ElasticsearchHeadhunterCompanyBuildService {
     constructor(
         private readonly headhuntingCompanyHydration: HeadhuntingCompanyHydrationService,

@@ -18,10 +18,10 @@ import type {
 /** Subfolder under each company that holds headhunting profiles. */
 const CONSULTANTS_ITEMS_DIR = "consultants"
 
+@Injectable()
 /**
  * Resolves indexed headhunter folders under `{company}/consultants/{index}-{slug}/`.
  */
-@Injectable()
 export class ConsultantPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

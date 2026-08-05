@@ -51,10 +51,10 @@ import {
     shouldSynchronizerSyncEntityKind,
 } from "../../utils"
 
+@Injectable()
 /**
  * Indexer synchronizer — iterates all entities and calls Indexer builder for each.
  */
-@Injectable()
 export class IndexerSynchronizerService {
 
     constructor(

@@ -35,11 +35,11 @@ import {
     AI_MODEL_CATALOG_ENTITY,
 } from "./constants"
 
+@Injectable()
 /**
  * Parses `.mount/data/ai-models/<index>-<slug>/{en,vi}.md` into catalog rows
  * (same mount markdown convention as courses).
  */
-@Injectable()
 export class AiModelCatalogParserService {
     constructor(
         private readonly aiModelCatalogPathService: AiModelCatalogPathService,

@@ -19,11 +19,11 @@ import type {
     RawFoundationTagItem,
 } from "./types"
 
+@Injectable()
 /**
  * Parses foundation tags from mount `# tags` blocks (`## {index}` → `### value`) only.
  * Mirrors content `references` parsing in {@link ContentParserService}.
  */
-@Injectable()
 export class FoundationTagParserService {
     constructor(
         private readonly coerceMdScalarService: CoerceMdScalarService,

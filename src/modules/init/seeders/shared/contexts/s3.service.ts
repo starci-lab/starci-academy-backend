@@ -18,10 +18,10 @@ import {
     WinstonService,
 } from "@modules/winston"
 
+@Injectable()
 /**
  * Service for reading files from S3.
  */
-@Injectable()
 export class S3ContextService {
     constructor(
         private readonly s3ReadService: S3ReadService,

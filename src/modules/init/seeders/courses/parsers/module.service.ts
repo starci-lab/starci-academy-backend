@@ -41,10 +41,10 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
+@Injectable()
 /**
  * Parses module readme from `en.md` / `vi.md` with camelCase `#` headings and indexed lists.
  */
-@Injectable()
 export class ModuleParserService {
     constructor(
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,

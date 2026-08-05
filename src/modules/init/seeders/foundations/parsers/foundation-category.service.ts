@@ -36,10 +36,10 @@ import type {
     ParseFoundationCategoryParams,
 } from "./types"
 
+@Injectable()
 /**
  * Parses a foundation category root (`en.md`, `vi.md`) under `foundations/{index}-{slug}/`.
  */
-@Injectable()
 export class FoundationCategoryParserService {
     constructor(
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,

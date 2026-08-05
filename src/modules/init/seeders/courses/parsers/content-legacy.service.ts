@@ -30,6 +30,7 @@ import {
     ContentPathService,
 } from "../path"
 
+@Injectable()
 /**
  * Legacy (V1) content parser for mounted course files (`en.md`, `vi.md`).
  *
@@ -45,7 +46,6 @@ import {
  * Paired with {@link ContentParserService}: invoked from {@link ContentParserService.parseMany}
  * when {@link ContentParserService.isV2} is false.
  */
-@Injectable()
 export class ContentLegacyParserService {
     constructor(
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,

@@ -21,10 +21,10 @@ import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
+@Injectable()
 /**
  * Parses and upserts course-level flashcard decks.
  */
-@Injectable()
 export class FlashcardDeckProcessorService {
     constructor(
         private readonly flashcardDeckParserService: FlashcardDeckParserService,

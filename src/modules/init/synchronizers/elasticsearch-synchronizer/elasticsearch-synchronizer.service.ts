@@ -65,10 +65,10 @@ import {
     shouldSynchronizerSyncEntityKind,
 } from "../../utils"
 
+@Injectable()
 /**
  * Elasticsearch synchronizer — iterates all entities and calls ES builder for each.
  */
-@Injectable()
 export class ElasticsearchSynchronizerService {
 
     constructor(

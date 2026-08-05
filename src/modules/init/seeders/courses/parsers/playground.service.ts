@@ -44,6 +44,7 @@ import {
     PlaygroundStepParserService,
 } from "./playground-step.service"
 
+@Injectable()
 /**
  * Parses course-level hands-on playgrounds from mounted course files (`en.md` / `vi.md`)
  * under `courses/{course}/playgrounds/`. Scalar fields use camelCase `#` headings; each
@@ -54,7 +55,6 @@ import {
  * columns hold the canonical (English-first) value while the per-locale `translations` rows
  * feed {@link PlaygroundTranslationEntity} for request-time locale projection.
  */
-@Injectable()
 export class PlaygroundParserService {
     constructor(
         private readonly playgroundPathService: PlaygroundPathService,

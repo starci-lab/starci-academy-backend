@@ -17,11 +17,11 @@ import type {
     GenerateContentLearningOutcomeIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Content learning-outcome ("what you will learn" bullet) UUIDs chain from the parent content id.
  * Position-based (ordinals only) so re-seeding the same bullet keeps a stable id → upsert updates.
  */
-@Injectable()
 export class ContentLearningOutcomeIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

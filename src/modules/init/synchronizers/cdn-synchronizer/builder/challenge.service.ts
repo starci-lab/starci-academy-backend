@@ -18,10 +18,10 @@ import {
 } from "./materialize-and-upload.service"
 import _ from "lodash"
 
+@Injectable()
 /**
  * Loads a challenge from PostgreSQL and materializes **per-locale** plain objects for CDN JSON.
  */
-@Injectable()
 export class CdnChallengeBuildService {
     constructor(
         private readonly challengeHydration: ChallengeHydrationService,

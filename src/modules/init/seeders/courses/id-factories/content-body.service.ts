@@ -17,10 +17,10 @@ import type {
     GenerateContentBodyIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * SCHEMA V2 per-language content body bucket UUIDs chain from the parent content id string.
  */
-@Injectable()
 export class ContentBodyIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

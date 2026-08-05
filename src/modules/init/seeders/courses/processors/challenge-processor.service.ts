@@ -28,10 +28,10 @@ import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
+@Injectable()
 /**
  * Parses and upserts challenges for one content mount folder.
  */
-@Injectable()
 export class ChallengeProcessorService {
     constructor(
         private readonly challengeParserService: ChallengeParserService,

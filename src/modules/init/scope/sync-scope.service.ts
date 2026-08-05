@@ -16,6 +16,7 @@ import {
     buildCourseIndexFilterByDisplayId,
 } from "./utils"
 
+@Injectable()
 /**
  * Resolves the sync-phase scope from `seed.yaml` (`synchronizers` block).
  *
@@ -23,7 +24,6 @@ import {
  * / `buildElasticsearchSynchronizerSyncScope` free functions. The synchronizer
  * orchestrator injects this service to build per-sink scopes.
  */
-@Injectable()
 export class SyncScopeService {
 
     constructor(

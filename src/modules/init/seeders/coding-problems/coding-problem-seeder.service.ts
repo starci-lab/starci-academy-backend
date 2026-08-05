@@ -18,12 +18,12 @@ import {
     CodingProblemHintIndexService,
 } from "./hints"
 
+@Injectable()
 /**
  * Seeds the coding-practice problem bank from `.mount/data/coding-problems/`
  * into `coding_problems` (+ testcases, starter codes, translations) at boot.
  * Gated by `seed.yaml` seeders `codingProblems`.
  */
-@Injectable()
 export class CodingProblemSeederService {
     constructor(
         private readonly parserService: CodingProblemParserService,

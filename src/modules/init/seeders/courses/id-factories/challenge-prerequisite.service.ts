@@ -17,10 +17,10 @@ import type {
     GenerateChallengePrerequisiteIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * SCHEMA V2 prerequisite item and per-language row UUIDs chain from the parent challenge id.
  */
-@Injectable()
 export class ChallengePrerequisiteIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

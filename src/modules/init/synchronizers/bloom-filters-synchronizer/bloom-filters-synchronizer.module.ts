@@ -16,4 +16,8 @@ import {
         BloomFilterSynchronizerService,
     ],
 })
+/**
+ * Wires {@link BloomFilterSynchronizerService} for boot-time email bloom rebuild.
+ * Configurable so init can register it globally beside CDN/ES/indexer sinks.
+ */
 export class BloomFiltersSynchronizerModule extends ConfigurableModuleClass { }

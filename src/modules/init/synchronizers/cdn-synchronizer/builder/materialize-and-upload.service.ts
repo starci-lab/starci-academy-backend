@@ -24,10 +24,10 @@ import type {
 } from "../types"
 import type SuperJSON from "superjson"
 
+@Injectable()
 /**
  * Service for materializing and uploading entities to the CDN.
  */
-@Injectable()
 export class MaterializeAndUploadService {
     constructor(
         private readonly s3UploadService: S3UploadService,

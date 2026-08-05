@@ -17,6 +17,11 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a module and indexes **per-locale** ES docs with title completion.
+ * Split from the course index so module search does not require loading the
+ * full course tree.
+ */
 export class ElasticsearchModuleBuildService {
     constructor(
         private readonly moduleHydration: ModuleHydrationService,

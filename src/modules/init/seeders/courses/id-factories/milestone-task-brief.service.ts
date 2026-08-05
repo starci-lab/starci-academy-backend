@@ -17,11 +17,11 @@ import type {
     GenerateMilestoneTaskBriefIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Deterministic ids for SCHEMA V2 per-language milestone-task briefs; chains from the parent
  * milestone-task id string so a task move re-derives its brief ids for idempotent re-seed.
  */
-@Injectable()
 export class MilestoneTaskBriefIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

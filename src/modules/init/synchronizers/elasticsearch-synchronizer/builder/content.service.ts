@@ -16,11 +16,11 @@ import {
 } from "@modules/elasticsearch"
 import _ from "lodash"
 
+@Injectable()
 /**
  * Loads content (with references, code explainings, implementations) from PostgreSQL and
  * materializes **per-locale** plain objects (after `ContentResolverService`) for Elasticsearch JSON.
  */
-@Injectable()
 export class ElasticsearchContentBuildService {
     constructor(
         private readonly contentHydration: ContentHydrationService,

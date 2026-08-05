@@ -49,10 +49,10 @@ import {
     shouldSyncModuleEntity,
 } from "../../utils"
 
+@Injectable()
 /**
  * CDN synchronizer — iterates all entities and calls CDN builder for each.
  */
-@Injectable()
 export class CdnSynchronizerService {
 
     constructor(

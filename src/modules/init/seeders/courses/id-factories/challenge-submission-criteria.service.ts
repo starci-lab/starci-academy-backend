@@ -18,13 +18,13 @@ import type {
     GenerateChallengeSubmissionCriteriaLangIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Deterministic ids for the SCHEMA V2 per-language grading-rubric buckets attached to a challenge
  * submission (`approach` + `outcome`). Parent id comes from
  * {@link ChallengeSubmissionIdFactoryService}; the `kind` discriminator keeps approach and outcome
  * ids distinct even when their langIndex matches.
  */
-@Injectable()
 export class ChallengeSubmissionCriteriaIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

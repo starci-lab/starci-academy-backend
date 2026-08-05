@@ -14,13 +14,13 @@ import {
     MilestoneTaskParentIndexCacheResult,
 } from "@modules/cache"
 
+@Injectable()
 /**
  * Primes the parent-index cache for a milestone task so global-search hits can build a deep-link URL.
  *
  * A task hit routes to its personal-project page (`/learn/personal-project/tasks/{taskId}`), where
  * the task id is the hit's own id — so the cached ref only needs the owning course for the URL slug.
  */
-@Injectable()
 export class IndexerMilestoneTaskBuildService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

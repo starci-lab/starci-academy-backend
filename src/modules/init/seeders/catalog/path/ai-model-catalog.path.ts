@@ -6,8 +6,8 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
-/** Resolves indexed AI model directories under `.mount/data/ai-models/`. */
 @Injectable()
+/** Resolves indexed AI model directories under `.mount/data/ai-models/`. */
 export class AiModelCatalogPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

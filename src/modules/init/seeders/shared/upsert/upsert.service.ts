@@ -29,12 +29,12 @@ import {
     buildDbSyncLogDisplayFields,
 } from "./utils"
 
+@Injectable()
 /**
  * Generic service for upserting seed data into any entity table.
  * Handles: delete stale rows, insert/update current rows.
  * Logs every added / updated / deleted row via Winston (verbose).
  */
-@Injectable()
 export class UpsertService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

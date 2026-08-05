@@ -9,10 +9,10 @@ import {
     HEADHUNTINGS_MOUNT_DIR,
 } from "./constants"
 
+@Injectable()
 /**
  * Resolves indexed headhunting company directories under `.mount/data/headhuntings/`.
  */
-@Injectable()
 export class HeadhuntingCompanyPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

@@ -26,12 +26,6 @@ import {
     ReconcileSynchronizerService
 } from "./reconcile-synchronizer"
 
-/**
- * Core synchronizer module.
- *
- * Registers the {@link SynchronizersService} which runs all sync tasks
- * sequentially in `onModuleInit` before the app starts listening.
- */
 @Module({
     imports: [
         CdnSynchronizerModule.register({
@@ -58,5 +52,11 @@ import {
         SynchronizersService,
     ],
 })
+/**
+ * Core synchronizer module.
+ *
+ * Registers the {@link SynchronizersService} which runs all sync tasks
+ * sequentially in `onModuleInit` before the app starts listening.
+ */
 export class SynchronizersModule extends ConfigurableModuleClass {
 }

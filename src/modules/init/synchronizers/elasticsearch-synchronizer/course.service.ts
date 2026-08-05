@@ -25,6 +25,11 @@ import {
 } from "./elasticsearch-synchronizer.service"
 
 @Injectable()
+/**
+ * @deprecated Replaced by {@link ElasticsearchSynchronizerService}. Per-course
+ * interval enqueue kept for reference; not registered on
+ * {@link ElasticsearchSynchronizerModule}.
+ */
 export class CourseElasticsearchSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,

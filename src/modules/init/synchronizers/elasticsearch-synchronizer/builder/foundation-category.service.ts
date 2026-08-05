@@ -16,6 +16,11 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a foundation category and indexes **per-locale** ES docs. Suggest
+ * strips the "Foundation"/"Nền tảng" wrapper so autocomplete matches the tech
+ * name learners type.
+ */
 export class ElasticsearchFoundationCategoryBuildService {
     constructor(
         private readonly foundationCategoryHydration: FoundationCategoryHydrationService,

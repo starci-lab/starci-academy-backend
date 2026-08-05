@@ -17,10 +17,10 @@ import type {
     GeneratePrerequisiteIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Prerequisite bullets on a course; parent id is {@link CourseIdFactoryService}.
  */
-@Injectable()
 export class PrerequisiteIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

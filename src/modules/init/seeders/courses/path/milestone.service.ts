@@ -9,10 +9,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves the milestone mount directory under a course's `milestones/` folder.
  */
-@Injectable()
 export class MilestonePathService {
     constructor(
         private readonly coursePathService: CoursePathService,

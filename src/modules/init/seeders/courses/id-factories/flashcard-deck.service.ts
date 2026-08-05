@@ -17,10 +17,10 @@ import type {
     GenerateFlashcardDeckIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Flashcard deck root entity; parent id is {@link CourseIdFactoryService}.
  */
-@Injectable()
 export class FlashcardDeckIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

@@ -17,10 +17,10 @@ import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
+@Injectable()
 /**
  * Parses and upserts tasks for one milestone.
  */
-@Injectable()
 export class MilestoneTaskProcessorService {
     constructor(
         private readonly milestoneTaskParserService: MilestoneTaskParserService,

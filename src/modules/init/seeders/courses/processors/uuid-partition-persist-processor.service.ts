@@ -21,10 +21,10 @@ import type {
     PersistUuidPartitionParams,
 } from "./types"
 
+@Injectable()
 /**
  * Applies a {@link UpsertService.partitionUuidSync} plan: save root rows (relations stripped), delete stale.
  */
-@Injectable()
 export class UuidPartitionPersistProcessorService {
     constructor(
         private readonly upsertService: UpsertService,

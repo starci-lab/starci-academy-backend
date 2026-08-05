@@ -15,11 +15,11 @@ import {
 /** Subfolder under each category that holds foundation items (`0-docker/foundations/`). */
 const FOUNDATIONS_ITEMS_DIR = "foundations"
 
+@Injectable()
 /**
  * Resolves indexed foundation item folders under a category’s `foundations/` folder
  * (`{category}/foundations/{index}-{slug}/`), mirroring `ModulePathService` + `modules/`.
  */
-@Injectable()
 export class FoundationPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

@@ -17,6 +17,11 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a challenge and indexes **per-locale** ES docs with completion
+ * suggest on the resolved title. Search cannot join PG translations, so each
+ * locale is a standalone document.
+ */
 export class ElasticsearchChallengeBuildService {
     constructor(
         private readonly challengeHydration: ChallengeHydrationService,

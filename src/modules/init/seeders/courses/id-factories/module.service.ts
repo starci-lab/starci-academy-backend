@@ -17,10 +17,10 @@ import type {
     GenerateModuleIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Module UUIDs chain from the parent course id string produced by {@link CourseIdFactoryService}.
  */
-@Injectable()
 export class ModuleIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

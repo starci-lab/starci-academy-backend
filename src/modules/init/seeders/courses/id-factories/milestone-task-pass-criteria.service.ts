@@ -17,10 +17,10 @@ import type {
     GenerateMilestoneTaskPassCriteriaIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Milestone task pass criteria UUIDs chain from the parent milestone task id string.
  */
-@Injectable()
 export class MilestoneTaskPassCriteriaIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

@@ -17,6 +17,10 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a milestone task and indexes **per-locale** ES docs with title
+ * completion. Tasks are searchable independently of the parent milestone.
+ */
 export class ElasticsearchMilestoneTaskBuildService {
     constructor(
         private readonly milestoneTaskHydration: MilestoneTaskHydrationService,

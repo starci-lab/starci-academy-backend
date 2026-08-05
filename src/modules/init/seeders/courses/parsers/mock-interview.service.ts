@@ -45,6 +45,7 @@ import {
     WinstonService,
 } from "@modules/winston"
 
+@Injectable()
 /**
  * Parses course-level mock-interview TECHNICAL banks from mounted course files
  * (`en.md` / `vi.md`) under `courses/{course}/mock-interview/{N}-bank/`. A bank has
@@ -59,7 +60,6 @@ import {
  * course parser — `interview-answer.md`'s "vi.md gốc" is an AUTHORING convention,
  * not a seeding one).
  */
-@Injectable()
 export class MockInterviewParserService {
     constructor(
         private readonly mockInterviewPathService: MockInterviewPathService,

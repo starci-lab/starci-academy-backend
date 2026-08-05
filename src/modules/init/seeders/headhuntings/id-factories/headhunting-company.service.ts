@@ -15,6 +15,11 @@ import type {
 } from "./types"
 
 @Injectable()
+/**
+ * Root headhunting-company UUIDs keyed by mount folder ordinal. Consultants
+ * chain from this id; namespace is `uuidNamespace.headhunting` so they never
+ * collide with course ids.
+ */
 export class HeadhuntingCompanyIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

@@ -18,6 +18,7 @@ import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
 
+@Injectable()
 /**
  * Builds + indexes Elasticsearch documents for a coding-practice problem across
  * all locales.
@@ -28,7 +29,6 @@ import {
  * field (problem title + popularity weight) powering the `codingProblemSuggestions`
  * autocomplete query. Distinct from the legacy `coding-problem-hints-*` indices.
  */
-@Injectable()
 export class ElasticsearchCodingProblemBuildService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

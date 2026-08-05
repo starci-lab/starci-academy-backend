@@ -17,10 +17,10 @@ import type {
     GenerateLivestreamSessionIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Deterministic UUID for a course livestream session row.
  */
-@Injectable()
 export class LivestreamSessionIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

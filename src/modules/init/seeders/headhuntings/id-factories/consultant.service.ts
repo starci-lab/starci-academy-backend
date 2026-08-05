@@ -17,10 +17,10 @@ import type {
     GenerateConsultantIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Builds deterministic headhunter UUIDs chained from the parent company ID.
  */
-@Injectable()
 export class ConsultantIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

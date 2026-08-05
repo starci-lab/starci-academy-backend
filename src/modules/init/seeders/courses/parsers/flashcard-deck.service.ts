@@ -47,6 +47,7 @@ import {
     WinstonService,
 } from "@modules/winston"
 
+@Injectable()
 /**
  * Parses course-level multiple-choice flashcard decks from mounted course files
  * (`en.md` / `vi.md`) under `courses/{course}/flashcard-decks/`. Scalar fields use
@@ -57,7 +58,6 @@ import {
  * locale, merge via {@link MergeJsonService} with dot-path `translateFields`, then render straight
  * from `merged` — every array item already carries its aligned `translations[]`.
  */
-@Injectable()
 export class FlashcardDeckParserService {
     constructor(
         private readonly flashcardDeckPathService: FlashcardDeckPathService,

@@ -16,6 +16,11 @@ import {
 import _ from "lodash"
 
 @Injectable()
+/**
+ * Hydrates a foundation (falls back to category locale) and indexes **per-locale**
+ * ES docs. No completion field — foundations are reached via category browse,
+ * not typeahead.
+ */
 export class ElasticsearchFoundationBuildService {
     constructor(
         private readonly foundationHydration: FoundationHydrationService,

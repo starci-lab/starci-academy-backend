@@ -34,6 +34,7 @@ import type {
     AdvertisementSeedFileRoot,
 } from "./types"
 
+@Injectable()
 /**
  * Seeds dashboard advertisement banners from `advertisements/advertisements.md`
  * (the git-sourced data root during init, else the local `.mount/data` fallback).
@@ -41,7 +42,6 @@ import type {
  * object keys); nested `media` / `title` / `ctaText` become jsonb objects.
  * Idempotent: each row is upserted by its `slug`.
  */
-@Injectable()
 export class AdvertisementSeederService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()

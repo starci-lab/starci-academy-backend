@@ -24,13 +24,13 @@ import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
+@Injectable()
 /**
  * Parses and upserts course-level mock-interview TECHNICAL bank questions.
  * Self-gates on `seed.yaml` scope (unlike the legacy flashcard flag, which
  * threads `flashcardEnabled` through `ProcessCoursesParams` but is never
  * actually read at this layer) — injects {@link SeedScopeService} directly.
  */
-@Injectable()
 export class MockInterviewProcessorService {
     constructor(
         private readonly mockInterviewParserService: MockInterviewParserService,

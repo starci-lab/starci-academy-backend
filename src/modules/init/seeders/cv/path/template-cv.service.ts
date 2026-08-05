@@ -6,10 +6,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed template CV mount directories (`{index}-{slug}`) under the data `cv/` root.
  */
-@Injectable()
 export class TemplateCvPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

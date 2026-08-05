@@ -17,9 +17,6 @@ import {
     IndexerFlashcardDeckBuildService,
 } from "./builder"
 
-/**
- * Module for synchronizing the Indexer.
- */
 @Module({
     providers: [
         IndexerCourseBuildService,
@@ -35,4 +32,7 @@ import {
         IndexerSynchronizerService,
     ]
 })
+/**
+ * Module for synchronizing the Indexer.
+ */
 export class IndexerSynchronizerModule extends ConfigurableModuleClass { }

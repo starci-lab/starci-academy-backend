@@ -14,12 +14,12 @@ import type {
     GenerateInterviewQuestionEqIdParams,
 } from "../types"
 
+@Injectable()
 /**
  * Behavioral (global) mock-interview question id factory. There is no owning
  * course/bank entity to anchor on (the behavioral bank is global, non-course-scoped),
  * so the id hashes the bank + question ordinals directly.
  */
-@Injectable()
 export class InterviewQuestionEqIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

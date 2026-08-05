@@ -25,6 +25,7 @@ const NO_DOMAINS: DomainFlags = {
     codingProblems: false,
 }
 
+@Injectable()
 /**
  * Builds the full {@link SeedConfig} the existing pipeline understands.
  *
@@ -34,7 +35,6 @@ const NO_DOMAINS: DomainFlags = {
  * `setRuntimeSeedConfig`, so the shared pipeline scopes itself with no
  * shared-code edits.
  */
-@Injectable()
 export class SeedDiffOverlayService {
 
     /**

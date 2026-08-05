@@ -54,11 +54,11 @@ import {
     ContentPathService,
 } from "../path"
 
+@Injectable()
 /**
  * Content parser for mounted course files (`en.md`, `vi.md`).
  * Routes V2 vs legacy via {@link isV2} (`# verified`); V2 bodies live under `bodies/`.
  */
-@Injectable()
 export class ContentParserService {
     constructor(
         private readonly contentLegacyParserService: ContentLegacyParserService,

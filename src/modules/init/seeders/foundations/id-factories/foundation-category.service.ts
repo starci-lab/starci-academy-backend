@@ -14,10 +14,10 @@ import type {
     GenerateFoundationCategoryIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Builds deterministic foundation category UUIDs using SHA-256 + UUID v5.
  */
-@Injectable()
 export class FoundationCategoryIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,

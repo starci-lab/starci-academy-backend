@@ -6,10 +6,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed foundation category directories under `.mount/data/foundations/`.
  */
-@Injectable()
 export class FoundationCategoryPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

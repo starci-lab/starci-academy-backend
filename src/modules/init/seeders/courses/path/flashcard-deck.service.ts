@@ -9,10 +9,10 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 
+@Injectable()
 /**
  * Resolves indexed flashcard-deck mount folders under a course's `flashcard-decks/` directory (`{index}-{slug}`).
  */
-@Injectable()
 export class FlashcardDeckPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,

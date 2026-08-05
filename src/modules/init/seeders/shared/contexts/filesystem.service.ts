@@ -18,10 +18,10 @@ import {
     WinstonService,
 } from "@modules/winston"
 
+@Injectable()
 /**
  * Service for reading files from filesystem.
  */
-@Injectable()
 export class FilesystemContextService {
     constructor(
         private readonly winstonService: WinstonService,

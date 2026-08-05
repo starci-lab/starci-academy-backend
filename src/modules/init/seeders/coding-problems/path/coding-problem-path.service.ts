@@ -15,13 +15,13 @@ import {
     getRuntimeContextRoot,
 } from "@modules/filesystem"
 
+@Injectable()
 /**
  * Resolves filesystem paths for coding-problem mount data. Problems live in
  * `<dataRoot>/coding-problems/sets/<domain>/problems/<slug>/` with an `en.md`,
  * optional `vi.md`, and a `testcases/` folder. The set (domain) folder is purely
  * organizational — the authoritative `domain` is in each problem's frontmatter.
  */
-@Injectable()
 export class CodingProblemPathService {
     /**
      * Absolute path to the coding-problems mount root. During a git-sourced seed

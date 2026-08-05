@@ -17,11 +17,11 @@ import type {
     GenerateMockInterviewLangIdParams,
 } from "./types"
 
+@Injectable()
 /**
  * Per-programming-language `givenCode` variant of a mock-interview question;
  * nests under the owning {@link MockInterviewIdFactoryService} id.
  */
-@Injectable()
 export class MockInterviewLangIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,
