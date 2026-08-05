@@ -106,7 +106,7 @@ export default defineConfig([
         rules: {
             "starci-be/no-ai-symbol": "error", // nợ=0 -> error · comments stay ASCII (auto-fixable)
             "starci-be/no-emoji": "error", // nợ=0 → error · emoji carry tone, not information
-            "starci-be/no-vietnamese": "error", // comments.md · nợ=0 -> error
+            "starci-be/no-vietnamese": "error", // comments.md · nợ=0 → error
             "starci-be/no-interpolated-log-message": "error", // observability · nợ=0 (the WinstonService signature already forces an enum arg)
             "starci-be/require-exception-object-arg": "error", // error-handling §1 · nợ=0 → error
             "starci-be/throw-abstract-exception": "error", // error-handling §1 · nợ=0 → error
