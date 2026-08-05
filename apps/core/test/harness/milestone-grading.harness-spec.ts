@@ -69,6 +69,11 @@ import {
     volumeExists,
 } from "./volume"
 
+/** Params for the `GradingRetrievalService.retrieveGradingExcerpt` mock. */
+interface RetrieveGradingExcerptParams {
+    documents: Array<Document>
+}
+
 /**
  * Stub `GithubRepoLoader` so no real clone/network happens — every instance's
  * `.load()` resolves the docs the current case programs via `loaderLoadMock`.
@@ -289,6 +294,13 @@ const shortText = (body: string): string => {
         80)).trim()
 }
 
+/** Params for the local `buildV2TaskFixture` helper. */
+interface BuildV2TaskFixtureParams {
+    id: string
+    relDir: string
+    lang: string
+}
+
 /**
  * Build a SCHEMA V2 `MilestoneTaskEntity`-shaped fixture from a REAL task mount: `title` +
  * `maxScore` come straight off `readVolumeDoc`'s flat fields, `verified` is the REAL date (so
@@ -300,7 +312,7 @@ const buildV2TaskFixture = (
         id,
         relDir,
         lang,
-    }: { id: string; relDir: string; lang: string },
+    }: BuildV2TaskFixtureParams,
 ) => {
     const doc = readVolumeDoc(relDir)
     const real = readRealTaskCriteria(relDir,
@@ -336,6 +348,13 @@ const buildV2TaskFixture = (
     }
 }
 
+/** Params for the local `buildLegacyTaskFixture` helper. */
+interface BuildLegacyTaskFixtureParams {
+    id: string
+    relDir: string
+    lang: string
+}
+
 /**
  * Build a LEGACY (`verified: null`) `MilestoneTaskEntity`-shaped fixture from the SAME real
  * task mount, reshaping its real outcome+approach criteria into the legacy `criterias`
@@ -350,7 +369,7 @@ const buildLegacyTaskFixture = (
         id,
         relDir,
         lang,
-    }: { id: string; relDir: string; lang: string },
+    }: BuildLegacyTaskFixtureParams,
 ) => {
     const doc = readVolumeDoc(relDir)
     const real = readRealTaskCriteria(relDir,
@@ -934,7 +953,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
 
             aiEntitlementServiceMock.assertNotOverQuota.mockResolvedValue(undefined)
             gradingRetrievalServiceMock.retrieveGradingExcerpt.mockImplementation(
-                async ({ documents }: { documents: Array<Document> }) => ({
+                async ({ documents }: RetrieveGradingExcerptParams) => ({
                     excerpt: excerptFromDocuments(documents),
                 }),
             )
@@ -1015,7 +1034,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         jest.clearAllMocks()
                         aiEntitlementServiceMock.assertNotOverQuota.mockResolvedValue(undefined)
                         gradingRetrievalServiceMock.retrieveGradingExcerpt.mockImplementation(
-                            async ({ documents }: { documents: Array<Document> }) => ({
+                            async ({ documents }: RetrieveGradingExcerptParams) => ({
                                 excerpt: excerptFromDocuments(documents),
                             }),
                         )

@@ -21,6 +21,7 @@ import type {
     LoyaltyContext,
     LoyaltyDiscountResult,
     ResolveLoyaltyPercentParams,
+    ResolveLoyaltyReasonParams,
 } from "./types"
 
 /** Bonus percent granted per course the user already owns. */
@@ -253,10 +254,7 @@ export class LoyaltyDiscountService {
         {
             hasEnrolledBonus,
             diligent,
-        }: {
-            hasEnrolledBonus: boolean
-            diligent: boolean
-        },
+        }: ResolveLoyaltyReasonParams,
     ): DiscountReason {
         if (hasEnrolledBonus && diligent) {
             return DiscountReason.Both

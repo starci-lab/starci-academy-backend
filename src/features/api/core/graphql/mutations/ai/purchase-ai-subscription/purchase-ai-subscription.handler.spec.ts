@@ -62,6 +62,11 @@ import {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
+/** Params for the `RetryService.retry` mock. */
+interface RetryServiceRetryParams {
+    action: () => Promise<unknown>
+}
+
 /**
  * Build a minimal user stand-in carrying only the id the handler reads.
  *
@@ -170,9 +175,7 @@ describe("PurchaseAiSubscriptionHandler",
                             retry: jest.fn(
                                 ({
                                     action,
-                                }: {
-                                    action: () => Promise<unknown>
-                                }) => action(),
+                                }: RetryServiceRetryParams) => action(),
                             ),
                         },
                     },

@@ -71,6 +71,10 @@ export class AgentCommand extends CommandRunner {
         }
         if (options.installService) {
             if (!pairingCode) {
+                // CLI usage text, not application logging: this is a standalone npx binary
+                // whose output channel IS the terminal. WinstonService ships structured
+                // events to Loki — it cannot tell the operator how to invoke the command.
+                // eslint-disable-next-line no-console
                 console.error(`--install-service needs a pairing code: ${this.meta.cliName} <pairingCode> --install-service`)
                 process.exit(1)
             }
@@ -78,6 +82,8 @@ export class AgentCommand extends CommandRunner {
             return
         }
         if (!pairingCode) {
+            // Same reason as above: usage text for a human at a terminal, not a log event.
+            // eslint-disable-next-line no-console
             console.error(`Usage: npx ${this.meta.packageName} <pairingCode> [--server <url>]`)
             process.exit(1)
         }

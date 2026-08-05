@@ -27,6 +27,13 @@ import type {
     LoyaltyContext,
 } from "./types"
 
+/** Params for the local `programContext` test helper (the two DB-derived loyalty inputs to stub). */
+interface ProgramContextParams {
+    ownedCount: number
+    streak: number
+    totalPoints: number
+}
+
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
@@ -87,11 +94,7 @@ describe("LoyaltyDiscountService",
                 ownedCount,
                 streak,
                 totalPoints,
-            }: {
-                ownedCount: number
-                streak: number
-                totalPoints: number
-            },
+            }: ProgramContextParams,
         ): void => {
             // countEnrolledCourses → SELECT COUNT(*) ... returns a single {count} row
             entityManager.query.mockResolvedValue([

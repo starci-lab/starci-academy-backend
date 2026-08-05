@@ -103,10 +103,7 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
         {
             topic,
             row,
-        }: {
-            topic: string
-            row: unknown
-        },
+        }: ProjectionCdcMessage,
     ): Promise<DerivedProgressTarget | null> {
         // match the topic by its table-name suffix (prefix is env-configurable)
         if (topic.endsWith("user_contents")) {

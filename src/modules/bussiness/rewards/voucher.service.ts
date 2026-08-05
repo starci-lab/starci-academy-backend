@@ -43,6 +43,34 @@ export interface ResolveVoucherParams {
     courseId: string
 }
 
+/** Params for {@link VoucherService.mint}. */
+export interface MintVoucherParams {
+    /** Transaction manager the caller is running inside (atomic with the funding redemption). */
+    entityManager: EntityManager
+    /** The redeemer to mint the voucher for. */
+    userId: string
+    /** The redemption row funding this mint. */
+    redemptionId: string
+    /** The reward's voucher config (discount + validity window). */
+    config: RewardVoucherConfig
+}
+
+/** Params for {@link VoucherService.markUsed}. */
+export interface MarkVoucherUsedParams {
+    /** Transaction manager the caller is running inside. */
+    entityManager: EntityManager
+    /** The transaction whose reserved voucher should be settled as used. */
+    transactionId: string
+}
+
+/** Params for {@link VoucherService.release}. */
+export interface ReleaseVoucherParams {
+    /** Transaction manager the caller is running inside. */
+    entityManager: EntityManager
+    /** The transaction whose reserved voucher should be given back. */
+    transactionId: string
+}
+
 /**
  * Coin-shop voucher lifecycle: mint on redemption, preview + reserve at
  * checkout, settle (used/released) once the funding transaction resolves.
@@ -77,12 +105,7 @@ export class VoucherService {
             userId,
             redemptionId,
             config,
-        }: {
-            entityManager: EntityManager
-            userId: string
-            redemptionId: string
-            config: RewardVoucherConfig
-        },
+        }: MintVoucherParams,
     ): Promise<CourseVoucherEntity> {
         const code = this.generateCode()
         const expiresAt = this.dayjsService.now()

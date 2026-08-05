@@ -58,7 +58,7 @@ export default defineConfig([
         // observability.md — logs leave through `WinstonService`, never `console.*`.
         files: ["src/**/*.ts", "apps/**/*.ts"],
         rules: {
-            "no-console": "warn", // observability · nợ≈3
+            "no-console": "error", // observability · nợ=0 → error
         },
     },
     {

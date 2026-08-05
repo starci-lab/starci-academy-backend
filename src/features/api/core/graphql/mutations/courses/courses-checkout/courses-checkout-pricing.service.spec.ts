@@ -103,6 +103,12 @@ describe("CoursesCheckoutPricingService",
             await module.close()
         })
 
+        /** Params for the local `programFinds` helper. */
+        interface ProgramFindsParams {
+            courses: Array<CourseEntity>
+            ownedEnrollments?: Array<EnrollmentEntity>
+        }
+
         /**
          * Program the two `find` calls priceCart makes: the courses lookup and the
          * paid-enrollment lookup (used to drop already-owned courses).
@@ -111,10 +117,7 @@ describe("CoursesCheckoutPricingService",
             {
                 courses,
                 ownedEnrollments = [],
-            }: {
-                courses: Array<CourseEntity>
-                ownedEnrollments?: Array<EnrollmentEntity>
-            },
+            }: ProgramFindsParams,
         ): void => {
             entityManager.find.mockImplementation(async (entity: unknown) =>
                 (entity === CourseEntity ? courses : ownedEnrollments))

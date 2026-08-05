@@ -79,3 +79,13 @@ export interface ApplyBundleBonusParams {
     /** Number of distinct courses in the order (drives the bundle tier). */
     itemCount: number
 }
+
+/**
+ * Params for mapping the two contributing loyalty signals onto a {@link DiscountReason}.
+ */
+export interface ResolveLoyaltyReasonParams {
+    /** Whether the per-owned-course bonus contributed. */
+    hasEnrolledBonus: boolean
+    /** Whether the diligent bonus contributed. */
+    diligent: boolean
+}

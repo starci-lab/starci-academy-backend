@@ -290,12 +290,7 @@ export class LeagueService {
             tier,
             weekStartAt,
             weekEndAt,
-        }: {
-            manager: EntityManager
-            tier: LeagueTier
-            weekStartAt: Date
-            weekEndAt: Date
-        },
+        }: FindOrCreateOpenCohortParams,
     ): Promise<LeagueCohortEntity> {
         // configured max members per cohort
         const { cohortSize } = envConfig().league
@@ -350,11 +345,7 @@ export class LeagueService {
         {
             manager,
             endingWeekStart,
-        }: {
-            manager: EntityManager
-            previousWeekStart: Date
-            endingWeekStart: Date
-        },
+        }: SettleEndingCohortsParams,
     ): Promise<void> {
         // promote/demote zone sizes
         const { promoteCount, demoteCount } = envConfig().league
@@ -425,11 +416,7 @@ export class LeagueService {
             manager,
             newWeekStart,
             previousWeekStart,
-        }: {
-            manager: EntityManager
-            newWeekStart: Date
-            previousWeekStart: Date
-        },
+        }: FormNewCohortsParams,
     ): Promise<void> {
         // idempotency guard: if cohorts already exist for the new week, a prior run
         // already formed them → nothing to do (re-run safe)
@@ -518,11 +505,7 @@ export class LeagueService {
             tier,
             promote,
             demote,
-        }: {
-            tier: LeagueTier
-            promote: boolean
-            demote: boolean
-        },
+        }: ShiftTierParams,
     ): LeagueTier {
         // current ladder position (index into the ascending tier order)
         const index = LEAGUE_TIER_ORDER.indexOf(tier)
