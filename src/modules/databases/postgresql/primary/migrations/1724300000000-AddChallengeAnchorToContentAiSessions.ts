@@ -5,12 +5,12 @@ import {
 
 /**
  * Adds the CHALLENGE anchor to content-AI sessions: `origin_challenge_id`
- * (nullable, FK → challenges) so a challenge-scope conversation persists alongside
+ * (nullable, FK -> challenges) so a challenge-scope conversation persists alongside
  * content / task / foundation / course sessions. Additive + nullable only.
  *
  * Dev + prod run schema via TypeORM `synchronize` (which applies the entity change
  * at boot); this migration exists so the SAME change applies deterministically
- * where `synchronize` is off. Nullable, no PG enum — synchronize-safe. Idempotent.
+ * where `synchronize` is off. Nullable, no PG enum -- synchronize-safe. Idempotent.
  */
 export class AddChallengeAnchorToContentAiSessions1724300000000 implements MigrationInterface {
     /** Stable name surfaced in the TypeORM migrations table. */

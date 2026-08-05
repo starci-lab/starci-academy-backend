@@ -18,7 +18,7 @@ import {
  *
  * Reuses {@link MyWeeklyStatsData} (same shape): the profile owner's current +
  * longest streak and rolling 7-day activity. Differs from `myWeeklyStats` only
- * in subject — the user named in the route, not the authenticated viewer.
+ * in subject -- the user named in the route, not the authenticated viewer.
  */
 export class UserWeeklyStatsResponse
     extends AbstractGraphQLResponse

@@ -53,7 +53,7 @@ export class MockInterviewPromptItem {
     description: "The mock interview prompt bank for a course.",
 })
 /**
- * The mock interview prompt bank for a course — the prompts the learner
+ * The mock interview prompt bank for a course -- the prompts the learner
  * can pick to work through.
  */
 export class MockInterviewPromptsData {

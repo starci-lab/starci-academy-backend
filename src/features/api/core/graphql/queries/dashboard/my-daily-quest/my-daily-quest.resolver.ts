@@ -35,7 +35,7 @@ import {
  * Daily-quest query: today's (Asia/Ho_Chi_Minh) per-task progress vs target, plus
  * whether everything is done and whether the reward was already claimed. Progress
  * is derived per request from today's activity (no inline aggregate in the
- * resolver — the bussiness service owns the SQL).
+ * resolver -- the bussiness service owns the SQL).
  */
 export class MyDailyQuestResolver {
     constructor(

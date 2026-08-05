@@ -1,6 +1,6 @@
 /** Decoded parts of an opaque global id. */
 export interface DecodedGlobalId {
-    /** Entity class name (e.g. "ContentEntity") — the index namespace. */
+    /** Entity class name (e.g. "ContentEntity") -- the index namespace. */
     entityName: string
     /** Primary key (UUID) of the entity. */
     id: string
@@ -39,7 +39,7 @@ export const fromGlobalId = (
     } catch {
         return null
     }
-    // split on the FIRST colon only — ids never contain a leading colon segment
+    // split on the FIRST colon only -- ids never contain a leading colon segment
     const separatorIndex = raw.indexOf(":")
     if (separatorIndex <= 0 || separatorIndex === raw.length - 1) {
         return null

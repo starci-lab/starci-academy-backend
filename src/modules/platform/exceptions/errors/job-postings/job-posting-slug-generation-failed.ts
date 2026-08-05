@@ -15,7 +15,7 @@ export interface JobPostingSlugGenerationFailedExceptionMetadata extends Abstrac
 
 /**
  * Thrown when a unique `displayId` slug could not be generated for a new job
- * posting or inline-created company after exhausting the retry budget — an
+ * posting or inline-created company after exhausting the retry budget -- an
  * astronomically unlikely collision run, surfaced loudly instead of silently
  * persisting a colliding slug.
  */

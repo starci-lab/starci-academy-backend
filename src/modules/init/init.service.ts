@@ -59,7 +59,7 @@ import {
 
 @Injectable()
 /**
- * Boot-time initialization orchestrator — the canonical, git-sourced init.
+ * Boot-time initialization orchestrator -- the canonical, git-sourced init.
  *
  * The flow is always diff-based: resolve the remote `data` repo SHA, download it
  * into a NEW commit snapshot under the data-sources root, compute the file-level
@@ -67,7 +67,7 @@ import {
  * it to the manifest (pruning to the retention cap) as the final step. The
  * generated pipeline config is applied via {@link setRuntimeSeedConfig} and the
  * snapshot root via {@link setRuntimeContextRoot}, so the shared pipeline scopes
- * itself — no shared-code edits. The local-file variant lives in the parked
+ * itself -- no shared-code edits. The local-file variant lives in the parked
  * `_init` module ({@link LegacyInitService}).
  *
  * A first pull, a pull failure, or an untrustable diff is promoted to a full
@@ -98,7 +98,7 @@ export class InitService implements OnModuleInit {
         // coarse `mode` picks all / diff / none (default diff)
         const initConfig = getInitConfig()
 
-        // master kill-switch: `enable: false` in seed.yaml skips the ENTIRE init —
+        // master kill-switch: `enable: false` in seed.yaml skips the ENTIRE init --
         // no git pull, no seed, no sync (fastest local boot). Default is enabled.
         if (initConfig.enable === false) {
             this.logScoped(false,
@@ -111,7 +111,7 @@ export class InitService implements OnModuleInit {
         const isExplicit = Boolean(initConfig.seed) || Boolean(initConfig.sync)
         const mode = initConfig.mode ?? "diff"
 
-        // no explicit blocks AND `mode: none` → init disabled: skip both phases
+        // no explicit blocks AND `mode: none` -> init disabled: skip both phases
         if (!isExplicit && mode === "none") {
             this.logScoped(false,
                 0,
@@ -120,22 +120,22 @@ export class InitService implements OnModuleInit {
             return
         }
 
-        // explicit blocks and `mode: all` force a re-seed → always pull fresh from git
+        // explicit blocks and `mode: all` force a re-seed -> always pull fresh from git
         // so we never seed from a possibly-stale/empty local .contexts (which only
         // carries the marker for diffing). diff mode may still short-circuit below.
         const forceReseed = isExplicit || mode === "all"
 
-        // resolve the remote into a staging copy; a failure must NOT crash boot —
+        // resolve the remote into a staging copy; a failure must NOT crash boot --
         // fall back to seeding whatever local .contexts content already exists
         let result: EnsureDataGitResult | null = null
         try {
             result = await this.dataGitBootstrapService.ensure(forceReseed)
         } catch {
-            // ensure() already logged DataGitBootstrapFailed loudly — degrade gracefully
+            // ensure() already logged DataGitBootstrapFailed loudly -- degrade gracefully
             result = null
         }
 
-        // already on the remote SHA → the DB is current; only short-circuit in diff mode
+        // already on the remote SHA -> the DB is current; only short-circuit in diff mode
         if (result && !result.changed && !forceReseed) {
             return
         }
@@ -179,9 +179,9 @@ export class InitService implements OnModuleInit {
                         })
                 }
             }
-            // phase 2b: mirror the snapshot's STATIC ASSETS (badges, course covers, …)
+            // phase 2b: mirror the snapshot's STATIC ASSETS (badges, course covers, ...)
             // to MinIO from the SAME fresh snapshot root. AssetsService's own boot
-            // hook runs OUTSIDE this window (`getRuntimeContextRoot()` is unset → it
+            // hook runs OUTSIDE this window (`getRuntimeContextRoot()` is unset -> it
             // only sees the local `.mount/assets` fallback, which lacks the data-repo
             // assets), so drive it here while the context root points at the freshly
             // pulled snapshot's `assets/`. Non-fatal: a static-asset failure must never
@@ -208,7 +208,7 @@ export class InitService implements OnModuleInit {
             // seed (so contents are enumerable), inside the runtime-context window.
             // Gated behind a flag (embedding every lesson hits the embedding lane +
             // costs boot time on every reseed) and non-fatal (a RAG build failure must
-            // never roll back a successful seed — content-AI chat degrades to whole-body
+            // never roll back a successful seed -- content-AI chat degrades to whole-body
             // stuffing when the index is absent).
             if (snapshotRoot && envConfig().services.contentRag.enabled) {
                 try {
@@ -229,7 +229,7 @@ export class InitService implements OnModuleInit {
             // phase 2d: build the CV-authoring reference RAG index (rubrics +
             // skill/metric/etc. catalogs + sample CVs, from `.mount/data/cv/`)
             // into its own persistent `cv_rag` Qdrant collection. Same window +
-            // same non-fatal policy as phase 2c — reuses the content-RAG flag
+            // same non-fatal policy as phase 2c -- reuses the content-RAG flag
             // (both are "build a persistent RAG index at init" toggles; a
             // dedicated cvRag flag isn't worth a second env key yet). CV
             // generation degrades to prompt-only (no reference grounding) when
@@ -251,7 +251,7 @@ export class InitService implements OnModuleInit {
                         })
                 }
             }
-            // success → record the snapshot in the manifest + prune the oldest
+            // success -> record the snapshot in the manifest + prune the oldest
             if (result) {
                 await this.dataGitBootstrapService.commitSnapshot(result)
                 committed = true
@@ -262,7 +262,7 @@ export class InitService implements OnModuleInit {
             if (snapshotRoot) {
                 clearRuntimeContextRoot()
             }
-            // a failed seed → discard the new snapshot so the previous stays baseline
+            // a failed seed -> discard the new snapshot so the previous stays baseline
             if (result && !committed) {
                 await this.dataGitBootstrapService.rollbackSnapshot(result)
             }
@@ -334,7 +334,7 @@ export class InitService implements OnModuleInit {
         result: EnsureDataGitResult | null,
         stagingRoot: string | null,
     ): Promise<SeedConfig> {
-        // first pull / pull failure / untrustable diff → full reseed (never under-seed)
+        // first pull / pull failure / untrustable diff -> full reseed (never under-seed)
         const fullReseed = !result
             || result.previousSha === ""
             || !result.diffAvailable
@@ -362,7 +362,7 @@ export class InitService implements OnModuleInit {
         result: EnsureDataGitResult,
         coursesDir: string,
     ): Promise<SeedConfig> {
-        // turn the raw changed paths into a structured, scopable diff — the
+        // turn the raw changed paths into a structured, scopable diff -- the
         // snapshot diff already yields paths relative to the content root, so the
         // subdir prefix is stripped (pass empty), unlike the GitHub-compare format
         const diff = parseDataGitDiff(result.changedPaths,
@@ -373,7 +373,7 @@ export class InitService implements OnModuleInit {
             moduleCount,
             domainCount,
         } = this.seedDiffOverlayService.buildDiffConfig(diff)
-        // an unscopable diff (unknown paths) → seed every course fully instead
+        // an unscopable diff (unknown paths) -> seed every course fully instead
         if (!overlay) {
             const courseDisplayIds = await this.listCourseDisplayIds(coursesDir)
             this.logScoped(true,
@@ -407,7 +407,7 @@ export class InitService implements OnModuleInit {
                     return match ? match[1] : name
                 })
         } catch {
-            // courses root missing (e.g. nothing pulled yet) → no courses to seed
+            // courses root missing (e.g. nothing pulled yet) -> no courses to seed
             return []
         }
     }

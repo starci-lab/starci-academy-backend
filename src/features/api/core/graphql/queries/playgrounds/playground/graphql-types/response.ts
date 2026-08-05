@@ -17,7 +17,7 @@ import {
  * Response wrapper for the playground query.
  *
  * `PlaygroundEntity.steps` only carries `@Field`-decorated columns to
- * GraphQL — the verify secrets (`verifyResourceKind` /
+ * GraphQL -- the verify secrets (`verifyResourceKind` /
  * `verifyResourceNamePattern` / `verifyExpectedStatus`) are plain `@Column`s
  * with no `@Field`, so they never reach the client.
  */

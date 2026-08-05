@@ -39,7 +39,7 @@ import type {
  * registry.
  *
  * Backed by Node's built-in `node:sqlite` (no native dependency). The store is
- * what makes the "build locally, sync to cloud, re-sync later" flow possible —
+ * what makes the "build locally, sync to cloud, re-sync later" flow possible --
  * every produced artifact is registered with its local path and (optionally) a
  * target, so it can be listed and pushed again without recomputing.
  */
@@ -55,7 +55,7 @@ export class ToolsStoreService implements OnModuleInit {
      */
     onModuleInit(): void {
         const path = envConfig().tools.dbPath
-        // the db lives under the snapshot root — ensure the folder exists first
+        // the db lives under the snapshot root -- ensure the folder exists first
         mkdirSync(dirname(path),
             {
                 recursive: true,
@@ -89,11 +89,11 @@ export class ToolsStoreService implements OnModuleInit {
             );
         `)
         // migrate older DBs that predate multi-target support (single target_id
-        // column) — add the JSON array column; ignore if it already exists
+        // column) -- add the JSON array column; ignore if it already exists
         try {
             this.db.exec("ALTER TABLE artifacts ADD COLUMN target_ids TEXT")
         } catch {
-            // column already present — nothing to do
+            // column already present -- nothing to do
         }
         this.winstonService.log(WinstonLog.ToolsOperationCompleted,
             {
@@ -127,7 +127,7 @@ export class ToolsStoreService implements OnModuleInit {
                 row.accessKeyId,
                 row.secretAccessKey,
                 row.bucket,
-                // sqlite has no boolean — store path-style flag as 0/1
+                // sqlite has no boolean -- store path-style flag as 0/1
                 row.forcePathStyle ? 1 : 0,
                 row.createdAt,
             )
@@ -142,7 +142,7 @@ export class ToolsStoreService implements OnModuleInit {
         const rows = this.db
             .prepare("SELECT * FROM s3_targets ORDER BY created_at DESC")
             .all() as Array<Record<string, unknown>>
-        // never leak the secret to the dashboard listing — omit it explicitly
+        // never leak the secret to the dashboard listing -- omit it explicitly
         return rows.map((r) => {
             const target = this.mapTarget(r)
             return {
@@ -340,7 +340,7 @@ export class ToolsStoreService implements OnModuleInit {
             label: (row.label as string | null) ?? null,
             localPath: row.local_path as string,
             keyPrefix: (row.key_prefix as string | null) ?? null,
-            // target_ids is a JSON array; tolerate null/legacy/malformed → []
+            // target_ids is a JSON array; tolerate null/legacy/malformed -> []
             targetIds: this.parseTargetIds(row.target_ids as string | null),
             status: row.status as ArtifactRow["status"],
             bytes: row.bytes != null ? Number(row.bytes) : null,

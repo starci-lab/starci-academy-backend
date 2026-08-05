@@ -21,7 +21,7 @@ import {
 /**
  * Primes the parent-index cache for a milestone so global-search hits can build a deep-link URL.
  *
- * A milestone has no standalone page — a search hit lands on the personal-project page of its
+ * A milestone has no standalone page -- a search hit lands on the personal-project page of its
  * first task. The cached ref therefore carries the owning course (for the URL slug) plus the
  * milestone's first task (lowest sort order), when it has any.
  */

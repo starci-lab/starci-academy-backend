@@ -23,7 +23,7 @@ import {
 })
 /**
  * Registers avatar presign mint (resolver + service + handler) separately
- * from verify — a client must not be able to confirm an upload it never
+ * from verify -- a client must not be able to confirm an upload it never
  * received a URL for via one combined leaf.
  */
 export class GenerateAvatarPresignUrlSingleMutationModule extends ConfigurableModuleClass {}

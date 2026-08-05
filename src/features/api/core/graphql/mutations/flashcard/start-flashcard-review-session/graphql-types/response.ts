@@ -27,7 +27,7 @@ export class StartFlashcardReviewSessionData {
 })
 /**
  * Envelope for a newly opened per-deck review session. `data` is nullable so
- * the transform interceptor can null it on the error path — a required field
+ * the transform interceptor can null it on the error path -- a required field
  * would crash GraphQL and hide the real exception.
  */
 export class StartFlashcardReviewSessionResponse

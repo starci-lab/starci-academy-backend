@@ -37,7 +37,7 @@ export class ModuleSuggestionsService {
     async execute(
         params: ExecuteParams<SuggestionsRequest>,
     ): Promise<SuggestionsPayload> {
-        // hand off to the CQRS bus → ModuleSuggestionsHandler resolves it
+        // hand off to the CQRS bus -> ModuleSuggestionsHandler resolves it
         return this.queryBus.execute(
             new ModuleSuggestionsQuery(params),
         )

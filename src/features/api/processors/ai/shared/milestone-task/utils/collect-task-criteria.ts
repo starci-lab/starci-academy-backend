@@ -12,10 +12,10 @@ import {
 } from "../../challenge-submission"
 
 /**
- * Collect the grading criteria for a SCHEMA V2 milestone task — mirrors the Challenge V2
+ * Collect the grading criteria for a SCHEMA V2 milestone task -- mirrors the Challenge V2
  * `collectSubmissionCriteria` (criterion-first, resolved to the learner's chosen language), but each
- * milestone criterion carries its OWN explicit `score` (outcome 10 / approach 40·15·15) instead of a
- * split bucket weight. Outcome prose is agnostic (a single `agnostic` lang row → `pickLangBody`
+ * milestone criterion carries its OWN explicit `score` (outcome 10 / approach 40-15-15) instead of a
+ * split bucket weight. Outcome prose is agnostic (a single `agnostic` lang row -> `pickLangBody`
  * fallback); approach prose is per-language.
  *
  * @param task - The milestone task with `outcomeCriteria.langs` + `approachCriteria.langs` loaded.

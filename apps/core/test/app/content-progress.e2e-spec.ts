@@ -87,18 +87,18 @@ const POSTGRESQL_PRIMARY = "primary"
 const LESSON_READ_XP = 3
 
 /**
- * e2e for the two "content complete" progress mutations — `markContentAsReaded`
- * and `toggleFavourite` — over REAL HTTP + REAL Postgres (Testcontainers), not
+ * e2e for the two "content complete" progress mutations -- `markContentAsReaded`
+ * and `toggleFavourite` -- over REAL HTTP + REAL Postgres (Testcontainers), not
  * the mocked-DB unit level (see `mark-as-readed.handler.spec.ts` /
  * `toggle-favourite.handler.spec.ts`).
  *
  * Business rules under test (`MarkAsReadedHandler` / `ToggleFavouriteHandler`):
  *  - A deliberate mark-as-read (`silent: false`) credits `LESSON_READ_XP` XP +
  *    `FLAT_POINTS.lessonRead` Coin exactly once, keyed by the `(source, refId)`
- *    unique constraint on `xp_histories` — re-marking already-read content never
+ *    unique constraint on `xp_histories` -- re-marking already-read content never
  *    double-credits.
  *  - `silent: true` (the auto-mark-on-scroll path) updates the read flag but
- *    grants NOTHING — no XP row, no activity row — so passive scrolling never
+ *    grants NOTHING -- no XP row, no activity row -- so passive scrolling never
  *    spends the one-time reward; a later deliberate claim on the same content
  *    still grants once.
  *  - `toggleFavourite` records a `LessonBookmarked` activity only when turning
@@ -107,17 +107,17 @@ const LESSON_READ_XP = 3
  *    duplicates the feed entry.
  *
  * MOCKED (no external infra available in this harness):
- *  - `ReactionService` — real class talks to the view-count cache/projection
+ *  - `ReactionService` -- real class talks to the view-count cache/projection
  *    graph unrelated to this spec's assertions; stubbed to a no-op.
- *  - `CacheService` — always misses, so `UserService` hits real Postgres.
- *  - `KeycloakAuthGraphQLGuard` — overridden to stamp `request.user` with
+ *  - `CacheService` -- always misses, so `UserService` hits real Postgres.
+ *  - `KeycloakAuthGraphQLGuard` -- overridden to stamp `request.user` with
  *    whichever fake user the test "logs in" as (no Keycloak server here).
  *
  * REAL: Postgres (Testcontainers), `MarkAsReadedHandler` / `ToggleFavouriteHandler`
  * (the mutations under test), `UserService` (`resolveOrCreateTrialEnrollment`
  * runs real SQL), `ProgressProjectionService`, `GraphQLEnrollmentGuard`, and the
  * plain `writeXpHistory` / `writeActivity` functions (operate directly on the
- * real `EntityManager`, no DI needed) — so the XP ledger + Coin credit + home-feed
+ * real `EntityManager`, no DI needed) -- so the XP ledger + Coin credit + home-feed
  * activity are asserted as real committed rows, not mocked calls.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -142,7 +142,7 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
             },
         }
 
-        /** Fixture ids shared by every test (seeded once — read-only material). */
+        /** Fixture ids shared by every test (seeded once -- read-only material). */
         let course: CourseEntity
         let content: ContentEntity
 
@@ -208,11 +208,11 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                     ToggleFavouriteResolver,
                     ToggleFavouriteService,
                     ToggleFavouriteHandler,
-                    // REAL — resolveOrCreateTrialEnrollment runs real SQL
+                    // REAL -- resolveOrCreateTrialEnrollment runs real SQL
                     UserService,
-                    // REAL — only entityManager dep, recomputes the progress row
+                    // REAL -- only entityManager dep, recomputes the progress row
                     ProgressProjectionService,
-                    // REAL — the permissive enrollment-context guard mark-as-readed uses
+                    // REAL -- the permissive enrollment-context guard mark-as-readed uses
                     GraphQLEnrollmentGuard,
                     {
                         provide: ReactionService,
@@ -222,7 +222,7 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                         provide: CacheService,
                         useValue: cacheServiceMock,
                     },
-                    // guard deps — let Nest construct the real guard at compile
+                    // guard deps -- let Nest construct the real guard at compile
                     // time; `.overrideGuard` swaps its runtime behaviour below
                     {
                         provide: KeycloakJwksService,
@@ -252,7 +252,7 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
 
-            // seed the read-only course/content fixtures ONCE — only users/
+            // seed the read-only course/content fixtures ONCE -- only users/
             // enrollments/user_contents/xp_histories/activities are reset between
             // tests (see afterEach)
             course = await entityManager.save(
@@ -435,7 +435,7 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                 expect(untouchedUser.coinBalance).toBe(0)
 
                 // the learner then deliberately claims the reward on the page the
-                // auto-mark already silently marked read — must still grant once
+                // auto-mark already silently marked read -- must still grant once
                 const claim = await gql(MARK_AS_READED_MUTATION,
                     {
                         contentId: content.id,
@@ -502,7 +502,7 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                         },
                     })
                 expect(unfavourited.isFavorite).toBe(false)
-                // unfavouriting never writes an activity row — still exactly 1
+                // unfavouriting never writes an activity row -- still exactly 1
                 expect(await entityManager.count(ActivityEntity,
                     {
                         where: {
@@ -530,7 +530,7 @@ describe("Content progress mutations — markContentAsReaded / toggleFavourite (
                     })
                 expect(refavourited.isFavorite).toBe(true)
                 // idempotencyKey = the SAME UserContentEntity row id across every
-                // toggle — re-favouriting never duplicates the feed entry
+                // toggle -- re-favouriting never duplicates the feed entry
                 expect(await entityManager.count(ActivityEntity,
                     {
                         where: {

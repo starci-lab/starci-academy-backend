@@ -28,7 +28,7 @@ export const createKafkaProvider = (): Provider => ({
     useFactory: (): Kafka => {
         // pull the broker endpoints from env (defaults to the local KRaft broker)
         const { brokers } = envConfig().kafka
-        // one client per process → KafkaJS pools sockets across all consumers
+        // one client per process -> KafkaJS pools sockets across all consumers
         return new Kafka({
             clientId: "starci-academy",
             brokers,

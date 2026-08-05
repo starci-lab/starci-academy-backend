@@ -10,15 +10,15 @@ import {
  */
 export enum PersonalProjectTaskType {
     /**
-     * Design tasks — DB schema, ERD, infra architecture, system design.
+     * Design tasks -- DB schema, ERD, infra architecture, system design.
      */
     Design = "design",
     /**
-     * Technology integration tasks — email, SMS, Socket.IO, Redis, Docker, K8s, etc.
+     * Technology integration tasks -- email, SMS, Socket.IO, Redis, Docker, K8s, etc.
      */
     TechIntegrate = "techIntegrate",
     /**
-     * Business logic tasks — CRUD, domain rules, search, reporting.
+     * Business logic tasks -- CRUD, domain rules, search, reporting.
      */
     Business = "business",
 }

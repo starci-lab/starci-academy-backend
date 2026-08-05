@@ -47,7 +47,7 @@ const MAX_LIMIT = 20
 
 @Resolver()
 /**
- * `searchUsers` query — free-text search over the non-localized `users`
+ * `searchUsers` query -- free-text search over the non-localized `users`
  * Elasticsearch index (kept in sync by `es-sync`). Matches the keyword against
  * the handle (prefix, for type-ahead), the display name and the bio (both fuzzy,
  * for typo tolerance), most-relevant first. Auth-only; returns the header fields
@@ -92,7 +92,7 @@ export class SearchUsersResolver {
                 1),
             MAX_LIMIT,
         )
-        // resolve the concrete index name ("users" — non-localized, no suffix)
+        // resolve the concrete index name ("users" -- non-localized, no suffix)
         const index = this.elasticsearchService.indicateName({
             entity: UserEntity.name,
         })
@@ -101,7 +101,7 @@ export class SearchUsersResolver {
         const esQuery: estypes.QueryDslQueryContainer = {
             bool: {
                 should: [
-                    // exact-ish prefix on the handle → fast type-ahead matches
+                    // exact-ish prefix on the handle -> fast type-ahead matches
                     {
                         match_phrase_prefix: {
                             username: {
@@ -110,7 +110,7 @@ export class SearchUsersResolver {
                             },
                         },
                     },
-                    // fuzzy handle match → tolerate a typo in the @handle
+                    // fuzzy handle match -> tolerate a typo in the @handle
                     {
                         match: {
                             username: {
@@ -132,7 +132,7 @@ export class SearchUsersResolver {
                             },
                         },
                     },
-                    // fuzzy bio match → lowest weight, broadens recall
+                    // fuzzy bio match -> lowest weight, broadens recall
                     {
                         match: {
                             bio: {
@@ -161,9 +161,9 @@ export class SearchUsersResolver {
                 "points",
             ],
         })
-        // map each hit to the card shape; the doc id → opaque global id for routing
+        // map each hit to the card shape; the doc id -> opaque global id for routing
         return response.hits.hits.map((hit) => {
-            // the indexed `_source` (typed loosely — fields may be partial)
+            // the indexed `_source` (typed loosely -- fields may be partial)
             const source = hit._source as UserSearchHitSource | undefined
             // prefer the source id, fall back to the ES `_id`
             const id = source?.id ?? hit._id ?? ""

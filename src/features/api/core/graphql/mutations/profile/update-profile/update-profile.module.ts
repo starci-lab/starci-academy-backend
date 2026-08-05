@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Registers the profile-fields write (display name, bio, …) so avatar
+ * Registers the profile-fields write (display name, bio, ...) so avatar
  * presign / verify stay on their own leaves.
  */
 export class UpdateProfileSingleMutationModule extends ConfigurableModuleClass {}

@@ -126,7 +126,7 @@ export class EncryptionService {
             ])
             return decryptedBuffer.toString("utf8")
         } catch (error) {
-            // preserve the real crypto error via originalError — the previous
+            // preserve the real crypto error via originalError -- the previous
             // console.error + generic re-throw discarded it, hurting debuggability
             throw new DecryptionFailedException({
                 originalError: error instanceof Error ? error : new Error(String(error)),

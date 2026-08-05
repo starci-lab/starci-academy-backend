@@ -37,7 +37,7 @@ import {
 /**
  * Append-only audit ledger of XP a user earned. One row per earning event
  * (passed challenge attempt, first lesson read, passed milestone task). The
- * per-course leaderboard still COMPUTES rank on the fly — this ledger is the
+ * per-course leaderboard still COMPUTES rank on the fly -- this ledger is the
  * queryable history shown to the user, not the source of truth for ranking.
  *
  * `(source, refId)` is unique so the same event can never be double-recorded

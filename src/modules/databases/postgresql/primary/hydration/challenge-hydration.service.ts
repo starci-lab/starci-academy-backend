@@ -55,7 +55,7 @@ export class ChallengeHydrationService {
             outputs,
             prerequisites,
         ] = await Promise.all([
-            // SCHEMA V2 items — per-programming-language langs (+ lang translations)
+            // SCHEMA V2 items -- per-programming-language langs (+ lang translations)
             this.entityManager.find(
                 ChallengeRequirementEntity,
                 {

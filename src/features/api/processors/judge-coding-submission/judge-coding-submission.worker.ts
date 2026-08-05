@@ -61,8 +61,8 @@ import type {
     },
 )
 /**
- * Worker: coding submission → build Judge0 batch (source × testcases) → judge →
- * aggregate verdict → update `coding_submissions`. On completion the
+ * Worker: coding submission -> build Judge0 batch (source x testcases) -> judge ->
+ * aggregate verdict -> update `coding_submissions`. On completion the
  * `JobActionService.completeJob` event pushes the status to the client over the
  * `job_notifications` Socket.IO namespace.
  */
@@ -118,7 +118,7 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                     },
                 },
             ) ?? undefined
-            // missing submission → typed failure (job will be marked failed by the outer catch)
+            // missing submission -> typed failure (job will be marked failed by the outer catch)
             if (!submission) {
                 throw new CodingSubmissionNotFoundException({
                     codingSubmissionId: payload.codingSubmissionId,
@@ -133,7 +133,7 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                     },
                 },
             )
-            // missing problem → typed failure
+            // missing problem -> typed failure
             if (!problem) {
                 throw new CodingProblemNotFoundException({
                     identifier: submission.codingProblemId,
@@ -183,7 +183,7 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                 // execute the step registered at the current index
                 await stepMap.get(syncedJob.currentStep)?.process(context)
             }
-            // mark the job complete → emits Socket.IO status to the client
+            // mark the job complete -> emits Socket.IO status to the client
             await this.jobActionService.completeJob({
                 job,
             })
@@ -200,7 +200,7 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
         } catch (error) {
             // Persist the terminal verdict BEFORE emitting the failed status, so the
             // client (which refetches the submission when it sees a terminal job
-            // status over Socket.IO) always reads the final verdict — never a stale
+            // status over Socket.IO) always reads the final verdict -- never a stale
             // "pending". A judging wall-clock timeout (>10s) is reported as Time
             // Limit Exceeded ("cook"); any other infra failure is an Internal Error.
             if (submission && submission.verdict === CodingVerdict.Pending) {
@@ -210,7 +210,7 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                 await this.entityManager.save(CodingSubmissionEntity,
                     submission)
                 // this IS a genuine terminal, user-facing result (the judge step never
-                // ran far enough to send its own notification) — tell the solver their
+                // ran far enough to send its own notification) -- tell the solver their
                 // submission errored out. Best-effort: must never fail the outer catch.
                 try {
                     const problem = await this.entityManager.findOne(
@@ -257,7 +257,7 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                     )
                 }
             }
-            // now mark the job failed → emits the failed Socket.IO status update
+            // now mark the job failed -> emits the failed Socket.IO status update
             if (job) {
                 await this.jobActionService.failJob({
                     job,

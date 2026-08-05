@@ -102,7 +102,7 @@ export class ContentHydrationService {
                     },
                 },
             ),
-            // SCHEMA V2 per-language lesson bodies — locale variants live in the translation relation
+            // SCHEMA V2 per-language lesson bodies -- locale variants live in the translation relation
             this.entityManager.find(
                 ContentBodyEntity,
                 {

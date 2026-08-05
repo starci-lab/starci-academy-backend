@@ -1,6 +1,6 @@
 /** Socket.IO event names. */
 export enum SocketIoEvent {
-    /** Server greeting after handshake — client knows the socket is live. */
+    /** Server greeting after handshake -- client knows the socket is live. */
     HelloWorldFromBE = "hello_world_from_be",
     // Autocomplete (client -> server)
     /** Client asks for typeahead suggestions; server replies on AutocompleteResult. */

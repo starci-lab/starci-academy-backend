@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `question_reviews` to `mock_interview_attempts` — a jsonb snapshot of
+ * Adds `question_reviews` to `mock_interview_attempts` -- a jsonb snapshot of
  * the per-question model-answer review built at grade time for a
  * `mode="qna"` session (the anti-ChatGPT "moat" feature: pairs the
  * candidate's own answer against the course's authored flashcard-seed answer

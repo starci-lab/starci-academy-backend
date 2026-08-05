@@ -71,12 +71,12 @@ import {
     enqueueSubmissionResultEmail,
 } from "@modules/transactional-email"
 
-/** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
+/** Postgres unique-violation SQLSTATE -- a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
 
 @Injectable()
 /**
- * Step 1: finalize — load grade result, then ATOMICALLY persist the attempt + feedbacks,
+ * Step 1: finalize -- load grade result, then ATOMICALLY persist the attempt + feedbacks,
  * the credit charge, the XP/points grant, and the job step advance in ONE transaction.
  *
  * The attempt carries `idempotencyKey = job.id` (one attempt per grading job): a retried or
@@ -146,7 +146,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             await this.entityManager.transaction(
                 async (entityManager) => {
                     // idempotency: one attempt per grading job. If it already exists, a prior
-                    // (atomic) run committed the attempt AND the step advance together — nothing
+                    // (atomic) run committed the attempt AND the step advance together -- nothing
                     // left to do here.
                     const existing = await entityManager.findOne(
                         UserChallengeSubmissionAttemptEntity,
@@ -221,7 +221,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                     createdNewAttempt = true
                     /** Resolve who is being charged (the credit debit + history row are
                      * written by the after-commit fallback below, via the SAME
-                     * `AiEntitlementService.consume` every other grading surface uses —
+                     * `AiEntitlementService.consume` every other grading surface uses --
                      * see the V2 grade-step, which is the common path and already
                      * charged before this step ran). */
                     chargedUserId = await this.resolveChargedUserId(
@@ -237,7 +237,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                                     id: payload.enrollmentId,
                                 },
                                 // NOTE: `userId`/`courseId` are @RelationId virtual props
-                                // (not real columns) — they CANNOT appear in `select`.
+                                // (not real columns) -- they CANNOT appear in `select`.
                                 // Load the full row so @RelationId populates them.
                             },
                         )
@@ -248,7 +248,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                                 courseId: enrollment.courseId,
                                 source: XpSource.Challenge,
                                 amount: grade.evaluation.score,
-                                // flat reward (20), NOT the raw score — mirrors the
+                                // flat reward (20), NOT the raw score -- mirrors the
                                 // Google-Docs path; the score only drives XP `amount`
                                 points: FLAT_POINTS.challengePassed,
                                 refId: attempt.id,
@@ -313,12 +313,12 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                 }
             )
         } catch (error) {
-            // a concurrent duplicate lost the unique race → already graded; treat as idempotent.
+            // a concurrent duplicate lost the unique race -> already graded; treat as idempotent.
             if (error instanceof QueryFailedError
                 && (error.driverError as { code?: string } | undefined)?.code === PG_UNIQUE_VIOLATION) {
                 return
             }
-            // a newer worker fenced this one out — its tx rolled back; the new owner finishes the job.
+            // a newer worker fenced this one out -- its tx rolled back; the new owner finishes the job.
             if (error instanceof JobFencedOutException) {
                 return
             }
@@ -370,7 +370,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         // Drop the cached challenge-progress projection for this enrollment NOW so the next
         // read recomputes the fresh aggregate (lastScore/status). The projection cache lives
         // ~5m; relying only on the NATS-delivered ChallengeSubmissionProgressUpdated event to
-        // warm it leaves "Kết quả của bạn" showing the stale pre-grade score (e.g. 0/100) for
+        // warm it leaves "your result" showing the stale pre-grade score (e.g. 0/100) for
         // up to that TTL when the event isn't delivered. The cache is shared Redis, so this
         // invalidation from the worker is globally effective regardless of the event.
         await this.challengeProgressService.invalidateProgress(payload.enrollmentId)
@@ -381,7 +381,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             },
         })
 
-        // Notify the learner of their graded result — only on the run that
+        // Notify the learner of their graded result -- only on the run that
         // actually created the attempt (idempotent: retries/duplicates skip it).
         // Best-effort: the helper never throws, so a mail failure can't fail the
         // already-committed grading job.
@@ -395,7 +395,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                 webBaseUrl: envConfig().web.baseUrl,
                 locale: payload.locale,
             })
-            // Best-effort in-app notification — a failure here can never fail the
+            // Best-effort in-app notification -- a failure here can never fail the
             // already-committed grading job (mirrors the email best-effort above).
             try {
                 const userChallengeSubmission = await this.entityManager.findOne(
@@ -452,10 +452,10 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
     }
 
     /**
-     * Resolve who is being charged from the user challenge submission — the
+     * Resolve who is being charged from the user challenge submission -- the
      * actual debit + history row are written by {@link AiEntitlementService.consume}
      * (either at grade-step time, the common V2 path, or by this step's own
-     * after-commit fallback for the legacy V1 path — see {@link process}).
+     * after-commit fallback for the legacy V1 path -- see {@link process}).
      * @param entityManager - Transaction manager.
      * @param payload - Job payload carrying the submission id.
      * @returns The id of the user to charge.
@@ -473,7 +473,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             },
         )
         // user_id is nullable after the enrollment-centric migration; an AI-graded
-        // submission always has an owner — guard so the credit-usage write stays typed.
+        // submission always has an owner -- guard so the credit-usage write stays typed.
         const submissionUserId = userChallengeSubmission.userId
         if (!submissionUserId) {
             throw new SubmissionOwnerMissingException({

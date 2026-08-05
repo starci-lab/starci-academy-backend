@@ -56,7 +56,7 @@ import type {
 @Resolver()
 /**
  * Submit a job posting through the public form. Every row created here is
- * `source = Submitted` and goes live immediately — there is no
+ * `source = Submitted` and goes live immediately -- there is no
  * approve/reject workflow for v1 (mirrors `pinExternalProject`).
  *
  * Auth is required only so the submission can be attributed to a user
@@ -105,7 +105,7 @@ export class SubmitJobPostingResolver {
             newCompany,
         } = request
 
-        // enforce "exactly one of companyId / newCompany" — a cross-field
+        // enforce "exactly one of companyId / newCompany" -- a cross-field
         // invariant `class-validator` field decorators cannot express
         this.validateCompanySelection({
             companyId,
@@ -113,7 +113,7 @@ export class SubmitJobPostingResolver {
         })
 
         // enforce "applyUrl required for ExternalUrl, applyEmail required for
-        // Email" — same reason, cross-field
+        // Email" -- same reason, cross-field
         this.validateApplyMethod({
             applyMethod,
             applyUrl,
@@ -183,13 +183,13 @@ export class SubmitJobPostingResolver {
             newCompany,
         }: ValidateCompanySelectionParams,
     ): void {
-        // neither provided → we don't know who the employer is
+        // neither provided -> we don't know who the employer is
         if (!companyId && !newCompany) {
             throw new JobPostingInvalidRequestException({
                 reason: JobPostingInvalidRequestReason.MissingCompany,
             })
         }
-        // both provided → ambiguous, the caller must pick one path
+        // both provided -> ambiguous, the caller must pick one path
         if (companyId && newCompany) {
             throw new JobPostingInvalidRequestException({
                 reason: JobPostingInvalidRequestReason.AmbiguousCompany,
@@ -306,7 +306,7 @@ export class SubmitJobPostingResolver {
         // falls back to a generic base so we always have something to suffix
         const base = slugify(title) || "listing"
 
-        // first try the bare slug — the common case, no collision
+        // first try the bare slug -- the common case, no collision
         const existing = await entityManager.findOneBy(
             entity,
             {
@@ -317,7 +317,7 @@ export class SubmitJobPostingResolver {
             return base
         }
 
-        // collided (rare) — append a short random hex suffix, retrying a
+        // collided (rare) -- append a short random hex suffix, retrying a
         // bounded number of times rather than looping forever
         for (let attempt = 0; attempt < MAX_SLUG_ATTEMPTS; attempt++) {
             const suffix = Math.random()

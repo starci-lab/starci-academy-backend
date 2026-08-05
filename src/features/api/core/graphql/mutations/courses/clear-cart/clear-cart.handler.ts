@@ -59,7 +59,7 @@ export class ClearCartHandler
             user,
         } = command.params
 
-        // reject unauthenticated callers — a cart only exists in the context of a user
+        // reject unauthenticated callers -- a cart only exists in the context of a user
         if (!user) {
             throw new UserNotFoundException({
             })
@@ -75,7 +75,7 @@ export class ClearCartHandler
             },
         )
 
-        // `affected` is the number of rows deleted — default to 0 when the driver
+        // `affected` is the number of rows deleted -- default to 0 when the driver
         // reports null (empty cart), so the count is always a concrete number
         const removedCount = result.affected ?? 0
 

@@ -17,7 +17,7 @@ export interface GitRepositoryNotFoundExceptionMetadata extends AbstractExceptio
 }
 
 /**
- * Thrown when the git-submission review's repo loader receives a 404 —
+ * Thrown when the git-submission review's repo loader receives a 404 --
  * the repository does not exist, is private without a token that can see it,
  * or the branch name is wrong.
  */

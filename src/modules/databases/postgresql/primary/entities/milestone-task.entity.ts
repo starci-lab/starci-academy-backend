@@ -57,7 +57,7 @@ import {
 export class MilestoneTaskEntity extends UuidAbstractEntity {
     /**
      * Human-facing stable identifier = the task mount folder slug (the numeric index
-     * prefix is stripped, e.g. folder `0-clean-architecture-and-health` →
+     * prefix is stripped, e.g. folder `0-clean-architecture-and-health` ->
      * `clean-architecture-and-health`). Used as the secondary CDN object key alongside the id.
      */
     @Field(
@@ -156,7 +156,7 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         sortIndex: number
 
     /**
-     * Priority weight — lower values are higher priority.
+     * Priority weight -- lower values are higher priority.
      */
     @Field(
         () => Int,
@@ -207,9 +207,9 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
 
     /**
      * Relative difficulty of this capstone task (easy / medium / hard / insane).
-     * Drives the Auto grading lane's complexity routing — harder tasks pick a
+     * Drives the Auto grading lane's complexity routing -- harder tasks pick a
      * stronger model category within the user's entitlement. Nullable when unset
-     * (sourced from the `# difficulty` markdown heading); null → routed as medium.
+     * (sourced from the `# difficulty` markdown heading); null -> routed as medium.
      */
     @Field(
         () => GraphQLTypeChallengeDifficulty,
@@ -371,7 +371,7 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         briefs: Array<MilestoneTaskBriefEntity>
 
     /**
-     * SCHEMA V2 outcome grading criteria (observable yes/no items). INTERNAL grading rubric —
+     * SCHEMA V2 outcome grading criteria (observable yes/no items). INTERNAL grading rubric --
      * deliberately NOT a `@Field`, so it is never exposed through GraphQL to the learner.
      */
     @OneToMany(
@@ -384,7 +384,7 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         outcomeCriteria: Array<MilestoneTaskOutcomeCriteriaEntity>
 
     /**
-     * SCHEMA V2 approach grading criteria (per-language yes/no items). INTERNAL grading rubric —
+     * SCHEMA V2 approach grading criteria (per-language yes/no items). INTERNAL grading rubric --
      * NOT a `@Field`.
      */
     @OneToMany(
@@ -399,7 +399,7 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
     /**
      * The content-AI conversation the learner last used on this task's surface,
      * so the FE can resume the remembered chat instead of starting a fresh one.
-     * Nullable — set once a `content-ai session` (scope = `task`) exists for this
+     * Nullable -- set once a `content-ai session` (scope = `task`) exists for this
      * task; never set at seed time.
      */
     @Field(

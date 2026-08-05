@@ -52,7 +52,7 @@ import type {
     RetrieveRagPlaygroundContextResult,
 } from "./types/public-rag-playground"
 
-/** Split size for pasted/uploaded/GitHub code — smaller than lesson chunks (1000) since a code excerpt makes a tighter citation. */
+/** Split size for pasted/uploaded/GitHub code -- smaller than lesson chunks (1000) since a code excerpt makes a tighter citation. */
 const CHUNK_SIZE = 800
 
 /** Overlap between adjacent chunks. */
@@ -71,7 +71,7 @@ const DEFAULT_TOP_K = 5
 const SNIPPET_DISPLAY_CHARS = 400
 
 /**
- * The RAG Playground's built-in, curated sample catalog — small, self-contained,
+ * The RAG Playground's built-in, curated sample catalog -- small, self-contained,
  * realistic code so a visitor can try the demo with zero typing. Only `id` +
  * `label` are ever sent to the client (see {@link PublicRagPlaygroundService.listSamples});
  * `code` stays server-side and is only revealed by indexing it.
@@ -221,10 +221,10 @@ volumes:
  * model, $0) + index into a per-session ephemeral Qdrant collection
  * (`playground-${sessionId}`), then retrieve grounded context for a question.
  *
- * Ephemeral by design: no user/enrollment scoping (there is none — the
+ * Ephemeral by design: no user/enrollment scoping (there is none -- the
  * visitor is anonymous). {@link RagPlaygroundSessionEntity} tracks JUST the
  * collection's lifecycle (source label, chunk count, last-accessed) so the
- * cleanup cron can drop idle sessions — no Q&A content is persisted anywhere.
+ * cleanup cron can drop idle sessions -- no Q&A content is persisted anywhere.
  */
 export class PublicRagPlaygroundService {
     constructor(
@@ -268,7 +268,7 @@ export class PublicRagPlaygroundService {
             MAX_CHUNKS)
         if (chunks.length === 0) {
             throw new RagPlaygroundImportException({
-                reason: "Không có nội dung để index",
+                reason: "Không có nội dung để index", // vn-ok: user-facing import error reason
             })
         }
 
@@ -314,7 +314,7 @@ export class PublicRagPlaygroundService {
      * Retrieve the chunks most relevant to a question from a session's indexed
      * source, and bump the session's `lastAccessedAt` (keeps it alive for the
      * idle-cleanup cron). Degrades to an EMPTY result (never throws) when the
-     * Qdrant collection itself is unreachable/missing — the caller still
+     * Qdrant collection itself is unreachable/missing -- the caller still
      * answers, just without grounding, rather than blackholing the ask.
      *
      * @param params - Session id, the visitor's question, and an optional top-k.
@@ -342,7 +342,7 @@ export class PublicRagPlaygroundService {
             })
         }
 
-        // best-effort — a stale/dropped collection must not blackhole the ask
+        // best-effort -- a stale/dropped collection must not blackhole the ask
         try {
             const embeddingModel = await this.embeddingModelService.getViaBalancer()
             const vectorStore = await QdrantVectorStore.fromExistingCollection(
@@ -382,7 +382,7 @@ export class PublicRagPlaygroundService {
     }
 
     /**
-     * Build the system + human messages for a grounded ask — the retrieved
+     * Build the system + human messages for a grounded ask -- the retrieved
      * chunks are stuffed into the system prompt with file-path citations, and
      * the model is instructed to answer only from them.
      *
@@ -399,12 +399,12 @@ export class PublicRagPlaygroundService {
             ? chunks
                 .map((chunk, index) => `[${index + 1}] ${chunk.filePath ?? "snippet"}\n${chunk.snippet}`)
                 .join("\n\n")
-            : "(không tìm thấy đoạn code liên quan)"
+            : "(không tìm thấy đoạn code liên quan)" // vn-ok: vi-locale RAG prompt fallback
         const system = new SystemMessage(
-            "Bạn là trợ lý kỹ thuật của StarCi Academy, trả lời câu hỏi về đoạn code người dùng cung cấp bên dưới. "
-            + "CHỈ trả lời dựa trên các đoạn trích — nếu câu trả lời không có trong đó, hãy nói rõ là không tìm thấy. "
-            + "Khi liên quan, trích dẫn theo dạng [số] hoặc tên file. Trả lời ngắn gọn, đúng ngôn ngữ của câu hỏi.\n\n"
-            + `Các đoạn code liên quan:\n${context}`,
+            "Bạn là trợ lý kỹ thuật của StarCi Academy, trả lời câu hỏi về đoạn code người dùng cung cấp bên dưới. " // vn-ok: vi-locale RAG system prompt
+            + "CHỈ trả lời dựa trên các đoạn trích — nếu câu trả lời không có trong đó, hãy nói rõ là không tìm thấy. " // vn-ok: vi-locale RAG system prompt
+            + "Khi liên quan, trích dẫn theo dạng [số] hoặc tên file. Trả lời ngắn gọn, đúng ngôn ngữ của câu hỏi.\n\n" // vn-ok: vi-locale RAG system prompt
+            + `Các đoạn code liên quan:\n${context}`, // vn-ok: vi-locale RAG system prompt
         )
         return [
             system,
@@ -413,7 +413,7 @@ export class PublicRagPlaygroundService {
     }
 
     /**
-     * Lists the built-in curated sample catalog for the sample picker — id +
+     * Lists the built-in curated sample catalog for the sample picker -- id +
      * label only, never the code itself (the code stays server-side and is
      * only revealed once a session actually indexes it).
      */
@@ -451,14 +451,14 @@ export class PublicRagPlaygroundService {
                         },
                     } as Document,
                 ],
-                sourceLabel: `Repo mẫu · ${sample.label}`,
+                sourceLabel: `Repo mẫu · ${sample.label}`, // vn-ok: vi-locale source label emitted to clients
                 sampleId: sample.id,
             }
         }
         case RagPlaygroundSourceKind.Github: {
             if (!githubUrl?.trim()) {
                 throw new RagPlaygroundImportException({
-                    reason: "Thiếu link GitHub",
+                    reason: "Thiếu link GitHub", // vn-ok: user-facing import error reason
                 })
             }
             const documents = await this.githubRepoImportService.importRepo(githubUrl)
@@ -474,12 +474,12 @@ export class PublicRagPlaygroundService {
             const trimmed = code?.trim() ?? ""
             if (!trimmed) {
                 throw new RagPlaygroundImportException({
-                    reason: "Chưa có code để index",
+                    reason: "Chưa có code để index", // vn-ok: user-facing import error reason
                 })
             }
             if (trimmed.length > MAX_CODE_CHARS) {
                 throw new RagPlaygroundImportException({
-                    reason: `Code quá lớn cho bản demo (tối đa ${MAX_CODE_CHARS.toLocaleString()} ký tự)`,
+                    reason: `Code quá lớn cho bản demo (tối đa ${MAX_CODE_CHARS.toLocaleString()} ký tự)`, // vn-ok: user-facing import error reason
                 })
             }
             return {
@@ -491,7 +491,7 @@ export class PublicRagPlaygroundService {
                         },
                     } as Document,
                 ],
-                sourceLabel: fileName ?? (language ? `Đoạn code · ${language}` : "Đoạn code đã dán"),
+                sourceLabel: fileName ?? (language ? `Đoạn code · ${language}` : "Đoạn code đã dán"), // vn-ok: vi-locale source label emitted to clients
             }
         }
         }
@@ -554,7 +554,7 @@ export class PublicRagPlaygroundService {
         try {
             await this.qdrantClient.deleteCollection(collectionName)
         } catch {
-            // absent is fine — nothing to clean up
+            // absent is fine -- nothing to clean up
         }
     }
 }

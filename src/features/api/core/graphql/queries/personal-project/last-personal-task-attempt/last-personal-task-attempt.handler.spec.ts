@@ -150,7 +150,7 @@ describe("LastPersonalTaskAttemptHandler",
                             taskId: "task-1",
                             userId: "self",
                         },
-                        // caller reads their own attempt → role check passes
+                        // caller reads their own attempt -> role check passes
                         user: fakeUser("self"),
                     }),
                 )

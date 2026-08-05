@@ -18,7 +18,7 @@ export interface SubmissionOwnerMissingExceptionMetadata extends AbstractExcepti
  * Thrown when a step needs to record AI credit usage for a graded submission,
  * but the submission's `userId` is null. `user_id` became nullable after the
  * enrollment-centric migration, but an AI-graded submission always has an
- * owner — this guards the credit-usage write against silently mis-typing.
+ * owner -- this guards the credit-usage write against silently mis-typing.
  */
 export class SubmissionOwnerMissingException extends AbstractException {
     constructor({

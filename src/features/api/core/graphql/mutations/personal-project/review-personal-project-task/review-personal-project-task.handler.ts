@@ -99,7 +99,7 @@ export class ReviewPersonalProjectTaskHandler
             // A nested-relation `where` (milestone.course) forces TypeORM's `findOne`
             // (which sets `take: 1`) into its DISTINCT-subquery pagination path; paired
             // with a restrictive `select` that omits the ORDER BY column, the generated
-            // subquery references a `sort_index` alias it never selected → Postgres
+            // subquery references a `sort_index` alias it never selected -> Postgres
             // "column does not exist" (QueryFailedError). A QueryBuilder with a raw
             // `.limit(1)` (not `.take(1)`) keeps a plain `... ORDER BY sort_index ASC
             // LIMIT 1` and sidesteps the DISTINCT path entirely.

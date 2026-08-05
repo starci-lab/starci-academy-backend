@@ -33,7 +33,7 @@ import {
 
 @Resolver()
 /**
- * Resolver for the authenticated user's pickable StarCi achievements — the CV
+ * Resolver for the authenticated user's pickable StarCi achievements -- the CV
  * block editor's "pick from StarCi" data source.
  */
 export class MyPickableCvAchievementsResolver {

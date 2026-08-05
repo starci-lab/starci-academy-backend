@@ -24,12 +24,12 @@ import type {
 @Injectable()
 /**
  * CDC consumer that keeps `content_engagement_projections` fresh. Tails the
- * three tables that move a content's engagement — reactions, comments, and
- * read-state (view count) — and recomputes the affected content's projection.
+ * three tables that move a content's engagement -- reactions, comments, and
+ * read-state (view count) -- and recomputes the affected content's projection.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
 export class ContentEngagementProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "content-engagement-projection"
 
     /** Reactions / comments / read-state changes all move content engagement. */
@@ -63,7 +63,7 @@ export class ContentEngagementProjectionListener extends AbstractProjectionListe
     ): Array<string> {
         // narrow the row to the content-scoped shape
         const contentId = (row as ContentScopedCdcRow).content_id
-        // no content id (tombstone / unexpected shape) → nothing to recompute
+        // no content id (tombstone / unexpected shape) -> nothing to recompute
         if (!contentId) {
             return []
         }

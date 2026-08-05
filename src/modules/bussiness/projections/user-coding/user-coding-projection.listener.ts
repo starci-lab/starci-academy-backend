@@ -23,13 +23,13 @@ import type {
 
 @Injectable()
 /**
- * CDC consumer that keeps `user_coding_projections` fresh — a new coding
+ * CDC consumer that keeps `user_coding_projections` fresh -- a new coding
  * submission rebuilds the submitter's coding aggregate (skills + history). The
  * projection's TTL lazy-refresh is the fallback. Connection + per-message safety
  * are owned by {@link AbstractProjectionListener}.
  */
 export class UserCodingProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-coding-projection"
 
     /** Coding-submission changes move the submitter's coding aggregate. */
@@ -52,7 +52,7 @@ export class UserCodingProjectionListener extends AbstractProjectionListener<str
      * empty to skip.
      *
      * @param message - {@link ProjectionCdcMessage}
-     * @returns the affected user id (0–1).
+     * @returns the affected user id (0-1).
      */
     protected deriveTargets(
         {

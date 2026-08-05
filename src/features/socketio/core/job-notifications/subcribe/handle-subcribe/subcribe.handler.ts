@@ -57,7 +57,7 @@ export class SubcribeJobNotificationHandler
         query: SubcribeJobNotificationQuery,
     ): Promise<SubcribeJobNotificationSocketIoMessage> {
         const { payload, client } = query.params
-        // load the job scoped to the requesting user FIRST — a job owned by
+        // load the job scoped to the requesting user FIRST -- a job owned by
         // someone else (or a system job with no owner) surfaces as
         // JobNotFoundException, same as a genuinely missing row, so the room
         // is never joined and the status/error payload is never returned to
@@ -66,7 +66,7 @@ export class SubcribeJobNotificationHandler
             id: payload.data.jobId,
             userId: client.data.userId,
         })
-        // join job room by job id — only after ownership is verified
+        // join job room by job id -- only after ownership is verified
         client.join(this.jobRoomService.name(payload.data.jobId))
         if (!job) {
             this.wsResponseService.error({

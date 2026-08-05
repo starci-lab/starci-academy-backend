@@ -12,5 +12,5 @@ export const MOUNT_JSONB_DELIMITER_LINE_RE =
 /** Regex matching a jsonb item heading line `# <n>`, capturing the array index. */
 export const MOUNT_JSONB_ITEM_HEADING_RE = /^#\s+(\d+)\s*$/
 
-/** Regex matching a numeric section key (heading text consisting solely of digits) → array item. */
+/** Regex matching a numeric section key (heading text consisting solely of digits) -> array item. */
 export const NUMERIC_SECTION_KEY_RE = /^\d+$/

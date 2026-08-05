@@ -17,16 +17,16 @@ import {
 
 @Entity("content_engagement_projections")
 /**
- * CQRS projection of a content's engagement (Kiểu A — single natural key).
+ * CQRS projection of a content's engagement (Type A -- single natural key).
  *
  * Primary key is `content_id` (one row per content); the aggregate
  * (`{ totalReactions, reactionsByType, viewCount, shareCount, commentCount }`)
  * lives in the inherited jsonb `value`. Recomputed on react/comment/read +
- * CDC, read with a TTL lazy-refresh — the table stands in for the old Redis
+ * CDC, read with a TTL lazy-refresh -- the table stands in for the old Redis
  * view-count cache.
  */
 export class ContentEngagementProjectionEntity extends AbstractProjectionEntity {
-    /** Target content id — the natural primary key (one row per content). */
+    /** Target content id -- the natural primary key (one row per content). */
     @PrimaryColumn({
         name: "content_id",
         type: "uuid",

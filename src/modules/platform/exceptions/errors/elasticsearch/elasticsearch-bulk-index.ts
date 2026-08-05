@@ -17,7 +17,7 @@ export interface ElasticsearchBulkIndexExceptionMetadata extends AbstractExcepti
 }
 
 /**
- * Thrown when an Elasticsearch bulk index request reports `errors: true` —
+ * Thrown when an Elasticsearch bulk index request reports `errors: true` --
  * surfaces the first per-item failure instead of silently leaving the index
  * partially written.
  */

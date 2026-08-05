@@ -35,7 +35,7 @@ import {
 /**
  * A single chat message inside a {@link ChatConversationEntity}. `isDeleted`
  * is reserved for a future author-delete affordance (soft-delete, so the
- * thread shape would survive) — no service method or GraphQL mutation sets it
+ * thread shape would survive) -- no service method or GraphQL mutation sets it
  * today, so it always reads `false`.
  */
 export class ChatMessageEntity extends UuidAbstractEntity {
@@ -56,7 +56,7 @@ export class ChatMessageEntity extends UuidAbstractEntity {
 
     /**
      * Soft-delete flag (keeps the row so the thread does not collapse).
-     * Always `false` today — reserved for a future author-delete affordance
+     * Always `false` today -- reserved for a future author-delete affordance
      * that no service method or mutation currently sets.
      */
     @Field(

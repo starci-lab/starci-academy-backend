@@ -27,7 +27,7 @@ import {
  * `mock-interview-eq/{bank}/questions/{question}/vi.md`. Sibling of the technical
  * (course-scoped) `MockInterviewProcessorService`, but a top-level seeder like
  * {@link AchievementSeederService} since this family has no owning course/module to
- * hang off — every row's `courseId`/`moduleId` is `null`.
+ * hang off -- every row's `courseId`/`moduleId` is `null`.
  */
 export class MockInterviewEqSeederService {
     constructor(

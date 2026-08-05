@@ -1,11 +1,11 @@
 /**
  * Extracts the keyword list out of a flashcard answer's trailing `:::chip`
- * block — the same "ăn điểm" coverage checklist authors write at the end of
+ * block -- the same scoring checklist coverage checklist authors write at the end of
  * every `answer` field (see `.mount/data/**\/flashcard-decks/**\/cards/*\/*.md`,
  * `# answer` section: `:::chip\nKW1\nKW2\n...\n:::`). One keyword per line,
  * trimmed, blank lines dropped.
  *
- * Self-contained (no FE dependency) — the FE has an equivalent
+ * Self-contained (no FE dependency) -- the FE has an equivalent
  * `parseAnswerKeywords` util for its own (non-AI) cloze-quiz feature; this is
  * a separate, minimal BE port used ONLY to build the kind="theory" grading
  * rubric's coverage checklist, not shared code.
@@ -20,7 +20,7 @@ export const parseFlashcardAnswerKeywords = (
     if (!answer) {
         return []
     }
-    // ":::chip" opens the block, the next bare ":::" closes it — non-greedy so
+    // ":::chip" opens the block, the next bare ":::" closes it -- non-greedy so
     // a later unrelated ":::" block (e.g. another ":::muted" section) never
     // gets swallowed into the match
     const match = /:::chip\s*\n([\s\S]*?):::/.exec(answer)

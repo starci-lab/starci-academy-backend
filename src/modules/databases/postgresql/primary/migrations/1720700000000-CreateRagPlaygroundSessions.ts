@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Creates `rag_playground_sessions` — tracks the lifecycle of a PUBLIC (no
+ * Creates `rag_playground_sessions` -- tracks the lifecycle of a PUBLIC (no
  * login) RAG Playground session's ephemeral Qdrant collection
  * (`playground-${sessionId}`), so a cron can drop idle sessions instead of
  * leaking collections. Q&A turns themselves are NOT persisted (in-memory only).

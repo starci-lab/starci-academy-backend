@@ -41,7 +41,7 @@ export interface SessionRecord {
 export interface StartSessionParams {
     /** The Express response to attach the new `session_id` cookie to. */
     res: Response
-    /** The incoming request — source of the `User-Agent` header and client IP. */
+    /** The incoming request -- source of the `User-Agent` header and client IP. */
     req: Request
     /** A freshly-minted access token whose `sub` claim identifies the user. */
     accessToken: string
@@ -65,7 +65,7 @@ export type AssertCurrentSessionResult = void
 export interface EndSessionParams {
     /** The Express response to clear the `session_id` cookie from. */
     res: Response
-    /** The incoming request — source of the `session_id` cookie identifying which device to end. */
+    /** The incoming request -- source of the `session_id` cookie identifying which device to end. */
     req: Request
     /** The refresh token whose `sub` claim identifies the user. */
     refreshToken: string
@@ -86,7 +86,7 @@ export interface ListSessionsParams {
 export interface ListSessionEntry {
     /** Stable primary-key id of the persisted session row. */
     id: string
-    /** The session id (cookie value) — the handle the client passes to revoke. */
+    /** The session id (cookie value) -- the handle the client passes to revoke. */
     sessionId: string
     /** Device class, e.g. "desktop"; null when unknown. */
     deviceType: string | null

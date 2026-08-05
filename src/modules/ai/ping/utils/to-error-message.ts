@@ -3,8 +3,8 @@ import {
 } from "../constants"
 
 /**
- * Pull the provider's RESPONSE BODY detail out of an axios-style error — e.g.
- * Google's `{ error: { message: "API key not valid…" } }` or OpenAI's
+ * Pull the provider's RESPONSE BODY detail out of an axios-style error -- e.g.
+ * Google's `{ error: { message: "API key not valid..." } }` or OpenAI's
  * `{ error: { message } }`. A bare axios message ("Request failed with status
  * code 400") hides the real reason; this surfaces it. Duck-typed so we don't
  * import axios. Returns null when there's no usable body.
@@ -24,7 +24,7 @@ const extractResponseDetail = (err: unknown): string | null => {
     if (typeof data !== "object") {
         return null
     }
-    // { error: { message } } | { error: "…" } | { message }
+    // { error: { message } } | { error: "..." } | { message }
     const errorField = (data as { error?: unknown }).error
     if (typeof errorField === "string") {
         return errorField
@@ -47,7 +47,7 @@ const extractResponseDetail = (err: unknown): string | null => {
 }
 
 /**
- * Normalize an unknown thrown value into a short ping error string — including
+ * Normalize an unknown thrown value into a short ping error string -- including
  * the provider's response-body detail (the real reason) when present.
  * @param err - Value caught from a provider ping call.
  * @returns Truncated error message suitable for logs and key health state.

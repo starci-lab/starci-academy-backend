@@ -53,7 +53,7 @@ import {
 
 @Injectable()
 /**
- * Indexer synchronizer — iterates all entities and calls Indexer builder for each.
+ * Indexer synchronizer -- iterates all entities and calls Indexer builder for each.
  */
 export class IndexerSynchronizerService {
 

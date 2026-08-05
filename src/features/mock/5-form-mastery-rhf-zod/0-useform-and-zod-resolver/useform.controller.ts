@@ -18,7 +18,7 @@ import {
 @UseInterceptors(MockDelayInterceptor)
 @Controller("mocks/5-form-mastery-rhf-zod/0-useform-and-zod-resolver/sessions/:sessionId")
 /**
- * Mock controller for lesson `0-useform-and-zod-resolver` — accepts the form
+ * Mock controller for lesson `0-useform-and-zod-resolver` -- accepts the form
  * submission and returns the created user so the demo can show the resolved
  * `{ id, email }`.
  */

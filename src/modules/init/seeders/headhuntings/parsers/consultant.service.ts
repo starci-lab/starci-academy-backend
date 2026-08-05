@@ -139,7 +139,7 @@ export class ConsultantParserService {
                 jsonMap.get(Locale.En)?.avatarUrl,
             ),
             orderIndex: consultantIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 jsonMap.get(Locale.En)?.sortIndex,
                 consultantIndex,

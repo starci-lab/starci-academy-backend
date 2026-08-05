@@ -29,7 +29,7 @@ export class MockInterviewSessionTooShortException extends AbstractException {
         originalError,
     }: MockInterviewSessionTooShortExceptionMetadata) {
         super(
-            `Mock interview session too short to grade (candidate answers total ${candidateCharCount} chars, minimum ${minRequired}). Hãy trả lời đầy đủ hơn trước khi nộp bài.`,
+            `Mock interview session too short to grade (candidate answers total ${candidateCharCount} chars, minimum ${minRequired}). Hãy trả lời đầy đủ hơn trước khi nộp bài.`, // vn-ok: vi-locale string emitted to clients
             "MOCK_INTERVIEW_SESSION_TOO_SHORT_EXCEPTION",
             {
                 candidateCharCount,

@@ -22,6 +22,6 @@ import {
     ],
 })
 /**
- * Nest DI for `lastPersonalTaskAttempt` — self/staff latest-attempt lookup.
+ * Nest DI for `lastPersonalTaskAttempt` -- self/staff latest-attempt lookup.
  */
 export class LastPersonalTaskAttemptSingleQueryModule extends ConfigurableModuleClass {}

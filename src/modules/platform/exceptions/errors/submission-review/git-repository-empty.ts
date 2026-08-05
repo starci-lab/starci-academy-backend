@@ -18,7 +18,7 @@ export interface GitRepositoryEmptyExceptionMetadata extends AbstractExceptionMe
 
 /**
  * Thrown when a git-submission review's repo loader succeeds but returns zero
- * documents — the repository (or branch) has nothing reviewable.
+ * documents -- the repository (or branch) has nothing reviewable.
  */
 export class GitRepositoryEmptyException extends AbstractException {
     constructor({

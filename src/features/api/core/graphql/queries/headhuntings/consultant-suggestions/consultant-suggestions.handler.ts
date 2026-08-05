@@ -17,7 +17,7 @@ import {
 @QueryHandler(ConsultantSuggestionsQuery)
 @Injectable()
 /**
- * Consultant autocomplete (typeahead) handler — ES Completion Suggester.
+ * Consultant autocomplete (typeahead) handler -- ES Completion Suggester.
  *
  * Inherits the entire suggest flow from {@link AbstractSuggestionsHandler}: it
  * only declares the entity it serves. The base resolves the per-locale
@@ -25,7 +25,7 @@ import {
  * (populated by the sync builder with the consultant name + a popularity
  * weight), so prefixes like "ng" return "Nguyen ..." instantly, ranked by
  * weight, with built-in fuzzy typo tolerance. The injected
- * `ElasticsearchService` constructor is inherited — no redeclaration needed.
+ * `ElasticsearchService` constructor is inherited -- no redeclaration needed.
  */
 export class ConsultantSuggestionsHandler
     extends AbstractSuggestionsHandler<ConsultantSuggestionsQuery> {

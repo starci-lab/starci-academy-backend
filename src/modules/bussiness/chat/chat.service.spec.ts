@@ -37,7 +37,7 @@ import type {
 const POSTGRESQL_PRIMARY = "primary"
 
 // the founder DM gate reads envConfig().community.founderUsername, whose
-// default (unmocked here) is "starci183" — see src/modules/env/config.ts
+// default (unmocked here) is "starci183" -- see src/modules/env/config.ts
 const FOUNDER_USERNAME = "starci183"
 
 describe("ChatService",
@@ -66,12 +66,12 @@ describe("ChatService",
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
 
-            // event bus stub — every sent message fans out a room event
+            // event bus stub -- every sent message fans out a room event
             eventEmitterService = {
                 emit: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<EventEmitterService, "emit">>
 
-            // membership gate stub — chat is member-only; default to an active member
+            // membership gate stub -- chat is member-only; default to an active member
             // so each access-check test only has to override what it cares about
             membershipService = {
                 isActive: jest.fn().mockResolvedValue(true),
@@ -120,7 +120,7 @@ describe("ChatService",
 
                 it("creates the singleton community room on first access",
                     async () => {
-                        // findOne default resolves null → nothing exists yet
+                        // findOne default resolves null -> nothing exists yet
                         await service.getOrCreateCommunityConversation()
 
                         expect(entityManager.create).toHaveBeenCalledWith(
@@ -291,7 +291,7 @@ describe("ChatService",
                                     service.listMessages({
                                         conversationId,
                                         // the founder is neither the DM's member nor themself
-                                        // stored as memberId — the username check must admit them
+                                        // stored as memberId -- the username check must admit them
                                         user: founder,
                                         offset: 0,
                                         limit: 20,
@@ -313,8 +313,8 @@ describe("ChatService",
                                 await expect(
                                     service.listMessages({
                                         conversationId,
-                                        // an unrelated active member — not the DM's owner, not
-                                        // the founder — this is the core private-DM leak to catch
+                                        // an unrelated active member -- not the DM's owner, not
+                                        // the founder -- this is the core private-DM leak to catch
                                         user: otherMember,
                                         offset: 0,
                                         limit: 20,

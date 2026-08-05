@@ -80,7 +80,7 @@ export class CommunityFeedGateway implements OnModuleInit {
         if (payload.data.channel) {
             client.join(this.communityFeedRoomService.channelRoom(payload.data.channel))
         }
-        // no post + no channel → the unfiltered "all channels" feed
+        // no post + no channel -> the unfiltered "all channels" feed
         if (!payload.data.postId && !payload.data.channel) {
             client.join(this.communityFeedRoomService.allRoom())
         }
@@ -90,7 +90,7 @@ export class CommunityFeedGateway implements OnModuleInit {
      * Wires local event listeners that forward community changes to their rooms.
      */
     onModuleInit(): void {
-        // post create/update/delete → push to the channel room + the global feed room
+        // post create/update/delete -> push to the channel room + the global feed room
         this.eventEmitterService.on({
             event: EventName.CommunityPostCreated,
             listener: (payload: CommunityPostChangedEventPayload) => {
@@ -112,7 +112,7 @@ export class CommunityFeedGateway implements OnModuleInit {
                     payload)
             },
         })
-        // comment create/update/delete → push to the owning post's room
+        // comment create/update/delete -> push to the owning post's room
         this.eventEmitterService.on({
             event: EventName.CommunityCommentCreated,
             listener: (payload: CommunityCommentChangedEventPayload) => {
@@ -134,7 +134,7 @@ export class CommunityFeedGateway implements OnModuleInit {
                     payload)
             },
         })
-        // post reaction totals moved → push the post id to its room for a refetch
+        // post reaction totals moved -> push the post id to its room for a refetch
         this.eventEmitterService.on({
             event: EventName.CommunityPostReactionChanged,
             listener: (payload: CommunityPostReactionChangedEventPayload) => {
@@ -149,7 +149,7 @@ export class CommunityFeedGateway implements OnModuleInit {
                 })
             },
         })
-        // comment reaction totals moved → push post + comment id to the post room
+        // comment reaction totals moved -> push post + comment id to the post room
         this.eventEmitterService.on({
             event: EventName.CommunityCommentReactionChanged,
             listener: (payload: CommunityCommentReactionChangedEventPayload) => {

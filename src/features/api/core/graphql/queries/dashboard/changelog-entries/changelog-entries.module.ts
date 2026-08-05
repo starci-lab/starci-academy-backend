@@ -13,5 +13,5 @@ import {
         ChangelogEntriesResolver,
     ],
 })
-/** Feature-module boundary for the `changelogEntries` query — wires its resolver so the dashboard group can mount this widget independently. */
+/** Feature-module boundary for the `changelogEntries` query -- wires its resolver so the dashboard group can mount this widget independently. */
 export class ChangelogEntriesSingleQueryModule extends ConfigurableModuleClass {}

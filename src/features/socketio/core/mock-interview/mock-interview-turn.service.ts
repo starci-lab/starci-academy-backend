@@ -32,13 +32,13 @@ const LOCALE_LANGUAGE_MAP: Record<string, string> = {
 
 /**
  * Maps a session's seniority level string to a one-line expectation the model
- * uses to scale how hard/deep its questions should probe (junior recall →
+ * uses to scale how hard/deep its questions should probe (junior recall ->
  * staff systemic reasoning). Mirrors the grading-time level map in
  * {@link import(
  * "@api/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session-prompt.service"
  * ).MockInterviewGradePromptService} so the interviewer's difficulty and the
  * grader's expectations stay in lockstep. Level is a free-form string on the
- * session (not an enum) — an unrecognized value falls through to a neutral
+ * session (not an enum) -- an unrecognized value falls through to a neutral
  * "no seniority steer" (no line is injected).
  */
 const LEVEL_EXPECTATION_MAP: Record<string, string> = {
@@ -75,7 +75,7 @@ const PHASE_GUIDANCE_MAP: Record<MockInterviewPhase, string> = {
 
 /**
  * Human-readable label + the exact cognitive-framing instruction for each of
- * the 3 per-question kinds — the SAME seed topic gets asked completely
+ * the 3 per-question kinds -- the SAME seed topic gets asked completely
  * differently depending on which frame it was RANDOMLY assigned at draw time
  * (controlled prompting over Bloom's taxonomy tiers; "mode split" 2026-07-06).
  */
@@ -100,7 +100,7 @@ const QNA_KIND_FRAMING_MAP: Record<string, string> = {
 /**
  * Pure(-ish) prompt builder for one turn of the mock interview. The ONLY I/O
  * it performs is a RAG lookup (course-wide, read-only) to ground the
- * interviewer's next question in what the course actually taught — it does
+ * interviewer's next question in what the course actually taught -- it does
  * not persist anything and has no other side effects, mirroring the shape of
  * {@link import("@modules/bussiness").InterviewGradePromptService}.
  *
@@ -108,7 +108,7 @@ const QNA_KIND_FRAMING_MAP: Record<string, string> = {
  * 2026-07-06): mode="design" runs the EXISTING 5-phase flow unchanged;
  * mode="qna" runs the N-question flow where each question is seeded by a
  * drawn flashcard topic and FRAMED per ITS OWN randomly-assigned kind's
- * cognitive lens (definitional / when-why-tradeoff / incident-apply) — a
+ * cognitive lens (definitional / when-why-tradeoff / incident-apply) -- a
  * single qna session mixes kinds across its questions.
  *
  * Kept local to the `/mock_interview` socket module (not registered on the
@@ -121,7 +121,7 @@ export class MockInterviewTurnService {
     ) { }
 
     /**
-     * Build the chat messages for the interviewer's next turn — dispatches to
+     * Build the chat messages for the interviewer's next turn -- dispatches to
      * {@link prepareDesignTurn} (mode="design", the existing 5-phase flow) or
      * {@link prepareQnaTurn} (mode="qna"), based on
      * {@link PrepareMockInterviewTurnParams.mode}.
@@ -139,13 +139,13 @@ export class MockInterviewTurnService {
     }
 
     /**
-     * mode="design" turn builder — UNCHANGED from before the mode split.
+     * mode="design" turn builder -- UNCHANGED from before the mode split.
      * Grounds the question in the course material via a course-wide RAG
      * retrieval (query = the candidate's latest answer when present, else the
      * prompt title so the very first question still pulls something relevant),
      * then instructs the model to stay strictly within the current canonical
      * phase and to degrade to a generic-but-still-on-rails question when the
-     * retrieved excerpt comes back empty (index missing / retrieval failure —
+     * retrieved excerpt comes back empty (index missing / retrieval failure --
      * {@link CourseRagRetrievalService} already degrades gracefully on its end).
      *
      * @param params - Course scope, prompt title, current phase, transcript, locale, and level.
@@ -180,11 +180,11 @@ export class MockInterviewTurnService {
 
         // language the interviewer's question text must be written in
         const targetLanguage = LOCALE_LANGUAGE_MAP[locale] ?? "English"
-        // phase-specific probing guidance for the CURRENT phase only — the model
+        // phase-specific probing guidance for the CURRENT phase only -- the model
         // must not jump ahead to a later phase on its own
         const phaseGuidance = PHASE_GUIDANCE_MAP[phase]
         // how hard/deep to probe, scaled by the session's requested seniority
-        // level — unset/unrecognized level means no steer at all (current
+        // level -- unset/unrecognized level means no steer at all (current
         // behavior is preserved: the model just picks its own difficulty)
         const levelExpectation = this.resolveLevelExpectation(level)
 
@@ -242,7 +242,7 @@ export class MockInterviewTurnService {
             "fences, no meta-commentary, no restating these instructions.",
         ].join("\n")
 
-        // replay the transcript so the model has continuity — joined as
+        // replay the transcript so the model has continuity -- joined as
         // "role: content" lines, oldest first, mirroring the interview-grade
         // prompt's transcript-replay idiom
         const humanText = [
@@ -262,16 +262,16 @@ export class MockInterviewTurnService {
     }
 
     /**
-     * The `mode="qna"` turn builder — "mode split" (2026-07-06). Each
+     * The `mode="qna"` turn builder -- "mode split" (2026-07-06). Each
      * question is SEEDED by one drawn flashcard topic (`currentSeed`) and
      * FRAMED through THIS QUESTION's own randomly-assigned cognitive frame
-     * (see {@link QNA_KIND_FRAMING_MAP}) — a single qna session mixes kinds
+     * (see {@link QNA_KIND_FRAMING_MAP}) -- a single qna session mixes kinds
      * across its questions, so `kind` is read PER-ASK, not once for the whole
      * session. Grounds with content-scoped RAG on the seed topic itself (not
-     * the whole course — a qna question is about ONE topic, not a whole
+     * the whole course -- a qna question is about ONE topic, not a whole
      * system). Allows 1-2 AI follow-ups on the SAME seed before the FE
      * advances to the next one (detected by whether `history` already
-     * contains a turn about the current seed — the FIRST ask of a seed gets
+     * contains a turn about the current seed -- the FIRST ask of a seed gets
      * an opening question, subsequent asks get a follow-up probe).
      *
      * @param params - Course scope, prompt title, this question's kind, current seed + index, transcript, locale, and level.
@@ -294,7 +294,7 @@ export class MockInterviewTurnService {
         const seedTopic = currentSeed?.trim() || promptTitle
         // ground on the seed topic itself (kept stable across the opening ask +
         // every follow-up on the SAME seed) rather than the candidate's latest
-        // answer — a qna question is about ONE narrow topic, not a whole system,
+        // answer -- a qna question is about ONE narrow topic, not a whole system,
         // so drifting the retrieval query to whatever the candidate just said
         // risks pulling unrelated excerpts once the conversation moves on
         const {
@@ -307,22 +307,22 @@ export class MockInterviewTurnService {
 
         const targetLanguage = LOCALE_LANGUAGE_MAP[locale] ?? "English"
         const levelExpectation = this.resolveLevelExpectation(level)
-        // THIS question's own kind — never trust an un-normalized value (an
+        // THIS question's own kind -- never trust an un-normalized value (an
         // unrecognized/absent kind falls back to "theory", mirroring the grading
         // service's own per-seed normalization)
         const normalizedKind = normalizeMockInterviewKind(kind)
         const kindFraming = QNA_KIND_FRAMING_MAP[normalizedKind] ?? QNA_KIND_FRAMING_MAP[MockInterviewKind.Theory]
         // the FIRST ask of a seed has no prior turn about it (history is either
         // empty, or ends right after the FE swapped to a new seed with no
-        // candidate answer recorded for it yet) — the caller (gateway) always
+        // candidate answer recorded for it yet) -- the caller (gateway) always
         // sends latestAnswer="" on that very first ask of a seed, mirroring the
         // design flow's "empty latestAnswer = opening turn" convention
         const isOpeningAskOfSeed = latestAnswer.trim().length === 0
         const displayIndex = (questionIndex ?? 0) + 1
 
         // interview-bank seeds carry a FULL authored question (long, and/or with a
-        // fenced code block / mermaid diagram folded in) — deliver it VERBATIM,
-        // never reframe. flashcard-fallback seeds are short topic labels → frame
+        // fenced code block / mermaid diagram folded in) -- deliver it VERBATIM,
+        // never reframe. flashcard-fallback seeds are short topic labels -> frame
         // a {kind}-shaped question about them (the original behavior below).
         const isAuthoredPrompt = seedTopic.length > 160
             || /```|(?:^|\n)\s*(?:graph|flowchart|sequenceDiagram|erDiagram|classDiagram)\b/.test(seedTopic)
@@ -390,7 +390,7 @@ export class MockInterviewTurnService {
             `Below is the EXACT interview question to put to the candidate. Deliver it to them now, in ${targetLanguage}.`,
             "Preserve EVERY code block (```), mermaid diagram, and detail EXACTLY as written — do NOT summarize, add,",
             "remove, translate identifiers in, or rephrase the substance. You MAY prepend at most ONE short natural",
-            "spoken lead-in sentence (e.g. \"Câu tiếp theo:\") before it.",
+            "spoken lead-in sentence (e.g. a short \"next question\" cue) before it.",
             "",
             "## The question",
             seedTopic,
@@ -429,7 +429,7 @@ export class MockInterviewTurnService {
     /**
      * Resolve the level-expectation guidance line for a raw level string,
      * falling through to `undefined` (no steer injected) for an
-     * unset/unrecognized level — shared between {@link prepareDesignTurn} and
+     * unset/unrecognized level -- shared between {@link prepareDesignTurn} and
      * {@link prepareQnaTurn} so both flows scale difficulty identically.
      *
      * @param level - The raw `level` field from the ask payload.
@@ -445,7 +445,7 @@ export class MockInterviewTurnService {
     }
 
     /**
-     * The shared "workspace artifacts" system-prompt block — identical
+     * The shared "workspace artifacts" system-prompt block -- identical
      * wording for both the design flow and the Q&A flows so the interviewer
      * treats a pasted `[Whiteboard]`/`[Code lang=...]`/`[Notes]` section the
      * same way regardless of kind.

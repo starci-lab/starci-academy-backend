@@ -106,7 +106,7 @@ export const buildMilestoneTaskSyncSuccessLog = (
 ): SyncSuccessLogPayload => ({
     entityKind: MilestoneTaskEntity.name,
     entityId: task.id,
-    // Milestone tasks have no mount slug / displayId — fall back to the primary key
+    // Milestone tasks have no mount slug / displayId -- fall back to the primary key
     // so the log payload always carries a stable identifier.
     displayId: task.id,
     relativeDisplayIds: [

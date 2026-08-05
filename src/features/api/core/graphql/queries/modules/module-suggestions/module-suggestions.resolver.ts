@@ -27,7 +27,7 @@ import {
 
 @Resolver()
 /**
- * Public GraphQL entry for `moduleSuggestions` — ES completion-suggester
+ * Public GraphQL entry for `moduleSuggestions` -- ES completion-suggester
  * typeahead over module titles.
  */
 export class ModuleSuggestionsResolver {
@@ -54,7 +54,7 @@ export class ModuleSuggestionsResolver {
         @Args("request")
             request: SuggestionsRequest,
     ): Promise<SuggestionsPayload> {
-        // delegate to the service → CQRS bus → ES completion suggester
+        // delegate to the service -> CQRS bus -> ES completion suggester
         return this.moduleSuggestionsService.query(locale,
             request)
     }

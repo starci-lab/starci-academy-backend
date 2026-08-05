@@ -15,7 +15,7 @@ import {
  * Rewrite / improve a single CV block's item text. Optionally grounds the
  * rewrite in a real StarCi capstone (`capstoneAttemptId`) so the AI describes
  * the actual project accurately; otherwise it rewrites from the block's own
- * content plus an optional freeform `instruction`. Nothing is persisted — the
+ * content plus an optional freeform `instruction`. Nothing is persisted -- the
  * FE swaps the returned block into the editor.
  */
 export class RewriteCvBlockRequest {

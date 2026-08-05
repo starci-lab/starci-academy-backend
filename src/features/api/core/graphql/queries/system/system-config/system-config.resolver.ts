@@ -27,7 +27,7 @@ import {
 
 @Resolver()
 /**
- * Public GraphQL entry for `systemConfig` — pass thresholds and Auto-lane caps
+ * Public GraphQL entry for `systemConfig` -- pass thresholds and Auto-lane caps
  * from the mounted app config.
  */
 export class SystemConfigResolver {

@@ -23,7 +23,7 @@ import {
 })
 /**
  * Wires the public `jobPostings` board listing (newest first, optional
- * filters/search). No auth — structured IT postings, distinct from the
+ * filters/search). No auth -- structured IT postings, distinct from the
  * headhunting consultant directory.
  */
 export class JobPostingsSingleQueryModule extends ConfigurableModuleClass {}

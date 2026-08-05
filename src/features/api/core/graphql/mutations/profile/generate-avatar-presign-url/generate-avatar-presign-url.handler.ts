@@ -68,7 +68,7 @@ export class GenerateAvatarPresignUrlHandler
                 fileName: request.contentType,
             })
         }
-        // per-user folder + random name + type-driven ext → no collisions, no
+        // per-user folder + random name + type-driven ext -> no collisions, no
         // leaked client filename; the prefix is what the verify step authorises
         const extension = AVATAR_MIME_EXTENSION[request.contentType]
         const key = `${AVATAR_KEY_PREFIX}/${user.id}/${randomUUID()}.${extension}`

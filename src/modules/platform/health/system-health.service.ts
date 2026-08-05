@@ -43,9 +43,9 @@ import type {
 /**
  * Framework-light liveness prober for the platform's infrastructure
  * components. Instead of injecting the real clients (Postgres pool, Redis,
- * Kafka, …) it reaches each component directly using only the configured URL or
- * `host:port` — a raw `fetch` for HTTP services and a raw TCP socket for the
- * rest — plus two special cases: an SMTP `verify()` for mail, and an in-process
+ * Kafka, ...) it reaches each component directly using only the configured URL or
+ * `host:port` -- a raw `fetch` for HTTP services and a raw TCP socket for the
+ * rest -- plus two special cases: an SMTP `verify()` for mail, and an in-process
  * key-pool read for the AI Balancer. Every probe is best-effort: the service
  * NEVER throws, it reports `down` with the error message instead.
  *
@@ -95,7 +95,7 @@ export class SystemHealthService {
         const tcpTargets = this.resolveTcpTargets()
         const externalTargets = this.resolveExternalHttpTargets()
 
-        // one flat, ordered descriptor per probe this sweep runs — lets every
+        // one flat, ordered descriptor per probe this sweep runs -- lets every
         // probe fire concurrently while still recovering a name-by-index on
         // the (unexpected) rejection path below, without positional math
         // across several differently-shaped target lists
@@ -139,9 +139,9 @@ export class SystemHealthService {
         ])
 
         // each probe already swallows its own errors, so a rejected settlement
-        // is an unexpected bug — fall back to a synthetic `down` to stay total
+        // is an unexpected bug -- fall back to a synthetic `down` to stay total
         const components = settled.map((outcome, index) => {
-            // the probe resolved normally → use its ComponentHealth as-is,
+            // the probe resolved normally -> use its ComponentHealth as-is,
             // topped up with live cAdvisor metrics when this component has one
             if (outcome.status === "fulfilled") {
                 return {
@@ -192,7 +192,7 @@ export class SystemHealthService {
                 name: "qdrant",
                 url: `${config.databases.qdrant.url}/healthz`,
             },
-            // Elasticsearch root requires auth → a 401 still proves reachability
+            // Elasticsearch root requires auth -> a 401 still proves reachability
             {
                 name: "elasticsearch",
                 url: config.elasticsearch.node,
@@ -224,7 +224,7 @@ export class SystemHealthService {
      */
     private resolveTcpTargets(): Array<TcpProbeTarget> {
         const config = envConfig()
-        // Kafka brokers are configured as "host:port" strings — split the first
+        // Kafka brokers are configured as "host:port" strings -- split the first
         const [kafkaHost,
             kafkaPort] = this.splitHostPort(
             config.kafka.brokers[0],
@@ -269,27 +269,27 @@ export class SystemHealthService {
     private resolveExternalHttpTargets(): Array<HttpProbeTarget> {
         const config = envConfig()
         return [
-            // GitHub REST API (OAuth + repo/team management) — fixed public host
+            // GitHub REST API (OAuth + repo/team management) -- fixed public host
             {
                 name: "github",
                 url: "https://api.github.com",
             },
-            // Stripe API (international cards) — SDK's fixed base host
+            // Stripe API (international cards) -- SDK's fixed base host
             {
                 name: "stripe",
                 url: "https://api.stripe.com",
             },
-            // PayPal API — env-driven so sandbox vs live is probed correctly
+            // PayPal API -- env-driven so sandbox vs live is probed correctly
             {
                 name: "paypal",
                 url: config.services.api.paypal.baseUrl,
             },
-            // PayOS merchant API (domestic gateway) — fixed public host
+            // PayOS merchant API (domestic gateway) -- fixed public host
             {
                 name: "payos",
                 url: "https://api-merchant.payos.vn",
             },
-            // SePay gateway API (domestic gateway) — fixed public host
+            // SePay gateway API (domestic gateway) -- fixed public host
             {
                 name: "sepay",
                 url: "https://my.sepay.vn",
@@ -298,7 +298,7 @@ export class SystemHealthService {
     }
 
     /**
-     * Probes one HTTP component. ANY response — including 4xx/401 — proves the
+     * Probes one HTTP component. ANY response -- including 4xx/401 -- proves the
      * component is reachable and is reported `up` (or `degraded` when slow). A
      * thrown fetch (DNS/connection refused) or a 2s timeout is `down`.
      *
@@ -319,7 +319,7 @@ export class SystemHealthService {
                     signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
                 })
             // we intentionally ignore the status code: a response of any kind
-            // (200, 401, 404…) means the socket + service are answering
+            // (200, 401, 404...) means the socket + service are answering
             const latencyMs = Date.now() - startedAt
             return this.reachableHealth({
                 name,
@@ -381,7 +381,7 @@ export class SystemHealthService {
                     }))
                 })
 
-            // connection refused / host unreachable → down with the reason
+            // connection refused / host unreachable -> down with the reason
             socket.once("error",
                 (error) => {
                     finish(this.downHealth({
@@ -391,7 +391,7 @@ export class SystemHealthService {
                     }))
                 })
 
-            // no handshake within the budget → down (timeout)
+            // no handshake within the budget -> down (timeout)
             socket.once("timeout",
                 () => {
                     finish(this.downHealth({
@@ -409,7 +409,7 @@ export class SystemHealthService {
 
     /**
      * Probes the transactional-mail service (Brevo SMTP). Opens a throwaway
-     * transporter mirroring the app's real Brevo config and runs `verify()` —
+     * transporter mirroring the app's real Brevo config and runs `verify()` --
      * which connects, EHLOs, and authenticates against the SMTP server,
      * proving mail can actually be sent (host + port + credentials), not just
      * that the port is reachable. The transporter is always closed after.
@@ -437,7 +437,7 @@ export class SystemHealthService {
         // latency clock around the SMTP handshake
         const startedAt = Date.now()
         try {
-            // verify connects + authenticates — the real "can we send mail" check
+            // verify connects + authenticates -- the real "can we send mail" check
             await transporter.verify()
             const latencyMs = Date.now() - startedAt
             return this.reachableHealth({
@@ -445,7 +445,7 @@ export class SystemHealthService {
                 latencyMs,
             })
         } catch (error) {
-            // SMTP unreachable / auth rejected → down with the reason
+            // SMTP unreachable / auth rejected -> down with the reason
             return this.downHealth({
                 name: "mail",
                 message: this.toMessage(error),
@@ -458,7 +458,7 @@ export class SystemHealthService {
     }
 
     /**
-     * Probes the in-process AI Balancer — a first-class component even though
+     * Probes the in-process AI Balancer -- a first-class component even though
      * it never leaves the process. Its liveness is its key pool: at least one
      * active provider key is `up`, some keys disabled but others alive is
      * `degraded`, zero active keys across every provider is `down` (the app
@@ -480,7 +480,7 @@ export class SystemHealthService {
                 (sum, provider) => sum + provider.disabledKeys,
                 0,
             )
-            // no key alive anywhere → the balancer cannot serve → down
+            // no key alive anywhere -> the balancer cannot serve -> down
             if (activeKeys === 0) {
                 return this.downHealth({
                     name: "aiBalancer",
@@ -488,7 +488,7 @@ export class SystemHealthService {
                     latencyMs: null,
                 })
             }
-            // some keys disabled but capacity remains → degraded; otherwise fully up
+            // some keys disabled but capacity remains -> degraded; otherwise fully up
             return {
                 name: "aiBalancer",
                 status: disabledKeys > 0 ? "degraded" : "up",
@@ -499,7 +499,7 @@ export class SystemHealthService {
                 metrics: null,
             }
         } catch (error) {
-            // snapshot read failed → down with the reason
+            // snapshot read failed -> down with the reason
             return this.downHealth({
                 name: "aiBalancer",
                 message: this.toMessage(error),
@@ -591,7 +591,7 @@ export class SystemHealthService {
     private splitHostPort(hostPort: string): [string, number] {
         // separate on the LAST colon so IPv6-ish hosts degrade gracefully
         const lastColon = hostPort.lastIndexOf(":")
-        // no colon → treat the whole value as the host on the default port
+        // no colon -> treat the whole value as the host on the default port
         if (lastColon === -1) {
             return [hostPort,
                 9092]

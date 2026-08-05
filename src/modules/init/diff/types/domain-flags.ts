@@ -14,9 +14,9 @@ export interface DomainFlags {
     cv: boolean
     /** Seed + sync headhunting companies/consultants. */
     headhunting: boolean
-    /** Seed the AI model catalog (seed-only — no sync sink). */
+    /** Seed the AI model catalog (seed-only -- no sync sink). */
     aiModels: boolean
-    /** Seed the subscription catalog (seed-only — no sync sink). */
+    /** Seed the subscription catalog (seed-only -- no sync sink). */
     subscriptions: boolean
     /** Seed + sync coding-practice problems. */
     codingProblems: boolean

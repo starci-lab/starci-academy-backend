@@ -16,9 +16,9 @@ export enum MockInterviewPhase {
     Requirements = "requirements",
     /** Back-of-the-envelope estimation (QPS/storage) + API surface sketch. */
     Estimation = "estimation",
-    /** Boxes-and-arrows high-level architecture (5–7 major components). */
+    /** Boxes-and-arrows high-level architecture (5-7 major components). */
     HighLevel = "highLevel",
-    /** Deep dive into 2–3 components the interviewer picks. */
+    /** Deep dive into 2-3 components the interviewer picks. */
     DeepDive = "deepDive",
     /** Trade-offs, bottlenecks, and failure modes. */
     Tradeoffs = "tradeoffs",

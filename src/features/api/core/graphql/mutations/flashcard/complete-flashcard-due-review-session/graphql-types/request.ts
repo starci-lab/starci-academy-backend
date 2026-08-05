@@ -20,7 +20,7 @@ import {
  * (the per-card SM-2 grading mutation this session wraps) grants no XP today
  * and writes no `xp_histories` row, so `xpEarned` here is purely a
  * CLIENT-REPORTED bookkeeping snapshot to persist onto the row for
- * history/stats display — never a server grant. Mirrors
+ * history/stats display -- never a server grant. Mirrors
  * `CompleteFlashcardReviewSessionRequest`.
  */
 export class CompleteFlashcardDueReviewSessionRequest {

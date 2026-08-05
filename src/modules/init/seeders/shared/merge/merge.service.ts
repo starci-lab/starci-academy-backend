@@ -19,7 +19,7 @@ import type {
 /**
  * Builds one canonical mount JSON tree (English/default locale) and attaches
  * `translations` on the root and on every array item located by
- * `translateFields` — matching how course parsers align `orderIndex` rows.
+ * `translateFields` -- matching how course parsers align `orderIndex` rows.
  *
  * Supports nested arrays via dot-path (e.g. `"requirements.data.title"`):
  * each array level on the path is aligned across locales by `orderIndex`, so
@@ -38,7 +38,7 @@ export class MergeJsonService {
             jsons,
             translateFields,
         } = params
-        // empty locale list is a programmer error — fail loud
+        // empty locale list is a programmer error -- fail loud
         if (jsons.length === 0) {
             throw new MissingRequiredParameterException({
                 parameter: "jsons",
@@ -99,7 +99,7 @@ export class MergeJsonService {
                         itemLeafFields,
                     )
                 }
-                // descend into nested arrays under this item — extend trail with THIS array entry
+                // descend into nested arrays under this item -- extend trail with THIS array entry
                 const childTrail: Array<ArrayTrailEntry> = [
                     ...arrayTrail,
                     {
@@ -128,7 +128,7 @@ export class MergeJsonService {
             })
         }
         if (this.isPlainObject(node)) {
-            // object levels (root or nested) — recurse into translateField-referenced arrays
+            // object levels (root or nested) -- recurse into translateField-referenced arrays
             const record = structuredClone(node) as Record<string, unknown>
             for (const arrayKey of this.arrayKeysUnderPrefix(
                 translateFields,
@@ -151,7 +151,7 @@ export class MergeJsonService {
             }
             return record
         }
-        // scalar leaf — nothing to merge at this level
+        // scalar leaf -- nothing to merge at this level
         return node
     }
 
@@ -189,7 +189,7 @@ export class MergeJsonService {
                 continue
             }
             const rest = fieldPath.slice(prefix.length)
-            // a leaf field at this exact array level has no dot in rest — skip
+            // a leaf field at this exact array level has no dot in rest -- skip
             if (!rest.includes(".")) {
                 continue
             }
@@ -251,7 +251,7 @@ export class MergeJsonService {
             for (const fieldPath of rootFields) {
                 const value = this.getValueAtPath(json,
                     fieldPath)
-                // skip when a locale omits this field — entity table can stay sparse
+                // skip when a locale omits this field -- entity table can stay sparse
                 if (value === undefined) {
                     continue
                 }
@@ -337,10 +337,10 @@ export class MergeJsonService {
             const isLast = index === segments.length - 1
             if (Array.isArray(next)) {
                 if (isLast) {
-                    // last segment IS the leaf array — caller picks the item by orderIndex
+                    // last segment IS the leaf array -- caller picks the item by orderIndex
                     return next
                 }
-                // intermediate array → consume one trail hop to descend into the same bucket
+                // intermediate array -> consume one trail hop to descend into the same bucket
                 const trailEntry = arrayTrail[trailIndex]
                 trailIndex += 1
                 if (!trailEntry) {
@@ -356,7 +356,7 @@ export class MergeJsonService {
                 current = parent
                 continue
             }
-            // plain object segment → just descend
+            // plain object segment -> just descend
             current = next
         }
         return current
@@ -387,7 +387,7 @@ export class MergeJsonService {
             && !Array.isArray(value)
     }
 
-    /** Splits a dot-path into segment keys (`"a.b.c"` → `["a","b","c"]`). */
+    /** Splits a dot-path into segment keys (`"a.b.c"` -> `["a","b","c"]`). */
     private splitFieldPath(fieldPath: string): Array<string> {
         return fieldPath
             .split(".")

@@ -15,7 +15,7 @@ import {
  * Tailor the ENTIRE CV blocks array toward a specific job description. The AI
  * rewrites / emphasizes / reorders the item wording of every block to better
  * match the JD WITHOUT inventing false facts, preserving the SAME structure
- * (same block `id`/`type`, same item `id`). Nothing is persisted — the FE swaps
+ * (same block `id`/`type`, same item `id`). Nothing is persisted -- the FE swaps
  * the returned blocks into the editor.
  */
 export class TailorCvBlocksRequest {

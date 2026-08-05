@@ -37,7 +37,7 @@ interface ProgramContextParams {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** The user under test — value is irrelevant; it is only threaded into params. */
+/** The user under test -- value is irrelevant; it is only threaded into params. */
 const USER_ID = "user-1"
 
 describe("LoyaltyDiscountService",
@@ -96,17 +96,17 @@ describe("LoyaltyDiscountService",
                 totalPoints,
             }: ProgramContextParams,
         ): void => {
-            // countEnrolledCourses → SELECT COUNT(*) ... returns a single {count} row
+            // countEnrolledCourses -> SELECT COUNT(*) ... returns a single {count} row
             entityManager.query.mockResolvedValue([
                 {
                     count: String(ownedCount),
                 },
             ])
-            // isDiligent → projection streak
+            // isDiligent -> projection streak
             userStatsProjectionService.getStats.mockResolvedValue({
                 streak,
             } as unknown as Awaited<ReturnType<UserStatsProjectionService["getStats"]>>)
-            // isDiligent fallback → global totalPoints from the XP projection
+            // isDiligent fallback -> global totalPoints from the XP projection
             userXpProjectionService.getXp.mockResolvedValue({
                 challengeXp: 0,
                 milestoneXp: 0,
@@ -149,7 +149,7 @@ describe("LoyaltyDiscountService",
                         const context = await service.computeLoyaltyContext(USER_ID)
 
                         expect(context.diligent).toBe(true)
-                        // streak alone satisfied diligence → the XP-projection points read is skipped
+                        // streak alone satisfied diligence -> the XP-projection points read is skipped
                         expect(userXpProjectionService.getXp).not.toHaveBeenCalled()
                     })
 
@@ -245,7 +245,7 @@ describe("LoyaltyDiscountService",
                             extraOwnedCount: 2,
                         })
 
-                        // 0 real + 2 extra → 10%, and enrolledCount reflects the extra
+                        // 0 real + 2 extra -> 10%, and enrolledCount reflects the extra
                         expect(result.percent).toBe(10)
                         expect(result.enrolledCount).toBe(2)
                     })

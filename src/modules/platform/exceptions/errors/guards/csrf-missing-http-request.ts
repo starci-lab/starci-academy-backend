@@ -12,7 +12,7 @@ import {
 export type CsrfMissingHttpRequestExceptionMetadata = AbstractExceptionMetadata
 
 /**
- * Thrown by {@link CsrfGuard} when the GraphQL context carries no `req` —
+ * Thrown by {@link CsrfGuard} when the GraphQL context carries no `req` --
  * fails closed since there is nothing to validate.
  */
 export class CsrfMissingHttpRequestException extends AbstractException {

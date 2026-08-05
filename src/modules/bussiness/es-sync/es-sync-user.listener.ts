@@ -26,7 +26,7 @@ import type {
 } from "./types"
 
 /**
- * Stable Kafka consumer group for the user → Elasticsearch sync. A fixed id
+ * Stable Kafka consumer group for the user -> Elasticsearch sync. A fixed id
  * means restarts resume from the committed offset (no replay storm).
  */
 const ES_SYNC_USER_GROUP_ID = "es-sync-user"
@@ -64,7 +64,7 @@ export class EsSyncUserListener implements OnModuleInit {
     async onModuleInit(): Promise<void> {
         // CDC topic prefix is env-configurable (Debezium server + schema)
         const { cdcTopicPrefix } = envConfig().kafka
-        // the single topic this listener follows — Debezium's `users` change feed
+        // the single topic this listener follows -- Debezium's `users` change feed
         const topic = `${cdcTopicPrefix}users`
         try {
             // ensure the topic exists so subscribe never trips on a cold broker
@@ -73,7 +73,7 @@ export class EsSyncUserListener implements OnModuleInit {
                     topic,
                 ],
             })
-            // stable group → resume from committed offset; KafkaService tracks it
+            // stable group -> resume from committed offset; KafkaService tracks it
             const { consumer } = await this.kafkaService.createConsumer({
                 groupId: ES_SYNC_USER_GROUP_ID,
             })
@@ -97,7 +97,7 @@ export class EsSyncUserListener implements OnModuleInit {
                     },
                 })
         } catch (error) {
-            // Kafka unreachable is non-fatal — log Error-style and let the app boot
+            // Kafka unreachable is non-fatal -- log Error-style and let the app boot
             const cause = error instanceof Error ? error : new Error(String(error))
             this.winstonService.log(WinstonLog.CdcListenerDisabled,
                 {
@@ -110,7 +110,7 @@ export class EsSyncUserListener implements OnModuleInit {
     /**
      * Process one CDC message: extract the changed user's id and re-sync it.
      * Errors are caught and logged (never thrown) so one bad message cannot
-     * stall the consumer — the re-index is idempotent, so the next valid message
+     * stall the consumer -- the re-index is idempotent, so the next valid message
      * self-heals.
      *
      * @param payload - the KafkaJS per-message payload (topic + raw value).
@@ -122,15 +122,15 @@ export class EsSyncUserListener implements OnModuleInit {
         }: EachMessagePayload,
     ): Promise<void> {
         try {
-            // tombstone/null-value records carry no row image → nothing to do
+            // tombstone/null-value records carry no row image -> nothing to do
             if (!message.value) {
                 return
             }
             // parse the Debezium envelope; the flat row is `payload` (or top-level)
             const envelope = JSON.parse(message.value.toString()) as UserCdcEnvelope
-            // some unwrap configs emit the row at top level → fall back to whole object
+            // some unwrap configs emit the row at top level -> fall back to whole object
             const row = envelope.payload ?? envelope
-            // no primary key on the row (malformed) → skip
+            // no primary key on the row (malformed) -> skip
             if (!row.id) {
                 return
             }
@@ -139,7 +139,7 @@ export class EsSyncUserListener implements OnModuleInit {
                 userId: row.id,
             })
         } catch (error) {
-            // at-least-once delivery → swallow + log; a later message recovers.
+            // at-least-once delivery -> swallow + log; a later message recovers.
             // wrap in a typed exception carrying a stable code + the source topic
             const exception = new KafkaCdcMessageException({
                 topic,

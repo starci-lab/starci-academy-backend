@@ -10,13 +10,13 @@ import {
  * homogeneous so the client can deep-link with a single parent-path shape.
  */
 export enum IndexSearchType {
-    /** Search the courses index — hits are course rows (no module/content parent). */
+    /** Search the courses index -- hits are course rows (no module/content parent). */
     CourseIndex = "course-index",
-    /** Search the modules index — parent path includes the owning course. */
+    /** Search the modules index -- parent path includes the owning course. */
     ModuleIndex = "module-index",
-    /** Search the contents (lessons) index — parent path includes course + module. */
+    /** Search the contents (lessons) index -- parent path includes course + module. */
     ContentIndex = "content-index",
-    /** Search the challenges index — parent path includes course + module + content. */
+    /** Search the challenges index -- parent path includes course + module + content. */
     ChallengeIndex = "challenge-index",
     }
 

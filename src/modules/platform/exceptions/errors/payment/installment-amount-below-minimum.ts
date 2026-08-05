@@ -20,7 +20,7 @@ export interface InstallmentAmountBelowMinimumExceptionMetadata extends Abstract
 
 /**
  * Thrown when `payNextInstallment` receives a custom `amountVnd` for a
- * `FlexiblePool` plan that is below the current cycle's minimum payment — a
+ * `FlexiblePool` plan that is below the current cycle's minimum payment -- a
  * top-up can only shrink future cycles, never skip the floor.
  */
 export class InstallmentAmountBelowMinimumException extends AbstractException {

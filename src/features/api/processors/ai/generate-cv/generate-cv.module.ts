@@ -5,7 +5,7 @@
 // The worker + steps are declared as providers below; RagModule /
 // LangchainModule / S3Module / Qdrant / etc. are globally registered at app
 // root, so no imports are needed here (CvRagRetrievalService is injected from
-// the global RagModule — see the enqueue/compose TODOs).
+// the global RagModule -- see the enqueue/compose TODOs).
 // ============================================================================
 
 import {
@@ -46,8 +46,8 @@ import {
         GenerateCvCompleteStepService,
         // SOURCE-AGNOSTIC scoring service (shared with the upload path).
         CvScoringService,
-        // WF-07 upload-scoring path: buffers `uploadedCdnKey` → extracts text →
-        // scores via the shared CvScoringService (`cvText` branch) → persists.
+        // WF-07 upload-scoring path: buffers `uploadedCdnKey` -> extracts text ->
+        // scores via the shared CvScoringService (`cvText` branch) -> persists.
         ScoreUploadedCvService,
         EnqueueGenerateCvJobService,
     ],

@@ -34,9 +34,9 @@ export class FlashcardWeakTag {
 }
 
 @ObjectType({
-    description: "A reason-tagged leech card (lapsed vs stuck-on-Hard), for the 'viết lại' fix-list.",
+    description: "A reason-tagged leech card (lapsed vs stuck-on-Hard), for the rewrite fix-list.",
 })
-/** A "leech FOCUS" card — the card the learner keeps forgetting or getting stuck on. */
+/** A "leech FOCUS" card -- the card the learner keeps forgetting or getting stuck on. */
 export class FlashcardLeechFocusCard {
     @Field(() => ID,
         {
@@ -78,7 +78,7 @@ export class FlashcardLeechFocusCard {
 @ObjectType({
     description: "One deck's review retention (outcome), weakest first.",
 })
-/** One deck's review RETENTION (recalled/total) — the outcome analogue of the footprint `byDeck`. */
+/** One deck's review RETENTION (recalled/total) -- the outcome analogue of the footprint `byDeck`. */
 export class FlashcardDeckRetention {
     @Field(() => ID,
         {
@@ -109,15 +109,15 @@ export class FlashcardDeckRetention {
     description: "The viewer's aggregated flashcard review stats for one course.",
 })
 /**
- * The viewer's aggregated flashcard review ("Học thẻ") stats for one course —
+ * The viewer's aggregated flashcard review stats for one course --
  * the memory-health hero (mature/young retention) + weak-topic map, rendered
- * by `FlashcardReviewStats` (`stats-canonical-fold` — 1 hero + 1 zone).
+ * by `FlashcardReviewStats` (`stats-canonical-fold` -- 1 hero + 1 zone).
  */
 export class MyFlashcardReviewStatsData {
     @Field(
         () => [FlashcardLeechFocusCard],
         {
-            description: "Reason-tagged leech cards (lapsed vs stuck-on-Hard), worst first — the 'viết lại' fix-list.",
+            description: "Reason-tagged leech cards (lapsed vs stuck-on-Hard), worst first — the rewrite fix-list.",
         },
     )
         leechFocus: Array<FlashcardLeechFocusCard>

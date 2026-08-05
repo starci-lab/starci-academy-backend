@@ -36,7 +36,7 @@ export class ContentStatusData {
     description: "Response wrapper for the contentStatus query.",
 })
 /**
- * Envelope for `contentStatus` — status metadata plus the interaction flags.
+ * Envelope for `contentStatus` -- status metadata plus the interaction flags.
  */
 export class ContentStatusResponse
     extends AbstractGraphQLResponse

@@ -77,7 +77,7 @@ describe("CommentService",
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-            // findAndCount is not on the shared mock — add it for the listing path
+            // findAndCount is not on the shared mock -- add it for the listing path
             entityManager.findAndCount = jest.fn().mockResolvedValue([
                 [],
                 0,
@@ -86,7 +86,7 @@ describe("CommentService",
             countQueryBuilder = makeCountQueryBuilderMock()
             entityManager.createQueryBuilder = jest.fn(() => countQueryBuilder)
 
-            // event bus stub — every mutation fans out a room event
+            // event bus stub -- every mutation fans out a room event
             eventEmitterService = {
                 emit: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<EventEmitterService, "emit">>
@@ -139,7 +139,7 @@ describe("CommentService",
 
                 it("throws CommentNotFoundException when the row is missing",
                     async () => {
-                        // findOne default resolves null → no such comment
+                        // findOne default resolves null -> no such comment
                         await expect(
                             service.getCommentOrThrow(commentId),
                         ).rejects.toBeInstanceOf(CommentNotFoundException)
@@ -363,7 +363,7 @@ describe("CommentService",
                             comments,
                             total: 1,
                         })
-                        // page 2 of size 10 → offset 10
+                        // page 2 of size 10 -> offset 10
                         const options = entityManager.findAndCount.mock.calls[0][1] as {
                             skip: number
                             take: number
@@ -410,7 +410,7 @@ describe("CommentService",
                         countQueryBuilder.getRawMany.mockResolvedValueOnce([
                             {
                                 parentId: "p1",
-                                // raw COUNT comes back as text → coerced to a number
+                                // raw COUNT comes back as text -> coerced to a number
                                 count: "3",
                             },
                             {

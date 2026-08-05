@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -34,7 +34,7 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** Minimal user stand-in — only the id is read by the handler. */
+/** Minimal user stand-in -- only the id is read by the handler. */
 const fakeUser = (
     id: string,
 ): UserEntity => ({
@@ -113,7 +113,7 @@ describe("ChallengeSubmissionProgressHandler",
                 expect(result).toEqual({
                     completionTasks: [],
                 })
-                // no enrollment → never delegate to the progress service
+                // no enrollment -> never delegate to the progress service
                 expect(challengeProgressService.getProgress).not.toHaveBeenCalled()
             })
 

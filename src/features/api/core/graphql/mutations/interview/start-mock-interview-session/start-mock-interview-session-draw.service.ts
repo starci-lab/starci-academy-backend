@@ -56,7 +56,7 @@ interface MockInterviewPromptCandidate {
 
 /**
  * Server-side seniority level literal the client may request. Any other
- * string collapses to {@link MockInterviewLevel.Middle} for pool selection —
+ * string collapses to {@link MockInterviewLevel.Middle} for pool selection --
  * the level is still echoed back on the persisted session/response as-is.
  */
 enum MockInterviewLevel {
@@ -66,7 +66,7 @@ enum MockInterviewLevel {
 }
 
 /**
- * Difficulty pool each level draws from — "senior" intentionally excludes
+ * Difficulty pool each level draws from -- "senior" intentionally excludes
  * "easy"/"medium" (a senior-level session should never draw a warm-up
  * prompt), while "junior"/"middle" only ever see their own tier (classics only
  * span easy/medium/hard, so this mapping already covers every classic prompt).
@@ -89,7 +89,7 @@ const LEVEL_DIFFICULTY_POOL: Record<MockInterviewLevel, ReadonlyArray<ChallengeD
  * Maps the same 3-tier setup level onto the flashcard domain's 4-value
  * {@link FlashcardLevel} for `mode="qna"`'s seed draw. "senior" widens to
  * BOTH senior + staff (flashcard decks rarely have many "staff" cards per
- * module — folding staff into the senior tier keeps the pool from going
+ * module -- folding staff into the senior tier keeps the pool from going
  * empty for advanced learners) rather than excluding staff outright.
  */
 const LEVEL_FLASHCARD_POOL: Record<MockInterviewLevel, ReadonlyArray<FlashcardLevel>> = {
@@ -105,12 +105,12 @@ const LEVEL_FLASHCARD_POOL: Record<MockInterviewLevel, ReadonlyArray<FlashcardLe
     ],
 }
 
-/** How many flashcard seed questions a `mode="qna"` session draws by default (the "Tự động"/Auto default, and the "Tùy chỉnh"/Configurable fallback for an unrecognized `questionCount`). */
+/** How many flashcard seed questions a `mode="qna"` session draws by default (the Auto/Auto default, and the Configurable/Configurable fallback for an unrecognized `questionCount`). */
 const QNA_SEED_COUNT = 5
 
 /**
- * Every `questionCount` value the "Tùy chỉnh" (Configurable) setup screen's
- * "Số câu" control may request — an unrecognized/omitted value falls back to
+ * Every `questionCount` value the Configurable (Configurable) setup screen's
+ * question count control may request -- an unrecognized/omitted value falls back to
  * {@link QNA_SEED_COUNT}.
  */
 const ALLOWED_QNA_QUESTION_COUNTS: ReadonlyArray<number> = [3,
@@ -124,25 +124,25 @@ const SEED_TITLE_MAX_CHARS = 120
  * Minimum candidate-pool size a `mode="qna"` draw widens up to before giving
  * every retry real odds of drawing something different. A pool this small (or
  * smaller) still shuffles, but with so few candidates a retry keeps landing
- * back on the same 1-2 cards — indistinguishable from a hard-coded question.
+ * back on the same 1-2 cards -- indistinguishable from a hard-coded question.
  */
 const MIN_QNA_POOL_SIZE = 3
 
 @Injectable()
 /**
- * Draws ONE mock-interview session for a course + level + mode, server-side —
+ * Draws ONE mock-interview session for a course + level + mode, server-side --
  * the Pha 2 integrity fix that replaces the FE's client-side `drawRandomPrompt`
  * random pick, EXTENDED (mode split, 2026-07-06) with a second draw path:
  *
- * - mode="design" — UNCHANGED: capstone milestone-tasks the learner has
+ * - mode="design" -- UNCHANGED: capstone milestone-tasks the learner has
  *   actually REACHED are tried first, falling back to the course-agnostic
  *   curated classics of the same difficulty pool, then to ANY classic (the
  *   14-prompt bank spans easy/medium/hard) so the draw can never come back empty.
- * - mode="qna" — draws {@link QNA_SEED_COUNT} flashcard-card topics from
+ * - mode="qna" -- draws {@link QNA_SEED_COUNT} flashcard-card topics from
  *   REACHED modules at the requested level, widening the pool (any level,
  *   then any module) rather than ever dead-ending, and assigns EACH drawn
  *   question its own cognitive frame (theory/reasoning/scenario) via a
- *   DETERMINISTIC per-seed hash — see {@link deriveSeedKind}.
+ *   DETERMINISTIC per-seed hash -- see {@link deriveSeedKind}.
  */
 export class MockInterviewSessionDrawService {
     constructor(
@@ -179,13 +179,13 @@ export class MockInterviewSessionDrawService {
 
         const normalizedLevel = this.normalizeLevel(level)
         const normalizedMode = normalizeMockInterviewMode(mode)
-        // "design" has no configurable options at all — it always counts
+        // "design" has no configurable options at all -- it always counts
         // towards job-readiness regardless of what the caller sends.
         const resolvedCountsToReadiness = normalizedMode === MockInterviewMode.Design
             ? true
             : countsToReadiness ?? true
 
-        // resolve/create the trial enrollment ONCE — every downstream lookup
+        // resolve/create the trial enrollment ONCE -- every downstream lookup
         // (progress, reached modules, the persisted session draw) is anchored to
         // the same enrollment, consistent with every other mock-interview surface
         // (grading, prompt listing).
@@ -221,7 +221,7 @@ export class MockInterviewSessionDrawService {
      * Normalize a raw `questionCount` request value to a known
      * {@link ALLOWED_QNA_QUESTION_COUNTS} member, falling back to
      * {@link QNA_SEED_COUNT} for anything unrecognized/omitted (never throws
-     * — an unknown FE value must not break the draw).
+     * -- an unknown FE value must not break the draw).
      *
      * @param value - The raw `questionCount` field from the request.
      * @returns A known question count.
@@ -239,9 +239,9 @@ export class MockInterviewSessionDrawService {
 
     /**
      * Normalize a raw `kinds` request value to a non-empty subset of
-     * {@link MOCK_INTERVIEW_QNA_KINDS} — an omitted/empty array, or one whose
-     * every entry is unrecognized, falls back to ALL 3 kinds (the "Tất cả"/
-     * "Tự động" behavior), matching the request field's own doc.
+     * {@link MOCK_INTERVIEW_QNA_KINDS} -- an omitted/empty array, or one whose
+     * every entry is unrecognized, falls back to ALL 3 kinds (the All/
+     * Auto behavior), matching the request field's own doc.
      *
      * @param value - The raw `kinds` field from the request.
      * @returns A non-empty array of known kinds to restrict the per-question draw to.
@@ -267,7 +267,7 @@ export class MockInterviewSessionDrawService {
 
     /**
      * Coerce a raw level string to a known {@link MockInterviewLevel}, falling
-     * back to "middle" for anything unrecognized (never throws — an unknown
+     * back to "middle" for anything unrecognized (never throws -- an unknown
      * FE tier label must not break the draw).
      *
      * @param value - The raw `level` field from the request.
@@ -286,7 +286,7 @@ export class MockInterviewSessionDrawService {
     /**
      * Coerce a raw language string (session-start picker) to one of the four
      * authored body languages, falling back to "typescript" for anything
-     * unrecognized/omitted (never throws — an unknown label must not break the
+     * unrecognized/omitted (never throws -- an unknown label must not break the
      * draw; a question with no matching body then uses its agnostic root).
      *
      * @param value - The raw `lang` field from the request.
@@ -305,10 +305,10 @@ export class MockInterviewSessionDrawService {
 
     /**
      * Resolve the SET of implementation-track languages a qna draw should serve
-     * code questions in — the multi-select language picker (2026-07-17). Keeps only
+     * code questions in -- the multi-select language picker (2026-07-17). Keeps only
      * the 4 known tracks (deduped, preserving `DEFAULT_PROGRAMMING_LANGUAGES`
      * order); an empty result falls back to the deprecated single {@link lang}
-     * (one-element set) and, failing that, to ALL FOUR tracks (widest draw — a
+     * (one-element set) and, failing that, to ALL FOUR tracks (widest draw -- a
      * missing/garbage selection must never exclude every code question). Callers
      * intersect this per-question against each question's authored tracks: a
      * 4-track question is served in a RANDOM member of the intersection, and one
@@ -358,9 +358,9 @@ export class MockInterviewSessionDrawService {
     }
 
     /**
-     * mode="design" draw path — UNCHANGED from before the mode split:
+     * mode="design" draw path -- UNCHANGED from before the mode split:
      * capstone-first (grounded in what THIS course teaches + already reached),
-     * then same-difficulty classics, then — so the draw is NEVER empty — any
+     * then same-difficulty classics, then -- so the draw is NEVER empty -- any
      * classic at all (the 14-prompt bank spans easy/medium/hard).
      *
      * @param params - Course, resolved enrollment, level, locale.
@@ -434,10 +434,10 @@ export class MockInterviewSessionDrawService {
     }
 
     /**
-     * mode="qna" draw path — draws {@link QNA_SEED_COUNT} flashcard-card seed
+     * mode="qna" draw path -- draws {@link QNA_SEED_COUNT} flashcard-card seed
      * questions from REACHED modules at the requested level. Widens the pool
-     * (never dead-ends): reached modules at the requested level → reached
-     * modules at ANY level → ANY module at ANY level. Throws
+     * (never dead-ends): reached modules at the requested level -> reached
+     * modules at ANY level -> ANY module at ANY level. Throws
      * {@link MockInterviewNoSeedCardsException} only when the course has ZERO
      * flashcard cards at all (a course with no flashcard decks seeded yet
      * cannot run a Q&A session). EACH drawn question is assigned its own
@@ -473,7 +473,7 @@ export class MockInterviewSessionDrawService {
         const levelPool = LEVEL_FLASHCARD_POOL[level]
         const resolvedQuestionCount = this.normalizeQuestionCount(params.questionCount)
         const resolvedKinds = this.normalizeKinds(params.kinds)
-        // languages the candidate selected at setup — each 4-track code question is
+        // languages the candidate selected at setup -- each 4-track code question is
         // served in a RANDOM member of (this ∩ its authored tracks); a code question
         // authored in none of these is dropped from the pool (see listCourseInterviewQuestions)
         const resolvedLangs = this.normalizeLangs(params.langs,
@@ -516,14 +516,14 @@ export class MockInterviewSessionDrawService {
         const reachedAnyLevel = allCards.filter(
             (card) => Boolean(card.moduleId) && reachedModuleIds.has(card.moduleId as string),
         )
-        // widen PROGRESSIVELY until the pool is big enough for real variety —
+        // widen PROGRESSIVELY until the pool is big enough for real variety --
         // "has at least 1 candidate" used to be the bar, which let an early
         // module with a single authored middle-level card lock every retry
         // onto that SAME card forever (a 1-card pool shuffles to itself every
         // time). Merging tiers (deduped) until the pool clears
-        // `MIN_QNA_POOL_SIZE` keeps the higher-priority tier's cards first —
+        // `MIN_QNA_POOL_SIZE` keeps the higher-priority tier's cards first --
         // a module that already has plenty of reached-at-level cards never
-        // widens at all — but tops up thin pools from the next tier so a
+        // widens at all -- but tops up thin pools from the next tier so a
         // retry has real odds of drawing something different.
         const pool = this.buildQnaPool({
             tiers: [reachedAtLevel,
@@ -535,10 +535,9 @@ export class MockInterviewSessionDrawService {
 
         const drawnCards = this.pickRandomMany(pool,
             resolvedQuestionCount)
-        // each drawn card's own cognitive frame — DETERMINISTIC (not
+        // each drawn card's own cognitive frame -- DETERMINISTIC (not
         // Math.random), derived from the card's own id + its position in the
-        // draw, restricted to the requested kinds subset (all 3 for "Tự
-        // động"/omitted), so the same card asked twice in different
+        // draw, restricted to the requested kinds subset (all 3 for Auto/omitted), so the same card asked twice in different
         // positions can still land on a different kind while staying
         // reproducible for a given draw
         const seedTopics: Array<DrawMockInterviewSeedTopic> = drawnCards.map((card,
@@ -548,10 +547,10 @@ export class MockInterviewSessionDrawService {
             kind: useBank && card.kind ? card.kind : this.deriveSeedKind(card.id,
                 index,
                 resolvedKinds),
-            // bank questions are delivered VERBATIM by the interviewer → carry the
+            // bank questions are delivered VERBATIM by the interviewer -> carry the
             // composed prompt (+ folded diagram); flashcard seeds keep a short title
             title: useBank ? card.question : this.truncateTitle(card.question),
-            // editor (debug/review/optimize), one variant per authored language —
+            // editor (debug/review/optimize), one variant per authored language --
             // empty for flashcard seeds
             givenCodes: useBank
                 ? (card.givenCodes ?? []).map((variant) => ({
@@ -563,10 +562,10 @@ export class MockInterviewSessionDrawService {
 
         // Bookend the technical block with TWO behavioral/EQ questions (from the
         // GLOBAL bank), mirroring a real interview loop: a light culture/motivation
-        // question OPENS (recruiter-screen warm-up — also lowers anxiety), and a
+        // question OPENS (recruiter-screen warm-up -- also lowers anxiety), and a
         // deep behavioral/situational STAR question CLOSES (the hiring-manager
         // behavioral round near the end). Bank sessions only (flashcard-fallback
-        // courses have no EQ concept). Either draw may be null (bank not seeded) —
+        // courses have no EQ concept). Either draw may be null (bank not seeded) --
         // the session still works, just without that bookend.
         if (useBank) {
             const eqOpener = await this.drawEqQuestion(level,
@@ -583,17 +582,17 @@ export class MockInterviewSessionDrawService {
             }
         }
 
-        // synthetic prompt identity for a qna-mode session — there is no single
+        // synthetic prompt identity for a qna-mode session -- there is no single
         // "prompt", so promptId/promptTitle summarize the draw instead
         const promptId = `qna-${enrollment.id}-${Date.now()}`
-        const promptTitle = `${seedTopics.length} câu · Ngẫu nhiên`
+        const promptTitle = `${seedTopics.length} câu · Ngẫu nhiên` // vn-ok: localized QnA session title emitted to clients
         const difficulty = this.levelToDifficulty(level)
 
         const session = await this.persistSession({
             enrollment,
             level,
             // representative session language (per-question served languages now live
-            // on each seedQuestion's own givenCodes[0].lang, snapshotted below) — kept
+            // on each seedQuestion's own givenCodes[0].lang, snapshotted below) -- kept
             // for back-compat with the session row's `lang` column + older readers
             lang: resolvedLangs[0],
             mode: MockInterviewMode.Qna,
@@ -631,8 +630,8 @@ export class MockInterviewSessionDrawService {
     /**
      * Deterministically derive ONE seed question's cognitive frame from its
      * card id + its position in the draw, restricted to `allowedKinds` (the
-     * "Tùy chỉnh"/Configurable "Kiểu câu" multi-select subset — all 3 for
-     * "Tự động"/omitted) — NOT `Math.random` (the workflow this draw runs
+     * Configurable/Configurable question kind multi-select subset -- all 3 for
+     * Auto/omitted) -- NOT `Math.random` (the workflow this draw runs
      * under forbids it for per-seed assignment), yet still varied per card: a
      * stable string hash of `${cardId}:${index}` is reduced modulo the
      * ALLOWED kinds' length. Because the hash includes `index`, the SAME card
@@ -651,7 +650,7 @@ export class MockInterviewSessionDrawService {
         allowedKinds: ReadonlyArray<MockInterviewKind>,
     ): MockInterviewKind {
         const input = `${cardId}:${index}`
-        // simple, fast, dependency-free string hash (djb2 variant) — only needs
+        // simple, fast, dependency-free string hash (djb2 variant) -- only needs
         // to spread inputs roughly evenly across the allowed kinds, not
         // cryptographic strength
         let hash = 5381
@@ -664,12 +663,12 @@ export class MockInterviewSessionDrawService {
 
     /**
      * List the ids of modules the learner has actually REACHED in this course
-     * — a module counts as reached when it has at least one READ lesson
+     * -- a module counts as reached when it has at least one READ lesson
      * (content), OR it is the first module (in sort order) that still has an
      * unread lesson (i.e. the module the learner is CURRENTLY in, mirroring
      * `myCourseOutline`'s `resolveNextContentTask` at module granularity
      * instead of lesson granularity). A brand-new learner (zero read lessons)
-     * reaches only the very first module — the draw's own pool-widening then
+     * reaches only the very first module -- the draw's own pool-widening then
      * falls through to "any module" rather than treating that as an error.
      *
      * @param params - Course + enrollment to scope the read-flag lookup to.
@@ -741,7 +740,7 @@ export class MockInterviewSessionDrawService {
                 reached.add(module.id)
             }
             // the first module (in order) with an unread lesson is the learner's
-            // CURRENT module (already-unlocked, not yet finished) — reached, but
+            // CURRENT module (already-unlocked, not yet finished) -- reached, but
             // stop granting "current module" status to any module after it
             if (!currentModuleClaimed && hasUnreadLesson) {
                 reached.add(module.id)
@@ -752,13 +751,13 @@ export class MockInterviewSessionDrawService {
     }
 
     /**
-     * Load every flashcard card seeded under a course, fully localized —
-     * flattened from every deck (deck→course, `FlashcardDeckReadService`
+     * Load every flashcard card seeded under a course, fully localized --
+     * flattened from every deck (deck->course, `FlashcardDeckReadService`
      * already loads + localizes the full cards graph).
      *
      * @param params - Course to scope decks to, and locale to localize into.
      * @returns a flat array of every card in the course, each carrying its
-     *   owning `moduleId` (resolved from the card's deck's linked modules —
+     *   owning `moduleId` (resolved from the card's deck's linked modules --
      *   TODO: a deck can reference multiple modules; this takes the FIRST
      *   linked module as the card's module for the reached-module filter,
      *   which is correct for every current deck (one deck per module today)).
@@ -777,7 +776,7 @@ export class MockInterviewSessionDrawService {
             courseId,
             locale,
         )
-        // moduleId per deck is now derived via RAG (the deck→module relation was
+        // moduleId per deck is now derived via RAG (the deck->module relation was
         // removed): semantic-search the course for the deck's topic and take the
         // best-matching lesson's owning module. One retrieval per deck, tagged onto
         // every card of that deck.
@@ -789,7 +788,7 @@ export class MockInterviewSessionDrawService {
             return (deck.cards ?? []).map((card) => ({
                 id: card.id,
                 question: card.question,
-                // level is nullable on the entity (legacy cards) — fall back to
+                // level is nullable on the entity (legacy cards) -- fall back to
                 // middle so an unset card can still be drawn at the middle tier
                 level: card.level ?? FlashcardLevel.Middle,
                 moduleId,
@@ -799,9 +798,9 @@ export class MockInterviewSessionDrawService {
     }
 
     /**
-     * Resolve the module a flashcard deck belongs to via RAG — semantic-search the
+     * Resolve the module a flashcard deck belongs to via RAG -- semantic-search the
      * course's indexed content for the deck's topic and return the best-matching
-     * lesson's owning module id. Replaces the removed deck→module relation: the
+     * lesson's owning module id. Replaces the removed deck->module relation: the
      * association is derived from what the course actually teaches, not stored.
      * Null when the topic is blank, retrieval misses, or the content row is gone.
      *
@@ -843,7 +842,7 @@ export class MockInterviewSessionDrawService {
     }
 
     /**
-     * Draw ONE behavioral/EQ question from the GLOBAL bank (not course-scoped —
+     * Draw ONE behavioral/EQ question from the GLOBAL bank (not course-scoped --
      * EQ competencies are universal), restricted to the given `# kind`(s), and
      * preferring the session's tier (widening to any tier if none match).
      * `excludeId` skips an already-drawn question (so the opener and closer are
@@ -898,12 +897,12 @@ export class MockInterviewSessionDrawService {
 
     /**
      * List a course's TECHNICAL interview-bank questions in the SAME shape the
-     * qna pool logic expects — but sourced from `mock_interviews` (authored
+     * qna pool logic expects -- but sourced from `mock_interviews` (authored
      * prompts) instead of flashcards. `question` is the FULL composed prompt
      * (authored `prompt` + any given diagram/code folded in as Markdown so the
      * room renders them inline) that the interviewer delivers VERBATIM; `kind`
      * is the AUTHORED kind (not derived), so each seed keeps its designed frame.
-     * Empty when the course has no interview bank yet → caller falls back to
+     * Empty when the course has no interview bank yet -> caller falls back to
      * flashcard-seed (non-breaking for un-authored courses).
      */
     private async listCourseInterviewQuestions(
@@ -916,7 +915,7 @@ export class MockInterviewSessionDrawService {
              * DON'T intersect this set is DROPPED (excluded from the returned pool, so
              * a different question gets drawn instead of rendering a language the
              * candidate didn't pick). A non-track question (single `givenCode`/`givenLang`
-             * like `dockerfile`, or a no-code question) ignores this — its language is
+             * like `dockerfile`, or a no-code question) ignores this -- its language is
              * fixed by the question itself, so it is always eligible.
              */
             langs: Array<string>
@@ -933,11 +932,11 @@ export class MockInterviewSessionDrawService {
                 },
             })
         // flatMap so a track-authored question with NO selected-language overlap can
-        // return [] (dropped from the pool) — the candidate is never handed a code
+        // return [] (dropped from the pool) -- the candidate is never handed a code
         // question in a language they didn't pick; the draw simply fills from others.
         return questions.flatMap((question) => {
             // fold the prose prompt + any GIVEN diagram into the delivered `question`
-            // (the diagram is CONTEXT the candidate reasons over — it stays inline in
+            // (the diagram is CONTEXT the candidate reasons over -- it stays inline in
             // the chat bubble), but keep the GIVEN CODE SEPARATE so the FE can seed it
             // into an editable code editor for the candidate to FIX in place, instead
             // of rendering it read-only alongside the question (`debug`/`review`/
@@ -946,10 +945,10 @@ export class MockInterviewSessionDrawService {
                 .sort((left, right) => left.sortIndex - right.sortIndex)
             // TRACK-authored code question (per-language `bodies/`): serve it in a
             // RANDOM one of the candidate's selected languages that this question is
-            // actually authored in. No overlap → drop the whole question (return []).
+            // actually authored in. No overlap -> drop the whole question (return []).
             //
             // A SINGLE authored body means the question's language is fixed by the question
-            // itself, not chosen by the candidate — `agnostic` prose, or a `hcl`/`yaml`/
+            // itself, not chosen by the candidate -- `agnostic` prose, or a `hcl`/`yaml`/
             // `dockerfile` (and even `typescript`) snippet that only makes sense in that one
             // language. Those are always eligible, exactly like the root-authored non-track
             // branch below. Gating them on the candidate's track selection would silently
@@ -976,14 +975,14 @@ export class MockInterviewSessionDrawService {
                     level: this.tierToFlashcardLevel(question.tier),
                     moduleId: question.moduleId,
                     kind: question.kind,
-                    // deliver ONLY the randomly-chosen language's given code — snapshotted
+                    // deliver ONLY the randomly-chosen language's given code -- snapshotted
                     // per-question so grade time re-resolves THIS body (not session.lang)
                     givenCodes: [{
                         lang: chosenBody.lang, code: chosenBody.givenCode 
                     }],
                 }]
             }
-            // NON-track question — a legacy/agnostic single `givenCode` (e.g. a
+            // NON-track question -- a legacy/agnostic single `givenCode` (e.g. a
             // `dockerfile` debug question, whose language is fixed by the question,
             // not chosen by the candidate) or a no-code question. Always eligible.
             const promptText = question.prompt ?? ""
@@ -1024,13 +1023,13 @@ export class MockInterviewSessionDrawService {
     }
 
     /**
-     * Strips a wrapping Markdown code fence (```lang\n…\n```) off an authored
-     * `given_code` value — `interview_questions.given_code` is a PLAIN editor
+     * Strips a wrapping Markdown code fence (```lang\n...\n```) off an authored
+     * `given_code` value -- `interview_questions.given_code` is a PLAIN editor
      * buffer (seeded verbatim into the FE's Monaco tab), not Markdown, but at
      * least one authored row was pasted in straight from a Markdown draft with
      * the fence left on, so it leaked into the editor as literal text. Only
      * strips when the WHOLE string is one fence (first line is the opener,
-     * last line is a bare closer) — never touches legitimate ``` occurring
+     * last line is a bare closer) -- never touches legitimate ``` occurring
      * inside the code itself.
      *
      * @param code - Raw `given_code` value, or null.
@@ -1048,7 +1047,7 @@ export class MockInterviewSessionDrawService {
     /**
      * Map a 3-tier setup level to the difficulty tier echoed back on a
      * qna-mode session (there is no single prompt's own difficulty to report
-     * — this is the pool's difficulty).
+     * -- this is the pool's difficulty).
      *
      * @param level - The normalized setup level.
      * @returns the corresponding difficulty tier.
@@ -1069,14 +1068,14 @@ export class MockInterviewSessionDrawService {
 
     /**
      * Merge candidate tiers (highest-priority first) until the pool reaches
-     * `minSize`, deduping by id — a tier only gets pulled in when the tiers
+     * `minSize`, deduping by id -- a tier only gets pulled in when the tiers
      * before it didn't already clear the bar, so a module with plenty of
      * reached-at-level cards never widens at all; a thin pool tops up from the
      * next tier instead of being replaced outright, so the in-priority cards
      * are still drawn most often, just no longer the ONLY thing ever drawn.
      *
      * @param params - The tiers to merge (in priority order) + the target minimum pool size.
-     * @returns the merged, deduped pool — at least `minSize` long when enough distinct candidates exist across every tier combined.
+     * @returns the merged, deduped pool -- at least `minSize` long when enough distinct candidates exist across every tier combined.
      */
     private buildQnaPool<Type extends { id: string }>(
         params: {
@@ -1100,7 +1099,7 @@ export class MockInterviewSessionDrawService {
 
     /**
      * Pick up to `count` candidates uniformly at random WITHOUT repeats from a
-     * pool (fewer than `count` available → returns every candidate, shuffled).
+     * pool (fewer than `count` available -> returns every candidate, shuffled).
      *
      * @param pool - The candidate pool (may contain fewer than `count` items).
      * @param count - How many to draw.
@@ -1110,7 +1109,7 @@ export class MockInterviewSessionDrawService {
         pool: Array<Type>,
         count: number,
     ): Array<Type> {
-        // Fisher–Yates shuffle a shallow copy, then take the first `count`
+        // Fisher-Yates shuffle a shallow copy, then take the first `count`
         const shuffled = [...pool]
         for (let index = shuffled.length - 1; index > 0; index -= 1) {
             const swapIndex = Math.floor(Math.random() * (index + 1))
@@ -1127,13 +1126,13 @@ export class MockInterviewSessionDrawService {
      * REACHED, filtered to the requested difficulty pool. "Reached" reuses the
      * existing per-task progress signal from
      * {@link PersonalProjectProgressService.getProgress} (already computed for
-     * the personal-project dashboard / `myCourseOutline` — no new projection
+     * the personal-project dashboard / `myCourseOutline` -- no new projection
      * needed): a task is reached when it has been attempted at least once
      * (`numAttempts > 0`), is already completed, OR is the learner's current
-     * (first-uncompleted) task — i.e. the task the learner has unlocked/is
+     * (first-uncompleted) task -- i.e. the task the learner has unlocked/is
      * working on right now, not one still locked further down the curriculum.
      * A learner with zero progress (no attempts, no completions) draws an
-     * empty set here → the caller falls back to classics only, which reads as
+     * empty set here -> the caller falls back to classics only, which reads as
      * "study to unlock the capstone prompts".
      *
      * @param params - Course, enrollment, and the level's difficulty pool.
@@ -1182,7 +1181,7 @@ export class MockInterviewSessionDrawService {
 
         return tasks
             .filter((task) => {
-                // difficulty is nullable on the entity — fall back to medium so an
+                // difficulty is nullable on the entity -- fall back to medium so an
                 // unset task can still be drawn, matching mockInterviewPrompts' own
                 // fallback for consistency between listing and drawing
                 const difficulty = task.difficulty ?? ChallengeDifficulty.Medium
@@ -1205,7 +1204,7 @@ export class MockInterviewSessionDrawService {
 
     /**
      * List the curated "classic" prompts, optionally filtered to a difficulty
-     * pool (omit the filter to fall back to ANY classic — the last-resort pool
+     * pool (omit the filter to fall back to ANY classic -- the last-resort pool
      * so a draw can never come back empty).
      *
      * @param params - The difficulty pool to filter to (undefined = no filter), and the locale to render titles in.
@@ -1234,7 +1233,7 @@ export class MockInterviewSessionDrawService {
     /**
      * Pick one candidate uniformly at random from a non-empty pool.
      *
-     * @param pool - The candidate pool (guaranteed non-empty by the caller — classics always supply at least one).
+     * @param pool - The candidate pool (guaranteed non-empty by the caller -- classics always supply at least one).
      * @returns the drawn candidate.
      */
     private pickRandom(
@@ -1280,7 +1279,7 @@ export class MockInterviewSessionDrawService {
         } = params
 
         // retire the enrollment's previous in-flight draw (if any) BEFORE
-        // persisting the new one, so resume-lookup never has two candidates —
+        // persisting the new one, so resume-lookup never has two candidates --
         // "resume mock interview session" (2026-07-08).
         await this.entityManager.update(
             MockInterviewSessionEntity,
@@ -1312,7 +1311,7 @@ export class MockInterviewSessionDrawService {
                 turns: null,
                 questionIndex: 0,
                 phaseIndex: 0,
-                // stored verbatim — omitted/blank stays null, never
+                // stored verbatim -- omitted/blank stays null, never
                 // server-generated (the FE renders a time-based fallback)
                 name: name?.trim() || null,
             },

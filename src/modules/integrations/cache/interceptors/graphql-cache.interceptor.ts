@@ -106,7 +106,7 @@ export class GraphQLCacheInterceptor implements NestInterceptor {
             })
         }
 
-        /** Cache miss — run handler, then store result. */
+        /** Cache miss -- run handler, then store result. */
         return next.handle().pipe(
             tap(async (result) => {
                 if (this.isSuccessfulResult(result)) {

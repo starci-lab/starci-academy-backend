@@ -36,7 +36,7 @@ import type {
 
 @Resolver()
 /**
- * GraphQL surface for `contentAiSessionMessages` — returns one conversation's
+ * GraphQL surface for `contentAiSessionMessages` -- returns one conversation's
  * turns (oldest first), scoped to the caller's sessions via ContentAiService.
  */
 export class ContentAiHistoryResolver {

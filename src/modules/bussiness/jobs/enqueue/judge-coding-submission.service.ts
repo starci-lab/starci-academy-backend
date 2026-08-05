@@ -42,7 +42,7 @@ import {
 /**
  * Service for enqueuing a coding-submission judging job. Creates (or requeues)
  * the tracked `jobs` row, then adds the BullMQ job after a short UX delay so
- * the client can render a "judging…" state without a flash.
+ * the client can render a "judging..." state without a flash.
  */
 export class EnqueueJudgeCodingSubmissionJobService {
     constructor(
@@ -77,7 +77,7 @@ export class EnqueueJudgeCodingSubmissionJobService {
         } else {
             // fresh submit: mint a stable id shared by the job row and its payload
             const id = uuidv4()
-            // payload only needs identifiers — the worker loads the rest from DB
+            // payload only needs identifiers -- the worker loads the rest from DB
             const payloadBody: JudgeCodingSubmissionPayload = {
                 jobId: id,
                 codingSubmissionId,

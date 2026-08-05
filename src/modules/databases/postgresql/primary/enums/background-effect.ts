@@ -7,7 +7,7 @@ import {
 
 /**
  * Ambient background effect the user has chosen for the app chrome (never the
- * lesson reading column — {@link import("@/components/blocks/layout/AmbientBackground").AmbientBackground}
+ * lesson reading column -- {@link import("@/components/blocks/layout/AmbientBackground").AmbientBackground}
  * on the FE hides itself under `/learn`). Purely decorative; independent of
  * light/dark mode. Stored in `users.background_effect`, default `None`.
  */

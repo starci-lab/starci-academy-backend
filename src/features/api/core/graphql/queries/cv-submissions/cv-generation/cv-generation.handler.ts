@@ -92,7 +92,7 @@ export class CvGenerationHandler
         }
 
         // resolve the stored .tex object to its raw text server-side so the FE
-        // never needs direct MinIO access. null key / missing object → null.
+        // never needs direct MinIO access. null key / missing object -> null.
         const latexSource = generation.latexCdnKey
             ? await this.s3ReadService.text({
                 key: generation.latexCdnKey,
@@ -100,7 +100,7 @@ export class CvGenerationHandler
             })
             : null
 
-        // uploaded CVs carry a raw file (pdf/docx) instead of a rendered .tex —
+        // uploaded CVs carry a raw file (pdf/docx) instead of a rendered .tex --
         // resolve it to a presigned GET URL server-side, mirroring the legacy
         // cvUrl query's pattern (buildSignedGetObjectUrl).
         const uploadedCvUrl = generation.source === CvSource.Uploaded && generation.uploadedCdnKey
@@ -111,7 +111,7 @@ export class CvGenerationHandler
             : null
 
         // generated CVs may have a server-compiled PDF (tectonic, best-effort at
-        // render time) — resolve it the same way as the uploaded file so the FE
+        // render time) -- resolve it the same way as the uploaded file so the FE
         // can preview EITHER source through the same PDF viewer.
         const generatedPdfUrl = generation.source === CvSource.Generated && generation.generatedPdfCdnKey
             ? await this.s3BuildService.buildSignedGetObjectUrl({
@@ -147,7 +147,7 @@ export class CvGenerationHandler
     /**
      * Shape-coerces the stored `feedback` jsonb (produced by
      * `CvScoreFeedback`/`parseCvScore` in the shared scoring service) into the
-     * typed GraphQL {@link CvFeedback}. Defensive — a malformed/legacy row
+     * typed GraphQL {@link CvFeedback}. Defensive -- a malformed/legacy row
      * degrades to an empty item list rather than throwing.
      */
     private mapFeedback(

@@ -47,7 +47,7 @@ const MAX_LIMIT = 20
  * Dashboard "who to follow" rail: users the viewer does not already follow,
  * ranked by how many followers they have (most-followed first) so the most
  * notable accounts surface. Excludes the viewer themselves and everyone they
- * already follow. Auth-only — the suggestion set is viewer-specific.
+ * already follow. Auth-only -- the suggestion set is viewer-specific.
  */
 export class SuggestedUsersResolver {
     constructor(
@@ -88,7 +88,7 @@ export class SuggestedUsersResolver {
             1),
         MAX_LIMIT)
 
-        // subquery of the ids the viewer already follows — these are excluded from
+        // subquery of the ids the viewer already follows -- these are excluded from
         // the suggestion set so we never suggest someone they already follow
         const followedSubQuery = this.entityManager
             .createQueryBuilder()

@@ -8,7 +8,7 @@ export enum SyncStateTarget {
 
 /** Sync source entity type. */
 export enum SyncStateSourceType {
-    /** Cursor tracks a `courses` row — course graph changes bump this source. */
+    /** Cursor tracks a `courses` row -- course graph changes bump this source. */
     Course = "course",
     /** Cursor tracks a `challenges` row. */
     Challenge = "challenge",
@@ -18,12 +18,12 @@ export enum SyncStateSourceType {
 
 /** Current sync-state lifecycle status. */
 export enum SyncStateStatus {
-    /** Not started — eligible for pickup on the next worker pass. */
+    /** Not started -- eligible for pickup on the next worker pass. */
     Pending = "pending",
-    /** In-flight claim — a second worker must not dispatch the same snapshot. */
+    /** In-flight claim -- a second worker must not dispatch the same snapshot. */
     Syncing = "syncing",
     /** Downstream matches `sourceUpdatedAt`; further syncs skip until the source moves. */
     Synced = "synced",
-    /** Last attempt failed — `lastError` is stored and `nextRetryAt` schedules backoff. */
+    /** Last attempt failed -- `lastError` is stored and `nextRetryAt` schedules backoff. */
     Failed = "failed"
     }

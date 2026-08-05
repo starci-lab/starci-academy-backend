@@ -1,5 +1,5 @@
 /**
- * A single database to snapshot — a human label plus its connection URL.
+ * A single database to snapshot -- a human label plus its connection URL.
  */
 export interface PgSnapshotTarget {
     /** Operator-facing label; also used (slugified) in the dump filename. */

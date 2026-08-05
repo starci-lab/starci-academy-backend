@@ -100,7 +100,7 @@ describe("FoundationCategoriesHandler",
                         title: "do",
                     },
                 })
-                // 1-based page 2 with size 5 → offset 5
+                // 1-based page 2 with size 5 -> offset 5
                 expect(searchArgs.from).toBe(5)
                 expect(searchArgs.size).toBe(5)
             })
@@ -122,7 +122,7 @@ describe("FoundationCategoriesHandler",
 
                 expect(result.totalCount).toBe(0)
                 const searchArgs = elasticsearch.client.search.mock.calls[0][0]
-                // empty search → match_all
+                // empty search -> match_all
                 expect(searchArgs.query).toEqual({
                     match_all: {
                     },
@@ -153,7 +153,7 @@ describe("FoundationCategoriesHandler",
                 const highArgs = elasticsearch.client.search.mock.calls[0][0]
                 // limit clamped to the 50 ceiling
                 expect(highArgs.size).toBe(50)
-                // page clamped up to 1 → offset 0
+                // page clamped up to 1 -> offset 0
                 expect(highArgs.from).toBe(0)
 
                 await handler.execute(

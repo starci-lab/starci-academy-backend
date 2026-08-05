@@ -28,7 +28,7 @@ export interface AchievementSeedItem {
 
 /**
  * Root shape returned by the markdown extractor for `achievements.md`: the
- * `# 0`, `# 1`, … array items are wrapped under a single `data` key. Used as the
+ * `# 0`, `# 1`, ... array items are wrapped under a single `data` key. Used as the
  * generic argument to the JSON-from-markdown extractor in the seeder.
  */
 export interface AchievementSeedRoot {

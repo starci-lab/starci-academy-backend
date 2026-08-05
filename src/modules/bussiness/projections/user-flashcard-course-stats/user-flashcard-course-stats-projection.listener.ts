@@ -23,17 +23,17 @@ import type {
 
 @Injectable()
 /**
- * CDC consumer that keeps `user_flashcard_course_stats_projections` fresh —
+ * CDC consumer that keeps `user_flashcard_course_stats_projections` fresh --
  * BOTH `flashcard_quiz_sessions` and `flashcard_review_sessions` converge on
  * this SAME enrollment-keyed projection (the two recap surfaces share one
  * grain), so a single listener on both topics is simpler than two. Each row
- * carries `enrollment_id` directly — no join needed to derive the recompute
+ * carries `enrollment_id` directly -- no join needed to derive the recompute
  * target. {@link AbstractProjectionListener} already supports a multi-topic
  * `topics` array with a topic-agnostic `deriveTargets`, so no hand-rolled
  * `OnModuleInit` is needed here.
  */
 export class UserFlashcardCourseStatsProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-flashcard-course-stats-projection"
 
     /** A new quiz OR review session row moves the enrollment's flashcard-course stats. */
@@ -53,11 +53,11 @@ export class UserFlashcardCourseStatsProjectionListener extends AbstractProjecti
     }
 
     /**
-     * Both source rows carry `enrollment_id` directly — no join needed
+     * Both source rows carry `enrollment_id` directly -- no join needed
      * regardless of which of the two topics the message came from.
      *
      * @param message - {@link ProjectionCdcMessage}
-     * @returns the affected enrollment id (0–1).
+     * @returns the affected enrollment id (0-1).
      */
     protected deriveTargets(
         {

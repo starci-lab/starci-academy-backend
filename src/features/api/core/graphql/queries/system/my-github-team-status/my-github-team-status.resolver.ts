@@ -34,7 +34,7 @@ import {
 /**
  * Query: the authenticated viewer's GitHub link + per-enrolled-course team
  * membership status. Drives the forced "join team" flow (link vs in-team are
- * separate states) — auth-only (no MustEnrolled, the FE handles the no-team case).
+ * separate states) -- auth-only (no MustEnrolled, the FE handles the no-team case).
  */
 export class MyGithubTeamStatusResolver {
     constructor(

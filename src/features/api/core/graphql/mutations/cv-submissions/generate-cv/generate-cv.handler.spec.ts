@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (mirrors sync-submission.handler.spec.ts).
 import "@modules/bussiness"
 import {
@@ -48,7 +48,7 @@ describe("GenerateCvHandler",
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
         beforeEach(async () => {
-            // enqueue service is mocked wholesale — this handler only calls `enqueue`
+            // enqueue service is mocked wholesale -- this handler only calls `enqueue`
             // and reads back `{ cvGeneration, jobId }`, never touches the DB itself
             enqueueGenerateCvJobService = {
                 enqueue: jest.fn().mockResolvedValue({
@@ -110,7 +110,7 @@ describe("GenerateCvHandler",
 
                 it("threads courseId/label/targetRole/language plus the lane pick into the enqueue call",
                     async () => {
-                        // an explicit model pick — proves selectedModel/selectedModelProvider
+                        // an explicit model pick -- proves selectedModel/selectedModelProvider
                         // flow through gradingLaneValidationService.validate(...)
                         gradingLaneValidationService.validate.mockResolvedValueOnce({
                             gradingModel: "gpt-4o",

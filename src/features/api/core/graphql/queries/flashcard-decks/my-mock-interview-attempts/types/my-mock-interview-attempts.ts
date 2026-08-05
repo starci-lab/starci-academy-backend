@@ -12,13 +12,13 @@ export interface MockInterviewAttemptPhaseScore {
 export interface MockInterviewAttemptAttributeScore {
     /** The named attribute (e.g. "communication", "structuredThinking", "tradeoffAwareness"). */
     key: string
-    /** Score 0–100 the model assigned to this attribute. */
+    /** Score 0-100 the model assigned to this attribute. */
     score: number
 }
 
 /**
  * One persisted per-question model-answer review inside a mock-interview
- * attempt — the read-back shape mirrors
+ * attempt -- the read-back shape mirrors
  * {@link import("../../../../mutations/interview/grade-mock-interview-session/types/mock-interview-grade").MockInterviewQuestionReview}
  * exactly (same fields, same jsonb-round-tripped shape) so the history
  * drawer renders it identically to the live scorecard. Always empty for a
@@ -59,7 +59,7 @@ export interface MockInterviewAttemptSummary {
     level: string | null
     /** The top-level flow this session ran ("qna" | "design"), or null for an attempt graded before the "mode split" (treated as "design" by every reader). */
     mode: string | null
-    /** Integer 0–100 overall score. */
+    /** Integer 0-100 overall score. */
     overallScore: number
     /** Coarse pass/borderline/fail band. */
     verdict: string
@@ -81,7 +81,7 @@ export interface MockInterviewAttemptSummary {
      */
     matchedContentIds: Array<string>
     /**
-     * Per-question model-answer review — one entry per `mode="qna"`
+     * Per-question model-answer review -- one entry per `mode="qna"`
      * question. Always empty for a `mode="design"` attempt, or an attempt
      * graded before this field existed.
      */
@@ -105,7 +105,7 @@ export interface ListMyMockInterviewAttemptsParams {
     /**
      * Optional mode filter ("qna" | "design"); omitted = every mode. Filtering
      * to "design" also matches a null-mode legacy attempt (predates the "mode
-     * split" — the only mode that could have existed then), mirroring how
+     * split" -- the only mode that could have existed then), mirroring how
      * every other reader treats a null mode.
      */
     mode?: string

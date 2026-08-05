@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -92,7 +92,7 @@ describe("RefreshTokenHandler",
 
         it("exchanges the refresh token when the access token is near expiry",
             async () => {
-                // the access token expires in 10s — below the 60s minimum
+                // the access token expires in 10s -- below the 60s minimum
                 const soonExp = Math.floor(Date.now() / 1000) + 10
                 jwtService.decode.mockReturnValueOnce({
                     exp: soonExp,

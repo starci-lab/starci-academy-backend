@@ -66,7 +66,7 @@ import {
 @Injectable()
 /**
  * Matches `order_invoice_number` (falling back to the legacy top-level invoice) then
- * settles — a missing invoice must not silently drop the IPN.
+ * settles -- a missing invoice must not silently drop the IPN.
  */
 export class SepayWebhookHandler
     extends ICQRSHandler<SepayWebhookCommand, void>
@@ -127,7 +127,7 @@ export class SepayWebhookHandler
         }
 
         // authoritative verification: query the order-detail API (Basic auth
-        // merchant:secret). A non-2xx response throws → the IPN is rejected.
+        // merchant:secret). A non-2xx response throws -> the IPN is rejected.
         // We trust this server-to-server call, not the inbound IPN body.
         const orderDetail = await this.sepay.order.retrieve(invoice)
         this.winstonService.log(
@@ -141,7 +141,7 @@ export class SepayWebhookHandler
             },
         )
 
-        // CRITICAL: the order merely EXISTING is not proof of payment — read the
+        // CRITICAL: the order merely EXISTING is not proof of payment -- read the
         // authoritative paid flag/status from the order detail (same check the
         // reconcile poll uses). Without this, anyone who knows an orderCode could
         // POST the webhook for an unpaid order and get enrolled for free.

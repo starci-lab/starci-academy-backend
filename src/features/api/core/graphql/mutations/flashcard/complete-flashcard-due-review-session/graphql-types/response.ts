@@ -14,7 +14,7 @@ import {
 /**
  * The outcome of finishing a cross-deck due-review batch session: the
  * reviewed-count and XP bookkeeping values snapshotted onto the row.
- * `xpEarned` here is echoed straight back from the request — see
+ * `xpEarned` here is echoed straight back from the request -- see
  * `CompleteFlashcardDueReviewSessionRequest`'s own doc for why no XP grant
  * happens server-side.
  */

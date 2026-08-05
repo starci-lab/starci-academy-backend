@@ -27,7 +27,7 @@ import type {
 
 /**
  * How far back a session's last sync may be for it to still be offered as
- * resumable — same reasoning as `FlashcardReviewSessionService`'s own
+ * resumable -- same reasoning as `FlashcardReviewSessionService`'s own
  * `RESUME_WINDOW_HOURS`: a session synced longer ago than this is treated as
  * effectively abandoned even though `startFlashcardDueReviewSession` has not
  * yet flipped its status (that only happens when the SAME enrollment starts a
@@ -38,7 +38,7 @@ const RESUME_WINDOW_HOURS = 24
 @Injectable()
 /**
  * Business logic for the resumable CROSS-DECK due-review batch ("DueReview")
- * session — mirrors
+ * session -- mirrors
  * {@link import("./flashcard-review-session.service").FlashcardReviewSessionService}'s
  * resumable-draw shape, but scoped to an ENROLLMENT only (no deck): a
  * due-review batch draws cards across MULTIPLE decks in one course, so it
@@ -49,7 +49,7 @@ const RESUME_WINDOW_HOURS = 24
  * sequence of those calls, mirroring `FlashcardReviewSessionService`'s own XP
  * DECISION: `reviewFlashcard` grants no XP today, so `xpEarned` on
  * `flashcard_due_review_sessions` is a CLIENT-REPORTED BOOKKEEPING SNAPSHOT
- * ONLY — `sync`/`complete` below persist whatever value the caller sends,
+ * ONLY -- `sync`/`complete` below persist whatever value the caller sends,
  * with NO `xp_histories` insert, NO `XpSource` addition, and NO daily-cap
  * logic.
  */
@@ -63,7 +63,7 @@ export class FlashcardDueReviewSessionService {
     /**
      * Persist ONE resumable due-review batch draw over a course, retiring any
      * PRIOR "in_progress" draw for the same enrollment first so a learner
-     * never has two resumable due-review batches at once — mirrors
+     * never has two resumable due-review batches at once -- mirrors
      * `FlashcardReviewSessionService.start`'s own "abandon prior in_progress
      * row" step (there further scoped by deck; here scoped by enrollment
      * alone, since a due-review batch spans multiple decks).
@@ -117,7 +117,7 @@ export class FlashcardDueReviewSessionService {
     }
 
     /**
-     * Sync an in-flight due-review batch session's position + progress —
+     * Sync an in-flight due-review batch session's position + progress --
      * ownership-scoped, silently no-ops (never throws) for a session that is
      * not found/owned or no longer "in_progress", same reasoning as
      * `FlashcardReviewSessionService.sync` (a background periodic sync must
@@ -169,7 +169,7 @@ export class FlashcardDueReviewSessionService {
                 currentIndex,
                 reviewedCount,
                 // only overwrite the graded-index set when the caller sent one
-                // — omitting it must leave the column untouched (same tolerance
+                // -- omitting it must leave the column untouched (same tolerance
                 // the rest of the sync payload has), not wipe it to undefined.
                 ...(gradedIndexes !== undefined ? {
                     gradedIndexes,
@@ -185,25 +185,25 @@ export class FlashcardDueReviewSessionService {
     }
 
     /**
-     * Record a finished due-review batch session — flips the row to
+     * Record a finished due-review batch session -- flips the row to
      * "completed" and snapshots the final reviewed-count/xpEarned the caller
      * reports. Ownership-scoped via `status: Not("completed")` (loosened
-     * 2026-07-12 — was `status: "in_progress"`, mirroring
+     * 2026-07-12 -- was `status: "in_progress"`, mirroring
      * `FlashcardReviewSessionService.complete`'s own guard): the STRICT
      * `"in_progress"` match silently updated ZERO rows (TypeORM `update()`
      * never throws on a no-match) whenever the row had ALREADY been raced to
      * "abandoned" by a concurrent `start()` (retires every prior in_progress
-     * row for the enrollment — e.g. a duplicate resolve-or-start effect fire)
-     * BEFORE this call landed — the FE still reported "success" (the mutation
+     * row for the enrollment -- e.g. a duplicate resolve-or-start effect fire)
+     * BEFORE this call landed -- the FE still reported "success" (the mutation
      * itself never errored), but the row was permanently stuck un-completed,
      * so a later revisit-by-URL/resume kept re-entering the review instead of
-     * showing the recap (thầy 2026-07-12: "sao có kết quả phiên ôn rồi mà F5
-     * lại ra flashcard cuối"). `Not("completed")` still refuses to re-flip an
+     * showing the recap (PO 2026-07-12: after finishing, F5 must show the
+     * recap, not the last flashcard again). `Not("completed")` still refuses to re-flip an
      * ALREADY-completed row (replay-safe, same as before) while tolerating
-     * "abandoned" — the learner genuinely finished, so their completion
+     * "abandoned" -- the learner genuinely finished, so their completion
      * should win regardless of what else raced the row's status meanwhile.
      *
-     * NO XP is granted here — see the class doc's XP DECISION. `xpEarned` is
+     * NO XP is granted here -- see the class doc's XP DECISION. `xpEarned` is
      * echoed straight through as a bookkeeping snapshot, never written to
      * `xp_histories`.
      *
@@ -218,12 +218,12 @@ export class FlashcardDueReviewSessionService {
             xpEarned,
         }: CompleteFlashcardDueReviewSessionParams,
     ): Promise<CompleteFlashcardDueReviewSessionResult> {
-        // Ownership is a two-level nested relation (enrollment → user), which a
+        // Ownership is a two-level nested relation (enrollment -> user), which a
         // bare `update()` cannot express: TypeORM compiles `update` to an
         // UpdateQueryBuilder that has no JOINs, so a nested-relation WHERE throws
         // "Cannot find alias for relation". Resolve ownership with a `findOne`
         // (which CAN join) first, then update by the scalar `id` + the
-        // replay-safe `status` guard — mirroring `sync()` in this same service.
+        // replay-safe `status` guard -- mirroring `sync()` in this same service.
         const owned = await this.entityManager.findOne(
             FlashcardDueReviewSessionEntity,
             {
@@ -264,10 +264,10 @@ export class FlashcardDueReviewSessionService {
     /**
      * Find the most recent `status = "in_progress"` due-review batch session,
      * synced within {@link RESUME_WINDOW_HOURS}, for the caller's enrollment
-     * in one course — mirrors
+     * in one course -- mirrors
      * `MyInProgressFlashcardQuizSessionService.find`/
      * `FlashcardReviewSessionService.findInProgress`, scoped by course
-     * (course-wide, like quiz sessions — NOT per-deck, unlike review
+     * (course-wide, like quiz sessions -- NOT per-deck, unlike review
      * sessions).
      *
      * @param params - {@link FindMyInProgressFlashcardDueReviewSessionParams}
@@ -321,11 +321,11 @@ export class FlashcardDueReviewSessionService {
 
     /**
      * Find a due-review batch session directly by its id (ownership-checked
-     * against the caller) — mirrors
+     * against the caller) -- mirrors
      * `FlashcardReviewSessionService.findById`; no deck identity to attach
      * here (a due-review batch spans multiple decks, per-card deckId comes
      * from the drawn cards themselves, not the session row). NOT
-     * window/status-scoped like `findInProgress` — a direct link to a
+     * window/status-scoped like `findInProgress` -- a direct link to a
      * completed/abandoned session still resolves.
      *
      * @param params - {@link FindFlashcardDueReviewSessionByIdParams}

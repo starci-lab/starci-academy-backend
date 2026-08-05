@@ -39,21 +39,21 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the follow/unfollow toggle — `.claude/canon/be/enforce/authoring/testing.md`
+ * e2e for the follow/unfollow toggle -- `.claude/canon/be/enforce/authoring/testing.md`
  * §2 coverage rule: every mutation that commits a row a user later sees earns
  * an e2e. `setFollow` writes THREE things in one transaction (the follow edge,
- * a feed `ActivityEntity`, and — outside the transaction — the recomputed
+ * a feed `ActivityEntity`, and -- outside the transaction -- the recomputed
  * `UserStatsProjectionEntity` for both endpoints), so this proves the wiring
  * against REAL Postgres (Testcontainers), not a mocked `EntityManager`.
  *
- * MOCKED: `NotificationService` — its real implementation needs
+ * MOCKED: `NotificationService` -- its real implementation needs
  * `EventEmitterService`, which in turn needs a live NATS producer; out of
  * scope for a focused follow-graph spec (same pattern `create-e2e-app.ts` uses
  * to stub `NotificationService` for the payment webhook flows). Stubbed to a
  * spy so the notification fan-out call itself is still asserted.
  *
  * REAL: Postgres (Testcontainers), `SetFollowResolver`, and
- * `UserStatsProjectionService` (only needs the entity manager — no external
+ * `UserStatsProjectionService` (only needs the entity manager -- no external
  * seam to stub).
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -77,18 +77,18 @@ describe("Follow / unfollow (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the resolver under test
+                    // REAL -- the resolver under test
                     SetFollowResolver,
-                    // REAL — recompute() only needs the entity manager
+                    // REAL -- recompute() only needs the entity manager
                     UserStatsProjectionService,
-                    // mocked — createNotification needs a live NATS-backed event emitter
+                    // mocked -- createNotification needs a live NATS-backed event emitter
                     {
                         provide: NotificationService,
                         useValue: {
                             createNotification,
                         },
                     },
-                    // guard deps — `SetFollowResolver` carries
+                    // guard deps -- `SetFollowResolver` carries
                     // `@UseGuards(KeycloakAuthGraphQLGuard)`, so Nest constructs the
                     // guard as an enhancer at `app.init()` even though this test
                     // invokes `execute()` directly; its constructor deps must resolve
@@ -243,7 +243,7 @@ describe("Follow / unfollow (e2e)",
                     })
                 expect(activityCount).toBe(1)
 
-                // the second call short-circuited before `followed` flipped true —
+                // the second call short-circuited before `followed` flipped true --
                 // no second notification fired
                 expect(createNotification).toHaveBeenCalledTimes(1)
             })

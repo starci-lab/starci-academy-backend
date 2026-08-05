@@ -13,5 +13,5 @@ import {
         MyFlashcardReviewSessionBySessionIdResolver,
     ],
 })
-/** Feature-module boundary for the `myFlashcardReviewSessionBySessionId` query — wires its resolver (business logic lives in the shared `FlashcardReviewSessionService`). */
+/** Feature-module boundary for the `myFlashcardReviewSessionBySessionId` query -- wires its resolver (business logic lives in the shared `FlashcardReviewSessionService`). */
 export class MyFlashcardReviewSessionBySessionIdSingleQueryModule extends ConfigurableModuleClass {}

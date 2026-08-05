@@ -35,7 +35,7 @@ export class MockInterviewCodeVariant {
 })
 /**
  * One authored programming-language variant of a debug/review/optimize
- * question's GIVEN code — same conceptual bug, one entry per language. The
+ * question's GIVEN code -- same conceptual bug, one entry per language. The
  * candidate freely switches between these client-side (no refetch).
  */
 export class MockInterviewGivenCodeVariantItem {
@@ -60,11 +60,11 @@ export class MockInterviewGivenCodeVariantItem {
     description: "One drawn flashcard-card seed question for a mode=\"qna\" mock-interview session.",
 })
 /**
- * One drawn flashcard seed topic for a `mode="qna"` session — the FE never
+ * One drawn flashcard seed topic for a `mode="qna"` session -- the FE never
  * sees the seed card's answer/keywords (those stay server-side for grading),
  * only enough to identify + preview the topic AND the cognitive frame this
  * ONE question was randomly assigned, so the FE can badge each question
- * ("Câu 2/5 · Tình huống") and echo the right `kind` back on each ask/grade
+ * (e.g. "2/5 - scenario") and echo the right `kind` back on each ask/grade
  * turn.
  */
 export class MockInterviewSeedTopic {
@@ -125,7 +125,7 @@ export class StartMockInterviewSessionData {
     @Field(
         () => String,
         {
-            description: "The drawn prompt's title, localized. For mode=\"qna\" this is a summary like \"5 câu · Ngẫu nhiên\" rather than one system's title (there is no single \"prompt\" — each question is seeded by its own flashcard topic, see seedTopics).",
+            description: "The drawn prompt's title, localized. For mode=\"qna\" this is a summary like \"5 câu · Ngẫu nhiên\" rather than one system's title (there is no single \"prompt\" — each question is seeded by its own flashcard topic, see seedTopics).", // vn-ok: localized QnA session title emitted to clients
         },
     )
         promptTitle: string
@@ -155,12 +155,12 @@ export class StartMockInterviewSessionData {
         level: string
 
     /**
-     * The TOP-LEVEL flow this session runs — echoes the (normalized) request
+     * The TOP-LEVEL flow this session runs -- echoes the (normalized) request
      * `mode` back, one of "qna" | "design". Persist alongside `sessionId` so
      * `gradeMockInterviewSession` can branch its grading rubric per-mode
-     * WITHOUT trusting the client — the FE only needs this to pick which
+     * WITHOUT trusting the client -- the FE only needs this to pick which
      * session-workspace flow (N-question Q&A vs 5-phase) to render. "Mode
-     * split" (2026-07-06) — this REPLACES the earlier per-session `kind`
+     * split" (2026-07-06) -- this REPLACES the earlier per-session `kind`
      * field; each question's own cognitive frame is on `seedTopics[].kind` instead.
      */
     @Field(
@@ -173,7 +173,7 @@ export class StartMockInterviewSessionData {
 
     /**
      * The drawn flashcard-card seed questions, in the order they will be
-     * asked — one per question (default 5) for `mode="qna"`, each carrying
+     * asked -- one per question (default 5) for `mode="qna"`, each carrying
      * its own randomly-assigned `kind`. Empty for `mode="design"` (its prompt
      * is the single capstone/classic system in `promptTitle`, not a list of seeds).
      */
@@ -199,7 +199,7 @@ export class StartMockInterviewSessionData {
 })
 /**
      * ISO timestamp of when the live interview loop must auto-end (server
-     * `createdAt + 1h`, uniform across every mode) — the FE derives its
+     * `createdAt + 1h`, uniform across every mode) -- the FE derives its
      * countdown from THIS, never from a local clock start; the server
      * independently re-enforces the same deadline at ask-time (never
      * trusted from the client).

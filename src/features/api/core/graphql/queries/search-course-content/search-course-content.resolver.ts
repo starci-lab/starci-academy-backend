@@ -32,10 +32,10 @@ import {
 
 @Resolver()
 /**
- * "Tìm nội dung khóa" — RAG-based search over a course's lessons, challenges,
+ * search course content -- RAG-based search over a course's lessons, challenges,
  * flashcard decks, and milestone tasks (understands the MEANING of the query,
  * not just literal keyword matches). Powers the ContentAiChat panel's search
- * view. Auth-only (mirrors the sibling course queries) — no extra enrollment
+ * view. Auth-only (mirrors the sibling course queries) -- no extra enrollment
  * check here (the caller is already viewing the course's content).
  */
 export class SearchCourseContentResolver {

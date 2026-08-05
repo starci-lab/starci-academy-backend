@@ -9,7 +9,7 @@ import type {
 
 /** Params for {@link writeCoinHistory}. */
 export interface WriteCoinHistoryParams {
-    /** Transaction manager — the Coin row is written in the SAME tx as its source effect. */
+    /** Transaction manager -- the Coin row is written in the SAME tx as its source effect. */
     entityManager: EntityManager
     /** User who was granted the Coin. */
     userId: string
@@ -26,10 +26,10 @@ export interface WriteCoinHistoryParams {
 
 /**
  * Append one Coin-earning event to the audit ledger AND credit
- * `users.coin_balance` — idempotently and in the caller's transaction. Guards
+ * `users.coin_balance` -- idempotently and in the caller's transaction. Guards
  * on the `(source, refId)` unique key: if the event was already recorded,
- * NOTHING happens — no duplicate ledger row and no double credit. Coin-only
- * counterpart of {@link writeXpHistory} — use THIS for a grant that never
+ * NOTHING happens -- no duplicate ledger row and no double credit. Coin-only
+ * counterpart of {@link writeXpHistory} -- use THIS for a grant that never
  * earns XP (daily quest, streak bonus, KPI reward, weekly-challenge reward);
  * use `writeXpHistory` for anything that also earns weighted, per-course XP.
  *
@@ -61,7 +61,7 @@ export const writeCoinHistory = async (
     if (existing) {
         return
     }
-    // ledger row (audit) — append-only
+    // ledger row (audit) -- append-only
     await entityManager.save(
         CoinHistoryEntity,
         {

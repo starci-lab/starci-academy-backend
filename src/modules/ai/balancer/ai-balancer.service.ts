@@ -34,9 +34,9 @@ import {
 /**
  * Public façade of the AI Balancer key pool.
  *
- * - {@link acquire} — round-robin pick skipping keys marked unhealthy in Redis.
- * - {@link healthSnapshot} — admin read model merging mount keys + ping cache.
- * - {@link reload} — refresh pools from mount files.
+ * - {@link acquire} -- round-robin pick skipping keys marked unhealthy in Redis.
+ * - {@link healthSnapshot} -- admin read model merging mount keys + ping cache.
+ * - {@link reload} -- refresh pools from mount files.
  */
 export class AiBalancerService {
     constructor(
@@ -70,7 +70,7 @@ export class AiBalancerService {
     }
 
     /**
-     * Read-only snapshot for admin UI / GraphQL — never exposes raw key values.
+     * Read-only snapshot for admin UI / GraphQL -- never exposes raw key values.
      * @returns Per-provider summary derived from mount pool + Redis ping cache.
      */
     async healthSnapshot(): Promise<HealthSnapshotResult> {
@@ -118,7 +118,7 @@ export class AiBalancerService {
         const cacheMap = await this.aiPingCacheService.getMap()
         const models = await this.aiModelCatalogService.enabledModels()
 
-        // map `provider::keysFilePath` → the model names that load from that file
+        // map `provider::keysFilePath` -> the model names that load from that file
         const modelsByFile = new Map<string, Array<string>>()
         for (const model of models) {
             const groupKey = `${model.provider}::${model.keysFilePath}`
@@ -203,7 +203,7 @@ export class AiBalancerService {
     }
 
     /**
-     * Mask a raw key for display — `abc...def` (first 3 + last 3 chars). Short
+     * Mask a raw key for display -- `abc...def` (first 3 + last 3 chars). Short
      * values (placeholders like the local `ollama` token) are returned as-is.
      * The raw value never leaves the server; this is the public-safe form.
      *

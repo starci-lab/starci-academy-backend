@@ -51,7 +51,7 @@ export class MindMapNodeData {
         })
         label: string
 
-    /** What the node represents — drives the click target on the client. */
+    /** What the node represents -- drives the click target on the client. */
     @Field(() => GraphQLTypeMindMapNodeEntityType,
         {
             description: "Node kind (course / module / lesson).",
@@ -66,7 +66,7 @@ export class MindMapNodeData {
         })
         entityId: string | null
 
-    /** Owning module id — present on lesson nodes so the client can build the lesson URL. */
+    /** Owning module id -- present on lesson nodes so the client can build the lesson URL. */
     @Field(() => ID,
         {
             nullable: true,
@@ -101,7 +101,7 @@ export class MindMapNodeData {
         })
         desc: string | null
 
-    /** Authored popularity tier (`high`/`medium`/`low`) — drives the node's ring colour. Null on the root. */
+    /** Authored popularity tier (`high`/`medium`/`low`) -- drives the node's ring colour. Null on the root. */
     @Field(() => String,
         {
             nullable: true,
@@ -116,7 +116,7 @@ export class MindMapNodeData {
 /**
  * ONE cross-link from a concept node to a learning surface that teaches / drills / tests it.
  * A concept typically cuts across several surfaces (a lesson to learn it, a flashcard deck to
- * drill it, an interview bank to be tested on it), so concept nodes carry a LIST of these —
+ * drill it, an interview bank to be tested on it), so concept nodes carry a LIST of these --
  * unlike the derived module graph, whose nodes point at a single entity.
  */
 export class MindMapNodeLink {
@@ -135,7 +135,7 @@ export class MindMapNodeLink {
         })
         entityId: string | null
 
-    /** Owning module id — set for lesson/challenge links so the client can build the URL. */
+    /** Owning module id -- set for lesson/challenge links so the client can build the URL. */
     @Field(() => ID,
         {
             nullable: true,
@@ -238,7 +238,7 @@ export class MindMapEdge {
     description: "Computed course mind-map graph (nodes + edges) for @xyflow/react.",
 })
 /**
- * Computed mind-map graph payload — nodes + edges ready to feed straight into `@xyflow/react`.
+ * Computed mind-map graph payload -- nodes + edges ready to feed straight into `@xyflow/react`.
  */
 export class CourseMindMapResponseData {
     /** Graph nodes (course root + module + lesson nodes). */
@@ -248,7 +248,7 @@ export class CourseMindMapResponseData {
         })
         nodes: Array<MindMapNode>
 
-    /** Graph edges (course→module, module→lesson). */
+    /** Graph edges (course->module, module->lesson). */
     @Field(() => [MindMapEdge],
         {
             description: "Graph edges." 

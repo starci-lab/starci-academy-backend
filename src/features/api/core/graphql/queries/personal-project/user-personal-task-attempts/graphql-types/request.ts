@@ -15,15 +15,15 @@ import {
 
 /** Sort fields for listing user personal task attempts. */
 export enum UserPersonalTaskAttemptsSortBy {
-    /** Best/worst graded runs float first — score leaderboard within one task. */
+    /** Best/worst graded runs float first -- score leaderboard within one task. */
     Score = "score",
-    /** Submission sequence — default DESC so the latest attempt is first. */
+    /** Submission sequence -- default DESC so the latest attempt is first. */
     AttemptNumber = "attemptNumber",
-    /** When the attempt row was created — wall-clock history, not attemptNumber. */
+    /** When the attempt row was created -- wall-clock history, not attemptNumber. */
     CreatedAt = "createdAt",
-    /** Last mutation time — surfaces in-progress updates ahead of stale rows. */
+    /** Last mutation time -- surfaces in-progress updates ahead of stale rows. */
     UpdatedAt = "updatedAt",
-    /** When AI grading finished — unfinished attempts sort last / nulls last depending on DB. */
+    /** When AI grading finished -- unfinished attempts sort last / nulls last depending on DB. */
     ProcessedAt = "processedAt",
 }
 
@@ -95,7 +95,7 @@ export class UserPersonalTaskAttemptsRequestPaginationFilters extends Pagination
     description: "Request for listing user personal task attempts with pagination.",
 })
 /**
- * Args for `userPersonalTaskAttempts` — course + task bound to the caller's
+ * Args for `userPersonalTaskAttempts` -- course + task bound to the caller's
  * enrollment; missing enrollment returns an empty page.
  */
 export class UserPersonalTaskAttemptsRequest {

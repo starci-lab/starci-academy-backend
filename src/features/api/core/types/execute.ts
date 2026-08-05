@@ -17,10 +17,10 @@ export interface ExecuteParams<T> {
     /** The user. */
     user?: UserEntity
     /**
-     * Enrollment id for the active course (user × course), injected by
+     * Enrollment id for the active course (user x course), injected by
      * {@link GraphQLEnrollmentGuard} from the `x-course-id` header. Present on
      * course-scoped mutations so the handler can key per-course progress by
-     * enrollment — the anchor going forward — instead of re-resolving it.
+     * enrollment -- the anchor going forward -- instead of re-resolving it.
      */
     enrollmentId?: string
     /** JWT claims from the active session (set by Keycloak auth guards). */

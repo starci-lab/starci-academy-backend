@@ -7,16 +7,16 @@ import {
 } from "@modules/exceptions"
 
 /**
- * Drops the four AI Lab EVAL tables — the graded prompt-challenge feature that
+ * Drops the four AI Lab EVAL tables -- the graded prompt-challenge feature that
  * sat alongside (but is distinct from) the AI Lab Playground. The eval feature
  * has been removed from the codebase (services, resolvers, entities, processor
  * pipeline, queue), so its tables are dropped here.
  *
  * Tables dropped (children before parents to respect FK constraints):
- * - `ai_lab_eval_case_results` — per-case grading result (FK → runs, cases)
- * - `ai_lab_eval_runs`         — one graded submission (FK → sets)
- * - `ai_lab_eval_cases`        — one input + scoring metric (FK → sets)
- * - `ai_lab_eval_sets`         — the eval set (rubric + threshold), the parent
+ * - `ai_lab_eval_case_results` -- per-case grading result (FK -> runs, cases)
+ * - `ai_lab_eval_runs`         -- one graded submission (FK -> sets)
+ * - `ai_lab_eval_cases`        -- one input + scoring metric (FK -> sets)
+ * - `ai_lab_eval_sets`         -- the eval set (rubric + threshold), the parent
  *
  * Dev runs schema via TypeORM `synchronize` (which will itself drop the tables
  * once the entities are gone); this migration applies the same change where
@@ -56,7 +56,7 @@ export class DropAiLabEvalTables1726100000000 implements MigrationInterface {
      * dropping-then-recreating would in any case lose every graded submission.
      *
      * @param _queryRunner - Active TypeORM query runner (unused).
-     * @throws Always — this migration is not reversible.
+     * @throws Always -- this migration is not reversible.
      */
     async down(_queryRunner: QueryRunner): Promise<void> {
         throw new IrreversibleMigrationException({

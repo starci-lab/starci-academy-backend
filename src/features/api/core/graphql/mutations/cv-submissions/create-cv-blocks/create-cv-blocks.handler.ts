@@ -28,7 +28,7 @@ import {
 @CommandHandler(CreateCvBlocksCommand)
 @Injectable()
 /**
- * Handler for `createCvBlocks` — inserts a new CV document owned by the user.
+ * Handler for `createCvBlocks` -- inserts a new CV document owned by the user.
  * Course-independent; `blocks`/`style` default to empty when omitted.
  */
 export class CreateCvBlocksHandler

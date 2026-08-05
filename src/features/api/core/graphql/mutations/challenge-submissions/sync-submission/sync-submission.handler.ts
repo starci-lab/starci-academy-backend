@@ -107,8 +107,8 @@ export class SyncSubmissionHandler
                 where: {
                     id: challengeSubmissionId,
                 },
-                // walk submission → challenge → content → module → course so we can
-                // key the row by enrollment (user × course) — the anchor going forward
+                // walk submission -> challenge -> content -> module -> course so we can
+                // key the row by enrollment (user x course) -- the anchor going forward
                 relations: {
                     challenge: {
                         content: {
@@ -126,7 +126,7 @@ export class SyncSubmissionHandler
             })
         }
 
-        // resolve-or-create the trial enrollment for this user × course; set it on
+        // resolve-or-create the trial enrollment for this user x course; set it on
         // the row going forward (we still set user_id during the re-key transition).
         const courseId = challengeSubmission.challenge?.content?.module?.courseId ?? null
         const enrollment = courseId

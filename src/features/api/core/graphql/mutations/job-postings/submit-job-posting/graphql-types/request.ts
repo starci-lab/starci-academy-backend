@@ -55,7 +55,7 @@ const MAX_COMPANY_URL_LENGTH = 2048
  * Inline payload for creating a brand-new employer company alongside the job
  * posting, used when the poster's company is not yet in the directory.
  * Exactly one of `SubmitJobPostingRequest.companyId` / `newCompany` must be
- * provided — that cross-field invariant is enforced in the handler, since
+ * provided -- that cross-field invariant is enforced in the handler, since
  * `class-validator` field decorators cannot see sibling fields.
  */
 export class SubmitJobPostingNewCompanyRequest {
@@ -102,7 +102,7 @@ export class SubmitJobPostingNewCompanyRequest {
 })
 /**
  * Request to submit a job posting via the public form. `source` on the
- * resulting row is always `Submitted` — this mutation has no admin/seed path.
+ * resulting row is always `Submitted` -- this mutation has no admin/seed path.
  *
  * Exactly one of `companyId` / `newCompany` is required (existing company vs.
  * "my company isn't listed yet"); exactly one of `applyUrl` / `applyEmail` is
@@ -210,7 +210,7 @@ export class SubmitJobPostingRequest {
             description: "Discriminator for how a candidate applies; determines which of applyUrl / applyEmail is required.",
         },
     )
-    // required — every posting needs a way to apply
+    // required -- every posting needs a way to apply
     @IsEnum(JobApplyMethod)
         applyMethod: JobApplyMethod
 
@@ -236,7 +236,7 @@ export class SubmitJobPostingRequest {
             description: "Apply email; required when applyMethod is Email.",
         },
     )
-    // same as applyUrl above — format-only check, cross-field requiredness
+    // same as applyUrl above -- format-only check, cross-field requiredness
     // enforced in the handler
     @IsOptional()
     @IsEmail()

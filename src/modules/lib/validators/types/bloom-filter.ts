@@ -2,7 +2,7 @@
 export interface BloomFilterOptions {
     /**
      * Number of bits in the filter (m).
-     * Larger m → fewer false positives but more memory.
+     * Larger m -> fewer false positives but more memory.
      */
     sizeBits: number
     /**

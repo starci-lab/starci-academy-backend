@@ -6,7 +6,7 @@ import {
 } from "./graphql-types"
 
 /**
- * CQRS envelope for membership checkout — provider branching stays in the
+ * CQRS envelope for membership checkout -- provider branching stays in the
  * handler so the resolver does not import PayOS/SePay/Stripe clients.
  */
 export class PurchaseMembershipCommand {

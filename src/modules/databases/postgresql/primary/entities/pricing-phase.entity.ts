@@ -112,7 +112,7 @@ export class PricingPhaseEntity extends UuidAbstractEntity {
         priceUsd: number | null
 
     /**
-     * null = không giới hạn chỗ (FE có thể hiển thị “không giới hạn”).
+     * null = unlimited seats (the FE may display "unlimited").
      */
     @Field(
         () => Int,

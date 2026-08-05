@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -36,7 +36,7 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** Minimal user stand-in — only the id is read by the handler. */
+/** Minimal user stand-in -- only the id is read by the handler. */
 const fakeUser = (
     id: string,
 ): UserEntity => ({
@@ -89,7 +89,7 @@ describe("ChallengeSubmissionHandler",
 
         it("throws when the submission does not exist",
             async () => {
-                // first findOne (the submission row) resolves null → not found
+                // first findOne (the submission row) resolves null -> not found
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 await expect(

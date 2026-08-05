@@ -22,7 +22,7 @@ import {
 
 @Injectable()
 /**
- * Wraps the full foundations init seed pipeline (parse → upsert per table).
+ * Wraps the full foundations init seed pipeline (parse -> upsert per table).
  * Keeps orchestration colocated under `seeders/foundations` instead of `SeedersService`.
  */
 export class FoundationSeederService {
@@ -35,7 +35,7 @@ export class FoundationSeederService {
     ) { }
 
     /**
-     * Parse foundation markdown sources and upsert PostgreSQL (categories → foundations).
+     * Parse foundation markdown sources and upsert PostgreSQL (categories -> foundations).
      */
     async seed(): Promise<void> {
         if (!this.seedScopeService.isFoundationsSeederEnabled()) {

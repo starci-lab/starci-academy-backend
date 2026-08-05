@@ -34,7 +34,7 @@ export class RewardWalletRedemptionObject {
     @Field(
         () => Int,
         {
-            description: "Điểm quà paid for this redemption.",
+            description: "Reward points paid for this redemption.",
         },
     )
         cost: number

@@ -18,7 +18,7 @@ import _ from "lodash"
 @Injectable()
 /**
  * Hydrates a foundation category and indexes **per-locale** ES docs. Suggest
- * strips the "Foundation"/"Nền tảng" wrapper so autocomplete matches the tech
+ * strips the Vietnamese-locale Foundation title prefix so autocomplete matches the tech
  * name learners type.
  */
 export class ElasticsearchFoundationCategoryBuildService {
@@ -45,7 +45,7 @@ export class ElasticsearchFoundationCategoryBuildService {
                 // suggest input, weighted by display order (earlier = more popular)
                 // so the FST-backed autocomplete returns clean, ranked suggestions.
                 const label = (localizedCategory.title ?? "")
-                    .replace(/^Nền tảng\s+/i,
+                    .replace(/^Nền tảng\s+/i, // vn-ok: matches vi-locale category title prefix at runtime
                         "")
                     .replace(/\s+Foundation$/i,
                         "")

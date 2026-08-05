@@ -9,7 +9,7 @@ import {
  *
  * Same shape as {@link AddEmbeddingAiModelTask1720700000000}: `AiModelTask` is
  * stored inside the JSONB array column `ai_models.supported_tasks`, so this is
- * a pure backfill — **no DDL, no `ALTER TYPE`**. Every model that already
+ * a pure backfill -- **no DDL, no `ALTER TYPE`**. Every model that already
  * serves `"grading"` is grading-quality (Balanced-tier floor), which is exactly
  * the bar the CV-generation lane wants, so `"cv_generating"` is tagged onto the
  * same set. Fully idempotent via the `@>` guard.
@@ -20,7 +20,7 @@ export class AddCvGeneratingAiModelTask1721200000000 implements MigrationInterfa
 
     /**
      * Forward migration: backfill `"cv_generating"` onto every model that
-     * already supports `"grading"` — no DDL, idempotent via the `@>` guard.
+     * already supports `"grading"` -- no DDL, idempotent via the `@>` guard.
      *
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */

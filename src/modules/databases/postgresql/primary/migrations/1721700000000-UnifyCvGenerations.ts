@@ -6,8 +6,8 @@ import {
 /**
  * Evolves `cv_generations` into the unified "user CV" entity (WF-03a): adds a
  * `source` enum (generated | uploaded), a place to hold the score/feedback
- * (`score`, `feedback` — filled later by WF-03b), an optional link to a track
- * (`course_id` → `courses`, `SET NULL`), and user customization fields
+ * (`score`, `feedback` -- filled later by WF-03b), an optional link to a track
+ * (`course_id` -> `courses`, `SET NULL`), and user customization fields
  * (`label`, `target_role`, `language`, `uploaded_cdn_key`).
  *
  * All added columns are nullable or defaulted so existing rows stay valid:
@@ -41,7 +41,7 @@ export class UnifyCvGenerations1721700000000 implements MigrationInterface {
             $$;
         `)
 
-        // source — default 'generated' backfills every existing generation row
+        // source -- default 'generated' backfills every existing generation row
         await queryRunner.query(`
             ALTER TABLE "cv_generations"
                 ADD COLUMN IF NOT EXISTS "source" "cv_source" NOT NULL DEFAULT 'generated';
@@ -64,7 +64,7 @@ export class UnifyCvGenerations1721700000000 implements MigrationInterface {
                 ADD COLUMN IF NOT EXISTS "uploaded_cdn_key" varchar(2048);
         `)
 
-        // optional FK to courses — deleting the course nulls the link (SET NULL),
+        // optional FK to courses -- deleting the course nulls the link (SET NULL),
         // the CV row survives. Guarded so the migration is idempotent.
         await queryRunner.query(`
             DO $$

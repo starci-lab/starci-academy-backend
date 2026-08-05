@@ -272,7 +272,7 @@ describe("TransactionReconcileQueryService",
 
                 it("maps an unrecognized / missing payload to unknown",
                     async () => {
-                        // no data envelope at all → defensive read yields unknown
+                        // no data envelope at all -> defensive read yields unknown
                         sepay.order.retrieve.mockResolvedValueOnce({
                         })
 
@@ -297,7 +297,7 @@ describe("TransactionReconcileQueryService",
                             }),
                         )
 
-                        // missing id → never call the SDK
+                        // missing id -> never call the SDK
                         expect(stripe.checkout.sessions.retrieve).not.toHaveBeenCalled()
                         expect(result).toBe("unknown")
                     })
@@ -371,7 +371,7 @@ describe("TransactionReconcileQueryService",
 
                 it("maps a COMPLETED order to paid without attempting a capture",
                     async () => {
-                        // funds already taken → no fallback capture needed
+                        // funds already taken -> no fallback capture needed
                         paypalClient.retrieveOrder.mockResolvedValueOnce({
                             status: "COMPLETED",
                         } as never)
@@ -391,7 +391,7 @@ describe("TransactionReconcileQueryService",
 
                 it("captures an APPROVED order and maps a successful capture to paid",
                     async () => {
-                        // approved-but-not-captured → the fallback capture must run
+                        // approved-but-not-captured -> the fallback capture must run
                         paypalClient.retrieveOrder.mockResolvedValueOnce({
                             status: "APPROVED",
                         } as never)

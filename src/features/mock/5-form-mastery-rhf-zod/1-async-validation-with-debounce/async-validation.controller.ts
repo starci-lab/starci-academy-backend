@@ -18,7 +18,7 @@ import {
 @UseInterceptors(MockDelayInterceptor)
 @Controller("mocks/5-form-mastery-rhf-zod/1-async-validation-with-debounce/sessions/:sessionId")
 /**
- * Mock controller for lesson `1-async-validation-with-debounce` — exposes a
+ * Mock controller for lesson `1-async-validation-with-debounce` -- exposes a
  * username-availability check the debounced async validator polls as the user types.
  */
 export class AsyncValidationController {

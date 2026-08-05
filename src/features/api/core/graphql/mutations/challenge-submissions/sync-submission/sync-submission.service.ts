@@ -14,7 +14,7 @@ import type {
 
 @Injectable()
 /**
- * Thin command-bus hop for the draft-save mutation — no job enqueue lives
+ * Thin command-bus hop for the draft-save mutation -- no job enqueue lives
  * on this path.
  */
 export class SyncSubmissionService {

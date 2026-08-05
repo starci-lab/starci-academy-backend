@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Registers unpin as its own leaf — removing a pin must not go through
+ * Registers unpin as its own leaf -- removing a pin must not go through
  * reorder / pin-course / pin-external, which have different ownership checks.
  */
 export class UnpinProjectSingleMutationModule extends ConfigurableModuleClass {}

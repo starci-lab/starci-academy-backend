@@ -22,7 +22,7 @@ export interface PaymentUnderpaidExceptionMetadata extends AbstractExceptionMeta
 
 /**
  * Thrown when a gateway webhook (PayOS/SePay) reports a paid amount lower
- * than the transaction's charged total — never reconciled as a success, since
+ * than the transaction's charged total -- never reconciled as a success, since
  * that would enroll/credit the user for less than they actually paid.
  */
 export class PaymentUnderpaidException extends AbstractException {

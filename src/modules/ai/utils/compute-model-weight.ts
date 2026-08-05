@@ -51,13 +51,13 @@ export const estimateUsdPerCall = (
  * ```
  * capacity      = contextWindowTokens / WEIGHT_CONTEXT_REFERENCE_TOKENS
  * affordability = WEIGHT_COST_REFERENCE_USD / usdPerCall
- * weight        = capacity × affordability
+ * weight        = capacity x affordability
  * ```
  *
  * A product rather than a weighted sum, because the roster is expected to grow
  * new metrics (measured latency, success rate, a benchmark index). A new factor
  * multiplies in without re-tuning the existing ones, and a metric we do not have
- * contributes exactly 1.0 — so an unknown value leaves the ranking untouched
+ * contributes exactly 1.0 -- so an unknown value leaves the ranking untouched
  * instead of silently scoring the model as zero.
  *
  * Replaces the hand-typed `weight` the seed used to carry, which was anchored to
@@ -80,7 +80,7 @@ export const computeModelWeight = (
         }),
         WEIGHT_MIN_COST_USD,
     )
-    // an unrecorded window must not zero the score — it contributes nothing
+    // an unrecorded window must not zero the score -- it contributes nothing
     const capacity = contextWindowTokens
         ? contextWindowTokens / WEIGHT_CONTEXT_REFERENCE_TOKENS
         : 1

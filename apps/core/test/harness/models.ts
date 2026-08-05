@@ -9,7 +9,7 @@ import Anthropic from "@anthropic-ai/sdk"
 
 /**
  * Beta header the Anthropic API requires when a request authenticates with a
- * Claude Code OAuth token (`sk-ant-oat…`) instead of an `x-api-key`.
+ * Claude Code OAuth token (`sk-ant-oat...`) instead of an `x-api-key`.
  */
 const OAUTH_BETA = "oauth-2025-04-20"
 
@@ -18,7 +18,7 @@ const OAUTH_BETA = "oauth-2025-04-20"
  * `CLAUDE_CODE_OAUTH_TOKEN` env var (for CI), then the gitignored
  * `.secrets/claude-code-token.txt` written by
  * `scripts/set-claude-code-token.ps1`. The raw token value is read only here,
- * at runtime — it is never surfaced elsewhere.
+ * at runtime -- it is never surfaced elsewhere.
  */
 const readClaudeCodeToken = (): string | undefined => {
     const fromEnv = process.env.CLAUDE_CODE_OAUTH_TOKEN?.trim()
@@ -41,7 +41,7 @@ const readClaudeCodeToken = (): string | undefined => {
 }
 
 /**
- * Build the shared Anthropic client. A Claude Code OAuth token (`sk-ant-oat…`)
+ * Build the shared Anthropic client. A Claude Code OAuth token (`sk-ant-oat...`)
  * authenticates via `authToken` + the `oauth-2025-04-20` beta header; a plain
  * API key goes on `apiKey`; with neither present, fall back to the SDK's own
  * resolution (`ANTHROPIC_API_KEY` / an `ant auth login` profile).
@@ -85,12 +85,12 @@ export interface Tier {
 /**
  * Named cost/quality tiers a harness flow dispatches generation to:
  *
- * - `low`  — Haiku 4.5 (cheapest, high-volume/low-stakes; Haiku takes no
+ * - `low`  -- Haiku 4.5 (cheapest, high-volume/low-stakes; Haiku takes no
  *   effort knob, so none is set).
- * - `mid`  — Sonnet 5 at low effort (balanced default for most generation).
- * - `high` — Opus 5 at low effort (highest-fidelity model, hard cases).
+ * - `mid`  -- Sonnet 5 at low effort (balanced default for most generation).
+ * - `high` -- Opus 5 at low effort (highest-fidelity model, hard cases).
  *
- * Grading is a separate concern — see {@link judge} in `./judge`, which is
+ * Grading is a separate concern -- see {@link judge} in `./judge`, which is
  * pinned to Opus 4.8 at `high` effort regardless of which tier produced the
  * output under test, so grading rigor never varies with the SUT's cost tier.
  */

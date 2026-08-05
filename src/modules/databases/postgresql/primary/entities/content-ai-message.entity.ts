@@ -29,13 +29,13 @@ import {
 /**
  * One persisted content-AI chat turn, belonging to a
  * {@link ContentAiSessionEntity} (a named conversation). A content-scope turn also
- * records the **content it was grounded on** (`content`) — so one conversation can
+ * records the **content it was grounded on** (`content`) -- so one conversation can
  * span lessons. Rows are loaded oldest-first to rebuild the thread on reopen.
  *
  * Anchoring mirrors the session: a course-scoped turn (content / task / course)
  * keys off the **enrollment**; a course-agnostic (foundation) turn keys off the
- * raw **user** — so `enrollment` and `content` are both nullable. No AI-usage /
- * credit ledger is written for these — content-AI runs on the free local tier.
+ * raw **user** -- so `enrollment` and `content` are both nullable. No AI-usage /
+ * credit ledger is written for these -- content-AI runs on the free local tier.
  */
 export class ContentAiMessageEntity extends UuidAbstractEntity {
     /**

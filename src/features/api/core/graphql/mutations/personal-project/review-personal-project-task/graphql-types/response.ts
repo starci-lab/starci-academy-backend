@@ -12,7 +12,7 @@ import {
     description: "Data for review personal project task response.",
 })
 /**
- * Only the enqueued review `jobs.id` — scoring is async; the client
+ * Only the enqueued review `jobs.id` -- scoring is async; the client
  * tracks progress via job notifications.
  */
 export class ReviewPersonalProjectTaskResponseData {

@@ -16,7 +16,7 @@ export interface CourseLearningHistoryFailedExceptionMetadata
 
 /**
  * Thrown by the `courseLearningHistory` resolver when the per-course learning
- * timeline cannot be built — e.g. a malformed course global id, or the
+ * timeline cannot be built -- e.g. a malformed course global id, or the
  * underlying joined query failing. Wraps the original error so the cause is
  * preserved rather than flattened into a bare message.
  */

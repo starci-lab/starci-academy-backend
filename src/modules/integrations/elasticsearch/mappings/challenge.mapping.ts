@@ -62,7 +62,7 @@ export const challengeIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // large jsonb / relational blobs — stored, not indexed
+            // large jsonb / relational blobs -- stored, not indexed
             requirements: {
                 type: "object",
                 enabled: false,

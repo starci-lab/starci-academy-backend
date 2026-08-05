@@ -1,6 +1,6 @@
 /** Log event names; each maps to a config entry in configMap (level, loki, messageType). */
 export enum WinstonLog {
-    /** Course seeder finished a full pass — mount data is now in Postgres. */
+    /** Course seeder finished a full pass -- mount data is now in Postgres. */
     CoursesSeededSuccessfully = "CoursesSeededSuccessfully",
     /** Init seeder: single mount entity skipped (parse/load error). */
     InitSeederEntitySkipped = "InitSeederEntitySkipped",
@@ -8,7 +8,7 @@ export enum WinstonLog {
     DbSynchronizerSyncedSuccessfully = "DbSynchronizerSyncedSuccessfully",
     /** A course/module/content context markdown file was read from the mount. */
     ContextFileLoadedSuccessfully = "ContextFileLoadedSuccessfully",
-    /** Enroll job created a new enrollment row — learner can now access the course. */
+    /** Enroll job created a new enrollment row -- learner can now access the course. */
     EnrollmentCreated = "EnrollmentCreated",
     /** One step inside the enroll pipeline completed (audit trail per step). */
     EnrollStepExecuted = "EnrollStepExecuted",
@@ -18,21 +18,21 @@ export enum WinstonLog {
     ProcessStepExecuted = "ProcessStepExecuted",
     /** One step inside the CV-submission pipeline completed. */
     ProcessCVSubmissionStepExecuted = "ProcessCVSubmissionStepExecuted",
-    /** BullMQ job finished without throwing — downstream can treat it as done. */
+    /** BullMQ job finished without throwing -- downstream can treat it as done. */
     JobExecutedSuccessfully = "JobExecutedSuccessfully",
-    /** BullMQ job threw — worker will retry or dead-letter per queue policy. */
+    /** BullMQ job threw -- worker will retry or dead-letter per queue policy. */
     JobExecutedFailed = "JobExecutedFailed",
-    /** Enroll job found an existing enrollment — skipped create to stay idempotent. */
+    /** Enroll job found an existing enrollment -- skipped create to stay idempotent. */
     EnrollmentAlreadyExists = "EnrollmentAlreadyExists",
     /** CDN sync cycle began walking courses (progress marker, not a per-entity result). */
     CdnSynchronizerCoursesSyncing = "CdnSynchronizerCoursesSyncing",
     /** One course's CDN assets uploaded successfully this cycle. */
     CdnSynchronizerCourseSyncedSuccessfully = "CdnSynchronizerCourseSyncedSuccessfully",
-    /** Course CDN hash matched — upload skipped to avoid rewriting identical objects. */
+    /** Course CDN hash matched -- upload skipped to avoid rewriting identical objects. */
     CdnSynchronizerCourseAlreadySynced = "CdnSynchronizerCourseAlreadySynced",
     /** Course CDN sync failed; retries may still be pending. */
     CdnSynchronizerCourseSyncFailed = "CdnSynchronizerCourseSyncFailed",
-    /** Course CDN sync exhausted retries — operator must intervene. */
+    /** Course CDN sync exhausted retries -- operator must intervene. */
     CdnSynchronizerCourseSyncFailedMaxRetriesReached = "CdnSynchronizerCourseSyncFailedMaxRetriesReached",
     /** One retry attempt of a course CDN sync failed (not yet the final failure). */
     CdnSynchronizerCourseSyncFailedAttempt = "CdnSynchronizerCourseSyncFailedAttempt",
@@ -46,13 +46,13 @@ export enum WinstonLog {
     CdnSynchronizerContentRuntimeSyncFailed = "CdnSynchronizerContentRuntimeSyncFailed",
     /** CDN synchronizer: sync cycle started. */
     CdnSynchronizerCdnSyncStarted = "CdnSynchronizerCdnSyncStarted",
-    /** CDN synchronizer: entity-kind pass started (Course, Challenge, …). */
+    /** CDN synchronizer: entity-kind pass started (Course, Challenge, ...). */
     CdnSynchronizerEntityKindStarted = "CdnSynchronizerEntityKindStarted",
     /** CDN synchronizer: single entity sync started (before hydrate/upload). */
     CdnSynchronizerEntitySyncStarted = "CdnSynchronizerEntitySyncStarted",
     /** CDN synchronizer: entity skipped (out of scope). */
     CdnSynchronizerEntitySkipped = "CdnSynchronizerEntitySkipped",
-    /** CDN synchronizer: hydrate/upload sub-step (course hydrate, S3 put, …). */
+    /** CDN synchronizer: hydrate/upload sub-step (course hydrate, S3 put, ...). */
     CdnSynchronizerMaterializeStep = "CdnSynchronizerMaterializeStep",
     /** CDN synchronizer: single entity synced successfully. */
     CdnSynchronizerSyncedSuccessfully = "CdnSynchronizerSyncedSuccessfully",
@@ -68,7 +68,7 @@ export enum WinstonLog {
     CdnSynchronizerReconcileSkippedBySafety = "CdnSynchronizerReconcileSkippedBySafety",
     /** Elasticsearch index reset: started dropping/recreating indices at boot. */
     ElasticsearchIndexResetStarted = "ElasticsearchIndexResetStarted",
-    /** Elasticsearch index reset: finished — indices empty and awaiting sync. */
+    /** Elasticsearch index reset: finished -- indices empty and awaiting sync. */
     ElasticsearchIndexResetDone = "ElasticsearchIndexResetDone",
     /** Elasticsearch synchronizer: sync cycle started. */
     EsSynchronizerSyncStarted = "EsSynchronizerSyncStarted",
@@ -182,7 +182,7 @@ export enum WinstonLog {
     TransactionReconcileBootSweep = "TransactionReconcileBootSweep",
     /** Data-git bootstrap: started resolving the remote ref / commit SHA. */
     DataGitBootstrapStarted = "DataGitBootstrapStarted",
-    /** Data-git bootstrap: remote SHA matches the local marker — no download. */
+    /** Data-git bootstrap: remote SHA matches the local marker -- no download. */
     DataGitBootstrapUpToDate = "DataGitBootstrapUpToDate",
     /** Data-git bootstrap: tarball downloaded and extracted into the data root. */
     DataGitBootstrapUpdated = "DataGitBootstrapUpdated",
@@ -196,7 +196,7 @@ export enum WinstonLog {
     ReconcileOrphansDone = "ReconcileOrphansDone",
     /** A user tripped the per-user content-access rate limit (suspected scraping). */
     ContentScrapeDetected = "ContentScrapeDetected",
-    /** Best-effort in-app notification create failed (swallowed — must not fail the caller). */
+    /** Best-effort in-app notification create failed (swallowed -- must not fail the caller). */
     NotificationCreateFailed = "NotificationCreateFailed",
     /** Inbound payment/IPN webhook accepted for signature verification. */
     PaymentWebhookReceived = "PaymentWebhookReceived",
@@ -230,7 +230,7 @@ export enum WinstonLog {
     CdcListenerSubscribed = "CdcListenerSubscribed",
     /** Kafka CDC listener disabled because the broker is unreachable. */
     CdcListenerDisabled = "CdcListenerDisabled",
-    /** Init/boot phase finished (asset mirror, RAG index, …). */
+    /** Init/boot phase finished (asset mirror, RAG index, ...). */
     InitPhaseCompleted = "InitPhaseCompleted",
     /** Init/boot phase failed non-fatally; boot continues. */
     InitPhaseFailed = "InitPhaseFailed",

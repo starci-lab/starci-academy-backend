@@ -17,7 +17,7 @@ import {
 )
 /**
  * Exposes {@link OtpChallengeService} so login/action OTP flows share one Redis
- * challenge store — a second implementation would split attempt counters and TTL.
+ * challenge store -- a second implementation would split attempt counters and TTL.
  */
 export class CodeModule extends ConfigurableModuleClass {
 }

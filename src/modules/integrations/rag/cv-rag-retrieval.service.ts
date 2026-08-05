@@ -24,9 +24,9 @@ import {
 /**
  * Kinds of CV RAG reference material, used to scope a retrieval to a slice of the
  * `cv_rag` collection (a `kind` payload filter):
- * - `rubric`  — CV quality rubric / expectations per seniority level.
- * - `catalog` — skill & technology catalog (canonical naming).
- * - `sample`  — sample CV phrasing / exemplars per role & level.
+ * - `rubric`  -- CV quality rubric / expectations per seniority level.
+ * - `catalog` -- skill & technology catalog (canonical naming).
+ * - `sample`  -- sample CV phrasing / exemplars per role & level.
  */
 export type CvRagKind = "rubric" | "catalog" | "sample"
 
@@ -55,7 +55,7 @@ const DEFAULT_CV_RAG_TOP_K = 4
  * Qdrant collection holding the CV RAG reference vectors (rubric / catalog /
  * sample). Kept as a constant (no env dependency) so this read-only service is
  * self-contained. Exported so {@link CvRagIndexService} (the write side, which
- * builds this same collection) imports the identical literal — one source of
+ * builds this same collection) imports the identical literal -- one source of
  * truth for the collection name shared by both halves of the CV RAG stack.
  */
 export const CV_RAG_COLLECTION = "cv_rag"
@@ -70,7 +70,7 @@ export const CV_RAG_COLLECTION = "cv_rag"
  * Opens the existing collection, runs ONE similarity search scoped to the
  * requested `kinds` (payload `metadata.kind` filter), and joins the hits into a
  * single excerpt. Degrades to an EMPTY excerpt on any failure (collection
- * missing, embedder/Qdrant down) so the CV compose step's prompt is advisory —
+ * missing, embedder/Qdrant down) so the CV compose step's prompt is advisory --
  * retrieval never blocks CV generation.
  */
 export class CvRagRetrievalService {
@@ -115,7 +115,7 @@ export class CvRagRetrievalService {
                     collectionName: CV_RAG_COLLECTION,
                 },
             )
-            // LangChain stores doc metadata under a `metadata` payload sub-object →
+            // LangChain stores doc metadata under a `metadata` payload sub-object ->
             // filter the `kind` field with a `match.any` over the requested kinds
             const hits = await vectorStore.similaritySearch(
                 trimmed,
@@ -136,7 +136,7 @@ export class CvRagRetrievalService {
                 retrievedChunks: hits.length,
             }
         } catch (error) {
-            // index missing / Qdrant or embedder down → empty excerpt (advisory RAG)
+            // index missing / Qdrant or embedder down -> empty excerpt (advisory RAG)
             this.winstonService.log(WinstonLog.RagRetrievalFailed,
                 {
                     op: "rag.cv.retrieval-failed",

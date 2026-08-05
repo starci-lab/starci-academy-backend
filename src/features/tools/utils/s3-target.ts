@@ -64,7 +64,7 @@ export const contentTypeForKey = (key: string): string => {
     case "gz":
     case "enc":
     default:
-        // unknown/opaque payloads (dumps, encrypted blobs) → generic binary
+        // unknown/opaque payloads (dumps, encrypted blobs) -> generic binary
         return "application/octet-stream"
     }
 }

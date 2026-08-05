@@ -55,28 +55,28 @@ const POSTGRESQL_PRIMARY = "primary"
 
 /** The one code the stubbed {@link TotpService.verify} accepts. */
 const VALID_CODE = "111111"
-/** Any other 6-digit code — always rejected by the stub. */
+/** Any other 6-digit code -- always rejected by the stub. */
 const INVALID_CODE = "222222"
 /** Fixed secret the stubbed {@link TotpService.generateSecret} always returns. */
 const FIXED_SECRET = "JBSWY3DPEHPK3PXP"
 
 /**
- * e2e for the TOTP two-factor lifecycle (setup → confirm → disable) —
+ * e2e for the TOTP two-factor lifecycle (setup -> confirm -> disable) --
  * `.claude/canon/be/enforce/authoring/testing.md` §2 coverage rule: every
  * mutation that commits a row a user later sees earns an e2e. Runs the three
  * resolvers directly against REAL Postgres (Testcontainers), proving the
- * enrollment/confirm/disable state machine on the actual `users` row — not a
+ * enrollment/confirm/disable state machine on the actual `users` row -- not a
  * mocked `EntityManager`.
  *
  * MOCKED (external, per the task's explicit "stub keycloak/totp gen" scope):
- *  - `TotpService` — the real class is deterministic RFC-6238 math with no DI
+ *  - `TotpService` -- the real class is deterministic RFC-6238 math with no DI
  *    seam for "what code is valid right now"; stubbed so `verify()` accepts
  *    exactly {@link VALID_CODE} and rejects everything else, making the
  *    confirm/disable code-check paths deterministic instead of requiring the
  *    test to reimplement HMAC-based TOTP generation.
- *  - `EncryptionService` — the real class needs `MountStorageService`, which
+ *  - `EncryptionService` -- the real class needs `MountStorageService`, which
  *    reads a mounted encryption key off disk; stubbed to a reversible
- *    base64 passthrough so `setupTwoFactor` → `confirmTwoFactor`'s
+ *    base64 passthrough so `setupTwoFactor` -> `confirmTwoFactor`'s
  *    encrypt-then-decrypt round trip still exercises the same code path the
  *    resolvers run, just with a fake cipher.
  *
@@ -95,7 +95,7 @@ describe("Two-factor (TOTP) setup / confirm / disable (e2e)",
 
         beforeAll(async () => {
             const fakeEncryptionService: Pick<EncryptionService, "encrypt" | "decrypt"> = {
-                // reversible base64 passthrough — not real crypto, just enough to
+                // reversible base64 passthrough -- not real crypto, just enough to
                 // exercise the same encrypt-then-decrypt round trip the resolvers run
                 encrypt: ({
                     plainText,
@@ -132,7 +132,7 @@ describe("Two-factor (TOTP) setup / confirm / disable (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the three resolvers under test
+                    // REAL -- the three resolvers under test
                     SetupTwoFactorResolver,
                     ConfirmTwoFactorResolver,
                     DisableTwoFactorResolver,
@@ -144,7 +144,7 @@ describe("Two-factor (TOTP) setup / confirm / disable (e2e)",
                         provide: TotpService,
                         useValue: fakeTotpService,
                     },
-                    // guard deps — the three resolvers under test carry
+                    // guard deps -- the three resolvers under test carry
                     // `@UseGuards(KeycloakAuthGraphQLGuard)`, so Nest constructs the
                     // guard as an enhancer at `app.init()` even though these tests
                     // invoke `execute()` directly; its constructor deps must resolve
@@ -247,7 +247,7 @@ describe("Two-factor (TOTP) setup / confirm / disable (e2e)",
                         id: user.id,
                     })
                 expect(reloaded.twoFactorEnabled).toBe(true)
-                // the secret itself is untouched by confirm — only the flag flips
+                // the secret itself is untouched by confirm -- only the flag flips
                 expect(reloaded.twoFactorSecret).toBe(afterSetup.twoFactorSecret)
             })
 
@@ -369,7 +369,7 @@ describe("Two-factor (TOTP) setup / confirm / disable (e2e)",
         it("disableTwoFactor while already disabled is idempotent — no code required, clears any leftover pending secret",
             async () => {
                 const user = await seedUser("kc-2fa-disable-idempotent")
-                // enrollment started but never confirmed — a pending secret exists
+                // enrollment started but never confirmed -- a pending secret exists
                 // while the flag is still false
                 await setupTwoFactorResolver.execute(user)
                 const pending = await entityManager.findOneByOrFail(UserEntity,

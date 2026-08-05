@@ -107,7 +107,7 @@ const TEXT_EXTENSIONS = new Set([
 
 @Injectable()
 /**
- * Repo synchronizer — reads `.repo/` code directories for sandbox lessons and
+ * Repo synchronizer -- reads `.repo/` code directories for sandbox lessons and
  * uploads per-lesson Sandpack file trees to CDN, replacing direct GitHub API calls.
  */
 export class RepoSynchronizerService {
@@ -270,7 +270,7 @@ content.githubDir!)
                 }
             }
         } catch {
-            // directory doesn't exist — return empty map
+            // directory doesn't exist -- return empty map
         }
         return files
     }

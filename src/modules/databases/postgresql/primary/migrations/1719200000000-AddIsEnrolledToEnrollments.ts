@@ -10,7 +10,7 @@ import {
  * `true` on real enrollment. Gates that mean "is a paying member" read this
  * flag instead of mere row existence.
  *
- * Backfills every EXISTING row to `true` — until now an enrollment row was only
+ * Backfills every EXISTING row to `true` -- until now an enrollment row was only
  * ever created after a successful payment, so all existing rows are real
  * enrollments. `DEFAULT true` keeps any creation path that does not explicitly
  * opt into a trial fail-safe (never locks out a payer).

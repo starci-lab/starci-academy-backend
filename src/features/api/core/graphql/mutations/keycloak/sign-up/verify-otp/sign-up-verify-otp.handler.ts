@@ -170,7 +170,7 @@ export class SignUpVerifyOtpHandler
             await this.entityManager.save(user)
             await this.emailBloomFilterService.add(user.email ?? "")
 
-            // First-time registration → send a one-off welcome email.
+            // First-time registration -> send a one-off welcome email.
             const recipient = decoded.email ?? result.payload.email
             if (recipient) {
                 await this.enqueueSendMailJobService.enqueue({

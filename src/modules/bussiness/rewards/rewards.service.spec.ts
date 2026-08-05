@@ -48,7 +48,7 @@ const POSTGRESQL_PRIMARY = "primary"
 
 /**
  * `computeSpent`/`manager.insert` reach for query-builder + insert surface the
- * shared {@link makeEntityManagerMock} does not model — extended locally so
+ * shared {@link makeEntityManagerMock} does not model -- extended locally so
  * this file stays the single place that knows about it.
  */
 type RewardsEntityManagerMock = EntityManagerMock & {
@@ -85,7 +85,7 @@ describe("RewardsService",
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock() as RewardsEntityManagerMock
-            // manager.insert isn't part of the shared mock's surface — bolt it on
+            // manager.insert isn't part of the shared mock's surface -- bolt it on
             entityManager.insert = jest.fn().mockResolvedValue({
                 identifiers: [
                     {
@@ -94,7 +94,7 @@ describe("RewardsService",
                 ],
             })
             // computeSpent's aggregate query needs `select`/`getRawOne` the shared
-            // query-builder mock doesn't carry — extend the shared builder instance
+            // query-builder mock doesn't carry -- extend the shared builder instance
             queryBuilder = entityManager.createQueryBuilder() as SpentQueryBuilderMock
             queryBuilder.select = jest.fn(() => queryBuilder)
             queryBuilder.getRawOne = jest.fn().mockResolvedValue(undefined)
@@ -139,7 +139,7 @@ describe("RewardsService",
                 it("derives balance as coinBalance minus the non-cancelled spent sum",
                     async () => {
                         // 1000 coin, 200 already spent on non-cancelled redemptions,
-                        // streakFreeze costs 100 → affordable with room to spare
+                        // streakFreeze costs 100 -> affordable with room to spare
                         entityManager.findOneOrFail.mockResolvedValueOnce({
                             id: userId,
                             coinBalance: 1000,
@@ -165,7 +165,7 @@ describe("RewardsService",
 
                 it("throws InsufficientRewardPointsException on overspend and writes nothing",
                     async () => {
-                        // 50 coin, nothing spent yet, streakFreeze costs 100 → short
+                        // 50 coin, nothing spent yet, streakFreeze costs 100 -> short
                         entityManager.findOneOrFail.mockResolvedValueOnce({
                             id: userId,
                             coinBalance: 50,

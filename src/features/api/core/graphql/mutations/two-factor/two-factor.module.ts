@@ -28,6 +28,6 @@ import {
     ],
 })
 /**
- * Two-factor (TOTP) mutation group — setup, confirm, disable.
+ * Two-factor (TOTP) mutation group -- setup, confirm, disable.
  */
 export class TwoFactorMutationsModule extends ConfigurableModuleClass {}

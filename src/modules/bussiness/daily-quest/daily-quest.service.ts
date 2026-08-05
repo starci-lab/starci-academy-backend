@@ -36,16 +36,16 @@ import type {
     DailyQuestTodayDateRow,
 } from "./types"
 
-/** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
+/** Postgres unique-violation SQLSTATE -- a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
 
 @Injectable()
 /**
  * Daily-quest business logic. The quest is per-request DERIVED from TODAY's
- * (Asia/Ho_Chi_Minh) activity — read lessons + passed challenges come from the
+ * (Asia/Ho_Chi_Minh) activity -- read lessons + passed challenges come from the
  * `xp_histories` ledger, flashcard reviews from `user_flashcard_reviews`, mock
  * interview sessions from `mock_interview_attempts`, and flashcard quiz
- * sessions from `flashcard_quiz_sessions` — so it needs no projection table.
+ * sessions from `flashcard_quiz_sessions` -- so it needs no projection table.
  * Completing at least {@link DAILY_QUEST_MIN_TASKS_REQUIRED} of the 5 tasks and
  * claiming once per VN day grants a flat reward via {@link writeXpHistory};
  * the grant is made idempotent by the `(user_id, quest_date)` unique row on
@@ -189,7 +189,7 @@ export class DailyQuestService {
      * the reward grant, and the completion insert in ONE transaction so a
      * concurrent double-claim cannot double-credit. Throws a typed exception when
      * fewer than {@link DAILY_QUEST_MIN_TASKS_REQUIRED} tasks are done or the
-     * quest was already claimed today — including when a RACING concurrent claim
+     * quest was already claimed today -- including when a RACING concurrent claim
      * wins the (user_id, quest_date) unique-constraint backstop: the loser's raw
      * `QueryFailedError` (SQLSTATE 23505) is caught and translated into the same
      * typed exception the sequential already-claimed check throws.
@@ -220,7 +220,7 @@ export class DailyQuestService {
                         date,
                     })
                 }
-                // record the completion first — the (user_id, quest_date) unique row is
+                // record the completion first -- the (user_id, quest_date) unique row is
                 // the idempotency backstop against a racing concurrent claim
                 await manager.insert(DailyQuestCompletionEntity,
                     {
@@ -253,7 +253,7 @@ export class DailyQuestService {
                 }
             })
         } catch (error) {
-            // a concurrent duplicate lost the unique race → translate to the same
+            // a concurrent duplicate lost the unique race -> translate to the same
             // typed exception the sequential already-claimed check throws above
             if (error instanceof QueryFailedError
                 && (error.driverError as { code?: string } | undefined)?.code === PG_UNIQUE_VIOLATION) {

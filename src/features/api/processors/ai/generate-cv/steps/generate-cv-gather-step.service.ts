@@ -77,10 +77,10 @@ interface XpProjectionValue {
 
 @Injectable()
 /**
- * Step 0 — gather. Assembles EVERY verified achievement + profile the learner has
+ * Step 0 -- gather. Assembles EVERY verified achievement + profile the learner has
  * earned (milestone/capstone passes, graded challenge submissions, accepted coding
  * solves, profile fields, per-source XP) by querying the live tables DIRECTLY via
- * the {@link EntityManager} (this runs in a background job — no GraphQL). In
+ * the {@link EntityManager} (this runs in a background job -- no GraphQL). In
  * `Revise` mode it also buffers the uploaded source CV from MinIO and extracts its
  * text (pdf/docx) so the compose step can rewrite it. The whole gathered blob is
  * persisted as this step's execution result for the compose step to read.
@@ -139,7 +139,7 @@ export class GenerateCvGatherStepService extends AbstractStepService<
         const { payload } = context
         const { userId } = payload
 
-        // all reads hit the same user scope → run them concurrently
+        // all reads hit the same user scope -> run them concurrently
         const [
             profile,
             milestoneTaskAttempts,
@@ -314,8 +314,8 @@ export class GenerateCvGatherStepService extends AbstractStepService<
 
     /**
      * Per-source XP totals (challenge / milestone / coding / lesson) from the
-     * user's XP projection — a signal for which skill categories to emphasize.
-     * Missing projection → all zeros.
+     * user's XP projection -- a signal for which skill categories to emphasize.
+     * Missing projection -> all zeros.
      */
     private async gatherXp(
         userId: string,
@@ -340,10 +340,10 @@ export class GenerateCvGatherStepService extends AbstractStepService<
 
     /**
      * `Revise` mode: resolve the source `cv_generations` row (`sourceCvSubmissionId`
-     * — unified table, covers both `Uploaded` and `Generated` sources) and
+     * -- unified table, covers both `Uploaded` and `Generated` sources) and
      * produce text for the compose prompt: buffer + extract the file for
      * `Uploaded`, or serialize the already-assembled `structuredData` for
-     * `Generated`. Non-Revise, missing source id, or missing source material →
+     * `Generated`. Non-Revise, missing source id, or missing source material ->
      * `null` (compose then behaves like Generate).
      */
     private async gatherSourceCvText(

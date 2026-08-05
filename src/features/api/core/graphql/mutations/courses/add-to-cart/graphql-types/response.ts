@@ -18,7 +18,7 @@ import {
  *
  * `data` carries the created (or pre-existing, when idempotent) cart row. It is
  * marked `nullable: true` because the transform interceptor sets `data = null`
- * on the error path — a non-nullable field would crash GraphQL and mask the real
+ * on the error path -- a non-nullable field would crash GraphQL and mask the real
  * error instead of surfacing it.
  */
 export class AddToCartResponse

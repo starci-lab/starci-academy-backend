@@ -35,14 +35,14 @@ import {
     writeXpHistory,
 } from "@features/api/processors/ai/shared/xp"
 
-/** Per-course weighted XP for a first lesson read (matches the leaderboard ×3 signal). */
+/** Per-course weighted XP for a first lesson read (matches the leaderboard x3 signal). */
 const LESSON_READ_XP = 3
 
 @CommandHandler(MarkAsReadedCommand)
 @Injectable()
 /**
  * Persists read progress keyed by enrollment and awards XP/activity only on a
- * deliberate (non-silent) mark — auto-scroll must not spend the one-time reward.
+ * deliberate (non-silent) mark -- auto-scroll must not spend the one-time reward.
  */
 export class MarkAsReadedHandler
     extends ICQRSHandler<MarkAsReadedCommand, void>
@@ -85,7 +85,7 @@ export class MarkAsReadedHandler
         )
 
         // resolve the course for this content so we can key the row by enrollment
-        // (user × course) — the anchor going forward — while still setting user_id
+        // (user x course) -- the anchor going forward -- while still setting user_id
         // during the re-key transition. Reuse the loaded content for the XP branch.
         const content = await this.entityManager.findOne(
             ContentEntity,
@@ -128,7 +128,7 @@ export class MarkAsReadedHandler
                     userContent,
                 )
                 // award lesson XP + reward points only on a DELIBERATE mark-as-read
-                // (silent === false) — the auto-mark-on-scroll path passes silent so
+                // (silent === false) -- the auto-mark-on-scroll path passes silent so
                 // passive scrolling never spends the reward. Both writeXpHistory's
                 // refId and writeActivity's idempotencyKey key off the same
                 // user-content id, so claiming the reward after the page already

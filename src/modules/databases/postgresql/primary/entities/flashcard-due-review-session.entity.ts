@@ -15,7 +15,7 @@ import {
 
 @Entity("flashcard_due_review_sessions")
 // fast per-enrollment session lookup (mirrors flashcard_quiz_sessions' /
-// flashcard_review_sessions' own index) — not the primary lookup path
+// flashcard_review_sessions' own index) -- not the primary lookup path
 // (that's by `id`), but useful for cleanup/debug queries scoped to one
 // enrollment
 @Index("idx_flashcard_due_review_sessions_enrollment",
@@ -23,15 +23,15 @@ import {
         "enrollmentId",
     ])
 /**
- * One resumable draw of the CROSS-DECK due-review batch ("ôn tập" surfaced
- * from `DueReview`) — mirrors
+ * One resumable draw of the CROSS-DECK due-review batch (due-review surfaced
+ * from `DueReview`) -- mirrors
  * {@link import("./flashcard-review-session.entity").FlashcardReviewSessionEntity}'s
  * resumable-session shape, but scoped to an ENROLLMENT only (no `deckId` FK):
  * a due-review batch draws cards across MULTIPLE decks in one course (unlike
  * `FlashcardReviewSessionEntity`, which is pinned to a single deck), so it
  * cannot reuse that table. Grading itself still happens per-card through the
  * existing `reviewFlashcard` mutation, which already persists safely on every
- * rating — this table only wraps that sequence with a resumable
+ * rating -- this table only wraps that sequence with a resumable
  * batch/position bookkeeping so a learner who navigates away mid-batch does
  * not lose which cards were already drawn or how far they got.
  * `startFlashcardDueReviewSession` persists the drawn card order,
@@ -42,14 +42,14 @@ import {
  */
 export class FlashcardDueReviewSessionEntity extends UuidAbstractEntity {
     /**
-     * Enrollment this due-review batch belongs to (user × course) — the
+     * Enrollment this due-review batch belongs to (user x course) -- the
      * anchor every ownership-scoped lookup
      * (`syncFlashcardDueReviewSessionProgress`,
      * `myInProgressFlashcardDueReviewSession`,
      * `completeFlashcardDueReviewSession`) uses to make sure a session row is
      * only ever read/mutated on behalf of the SAME caller who started it.
      * Deliberately NO `deckId` FK (unlike
-     * {@link import("./flashcard-review-session.entity").FlashcardReviewSessionEntity}) —
+     * {@link import("./flashcard-review-session.entity").FlashcardReviewSessionEntity}) --
      * a due-review batch draws cards across multiple decks in the course, so
      * it cannot be pinned to one deck.
      */
@@ -78,7 +78,7 @@ export class FlashcardDueReviewSessionEntity extends UuidAbstractEntity {
 
     /**
      * The `flashcard_cards.id` set drawn for this batch, in the order they
-     * are asked — snapshotted ONCE at `startFlashcardDueReviewSession` time
+     * are asked -- snapshotted ONCE at `startFlashcardDueReviewSession` time
      * (never re-drawn on resume), so a resumed batch always sees the SAME
      * cards it started with regardless of any later deck/due-set changes.
      */
@@ -89,7 +89,7 @@ export class FlashcardDueReviewSessionEntity extends UuidAbstractEntity {
         cardIds: Array<string>
 
     /**
-     * 0-indexed card positions graded this session (order-independent) —
+     * 0-indexed card positions graded this session (order-independent) --
      * drives the FE per-segment green; distinct from `reviewedCount` which is
      * a plain count. Snapshotted by `syncFlashcardDueReviewSessionProgress` and
      * rehydrated on resume, so a learner who grades cards out of order (or
@@ -105,7 +105,7 @@ export class FlashcardDueReviewSessionEntity extends UuidAbstractEntity {
         gradedIndexes: Array<number>
 
     /**
-     * 0-based index of the card the learner was on at the last sync — the
+     * 0-based index of the card the learner was on at the last sync -- the
      * resume position `myInProgressFlashcardDueReviewSession` reports back
      * so the FE can restore the batch to exactly where the learner left off.
      * Defaults to 0 (a session always starts at its first card).
@@ -118,7 +118,7 @@ export class FlashcardDueReviewSessionEntity extends UuidAbstractEntity {
         currentIndex: number
 
     /**
-     * Cards actually graded this batch (via `reviewFlashcard`) — increments
+     * Cards actually graded this batch (via `reviewFlashcard`) -- increments
      * in lockstep with grading, snapshotted by
      * `syncFlashcardDueReviewSessionProgress` so history/stats don't need to
      * re-derive it from `current_index`. Mirrors
@@ -132,7 +132,7 @@ export class FlashcardDueReviewSessionEntity extends UuidAbstractEntity {
         reviewedCount: number
 
     /**
-     * The XP local-estimate snapshot for this run — placeholder bookkeeping
+     * The XP local-estimate snapshot for this run -- placeholder bookkeeping
      * only, same reasoning as
      * {@link import("./flashcard-review-session.entity").FlashcardReviewSessionEntity.xpEarned}:
      * `reviewFlashcard` itself grants no XP today, so this column is not a
@@ -148,7 +148,7 @@ export class FlashcardDueReviewSessionEntity extends UuidAbstractEntity {
         xpEarned: number
 
     /**
-     * The session's lifecycle state — same 3 values and same reasoning as
+     * The session's lifecycle state -- same 3 values and same reasoning as
      * {@link import("./flashcard-quiz-session.entity").FlashcardQuizSessionEntity.status}
      * (plain varchar, avoids the TypeORM `synchronize` `ADD VALUE` footgun on
      * a pg enum type). `startFlashcardDueReviewSession` flips any PRIOR

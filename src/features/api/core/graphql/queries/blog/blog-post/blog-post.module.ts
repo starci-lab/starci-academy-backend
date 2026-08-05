@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Wires the public `blogPost` article query (by slug). Resolver-only —
+ * Wires the public `blogPost` article query (by slug). Resolver-only --
  * premium posts are truncated here so non-members hit the paywall.
  */
 export class BlogPostSingleQueryModule extends ConfigurableModuleClass {}

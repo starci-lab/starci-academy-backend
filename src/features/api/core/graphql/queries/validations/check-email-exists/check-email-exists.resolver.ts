@@ -29,7 +29,7 @@ import {
 
 @Resolver()
 /**
- * Public `checkEmailExists` query — bloom-filter probe with possible false
+ * Public `checkEmailExists` query -- bloom-filter probe with possible false
  * positives. Unauthenticated on purpose so the signup form can call it
  * before the user has a token.
  */

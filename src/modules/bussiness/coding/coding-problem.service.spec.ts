@@ -170,7 +170,7 @@ describe("CodingProblemService",
                         })
 
                         const body = elasticsearchClient.search.mock.calls[0][0]
-                        // page 3 of size 10 → from 20, size 10
+                        // page 3 of size 10 -> from 20, size 10
                         expect(body.from).toBe(20)
                         expect(body.size).toBe(10)
                     })
@@ -208,7 +208,7 @@ describe("CodingProblemService",
 
                 it("throws CodingProblemNotFoundException when no hit comes back",
                     async () => {
-                        // empty hits → missing or disabled problem
+                        // empty hits -> missing or disabled problem
                         elasticsearchClient.search.mockResolvedValueOnce({
                             hits: {
                                 hits: [],
@@ -250,7 +250,7 @@ describe("CodingProblemService",
                 it("falls back to English when the requested locale has no hint",
                     async () => {
                         elasticsearchClient.get
-                            // first try (vi) misses → rejected 404
+                            // first try (vi) misses -> rejected 404
                             .mockRejectedValueOnce(new Error("404"))
                             // English fallback resolves the hint
                             .mockResolvedValueOnce({

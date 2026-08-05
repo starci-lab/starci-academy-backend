@@ -5,7 +5,7 @@ import type {
 /**
  * Base class for ONE badge (one animal). Each subclass owns:
  * - its `slug` (pairs the code logic to the seeded DB definition), and
- * - its `getSql()` — a scalar SQL subquery (`$1` = userId) returning the badge's
+ * - its `getSql()` -- a scalar SQL subquery (`$1` = userId) returning the badge's
  *   metric value.
  *
  * The orchestrator stitches every badge's `getSql()` into a single composite
@@ -15,7 +15,7 @@ import type {
  * with non-standard logic.
  */
 export abstract class AbstractBadge {
-    /** Stable slug — must match a seeded achievement definition. */
+    /** Stable slug -- must match a seeded achievement definition. */
     abstract readonly slug: string
 
     /**
@@ -38,11 +38,11 @@ export abstract class AbstractBadge {
         definition: AchievementEntity,
     ): Array<number | null> {
         const tierThresholds = definition.tierThresholds
-        // single-tier badge → the null tier once the bar is met
+        // single-tier badge -> the null tier once the bar is met
         if (!tierThresholds || tierThresholds.length === 0) {
             return value >= definition.threshold ? [null] : []
         }
-        // tiered badge → one 1-based tier per bar the value has cleared
+        // tiered badge -> one 1-based tier per bar the value has cleared
         const reached: Array<number | null> = []
         tierThresholds.forEach((bar, index) => {
             if (value >= bar) {

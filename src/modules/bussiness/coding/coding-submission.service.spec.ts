@@ -48,7 +48,7 @@ describe("CodingSubmissionService",
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-            // findAndCount is not part of the shared mock — add it for the history path
+            // findAndCount is not part of the shared mock -- add it for the history path
             entityManager.findAndCount = jest.fn().mockResolvedValue([
                 [],
                 0,
@@ -97,7 +97,7 @@ describe("CodingSubmissionService",
             () => {
                 it("throws CodingProblemNotFoundException for an unknown/disabled slug",
                     async () => {
-                        // findOne default resolves null → no matching enabled problem
+                        // findOne default resolves null -> no matching enabled problem
                         await expect(
                             service.submit({
                                 userId,
@@ -215,7 +215,7 @@ describe("CodingSubmissionService",
             () => {
                 it("throws CodingProblemNotFoundException for an unknown/disabled slug",
                     async () => {
-                        // findOne default resolves null → no matching problem
+                        // findOne default resolves null -> no matching problem
                         await expect(
                             service.listMine({
                                 userId,

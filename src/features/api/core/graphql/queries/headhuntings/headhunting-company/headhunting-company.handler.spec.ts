@@ -49,7 +49,7 @@ describe("HeadhuntingCompanyHandler",
             consultantContactGateService = {
                 getBestCvScore: jest.fn().mockResolvedValue(0),
                 // this suite's fixtures never populate `consultants`, so the
-                // gate branch is never entered — mock kept minimal on purpose
+                // gate branch is never entered -- mock kept minimal on purpose
                 gateConsultants: jest.fn(),
             } as unknown as jest.Mocked<
                 Pick<ConsultantContactGateService, "getBestCvScore" | "gateConsultants">

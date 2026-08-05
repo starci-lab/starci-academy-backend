@@ -35,7 +35,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL entry for starting a trial (preview) enrollment — the "Học thử" flow.
+ * GraphQL entry for starting a trial (preview) enrollment.
  */
 export class StartTrialResolver {
     constructor(

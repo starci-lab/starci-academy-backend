@@ -13,5 +13,5 @@ import {
         MyVouchersResolver,
     ],
 })
-/** Feature-module boundary for the `myVouchers` query — wires its resolver so the dashboard group can mount this widget independently. */
+/** Feature-module boundary for the `myVouchers` query -- wires its resolver so the dashboard group can mount this widget independently. */
 export class MyVouchersSingleQueryModule extends ConfigurableModuleClass {}

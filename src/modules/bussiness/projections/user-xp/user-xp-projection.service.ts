@@ -114,7 +114,7 @@ export class UserXpProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 userId,
@@ -143,7 +143,7 @@ export class UserXpProjectionService {
     }
 
     /**
-     * Build the XP-aggregate UPSERT — per-source SUM(amount) over the
+     * Build the XP-aggregate UPSERT -- per-source SUM(amount) over the
      * `xp_histories` ledger plus the two materialized balances read straight off
      * the `users` row, all for the single user `$1`.
      *

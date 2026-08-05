@@ -15,13 +15,13 @@ import type {
 export interface InstallmentCustomAmountNotAllowedExceptionMetadata extends AbstractExceptionMetadata {
     /** Id of the plan. */
     planId: string
-    /** The plan's type (always `Fixed` when this is thrown — `FlexiblePool` allows a custom amount). */
+    /** The plan's type (always `Fixed` when this is thrown -- `FlexiblePool` allows a custom amount). */
     planType: InstallmentPlanType
 }
 
 /**
  * Thrown when `payNextInstallment` receives a custom `amountVnd` for a `Fixed`
- * plan — Fixed plans always charge the fixed monthly amount; only
+ * plan -- Fixed plans always charge the fixed monthly amount; only
  * `FlexiblePool` lets the caller top up more than the minimum.
  */
 export class InstallmentCustomAmountNotAllowedException extends AbstractException {

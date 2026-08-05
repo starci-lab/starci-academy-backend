@@ -80,20 +80,20 @@ const GRADE_AGAIN = 0
 const GRADE_GOOD = 2
 
 /**
- * e2e for five previously-untested flashcard READ resolvers —
+ * e2e for five previously-untested flashcard READ resolvers --
  * `myDueFlashcards`, `myFlashcardStats`, `myFlashcardReviewStats`,
  * `myFlashcardQuizStats`, `flashcardDecksByCourse`. Every flow here is called
  * by invoking the resolver's `execute()` directly with an already-resolved
  * user (same pattern as `flashcard-review.e2e-spec.ts` /
- * `job-postings.e2e-spec.ts` / `rewards-redeem.e2e-spec.ts` — the HTTP-level
+ * `job-postings.e2e-spec.ts` / `rewards-redeem.e2e-spec.ts` -- the HTTP-level
  * `@UseGuards(KeycloakAuthGraphQLGuard)` is out of scope here, covered once by
  * `progress-query.e2e-spec.ts`'s guard-override pattern).
  *
  * MOCKED (no external infra available in this harness):
- *  - `CacheService` — real class talks to Redis; stubbed to always miss so
+ *  - `CacheService` -- real class talks to Redis; stubbed to always miss so
  *    `UserService.resolveOrCreateTrialEnrollment` / `checkEnrollment` hit real
  *    Postgres every time.
- *  - `ElasticsearchService` — required by `FlashcardDeckReadService`'s
+ *  - `ElasticsearchService` -- required by `FlashcardDeckReadService`'s
  *    constructor (used only by its single-deck ES-backed read, never by
  *    `listByCourse` under test here); stubbed with no-op methods purely so DI
  *    can resolve the provider graph at `compile()`.
@@ -105,7 +105,7 @@ const GRADE_GOOD = 2
  * {@link UserFlashcardCourseStatsProjectionService} CQRS projection (its heavy
  * scan/fold runs for real against real `flashcard_review_events` /
  * `flashcard_quiz_sessions` rows), `UserService`, and the pure localization
- * chain (`FlashcardDeckResolverService` → `FlashcardCardResolverService` →
+ * chain (`FlashcardDeckResolverService` -> `FlashcardCardResolverService` ->
  * `TranslationResolverService`).
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -167,26 +167,26 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                     // flashcardDecksByCourse
                     FlashcardDecksByCourseResolver,
                     FlashcardDeckReadService,
-                    // REAL — pure localization chain, no external deps
+                    // REAL -- pure localization chain, no external deps
                     FlashcardDeckResolverService,
                     FlashcardCardResolverService,
                     TranslationResolverService,
-                    // REAL — resolveOrCreateTrialEnrollment / checkEnrollment run real SQL
+                    // REAL -- resolveOrCreateTrialEnrollment / checkEnrollment run real SQL
                     UserService,
                     {
                         provide: CacheService,
                         useValue: cacheServiceMock,
                     },
-                    // DI-graph-only stub — listByCourse never calls this
+                    // DI-graph-only stub -- listByCourse never calls this
                     {
                         provide: ElasticsearchService,
                         useValue: elasticsearchServiceMock,
                     },
-                    // KeycloakAuthGraphQLGuard deps — flashcardDecksByCourse's
+                    // KeycloakAuthGraphQLGuard deps -- flashcardDecksByCourse's
                     // `@UseGuards(KeycloakAuthGraphQLGuard)` still needs Nest to
                     // construct the real guard at compile time even though this spec
                     // calls the resolver's `execute()` directly (bypassing the guard
-                    // pipeline entirely, same as every other resolver here) — these
+                    // pipeline entirely, same as every other resolver here) -- these
                     // are never invoked (same pattern as jobs-queries.e2e-spec.ts).
                     {
                         provide: KeycloakJwksService,
@@ -290,11 +290,11 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                         deck,
                     }),
             )
-            // Cards are localized on every read path here (listDue / listByCourse →
-            // deck resolver → card resolver): the REQUIRED `question` field always
+            // Cards are localized on every read path here (listDue / listByCourse ->
+            // deck resolver -> card resolver): the REQUIRED `question` field always
             // takes its resolved translation value, so a card carrying NO translation
             // row reads back as an empty `front`/`question`. Production always seeds
-            // one `question` row per locale (the hydration merge emits it) — mirror
+            // one `question` row per locale (the hydration merge emits it) -- mirror
             // that here (same pattern as flashcard-review.e2e-spec.ts) so `question`
             // resolves to the real prompt instead of "".
             for (const card of [
@@ -317,7 +317,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
         afterAll(async () => {
             // the deck/card fixtures are read-only WITHIN this suite, but the
             // Testcontainers Postgres is shared across the whole e2e run (see
-            // setup-e2e.ts) — leaving them behind pollutes any OTHER file's
+            // setup-e2e.ts) -- leaving them behind pollutes any OTHER file's
             // courseId-less "global" flashcard query (e.g. myDueFlashcards here
             // itself, run against a DIFFERENT file's leftover cards) with cards
             // this suite has no control over. CASCADE also clears flashcard_cards
@@ -377,7 +377,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                 it("a never-reviewed card is due; a card scheduled in the future is not",
                     async () => {
                         const user = await seedUser("kc-due-happy")
-                        // cardA: reviewed once, scheduled far in the future — NOT due.
+                        // cardA: reviewed once, scheduled far in the future -- NOT due.
                         // GLOBAL (no courseId) queue keys the review join by user_id,
                         // so no enrollment is needed here.
                         await entityManager.save(
@@ -391,8 +391,8 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                                     dueAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                                 }),
                         )
-                        // cardB: no review row at all → always due (NEW)
-                        // premiumCard also has no review row — also due
+                        // cardB: no review row at all -> always due (NEW)
+                        // premiumCard also has no review row -- also due
 
                         const result = await myDueFlashcardsResolver.execute(
                             undefined,
@@ -430,7 +430,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                     async () => {
                         const user = await seedUser("kc-stats-happy")
                         const now = new Date()
-                        // 2 recalled (grade>=2) + 1 lapsed, all "today" → 1-day streak,
+                        // 2 recalled (grade>=2) + 1 lapsed, all "today" -> 1-day streak,
                         // retentionRate = 2/3 rounded = 67
                         await entityManager.save([
                             entityManager.create(FlashcardReviewEventEntity,
@@ -506,7 +506,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                                     dueAt: new Date(),
                                 }),
                         )
-                        // 1 recalled (Good) THEN 4 lapses (Again) on the SAME card — each
+                        // 1 recalled (Good) THEN 4 lapses (Again) on the SAME card -- each
                         // Again has a PRIOR recall in its history, so all 4 count as
                         // "lapsed" (not merely "forgot"); tag sample size (5) clears
                         // WEAK_TAG_MIN_SAMPLE (4); forgot_count (4) clears LEECH_MIN_AGAIN (2)
@@ -567,7 +567,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                 it("empty state: a fresh trial enrollment with no review events gets zeroed aggregates",
                     async () => {
                         const user = await seedUser("kc-review-stats-empty")
-                        // no enrollment pre-seeded — the service lazily creates a trial one
+                        // no enrollment pre-seeded -- the service lazily creates a trial one
 
                         const result = await myFlashcardReviewStatsResolver.execute(
                             user,
@@ -641,7 +641,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                         const enrollment = await seedEnrollment(user,
                             course,
                             false)
-                        // only 2 completed sessions — one short of the 3-session floor
+                        // only 2 completed sessions -- one short of the 3-session floor
                         const makeSession = () => entityManager.create(FlashcardQuizSessionEntity,
                             {
                                 enrollment,
@@ -697,7 +697,7 @@ describe("Flashcard stats + deck-list query reads (e2e)",
                 it("insufficient-entitlement: a NON-enrolled viewer gets the premium card's answer/explanation NULLED, question still visible",
                     async () => {
                         const user = await seedUser("kc-decks-not-entitled")
-                        // no enrollment at all — never paid into this course
+                        // no enrollment at all -- never paid into this course
 
                         const decks = await flashcardDecksByCourseResolver.execute(
                             course.id,

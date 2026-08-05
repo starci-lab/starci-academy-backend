@@ -18,7 +18,7 @@ export interface InstallmentPlanNotPayableExceptionMetadata extends AbstractExce
 
 /**
  * Thrown when a "pay next installment" request targets a plan that is
- * already `completed` — there is no next cycle to charge.
+ * already `completed` -- there is no next cycle to charge.
  */
 export class InstallmentPlanNotPayableException extends AbstractException {
     constructor({

@@ -15,7 +15,7 @@ export interface InvalidPaypalWebhookSignatureExceptionMetadata extends Abstract
 }
 
 /**
- * Thrown when a PayPal webhook's signature verification fails — the payload
+ * Thrown when a PayPal webhook's signature verification fails -- the payload
  * is discarded rather than reconciled, since it may not actually be from
  * PayPal.
  */

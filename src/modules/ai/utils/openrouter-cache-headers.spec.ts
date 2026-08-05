@@ -28,7 +28,7 @@ describe("openRouterCacheHeaders",
 
         it("keys two submissions of the same challenge to the same header — the whole point",
             () => {
-                // different submissions, same challenge id → identical routing key, so
+                // different submissions, same challenge id -> identical routing key, so
                 // both hit the same provider and reuse the cached rubric prefix
                 const first = openRouterCacheHeaders("challenge-42")
                 const second = openRouterCacheHeaders("challenge-42")

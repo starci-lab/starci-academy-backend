@@ -15,13 +15,13 @@ import {
 
 /** Sort fields for listing headhunters within a company. */
 export enum ConsultantsSortBy {
-    /** Alphabetical by display name — use when the client wants a directory, not curated order. */
+    /** Alphabetical by display name -- use when the client wants a directory, not curated order. */
     FullName = "fullName",
-    /** Curated company order — default so newly hired consultants do not jump to the top. */
+    /** Curated company order -- default so newly hired consultants do not jump to the top. */
     SortIndex = "sortIndex",
-    /** Newest first/last — use for admin recency, not the public directory default. */
+    /** Newest first/last -- use for admin recency, not the public directory default. */
     CreatedAt = "createdAt",
-    /** Most recently edited first/last — surfaces profile updates without changing sortIndex. */
+    /** Most recently edited first/last -- surfaces profile updates without changing sortIndex. */
     UpdatedAt = "updatedAt",
 }
 

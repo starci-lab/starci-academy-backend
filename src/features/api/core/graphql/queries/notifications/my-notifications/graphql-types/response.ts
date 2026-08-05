@@ -19,7 +19,7 @@ import GraphQLJSON from "graphql-type-json"
 })
 /**
  * An i18n-renderable text on a notification: a message key + interpolation
- * params. The FE renders `t(key, params)` — no server-side text.
+ * params. The FE renders `t(key, params)` -- no server-side text.
  */
 export class NotificationI18nTextObject {
     @Field(

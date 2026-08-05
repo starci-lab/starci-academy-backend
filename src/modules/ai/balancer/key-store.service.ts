@@ -34,11 +34,11 @@ import {
  * picks an active key per request; the ping cache flags unhealthy keys.
  *
  * Loading is lazy (not `onModuleInit`) because the catalog is seeded into the
- * DB by `InitModule`, which may run after this provider is constructed — the
+ * DB by `InitModule`, which may run after this provider is constructed -- the
  * first AI call (well after boot) triggers the load.
  *
- * The mount file format is plain text — one API key per line (empty lines and
- * `#`-comment lines are stripped). Missing or empty file → empty pool (no crash).
+ * The mount file format is plain text -- one API key per line (empty lines and
+ * `#`-comment lines are stripped). Missing or empty file -> empty pool (no crash).
  *
  * @example
  * await keyStore.ensureLoaded()
@@ -46,9 +46,9 @@ import {
  * const active = pool.filter((key) => key.status === KeyStatus.Active)
  */
 export class KeyStoreService {
-    /** Provider → ordered list of key states (stable order for round-robin). */
+    /** Provider -> ordered list of key states (stable order for round-robin). */
     private readonly pool = new Map<ModelProvider, Array<KeyState>>()
-    /** Provider → mount file path actually loaded (for logs / health snapshot). */
+    /** Provider -> mount file path actually loaded (for logs / health snapshot). */
     private readonly pathByProvider = new Map<ModelProvider, string>()
     /** Whether {@link reloadAll} has completed at least once. */
     private loaded = false
@@ -60,7 +60,7 @@ export class KeyStoreService {
     ) { }
 
     /**
-     * Load the pools once. No-op after the first successful load — call
+     * Load the pools once. No-op after the first successful load -- call
      * {@link reloadAll} directly to force a refresh (e.g. after a reseed).
      */
     async ensureLoaded(): Promise<void> {
@@ -82,7 +82,7 @@ export class KeyStoreService {
         const models = await this.aiModelCatalogService.enabledModels()
 
         // group every enabled model's key file by provider (a provider may expose
-        // several models pulling from different files → merge into one pool)
+        // several models pulling from different files -> merge into one pool)
         const pathsByProvider = new Map<ModelProvider, Set<string>>()
         for (const model of models) {
             const paths = pathsByProvider.get(model.provider) ?? new Set<string>()
@@ -145,7 +145,7 @@ export class KeyStoreService {
         // label recorded for logs / snapshot (the configured file path(s))
         const pathLabel = paths.join(", ") || "(legacy)"
 
-        // soft fallback: nothing resolved from the catalog files → legacy getter
+        // soft fallback: nothing resolved from the catalog files -> legacy getter
         let entries = tagged
         if (entries.length === 0) {
             entries = this.readLegacyKeys(provider).map((value) => ({
@@ -154,7 +154,7 @@ export class KeyStoreService {
             }))
         }
 
-        // hydrate fresh KeyState entries (existing health info is discarded — caller
+        // hydrate fresh KeyState entries (existing health info is discarded -- caller
         // can re-run health check after reload)
         const states: Array<KeyState> = entries.map(({
             value,
@@ -194,7 +194,7 @@ export class KeyStoreService {
 
     /**
      * Live reference to the per-provider key list. Callers (rotator, health)
-     * mutate `status`, `failCount`, etc. on entries — the store does not
+     * mutate `status`, `failCount`, etc. on entries -- the store does not
      * defensively copy because those services own that mutation.
      *
      * @param provider - target provider
@@ -222,7 +222,7 @@ export class KeyStoreService {
     }
 
     /**
-     * Legacy per-provider pool getter — the fallback used when a model's
+     * Legacy per-provider pool getter -- the fallback used when a model's
      * declared `keysFilePath` resolves to no key (file missing / empty), so
      * deployments still on the old single-pool-file layout keep working.
      *
@@ -237,15 +237,15 @@ export class KeyStoreService {
         case ModelProvider.Gemini:
             return this.mountFilesystemService.geminiApiKeys()
         case ModelProvider.Local:
-            // self-hosted OpenAI-compatible endpoint — the "key" is the bearer
+            // self-hosted OpenAI-compatible endpoint -- the "key" is the bearer
             // token the Caddy gate validates (or a placeholder for a gate-less
             // local Ollama). Keeps the provider eligible so Auto tries it first.
             return this.mountFilesystemService.localApiKeys()
         case ModelProvider.OpenRouter:
-            // OpenRouter gateway — pooled API keys (Bearer) from the mount file.
+            // OpenRouter gateway -- pooled API keys (Bearer) from the mount file.
             return this.mountFilesystemService.openRouterApiKeys()
         case ModelProvider.Anthropic:
-            // native Anthropic Claude API — pooled keys from the mount file.
+            // native Anthropic Claude API -- pooled keys from the mount file.
             return this.mountFilesystemService.anthropicApiKeys()
         default:
             return []

@@ -60,7 +60,7 @@ export class MilestoneTaskSuggestionsResolver {
         @Args("request")
             request: SuggestionsRequest,
     ): Promise<SuggestionsPayload> {
-        // delegate to the service → CQRS query bus → MilestoneTaskSuggestionsHandler;
+        // delegate to the service -> CQRS query bus -> MilestoneTaskSuggestionsHandler;
         // the handler's SuggestionsPayloadShape is structurally the SuggestionsPayload
         return this.milestoneTaskSuggestionsService.query(locale,
             request)

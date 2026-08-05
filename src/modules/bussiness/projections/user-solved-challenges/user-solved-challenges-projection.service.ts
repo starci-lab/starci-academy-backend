@@ -69,7 +69,7 @@ export class UserSolvedChallengesProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 userId,
@@ -101,10 +101,10 @@ export class UserSolvedChallengesProjectionService {
     }
 
     /**
-     * Read a user's DERIVED challenge-strength percentile + 1-based global rank —
+     * Read a user's DERIVED challenge-strength percentile + 1-based global rank --
      * a weighted SUM by difficulty (easy 10 / medium 20 / hard 30 / insane 40 /
      * expert 50) over their distinct passes, materialised in
-     * `value->>'strengthScore'`. Purely derived — it does NOT touch the points / XP
+     * `value->>'strengthScore'`. Purely derived -- it does NOT touch the points / XP
      * / league economy. The pool is all rows with strengthScore > 0; ordering
      * mirrors the coding rank (strengthScore DESC, tie-break updated_at ASC).
      *
@@ -113,7 +113,7 @@ export class UserSolvedChallengesProjectionService {
      */
     async getChallengeStrength(userId: string): Promise<ChallengeStrengthResult> {
         // single pass over the per-user projection rows: my score, my rank, how many
-        // I beat, and the pool size — no per-request aggregation over raw submissions.
+        // I beat, and the pool size -- no per-request aggregation over raw submissions.
         const rows = await this.entityManager.query<Array<ChallengeStrengthRow>>(
             `
             WITH pool AS (
@@ -159,7 +159,7 @@ export class UserSolvedChallengesProjectionService {
         const mine = Number(row?.mine) || 0
         // real challenge XP from the ledger (sum of amounts), independent of rank
         const xp = Number(row?.xp) || 0
-        // no passes → unranked (mirrors the coding rank null contract); XP still reported
+        // no passes -> unranked (mirrors the coding rank null contract); XP still reported
         if (mine <= 0) {
             return {
                 percentile: null,
@@ -190,7 +190,7 @@ export class UserSolvedChallengesProjectionService {
     }
 
     /**
-     * Build the solved-challenges UPSERT — one row per passed submission (latest
+     * Build the solved-challenges UPSERT -- one row per passed submission (latest
      * passing attempt: score > 0 + graded, via DISTINCT ON), folded newest-first
      * into `value.challenges` for the single user `$1`.
      *
@@ -199,7 +199,7 @@ export class UserSolvedChallengesProjectionService {
     private buildUpsertSql(): string {
         // `t` (the DISTINCT-ON-per-submission passing-attempt set) drives BOTH the
         // newest-first challenges array AND the derived strengthScore (a weighted
-        // SUM by difficulty over the SAME passes). strengthScore is purely derived —
+        // SUM by difficulty over the SAME passes). strengthScore is purely derived --
         // it does NOT touch the points / XP / league economy.
         return `
             INSERT INTO user_solved_challenges_projections (user_id, value)

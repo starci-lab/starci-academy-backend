@@ -13,7 +13,7 @@ import {
  * @throws InvalidPostgresUrlException When the scheme is not postgres(ql).
  */
 export const assertPostgresConnectionUrl = (urlString: string): void => {
-    // parse first — a non-URL string is rejected outright
+    // parse first -- a non-URL string is rejected outright
     let parsed: URL
     try {
         parsed = new URL(urlString)
@@ -22,7 +22,7 @@ export const assertPostgresConnectionUrl = (urlString: string): void => {
             urlString,
         })
     }
-    // strip the trailing ":" so "postgres:" → "postgres"
+    // strip the trailing ":" so "postgres:" -> "postgres"
     const scheme = parsed.protocol.replace(
         ":",
         "",
@@ -49,6 +49,6 @@ export const slugifyForFilename = (value: string): string => {
             "-")
         .replace(/^-+|-+$/g,
             "")
-    // never return an empty string — it would produce a dotfile-only name
+    // never return an empty string -- it would produce a dotfile-only name
     return slug.length > 0 ? slug : "db"
 }

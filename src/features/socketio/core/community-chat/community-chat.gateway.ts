@@ -73,7 +73,7 @@ export class CommunityChatGateway implements OnModuleInit {
      * Wires the local event listener that forwards new messages to their room.
      */
     onModuleInit(): void {
-        // a new message → push to the conversation room so participants refetch
+        // a new message -> push to the conversation room so participants refetch
         this.eventEmitterService.on({
             event: EventName.ChatMessageCreated,
             listener: (payload: ChatMessageChangedEventPayload) => {

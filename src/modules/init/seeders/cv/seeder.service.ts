@@ -13,7 +13,7 @@ import {
 
 @Injectable()
 /**
- * CV mount seeder: parse mount markdown → upsert `template_cvs` (same orchestration role as {@link CourseSeederService} for courses).
+ * CV mount seeder: parse mount markdown -> upsert `template_cvs` (same orchestration role as {@link CourseSeederService} for courses).
  */
 export class CvSeederService {
     constructor(

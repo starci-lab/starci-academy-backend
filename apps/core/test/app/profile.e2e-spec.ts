@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before ConnectGithubAccountHandler pulls `@modules/cqrs` — dodges
+// initialised before ConnectGithubAccountHandler pulls `@modules/cqrs` -- dodges
 // a load-order "Class extends value undefined" cycle (same gotcha documented in
 // connect-github-account.handler.spec.ts).
 import "@modules/bussiness"
@@ -65,7 +65,7 @@ const POSTGRESQL_PRIMARY = "primary"
 const getByUsernameMock = jest.fn()
 
 // Replace the Octokit client with a stub whose REST surface is the shared mock
-// — the only genuinely external dependency `connectGithubAccount` has (the
+// -- the only genuinely external dependency `connectGithubAccount` has (the
 // handler does `new Octokit(...).rest.users.getByUsername(...)` directly, no
 // DI seam). Mirrors `connect-github-account.handler.spec.ts`'s own stub.
 jest.mock("octokit",
@@ -80,35 +80,35 @@ jest.mock("octokit",
     }))
 
 /**
- * e2e for the profile-write mutations — `.claude/canon/be/enforce/authoring/testing.md`
+ * e2e for the profile-write mutations -- `.claude/canon/be/enforce/authoring/testing.md`
  * §2 coverage rule: every mutation that commits a row a user later sees earns
  * an e2e. Covers `updateProfile`, `setKpiTarget` (round-3a: delegates to
- * {@link KpiRewardService.setTarget}), and `connectGithubAccount` — the one
+ * {@link KpiRewardService.setTarget}), and `connectGithubAccount` -- the one
  * state-committing mutation in the "connect/disconnect integrations" family
  * (there is no synchronous `disconnectGithubAccount` mutation to pair it with;
- * disconnect only exists as the async `revoke-github` BullMQ worker — see
+ * disconnect only exists as the async `revoke-github` BullMQ worker -- see
  * "uncovered" in the handoff).
  *
- * Runs the resolvers' `execute()` directly (bypassing GraphQL/HTTP — same
+ * Runs the resolvers' `execute()` directly (bypassing GraphQL/HTTP -- same
  * service-level style as `rewards-redeem.e2e-spec.ts`) against REAL Postgres
  * (Testcontainers), so the partial-update semantics, the atomic `jsonb_set`
  * clamp+floor write, and the GitHub-verified persist are all exercised against
  * the real schema, not a mocked `EntityManager`.
  *
  * MOCKED (external / side-effect-only, not what this spec asserts on):
- *  - `UserService` — only `invalidateProfileLocked` is called by
+ *  - `UserService` -- only `invalidateProfileLocked` is called by
  *    `updateProfile`; the real implementation needs a live Redis-backed
  *    `CacheService`, which is out of scope here. Stubbed to a spy so the call
  *    itself is still asserted.
- *  - `MountStorageService` — real class reads mounted secrets on
+ *  - `MountStorageService` -- real class reads mounted secrets on
  *    `onModuleInit`; stubbed to hand back a fixed `githubAccessToken`, the
  *    only field `ConnectGithubAccountHandler` reads off it.
- *  - the `octokit` SDK — never hits the real GitHub API.
+ *  - the `octokit` SDK -- never hits the real GitHub API.
  *
  * REAL: Postgres (Testcontainers), `UpdateProfileResolver`, `SetKpiTargetResolver`
  * (and the `KpiRewardService` it delegates to), `UserStatsProjectionService`
  * (a KpiRewardService constructor dependency, unused by the `setTarget` path
- * itself but real since it costs nothing — only needs the entity manager),
+ * itself but real since it costs nothing -- only needs the entity manager),
  * and `ConnectGithubAccountHandler`.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -134,15 +134,15 @@ describe("Profile-write mutations (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the resolvers under test
+                    // REAL -- the resolvers under test
                     UpdateProfileResolver,
                     SetKpiTargetResolver,
-                    // REAL — setKpiTarget's delegate + its own (unused-by-setTarget) dependency
+                    // REAL -- setKpiTarget's delegate + its own (unused-by-setTarget) dependency
                     KpiRewardService,
                     UserStatsProjectionService,
-                    // REAL — the CQRS handler connectGithubAccount ultimately runs
+                    // REAL -- the CQRS handler connectGithubAccount ultimately runs
                     ConnectGithubAccountHandler,
-                    // mocked — only invalidateProfileLocked is exercised; the real
+                    // mocked -- only invalidateProfileLocked is exercised; the real
                     // implementation needs a live CacheService (Redis)
                     {
                         provide: UserService,
@@ -150,14 +150,14 @@ describe("Profile-write mutations (e2e)",
                             invalidateProfileLocked,
                         },
                     },
-                    // mocked — only the access-token field the handler reads
+                    // mocked -- only the access-token field the handler reads
                     {
                         provide: MountStorageService,
                         useValue: {
                             githubAccessToken: "ghp_test_token",
                         },
                     },
-                    // guard deps — `UpdateProfileResolver` / `SetKpiTargetResolver`
+                    // guard deps -- `UpdateProfileResolver` / `SetKpiTargetResolver`
                     // carry `@UseGuards(KeycloakAuthGraphQLGuard)`, so Nest constructs
                     // the guard as an enhancer at `app.init()` even though these tests
                     // invoke `execute()` directly; its constructor deps must resolve
@@ -235,7 +235,7 @@ describe("Profile-write mutations (e2e)",
 
                         // trimmed on write
                         expect(updated.displayName).toBe("New Name")
-                        // bio was never sent → untouched
+                        // bio was never sent -> untouched
                         expect(updated.bio).toBe("Old bio")
 
                         const reloaded = await entityManager.findOneByOrFail(UserEntity,
@@ -319,7 +319,7 @@ describe("Profile-write mutations (e2e)",
                     async () => {
                         const user = await seedUser("kc-kpi-clamp")
 
-                        // StudyDays caps at 7 — a wildly over-large request must clamp down
+                        // StudyDays caps at 7 -- a wildly over-large request must clamp down
                         await setKpiTargetResolver.execute(
                             {
                                 key: KpiKey.StudyDays,
@@ -408,7 +408,7 @@ describe("Profile-write mutations (e2e)",
                         expect(loweredFloor.floorTarget).toBe(10)
 
                         // ...but a THIRD, HIGHER target must never raise it back up
-                        // (LEAST-only — the anti-gaming guarantee)
+                        // (LEAST-only -- the anti-gaming guarantee)
                         await setKpiTargetResolver.execute(
                             {
                                 key: KpiKey.Coding,

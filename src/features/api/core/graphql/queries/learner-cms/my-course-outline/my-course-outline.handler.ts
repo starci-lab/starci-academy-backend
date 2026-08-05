@@ -66,11 +66,11 @@ import type {
 @QueryHandler(MyCourseOutlineQuery)
 @Injectable()
 /**
- * Assembles one enrolled course's full tree (modules → lessons → challenges and
- * milestones → tasks) with the signed-in viewer's progress overlaid. This is a
+ * Assembles one enrolled course's full tree (modules -> lessons -> challenges and
+ * milestones -> tasks) with the signed-in viewer's progress overlaid. This is a
  * read-only join across the S3-sourced course tree, the ES-sourced milestone
  * tree, the two progress services (challenge + capstone), and the lesson read
- * flags — it does NOT re-grade anything.
+ * flags -- it does NOT re-grade anything.
  */
 export class MyCourseOutlineHandler
     extends ICQRSHandler<MyCourseOutlineQuery, MyCourseOutlineData>
@@ -105,14 +105,14 @@ export class MyCourseOutlineHandler
         }
 
         // 1. enrollment is OPTIONAL. A non-enrolled viewer "trying free" (the course.tryLearning
-        // CTA → /learn/content) gets the outline as a READ-ONLY preview: empty progress, with
+        // CTA -> /learn/content) gets the outline as a READ-ONLY preview: empty progress, with
         // premium modules/lessons still flagged (isPremium) so the client locks them. The two
         // progress services are scoped by enrollment id, so they're skipped without an enrollment.
         const enrollment = await this.entityManager.findOne(
             EnrollmentEntity,
             {
                 where: {
-                    // userId is a @RelationId (virtual, not queryable) — filter via
+                    // userId is a @RelationId (virtual, not queryable) -- filter via
                     // the user relation's real FK column instead
                     user: {
                         id: user.id,
@@ -145,7 +145,7 @@ export class MyCourseOutlineHandler
             )
         const displayId = enrollment?.course.displayId ?? previewCourse?.displayId
         if (!displayId) {
-            // neither enrolled nor a resolvable course → not-found (stable code, WARN-only since
+            // neither enrolled nor a resolvable course -> not-found (stable code, WARN-only since
             // the client SWR retries this every few seconds).
             const exception = new EnrollmentNotFoundException({
                 userId: user.id,
@@ -165,7 +165,7 @@ export class MyCourseOutlineHandler
             throw exception
         }
 
-        // 3. load the full course tree (modules → contents → challenges) from the
+        // 3. load the full course tree (modules -> contents -> challenges) from the
         // S3-sourced read model; CourseQuery resolves the tree by displayId + locale
         const course = await this.queryBus.execute<CourseQuery, CourseEntity>(
             new CourseQuery({
@@ -178,7 +178,7 @@ export class MyCourseOutlineHandler
             }),
         )
 
-        // load the capstone milestone tree (milestones → tasks) from the ES-sourced
+        // load the capstone milestone tree (milestones -> tasks) from the ES-sourced
         // read model, already locale-resolved and ordered by sort index
         const milestonesResult = await this.queryBus.execute<
             MilestonesQuery,
@@ -195,7 +195,7 @@ export class MyCourseOutlineHandler
         const milestoneRows = milestonesResult.data
 
         // 4+5. progress overlays come from the two enrollment-scoped services. A preview
-        // (non-enrolled) viewer has no enrollment id → empty progress (everything reads as
+        // (non-enrolled) viewer has no enrollment id -> empty progress (everything reads as
         // not-started) and the current-task pointer falls back to the first lesson.
         let challengeProgressById: ChallengeProgressLookup = new Map()
         let taskProgressById: TaskProgressLookup = new Map()
@@ -229,9 +229,9 @@ export class MyCourseOutlineHandler
 
         // 6. lesson read flags: every UserContent row the viewer owns under this
         // course; only rows flagged isRead count as read. Keyed by ENROLLMENT id (the
-        // anchor for per-course progress going forward) when the viewer is enrolled —
+        // anchor for per-course progress going forward) when the viewer is enrolled --
         // user_contents.enrollment_id is backfilled. A preview (non-enrolled) viewer has
-        // no enrollment id → no read rows in scope, so the outline reads as all-unread
+        // no enrollment id -> no read rows in scope, so the outline reads as all-unread
         // (matching the empty-progress preview semantics above).
         const userContents = enrollment
             ? await this.entityManager.find(
@@ -263,7 +263,7 @@ export class MyCourseOutlineHandler
             ),
         )
 
-        // 7. map the course tree → response object types, overlaying read / status /
+        // 7. map the course tree -> response object types, overlaying read / status /
         // completed. sort every level by sortIndex so the outline mirrors the lesson
         // navigation; the S3 tree is already sorted, but re-sort defensively.
         const modules = this.mapModules(
@@ -291,7 +291,7 @@ export class MyCourseOutlineHandler
         )
 
         // 10. content-first resume for the course-content home: next unread lesson,
-        // else first uncompleted challenge, else null. Never a milestone task — the
+        // else first uncompleted challenge, else null. Never a milestone task -- the
         // capstone has its own resume on the personal-project surface.
         const nextContentTask = this.resolveNextContentTask(modules)
 
@@ -547,8 +547,8 @@ export class MyCourseOutlineHandler
 
     /**
      * Resolve the content-first resume pointer used by the course-content home
-     * ("Tiếp tục học"). Unlike {@link resolveCurrentTask}, this NEVER points at a
-     * milestone/capstone task — the capstone has its own resume on the personal-project
+     * (continue learning). Unlike {@link resolveCurrentTask}, this NEVER points at a
+     * milestone/capstone task -- the capstone has its own resume on the personal-project
      * surface, and a learner with unread lessons should be sent to a lesson, not the
      * final project. Preference order:
      * 1. the first unread lesson in outline order;
@@ -560,7 +560,7 @@ export class MyCourseOutlineHandler
     private resolveNextContentTask(
         modules: Array<MyCourseOutlineModule>,
     ): MyCourseOutlineCurrentTask | null {
-        // first preference: keep reading — the first unread lesson in outline order
+        // first preference: keep reading -- the first unread lesson in outline order
         for (const module of modules) {
             for (const lesson of module.lessons) {
                 if (!lesson.isRead) {
@@ -573,7 +573,7 @@ export class MyCourseOutlineHandler
             }
         }
 
-        // second preference: all lessons read → the first uncompleted challenge
+        // second preference: all lessons read -> the first uncompleted challenge
         for (const module of modules) {
             for (const lesson of module.lessons) {
                 for (const challenge of lesson.challenges) {

@@ -17,7 +17,7 @@ import {
  * Response wrapper for the myCart query.
  *
  * `data` is `nullable: true` because the transform interceptor sets `data = null`
- * on the error path — a non-nullable field would crash GraphQL and mask the real
+ * on the error path -- a non-nullable field would crash GraphQL and mask the real
  * error. On the happy path it is the (possibly empty) list of cart rows.
  */
 export class MyCartResponse

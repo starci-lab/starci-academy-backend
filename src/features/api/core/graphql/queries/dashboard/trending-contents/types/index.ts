@@ -1,5 +1,5 @@
 /**
- * Raw row from the trending-contents GROUP BY — `read_count` is text when
+ * Raw row from the trending-contents GROUP BY -- `read_count` is text when
  * returned as `bigint` from Postgres, so it is coerced in the resolver.
  */
 export interface TrendingContentRow {

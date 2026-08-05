@@ -5,13 +5,13 @@ import type {
     Locale,
 } from "@modules/databases"
 
-/** One raw tag item parsed from a problem's `# tags` block (`## <n>` → `### value`). */
+/** One raw tag item parsed from a problem's `# tags` block (`## <n>` -> `### value`). */
 export interface RawCodingProblemTag {
     /** The tag value text from `### value`. */
     value?: string
 }
 
-/** One per-language code item (`## <n>` → `### lang` + `### content`). */
+/** One per-language code item (`## <n>` -> `### lang` + `### content`). */
 export interface RawLangCodeItem {
     /** Language string from `### lang`. */
     lang?: string
@@ -19,7 +19,7 @@ export interface RawLangCodeItem {
     content?: string
 }
 
-/** One IO item (`## <n>` → `### input` + `### output`). */
+/** One IO item (`## <n>` -> `### input` + `### output`). */
 export interface RawIoItem {
     /** Stdin string from `### input`. */
     input?: string
@@ -27,7 +27,7 @@ export interface RawIoItem {
     output?: string
 }
 
-/** Shape produced by the markdown→JSON extractor for a problem `en.md`. */
+/** Shape produced by the markdown->JSON extractor for a problem `en.md`. */
 export interface RawCodingProblem extends Record<string, unknown> {
     /** Problem title from `# title`. */
     title?: string
@@ -135,7 +135,7 @@ export interface ParsedCodingProblem {
     translations: Array<ParsedCodingProblemTranslation>
     /**
      * Localized approach hints per locale (legacy Elasticsearch-only index).
-     * The heading format no longer authors hints, so this is always empty — kept
+     * The heading format no longer authors hints, so this is always empty -- kept
      * so the dormant hint indexer keeps compiling.
      */
     hints: Partial<Record<Locale, string>>

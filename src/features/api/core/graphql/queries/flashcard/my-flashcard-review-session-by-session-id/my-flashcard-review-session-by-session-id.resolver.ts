@@ -36,15 +36,13 @@ import {
 
 @Resolver()
 /**
- * Resolve a flashcard "Học thẻ" session by its id ALONE — the FE's unified
- * `/review/sessions/[sessionId]` route (thầy 2026-07-11: "bỏ deck đi, only
- * session thôi" + "session đã persist hết rồi", no `deckId` query hint
- * needed) uses this instead of the 2 separately-scoped
+ * Resolve a flashcard review session by its id ALONE -- the FE's unified
+ * `/review/sessions/[sessionId]` route  uses this instead of the 2 separately-scoped
  * `myInProgressFlashcardReviewSession(deckId)` /
  * `myInProgressFlashcardDueReviewSession(courseId)` queries, neither of
  * which can answer "which session is THIS id" alone. Tries the deck-scoped
  * table first (attaches `deckId`/`deckTitle`), then the cross-deck due-review
- * table — the two entities remain separate (thầy: keep 2 BE tables, unify
+ * table -- the two entities remain separate (keep 2 BE tables, unify
  * only FE), this resolver is the seam that hides that split from the client.
  */
 export class MyFlashcardReviewSessionBySessionIdResolver {

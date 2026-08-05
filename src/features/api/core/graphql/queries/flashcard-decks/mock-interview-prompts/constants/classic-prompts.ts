@@ -7,10 +7,10 @@ import type {
 } from "../types"
 
 /**
- * Curated "classic" system-design interview prompts (Pha 3) — supplement the
+ * Curated "classic" system-design interview prompts (Pha 3) -- supplement the
  * per-course capstone bank with widely-recognized problems from real technical
  * interviews. Deliberately STATIC (not AI-generated at request time): no live
- * generation cost, no per-request caching/quality-control decisions needed —
+ * generation cost, no per-request caching/quality-control decisions needed --
  * the interviewer + grader still ground their responses in the current
  * course's RAG content, so the same static prompt reads differently depending
  * on which course the learner is enrolled in.

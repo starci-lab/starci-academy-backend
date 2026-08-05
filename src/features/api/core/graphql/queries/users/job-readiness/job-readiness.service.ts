@@ -33,12 +33,12 @@ import type {
 } from "./types"
 
 /**
- * One PRESENT pillar contribution to a track's depth — its 0–100 score and the
+ * One PRESENT pillar contribution to a track's depth -- its 0-100 score and the
  * weight it carries. Absent pillars are filtered out before the weighted average
  * so a track is never penalized for a pillar its course lacks.
  */
 interface PresentPillar {
-    /** The pillar's 0–100 score. */
+    /** The pillar's 0-100 score. */
     score: number
     /** The pillar's configured weight (renormalized over present pillars). */
     weight: number
@@ -47,18 +47,18 @@ interface PresentPillar {
 @Injectable()
 /**
  * Composes a learner's job-readiness as a PORTFOLIO of independent verified
- * tracks plus one global foundation — deliberately NEVER a single blended
+ * tracks plus one global foundation -- deliberately NEVER a single blended
  * scalar. Buying another course adds a card (widening the hireable range); it
  * does not inflate any number. Every input is a signal StarCi already tracks +
  * AI-grades (the credibility moat vs self-reported skills):
- * - **Per track (one per paid enrollment)** — capstone completion % + average
- *   mock-interview score + best CV score tied to that course → the course's
+ * - **Per track (one per paid enrollment)** -- capstone completion % + average
+ *   mock-interview score + best CV score tied to that course -> the course's
  *   domain competency "depth" + band (three pillars, renormalized over whichever
  *   are present).
- * - **Global foundation** — cross-course challenge-strength percentile + best CV
+ * - **Global foundation** -- cross-course challenge-strength percentile + best CV
  *   score across ALL the learner's CVs (a learner has ONE of each regardless of
  *   course count). CV is sourced from the unified `cv_generations` table alone
- *   (both `Generated` and `Uploaded` sources — the legacy `cv_submission_attempts`
+ *   (both `Generated` and `Uploaded` sources -- the legacy `cv_submission_attempts`
  *   union was retired once the migration completed).
  *
  * Keyed purely by `userId`, so it serves both the viewer's own profile and a
@@ -74,7 +74,7 @@ export class JobReadinessService {
 
     /**
      * Computes the per-track cards + global foundation breakdown for one learner
-     * across ALL their paid enrollments. Never throws — a missing interview table
+     * across ALL their paid enrollments. Never throws -- a missing interview table
      * degrades to null interview scores rather than failing the whole query.
      *
      * @param params - {@link ComputeJobReadinessParams}
@@ -105,7 +105,7 @@ export class JobReadinessService {
                 codingPercentile,
                 cvScore,
             },
-            // strongest track first (nulls last) — the recruiter's headline domain
+            // strongest track first (nulls last) -- the recruiter's headline domain
             tracks: [...tracks].sort((prev, next) => this.sortByDepth(prev.depthScore,
                 next.depthScore)),
         }
@@ -120,13 +120,13 @@ export class JobReadinessService {
      * @returns the learner's tracks (unsorted).
      */
     private async buildTracks(userId: string): Promise<Array<JobReadinessTrack>> {
-        // paid enrollments only (is_enrolled = true) — a track is proof you paid
+        // paid enrollments only (is_enrolled = true) -- a track is proof you paid
         // for + worked through a course, not a trial preview
         const enrollments = await this.entityManager.find(
             EnrollmentEntity,
             {
                 where: {
-                    // `userId` is a @RelationId virtual column — not queryable in a
+                    // `userId` is a @RelationId virtual column -- not queryable in a
                     // `where`; filter through the real `user` relation instead.
                     user: {
                         id: userId,
@@ -210,7 +210,7 @@ export class JobReadinessService {
     }
 
     /**
-     * Total capstone (milestone) tasks per course — the denominator of capstone %.
+     * Total capstone (milestone) tasks per course -- the denominator of capstone %.
      *
      * @param courseIds - the learner's enrolled course ids.
      * @returns one row per course with a task count.
@@ -231,7 +231,7 @@ export class JobReadinessService {
     }
 
     /**
-     * Distinct passed capstone tasks per enrollment — the numerator of capstone %.
+     * Distinct passed capstone tasks per enrollment -- the numerator of capstone %.
      *
      * @param enrollmentIds - the learner's enrollment ids.
      * @returns one row per enrollment with a passed-task count.
@@ -256,11 +256,11 @@ export class JobReadinessService {
      * Average mock-interview overall score per enrollment, over ONLY that
      * enrollment's {@link JOB_READINESS_INTERVIEW_RECENT_WINDOW} MOST RECENT
      * attempts that ACTUALLY COUNT towards readiness (by `created_at DESC`)
-     * — see that constant's doc for why an all-time average is deliberately
+     * -- see that constant's doc for why an all-time average is deliberately
      * avoided (it punishes early weak attempts forever).
      *
      * "Configurable setup" (2026-07-06): a `WHERE counts_to_readiness = true`
-     * filter excludes every "Tùy chỉnh" (Configurable) qna attempt — deliberate,
+     * filter excludes every Configurable (Configurable) qna attempt -- deliberate,
      * learner-picked question-count/kind practice must never dilute this
      * exam-like signal. `counts_to_readiness` defaults `true` and every
      * pre-existing row (Auto qna + all design attempts) was written before
@@ -305,24 +305,24 @@ export class JobReadinessService {
                 ],
             )
         } catch {
-            // table not migrated yet → interview pillar is simply absent for now
+            // table not migrated yet -> interview pillar is simply absent for now
             return []
         }
     }
 
     /**
-     * Deterministic CV trust score per course — the CV pillar of each track
+     * Deterministic CV trust score per course -- the CV pillar of each track
      * (2026-07-05: REPLACED the old AI-judged `cv_generations.score` rubric
-     * entirely — no AI, no CV prose read here). Scoped PER-COURSE on purpose:
+     * entirely -- no AI, no CV prose read here). Scoped PER-COURSE on purpose:
      * {@link import("../../../../../../modules/bussiness/headhuntings/cv-verification.service").CvVerificationService.resolveLevelForCourse}
      * only counts a passed capstone / graded challenge that happened WITHIN
-     * that course's own enrollment — a capstone passed in a DIFFERENT course
+     * that course's own enrollment -- a capstone passed in a DIFFERENT course
      * must never inflate THIS track's depth (that cross-track leak is exactly
      * what the fair-monetization axiom forbids). `SelfReported` in a course
      * (no capstone/challenge signal there yet) degrades to `null` so the pillar
      * is renormalized away in {@link depthOf} rather than scored as a hard 0.
      *
-     * CAUTION: score-step values pending calibration (see `scoreOf`'s own doc) — the
+     * CAUTION: score-step values pending calibration (see `scoreOf`'s own doc) -- the
      * FORMULA'S fairness is locked here, not the threshold.
      *
      * @param userId - the learner.
@@ -342,7 +342,7 @@ export class JobReadinessService {
                 const score = this.cvVerificationService.scoreOf(level)
                 return {
                     course_id: courseId,
-                    // self-reported → null (renormalized away), not a hard 0
+                    // self-reported -> null (renormalized away), not a hard 0
                     max_score: score > 0 ? String(score) : null,
                 }
             }),
@@ -352,7 +352,7 @@ export class JobReadinessService {
 
     /**
      * Deterministic CV trust score across the learner's WHOLE platform
-     * activity (global, person-level) — kept on the foundation so the FE
+     * activity (global, person-level) -- kept on the foundation so the FE
      * (which reads `foundation.cvScore`) stays non-breaking; the additive
      * per-track {@link JobReadinessTrack.cvScore} is the source of truth for depth.
      *
@@ -360,7 +360,7 @@ export class JobReadinessService {
      * entirely.) A pure function of
      * {@link import("../../../../../../modules/bussiness/headhuntings/cv-verification.service").CvVerificationService.resolveLevel}
      * (passed capstone / graded challenge, existence-checked ANYWHERE on the
-     * platform) — count-independent and payment-independent by construction,
+     * platform) -- count-independent and payment-independent by construction,
      * same guarantee as the recruiter-contact gate
      * ({@link import("../../../../../../modules/bussiness/headhuntings/consultant-contact-gate.service").ConsultantContactGateService.getBestCvScore}),
      * which now reads the exact same signal.
@@ -371,16 +371,16 @@ export class JobReadinessService {
     private async computeCvScore(userId: string): Promise<number | null> {
         const level = await this.cvVerificationService.resolveLevel(userId)
         const score = this.cvVerificationService.scoreOf(level)
-        // self-reported → null (no CV pillar signal yet), not a hard 0
+        // self-reported -> null (no CV pillar signal yet), not a hard 0
         return score > 0 ? score : null
     }
 
     /**
-     * Derived challenge-strength percentile (global) — passthrough to the
+     * Derived challenge-strength percentile (global) -- passthrough to the
      * already-materialised per-user projection.
      *
      * @param userId - the learner.
-     * @returns 0–100 percentile, or null if no passed challenges.
+     * @returns 0-100 percentile, or null if no passed challenges.
      */
     private async computeCodingPercentile(userId: string): Promise<number | null> {
         const strength = await this.userSolvedChallengesProjectionService.getChallengeStrength(userId)
@@ -389,13 +389,13 @@ export class JobReadinessService {
 
     /**
      * Weighted average of a track's PRESENT (non-null) pillars only, with the
-     * configured weights renormalized over whichever pillars exist — so a track
+     * configured weights renormalized over whichever pillars exist -- so a track
      * is never penalized for a pillar its course lacks.
      *
-     * @param capstoneScore - capstone completion % (0–100), or null if absent.
-     * @param interviewScore - average interview score (0–100), or null if absent.
-     * @param cvScore - best CV score tied to this course (0–100), or null if absent.
-     * @returns the 0–100 depth, or null when every pillar is null.
+     * @param capstoneScore - capstone completion % (0-100), or null if absent.
+     * @param interviewScore - average interview score (0-100), or null if absent.
+     * @param cvScore - best CV score tied to this course (0-100), or null if absent.
+     * @returns the 0-100 depth, or null when every pillar is null.
      */
     private depthOf(
         capstoneScore: number | null,
@@ -435,7 +435,7 @@ export class JobReadinessService {
      * Maps a track's depth score to its coarse readiness band. A track with no
      * scorable pillar (null depth) falls into "needsWork".
      *
-     * @param depthScore - 0–100, or null.
+     * @param depthScore - 0-100, or null.
      * @returns the band.
      */
     private bandOf(depthScore: number | null): JobReadinessBand {

@@ -32,7 +32,7 @@ import {
 
 @Resolver()
 /**
- * The VIEWER's own composite job-readiness — a portfolio of verified tracks
+ * The VIEWER's own composite job-readiness -- a portfolio of verified tracks
  * across every course they've paid into, plus the global CV + challenge
  * foundation. Global (not course-scoped): auth-only, no enrollment guard, since
  * it aggregates whatever courses the learner has.

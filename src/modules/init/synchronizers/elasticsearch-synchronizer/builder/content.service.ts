@@ -52,7 +52,7 @@ export class ElasticsearchContentBuildService {
                 // suggest input, weighted by display order (earlier lesson = more
                 // prominent) so the FST-backed autocomplete returns ranked titles.
                 // the resolver already wrote the per-locale title back onto the row,
-                // so no localized wrapper remains to strip — just trim the label.
+                // so no localized wrapper remains to strip -- just trim the label.
                 const label = (localizedContent.title ?? "").trim()
                 const suggest = buildCompletionSuggest({
                     inputs: [label],

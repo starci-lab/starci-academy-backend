@@ -99,7 +99,7 @@ export interface GeneratePreviewContentIdParams {
     courseIndex: number
     /** Parent module ordinal. */
     moduleIndex: number
-    /** Zero-based bullet in the module markdown “Preview Contents” list. */
+    /** Zero-based bullet in the module markdown "Preview Contents" list. */
     previewContentIndex: number
 }
 
@@ -119,7 +119,7 @@ export interface GeneratePricingPhaseIdParams {
 export interface GenerateValuePropositionIdParams {
     /** Owning course ordinal. */
     courseIndex: number
-    /** Zero-based line in the course “Value Propositions” list. */
+    /** Zero-based line in the course "Value Propositions" list. */
     valuePropositionIndex: number
 }
 
@@ -129,7 +129,7 @@ export interface GenerateValuePropositionIdParams {
 export interface GeneratePrerequisiteIdParams {
     /** Owning course ordinal. */
     courseIndex: number
-    /** Zero-based line in the course “Prerequisites” list. */
+    /** Zero-based line in the course "Prerequisites" list. */
     prerequisiteIndex: number
 }
 
@@ -139,7 +139,7 @@ export interface GeneratePrerequisiteIdParams {
 export interface GenerateQnaIdParams {
     /** Owning course ordinal. */
     courseIndex: number
-    /** Zero-based FAQ entry (`## 1.` → index 0 if ordered contiguously). */
+    /** Zero-based FAQ entry (`## 1.` -> index 0 if ordered contiguously). */
     qnaIndex: number
 }
 
@@ -182,9 +182,9 @@ export interface GenerateChallengeRequirementIdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Requirement item ordinal — item id when passed alone; lang bucket ordinal with `requirementIndex`. */
+    /** Requirement item ordinal -- item id when passed alone; lang bucket ordinal with `requirementIndex`. */
     orderIndex?: number
-    /** Parent requirement item ordinal — lang id when paired with `orderIndex`. */
+    /** Parent requirement item ordinal -- lang id when paired with `orderIndex`. */
     requirementIndex?: number
 }
 
@@ -203,9 +203,9 @@ export interface GenerateChallengeStepIdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Step item ordinal — item id when passed alone; lang bucket ordinal with `stepIndex`. */
+    /** Step item ordinal -- item id when passed alone; lang bucket ordinal with `stepIndex`. */
     orderIndex?: number
-    /** Parent step item ordinal — lang id when paired with `orderIndex`. */
+    /** Parent step item ordinal -- lang id when paired with `orderIndex`. */
     stepIndex?: number
 }
 
@@ -224,9 +224,9 @@ export interface GenerateChallengeOutputIdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Output item ordinal — item id when passed alone; lang bucket ordinal with `outputIndex`. */
+    /** Output item ordinal -- item id when passed alone; lang bucket ordinal with `outputIndex`. */
     orderIndex?: number
-    /** Parent output item ordinal — lang id when paired with `orderIndex`. */
+    /** Parent output item ordinal -- lang id when paired with `orderIndex`. */
     outputIndex?: number
 }
 
@@ -245,9 +245,9 @@ export interface GenerateChallengePrerequisiteIdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Prerequisite item ordinal — item id when passed alone; lang bucket ordinal with `prerequisiteIndex`. */
+    /** Prerequisite item ordinal -- item id when passed alone; lang bucket ordinal with `prerequisiteIndex`. */
     orderIndex?: number
-    /** Parent prerequisite item ordinal — lang id when paired with `orderIndex`. */
+    /** Parent prerequisite item ordinal -- lang id when paired with `orderIndex`. */
     prerequisiteIndex?: number
 }
 
@@ -287,9 +287,9 @@ export interface GenerateChallengeSubmissionPromptIdParams {
 }
 
 /**
- * Input for {@link ChallengeSubmissionCriteriaIdFactoryService.generate} — the SCHEMA V2 grading
+ * Input for {@link ChallengeSubmissionCriteriaIdFactoryService.generate} -- the SCHEMA V2 grading
  * rubric buckets authored under `criterias/<submissionIndex>/{approach,outcome}.md`. One id per
- * (submission × kind × programming-language).
+ * (submission x kind x programming-language).
  */
 export interface GenerateChallengeSubmissionCriteriaIdParams {
     /** Parent course ordinal (locates the parent submission). */
@@ -302,18 +302,18 @@ export interface GenerateChallengeSubmissionCriteriaIdParams {
     challengeIndex: number
     /** Parent submission ordinal (locates the parent submission). */
     submissionIndex: number
-    /** Rubric kind — `approach` (per-language how-to) or `outcome` (observable behaviour). */
+    /** Rubric kind -- `approach` (per-language how-to) or `outcome` (observable behaviour). */
     kind: "approach" | "outcome"
-    /** Zero-based criterion index within the rubric file (`# 0`, `# 1`, …). */
+    /** Zero-based criterion index within the rubric file (`# 0`, `# 1`, ...). */
     criterionIndex: number
 }
 
 /**
- * Input for {@link ChallengeSubmissionCriteriaIdFactoryService.generateLang} — one id per
- * (criterion × programming-language) prose row under a criterion.
+ * Input for {@link ChallengeSubmissionCriteriaIdFactoryService.generateLang} -- one id per
+ * (criterion x programming-language) prose row under a criterion.
  */
 export interface GenerateChallengeSubmissionCriteriaLangIdParams extends GenerateChallengeSubmissionCriteriaIdParams {
-    /** Zero-based programming-language variant index within the criterion (0-typescript, 1-java, …). */
+    /** Zero-based programming-language variant index within the criterion (0-typescript, 1-java, ...). */
     langIndex: number
 }
 
@@ -382,7 +382,7 @@ export interface GeneratePlaygroundStepIdParams {
 }
 
 /**
- * Input for {@link MockInterviewIdFactoryService.generate} — one authored
+ * Input for {@link MockInterviewIdFactoryService.generate} -- one authored
  * mock-interview question. Banks have no entity/id of their own (a bank is
  * just a `bankSlug` grouping folder), so the question id hashes the bank +
  * question ordinals directly off the owning course.
@@ -397,7 +397,7 @@ export interface GenerateMockInterviewIdParams {
 }
 
 /**
- * Input for {@link MockInterviewLangIdFactoryService.generate} — one
+ * Input for {@link MockInterviewLangIdFactoryService.generate} -- one
  * per-programming-language `givenCode` variant of a mock-interview question.
  */
 export interface GenerateMockInterviewLangIdParams {
@@ -480,7 +480,7 @@ export interface GenerateMilestoneTaskCodeImplementationIdParams {
 }
 
 /**
- * Input for {@link MilestoneTaskBriefIdFactoryService.generate} — one SCHEMA V2 per-language
+ * Input for {@link MilestoneTaskBriefIdFactoryService.generate} -- one SCHEMA V2 per-language
  * learner-facing brief (`merged.criterias[briefIndex]`).
  */
 export interface GenerateMilestoneTaskBriefIdParams {
@@ -495,7 +495,7 @@ export interface GenerateMilestoneTaskBriefIdParams {
 }
 
 /**
- * Input for {@link MilestoneTaskOutcomeCriteriaIdFactoryService.generate} — one SCHEMA V2 OUTCOME
+ * Input for {@link MilestoneTaskOutcomeCriteriaIdFactoryService.generate} -- one SCHEMA V2 OUTCOME
  * criterion (agnostic across the per-language brief blocks).
  */
 export interface GenerateMilestoneTaskOutcomeCriteriaIdParams {
@@ -510,7 +510,7 @@ export interface GenerateMilestoneTaskOutcomeCriteriaIdParams {
 }
 
 /**
- * Input for {@link MilestoneTaskOutcomeCriteriaLangIdParams.generate} — one per-language prose row
+ * Input for {@link MilestoneTaskOutcomeCriteriaLangIdParams.generate} -- one per-language prose row
  * under a SCHEMA V2 outcome criterion.
  */
 export interface GenerateMilestoneTaskOutcomeCriteriaLangIdParams extends GenerateMilestoneTaskOutcomeCriteriaIdParams {
@@ -519,7 +519,7 @@ export interface GenerateMilestoneTaskOutcomeCriteriaLangIdParams extends Genera
 }
 
 /**
- * Input for {@link MilestoneTaskApproachCriteriaIdFactoryService.generate} — one SCHEMA V2 APPROACH
+ * Input for {@link MilestoneTaskApproachCriteriaIdFactoryService.generate} -- one SCHEMA V2 APPROACH
  * criterion (per-language prose differs across brief blocks).
  */
 export interface GenerateMilestoneTaskApproachCriteriaIdParams {
@@ -534,7 +534,7 @@ export interface GenerateMilestoneTaskApproachCriteriaIdParams {
 }
 
 /**
- * Input for {@link MilestoneTaskApproachCriteriaLangIdParams.generate} — one per-language prose row
+ * Input for {@link MilestoneTaskApproachCriteriaLangIdParams.generate} -- one per-language prose row
  * under a SCHEMA V2 approach criterion.
  */
 export interface GenerateMilestoneTaskApproachCriteriaLangIdParams extends GenerateMilestoneTaskApproachCriteriaIdParams {

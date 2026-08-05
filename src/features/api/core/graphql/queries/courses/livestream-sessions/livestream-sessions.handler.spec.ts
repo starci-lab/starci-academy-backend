@@ -43,7 +43,7 @@ describe("LivestreamSessionsHandler",
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
-            // findAndCount is not on the shared mock — add it per spec (no util edit)
+            // findAndCount is not on the shared mock -- add it per spec (no util edit)
             entityManager.findAndCount = jest.fn().mockResolvedValue([
                 [],
                 0,
@@ -86,7 +86,7 @@ describe("LivestreamSessionsHandler",
                     },
                     {
                         id: "s2",
-                        // no course → resolver should be handed the En fallback
+                        // no course -> resolver should be handed the En fallback
                         course: undefined,
                     },
                 ]
@@ -116,9 +116,9 @@ describe("LivestreamSessionsHandler",
 
                 expect(result.count).toBe(2)
                 expect(result.data).toBe(sessions)
-                // every session is localized — once per row
+                // every session is localized -- once per row
                 expect(livestreamSessionResolver.transform).toHaveBeenCalledTimes(2)
-                // second row has no course → falls back to En
+                // second row has no course -> falls back to En
                 expect(livestreamSessionResolver.transform).toHaveBeenNthCalledWith(
                     2,
                     sessions[1],
@@ -148,7 +148,7 @@ describe("LivestreamSessionsHandler",
                 )
 
                 const findArgs = (entityManager.findAndCount as jest.Mock).mock.calls[0][1]
-                // page 2 with size 4 → skip 8, take 4
+                // page 2 with size 4 -> skip 8, take 4
                 expect(findArgs.take).toBe(4)
                 expect(findArgs.skip).toBe(8)
                 // the sort field maps to the requested order

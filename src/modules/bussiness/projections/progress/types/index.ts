@@ -36,7 +36,7 @@ export interface ProgressLeaderboardRow {
     lessons_read: string | number
     /** Count of milestone tasks passed in the course; string when text. */
     milestone_progress: string | number
-    /** Total XP (challenge + reads×3 + milestone×10); string when text. */
+    /** Total XP (challenge + readsx3 + milestonex10); string when text. */
     total_xp: string | number
 }
 
@@ -60,7 +60,7 @@ export interface MyRankRow {
     lessons_read: string | number
     /** Count of milestone tasks passed in the course; string when text. */
     milestone_progress: string | number
-    /** Total XP (challenge + reads×3 + milestone×10); string when text. */
+    /** Total XP (challenge + readsx3 + milestonex10); string when text. */
     total_xp: string | number
     /** Number of enrollments with a strictly higher total XP; string when `bigint`. */
     higher_count: string | number
@@ -72,7 +72,7 @@ export interface MyRankRow {
  * the listener falls back to the whole object when `payload` is absent.
  */
 export interface CdcEnvelope<TPayload> {
-    /** The flat row image (column → value) when the unwrap SMT is configured. */
+    /** The flat row image (column -> value) when the unwrap SMT is configured. */
     payload?: TPayload
 }
 
@@ -80,19 +80,19 @@ export interface CdcEnvelope<TPayload> {
 export interface UserContentCdcRow {
     /** The user who read/favourited the content (snake_case from Postgres). */
     user_id?: string
-    /** The content row that changed — used to derive the owning course. */
+    /** The content row that changed -- used to derive the owning course. */
     content_id?: string
 }
 
 /** Row image for the `user_challenge_submission_attempts` CDC topic. */
 export interface UserChallengeSubmissionAttemptCdcRow {
-    /** FK to `user_challenge_submissions` — the join root for user + course. */
+    /** FK to `user_challenge_submissions` -- the join root for user + course. */
     user_challenge_submission_id?: string
 }
 
 /** Row image for the `user_milestone_task_attempts` CDC topic. */
 export interface UserMilestoneTaskAttemptCdcRow {
-    /** FK to `user_milestone_tasks` — the join root for enrollment → user + course. */
+    /** FK to `user_milestone_tasks` -- the join root for enrollment -> user + course. */
     user_milestone_task_id?: string
 }
 
@@ -106,7 +106,7 @@ export interface EnrollmentCdcRow {
 
 /**
  * A single derived `(userId, courseId)` pair the projector should recompute,
- * resolved from a CDC row. `null` from a resolver means "cannot derive — skip".
+ * resolved from a CDC row. `null` from a resolver means "cannot derive -- skip".
  */
 export interface DerivedProgressTarget {
     /** The user whose course projection must be recomputed. */
@@ -115,27 +115,27 @@ export interface DerivedProgressTarget {
     courseId: string
 }
 
-/** Raw row returned by the `user_contents` → course lookup join. */
+/** Raw row returned by the `user_contents` -> course lookup join. */
 export interface ContentCourseLookupRow {
     /** `modules.course_id` of the content's owning module. */
     course_id: string
 }
 
 /**
- * Raw row returned by the `user_challenge_submission_attempts` → user + course
- * join (user_challenge_submissions → challenge_submissions → challenges →
- * contents → modules).
+ * Raw row returned by the `user_challenge_submission_attempts` -> user + course
+ * join (user_challenge_submissions -> challenge_submissions -> challenges ->
+ * contents -> modules).
  */
 export interface ChallengeAttemptTargetRow {
     /** `user_challenge_submissions.user_id` of the attempt's owner. */
     user_id: string
-    /** `modules.course_id` reached via the submission → challenge → content chain. */
+    /** `modules.course_id` reached via the submission -> challenge -> content chain. */
     course_id: string
 }
 
 /**
- * Raw row returned by the `user_milestone_task_attempts` → enrollment join
- * (user_milestone_tasks → enrollments).
+ * Raw row returned by the `user_milestone_task_attempts` -> enrollment join
+ * (user_milestone_tasks -> enrollments).
  */
 export interface MilestoneAttemptTargetRow {
     /** `enrollments.user_id` of the milestone-task's enrollment. */
@@ -145,7 +145,7 @@ export interface MilestoneAttemptTargetRow {
 }
 
 /**
- * Raw row returned by the `getMyCourseProgress` read — one per course the viewer
+ * Raw row returned by the `getMyCourseProgress` read -- one per course the viewer
  * is enrolled in (milestone completed read from the projection, total counted
  * live from the course's milestone tasks).
  */
@@ -214,6 +214,6 @@ export interface GetMyRankResult {
     lessonsRead: number
     /** Number of milestone tasks the user has passed in the course. */
     milestoneProgress: number
-    /** Total XP for the user (challenge + reads×3 + milestone×10) — drives rank. */
+    /** Total XP for the user (challenge + readsx3 + milestonex10) -- drives rank. */
     totalXp: number
 }

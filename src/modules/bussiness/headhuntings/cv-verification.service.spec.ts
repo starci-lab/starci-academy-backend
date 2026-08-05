@@ -25,7 +25,7 @@ describe("CvVerificationService",
         let entityManager: jest.Mocked<Pick<EntityManager, "query">>
 
         beforeEach(async () => {
-        // only `query` is exercised — the two existence probes both go through it
+        // only `query` is exercised -- the two existence probes both go through it
             entityManager = {
                 query: jest.fn(),
             } as unknown as jest.Mocked<Pick<EntityManager, "query">>
@@ -51,7 +51,7 @@ describe("CvVerificationService",
             () => {
                 it("returns an empty map and hits no query for an empty batch",
                     async () => {
-                        // no users → the service must short-circuit before any DB round-trip
+                        // no users -> the service must short-circuit before any DB round-trip
                         const levels = await service.resolveLevels({
                             userIds: [] 
                         })
@@ -94,7 +94,7 @@ describe("CvVerificationService",
 
                 it("classifies a user with no graded StarCi work as SelfReported",
                     async () => {
-                        // absent from both probes → the CV rests on self-reported claims only
+                        // absent from both probes -> the CV rests on self-reported claims only
                         entityManager.query
                             .mockResolvedValueOnce([])
                             .mockResolvedValueOnce([])
@@ -108,7 +108,7 @@ describe("CvVerificationService",
 
                 it("lets a passed capstone win over graded challenge for the same user",
                     async () => {
-                        // user appears in BOTH sets — capstone is the stronger, decisive signal
+                        // user appears in BOTH sets -- capstone is the stronger, decisive signal
                         entityManager.query
                             .mockResolvedValueOnce([{
                                 user_id: "u4" 

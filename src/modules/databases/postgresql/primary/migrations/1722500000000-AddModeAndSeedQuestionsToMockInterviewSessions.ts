@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `mode` + `seed_questions` to `mock_interview_sessions` — the "mode
+ * Adds `mode` + `seed_questions` to `mock_interview_sessions` -- the "mode
  * split" (2026-07-06): a mock-interview session now picks a TOP-LEVEL flow
  * ("qna" | "design") at setup, instead of a per-session cognitive frame.
  * "qna" draws N flashcard-card seeds, EACH carrying its own RANDOMLY-assigned
@@ -19,7 +19,7 @@ import {
  * answer + keywords (for its "theory"-kind questions) without re-deriving the
  * reached-module/level pool.
  *
- * Both columns are nullable — a session drawn before this migration has no
+ * Both columns are nullable -- a session drawn before this migration has no
  * `mode` (readers treat a null `mode` as "design", the pre-existing 5-phase
  * flow) and no seeds (a "design" session never had flashcard seeds anyway).
  *

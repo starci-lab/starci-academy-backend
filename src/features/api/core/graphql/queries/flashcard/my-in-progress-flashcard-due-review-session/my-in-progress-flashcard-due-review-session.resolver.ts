@@ -36,7 +36,7 @@ import {
 @Resolver()
 /**
  * The learner's most recent RESUMABLE cross-deck due-review batch session
- * for one course — so the FE can silently resume the batch instead of
+ * for one course -- so the FE can silently resume the batch instead of
  * re-drawing. Null when there is none. Mirrors
  * `myInProgressFlashcardReviewSession`, scoped by course instead of deck
  * (a due-review batch spans multiple decks).

@@ -15,7 +15,7 @@ export interface PaginationWindow {
  * `limit` falls back to {@link DEFAULT_PAGINATION_LIMIT} when omitted, then
  * floors at 1 and ceilings at {@link MAX_PAGINATION_LIMIT}; `offset` floors
  * at 0. Extracted after this exact clamp (100-cap, 20-default) was
- * copy-pasted identically across five resolvers/handlers — promote-on-the-
+ * copy-pasted identically across five resolvers/handlers -- promote-on-the-
  * second-consumer, per naming-and-structure.md SS4.
  * @param limit - The caller-requested page size, or `null`/`undefined` to use the default.
  * @param offset - The caller-requested row offset, or `null`/`undefined` for the start of the list.

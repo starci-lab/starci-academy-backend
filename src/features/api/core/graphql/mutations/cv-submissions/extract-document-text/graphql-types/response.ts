@@ -11,7 +11,7 @@ import {
     description: "Plain text extracted from an uploaded document (not persisted).",
 })
 /**
- * Extracted plain-text payload for `extractDocumentText` — the raw text pulled
+ * Extracted plain-text payload for `extractDocumentText` -- the raw text pulled
  * out of the uploaded file (pdf/docx/plain). Not persisted; the FE loads it
  * into the paste field for the user to review.
  */

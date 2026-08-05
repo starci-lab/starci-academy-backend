@@ -132,7 +132,7 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         const { submission, problem, testcases } = context.extended
         // resolve the Judge0 numeric language id for the submission's language
         const languageId = envConfig().judge0.languageIds[submission.language]
-        // a missing mapping is a configuration error — fail fast with a typed exception
+        // a missing mapping is a configuration error -- fail fast with a typed exception
         if (languageId === undefined) {
             throw new CodingLanguageNotSupportedException({
                 language: submission.language,
@@ -187,7 +187,7 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
                 problem,
                 submission.id)
         }
-        // solved/attempted/points may have changed → drop the user's progress cache
+        // solved/attempted/points may have changed -> drop the user's progress cache
         await this.codingProgressService.invalidate({
             userId: submission.userId,
         })
@@ -294,7 +294,7 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
      * naturally yields CompileError when the shared source failed to compile).
      */
     private aggregateVerdict(perCaseResults: Array<CodingPerCaseResult>): CodingVerdict {
-        // all passed → Accepted
+        // all passed -> Accepted
         const allAccepted = perCaseResults.every(
             (perCase) => perCase.verdict === CodingVerdict.Accepted,
         )
@@ -367,7 +367,7 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         if (revealedCount > 0) {
             return
         }
-        // first clean solve → record a coding XP ledger row (feeds the global
+        // first clean solve -> record a coding XP ledger row (feeds the global
         // "Points" figure, derived live from xp_histories) and credit
         // users.coin_balance (flat coding reward). Coding is course-agnostic (no course id).
         // refId = the submission id (unique + stable): the (source, refId) unique

@@ -33,7 +33,7 @@ import {
 } from "@modules/env"
 
 /**
- * Shared Redis `cache-manager` store (`ttl: 0` at the store — per-key TTL comes
+ * Shared Redis `cache-manager` store (`ttl: 0` at the store -- per-key TTL comes
  * from `configMap` on set). Optional debug ping fails boot if Redis is
  * unreachable so later misses are not silent connectivity bugs.
  */

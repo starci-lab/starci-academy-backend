@@ -100,7 +100,7 @@ export class UserCodingProjectionService {
     }
 
     /**
-     * Top users by distinct problems solved — a thin ORDER BY over the per-user
+     * Top users by distinct problems solved -- a thin ORDER BY over the per-user
      * projection rows (no GROUP BY per request; the count is already materialised
      * in `value->>'solvedCount'`). Mirrors the course-leaderboard read pattern.
      *
@@ -135,8 +135,8 @@ export class UserCodingProjectionService {
     }
 
     /**
-     * Read a user's derived coding standing — a 1-based global rank + a 0-100
-     * percentile by distinct solved problems — same ordering as
+     * Read a user's derived coding standing -- a 1-based global rank + a 0-100
+     * percentile by distinct solved problems -- same ordering as
      * {@link getLeaderboard} (solvedCount DESC, tie-break updated_at ASC). A
      * single pass over the per-user projection rows (the count is already
      * materialised in `value->>'solvedCount'`); no aggregation per request.
@@ -151,7 +151,7 @@ export class UserCodingProjectionService {
         }: UserCodingRankParams,
     ): Promise<CodingStandingResult> {
         // single pass over the per-user projection rows: my solved count, my rank,
-        // how many I beat, and the pool size — no per-request aggregation over raw submissions.
+        // how many I beat, and the pool size -- no per-request aggregation over raw submissions.
         const rows = await this.entityManager.query<Array<UserCodingStandingRow>>(
             `
             WITH pool AS (
@@ -190,7 +190,7 @@ export class UserCodingProjectionService {
         )
         const row = rows[0]
         const mine = Number(row?.mine) || 0
-        // no solves → unranked (both fields null)
+        // no solves -> unranked (both fields null)
         if (mine <= 0) {
             return {
                 rank: null,
@@ -225,7 +225,7 @@ export class UserCodingProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 userId,
@@ -254,7 +254,7 @@ export class UserCodingProjectionService {
     }
 
     /**
-     * Build the coding-aggregate UPSERT — solved counts by language + difficulty
+     * Build the coding-aggregate UPSERT -- solved counts by language + difficulty
      * and the per-problem solved history (with languages used), all distinct over
      * Accepted submissions for the single user `$1`.
      *

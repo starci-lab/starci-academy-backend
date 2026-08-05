@@ -17,7 +17,7 @@ import type {
 
 @Injectable()
 /**
- * Thin QueryBus adapter for `indexSearch` — keeps the resolver free of CQRS types.
+ * Thin QueryBus adapter for `indexSearch` -- keeps the resolver free of CQRS types.
  */
 export class IndexSearchService {
     constructor(

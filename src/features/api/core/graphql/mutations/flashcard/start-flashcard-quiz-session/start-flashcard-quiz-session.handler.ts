@@ -32,7 +32,7 @@ import {
 @CommandHandler(StartFlashcardQuizSessionCommand)
 @Injectable()
 /**
- * Persists ONE resumable flashcard quick-quiz session draw — small enough (an
+ * Persists ONE resumable flashcard quick-quiz session draw -- small enough (an
  * enrollment resolve + an "abandon the prior draw" update + an insert) that,
  * like `SyncMockInterviewSessionTurnsHandler`, it does not warrant a separate
  * domain service; the logic lives directly in the handler.
@@ -67,7 +67,7 @@ export class StartFlashcardQuizSessionHandler
             })
         }
 
-        // resolve/create the trial enrollment ONCE — every downstream lookup
+        // resolve/create the trial enrollment ONCE -- every downstream lookup
         // (the persisted draw, its future sync/resume/complete calls) is
         // anchored to the SAME enrollment, mirroring
         // `MockInterviewSessionDrawService.draw`'s own resolve step.
@@ -77,7 +77,7 @@ export class StartFlashcardQuizSessionHandler
         )
 
         // retire the enrollment's previous in-flight draw (if any) BEFORE
-        // persisting the new one, so resume-lookup never has two candidates —
+        // persisting the new one, so resume-lookup never has two candidates --
         // mirrors `MockInterviewSessionDrawService.persistSession`'s own
         // "abandon prior in_progress row" step.
         await this.entityManager.update(
@@ -100,13 +100,13 @@ export class StartFlashcardQuizSessionHandler
                 cardIds,
                 // request.mode is validated to "quick"|"deep" by @IsIn, but the
                 // GraphQL field stays a plain string (mirrors the entity's own
-                // reasoning for a plain varchar column) — narrow it here
+                // reasoning for a plain varchar column) -- narrow it here
                 mode: mode as "quick" | "deep",
                 level,
                 currentIndex: 0,
                 results: [],
                 status: "in_progress",
-                // stored verbatim — omitted/blank stays null, never
+                // stored verbatim -- omitted/blank stays null, never
                 // server-generated (the FE renders a time-based fallback)
                 name: name?.trim() || null,
             },

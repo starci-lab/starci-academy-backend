@@ -20,7 +20,7 @@ export const S3_ASSETS_PREFIX = "assets"
  * Every object-key prefix that must be anonymously readable on the MinIO bucket.
  *
  * MinIO exposes a single bucket policy, so the public-read grant has to enumerate
- * ALL public prefixes in one statement — listing them here keeps the policy in one
+ * ALL public prefixes in one statement -- listing them here keeps the policy in one
  * place no matter which synchronizer (repo or assets) re-applies it on boot.
  */
 export const S3_PUBLIC_READ_PREFIXES: ReadonlyArray<string> = [

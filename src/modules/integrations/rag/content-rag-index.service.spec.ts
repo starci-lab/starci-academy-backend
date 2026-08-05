@@ -16,7 +16,7 @@ jest.mock("@langchain/qdrant",
     }))
 
 // cut the heavy embedding/ai/cache import chain pulled in transitively by the
-// SUT's `@modules/langchain` barrel — we construct the service manually, so the
+// SUT's `@modules/langchain` barrel -- we construct the service manually, so the
 // real EmbeddingModelService class is never needed
 jest.mock("@modules/langchain",
     () => ({
@@ -103,7 +103,7 @@ describe("ContentRagIndexService",
 
         beforeEach(() => {
             qdrantClient = {
-                // default: no `content_rag` collection yet (first build) — the diff
+                // default: no `content_rag` collection yet (first build) -- the diff
                 // baseline is empty, every content is treated as new
                 scroll: jest.fn().mockRejectedValue(new Error("not found")),
                 delete: jest.fn().mockResolvedValue(undefined),
@@ -167,9 +167,9 @@ describe("ContentRagIndexService",
 
                 const result = await service.build()
 
-                // 2 body docs + 1 code doc → 3 chunks (chunkSize huge → 1 chunk each)
+                // 2 body docs + 1 code doc -> 3 chunks (chunkSize huge -> 1 chunk each)
                 expect(result.indexed).toBe(3)
-                // a BRAND-NEW content on a first build has nothing indexed yet → its
+                // a BRAND-NEW content on a first build has nothing indexed yet -> its
                 // delete is SKIPPED (the dirtyPreviouslyIndexedIds optimization avoids a
                 // wasted full-collection scan per new row; only previously-indexed
                 // changed content gets its stale points cleared before re-insert)
@@ -186,7 +186,7 @@ describe("ContentRagIndexService",
                     collectionName: "content_rag",
                     client: qdrantClient,
                 })
-                // every chunk carries the contentId + sourceHash payload — the hash is
+                // every chunk carries the contentId + sourceHash payload -- the hash is
                 // what makes the NEXT run able to skip this content when unchanged
                 for (const c of chunks) {
                     expect(c.metadata.contentId).toBe("c1")
@@ -209,7 +209,7 @@ describe("ContentRagIndexService",
                     content("bad"),
                     content("good"),
                 ])
-                // bad: every body read returns null (object missing from MinIO) → skipped
+                // bad: every body read returns null (object missing from MinIO) -> skipped
                 // good: vi body present, en null
                 s3ReadService.json.mockImplementation(async (args: { key: string }) => {
                     if (args.key === "contents/good/vi.json") {
@@ -238,8 +238,8 @@ describe("ContentRagIndexService",
                     content("boom"),
                     content("good"),
                 ])
-                // boom: the body read THROWS (MinIO/network error) → caught + skipped
-                // good: vi body present, en null → 1 chunk
+                // boom: the body read THROWS (MinIO/network error) -> caught + skipped
+                // good: vi body present, en null -> 1 chunk
                 // a raw MinIO/network failure that propagates unwrapped from the S3 client
                 const minioReadError = new Error("MinIO read failed")
                 s3ReadService.json.mockImplementation(async (args: { key: string }) => {
@@ -319,7 +319,7 @@ describe("ContentRagIndexService",
                 })
                     .mockResolvedValue(null)
 
-                // first run: nothing indexed yet → embeds + records whatever sourceHash
+                // first run: nothing indexed yet -> embeds + records whatever sourceHash
                 // the service computed for this exact source text
                 const first = await service.build()
                 expect(first.indexed).toBe(1)
@@ -327,7 +327,7 @@ describe("ContentRagIndexService",
                 expect(typeof sourceHash).toBe("string")
 
                 // second run: the collection now reports that same hash for c1, and the
-                // MinIO source text has not changed → the content must be skipped entirely
+                // MinIO source text has not changed -> the content must be skipped entirely
                 fromDocuments.mockClear()
                 qdrantClient.delete.mockClear()
                 qdrantClient.scroll.mockResolvedValue({
@@ -361,7 +361,7 @@ describe("ContentRagIndexService",
                 })
                     .mockResolvedValue(null)
                 // the collection reports a marker hash that will never match the real
-                // sha1 of the current source text → treated as changed
+                // sha1 of the current source text -> treated as changed
                 qdrantClient.scroll.mockResolvedValue({
                     points: [
                         {
@@ -401,7 +401,7 @@ describe("ContentRagIndexService",
 
         it("deletes points for content no longer enumerated (deleted/renamed) even when nothing else changed",
             async () => {
-                // the DB no longer has "gone" — it was deleted/renamed since the last index
+                // the DB no longer has "gone" -- it was deleted/renamed since the last index
                 entityManager.find.mockResolvedValue([])
                 qdrantClient.scroll.mockResolvedValue({
                     points: [
@@ -476,7 +476,7 @@ describe("ContentRagIndexService",
                 expect(qdrantClient.scroll.mock.calls[1][1]).toMatchObject({
                     offset: "cursor-2",
                 })
-                // both pages' contentIds are no longer enumerated in the DB → both stale
+                // both pages' contentIds are no longer enumerated in the DB -> both stale
                 expect(qdrantClient.delete).toHaveBeenCalledWith("content_rag",
                     expect.objectContaining({
                         filter: {

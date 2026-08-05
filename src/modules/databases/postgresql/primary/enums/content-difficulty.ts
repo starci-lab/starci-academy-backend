@@ -11,11 +11,11 @@ import {
  * content tier so a lesson can carry its own granular difficulty badge.
  */
 export enum ContentDifficulty {
-    /** Lesson badge / catalog filter only — first-pass material; never gates access. */
+    /** Lesson badge / catalog filter only -- first-pass material; never gates access. */
     Beginner = "beginner",
-    /** Lesson badge / catalog filter — assumes prior module knowledge; never gates access. */
+    /** Lesson badge / catalog filter -- assumes prior module knowledge; never gates access. */
     Intermediate = "intermediate",
-    /** Lesson badge / catalog filter — expert-path material; never gates access. */
+    /** Lesson badge / catalog filter -- expert-path material; never gates access. */
     Advanced = "advanced",
 }
 

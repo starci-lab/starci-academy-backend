@@ -18,9 +18,9 @@ import type {
 
 @Injectable()
 /**
- * Reads back the viewer's completed flashcard review ("Học thẻ") sessions for
+ * Reads back the viewer's completed flashcard review sessions for
  * one course, newest first, so the recap/history surface can list past runs
- * without re-deriving anything — mirrors `MyFlashcardQuizHistoryService`'s
+ * without re-deriving anything -- mirrors `MyFlashcardQuizHistoryService`'s
  * structure (plain query service, no CQRS command bus), minus the
  * mode/level/coverage/weakTags snapshot fields (cloze-quiz-only concepts).
  */
@@ -52,7 +52,7 @@ export class MyFlashcardReviewHistoryService {
         // resolve (or lazily create) the SAME trial enrollment
         // startFlashcardReviewSession/reviewFlashcard draw against, so the
         // lookup is scoped to the caller's own enrollment (which already
-        // implies the course — a review session's deck always belongs to
+        // implies the course -- a review session's deck always belongs to
         // this enrollment's course).
         const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
             userId,
@@ -74,7 +74,7 @@ export class MyFlashcardReviewHistoryService {
                 relations: {
                     deck: true,
                 },
-                // newest completed session first — matches the history's "recent attempts" framing
+                // newest completed session first -- matches the history's "recent attempts" framing
                 order: {
                     updatedAt: "DESC",
                 },

@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * Thin QueryBus facade — wraps listing filters in {@link JobPostingsQuery}.
+ * Thin QueryBus facade -- wraps listing filters in {@link JobPostingsQuery}.
  * Pagination and search live in the matching handler.
  */
 export class JobPostingsService {

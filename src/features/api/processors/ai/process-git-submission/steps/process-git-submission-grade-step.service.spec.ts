@@ -9,7 +9,7 @@ import {
 } from "@modules/databases"
 
 /**
- * Stub `GithubRepoLoader` so no real clone/network happens — every instance's
+ * Stub `GithubRepoLoader` so no real clone/network happens -- every instance's
  * `.load()` resolves the docs the test programs via `loaderLoadMock`.
  */
 const loaderLoadMock = jest.fn()
@@ -172,9 +172,9 @@ describe("ProcessGitSubmissionGradeStepService",
             jest.clearAllMocks()
             entityManager = makeEntityManagerMock()
             loaderLoadMock.mockResolvedValue([docFixture])
-            // token-lookup findOne (EnrollmentEntity) → no stored token → org token path
+            // token-lookup findOne (EnrollmentEntity) -> no stored token -> org token path
             entityManager.findOne.mockResolvedValue(null)
-            // quota-debit findOneOrFail (EnrollmentEntity) → resolvable user
+            // quota-debit findOneOrFail (EnrollmentEntity) -> resolvable user
             entityManager.findOneOrFail.mockResolvedValue({
                 id: "enroll-1",
                 userId: "user-1",
@@ -282,7 +282,7 @@ describe("ProcessGitSubmissionGradeStepService",
 
                 await ctx.service.process(makeContext())
 
-                // a degraded retrieval does NOT abort — grading + persistence still happen
+                // a degraded retrieval does NOT abort -- grading + persistence still happen
                 expect(ctx.aiInvokeService.run).toHaveBeenCalledTimes(1)
                 expect(ctx.jobActionService.saveExecutionResult).toHaveBeenCalledWith(
                     expect.objectContaining({

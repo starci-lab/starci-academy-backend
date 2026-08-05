@@ -22,7 +22,7 @@ import {
     ],
 })
 /**
- * Job-readiness query group — the self view (`myJobReadiness`) and the public
+ * Job-readiness query group -- the self view (`myJobReadiness`) and the public
  * recruiter view (`userJobReadiness`), both backed by one
  * {@link JobReadinessService}.
  */

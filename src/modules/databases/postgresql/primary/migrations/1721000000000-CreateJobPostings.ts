@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Creates `job_postings` — structured "IT job" listings (title, salary,
+ * Creates `job_postings` -- structured "IT job" listings (title, salary,
  * location, apply method), distinct from the freestyle headhunter/consultant
  * relationship (`headhunting_companies` / `consultants`). Rows come from
  * either the `.mount/data/jobs` curated seed pipeline or the public

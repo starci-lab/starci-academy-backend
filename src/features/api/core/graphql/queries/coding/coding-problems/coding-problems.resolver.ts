@@ -67,7 +67,7 @@ export class CodingProblemsResolver {
         @GraphQLLocale()
             locale: Locale,
     ): Promise<CodingProblemsResponseData> {
-        // catalog only — per-user solved/points come from the myCodingProgress query
+        // catalog only -- per-user solved/points come from the myCodingProgress query
         return this.codingProblemService.list({
             difficulty: request.difficulty,
             tag: request.tag,

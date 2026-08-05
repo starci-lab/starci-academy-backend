@@ -88,7 +88,7 @@ export class PlaygroundParserService {
         const path = paths.find(
             (path) => path.orderIndex === playgroundIndex,
         )
-        // a missing folder is a hard error — caller logs + skips this playground
+        // a missing folder is a hard error -- caller logs + skips this playground
         if (!path) {
             throw new PlaygroundPathNotFoundException(
                 {
@@ -109,7 +109,7 @@ export class PlaygroundParserService {
                 ),
             )
         }
-        // merge locales → default-locale (English) doc + per-locale translation rows for
+        // merge locales -> default-locale (English) doc + per-locale translation rows for
         // the `title`/`description` i18n fields (projected live at request time)
         const merged = this.mergeJsonService.merge({
             jsons: Object.values(Locale).map((locale) => ({
@@ -149,13 +149,13 @@ export class PlaygroundParserService {
             icon: this.coerceMdScalarService.toNullableStringColumn(
                 merged.icon,
             ),
-            // interaction kind (`terminal` | `rag`); absent `# kind` → `terminal`
+            // interaction kind (`terminal` | `rag`); absent `# kind` -> `terminal`
             // so legacy Docker/K8s playgrounds keep their existing behaviour
             kind: this.coerceMdScalarService.toRequiredString(
                 merged.kind,
                 "terminal",
             ),
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,
                 playgroundIndex,
@@ -169,7 +169,7 @@ export class PlaygroundParserService {
                     playgroundId,
                 },
             ),
-            // per-locale overrides for `title`/`description` — top-level (one cascade
+            // per-locale overrides for `title`/`description` -- top-level (one cascade
             // level below the root save), so the raw `playgroundId` scalar is safe here
             // (same as ContentParserService.parse()'s content translations)
             translations: (merged.translations ?? []).map(

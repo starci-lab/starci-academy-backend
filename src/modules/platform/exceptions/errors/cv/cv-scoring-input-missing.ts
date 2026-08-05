@@ -13,7 +13,7 @@ export type CvScoringInputMissingExceptionMetadata = AbstractExceptionMetadata
 
 /**
  * Thrown when {@link CvScoringService.score} is called with neither
- * `structuredData` nor `cvText` populated — there is nothing to grade.
+ * `structuredData` nor `cvText` populated -- there is nothing to grade.
  */
 export class CvScoringInputMissingException extends AbstractException {
     constructor({

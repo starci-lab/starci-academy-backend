@@ -64,7 +64,7 @@ export class CreateCommentService {
         // home-feed activity for the comment (idempotent per comment id); target the
         // actual scope the comment resolved to (a reply inherits its parent's scope,
         // so `comment.contentId`/`comment.courseId` are the source of truth here, not
-        // the raw request — which may be a reply with no scope fields at all)
+        // the raw request -- which may be a reply with no scope fields at all)
         const target = comment.contentId
             ? {
                 entityName: ContentEntity.name,

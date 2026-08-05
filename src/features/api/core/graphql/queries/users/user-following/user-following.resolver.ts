@@ -42,7 +42,7 @@ const MAX_LIMIT = 50
 @Resolver()
 /**
  * Public list of the users a profile follows (most recent first), keyed by
- * username — the "following" side of the follow-list modal. Mirrors
+ * username -- the "following" side of the follow-list modal. Mirrors
  * {@link UserFollowersResolver} but walks the opposite edge: follow rows whose
  * `follower` is the target, mapped to the `following` user. Offset-paginated for
  * infinite scroll. Public (no auth).
@@ -104,7 +104,7 @@ export class UserFollowingResolver {
         const skip = Math.max(offset ?? 0,
             0)
 
-        // resolve the target user from the username; unknown / deleted → empty
+        // resolve the target user from the username; unknown / deleted -> empty
         const target = await this.entityManager.findOne(UserEntity,
             {
                 where: {

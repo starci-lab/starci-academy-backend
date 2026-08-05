@@ -13,7 +13,7 @@ export interface RagPlaygroundSampleNotFoundExceptionMetadata extends AbstractEx
 
 /**
  * The RAG Playground curated sample catalog has no entry for the requested
- * id — the visitor passed an unknown `sampleId` when indexing via
+ * id -- the visitor passed an unknown `sampleId` when indexing via
  * `RagPlaygroundSourceKind.Sample`.
  */
 export class RagPlaygroundSampleNotFoundException extends AbstractException {

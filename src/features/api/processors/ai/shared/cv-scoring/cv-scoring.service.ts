@@ -43,21 +43,21 @@ const RUBRIC_RAG_TOP_K = 4
 
 @Injectable()
 /**
- * SOURCE-AGNOSTIC CV scoring service. The ONE reusable place that turns a CV —
+ * SOURCE-AGNOSTIC CV scoring service. The ONE reusable place that turns a CV --
  * regardless of whether it was AI-generated (`structuredData`) or user-uploaded
- * (`cvText`) — into a holistic `{ score 0–100, feedback }` against a single
+ * (`cvText`) -- into a holistic `{ score 0-100, feedback }` against a single
  * seniority rubric (parameterized by `templateLevel`).
  *
  * It knows NOTHING about the CV's source: callers pass the CV content and get a
  * grade back. The generate pipeline (WF-03b) feeds `structuredData`; the upload
- * pipeline (WF-03c) will feed `cvText` — both hit this same method, so the score
+ * pipeline (WF-03c) will feed `cvText` -- both hit this same method, so the score
  * is produced by one rubric in one place.
  *
  * Routes the AI call through the same lane the CV-generation pipeline uses
  * (`AiModelTask.CVGenerating`, floor Balanced, Grading surface) via
  * {@link AiInvokeService.run}, so scoring is billed / gated exactly like the
  * other CV tasks. Rubric context comes from the persistent `cv_rag` collection
- * ({@link CvRagRetrievalService}) — advisory, so a RAG miss never fails scoring.
+ * ({@link CvRagRetrievalService}) -- advisory, so a RAG miss never fails scoring.
  */
 export class CvScoringService {
     constructor(
@@ -69,7 +69,7 @@ export class CvScoringService {
      * Score a CV against the rubric and return the holistic score + feedback.
      *
      * @param params - {@link ScoreCvParams} (source-agnostic: `structuredData` or `cvText`).
-     * @returns {@link ScoreCvResult} — 0–100 score + jsonb-assignable feedback.
+     * @returns {@link ScoreCvResult} -- 0-100 score + jsonb-assignable feedback.
      * @throws When neither `structuredData` nor `cvText` is provided, or the
      * model reply cannot be parsed into a score.
      */
@@ -97,7 +97,7 @@ export class CvScoringService {
             ? "Vietnamese (Tiếng Việt)"
             : "English"
 
-        // advisory rubric context (best-effort — a miss degrades to no context)
+        // advisory rubric context (best-effort -- a miss degrades to no context)
         const rubricContext = await this.buildRubricContext(level)
 
         const systemText = this.buildSystemPrompt({
@@ -111,10 +111,10 @@ export class CvScoringService {
             cvContent,
         ].join("\n")
 
-        // ONE shared entry — same lane/policy shape as the CV-generation compose
+        // ONE shared entry -- same lane/policy shape as the CV-generation compose
         // step (task CVGenerating, floor Balanced, Grading surface). The generate
         // pipeline does not debit credit on its LLM calls, so scoring mirrors that
-        // (no consume here) — it rides the same lane routing as the other CV tasks.
+        // (no consume here) -- it rides the same lane routing as the other CV tasks.
         const { text: raw } = await this.aiInvokeService.run({
             userId,
             messages: [

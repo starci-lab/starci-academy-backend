@@ -9,7 +9,7 @@ import {
  * A jest-backed stand-in for {@link AiInvokeService}.
  *
  * `run` / `invoke` / `stream` all resolve the same {@link AiRunResult} shape
- * — a superset of `AiInvokeResult` / `AiStreamResult` — so one default result
+ * -- a superset of `AiInvokeResult` / `AiStreamResult` -- so one default result
  * satisfies whichever entry point the SUT happens to call.
  */
 export interface AiInvokeMock {

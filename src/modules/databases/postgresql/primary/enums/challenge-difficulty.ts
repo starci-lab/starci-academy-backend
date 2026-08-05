@@ -18,7 +18,7 @@ export enum ChallengeDifficulty {
     Hard = "hard",
     /** Catalog filter; senior mock-interview design draws (with Hard). */
     Insane = "insane",
-    /** Top catalog badge — mock-interview design mode never draws Expert prompts. */
+    /** Top catalog badge -- mock-interview design mode never draws Expert prompts. */
     Expert = "expert",
 }
 

@@ -36,7 +36,7 @@ import {
 
 @Resolver()
 /**
- * Auth + enrollment-gated GraphQL entry for `livestreamSessions` — recurring
+ * Auth + enrollment-gated GraphQL entry for `livestreamSessions` -- recurring
  * schedule rows for one course, page-based.
  */
 export class LivestreamSessionsResolver {

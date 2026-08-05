@@ -15,20 +15,20 @@ import type {
 
 @Injectable()
 /**
- * Mount markdown → JSON.
+ * Mount markdown -> JSON.
  *
  * The grammar is recursive and driven entirely by ATX headings. At any level
  * the sibling headings decide the shape:
  *
- * - `# <number>` siblings → an **array** (each item carries its `orderIndex`).
- * - `# <string>` siblings → an **object** (heading text is the field key).
- * - a heading with no child headings → a **string leaf** (its trimmed body).
+ * - `# <number>` siblings -> an **array** (each item carries its `orderIndex`).
+ * - `# <string>` siblings -> an **object** (heading text is the field key).
+ * - a heading with no child headings -> a **string leaf** (its trimmed body).
  *
  * Two inline markers escape the heading grammar inside a leaf:
  *
- * - `@starci/seperator` … `@starci/seperator` wraps a verbatim string leaf, so
+ * - `@starci/seperator` ... `@starci/seperator` wraps a verbatim string leaf, so
  *   its body may itself contain `#` lines without being parsed as headings.
- * - `@starci/jsonb` … `@starci/jsonb` wraps an inline array-of-objects stored
+ * - `@starci/jsonb` ... `@starci/jsonb` wraps an inline array-of-objects stored
  *   as a single jsonb column; its scalar fields are type-coerced.
  */
 export class ExtractJsonFromMdService {
@@ -42,7 +42,7 @@ export class ExtractJsonFromMdService {
      * service.extract("# title\nHello") // => { title: "Hello" }
      */
     extract<T extends Record<string, unknown>>(markdown: string): T {
-        // empty input has no sections → empty object
+        // empty input has no sections -> empty object
         if (!markdown) {
             return {
             } as T
@@ -70,10 +70,10 @@ export class ExtractJsonFromMdService {
 
     /**
      * Parses the markdown owned by one heading level into an array, object, or
-     * string leaf — the recursive core of the grammar.
+     * string leaf -- the recursive core of the grammar.
      *
      * @param content - The markdown slice owned by the current level.
-     * @param level - The heading depth to slice on (1 = h1, 2 = h2, …).
+     * @param level - The heading depth to slice on (1 = h1, 2 = h2, ...).
      * @returns Array (numeric headings), object (string headings), or the
      *          trimmed string when this level has no child headings.
      */
@@ -81,16 +81,16 @@ export class ExtractJsonFromMdService {
         // split into the sections introduced by headings AT this level
         const sections = this.splitSections(content,
             level)
-        // no headings here → this slice is a plain string leaf
+        // no headings here -> this slice is a plain string leaf
         if (sections.length === 0) {
             return content.trim()
         }
-        // all-numeric heading keys (`# 0`, `# 1`, …) describe an ordered array
+        // all-numeric heading keys (`# 0`, `# 1`, ...) describe an ordered array
         if (sections.every((section) => NUMERIC_SECTION_KEY_RE.test(section.key))) {
             return this.buildArray(sections,
                 level)
         }
-        // otherwise the heading keys are field names → build an object
+        // otherwise the heading keys are field names -> build an object
         return this.buildObject(sections,
             level)
     }
@@ -127,7 +127,7 @@ export class ExtractJsonFromMdService {
     }
 
     /**
-     * Builds an object from string-keyed sections (heading text → field value).
+     * Builds an object from string-keyed sections (heading text -> field value).
      */
     private buildObject(
         sections: Array<HeadingSlice>,
@@ -149,7 +149,7 @@ export class ExtractJsonFromMdService {
      */
     private resolveSectionValue(body: string, level: number): unknown {
         const { content, bounded } = this.cutBoundedLeaf(body)
-        // an unbounded body is just more nested markdown → recurse one level deeper
+        // an unbounded body is just more nested markdown -> recurse one level deeper
         if (!bounded) {
             return this.parseLevel(content,
                 level + 1)
@@ -159,7 +159,7 @@ export class ExtractJsonFromMdService {
         if (jsonb !== undefined) {
             return jsonb
         }
-        // an empty bounded block carries no value → undefined so the consumer's
+        // an empty bounded block carries no value -> undefined so the consumer's
         // `?? []` / scalar fallback applies instead of receiving the empty string
         return content === "" ? undefined : content
     }
@@ -181,10 +181,10 @@ export class ExtractJsonFromMdService {
         let bodyLines: Array<string> = []
         let inFence = false
         let inDelimiterLeaf = false
-        // Whether the current section's body is a verbatim leaf — true only when
+        // Whether the current section's body is a verbatim leaf -- true only when
         // its first non-blank line is a separator marker. Only such sections
         // toggle delimiter-leaf tracking; a section that instead opens with a
-        // deeper heading (e.g. `# tags` → `## 0`) carries nested-level separators
+        // deeper heading (e.g. `# tags` -> `## 0`) carries nested-level separators
         // that must NOT leak into this level's heading-promotion decisions (else
         // an odd separator count there swallows the next sibling, e.g. `# answer`).
         // null = not yet determined for the section currently being accumulated.
@@ -252,7 +252,7 @@ export class ExtractJsonFromMdService {
         // a leaf block must OPEN (first non-blank line) with a separator marker
         const openIndex = lines.findIndex((line) => line.trim().length > 0)
         if (openIndex === -1 || !this.isSeparatorLine(lines[openIndex])) {
-            // not bounded → hand back the trimmed body for further recursion
+            // not bounded -> hand back the trimmed body for further recursion
             return {
                 content: body.trim(), bounded: false 
             }
@@ -358,8 +358,8 @@ export class ExtractJsonFromMdService {
     }
 
     /**
-     * Coerces a raw jsonb field value: an integer string → number, `true` /
-     * `false` → boolean, otherwise the trimmed markdown string is kept as-is.
+     * Coerces a raw jsonb field value: an integer string -> number, `true` /
+     * `false` -> boolean, otherwise the trimmed markdown string is kept as-is.
      */
     private coerceScalar(raw: string): string | number | boolean {
         // a pure integer literal becomes a real number

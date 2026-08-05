@@ -65,7 +65,7 @@ describe("KeyStoreService",
                 localApiKeys: jest.fn(() => []),
                 openRouterApiKeys: jest.fn(() => []),
                 anthropicApiKeys: jest.fn(() => []),
-                // catalog key files resolve to nothing in the test → the store
+                // catalog key files resolve to nothing in the test -> the store
                 // falls back to the legacy per-provider pool getters above
                 readKeysFile: jest.fn(() => []),
             } as unknown as jest.Mocked<
@@ -148,7 +148,7 @@ describe("KeyStoreService",
             () => {
                 it("de-duplicates rows sharing one (provider, keysFilePath) pair",
                     async () => {
-                        // three rows but only one unique provider/file → one read
+                        // three rows but only one unique provider/file -> one read
                         aiModelCatalogService.enabledModels.mockResolvedValueOnce([
                             buildModelRow(),
                             buildModelRow(),
@@ -215,7 +215,7 @@ describe("KeyStoreService",
                         ])
                         expect(pool.find((key) => key.value === "sk-shared-9999")?.keysFilePath)
                             .toBe("/mnt/openai-a.keys")
-                        // catalog files resolved real keys → the legacy getter must be skipped
+                        // catalog files resolved real keys -> the legacy getter must be skipped
                         expect(mountFilesystemService.openAiApiKeys).not.toHaveBeenCalled()
                         expect(service.listProviders()).toEqual([
                             {
@@ -227,7 +227,7 @@ describe("KeyStoreService",
 
                 it("falls back to the '(legacy)' path label when no model declares a keysFilePath",
                     async () => {
-                        // keysFilePath omitted → the provider's path Set stays empty
+                        // keysFilePath omitted -> the provider's path Set stays empty
                         aiModelCatalogService.enabledModels.mockResolvedValueOnce([
                             buildModelRow({
                                 keysFilePath: "",
@@ -251,7 +251,7 @@ describe("KeyStoreService",
             () => {
                 it("returns an empty array for an unknown / unloaded provider",
                     async () => {
-                        // Gemini was never loaded → empty pool, no crash
+                        // Gemini was never loaded -> empty pool, no crash
                         expect(service.getPool(ModelProvider.Gemini)).toEqual([])
                     })
             })
@@ -405,7 +405,7 @@ describe("KeyStoreService",
 
                         await expect(service.ensureLoaded()).rejects.toThrow("connection terminated")
 
-                        // the failed attempt must NOT have flipped the "loaded" flag — a
+                        // the failed attempt must NOT have flipped the "loaded" flag -- a
                         // subsequent call retries the catalog instead of silently staying empty
                         await service.ensureLoaded()
 

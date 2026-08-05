@@ -11,7 +11,7 @@ import {
  *
  * Dev runs schema via `synchronize` (adds the column automatically); this
  * migration applies the same widening-only change where `synchronize` is disabled
- * (prod). Nullable, no default, no enum — synchronize-safe. Idempotent.
+ * (prod). Nullable, no default, no enum -- synchronize-safe. Idempotent.
  */
 export class AddArchivedAtToContentAiSessions1724100000000 implements MigrationInterface {
     /** Stable name surfaced in the TypeORM migrations table. */

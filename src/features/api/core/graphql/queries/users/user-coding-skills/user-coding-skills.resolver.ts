@@ -35,7 +35,7 @@ import {
 /**
  * Public profile query: a user's solved-coding breakdown by language + difficulty.
  * Thin read of the CQRS coding projection (the GROUP BYs run in the projection's
- * recompute, kept fresh by CDC + TTL lazy-refresh — never inline here). Optional
+ * recompute, kept fresh by CDC + TTL lazy-refresh -- never inline here). Optional
  * auth; a locked profile is withheld by {@link GraphQLProfileVisibilityGuard}.
  */
 export class UserCodingSkillsResolver {

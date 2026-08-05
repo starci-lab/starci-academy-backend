@@ -15,20 +15,20 @@ import type {
 
 @Injectable()
 /**
- * Resolves the recap for ONE flashcard quick-quiz ("Hỏi nhanh") session by its
+ * Resolves the recap for ONE flashcard quick-quiz session by its
  * id alone, owner-scoped via the session's enrollment.user, REGARDLESS of
- * status (a completed/abandoned/in_progress session all resolve — so a stale
+ * status (a completed/abandoned/in_progress session all resolve -- so a stale
  * link opened after the quiz ended shows the real recap instead of dead-ending
  * to a fresh setup; the FE resume-check reads `status` off this result).
  *
  * Reads the `FlashcardQuizSessionEntity` row DIRECTLY (not via
  * `FlashcardQuizSessionService`, which has no read-by-id method and whose
- * write-path DTOs drop the snapshotted fields) — everything the recap needs
+ * write-path DTOs drop the snapshotted fields) -- everything the recap needs
  * (coverage, xpEarned, weakTags, results) is already persisted on the row at
  * completion time, so this is a pure single-row read with NO recompute. This is
  * a per-viewer SINGLE-SESSION edge read, the same "per-viewer single-row edge
  * check" exemption `MyFlashcardReviewSessionStatsBySessionIdService` relies on
- * (see `.claude/be/rules/cqrs-no-inline-aggregate.md`) — not a hot dashboard
+ * (see `.claude/be/rules/cqrs-no-inline-aggregate.md`) -- not a hot dashboard
  * aggregate, so no CDC projection is warranted.
  */
 export class MyFlashcardQuizSessionBySessionIdService {
@@ -82,7 +82,7 @@ export class MyFlashcardQuizSessionBySessionIdService {
             (result) => result.correctBlanks === result.totalBlanks,
         ).length
 
-        // Wall-clock span from the row's own timestamps — null when the row was
+        // Wall-clock span from the row's own timestamps -- null when the row was
         // never updated after creation (createdAt === updatedAt).
         const spanMs = session.updatedAt.getTime() - session.createdAt.getTime()
         const durationSeconds = spanMs > 0

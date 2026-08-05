@@ -9,7 +9,7 @@ import {
  *
  * Same shape as {@link AddCvGeneratingAiModelTask1721200000000}: `AiModelTask`
  * is stored inside the JSONB array column `ai_models.supported_tasks`, so this
- * is a pure backfill — **no DDL, no `ALTER TYPE`**. Every model that already
+ * is a pure backfill -- **no DDL, no `ALTER TYPE`**. Every model that already
  * serves generic `"grading"` is grading-quality, so both new dedicated grading
  * tasks (milestone-task review, challenge submission grading) are tagged onto
  * the same set. Fully idempotent via the `@>` guard.
@@ -20,7 +20,7 @@ export class AddTaskAndChallengeGradingAiModelTasks1721300000000 implements Migr
 
     /**
      * Forward migration: backfill `"task_grading"` and `"challenge_grading"`
-     * onto every model that already supports `"grading"` — no DDL, idempotent
+     * onto every model that already supports `"grading"` -- no DDL, idempotent
      * via the `@>` guard.
      *
      * @param queryRunner - Active TypeORM query runner bound to the transaction.

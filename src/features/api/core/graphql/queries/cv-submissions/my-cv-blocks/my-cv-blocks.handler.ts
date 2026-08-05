@@ -25,7 +25,7 @@ import {
 @QueryHandler(MyCvBlocksQuery)
 @Injectable()
 /**
- * Handler for `myCvBlocks` — the signed-in user's CV documents (block editor),
+ * Handler for `myCvBlocks` -- the signed-in user's CV documents (block editor),
  * most recently updated first. Course-independent (no course scoping).
  */
 export class MyCvBlocksHandler

@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * Maps step index → grade then complete so a failed grade never marks the review job
+ * Maps step index -> grade then complete so a failed grade never marks the review job
  * complete.
  */
 export class ReviewMilestoneTaskStepMappingService {

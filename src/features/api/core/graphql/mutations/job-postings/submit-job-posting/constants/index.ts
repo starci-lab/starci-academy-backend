@@ -9,6 +9,6 @@ export const SLUG_SUFFIX_LENGTH = 6
  * Number of suffixed-slug attempts to try before giving up and throwing
  * {@link JobPostingSlugGenerationFailedException}. With a 6-hex-char suffix
  * space (16^6 ≈ 16.7M combinations), exhausting this budget on a real
- * collision is effectively impossible — it only guards against a bug.
+ * collision is effectively impossible -- it only guards against a bug.
  */
 export const MAX_SLUG_ATTEMPTS = 10

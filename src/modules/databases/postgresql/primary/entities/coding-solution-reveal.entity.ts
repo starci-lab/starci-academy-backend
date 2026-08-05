@@ -24,10 +24,10 @@ import {
 /**
  * Records that a user revealed a problem's reference solution. Used to gate the
  * coding-points award: a problem only awards points on a first clean solve when
- * NO reveal row exists for (user, problem) at award time — i.e. the user did not
+ * NO reveal row exists for (user, problem) at award time -- i.e. the user did not
  * peek at the answer before solving. One row per (user, problem).
  *
- * Internal bookkeeping only — not exposed via GraphQL.
+ * Internal bookkeeping only -- not exposed via GraphQL.
  */
 export class CodingSolutionRevealEntity extends UuidAbstractEntity {
     @ManyToOne(

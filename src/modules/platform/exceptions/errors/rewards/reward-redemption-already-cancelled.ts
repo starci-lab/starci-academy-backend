@@ -13,7 +13,7 @@ export interface RewardRedemptionAlreadyCancelledExceptionMetadata extends Abstr
 
 /**
  * Thrown when `cancelRedemption` targets a redemption that is already
- * `cancelled` — guards against a double-refund read (the cost is already
+ * `cancelled` -- guards against a double-refund read (the cost is already
  * excluded from the spent sum; cancelling again would be a confusing no-op).
  */
 export class RewardRedemptionAlreadyCancelledException extends AbstractException {

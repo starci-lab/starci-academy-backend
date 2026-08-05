@@ -6,7 +6,7 @@
 export type ComponentStatus = "up" | "down" | "degraded"
 
 /**
- * The result of probing one infrastructure component (Postgres, Redis, …).
+ * The result of probing one infrastructure component (Postgres, Redis, ...).
  * Deliberately small + serializable so it can be cached in memory and mapped
  * straight onto the public GraphQL payload.
  */
@@ -17,7 +17,7 @@ export interface ComponentHealth {
     status: ComponentStatus
     /** Round-trip latency of the probe in ms, or `null` when the probe threw. */
     latencyMs: number | null
-    /** Short human-readable note — error message on failure, else `null`. */
+    /** Short human-readable note -- error message on failure, else `null`. */
     message: string | null
     /** Timestamp the probe completed (used by the client to show freshness). */
     checkedAt: Date
@@ -28,7 +28,7 @@ export interface ComponentHealth {
 
 /**
  * Live resource usage of one Docker container, scraped from cAdvisor via
- * Prometheus. Every field is a best-effort instant read — a missing metric
+ * Prometheus. Every field is a best-effort instant read -- a missing metric
  * (container just started, cAdvisor scrape not landed yet) is `null` rather
  * than throwing.
  */
@@ -46,7 +46,7 @@ export interface ContainerMetrics {
 }
 
 /**
- * Internal descriptor of one HTTP probe target — a name plus the URL to hit.
+ * Internal descriptor of one HTTP probe target -- a name plus the URL to hit.
  * Any HTTP response (even 4xx/401) counts as reachable; only a thrown/timed-out
  * fetch is treated as down.
  */
@@ -58,7 +58,7 @@ export interface HttpProbeTarget {
 }
 
 /**
- * Internal descriptor of one TCP probe target — a name plus host/port. The
+ * Internal descriptor of one TCP probe target -- a name plus host/port. The
  * probe opens a raw socket and treats a successful `connect` as reachable.
  */
 export interface TcpProbeTarget {

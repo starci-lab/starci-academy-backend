@@ -45,7 +45,7 @@ import {
  * Public profile query: every course a given user has joined with its milestone
  * progress. Mirrors `myCourses` but reads for the user named in the route (id
  * from args), so a profile page can show anyone's enrolled courses. Optional
- * auth — anonymous viewers may call it; a locked profile is withheld from
+ * auth -- anonymous viewers may call it; a locked profile is withheld from
  * non-owners by {@link GraphQLProfileVisibilityGuard}. Progress comes from the
  * CQRS projection (eager-maintained); `total` is counted live from milestone tasks.
  */

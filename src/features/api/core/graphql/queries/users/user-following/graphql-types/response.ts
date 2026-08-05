@@ -14,7 +14,7 @@ import {
     description: "Response wrapper for the userFollowing query.",
 })
 /**
- * Response wrapper for the userFollowing query — the users a profile follows
+ * Response wrapper for the userFollowing query -- the users a profile follows
  * (most recent first). Reuses {@link FollowerUserData} as the list-item shape
  * (opaque id + username + display name + avatar) since followers and following
  * render identically in the follow-list modal.

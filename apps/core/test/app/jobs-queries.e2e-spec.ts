@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handlers pull `@modules/cqrs` — dodges a load-order
+// initialised before the handlers pull `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (same guard as
 // review-personal-project-task.handler.spec.ts).
 import "@modules/bussiness"
@@ -72,21 +72,21 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the `incompletedJobs` query — the caller's still-queued-or-processing
+ * e2e for the `incompletedJobs` query -- the caller's still-queued-or-processing
  * Git/Google-Docs submission jobs. No e2e coverage existed before this file
  * (`incompleted-jobs.handler.ts` has no `.spec.ts` sibling with a real schema at
- * all). Exercises the REAL `GraphQLMustEnrolledGuard` (→ real
+ * all). Exercises the REAL `GraphQLMustEnrolledGuard` (-> real
  * `UserService.checkEnrollment` SQL against real `enrollments` rows) stacked in
  * front of the real CQRS query handler.
  *
  * MOCKED:
- *  - `CacheService` — real class talks to Redis; stubbed to always MISS so
+ *  - `CacheService` -- real class talks to Redis; stubbed to always MISS so
  *    `UserService.checkEnrollment` hits real Postgres every time (no stale
- *    cross-test cache to reason about) — same pattern as
+ *    cross-test cache to reason about) -- same pattern as
  *    `personal-project.e2e-spec.ts`.
- *  - `KeycloakAuthGraphQLGuard` — no Keycloak server here; overridden to stamp
+ *  - `KeycloakAuthGraphQLGuard` -- no Keycloak server here; overridden to stamp
  *    `request.user` with whichever fake user the test "logs in" as.
- *  - `KeycloakJwksService` / `SessionService` / `CookieService` — only needed so
+ *  - `KeycloakJwksService` / `SessionService` / `CookieService` -- only needed so
  *    Nest can construct the real `KeycloakAuthGraphQLGuard` at compile time;
  *    `.overrideGuard` swaps its runtime behaviour, these are never invoked.
  *
@@ -117,7 +117,7 @@ describe("incompletedJobs (e2e)",
             },
         }
 
-        // UserService.checkEnrollment's only cache layer — always miss, so the
+        // UserService.checkEnrollment's only cache layer -- always miss, so the
         // guard hits real Postgres every time
         const cacheServiceMock = {
             get: jest.fn().mockResolvedValue(undefined),
@@ -174,16 +174,16 @@ describe("incompletedJobs (e2e)",
                     IncompletedJobsResolver,
                     IncompletedJobsService,
                     IncompletedJobsHandler,
-                    // REAL — the enrollment gate under test, resolved lazily by
+                    // REAL -- the enrollment gate under test, resolved lazily by
                     // @UseGuards() from this module's own provider graph
                     GraphQLMustEnrolledGuard,
-                    // REAL — checkEnrollment runs real SQL against real `enrollments`
+                    // REAL -- checkEnrollment runs real SQL against real `enrollments`
                     UserService,
                     {
                         provide: CacheService,
                         useValue: cacheServiceMock,
                     },
-                    // KeycloakAuthGraphQLGuard deps — let Nest construct the real
+                    // KeycloakAuthGraphQLGuard deps -- let Nest construct the real
                     // guard at compile time; `.overrideGuard` swaps its runtime
                     // behaviour below (same pattern as personal-project.e2e-spec.ts)
                     {
@@ -231,7 +231,7 @@ describe("incompletedJobs (e2e)",
         })
 
         afterEach(async () => {
-            // course (seeded in beforeAll) is read-only across the whole suite —
+            // course (seeded in beforeAll) is read-only across the whole suite --
             // only per-test user/enrollment/job state is reset
             await entityManager.query(
                 "TRUNCATE TABLE \"users\", \"enrollments\", \"jobs\" RESTART IDENTITY CASCADE",
@@ -356,7 +356,7 @@ describe("incompletedJobs (e2e)",
 
                 // the guard's thrown exception surfaces via Apollo's `formatError`
                 // (a GraphQL transport error), not the interceptor's {success:false}
-                // body — guards run BEFORE interceptors (see personal-project.e2e-spec.ts)
+                // body -- guards run BEFORE interceptors (see personal-project.e2e-spec.ts)
                 expect(response.body.data).toBeNull()
                 expect(response.body.errors[0].extensions.code)
                     .toBe("ENROLLMENT_NOT_FOUND_EXCEPTION")

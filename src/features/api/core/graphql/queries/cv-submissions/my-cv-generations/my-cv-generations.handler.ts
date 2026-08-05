@@ -29,7 +29,7 @@ import {
 @Injectable()
 /**
  * Paginated history of the caller's CV generation runs (newest first). Omits
- * heavy fields (`structuredData`, LaTeX/upload keys, feedback) — open a row
+ * heavy fields (`structuredData`, LaTeX/upload keys, feedback) -- open a row
  * via `cvGeneration(id)` for those. Unauthenticated callers get `[]`.
  */
 export class MyCvGenerationsHandler
@@ -65,10 +65,10 @@ export class MyCvGenerationsHandler
             offset)
 
         // fetched rows are mapped below into the lightweight `CvGenerationListItem`
-        // shape — `structuredData`/`latexCdnKey`/`uploadedCdnKey`/`feedback` are
+        // shape -- `structuredData`/`latexCdnKey`/`uploadedCdnKey`/`feedback` are
         // never exposed here; the FE resolves those (server-side, via
         // `cvGeneration(id)`) only for the row it actually opens. (No partial
-        // `select` here — `courseId` is a `@RelationId` column and a restricted
+        // `select` here -- `courseId` is a `@RelationId` column and a restricted
         // `select` can suppress TypeORM's automatic relation-id population.)
         // `course` IS loaded (a cheap join) so the history dial can label each
         // CV by its track without a per-row detail fetch.

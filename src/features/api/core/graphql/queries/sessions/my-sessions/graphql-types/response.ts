@@ -31,7 +31,7 @@ export class MySessionsResponseData {
     description: "Response wrapper for the mySessions query.",
 })
 /**
- * GraphQL envelope for `mySessions`. Auth-only — unauthenticated callers
+ * GraphQL envelope for `mySessions`. Auth-only -- unauthenticated callers
  * never see another user's device list.
  */
 export class MySessionsResponse

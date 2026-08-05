@@ -46,7 +46,7 @@ export interface DataGitDiffScopedMessage {
     courseCount: number
     /** Total number of module order-indexes kept across all courses. */
     moduleCount: number
-    /** Number of standalone domains (cv/foundations/…) kept in the narrowed scope. */
+    /** Number of standalone domains (cv/foundations/...) kept in the narrowed scope. */
     domainCount: number
 }
 

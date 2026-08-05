@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (mirrors sync-submission.handler.spec.ts).
 import "@modules/bussiness"
 import {
@@ -62,11 +62,11 @@ describe("ReviseCvHandler",
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
         beforeEach(async () => {
-            // fresh jest-backed entity manager — only `findOne` (ownership check) is
+            // fresh jest-backed entity manager -- only `findOne` (ownership check) is
             // exercised by this handler; no real DB access
             entityManager = makeEntityManagerMock()
 
-            // enqueue service is mocked wholesale — this handler only calls `enqueue`
+            // enqueue service is mocked wholesale -- this handler only calls `enqueue`
             // and reads back `{ cvGeneration, jobId }`, never touches the DB itself
             enqueueGenerateCvJobService = {
                 enqueue: jest.fn().mockResolvedValue({
@@ -133,7 +133,7 @@ describe("ReviseCvHandler",
 
                 it("throws when the source CV generation does not exist (or does not belong to the caller)",
                     async () => {
-                        // findOne resolves null → generation missing / not owned by this user
+                        // findOne resolves null -> generation missing / not owned by this user
                         entityManager.findOne.mockResolvedValueOnce(null)
 
                         await expect(
@@ -158,7 +158,7 @@ describe("ReviseCvHandler",
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "sub-1",
                         })
-                        // an explicit model pick — proves selectedModel/selectedModelProvider
+                        // an explicit model pick -- proves selectedModel/selectedModelProvider
                         // flow through gradingLaneValidationService.validate(...)
                         gradingLaneValidationService.validate.mockResolvedValueOnce({
                             gradingModel: "gpt-4o",

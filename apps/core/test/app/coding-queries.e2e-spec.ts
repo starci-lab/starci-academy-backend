@@ -84,25 +84,25 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the coding-practice READ surface — `codingProblems`, `codingProblem`,
+ * e2e for the coding-practice READ surface -- `codingProblems`, `codingProblem`,
  * `codingProblemHint`, `codingProblemSuggestions`, `myCodingProgress`,
  * `myCodingSubmissions`, `codingLeaderboard`. None of these queries had e2e
  * coverage before this file (the sibling `coding-submission.e2e-spec.ts` only
  * covers the `submitCodingSolution` / `revealCodingSolution` MUTATIONS).
  *
  * MOCKED (no external infra in this harness):
- *  - `ElasticsearchService` — no ES container available; `codingProblems` /
+ *  - `ElasticsearchService` -- no ES container available; `codingProblems` /
  *    `codingProblem` / `codingProblemHint` / `codingProblemSuggestions` all read
  *    from ES exclusively (never Postgres), so the client is stubbed at the exact
  *    surface (`client.search` / `client.get` / `indicateName`) the unit specs
- *    (`coding-problem.service.spec.ts`) already program — the real GraphQL +
+ *    (`coding-problem.service.spec.ts`) already program -- the real GraphQL +
  *    CQRS + service wiring around it is what's under test here, not ES itself.
- *  - `CacheService` — real class talks to Redis; stubbed to always MISS so
+ *  - `CacheService` -- real class talks to Redis; stubbed to always MISS so
  *    `myCodingProgress` always exercises the real Postgres compute path.
- *  - `EnqueueJudgeCodingSubmissionJobService` / `DeviceService` — required by
+ *  - `EnqueueJudgeCodingSubmissionJobService` / `DeviceService` -- required by
  *    `CodingSubmissionService`'s constructor but never invoked by `listMine`
  *    (the read path `myCodingSubmissions` uses); stubbed only to satisfy DI.
- *  - `KeycloakAuthGraphQLGuard` — no Keycloak server here; overridden to stamp
+ *  - `KeycloakAuthGraphQLGuard` -- no Keycloak server here; overridden to stamp
  *    `request.user` with whichever fake user the test "logs in" as.
  *
  * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring, the CQRS
@@ -141,7 +141,7 @@ describe("Coding-practice read queries (e2e)",
             indicateName: jest.fn(() => "coding-problems-en"),
             client: elasticsearchClientMock,
         }
-        // CodingProgressService's only cache layer — always miss, so myCodingProgress
+        // CodingProgressService's only cache layer -- always miss, so myCodingProgress
         // always exercises the real Postgres compute path
         const cacheServiceMock = {
             get: jest.fn().mockResolvedValue(undefined),
@@ -197,7 +197,7 @@ describe("Coding-practice read queries (e2e)",
                     MyCodingProgressResolver,
                     MyCodingSubmissionsResolver,
                     CodingLeaderboardResolver,
-                    // REAL — the services under test
+                    // REAL -- the services under test
                     CodingProblemService,
                     CodingProgressService,
                     CodingSubmissionService,
@@ -231,7 +231,7 @@ describe("Coding-practice read queries (e2e)",
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
 
-            // seed a small read-only pool of REAL coding problems (Postgres side —
+            // seed a small read-only pool of REAL coding problems (Postgres side --
             // ES is mocked for the catalog reads, but myCodingProgress/
             // myCodingSubmissions/codingLeaderboard all join against real
             // coding_problems rows via coding_submissions.coding_problem_id)
@@ -260,7 +260,7 @@ describe("Coding-practice read queries (e2e)",
         afterAll(async () => {
             // the "two-sum"/"reverse-string"/... fixtures are read-only WITHIN this
             // suite, but the Testcontainers Postgres is shared across the whole e2e
-            // run (see setup-e2e.ts) — leaving them behind collides with
+            // run (see setup-e2e.ts) -- leaving them behind collides with
             // coding-submission.e2e-spec.ts's own same-slug "two-sum" fixture
             // (duplicate-key on the unique slug) whenever that file runs after this
             // one. CASCADE also clears coding_problem_solutions.
@@ -271,7 +271,7 @@ describe("Coding-practice read queries (e2e)",
         })
 
         afterEach(async () => {
-            // problems (seeded in beforeAll) are read-only across the whole suite —
+            // problems (seeded in beforeAll) are read-only across the whole suite --
             // only per-test user/submission/reveal/projection state is reset
             await entityManager.query(
                 "TRUNCATE TABLE \"users\", \"coding_submissions\", \"coding_solution_reveals\", "
@@ -360,7 +360,7 @@ describe("Coding-practice read queries (e2e)",
 
                 it("unauthenticated caller is BLOCKED before the (mocked) ES client is ever touched",
                     async () => {
-                        // currentUser stays null — the overridden guard denies
+                        // currentUser stays null -- the overridden guard denies
                         const response = await post(QUERY,
                             {
                                 request: {

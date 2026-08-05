@@ -24,7 +24,7 @@ import {
 /**
  * A blog post authored by the team and seeded from `.mount/data/blog/blog.md`
  * (mount markdown grammar). Bilingual `title` / `excerpt` / `body` / `ctaLabel`
- * are inline jsonb (no translation table — these are editorial content rows
+ * are inline jsonb (no translation table -- these are editorial content rows
  * resolved to the request locale at read time). Ordered by `publishedAt`
  * newest-first. Idempotent on `slug`.
  *
@@ -32,7 +32,7 @@ import {
  * the blog query response types, so this carries no `@Field` decorators.
  */
 export class BlogPostEntity extends UuidAbstractEntity {
-    /** Stable slug from the seed file — used to upsert idempotently and as the FE `/blog/[slug]` route key. */
+    /** Stable slug from the seed file -- used to upsert idempotently and as the FE `/blog/[slug]` route key. */
     @Column({
         name: "slug",
         type: "varchar",
@@ -91,7 +91,7 @@ export class BlogPostEntity extends UuidAbstractEntity {
 
     /**
      * Optional funnel CTA destination shown at the foot of the article
-     * (e.g. the related course page) — pairs with {@link BlogPostEntity.ctaLabel}.
+     * (e.g. the related course page) -- pairs with {@link BlogPostEntity.ctaLabel}.
      */
     @Column({
         name: "cta_url",
@@ -110,7 +110,7 @@ export class BlogPostEntity extends UuidAbstractEntity {
         ctaLabel: LocalizedText | null
 
     /**
-     * Optional "View on GitHub" source link for codebase-analysis posts — the
+     * Optional "View on GitHub" source link for codebase-analysis posts -- the
      * repo/file/module URL the article dissects. Left null while the repo is
      * private; populated once the project is open-sourced.
      */
@@ -133,7 +133,7 @@ export class BlogPostEntity extends UuidAbstractEntity {
     })
         isPremium: boolean
 
-    /** When the post was published — drives ordering + the shown date. */
+    /** When the post was published -- drives ordering + the shown date. */
     @Column({
         name: "published_at",
         type: "timestamptz",

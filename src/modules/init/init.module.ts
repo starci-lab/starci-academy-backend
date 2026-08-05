@@ -31,7 +31,7 @@ import {
 @Module({
 })
 /**
- * Init module — canonical git-sourced initialization orchestrator.
+ * Init module -- canonical git-sourced initialization orchestrator.
  *
  * Owns the Scope/Seeders/Synchronizers sub-modules and runs {@link InitService},
  * which materializes the data root from the private `data` GitHub repo (diff)

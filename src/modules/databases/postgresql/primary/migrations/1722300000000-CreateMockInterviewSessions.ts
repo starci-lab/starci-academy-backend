@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Creates the `mock_interview_sessions` table — one row per SERVER-PICKED
+ * Creates the `mock_interview_sessions` table -- one row per SERVER-PICKED
  * mock-interview prompt draw (`startMockInterviewSession`), so
  * `gradeMockInterviewSession` can look the draw back up by `id` + enrollment
  * and grade against the prompt/level the server actually handed out instead
@@ -32,7 +32,7 @@ export class CreateMockInterviewSessions1722300000000 implements MigrationInterf
             );
         `)
 
-        // FK to enrollments — deleting an enrollment removes its drawn sessions
+        // FK to enrollments -- deleting an enrollment removes its drawn sessions
         await queryRunner.query(`
             ALTER TABLE "mock_interview_sessions"
             ADD CONSTRAINT "fk_enrollment_id_mock_interview_sessions"

@@ -94,7 +94,7 @@ describe("UserService",
 
                 it("loads from the DB on a cache miss and back-fills the cache",
                     async () => {
-                        // miss → falsy cached value forces the DB path
+                        // miss -> falsy cached value forces the DB path
                         cacheService.get.mockResolvedValueOnce(undefined)
                         const row = {
                             id: userId,
@@ -201,7 +201,7 @@ describe("UserService",
                 it("rebuilds and returns false when the user has no such enrollment",
                     async () => {
                         cacheService.get.mockResolvedValueOnce(undefined)
-                        // query defaults to [] → user is enrolled in nothing matching
+                        // query defaults to [] -> user is enrolled in nothing matching
                         const result = await service.checkEnrollment(userId,
                             courseId)
 
@@ -225,7 +225,7 @@ describe("UserService",
 
                         // the indexed read must filter out trial placeholders so a
                         // trial-only membership (is_enrolled = false) never satisfies the
-                        // paid gate — assert on the SQL the service issues
+                        // paid gate -- assert on the SQL the service issues
                         const [
                             sql,
                             params,
@@ -240,7 +240,7 @@ describe("UserService",
                     async () => {
                         cacheService.get.mockResolvedValueOnce(undefined)
                         // the `is_enrolled = true` filter means a user who only holds a
-                        // trial placeholder rebuilds to an EMPTY set → not enrolled
+                        // trial placeholder rebuilds to an EMPTY set -> not enrolled
                         entityManager.query.mockResolvedValueOnce([])
 
                         const result = await service.checkEnrollment(userId,
@@ -270,7 +270,7 @@ describe("UserService",
             () => {
                 it("returns the existing enrollment without creating a new one",
                     async () => {
-                        // an enrollment (trial or paid) already exists → return it as-is
+                        // an enrollment (trial or paid) already exists -> return it as-is
                         const existing = {
                             id: "enrollment-1",
                             isEnrolled: true,
@@ -290,7 +290,7 @@ describe("UserService",
 
                 it("creates a TRIAL placeholder (is_enrolled = false) when none exists",
                     async () => {
-                        // no row yet → take the create path
+                        // no row yet -> take the create path
                         entityManager.findOne.mockResolvedValueOnce(null)
                         const created = {
                             id: "enrollment-new",
@@ -324,7 +324,7 @@ describe("UserService",
 
                 it("recovers idempotently when a concurrent insert wins the unique race",
                     async () => {
-                        // first read finds nothing → create path
+                        // first read finds nothing -> create path
                         entityManager.findOne.mockResolvedValueOnce(null)
                         // save trips the UQ_enrollments_user_course constraint
                         entityManager.save.mockRejectedValueOnce(
@@ -350,7 +350,7 @@ describe("UserService",
                         entityManager.findOne.mockResolvedValueOnce(null)
                         const failure = new Error("connection terminated")
                         entityManager.save.mockRejectedValueOnce(failure)
-                        // recovery re-read also finds nothing → the error is genuine
+                        // recovery re-read also finds nothing -> the error is genuine
                         entityManager.findOne.mockResolvedValueOnce(null)
 
                         await expect(

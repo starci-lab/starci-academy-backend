@@ -7,12 +7,12 @@ import {
 
 /**
  * Channel a {@link CommunityPostEntity} belongs to. A channel is a top-level
- * bucket the community feed can be filtered by — it does NOT change the post
+ * bucket the community feed can be filtered by -- it does NOT change the post
  * mechanics (every channel is post + threaded comments + reactions), only the
  * audience/intent the FE groups posts under.
  */
 export enum CommunityChannel {
-    /** General chatter — the default catch-all channel. */
+    /** General chatter -- the default catch-all channel. */
     General = "general",
     /** Posts asking for help / describing a problem the author is stuck on. */
     Problems = "problems",

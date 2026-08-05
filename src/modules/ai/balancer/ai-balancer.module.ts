@@ -37,11 +37,11 @@ import {
     ],
 })
 /**
- * AI Balancer — mount key pools, Redis-backed health cache, and invoke routing.
+ * AI Balancer -- mount key pools, Redis-backed health cache, and invoke routing.
  *
- * - {@link KeyStoreService} — loads keys from mount files.
- * - {@link KeyRotatorService} — round-robin; skips keys with `status: false` in Redis.
- * - {@link UseApiService} — `useApi` (lane-discriminated: auto / premium).
- * - {@link AiBalancerService} — acquire + admin health snapshot.
+ * - {@link KeyStoreService} -- loads keys from mount files.
+ * - {@link KeyRotatorService} -- round-robin; skips keys with `status: false` in Redis.
+ * - {@link UseApiService} -- `useApi` (lane-discriminated: auto / premium).
+ * - {@link AiBalancerService} -- acquire + admin health snapshot.
  */
 export class AiBalancerModule extends ConfigurableModuleClass {}

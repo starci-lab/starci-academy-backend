@@ -4,7 +4,7 @@ import type {
 
 /**
  * The next interval (in days) each SM-2 grade would schedule a card to, computed
- * from its current scheduling state WITHOUT persisting — a preview for the
+ * from its current scheduling state WITHOUT persisting -- a preview for the
  * rating buttons so the learner sees the consequence of each choice.
  */
 export interface FlashcardNextIntervals {
@@ -30,9 +30,9 @@ export interface DueFlashcard {
     front: string
     /** Card back / answer (localized), or empty string when the card has none. */
     back: string
-    /** Interview seniority level (junior/middle/senior/staff), or null — drives the level chip. */
+    /** Interview seniority level (junior/middle/senior/staff), or null -- drives the level chip. */
     level: string | null
-    /** Technology tags for this card — drives the tag chips (same as deck-review). */
+    /** Technology tags for this card -- drives the tag chips (same as deck-review). */
     tags: Array<string>
     /** Per-grade next-interval preview (days) from the card's current state. */
     nextIntervals: FlashcardNextIntervals
@@ -45,8 +45,8 @@ export interface DueFlashcard {
 export interface DueFlashcardsResult {
     /**
      * Today's actionable queue size = {@link dueReviewCount} + {@link newCount}
-     * (overdue reviews + the capped new-card batch). The "đến hạn hôm nay"
-     * headline — bounded, NOT the whole never-reviewed backlog.
+     * (overdue reviews + the capped new-card batch). The due-today
+     * headline -- bounded, NOT the whole never-reviewed backlog.
      */
     dueCount: number
     /** Overdue review cards (reviewed once, now past `dueAt`). */
@@ -65,7 +65,7 @@ export interface DueFlashcardsResult {
 export interface ListDueFlashcardsParams {
     /** The viewer. */
     userId: string
-    /** Owning course — when given, scope the queue to this course's decks only; omit for a global (cross-course) queue (e.g. dashboard). */
+    /** Owning course -- when given, scope the queue to this course's decks only; omit for a global (cross-course) queue (e.g. dashboard). */
     courseId?: string
     /** Max cards to return (the count is still the full total). */
     limit: number
@@ -75,15 +75,15 @@ export interface ListDueFlashcardsParams {
 
 /**
  * Params for listing flashcards by an EXACT set of ids, regardless of their
- * current due status — used to rehydrate a resumable due-review batch to its
+ * current due status -- used to rehydrate a resumable due-review batch to its
  * original draw (see {@link import("../flashcard-review.service").FlashcardReviewService.listByIds}).
  */
 export interface ListFlashcardsByIdsParams {
-    /** The viewer (for the review-row join → next-interval preview). */
+    /** The viewer (for the review-row join -> next-interval preview). */
     userId: string
-    /** Owning course — scopes the review-row join by enrollment, mirrors {@link ListDueFlashcardsParams.courseId}. */
+    /** Owning course -- scopes the review-row join by enrollment, mirrors {@link ListDueFlashcardsParams.courseId}. */
     courseId?: string
-    /** The exact card ids to fetch, in caller order — preserved on output. */
+    /** The exact card ids to fetch, in caller order -- preserved on output. */
     cardIds: Array<string>
     /** Locale to localize deck/card text into. */
     locale: Locale
@@ -101,7 +101,7 @@ export interface ReviewFlashcardParams {
     grade: number
     /**
      * The review session this grade belongs to, threaded onto the appended
-     * review-event so per-session stats can aggregate by it. Optional — omitted
+     * review-event so per-session stats can aggregate by it. Optional -- omitted
      * (or null) leaves the event's `sessionId` null (an untracked grade).
      */
     sessionId?: string | null

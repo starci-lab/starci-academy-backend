@@ -13,8 +13,8 @@ import {
     description: "One completed flashcard review session, as read back for the viewer's history.",
 })
 /**
- * One completed flashcard review ("Học thẻ") session, as read back for the
- * viewer's history — mirrors `MyFlashcardQuizHistoryItem`, but scoped to a
+ * One completed flashcard review session, as read back for the
+ * viewer's history -- mirrors `MyFlashcardQuizHistoryItem`, but scoped to a
  * deck (not mode/level/coverage/weakTags, which are cloze-quiz-only
  * concepts).
  */

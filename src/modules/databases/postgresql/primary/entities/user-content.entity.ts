@@ -66,7 +66,7 @@ export class UserContentEntity extends UuidAbstractEntity {
         userId: string | null
 
     /**
-     * Enrollment this content state belongs to (user × course). The anchor for
+     * Enrollment this content state belongs to (user x course). The anchor for
      * per-course progress going forward; nullable while the re-key backfill runs.
      */
     @ManyToOne(

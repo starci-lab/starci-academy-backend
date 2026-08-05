@@ -13,7 +13,7 @@ import {
  * which both project the same {@link MyCourseProgressResult} counts.
  *
  * @param row - one course's progress counts from the projection read.
- * @returns a 0–100 integer; 0 when no dimension has any items yet.
+ * @returns a 0-100 integer; 0 when no dimension has any items yet.
  */
 export const computeCompletionPercent = (row: MyCourseProgressResult): number => {
     const ratios: Array<number> = []

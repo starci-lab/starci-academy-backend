@@ -40,6 +40,6 @@ import {
     ],
 })
 /**
- * Per-user AI query group (quota snapshot, lane settings, tier catalog, …).
+ * Per-user AI query group (quota snapshot, lane settings, tier catalog, ...).
  */
 export class AiQueriesModule extends ConfigurableModuleClass {}

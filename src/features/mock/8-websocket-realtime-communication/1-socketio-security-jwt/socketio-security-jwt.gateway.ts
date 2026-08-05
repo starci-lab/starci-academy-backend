@@ -28,7 +28,7 @@ import type {
  * `Authorization: Bearer` header, then `?token=`. A missing or invalid token is
  * rejected before any `@SubscribeMessage` handler can run. The chat identity is
  * always derived from the verified token (`socket.data.user`), never from the
- * client-supplied message body — that is the core security invariant.
+ * client-supplied message body -- that is the core security invariant.
  */
 export class SocketioSecurityJwtGateway implements OnGatewayInit {
     /** The underlying Socket.IO namespace server, injected by Nest. */
@@ -46,7 +46,7 @@ export class SocketioSecurityJwtGateway implements OnGatewayInit {
         server.use((socket, next) => {
             // pull the token from the supported locations in priority order
             const token = this.extractToken(socket)
-            // no token at all → reject the handshake (message matches the spec)
+            // no token at all -> reject the handshake (message matches the spec)
             if (!token) {
                 next(new Error("Unauthorized: missing token"))
                 return
@@ -61,7 +61,7 @@ export class SocketioSecurityJwtGateway implements OnGatewayInit {
                 // allow the connection through
                 next()
             } catch {
-                // invalid/expired token → reject the handshake (message matches the spec)
+                // invalid/expired token -> reject the handshake (message matches the spec)
                 next(new Error("Unauthorized: invalid token"))
             }
         })
@@ -98,7 +98,7 @@ export class SocketioSecurityJwtGateway implements OnGatewayInit {
         const user = client.data.user as JwtUser | undefined
         // defensive: without an identity there is nothing to attribute the message to
         if (!user) return
-        // build the broadcast payload — username comes from the JWT, not the body
+        // build the broadcast payload -- username comes from the JWT, not the body
         const payload: SecureChatBroadcast = {
             text: body.text,
             username: user.username,
@@ -112,7 +112,7 @@ export class SocketioSecurityJwtGateway implements OnGatewayInit {
 
     /**
      * Extract the JWT from the handshake, honoring the documented priority:
-     * `auth.token` → `Authorization: Bearer` header → `?token=` query.
+     * `auth.token` -> `Authorization: Bearer` header -> `?token=` query.
      */
     private extractToken(socket: Socket): string | null {
         // priority 1: Socket.IO auth field

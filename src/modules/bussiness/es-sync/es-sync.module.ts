@@ -21,10 +21,10 @@ import {
     ],
 })
 /**
- * `es-sync` — keeps Elasticsearch indices in sync with their source Postgres
+ * `es-sync` -- keeps Elasticsearch indices in sync with their source Postgres
  * tables outside the CQRS-projection layer (which targets Postgres read-models).
  *
- * Currently wires the user → `users` index sync: the CDC listener (event-driven)
+ * Currently wires the user -> `users` index sync: the CDC listener (event-driven)
  * plus the indexer service. The service is exported so the seed/init synchronizer
  * can call its bulk backfill ({@link EsSyncUserService.reindexAll}).
  */

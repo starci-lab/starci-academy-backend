@@ -39,7 +39,7 @@ import {
 
 @Resolver()
 /**
- * Looks up ONE graded mock-interview attempt by its `sessionId` — the
+ * Looks up ONE graded mock-interview attempt by its `sessionId` -- the
  * fallback read for a resume attempt on a session that's no longer
  * `in_progress` (`myInProgressMockInterviewSession` already returned null):
  * if it was actually graded (finished normally, or auto-graded on the 1-hour

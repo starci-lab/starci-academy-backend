@@ -78,7 +78,7 @@ export class ContentsHandler
             filters: [
                 {
                     term: {
-                        // moduleId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                        // moduleId is mapped as a pure keyword -> query it directly (no `.keyword` subfield)
                         moduleId,
                     },
                 },
@@ -120,7 +120,7 @@ export class ContentsHandler
                 // Keep isPremium=true so the FE knows this item is locked for the viewer.
                 content.isPremium = true
             } else {
-                // Viewer is either entitled or content is free — signal full access.
+                // Viewer is either entitled or content is free -- signal full access.
                 content.isPremium = false
             }
         }
@@ -154,7 +154,7 @@ export class ContentsHandler
                 where: {
                     id: moduleId,
                 },
-                // courseId is a @RelationId (virtual, not selectable) — load the
+                // courseId is a @RelationId (virtual, not selectable) -- load the
                 // course relation and read course.id instead
                 relations: {
                     course: true,
@@ -178,7 +178,7 @@ export class ContentsHandler
             EnrollmentEntity,
             {
                 where: {
-                    // userId / courseId are @RelationId (virtual, not queryable) —
+                    // userId / courseId are @RelationId (virtual, not queryable) --
                     // filter through the relations' real FK columns instead
                     user: {
                         id: userId,
@@ -210,7 +210,7 @@ export class ContentsHandler
             if (!text) {
                 return ""
             }
-            // Keep only the first 1 200 characters — enough for context, not full disclosure.
+            // Keep only the first 1 200 characters -- enough for context, not full disclosure.
             const limit = 1200
             if (text.length <= limit) {
                 return text
@@ -218,7 +218,7 @@ export class ContentsHandler
             let sliced = text.slice(0,
                 limit)
             // If the cut landed INSIDE a fenced code block (odd count of ``` fences), the markdown
-            // would have a dangling open fence — e.g. a half mermaid diagram that fails to parse on
+            // would have a dangling open fence -- e.g. a half mermaid diagram that fails to parse on
             // the FE. Drop everything from the last unclosed fence so the teaser stays valid markdown.
             if ((sliced.match(/```/g)?.length ?? 0) % 2 === 1) {
                 sliced = sliced.slice(0,
@@ -238,7 +238,7 @@ export class ContentsHandler
             }
         }
 
-        // Strip premium-only code assets — these should never reach a trial viewer.
+        // Strip premium-only code assets -- these should never reach a trial viewer.
         content.codeExplainings = []
         content.codeImplementations = []
     }

@@ -10,7 +10,7 @@ import {
 })
 /**
  * Cursor-paginated request for a single user's activity timeline (the profile
- * "activity" tab). Unlike the home feed there is no tab/category — it is always
+ * "activity" tab). Unlike the home feed there is no tab/category -- it is always
  * the named user's own activity, newest first.
  */
 export class UserFeedRequest {

@@ -11,7 +11,7 @@ import type {
 /**
  * Client-measured behavioural telemetry sent alongside a coding submission.
  * All fields are optional (older clients omit them). Currently captured for
- * transport only — no server-side consumer reads it back.
+ * transport only -- no server-side consumer reads it back.
  */
 export interface CodingClientTelemetry {
     /** Number of paste events into the editor during the attempt. */
@@ -40,7 +40,7 @@ export interface ListCodingProblemsParams {
     locale?: Locale
 }
 
-/** Result of listing coding problems (shared catalog only — no per-user state). */
+/** Result of listing coding problems (shared catalog only -- no per-user state). */
 export interface ListCodingProblemsResult {
     /** The page of problems (pre-localized title; catalog fields only). */
     problems: Array<CodingProblemEntity>
@@ -218,7 +218,7 @@ export interface GetAcceptedSubmissionSummaryParams {
  * user has no accepted submission for the problem.
  *
  * The `passed_count` / `total_count` / `first_solved_at` fields are
- * deliberately snake_case — unlike every other interface in this file — because
+ * deliberately snake_case -- unlike every other interface in this file -- because
  * they mirror the raw SQL column aliases returned by the query in
  * `coding-submission.service.ts` (`AS "passed_count"` etc.). This is an
  * intentional 1:1 mirror of the driver's row shape, not a naming-convention
@@ -236,7 +236,7 @@ export interface AcceptedSubmissionSummaryRow {
 }
 
 /**
- * A target user's accepted-submission summary for one coding problem — backs
+ * A target user's accepted-submission summary for one coding problem -- backs
  * the public profile's `userCodingProblemDetail` read. Deliberately a
  * hand-rolled shape (never the raw {@link CodingSubmissionEntity}): it never
  * carries `sourceCode` / `perCaseResults` / reference solutions.
@@ -244,7 +244,7 @@ export interface AcceptedSubmissionSummaryRow {
 export interface AcceptedSubmissionSummaryResult {
     /** Distinct languages the user solved this problem in, across all accepted attempts. */
     languages: Array<CodingLanguage>
-    /** Always {@link CodingVerdict.Accepted} — this summary only exists when at least one accepted attempt exists. */
+    /** Always {@link CodingVerdict.Accepted} -- this summary only exists when at least one accepted attempt exists. */
     verdict: CodingVerdict
     /** Passed-testcase count from the earliest accepted attempt. */
     passedCount: number

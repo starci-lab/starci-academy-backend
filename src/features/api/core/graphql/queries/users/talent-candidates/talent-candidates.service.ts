@@ -34,14 +34,14 @@ import type {
 } from "./types"
 
 /**
- * One PRESENT pillar contribution to a track's depth — its 0–100 score and the
+ * One PRESENT pillar contribution to a track's depth -- its 0-100 score and the
  * weight it carries. Absent pillars are filtered out before the weighted average
  * so a track is never penalized for a pillar its course lacks. Mirrors the same
  * concept in `JobReadinessService`; kept local so this service never imports that
  * file's private calculation methods (only the shared public weight constants).
  */
 interface PresentPillar {
-    /** The pillar's 0–100 score. */
+    /** The pillar's 0-100 score. */
     score: number
     /** The pillar's configured weight (renormalized over present pillars). */
     weight: number
@@ -57,7 +57,7 @@ interface PresentPillar {
  *
  * FAIRNESS INVARIANT (WF-01/WF-02): ranking is scoped to the filtered track's
  * depth ONLY. This service NEVER sums, averages, or otherwise blends a
- * candidate's depth across their OTHER courses into the sort key — a candidate
+ * candidate's depth across their OTHER courses into the sort key -- a candidate
  * with a monster depth in some unrelated track gains nothing here. It reuses the
  * shared depth/band CONSTANTS (not the private methods) of
  * `JobReadinessService`, so the per-track math stays single-sourced.
@@ -66,7 +66,7 @@ export class TalentCandidatesService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        // trust-tier classifier — badges each candidate + breaks equal-depth ties
+        // trust-tier classifier -- badges each candidate + breaks equal-depth ties
         private readonly cvVerificationService: CvVerificationService,
     ) {}
 
@@ -93,7 +93,7 @@ export class TalentCandidatesService {
             EnrollmentEntity,
             {
                 where: {
-                    // `courseId` is a @RelationId virtual column — not queryable in a
+                    // `courseId` is a @RelationId virtual column -- not queryable in a
                     // `where`; filter through the real `course` relation instead.
                     course: {
                         id: courseId,
@@ -186,7 +186,7 @@ export class TalentCandidatesService {
             }
         })
 
-        // RANK strictly by THIS track's depth (nulls last) — never a cross-track
+        // RANK strictly by THIS track's depth (nulls last) -- never a cross-track
         // blend; break exact depth ties by the stronger StarCi verification tier
         // (capstone-verified above self-reported). Then paginate the sorted list.
         return candidates
@@ -197,7 +197,7 @@ export class TalentCandidatesService {
     }
 
     /**
-     * Total capstone (milestone) tasks for the single filtered course — the
+     * Total capstone (milestone) tasks for the single filtered course -- the
      * shared denominator of every candidate's capstone %.
      *
      * @param courseId - the filtered course id.
@@ -219,7 +219,7 @@ export class TalentCandidatesService {
     }
 
     /**
-     * Distinct passed capstone tasks per candidate enrollment — the numerator of
+     * Distinct passed capstone tasks per candidate enrollment -- the numerator of
      * each candidate's capstone %.
      *
      * @param enrollmentIds - the candidate batch's enrollment ids.
@@ -244,7 +244,7 @@ export class TalentCandidatesService {
     /**
      * Recent-window average mock-interview score per candidate enrollment. Uses
      * the SAME recent-N window ({@link JOB_READINESS_INTERVIEW_RECENT_WINDOW}) as
-     * the job-readiness track pillar — an all-time average is deliberately
+     * the job-readiness track pillar -- an all-time average is deliberately
      * avoided (it punishes early weak attempts forever; see that constant's doc).
      *
      * Wrapped in try/catch so an environment where the mock-interview table
@@ -267,7 +267,7 @@ export class TalentCandidatesService {
                             ORDER BY created_at DESC
                         ) AS recency_rank
                     FROM mock_interview_attempts
-                    -- Configurable "Tùy chỉnh" (luyện tủ) runs set counts_to_readiness=false;
+                    -- Configurable (practice) runs set counts_to_readiness=false;
                     -- exclude them so the RECRUITER-FACING average stays a clean signal from
                     -- random exam-like runs only — mirrors job-readiness.service (2026-07-06).
                     WHERE enrollment_id = ANY($1) AND counts_to_readiness = true
@@ -283,16 +283,16 @@ export class TalentCandidatesService {
                 ],
             )
         } catch {
-            // table not migrated yet → interview pillar is simply absent for now
+            // table not migrated yet -> interview pillar is simply absent for now
             return []
         }
     }
 
     /**
-     * Best UNIFIED-CV score for the filtered course, per candidate — each
+     * Best UNIFIED-CV score for the filtered course, per candidate -- each
      * candidate's CV pillar for THIS track. Groups `MAX(cv_generations.score)` by
      * `user_id` over CVs tied to the filtered course. A candidate with no scored
-     * CV for this course produces no row → their CV pillar degrades to null.
+     * CV for this course produces no row -> their CV pillar degrades to null.
      *
      * @param courseId - the filtered course id.
      * @param userIds - the candidate batch's user ids.
@@ -324,10 +324,10 @@ export class TalentCandidatesService {
      * `JobReadinessService.depthOf`, kept local so this service depends only on
      * the shared public weight CONSTANTS, never that file's private methods.
      *
-     * @param capstoneScore - capstone completion % (0–100), or null if absent.
-     * @param interviewScore - average interview score (0–100), or null if absent.
-     * @param cvScore - best CV score tied to this course (0–100), or null if absent.
-     * @returns the 0–100 depth, or null when every pillar is null.
+     * @param capstoneScore - capstone completion % (0-100), or null if absent.
+     * @param interviewScore - average interview score (0-100), or null if absent.
+     * @param cvScore - best CV score tied to this course (0-100), or null if absent.
+     * @returns the 0-100 depth, or null when every pillar is null.
      */
     private depthOf(
         capstoneScore: number | null,
@@ -368,7 +368,7 @@ export class TalentCandidatesService {
      * scorable pillar (null depth) falls into "needsWork". Mirrors
      * `JobReadinessService.bandOf` using the shared threshold constants.
      *
-     * @param depthScore - 0–100, or null.
+     * @param depthScore - 0-100, or null.
      * @returns the band.
      */
     private bandOf(depthScore: number | null): JobReadinessBand {
@@ -386,7 +386,7 @@ export class TalentCandidatesService {
 
     /**
      * Comparator that orders candidates strongest-depth-first with null depths
-     * last — WITHIN the single filtered track only.
+     * last -- WITHIN the single filtered track only.
      *
      * @param prevDepth - left candidate's track depth (nullable).
      * @param nextDepth - right candidate's track depth (nullable).
@@ -412,7 +412,7 @@ export class TalentCandidatesService {
      * Marketplace comparator: strongest track depth first (null depths last),
      * with EXACT depth ties broken by the stronger StarCi verification tier
      * (capstone-verified above activity-backed above self-reported). Depth stays
-     * the primary key — verification only decides ties — so the per-track
+     * the primary key -- verification only decides ties -- so the per-track
      * fairness contract holds while candidates whose readiness is backed by real,
      * graded StarCi work surface above self-reported ones.
      *
@@ -424,13 +424,13 @@ export class TalentCandidatesService {
         prev: TalentCandidate,
         next: TalentCandidate,
     ): number {
-        // depth is the primary key — never blended across tracks
+        // depth is the primary key -- never blended across tracks
         const byDepth = this.sortByDepth(prev.track.depthScore,
             next.track.depthScore)
         if (byDepth !== 0) {
             return byDepth
         }
-        // exact depth tie → surface the more StarCi-verified candidate first (rank DESC)
+        // exact depth tie -> surface the more StarCi-verified candidate first (rank DESC)
         return this.cvVerificationService.rankOf(next.verificationLevel)
             - this.cvVerificationService.rankOf(prev.verificationLevel)
     }

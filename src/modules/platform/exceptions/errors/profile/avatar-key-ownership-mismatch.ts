@@ -13,7 +13,7 @@ export type AvatarKeyOwnershipMismatchExceptionMetadata = AbstractExceptionMetad
 
 /**
  * Thrown when `verifyAvatarPresignUrl` is called with a key that does not
- * live under the caller's own `avatars/{userId}/` prefix — a client could
+ * live under the caller's own `avatars/{userId}/` prefix -- a client could
  * otherwise point their avatar at someone else's object.
  */
 export class AvatarKeyOwnershipMismatchException extends AbstractException {

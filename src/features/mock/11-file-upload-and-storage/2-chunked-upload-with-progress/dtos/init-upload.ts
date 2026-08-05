@@ -9,7 +9,7 @@ import {
 } from "class-validator"
 
 /**
- * Request body for `POST /uploads/init` — declares the file the client is about
+ * Request body for `POST /uploads/init` -- declares the file the client is about
  * to upload in chunks. The server derives `totalChunks` from `size`.
  */
 export class InitUploadDto {

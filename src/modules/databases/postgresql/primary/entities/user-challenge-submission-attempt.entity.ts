@@ -39,7 +39,7 @@ import {
  */
 export class UserChallengeSubmissionAttemptEntity extends UuidAbstractEntity {
     /**
-     * Idempotency key (= grading job id) — one attempt per grading job. A retried
+     * Idempotency key (= grading job id) -- one attempt per grading job. A retried
      * job re-inserting with the same key hits this unique constraint, so the
      * complete step treats it as already-done instead of creating a duplicate.
      */

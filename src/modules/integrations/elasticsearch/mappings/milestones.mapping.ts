@@ -7,7 +7,7 @@ import type {
  *
  * Types the real search/sort fields of a milestone and adds a dedicated `suggest`
  * field of type `completion` (an in-memory FST) powering fast, ranked autocomplete
- * — the ES sync builder populates it with the clean milestone title + a popularity
+ * -- the ES sync builder populates it with the clean milestone title + a popularity
  * weight derived from display order. Localized translation blobs are stored but
  * not indexed.
  */
@@ -19,7 +19,7 @@ export const milestonesIndexMapping: ElasticsearchIndexMapping = {
             id: {
                 type: "keyword",
             },
-            // parent course id — stored so suggestions can be scoped/deep-linked
+            // parent course id -- stored so suggestions can be scoped/deep-linked
             courseId: {
                 type: "keyword",
             },
@@ -35,7 +35,7 @@ export const milestonesIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
-            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            // pure display-ordering index, decoupled from orderIndex -- sortable for reordering
             sortIndex: {
                 type: "integer",
             },
@@ -47,7 +47,7 @@ export const milestonesIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // localized override blob — stored, not indexed
+            // localized override blob -- stored, not indexed
             translations: {
                 type: "object",
                 enabled: false,

@@ -86,7 +86,7 @@ const buildTransaction = (
     actionType: ActionType.Enroll,
     courseId: "course-1",
     aiSubTier: null,
-    // created just now → never trips the stale-transaction guard
+    // created just now -> never trips the stale-transaction guard
     createdAt: new Date(),
     ...overrides,
 })
@@ -111,7 +111,7 @@ describe("PayosWebhookHandler",
                 },
             }
 
-            // enroll worker hand-off — assert it is enqueued on the Enroll path. Default
+            // enroll worker hand-off -- assert it is enqueued on the Enroll path. Default
             // to a single successful fan-out; individual tests override for the
             // malformed-transaction (enqueuedCount: 0) case.
             enqueueEnrollJobService = {
@@ -120,7 +120,7 @@ describe("PayosWebhookHandler",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
-            // entitlement grant — assert it fires on the subscription path
+            // entitlement grant -- assert it fires on the subscription path
             aiEntitlementService = {
                 grantTier: jest.fn(),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
@@ -128,7 +128,7 @@ describe("PayosWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     PayosWebhookHandler,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: PAYOS,
@@ -143,7 +143,7 @@ describe("PayosWebhookHandler",
                         useValue: aiEntitlementService,
                     },
                     {
-                        // MembershipPurchase path is not exercised by these tests — a
+                        // MembershipPurchase path is not exercised by these tests -- a
                         // bare stub is enough to satisfy DI (mirrors the sibling
                         // reconcile-transaction.worker.spec.ts style).
                         provide: MembershipService,
@@ -196,7 +196,7 @@ describe("PayosWebhookHandler",
 
                 // signature verification ran before any mutation
                 expect(payos.webhooks.verify).toHaveBeenCalled()
-                // enroll worker received the hand-off — the handler now fans out
+                // enroll worker received the hand-off -- the handler now fans out
                 // per-transaction (single- or multi-course) via enqueueForTransaction
                 expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
                     transaction,
@@ -232,7 +232,7 @@ describe("PayosWebhookHandler",
 
         it("rejects an invalid signature without touching the DB",
             async () => {
-                // verify throws → the payload is untrusted
+                // verify throws -> the payload is untrusted
                 payos.webhooks.verify.mockRejectedValueOnce(
                     new Error("invalid signature"),
                 )
@@ -254,9 +254,9 @@ describe("PayosWebhookHandler",
         it("acks (no throw) when no pending transaction matches the order code",
             async () => {
                 // PayOS also probes the webhook URL with a sample orderCode to validate
-                // it — the handler now acks unmatched callbacks instead of throwing, so
+                // it -- the handler now acks unmatched callbacks instead of throwing, so
                 // a stray/probe delivery never trips PayOS's "inactive URL" retry logic.
-                // findOne default resolves null → no pending row
+                // findOne default resolves null -> no pending row
                 await expect(
                     handler.execute(
                         new PayosWebhookCommand(
@@ -294,7 +294,7 @@ describe("PayosWebhookHandler",
 
         it("rejects an enrollment webhook that carries no course",
             async () => {
-                // enrollment transaction missing its courseId — the handler now
+                // enrollment transaction missing its courseId -- the handler now
                 // delegates the items-vs-course resolution to
                 // EnqueueEnrollJobService.enqueueForTransaction, which reports the
                 // malformed row back as `enqueuedCount: 0` (no items, no course)

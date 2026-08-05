@@ -13,5 +13,5 @@ import {
         UserCapstoneTasksResolver,
     ],
 })
-/** Feature-module boundary for the `userCapstoneTasks` query — wires its resolver so the users group can mount this profile tab independently. */
+/** Feature-module boundary for the `userCapstoneTasks` query -- wires its resolver so the users group can mount this profile tab independently. */
 export class UserCapstoneTasksSingleQueryModule extends ConfigurableModuleClass {}

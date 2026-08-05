@@ -65,7 +65,7 @@ const buildSubscription = (
     windowWeekResetAt: futureDate(),
     credit5hUsed: 0,
     creditWeekUsed: 0,
-    // Coin-shop aiCredit top-up counters — default to 0 so the allowance math
+    // Coin-shop aiCredit top-up counters -- default to 0 so the allowance math
     // (limit + bonus) never degrades to NaN when a test omits them
     bonusCredit5h: 0,
     bonusCreditWeek: 0,
@@ -112,7 +112,7 @@ describe("AiEntitlementService",
             module = await Test.createTestingModule({
                 providers: [
                     AiEntitlementService,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -140,14 +140,14 @@ describe("AiEntitlementService",
             () => {
                 it("lazily creates a free row and resolves the free allowance for a new user",
                     async () => {
-                        // findOne returns null → loadOrCreate must create + save
+                        // findOne returns null -> loadOrCreate must create + save
                         const result = await service.resolve({
                             userId,
                         })
 
                         expect(entityManager.create).toHaveBeenCalled()
                         expect(entityManager.save).toHaveBeenCalled()
-                        // a brand-new free user has spent nothing → full base allowance
+                        // a brand-new free user has spent nothing -> full base allowance
                         expect(result.creditRemaining5h).toBe(BASE_CREDITS_5H)
                         expect(result.creditRemainingWeek).toBe(BASE_CREDITS_WEEK)
                     })
@@ -184,7 +184,7 @@ describe("AiEntitlementService",
                             userId,
                         })
 
-                        // window rolled over → spent counters dropped back to 0
+                        // window rolled over -> spent counters dropped back to 0
                         expect(result.creditRemaining5h).toBe(BASE_CREDITS_5H)
                         const saved = entityManager.save.mock
                             .calls[0][0] as AiSubscriptionEntity

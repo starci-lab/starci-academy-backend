@@ -10,7 +10,7 @@ import {
 @ObjectType({
     description: "Response for submitting a job posting.",
 })
-/** Response for submitting a job posting — returns the new posting id. */
+/** Response for submitting a job posting -- returns the new posting id. */
 export class SubmitJobPostingResponse extends AbstractGraphQLResponse {
     @Field(
         () => ID,

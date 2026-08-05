@@ -85,7 +85,7 @@ export interface CdnSynchronizerCdnSyncStartedMessage {
 
 /** Message for when CDN synchronizer starts syncing one entity kind. */
 export interface CdnSynchronizerEntityKindStartedMessage {
-    /** TypeORM entity class name (`CourseEntity`, `ContentEntity`, …). */
+    /** TypeORM entity class name (`CourseEntity`, `ContentEntity`, ...). */
     entityKind: string
 }
 
@@ -143,7 +143,7 @@ export interface CdnSynchronizerSyncedSuccessfullyMessage {
     entityId: string
     /** Mount display id of the synced row. */
     displayId: string
-    /** Ancestor display ids (course → module → content for challenges). */
+    /** Ancestor display ids (course -> module -> content for challenges). */
     relativeDisplayIds: Array<string>
     /** Present when legacy mount schema (`verified` null on content/challenge). */
     isLegacy?: boolean
@@ -193,7 +193,7 @@ export interface CdnSynchronizerReconcileOrphansDeletedMessage {
     prefix: string
     /** Orphan id/displayId segments removed. */
     orphanSegmentCount: number
-    /** Concrete object keys removed (segments × locales). */
+    /** Concrete object keys removed (segments x locales). */
     deletedKeyCount: number
 }
 

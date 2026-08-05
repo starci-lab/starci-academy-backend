@@ -32,6 +32,6 @@ export type BlogPostLangFields = {
     isPremium?: string
     /** Whether the post is published (language-agnostic; defaults true). */
     isPublished?: string
-    /** Publish date (ISO; language-agnostic) — drives ordering + shown date. */
+    /** Publish date (ISO; language-agnostic) -- drives ordering + shown date. */
     publishedAt?: string
 }

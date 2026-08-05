@@ -114,10 +114,10 @@ export class SessionStoreService implements OnModuleInit, OnModuleDestroy {
             0,
         ) + 1
 
-        // resolve a display name: explicit name → email local-part → generic label
+        // resolve a display name: explicit name -> email local-part -> generic label
         const resolvedName = name ?? email?.split("@")[0] ?? `User ${nextId}`
 
-        // resolve an email: explicit email → slug derived from the name
+        // resolve an email: explicit email -> slug derived from the name
         const resolvedEmail = email ?? `${resolvedName.toLowerCase().replace(/\s+/g,
             ".")}@starci.dev`
 
@@ -282,7 +282,7 @@ export class SessionStoreService implements OnModuleInit, OnModuleDestroy {
             return existing
         }
 
-        // first access for this tuple → seed from the lesson definition
+        // first access for this tuple -> seed from the lesson definition
         const fresh = this.freshSession(scope)
         this.sessions.set(key,
             fresh)

@@ -10,11 +10,11 @@ import {
  * Stored in `coding_problems.difficulty`.
  */
 export enum CodingDifficulty {
-    /** Beginner-friendly problem — basic data structures / straightforward logic. */
+    /** Beginner-friendly problem -- basic data structures / straightforward logic. */
     Easy = "easy",
-    /** Intermediate problem — non-trivial algorithm or edge-case handling. */
+    /** Intermediate problem -- non-trivial algorithm or edge-case handling. */
     Medium = "medium",
-    /** Advanced problem — optimal algorithm / tight complexity bounds required. */
+    /** Advanced problem -- optimal algorithm / tight complexity bounds required. */
     Hard = "hard",
 }
 

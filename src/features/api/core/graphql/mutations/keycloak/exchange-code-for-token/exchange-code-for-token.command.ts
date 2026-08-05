@@ -2,7 +2,7 @@ import type {
     ExchangeCodeForTokenRequest,
 } from "./graphql-types"
 
-/** Params for the OIDC code exchange — no authenticated user yet, only the callback payload. */
+/** Params for the OIDC code exchange -- no authenticated user yet, only the callback payload. */
 export interface ExchangeCodeForTokenCommandParams {
     request: ExchangeCodeForTokenRequest
 }

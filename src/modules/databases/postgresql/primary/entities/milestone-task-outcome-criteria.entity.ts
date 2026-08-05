@@ -20,10 +20,10 @@ import {
 /**
  * SCHEMA V2 OUTCOME criterion of a milestone task (one yes/no item grading observable behaviour).
  *
- * Mirrors the Challenge V2 design (criterion-first, normalized — no jsonb): the agnostic fields
+ * Mirrors the Challenge V2 design (criterion-first, normalized -- no jsonb): the agnostic fields
  * (`orderIndex`, `score`, `critical`) live here; the per-language prose lives in
  * {@link MilestoneTaskOutcomeCriteriaLangEntity}. Outcome prose is agnostic, so a single
- * `lang = "agnostic"` row is stored. English-only grading rubric — INTERNAL, NOT in GraphQL.
+ * `lang = "agnostic"` row is stored. English-only grading rubric -- INTERNAL, NOT in GraphQL.
  */
 export class MilestoneTaskOutcomeCriteriaEntity extends UuidAbstractEntity {
     /**
@@ -91,7 +91,7 @@ export class MilestoneTaskOutcomeCriteriaEntity extends UuidAbstractEntity {
         milestoneTaskId: string
 
     /**
-     * Per-language prose for this criterion (agnostic outcome → a single `agnostic` row).
+     * Per-language prose for this criterion (agnostic outcome -> a single `agnostic` row).
      */
     @OneToMany(
         () => MilestoneTaskOutcomeCriteriaLangEntity,

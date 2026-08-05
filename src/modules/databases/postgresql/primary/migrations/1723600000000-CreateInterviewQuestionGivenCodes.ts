@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Creates `interview_question_given_codes` — the per-programming-language
+ * Creates `interview_question_given_codes` -- the per-programming-language
  * variant table for a mock-interview question's GIVEN code (technical
  * `debug`/`review`/`optimize` only), replacing the single
  * `interview_questions.given_code`/`given_lang` columns. Mirrors
@@ -13,9 +13,9 @@ import {
  * per-language).
  *
  * Backfills the ONE existing authored row (the `correlationId` NestJS
- * singleton-race debug question) — its TypeScript variant (fence-stripped;
+ * singleton-race debug question) -- its TypeScript variant (fence-stripped;
  * the raw column had a leaked ```` ```typescript ```` wrapper) plus newly
- * authored Java/Csharp/Go variants of the SAME conceptual bug — before
+ * authored Java/Csharp/Go variants of the SAME conceptual bug -- before
  * dropping the old columns.
  *
  * The repo runs schema via TypeORM `synchronize` in dev; this migration
@@ -50,7 +50,7 @@ export class CreateInterviewQuestionGivenCodes1723600000000 implements Migration
         `)
 
         // backfill the one existing authored question (correlationId singleton-race
-        // debug question) — TypeScript (fence-stripped) + 3 newly authored variants
+        // debug question) -- TypeScript (fence-stripped) + 3 newly authored variants
         // of the SAME conceptual bug, each with its own idiomatic concurrency model
         // + fix primitive
         await queryRunner.query(`
@@ -70,7 +70,7 @@ export class CreateInterviewQuestionGivenCodes1723600000000 implements Migration
             ('java', 1, $$// RequestContextHolder.java
 @Component
 public class RequestContextHolder {
-    private String correlationId;   // ← lưu id của request hiện tại, field SHARE giữa mọi thread
+    private String correlationId;   // ← stores the current request id; SHARED field across all threads
 
     public void set(String id) { this.correlationId = id; }
     public String get() { return this.correlationId; }
@@ -104,7 +104,7 @@ public class OrderService {
 
     public void placeOrder(PlaceOrderDto dto) throws InterruptedException {
         logger.info("placing order", Map.of("correlationId", ctx.get()));
-        doWork();                                    // ← thread khác có thể chen ngang giữa 2 log
+        doWork();                                    // ← another thread may interleave between the two logs
         logger.info("order placed", Map.of("correlationId", ctx.get()));
     }
 }$$, '1cbb517e-72c5-4123-822c-0ab179a82154')
@@ -117,14 +117,14 @@ public class OrderService {
             ('csharp', 2, $$// RequestContextService.cs
 public class RequestContextService
 {
-    private string _correlationId;   // ← lưu id của request hiện tại, field SHARE giữa mọi request
+    private string _correlationId;   // ← stores the current request id; SHARED field across all requests
 
     public void Set(string id) => _correlationId = id;
     public string Get() => _correlationId;
 }
 
-// Startup.cs (đăng ký DI)
-services.AddSingleton<RequestContextService>();   // ← singleton: 1 instance dùng chung toàn app
+// Startup.cs (DI registration)
+services.AddSingleton<RequestContextService>();   // ← singleton: one instance shared app-wide
 
 // CorrelationMiddleware.cs
 public class CorrelationMiddleware
@@ -160,7 +160,7 @@ public class OrderService
     public async Task PlaceOrderAsync(PlaceOrderDto dto)
     {
         _logger.Info("placing order", new { correlationId = _ctx.Get() });
-        await DoWorkAsync();                          // ← await: nhường luồng cho request khác
+        await DoWorkAsync();                          // ← await: yields the thread to other requests
         _logger.Info("order placed", new { correlationId = _ctx.Get() });
     }
 }$$, '1cbb517e-72c5-4123-822c-0ab179a82154')
@@ -172,10 +172,10 @@ public class OrderService
             VALUES
             ('go', 3, $$// requestcontext.go
 type RequestContext struct {
-	CorrelationID string   // ← field SHARE giữa mọi goroutine xử lý request
+	CorrelationID string   // ← field SHARED across all request-handling goroutines
 }
 
-var ctx = &RequestContext{}   // ← 1 instance dùng chung toàn app (giống singleton)
+var ctx = &RequestContext{}   // ← one instance shared app-wide (like a singleton)
 
 // middleware.go
 func CorrelationMiddleware(next http.Handler) http.Handler {
@@ -184,7 +184,7 @@ func CorrelationMiddleware(next http.Handler) http.Handler {
 		if id == "" {
 			id = uuid.NewString()
 		}
-		ctx.CorrelationID = id   // ← ghi thẳng vào field share, không qua context.Context
+		ctx.CorrelationID = id   // ← writes directly to shared field, bypassing context.Context
 		next.ServeHTTP(w, r)
 	})
 }
@@ -192,7 +192,7 @@ func CorrelationMiddleware(next http.Handler) http.Handler {
 // order_service.go
 func PlaceOrder(dto PlaceOrderDto) error {
 	logger.Info("placing order", "correlationId", ctx.CorrelationID)
-	if err := doWork(); err != nil {   // ← goroutine khác có thể ghi đè ctx.CorrelationID giữa lúc này
+	if err := doWork(); err != nil {   // ← another goroutine may overwrite ctx.CorrelationID here
 		return err
 	}
 	logger.Info("order placed", "correlationId", ctx.CorrelationID)

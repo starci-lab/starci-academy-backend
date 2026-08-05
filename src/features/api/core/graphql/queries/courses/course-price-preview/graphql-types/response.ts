@@ -19,7 +19,7 @@ import {
     description: "One offered installment term (months + markup + total + per-month) for a course.",
 })
 /**
- * One offered installment ("trả góp") term for this course's discounted price —
+ * One offered installment term for this course's discounted price --
  * the payment modal renders these as the 3/6/12-month choices with each term's
  * per-month + total (markup already applied). Empty for a free course.
  */
@@ -199,7 +199,7 @@ export class CoursePricePreviewData {
     @Field(
         () => [InstallmentOptionItem],
         {
-            description: "Offered installment (trả góp) terms for the discounted VND price — empty for a free course or USD-only checkout.",
+            description: "Offered installment terms for the discounted VND price — empty for a free course or USD-only checkout.",
         },
     )
         installmentOptions: Array<InstallmentOptionItem>

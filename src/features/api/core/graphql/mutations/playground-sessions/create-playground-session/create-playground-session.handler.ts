@@ -43,7 +43,7 @@ import type {
 /**
  * Creates a fresh {@link PlaygroundSessionEntity} for the learner: gates on
  * having at least one active enrollment (reuses
- * {@link AiEntitlementService.hasAnyActiveEnrollment} — the "enroll OR pay
+ * {@link AiEntitlementService.hasAnyActiveEnrollment} -- the "enroll OR pay
  * unlocks higher tiers" rule, applied here as "enroll unlocks playgrounds"),
  * then mints a short pairing code the CLI agent uses to join over the
  * `/playground_byom` Socket.IO namespace.
@@ -107,9 +107,9 @@ export class CreatePlaygroundSessionHandler
             })
         }
         const resolvedMode = mode ?? PlaygroundSessionMode.Guided
-        // UUID pairing code: 122 bits of entropy → unguessable (no brute-force), and
+        // UUID pairing code: 122 bits of entropy -> unguessable (no brute-force), and
         // collision-free (the `@Unique` constraint is a belt-and-braces safety). The
-        // learner copies the whole `npx … <code>` command, so length/typeability is a
+        // learner copies the whole `npx ... <code>` command, so length/typeability is a
         // non-issue. Server-side hardening (rate-limit, 30-min expiry, single-agent,
         // owner-only command:run) still applies in the gateway.
         const pairingCode = randomUUID()
@@ -131,8 +131,8 @@ export class CreatePlaygroundSessionHandler
         )
         // project each returned step's title/body to the request locale (and
         // strip its raw translation rows) so a freshly-created session carries
-        // localized steps, not raw-English — mirrors the live `playground`
-        // query. Done after `save` (the session→playground relation has no
+        // localized steps, not raw-English -- mirrors the live `playground`
+        // query. Done after `save` (the session->playground relation has no
         // TypeORM cascade) so the mutated steps never round-trip to Postgres.
         const resolvedLocale = locale ?? Locale.En
         for (const step of playground.steps ?? []) {
@@ -156,7 +156,7 @@ export class CreatePlaygroundSessionHandler
     /**
      * Server-side redaction: when `mode` is
      * {@link PlaygroundSessionMode.Free}, every step's `commandHint` is
-     * nulled out here so the GraphQL response never carries the hint value —
+     * nulled out here so the GraphQL response never carries the hint value --
      * NOT merely hidden by the FE.
      */
     private redactStepsForMode(

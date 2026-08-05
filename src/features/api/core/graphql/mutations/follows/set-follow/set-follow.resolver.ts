@@ -79,7 +79,7 @@ export class SetFollowResolver {
         const followerId = user.id
         const followingId = request.userId
 
-        // can't follow yourself — silently no-op so the client needn't special-case it
+        // can't follow yourself -- silently no-op so the client needn't special-case it
         if (followerId === followingId) {
             return {
             } as SetFollowResponse
@@ -105,7 +105,7 @@ export class SetFollowResolver {
                 )
 
                 if (request.follow) {
-                    // already following → nothing to do (keeps the toggle idempotent)
+                    // already following -> nothing to do (keeps the toggle idempotent)
                     if (existing) {
                         return
                     }
@@ -154,7 +154,7 @@ export class SetFollowResolver {
                     return
                 }
 
-                // unfollow → drop the edge when present (the activity row stays, append-only)
+                // unfollow -> drop the edge when present (the activity row stays, append-only)
                 if (existing) {
                     await entityManager.remove(existing)
                 }

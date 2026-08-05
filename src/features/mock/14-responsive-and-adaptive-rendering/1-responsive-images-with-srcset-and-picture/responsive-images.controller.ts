@@ -40,7 +40,7 @@ const CATALOG: ReadonlyArray<ResponsiveImageCatalogRow> = [
 /**
  * Builds the nine real, loadable image URLs for one product. picsum serves
  * `.jpg`/`.webp`; the `.avif` source 404s and the browser falls through the
- * `<picture>` list to webp/jpg — while every URL still carries the keyword
+ * `<picture>` list to webp/jpg -- while every URL still carries the keyword
  * fragment the lesson spec asserts on.
  */
 const buildProduct = (

@@ -38,7 +38,7 @@ import {
  * Public profile query: a given user's coding-practice status (solved / attempted
  * / revealed problem ids + total points). Mirrors `myCodingProgress` but reads for
  * the user named in the route (id from args), so a profile can show a coding tab.
- * Optional auth — anonymous viewers may call it; a locked profile is withheld from
+ * Optional auth -- anonymous viewers may call it; a locked profile is withheld from
  * non-owners by {@link GraphQLProfileVisibilityGuard}.
  */
 export class UserCodingProgressResolver {

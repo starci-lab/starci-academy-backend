@@ -22,7 +22,7 @@ const buildUsers = (count: number): Array<MockUser> =>
         },
     )
 
-/** Lesson 0 — useQuery + cache lifecycle: fixed list (names match the Playwright spec). */
+/** Lesson 0 -- useQuery + cache lifecycle: fixed list (names match the Playwright spec). */
 const useQueryAndCacheLifecycle: MockDefinition = {
     seedUsers: [
         {
@@ -43,7 +43,7 @@ const useQueryAndCacheLifecycle: MockDefinition = {
     ],
 }
 
-/** Lesson 1 — mutations + invalidation: small list the learner adds/removes from. */
+/** Lesson 1 -- mutations + invalidation: small list the learner adds/removes from. */
 const mutationsAndInvalidationGraph: MockDefinition = {
     seedUsers: [
         {
@@ -55,7 +55,7 @@ const mutationsAndInvalidationGraph: MockDefinition = {
     ],
 }
 
-/** Lesson 2 — optimistic updates + rollback: needs user #1 to rename + roll back. */
+/** Lesson 2 -- optimistic updates + rollback: needs user #1 to rename + roll back. */
 const optimisticUpdatesWithRollback: MockDefinition = {
     seedUsers: [
         {
@@ -70,7 +70,7 @@ const optimisticUpdatesWithRollback: MockDefinition = {
     ],
 }
 
-/** Lesson 3 — infinite query + pagination: 25 rows so "load more" pages multiple times. */
+/** Lesson 3 -- infinite query + pagination: 25 rows so "load more" pages multiple times. */
 const infiniteQueryAndPagination: MockDefinition = {
     seedUsers: buildUsers(25),
 }

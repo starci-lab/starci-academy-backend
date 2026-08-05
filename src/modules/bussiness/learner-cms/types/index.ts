@@ -1,5 +1,5 @@
 /**
- * Shared types for the learner self-management CMS read services — plain
+ * Shared types for the learner self-management CMS read services -- plain
  * paginated lists keyed by the current user (the LIST exception, so no CQRS
  * projection). Each service returns a typed `{ items, total }` view that the
  * GraphQL resolvers map 1:1 onto their response object types.
@@ -16,7 +16,7 @@ export interface ListLearnerCmsParams {
 }
 
 /**
- * A page of rows plus the unfiltered total for the user — the common envelope
+ * A page of rows plus the unfiltered total for the user -- the common envelope
  * every learner-CMS read returns so resolvers can expose `{ items, total }`.
  */
 export interface PaginatedLearnerCmsResult<TItem> {
@@ -28,8 +28,8 @@ export interface PaginatedLearnerCmsResult<TItem> {
 
 /**
  * One of the user's challenge-submission attempts, flattened with its challenge
- * title and the course it belongs to (resolved via challenge → content → module
- * → course). The course id is the raw UUID; the resolver wraps it into the
+ * title and the course it belongs to (resolved via challenge -> content -> module
+ * -> course). The course id is the raw UUID; the resolver wraps it into the
  * opaque global id the FE feeds to `resolveRoute`.
  */
 export interface ChallengeSubmissionAttemptResult {
@@ -41,7 +41,7 @@ export interface ChallengeSubmissionAttemptResult {
     courseTitle: string
     /** Raw UUID of the owning course (resolver turns it into the global id). */
     courseId: string
-    /** Verdict bucket — "passed" | "failed" | "pending". */
+    /** Verdict bucket -- "passed" | "failed" | "pending". */
     status: string
     /** Score achieved in this attempt (0 when not yet graded). */
     score: number
@@ -55,8 +55,8 @@ export interface ChallengeSubmissionAttemptResult {
 
 /**
  * One of the user's milestone-task review attempts, flattened with its task,
- * milestone, and course titles (resolved via attempt → user_milestone_task →
- * milestone_task → milestone, course via the enrollment).
+ * milestone, and course titles (resolved via attempt -> user_milestone_task ->
+ * milestone_task -> milestone, course via the enrollment).
  */
 export interface MilestoneTaskAttemptResult {
     /** Attempt row id (primary key of `user_milestone_task_attempts`). */
@@ -83,7 +83,7 @@ export interface MilestoneTaskAttemptResult {
  * same shape so the resolver can return a single list.
  */
 export interface LearningFeedbackResult {
-    /** Source bucket — "challenge" | "task". */
+    /** Source bucket -- "challenge" | "task". */
     source: string
     /** Short human title (challenge / task title). */
     title: string
@@ -145,7 +145,7 @@ export interface MilestoneTaskAttemptRow {
 
 /** Raw merged feedback row across both sources (snake_case SQL columns). */
 export interface LearningFeedbackRow {
-    /** Source bucket — "challenge" | "task". */
+    /** Source bucket -- "challenge" | "task". */
     source: string
     /** Short human title. */
     title: string

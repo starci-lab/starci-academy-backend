@@ -42,7 +42,7 @@ import {
  *
  * Partial update: only the keys present in the request are written. An explicit
  * `null` clears the column; an omitted key leaves it untouched. The avatar value
- * is the public URL produced by the avatar-upload REST endpoint — the binary is
+ * is the public URL produced by the avatar-upload REST endpoint -- the binary is
  * handled there, not here. Returns the refreshed user so the client can update
  * its cache without a follow-up `me` round-trip.
  */
@@ -73,7 +73,7 @@ export class UpdateProfileResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<UserEntity> {
-        // collect only the columns the client actually sent — `undefined` means
+        // collect only the columns the client actually sent -- `undefined` means
         // "leave as-is", so we must not include those keys in the update payload
         const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "profileLocked" | "openToWork" | "emailDigestEnabled" | "featuredAchievementSlug" | "roleTitle" | "location" | "workMode" | "linkedinUrl" | "websiteUrl" | "accentColor" | "backgroundEffect">> = {
         }
@@ -168,7 +168,7 @@ export class UpdateProfileResolver {
             )
         }
 
-        // the lock flag is Redis-cached for the visibility guard → drop it on any
+        // the lock flag is Redis-cached for the visibility guard -> drop it on any
         // change so a freshly toggled lock takes effect immediately (del-on-write)
         if (request.profileLocked !== undefined) {
             await this.userService.invalidateProfileLocked(user.id)

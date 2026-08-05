@@ -27,7 +27,7 @@ export interface ParseFlashcardDeckManyParams {
     courseId: string
 }
 
-/** One raw card tag item parsed from a card's `# tags` block (`## N` → `### value`). */
+/** One raw card tag item parsed from a card's `# tags` block (`## N` -> `### value`). */
 export interface RawFlashcardCardTag {
     /** The tag value text from `### value`. */
     value?: string
@@ -41,7 +41,7 @@ export interface RawRef {
     value?: string
 }
 
-/** A deck META document (`<deck>/{en,vi}.md`) — cards live in `cards/` folders. */
+/** A deck META document (`<deck>/{en,vi}.md`) -- cards live in `cards/` folders. */
 export interface RawFlashcardDeck {
     /** Deck title. */
     title?: string
@@ -49,7 +49,7 @@ export interface RawFlashcardDeck {
     description?: string
     /** Deck difficulty tier. */
     difficulty?: ChallengeDifficulty
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    /** Index signature so the markdown->JSON extractor generic is satisfied. */
     [key: string]: unknown
 }
 
@@ -67,6 +67,6 @@ export interface RawFlashcardCard {
     explanation?: string
     /** Whether this card is premium (`# isPremium`), false by default. */
     isPremium?: boolean
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    /** Index signature so the markdown->JSON extractor generic is satisfied. */
     [key: string]: unknown
 }

@@ -29,7 +29,7 @@ import {
 @CommandHandler(UpdateCvBlocksCommand)
 @Injectable()
 /**
- * Handler for `updateCvBlocks` — partial autosave of a CV document. Ownership
+ * Handler for `updateCvBlocks` -- partial autosave of a CV document. Ownership
  * is enforced (the row must belong to the caller); missing/foreign rows 404.
  */
 export class UpdateCvBlocksHandler

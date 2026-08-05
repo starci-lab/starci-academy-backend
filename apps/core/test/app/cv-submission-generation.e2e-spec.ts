@@ -100,7 +100,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the CV-generation row lifecycle — `generateCv` / `uploadCv` /
+ * e2e for the CV-generation row lifecycle -- `generateCv` / `uploadCv` /
  * `reviseCv`, the "submitted" half of the CV-submission state machine
  * (`cv_blocks` "draft" documents are covered separately in
  * `cv-submission-blocks.e2e-spec.ts`).
@@ -109,31 +109,31 @@ const POSTGRESQL_PRIMARY = "primary"
  * mutations only create the `Pending` `cv_generations` row + the tracked
  * `jobs` row and hand off to a BullMQ worker (`generate-cv.worker.ts` /
  * `score-uploaded-cv.worker.ts`) that never runs in this focused test module.
- * So this spec proves the row/state UP TO that hand-off — the actual
- * generation (Pending → Done, `structuredData`/`score` filled by a real model
+ * So this spec proves the row/state UP TO that hand-off -- the actual
+ * generation (Pending -> Done, `structuredData`/`score` filled by a real model
  * call) is out of scope here and belongs to a `*.harness-spec.ts` instead
  * (`.claude/canon/be/enforce/authoring/testing.md` §3).
  *
  * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring, every
- * resolver/service/handler in the upload/generate/revise chain, AND — unlike
+ * resolver/service/handler in the upload/generate/revise chain, AND -- unlike
  * a unit-level unit spec (`generate-cv.handler.spec.ts` etc., which mock the
- * enqueue services wholesale) — the REAL `EnqueueGenerateCvJobService` /
+ * enqueue services wholesale) -- the REAL `EnqueueGenerateCvJobService` /
  * `EnqueueScoreUploadedCvJobService` / `JobActionService` / `DayjsService` /
  * `SuperJSON` provider, so the `cv_generations` row AND the `jobs` row are
  * both genuinely written to Postgres, exercising the exact same DB-write path
  * production takes.
  *
  * MOCKED (genuinely external to this process):
- *  - The two BullMQ `Queue` tokens (`generate-cv` / `score-uploaded-cv`) —
+ *  - The two BullMQ `Queue` tokens (`generate-cv` / `score-uploaded-cv`) --
  *    no Redis broker in this harness; the enqueue services already fire the
  *    `Queue.add` call fire-and-forget (`void sleep().then(...)`, never
  *    awaited) specifically so a broker miss cannot block the caller, so this
  *    spec asserts on the awaited DB writes instead of the queue call.
- *  - `EventEmitterService` — real class fans out through a NATS producer that
+ *  - `EventEmitterService` -- real class fans out through a NATS producer that
  *    needs a live broker connection (matches `notifications.e2e-spec.ts` /
  *    `follows.e2e-spec.ts`'s rationale for the same class); `JobActionService`
  *    needs it to construct but `createJob` itself never calls `emit`.
- *  - `GradingLaneValidationService` — real class validates a model/provider
+ *  - `GradingLaneValidationService` -- real class validates a model/provider
  *    pick against the AI entitlement + model catalog; every test here omits
  *    the pick (the common "let the balancer choose" case), so it is stubbed
  *    to the same empty-lane shortcut the real class already takes in that
@@ -171,7 +171,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
             on: jest.fn(),
             off: jest.fn(),
         }
-        // no live Redis in this harness — both enqueue services fire-and-forget
+        // no live Redis in this harness -- both enqueue services fire-and-forget
         // `Queue.add`, so a stub is enough for the awaited DB-write path
         const generateCvQueueMock = {
             add: jest.fn().mockResolvedValue(undefined),
@@ -277,7 +277,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                     ReviseCvResolver,
                     ReviseCvService,
                     ReviseCvHandler,
-                    // REAL — proves the Pending cv_generations row + the tracked jobs
+                    // REAL -- proves the Pending cv_generations row + the tracked jobs
                     // row are genuinely written, not just "the mock was called"
                     EnqueueGenerateCvJobService,
                     EnqueueScoreUploadedCvJobService,
@@ -356,7 +356,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                         expect(body.data.cvGenerationId).toBeDefined()
                         expect(body.data.jobId).toBeDefined()
 
-                        // the unified cv_generations row is REAL — source=uploaded,
+                        // the unified cv_generations row is REAL -- source=uploaded,
                         // status=Pending (the worker that flips it to Done never runs here)
                         const generation = await entityManager.findOneOrFail(
                             UserCvGenerationEntity,
@@ -374,7 +374,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                         expect(generation.label).toBe("My uploaded CV")
                         expect(generation.targetRole).toBe("Backend Engineer")
 
-                        // the tracked jobs row is REAL — proves EnqueueScoreUploadedCvJobService
+                        // the tracked jobs row is REAL -- proves EnqueueScoreUploadedCvJobService
                         // actually ran its DB write, not just that it was called
                         const job = await entityManager.findOneOrFail(JobEntity,
                             {
@@ -434,7 +434,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                         expect(job.userId).toBe(currentUser.id)
                         expect(job.status).toBe(JobStatus.Queued)
                         expect(job.actionType).toBe(ActionType.ProcessCvSubmission)
-                        // gather → compose → render → score → complete
+                        // gather -> compose -> render -> score -> complete
                         expect(job.maxSteps).toBe(5)
                     })
             })
@@ -511,7 +511,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                         expect(body.error).toBe("CV_GENERATION_NOT_FOUND_EXCEPTION")
                         expect(body.data).toBeNull()
 
-                        // only the seeded source row exists — the enqueue path never ran
+                        // only the seeded source row exists -- the enqueue path never ran
                         const count = await entityManager.count(UserCvGenerationEntity)
                         expect(count).toBe(1)
                         expect(generateCvQueueMock.add).not.toHaveBeenCalled()

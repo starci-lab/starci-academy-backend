@@ -13,5 +13,5 @@ import {
         UserProfileResolver,
     ],
 })
-/** Feature-module boundary for the `userProfile` query — wires its resolver so the users group can mount this profile tab independently. */
+/** Feature-module boundary for the `userProfile` query -- wires its resolver so the users group can mount this profile tab independently. */
 export class UserProfileSingleQueryModule extends ConfigurableModuleClass {}

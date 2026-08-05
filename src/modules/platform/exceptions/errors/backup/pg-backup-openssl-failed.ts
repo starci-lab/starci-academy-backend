@@ -11,7 +11,7 @@ export interface PgBackupOpenSslFailedExceptionMetadata extends AbstractExceptio
     stderr?: string
 }
 
-/** Stops the backup pipeline after encryption fails — plaintext dumps stay off S3. */
+/** Stops the backup pipeline after encryption fails -- plaintext dumps stay off S3. */
 export class PgBackupOpenSslFailedException extends AbstractException {
     constructor(
         {

@@ -27,7 +27,7 @@ import {
 
 @Resolver()
 /**
- * Public job posting detail page — no auth required, mirrors
+ * Public job posting detail page -- no auth required, mirrors
  * `headhuntingCompany` (read-only public directory data).
  */
 export class JobPostingResolver {

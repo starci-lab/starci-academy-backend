@@ -30,7 +30,7 @@ import type {
     RetrieveWithVectorStoreParams,
 } from "./types"
 
-/** Default per-criterion retrieval depth — each criterion pulls its own top matches. */
+/** Default per-criterion retrieval depth -- each criterion pulls its own top matches. */
 const DEFAULT_PER_CRITERION_TOP_K = 6
 
 @Injectable()
@@ -63,7 +63,7 @@ export class GradingRetrievalService {
      * embedding model for the given `{ model, provider }` (kept fixed so the index +
      * query dimensions always match), then delegates to {@link retrieveSourceExcerpt}.
      * The grading workers (challenge git / google-docs + milestone-task review) all
-     * call THIS instead of re-implementing the split → embed → retrieve dance.
+     * call THIS instead of re-implementing the split -> embed -> retrieve dance.
      *
      * @param params - Run key, raw source documents, criteria, split + embedding config, budget.
      * @returns The excerpt plus retrieval stats (truncated / degraded / chunk count).
@@ -128,7 +128,7 @@ export class GradingRetrievalService {
             perCriterionTopK = DEFAULT_PER_CRITERION_TOP_K,
         } = params
 
-        // nothing to retrieve from → empty excerpt (the grader renders an "(empty)" placeholder)
+        // nothing to retrieve from -> empty excerpt (the grader renders an "(empty)" placeholder)
         if (chunks.length === 0) {
             return {
                 excerpt: "",
@@ -145,7 +145,7 @@ export class GradingRetrievalService {
 
         let result: RetrieveGradingSourceResult
         if (queries.length === 0) {
-            // no criteria to steer retrieval → feed budget-bounded raw chunks, no vector store needed
+            // no criteria to steer retrieval -> feed budget-bounded raw chunks, no vector store needed
             const assembled = this.assembleWithinBudget(
                 chunks,
                 maxChars,
@@ -263,14 +263,14 @@ export class GradingRetrievalService {
                 degraded: true,
             }
         } finally {
-            // never leak the per-run collection — drop it once the excerpt is in memory
+            // never leak the per-run collection -- drop it once the excerpt is in memory
             await this.safeDeleteCollection(collectionName)
         }
     }
 
     /**
      * Retrieve top-k chunks per criterion and merge them round-robin (rank-0 of every criterion
-     * first, then rank-1, …) so every criterion contributes evidence before the char budget is
+     * first, then rank-1, ...) so every criterion contributes evidence before the char budget is
      * spent. Duplicates (a chunk matched by multiple criteria) are dropped.
      *
      * @param vectorStore - The per-run vector store to search.
@@ -283,7 +283,7 @@ export class GradingRetrievalService {
         queries: Array<string>,
         topK: number,
     ): Promise<Array<Document>> {
-        // criterion searches are independent reads → run them concurrently
+        // criterion searches are independent reads -> run them concurrently
         const perCriterionHits = await Promise.all(
             queries.map((query) => vectorStore.similaritySearch(
                 query,
@@ -398,7 +398,7 @@ export class GradingRetrievalService {
         try {
             await this.qdrantClient.deleteCollection(collectionName)
         } catch {
-            // collection may not exist yet (first grade) or already be gone — both are fine
+            // collection may not exist yet (first grade) or already be gone -- both are fine
         }
     }
 }

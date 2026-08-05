@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -98,7 +98,7 @@ describe("StartTrialHandler",
 
         it("throws CourseNotFound when the course does not exist (no enrollment write)",
             async () => {
-                // first findOne (the course lookup) resolves null → course missing
+                // first findOne (the course lookup) resolves null -> course missing
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 await expect(
@@ -112,7 +112,7 @@ describe("StartTrialHandler",
                     ),
                 ).rejects.toBeInstanceOf(CourseNotFoundException)
 
-                // bailed after the course lookup — never created or saved an enrollment
+                // bailed after the course lookup -- never created or saved an enrollment
                 expect(entityManager.create).not.toHaveBeenCalled()
                 expect(entityManager.save).not.toHaveBeenCalled()
             })
@@ -126,7 +126,7 @@ describe("StartTrialHandler",
                         currentPhase: PricingPhase.Pioneer,
                     },
                 } as CourseEntity)
-                // 2) no existing enrollment → fresh trial path
+                // 2) no existing enrollment -> fresh trial path
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 const result = await handler.execute(
@@ -162,7 +162,7 @@ describe("StartTrialHandler",
 
         it("defaults the pricing phase to EarlyBird when course metadata is absent",
             async () => {
-                // course exists but carries no metadata → phase falls back to EarlyBird
+                // course exists but carries no metadata -> phase falls back to EarlyBird
                 entityManager.findOne.mockResolvedValueOnce({
                     id: courseId,
                 } as CourseEntity)
@@ -210,7 +210,7 @@ describe("StartTrialHandler",
                     }),
                 )
 
-                // no new row is built or saved — the existing flag is echoed back
+                // no new row is built or saved -- the existing flag is echoed back
                 expect(entityManager.create).not.toHaveBeenCalled()
                 expect(entityManager.save).not.toHaveBeenCalled()
                 expect(result).toEqual({
@@ -227,7 +227,7 @@ describe("StartTrialHandler",
                         currentPhase: PricingPhase.EarlyBird,
                     },
                 } as CourseEntity)
-                // 2) no enrollment at first read → we take the create path
+                // 2) no enrollment at first read -> we take the create path
                 entityManager.findOne.mockResolvedValueOnce(null)
                 // save blows up on the UQ_enrollments_user_course race
                 entityManager.save.mockRejectedValueOnce(

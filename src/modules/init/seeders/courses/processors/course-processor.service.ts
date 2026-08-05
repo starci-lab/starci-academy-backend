@@ -97,7 +97,7 @@ export class CourseProcessorService {
             if (deletedCourseIds.includes(courseId)) {
                 continue
             }
-            // seed the operational metadata (current pricing phase) once — never clobber an
+            // seed the operational metadata (current pricing phase) once -- never clobber an
             // existing row, since the phase advances over time as the course fills up.
             await this.seedCourseMetadataIfMissing(courseId)
             await this.moduleProcessorService.process({
@@ -127,8 +127,8 @@ export class CourseProcessorService {
 
     /**
      * Create the course's {@link CourseMetadataEntity} with the configured default
-     * pricing phase if (and only if) it does not exist yet. An existing row — whose
-     * `currentPhase` may have advanced as the course filled — is left untouched.
+     * pricing phase if (and only if) it does not exist yet. An existing row -- whose
+     * `currentPhase` may have advanced as the course filled -- is left untouched.
      *
      * @param courseId - The course to seed metadata for.
      */
@@ -169,7 +169,7 @@ export class CourseProcessorService {
      * Propagates each premium module's hard `isPremium` flag down to all of its
      * contents. Only ever sets `isPremium = true`, so a content's own premium flag
      * (seeded from its mount) is preserved (logical OR). The module flag is the
-     * hard, per-module lock — independent of tier (a display badge) and of
+     * hard, per-module lock -- independent of tier (a display badge) and of
      * `sortIndex` (display ordering only).
      *
      * @param courseId - The course whose contents to gate.

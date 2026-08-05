@@ -73,7 +73,7 @@ export class SystemConfigAiAuto {
 @ObjectType({
     description: "AI quota section from mounted `systemConfig.ai`.",
 })
-/** AI section of mounted system config — currently just the free Auto lane. */
+/** AI section of mounted system config -- currently just the free Auto lane. */
 export class SystemConfigAi {
     @Field(
         () => SystemConfigAiAuto,
@@ -88,7 +88,7 @@ export class SystemConfigAi {
     description: "Payload matching `systemConfig` in `.mount/config/app.json`.",
 })
 /**
- * Public subset of mounted `systemConfig` — pass thresholds plus Auto-lane
+ * Public subset of mounted `systemConfig` -- pass thresholds plus Auto-lane
  * quota caps the client needs without reading the mount filesystem itself.
  */
 export class SystemConfigData {

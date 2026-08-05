@@ -29,7 +29,7 @@ export interface CourseLearningHistoryRow {
 
 /**
  * Decoded cursor for the chronological per-course history. Newest-first ordering
- * is absolute (created_at DESC, id DESC), so a plain row offset is enough — no
+ * is absolute (created_at DESC, id DESC), so a plain row offset is enough -- no
  * decay reference is pinned the way the score-ranked home feed does.
  */
 export interface DecodedCourseLearningHistoryCursor {

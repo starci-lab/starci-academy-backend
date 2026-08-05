@@ -182,7 +182,7 @@ export class ConsultantEntity extends UuidAbstractEntity {
     /**
      * Whether the requesting viewer's CV score meets {@link CV_SCORE_UNLOCK_THRESHOLD},
      * unlocking `email` / `phoneNumber` / `zaloNumber` / `linkedinUrl` below.
-     * Not a database column — stamped in-request by
+     * Not a database column -- stamped in-request by
      * `ConsultantContactGateService` on every consultant returned from the
      * `consultant(s)` / `headhuntingCompany(ies)` queries. Anonymous viewers
      * always resolve to `false`.
@@ -195,8 +195,8 @@ export class ConsultantEntity extends UuidAbstractEntity {
 
     /**
      * The CV score threshold contact unlock is gated on, echoed back so the
-     * client can render "Cần điểm CV ≥ X" without hardcoding the number.
-     * Not a database column — stamped alongside `contactUnlocked`.
+     * client can render "Requires CV score >= X" without hardcoding the number.
+     * Not a database column -- stamped alongside `contactUnlocked`.
      */
     @Field(() => Int,
         {

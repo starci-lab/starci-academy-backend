@@ -24,13 +24,13 @@ import type {
 @Injectable()
 /**
  * CDC consumer that keeps `user_mock_interview_course_stats_projections`
- * fresh — each new graded `mock_interview_attempts` row moves the
+ * fresh -- each new graded `mock_interview_attempts` row moves the
  * enrollment's course stats. The row carries `enrollment_id` directly, no
  * join needed. Connection + per-message safety are owned by
  * {@link AbstractProjectionListener}.
  */
 export class UserMockInterviewCourseStatsProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-mock-interview-course-stats-projection"
 
     /** A new graded attempt row moves the enrollment's mock-interview course stats. */
@@ -52,7 +52,7 @@ export class UserMockInterviewCourseStatsProjectionListener extends AbstractProj
      * A `mock_interview_attempts` row carries `enrollment_id` directly.
      *
      * @param message - {@link ProjectionCdcMessage}
-     * @returns the affected enrollment id (0–1).
+     * @returns the affected enrollment id (0-1).
      */
     protected deriveTargets(
         {

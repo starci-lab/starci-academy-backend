@@ -15,7 +15,7 @@ import {
     Type,
 } from "class-transformer"
 
-/** Upper bound on the results array accepted in one sync call — mirrors `completeFlashcardQuizSession`'s MAX_ANSWERS ceiling. */
+/** Upper bound on the results array accepted in one sync call -- mirrors `completeFlashcardQuizSession`'s MAX_ANSWERS ceiling. */
 const MAX_RESULTS = 10
 
 @InputType({
@@ -23,7 +23,7 @@ const MAX_RESULTS = 10
 })
 /**
  * One card's outcome within the IN-FLIGHT session, as reported by the
- * client — the exact shape `completeFlashcardQuizSession`'s
+ * client -- the exact shape `completeFlashcardQuizSession`'s
  * `QuizSessionAnswerRequest` already accepts, reused here (not a parallel
  * duplicate type) so the eventual complete call re-sends this same
  * per-card breakdown.
@@ -65,7 +65,7 @@ export class FlashcardQuizSessionResultRequest {
 })
 /**
  * Periodically syncs an IN-FLIGHT flashcard quick-quiz session's per-card
- * results + position to the server — "resume flashcard quiz session"
+ * results + position to the server -- "resume flashcard quiz session"
  * (2026-07-08), so a learner who navigates away mid-quiz (tab close,
  * refresh, network drop) can pick their draw back up via
  * `myInProgressFlashcardQuizSession` instead of losing progress and being

@@ -9,9 +9,9 @@ import type {
  * extension. Used by the gather step in `Revise` mode so the compose step can
  * feed the LLM the learner's existing CV alongside their verified achievements.
  *
- * - `.pdf` → `pdf-parse`
- * - `.docx` → `mammoth` (raw text)
- * - anything else → treated as UTF-8 text
+ * - `.pdf` -> `pdf-parse`
+ * - `.docx` -> `mammoth` (raw text)
+ * - anything else -> treated as UTF-8 text
  *
  * Extraction is best-effort: a malformed/unsupported file yields `""` rather
  * than throwing, so a Revise run degrades to a Generate-style prompt instead of
@@ -38,10 +38,10 @@ export const extractCvText = async (
             })
             return result.value.trim()
         }
-        // unknown extension → assume plain text
+        // unknown extension -> assume plain text
         return buffer.toString("utf8").trim()
     } catch {
-        // extraction failure must not fail the job — degrade to no source text
+        // extraction failure must not fail the job -- degrade to no source text
         return ""
     }
 }

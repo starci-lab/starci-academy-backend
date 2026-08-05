@@ -29,7 +29,7 @@ import {
 /**
  * Loads one milestone task by id from the locale-keyed S3 object (not
  * Postgres). Throws {@link MilestoneNotFoundException} when the object is
- * missing — callers must not treat a null payload as an empty task. Auth
+ * missing -- callers must not treat a null payload as an empty task. Auth
  * and enrolment are enforced upstream by the resolver guards.
  */
 export class TaskHandler

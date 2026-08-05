@@ -53,9 +53,9 @@ export class FlashcardQuizStatsConceptCoverage {
     description: "The viewer's aggregated flashcard quick-quiz stats for one course.",
 })
 /**
- * The viewer's aggregated flashcard quick-quiz ("Hỏi nhanh") stats for one
- * course — the coverage-vs-target hero + weak-topic map that
- * `FlashcardQuizStats` renders (`stats-canonical-fold` — 1 hero + 1 zone).
+ * The viewer's aggregated flashcard quick-quiz stats for one
+ * course -- the coverage-vs-target hero + weak-topic map that
+ * `FlashcardQuizStats` renders (`stats-canonical-fold` -- 1 hero + 1 zone).
  */
 export class MyFlashcardQuizStatsData {
     @Field(

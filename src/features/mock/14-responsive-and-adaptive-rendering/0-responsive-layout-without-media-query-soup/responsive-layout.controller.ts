@@ -16,7 +16,7 @@ import type {
 
 /**
  * Product catalog for the responsive-layout lesson. Mirrors the frontend's
- * static fallback so the rendered grid is identical — the value the mock adds
+ * static fallback so the rendered grid is identical -- the value the mock adds
  * over the fallback is the artificial loading delay (skeleton state).
  */
 const PRODUCTS: ReadonlyArray<ResponsiveLayoutProduct> = [

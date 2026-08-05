@@ -14,7 +14,7 @@ import {
     description: "A weak technology tag from a finished quick-quiz session, with an optional review deep link.",
 })
 /**
- * One weak tag surfaced from the finished session — the lowest-coverage
+ * One weak tag surfaced from the finished session -- the lowest-coverage
  * technology tags across the session's cards, ranked ascending (weakest
  * first), each optionally carrying a deep link back to the lesson/module it
  * came from so the recap can bridge a poor score into real review instead of
@@ -60,7 +60,7 @@ export class QuizSessionWeakTagData {
     description: "Readiness signal for surfacing an AI Mock Interview cross-link from the quick-quiz recap.",
 })
 /**
- * Readiness signal for the AI Mock Interview cross-link — a cheap proxy
+ * Readiness signal for the AI Mock Interview cross-link -- a cheap proxy
  * (flashcard retention rate) reused as-is rather than new cross-session
  * tracking, so the recap can nudge a consistently strong learner toward the
  * platform's actually-differentiated, AI-graded feature.

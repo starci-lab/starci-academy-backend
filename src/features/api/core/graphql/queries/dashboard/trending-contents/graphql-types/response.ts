@@ -12,7 +12,7 @@ import {
     description: "A trending lesson (read count over the last 7 days).",
 })
 /**
- * One trending lesson for the "discover what to learn" rail in the explore feed —
+ * One trending lesson for the "discover what to learn" rail in the explore feed --
  * a route-index token (resolves its route on click) plus its recent read count.
  */
 export class TrendingContentItemData {

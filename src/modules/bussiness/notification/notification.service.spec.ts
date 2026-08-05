@@ -169,14 +169,14 @@ describe("NotificationService",
                             },
                         })
 
-                        // the caller's manager did the writing…
+                        // the caller's manager did the writing...
                         expect(txManager.create).toHaveBeenCalled()
                         expect(txManager.save).toHaveBeenCalled()
                         expect(userStatsProjectionService.recompute).toHaveBeenCalledWith({
                             userId,
                             entityManager: txManager,
                         })
-                        // …and the service's own manager was never touched
+                        // ...and the service's own manager was never touched
                         expect(entityManager.create).not.toHaveBeenCalled()
                         expect(entityManager.save).not.toHaveBeenCalled()
                     })
@@ -297,7 +297,7 @@ describe("NotificationService",
                                 notificationId,
                             }),
                         ).rejects.toBeInstanceOf(NotificationNotFoundException)
-                        // ownership is folded into the lookup — never trust the client
+                        // ownership is folded into the lookup -- never trust the client
                         expect(entityManager.findOne).toHaveBeenCalledWith(
                             NotificationEntity,
                             expect.objectContaining({

@@ -1,6 +1,6 @@
 /**
  * Coerce a grading score to a non-negative integer for PostgreSQL `int` columns and GraphQL `Int`.
- * Rounds away floating-point noise (e.g. `99.99999999999999` → `100`).
+ * Rounds away floating-point noise (e.g. `99.99999999999999` -> `100`).
  *
  * @param score - Raw score from the model or a weighted sum of per-criterion points.
  * @returns A whole number suitable for persistence.

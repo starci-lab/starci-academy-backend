@@ -16,7 +16,7 @@ export interface CvBlocksEmptyExceptionMetadata extends AbstractExceptionMetadat
 
 /**
  * Thrown when a CV-blocks operation is called with an empty (or non-array)
- * blocks array — there is nothing to operate on.
+ * blocks array -- there is nothing to operate on.
  */
 export class CvBlocksEmptyException extends AbstractException {
     constructor({

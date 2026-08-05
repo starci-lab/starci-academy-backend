@@ -5,14 +5,14 @@
  *
  * @param title - Free-text title to slugify.
  * @returns A lowercase, hyphenated slug (may be empty if `title` had no
- *   alphanumeric characters — callers should fall back to a random suffix).
+ *   alphanumeric characters -- callers should fall back to a random suffix).
  *
  * @example
  * slugify("Senior Backend Engineer (Node.js)") // "senior-backend-engineer-nodejs"
  */
 export const slugify = (title: string): string => {
     return title
-        // Unicode-normalize so combining diacritics (é → e + ´) are isolated
+        // Unicode-normalize so combining diacritics are isolated from base letters
         .normalize("NFD")
         // strip the isolated combining marks, leaving plain ASCII letters
         .replace(/[̀-ͯ]/g,

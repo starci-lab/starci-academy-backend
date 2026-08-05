@@ -47,7 +47,7 @@ import type {
  * Backs up one PostgreSQL database to a local disk as an encrypted artifact,
  * registers it, and (optionally) syncs it to a saved S3 target.
  *
- * Flow (local-first): pg_dump → gzip → openssl enc, writing the final encrypted
+ * Flow (local-first): pg_dump -> gzip -> openssl enc, writing the final encrypted
  * file onto the operator's chosen disk (kept as the artifact). Intermediate
  * dump/gz files go to a throwaway temp dir. The artifact stays on disk so it can
  * be re-synced later. Encryption is mandatory (`BACKUP_ENCRYPT_PASSWORD`).
@@ -78,7 +78,7 @@ export class PgBackupService {
         // reject malformed/non-postgres URLs before spawning pg_dump
         assertPostgresConnectionUrl(postgresUrl)
 
-        // encryption is mandatory — refuse rather than write a plaintext dump
+        // encryption is mandatory -- refuse rather than write a plaintext dump
         const encryptPassword = envConfig().backup.encrypt.password
         if (!encryptPassword) {
             throw new BackupEncryptionPasswordNotSetException({
@@ -115,7 +115,7 @@ export class PgBackupService {
         const gzPath = `${dumpPath}.gz`
 
         try {
-            // 1. pg_dump → custom-format file
+            // 1. pg_dump -> custom-format file
             await this.execaService.exec({
                 command: "pg_dump",
                 args: [
@@ -127,7 +127,7 @@ export class PgBackupService {
                 ],
                 timeoutMs: 10 * 60 * 1000,
             })
-            // 2. gzip → file (stream stdout to disk; avoid buffering large dumps)
+            // 2. gzip -> file (stream stdout to disk; avoid buffering large dumps)
             await this.execaService.execToFile({
                 command: "gzip",
                 args: [

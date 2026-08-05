@@ -21,7 +21,7 @@ import type {
 
 @Injectable()
 /**
- * Parses foundation tags from mount `# tags` blocks (`## {index}` → `### value`) only.
+ * Parses foundation tags from mount `# tags` blocks (`## {index}` -> `### value`) only.
  * Mirrors content `references` parsing in {@link ContentParserService}.
  */
 export class FoundationTagParserService {

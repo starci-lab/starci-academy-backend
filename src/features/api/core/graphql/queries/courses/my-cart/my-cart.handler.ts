@@ -35,7 +35,7 @@ import {
  * oldest-first. Returns an empty array when the cart is empty.
  *
  * A row can go stale (course now `isEnrolled: true`) via a path that skips the
- * normal checkout cart-delete step — e.g. an installment plan re-unlocking a
+ * normal checkout cart-delete step -- e.g. an installment plan re-unlocking a
  * previously-locked enrollment. Rather than trust every future enroll-writer to
  * remember cart cleanup, this handler self-heals: any stale row found is deleted
  * here and excluded from the response, so an enrolled course never shows in the
@@ -68,7 +68,7 @@ export class MyCartHandler
             user,
         } = query.params
 
-        // reject unauthenticated callers — a cart only exists per-user
+        // reject unauthenticated callers -- a cart only exists per-user
         if (!user) {
             throw new UserNotFoundException({
             })

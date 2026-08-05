@@ -85,7 +85,7 @@ export class ReconcileTransactionBootSweepService implements OnApplicationBootst
                     this.dayjsService.from(transaction.createdAt),
                     "milliseconds",
                 )
-                // fresh transactions still have their originally-scheduled delayed job → skip
+                // fresh transactions still have their originally-scheduled delayed job -> skip
                 if (elapsedMs < delayMs) {
                     continue
                 }

@@ -8,7 +8,7 @@ export interface FindMyMockInterviewAttemptBySessionParams {
     userId: string
     /** Course the attempt must belong to (mirrors the enrollment it's keyed by). */
     courseId: string
-    /** The session id to look up — a client-generated id grouping the draw/turns/grade of one interview run. */
+    /** The session id to look up -- a client-generated id grouping the draw/turns/grade of one interview run. */
     sessionId: string
 }
 

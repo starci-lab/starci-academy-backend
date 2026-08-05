@@ -22,7 +22,7 @@ import {
 } from "./balancer"
 
 /**
- * Build a minimal enabled catalog row — only the fields the validator reads
+ * Build a minimal enabled catalog row -- only the fields the validator reads
  * (name, provider, category) need real values.
  */
 const buildModelRow = (
@@ -109,7 +109,7 @@ describe("GradingLaneValidationService",
             () => {
                 it("returns an empty result when no model is picked",
                     async () => {
-                        // no model pick → balancer chooses, nothing to validate
+                        // no model pick -> balancer chooses, nothing to validate
                         const result = await service.validate({
                             userId,
                         })
@@ -131,7 +131,7 @@ describe("GradingLaneValidationService",
 
                 it("rejects a pinned model when NOT unlocked (not paid, not enrolled)",
                     async () => {
-                        // assertCanUsePaidModels throws for an unentitled user → reject
+                        // assertCanUsePaidModels throws for an unentitled user -> reject
                         aiEntitlementService.assertCanUsePaidModels.mockRejectedValueOnce(
                             new AiModeNotEntitledException({
                                 reason: "no active paid subscription or enrollment",
@@ -170,7 +170,7 @@ describe("GradingLaneValidationService",
 
                 it("rejects a model whose category is outside the tier categories",
                     async () => {
-                        // a Premium-category row when only Balanced is unlocked → reject
+                        // a Premium-category row when only Balanced is unlocked -> reject
                         aiModelCatalogService.enabledModels.mockResolvedValueOnce([
                             buildModelRow({
                                 category: AiModelCategory.High,
@@ -188,7 +188,7 @@ describe("GradingLaneValidationService",
 
                 it("rejects a model that is not in the enabled catalog",
                     async () => {
-                        // unknown (model, provider) pair → no row → reject
+                        // unknown (model, provider) pair -> no row -> reject
                         aiModelCatalogService.enabledModels.mockResolvedValueOnce([])
 
                         await expect(

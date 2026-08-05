@@ -11,7 +11,7 @@ import {
 export enum AiSubStatus {
     /** Subscription is paid and within currentPeriodEnd. */
     Active = "active",
-    /** User cancelled — autoRenew off; still active until period end if cancelled at-period-end. */
+    /** User cancelled -- autoRenew off; still active until period end if cancelled at-period-end. */
     Cancelled = "cancelled",
     /** Past currentPeriodEnd, not renewed. */
     Expired = "expired",

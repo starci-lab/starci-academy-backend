@@ -5,7 +5,7 @@ import {
     AbstractException,
 } from "../abstract"
 
-/** Grade payload the complete-step expected — logged when it is missing or the wrong shape. */
+/** Grade payload the complete-step expected -- logged when it is missing or the wrong shape. */
 export interface MissingOrInvalidGradeExecutionResultExceptionMetadata extends AbstractExceptionMetadata {
     grade?: unknown
 }

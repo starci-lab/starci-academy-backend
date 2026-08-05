@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -64,7 +64,7 @@ const fakeUser = (
 }) as unknown as UserEntity
 
 /**
- * A validated grading lane with no pinned model — the default every test submits on.
+ * A validated grading lane with no pinned model -- the default every test submits on.
  */
 const autoLane = {
     gradingModel: null,
@@ -85,7 +85,7 @@ describe("SubmitChallengeSubmissionHandler",
         let userService: jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
 
         beforeEach(async () => {
-            // fresh jest-backed entity manager — `transaction` runs callbacks inline
+            // fresh jest-backed entity manager -- `transaction` runs callbacks inline
             entityManager = makeEntityManagerMock()
             // the handler also calls findOneOrFail inside the upsert transaction
             entityManager.findOneOrFail = jest.fn()
@@ -114,7 +114,7 @@ describe("SubmitChallengeSubmissionHandler",
                 Pick<PostgreSqlAdvisoryLockService, "acquireUserChallengeSubmissionXactLock">
             >
 
-            // best-effort trial-enrollment resolution — resolves null by default so
+            // best-effort trial-enrollment resolution -- resolves null by default so
             // tests that never reach the enrollment step stay inert; tests that do
             // reach it override with mockResolvedValueOnce per-case
             userService = {
@@ -124,7 +124,7 @@ describe("SubmitChallengeSubmissionHandler",
             module = await Test.createTestingModule({
                 providers: [
                     SubmitChallengeSubmissionHandler,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: EnqueueProcessGitSubmissionJobService,
@@ -240,12 +240,12 @@ describe("SubmitChallengeSubmissionHandler",
                         challengeId: "chal-1",
                         type: SubmissionType.GithubUrl,
                     })
-                    // 2. ChallengeEntity (verified=false still routes to V2 — V1 removed)
+                    // 2. ChallengeEntity (verified=false still routes to V2 -- V1 removed)
                     .mockResolvedValueOnce({
                         id: "chal-1",
                         verified: false,
                     })
-                    // 3. ContentEntity (ownerContent premium-lock check) — no owning content found
+                    // 3. ContentEntity (ownerContent premium-lock check) -- no owning content found
                     .mockResolvedValueOnce(null)
                     // 4. CourseEntity lookup
                     .mockResolvedValueOnce({
@@ -302,12 +302,12 @@ describe("SubmitChallengeSubmissionHandler",
                         challengeId: "chal-1",
                         type: SubmissionType.GithubUrl,
                     })
-                    // verified=true → V2 pipeline
+                    // verified=true -> V2 pipeline
                     .mockResolvedValueOnce({
                         id: "chal-1",
                         verified: true,
                     })
-                    // ContentEntity (ownerContent premium-lock check) — no owning content found
+                    // ContentEntity (ownerContent premium-lock check) -- no owning content found
                     .mockResolvedValueOnce(null)
                     // CourseEntity lookup
                     .mockResolvedValueOnce({

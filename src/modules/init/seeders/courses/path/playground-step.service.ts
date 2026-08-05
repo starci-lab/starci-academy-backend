@@ -30,7 +30,7 @@ export class PlaygroundStepPathService {
     }
 
     /**
-     * Lists per-step folders under a playground's `steps/` directory — one folder
+     * Lists per-step folders under a playground's `steps/` directory -- one folder
      * per ordered step (`{index}-{slug}/{en,vi}.md`).
      *
      * @param playgroundRelativePath - Playground folder path segment under `courses/`

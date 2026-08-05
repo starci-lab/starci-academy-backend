@@ -30,7 +30,7 @@ import {
 @QueryHandler(UserPersonalTaskAttemptFeedbacksQuery)
 @Injectable()
 /**
- * Pages feedback rows for a given attemptId (no ownership check here — auth is
+ * Pages feedback rows for a given attemptId (no ownership check here -- auth is
  * at the resolver guard; attempt id is the sole filter).
  */
 export class UserPersonalTaskAttemptFeedbacksHandler

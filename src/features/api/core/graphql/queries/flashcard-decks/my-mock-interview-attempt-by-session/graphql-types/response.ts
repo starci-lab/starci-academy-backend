@@ -14,7 +14,7 @@ import {
     description: "Response wrapper for the myMockInterviewAttemptBySessionId query.",
 })
 /**
- * Response wrapper for the myMockInterviewAttemptBySessionId query — `data` is
+ * Response wrapper for the myMockInterviewAttemptBySessionId query -- `data` is
  * `null` when no GRADED attempt exists yet for that session (still in
  * progress, or the session id doesn't belong to the viewer/course at all).
  */

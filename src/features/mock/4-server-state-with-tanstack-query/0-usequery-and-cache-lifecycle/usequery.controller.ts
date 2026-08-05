@@ -18,7 +18,7 @@ import {
 @UseInterceptors(MockDelayInterceptor)
 @Controller("mocks/4-server-state-with-tanstack-query/0-usequery-and-cache-lifecycle/sessions/:sessionId")
 /**
- * Mock controller for lesson `0-usequery-and-cache-lifecycle` — exposes a single
+ * Mock controller for lesson `0-usequery-and-cache-lifecycle` -- exposes a single
  * read endpoint the useQuery cache-lifecycle demo polls.
  */
 export class UseQueryController {

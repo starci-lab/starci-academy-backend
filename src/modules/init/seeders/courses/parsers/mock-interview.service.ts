@@ -49,15 +49,15 @@ import {
 /**
  * Parses course-level mock-interview TECHNICAL banks from mounted course files
  * (`en.md` / `vi.md`) under `courses/{course}/mock-interview/{N}-bank/`. A bank has
- * no entity of its own (just a `bankSlug` grouping folder) — each question folder
+ * no entity of its own (just a `bankSlug` grouping folder) -- each question folder
  * becomes one {@link MockInterviewEntity} row directly.
  *
  * Follows the canonical mount-parse pattern: extract once per locale, merge via
  * {@link MergeJsonService} with dot-path `translateFields`, then render straight
- * from `merged` — every array item already carries its aligned `translations[]`.
+ * from `merged` -- every array item already carries its aligned `translations[]`.
  * `MergeJsonService` always canonicalizes on `Locale.En` regardless of authoring
  * order, so `defaultLocale` is always set to `Locale.En` here (matches every other
- * course parser — `interview-answer.md`'s "vi.md gốc" is an AUTHORING convention,
+ * course parser -- `interview-answer.md`'s original `vi.md` is an AUTHORING convention,
  * not a seeding one).
  */
 export class MockInterviewParserService {
@@ -97,7 +97,7 @@ export class MockInterviewParserService {
         const data: Array<ResolvedFileResult<DeepPartial<MockInterviewEntity>>> = []
         for (const bankPath of bankPaths) {
             try {
-                // bank meta only resolves `# moduleRefs` — no entity row is created for the bank itself
+                // bank meta only resolves `# moduleRefs` -- no entity row is created for the bank itself
                 const bankJsonMap = new Map<Locale, RawMockInterviewBank>()
                 for (const locale of Object.values(Locale)) {
                     bankJsonMap.set(
@@ -349,7 +349,7 @@ export class MockInterviewParserService {
                 )
                 result.push({
                     id: mockInterviewLangId,
-                    // `# lang` in the body, falling back to the folder slug (e.g. `0-typescript` → `typescript`).
+                    // `# lang` in the body, falling back to the folder slug (e.g. `0-typescript` -> `typescript`).
                     lang: this.coerceMdScalarService.toRequiredString(merged.lang,
                         bodyPath.displayId),
                     givenCode: this.coerceMdScalarService.toRequiredString(merged.givenCode,
@@ -500,7 +500,7 @@ export class MockInterviewParserService {
                 {
                     where: {
                         displayId,
-                        // `courseId` is a virtual @RelationId — not queryable in `where`;
+                        // `courseId` is a virtual @RelationId -- not queryable in `where`;
                         // scope through the relation instead (mirrors flashcard-deck.service.ts).
                         course: {
                             id: courseId,

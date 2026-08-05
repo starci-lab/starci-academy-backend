@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 
 /**
- * Parsed `{orderIndex}-{slug}` mount folder (or legacy numeric-only `0`, `1`, …).
+ * Parsed `{orderIndex}-{slug}` mount folder (or legacy numeric-only `0`, `1`, ...).
  */
 export interface ParsedIndexedMountDir {
     orderIndex: number

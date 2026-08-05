@@ -149,7 +149,7 @@ export class SyncPersonalProjectGithubHandler
             didUpdate = true
         }
         // token: clearing wins over setting. Encrypt at rest (AES-256-GCM); the plaintext is
-        // never returned again — only the masked last4 is exposed (mirrors BYOK key storage).
+        // never returned again -- only the masked last4 is exposed (mirrors BYOK key storage).
         if (shouldClearToken) {
             enrollment.personalProjectGithubTokenEncrypted = null
             enrollment.personalProjectGithubTokenLast4 = null

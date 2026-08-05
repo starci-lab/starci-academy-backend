@@ -32,15 +32,15 @@ import {
 } from "./user.entity"
 
 /**
- * Which surface a content-AI conversation grounds on — the SESSION-PER-SCOPE model.
+ * Which surface a content-AI conversation grounds on -- the SESSION-PER-SCOPE model.
  * The `scope` selects WHICH anchor column identifies the conversation:
- * - `content`  → `originContent` (a course lesson/content item).
- * - `task`     → `originTask` (a capstone / personal-project task).
- * - `challenge` → `originChallenge` (a hands-on challenge).
- * - `quiz`     → `originQuiz` (a flashcard-quiz deck).
- * - `foundation` → `originFoundation` (a GLOBAL foundation-library doc; no course).
- * - `course`   → the enrollment's course itself (no per-item anchor).
- * - `global`   → the app-wide chat; no anchor column at all — keys off {@link
+ * - `content`  -> `originContent` (a course lesson/content item).
+ * - `task`     -> `originTask` (a capstone / personal-project task).
+ * - `challenge` -> `originChallenge` (a hands-on challenge).
+ * - `quiz`     -> `originQuiz` (a flashcard-quiz deck).
+ * - `foundation` -> `originFoundation` (a GLOBAL foundation-library doc; no course).
+ * - `course`   -> the enrollment's course itself (no per-item anchor).
+ * - `global`   -> the app-wide chat; no anchor column at all -- keys off {@link
  *   ContentAiSessionEntity.user} the same way `foundation` does.
  */
 export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course" | "global"
@@ -50,7 +50,7 @@ export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | 
 @Index(["user"])
 @Entity("content_ai_sessions")
 /**
- * One content-AI conversation thread — a named chat a learner keeps about a lesson,
+ * One content-AI conversation thread -- a named chat a learner keeps about a lesson,
  * a capstone task, a foundation doc, or a whole course. A surface can hold MANY
  * sessions (e.g. one about nginx, one about kafka), so the learner keeps separate,
  * searchable conversations. {@link import("./content-ai-message.entity").ContentAiMessageEntity}
@@ -65,8 +65,8 @@ export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | 
 export class ContentAiSessionEntity extends UuidAbstractEntity {
     /**
      * Which surface the conversation grounds on. Drives which anchor column is set
-     * (content → originContent, task → originTask, foundation → originFoundation,
-     * course → none). varchar (not a PG enum) so widening the scope set never hits
+     * (content -> originContent, task -> originTask, foundation -> originFoundation,
+     * course -> none). varchar (not a PG enum) so widening the scope set never hits
      * the enum-ADD-VALUE / DROP-TYPE boot trap under prod `synchronize`.
      */
     @Column({
@@ -274,7 +274,7 @@ export class ContentAiSessionEntity extends UuidAbstractEntity {
     )
         originFoundationId: string | null
 
-    /** Conversation title — auto-derived from the first question; null until then. */
+    /** Conversation title -- auto-derived from the first question; null until then. */
     @Column({
         name: "title",
         type: "varchar",

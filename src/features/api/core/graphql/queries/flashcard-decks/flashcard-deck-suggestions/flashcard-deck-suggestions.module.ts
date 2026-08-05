@@ -21,5 +21,5 @@ import {
         FlashcardDeckSuggestionsHandler,
     ],
 })
-/** Feature-module boundary for the `flashcardDeckSuggestions` query — wires its resolver + service + CQRS handler. */
+/** Feature-module boundary for the `flashcardDeckSuggestions` query -- wires its resolver + service + CQRS handler. */
 export class FlashcardDeckSuggestionsSingleQueryModule extends ConfigurableModuleClass {}

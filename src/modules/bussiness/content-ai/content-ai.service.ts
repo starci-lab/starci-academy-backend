@@ -83,7 +83,7 @@ import type {
  * `qwen2.5-coder:7b` was loading at Ollama's DEFAULT num_ctx=4096 (grounding was
  * being truncated!); it's now baked to **num_ctx=8192** via a Modelfile
  * (`PARAMETER num_ctx 8192`, persists across restarts). The 8 GB RTX 5060 caps it
- * there — at 8192 ~17% of layers offload to CPU (still ~43 tok/s, fine); 32768
+ * there -- at 8192 ~17% of layers offload to CPU (still ~43 tok/s, fine); 32768
  * would OOM. So the full input budget is ~8192 tokens ≈ ~24k chars (Vietnamese/
  * code ~3 chars/token, under-counted for safety). If num_ctx changes, scale this.
  */
@@ -91,7 +91,7 @@ const MAX_INPUT_CHARS = 24000
 /** Input chars kept free for the model's own answer (never spent on history);
  *  ~1k tokens of reply at ~3 chars/token. */
 const RESPONSE_RESERVE_CHARS = 3000
-/** Absolute safety bound on how many recent turns we even walk — the token budget
+/** Absolute safety bound on how many recent turns we even walk -- the token budget
  * is the real gate; this only stops a pathological history array. */
 const MAX_HISTORY_MESSAGES = 100
 
@@ -100,7 +100,7 @@ const MAX_HISTORY_MESSAGES = 100
  * included alongside the body. Under it we feed the tutor the whole body + every
  * repo file (so it can read/explain any part of the lesson's source, even for a
  * short lesson); over it we fall back to RAG chunk retrieval to stay inside the
- * free local model's context window. ~24k chars ≈ ~6k tokens of grounding — the
+ * free local model's context window. ~24k chars ≈ ~6k tokens of grounding -- the
  * real lesson source (lockfiles/vendored dirs filtered out) fits well under this.
  */
 const MAX_CODE_STUFF_CHARS = 24000
@@ -120,7 +120,7 @@ const NON_SOURCE_CODE_FILE = /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock
  *
  * Used by both the one-shot `askContentAi` mutation and the streaming
  * `/content_ai` socket gateway so the grounding + premium gate live in one
- * place. NOTE: content AI is free-tier — there is intentionally NO AI-credit
+ * place. NOTE: content AI is free-tier -- there is intentionally NO AI-credit
  * gate here; callers invoke the free local model only.
  */
 export class ContentAiService {
@@ -144,10 +144,10 @@ export class ContentAiService {
      * request (from the anchor, or from an explicit `courseId`); PAGE = the
      * existing per-anchor material (lesson body, task brief, ...). A request
      * with NO anchor at all is the "chung" app-wide chat: `courseId` optional,
-     * `courseId` given → `"course"` scope (its grounding IS the base layer, no
-     * page of its own); no `courseId` either → `"global"` scope, which degrades
+     * `courseId` given -> `"course"` scope (its grounding IS the base layer, no
+     * page of its own); no `courseId` either -> `"global"` scope, which degrades
      * to a general programming tutor when there is no base to ground on.
-     * Anchorless never throws anymore — it always resolves to a scope.
+     * Anchorless never throws anymore -- it always resolves to a scope.
      *
      * @param params - {@link PrepareContentAiMessagesParams}.
      * @returns The ordered messages to invoke/stream against the model.
@@ -170,7 +170,7 @@ export class ContentAiService {
     ): Promise<PrepareContentAiMessagesResult> {
         // Dispatch the PAGE grounding by scope (priority content > task >
         // challenge > quiz > foundation > course > global, unchanged), while ALSO
-        // resolving the current course id ONCE per anchor — it doubles as the key
+        // resolving the current course id ONCE per anchor -- it doubles as the key
         // for the additive BASE layer below, so it is never re-resolved.
         let page = ""
         let scope: ContentAiScope
@@ -213,7 +213,7 @@ export class ContentAiService {
             baseCourseId = result.courseId
             scope = "quiz"
         } else if (foundationId) {
-            // foundation is a GLOBAL doc, not course-scoped — no base course to resolve
+            // foundation is a GLOBAL doc, not course-scoped -- no base course to resolve
             page = await this.resolveFoundationGrounding({
                 userId,
                 foundationId,
@@ -221,7 +221,7 @@ export class ContentAiService {
             })
             scope = "foundation"
         } else if (courseId) {
-            // no page of its own — its grounding IS the base layer (see below)
+            // no page of its own -- its grounding IS the base layer (see below)
             baseCourseId = courseId
             scope = "course"
         } else {
@@ -240,7 +240,7 @@ export class ContentAiService {
             })
             : ""
 
-        // "course" scope has no page of its own — its grounding IS the base
+        // "course" scope has no page of its own -- its grounding IS the base
         // layer, rendered through the scope's OWN section header rather than a
         // second, duplicate "COURSE KNOWLEDGE" header.
         const promptPage = scope === "course"
@@ -252,8 +252,8 @@ export class ContentAiService {
 
         // replay recent turns as a ROLLING TOKEN-BUDGET window: keep as many of the
         // NEWEST turns as fit in the input left after grounding + the question + the
-        // answer reserve, walking newest→oldest and stopping at the budget. A large
-        // lesson (big grounding) keeps fewer turns; a small one keeps many — the
+        // answer reserve, walking newest->oldest and stopping at the budget. A large
+        // lesson (big grounding) keeps fewer turns; a small one keeps many -- the
         // long-conversation memory a general chat app has, without overflowing the
         // free local model's context.
         const systemPromptText = this.buildSystemPrompt({
@@ -310,7 +310,7 @@ export class ContentAiService {
         }: ResolveLessonGroundingParams,
     ): Promise<PageGroundingResult> {
         // The lesson body lives in MinIO (the Postgres `body` column is empty for
-        // snapshot-backed content) — load it the same way the content reader does,
+        // snapshot-backed content) -- load it the same way the content reader does,
         // NOT from `ContentEntity.body`, or the model is grounded on an empty body
         // and replies "I'm not sure, the content wasn't provided".
         const objectKey = this.s3NameResolverService.content(
@@ -390,10 +390,10 @@ export class ContentAiService {
      * written with `metadata.contentId = taskId` (shared UUID id-space), so the
      * same single-doc retrieval the lesson scope uses returns exactly this task's
      * material. Degrades to an empty excerpt (un-grounded) when the index is
-     * absent / retrieval misses — retrieval never blocks the chat.
+     * absent / retrieval misses -- retrieval never blocks the chat.
      *
      * Entitlement: capstone material is ENROLLED-ONLY. We resolve the task's
-     * owning course (task → milestone → course) and gate on enrollment; a
+     * owning course (task -> milestone -> course) and gate on enrollment; a
      * non-enrolled viewer gets an empty excerpt (no leak), so the model never
      * reveals capstone briefs/criteria through the AI. Mirrors the course scope.
      *
@@ -408,7 +408,7 @@ export class ContentAiService {
         }: ResolveTaskGroundingParams,
     ): Promise<PageGroundingResult> {
         // resolve the task's owning course so we can enforce the enrolled-only gate
-        // (also doubles as the additive BASE layer's key — resolved ONCE here)
+        // (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfTask(taskId)
         const entitled = courseId
             ? await this.userService.checkEnrollment(userId,
@@ -440,7 +440,7 @@ export class ContentAiService {
      * challenge's material.
      *
      * Entitlement: ENROLLED-ONLY, mirroring the task scope. We resolve the
-     * challenge's owning course (challenge → content → module → course) and gate on
+     * challenge's owning course (challenge -> content -> module -> course) and gate on
      * enrollment; a non-enrolled viewer gets an empty excerpt (no leak), so the
      * model never reveals a challenge's brief / test cases through the AI.
      *
@@ -455,7 +455,7 @@ export class ContentAiService {
         }: ResolveChallengeGroundingParams,
     ): Promise<PageGroundingResult> {
         // resolve the challenge's owning course so we can enforce the enrolled-only
-        // gate (also doubles as the additive BASE layer's key — resolved ONCE here)
+        // gate (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfChallenge(challengeId)
         const entitled = courseId
             ? await this.userService.checkEnrollment(userId,
@@ -489,7 +489,7 @@ export class ContentAiService {
      * Entitlement: ENROLLED-ONLY. We resolve the deck's owning course (decks carry
      * a direct `course_id`) and gate on enrollment; a non-enrolled viewer gets an
      * empty excerpt (no leak of answers). The FE additionally HIDES the chat during
-     * a live attempt (integrity) — this scope is used only while reviewing.
+     * a live attempt (integrity) -- this scope is used only while reviewing.
      *
      * @param params - The learner, the quiz deck id, and the question.
      * @returns The grounding text (empty when the viewer is not enrolled), plus the owning course id.
@@ -502,7 +502,7 @@ export class ContentAiService {
         }: ResolveQuizGroundingParams,
     ): Promise<PageGroundingResult> {
         // resolve the quiz deck's owning course so we can enforce the enrolled-only
-        // gate (also doubles as the additive BASE layer's key — resolved ONCE here)
+        // gate (also doubles as the additive BASE layer's key -- resolved ONCE here)
         const courseId = await this.resolveCourseIdOfQuiz(quizId)
         const entitled = courseId
             ? await this.userService.checkEnrollment(userId,
@@ -530,7 +530,7 @@ export class ContentAiService {
      * Foundation-scope grounding: single-doc RAG over one GLOBAL foundation-
      * library document. Foundation entities are NOT course-scoped (they belong to
      * a foundation-category and carry no courseId), so there is intentionally NO
-     * premium / enrollment gate — the foundation library is global. Chunks are
+     * premium / enrollment gate -- the foundation library is global. Chunks are
      * indexed with `metadata.contentId = foundationId`, so the lesson scope's
      * single-doc retrieval returns this foundation's material. Degrades to an
      * empty excerpt when the index is absent / retrieval misses.
@@ -563,11 +563,11 @@ export class ContentAiService {
      *   question can pull in course-wide context even while a specific lesson is
      *   open;
      * - as the WHOLE grounding for the `"course"` scope (a surface with no
-     *   material of its own — mind-map, leaderboard, the course home, …), which
+     *   material of its own -- mind-map, leaderboard, the course home, ...), which
      *   has no page section of its own to layer under.
      *
      * PREMIUM-SAFE by construction (fulfils the exclusion this scope's grounding
-     * used to punt on): enrolled → full course RAG; not enrolled → the SAME
+     * used to punt on): enrolled -> full course RAG; not enrolled -> the SAME
      * course RAG with every premium lesson's id excluded (`must_not` on
      * `metadata.contentId`), so a trial learner still gets course-wide chat over
      * the free material, never a locked lesson surfaced through the AI.
@@ -607,7 +607,7 @@ export class ContentAiService {
     /**
      * Resolve every PREMIUM content (lesson) id under a course, so a non-enrolled
      * viewer's BASE grounding can exclude them (`excludeContentIds`) instead of
-     * being blocked outright. Never throws — an empty result just means "nothing
+     * being blocked outright. Never throws -- an empty result just means "nothing
      * to exclude", not "no premium content" (the caller degrades safely either way
      * since `retrieveCourseExcerpt` itself degrades to an empty excerpt on failure).
      *
@@ -643,19 +643,19 @@ export class ContentAiService {
 
     /**
      * Resolve the text to ground the answer on. The tutor must be able to read the
-     * lesson's FULL source — not just the prose, and not only for large lessons — so
+     * lesson's FULL source -- not just the prose, and not only for large lessons -- so
      * for a lesson that ships code we prefer to stuff the WHOLE body + EVERY repo
      * file (a short lesson previously stuffed body-only, hiding its code):
      *
-     * - **Has code, and body + full code ≤ {@link MAX_CODE_STUFF_CHARS}**: stuff the
+     * - **Has code, and body + full code <= {@link MAX_CODE_STUFF_CHARS}**: stuff the
      *   whole lesson (body + all repo files). The tutor sees every file, so it can
-     *   read/explain any snippet the student points at — regardless of lesson size.
+     *   read/explain any snippet the student points at -- regardless of lesson size.
      * - **Has code but too big to stuff**: RAG-retrieve the top-k most relevant chunks
      *   (body + code, filtered to this content) so the prompt stays within the free
      *   local model's context window.
-     * - **No code (prose-only lesson)**: small body → stuff whole; large body → RAG.
+     * - **No code (prose-only lesson)**: small body -> stuff whole; large body -> RAG.
      *
-     * Falls back to the whole body whenever retrieval misses/fails/index absent — so
+     * Falls back to the whole body whenever retrieval misses/fails/index absent -- so
      * the chat never degrades below body-only grounding.
      *
      * @param params - The content snapshot, its id, the question, and the whole body.
@@ -669,16 +669,16 @@ export class ContentAiService {
             body,
         }: ResolveGroundingParams,
     ): Promise<string> {
-        // full lesson code (all repo files) — "" for a prose-only lesson
+        // full lesson code (all repo files) -- "" for a prose-only lesson
         const code = await this.loadFullCode(content)
 
         if (code) {
             const stuffed = `${body}\n\n=== LESSON CODE (full source) ===\n${code}`
-            // whole lesson fits → stuff body + every file (reads any snippet, any size)
+            // whole lesson fits -> stuff body + every file (reads any snippet, any size)
             if (stuffed.length <= MAX_CODE_STUFF_CHARS) {
                 return stuffed
             }
-            // too big for the local model → RAG the most relevant body+code chunks
+            // too big for the local model -> RAG the most relevant body+code chunks
             const { excerpt } = await this.contentRagRetrievalService.retrieveContentExcerpt({
                 contentId,
                 query: question,
@@ -689,7 +689,7 @@ export class ContentAiService {
                     MAX_CODE_STUFF_CHARS)
         }
 
-        // prose-only lesson: small → stuff whole; large → RAG (fallback to body)
+        // prose-only lesson: small -> stuff whole; large -> RAG (fallback to body)
         if (body.length <= envConfig().services.contentRag.stuffCharThreshold) {
             return body
         }
@@ -703,7 +703,7 @@ export class ContentAiService {
     }
 
     /**
-     * Read a lesson's FULL source from MinIO — every repo file concatenated (each
+     * Read a lesson's FULL source from MinIO -- every repo file concatenated (each
      * prefixed with its path), or "" for a prose-only lesson (no code in MinIO).
      *
      * Mirrors the repo-file read the lesson RAG indexer uses: the synchronizer
@@ -736,7 +736,7 @@ export class ContentAiService {
                 file,
             ] of Object.entries(files ?? {
                 })) {
-                // skip lockfiles / minified artifacts / stray vendored files — real
+                // skip lockfiles / minified artifacts / stray vendored files -- real
                 // source only, so the budget isn't wasted on noise the tutor ignores
                 if (NON_SOURCE_CODE_FILE.test(filePath) || filePath.includes("node_modules/")) {
                     continue
@@ -748,7 +748,7 @@ export class ContentAiService {
             }
             return parts.join("\n\n")
         } catch {
-            // MinIO miss / parse failure → degrade to body-only grounding
+            // MinIO miss / parse failure -> degrade to body-only grounding
             return ""
         }
     }
@@ -756,7 +756,7 @@ export class ContentAiService {
     /**
      * Resolve the lesson markdown to ground on. Snapshot-backed content keeps the
      * V1 scalar `body` EMPTY and stores the real lesson under the V2 `bodies`
-     * buckets (one per language variant, each with per-locale `translations`) —
+     * buckets (one per language variant, each with per-locale `translations`) --
      * so reading `content.body` alone grounds the model on an empty body and it
      * replies "the content wasn't provided". Prefer the localized text of the
      * first non-empty bucket (the prose is shared across language variants;
@@ -790,7 +790,7 @@ export class ContentAiService {
      * Resolve the enrollment id for `(user, the content's owning course)`.
      *
      * Course-scoped data keys off the enrollment (not the raw user). Trial rows
-     * (`is_enrolled = false`) count — a learner reading/asking about a lesson has
+     * (`is_enrolled = false`) count -- a learner reading/asking about a lesson has
      * an enrollment row whether or not they have paid.
      *
      * @param userId - The asking learner.
@@ -833,7 +833,7 @@ export class ContentAiService {
 
     /**
      * Resolve the enrollment id for `(user, course)` directly. Trial rows
-     * (`is_enrolled = false`) count — an enrollment row exists whether or not the
+     * (`is_enrolled = false`) count -- an enrollment row exists whether or not the
      * learner has paid. Used to anchor task / course sessions (whose course is
      * known without a content lookup).
      *
@@ -856,7 +856,7 @@ export class ContentAiService {
     }
 
     /**
-     * Resolve a task's owning course (task → milestone → course), so a task session
+     * Resolve a task's owning course (task -> milestone -> course), so a task session
      * can be anchored to the right enrollment.
      *
      * @param taskId - The capstone / personal-project task.
@@ -891,7 +891,7 @@ export class ContentAiService {
     }
 
     /**
-     * Resolve a challenge's owning course (challenge → content → module → course),
+     * Resolve a challenge's owning course (challenge -> content -> module -> course),
      * so a challenge session can be anchored to the right enrollment / gated.
      *
      * @param challengeId - The hands-on challenge.
@@ -963,7 +963,7 @@ export class ContentAiService {
     /**
      * Resolve the real `users.id` (uuid) from a Keycloak subject id. The socket
      * gateway stamps the Keycloak sub, but course-scoped data keys off
-     * `enrollments.user_id` (= `users.id`) — so the sub must be resolved first.
+     * `enrollments.user_id` (= `users.id`) -- so the sub must be resolved first.
      *
      * @param keycloakId - The Keycloak subject id from the socket.
      * @returns The real user id, or `null` when no user matches.
@@ -976,7 +976,7 @@ export class ContentAiService {
     }
 
     /**
-     * Create a new (empty) conversation anchored to one of the scopes —
+     * Create a new (empty) conversation anchored to one of the scopes --
      * content / task / challenge / quiz / foundation / course / global (the
      * SESSION-PER-SCOPE model). The scope is taken explicitly when given, else
      * derived by anchor priority (content > task > challenge > quiz > foundation
@@ -987,8 +987,8 @@ export class ContentAiService {
      * - **content / task / challenge / quiz / course**: key off the resolved
      *   enrollment (trial rows count). Their own material stays gated at answer
      *   time in `prepareMessages`.
-     * - **foundation**: GLOBAL — no course, no enrollment; keys off the raw user.
-     * - **global**: the app-wide "chung" chat — no anchor at all; GLOBAL like
+     * - **foundation**: GLOBAL -- no course, no enrollment; keys off the raw user.
+     * - **global**: the app-wide "chung" chat -- no anchor at all; GLOBAL like
      *   `foundation`, keyed off the raw user.
      *
      * @param params - The learner, the (optional) scope, and the anchor ids.
@@ -1008,7 +1008,7 @@ export class ContentAiService {
         }: CreateContentAiSessionParams,
     ): Promise<string | null> {
         // derive scope by anchor priority when the caller did not pin one; an
-        // anchorless request always resolves — it lands on the "global" chat
+        // anchorless request always resolves -- it lands on the "global" chat
         const resolvedScope: ContentAiScope = scope
             ?? (contentId
                 ? "content"
@@ -1024,7 +1024,7 @@ export class ContentAiService {
                                     ? "course"
                                     : "global")
 
-        // resolve the row to persist per scope; a missing anchor / enrollment → null
+        // resolve the row to persist per scope; a missing anchor / enrollment -> null
         // (no session created) so a non-entitled or malformed request is a silent
         // no-op rather than an orphan row.
         let toCreate: Partial<ContentAiSessionEntity> | null = null
@@ -1107,7 +1107,7 @@ export class ContentAiService {
                 enrollmentId,
             }
         } else if (resolvedScope === "foundation") {
-            // GLOBAL library doc — no course, no enrollment; anchor on the raw
+            // GLOBAL library doc -- no course, no enrollment; anchor on the raw
             // user (course-agnostic side of the enrollment-centric model)
             if (!foundationId) {
                 return null
@@ -1118,7 +1118,7 @@ export class ContentAiService {
                 originFoundationId: foundationId,
             }
         } else {
-            // global: the app-wide "chung" chat — no anchor at all; GLOBAL like
+            // global: the app-wide "chung" chat -- no anchor at all; GLOBAL like
             // foundation, keyed off the raw user
             toCreate = {
                 scope: "global",
@@ -1182,7 +1182,7 @@ export class ContentAiService {
         const trimmed = (search ?? "").trim()
 
         // derive scope by anchor priority when not pinned; an anchorless
-        // request always resolves — it lands on the "global" chat's list
+        // request always resolves -- it lands on the "global" chat's list
         const resolvedScope: ContentAiScope = scope
             ?? (contentId
                 ? "content"
@@ -1199,13 +1199,13 @@ export class ContentAiService {
                                     : "global")
 
         // CONTENT: original behaviour, verbatim (list this content, or course-wide
-        // search) — no regression to the shipped lesson list.
+        // search) -- no regression to the shipped lesson list.
         if (resolvedScope === "content") {
             if (!contentId) {
                 return []
             }
             if (trimmed) {
-                // search ALWAYS spans archived rows — digging up an archived (or
+                // search ALWAYS spans archived rows -- digging up an archived (or
                 // born-archived selection) chat is exactly when search is used, so
                 // `includeArchived` is not threaded here.
                 return this.searchSessions(userId,
@@ -1239,7 +1239,7 @@ export class ContentAiService {
     }
 
     /**
-     * List (or in-scope search) conversations for a NON-content scope — task,
+     * List (or in-scope search) conversations for a NON-content scope -- task,
      * challenge, quiz, foundation, course, or global. Resolves the scope's owner +
      * anchor, then runs one recency-first paged query. A task/challenge/quiz/course
      * session is owned via the enrollment; a GLOBAL foundation or global (app-wide)
@@ -1248,7 +1248,7 @@ export class ContentAiService {
      * has no per-item anchor and is selected by `scope` alone.
      *
      * A non-empty `search` narrows THIS scope's list by title/message text (no
-     * cross-content JOIN — task/foundation/course rows have no content title) and
+     * cross-content JOIN -- task/foundation/course rows have no content title) and
      * spans archived rows, matching the content-scope search semantics.
      *
      * @param params - The learner, the scope, the anchor ids, search + paging.
@@ -1319,7 +1319,7 @@ export class ContentAiService {
             ownerId = await this.resolveEnrollmentByCourse(userId,
                 courseId)
         } else if (scope === "foundation") {
-            // GLOBAL library doc — owned by the raw user, anchored on the doc
+            // GLOBAL library doc -- owned by the raw user, anchored on the doc
             if (!foundationId) {
                 return []
             }
@@ -1328,7 +1328,7 @@ export class ContentAiService {
             anchorColumn = "origin_foundation_id"
             anchorId = foundationId
         } else {
-            // global: the app-wide "chung" chat — owned by the raw user, no
+            // global: the app-wide "chung" chat -- owned by the raw user, no
             // anchor column at all (there is nothing narrower than the scope itself)
             ownerColumn = "user_id"
             ownerId = userId
@@ -1542,7 +1542,7 @@ export class ContentAiService {
         if (!owned) {
             return []
         }
-        // raw SQL — avoid TypeORM `where`/`select` ambiguity on `session_id`
+        // raw SQL -- avoid TypeORM `where`/`select` ambiguity on `session_id`
         // (it carries both @Column and @RelationId), which can throw at runtime
         const rows = await this.entityManager.query<Array<{ role: string, message: string }>>(
             `SELECT role, message
@@ -1560,7 +1560,7 @@ export class ContentAiService {
     }
 
     /**
-     * Persist one `(question → answer)` turn under a conversation, for ANY scope.
+     * Persist one `(question -> answer)` turn under a conversation, for ANY scope.
      * The turn inherits the session's owner anchors (enrollment for a course-scoped
      * session, user for a foundation session). A content-scope turn also records
      * the content it was grounded on (`contentId`) so that conversation can span
@@ -1669,12 +1669,12 @@ export class ContentAiService {
     }
 
     /**
-     * Rename a conversation. Overwrites the title OUTRIGHT (no COALESCE) — the
+     * Rename a conversation. Overwrites the title OUTRIGHT (no COALESCE) -- the
      * learner's explicit rename wins over the auto-derived title. An empty/blank
      * title resets to NULL, so the session falls back to auto-titling from its
      * first question again. No-op when not owned.
      *
-     * @param params - The learner, the session, and the new title (blank → reset).
+     * @param params - The learner, the session, and the new title (blank -> reset).
      * @throws ContentAiSessionTitleTooLongException when the title exceeds the
      *   `content_ai_sessions.title` column limit (200 chars).
      */
@@ -1759,7 +1759,7 @@ export class ContentAiService {
     }
 
     /**
-     * Mark a conversation as just-opened (bumps `updated_at` → it sorts to the top
+     * Mark a conversation as just-opened (bumps `updated_at` -> it sorts to the top
      * + becomes the one auto-reopened on reload). No-op when not owned. This is how
      * "remember the last conversation I read" is persisted server-side (not in the
      * browser): reading a chat bumps its recency.
@@ -1833,7 +1833,7 @@ export class ContentAiService {
      * reply language to the request locale. Composes the ADDITIVE layers: when
      * `base` is non-empty it renders FIRST as its own clearly-delimited
      * `=== COURSE KNOWLEDGE (retrieved) ===` section, ahead of the scope's own
-     * persona + material section (built by {@link buildScopePromptLines}) — so a
+     * persona + material section (built by {@link buildScopePromptLines}) -- so a
      * question grounds on the whole course AND the current page at once. `base`
      * is "" for the `"course"` scope (its grounding is carried in `page` instead,
      * through the scope's own single section) and is typically "" for
@@ -1870,9 +1870,9 @@ export class ContentAiService {
 
     /**
      * Build the scope-specific persona + rules + material-section lines (no
-     * additive BASE layer — that is prepended by {@link buildSystemPrompt}). Each
+     * additive BASE layer -- that is prepended by {@link buildSystemPrompt}). Each
      * branch is the original per-scope prompt, unchanged; `"global"` is new and
-     * carries no material section of its own (there is no page to show — the
+     * carries no material section of its own (there is no page to show -- the
      * additive BASE, when present, is the only grounding a global chat gets).
      *
      * @param grounding - The scope's own page grounding (lesson body/code, task

@@ -46,6 +46,6 @@ import {
     ],
 })
 /**
- * AI module — invoke routing, ping, and key-rotation balancer.
+ * AI module -- invoke routing, ping, and key-rotation balancer.
  */
 export class AiModule extends ConfigurableModuleClass {}

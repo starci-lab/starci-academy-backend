@@ -35,7 +35,7 @@ import {
 @Resolver()
 /**
  * Records that the user revealed a problem's reference solution. Idempotent.
- * Once revealed, a later first solve of that problem awards no points — peeking
+ * Once revealed, a later first solve of that problem awards no points -- peeking
  * the answer forfeits the score. Auth-guarded + soft-throttled.
  */
 export class RevealCodingSolutionResolver {
@@ -76,7 +76,7 @@ export class RevealCodingSolutionResolver {
             user: UserEntity,
     ): Promise<RevealCodingSolutionResponseData> {
         // record the reveal for this user (idempotent) and serve the reference
-        // solutions — this gated mutation is the ONLY place solutions reach the client
+        // solutions -- this gated mutation is the ONLY place solutions reach the client
         const {
             revealed,
             solutions,

@@ -11,7 +11,7 @@ import {
     description: "A follower of a user (avatar-group item).",
 })
 /**
- * One follower rendered in the profile's "who follows" avatar group — the opaque
+ * One follower rendered in the profile's "who follows" avatar group -- the opaque
  * global id (resolved to the profile route on click) plus the header fields the
  * avatar + tooltip need.
  */

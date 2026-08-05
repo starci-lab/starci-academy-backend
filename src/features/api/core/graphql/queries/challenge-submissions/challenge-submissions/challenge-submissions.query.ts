@@ -7,7 +7,7 @@ import {
 
 /**
  * QueryBus payload for `challengeSubmissions`: request + locale + user into
- * {@link ChallengeSubmissionsHandler}. Constructed by the query service — not injected.
+ * {@link ChallengeSubmissionsHandler}. Constructed by the query service -- not injected.
  */
 export class ChallengeSubmissionsQuery {
     constructor(

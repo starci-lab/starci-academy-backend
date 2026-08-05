@@ -15,7 +15,7 @@ export interface SandboxSourceNotConfiguredExceptionMetadata extends AbstractExc
 }
 
 /**
- * Thrown when a sandbox lesson's `githubBaseUrl`/`githubDir` is not set —
+ * Thrown when a sandbox lesson's `githubBaseUrl`/`githubDir` is not set --
  * the lesson is flagged sandbox but has no bundled file tree to serve.
  */
 export class SandboxSourceNotConfiguredException extends AbstractException {

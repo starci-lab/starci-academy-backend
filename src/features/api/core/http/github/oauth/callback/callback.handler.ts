@@ -134,12 +134,12 @@ export class GithubOauthCallbackHandler
             },
         )
 
-        // Link the GitHub identity to the user — persist `githubUsername`. This is
+        // Link the GitHub identity to the user -- persist `githubUsername`. This is
         // the ONLY job of the "Link GitHub" callback: `myGithubTeamStatus.linked`
         // is derived from `user.githubUsername`, so persisting it un-blocks the FE.
         // Joining a course's GitHub team is a SEPARATE, per-course step
         // (`requestToTeam(courseId)`), which resolves the correct team slug from
-        // the course — the callback must NOT add the user to any hardcoded team.
+        // the course -- the callback must NOT add the user to any hardcoded team.
         const user = await this.entityManager.findOne(
             UserEntity,
             {

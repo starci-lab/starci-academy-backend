@@ -29,7 +29,7 @@ import {
 
 @Resolver()
 /**
- * Public GraphQL entry for `foundation` — one catalog item by id or display id.
+ * Public GraphQL entry for `foundation` -- one catalog item by id or display id.
  */
 export class FoundationResolver {
     constructor(

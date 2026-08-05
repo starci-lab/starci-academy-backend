@@ -136,7 +136,7 @@ export class FoundationParserService {
                 false,
             ),
             orderIndex: foundationIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (jsonMap.get(Locale.En) as { sortIndex?: unknown })?.sortIndex,
                 foundationIndex,

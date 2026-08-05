@@ -101,7 +101,7 @@ export class ContentAiSessionsData {
     description: "Response wrapper for the contentAiSessions query.",
 })
 /**
- * Envelope for `contentAiSessions` — status metadata plus the conversation
+ * Envelope for `contentAiSessions` -- status metadata plus the conversation
  * list (null when the transform interceptor wraps a failure).
  */
 export class ContentAiSessionsResponse

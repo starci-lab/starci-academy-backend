@@ -126,7 +126,7 @@ export class ModuleParserService {
                 id: courseId,
             },
             orderIndex: moduleIndex,
-            // pure display-ordering index (1-based) — explicit `# sortIndex`, else orderIndex + 1
+            // pure display-ordering index (1-based) -- explicit `# sortIndex`, else orderIndex + 1
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,
                 moduleIndex + 1,
@@ -135,7 +135,7 @@ export class ModuleParserService {
             isPremium: this.toBoolean(
                 (merged as { isPremium?: unknown }).isPremium,
             ),
-            // explicit tier from `# contentType` (foundation by default) — display badge only
+            // explicit tier from `# contentType` (foundation by default) -- display badge only
             contentTier: this.toContentTier(
                 (merged as { contentType?: unknown }).contentType,
             ),

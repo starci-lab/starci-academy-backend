@@ -52,20 +52,20 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the daily-quest flows — `myDailyQuest` (read) and
+ * e2e for the daily-quest flows -- `myDailyQuest` (read) and
  * `claimDailyQuestReward` (write). Neither had e2e coverage before this file;
  * `DailyQuestService` itself has no `.spec.ts` sibling at all (its heavy raw-SQL
  * TODAY-derived aggregation across `xp_histories` / `mock_interview_attempts` /
  * `daily_quest_completions` had never run against a real schema).
  *
  * MOCKED:
- *  - `KeycloakAuthGraphQLGuard` — no Keycloak server here; overridden to stamp
+ *  - `KeycloakAuthGraphQLGuard` -- no Keycloak server here; overridden to stamp
  *    `request.user` with whichever fake user the test "logs in" as.
  *
  * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring,
  * `DailyQuestService` (TODAY-derived per-task counts, the completeness gate, the
  * idempotent claim transaction, and `writeCoinHistory`'s ledger + balance credit)
- * — all real SQL against real rows, no mocks inside the service under test.
+ * -- all real SQL against real rows, no mocks inside the service under test.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
@@ -144,7 +144,7 @@ describe("Daily quest (e2e)",
                 providers: [
                     MyDailyQuestResolver,
                     ClaimDailyQuestRewardResolver,
-                    // REAL — the TODAY-derived aggregation + claim transaction under test
+                    // REAL -- the TODAY-derived aggregation + claim transaction under test
                     DailyQuestService,
                 ],
             })
@@ -270,7 +270,7 @@ describe("Daily quest (e2e)",
                             current: 0,
                             target: 5,
                         })
-                        // only 2 of the 5 tasks are done — below the 3-task minimum
+                        // only 2 of the 5 tasks are done -- below the 3-task minimum
                         expect(body.data.allDone).toBe(false)
                         expect(body.data.claimed).toBe(false)
                         expect(body.data.reward).toBe(20)

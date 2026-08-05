@@ -29,7 +29,7 @@ export class CreateCartAndTransactionItems1721600000000 implements MigrationInte
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */
     async up(queryRunner: QueryRunner): Promise<void> {
-        // cart_items — the persisted shopping cart (one row per user × course)
+        // cart_items -- the persisted shopping cart (one row per user x course)
         await queryRunner.query(`
             CREATE TABLE "cart_items" (
                 "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -48,13 +48,13 @@ export class CreateCartAndTransactionItems1721600000000 implements MigrationInte
             UNIQUE ("user_id", "course_id");
         `)
 
-        // per-user index — every cart read filters by user_id
+        // per-user index -- every cart read filters by user_id
         await queryRunner.query(`
             CREATE INDEX "idx_cart_items_user_id"
             ON "cart_items" ("user_id");
         `)
 
-        // FK to users — deleting a user removes their cart
+        // FK to users -- deleting a user removes their cart
         await queryRunner.query(`
             ALTER TABLE "cart_items"
             ADD CONSTRAINT "fk_user_id_cart_items_users"
@@ -62,7 +62,7 @@ export class CreateCartAndTransactionItems1721600000000 implements MigrationInte
             ON DELETE CASCADE ON UPDATE NO ACTION;
         `)
 
-        // FK to courses — deleting a course removes it from every cart
+        // FK to courses -- deleting a course removes it from every cart
         await queryRunner.query(`
             ALTER TABLE "cart_items"
             ADD CONSTRAINT "fk_course_id_cart_items_courses"
@@ -70,7 +70,7 @@ export class CreateCartAndTransactionItems1721600000000 implements MigrationInte
             ON DELETE CASCADE ON UPDATE NO ACTION;
         `)
 
-        // transaction_items — the per-course lines of a multi-course order.
+        // transaction_items -- the per-course lines of a multi-course order.
         // pricing_phase reuses the existing "pricing_phase" enum (already created
         // by the transactions table); reference it by type, do not recreate it.
         await queryRunner.query(`
@@ -87,13 +87,13 @@ export class CreateCartAndTransactionItems1721600000000 implements MigrationInte
             );
         `)
 
-        // per-order index — the enroll fan-out loads all lines for a transaction
+        // per-order index -- the enroll fan-out loads all lines for a transaction
         await queryRunner.query(`
             CREATE INDEX "idx_transaction_items_transaction_id"
             ON "transaction_items" ("transaction_id");
         `)
 
-        // FK to transactions — deleting the order removes its lines
+        // FK to transactions -- deleting the order removes its lines
         await queryRunner.query(`
             ALTER TABLE "transaction_items"
             ADD CONSTRAINT "fk_transaction_id_transaction_items_transactions"
@@ -101,7 +101,7 @@ export class CreateCartAndTransactionItems1721600000000 implements MigrationInte
             ON DELETE CASCADE ON UPDATE NO ACTION;
         `)
 
-        // FK to courses — deleting a course removes its order lines
+        // FK to courses -- deleting a course removes its order lines
         await queryRunner.query(`
             ALTER TABLE "transaction_items"
             ADD CONSTRAINT "fk_course_id_transaction_items_courses"
@@ -112,7 +112,7 @@ export class CreateCartAndTransactionItems1721600000000 implements MigrationInte
 
     /**
      * Reverse migration: drop FKs, indexes, constraints and tables in dependency order.
-     * The `pricing_phase` enum is NOT dropped — it is owned by the transactions table.
+     * The `pricing_phase` enum is NOT dropped -- it is owned by the transactions table.
      *
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */

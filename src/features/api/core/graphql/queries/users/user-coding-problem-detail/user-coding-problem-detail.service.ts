@@ -16,7 +16,7 @@ import {
 @Injectable()
 /**
  * Live read backing the public profile's coding-problem-detail surface
- * (`/profile/<username>/skills/<slug>`) — the problem itself (no ownership
+ * (`/profile/<username>/skills/<slug>`) -- the problem itself (no ownership
  * check, same read as the `codingProblem` query) plus the TARGET user's
  * (`request.userId`, the profile owner) accepted-submission summary, scoped
  * by the resolved problem id. Visibility for locked profiles is enforced
@@ -42,7 +42,7 @@ export class UserCodingProblemDetailService {
             slug,
         } = request
 
-        // same read as `codingProblem` — no ownership check, sample testcases only
+        // same read as `codingProblem` -- no ownership check, sample testcases only
         const problem = await this.codingProblemService.getBySlug({
             slug,
             locale,

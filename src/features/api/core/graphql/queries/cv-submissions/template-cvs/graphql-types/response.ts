@@ -15,7 +15,7 @@ import {
 })
 /**
  * Envelope for `templateCvs`: locale-resolved Junior/Mid/Senior review
- * rubrics for the template selector. Public — no auth on the resolver.
+ * rubrics for the template selector. Public -- no auth on the resolver.
  */
 export class TemplateCvsResponse
     extends AbstractGraphQLResponse

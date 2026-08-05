@@ -13,5 +13,5 @@ import {
         FlashcardDecksByCourseResolver,
     ],
 })
-/** Feature-module boundary for the `flashcardDecksByCourse` query — wires its resolver (business logic lives in the shared `FlashcardDeckReadService`). */
+/** Feature-module boundary for the `flashcardDecksByCourse` query -- wires its resolver (business logic lives in the shared `FlashcardDeckReadService`). */
 export class FlashcardDecksByCourseSingleQueryModule extends ConfigurableModuleClass {}

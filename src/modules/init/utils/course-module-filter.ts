@@ -5,9 +5,9 @@ import type {
 /**
  * Whether a module/milestone should be included for the given course.
  *
- * Map value: `null` = all order indexes; `Set(n…)` = allow-list only
- * (e.g. `0,1` → folders `0-*`, `1-*`); `Set()` = disabled.
- * Unknown `courseDisplayId` → exclude (avoids seeding every index when the
+ * Map value: `null` = all order indexes; `Set(n...)` = allow-list only
+ * (e.g. `0,1` -> folders `0-*`, `1-*`); `Set()` = disabled.
+ * Unknown `courseDisplayId` -> exclude (avoids seeding every index when the
  * displayId is not declared in `seed.yaml`).
  */
 const shouldIncludeByOrderIndex = (

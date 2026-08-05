@@ -54,7 +54,7 @@ const COURSES_MOUNT_ROOT = path.join(
     ".mount/data/courses",
 )
 
-/** Mount folder for the NestJS “frameworks in backend” lesson (SCHEMA V2 sample). */
+/** Mount folder for the NestJS "frameworks in backend" lesson (SCHEMA V2 sample). */
 const FRAMEWORKS_IN_BACKEND_MOUNT_DIR = path.join(
     COURSES_MOUNT_ROOT,
     "0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend",
@@ -277,13 +277,13 @@ describe("ContentParserService",
                                     contentId: parsed.id,
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Framework trong backend là gì?",
+                                    value: "Framework trong backend là gì?", // vn-ok: vi-locale seed fixture assertion
                                 },
                                 {
                                     contentId: parsed.id,
                                     locale: Locale.Vi,
                                     field: "description",
-                                    value: "Hiểu vai trò của một backend framework: vì sao framework chia code thành module, vì sao nó tự khởi tạo và ghép nối các thành phần thay cho bạn, và inversion of control giải quyết vấn đề gì. Bài minh hoạ song song bằng TypeScript, Java, C# và Go — bạn chọn ngôn ngữ của mình.",
+                                    value: "Hiểu vai trò của một backend framework: vì sao framework chia code thành module, vì sao nó tự khởi tạo và ghép nối các thành phần thay cho bạn, và inversion of control giải quyết vấn đề gì. Bài minh hoạ song song bằng TypeScript, Java, C# và Go — bạn chọn ngôn ngữ của mình.", // vn-ok: vi-locale seed fixture assertion
                                 },
                                 {
                                     contentId: parsed.id,

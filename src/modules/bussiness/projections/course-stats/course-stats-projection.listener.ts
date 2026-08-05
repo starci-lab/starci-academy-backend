@@ -28,7 +28,7 @@ import type {
  * safety are owned by {@link AbstractProjectionListener}.
  */
 export class CourseStatsProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "course-stats-projection"
 
     /** Enrollment changes move a course's enrollment count. */
@@ -60,7 +60,7 @@ export class CourseStatsProjectionListener extends AbstractProjectionListener<st
     ): Array<string> {
         // narrow the row to the enrollment shape
         const courseId = (row as CourseStatsEnrollmentCdcRow).course_id
-        // no course id (tombstone / unexpected shape) → nothing to recompute
+        // no course id (tombstone / unexpected shape) -> nothing to recompute
         if (!courseId) {
             return []
         }

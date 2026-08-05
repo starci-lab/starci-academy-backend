@@ -16,7 +16,7 @@ export interface PlaygroundNotEntitledExceptionMetadata extends AbstractExceptio
 /**
  * Thrown when a learner without an active enrollment tries to create a
  * playground session. Mirrors the "enroll OR pay unlocks higher tiers" rule
- * used by {@link AiEntitlementService} — a playground requires at least one
+ * used by {@link AiEntitlementService} -- a playground requires at least one
  * active enrollment.
  */
 export class PlaygroundNotEntitledException extends AbstractException {

@@ -35,7 +35,7 @@ export class CheckEmailExistsData {
 /**
  * GraphQL envelope for `checkEmailExists`. The payload is bloom-filter
  * based: `exists: true` is a maybe (false positives), `exists: false` is
- * definite absence — signup UI must not treat a hit as proof the email is
+ * definite absence -- signup UI must not treat a hit as proof the email is
  * taken without a later authoritative check.
  */
 export class CheckEmailExistsResponse

@@ -439,7 +439,7 @@ export class CourseEntity extends UuidAbstractEntity {
     /**
      * Whether the current viewer has a REAL (paid) enrollment in this course.
      * Null for anonymous viewers (no viewer to check); computed per-request by
-     * `CoursesResolver`, batched across the page's course ids — never persisted.
+     * `CoursesResolver`, batched across the page's course ids -- never persisted.
      */
     @Field(
         () => Boolean,
@@ -452,10 +452,10 @@ export class CourseEntity extends UuidAbstractEntity {
 
     /**
      * Authored concept mind-map: a keyword tree with cross-links to the learning
-     * surfaces (lesson / challenge / milestone / flashcard / interview / …) that
+     * surfaces (lesson / challenge / milestone / flashcard / interview / ...) that
      * teach each concept. Seeded from `.mount/courses/<course>/mind-map.json`; null
      * when the course has no authored map (the mind-map query then falls back to a
-     * module-derived graph). Not exposed on this type — read via the mind-map query.
+     * module-derived graph). Not exposed on this type -- read via the mind-map query.
      */
     @Column({
         name: "mind_map",
@@ -483,13 +483,13 @@ export type CourseMindMapLinkKind =
 export interface CourseMindMapLink {
     /** Which surface kind this points at. */
     kind: CourseMindMapLinkKind
-    /** Owning module slug — required for `lesson`/`challenge` (to resolve the route). */
+    /** Owning module slug -- required for `lesson`/`challenge` (to resolve the route). */
     module?: string
     /** Slug/displayId of the target surface within the course. */
     ref: string
 }
 
-/** How common/important a keyword is in real work / interviews — drives the node's ring colour (high=green, medium=yellow, low=red). */
+/** How common/important a keyword is in real work / interviews -- drives the node's ring colour (high=green, medium=yellow, low=red). */
 export type CourseMindMapPopularity = "high" | "medium" | "low"
 
 /** One concept node of the authored mind-map tree. */
@@ -500,7 +500,7 @@ export interface CourseMindMapNode {
     label: CourseMindMapText
     /** Optional one-line gloss (tooltip). */
     desc?: CourseMindMapText
-    /** Authored popularity tier — how common the keyword is; drives the node ring colour. */
+    /** Authored popularity tier -- how common the keyword is; drives the node ring colour. */
     popularity?: CourseMindMapPopularity
     /** Surfaces that teach/drill/test this concept (0..N). */
     links?: Array<CourseMindMapLink>

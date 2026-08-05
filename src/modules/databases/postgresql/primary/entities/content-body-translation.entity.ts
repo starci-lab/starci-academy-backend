@@ -25,7 +25,7 @@ import {
 })
 @Entity("content_body_translations")
 /**
- * Localized lesson body for a SCHEMA V2 content body bucket. One row per (body × locale).
+ * Localized lesson body for a SCHEMA V2 content body bucket. One row per (body x locale).
  */
 export class ContentBodyTranslationEntity extends AbstractEntity {
     /**

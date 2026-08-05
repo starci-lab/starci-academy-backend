@@ -19,7 +19,7 @@ import type {
     TrendingItemValue,
 } from "./types"
 
-/** The single partition key — there is exactly one global trending row. */
+/** The single partition key -- there is exactly one global trending row. */
 const GLOBAL_KEY = "global"
 /** How many candidates to materialise (over-fetch so per-viewer exclusion still fills `limit`). */
 const CANDIDATE_LIMIT = 50
@@ -31,7 +31,7 @@ const CANDIDATE_LIMIT = 50
  * {@link recompute}, which folds the top-{@link CANDIDATE_LIMIT} lessons into the
  * single global row's jsonb `value.items`. {@link getTrending} reads that row
  * (TTL lazy-refresh) and only does a light per-viewer membership check to drop
- * lessons the viewer already read — no aggregation per request.
+ * lessons the viewer already read -- no aggregation per request.
  */
 export class TrendingContentsProjectionService {
     constructor(
@@ -79,7 +79,7 @@ export class TrendingContentsProjectionService {
         if (items.length === 0) {
             return []
         }
-        // light per-viewer membership check over the bounded candidate set — which
+        // light per-viewer membership check over the bounded candidate set -- which
         // of these the viewer already read (so "trending" reflects the crowd)
         const candidateIds = items.map((item) => item.id)
         const readRows = await this.entityManager.query<Array<ContentIdRow>>(
@@ -122,7 +122,7 @@ export class TrendingContentsProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute()
             row = await this.entityManager.findOne(
@@ -149,7 +149,7 @@ export class TrendingContentsProjectionService {
     }
 
     /**
-     * Build the trending UPSERT — top-`$2` most-read lessons in the rolling 7-day
+     * Build the trending UPSERT -- top-`$2` most-read lessons in the rolling 7-day
      * window, folded into `value.items` for the single global key `$1`.
      *
      * @returns the parameterised UPSERT SQL.

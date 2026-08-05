@@ -13,7 +13,7 @@ export interface PingKeyParams {
 }
 
 /**
- * Result of a provider ping — used by the AI Balancer health checker.
+ * Result of a provider ping -- used by the AI Balancer health checker.
  */
 export interface PingKeyResult {
     /** Whether the ping returned a healthy response. */

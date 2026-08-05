@@ -16,7 +16,7 @@ import {
 /**
  * Maps each preset tier to its `@Throttle` option object. The options are
  * keyed by the SAME window names registered at the module level
- * (`short` / `long`) so the guard actually applies them — the previous
+ * (`short` / `long`) so the guard actually applies them -- the previous
  * uuid-keyed implementation never matched a module window and was a no-op.
  */
 const tierOptions: Record<ThrottlerConfig, ThrottleTierOptions> = {
@@ -32,7 +32,7 @@ const tierOptions: Record<ThrottlerConfig, ThrottleTierOptions> = {
  * Applies a preset rate-limit tier to an endpoint. Works because a global
  * {@link ThrottlerBehindProxyGuard} (APP_GUARD) is the enforcement engine and
  * the module registers matching `short` / `long` windows (with a no-op default
- * so undecorated endpoints stay unlimited — there is no global cap).
+ * so undecorated endpoints stay unlimited -- there is no global cap).
  *
  * @param config - The preset tier (soft / medium / strict).
  * @returns The `@Throttle` decorator pre-filled with the tier's per-window limits.

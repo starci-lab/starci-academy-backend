@@ -13,5 +13,5 @@ import {
         CourseLearningHistoryResolver,
     ],
 })
-/** Feature-module boundary for the `courseLearningHistory` query — wires its resolver so the users group can mount this profile tab independently. */
+/** Feature-module boundary for the `courseLearningHistory` query -- wires its resolver so the users group can mount this profile tab independently. */
 export class CourseLearningHistorySingleQueryModule extends ConfigurableModuleClass {}

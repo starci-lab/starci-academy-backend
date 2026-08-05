@@ -81,7 +81,7 @@ export class SetupTwoFactorResolver {
             plainText: secret,
         })
 
-        // persist as the pending secret and force the flag off until confirmed —
+        // persist as the pending secret and force the flag off until confirmed --
         // keeps `twoFactorEnabled` consistent with a secret the user has proven
         await this.entityManager.update(
             UserEntity,
@@ -101,7 +101,7 @@ export class SetupTwoFactorResolver {
             accountName,
         })
 
-        // return the secret only here, at enrollment time — never via a query
+        // return the secret only here, at enrollment time -- never via a query
         return {
             secret,
             otpauthUrl,

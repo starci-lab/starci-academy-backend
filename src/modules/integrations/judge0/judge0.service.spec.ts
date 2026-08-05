@@ -129,7 +129,7 @@ describe("Judge0Service",
                         // auth token from the (mocked) mount helper rides along
                         expect(init.headers["X-Auth-Token"]).toBe("test-auth-token")
                         const sent = JSON.parse(init.body)
-                        // "print(1)" base64-encoded — proves text fields are encoded
+                        // "print(1)" base64-encoded -- proves text fields are encoded
                         expect(sent.submissions[0].source_code).toBe(
                             Buffer.from("print(1)",
                                 "utf8").toString("base64"),
@@ -225,7 +225,7 @@ describe("Judge0Service",
                                 ],
                             }),
                         )
-                        // second poll flips to Accepted (terminal) → loop returns
+                        // second poll flips to Accepted (terminal) -> loop returns
                         fetchMock.mockResolvedValueOnce(
                             jsonResponse({
                                 submissions: [
@@ -331,7 +331,7 @@ describe("Judge0Service",
 
                 it("normalizes a transport error into Judge0RequestFailedException",
                     async () => {
-                        // fetch itself throws (network/abort) — not a Response
+                        // fetch itself throws (network/abort) -- not a Response
                         fetchMock.mockRejectedValueOnce(
                             new Error("ECONNREFUSED"),
                         )

@@ -15,7 +15,7 @@ import {
 /* eslint-disable starci-be/no-deep-module-import --
  * This CLI must not import `@modules/init`: that barrel evaluates InitModule /
  * SeedersService / DataGitBootstrapService. Providers below are the seeder
- * subgraph only — import those folders directly (see module JSDoc).
+ * subgraph only -- import those folders directly (see module JSDoc).
  */
 import {
     CourseIdFactoryService,
@@ -72,7 +72,7 @@ import {
 })
 /**
  * `PlaygroundSeedTestCommand`'s dependency graph is provided directly here rather
- * than via `SeedersModule.register(...)` — that module also provides `SeedersService`
+ * than via `SeedersModule.register(...)` -- that module also provides `SeedersService`
  * (the git-sourced init orchestrator), which this git-free CLI command must never
  * import, even transitively. Every provider below is the exact subgraph
  * `PlaygroundProcessorService` needs (confirmed per-constructor); none of them

@@ -55,12 +55,12 @@ import {
  * Sepay-specific course enrollment via the SePay Payment Gateway. Signs the
  * order fields (form-POST checkout) and persists a pending preflight row.
  *
- * A domestic VND gateway — honours BOTH `request.voucherCode` discount types
+ * A domestic VND gateway -- honours BOTH `request.voucherCode` discount types
  * (Percent and Flat) per `PAYMENT_MODIFIER_CAPABILITY`, using the 3-step
- * pattern (preview → reserve inside the same insert transaction → persist the
+ * pattern (preview -> reserve inside the same insert transaction -> persist the
  * code) every gateway now follows. PayOS mirrors this pattern; the USD
  * gateways (Stripe/PayPal/Crypto) follow the same pattern but only for
- * Percent (Flat is rejected before dispatch — see course-enroll.handler.ts).
+ * Percent (Flat is rejected before dispatch -- see course-enroll.handler.ts).
  */
 export class CourseEnrollSepayService {
     constructor(
@@ -122,7 +122,7 @@ export class CourseEnrollSepayService {
             discountPercent,
         })
 
-        // reuse a still-fresh pending transaction (regenerate signed fields) — a
+        // reuse a still-fresh pending transaction (regenerate signed fields) -- a
         // voucher on a reused transaction is NOT re-evaluated (it was already
         // reserved/priced when that transaction was first created)
         const existing = await this.entityManager.findOne(
@@ -155,7 +155,7 @@ export class CourseEnrollSepayService {
             }
         }
 
-        // an invalid code throws HERE (before any row is written) — a valid one
+        // an invalid code throws HERE (before any row is written) -- a valid one
         // further discounts the loyalty-discounted amount
         const discountedAmount = voucherCode
             ? this.voucherService.applyToAmount(
@@ -167,7 +167,7 @@ export class CourseEnrollSepayService {
                 }),
             )
             : loyaltyAmount
-        // installment (trả góp): charge only the FIRST cycle now (monthly), snapshot
+        // installment : charge only the FIRST cycle now (monthly), snapshot
         // the whole-schedule intent onto the Enroll transaction so the enroll worker
         // creates the Fixed plan on payment success (§2.2). One-shot = full amount.
         const installment = installmentMonths
@@ -209,7 +209,7 @@ export class CourseEnrollSepayService {
             )
             const saved = await manager.save(created)
             if (voucherCode) {
-                // re-validate + reserve UNDER LOCK — the earlier previewDiscount() was
+                // re-validate + reserve UNDER LOCK -- the earlier previewDiscount() was
                 // advisory only (no lock held), so a race since then is still caught here
                 await this.voucherService.reserve({
                     entityManager: manager,
@@ -250,7 +250,7 @@ export class CourseEnrollSepayService {
 
     /**
      * Sign SePay PG one-time-payment fields and return them JSON-encoded for the
-     * client to POST as a form. Pure local HMAC signing — no side effects.
+     * client to POST as a form. Pure local HMAC signing -- no side effects.
      */
     private signFields({
         orderCode,

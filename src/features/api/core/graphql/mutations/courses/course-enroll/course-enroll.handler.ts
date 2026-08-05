@@ -93,13 +93,13 @@ export class CourseEnrollHandler
             voucherCode,
         } = request
 
-        // SSOT capability matrix — see PAYMENT_MODIFIER_CAPABILITY for the design
+        // SSOT capability matrix -- see PAYMENT_MODIFIER_CAPABILITY for the design
         // decision (.artifacts/states/transactions/business.md § "Payment-modifier
         // capability model"). Both checks below reject LOUD, before any row or
-        // checkout is created — never a silent drop, never a runtime FX conversion.
+        // checkout is created -- never a silent drop, never a runtime FX conversion.
         const capability = PAYMENT_MODIFIER_CAPABILITY[paymentType]
 
-        // installments (trả góp) are VND-only — the non-domestic gateways can't
+        // installments are VND-only -- the non-domestic gateways can't
         // collect the later cycles, so refuse before creating anything
         if (installmentMonths && !capability?.supportsInstallment) {
             throw new InstallmentCurrencyNotSupportedException({
@@ -110,8 +110,8 @@ export class CourseEnrollHandler
         // a voucher's DISCOUNT TYPE decides its portability: Percent is
         // currency-agnostic and honoured everywhere; Flat is VND-denominated and
         // must reject on a USD gateway rather than silently being dropped (the
-        // as-built gap this closes — see findings.md #3). The preview here is
-        // advisory only (no lock) — each provider service re-validates + reserves
+        // as-built gap this closes -- see findings.md #3). The preview here is
+        // advisory only (no lock) -- each provider service re-validates + reserves
         // under lock right before it persists the pending transaction.
         if (voucherCode) {
             const {

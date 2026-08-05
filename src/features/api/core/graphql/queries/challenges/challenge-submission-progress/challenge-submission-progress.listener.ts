@@ -35,7 +35,7 @@ export class ChallengeSubmissionProgressListener implements OnModuleInit {
         this.eventEmitterService.on({
             event: EventName.ChallengeSubmissionProgressUpdated,
             listener: async (payload: ChallengeSubmissionProgressUpdatedEventPayload) => {
-                // load the course relation explicitly — `courseId` is a virtual
+                // load the course relation explicitly -- `courseId` is a virtual
                 // @RelationId that TypeORM cannot resolve via the default select
                 const enrollment = await this.entityManager.findOneOrFail(
                     EnrollmentEntity,

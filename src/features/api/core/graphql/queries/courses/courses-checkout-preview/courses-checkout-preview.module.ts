@@ -28,7 +28,7 @@ import {
     ],
 })
 /**
- * Feature-module boundary for `coursesCheckoutPreview` — re-provides the same
+ * Feature-module boundary for `coursesCheckoutPreview` -- re-provides the same
  * pricing helpers the real checkout charges with so the preview cannot drift.
  */
 export class CoursesCheckoutPreviewSingleQueryModule extends ConfigurableModuleClass {}

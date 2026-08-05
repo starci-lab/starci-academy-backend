@@ -29,7 +29,7 @@ interface BuildParams {
     badges: Array<AbstractBadge>
     definitions: Array<AchievementEntity>
     earned?: Array<UserAchievementEntity>
-    // each badge's metric value, in the badges' order (→ v0, v1, …)
+    // each badge's metric value, in the badges' order (-> v0, v1, ...)
     values: Array<number>
     inserted?: boolean
 }
@@ -37,7 +37,7 @@ interface BuildParams {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** The user under test — value is irrelevant; it is only threaded into params. */
+/** The user under test -- value is irrelevant; it is only threaded into params. */
 const USER_ID = "user-1"
 
 /** A stand-in badge: a fixed slug + a no-op scalar query (the value is mocked). */
@@ -100,7 +100,7 @@ describe("AchievementsService",
             entityManager = makeEntityManagerMock()
             entityManager.find.mockImplementation(async (entity: unknown) =>
                 (entity === AchievementEntity ? definitions : earned))
-            // composite row: { v0, v1, … } in badges order
+            // composite row: { v0, v1, ... } in badges order
             const row = Object.fromEntries(values.map((value, index) => [`v${index}`,
                 String(value)]))
             entityManager.query.mockImplementation(async (sql: unknown) =>
@@ -247,7 +247,7 @@ describe("AchievementsService",
                             values: [
                                 9,
                             ],
-                            // INSERT ... WHERE NOT EXISTS suppressed the row → no id returned
+                            // INSERT ... WHERE NOT EXISTS suppressed the row -> no id returned
                             inserted: false,
                         })
 
@@ -323,7 +323,7 @@ describe("AchievementsService",
                             slug: "brainy-octopus",
                             currentValue: 1,
                         })
-                        // only busy-bee crossed its bar this read → congratulate it
+                        // only busy-bee crossed its bar this read -> congratulate it
                         expect(result.newAchievements.map((item) => item.slug)).toEqual([
                             "busy-bee",
                         ])
@@ -351,7 +351,7 @@ describe("AchievementsService",
                             values: [
                                 30,
                             ],
-                            // already holds tiers 1 + 2 → nothing newly inserted
+                            // already holds tiers 1 + 2 -> nothing newly inserted
                             earned: [
                     {
                         achievementId: "def-sword-shark",
@@ -375,7 +375,7 @@ describe("AchievementsService",
                             tierReached: 2,
                             currentValue: 30,
                         })
-                        // one earned achievement in the ledger → count 1
+                        // one earned achievement in the ledger -> count 1
                         expect(result.count).toBe(1)
                         expect(result.newAchievements).toEqual([])
                     })

@@ -82,7 +82,7 @@ import {
 
 @Injectable()
 /**
- * Step 0: Load GitHub repo → LLM grades per criterion (yes/no + score) → persist attempt + feedback.
+ * Step 0: Load GitHub repo -> LLM grades per criterion (yes/no + score) -> persist attempt + feedback.
  * Also ensures the UserMilestoneTask record exists for the given enrollment + milestoneTask.
  */
 export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
@@ -215,7 +215,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 payload.lang)
             : []
 
-        /** Load GitHub repo — auth with the learner's own token for a private repo, else the org token. */
+        /** Load GitHub repo -- auth with the learner's own token for a private repo, else the org token. */
         const repoUrl = payload.githubUrl
         const githubAccessToken = await this.resolveGithubAccessToken(payload.enrollmentId)
         const gitLoader = new GithubRepoLoader(
@@ -272,7 +272,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 }),
         )
 
-        /** Map criteria → retrieval queries (V2 yes/no body, else legacy text + prompt). */
+        /** Map criteria -> retrieval queries (V2 yes/no body, else legacy text + prompt). */
         const retrievalCriteria = isV2Task
             ? v2Criteria.map((criterion) => ({
                 body: criterion.body
@@ -283,7 +283,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 .map((criterion) => ({
                     body: `${criterion.text}\n${criterion.promptText}`
                 }))
-        /** ONE high-level RAG call owns chunk → embed → retrieve; the worker only gathers
+        /** ONE high-level RAG call owns chunk -> embed -> retrieve; the worker only gathers
             the source docs + criteria. The run namespace includes the fencing token so a
             stalled re-dispatch can never corrupt the live owner's vectors mid-search. */
         const gradingCfg = envConfig().services.githubWorker.processGitSubmission
@@ -426,7 +426,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         await this.aiEntitlementService.assertNotOverQuota({
             userId: enrollment.userId,
         })
-        // ONE shared entry: capstone tasks are CODE (github repo) → floor at Balanced
+        // ONE shared entry: capstone tasks are CODE (github repo) -> floor at Balanced
         // like challenge code grading (Free/Economy grade code too shallowly per eval).
         // Climbs to the tier ceiling. Credit charge happens in the complete step
         // (by the stored served model).

@@ -12,7 +12,7 @@ export interface S3BucketCreationFailedExceptionMetadata extends AbstractExcepti
     resource?: string
 }
 
-/** Aborts startup/sync when the bucket cannot be created — later puts would fail opaquely. */
+/** Aborts startup/sync when the bucket cannot be created -- later puts would fail opaquely. */
 export class S3BucketCreationFailedException extends AbstractException {
     constructor(
         {

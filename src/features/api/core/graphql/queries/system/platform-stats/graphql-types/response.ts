@@ -12,7 +12,7 @@ import {
     description: "Platform-wide aggregate counters for the public landing page.",
 })
 /**
- * Landing-page hero counters — distinct enrolled learners, lessons, courses,
+ * Landing-page hero counters -- distinct enrolled learners, lessons, courses,
  * and badges earned across the whole platform.
  */
 export class PlatformStatsData {

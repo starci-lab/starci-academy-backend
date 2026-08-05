@@ -33,7 +33,7 @@ import {
 
 @Resolver()
 /**
- * Loads one coding problem by slug for the detail/editor view — statement,
+ * Loads one coding problem by slug for the detail/editor view -- statement,
  * starter code, and SAMPLE testcases only (hidden testcases are never exposed).
  */
 export class CodingProblemResolver {

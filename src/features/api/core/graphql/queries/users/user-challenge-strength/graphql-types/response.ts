@@ -12,7 +12,7 @@ import {
     description: "A user's derived challenge-strength percentile + global rank.",
 })
 /**
- * A user's DERIVED challenge-strength standing — a percentile + 1-based global
+ * A user's DERIVED challenge-strength standing -- a percentile + 1-based global
  * rank by a difficulty-weighted sum of their distinct passed challenges. Purely
  * derived: it does NOT touch the points / XP / league economy. Both fields are
  * null when the user has no passes (unranked).

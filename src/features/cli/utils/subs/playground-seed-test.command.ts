@@ -45,7 +45,7 @@ const DEVOPS_MASTERY_COURSE_INDEX = 2
 /** Course folder display id (slug) for `courses/2-devops-mastery/`. */
 const DEVOPS_MASTERY_DISPLAY_ID = "devops-mastery"
 
-/** Course folder relative path — index-prefixed, relative to the `courses` context dir. */
+/** Course folder relative path -- index-prefixed, relative to the `courses` context dir. */
 const DEVOPS_MASTERY_RELATIVE_PATH = "2-devops-mastery"
 
 @SubCommand({
@@ -74,7 +74,7 @@ export class PlaygroundSeedTestCommand extends CommandRunner {
      * @returns void
      */
     async run(): Promise<void> {
-        // point every filesystem-context read at the local staging root ONLY —
+        // point every filesystem-context read at the local staging root ONLY --
         // never resolves against the configured git-synced `context.path`
         setRuntimeContextRoot(
             path.resolve(
@@ -131,7 +131,7 @@ export class PlaygroundSeedTestCommand extends CommandRunner {
             )
             process.exit(1)
         } finally {
-            // release the staging-root override no matter what — a later read (if
+            // release the staging-root override no matter what -- a later read (if
             // any) falls back to the configured context path; the override itself
             // only ever pointed at local `.mount/data`, so no git state is touched
             clearRuntimeContextRoot()

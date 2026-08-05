@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `frontier` to the `ai_model_category` Postgres enum — the top tier above
+ * Adds `frontier` to the `ai_model_category` Postgres enum -- the top tier above
  * `premium` (Claude Opus 4.8, GPT-5) used for grading `insane` tasks.
  *
  * Dev runs schema via `synchronize` (a fresh DB creates the enum with all
@@ -31,6 +31,6 @@ export class AddFrontierAiModelCategory1719900000000 implements MigrationInterfa
      * recreating the type, so this is intentionally a no-op.
      */
     async down(): Promise<void> {
-        // no-op — see doc comment
+        // no-op -- see doc comment
     }
 }

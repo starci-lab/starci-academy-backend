@@ -15,16 +15,16 @@ export interface GradingRetrievalCriterion {
 }
 
 /**
- * Params for {@link GradingRetrievalService.retrieveGradingExcerpt} — the
- * high-level entry point that owns the WHOLE retrieval pipeline (chunk → embed →
- * vector-retrieve → assemble). Callers (grading workers) hand over the raw
+ * Params for {@link GradingRetrievalService.retrieveGradingExcerpt} -- the
+ * high-level entry point that owns the WHOLE retrieval pipeline (chunk -> embed ->
+ * vector-retrieve -> assemble). Callers (grading workers) hand over the raw
  * gathered source documents plus their retrieval config; no chunking, embedding,
  * or vector-store code leaks into the caller.
  */
 export interface RetrieveGradingExcerptParams {
-    /** {@link RetrieveGradingSourceParams.runKey} — per-run Qdrant collection namespace. */
+    /** {@link RetrieveGradingSourceParams.runKey} -- per-run Qdrant collection namespace. */
     runKey: string
-    /** Raw, UN-split source documents (repo files / document text) — the service chunks them. */
+    /** Raw, UN-split source documents (repo files / document text) -- the service chunks them. */
     documents: Array<Document>
     /** Per-language yes/no criteria the retrieval is steered toward. */
     criteria: Array<GradingRetrievalCriterion>
@@ -53,7 +53,7 @@ export interface RetrieveGradingSourceParams {
      * Unique key for THIS grading run (e.g. `${userChallengeSubmissionId}-${fencingToken}`).
      * Used as the Qdrant collection namespace so a stalled, re-dispatched job (which carries a
      * different fencing token) can never delete or overwrite the live owner's vectors
-     * mid-search — each run owns an isolated collection.
+     * mid-search -- each run owns an isolated collection.
      */
     runKey: string
     /** Pre-split source chunks (code files / document text). */

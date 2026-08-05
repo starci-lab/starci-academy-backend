@@ -28,7 +28,7 @@ import {
 @Resolver()
 /**
  * The redeemable reward catalog (the Coin shop), localized to the
- * request locale. Public (no auth) — the catalog is the same for everyone; the
+ * request locale. Public (no auth) -- the catalog is the same for everyone; the
  * viewer's balance lives in the separate `myRewardWallet` query.
  */
 export class RewardsResolver {

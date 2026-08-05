@@ -10,9 +10,9 @@ import {
  * `ReconcileTransactionWorker.finalize()` to call `InstallmentPlanService.
  * recordPayment`). See `docs/installment-payment-plan.md`.
  *
- * CAUTION: `action_type` is used by ≥2 columns (`transactions.action_type`,
- * `jobs.action_type`) — on an existing DB `synchronize` would try to recreate
- * the shared enum type and crash boot. Run this `ALTER TYPE … ADD VALUE`
+ * CAUTION: `action_type` is used by >=2 columns (`transactions.action_type`,
+ * `jobs.action_type`) -- on an existing DB `synchronize` would try to recreate
+ * the shared enum type and crash boot. Run this `ALTER TYPE ... ADD VALUE`
  * (migration or psql) BEFORE booting. `ADD VALUE IF NOT EXISTS` is idempotent
  * (Postgres 12+).
  */
@@ -33,7 +33,7 @@ export class AddInstallmentPaymentActionType1722400000000 implements MigrationIn
             ALTER TABLE "transactions"
             ADD COLUMN IF NOT EXISTS "installment_plan_id" uuid;
         `)
-        // SET NULL (not CASCADE) — a plan being deleted should never wipe the
+        // SET NULL (not CASCADE) -- a plan being deleted should never wipe the
         // buyer's payment history
         await queryRunner.query(`
             ALTER TABLE "transactions"

@@ -39,7 +39,7 @@ const BUNDLE_BONUS_PERCENT_TIER_2 = 5
 /** Bundle bonus percent for a cart holding 3 or more courses in one checkout. */
 const BUNDLE_BONUS_PERCENT_TIER_3 = 10
 /**
- * Hard cap on the loyalty percent + bundle bonus COMBINED — higher than
+ * Hard cap on the loyalty percent + bundle bonus COMBINED -- higher than
  * {@link MAX_DISCOUNT_PERCENT} so a large multi-course cart can still clear the
  * loyalty-only ceiling once its bundle bonus is added.
  */
@@ -49,11 +49,11 @@ const MAX_COMBINED_DISCOUNT_PERCENT = 40
 /**
  * Computes the discount applied to course checkouts, in two independent parts:
  *
- * 1. **Engagement-based loyalty** ({@link computeLoyaltyDiscount}) — a bonus per
+ * 1. **Engagement-based loyalty** ({@link computeLoyaltyDiscount}) -- a bonus per
  *    already-owned course plus a "diligent" bonus, capped at
  *    {@link MAX_DISCOUNT_PERCENT}. Based on the buyer's HISTORY, not the order
  *    being checked out.
- * 2. **Bundle bonus** ({@link computeBundleBonusPercent}) — a flat tiered bonus
+ * 2. **Bundle bonus** ({@link computeBundleBonusPercent}) -- a flat tiered bonus
  *    for buying several courses in ONE order, independent of history.
  *    {@link applyBundleBonus} combines the two, capped at
  *    {@link MAX_COMBINED_DISCOUNT_PERCENT}.
@@ -80,7 +80,7 @@ export class LoyaltyDiscountService {
      * @param params - The user to price for, and an optional extra-owned-count
      * used by a multi-course checkout to price a later line as if earlier lines
      * of the SAME order were already bought (see {@link ComputeLoyaltyDiscountParams}).
-     * @returns The percent (0–30), the reason, and the enrolled-course count used.
+     * @returns The percent (0-30), the reason, and the enrolled-course count used.
      */
     async computeLoyaltyDiscount(
         {
@@ -120,16 +120,16 @@ export class LoyaltyDiscountService {
     }
 
     /**
-     * Derive the loyalty percent from an already-fetched {@link LoyaltyContext} —
+     * Derive the loyalty percent from an already-fetched {@link LoyaltyContext} --
      * pure arithmetic, NO DB access. `+5` per owned course (plus any
      * `extraOwnedCount` for progressive cart pricing) + `+5` when diligent, capped
      * at {@link MAX_DISCOUNT_PERCENT}.
      *
      * @param params - The DB-derived context + optional extra-owned-count. `extraOwnedCount`
-     * MUST be non-negative (see {@link ResolveLoyaltyPercentParams.extraOwnedCount}) — it is
+     * MUST be non-negative (see {@link ResolveLoyaltyPercentParams.extraOwnedCount}) -- it is
      * added to `context.ownedCount` with no floor, so a negative value would silently
      * under-discount instead of throwing.
-     * @returns The percent (0–30), the reason, and the enrolled-course count used.
+     * @returns The percent (0-30), the reason, and the enrolled-course count used.
      */
     resolveLoyaltyPercent(
         {
@@ -161,7 +161,7 @@ export class LoyaltyDiscountService {
     /**
      * Bonus percent for buying several courses in ONE order (cart checkout),
      * independent of the buyer's history: `+5` for exactly 2 courses, `+10` for 3
-     * or more, `0` for a single course. Tiered (not cumulative) — a 5-course cart
+     * or more, `0` for a single course. Tiered (not cumulative) -- a 5-course cart
      * still gets the flat +10, not +50.
      *
      * @param itemCount - Number of distinct courses in the order.
@@ -170,11 +170,11 @@ export class LoyaltyDiscountService {
     computeBundleBonusPercent(
         itemCount: number,
     ): number {
-        // 3+ courses in one order → the top bundle tier
+        // 3+ courses in one order -> the top bundle tier
         if (itemCount >= 3) {
             return BUNDLE_BONUS_PERCENT_TIER_3
         }
-        // exactly 2 courses → the entry bundle tier
+        // exactly 2 courses -> the entry bundle tier
         if (itemCount >= 2) {
             return BUNDLE_BONUS_PERCENT_TIER_2
         }
@@ -236,7 +236,7 @@ export class LoyaltyDiscountService {
         if (stats.streak >= DILIGENT_STREAK_THRESHOLD) {
             return true
         }
-        // global Points — SUM of every XP grant across all courses + coding —
+        // global Points -- SUM of every XP grant across all courses + coding --
         // read from the XP projection (single source of truth: xp_histories)
         const { totalPoints } = await this.userXpProjectionService.getXp({
             userId,

@@ -29,7 +29,7 @@ import {
 
 @Injectable()
 /**
- * Parses the per-step folders under a playground's `steps/` directory — one folder
+ * Parses the per-step folders under a playground's `steps/` directory -- one folder
  * per ordered step (`{index}-{slug}/{en,vi}.md`). Each step folder holds `{en,vi}.md`
  * with top-level `# title` / `# body` / `# commandHint` / `# verifyResourceKind` /
  * `# verifyResourceNamePattern` / `# verifyExpectedStatus` headings.
@@ -82,7 +82,7 @@ export class PlaygroundStepParserService {
                     ),
                 )
             }
-            // merge locales → default-locale (English) step + per-locale translation rows
+            // merge locales -> default-locale (English) step + per-locale translation rows
             // for the `title`/`body` i18n fields (projected live at request time)
             const merged = this.mergeJsonService.merge({
                 jsons: Object.values(Locale).map((locale) => ({
@@ -102,7 +102,7 @@ export class PlaygroundStepParserService {
                 playgroundStepIndex: stepPath.orderIndex,
             })
             // per-locale overrides for `title`/`body`. Steps cascade-save TWO levels deep
-            // (playground → steps → step.translations), so set the FK via the RELATION —
+            // (playground -> steps -> step.translations), so set the FK via the RELATION --
             // `playground_step_id` is BOTH the FK and part of the composite PK, and a
             // raw-only scalar can land null on the nested insert (the same crash guarded
             // against in ContentParserService.parseBodies()'s content_body_translations).
@@ -121,7 +121,7 @@ export class PlaygroundStepParserService {
                 }))
             steps.push({
                 id: playgroundStepId,
-                // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+                // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
                 sortIndex: this.toSortIndex(
                     (merged as { sortIndex?: unknown }).sortIndex,
                     stepPath.orderIndex,
@@ -134,18 +134,18 @@ export class PlaygroundStepParserService {
                     merged.body,
                     "",
                 ),
-                // nullable: absent `# commandHint` heading → null
+                // nullable: absent `# commandHint` heading -> null
                 commandHint: this.coerceMdScalarService.toNullableStringColumn(
                     merged.commandHint,
                 ),
-                // RAG-kind counterparts — nullable: absent heading → null (terminal steps)
+                // RAG-kind counterparts -- nullable: absent heading -> null (terminal steps)
                 actionHint: this.coerceMdScalarService.toNullableStringColumn(
                     merged.actionHint,
                 ),
                 verifyKind: this.coerceMdScalarService.toNullableStringColumn(
                     merged.verifyKind,
                 ),
-                // NOT NULL server-only verify columns — empty pattern (`""` = match any) is
+                // NOT NULL server-only verify columns -- empty pattern (`""` = match any) is
                 // intentional and must stay an empty string, NOT collapse to null
                 verifyResourceKind: this.coerceMdScalarService.toRequiredString(
                     merged.verifyResourceKind,
@@ -155,7 +155,7 @@ export class PlaygroundStepParserService {
                     merged.verifyResourceNamePattern,
                     "",
                 ),
-                // nullable: absent `# verifyExpectedStatus` heading → null (existence check only)
+                // nullable: absent `# verifyExpectedStatus` heading -> null (existence check only)
                 verifyExpectedStatus: this.coerceMdScalarService.toNullableStringColumn(
                     merged.verifyExpectedStatus,
                 ),

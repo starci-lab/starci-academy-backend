@@ -231,7 +231,7 @@ export class FlashcardDeckEntity extends UuidAbstractEntity {
 
     /**
      * Per-viewer count of this deck's cards currently due for review (no review
-     * row yet OR past due). Runtime-populated for the signed-in user — NOT a DB
+     * row yet OR past due). Runtime-populated for the signed-in user -- NOT a DB
      * column; null when a query does not compute it.
      */
     @Field(

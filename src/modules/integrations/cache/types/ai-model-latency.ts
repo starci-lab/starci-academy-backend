@@ -6,7 +6,7 @@ import type {
  * Cached latency-probe snapshot for one AI model.
  *
  * Written by the per-model latency probe scheduler every cycle and read by the
- * public `aiModelLatency` query + broadcast over Socket.IO. UI/status only —
+ * public `aiModelLatency` query + broadcast over Socket.IO. UI/status only --
  * NOT used for balancer key eligibility (that lives in the ping cache).
  */
 export interface ModelLatencyEntry {
@@ -23,12 +23,12 @@ export interface ModelLatencyEntry {
 }
 
 /**
- * Full Redis payload for the per-model latency probe: model name → snapshot.
+ * Full Redis payload for the per-model latency probe: model name -> snapshot.
  */
 export type AiModelLatencyMap = Record<string, ModelLatencyEntry>
 
 /**
- * Params for {@link AiModelLatencyCacheService.recordModelLatency} — persist the
+ * Params for {@link AiModelLatencyCacheService.recordModelLatency} -- persist the
  * outcome of one model probe.
  */
 export interface RecordModelLatencyParams {

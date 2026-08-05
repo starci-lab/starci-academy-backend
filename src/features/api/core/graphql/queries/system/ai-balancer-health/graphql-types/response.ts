@@ -16,7 +16,7 @@ import {
     description: "Health info for one API key in the balancer pool.",
 })
 /**
- * GraphQL surface of one API key — `value` is intentionally absent; only the
+ * GraphQL surface of one API key -- `value` is intentionally absent; only the
  * 4-char suffix leaves the server boundary.
  */
 export class AiBalancerKeyHealthData {
@@ -84,7 +84,7 @@ export class AiBalancerKeyHealthData {
     description: "Aggregate health snapshot for one provider's key pool.",
 })
 /**
- * Roll-up of one provider's key pool — totals plus per-key rows — so an admin
+ * Roll-up of one provider's key pool -- totals plus per-key rows -- so an admin
  * can see at a glance whether rotation still has healthy keys left.
  */
 export class AiBalancerProviderHealthData {

@@ -55,10 +55,10 @@ const RAG_TOP_K = 4
 
 @Injectable()
 /**
- * Step 1 — compose. Builds the CV system prompt from the VERIFIED gathered data
+ * Step 1 -- compose. Builds the CV system prompt from the VERIFIED gathered data
  * + the user's free-text `extraPrompts` + three RAG contexts (rubric / catalog /
  * sample), plus (Revise) the extracted original CV text, invokes the LLM via
- * {@link AiInvokeService} (task `Grading`, floor Balanced — the app's grading
+ * {@link AiInvokeService} (task `Grading`, floor Balanced -- the app's grading
  * lane already targets Balanced-plus), and parses the STRICT JSON reply into the
  * structured CV. Persisted as this step's execution result for the render step.
  */
@@ -141,7 +141,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
         const techStack = this.inferTechStack(gathered)
 
         // three RAG contexts, concatenated: rubric (by level), catalog (by stack),
-        // sample (by role/level). Best-effort — RAG failure degrades to no context.
+        // sample (by role/level). Best-effort -- RAG failure degrades to no context.
         const ragContext = await this.buildRagContext({
             inferredLevel,
             inferredRole,
@@ -159,7 +159,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
 
         const humanText = this.buildHumanPrompt(gathered)
 
-        // invoke the LLM. Dedicated CVGenerating task (floor Balanced → climb to
+        // invoke the LLM. Dedicated CVGenerating task (floor Balanced -> climb to
         // ceiling, same policy shape as grading); selection carries the user's lane.
         const { text: raw } = await this.aiInvokeService.run({
             userId: payload.userId,
@@ -217,7 +217,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             ].filter((excerpt) => excerpt && excerpt.trim().length > 0)
                 .join("\n\n---\n\n")
         } catch {
-            // RAG is advisory — never let a retrieval failure fail CV generation
+            // RAG is advisory -- never let a retrieval failure fail CV generation
             return ""
         }
     }

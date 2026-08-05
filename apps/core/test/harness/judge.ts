@@ -20,7 +20,7 @@ export interface Verdict {
 
 /**
  * JSON schema constraining {@link judge}'s structured output via
- * `output_config.format` — see the Claude API structured-outputs feature.
+ * `output_config.format` -- see the Claude API structured-outputs feature.
  */
 const VERDICT_SCHEMA = {
     type: "object",
@@ -49,7 +49,7 @@ const VERDICT_SCHEMA = {
 /**
  * Grade one harness output against a rubric using Opus 4.8 as an independent
  * judge, pinned at `effort: "high"` regardless of which tier produced the
- * output under test — grading rigor must not vary with the SUT's cost tier.
+ * output under test -- grading rigor must not vary with the SUT's cost tier.
  *
  * @param rubric - the grading criteria the output must satisfy
  * @param output - the text under evaluation

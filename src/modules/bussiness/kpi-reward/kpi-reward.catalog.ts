@@ -5,16 +5,16 @@ import {
 /**
  * Coin granted per unit of a KPI's FLOOR target when its reward is claimed
  * (`coinReward = Math.round(floorTarget * KPI_REWARD_PER_UNIT_TARGET[key])`).
- * Aiming higher (a bigger target) pays more — but only the FLOOR (lowest
+ * Aiming higher (a bigger target) pays more -- but only the FLOOR (lowest
  * target in effect this week) counts, so raising the target after already
  * clearing a lower one cannot inflate the payout for work already done (see
  * `KpiWeeklyRewardFloorEntity`).
  *
- * Finalized against the shipped Coin economy (activity coin + shop prices) —
+ * Finalized against the shipped Coin economy (activity coin + shop prices) --
  * see `.artifacts/proposals/coin-xp-economy-numbers.proposal.md`. The
  * per-unit-multiplier shape was confirmed (not flat-per-tier): the bonus/effort
  * ratio holds constant at every target, matching "aim higher, earn more".
- * `flashcards` is deliberately the lowest multiplier — it's the lowest-effort,
+ * `flashcards` is deliberately the lowest multiplier -- it's the lowest-effort,
  * highest-volume KPI (presets up to 300/week), so a flat per-unit rate keeps
  * high-target grinding from paying disproportionately more than the other KPIs.
  */

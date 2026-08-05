@@ -32,7 +32,7 @@ import {
  * One ordered step of a {@link PlaygroundEntity}. Carries the learner-facing
  * instructions (`title`/`body`/`commandHint`) plus the server-only "lite"
  * verify pattern matched against the agent's self-reported resource list
- * (`verifyResourceKind`/`verifyResourceNamePattern`/`verifyExpectedStatus`) —
+ * (`verifyResourceKind`/`verifyResourceNamePattern`/`verifyExpectedStatus`) --
  * the verify fields are never exposed to GraphQL clients.
  */
 export class PlaygroundStepEntity extends UuidAbstractEntity {
@@ -138,8 +138,8 @@ export class PlaygroundStepEntity extends UuidAbstractEntity {
 
     /**
      * RAG-kind counterpart of {@link commandHint}: the learner-facing action to
-     * perform in the right-hand widget (e.g. "Dán code mẫu vào khung trái rồi
-     * bấm Nạp"). Null for `terminal` steps (which use {@link commandHint}).
+     * perform in the right-hand widget (e.g. "Paste sample code into the left pane then
+     * click Load"). Null for `terminal` steps (which use {@link commandHint}).
      */
     @Field(
         () => String,
@@ -158,7 +158,7 @@ export class PlaygroundStepEntity extends UuidAbstractEntity {
     /**
      * RAG-kind verify predicate (`imported` | `asked` | `answered`) checked
      * against the paired RAG session state. Null for `terminal` steps (which use
-     * the `verifyResource*` triple). Server-only — NOT exposed via GraphQL.
+     * the `verifyResource*` triple). Server-only -- NOT exposed via GraphQL.
      */
     @Column({
         name: "verify_kind",
@@ -170,7 +170,7 @@ export class PlaygroundStepEntity extends UuidAbstractEntity {
 
     /**
      * Resource kind to match against the agent's self-reported resource list
-     * (e.g. "Pod", "Deployment", "Service", "Container", "Image"). Server-only —
+     * (e.g. "Pod", "Deployment", "Service", "Container", "Image"). Server-only --
      * NOT exposed via GraphQL.
      */
     @Column({
@@ -182,7 +182,7 @@ export class PlaygroundStepEntity extends UuidAbstractEntity {
 
     /**
      * Substring/prefix matched against the reported resource name (empty string
-     * matches any name). Server-only — NOT exposed via GraphQL.
+     * matches any name). Server-only -- NOT exposed via GraphQL.
      */
     @Column({
         name: "verify_resource_name_pattern",
@@ -193,7 +193,7 @@ export class PlaygroundStepEntity extends UuidAbstractEntity {
 
     /**
      * Expected reported status (e.g. "Running"); null = existence check only.
-     * Server-only — NOT exposed via GraphQL.
+     * Server-only -- NOT exposed via GraphQL.
      */
     @Column({
         name: "verify_expected_status",

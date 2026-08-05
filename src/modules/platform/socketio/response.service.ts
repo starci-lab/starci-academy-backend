@@ -47,7 +47,7 @@ export class WsResponseService {
     /**
      * Broadcast a success WS message to EVERY client connected to a namespace
      * (no room scoping). For public fan-outs where every listener should get the
-     * same payload — e.g. the per-model AI latency snapshot on the status page.
+     * same payload -- e.g. the per-model AI latency snapshot on the status page.
      * @param params - The parameters for the broadcast message.
      * @returns void.
      */
@@ -59,7 +59,7 @@ export class WsResponseService {
             eventName,
         }: BroadcastParams<T>,
     ): void {
-        // emit on the namespace itself → delivered to all of its sockets
+        // emit on the namespace itself -> delivered to all of its sockets
         namespace.emit(
             eventName,
             {

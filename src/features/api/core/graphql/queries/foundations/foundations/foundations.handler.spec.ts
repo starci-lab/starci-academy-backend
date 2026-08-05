@@ -111,7 +111,7 @@ describe("FoundationsHandler",
                 expect(result.data.map((foundation) => foundation.id)).toEqual([
                     "f1",
                 ])
-                // page 1 with size 5 → offset 5
+                // page 1 with size 5 -> offset 5
                 const searchArgs = elasticsearch.client.search.mock.calls[0][0]
                 expect(searchArgs.from).toBe(5)
                 expect(searchArgs.size).toBe(5)

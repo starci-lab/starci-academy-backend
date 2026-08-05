@@ -40,7 +40,7 @@ describe("CommunityPostQuotaService",
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
 
-            // membership gate stub — the SUT short-circuits on an active member
+            // membership gate stub -- the SUT short-circuits on an active member
             membershipService = {
                 isActive: jest.fn(),
             } as unknown as jest.Mocked<Pick<MembershipService, "isActive">>
@@ -52,7 +52,7 @@ describe("CommunityPostQuotaService",
                         provide: MembershipService,
                         useValue: membershipService,
                     },
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -80,14 +80,14 @@ describe("CommunityPostQuotaService",
                             }),
                         ).resolves.toBeUndefined()
 
-                        // members are never rate-limited → short-circuits before any count
+                        // members are never rate-limited -> short-circuits before any count
                         expect(entityManager.count).not.toHaveBeenCalled()
                     })
 
                 it("allows a non-member whose recent post count is under the cap",
                     async () => {
                         membershipService.isActive.mockResolvedValueOnce(false)
-                        // default cap is 3 → 2 recent posts is still under it
+                        // default cap is 3 -> 2 recent posts is still under it
                         entityManager.count.mockResolvedValueOnce(2)
 
                         await expect(
@@ -128,7 +128,7 @@ describe("CommunityPostQuotaService",
                         expect(options.where.author).toEqual({
                             id: userId,
                         })
-                        // a MoreThan(...) FindOperator gates the rolling window — note the
+                        // a MoreThan(...) FindOperator gates the rolling window -- note the
                         // query has no isDeleted filter, so a soft-deleted post still counts
                         // toward the quota and a user cannot reset it by deleting
                         expect(options.where.createdAt._type).toBe("moreThan")
@@ -138,7 +138,7 @@ describe("CommunityPostQuotaService",
                 it("throws CommunityPostQuotaExceededException when the non-member is AT the cap",
                     async () => {
                         membershipService.isActive.mockResolvedValueOnce(false)
-                        // default cap is 3 → exactly 3 recent posts trips the >= gate
+                        // default cap is 3 -> exactly 3 recent posts trips the >= gate
                         entityManager.count.mockResolvedValueOnce(3)
 
                         await expect(

@@ -17,7 +17,7 @@ export interface InsufficientRewardPointsExceptionMetadata extends AbstractExcep
  * The user's spendable Coin balance is below the reward's cost.
  *
  * NOTE: class/code name kept as `RewardPoints` for now (Coin rename touched
- * the balance field + copy only, not this exception's public name — renaming
+ * the balance field + copy only, not this exception's public name -- renaming
  * it ripples through every catch-site; do in a dedicated follow-up).
  */
 export class InsufficientRewardPointsException extends AbstractException {

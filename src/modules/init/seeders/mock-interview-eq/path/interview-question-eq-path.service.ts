@@ -10,7 +10,7 @@ import {
 /**
  * Resolves indexed mock-interview-eq (behavioral, global) bank + question mount
  * folders. Unlike the technical {@link MockInterviewPathService} this walks
- * from the `mockInterviewEq` context root directly — there is no owning course to
+ * from the `mockInterviewEq` context root directly -- there is no owning course to
  * scope under (`mock-interview-eq/{bank}/questions/{question}/`).
  */
 export class InterviewQuestionEqPathService {
@@ -30,7 +30,7 @@ export class InterviewQuestionEqPathService {
     }
 
     /**
-     * Lists per-question folders under a bank's `questions/` directory — one
+     * Lists per-question folders under a bank's `questions/` directory -- one
      * folder per behavioral mock-interview question (`{index}-{slug}/vi.md`).
      *
      * @param bankRelativePath - The bank folder path segment under `mock-interview-eq/`

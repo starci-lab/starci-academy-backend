@@ -16,7 +16,7 @@ export interface FlashcardWeakTagData {
     cardCount: number
 }
 
-/** One deck's review RETENTION (recalled/total) — the outcome analogue of the footprint `byDeck`. */
+/** One deck's review RETENTION (recalled/total) -- the outcome analogue of the footprint `byDeck`. */
 export interface FlashcardDeckRetentionData {
     /** The deck this retention is scoped to. */
     deckId: string
@@ -28,7 +28,7 @@ export interface FlashcardDeckRetentionData {
     reviewCount: number
 }
 
-/** A "leech FOCUS" card — the reason-tagged card the learner keeps forgetting or getting stuck on. */
+/** A "leech FOCUS" card -- the reason-tagged card the learner keeps forgetting or getting stuck on. */
 export interface FlashcardLeechFocusCardData {
     /** The card id (open it in the reviewer). */
     cardId: string
@@ -46,7 +46,7 @@ export interface FlashcardLeechFocusCardData {
 
 /** The viewer's aggregated flashcard review stats for one course. */
 export interface MyFlashcardReviewStatsResultData {
-    /** Reason-tagged leech cards (lapsed vs stuck-on-Hard), worst first — the "viết lại" fix-list. */
+    /** Reason-tagged leech cards (lapsed vs stuck-on-Hard), worst first -- the rewrite fix-list. */
     leechFocus: Array<FlashcardLeechFocusCardData>
     /** EVERY tag's review retention, worst first. */
     weakTags: Array<FlashcardWeakTagData>
@@ -54,9 +54,9 @@ export interface MyFlashcardReviewStatsResultData {
     matureRetention: number
     /** Review retention for cards with `interval_days < 21` (recall while still spacing a card out). */
     youngRetention: number
-    /** Graded review events for THIS COURSE only — course-scoped sibling of the per-user lifetime `totalReviewed`. */
+    /** Graded review events for THIS COURSE only -- course-scoped sibling of the per-user lifetime `totalReviewed`. */
     reviewedTotal: number
-    /** Review retention for THIS COURSE only (0..100) — what the hero shows instead of lifetime `retentionRate`. */
+    /** Review retention for THIS COURSE only (0..100) -- what the hero shows instead of lifetime `retentionRate`. */
     courseRetention: number
     /** Per-deck review retention (outcome), weakest first. */
     deckRetention: Array<FlashcardDeckRetentionData>

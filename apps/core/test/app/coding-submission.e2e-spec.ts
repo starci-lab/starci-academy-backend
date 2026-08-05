@@ -66,7 +66,7 @@ const JUDGE_CODING_SUBMISSION_QUEUE_NAME =
 process.env.BULLMQ_ENQUEUE_UX_DELAY = "1ms"
 
 /**
- * Poll until `predicate()` is true or `timeoutMs` elapses — used to observe the
+ * Poll until `predicate()` is true or `timeoutMs` elapses -- used to observe the
  * fire-and-forget `queue.add` call `EnqueueJudgeCodingSubmissionJobService`
  * schedules via `void sleepEnqueueUxDelay().then(() => queue.add(...))` rather
  * than awaiting it.
@@ -86,21 +86,21 @@ const waitFor = async (
 }
 
 /**
- * e2e for the coding-practice submission flows — `CodingSubmissionService.submit`
+ * e2e for the coding-practice submission flows -- `CodingSubmissionService.submit`
  * (backs the `submitCodingSolution` mutation) and `.recordSolutionReveal`
- * (backs `revealCodingSolution`) — run against REAL Postgres (Testcontainers),
+ * (backs `revealCodingSolution`) -- run against REAL Postgres (Testcontainers),
  * not the mocked-`EntityManager` unit level.
  *
  * This is also the regression guard for `.artifacts/states/device/findings.md`
  * #1 (the round-1 device fix): `DeviceService.recordDevice` used to query
- * `where: { userId, fingerprint }` — `userId` is a `@RelationId` VIRTUAL
+ * `where: { userId, fingerprint }` -- `userId` is a `@RelationId` VIRTUAL
  * column, not a real queryable column, so TypeORM threw
  * `EntityPropertyNotFoundError` against the real schema on every real-client
- * submit (a mocked-`EntityManager` unit test could never catch this — the mock
+ * submit (a mocked-`EntityManager` unit test could never catch this -- the mock
  * has no schema to be wrong against). The fix is `where: { user: { id: userId
  * }, fingerprint }`. Because `CodingSubmissionService.submit` already saves the
  * `Pending` submission row BEFORE calling `recordDevice`, and wraps that call
- * in try/catch, a regression would NOT surface as a thrown error here — it
+ * in try/catch, a regression would NOT surface as a thrown error here -- it
  * would silently swallow the device write and leave the submission's device
  * trail empty while everything else looks fine. So the regression guard is a
  * POSITIVE assertion: a real `DeviceEntity` row must exist after submit, not
@@ -108,17 +108,17 @@ const waitFor = async (
  *
  * MOCKED (no external infra available in this harness, and the true system
  * boundary the enqueue path stops at):
- *  - the BullMQ `Queue` client for `judge-coding-submission` — no Redis in
+ *  - the BullMQ `Queue` client for `judge-coding-submission` -- no Redis in
  *    this harness; `JobActionService.createJob` still writes the real tracked
  *    `jobs` row, only the broker hand-off (`queue.add`) is stubbed. The actual
  *    judging (Judge0) and any LLM-assisted step are outside this spec's scope
- *    entirely — an e2e only proves the job WAS queued.
- *  - `EventEmitterService` — real class fans out to NATS; stubbed (only
+ *    entirely -- an e2e only proves the job WAS queued.
+ *  - `EventEmitterService` -- real class fans out to NATS; stubbed (only
  *    `JobActionService.completeJob`/`failJob` call it, neither of which this
  *    spec's paths reach).
  *
  * REAL: Postgres (Testcontainers), `CodingSubmissionService` (the logic under
- * test), `DeviceService` (the round-1 fix — runs the real query against the
+ * test), `DeviceService` (the round-1 fix -- runs the real query against the
  * real schema), `JobActionService`/`JobStalledService` (the tracked `jobs` row
  * really gets written).
  *
@@ -131,7 +131,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
         let codingSubmissionService: CodingSubmissionService
         let judgeCodingSubmissionQueue: jest.Mocked<Pick<Queue<string>, "add">>
 
-        /** Read-only fixtures seeded ONCE — only per-test user/submission/job state is reset. */
+        /** Read-only fixtures seeded ONCE -- only per-test user/submission/job state is reset. */
         let problem: CodingProblemEntity
         let disabledProblem: CodingProblemEntity
 
@@ -142,7 +142,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -151,18 +151,18 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the submit/reveal logic under test
+                    // REAL -- the submit/reveal logic under test
                     CodingSubmissionService,
-                    // REAL — the round-1 device-record fix; runs the real query
+                    // REAL -- the round-1 device-record fix; runs the real query
                     // against the real schema
                     DeviceService,
-                    // REAL — writes the real tracked `jobs` row; only the BullMQ
+                    // REAL -- writes the real tracked `jobs` row; only the BullMQ
                     // queue client underneath is stubbed
                     EnqueueJudgeCodingSubmissionJobService,
                     JobActionService,
                     JobStalledService,
                     DayjsService,
-                    // REAL superjson instance — the enqueue service serializes the
+                    // REAL superjson instance -- the enqueue service serializes the
                     // job payload with it
                     createSuperJsonServiceProvider(),
                     {
@@ -188,7 +188,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
             )
             codingSubmissionService = app.get(CodingSubmissionService)
 
-            // seed the read-only problem fixtures ONCE — only users/submissions/
+            // seed the read-only problem fixtures ONCE -- only users/submissions/
             // reveals/jobs/devices are reset between tests (see afterEach)
             problem = await entityManager.save(
                 entityManager.create(CodingProblemEntity,
@@ -231,7 +231,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
         afterAll(async () => {
             // the "two-sum" / "retired-problem" fixtures are read-only WITHIN this
             // suite, but the Testcontainers Postgres is shared across the whole e2e
-            // run (see setup-e2e.ts) — leaving them behind collides with
+            // run (see setup-e2e.ts) -- leaving them behind collides with
             // coding-queries.e2e-spec.ts's own same-slug "two-sum" fixture
             // (duplicate-key on the unique slug) whenever that file runs after this
             // one. CASCADE also clears coding_problem_solutions.
@@ -293,7 +293,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
                         expect(submission.deviceFingerprint).toBe("fingerprint-abc")
 
                         // ROUND-1 DEVICE FIX regression guard: the real (user, fingerprint)
-                        // query must actually find/create a row against the real schema —
+                        // query must actually find/create a row against the real schema --
                         // a regressed `where: { userId, fingerprint }` would throw inside
                         // DeviceService, get swallowed by CodingSubmissionService's
                         // try/catch, and silently leave this row absent
@@ -327,7 +327,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
                         expect(job.userId).toBe(user.id)
 
                         // the enqueue service fires `queue.add` on a detached, delayed
-                        // promise chain — wait for it, then assert the SAME job row
+                        // promise chain -- wait for it, then assert the SAME job row
                         // was actually handed to the (stubbed) BullMQ broker
                         await waitFor(() => judgeCodingSubmissionQueue.add.mock.calls.length > 0)
                         expect(judgeCodingSubmissionQueue.add).toHaveBeenCalledWith(
@@ -364,7 +364,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
                         const deviceCount = await entityManager.count(DeviceEntity)
                         expect(deviceCount).toBe(0)
 
-                        // still not stranded — the job is queued regardless
+                        // still not stranded -- the job is queued regardless
                         const jobCount = await entityManager.count(JobEntity)
                         expect(jobCount).toBe(1)
                     })
@@ -415,7 +415,7 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
                         // refreshed to the SECOND submit's IP, not the first
                         expect(device.ipAddress).toBe("203.0.113.2")
 
-                        // two independent submission rows though — history is append-only
+                        // two independent submission rows though -- history is append-only
                         const submissionCount = await entityManager.count(CodingSubmissionEntity)
                         expect(submissionCount).toBe(2)
                     })

@@ -9,26 +9,26 @@ import type {
  * interview prompts); the grading rubric is resolved server-side at grade
  * time from the task's approach/outcome criteria (never sent to the client).
  * Pha 3 supplements the bank with curated "classic" prompts (see
- * {@link MockInterviewClassicPrompt}) — never AI-generated live.
+ * {@link MockInterviewClassicPrompt}) -- never AI-generated live.
  */
 export interface MockInterviewPromptSummary {
-    /** Milestone-task id (capstone) or a stable classic-prompt slug — passed to the interviewer + grade calls. */
+    /** Milestone-task id (capstone) or a stable classic-prompt slug -- passed to the interviewer + grade calls. */
     id: string
     /** Prompt name shown in the picker (the capstone task title, or the classic prompt's localized title). */
     title: string
-    /** Relative difficulty (easy / medium / hard / …); defaults to medium when unset. */
+    /** Relative difficulty (easy / medium / hard / ...); defaults to medium when unset. */
     difficulty: string
-    /** Where the prompt comes from — `capstone` (curated per-course) or `classic` (curated, course-agnostic). */
+    /** Where the prompt comes from -- `capstone` (curated per-course) or `classic` (curated, course-agnostic). */
     source: string
 }
 
 /**
- * One curated "classic" system-design interview prompt (Pha 3) — a static
+ * One curated "classic" system-design interview prompt (Pha 3) -- a static
  * entry, never AI-generated per request. Title is authored per locale so the
  * picker always shows the learner's language.
  */
 export interface MockInterviewClassicPrompt {
-    /** Stable slug id (e.g. `classic-url-shortener`) — not a database row. */
+    /** Stable slug id (e.g. `classic-url-shortener`) -- not a database row. */
     id: string
     /** Relative difficulty tier. */
     difficulty: string

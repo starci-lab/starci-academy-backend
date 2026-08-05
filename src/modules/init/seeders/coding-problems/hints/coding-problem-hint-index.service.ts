@@ -61,7 +61,7 @@ export class CodingProblemHintIndexService {
 
     /**
      * Create the index if it does not exist yet. The hint blob uses dynamic
-     * mapping (no search over it — only `get` by slug), so no explicit mapping
+     * mapping (no search over it -- only `get` by slug), so no explicit mapping
      * is required. An already-exists race is swallowed.
      *
      * @param index - fully-qualified per-locale index name
@@ -81,7 +81,7 @@ export class CodingProblemHintIndexService {
                 index,
             })
         } catch {
-            // another worker may have created it first — safe to ignore
+            // another worker may have created it first -- safe to ignore
         }
     }
 }

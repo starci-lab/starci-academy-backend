@@ -75,7 +75,7 @@ export class UserProfileResolver {
         // public read: look up by the URL-facing username; only non-deleted users
         // are visible (the returned entity still carries `id` for follow + tabs).
         // Also accept the value as an email so a legacy `/profile/<email>` link
-        // still resolves — the FE then canonicalizes the URL to `<username>`.
+        // still resolves -- the FE then canonicalizes the URL to `<username>`.
         const user = await this.entityManager.findOne(
             UserEntity,
             {
@@ -89,7 +89,7 @@ export class UserProfileResolver {
                 ],
             },
         )
-        // not found / soft-deleted → null (FE renders a "not found" state)
+        // not found / soft-deleted -> null (FE renders a "not found" state)
         return user ?? null
     }
 }

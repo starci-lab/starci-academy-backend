@@ -116,7 +116,7 @@ describe("reconcile utils",
 
                 it("is true when an empty DB would wipe the whole index",
                     () => {
-                        // 100 present, all orphaned (DB returned nothing) → 100% > 50%
+                        // 100 present, all orphaned (DB returned nothing) -> 100% > 50%
                         expect(exceedsPruneRatio(100,
                             100,
                             0.5)).toBe(true)
@@ -124,7 +124,7 @@ describe("reconcile utils",
 
                 it("is false for a small, safe cleanup",
                     () => {
-                        // 3 of 100 → 3% well under the cap
+                        // 3 of 100 -> 3% well under the cap
                         expect(exceedsPruneRatio(3,
                             100,
                             0.5)).toBe(false)
@@ -132,7 +132,7 @@ describe("reconcile utils",
 
                 it("is exactly at the boundary (not strictly greater) → allowed",
                     () => {
-                        // 50 of 100 == 50%, not > 50% → allowed
+                        // 50 of 100 == 50%, not > 50% -> allowed
                         expect(exceedsPruneRatio(50,
                             100,
                             0.5)).toBe(false)

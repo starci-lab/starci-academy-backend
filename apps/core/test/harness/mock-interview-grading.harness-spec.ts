@@ -65,14 +65,14 @@ const POSTGRESQL_PRIMARY = "primary"
 
 /**
  * The REAL `.volume` SSOT topic this harness grounds `mode="design"` grading
- * in — System Design Mastery's own "fundamentals" mock-interview bank
+ * in -- System Design Mastery's own "fundamentals" mock-interview bank
  * (`.volume/data/courses/1-system-design-mastery/mock-interview/0-fundamentals-of-system-design`).
  * Chosen over the EQ banks (`.volume/data/mock-interview-eq/<behavioral|situational|culture>`)
  * because `mode="design"` grades a FIXED 5-phase system-design rubric
- * (requirements/estimation/highLevel/deepDive/tradeoffs — see
+ * (requirements/estimation/highLevel/deepDive/tradeoffs -- see
  * {@link MockInterviewPhase}) that the EQ banks' single-prompt STAR-story
  * questions don't map onto; this course's own bank is written in that exact
- * shape (a 4-step clarify→estimate→design→deep-dive process, per its own
+ * shape (a 4-step clarify->estimate->design->deep-dive process, per its own
  * `description` field) and is technical rather than agnostic, so no
  * per-language `bodies/` branching is needed to ground it.
  */
@@ -88,18 +88,18 @@ const PHASE_ORDER: Array<MockInterviewPhase> = [
 ]
 
 /**
- * One REAL question from {@link TOPIC_DIR}'s bank picked per phase — each is an
+ * One REAL question from {@link TOPIC_DIR}'s bank picked per phase -- each is an
  * actual authored interview question (with its own rubric/checklist/ideal
  * answer on file) whose SUBJECT genuinely fits that phase's slot:
- * - requirements (#0, "theory"): pulling apart latency vs throughput — the
+ * - requirements (#0, "theory"): pulling apart latency vs throughput -- the
  *   metric-clarification question a real interviewer opens with.
  * - estimation (#4, "reasoning"): why capacity estimation (peak QPS) must
  *   happen BEFORE any technology choice.
  * - highLevel (#1, "theory"): vertical vs horizontal scaling and the
  *   load-balancer architecture that follows from it.
- * - deepDive (#13, "design-lite"): sketch a session-store contract — a
+ * - deepDive (#13, "design-lite"): sketch a session-store contract -- a
  *   concrete component design, exactly what a deep-dive probes.
- * - tradeoffs (#6, "reasoning"): CAP/PACELC/quorum — the canonical
+ * - tradeoffs (#6, "reasoning"): CAP/PACELC/quorum -- the canonical
  *   consistency-vs-availability trade-off discussion.
  */
 const QUESTION_DIR_BY_PHASE: Record<MockInterviewPhase, string> = {
@@ -119,10 +119,10 @@ const describeOrSkip = HAVE_VOLUME
 
 /**
  * Build the interviewer's fixed 5-phase question set from the REAL
- * `.volume` bank — each phase's `content` is the actual authored `prompt`
+ * `.volume` bank -- each phase's `content` is the actual authored `prompt`
  * field of {@link QUESTION_DIR_BY_PHASE}'s question for that phase, read live
  * (never cached at module scope, so a missing mount degrades to
- * `describe.skip` instead of a hard failure at import time — see
+ * `describe.skip` instead of a hard failure at import time -- see
  * {@link readVolumeDoc}'s own doc).
  *
  * @param locale - which localized bank to read the prompts from.
@@ -146,10 +146,10 @@ const buildInterviewerTurns = (
 
 /**
  * Interleave the REAL {@link buildInterviewerTurns} output with one candidate
- * answer per phase, in phase order — mirrors the shape
+ * answer per phase, in phase order -- mirrors the shape
  * `syncMockInterviewSessionTurns` actually persists. The interviewer side is
  * grounded in `.volume`; only the CANDIDATE side is hand-controlled (real
- * candidate transcripts aren't in `.volume` — see the module task doc).
+ * candidate transcripts aren't in `.volume` -- see the module task doc).
  */
 const buildTranscript = (
     interviewerTurns: Record<number, MockInterviewTurnRecord>,
@@ -165,7 +165,7 @@ const buildTranscript = (
 
 /**
  * A STRONG candidate: concrete, technically correct answers to each of the 5
- * REAL questions in {@link QUESTION_DIR_BY_PHASE} — matches the substance
+ * REAL questions in {@link QUESTION_DIR_BY_PHASE} -- matches the substance
  * their own authored `idealAnswer`/`rubric` credits (percentile vs RPS,
  * peak-QPS decision function, the two scaling walls, a session-store
  * contract, and the quorum `W + R > N` rule).
@@ -180,7 +180,7 @@ const STRONG_ANSWERS: Record<number, string> = {
 
 /**
  * A WEAK candidate: vague, non-committal, technically empty answers to the
- * SAME 5 REAL questions — deliberately kept above the session-wide
+ * SAME 5 REAL questions -- deliberately kept above the session-wide
  * `MIN_SUBSTANTIVE_ANSWER_LENGTH` guardrail purely by word count, not
  * substance, so the guardrail is satisfied but the transcript still has
  * nothing concrete for the grader to credit.
@@ -198,7 +198,7 @@ const WEAK_ANSWERS: Record<number, string> = {
  * the correct concepts) but stays shallow and hedges on the specifics the
  * REAL rubric actually credits (the exact percentile, the peak-QPS decision
  * threshold, the two named walls, the store's operations, the `W + R > N`
- * rule) — a mix of partial credit rather than a clean pass or fail.
+ * rule) -- a mix of partial credit rather than a clean pass or fail.
  */
 const BORDERLINE_ANSWERS: Record<number, string> = {
     0: "Latency is how long one request takes, and throughput is requests per second, so they're different. Batching probably affects them somehow, and I guess a system can still feel slow to one user even with high throughput, though I'm not 100% sure why.",
@@ -211,7 +211,7 @@ const BORDERLINE_ANSWERS: Record<number, string> = {
 /**
  * A near-empty candidate: every turn is a one/two-word non-answer, so the
  * candidate turns joined stay comfortably under the session's
- * `MIN_SUBSTANTIVE_ANSWER_LENGTH` (100 chars) guardrail — used ONLY to prove
+ * `MIN_SUBSTANTIVE_ANSWER_LENGTH` (100 chars) guardrail -- used ONLY to prove
  * the guardrail throws before any model call, never graded.
  */
 const SHORT_ANSWERS: Record<number, string> = {
@@ -224,7 +224,7 @@ const SHORT_ANSWERS: Record<number, string> = {
 
 /**
  * A Vietnamese candidate answering the SAME 5 REAL questions read from the
- * bank's own `vi.md` companions ({@link buildInterviewerTurns}`("vi")`) —
+ * bank's own `vi.md` companions ({@link buildInterviewerTurns}`("vi")`) --
  * concrete and technically correct, so the produced grade's Vietnamese
  * feedback can be judged as substantive, not just translated boilerplate.
  */
@@ -308,7 +308,7 @@ const CASES: Array<GradeCase> = [
     },
 ]
 
-/** Fixed request identity shared by every EN case — only `turns` varies. */
+/** Fixed request identity shared by every EN case -- only `turns` varies. */
 const BASE_PARAMS_SANS_PROMPT: Omit<GradeMockInterviewSessionParams, "turns" | "promptTitle" | "locale"> = {
     userId: "harness-user",
     courseId: "1-system-design-mastery",
@@ -353,18 +353,18 @@ const userServiceMock = {
  * bank's own `vi.md` companions.
  *
  * `mode="design"` is exercised deliberately: `entityManager.findOne` (the mocked primary
- * PostgreSQL entity manager) resolves `null` for the `MockInterviewSessionEntity` lookup —
+ * PostgreSQL entity manager) resolves `null` for the `MockInterviewSessionEntity` lookup --
  * the SAME "no session row found" path `MockInterviewGradingService.resolveTrustedPromptIdentity`
  * documents as its own fallback, which lands on `mode="design"` (+ a WARN log) using the
  * client-sent `promptTitle`/`level`. That fallback is used ON PURPOSE here rather than seeded
  * around: `mode="design"` never touches `MockInterviewEntity`/`FlashcardCardEntity`
  * (`resolveSeedGroundings` is `mode="qna"`-only), so the ONLY real grading dependency left to
- * mock is the advisory {@link CourseRagRetrievalService} — exactly the one the task's own
+ * mock is the advisory {@link CourseRagRetrievalService} -- exactly the one the task's own
  * dependency list singles out as "only used in design mode". The candidate's turns are kept
  * well above the session's `MIN_SUBSTANTIVE_ANSWER_LENGTH` (100 chars) guardrail in every case
  * except the guardrail case itself.
  *
- * {@link GradingLaneValidationService} (mocked to an empty lane — no model pinned, balancer
+ * {@link GradingLaneValidationService} (mocked to an empty lane -- no model pinned, balancer
  * picks) and {@link AiEntitlementService} (mocked to no-op quota/consume) are the same two
  * gates every other grading-flow harness mocks; they gate CHARGE/QUOTA plumbing, not the
  * grading business logic under test here.
@@ -383,7 +383,7 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
         beforeAll(async () => {
             entityManager = makeEntityManagerMock()
 
-            // read the REAL bank's topic titles once — used as `promptTitle` so the grading
+            // read the REAL bank's topic titles once -- used as `promptTitle` so the grading
             // prompt's "completed a full mock interview about ..." framing matches the actual
             // course material the transcript is grounded in, not a hand-invented title
             promptTitleEn = readVolumeDoc(TOPIC_DIR).title
@@ -439,8 +439,8 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
             userServiceMock.resolveOrCreateTrialEnrollment.mockResolvedValue({
                 id: "harness-enrollment",
             })
-            // no MockInterviewSessionEntity row → resolveTrustedPromptIdentity's documented
-            // fallback (mode="design", client-sent prompt identity) — see the describe doc above
+            // no MockInterviewSessionEntity row -> resolveTrustedPromptIdentity's documented
+            // fallback (mode="design", client-sent prompt identity) -- see the describe doc above
             entityManager.findOne.mockResolvedValue(null)
         })
 
@@ -514,7 +514,7 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
                 expect(strongResult.overallScore).toBeGreaterThan(weakResult.overallScore)
             })
 
-        // ── guardrail: candidate turns under the substantive-answer floor → throws before any model call ──
+        // ── guardrail: candidate turns under the substantive-answer floor -> throws before any model call ──
         it("throws MockInterviewSessionTooShortException before any model call when candidate turns are too short",
             async () => {
                 const turns = buildTranscript(

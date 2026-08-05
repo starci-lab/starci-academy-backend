@@ -11,7 +11,7 @@ export interface ChallengeSubmissionNotFoundExceptionMetadata extends AbstractEx
 }
 
 /**
- * Fails review/progress when the submission row is gone — status updates must not invent
+ * Fails review/progress when the submission row is gone -- status updates must not invent
  * one.
  */
 export class ChallengeSubmissionNotFoundException extends AbstractException {

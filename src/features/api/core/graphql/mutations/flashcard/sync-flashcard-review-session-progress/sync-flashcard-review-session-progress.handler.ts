@@ -24,7 +24,7 @@ import {
 @CommandHandler(SyncFlashcardReviewSessionProgressCommand)
 @Injectable()
 /**
- * Applies one `syncFlashcardReviewSessionProgress` sync — delegates the
+ * Applies one `syncFlashcardReviewSessionProgress` sync -- delegates the
  * ownership-scoped lookup + guard + update to
  * {@link FlashcardReviewSessionService.sync}, shared with any other caller
  * that needs the same "silently no-op on a stale/late sync" behavior.
@@ -59,7 +59,7 @@ export class SyncFlashcardReviewSessionProgressHandler
 
         // not found/not owned, or no longer resumable (already completed by
         // completeFlashcardReviewSession, or abandoned by a fresh
-        // startFlashcardReviewSession draw) — the service silently no-ops
+        // startFlashcardReviewSession draw) -- the service silently no-ops
         // (never throws) rather than surfacing an error toast mid-review.
         return this.flashcardReviewSessionService.sync({
             userId: user.id,

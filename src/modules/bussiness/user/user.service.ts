@@ -34,7 +34,7 @@ export class UserService {
 
     /**
      * Resolve the internal user id from a Keycloak subject id, cached under
-     * `CacheKey.KeycloakUser`. This is an IDENTITY lookup, not a profile fetch —
+     * `CacheKey.KeycloakUser`. This is an IDENTITY lookup, not a profile fetch --
      * the DB read (and therefore the cached row) selects `id` ONLY, so the
      * result is typed `UserEntity` for caller convenience but only `.id` is
      * ever populated. Every other field is `undefined` at runtime; do not read
@@ -101,7 +101,7 @@ export class UserService {
      * with a single indexed query and every later check is an in-memory
      * `includes`. The set is dropped on any enrollment change via
      * {@link invalidateEnrolledCourses} (enroll / refund), so a freshly bought
-     * course shows up immediately and a refunded one loses access — no stale
+     * course shows up immediately and a refunded one loses access -- no stale
      * per-pair `true`/`false` lingering for the (long) TTL.
      *
      * @param userId - The ID of the user.
@@ -120,16 +120,16 @@ export class UserService {
             ],
         })
         if (cachedCourseIds !== undefined) {
-            // O(1)-ish membership check against the cached set — no DB round-trip
+            // O(1)-ish membership check against the cached set -- no DB round-trip
             return cachedCourseIds.includes(courseId)
         }
 
-        // cache miss → rebuild the whole set with a single indexed read on
-        // (user_id) — course_id is a virtual @RelationId so query the column directly.
+        // cache miss -> rebuild the whole set with a single indexed read on
+        // (user_id) -- course_id is a virtual @RelationId so query the column directly.
         // `is_enrolled = true` only: a trial/preview row (is_enrolled = false) is NOT a
         // paying member, so it must not satisfy the must-enrolled gate (capstone /
         // milestone / personal-project / premium). Activity is still tracked for trials
-        // elsewhere — this set is strictly "courses the user has really enrolled in".
+        // elsewhere -- this set is strictly "courses the user has really enrolled in".
         const rows = await this.entityManager.query<Array<EnrolledCourseIdRow>>(
             "SELECT course_id FROM enrollments WHERE user_id = $1 AND is_enrolled = true",
             [
@@ -151,7 +151,7 @@ export class UserService {
     /**
      * Drop a user's cached enrolled-courses set so the next check rebuilds it
      * from the source. Call this AFTER any enrollment change commits (enroll /
-     * refund / unenroll) — it is the single invalidation point that keeps the
+     * refund / unenroll) -- it is the single invalidation point that keeps the
      * authorization cache from going stale.
      *
      * @param userId - The user whose enrollment set to invalidate.
@@ -171,7 +171,7 @@ export class UserService {
      * (`is_enrolled = false`) when none exists yet. This is the anchor the
      * enrollment-centric model needs: every course-scoped action gets an
      * `enrollment_id`, so progress is keyed by enrollment instead of user. A
-     * trial row does NOT unlock paid-only surfaces — that still goes through
+     * trial row does NOT unlock paid-only surfaces -- that still goes through
      * {@link checkEnrollment} (`is_enrolled = true`). Idempotent under the unique
      * `(user, course)` constraint.
      *
@@ -216,7 +216,7 @@ export class UserService {
             return await this.entityManager.save(enrollment)
         } catch (error) {
             // UQ_enrollments_user_course race: another concurrent request created
-            // it first → return whatever now exists
+            // it first -> return whatever now exists
             const raced = await this.entityManager.findOne(
                 EnrollmentEntity,
                 {
@@ -238,12 +238,12 @@ export class UserService {
     }
 
     /**
-     * Whether a user's profile is locked (Facebook-style "lock profile") — the
+     * Whether a user's profile is locked (Facebook-style "lock profile") -- the
      * authorization hot path behind the public profile sub-queries. Cached as ONE
      * boolean per user (same shape as {@link checkEnrollment}'s set): read from
      * cache, rebuilt from the source on miss, and dropped on any profile update via
      * {@link invalidateProfileLocked} so a freshly toggled lock takes effect
-     * immediately — no stale `true`/`false` lingering for the (long) TTL.
+     * immediately -- no stale `true`/`false` lingering for the (long) TTL.
      *
      * @param userId - The id of the user whose profile to check.
      * @returns True when the profile is locked.
@@ -256,12 +256,12 @@ export class UserService {
                 userId,
             ],
         })
-        // a stored `false` is a hit too — only `undefined` means a cache miss
+        // a stored `false` is a hit too -- only `undefined` means a cache miss
         if (cached !== undefined) {
             return cached
         }
 
-        // cache miss → read just the lock flag with a single PK lookup
+        // cache miss -> read just the lock flag with a single PK lookup
         const target = await this.entityManager.findOne(
             UserEntity,
             {
@@ -289,7 +289,7 @@ export class UserService {
     /**
      * Drop a user's cached profile-lock flag so the next check rebuilds it from
      * the source. Call this AFTER a profile update commits (the only thing that
-     * changes the lock) — the single invalidation point that keeps the visibility
+     * changes the lock) -- the single invalidation point that keeps the visibility
      * cache from going stale.
      *
      * @param userId - The user whose lock flag to invalidate.

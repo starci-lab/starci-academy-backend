@@ -38,7 +38,7 @@ const MASTERED_REPETITIONS = 2
 
 @Injectable()
 /**
- * Read access to seeded flashcard decks. Loads the full deck graph (cards →
+ * Read access to seeded flashcard decks. Loads the full deck graph (cards ->
  * translations) eagerly so GraphQL can serve it without per-field
  * resolvers. The single-deck read is served from Elasticsearch (the ES sync
  * builder embeds the same full graph); the by-course list stays on Postgres.
@@ -102,7 +102,7 @@ export class FlashcardDeckReadService {
                 userId)
         }
         // Gate premium answers behind enrollment, mirroring the content paywall's
-        // isEntitled/lockPremiumContent pair (`content.handler.ts:174-184`) — this
+        // isEntitled/lockPremiumContent pair (`content.handler.ts:174-184`) -- this
         // is the enforcement `FlashcardCardEntity.isPremium`'s own doc claims
         // exists but never did (see `.artifacts/states/flashcard/findings.md` #1).
         // Every deck here belongs to the SAME `courseId` (the query scope), so one
@@ -144,7 +144,7 @@ export class FlashcardDeckReadService {
 
     /**
      * Withholds a premium card's answer/explanation in place, mirroring
-     * `ContentHandler.lockPremiumContent` (`content.handler.ts:309-352`) — the
+     * `ContentHandler.lockPremiumContent` (`content.handler.ts:309-352`) -- the
      * question and metadata stay visible (the card is still browsable / listable),
      * only the "back" content a non-entitled viewer must not see is nulled out.
      *
@@ -212,7 +212,7 @@ export class FlashcardDeckReadService {
     /**
      * Loads a single deck by id with its full card graph, served from the
      * per-locale Elasticsearch index (the ES sync builder embeds the same
-     * cards → translations → contents graph the study modes need).
+     * cards -> translations -> contents graph the study modes need).
      *
      * @param flashcardDeckId - Deck id (also the ES document `_id`).
      * @param locale - Locale index to read from.
@@ -246,10 +246,10 @@ export class FlashcardDeckReadService {
                 await this.annotateNextIntervals(deck.cards,
                     userId)
             }
-            // Gate premium answers behind enrollment — same paywall this deck's
+            // Gate premium answers behind enrollment -- same paywall this deck's
             // cards claim to mirror but never enforced (Finding #1). `deck.courseId`
             // (a `@RelationId` field, populated at index time and stored in the ES
-            // mapping — `flashcard-deck.mapping.ts:22-25`) identifies the owning
+            // mapping -- `flashcard-deck.mapping.ts:22-25`) identifies the owning
             // course without a second DB round-trip.
             const entitled = await this.isEntitled(deck.courseId,
                 userId)
@@ -272,7 +272,7 @@ export class FlashcardDeckReadService {
     }
 
     /**
-     * Annotate each card (in place) with the viewer's `nextIntervals` — the
+     * Annotate each card (in place) with the viewer's `nextIntervals` -- the
      * SM-2 preview (days per grade) computed from the viewer's current review
      * state, without persisting. Mirrors {@link annotateViewerStats}'s
      * always-`user_id` keying (this ES-backed read has no course/enrollment

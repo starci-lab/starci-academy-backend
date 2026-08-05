@@ -17,5 +17,5 @@ import {
         MyInProgressFlashcardQuizSessionService,
     ],
 })
-/** Feature-module boundary for the `myInProgressFlashcardQuizSession` query — wires its resolver + service. */
+/** Feature-module boundary for the `myInProgressFlashcardQuizSession` query -- wires its resolver + service. */
 export class MyInProgressFlashcardQuizSessionSingleQueryModule extends ConfigurableModuleClass {}

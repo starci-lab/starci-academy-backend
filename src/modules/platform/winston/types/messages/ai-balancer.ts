@@ -7,7 +7,7 @@ export interface SeederFinishedMessage {
     upserted: number
 }
 
-/** Key store reread the mount file — rotation now uses the new key set. */
+/** Key store reread the mount file -- rotation now uses the new key set. */
 export interface AiBalancerKeysReloadedMessage {
     /** Provider whose keys were reloaded. */
     provider: string
@@ -34,7 +34,7 @@ export interface AiBalancerKeyRecoveredMessage {
     keySuffix: string
 }
 
-/** Rotation selected this key for the next call — active count shows remaining headroom. */
+/** Rotation selected this key for the next call -- active count shows remaining headroom. */
 export interface AiBalancerKeyPickedMessage {
     provider: string
     keySuffix: string
@@ -43,7 +43,7 @@ export interface AiBalancerKeyPickedMessage {
 }
 
 /**
- * Every key for the provider is disabled — callers will fail until one recovers or is
+ * Every key for the provider is disabled -- callers will fail until one recovers or is
  * reloaded.
  */
 export interface AiBalancerNoActiveKeyMessage {

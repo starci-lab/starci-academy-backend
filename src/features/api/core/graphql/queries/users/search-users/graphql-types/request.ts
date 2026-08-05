@@ -8,7 +8,7 @@ import {
     description: "Free-text user search request (Elasticsearch `users` index).",
 })
 /**
- * Request for the `searchUsers` query — a free-text search over the `users`
+ * Request for the `searchUsers` query -- a free-text search over the `users`
  * Elasticsearch index (handle / display name / bio).
  */
 export class SearchUsersRequest {

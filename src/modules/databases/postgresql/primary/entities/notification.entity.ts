@@ -46,7 +46,7 @@ export interface NotificationI18nText {
  * title/body plus an optional click target without joining the source table.
  */
 export interface NotificationMetadata {
-    /** Headline, rendered via i18n (key + params) — no stored text. */
+    /** Headline, rendered via i18n (key + params) -- no stored text. */
     title: NotificationI18nText
     /** Optional supporting line, rendered via i18n; omit when title is enough. */
     body?: NotificationI18nText

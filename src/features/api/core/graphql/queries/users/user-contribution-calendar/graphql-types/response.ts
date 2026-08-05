@@ -18,7 +18,7 @@ import {
  *
  * Reuses {@link MyContributionDayData} (same shape): each item is one active day
  * of the profile owner's learning activity. Differs from `myContributionCalendar`
- * only in subject — the user named in the route, not the authenticated viewer.
+ * only in subject -- the user named in the route, not the authenticated viewer.
  */
 export class UserContributionCalendarResponse
     extends AbstractGraphQLResponse

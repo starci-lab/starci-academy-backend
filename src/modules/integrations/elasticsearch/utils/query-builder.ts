@@ -4,7 +4,7 @@ import {
 
 /**
  * Inputs for a standard bool+optional multi_match query. Empty `search`/`searchFields`
- * must stay filter-only — adding a match clause with no fields would match nothing.
+ * must stay filter-only -- adding a match clause with no fields would match nothing.
  */
 export interface BuildSearchQueryParams {
     filters?: estypes.QueryDslQueryContainer[];

@@ -18,6 +18,6 @@ import {
     ],
 })
 /**
- * Nest DI for `sandboxRepoUrl` — enrollment-gated Minio presign for sandbox trees.
+ * Nest DI for `sandboxRepoUrl` -- enrollment-gated Minio presign for sandbox trees.
  */
 export class SandboxRepoUrlModule extends ConfigurableModuleClass { }

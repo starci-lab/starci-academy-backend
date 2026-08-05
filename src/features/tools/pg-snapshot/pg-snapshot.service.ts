@@ -77,7 +77,7 @@ export class PgSnapshotService {
         const runStamp = Date.now()
         const items: Array<PgSnapshotItemResult> = []
 
-        // dump targets sequentially — pg_dump is IO/CPU heavy and parallel dumps
+        // dump targets sequentially -- pg_dump is IO/CPU heavy and parallel dumps
         // against the same operator machine rarely help and complicate logging
         for (const target of targets) {
             items.push(await this.dumpOne({
@@ -94,7 +94,7 @@ export class PgSnapshotService {
     }
 
     /**
-     * Dump a single target, never throwing — failures become a result entry.
+     * Dump a single target, never throwing -- failures become a result entry.
      */
     private async dumpOne(
         {
@@ -123,14 +123,14 @@ export class PgSnapshotService {
                     "--dbname",
                     target.url,
                 ],
-                // cloud dumps can be large/slow — allow up to 10 minutes
+                // cloud dumps can be large/slow -- allow up to 10 minutes
                 timeoutMs: 10 * 60 * 1000,
             })
 
             // confirm the dump actually produced bytes (empty file = silent failure)
             const { size } = await stat(file)
 
-            // register the dump as a local artifact (no target → local-only)
+            // register the dump as a local artifact (no target -> local-only)
             const artifact = this.toolsStoreService.createArtifact({
                 type: ArtifactType.PgSnapshot,
                 label: target.name,

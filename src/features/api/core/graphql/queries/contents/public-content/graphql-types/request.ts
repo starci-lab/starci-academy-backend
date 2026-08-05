@@ -8,7 +8,7 @@ import {
     description: "Request for fetching a public content row by id.",
 })
 /**
- * Args for `publicContent` — id or displayId; premium rows are rejected as not-found.
+ * Args for `publicContent` -- id or displayId; premium rows are rejected as not-found.
  */
 export class PublicContentRequest {
     @Field(

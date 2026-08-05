@@ -5,13 +5,13 @@ import {
 
 /**
  * Drops the legacy `users.total_points` column. It was a manually-maintained
- * counter (incremented on every XP-earning event) that has been superseded —
+ * counter (incremented on every XP-earning event) that has been superseded --
  * the global "Points" figure (`SUM(amount) FROM xp_histories`, no filter) is
  * now computed LIVE by {@link UserXpProjectionService}, matching how the
  * per-source XP breakdowns (`challengeXp`/`milestoneXp`/`codingXp`/`lessonXp`)
  * were already computed. Nothing in the codebase reads `total_points` anymore
  * (`writeXpHistory` stopped incrementing it; `loyalty-discount.service.ts` now
- * reads the projection instead) — safe to drop.
+ * reads the projection instead) -- safe to drop.
  *
  * Down migration re-adds the column and backfills it one last time from the
  * ledger, so a rollback restores a value consistent with the (now-unused)

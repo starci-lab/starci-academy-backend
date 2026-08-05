@@ -7,12 +7,12 @@ import {
 
 /** Metadata for {@link RagPlaygroundImportException}. */
 export interface RagPlaygroundImportExceptionMetadata extends AbstractExceptionMetadata {
-    /** Human-readable reason the import was rejected (size cap, bad URL, no files, …). */
+    /** Human-readable reason the import was rejected (size cap, bad URL, no files, ...). */
     reason: string
 }
 
 /**
- * The RAG Playground could not import the requested code source — an
+ * The RAG Playground could not import the requested code source -- an
  * oversized paste, an invalid/non-GitHub URL, a private/missing repo, or a
  * repo with no importable files after the extension/size filters. The
  * `reason` is safe to show directly to the (anonymous) visitor.

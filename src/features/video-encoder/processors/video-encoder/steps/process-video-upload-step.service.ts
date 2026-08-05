@@ -39,7 +39,7 @@ import {
 
 @Injectable()
 /**
- * Step 3 — publishes DASH artifacts to both MinIO and DigitalOcean under
+ * Step 3 -- publishes DASH artifacts to both MinIO and DigitalOcean under
  * `videos/{assetId}`. Dual-write is deliberate: a single-provider upload would
  * leave the other origin stale for lesson players / CDN.
  */

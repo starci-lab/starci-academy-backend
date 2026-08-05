@@ -25,7 +25,7 @@ export interface AiModelHealthSnapshot {
 }
 
 /**
- * Payload emitted after each per-model latency probe cycle completes — the full
+ * Payload emitted after each per-model latency probe cycle completes -- the full
  * snapshot of every probed model. The system-health gateway broadcasts it to
  * all connected clients so the public status page updates in real time.
  */

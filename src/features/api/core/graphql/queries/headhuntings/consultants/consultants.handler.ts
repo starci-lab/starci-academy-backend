@@ -92,7 +92,7 @@ export class ConsultantsHandler
             filters: [
                 {
                     term: {
-                        // companyId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                        // companyId is mapped as a pure keyword -> query it directly (no `.keyword` subfield)
                         companyId,
                     },
                 },

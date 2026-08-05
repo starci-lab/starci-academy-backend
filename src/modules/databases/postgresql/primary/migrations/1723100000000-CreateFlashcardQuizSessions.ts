@@ -4,8 +4,8 @@ import {
 } from "typeorm"
 
 /**
- * Creates the `flashcard_quiz_sessions` table — one row per resumable
- * flashcard quick-quiz ("Hỏi nhanh") draw, mirroring the SAME resumable-
+ * Creates the `flashcard_quiz_sessions` table -- one row per resumable
+ * flashcard quick-quiz draw, mirroring the SAME resumable-
  * session shape as `mock_interview_sessions`
  * (`CreateMockInterviewSessions` / `AddResumeSupportToMockInterviewSessions`):
  * `startFlashcardQuizSession` persists the drawn card set,
@@ -33,7 +33,7 @@ export class CreateFlashcardQuizSessions1723100000000 implements MigrationInterf
             );
         `)
 
-        // FK to enrollments — deleting an enrollment removes its drawn sessions
+        // FK to enrollments -- deleting an enrollment removes its drawn sessions
         await queryRunner.query(`
             ALTER TABLE "flashcard_quiz_sessions"
             ADD CONSTRAINT "fk_enrollment_id_flashcard_quiz_sessions"

@@ -80,7 +80,7 @@ import type {
  *
  * Real: the HTTP stack, the CQRS bus, the primary Postgres datasource (against
  * the Testcontainers DB), {@link AiEntitlementService} and {@link DayjsService}
- * — so a grant actually writes rows.
+ * -- so a grant actually writes rows.
  *
  * Mocked: the outbound SePay SDK, the enroll job queue, and the
  * filesystem/crypto config services the grant path never exercises.
@@ -88,7 +88,7 @@ import type {
  * @returns the booted {@link E2eApp}
  */
 export const createE2eApp = async (): Promise<E2eApp> => {
-    // outbound payment-gateway SDKs — never hit the network in a test
+    // outbound payment-gateway SDKs -- never hit the network in a test
     const sepayClient: SepayClientMock = {
         order: {
             retrieve: jest.fn(),
@@ -105,7 +105,7 @@ export const createE2eApp = async (): Promise<E2eApp> => {
         },
     }
 
-    // course-enrollment hand-off — asserted, never actually queued
+    // course-enrollment hand-off -- asserted, never actually queued
     const enqueueEnrollJob = {
         enqueue: jest.fn(),
     }
@@ -113,7 +113,7 @@ export const createE2eApp = async (): Promise<E2eApp> => {
     const moduleRef = await Test.createTestingModule({
         imports: [
             // real Postgres connection + schema sync against the test container.
-            // skip hydration/seeders/resolvers — they pull global app deps the
+            // skip hydration/seeders/resolvers -- they pull global app deps the
             // focused webhook flow does not need.
             PrimaryPostgreSQLModule.register({
                 isGlobal: true,
@@ -156,7 +156,7 @@ export const createE2eApp = async (): Promise<E2eApp> => {
                 useValue: enqueueEnrollJob,
             },
             // grant-path side effects the webhook handlers inject but that a
-            // grant assertion never needs to actually fire — stubbed so Nest can
+            // grant assertion never needs to actually fire -- stubbed so Nest can
             // resolve the full handler provider graph at compile()
             {
                 provide: MembershipService,
@@ -210,7 +210,7 @@ export const createE2eApp = async (): Promise<E2eApp> => {
         // `request.rawBody` for signature verification (mirrors production boot)
         rawBody: true,
     })
-    // match the controller's `version: "1"` → routes resolve at /v1/...
+    // match the controller's `version: "1"` -> routes resolve at /v1/...
     app.enableVersioning({
         type: VersioningType.URI,
     })

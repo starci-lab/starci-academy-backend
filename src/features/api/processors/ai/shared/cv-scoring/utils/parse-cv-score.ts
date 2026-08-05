@@ -32,13 +32,13 @@ const asNullableString = (value: unknown): string | null => {
 /**
  * Parse the scoring model's STRICT-JSON reply into a {@link ScoreCvResult}
  * (mirrors {@link parseChallengeEvaluation}: extract the JSON block, `JSON.parse`,
- * coerce fields). The holistic score is clamped to 0–100 and integer-normalized;
+ * coerce fields). The holistic score is clamped to 0-100 and integer-normalized;
  * feedback items are shape-coerced defensively so a partially-malformed reply
  * still yields a persistable result.
  *
  * @param text - Raw model output (optional ```json fence stripped inside).
  * @param templateLevel - The rubric level the CV was graded against (echoed into feedback).
- * @returns The parsed 0–100 score + structured feedback (jsonb-assignable).
+ * @returns The parsed 0-100 score + structured feedback (jsonb-assignable).
  */
 export const parseCvScore = (
     text: string,

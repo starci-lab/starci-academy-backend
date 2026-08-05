@@ -70,7 +70,7 @@ implements IQueryHandler<LeaderboardQuery, LeaderboardResponseData>
                     totalXp: inCache.totalXp,
                 }
             } else {
-                // Outside the window — query directly.
+                // Outside the window -- query directly.
                 const direct = await this.progressProjectionService.getMyRank(courseId,
                     user.id)
                 if (direct) {

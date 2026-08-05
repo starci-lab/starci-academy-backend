@@ -39,7 +39,7 @@ import {
  *
  * Each id's position in the request array becomes its new `orderIndex`. Every
  * update is scoped by both id and userId, so a caller can only reorder their own
- * pins — foreign or unknown ids simply update nothing. The updates run inside a
+ * pins -- foreign or unknown ids simply update nothing. The updates run inside a
  * single transaction so the list never observes a partially-reordered state.
  */
 export class ReorderPinnedProjectsResolver {
@@ -68,7 +68,7 @@ export class ReorderPinnedProjectsResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<ReorderPinnedProjectsResponse> {
-        // the desired order — array position is the new orderIndex for each id
+        // the desired order -- array position is the new orderIndex for each id
         const {
             ids,
         } = request
@@ -80,7 +80,7 @@ export class ReorderPinnedProjectsResolver {
                 id] of ids.entries()) {
                 // scope by the user_id FK column so a caller can only reorder pins they
                 // own; foreign / unknown ids match nothing and are silently skipped.
-                // (`userId` is a @RelationId — not a real column — so it can't be used
+                // (`userId` is a @RelationId -- not a real column -- so it can't be used
                 // directly in update criteria; filter on the FK column instead.)
                 await transactionalEntityManager
                     .createQueryBuilder()
@@ -100,7 +100,7 @@ export class ReorderPinnedProjectsResolver {
             }
         })
 
-        // no payload — the client already holds the new order it submitted
+        // no payload -- the client already holds the new order it submitted
         return {
         } as ReorderPinnedProjectsResponse
     }

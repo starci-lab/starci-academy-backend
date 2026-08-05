@@ -60,7 +60,7 @@ import type {
     UseApiResult,
 } from "./types"
 
-/** Category ladder cheapest → strongest — the macro fallback order. */
+/** Category ladder cheapest -> strongest -- the macro fallback order. */
 const CATEGORY_RANK: ReadonlyArray<AiModelCategory> = [
     AiModelCategory.Low,
     AiModelCategory.Medium,
@@ -76,7 +76,7 @@ const LATENCY_FRESHNESS_MS = 5 * 60_000
 
 @Injectable()
 /**
- * High-level AI invoke wrapper — routes pooled keys through round-robin and
+ * High-level AI invoke wrapper -- routes pooled keys through round-robin and
  * persists every success/failure into {@link AiPingCacheService} so the next
  * request skips unhealthy keys and admin UI stays in sync.
  */
@@ -91,7 +91,7 @@ export class UseApiService {
     ) { }
 
     /**
-     * Single entry point — dispatch to the right lane implementation by `lane`.
+     * Single entry point -- dispatch to the right lane implementation by `lane`.
      *
      * @param params - Discriminated lane params (auto / premium).
      * @returns The action result plus which model/provider/attempts served it.
@@ -99,7 +99,7 @@ export class UseApiService {
     async useApi<TResult>(
         params: UseApiParams<TResult>,
     ): Promise<UseApiResult<TResult>> {
-        // route by lane — each lane has different fallback / rotation semantics
+        // route by lane -- each lane has different fallback / rotation semantics
         switch (params.lane) {
         case "pinned":
             return this.runPremium(params)
@@ -109,7 +109,7 @@ export class UseApiService {
     }
 
     /**
-     * Auto lane — model fallback chain, round-robin keys, cache update on every
+     * Auto lane -- model fallback chain, round-robin keys, cache update on every
      * failure, retry until {@link envConfig().aiBalancer.maxAutoAttempts}.
      */
     private async runAuto<TResult>({
@@ -122,17 +122,17 @@ export class UseApiService {
     }: UseApiAutoParams<TResult>): Promise<UseApiResult<TResult>> {
         await this.keyStoreService.ensureLoaded()
 
-        // `categories` (the entitled tier set) climbs low→high by priority within
+        // `categories` (the entitled tier set) climbs low->high by priority within
         // entitlement; otherwise fall back to the single-category filter. enabledModels
-        // is ordered by priority DESC, so the filtered list is already Free → Economy
-        // → Balanced → Premium order.
+        // is ordered by priority DESC, so the filtered list is already Free -> Economy
+        // -> Balanced -> Premium order.
         const catalog = await this.aiModelCatalogService.enabledModels(
             categories ? {
             } : {
                 category
             },
         )
-        // when a `categories` chain is given it is ORDERED (floor → tier ceiling):
+        // when a `categories` chain is given it is ORDERED (floor -> tier ceiling):
         // try each category in chain order (climb on exhaustion), and within a
         // category try the highest-`weight` model first.
         const ordered = categories
@@ -148,8 +148,8 @@ export class UseApiService {
                 })
             : catalog
         // task-filter: the Auto chain only considers models suited for this task
-        // (chat → chatting, grade → grading). A model with no `supportedTasks`
-        // (stale seed) is kept (back-compat). Unset task → every model.
+        // (chat -> chatting, grade -> grading). A model with no `supportedTasks`
+        // (stale seed) is kept (back-compat). Unset task -> every model.
         const taskFiltered = task
             ? ordered.filter(
                 (row) => !row.supportedTasks?.length
@@ -169,7 +169,7 @@ export class UseApiService {
         let lastError: Error | undefined
 
         while (attempts < maxAttempts) {
-            // track per-pass progress — if a full sweep over `models` finds no
+            // track per-pass progress -- if a full sweep over `models` finds no
             // eligible key (e.g. every key flagged unhealthy in the ping cache),
             // there is nothing left to try and looping again would spin forever.
             let madeProgress = false
@@ -223,14 +223,14 @@ export class UseApiService {
                     }
 
                     lastError = outcome.error
-                    // prompt/content/abort fault — another key won't help, surface now
+                    // prompt/content/abort fault -- another key won't help, surface now
                     if (outcome.kind === AiErrorKind.NonKey) {
                         throw outcome.error
                     }
                 }
             }
 
-            // a full sweep produced no eligible key — all models are exhausted,
+            // a full sweep produced no eligible key -- all models are exhausted,
             // so stop here instead of re-scanning the same empty pools forever.
             if (!madeProgress) {
                 break
@@ -255,15 +255,15 @@ export class UseApiService {
      * Reorder the Auto chain using the per-model latency probe (ADVISORY). The
      * macro category/priority order is preserved; only WITHIN each category does
      * it (a) push probe-"down" models to the back of their tier, (b) inside the
-     * FREE tier put a healthy self-hosted (Local) model first — $0 on our GPU, so
-     * try it before any cloud free model — and (c) for chatting, put the
+     * FREE tier put a healthy self-hosted (Local) model first -- $0 on our GPU, so
+     * try it before any cloud free model -- and (c) for chatting, put the
      * lowest-latency models first. Stale / unprobed models keep
-     * their static position — the probe never hard-excludes, so the original
+     * their static position -- the probe never hard-excludes, so the original
      * order is always the safe fallback (e.g. when the whole tier is "down").
      *
      * @param models - the task-filtered chain (already in category-chain order).
      * @param categories - the entitlement chain order (else the category ladder).
-     * @param task - chat → latency-first; grading keeps weight order.
+     * @param task - chat -> latency-first; grading keeps weight order.
      * @returns the reordered chain.
      */
     private async orderByHealthAndLatency(
@@ -288,7 +288,7 @@ export class UseApiService {
                 ? entry
                 : undefined
         }
-        // macro order key — entitlement chain order, else the category ladder
+        // macro order key -- entitlement chain order, else the category ladder
         const rankOf = (row: AiModelEntity): number => categories
             ? categories.indexOf(row.category)
             : CATEGORY_RANK.indexOf(row.category)
@@ -308,9 +308,9 @@ export class UseApiService {
             return entry && entry.ok ? entry.latencyMs : Number.POSITIVE_INFINITY
         }
         // FREE tier is LOCAL-FIRST: a self-hosted (Local provider) model runs on our
-        // own GPU at $0, so when it's healthy try it BEFORE any cloud free model —
+        // own GPU at $0, so when it's healthy try it BEFORE any cloud free model --
         // then the chain climbs the rest by the usual latency/weight order ("local
-        // trước, rồi ngon nhất cloud"). Only inside the Free category; paid tiers keep
+        // first, then the best cloud model"). Only inside the Free category; paid tiers keep
         // weight order. A DOWN local already loses to a healthy cloud at `downRank`
         // above, so an offline GPU falls back to the cloud chain automatically.
         const freeLocalRank = (row: AiModelEntity): number =>
@@ -337,7 +337,7 @@ export class UseApiService {
             if (localDelta !== 0) {
                 return localDelta
             }
-            // chat is latency-sensitive → fastest first; grading keeps weight order
+            // chat is latency-sensitive -> fastest first; grading keeps weight order
             if (task === AiModelTask.Chatting) {
                 const latencyDelta = latencyOf(left) - latencyOf(right)
                 if (latencyDelta !== 0) {
@@ -350,7 +350,7 @@ export class UseApiService {
     }
 
     /**
-     * Premium lane — user-selected model only (no model fallback). Keys still
+     * Premium lane -- user-selected model only (no model fallback). Keys still
      * rotate round-robin; each failure updates cache; throws when exhausted.
      */
     private async runPremium<TResult>({
@@ -416,7 +416,7 @@ export class UseApiService {
             }
 
             lastError = outcome.error
-            // prompt/content/abort fault — another key won't help, surface now
+            // prompt/content/abort fault -- another key won't help, surface now
             if (outcome.kind === AiErrorKind.NonKey) {
                 throw outcome.error
             }
@@ -459,7 +459,7 @@ export class UseApiService {
             const error = err instanceof Error ? err : new Error(String(err))
             const kind = classifyAiError(error)
             // a non-key fault (prompt / content / abort) must NOT penalize the
-            // key — and the caller stops retrying (other keys would fail too)
+            // key -- and the caller stops retrying (other keys would fail too)
             if (kind !== AiErrorKind.NonKey) {
                 // honor the provider's Retry-After on 429, else the class default
                 const cooldownMs = kind === AiErrorKind.RateLimit
@@ -515,11 +515,11 @@ export class UseApiService {
     /**
      * Probe ONE specific model with a minimal 1-token completion to measure
      * round-trip latency + up/down. For the public status page / realtime
-     * dashboard — a SEPARATE layer from the per-provider key ping that feeds
+     * dashboard -- a SEPARATE layer from the per-provider key ping that feeds
      * balancer eligibility.
      *
      * Unlike {@link useApi} this does NOT climb the model fallback chain (we want
-     * this exact model) and does NOT mutate the ping cache (status/UI only —
+     * this exact model) and does NOT mutate the ping cache (status/UI only --
      * a slow/failing probe must not penalize the key pool). One key is acquired
      * for the provider (so we hit the same pool a real call would); when none is
      * eligible the model is reported down.
@@ -544,8 +544,8 @@ export class UseApiService {
         // make sure the key pools are loaded before we try to acquire one
         await this.keyStoreService.ensureLoaded()
 
-        // acquire one key for the provider — same pool a real call would use.
-        // null = no eligible key right now → the model is effectively down for us
+        // acquire one key for the provider -- same pool a real call would use.
+        // null = no eligible key right now -> the model is effectively down for us
         const acquired = await this.tryAcquire(provider)
         if (!acquired) {
             return {
@@ -557,11 +557,11 @@ export class UseApiService {
 
         // build the raw HTTP request for THIS exact model + acquired key. We hit the
         // provider endpoint DIRECTLY (no LangChain) so the HTTP STATUS CODE is the
-        // verdict: a 2xx — even an EMPTY / reasoning-truncated 1-token completion —
+        // verdict: a 2xx -- even an EMPTY / reasoning-truncated 1-token completion --
         // means the model is reachable + the key is valid. Only a non-2xx / network
         // failure is "down". (LangChain threw on empty completions, so reasoning
-        // models — which burn the 1-token budget on hidden reasoning, returning no
-        // content — were marked falsely down even though they serve fine.)
+        // models -- which burn the 1-token budget on hidden reasoning, returning no
+        // content -- were marked falsely down even though they serve fine.)
         const request = this.buildProbeRequest({
             provider,
             model,
@@ -581,7 +581,7 @@ export class UseApiService {
                 },
             )
             const latencyMs = Date.now() - startedAt
-            // 2xx → reachable + authed (content is irrelevant for a liveness probe)
+            // 2xx -> reachable + authed (content is irrelevant for a liveness probe)
             if (response.ok) {
                 return {
                     ok: true,
@@ -589,15 +589,15 @@ export class UseApiService {
                     errorMessage: null,
                 }
             }
-            // non-2xx → down; surface the status CODE + provider error detail so the
-            // reason is legible (401/403 bad key · 404 model gone · 429 throttled · 5xx)
+            // non-2xx -> down; surface the status CODE + provider error detail so the
+            // reason is legible (401/403 bad key - 404 model gone - 429 throttled - 5xx)
             return {
                 ok: false,
                 latencyMs,
                 errorMessage: `[${response.status}] ${await this.readProbeError(response)}`,
             }
         } catch (err) {
-            // network failure or AbortSignal.timeout → down with a short reason
+            // network failure or AbortSignal.timeout -> down with a short reason
             const error = err instanceof Error ? err : new Error(String(err))
             const reason = error.name === "TimeoutError" || error.name === "AbortError"
                 ? `timeout after ${timeoutMs}ms`
@@ -611,7 +611,7 @@ export class UseApiService {
     }
 
     /**
-     * Count pool keys that are eligible right now — not hard-disabled and not
+     * Count pool keys that are eligible right now -- not hard-disabled and not
      * within their cooldown window (see {@link isPingEntryEligible}).
      */
     private async countEligibleKeys(provider: ModelProvider): Promise<number> {
@@ -625,7 +625,7 @@ export class UseApiService {
     }
 
     /**
-     * Resolve the single model row for premium — user pick wins, else highest priority in category.
+     * Resolve the single model row for premium -- user pick wins, else highest priority in category.
      */
     private resolvePremiumModel(
         catalog: Awaited<ReturnType<AiModelCatalogService["enabledModels"]>>,
@@ -709,7 +709,7 @@ export class UseApiService {
     }
 
     /**
-     * Build the RAW HTTP probe request for one model — a minimal 1-token completion
+     * Build the RAW HTTP probe request for one model -- a minimal 1-token completion
      * POSTed DIRECTLY to the provider endpoint (no LangChain / SDK), so the caller
      * can read the HTTP STATUS CODE for up/down. Per provider: native OpenAI uses
      * `max_completion_tokens` (gpt-5.x reject `max_tokens`); the OpenAI-compatible
@@ -728,10 +728,10 @@ export class UseApiService {
             apiKey,
         }: BuildProbeRequestParams,
     ): { url: string, headers: Record<string, string>, body: unknown } {
-        // shared OpenAI-style chat body — reused by every OpenAI-compatible gateway.
+        // shared OpenAI-style chat body -- reused by every OpenAI-compatible gateway.
         // `tokens` defaults to 1 (cheapest possible probe) but REASONING-family
         // models (gpt-5.x native + OpenRouter reasoning routes) burn part of that
-        // budget on hidden reasoning before emitting a single visible token — with
+        // budget on hidden reasoning before emitting a single visible token -- with
         // `=1` they return a hard 400 ("could not finish the message") instead of an
         // empty 2xx, which falsely marks a live model DOWN. 16 is the community/
         // litellm-verified floor that lets reasoning finish before hitting the cap.
@@ -750,7 +750,7 @@ export class UseApiService {
         })
         switch (provider) {
         case ModelProvider.OpenAI:
-            // native OpenAI — `max_completion_tokens` (gpt-5.x reject `max_tokens`);
+            // native OpenAI -- `max_completion_tokens` (gpt-5.x reject `max_tokens`);
             // 16 tokens so reasoning-family models (gpt-5.4-nano/mini) clear their
             // hidden reasoning pass instead of false-DOWN-ing on a 1-token cap
             return {
@@ -765,7 +765,7 @@ export class UseApiService {
                 ),
             }
         case ModelProvider.OpenRouter:
-            // OpenRouter aggregator gateway (OpenAI-compatible) — reasoning models
+            // OpenRouter aggregator gateway (OpenAI-compatible) -- reasoning models
             // here also reject `max_tokens` AND need the same reasoning headroom,
             // so use `max_completion_tokens` with the same 16-token floor
             return {
@@ -780,7 +780,7 @@ export class UseApiService {
                 ),
             }
         case ModelProvider.Local:
-            // self-hosted OpenAI-compatible endpoint (Ollama / vLLM) — non-reasoning
+            // self-hosted OpenAI-compatible endpoint (Ollama / vLLM) -- non-reasoning
             // models, `max_tokens`, 1 token is enough (cheapest probe)
             return {
                 url: `${envConfig().ai.local.baseUrl}/chat/completions`,
@@ -791,7 +791,7 @@ export class UseApiService {
                 body: openAiBody("max_tokens"),
             }
         case ModelProvider.Gemini:
-            // Google Gemini — key in the query string, `maxOutputTokens` cap
+            // Google Gemini -- key in the query string, `maxOutputTokens` cap
             return {
                 url: `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
                 headers: {
@@ -814,7 +814,7 @@ export class UseApiService {
                 },
             }
         case ModelProvider.Anthropic:
-            // native Anthropic Claude — versioned API, key in `x-api-key`
+            // native Anthropic Claude -- versioned API, key in `x-api-key`
             return {
                 url: "https://api.anthropic.com/v1/messages",
                 headers: {
@@ -834,7 +834,7 @@ export class UseApiService {
                 },
             }
         default:
-            // unknown provider has no endpoint wiring → typed failure
+            // unknown provider has no endpoint wiring -> typed failure
             throw new UnsupportedAiProviderException({
                 provider: provider as string,
             })
@@ -842,7 +842,7 @@ export class UseApiService {
     }
 
     /**
-     * Pull a short reason out of a non-2xx probe response — the provider's
+     * Pull a short reason out of a non-2xx probe response -- the provider's
      * `{ error: { message } }` / `{ error }` / `{ message }` body, falling back to
      * the HTTP status text. Best-effort: a body that is not JSON just yields the
      * status text (never throws).
@@ -873,7 +873,7 @@ export class UseApiService {
     }
 
     /**
-     * Wrap {@link AiBalancerService.acquire} — returns null when no eligible key remains.
+     * Wrap {@link AiBalancerService.acquire} -- returns null when no eligible key remains.
      */
     private async tryAcquire(
         provider: ModelProvider,

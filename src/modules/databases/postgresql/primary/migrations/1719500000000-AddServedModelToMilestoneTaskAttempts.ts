@@ -6,7 +6,7 @@ import {
 /**
  * Adds `served_model` + `served_provider` to `user_milestone_task_attempts` so each
  * personal-project grading attempt records WHICH AI model actually graded it (the
- * balancer's served model, e.g. `qwen2.5-coder:7b` on `local`) — surfaced on the
+ * balancer's served model, e.g. `qwen2.5-coder:7b` on `local`) -- surfaced on the
  * task feedback page (mirrors `user_challenge_submission_attempts`). Both nullable:
  * attempts graded before this column existed stay null.
  *

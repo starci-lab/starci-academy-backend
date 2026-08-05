@@ -51,7 +51,7 @@ export class ContentProcessorService {
     /**
      * Parse contents for one module, upsert them, then nested challenges.
      *
-     * Uses {@link ResolvedFileResult.relativePath} from parse paths — do not rebuild from DB rows.
+     * Uses {@link ResolvedFileResult.relativePath} from parse paths -- do not rebuild from DB rows.
      *
      * @param params - Course and module parse results.
      */

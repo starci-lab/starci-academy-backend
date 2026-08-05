@@ -12,7 +12,7 @@ import {
     description: "Input for page-based pagination (pageNumber, limit).",
 })
 /**
- * Shared page+limit+search input. `pageNumber` is 1-based — treating it as
+ * Shared page+limit+search input. `pageNumber` is 1-based -- treating it as
  * 0-based duplicates or skips rows across pages. Concrete types supply `sorts`.
  */
 export abstract class PaginationPageFilters<T extends string> {

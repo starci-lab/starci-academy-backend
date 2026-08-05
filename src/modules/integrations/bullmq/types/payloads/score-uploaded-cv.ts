@@ -18,9 +18,9 @@ import {
 export interface ScoreUploadedCvPayload {
     /** Tracked job row id (`jobs.id`). */
     jobId: string
-    /** `cv_generations.id` — the Pending uploaded row created at enqueue time. */
+    /** `cv_generations.id` -- the Pending uploaded row created at enqueue time. */
     cvGenerationId: string
-    /** `users.id` — owner of the uploaded CV (drives AI entitlement / lane routing). */
+    /** `users.id` -- owner of the uploaded CV (drives AI entitlement / lane routing). */
     userId: string
     /** Locale hint so the AI feedback is written in the learner's language. */
     locale?: Locale

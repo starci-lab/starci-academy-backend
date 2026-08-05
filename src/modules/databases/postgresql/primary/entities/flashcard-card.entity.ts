@@ -33,7 +33,7 @@ import {
 })
 /**
  * Per-grade next-interval preview (in days) computed from a card's current SM-2
- * state without persisting — powers the rating buttons. Lives in the databases
+ * state without persisting -- powers the rating buttons. Lives in the databases
  * layer (not `features/api`) so entities like {@link FlashcardCardEntity} can
  * reference it directly.
  */
@@ -78,7 +78,7 @@ export class FlashcardNextIntervalsObject {
 /**
  * A single open-ended interview flashcard within a deck. `question` holds the
  * prompt (front), `answer` the model answer revealed on flip (back), and
- * `explanation` optional depth (follow-ups, gotchas) — all Markdown.
+ * `explanation` optional depth (follow-ups, gotchas) -- all Markdown.
  */
 export class FlashcardCardEntity extends UuidAbstractEntity {
     /**
@@ -134,7 +134,7 @@ export class FlashcardCardEntity extends UuidAbstractEntity {
         level: FlashcardLevel | null
 
     /**
-     * Technology tags for this card (e.g. ["NestJS", "Redis"]) — drives chips + filtering.
+     * Technology tags for this card (e.g. ["NestJS", "Redis"]) -- drives chips + filtering.
      */
     @Field(
         () => [String],
@@ -292,7 +292,7 @@ export class FlashcardCardEntity extends UuidAbstractEntity {
     /**
      * Per-viewer next-interval preview (days per SM-2 grade) computed from the
      * viewer's current review state for this card. Runtime-populated for the
-     * signed-in user — NOT a DB column; undefined when a query does not compute it.
+     * signed-in user -- NOT a DB column; undefined when a query does not compute it.
      */
     @Field(
         () => FlashcardNextIntervalsObject,

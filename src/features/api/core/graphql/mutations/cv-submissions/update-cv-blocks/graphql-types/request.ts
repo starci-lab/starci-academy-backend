@@ -10,7 +10,7 @@ import GraphQLJSON from "graphql-type-json"
 })
 /**
  * Update one of the signed-in user's CV documents (autosave from the block
- * editor). `id` targets the document; the other fields are partial — only the
+ * editor). `id` targets the document; the other fields are partial -- only the
  * provided ones are written. `blocks` / `style` are opaque FE-owned JSON.
  */
 export class UpdateCvBlocksRequest {

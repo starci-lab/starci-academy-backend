@@ -1,7 +1,7 @@
 /**
  * Fallback Auto-lane CREDIT caps when `systemConfig.ai.auto` is absent from
- * `app.yaml`. Pure credit-based — the legacy "uses/lượt" model is gone. Free
- * base = 100 credits/5h · 500 credits/week (paid tiers OVERRIDE these). PROD
+ * `app.yaml`. Pure credit-based -- the legacy per-use model is gone. Free
+ * base = 100 credits/5h - 500 credits/week (paid tiers OVERRIDE these). PROD
  * relies on these defaults (its app.yaml has no `ai.auto` block), so this IS the
  * prod free-base; local `app.yaml` sets the same 100/500 explicitly.
  */

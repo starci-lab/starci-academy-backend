@@ -8,7 +8,7 @@ import {
 /**
  * Kind of in-app activity recorded in the append-only {@link ActivityEntity}
  * ledger. Only "trend-worthy" learner actions are tracked (achievements +
- * engagement) — auth/payment/settings/sync plumbing is deliberately excluded.
+ * engagement) -- auth/payment/settings/sync plumbing is deliberately excluded.
  * The GitHub-style home feed reads these rows.
  */
 export enum ActivityType {

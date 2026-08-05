@@ -12,7 +12,7 @@ import {
     description: "The tailored CV blocks (not persisted).",
 })
 /**
- * Tailored-blocks payload for `tailorCvBlocks` — the SAME blocks array shape
+ * Tailored-blocks payload for `tailorCvBlocks` -- the SAME blocks array shape
  * (FE-owned JSON: `[{ id, type, title, order, items }]`) with item wording
  * adjusted toward the job description. Not persisted.
  */

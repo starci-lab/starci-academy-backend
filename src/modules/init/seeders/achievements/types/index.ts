@@ -28,7 +28,7 @@ export interface AchievementSeedItem {
 
 /**
  * Root object the markdown JSON extractor returns for the achievements seed file
- * — the authored `# N` sections are wrapped under a single `data` array.
+ * -- the authored `# N` sections are wrapped under a single `data` array.
  *
  * Declared as a `type` (not `interface`) so its implicit index signature
  * satisfies the `Record<string, unknown>` constraint of

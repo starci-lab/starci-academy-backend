@@ -71,7 +71,7 @@ export abstract class AbstractSuggestionsHandler<TQuery extends SuggestionsQuery
             request,
         } = query.params
 
-        // empty prefix → no suggestions (the dropdown only shows while typing)
+        // empty prefix -> no suggestions (the dropdown only shows while typing)
         const prefix = request.query?.trim() ?? ""
         if (!prefix) {
             return {
@@ -94,7 +94,7 @@ export abstract class AbstractSuggestionsHandler<TQuery extends SuggestionsQuery
             limit: request.limit ?? DEFAULT_SUGGESTIONS_LIMIT,
         })
 
-        // already in the SuggestionsPayload-compatible shape — no extra mapping needed
+        // already in the SuggestionsPayload-compatible shape -- no extra mapping needed
         return {
             data,
         }

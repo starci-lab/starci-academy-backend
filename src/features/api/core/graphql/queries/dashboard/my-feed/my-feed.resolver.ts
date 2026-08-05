@@ -55,9 +55,9 @@ const MAX_LIMIT = 50
 
 @Resolver()
 /**
- * Score-ranked home feed. Each activity gets `weight(type) × recencyDecay`, so
+ * Score-ranked home feed. Each activity gets `weight(type) x recencyDecay`, so
  * accomplishments (passing a milestone / challenge) surface above low-signal
- * social noise (follows, bookmarks) while recency still dominates — a fresh follow
+ * social noise (follows, bookmarks) while recency still dominates -- a fresh follow
  * out-ranks a week-old completion. "following" = followed users' activity;
  * "forYou" = platform-wide (excluding the viewer). Because the score is relative
  * to "now", the page-1 `asOf` is pinned in the cursor and the ranking is walked
@@ -114,7 +114,7 @@ export class MyFeedResolver {
             ? "JOIN user_follows f ON f.following_id = a.user_id WHERE f.follower_id = $1"
             : "WHERE a.user_id <> $1"
 
-        // filter chip → restrict to a set of activity types (null = All = no filter)
+        // filter chip -> restrict to a set of activity types (null = All = no filter)
         const filterTypes = CATEGORY_TYPE_MAP[request.category ?? MyFeedCategory.All]
         let typeClause = ""
         if (filterTypes) {
@@ -144,7 +144,7 @@ export class MyFeedResolver {
             params,
         )
 
-        // the (limit+1)th row only tells us there is more → trim it off
+        // the (limit+1)th row only tells us there is more -> trim it off
         const hasMore = rows.length > limit
         const pageRows = hasMore ? rows.slice(0,
             limit) : rows
@@ -186,7 +186,7 @@ export class MyFeedResolver {
                 reactionCount: Number(row.reactionCount),
                 myReaction: row.myReaction ?? null,
                 // forYou excludes the viewer + you never follow yourself, so this is
-                // always false here — kept for a uniform item shape across feeds
+                // always false here -- kept for a uniform item shape across feeds
                 isMine: row.actorUserId === user.id,
             }
         })
@@ -211,7 +211,7 @@ export class MyFeedResolver {
             .map((entry) => `WHEN '${entry[0]}' THEN ${entry[1]}`)
             .join(" ")
         const weightCase = `CASE a.type::text ${whens} ELSE ${DEFAULT_ACTIVITY_WEIGHT} END`
-        // 0.5 ^ (ageHours / halfLife) → halves the weight every half-life
+        // 0.5 ^ (ageHours / halfLife) -> halves the weight every half-life
         const ageHours = "EXTRACT(EPOCH FROM ($2::timestamptz - a.created_at)) / 3600.0"
         return `(${weightCase}) * power(0.5, GREATEST(${ageHours}, 0) / ${FEED_SCORE_HALF_LIFE_HOURS}.0)`
     }
@@ -237,7 +237,7 @@ export class MyFeedResolver {
 
     /**
      * Decode an opaque cursor back to `{ asOf, offset }`. Returns null when absent
-     * or malformed (treated as page 1 → fresh `asOf`, offset 0).
+     * or malformed (treated as page 1 -> fresh `asOf`, offset 0).
      *
      * @param cursor - the opaque cursor, or undefined
      * @returns the decoded cursor, or null
@@ -246,7 +246,7 @@ export class MyFeedResolver {
         if (!cursor) {
             return null
         }
-        // base64url → JSON; bail to page 1 on any bad/partial token
+        // base64url -> JSON; bail to page 1 on any bad/partial token
         try {
             const raw = Buffer.from(cursor,
                 "base64url").toString("utf8")

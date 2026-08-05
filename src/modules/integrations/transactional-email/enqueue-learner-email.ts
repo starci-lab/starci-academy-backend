@@ -16,7 +16,7 @@ import {
 export interface EnqueueLearnerEmailParams {
     /** Manager used to resolve the recipient user (read-only). */
     entityManager: EntityManager
-    /** Mail enqueue service (BullMQ `send-mail`) — passed in by the caller. */
+    /** Mail enqueue service (BullMQ `send-mail`) -- passed in by the caller. */
     enqueueSendMailJobService: EnqueueSendMailJobService
     /** Id of the learner to email. */
     userId: string
@@ -39,12 +39,12 @@ export interface EnqueueLearnerEmailParams {
  * Generic best-effort learner notification: resolve the recipient by id, then
  * enqueue a localized transactional email rendering the given Pug template.
  *
- * NEVER throws — designed to be fired AFTER a committed side effect (a graded
+ * NEVER throws -- designed to be fired AFTER a committed side effect (a graded
  * attempt, a payment, an access change), so a mail failure cannot fail the
  * already-finished work. Skips silently when the user has no email on file.
  *
  * The template always receives `{ name, dashboardUrl, locale }` plus any
- * `extraContext`. `name` falls back username → localized "you".
+ * `extraContext`. `name` falls back username -> localized "you".
  *
  * This helper is a pure function (no DI): the caller injects and passes its own
  * {@link EnqueueSendMailJobService}, which keeps this module dependency-light
@@ -105,6 +105,6 @@ export const enqueueLearnerEmail = async (
             },
         })
     } catch {
-        // best-effort notification — swallow any failure
+        // best-effort notification -- swallow any failure
     }
 }

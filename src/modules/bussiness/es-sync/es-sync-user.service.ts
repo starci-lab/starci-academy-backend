@@ -24,7 +24,7 @@ import type {
 
 /**
  * How many users to load + bulk-index per page during a full re-index. Kept as
- * a local detail (not an env knob) — it only trades memory for round-trips and
+ * a local detail (not an env knob) -- it only trades memory for round-trips and
  * never needs to differ per environment.
  */
 const REINDEX_PAGE_SIZE = 500
@@ -38,10 +38,10 @@ const REINDEX_PAGE_SIZE = 500
  * event-driven path ({@link reindexOne}, called by the CDC listener) and the
  * bulk backfill ({@link reindexAll}, called at seed/init) build the doc through
  * {@link buildDoc}. A user is always re-read from Postgres before indexing, so
- * the index reflects the authoritative row — a soft-deleted (or removed) user
+ * the index reflects the authoritative row -- a soft-deleted (or removed) user
  * is dropped from the index instead of indexed.
  *
- * NOTE: this is deliberately NOT a CQRS projection — it writes to Elasticsearch,
+ * NOTE: this is deliberately NOT a CQRS projection -- it writes to Elasticsearch,
  * not to a Postgres read-model table.
  */
 export class EsSyncUserService implements OnModuleInit {
@@ -54,17 +54,17 @@ export class EsSyncUserService implements OnModuleInit {
 
     /**
      * Ensure the single `users` index exists with its explicit mapping before
-     * any document is written — so the CDC listener's first write lands in a
+     * any document is written -- so the CDC listener's first write lands in a
      * correctly-typed index rather than triggering dynamic mapping.
      */
     async onModuleInit(): Promise<void> {
         try {
-            // locale omitted → the non-localized `users` index (not `users-vi`/`-en`)
+            // locale omitted -> the non-localized `users` index (not `users-vi`/`-en`)
             await this.elasticsearchService.ensureIndexForEntity({
                 entity: UserEntity.name,
             })
         } catch (error) {
-            // ES being unreachable at boot must not block the app — log + continue;
+            // ES being unreachable at boot must not block the app -- log + continue;
             // a later reindexAll / CDC event recreates the index on demand
             const cause = error instanceof Error ? error : new Error(String(error))
             this.winstonService.log(WinstonLog.RequestHandlingFailed,
@@ -119,7 +119,7 @@ export class EsSyncUserService implements OnModuleInit {
                     id: userId,
                 },
             })
-        // gone or soft-deleted → ensure the index has no stale doc for it
+        // gone or soft-deleted -> ensure the index has no stale doc for it
         if (!user || user.isDeleted) {
             await this.elasticsearchService.deleteEntity({
                 entity: UserEntity.name,
@@ -127,7 +127,7 @@ export class EsSyncUserService implements OnModuleInit {
             })
             return
         }
-        // live user → upsert the document by id into the non-localized index
+        // live user -> upsert the document by id into the non-localized index
         await this.elasticsearchService.indexEntity({
             entity: UserEntity,
             data: this.buildDoc(user),
@@ -160,7 +160,7 @@ export class EsSyncUserService implements OnModuleInit {
                     take: REINDEX_PAGE_SIZE,
                     skip,
                 })
-            // no more rows → done paging
+            // no more rows -> done paging
             if (users.length === 0) {
                 break
             }

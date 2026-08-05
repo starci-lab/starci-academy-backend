@@ -75,7 +75,7 @@ export class ContentDiscussionGateway implements OnModuleInit {
      * Wires local event listeners that forward discussion changes to the content room.
      */
     onModuleInit(): void {
-        // a new comment → push to the content room so other viewers refetch
+        // a new comment -> push to the content room so other viewers refetch
         this.eventEmitterService.on({
             event: EventName.CommentCreated,
             listener: (payload: CommentChangedEventPayload) => {
@@ -83,7 +83,7 @@ export class ContentDiscussionGateway implements OnModuleInit {
                     payload)
             },
         })
-        // an edited comment → same room push
+        // an edited comment -> same room push
         this.eventEmitterService.on({
             event: EventName.CommentUpdated,
             listener: (payload: CommentChangedEventPayload) => {
@@ -91,7 +91,7 @@ export class ContentDiscussionGateway implements OnModuleInit {
                     payload)
             },
         })
-        // a soft-deleted comment → same room push
+        // a soft-deleted comment -> same room push
         this.eventEmitterService.on({
             event: EventName.CommentDeleted,
             listener: (payload: CommentChangedEventPayload) => {
@@ -99,7 +99,7 @@ export class ContentDiscussionGateway implements OnModuleInit {
                     payload)
             },
         })
-        // content reaction totals moved → push the content id so clients refetch the summary
+        // content reaction totals moved -> push the content id so clients refetch the summary
         this.eventEmitterService.on({
             event: EventName.ContentReactionChanged,
             listener: (payload: ContentReactionChangedEventPayload) => {
@@ -114,7 +114,7 @@ export class ContentDiscussionGateway implements OnModuleInit {
                 })
             },
         })
-        // comment reaction totals moved → push content + comment id for a targeted refetch
+        // comment reaction totals moved -> push content + comment id for a targeted refetch
         this.eventEmitterService.on({
             event: EventName.CommentReactionChanged,
             listener: (payload: CommentReactionChangedEventPayload) => {

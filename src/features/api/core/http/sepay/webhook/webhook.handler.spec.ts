@@ -70,7 +70,7 @@ const buildTransaction = (
     actionType: ActionType.Enroll,
     courseId: "course-1",
     aiSubTier: null,
-    // created just now → never trips the stale-transaction guard
+    // created just now -> never trips the stale-transaction guard
     createdAt: new Date(),
     ...overrides,
 })
@@ -91,7 +91,7 @@ describe("SepayWebhookHandler",
 
             // SePay PG client: order.retrieve is the authoritative verification call.
             // The handler unwraps `data` (falling back to a single nest) to read the
-            // paid flag/status — resolve a plain "paid" status by default so the
+            // paid flag/status -- resolve a plain "paid" status by default so the
             // paid-guard added alongside the verification hardening passes.
             sepay = {
                 order: {
@@ -103,21 +103,21 @@ describe("SepayWebhookHandler",
                 },
             }
 
-            // enroll worker hand-off — assert it is enqueued on the Enroll path.
+            // enroll worker hand-off -- assert it is enqueued on the Enroll path.
             // enqueueForTransaction fans a paid order out to one job per course and
-            // reports back how many it enqueued (0 → the handler rejects the IPN).
+            // reports back how many it enqueued (0 -> the handler rejects the IPN).
             enqueueEnrollJobService = {
                 enqueueForTransaction: jest.fn().mockResolvedValue({
                     enqueuedCount: 1,
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
-            // entitlement grant — assert it fires on the subscription path
+            // entitlement grant -- assert it fires on the subscription path
             aiEntitlementService = {
                 grantTier: jest.fn(),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
 
-            // membership grant — assert it fires on the MembershipPurchase path
+            // membership grant -- assert it fires on the MembershipPurchase path
             membershipService = {
                 grantMembership: jest.fn(),
             } as unknown as jest.Mocked<Pick<MembershipService, "grantMembership">>
@@ -125,7 +125,7 @@ describe("SepayWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     SepayWebhookHandler,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: SEPAY,
@@ -144,7 +144,7 @@ describe("SepayWebhookHandler",
                         useValue: membershipService,
                     },
                     // neither path under test grants a subscription/membership, so
-                    // these two are never invoked — stub them to satisfy DI
+                    // these two are never invoked -- stub them to satisfy DI
                     {
                         provide: EnqueueSendMailJobService,
                         useValue: {
@@ -242,7 +242,7 @@ describe("SepayWebhookHandler",
 
         it("throws when no pending transaction matches the invoice",
             async () => {
-                // findOne default resolves null → no pending row
+                // findOne default resolves null -> no pending row
                 await expect(
                     handler.execute(
                         new SepayWebhookCommand({
@@ -281,7 +281,7 @@ describe("SepayWebhookHandler",
 
         it("rejects an enrollment IPN that carries no course",
             async () => {
-                // enrollment transaction missing its courseId — the real enroll
+                // enrollment transaction missing its courseId -- the real enroll
                 // service fans this out to zero jobs (nothing to enroll into)
                 const transaction = buildTransaction({
                     courseId: null,
@@ -315,7 +315,7 @@ describe("SepayWebhookHandler",
                 )
 
                 // the switch's default branch throws the typed AbstractException
-                // directly — it is not NestJS's BadRequestException
+                // directly -- it is not NestJS's BadRequestException
                 await expect(
                     handler.execute(
                         new SepayWebhookCommand({

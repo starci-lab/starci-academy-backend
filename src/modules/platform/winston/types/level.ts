@@ -1,16 +1,16 @@
 /** Winston log level. */
 export enum WinstonLevel {
-    /** Diagnostic detail — usually console-only, not paged on. */
+    /** Diagnostic detail -- usually console-only, not paged on. */
     Debug = "debug",
-    /** Routine success / progress — expected in Loki for ops timelines. */
+    /** Routine success / progress -- expected in Loki for ops timelines. */
     Info = "info",
-    /** Recoverable anomaly — investigate if it clusters, do not page yet. */
+    /** Recoverable anomaly -- investigate if it clusters, do not page yet. */
     Warn = "warn",
-    /** Failed operation — caller already aborted; alert if the rate spikes. */
+    /** Failed operation -- caller already aborted; alert if the rate spikes. */
     Error = "error",
-    /** Process-threatening failure — page immediately. */
+    /** Process-threatening failure -- page immediately. */
     Fatal = "fatal",
-    /** Extra-noisy trace beneath debug — local troubleshooting only. */
+    /** Extra-noisy trace beneath debug -- local troubleshooting only. */
     Verbose = "verbose",
 }
 

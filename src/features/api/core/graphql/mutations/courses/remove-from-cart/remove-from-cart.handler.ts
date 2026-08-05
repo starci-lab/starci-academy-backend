@@ -31,7 +31,7 @@ import type {
  * Handler for the removeFromCart mutation.
  *
  * Idempotently deletes the caller's `(user, course)` cart row: removing a course
- * that was never in the cart is not an error — it simply reports `removed: false`.
+ * that was never in the cart is not an error -- it simply reports `removed: false`.
  */
 export class RemoveFromCartHandler
     extends ICQRSHandler<RemoveFromCartCommand, RemoveFromCartResponseData>
@@ -60,7 +60,7 @@ export class RemoveFromCartHandler
             user,
         } = command.params
 
-        // reject unauthenticated callers — cart rows are scoped per-user
+        // reject unauthenticated callers -- cart rows are scoped per-user
         if (!user) {
             throw new UserNotFoundException({
             })
@@ -85,7 +85,7 @@ export class RemoveFromCartHandler
             },
         )
 
-        // `affected` is the number of rows deleted (0 or 1 here) — coerce to a boolean
+        // `affected` is the number of rows deleted (0 or 1 here) -- coerce to a boolean
         // outcome; 0 means the course was never in the cart (still a success, idempotent)
         const removed = (result.affected ?? 0) > 0
 

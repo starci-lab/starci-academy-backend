@@ -53,7 +53,7 @@ const KEYCLOAK_SUB = "kc-sub-1"
 
 /**
  * Build a REST {@link ExecutionContext} whose `switchToHttp().getRequest()`
- * returns the supplied request object — the only context surface the REST
+ * returns the supplied request object -- the only context surface the REST
  * guard reads.
  */
 const buildHttpContext = (
@@ -66,7 +66,7 @@ const buildHttpContext = (
 
 /**
  * Build a GraphQL {@link ExecutionContext}. `GqlExecutionContext.create` reads
- * the resolver args via `getArgs()` and exposes `getContext()` as index 2 —
+ * the resolver args via `getArgs()` and exposes `getContext()` as index 2 --
  * the `[root, args, ctx, info]` tuple, with `ctx.req` carrying the request.
  */
 const buildGqlContext = (
@@ -99,7 +99,7 @@ describe("Keycloak auth guards",
         let userService: jest.Mocked<Pick<UserService, "getUserByKeycloakId">>
 
         beforeEach(async () => {
-            // fresh entity manager — findOne returns null by default (new user path)
+            // fresh entity manager -- findOne returns null by default (new user path)
             entityManager = makeEntityManagerMock()
 
             // happy-path introspection: token is active and carries a subject
@@ -204,7 +204,7 @@ describe("Keycloak auth guards",
 
                 it("lazily creates the user on first login",
                     async () => {
-                        // findOne returns null → guard must create + save the user
+                        // findOne returns null -> guard must create + save the user
                         const request = {
                             headers: {
                                 authorization: "Bearer good-token",
@@ -222,7 +222,7 @@ describe("Keycloak auth guards",
 
                 it("throws when the Authorization header is missing",
                     async () => {
-                        // no headers at all → cannot authenticate
+                        // no headers at all -> cannot authenticate
                         await expect(
                             restGuard.canActivate(
                                 buildHttpContext({
@@ -324,7 +324,7 @@ describe("Keycloak auth guards",
             () => {
                 it("allows an anonymous request and leaves req.user unset",
                     async () => {
-                        // no Authorization header → anonymous path is permitted
+                        // no Authorization header -> anonymous path is permitted
                         const request: Record<string, unknown> = {
                             headers: {
                             },

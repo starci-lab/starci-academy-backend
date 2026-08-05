@@ -1,9 +1,9 @@
 /**
- * Stub `GithubRepoLoader` so no real clone/network happens — every instance's
+ * Stub `GithubRepoLoader` so no real clone/network happens -- every instance's
  * `.load()` resolves the docs the CURRENT git case programs via `loaderLoadMock`.
  * Mirrors `process-git-submission-grade-step.service.spec.ts`. Declared first (before
- * any import of the SUT) so jest's mock registers before the SUT module — which
- * imports `GithubRepoLoader` at its own top level — is required.
+ * any import of the SUT) so jest's mock registers before the SUT module -- which
+ * imports `GithubRepoLoader` at its own top level -- is required.
  */
 const loaderLoadMock = jest.fn()
 jest.mock(
@@ -57,14 +57,14 @@ let currentTier: HarnessTierName = "high"
 /**
  * REAL challenge material from the `.volume` SSOT mount (course
  * `0-fullstack-mastery`, module `0-nestjs-core-and-request-lifecycle`, lesson
- * `0-frameworks-in-backend`) — the actual DI-teaching challenge pair the app
+ * `0-frameworks-in-backend`) -- the actual DI-teaching challenge pair the app
  * ships, EASY then its MEDIUM escalation. Grounding in these (rather than a
  * hand-written brief) tests the grading BIZ against the app's real rubric prose.
  *
- * `readVolumeDoc` parses a doc's flat `# field <sep> value` sequence — that
+ * `readVolumeDoc` parses a doc's flat `# field <sep> value` sequence -- that
  * covers `title`/`description` cleanly here, but a challenge doc's
  * `requirements`/`steps` sections are a NESTED tree (`## 0 / ### langs / #### 0
- * / ##### lang / ##### body`, repeated per requirement × per language), which
+ * / ##### lang / ##### body`, repeated per requirement x per language), which
  * the flat parser can't reach: it strips only the outermost `#`, so nested
  * keys collide across requirements/languages and the LAST one silently wins.
  * So `title` below comes straight from `readVolumeDoc`; the graded
@@ -258,7 +258,7 @@ const makeContext = (
 }) as never
 
 // ─────────────────────────────────────────────────────────────────────────
-// CHALLENGE 1 (easy, DI reuse) git-submission fixtures — a couple of files
+// CHALLENGE 1 (easy, DI reuse) git-submission fixtures -- a couple of files
 // each, representing a real repo checkout at varying quality.
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -379,7 +379,7 @@ const GIT_PASS_FILES = [
     README_1_FILE,
 ]
 
-/** Nothing implemented — placeholder + a README admitting it's unfinished. */
+/** Nothing implemented -- placeholder + a README admitting it's unfinished. */
 const GIT_FAIL_FILES = [
     {
         path: "README.md",
@@ -400,7 +400,7 @@ const GIT_FAIL_FILES = [
 
 /**
  * PARTIAL: the CRITICAL outcome criterion is genuinely met (real constructor injection, real
- * `reserveStock`, real `crypto.randomUUID()`, correct `POST /orders` contract) — but the
+ * `reserveStock`, real `crypto.randomUUID()`, correct `POST /orders` contract) -- but the
  * module-boundary APPROACH criterion is violated (`OrderModule` re-registers `InventoryService`
  * as its own provider instead of importing `InventoryModule`) and there is no README at all
  * (misses the non-critical outcome criterion's 6-section requirement).
@@ -447,7 +447,7 @@ const GIT_PARTIAL_FILES = [
 
 // ─────────────────────────────────────────────────────────────────────────
 // CHALLENGE 2 (medium, custom-provider dynamic module) Google-Docs write-up
-// fixtures — a couple of doc-text variants.
+// fixtures -- a couple of doc-text variants.
 // ─────────────────────────────────────────────────────────────────────────
 
 /** Thorough, correct write-up: token + factory + dedicated options provider + exact contract. */
@@ -481,7 +481,7 @@ const GDOCS_PASS_TEXT = [
     "Smoke Test, Code Execution Trace, Design Decisions.",
 ].join("\n")
 
-/** Vague, contentless write-up — never describes the token, factory, or the /kv contract. */
+/** Vague, contentless write-up -- never describes the token, factory, or the /kv contract. */
 const GDOCS_FAIL_TEXT = [
     "# My submission",
     "",
@@ -491,7 +491,7 @@ const GDOCS_FAIL_TEXT = [
 
 /**
  * PARTIAL: the token + factory-per-impl mechanism (APPROACH) is described reasonably, and the
- * CRITICAL contract is mostly right (token injection, prefix applied, impl surfaced) — but options
+ * CRITICAL contract is mostly right (token injection, prefix applied, impl surfaced) -- but options
  * are read from scattered env vars instead of a dedicated `STORE_OPTIONS` provider (violates the
  * approach criterion), and there is no mention of the README or of the config-switch behaviour
  * (misses the non-critical outcome criterion).
@@ -517,11 +517,11 @@ const GDOCS_PARTIAL_TEXT = [
 ].join("\n")
 
 /**
- * LLM-eval harness for CHALLENGE grading — the two AI-graded submission flows
+ * LLM-eval harness for CHALLENGE grading -- the two AI-graded submission flows
  * (GitHub repo, Google Docs write-up), grounded in TWO REAL StarCi Academy
  * challenges from the `.volume` SSOT mount (`0-order-inventory-cross-module-di-easy`
  * for the git flow, `1-custom-provider-dynamic-module-medium` for the Google Docs
- * flow — see file header for how the criteria were sourced). Boots the REAL
+ * flow -- see file header for how the criteria were sourced). Boots the REAL
  * grade-step service + REAL {@link ChallengeEvaluationParseService}, swaps only
  * {@link AiInvokeService} for the tiered harness model ({@link createHarnessInvoke},
  * `.secrets` auth), mocks every other dependency (source loader, retrieval,
@@ -530,7 +530,7 @@ const GDOCS_PARTIAL_TEXT = [
  * and judges the produced {@link ChallengeEvaluation}. Covers, per flow: a plausibly
  * passing submission, a plausibly failing one, a PARTIAL one (meets the critical
  * criterion but misses supporting ones), cross-submission DISCRIMINATION (passing
- * strictly outscores failing on the SAME real challenge), and — git only — a
+ * strictly outscores failing on the SAME real challenge), and -- git only -- a
  * missing/placeholder repo grading to a low/failing result rather than crashing.
  *
  * Requires the `.volume` mount + a Claude Code OAuth token
@@ -569,7 +569,7 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                     assertNotOverQuota: jest.fn().mockResolvedValue(undefined),
                 }
                 const gradingRetrievalService = {
-                    // no real RAG chunk/embed/retrieve — the harness feeds the whole
+                    // no real RAG chunk/embed/retrieve -- the harness feeds the whole
                     // fixture repo straight to the model via the human message excerpt
                     retrieveGradingExcerpt: jest.fn(),
                 }
@@ -593,9 +593,9 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
 
                 beforeEach(() => {
                     entityManager = makeEntityManagerMock()
-                    // token-lookup findOne (EnrollmentEntity) → no stored token → org token path
+                    // token-lookup findOne (EnrollmentEntity) -> no stored token -> org token path
                     entityManager.findOne.mockResolvedValue(null)
-                    // quota-debit findOneOrFail (EnrollmentEntity) → resolvable user
+                    // quota-debit findOneOrFail (EnrollmentEntity) -> resolvable user
                     entityManager.findOneOrFail.mockResolvedValue({
                         id: "enroll-1",
                         userId: "user-1",
@@ -616,7 +616,7 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                             id: file.path,
                         })),
                     )
-                    // the excerpt IS the fixture repo, verbatim — no real vector retrieval
+                    // the excerpt IS the fixture repo, verbatim -- no real vector retrieval
                     gradingRetrievalService.retrieveGradingExcerpt.mockResolvedValue({
                         excerpt: excerptOverride ?? files
                             .map((file) => `// ${file.path}\n${file.content}`)
@@ -714,7 +714,7 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                         expect(passing.evaluation.score).toBeGreaterThan(failing.evaluation.score)
                     })
 
-                // ── missing/placeholder repo: the loader returns nothing → low/failing grade, not a crash ──
+                // ── missing/placeholder repo: the loader returns nothing -> low/failing grade, not a crash ──
                 it("grades an EMPTY/placeholder repo to a low, failing result instead of crashing",
                     async () => {
                         currentTier = "mid"
@@ -797,7 +797,7 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                     googleDriverApiService.fetchGoogleDocsText.mockResolvedValue({
                         text: docText,
                     })
-                    // the excerpt IS the fixture doc text, verbatim — no real vector retrieval
+                    // the excerpt IS the fixture doc text, verbatim -- no real vector retrieval
                     gradingRetrievalService.retrieveGradingExcerpt.mockResolvedValue({
                         excerpt: docText,
                     })

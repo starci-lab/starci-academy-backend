@@ -27,7 +27,7 @@ import {
 } from "./ask-content-ai.command"
 
 /**
- * Unit spec for {@link AskContentAiHandler} — the one-shot (non-streaming)
+ * Unit spec for {@link AskContentAiHandler} -- the one-shot (non-streaming)
  * content-AI chat entrypoint. All external collaborators are mocked: no real
  * DB / model / network. We assert the wiring: ground the question, run the
  * System engine on the chatting lane (floor=Free, surface=Chatbot), bill the
@@ -151,7 +151,7 @@ describe("AskContentAiHandler",
 
         it("bills the served cost on the Auto lane, recording full attribution",
             async () => {
-                // a climbed economy+ model returns a non-zero cost → charge it
+                // a climbed economy+ model returns a non-zero cost -> charge it
                 aiInvokeService.run.mockResolvedValueOnce({
                     text: "answer",
                     model: "gpt-5.4-nano",
@@ -228,7 +228,7 @@ describe("AskContentAiHandler",
                 expect(aiEntitlementService.consume).not.toHaveBeenCalled()
             })
 
-        // NOTE: this one-shot handler has NO model-pin / selectedModel path — it
+        // NOTE: this one-shot handler has NO model-pin / selectedModel path -- it
         // always runs Auto (floor=Free, Chatbot) and never reads a model from the
         // request (AskContentAiRequest = { contentId, question, history } only).
         // The "selectedModel passes through" behavior lives on the grading/interview

@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -41,7 +41,7 @@ describe("GenerateSubmitCvPresignUrlHandler",
         let s3BuildService: jest.Mocked<Pick<S3BuildService, "buildSignedPutObjectUrl">>
 
         beforeEach(async () => {
-            // presigned-URL builder — returns a fixed signed PUT URL
+            // presigned-URL builder -- returns a fixed signed PUT URL
             s3BuildService = {
                 buildSignedPutObjectUrl: jest.fn().mockResolvedValue("https://minio/signed-put"),
             } as unknown as jest.Mocked<Pick<S3BuildService, "buildSignedPutObjectUrl">>

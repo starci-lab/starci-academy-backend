@@ -93,7 +93,7 @@ export interface ChallengeDataJson {
 
 /**
  * Inputs for loading SCHEMA V2 submissions from `<challenge>/submissions/<N>/{locale}.md`.
- * Mirrors {@link ParseContentBodiesParams} — same folder-scan + per-locale merge pattern.
+ * Mirrors {@link ParseContentBodiesParams} -- same folder-scan + per-locale merge pattern.
  */
 export interface ParseChallengeSubmissionsParams {
     /** Challenge folder relative path under `courses/`. */
@@ -125,14 +125,14 @@ export interface ParseSubmissionCriteriaParams {
     contentIndex: number
     /** Challenge ordinal within the content. */
     challengeIndex: number
-    /** Submission ordinal — matches `submissions/<n>/` folder name. */
+    /** Submission ordinal -- matches `submissions/<n>/` folder name. */
     submissionOrderIndex: number
     /** Parent submission id written into every criteria row's FK relation. */
     submissionId: string
 }
 
 /**
- * Inputs for mapping one SCHEMA V2 lang-bucket section (`# requirements`, `# steps`, …) into
+ * Inputs for mapping one SCHEMA V2 lang-bucket section (`# requirements`, `# steps`, ...) into
  * normalized `*V2` child rows.
  */
 export interface MapChallengeLangSectionV2Params {
@@ -158,11 +158,11 @@ export interface MapChallengeLangSectionV2Params {
     titleTranslationParentIdKey: string
     /** FK column on the lang-level body translation row. */
     langTranslationParentIdKey: string
-    /** Relation property on the lang row pointing back to its item (`requirement`, `step`, …). */
+    /** Relation property on the lang row pointing back to its item (`requirement`, `step`, ...). */
     langItemRelationKey: string
     /** Factory for the item row id. */
     generateItemId: (itemIndex: number) => string
-    /** Factory for the (item × programming-language) lang row id. */
+    /** Factory for the (item x programming-language) lang row id. */
     generateLangId: (itemIndex: number, langOrderIndex: number) => string
 }
 
@@ -182,6 +182,6 @@ export interface ParseCriteriaParams {
     contentIndex: number
     /** Challenge ordinal within the content. */
     challengeIndex: number
-    /** Submission ordinal — matches `submissions/<n>/` folder name. */
+    /** Submission ordinal -- matches `submissions/<n>/` folder name. */
     submissionIndex: number
 }

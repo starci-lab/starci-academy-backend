@@ -38,7 +38,7 @@ import {
 @Resolver()
 /**
  * Returns a single playground by slug with its ordered steps (learner-facing
- * fields only — verify secrets are never exposed, see {@link PlaygroundResponse}).
+ * fields only -- verify secrets are never exposed, see {@link PlaygroundResponse}).
  */
 export class PlaygroundResolver {
     constructor(

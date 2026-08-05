@@ -17,7 +17,7 @@ import {
 @QueryHandler(CodingProblemSuggestionsQuery)
 @Injectable()
 /**
- * Coding-problem autocomplete (typeahead) handler — ES Completion Suggester.
+ * Coding-problem autocomplete (typeahead) handler -- ES Completion Suggester.
  *
  * Inherits the entire suggest flow from {@link AbstractSuggestionsHandler}: it
  * reads `{ locale, request: { query, limit } }`, resolves the per-locale
@@ -31,6 +31,6 @@ import {
  */
 export class CodingProblemSuggestionsHandler
     extends AbstractSuggestionsHandler<CodingProblemSuggestionsQuery> {
-    /** Entity this handler autocompletes — drives `coding-problems` index resolution. */
+    /** Entity this handler autocompletes -- drives `coding-problems` index resolution. */
     protected readonly entityName = CodingProblemEntity.name
 }

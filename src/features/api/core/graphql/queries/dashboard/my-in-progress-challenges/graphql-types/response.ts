@@ -11,7 +11,7 @@ import {
     description: "An in-progress challenge (rail token).",
 })
 /**
- * One challenge the viewer has started but not yet passed — a route-index token
+ * One challenge the viewer has started but not yet passed -- a route-index token
  * (resolves its route on click), so it carries only an opaque global id + label.
  */
 export class MyInProgressChallengeItemData {

@@ -27,7 +27,7 @@ import {
         "dueAt",
     ])
 /**
- * Spaced-repetition (SM-2) review state for one user × one flashcard card. Holds
+ * Spaced-repetition (SM-2) review state for one user x one flashcard card. Holds
  * the SM-2 scheduling fields (ease / interval / repetitions) plus the computed
  * `dueAt` that drives the "due cards" queue. One row is upserted per
  * (user, card) on each `reviewFlashcard` mutation; a card with NO row yet is
@@ -63,7 +63,7 @@ export class UserFlashcardReviewEntity extends UuidAbstractEntity {
         userId: string | null
 
     /**
-     * Enrollment this review state belongs to (user × course). The anchor for
+     * Enrollment this review state belongs to (user x course). The anchor for
      * per-course progress going forward; nullable while the re-key backfill runs.
      */
     @ManyToOne(
@@ -132,7 +132,7 @@ export class UserFlashcardReviewEntity extends UuidAbstractEntity {
     })
         repetitions: number
 
-    /** When the card next becomes due (null = never reviewed → immediately due). */
+    /** When the card next becomes due (null = never reviewed -> immediately due). */
     @Column({
         name: "due_at",
         type: "timestamptz",

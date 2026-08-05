@@ -24,7 +24,7 @@ export const InjectStripe = () => Inject(
 export const createStripeProvider = (): Provider<Stripe> => ({
     provide: STRIPE,
     useFactory: (): Stripe => {
-        // read the secret key from the mount file (empty in dev → SDK constructs but calls fail)
+        // read the secret key from the mount file (empty in dev -> SDK constructs but calls fail)
         const secretKey = getStripeSecretKey().trim()
         // construct the SDK client; apiVersion omitted so the account default applies
         return new Stripe(

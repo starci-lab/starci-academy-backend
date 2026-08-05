@@ -51,7 +51,7 @@ export class FlashcardDeckPathService {
     }
 
     /**
-     * Lists per-card folders under a deck's `cards/` directory — one folder per
+     * Lists per-card folders under a deck's `cards/` directory -- one folder per
      * interview question (`{index}-{slug}/{en,vi}.md`).
      *
      * @param deckRelativePath - The deck folder path segment under `courses/`

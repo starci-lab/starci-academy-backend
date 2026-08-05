@@ -27,14 +27,14 @@ import type {
 
 @SystemHealthWebSocketGateway()
 /**
- * WebSocket gateway for the `/system_health` namespace — PUBLIC, no auth.
+ * WebSocket gateway for the `/system_health` namespace -- PUBLIC, no auth.
  *
  * Every connected client (no room/subscribe step needed) receives the latest
  * per-model AI latency snapshot whenever a probe cycle completes. The probe
  * scheduler ({@link AiModelLatencyService}) fans out a local
  * {@link EventName.AiModelHealthUpdated} event; this gateway broadcasts it to
  * the whole namespace as {@link SubscriptionEvent.AiModelHealth}. Safe to render
- * on a public status page — the payload carries no raw keys, only model name,
+ * on a public status page -- the payload carries no raw keys, only model name,
  * provider, category, up/down, latency and freshness.
  */
 export class SystemHealthGateway implements OnModuleInit {
@@ -52,7 +52,7 @@ export class SystemHealthGateway implements OnModuleInit {
      * snapshot to every connected client.
      */
     onModuleInit(): void {
-        // a probe cycle finished → push the full snapshot to all status-page clients
+        // a probe cycle finished -> push the full snapshot to all status-page clients
         this.eventEmitterService.on({
             event: EventName.AiModelHealthUpdated,
             listener: (payload: AiModelHealthUpdatedEventPayload) => {

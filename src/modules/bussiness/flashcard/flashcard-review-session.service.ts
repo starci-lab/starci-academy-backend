@@ -34,7 +34,7 @@ import type {
 
 /**
  * How far back a session's last sync may be for it to still be offered as
- * resumable — same reasoning as `MyInProgressFlashcardQuizSessionService`'s
+ * resumable -- same reasoning as `MyInProgressFlashcardQuizSessionService`'s
  * own `RESUME_WINDOW_HOURS`: a session synced longer ago than this is treated
  * as effectively abandoned even though `startFlashcardReviewSession` has not
  * yet flipped its status (that only happens when the SAME enrollment+deck
@@ -44,7 +44,7 @@ const RESUME_WINDOW_HOURS = 24
 
 @Injectable()
 /**
- * Business logic for the resumable flashcard reviewer ("Học thẻ") session —
+ * Business logic for the resumable flashcard reviewer session --
  * mirrors {@link import("./flashcard-quiz-session.service").FlashcardQuizSessionService}'s
  * resumable-draw shape, but scoped to ONE deck (not a whole course) and with
  * NO coverage/weakTags/XP-grant complexity: the actual SM-2 grading still
@@ -57,7 +57,7 @@ const RESUME_WINDOW_HOURS = 24
  * XP DECISION: `reviewFlashcard` grants no XP today and writes no
  * `xp_histories` row. To avoid inventing a new, unreviewed XP-granting
  * mechanism for this MVP pass, `xpEarned` on `flashcard_review_sessions` is
- * treated as a CLIENT-REPORTED BOOKKEEPING SNAPSHOT ONLY — `sync`/`complete`
+ * treated as a CLIENT-REPORTED BOOKKEEPING SNAPSHOT ONLY -- `sync`/`complete`
  * below persist whatever value the caller sends, with NO `xp_histories`
  * insert, NO `XpSource` addition, and NO daily-cap logic. This keeps parity
  * with `reviewFlashcard`'s own current behavior (no XP) instead of silently
@@ -74,7 +74,7 @@ export class FlashcardReviewSessionService {
      * Persist ONE resumable flashcard review session draw over a single deck,
      * retiring any PRIOR "in_progress" draw for the same enrollment+deck first
      * so a learner never has two resumable review sessions on the same deck
-     * at once — mirrors `FlashcardQuizSessionService`'s own "abandon prior
+     * at once -- mirrors `FlashcardQuizSessionService`'s own "abandon prior
      * in_progress row" step (there scoped by enrollment alone; here further
      * scoped by deck, since review sessions are per-deck).
      *
@@ -113,13 +113,13 @@ export class FlashcardReviewSessionService {
             })
         }
 
-        // "Chỉ thẻ cần ôn" (thầy 2026-07-13): narrow the requested cardIds down to
-        // the ones actually DUE — no review row yet (never learned) OR past their
+        // Due-only mode (PO 2026-07-13): narrow the requested cardIds down to
+        // the ones actually DUE -- no review row yet (never learned) OR past their
         // `due_at`. Same predicate as `FlashcardDeckService.annotateViewerStats`'
         // `dueCount` (keyed by user_id so the count shown on the deck card and the
-        // set persisted here match exactly), and the whole point of the "quên"
+        // set persisted here match exactly), and the whole point of the due-only
         // mode: cards graded Good/Easy recently (due_at in the future) drop out.
-        // A filter that would leave NOTHING keeps the full set — never persist an
+        // A filter that would leave NOTHING keeps the full set -- never persist an
         // empty draw (the modal already disables this mode when dueCount is 0, so
         // this is only a defensive floor).
         let effectiveCardIds = cardIds
@@ -151,7 +151,7 @@ export class FlashcardReviewSessionService {
                     review.dueAt)
             }
             const dueCardIds = cardIds.filter((id) => {
-                // a card with NO review row was never in the map → never reviewed → due.
+                // a card with NO review row was never in the map -> never reviewed -> due.
                 // `has` distinguishes that from a row whose `dueAt` is null.
                 if (!dueAtByCardId.has(id)) {
                     return true
@@ -167,7 +167,7 @@ export class FlashcardReviewSessionService {
 
         // review sessions are anchored to the SAME (user, course) trial
         // enrollment startFlashcardQuizSession/reviewFlashcard already resolve
-        // — the course is derived from the deck itself since the request only
+        // -- the course is derived from the deck itself since the request only
         // carries deckId, not courseId.
         const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
             userId,
@@ -214,7 +214,7 @@ export class FlashcardReviewSessionService {
     }
 
     /**
-     * Sync an in-flight flashcard review session's position + progress —
+     * Sync an in-flight flashcard review session's position + progress --
      * ownership-scoped, silently no-ops (never throws) for a session that is
      * not found/owned or no longer "in_progress", same reasoning as
      * `SyncFlashcardQuizSessionProgressHandler` (a background periodic sync
@@ -266,7 +266,7 @@ export class FlashcardReviewSessionService {
                 currentIndex,
                 reviewedCount,
                 // only overwrite the graded-index set when the caller sent one
-                // — omitting it must leave the column untouched (same tolerance
+                // -- omitting it must leave the column untouched (same tolerance
                 // the rest of the sync payload has), not wipe it to undefined.
                 ...(gradedIndexes !== undefined ? {
                     gradedIndexes,
@@ -282,19 +282,19 @@ export class FlashcardReviewSessionService {
     }
 
     /**
-     * Record a finished flashcard review session — flips the row to
+     * Record a finished flashcard review session -- flips the row to
      * "completed" and snapshots the final reviewed-count/xpEarned the caller
      * reports. Ownership-scoped via `status: Not("completed")` (loosened
-     * 2026-07-12 — was `status: "in_progress"`; see
+     * 2026-07-12 -- was `status: "in_progress"`; see
      * `FlashcardDueReviewSessionService.complete`'s own doc for the full
      * root-cause: a STRICT `"in_progress"` match silently updates ZERO rows
-     * — no throw — whenever the row got raced to "abandoned" by a concurrent
+     * -- no throw -- whenever the row got raced to "abandoned" by a concurrent
      * `start()` first, permanently stranding the session un-completed even
      * though the FE mutation call itself reported success). `Not("completed")`
      * stays replay-safe (refuses to re-flip an already-completed row) while
      * tolerating a raced "abandoned" status.
      *
-     * NO XP is granted here — see the class doc's XP DECISION. `xpEarned` is
+     * NO XP is granted here -- see the class doc's XP DECISION. `xpEarned` is
      * echoed straight through as a bookkeeping snapshot, never written to
      * `xp_histories`.
      *
@@ -309,12 +309,12 @@ export class FlashcardReviewSessionService {
             xpEarned,
         }: CompleteFlashcardReviewSessionParams,
     ): Promise<CompleteFlashcardReviewSessionResult> {
-        // Ownership is a two-level nested relation (enrollment → user), which a
+        // Ownership is a two-level nested relation (enrollment -> user), which a
         // bare `update()` cannot express: TypeORM compiles `update` to an
         // UpdateQueryBuilder that has no JOINs, so a nested-relation WHERE throws
         // "Cannot find alias for relation". Resolve ownership with a `findOne`
         // (which CAN join) first, then update by the scalar `id` + the
-        // replay-safe `status` guard — mirroring `sync()` in this same service.
+        // replay-safe `status` guard -- mirroring `sync()` in this same service.
         const owned = await this.entityManager.findOne(
             FlashcardReviewSessionEntity,
             {
@@ -355,7 +355,7 @@ export class FlashcardReviewSessionService {
     /**
      * Find the most recent `status = "in_progress"` review session, synced
      * within {@link RESUME_WINDOW_HOURS}, for the caller's enrollment scoped
-     * to ONE deck — mirrors `MyInProgressFlashcardQuizSessionService.find`,
+     * to ONE deck -- mirrors `MyInProgressFlashcardQuizSessionService.find`,
      * further scoped by deck (review sessions are per-deck, quiz sessions are
      * per-course).
      *
@@ -437,11 +437,11 @@ export class FlashcardReviewSessionService {
 
     /**
      * Find a review session directly by its id (ownership-checked against the
-     * caller) — no `deckId` needed upfront, unlike {@link findInProgress}. The
+     * caller) -- no `deckId` needed upfront, unlike {@link findInProgress}. The
      * FE's unified `/review/sessions/[sessionId]` route uses this to resolve
-     * full context (deck + progress) from just the id in the URL (thầy
-     * 2026-07-11: "session đã persist hết rồi", no `deckId` query hint
-     * needed). NOT window/status-scoped like `findInProgress` — a direct link
+     * full context (deck + progress) from just the id in the URL (PO
+     * 2026-07-11: session already persists everything -- no `deckId` query hint
+     * needed). NOT window/status-scoped like `findInProgress` -- a direct link
      * to a completed/abandoned session still resolves (so a stale link shows
      * the real state instead of a false 404); the caller decides what to do
      * with a non-"in_progress" row.

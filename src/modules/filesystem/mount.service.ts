@@ -248,7 +248,7 @@ export class MountFilesystemService {
      *
      * Reader used by the AI balancer to load a model's `keysFilePath`. A bare
      * filename is resolved inside the AI keys directory (`.mount/terraform/keys`);
-     * a full/relative path is used verbatim. Missing/empty file → empty array.
+     * a full/relative path is used verbatim. Missing/empty file -> empty array.
      *
      * @param fileNameOrPath - The model's `keysFilePath` (filename or path).
      * @returns Trimmed, non-empty, non-comment keys; empty when unavailable.

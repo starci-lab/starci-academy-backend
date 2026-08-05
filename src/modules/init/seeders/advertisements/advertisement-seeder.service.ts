@@ -64,7 +64,7 @@ export class AdvertisementSeederService {
         if (!file) {
             return
         }
-        // extract the array root (`# 0`, `# 1`, … → wrapped as `{ data: [...] }`)
+        // extract the array root (`# 0`, `# 1`, ... -> wrapped as `{ data: [...] }`)
         const parsed = this.extractJsonFromMdService.extract<AdvertisementSeedFileRoot>(readFileSync(file,
             "utf8"))
         const items = parsed.data ?? []

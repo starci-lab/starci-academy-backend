@@ -66,14 +66,14 @@ const TECTONIC_MAX_BUFFER = 16 * 1024 * 1024
 @CommandHandler(RenderCvBlocksCommand)
 @Injectable()
 /**
- * Handler for `renderCvBlocks` — SYNCHRONOUS compile of a block-editor CV's
+ * Handler for `renderCvBlocks` -- SYNCHRONOUS compile of a block-editor CV's
  * **LaTeX source** to a PDF. The FE builds the `.tex` (from the block document,
  * or the user's own edits to it) and sends it here; this handler compiles it
  * with **`tectonic`** (the self-contained LaTeX engine already in the `core`
  * Docker image), uploads the PDF to MinIO, and returns a fresh presigned GET URL.
  * Ownership is enforced (the `cv_blocks` row must belong to the caller).
  *
- * PIVOT (2026-07-18): render is **full LaTeX** again — no HTML/Puppeteer/DOCX.
+ * PIVOT (2026-07-18): render is **full LaTeX** again -- no HTML/Puppeteer/DOCX.
  * The `.tex` is the single source (persisted as `tex_source`, user-editable); the
  * `.tex` itself is downloaded client-side, so this endpoint only produces the PDF.
  * User-supplied LaTeX is compiled `--untrusted` (no shell-escape / `\write18`).
@@ -106,7 +106,7 @@ export class RenderCvBlocksHandler
             })
         }
 
-        // ownership check — the row must belong to the caller (mirror
+        // ownership check -- the row must belong to the caller (mirror
         // updateCvBlocks); missing/foreign rows 404.
         const entity = await this.entityManager.findOne(
             CvBlocksEntity,

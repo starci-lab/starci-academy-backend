@@ -18,7 +18,7 @@ import {
 })
 /**
  * Fresh session snapshot: id + pairing code + mode + ordered steps.
- * When mode is Free, every step's `commandHint` is nulled server-side —
+ * When mode is Free, every step's `commandHint` is nulled server-side --
  * a free-mode learner's response must never contain the hint value.
  */
 export class CreatePlaygroundSessionResponseData {

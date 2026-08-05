@@ -15,7 +15,7 @@ export interface MountFoundationsFileNotFoundExceptionMetadata extends AbstractE
 
 /**
  * Thrown when `GET /mount/foundations/*path` cannot resolve or read the
- * requested file — bad path, no filesystem context configured, or the file
+ * requested file -- bad path, no filesystem context configured, or the file
  * itself is missing. Maps to 404 (the same shape a missing static file gets).
  */
 export class MountFoundationsFileNotFoundException extends AbstractException {

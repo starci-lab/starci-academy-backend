@@ -18,7 +18,7 @@ import {
  *
  * Reuses {@link MyFeedResponseData} (items + nextCursor): each item is one
  * activity the profile owner performed, newest first. Differs from `myFeed`
- * only in subject and ordering — a single user's chronological timeline rather
+ * only in subject and ordering -- a single user's chronological timeline rather
  * than the score-ranked home feed.
  */
 export class UserFeedResponse

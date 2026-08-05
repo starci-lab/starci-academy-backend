@@ -44,24 +44,24 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the `myAchievements` query — award-on-read against REAL Postgres.
+ * e2e for the `myAchievements` query -- award-on-read against REAL Postgres.
  * No e2e coverage existed before this file (`achievements.service.spec.ts`
  * mocks the `EntityManager` entirely, so the composite-metric SQL, the
  * idempotent award INSERT, and the projection UPSERT have never run against a
  * real schema).
  *
- * Only ONE badge ({@link BusyBeeBadge}, "followers gained") is wired in — the
- * orchestration (composite query → award → projection cache) is what's under
+ * Only ONE badge ({@link BusyBeeBadge}, "followers gained") is wired in -- the
+ * orchestration (composite query -> award -> projection cache) is what's under
  * test, not the full 13-badge catalog (already covered per-badge by the unit
  * specs).
  *
  * MOCKED:
- *  - `KeycloakAuthGraphQLGuard` — no Keycloak server here; overridden to stamp
+ *  - `KeycloakAuthGraphQLGuard` -- no Keycloak server here; overridden to stamp
  *    `request.user` with whichever fake user the test "logs in" as.
  *
  * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring,
  * `AchievementsService` (composite metric query, idempotent award INSERT,
- * projection UPSERT, rarity computation) — all real SQL against real rows.
+ * projection UPSERT, rarity computation) -- all real SQL against real rows.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
@@ -127,11 +127,11 @@ describe("myAchievements (e2e)",
                 ],
                 providers: [
                     MyAchievementsResolver,
-                    // REAL — the composite-metric query / award / projection logic under test
+                    // REAL -- the composite-metric query / award / projection logic under test
                     AchievementsService,
                     {
                         provide: ACHIEVEMENT_BADGES,
-                        // only ONE badge wired in — the orchestration is what's under test
+                        // only ONE badge wired in -- the orchestration is what's under test
                         useValue: [
                             new BusyBeeBadge(),
                         ],
@@ -149,18 +149,18 @@ describe("myAchievements (e2e)",
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
 
-            // read-only seeded definition — matched by slug to BusyBeeBadge
+            // read-only seeded definition -- matched by slug to BusyBeeBadge
             busyBeeDefinition = await entityManager.save(
                 entityManager.create(AchievementEntity,
                     {
                         slug: "busy-bee",
                         name: {
                             en: "Busy Bee",
-                            vi: "Ong Chăm Chỉ", // vn-ok: vi-locale fixture — the en sibling is asserted separately
+                            vi: "Ong Chăm Chỉ", // vn-ok: vi-locale fixture -- the en sibling is asserted separately
                         },
                         description: {
                             en: "Gain 2 followers.",
-                            vi: "Có 2 người theo dõi.", // vn-ok: vi-locale fixture — the en sibling is asserted separately
+                            vi: "Có 2 người theo dõi.", // vn-ok: vi-locale fixture -- the en sibling is asserted separately
                         },
                         criteriaType: AchievementCriteriaType.Followers,
                         threshold: 2,
@@ -177,7 +177,7 @@ describe("myAchievements (e2e)",
 
         afterEach(async () => {
             // busyBeeDefinition (seeded in beforeAll) is read-only across the whole
-            // suite — only per-test user/follow/award/projection state is reset
+            // suite -- only per-test user/follow/award/projection state is reset
             await entityManager.query(
                 "TRUNCATE TABLE \"users\", \"user_follows\", \"user_achievements\", "
                 + "\"user_achievement_projections\" RESTART IDENTITY CASCADE",
@@ -228,7 +228,7 @@ describe("myAchievements (e2e)",
                         tierReached: null,
                     },
                 ])
-                // crossed the bar on THIS read → surfaced for the congrats modal
+                // crossed the bar on THIS read -> surfaced for the congrats modal
                 expect(body.data.newAchievements).toEqual([
                     {
                         slug: "busy-bee",
@@ -264,7 +264,7 @@ describe("myAchievements (e2e)",
 
         it("unauthenticated caller is BLOCKED — no composite metric query ever runs",
             async () => {
-                // currentUser stays null — the overridden guard denies
+                // currentUser stays null -- the overridden guard denies
                 const response = await post()
 
                 expect(response.body.data).toBeNull()

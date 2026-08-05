@@ -13,14 +13,14 @@ import {
     description: "Request to record a finished flashcard review session.",
 })
 /**
- * Request to record a finished flashcard review ("Học thẻ") session.
+ * Request to record a finished flashcard review session.
  *
  * Unlike `completeFlashcardQuizSession`, this does NOT carry a per-card
  * answer breakdown and does NOT grant any XP server-side: `reviewFlashcard`
  * (the per-card SM-2 grading mutation this session wraps) grants no XP today
  * and writes no `xp_histories` row, so `xpEarned` here is purely a
  * CLIENT-REPORTED bookkeeping snapshot to persist onto the row for
- * history/stats display — never a server grant.
+ * history/stats display -- never a server grant.
  */
 export class CompleteFlashcardReviewSessionRequest {
     @Field(

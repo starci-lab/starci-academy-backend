@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -62,7 +62,7 @@ describe("MarkAsReadedHandler",
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
 
-            // cache invalidation hook — assert it fires after persistence
+            // cache invalidation hook -- assert it fires after persistence
             reactionService = {
                 invalidateViewCount: jest.fn(),
             } as unknown as jest.Mocked<Pick<ReactionService, "invalidateViewCount">>
@@ -129,7 +129,7 @@ describe("MarkAsReadedHandler",
 
         it("creates a new user-content row and invalidates the view cache",
             async () => {
-                // no existing row → handler builds one with the read flag set
+                // no existing row -> handler builds one with the read flag set
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 await handler.execute(
@@ -165,7 +165,7 @@ describe("MarkAsReadedHandler",
 
         it("grants XP + reward points on a deliberate (non-silent) read",
             async () => {
-                // no existing row, no `silent` flag → the deliberate reward path runs
+                // no existing row, no `silent` flag -> the deliberate reward path runs
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 await handler.execute(
@@ -179,13 +179,13 @@ describe("MarkAsReadedHandler",
                     }),
                 )
 
-                // the reward-points balance is credited (writeXpHistory → increment)
+                // the reward-points balance is credited (writeXpHistory -> increment)
                 expect(entityManager.increment).toHaveBeenCalled()
             })
 
         it("silent read updates progress WITHOUT granting XP or posting activity",
             async () => {
-                // no existing row; silent → only the read flag is persisted
+                // no existing row; silent -> only the read flag is persisted
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 await handler.execute(
@@ -210,7 +210,7 @@ describe("MarkAsReadedHandler",
                 )
                 // reward branch is skipped entirely: no points credit. The handler still
                 // loads the user-content row AND the content (to resolve the course for the
-                // enrollment re-key), so exactly two reads happen — no XP-branch extra loads.
+                // enrollment re-key), so exactly two reads happen -- no XP-branch extra loads.
                 expect(entityManager.increment).not.toHaveBeenCalled()
                 expect(entityManager.findOne).toHaveBeenCalledTimes(2)
                 expect(reactionService.invalidateViewCount).toHaveBeenCalledWith("content-1")
@@ -218,7 +218,7 @@ describe("MarkAsReadedHandler",
 
         it("updates the read flag on an existing row instead of creating one",
             async () => {
-                // an existing row is found → its read flag is flipped in place
+                // an existing row is found -> its read flag is flipped in place
                 const existing = {
                     userId: "user-1",
                     contentId: "content-1",
@@ -249,7 +249,7 @@ describe("MarkAsReadedHandler",
 
         // Enrollment re-key round-trip: when the content resolves to a course, the
         // saved user_contents row must carry the resolved enrollment (enrollment_id),
-        // proving the write goes through the enrollment anchor — not just user_id.
+        // proving the write goes through the enrollment anchor -- not just user_id.
         it("stamps the resolved enrollment on the saved user-content row (re-key write)",
             async () => {
                 const enrollment = {
@@ -257,7 +257,7 @@ describe("MarkAsReadedHandler",
                 } as EnrollmentEntity
                 // 1) no existing user-content row
                 entityManager.findOne.mockResolvedValueOnce(null)
-                // 2) the content resolves to a course (module → course) so the row is
+                // 2) the content resolves to a course (module -> course) so the row is
                 //    keyed by enrollment
                 entityManager.findOne.mockResolvedValueOnce({
                     id: "content-1",
@@ -268,7 +268,7 @@ describe("MarkAsReadedHandler",
                         },
                     },
                 })
-                // the anchor resolves the (trial) enrollment for this user × course
+                // the anchor resolves the (trial) enrollment for this user x course
                 userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce(enrollment)
 
                 await handler.execute(
@@ -276,7 +276,7 @@ describe("MarkAsReadedHandler",
                         request: {
                             contentId: "content-1",
                             readed: true,
-                            // silent → skip XP/activity, isolate the re-key write
+                            // silent -> skip XP/activity, isolate the re-key write
                             silent: true,
                         },
                         user: fakeUser("user-1"),
@@ -289,7 +289,7 @@ describe("MarkAsReadedHandler",
                     "course-1",
                 )
                 // and the persisted user_contents row carries that enrollment relation
-                // (enrollment_id is set on write — the anchor going forward)
+                // (enrollment_id is set on write -- the anchor going forward)
                 expect(entityManager.save).toHaveBeenCalledWith(
                     expect.anything(),
                     expect.objectContaining({
@@ -326,7 +326,7 @@ describe("MarkAsReadedHandler",
                         request: {
                             contentId: "content-1",
                             readed: true,
-                            // deliberate (non-silent) read → recompute the projection
+                            // deliberate (non-silent) read -> recompute the projection
                             silent: false,
                         },
                         user: fakeUser("user-1"),

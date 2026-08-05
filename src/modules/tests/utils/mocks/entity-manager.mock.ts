@@ -119,11 +119,11 @@ export const makeEntityManagerMock = (): EntityManagerMock => {
     const entityManager = {
         // default: "row not found" so loadOrCreate-style branches are explicit
         findOne: jest.fn().mockResolvedValue(null),
-        // default: "row not found" — program a row or a rejection per-test
+        // default: "row not found" -- program a row or a rejection per-test
         findOneOrFail: jest.fn().mockResolvedValue(null),
         // default: empty list
         find: jest.fn().mockResolvedValue([]),
-        // default: empty page — [rows, total]
+        // default: empty page -- [rows, total]
         findAndCount: jest.fn().mockResolvedValue([
             [],
             0,

@@ -25,7 +25,7 @@ import {
 @Injectable()
 /**
  * Loads one fully-hydrated milestone (tasks + criteria + code implementations)
- * from the per-locale Elasticsearch document — no DB hop for the detail page.
+ * from the per-locale Elasticsearch document -- no DB hop for the detail page.
  */
 export class MilestoneHandler
     extends ICQRSHandler<MilestoneQuery, MilestoneEntity>
@@ -48,7 +48,7 @@ export class MilestoneHandler
 
         // Per-locale index already holds fully-localized milestone documents; the ES sync
         // builder embeds the entire hydrated task tree (tasks + criterias + codeImplementations),
-        // so a single document get returns everything the milestone detail page needs — no DB hop.
+        // so a single document get returns everything the milestone detail page needs -- no DB hop.
         const index = this.elasticsearch.indicateName({
             entity: MilestoneEntity.name,
             locale,

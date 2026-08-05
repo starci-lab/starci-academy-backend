@@ -52,7 +52,7 @@ export interface KeycloakJwk {
 }
 
 /**
- * Body of `GET/POST …/protocol/openid-connect/certs`.
+ * Body of `GET/POST .../protocol/openid-connect/certs`.
  */
 export interface KeycloakJwksResponse {
     keys: Array<KeycloakJwk>

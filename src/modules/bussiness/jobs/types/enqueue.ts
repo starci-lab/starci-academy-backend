@@ -43,7 +43,7 @@ export interface EnqueueEnrollmentsForTransactionParams {
 export interface EnqueueEnrollmentsForTransactionResult {
     /**
      * Number of enroll jobs enqueued (one per course). Zero means a malformed
-     * Enroll transaction (neither `transaction_items` nor a `course`) — the caller
+     * Enroll transaction (neither `transaction_items` nor a `course`) -- the caller
      * decides whether to surface that as an error.
      */
     enqueuedCount: number
@@ -117,7 +117,7 @@ export interface EnqueueProcessPersonalProjectParams {
  * Params for enqueueing a generate-personal-project-tasks job.
  */
 export interface EnqueueGeneratePersonalProjectTasksParams {
-    /** Enrollment ID — the user's enrollment to generate tasks for. */
+    /** Enrollment ID -- the user's enrollment to generate tasks for. */
     enrollmentId: string
     /** User ID associated with the job. */
     userId: string
@@ -218,7 +218,7 @@ export type EnqueueSyncCdnParams = SyncCdnPayload
 /**
  * Params accepted by {@link EnqueueSendMailJobService.enqueue}.
  *
- * Mirrors {@link SendMailPayload} — kept as a separate alias so we can
+ * Mirrors {@link SendMailPayload} -- kept as a separate alias so we can
  * evolve the enqueue API (e.g. defaulting a `from` address) without
  * leaking transport concerns to callers.
  */
@@ -226,7 +226,7 @@ export type EnqueueSendMailParams = SendMailPayload
 
 /** Params for enqueuing a judge-coding-submission job. */
 export interface EnqueueJudgeCodingSubmissionJobParams {
-    /** `users.id` — the submitter (job ownership / Socket.IO targeting). */
+    /** `users.id` -- the submitter (job ownership / Socket.IO targeting). */
     userId: string
     /** `coding_submissions.id` to judge. */
     codingSubmissionId: string

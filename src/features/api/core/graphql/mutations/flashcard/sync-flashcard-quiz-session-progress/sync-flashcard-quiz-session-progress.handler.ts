@@ -29,7 +29,7 @@ import {
 @CommandHandler(SyncFlashcardQuizSessionProgressCommand)
 @Injectable()
 /**
- * Applies one `syncFlashcardQuizSessionProgress` sync — small enough (a
+ * Applies one `syncFlashcardQuizSessionProgress` sync -- small enough (a
  * single ownership-scoped lookup + guard + update) that, like
  * `SyncMockInterviewSessionTurnsHandler`, it does not warrant a separate
  * domain service; the logic lives directly in the handler.
@@ -61,7 +61,7 @@ export class SyncFlashcardQuizSessionProgressHandler
             })
         }
 
-        // ownership check mirrors `SyncMockInterviewSessionTurnsHandler` — a
+        // ownership check mirrors `SyncMockInterviewSessionTurnsHandler` -- a
         // session can never be synced on behalf of a different learner's
         // draw. Scoped through the relation (`enrollment: { user: { id } }`),
         // NOT the virtual `enrollment.userId` @RelationId column, which
@@ -86,7 +86,7 @@ export class SyncFlashcardQuizSessionProgressHandler
 
         // not found/not owned, or no longer resumable (already completed by
         // completeFlashcardQuizSession, or abandoned by a fresh
-        // startFlashcardQuizSession draw) — a late/stale sync must silently
+        // startFlashcardQuizSession draw) -- a late/stale sync must silently
         // no-op rather than throw, so a background periodic sync never
         // surfaces an error toast mid-quiz.
         if (!session || session.status !== "in_progress") {

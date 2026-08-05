@@ -30,7 +30,7 @@ const LOCALE_LANGUAGE_MAP: Record<string, string> = {
 
 /**
  * Maps a session's seniority level string to a one-line expectation the model
- * uses to scale how strict the grading should be (junior recall → staff
+ * uses to scale how strict the grading should be (junior recall -> staff
  * systemic reasoning). Level is a free-form string on the session (not a
  * flashcard-domain enum), so lookups fall through to a neutral default for
  * any value that is not one of the four canonical bands.
@@ -43,7 +43,7 @@ const LEVEL_EXPECTATION_MAP: Record<string, string> = {
 }
 
 /**
- * The shared "workspace artifacts" grading guidance — identical wording for
+ * The shared "workspace artifacts" grading guidance -- identical wording for
  * both the design flow and the qna flow so the grader treats a pasted
  * `[Whiteboard]`/`[Code lang=...]`/`[Notes]` section the same way regardless
  * of mode/kind.
@@ -61,7 +61,7 @@ const WORKSPACE_ARTIFACTS_GUIDANCE = [
 ].join("\n")
 
 /**
- * Per-kind rubric guidance for ONE Q&A question — used inline in each
+ * Per-kind rubric guidance for ONE Q&A question -- used inline in each
  * question's block of the human message so a mode="qna" session that MIXES
  * kinds (a real interviewer alternating question styles, "mode split"
  * 2026-07-06) gets the RIGHT rubric per-question rather than one rubric for
@@ -86,34 +86,34 @@ const QNA_KIND_RUBRIC_MAP: Record<MockInterviewKind, string> = {
 @Injectable()
 /**
  * Pure builder for the mock-interview SESSION grading prompt. No I/O and no
- * injected dependencies — it only turns a prompt title + mode + transcript +
+ * injected dependencies -- it only turns a prompt title + mode + transcript +
  * RAG course excerpt (+ seed groundings for mode="qna") into the system/human
  * chat messages the AI invoke service consumes. Grades the WHOLE session
  * once, at the end of the interview, rather than one question/turn at a time.
  *
  * Branches on {@link BuildMockInterviewGradePromptParams.mode} ("mode split",
  * 2026-07-06):
- * - {@link MockInterviewMode.Design} — UNCHANGED 5-phase rubric
+ * - {@link MockInterviewMode.Design} -- UNCHANGED 5-phase rubric
  *   ({@link buildDesign}).
- * - {@link MockInterviewMode.Qna} — per-question rubric, where EACH question
+ * - {@link MockInterviewMode.Qna} -- per-question rubric, where EACH question
  *   picks its OWN rubric from its `seedGroundings[index].kind`: COVERAGE
  *   against the seed card's authored answer + `:::chip` keywords for
  *   "theory", or an OPEN rubric (no reference answer) for
- *   "reasoning"/"scenario" ({@link buildQna}) — a single session can (and
+ *   "reasoning"/"scenario" ({@link buildQna}) -- a single session can (and
  *   usually does) mix kinds across its questions.
  *
- * The core `phaseScores` shape is UNCHANGED across every branch —
- * `[{ phase, score, max }]`; the qna branch just labels each entry "Câu N"
- * instead of one of the 5 canonical design-phase literals, so the FE's
+ * The core `phaseScores` shape is UNCHANGED across every branch --
+ * `[{ phase, score, max }]`; the qna branch just labels each entry with the
+ * per-question phase literal the grader emits instead of one of the 5 canonical
  * generic "render phaseScores as labeled bars" needs zero changes. The qna
  * branch additionally asks for a `questionFeedback: [{ index, feedback }]`
- * array (2026-07-06, per-question model-answer review feature) — `buildDesign`
+ * array (2026-07-06, per-question model-answer review feature) -- `buildDesign`
  * never requests or reads it, so `mode="design"` output is byte-identical to
  * before.
  */
 export class MockInterviewGradePromptService {
     /**
-     * Build the grading messages for one whole mock-interview session —
+     * Build the grading messages for one whole mock-interview session --
      * dispatches to {@link buildDesign} or {@link buildQna} based on
      * {@link BuildMockInterviewGradePromptParams.mode}.
      *
@@ -129,7 +129,7 @@ export class MockInterviewGradePromptService {
     }
 
     /**
-     * mode="design" grading prompt — UNCHANGED from before the mode split.
+     * mode="design" grading prompt -- UNCHANGED from before the mode split.
      * Scores each of the 5 canonical phases against the full transcript.
      *
      * @param params - Prompt title, level, the full transcript, the RAG
@@ -152,7 +152,7 @@ export class MockInterviewGradePromptService {
         const courseMaterialSection = this.resolveCourseMaterialSection(courseExcerpt)
 
         // a literal example object pins the exact JSON shape the model must emit;
-        // phase keys are illustrative — the model picks whichever of the 5
+        // phase keys are illustrative -- the model picks whichever of the 5
         // canonical phases it actually observed being covered in the transcript
         const exampleJson = JSON.stringify(
             {
@@ -299,17 +299,17 @@ export class MockInterviewGradePromptService {
     }
 
     /**
-     * The `mode="qna"` grading prompt — "mode split" (2026-07-06). Groups the
+     * The `mode="qna"` grading prompt -- "mode split" (2026-07-06). Groups the
      * transcript into per-question blocks (by `questionIndex`), asks the
-     * model for ONE `phaseScores` entry PER QUESTION labeled "Câu N" (matching
-     * the response schema exactly — no schema branch needed, only the
+     * model for ONE `phaseScores` entry PER QUESTION using the per-question phase
+     * literal the grader emits (matching the response schema exactly -- no schema
      * CONTENTS differ), and picks each question's rubric from ITS OWN
-     * `seedGroundings[index].kind` — a single session mixes kinds across its
+     * `seedGroundings[index].kind` -- a single session mixes kinds across its
      * questions (a real interviewer alternating question styles), so the
      * rubric choice is made PER QUESTION, not once for the whole prompt:
      * - theory: COVERAGE against that question's seed card's authored answer
      *   + `:::chip` keywords (a REAL reference answer exists).
-     * - reasoning/scenario: OPEN rubric (no reference answer — judged on
+     * - reasoning/scenario: OPEN rubric (no reference answer -- judged on
      *   reasoning quality/depth instead of matching a model answer).
      *
      * @param params - Prompt title, mode, level, the full transcript, seed
@@ -350,36 +350,36 @@ export class MockInterviewGradePromptService {
             }),
         )
 
-        // literal example pins the exact JSON shape — phaseScores here means
-        // "per-question scores", one entry per question, labeled "Câu N" so the
-        // FE's generic labeled-bar renderer needs zero changes from the design flow
+        // literal example pins the exact JSON shape -- phaseScores here means
+        // "per-question scores", one entry per question, using the phase literal
+        // required by the QnA scorecard schema so the FE's generic labeled-bar
         const exampleJson = JSON.stringify(
             {
                 overallScore: 78,
                 verdict: MockInterviewVerdict.Borderline,
                 phaseScores: [
                     {
-                        phase: "Câu 1",
+                        phase: "Câu 1", // vn-ok: literal phase label the QnA grader must emit
                         score: 82,
                         max: 100,
                     },
                     {
-                        phase: "Câu 2",
+                        phase: "Câu 2", // vn-ok: literal phase label the QnA grader must emit
                         score: 65,
                         max: 100,
                     },
                     {
-                        phase: "Câu 3",
+                        phase: "Câu 3", // vn-ok: literal phase label the QnA grader must emit
                         score: 90,
                         max: 100,
                     },
                     {
-                        phase: "Câu 4",
+                        phase: "Câu 4", // vn-ok: literal phase label the QnA grader must emit
                         score: 50,
                         max: 100,
                     },
                     {
-                        phase: "Câu 5",
+                        phase: "Câu 5", // vn-ok: literal phase label the QnA grader must emit
                         score: 88,
                         max: 100,
                     },
@@ -475,7 +475,7 @@ export class MockInterviewGradePromptService {
             "  not required to be a mechanical average of) the per-question and attribute breakdowns.",
             "- verdict: one of \"pass\", \"borderline\", or \"fail\".",
             "- phaseScores: EXACTLY one entry PER QUESTION below, in order, with `phase` set to the LITERAL string",
-            "  \"Câu 1\", \"Câu 2\", \"Câu 3\", … (Vietnamese for \"Question N\" — use this exact label regardless of",
+            "  \"Câu 1\", \"Câu 2\", \"Câu 3\", … (Question N in Vietnamese — use this exact label regardless of", // vn-ok: literal phase labels the QnA grader must emit
             "  the feedback language) and `max` always 100 for every entry (do NOT make phase maxes sum to 100 —",
             "  that rule only applies to the 5-phase design rubric, not here).",
             "- strengths: concrete things the candidate got right across the session (may be empty).",
@@ -496,7 +496,7 @@ export class MockInterviewGradePromptService {
             "",
             "## Language",
             `Write strengths, gaps, followUpQuestion, and questionFeedback[].feedback in **${targetLanguage}**.`,
-            "JSON keys stay in English; `phaseScores[].phase` stays the literal Vietnamese \"Câu N\" labels above",
+            "JSON keys stay in English; `phaseScores[].phase` stays the literal per-question labels above", // vn-ok: prompt instructs model to keep Vietnamese phase labels
             "regardless of feedback language; verdict stays one of the lowercase English literals above.",
             "",
             "## Output format",
@@ -526,7 +526,7 @@ export class MockInterviewGradePromptService {
     }
 
     /**
-     * Build ONE question's block of the human message — its own rubric
+     * Build ONE question's block of the human message -- its own rubric
      * (resolved from its `grounding.kind`), its reference lines when it's a
      * "theory" question, and its transcript slice. Missing grounding (a card
      * deleted after the draw) falls back to the "theory" rubric with no
@@ -552,7 +552,7 @@ export class MockInterviewGradePromptService {
         const kind = grounding
             ? (Object.values(MockInterviewKind).find((candidate) => candidate === grounding.kind) ?? MockInterviewKind.Theory)
             : MockInterviewKind.Theory
-        // An interview-bank question carries an AUTHORED answer and/or rubric —
+        // An interview-bank question carries an AUTHORED answer and/or rubric --
         // grade the candidate by comparing to THAT reference, for EVERY kind (not
         // just theory). Legacy flashcard seeds only ship a reference for theory.
         const hasReference = Boolean(grounding) && (Boolean(grounding?.answer) || (grounding?.rubric?.length ?? 0) > 0)
@@ -574,7 +574,7 @@ export class MockInterviewGradePromptService {
                     : grounding.rubric && grounding.rubric.length > 0
                         ? `Reference (scoring reasoning points — each one covered earns credit; this is the primary grading anchor): ${grounding.rubric.map((point, order) => `(${order + 1}) ${point}`).join(" ")}`
                         : null,
-                // the GIVEN (buggy) code the candidate was asked to FIX — the grader
+                // the GIVEN (buggy) code the candidate was asked to FIX -- the grader
                 // compares the candidate's own "[Code lang=...]" workspace artifact
                 // against THIS baseline, so the FIX itself is scored (did they change
                 // the right line?), not just whether the final code looks plausible.
@@ -601,7 +601,7 @@ export class MockInterviewGradePromptService {
     }
 
     /**
-     * Group the transcript's turns by `questionIndex` — a `mode="qna"`
+     * Group the transcript's turns by `questionIndex` -- a `mode="qna"`
      * session's turns are all tagged with which question they belong to (see
      * {@link MockInterviewTurnRecord.questionIndex}); a turn missing the index
      * (predates the field, or a design-flow turn misrouted here) is dropped

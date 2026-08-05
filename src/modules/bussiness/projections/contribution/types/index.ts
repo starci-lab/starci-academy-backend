@@ -11,7 +11,7 @@ export interface RecomputeContributionParams {
     /** Calendar year to rebuild (e.g. 2025). */
     year: number
     /**
-     * Caller's transaction manager — pass it from an inline write so the
+     * Caller's transaction manager -- pass it from an inline write so the
      * projection commits atomically with the source change; omit for the read path.
      */
     entityManager?: EntityManager
@@ -44,7 +44,7 @@ export interface ContributionDayResult {
     challenges: number
     /** Milestone tasks passed that day. */
     milestones: number
-    /** contents + challenges + milestones — drives the heatmap cell intensity. */
+    /** contents + challenges + milestones -- drives the heatmap cell intensity. */
     total: number
 }
 

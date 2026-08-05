@@ -32,11 +32,11 @@ import {
 
 @Resolver()
 /**
- * Per-user AI quota snapshot — the single credit pool (free base + tier) with
+ * Per-user AI quota snapshot -- the single credit pool (free base + tier) with
  * limit/used/remaining per 5h + weekly window, plus the reset times + the
  * active tier. Drives the usage card in the UI.
  *
- * Reads from Postgres (`ai_subscriptions`), not Redis — counters live on the
+ * Reads from Postgres (`ai_subscriptions`), not Redis -- counters live on the
  * entity with lazy window resets applied on read.
  */
 export class MyAiQuotaResolver {

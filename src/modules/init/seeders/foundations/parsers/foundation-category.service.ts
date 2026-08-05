@@ -57,18 +57,18 @@ export class FoundationCategoryParserService {
      * Absolute URLs (`http(s)://...`) are kept verbatim, so legacy externally-hosted
      * thumbnails keep working. Anything else is treated as a MinIO object key (e.g.
      * `assets/nestjs.png`, synced by the assets module) and expanded into a public,
-     * env-aware URL — this is what lets the committed seed stay deployment-agnostic
+     * env-aware URL -- this is what lets the committed seed stay deployment-agnostic
      * while the DB ends up with the correct per-environment MinIO public link.
      *
      * @param value - Raw thumbnail value from the mount, or `null` when absent.
      * @returns The resolved absolute URL, or `null` when no thumbnail is set.
      */
     private resolveThumbnailUrl(value: string | null): string | null {
-        // no thumbnail configured → nothing to resolve
+        // no thumbnail configured -> nothing to resolve
         if (!value) {
             return null
         }
-        // already an absolute URL (external host) → keep as-is
+        // already an absolute URL (external host) -> keep as-is
         if (/^https?:\/\//i.test(value)) {
             return value
         }
@@ -141,7 +141,7 @@ export class FoundationCategoryParserService {
                 ),
             ),
             orderIndex: categoryIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (jsonMap.get(Locale.En) as { sortIndex?: unknown })?.sortIndex,
                 categoryIndex,

@@ -29,7 +29,7 @@ import {
 
 @Resolver()
 /**
- * Public GraphQL entry for `foundationCategorySuggestions` — typeahead over
+ * Public GraphQL entry for `foundationCategorySuggestions` -- typeahead over
  * foundation category titles.
  */
 export class FoundationCategorySuggestionsResolver {

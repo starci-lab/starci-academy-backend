@@ -31,24 +31,24 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the notification-bell read-state mutations —
- * `markNotificationAsRead` / `markAllNotificationsAsRead` — `.claude/canon/be/
+ * e2e for the notification-bell read-state mutations --
+ * `markNotificationAsRead` / `markAllNotificationsAsRead` -- `.claude/canon/be/
  * enforce/authoring/testing.md` §2 names every write flow that commits state
  * as required e2e coverage; {@link NotificationService.markAsRead} /
  * `markAllAsRead` had zero coverage above the mocked-`EntityManager` unit
  * level. Runs the real ownership-scoped lookup, the real bulk `UPDATE`, and
  * the real `user_stats_projections` recompute against REAL Postgres
- * (Testcontainers) — not a mock of any of them.
+ * (Testcontainers) -- not a mock of any of them.
  *
  * MOCKED (genuinely external to the process, matches the pattern
  * `createE2eApp` uses for the same class):
- *  - `EventEmitterService` — real class fans out through a NATS producer that
+ *  - `EventEmitterService` -- real class fans out through a NATS producer that
  *    needs a live broker connection; stubbed to a no-op so `createNotification`
  *    can seed fixture rows without booting NATS.
  *
  * REAL: Postgres (Testcontainers), `NotificationService` (the read-state
  * logic under test), and `UserStatsProjectionService` (the unread-badge
- * projection `markAsRead`/`markAllAsRead` recompute — pure SQL, no external
+ * projection `markAsRead`/`markAllAsRead` recompute -- pure SQL, no external
  * deps) so the read-state mutation runs exactly as production wires it.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -68,7 +68,7 @@ describe("Notification-bell read-state mutations (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -77,10 +77,10 @@ describe("Notification-bell read-state mutations (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the read-state logic under test (create/markAsRead/
+                    // REAL -- the read-state logic under test (create/markAsRead/
                     // markAllAsRead)
                     NotificationService,
-                    // REAL — the unread-badge projection recompute; pure SQL, no
+                    // REAL -- the unread-badge projection recompute; pure SQL, no
                     // external deps, needs no stubbing
                     UserStatsProjectionService,
                     {
@@ -169,7 +169,7 @@ describe("Notification-bell read-state mutations (e2e)",
                         },
                     })).readAt
 
-                // a second "mark as read" tap must not churn the row — the service
+                // a second "mark as read" tap must not churn the row -- the service
                 // returns early on an already-read row rather than re-stamping
                 await notificationService.markAsRead({
                     userId: user.id,
@@ -252,7 +252,7 @@ describe("Notification-bell read-state mutations (e2e)",
                 const totalRows = await entityManager.count(NotificationEntity,
                     {
                         where: {
-                            // `userId` is a @RelationId virtual column — not queryable
+                            // `userId` is a @RelationId virtual column -- not queryable
                             // in `where`; filter through the real `user` relation.
                             user: {
                                 id: user.id,

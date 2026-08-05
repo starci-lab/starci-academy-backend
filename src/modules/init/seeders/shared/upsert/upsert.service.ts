@@ -134,7 +134,7 @@ export class UpsertService {
     /**
      * Compare the seed payload to the DB and split rows into create / update / delete buckets.
      *
-     * Does not mutate the database — use {@link process} to apply the plan.
+     * Does not mutate the database -- use {@link process} to apply the plan.
      *
      * @param params - Entity class, seed rows, and optional parent scope for stale detection.
      * @returns `createEntities`, `updateEntities`, and `deleteEntities` partitioned by `id`.
@@ -180,7 +180,7 @@ export class UpsertService {
     /**
      * Upsert rows for a UUID-based entity (extends {@link UuidAbstractEntity}).
      *
-     * 1. {@link partitionUuidSync} — plan create / update / delete buckets.
+     * 1. {@link partitionUuidSync} -- plan create / update / delete buckets.
      * 2. Delete stale rows, then `save()` seed rows that carry persistable fields.
      *
      * Pass id-only stubs (e.g. `{ id }`) to prune stale rows without overwriting kept rows.

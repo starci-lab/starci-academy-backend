@@ -34,7 +34,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL surface for `userPersonalTaskAttempts` — authenticated attempt history
+ * GraphQL surface for `userPersonalTaskAttempts` -- authenticated attempt history
  * for the caller's enrollment on a milestone task.
  */
 export class UserPersonalTaskAttemptsResolver {

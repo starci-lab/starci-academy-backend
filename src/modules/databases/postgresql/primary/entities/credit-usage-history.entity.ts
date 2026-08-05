@@ -29,14 +29,14 @@ import {
 })
 @Entity("credit_usage_histories")
 /**
- * Audit row recording one AI credit charge — written ATOMICALLY by
+ * Audit row recording one AI credit charge -- written ATOMICALLY by
  * {@link AiEntitlementService.consume} alongside the unified pool debit (same
  * transaction, same source of truth as the quota gate), so this ledger can
  * never drift from `ai_subscriptions.credit5hUsed/creditWeekUsed`.
  *
- * Not tied to any specific attempt/submission row (deliberately — a charge can
+ * Not tied to any specific attempt/submission row (deliberately -- a charge can
  * happen before that row exists, e.g. at grade-time before the attempt is
- * persisted) — correlate by `userId` + `createdAt` + `surface`/`task` instead.
+ * persisted) -- correlate by `userId` + `createdAt` + `surface`/`task` instead.
  */
 export class CreditUsageHistoryEntity extends UuidAbstractEntity {
     /**
@@ -94,7 +94,7 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
 
     /**
      * Finer-grained task (challenge grading / task grading / cv generating /
-     * chatting / …) than {@link surface} — null for charges recorded before this
+     * chatting / ...) than {@link surface} -- null for charges recorded before this
      * column existed or where the caller didn't have a task to attribute.
      */
     @Field(

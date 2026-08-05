@@ -24,7 +24,7 @@ import _ from "lodash"
  * Builds + indexes Elasticsearch documents for a flashcard deck across all locales.
  *
  * Flashcard decks have no hydration pair, so this builder loads the deck graph
- * (cards → translations, deck translations) directly and runs the shared
+ * (cards -> translations, deck translations) directly and runs the shared
  * {@link FlashcardDeckResolverService} per locale to localize `title`/
  * `description` plus every card's `question`/`answer`/`explanation`. Each locale
  * document also carries a `suggest` completion field (deck title + popularity
@@ -47,7 +47,7 @@ export class ElasticsearchFlashcardDeckBuildService {
     async buildMultilingualByFlashcardDeckId(
         flashcardDeckId: string,
     ): Promise<Array<LocalizedElasticsearchEntity<FlashcardDeckEntity>>> {
-        // load the FULL deck graph the `flashcardDeck` detail query serves (cards →
+        // load the FULL deck graph the `flashcardDeck` detail query serves (cards ->
         // translations, deck translations) so the document can be returned straight
         // from ES with the exact same shape the DB read produced
         const deck = await this.entityManager.findOneOrFail(

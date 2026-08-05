@@ -70,7 +70,7 @@ describe("DeviceService",
 
                 it("inserts a fresh device row on first sighting",
                     async () => {
-                        // findOne default resolves null → no existing row for this user+device
+                        // findOne default resolves null -> no existing row for this user+device
                         await service.recordDevice({
                             userId,
                             fingerprint,

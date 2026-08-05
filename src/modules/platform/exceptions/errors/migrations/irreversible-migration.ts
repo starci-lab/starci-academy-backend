@@ -17,7 +17,7 @@ export interface IrreversibleMigrationExceptionMetadata extends AbstractExceptio
  * Thrown by a TypeORM migration's `down()` method when the feature it dropped
  * has been removed from the codebase, so there is nothing to recreate the
  * tables from and re-running the migration forward would in any case lose
- * data. Always thrown — never a conditional path.
+ * data. Always thrown -- never a conditional path.
  */
 export class IrreversibleMigrationException extends AbstractException {
     constructor(

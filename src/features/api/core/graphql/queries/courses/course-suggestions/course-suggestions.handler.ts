@@ -17,7 +17,7 @@ import {
 @QueryHandler(CourseSuggestionsQuery)
 @Injectable()
 /**
- * Course autocomplete (typeahead) handler — ES Completion Suggester.
+ * Course autocomplete (typeahead) handler -- ES Completion Suggester.
  *
  * Inherits the entire suggest flow from {@link AbstractSuggestionsHandler}: it
  * reads `{ locale, request: { query, limit } }`, resolves the per-locale `courses`
@@ -31,6 +31,6 @@ import {
  */
 export class CourseSuggestionsHandler
     extends AbstractSuggestionsHandler<CourseSuggestionsQuery> {
-    /** Entity this handler autocompletes — drives `courses` index resolution. */
+    /** Entity this handler autocompletes -- drives `courses` index resolution. */
     protected readonly entityName = CourseEntity.name
 }

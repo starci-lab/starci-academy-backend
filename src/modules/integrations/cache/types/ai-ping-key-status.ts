@@ -13,14 +13,14 @@ export interface PingKeyStatusEntry {
     /**
      * ISO-8601 time until which the key is on cooldown (ineligible). Cleared on
      * success. While `now < cooldownUntil` the key is skipped, then auto-recovers
-     * — replaces the old sticky `status:false` that never healed on its own.
+     * -- replaces the old sticky `status:false` that never healed on its own.
      */
     cooldownUntil?: string
     /** Consecutive failures, for escalating the transient cooldown. */
     failCount?: number
     /** Hard-disabled (invalid/revoked key) until the pool reloads. */
     disabled?: boolean
-    /** ISO-8601 time the key was last picked — Redis-shared LRU for load spread. */
+    /** ISO-8601 time the key was last picked -- Redis-shared LRU for load spread. */
     lastUsedAt?: string
 }
 
@@ -53,12 +53,12 @@ export const isPingEntryEligible = (
 }
 
 /**
- * Per-provider map of raw API key → latest ping snapshot.
+ * Per-provider map of raw API key -> latest ping snapshot.
  */
 export type ProviderPingKeyStatusMap = Record<string, PingKeyStatusEntry>
 
 /**
- * Full Redis payload: provider → key → ping snapshot.
+ * Full Redis payload: provider -> key -> ping snapshot.
  */
 export type AiPingKeyStatusMap = Partial<Record<ModelProvider, ProviderPingKeyStatusMap>>
 
@@ -75,7 +75,7 @@ export interface RecordPingKeyStatusParams {
 }
 
 /**
- * Params for {@link AiPingCacheService.recordKeyCooldown} — put a key on cooldown
+ * Params for {@link AiPingCacheService.recordKeyCooldown} -- put a key on cooldown
  * (or hard-disable) after a classified failure. Kept primitive (ms + flag) so the
  * cache layer does not depend on the AI balancer's error enum.
  */

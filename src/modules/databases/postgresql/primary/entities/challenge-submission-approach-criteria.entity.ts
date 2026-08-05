@@ -22,8 +22,8 @@ import {
  *
  * Normalized (no jsonb): the criterion's agnostic fields (`orderIndex`, `critical`) live here; the
  * per-language prose lives in {@link ChallengeSubmissionApproachCriteriaLangEntity}. English-only
- * grading rubric (internal — NOT exposed via GraphQL). Authored in
- * `criterias/<submissionIndex>/approach.md` on the course mount. Per-item score is NOT stored — the
+ * grading rubric (internal -- NOT exposed via GraphQL). Authored in
+ * `criterias/<submissionIndex>/approach.md` on the course mount. Per-item score is NOT stored -- the
  * 70/30 weighting lives on the submission (`approachScore`/`outcomeScore`).
  */
 export class ChallengeSubmissionApproachCriteriaEntity extends UuidAbstractEntity {

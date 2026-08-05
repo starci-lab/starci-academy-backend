@@ -33,7 +33,7 @@ import type {
 
 @Injectable()
 /**
- * Production-only dump → gzip → openssl → private DO upload. Skips outside
+ * Production-only dump -> gzip -> openssl -> private DO upload. Skips outside
  * production so local/dev never write encrypted dumps with a missing/shared
  * password. Throws if `BACKUP_ENCRYPT_PASSWORD` is unset rather than uploading
  * plaintext.
@@ -76,7 +76,7 @@ export class PgBackupService {
         const encPath = `${gzPath}.enc`
         const s3Key = `${s3KeyPrefix}/${Date.now()}.dump.gz.enc`
         try {
-            // 1. pg_dump → file
+            // 1. pg_dump -> file
             await this.execaService.exec({
                 command: "pg_dump",
                 args: [
@@ -87,7 +87,7 @@ export class PgBackupService {
                     postgresUrl,
                 ],
             })
-            // 2. gzip (stream stdout → file; avoid buffering large outputs)
+            // 2. gzip (stream stdout -> file; avoid buffering large outputs)
             await this.execaService.execToFile({
                 command: "gzip",
                 args: [

@@ -24,16 +24,16 @@ import type {
 
 @Injectable()
 /**
- * CDC consumer that keeps `user_xp_projections` fresh — a new ledger row moves the
+ * CDC consumer that keeps `user_xp_projections` fresh -- a new ledger row moves the
  * earner's per-source XP totals AND the global `totalPoints` (both are
  * `SUM(amount) FROM xp_histories`, so any ledger insert moves both); a `users`
  * row change moves their `coin_balance` snapshot (the one figure NOT
- * ledger-derived — `users.total_points` itself was dropped, it's no longer a
+ * ledger-derived -- `users.total_points` itself was dropped, it's no longer a
  * column on `UserEntity` at all). Both topics resolve to a single user id.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
 export class UserXpProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-xp-projection"
 
     /** XP-ledger rows + user balance changes move a user's XP aggregate. */
@@ -54,10 +54,10 @@ export class UserXpProjectionListener extends AbstractProjectionListener<string>
 
     /**
      * An xp_histories row carries the earner's `user_id`; a users row carries `id`.
-     * Returns the affected user id (0–1), or empty to skip.
+     * Returns the affected user id (0-1), or empty to skip.
      *
      * @param message - {@link ProjectionCdcMessage}
-     * @returns the affected user id (0–1).
+     * @returns the affected user id (0-1).
      */
     protected deriveTargets(
         {

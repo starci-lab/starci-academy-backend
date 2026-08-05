@@ -36,7 +36,7 @@ import {
  * Append-only log of every flashcard review the user has graded. Unlike
  * {@link UserFlashcardReviewEntity} (which keeps only the CURRENT SM-2 state per
  * card), this records each grading event (grade + timestamp) so history-based
- * stats — review streak, retention rate, total reviewed — can be computed. One
+ * stats -- review streak, retention rate, total reviewed -- can be computed. One
  * row is appended per `reviewFlashcard` mutation; CDC on this table refreshes the
  * `user_flashcard_stats` projection.
  */
@@ -106,7 +106,7 @@ export class FlashcardReviewEventEntity extends UuidAbstractEntity {
     /**
      * The review session this grade was graded within, when the client threaded a
      * session id (deck-review or due-review). Nullable so pre-existing events (and
-     * any grade made outside a tracked session) stay valid — a session with no
+     * any grade made outside a tracked session) stay valid -- a session with no
      * events carrying its id falls back to `reviewedCount`-only stats.
      */
     @Field(

@@ -4,7 +4,7 @@ import type {
 
 /**
  * Params for resolving a provider checkout link for one installment cycle.
- * PayOS / Sepay only (MVP is VND-only — see `docs/installment-payment-plan.md`).
+ * PayOS / Sepay only (MVP is VND-only -- see `docs/installment-payment-plan.md`).
  */
 export interface ResolveInstallmentCheckoutParams {
     /** Payment provider to create the checkout with (PayOS / Sepay only). */

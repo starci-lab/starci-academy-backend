@@ -13,5 +13,5 @@ import {
         MyMilestoneTaskAttemptsResolver,
     ],
 })
-/** Feature-module boundary for the `myMilestoneTaskAttempts` query — wires its resolver. */
+/** Feature-module boundary for the `myMilestoneTaskAttempts` query -- wires its resolver. */
 export class MyMilestoneTaskAttemptsSingleQueryModule extends ConfigurableModuleClass {}

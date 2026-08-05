@@ -4,7 +4,7 @@ import type {
 
 /** Params for {@link import("../rewrite-cv-block.handler").RewriteCvBlockHandler.loadCapstoneGrounding}. */
 export interface LoadCapstoneGroundingParams {
-    /** Owning user id — grounding is scoped to this user's own capstones only. */
+    /** Owning user id -- grounding is scoped to this user's own capstones only. */
     userId: string
     /** The `user_milestone_task_attempts` row id to ground on. */
     attemptId: string

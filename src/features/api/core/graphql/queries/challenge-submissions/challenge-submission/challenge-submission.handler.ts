@@ -74,7 +74,7 @@ export class ChallengeSubmissionHandler
             {
                 where: {
                     // userId / submissionId are @RelationId (virtual, not queryable)
-                    // — filter through the relations' real FK columns instead
+                    // -- filter through the relations' real FK columns instead
                     user: {
                         id: user.id,
                     },

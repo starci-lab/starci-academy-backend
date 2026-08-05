@@ -20,14 +20,14 @@ import {
  * Resolves filesystem paths for coding-problem mount data. Problems live in
  * `<dataRoot>/coding-problems/sets/<domain>/problems/<slug>/` with an `en.md`,
  * optional `vi.md`, and a `testcases/` folder. The set (domain) folder is purely
- * organizational — the authoritative `domain` is in each problem's frontmatter.
+ * organizational -- the authoritative `domain` is in each problem's frontmatter.
  */
 export class CodingProblemPathService {
     /**
      * Absolute path to the coding-problems mount root. During a git-sourced seed
      * the pipeline points at the freshly-pulled staging copy via the runtime
      * context root (so seeding never reads possibly-stale local content); outside
-     * seed it resolves to `.contexts`. No content-level fallback — if the active
+     * seed it resolves to `.contexts`. No content-level fallback -- if the active
      * root has no problems, none are seeded (a missing-content bug surfaces
      * instead of being masked by stale data).
      */
@@ -90,7 +90,7 @@ export class CodingProblemPathService {
     /**
      * Absolute path to a problem's localized "approach hint" markdown.
      * Hints live in `<problemDir>/hints/<locale>.md` and are indexed into
-     * Elasticsearch only — they are never persisted to Postgres.
+     * Elasticsearch only -- they are never persisted to Postgres.
      *
      * @param problemDir - absolute problem directory path
      * @param locale - locale code (e.g. `en`, `vi`)

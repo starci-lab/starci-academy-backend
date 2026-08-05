@@ -51,7 +51,7 @@ import {
 
 @Injectable()
 /**
- * CDN synchronizer — iterates all entities and calls CDN builder for each.
+ * CDN synchronizer -- iterates all entities and calls CDN builder for each.
  */
 export class CdnSynchronizerService {
 

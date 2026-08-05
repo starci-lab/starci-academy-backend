@@ -58,7 +58,7 @@ export class ElasticsearchCodingProblemBuildService {
                 (translation) => translation.field === field
                     && translation.locale === targetLocale,
             )?.value
-        // prefer requested locale → English → the base column value
+        // prefer requested locale -> English -> the base column value
         return pick(locale) ?? pick(Locale.En) ?? baseValue ?? ""
     }
 
@@ -88,7 +88,7 @@ export class ElasticsearchCodingProblemBuildService {
         )
         const translations = problem.translations ?? []
         // SECURITY: only sample testcases are ever indexed, so hidden testcases
-        // never leave Postgres — the ES document the detail query reads cannot leak them.
+        // never leave Postgres -- the ES document the detail query reads cannot leak them.
         // Reference solutions are likewise NEVER indexed: they are gated behind the
         // reveal flow and must not be served by the `codingProblem` detail read.
         const sampleTestcases = (problem.testcases ?? [])

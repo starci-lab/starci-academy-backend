@@ -18,7 +18,7 @@ import {
     ],
 })
 /**
- * Parent `utils` command that refuses to run bare — exiting 0 here would look
+ * Parent `utils` command that refuses to run bare -- exiting 0 here would look
  * successful. Forces operators to pick `pg-sync` or `playground-seed-test`.
  */
 export class UtilsCommand extends CommandRunner {

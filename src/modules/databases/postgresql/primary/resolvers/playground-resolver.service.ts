@@ -106,7 +106,7 @@ export class PlaygroundResolverService {
 
     /**
      * Resolves just a playground's `title` to `locale` without mutating the
-     * entity — used by the playground-list summary, which projects each row
+     * entity -- used by the playground-list summary, which projects each row
      * into a new lightweight object and only exposes `title`.
      *
      * @param playground - Playground with its `translations` relation eager-joined.

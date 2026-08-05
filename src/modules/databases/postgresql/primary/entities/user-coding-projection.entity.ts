@@ -13,7 +13,7 @@ import {
 
 @Entity("user_coding_projections")
 /**
- * CQRS projection of a user's coding-practice aggregate — ONE ROW PER user.
+ * CQRS projection of a user's coding-practice aggregate -- ONE ROW PER user.
  * The inherited jsonb `value` holds `{ solvedCount, byLanguage: [{ key, solved }],
  * byDifficulty: [{ key, solved }], byDomain: [{ key, solved }],
  * history: [{ problemTitle, difficulty, domain, languages, firstSolvedAt }] }`,
@@ -22,7 +22,7 @@ import {
  * lazy-refresh; kept fresh by CDC on `coding_submissions`.
  */
 export class UserCodingProjectionEntity extends AbstractProjectionEntity {
-    /** Target user id — the natural (primary) key. */
+    /** Target user id -- the natural (primary) key. */
     @PrimaryColumn({
         name: "user_id",
         type: "uuid",

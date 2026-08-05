@@ -68,7 +68,7 @@ export class UserCapstoneProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 userId,
@@ -111,7 +111,7 @@ export class UserCapstoneProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 userId,
@@ -166,14 +166,14 @@ export class UserCapstoneProjectionService {
      * Build the capstone UPSERT for the single user `$1`, folding TWO aggregates into the
      * jsonb `value`:
      *   - `tasks`: one row per passed milestone task (latest passing attempt via DISTINCT ON),
-     *     newest-first — powers `userCapstoneTasks`.
+     *     newest-first -- powers `userCapstoneTasks`.
      *   - `courses`: the full per-course roadmap for every course the user is enrolled in,
      *     built from the STATIC milestone/milestone_task structure LEFT JOINed with the user's
-     *     latest passing attempt per task — powers `userCapstoneProgress`. Courses with no
+     *     latest passing attempt per task -- powers `userCapstoneProgress`. Courses with no
      *     milestones are excluded; courses are ordered by title, milestones by `sort_index`,
      *     and tasks by `sort_index`.
      *
-     * Milestone → course linkage: `milestones.course_id` (direct FK), so totals come straight
+     * Milestone -> course linkage: `milestones.course_id` (direct FK), so totals come straight
      * from `milestones m JOIN milestone_tasks mt ON mt.milestone_id = m.id`, scoped to the
      * courses in `enrollments e WHERE e.user_id = $1`.
      *

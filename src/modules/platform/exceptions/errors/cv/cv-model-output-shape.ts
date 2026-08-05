@@ -18,7 +18,7 @@ export interface CvModelOutputShapeExceptionMetadata extends AbstractExceptionMe
 
 /**
  * Thrown when a CV-related LLM reply parses as valid JSON but is not the
- * expected top-level shape (e.g. an object where an array was required) —
+ * expected top-level shape (e.g. an object where an array was required) --
  * the model drifted from the STRICT-JSON output contract.
  */
 export class CvModelOutputShapeException extends AbstractException {

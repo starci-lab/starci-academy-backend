@@ -35,7 +35,7 @@ import {
 
 @Injectable()
 /**
- * Step 1 — multi-bitrate ffmpeg into the temp dir created by init. Isolated so
+ * Step 1 -- multi-bitrate ffmpeg into the temp dir created by init. Isolated so
  * a crash here can resume without re-downloading; must not run before init or
  * the source file is absent.
  */

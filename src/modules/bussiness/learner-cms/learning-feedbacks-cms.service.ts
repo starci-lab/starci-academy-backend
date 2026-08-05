@@ -21,17 +21,17 @@ import type {
  * the three feedback sources that exist for a user:
  *
  *   - "challenge": `user_challenge_submission_feedbacks` (structured feedback
- *     items attached to a challenge-submission attempt) → challenge + course.
+ *     items attached to a challenge-submission attempt) -> challenge + course.
  *   - "task": `user_milestone_task_attempt_feedbacks` (structured feedback items
- *     attached to a milestone-task review attempt) → task + course.
+ *     attached to a milestone-task review attempt) -> task + course.
  *
- * (A third "cv" source — `cv_submission_attempts.detail_feedback` — was dropped
+ * (A third "cv" source -- `cv_submission_attempts.detail_feedback` -- was dropped
  * along with the legacy `cv_submissions`/`cv_submission_attempts` tables; the
  * unified `cv_generations.feedback` is jsonb-shaped differently, so it wasn't a
  * drop-in replacement. Re-add as a new UNION branch if CV feedback needs to
  * resurface here.)
  *
- * Plain paginated list keyed by the viewer (the LIST exception) — the source
+ * Plain paginated list keyed by the viewer (the LIST exception) -- the source
  * SELECTs are merged with `UNION ALL` in a single normalised CTE, then ordered
  * newest-first and windowed in SQL so paging stays correct across all sources
  * without fetch-merge-slice in memory.
@@ -55,7 +55,7 @@ export class LearningFeedbacksCmsService {
             offset,
         }: ListLearnerCmsParams,
     ): Promise<PaginatedLearnerCmsResult<LearningFeedbackResult>> {
-        // run the merged page query and the merged total count together — both
+        // run the merged page query and the merged total count together -- both
         // share the same three-source union, so parallelising saves a round trip
         const [
             rows,
@@ -87,7 +87,7 @@ export class LearningFeedbacksCmsService {
                 summary: row.summary,
                 createdAt: row.created_at,
             })),
-            // single-row count, text-encoded bigint → number
+            // single-row count, text-encoded bigint -> number
             total: Number(countRows[0]?.total ?? 0),
         }
     }
@@ -139,7 +139,7 @@ export class LearningFeedbacksCmsService {
     }
 
     /**
-     * Build the page SQL — the three-source union, ordered newest-first and
+     * Build the page SQL -- the three-source union, ordered newest-first and
      * windowed by `$2` (limit) / `$3` (offset).
      *
      * @returns the parameterised page SQL.
@@ -156,7 +156,7 @@ export class LearningFeedbacksCmsService {
     }
 
     /**
-     * Build the count SQL — total rows across the same three-source union for
+     * Build the count SQL -- total rows across the same three-source union for
      * user `$1` (no page window).
      *
      * @returns the parameterised count SQL.

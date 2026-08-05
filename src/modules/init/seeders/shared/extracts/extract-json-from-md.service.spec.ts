@@ -14,7 +14,7 @@ describe("ExtractJsonFromMdService",
         let service: ExtractJsonFromMdService
 
         beforeEach(async () => {
-        // the extractor is pure — no collaborators to mock
+        // the extractor is pure -- no collaborators to mock
             module = await Test.createTestingModule({
                 providers: [
                     ExtractJsonFromMdService,
@@ -99,7 +99,7 @@ describe("ExtractJsonFromMdService",
                         // a `# tags` object holds `## n` items each wrapped in its own separator
                         // leaf; that nests an ODD number of separators. The next sibling heading
                         // (`# answer`) must still open its own section and not be swallowed into
-                        // tags — the exact bug that left every flashcard card with a null answer.
+                        // tags -- the exact bug that left every flashcard card with a null answer.
                         const markdown = [
                             "# tags",
                             "## 0",
@@ -138,13 +138,13 @@ describe("ExtractJsonFromMdService",
                         //
                         // REALITY: `extract()` always enters via `parseLevel(fullDocument, 1)`,
                         // so splitSections' level-1 scan walks every raw line of the WHOLE
-                        // document in one pass — not just the "items" section's own slice.
+                        // document in one pass -- not just the "items" section's own slice.
                         // MOUNT_JSONB_ITEM_HEADING_RE item headings are hardcoded to a literal
                         // single `#`, so `# 0` always matches the level-1 heading prefix. The
-                        // numeric-section-boundary override (added for flashcard `# tags` →
+                        // numeric-section-boundary override (added for flashcard `# tags` ->
                         // `## 0`/`## 1` buckets) unconditionally bypasses `inDelimiterLeaf` for
                         // any numeric heading key, so `# 0` forces a level-1 section break
-                        // *through* the separator leaf no matter how deeply it is nested —
+                        // *through* the separator leaf no matter how deeply it is nested --
                         // splitting "items" apart before cutBoundedLeaf/tryParseJsonbLeaf ever
                         // run. The jsonb marker itself is left stranded as a string, and the
                         // item's fields leak out as a sibling "0" section instead of an array

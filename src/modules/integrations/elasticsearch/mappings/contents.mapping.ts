@@ -7,7 +7,7 @@ import type {
  *
  * Types the real search/sort fields (title, description, body, ordering) and adds a
  * dedicated `suggest` field of type `completion` (an in-memory FST) powering fast,
- * ranked autocomplete — the ES sync builder populates it with the clean lesson title
+ * ranked autocomplete -- the ES sync builder populates it with the clean lesson title
  * plus a popularity weight derived from the display order. The large relational blobs
  * (code explainings/implementations, challenges, flashcard decks, translations)
  * are stored but not indexed: they are not search targets and would otherwise inflate
@@ -44,7 +44,7 @@ export const contentsIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
-            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            // pure display-ordering index, decoupled from orderIndex -- sortable for reordering
             sortIndex: {
                 type: "integer",
             },
@@ -75,7 +75,7 @@ export const contentsIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // large relational blobs — stored, not indexed
+            // large relational blobs -- stored, not indexed
             codeExplainings: {
                 type: "object",
                 enabled: false,

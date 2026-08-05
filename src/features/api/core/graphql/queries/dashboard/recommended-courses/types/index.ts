@@ -9,7 +9,7 @@ export interface RecommendedCourseIdRow {
 }
 
 /**
- * One priced recommended course — the course's display fields plus the original
+ * One priced recommended course -- the course's display fields plus the original
  * and loyalty-discounted prices (VND always, USD when configured) and the
  * discount metadata used for FE copy.
  */

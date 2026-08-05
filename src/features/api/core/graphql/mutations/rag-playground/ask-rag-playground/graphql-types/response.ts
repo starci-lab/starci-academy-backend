@@ -34,7 +34,7 @@ export class RagPlaygroundSourceData {
 @ObjectType({
     description: "Result of preparing a grounded RAG Playground ask.",
 })
-/** Result of preparing a grounded ask — the run id to stream + its sources. */
+/** Result of preparing a grounded ask -- the run id to stream + its sources. */
 export class AskRagPlaygroundData {
     @Field(
         () => ID,

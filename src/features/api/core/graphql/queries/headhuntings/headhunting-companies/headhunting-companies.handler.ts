@@ -71,7 +71,7 @@ export class HeadhuntingCompaniesHandler
         // defense in depth: gate any nested consultants these company
         // documents carry (the ES mapping does not currently embed them, but
         // a future sync change could), same rule as the standalone
-        // consultant(s) queries — one score lookup shared across the page
+        // consultant(s) queries -- one score lookup shared across the page
         const companiesWithConsultants = companies.filter(
             (company) => company.consultants?.length,
         )

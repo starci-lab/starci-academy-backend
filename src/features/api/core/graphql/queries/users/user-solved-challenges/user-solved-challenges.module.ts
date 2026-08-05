@@ -13,5 +13,5 @@ import {
         UserSolvedChallengesResolver,
     ],
 })
-/** Feature-module boundary for the `userSolvedChallenges` query — wires its resolver so the users group can mount this profile tab independently. */
+/** Feature-module boundary for the `userSolvedChallenges` query -- wires its resolver so the users group can mount this profile tab independently. */
 export class UserSolvedChallengesSingleQueryModule extends ConfigurableModuleClass {}

@@ -16,7 +16,7 @@ export interface UnsupportedTransactionActionExceptionMetadata extends AbstractE
 
 /**
  * Thrown when a gateway webhook's reconciliation switch on `transaction.actionType`
- * falls through to `default` — every action type is handled by an explicit `case`,
+ * falls through to `default` -- every action type is handled by an explicit `case`,
  * so this only fires if a new `ActionType` enum member was added without wiring
  * its webhook reconciliation branch.
  */

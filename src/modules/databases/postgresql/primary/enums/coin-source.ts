@@ -7,7 +7,7 @@ import {
 
 /**
  * Where a unit of COIN (spendable currency, `users.coin_balance`) was granted
- * from — every value here is coin-only (never grants XP). Kept SEPARATE from
+ * from -- every value here is coin-only (never grants XP). Kept SEPARATE from
  * {@link XpSource} (real, weighted XP-granting events) so "XP history" and
  * "coin reward" stay two distinct concepts, not one enum straddling both.
  * Used as the `source` of an append-only {@link CoinHistoryEntity} audit row.

@@ -34,15 +34,15 @@ const MAX_OBJECT_BYTES = 10 * 1024 * 1024
 /** Total byte cap across all chunks of one chunked-upload session. */
 const MAX_CHUNK_SESSION_BYTES = 25 * 1024 * 1024
 
-/** Fixed chunk size the chunked-upload client slices by (256 KB → visible progress). */
+/** Fixed chunk size the chunked-upload client slices by (256 KB -> visible progress). */
 const CHUNK_SIZE = 256 * 1024
 
 @Injectable()
 /**
  * Shared in-memory binary store for the file-upload lesson mocks.
  *
- * Holds three independent collections — presigned objects, chunked-upload
- * sessions, and tus uploads — each keyed by a server-generated id so different
+ * Holds three independent collections -- presigned objects, chunked-upload
+ * sessions, and tus uploads -- each keyed by a server-generated id so different
  * sandbox clients never collide without needing a URL-injected session scope
  * (the file-upload lesson frontends talk to the bare origin). Entries are
  * evicted after 30 minutes idle and every write is byte-capped so the public

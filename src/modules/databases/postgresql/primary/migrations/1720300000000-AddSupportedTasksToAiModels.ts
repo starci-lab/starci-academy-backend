@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `supported_tasks` (JSONB) to `ai_models` — the set of tasks a model is
+ * Adds `supported_tasks` (JSONB) to `ai_models` -- the set of tasks a model is
  * suited for (`"chatting"` / `"grading"`). Stored as a JSONB array of plain
  * strings (NOT a Postgres enum type, so adding a task value never requires an
  * enum `ALTER TYPE`). Drives FE picker visibility (a grading-only model is

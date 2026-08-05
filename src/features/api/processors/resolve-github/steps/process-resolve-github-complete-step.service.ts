@@ -115,7 +115,7 @@ export class ProcessResolveGithubCompleteStepService extends AbstractStepService
             },
         )
 
-        // GitHub org/team membership resolved → the learner now has repo access.
+        // GitHub org/team membership resolved -> the learner now has repo access.
         await enqueueLearnerEmail({
             entityManager: this.entityManager,
             enqueueSendMailJobService: this.enqueueSendMailJobService,

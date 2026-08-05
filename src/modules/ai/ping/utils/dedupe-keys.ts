@@ -20,7 +20,7 @@ export const dedupeNonEmptyKeys = (keys: Array<string>): Array<string> => {
 }
 
 /**
- * Last four characters of a key — safe suffix for structured logs.
+ * Last four characters of a key -- safe suffix for structured logs.
  * @param key - Full API key string.
  * @returns Four-char suffix, or the whole key when shorter than four chars.
  */

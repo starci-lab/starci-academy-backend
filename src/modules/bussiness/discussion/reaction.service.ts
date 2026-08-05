@@ -81,18 +81,18 @@ export class ReactionService {
                     },
                 },
             })
-        // null type means "remove my reaction" — delete only if one exists
+        // null type means "remove my reaction" -- delete only if one exists
         if (type === null) {
             if (existing) {
                 await this.entityManager.remove(existing)
             }
         } else if (existing) {
-            // already reacted → just switch the emotion in place
+            // already reacted -> just switch the emotion in place
             existing.type = type
             await this.entityManager.save(existing)
         } else {
             // resolve the course for this content so we can key the row by enrollment
-            // (user × course) — the anchor going forward — while still setting user_id
+            // (user x course) -- the anchor going forward -- while still setting user_id
             // during the re-key transition.
             const content = await this.entityManager.findOne(ContentEntity,
                 {
@@ -112,7 +112,7 @@ export class ReactionService {
                     courseId,
                 )
                 : null
-            // first-time reaction → insert a new row via relation ids; key by
+            // first-time reaction -> insert a new row via relation ids; key by
             // enrollment going forward (set BOTH columns during the transition).
             await this.entityManager.save(this.entityManager.create(ContentReactionEntity,
                 {
@@ -153,7 +153,7 @@ export class ReactionService {
     /**
      * Sets, changes, or removes the current user's reaction on a FEED ACTIVITY.
      * A user can never react to their own activity (enforced here). No engagement
-     * projection — counts are read live from `activity_reactions` (the feed query
+     * projection -- counts are read live from `activity_reactions` (the feed query
      * also reads them inline; reactions on a feed are an explicit CQRS exception).
      * @param params - {@link ReactToActivityParams}
      * @returns The activity's fresh reaction summary from this user's view.
@@ -182,7 +182,7 @@ export class ReactionService {
                 userId: user.id,
             })
         }
-        // at most one reaction per (activity, user) — same upsert/delete shape as content
+        // at most one reaction per (activity, user) -- same upsert/delete shape as content
         const existing = await this.entityManager.findOne(ActivityReactionEntity,
             {
                 where: {
@@ -252,7 +252,7 @@ export class ReactionService {
         user,
         type,
     }: ReactToCommentParams): Promise<ReactionSummaryResult> {
-        // resolve the comment first — we need its content id for the room event + a 404 guard
+        // resolve the comment first -- we need its content id for the room event + a 404 guard
         const comment = await this.entityManager.findOne(ContentCommentEntity,
             {
                 where: {
@@ -298,7 +298,7 @@ export class ReactionService {
                     },
                 }))
         }
-        // notify the room (scoped to the comment's content) of the change — a
+        // notify the room (scoped to the comment's content) of the change -- a
         // course-general question has no content room (see comment.service.ts).
         if (comment.contentId) {
             await this.eventEmitterService.emit({
@@ -340,7 +340,7 @@ export class ReactionService {
      * @param contentId - The content UUID whose projection to refresh.
      */
     async invalidateViewCount(contentId: string): Promise<void> {
-        // read-state moved → recompute the engagement projection (idempotent UPSERT)
+        // read-state moved -> recompute the engagement projection (idempotent UPSERT)
         await this.contentEngagementProjectionService.recompute({
             contentId,
         })
@@ -360,7 +360,7 @@ export class ReactionService {
     }: SummarizeContentReactionsParams): Promise<ReactionSummaryResult> {
         // aggregate counters from the projection (lazy-recomputed if stale)
         const summary = await this.contentEngagementProjectionService.getSummary(contentId)
-        // the viewing user's own reaction (per-viewer → single indexed lookup)
+        // the viewing user's own reaction (per-viewer -> single indexed lookup)
         const mine = await this.entityManager.findOne(ContentReactionEntity,
             {
                 where: {
@@ -392,13 +392,13 @@ export class ReactionService {
     /**
      * Batch-computes reaction summaries for many comments in two grouped queries.
      * @param params - {@link SummarizeCommentReactionsParams}
-     * @returns Map of comment id → reaction summary (every requested id is present).
+     * @returns Map of comment id -> reaction summary (every requested id is present).
      */
     async summarizeComments({
         commentIds,
         userId,
     }: SummarizeCommentReactionsParams): Promise<Record<string, ReactionSummaryResult>> {
-        // nothing requested → empty map (also guards an empty IN () clause)
+        // nothing requested -> empty map (also guards an empty IN () clause)
         if (commentIds.length === 0) {
             return {
             }

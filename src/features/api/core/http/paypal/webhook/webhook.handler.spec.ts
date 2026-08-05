@@ -94,7 +94,7 @@ const buildTransaction = (
     actionType: ActionType.Enroll,
     courseId: "course-1",
     aiSubTier: null,
-    // created just now → never trips the stale-transaction guard
+    // created just now -> never trips the stale-transaction guard
     createdAt: new Date(),
     ...overrides,
 })
@@ -121,7 +121,7 @@ describe("PaypalWebhookHandler",
                 }),
             } as unknown as jest.Mocked<Pick<PaypalClient, "verifyWebhookSignature" | "retrieveOrder">>
 
-            // enroll worker hand-off — default happy path fans out one job; override
+            // enroll worker hand-off -- default happy path fans out one job; override
             // to { enqueuedCount: 0 } for the malformed-transaction test
             enqueueEnrollJobService = {
                 enqueueForTransaction: jest.fn().mockResolvedValue({
@@ -129,12 +129,12 @@ describe("PaypalWebhookHandler",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
-            // entitlement grant — assert it fires on the subscription path
+            // entitlement grant -- assert it fires on the subscription path
             aiEntitlementService = {
                 grantTier: jest.fn(),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
 
-            // membership grant — not exercised by these tests (no MembershipPurchase
+            // membership grant -- not exercised by these tests (no MembershipPurchase
             // fixture yet) but required by the handler's constructor
             membershipService = {
                 grantMembership: jest.fn(),
@@ -143,7 +143,7 @@ describe("PaypalWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     PaypalWebhookHandler,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: PaypalClient,
@@ -163,14 +163,14 @@ describe("PaypalWebhookHandler",
                     },
                     {
                         // best-effort mailer hand-off, only reached when grantTier
-                        // reports a fresh grant — unused by these fixtures
+                        // reports a fresh grant -- unused by these fixtures
                         provide: EnqueueSendMailJobService,
                         useValue: {
                         },
                     },
                     {
                         // best-effort notification, only reached alongside the mailer
-                        // hand-off above — unused by these fixtures
+                        // hand-off above -- unused by these fixtures
                         provide: NotificationService,
                         useValue: {
                             createNotification: jest.fn(),
@@ -244,7 +244,7 @@ describe("PaypalWebhookHandler",
 
         it("resolves the reference id from the order-detail fallback",
             async () => {
-                // resource omits custom_id but carries an order id → look it up
+                // resource omits custom_id but carries an order id -> look it up
                 entityManager.findOne.mockResolvedValueOnce(
                     buildTransaction(),
                 )
@@ -269,7 +269,7 @@ describe("PaypalWebhookHandler",
 
         it("rejects an invalid signature without touching the DB",
             async () => {
-                // verification fails → the payload is untrusted
+                // verification fails -> the payload is untrusted
                 paypalClient.verifyWebhookSignature.mockResolvedValueOnce(false)
 
                 await expect(
@@ -288,7 +288,7 @@ describe("PaypalWebhookHandler",
 
         it("ignores unrelated event types without side effects",
             async () => {
-                // a denied-payment event is not a paid order → handler returns early
+                // a denied-payment event is not a paid order -> handler returns early
                 await handler.execute(
                     new PaypalWebhookCommand(
                         buildParams({
@@ -300,7 +300,7 @@ describe("PaypalWebhookHandler",
                     ),
                 )
 
-                // early return → no lookup, no grant, no enqueue
+                // early return -> no lookup, no grant, no enqueue
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
                 expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
@@ -308,7 +308,7 @@ describe("PaypalWebhookHandler",
 
         it("throws when the resource omits our reference id",
             async () => {
-                // no custom_id and no order id → reference id is unresolvable
+                // no custom_id and no order id -> reference id is unresolvable
                 await expect(
                     handler.execute(
                         new PaypalWebhookCommand(
@@ -326,7 +326,7 @@ describe("PaypalWebhookHandler",
 
         it("throws when no pending transaction matches the reference id",
             async () => {
-                // findOne default resolves null → no pending row
+                // findOne default resolves null -> no pending row
                 await expect(
                     handler.execute(
                         new PaypalWebhookCommand(
@@ -363,7 +363,7 @@ describe("PaypalWebhookHandler",
 
         it("rejects an enrollment event that carries no course",
             async () => {
-                // enrollment transaction missing its courseId → the enroll service
+                // enrollment transaction missing its courseId -> the enroll service
                 // fans out zero jobs (no transaction_items row, no direct courseId)
                 entityManager.findOne.mockResolvedValueOnce(
                     buildTransaction({

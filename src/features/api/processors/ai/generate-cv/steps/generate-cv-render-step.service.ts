@@ -40,13 +40,13 @@ import {
 
 @Injectable()
 /**
- * Step 2 — render. Reads the structured CV JSON from the compose step, fills the
+ * Step 2 -- render. Reads the structured CV JSON from the compose step, fills the
  * LaTeX template (every user-supplied value is LaTeX-escaped inside the
  * template's `tex` helper), and uploads the `.tex` document to MinIO under
  * `cv-generations/{userId}/{jobId}.tex`. Then compiles that `.tex` into a real
- * PDF (`tectonic`, best-effort — {@link compileCvPdf}) and, when it succeeds,
+ * PDF (`tectonic`, best-effort -- {@link compileCvPdf}) and, when it succeeds,
  * uploads the PDF alongside it. Both object keys are persisted as this step's
- * execution result for the complete step to copy onto the entity — the PDF key
+ * execution result for the complete step to copy onto the entity -- the PDF key
  * is `null` when the compile failed, and the job still succeeds (degrades to
  * the raw `.tex` download, same contract the FE preview already has).
  */
@@ -124,7 +124,7 @@ export class GenerateCvRenderStepService extends AbstractStepService<
         const latex = renderCvLatex({
             fullName: composed.fullName,
             headline: composed.headline,
-            // phone/email are not part of the verified profile → left blank; the
+            // phone/email are not part of the verified profile -> left blank; the
             // template renders the bullet-separated contact line regardless.
             phone: "",
             email: "",
@@ -149,7 +149,7 @@ export class GenerateCvRenderStepService extends AbstractStepService<
             contentType: "application/x-tex",
         })
 
-        // best-effort compile — a failure here (missing `tectonic` binary in
+        // best-effort compile -- a failure here (missing `tectonic` binary in
         // local dev, a compile error in the AI-generated .tex) must not fail the
         // whole render step; the job still succeeds with `pdfCdnKey: null`.
         let pdfCdnKey: string | null = null

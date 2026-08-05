@@ -49,7 +49,7 @@ export class StreakFreezeCronService {
     /**
      * Run the auto-protect sweep once per day (01:00 Asia/Ho_Chi_Minh, after the
      * day boundary so "yesterday" is fully settled). Any failure is logged and
-     * swallowed so a bad run can never crash the scheduler — the sweep is
+     * swallowed so a bad run can never crash the scheduler -- the sweep is
      * idempotent (the unique (user, date) row makes a re-run a no-op).
      */
     @Cron(
@@ -76,7 +76,7 @@ export class StreakFreezeCronService {
                     count: candidates.length,
                 })
         } catch (error) {
-            // normalize + log (Error-style: message + stack) and swallow — next day self-heals
+            // normalize + log (Error-style: message + stack) and swallow -- next day self-heals
             const cause = error instanceof Error ? error : new Error(String(error))
             this.winstonService.log(WinstonLog.CronTickFailed,
                 {
@@ -88,9 +88,9 @@ export class StreakFreezeCronService {
 
     /**
      * Protect ONE candidate user for yesterday: insert the protected day FIRST,
-     * then decrement a freeze, and recompute their stats — all in one transaction.
+     * then decrement a freeze, and recompute their stats -- all in one transaction.
      * The idempotent insert (`ON CONFLICT ... DO NOTHING RETURNING id`) reports
-     * whether THIS txn is the one that actually created the protected-day row —
+     * whether THIS txn is the one that actually created the protected-day row --
      * a concurrent replica racing the same user+day gets 0 rows back and skips
      * both the decrement and the recompute, so a freeze is spent AT MOST ONCE
      * per protected day even with no cross-replica lock.
@@ -112,7 +112,7 @@ export class StreakFreezeCronService {
             )
             if (insertResult.length === 0) {
                 // the day is already protected (this run or a racing replica already
-                // did it) — nothing new to protect, so no freeze should be spent
+                // did it) -- nothing new to protect, so no freeze should be spent
                 return
             }
             // only the txn that actually inserted the protected day may spend a
@@ -140,7 +140,7 @@ export class StreakFreezeCronService {
      * Build the candidate query: users with a freeze in stock who were ACTIVE the
      * day before yesterday (VN "today" - 2) but INACTIVE yesterday (VN "today" -
      * 1). "Active" = an XP event OR an existing protected day on that calendar
-     * day, with the day boundary reckoned in {@link APP_TIMEZONE} — matching the
+     * day, with the day boundary reckoned in {@link APP_TIMEZONE} -- matching the
      * VN-cast day boundary the streak projection itself now uses, so the cron's
      * notion of "yesterday" can never drift from the projection's. This is a
      * single set-based scan (no per-user loop).

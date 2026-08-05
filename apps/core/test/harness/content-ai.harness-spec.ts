@@ -99,7 +99,7 @@ const PASS_SCORE = 60
 
 /**
  * REAL lesson bodies from the `.volume` SSOT mount, grounding every judged
- * case in actual course material instead of a hand-written fixture — mirrors
+ * case in actual course material instead of a hand-written fixture -- mirrors
  * `cv-scoring.harness-spec.ts`. Paths are `bodies/<language-variant>` dirs so
  * `readVolumeDoc` reads the SAME markdown the app itself stuffs into
  * `content.body` for a snapshot-backed lesson (see
@@ -107,7 +107,7 @@ const PASS_SCORE = 60
  */
 const FRAMEWORK_LESSON_DIR = "courses/0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/bodies/0-typescript"
 const INDEXING_LESSON_DIR = "courses/1-system-design-mastery/modules/1-database-fundamentals/contents/1-indexing-and-query-optimization/bodies/0-typescript"
-/** A REAL isPremium:true lesson — grounds the premium-gate case in an actual locked lesson. */
+/** A REAL isPremium:true lesson -- grounds the premium-gate case in an actual locked lesson. */
 const PREMIUM_LESSON_DIR = "courses/0-fullstack-mastery/modules/10-email-sms-otp/contents/0-sending-emails-with-nodemailer/bodies/0-typescript"
 
 /** Skip the whole suite (with a clear message) when the SSOT mount is absent. */
@@ -120,13 +120,13 @@ const describeOrSkip = HAVE_VOLUME
 
 /**
  * The tier the injected {@link AiInvokeService} routes THIS request's model
- * call to. Mutated by each `it` before it POSTs — the analogue of `currentUser`
- * — so a single adapter serves every case at its declared tier.
+ * call to. Mutated by each `it` before it POSTs -- the analogue of `currentUser`
+ * -- so a single adapter serves every case at its declared tier.
  */
 let currentTier: HarnessTierName = "mid"
 
 /**
- * When set, {@link harnessInvokeAdapter} throws instead of calling the model —
+ * When set, {@link harnessInvokeAdapter} throws instead of calling the model --
  * proves the `askContentAi` flow surfaces a real model failure as
  * `success: false` rather than a false success. Reset in `afterEach` as a
  * safety net; the one `it` that sets it also resets it in a `finally`.
@@ -136,12 +136,12 @@ let forceModelError = false
 /**
  * Harness-backed {@link AiInvokeService} stand-in. It keeps the app's real
  * `run(...)` CONTRACT but swaps the balancer/key-pool transport for the
- * harness's tiered Anthropic client (authenticated from `.secrets`) — so the
+ * harness's tiered Anthropic client (authenticated from `.secrets`) -- so the
  * grounded prompt the handler built is answered by a REAL Claude model at the
  * per-case tier, and the answer under judgement is a real model answer, not a
  * canned marker. Billing metadata is filled with zero-cost placeholders (credit
  * consumption is covered by `content-ai-entitlement.e2e-spec.ts`, and mocked
- * here). When {@link forceModelError} is set, throws instead — the model-error
+ * here). When {@link forceModelError} is set, throws instead -- the model-error
  * harness case.
  */
 const harnessInvokeAdapter: Pick<AiInvokeService, "run"> = {
@@ -184,8 +184,8 @@ const harnessInvokeAdapter: Pick<AiInvokeService, "run"> = {
 
 /**
  * A REAL verbatim passage lifted from {@link FRAMEWORK_LESSON_DIR}'s English
- * body — used by the "quoted passage" case to prove the `<display>`/`<context>`
- * wrapping (baked into every scope's system prompt — see
+ * body -- used by the "quoted passage" case to prove the `<display>`/`<context>`
+ * wrapping (baked into every scope's system prompt -- see
  * `ContentAiService.buildScopePromptLines`) is honoured against real material.
  */
 const FRAMEWORK_LESSON_QUOTE = "hand-rolling `new` hard-wires the consumer to a concrete implementation, every service spins up its own copy (losing sharing), and as the dependency graph grows the startup order becomes fragile and tests get locked to real objects."
@@ -196,7 +196,7 @@ const FRAMEWORK_LESSON_QUOTE = "hand-rolling `new` hard-wires the consumer to a 
  * `anchored: true` uses the shared `content` fixture (scope resolves to
  * `"content"`, grounded via the real lesson body at `dir`/`docLocale`);
  * `anchored: false` sends no anchor at all (scope resolves to `"global"`, the
- * additive base/app-wide path — no lesson to ground on).
+ * additive base/app-wide path -- no lesson to ground on).
  */
 interface JudgedCase {
     /** Human-readable label for the jest row title. */
@@ -209,7 +209,7 @@ interface JudgedCase {
     dir: string | null
     /** Which locale file to read the real body from. */
     docLocale: "en" | "vi"
-    /** Locale sent on the request (`x-locale` header) — also what the judge expects the reply in. */
+    /** Locale sent on the request (`x-locale` header) -- also what the judge expects the reply in. */
     requestLocale: Locale
     /** The learner's question (may be `<display>`/`<context>`-wrapped for the quote case). */
     question: string
@@ -305,7 +305,7 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
  * `AskContentAiHandler`, `ContentAiService.prepareMessages` grounding (scope
  * derivation, the additive base/global path, the `<display>`/`<context>` quote
  * contract, the premium gate), and `UserService` all run exactly as production
- * wires them. The ONE swap is the model transport — {@link AiInvokeService} is
+ * wires them. The ONE swap is the model transport -- {@link AiInvokeService} is
  * replaced with {@link harnessInvokeAdapter}, which answers the grounded prompt
  * with a real Claude model at the per-case tier ({@link generate}, authenticated
  * from `.secrets`) instead of the app's balancer/key-pool. Each answer is then
@@ -317,20 +317,20 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
  *  - {@link CONTENT_SCOPE_CASES}: content-scope grounded answers (2 REAL
  *    lessons across different topics), a `<display>`/`<context>`-quoted
  *    passage, a Vietnamese-locale answer, and the anchorless GLOBAL/base scope.
- *  - a premium lesson blocked for a NON-enrolled learner (no answer judged —
+ *  - a premium lesson blocked for a NON-enrolled learner (no answer judged --
  *    the gate itself is the assertion).
  *  - a forced model failure surfacing as `success: false`, not a false success.
  *
  * MOCKED (no external infra in this lane, mirrors `content-ai-session.e2e-spec.ts`):
- *  - `S3ReadService` — hands back the per-case REAL lesson body (from `.volume`)
+ *  - `S3ReadService` -- hands back the per-case REAL lesson body (from `.volume`)
  *    instead of MinIO.
- *  - `CourseRagRetrievalService` — Qdrant; every real body here exceeds the
+ *  - `CourseRagRetrievalService` -- Qdrant; every real body here exceeds the
  *    stuff-whole threshold, so grounding falls back through the (mocked-empty)
- *    RAG excerpt to the full real body — see `ContentAiService.resolveGrounding`.
- *  - `CacheService` — no-op.
- *  - `AiEntitlementService.consume` — credit ledger, out of scope here.
- *  - `AiInvokeService` — replaced by the harness-backed adapter (the point of the harness).
- *  - `KeycloakAuthGraphQLGuard` — stamps `request.user` with the fake caller.
+ *    RAG excerpt to the full real body -- see `ContentAiService.resolveGrounding`.
+ *  - `CacheService` -- no-op.
+ *  - `AiEntitlementService.consume` -- credit ledger, out of scope here.
+ *  - `AiInvokeService` -- replaced by the harness-backed adapter (the point of the harness).
+ *  - `KeycloakAuthGraphQLGuard` -- stamps `request.user` with the fake caller.
  *
  * REAL: Postgres (Testcontainers), the full Apollo/GraphQL wiring, the resolver +
  * handler + `ContentAiService` grounding (every scope branch, the premium gate,
@@ -361,13 +361,13 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
             },
         }
 
-        /** Real service — session create + turn persistence (the session-based flow). */
+        /** Real service -- session create + turn persistence (the session-based flow). */
         let contentAiService: ContentAiService
 
         /** Read-only course/content fixtures seeded once in `beforeAll`. */
         let course: CourseEntity
         let content: ContentEntity
-        /** A REAL isPremium:true lesson — used only by the premium-gate case. */
+        /** A REAL isPremium:true lesson -- used only by the premium-gate case. */
         let premiumContent: ContentEntity
 
         const s3ReadServiceMock = {
@@ -408,7 +408,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
         /**
          * POST a GraphQL mutation with a single `$request` variable. `locale`, when
          * given, is sent as the `x-locale` header `resolveLocale` reads (see
-         * `getLocaleFromCookie`) — the ONLY way to steer `@GraphQLLocale()` from an
+         * `getLocaleFromCookie`) -- the ONLY way to steer `@GraphQLLocale()` from an
          * HTTP client.
          */
         const gql = (
@@ -451,11 +451,11 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                     AskContentAiResolver,
                     AskContentAiService,
                     AskContentAiHandler,
-                    // REAL — the grounding path (prepareMessages) under test
+                    // REAL -- the grounding path (prepareMessages) under test
                     ContentAiService,
-                    // REAL — resolveEnrollmentId/checkEnrollment run real SQL
+                    // REAL -- resolveEnrollmentId/checkEnrollment run real SQL
                     UserService,
-                    // real class, no external deps — safe as-is
+                    // real class, no external deps -- safe as-is
                     S3NameResolverService,
                     {
                         provide: CacheService,
@@ -698,7 +698,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
             async () => {
                 const learner = await seedUser("kc-content-ai-harness-premium-non-enrolled")
                 currentUser = learner
-                // deliberately NOT enrolled — no seedEnrollment call
+                // deliberately NOT enrolled -- no seedEnrollment call
 
                 const premiumBody = readVolumeDoc(PREMIUM_LESSON_DIR,
                     "en")

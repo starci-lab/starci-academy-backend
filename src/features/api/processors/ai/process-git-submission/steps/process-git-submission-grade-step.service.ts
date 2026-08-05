@@ -97,7 +97,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
      * Resolve the GitHub access token to clone the submission repo with: the learner's
      * own (decrypted) per-enrollment token when they stored one for a PRIVATE repo,
      * otherwise the org token. A token that fails to decrypt falls back to the org token
-     * rather than aborting the grade. Shared with personal-project grading — one token
+     * rather than aborting the grade. Shared with personal-project grading -- one token
      * per enrollment covers both the challenge repo and the capstone repo.
      */
     private async resolveGithubAccessToken(enrollmentId: string): Promise<string> {
@@ -154,7 +154,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     }
 
     /**
-     * Execute the grade step: load repo → similarity search on criteria → LLM grades each criterion.
+     * Execute the grade step: load repo -> similarity search on criteria -> LLM grades each criterion.
      */
     private async execute(
         context: JobExtendedContext<
@@ -175,7 +175,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const challenge = context.extended?.challenge
         const challengeTitle = (challenge?.title ?? "").trim()
         // outcome + approach criteria of the SPECIFIC submission being graded, resolved to the
-        // learner's chosen programming language (per-submission, per-language — not challenge-level)
+        // learner's chosen programming language (per-submission, per-language -- not challenge-level)
         const criteria = collectSubmissionCriteria(
             context.extended?.challengeSubmission,
             payload.lang,
@@ -210,9 +210,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                     id: doc.id,
                 }),
         )
-        /** ONE high-level RAG call owns chunk → embed → retrieve; the worker only gathers
+        /** ONE high-level RAG call owns chunk -> embed -> retrieve; the worker only gathers
             the source docs + criteria. The run namespace (submission + fencing token) isolates
-            a stalled re-dispatch: a zombie worker carries a different fencing token → a
+            a stalled re-dispatch: a zombie worker carries a different fencing token -> a
             different collection, so it can never corrupt the live owner's vectors. */
         const gradingCfg = envConfig().services.githubWorker.processGitSubmission
         const { excerpt: sourceExcerpt } = await this.gradingRetrievalService.retrieveGradingExcerpt(
@@ -236,13 +236,13 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const maxScore = criteria.reduce((sum, criterion) => sum + criterion.score,
             0)
 
-        // CACHE INVARIANT — do NOT interpolate anything submission-specific here.
+        // CACHE INVARIANT -- do NOT interpolate anything submission-specific here.
         // The provider caches this prompt by its exact prefix and re-prices repeat
         // reads at a fraction (see creditForRun's cachedTokens path). Every value
         // below is challenge-level (title, maxScore, language), so all submissions
         // of one challenge share the cached prefix. Splicing in the learner's name,
         // an id, or a timestamp would make every call a unique prefix and kill the
-        // discount silently — no error, just a bigger bill. Submission content
+        // discount silently -- no error, just a bigger bill. Submission content
         // belongs in the HumanMessage, which follows this.
         const systemText = [
             `You are a strict, experienced code reviewer grading a learner's submission for the challenge: "${challengeTitle}".`,
@@ -305,9 +305,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             userId: enrollment.userId,
         })
         // ONE shared entry: CODE grading (githubUrl submission) floors at Balanced
-        // — NOT by difficulty. Eval evidence: Free/Economy models grade code too
+        // -- NOT by difficulty. Eval evidence: Free/Economy models grade code too
         // shallowly (miss subtle API-contract defects); text grading (googleDocs /
-        // interview) stays at Economy. Climbs to the tier ceiling → served + cost.
+        // interview) stays at Economy. Climbs to the tier ceiling -> served + cost.
         const {
             text: raw, model, provider, attempts, cost, promptTokens, completionTokens, cachedTokens,
         } = await this.aiInvokeService.run({
@@ -320,11 +320,11 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             floor: AiModelCategory.Medium,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.ChallengeGrading,
-            // all submissions of one challenge share the rubric prefix → one route
+            // all submissions of one challenge share the rubric prefix -> one route
             cacheSessionId: challenge?.id,
         })
 
-        // Charge for the LLM usage NOW (idempotently), BEFORE parsing — a parse failure must not
+        // Charge for the LLM usage NOW (idempotently), BEFORE parsing -- a parse failure must not
         // leak free usage. The `creditCharged` marker keeps a stalled re-run from double-charging,
         // and the complete step skips its own debit when this marker is present.
         const alreadyCharged = await this.jobActionService.loadExecutionResult<boolean>({

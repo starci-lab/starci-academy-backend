@@ -13,7 +13,7 @@ import type {
 
 /**
  * Entity kinds the sync-indexer job will prime into parent-index cache.
- * Anything outside this union has no builder — enqueueing it would no-op and
+ * Anything outside this union has no builder -- enqueueing it would no-op and
  * leave autocomplete/deep-links unresolved.
  */
 export type SyncIndexerEntityKind =

@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -39,7 +39,7 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** Minimal challenge entity stand-in — only the id matters for assertions. */
+/** Minimal challenge entity stand-in -- only the id matters for assertions. */
 const fakeChallenge = (
     id: string,
 ): ChallengeEntity => ({
@@ -55,12 +55,12 @@ describe("ChallengeHandler",
         let s3NameResolverService: jest.Mocked<Pick<S3NameResolverService, "challenge">>
 
         beforeEach(async () => {
-            // primary entity manager resolves the challenge's owning content —
+            // primary entity manager resolves the challenge's owning content --
             // defaults to "no owner row found" so the premium-lock branch is skipped
             // unless a test programs it explicitly.
             entityManager = makeEntityManagerMock()
 
-            // S3 read returns the JSON document the test programs (rejects → not found)
+            // S3 read returns the JSON document the test programs (rejects -> not found)
             s3ReadService = {
                 json: jest.fn(),
             } as unknown as jest.Mocked<Pick<S3ReadService, "json">>

@@ -20,7 +20,7 @@ export interface EnqueueSubmissionResultEmailParams {
     enqueueSendMailJobService: EnqueueSendMailJobService
     /** The graded user-challenge-submission. */
     userChallengeSubmissionId: string
-    /** Final score (0–100) of the attempt. */
+    /** Final score (0-100) of the attempt. */
     score: number
     /** Short, human-readable feedback shown in the email body. */
     feedback?: string | null
@@ -36,7 +36,7 @@ export interface EnqueueSubmissionResultEmailParams {
  * Pug template. Unlike {@link enqueueLearnerEmail} this loads the challenge
  * title via the submission relation.
  *
- * NEVER throws — fired AFTER the grading transaction commits, so a mail failure
+ * NEVER throws -- fired AFTER the grading transaction commits, so a mail failure
  * cannot fail an already-finished grading job. Skips silently when the
  * recipient email or the challenge title cannot be resolved.
  */
@@ -101,6 +101,6 @@ export const enqueueSubmissionResultEmail = async (
             },
         })
     } catch {
-        // best-effort notification — swallow any failure
+        // best-effort notification -- swallow any failure
     }
 }

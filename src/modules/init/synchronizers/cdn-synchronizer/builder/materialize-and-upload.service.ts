@@ -54,7 +54,7 @@ export class MaterializeAndUploadService {
         context?: CdnMaterializeContext,
     ): Promise<void> {
         const providers: Array<S3Provider> = [
-            // DigitalOcean disabled — not configured here (empty creds → 400 InvalidArgument). MinIO only.
+            // DigitalOcean disabled -- not configured here (empty creds -> 400 InvalidArgument). MinIO only.
             S3Provider.Minio,
         ]
         for (const localized of localizedRows) {
@@ -66,7 +66,7 @@ export class MaterializeAndUploadService {
                 entity.id,
                 locale,
             )
-            // Some entities (e.g. milestone tasks) have no mount slug / displayId — only the
+            // Some entities (e.g. milestone tasks) have no mount slug / displayId -- only the
             // primary-key keyed object is written for those.
             const keyByDisplayId = entity.displayId
                 ? resolveObjectKey(
@@ -94,7 +94,7 @@ export class MaterializeAndUploadService {
             }
             const uploadStart = Date.now()
             // Always upload (no snapshot read / skip-on-match). The body is the entity
-            // serialized once by S3UploadService (SuperJSON) — written as text, no envelope.
+            // serialized once by S3UploadService (SuperJSON) -- written as text, no envelope.
             await this.asyncService.allMustDone(
                 [
                     this.s3UploadService.json(

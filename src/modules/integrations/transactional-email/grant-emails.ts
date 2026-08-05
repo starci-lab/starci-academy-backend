@@ -26,7 +26,7 @@ export interface GrantEmailParams {
 }
 
 /**
- * Email the buyer that their paid AI tier is now active. Best-effort — call
+ * Email the buyer that their paid AI tier is now active. Best-effort -- call
  * ONLY when {@link AiEntitlementService.grantTier} returned `true` (a new grant),
  * so payment-webhook retries / reconcile polls never re-notify.
  */
@@ -51,7 +51,7 @@ export const enqueueSubscriptionActiveEmail = async (
 }
 
 /**
- * Email the buyer that their community membership is now active. Best-effort —
+ * Email the buyer that their community membership is now active. Best-effort --
  * call ONLY when {@link MembershipService.grantMembership} returned `true`.
  */
 export const enqueueMembershipActiveEmail = async (
@@ -73,7 +73,7 @@ export const enqueueMembershipActiveEmail = async (
 
 /**
  * Email the buyer that a payment did not complete (the transaction was marked
- * unpaid). Best-effort — call when a pending transaction terminally fails.
+ * unpaid). Best-effort -- call when a pending transaction terminally fails.
  */
 export const enqueuePaymentFailedEmail = async (
     params: GrantEmailParams,
@@ -93,7 +93,7 @@ export const enqueuePaymentFailedEmail = async (
 }
 
 /**
- * Day-0 "your installment cycle is due" reminder. Best-effort — fired once per
+ * Day-0 "your installment cycle is due" reminder. Best-effort -- fired once per
  * cycle by {@link import("@modules/bussiness").InstallmentPlanEnforcementCronService}
  * (idempotent via `InstallmentPlanEntity.dueRemindedAt`).
  */
@@ -118,7 +118,7 @@ export const enqueueInstallmentDueEmail = async (
 }
 
 /**
- * Second (final-warning) reminder, sent `secondReminderAfterDays` past due —
+ * Second (final-warning) reminder, sent `secondReminderAfterDays` past due --
  * "pay now or your course access gets locked in N days". Best-effort, fired
  * once per cycle (idempotent via `InstallmentPlanEntity.secondRemindedAt`).
  */
@@ -144,7 +144,7 @@ export const enqueueInstallmentFinalWarningEmail = async (
 }
 
 /**
- * The plan just defaulted — course access has been locked. Best-effort, fired
+ * The plan just defaulted -- course access has been locked. Best-effort, fired
  * exactly once at the moment the enforcement cron flips the plan to `Defaulted`.
  */
 export const enqueueInstallmentDefaultedEmail = async (

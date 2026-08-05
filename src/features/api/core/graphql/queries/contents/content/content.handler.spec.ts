@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -50,7 +50,7 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** Minimal user stand-in — only the id is read by the handler. */
+/** Minimal user stand-in -- only the id is read by the handler. */
 const fakeUser = (
     id: string,
 ): UserEntity => ({
@@ -174,7 +174,7 @@ describe("ContentHandler",
         it("resolves the id from displayId before reading the S3 document",
             async () => {
                 entityManager.findOne
-                    // displayId → id resolution
+                    // displayId -> id resolution
                     .mockResolvedValueOnce({
                         id: "c1",
                     })
@@ -339,7 +339,7 @@ describe("ContentHandler",
                     }),
                 )
 
-                // entitled → unlocked and full body preserved
+                // entitled -> unlocked and full body preserved
                 expect(result.isPremium).toBe(false)
                 expect(result.body).toContain("secret answer")
                 expect(result.codeImplementations).toHaveLength(1)
@@ -362,7 +362,7 @@ describe("ContentHandler",
                         isPremium: false,
                     }),
                 )
-                // anonymous viewer → not entitled
+                // anonymous viewer -> not entitled
                 const result = await handler.execute(
                     new ContentQuery({
                         request: {
@@ -371,10 +371,10 @@ describe("ContentHandler",
                     }),
                 )
 
-                // the live premium flag wins → content is locked
+                // the live premium flag wins -> content is locked
                 expect(result.isPremium).toBe(true)
                 expect(result.body).not.toContain("secret answer")
-                // no user id → entitlement is denied without an enrollment check
+                // no user id -> entitlement is denied without an enrollment check
                 expect(userService.checkEnrollment).not.toHaveBeenCalled()
             })
     })

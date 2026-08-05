@@ -17,8 +17,8 @@ import type {
 } from "./types"
 
 /**
- * Sanitizes `phaseScores`/`attributeScores`/`questionReviews`-shaped jsonb —
- * COPIED verbatim (per-viewer single-row read, not an aggregate — exempt from
+ * Sanitizes `phaseScores`/`attributeScores`/`questionReviews`-shaped jsonb --
+ * COPIED verbatim (per-viewer single-row read, not an aggregate -- exempt from
  * `.claude/be/rules/cqrs-no-inline-aggregate.md`) from
  * `MyMockInterviewAttemptsService` so this single-row reader stays consistent
  * with the list reader's legacy/malformed-row tolerance.
@@ -30,17 +30,17 @@ const coerceScore = (value: unknown, fallback: number): number =>
 const coerceIdentifyingString = (value: unknown): string | null =>
     typeof value === "string" && value.length > 0 ? value : null
 
-/** A string field that's NOT the entry's identity — never drops the entry, just defaults to empty. */
+/** A string field that's NOT the entry's identity -- never drops the entry, just defaults to empty. */
 const coerceText = (value: unknown): string =>
     typeof value === "string" ? value : ""
 
 @Injectable()
 /**
- * Reads back ONE graded mock-interview attempt by its `sessionId` — a
+ * Reads back ONE graded mock-interview attempt by its `sessionId` -- a
  * per-viewer single-row edge check (exempt from the CQRS-projection rule),
  * used to recover the just-finished result when a resume attempt lands on a
  * session that's no longer `in_progress` (already graded, or expired past the
- * resume window) — see `MockInterviewSession`'s rehydrate effect.
+ * resume window) -- see `MockInterviewSession`'s rehydrate effect.
  */
 export class MyMockInterviewAttemptBySessionService {
     constructor(

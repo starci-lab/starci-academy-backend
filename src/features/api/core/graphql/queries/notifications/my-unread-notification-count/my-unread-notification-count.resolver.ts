@@ -60,7 +60,7 @@ export class MyUnreadNotificationCountResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<MyUnreadNotificationCountResponseData> {
-        // single COUNT over the (user, readAt) index — cheap enough to poll
+        // single COUNT over the (user, readAt) index -- cheap enough to poll
         const count = await this.notificationService.countUnread(user.id)
         return {
             count,

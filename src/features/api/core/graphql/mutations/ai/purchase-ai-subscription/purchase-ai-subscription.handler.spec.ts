@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -131,7 +131,7 @@ describe("PurchaseAiSubscriptionHandler",
                 }),
             }
 
-            // reconcile-poll scheduler — assert it is enqueued after persistence
+            // reconcile-poll scheduler -- assert it is enqueued after persistence
             enqueueReconcileTransactionJobService = {
                 enqueue: jest.fn(),
             } as unknown as jest.Mocked<Pick<EnqueueReconcileTransactionJobService, "enqueue">>
@@ -139,7 +139,7 @@ describe("PurchaseAiSubscriptionHandler",
             module = await Test.createTestingModule({
                 providers: [
                     PurchaseAiSubscriptionHandler,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: PAYOS,
@@ -219,7 +219,7 @@ describe("PurchaseAiSubscriptionHandler",
 
         it("throws when the requested tier is not enabled in the catalog",
             async () => {
-                // catalog only carries an enabled "plus" tier → "pro" is unavailable
+                // catalog only carries an enabled "plus" tier -> "pro" is unavailable
                 await expect(
                     handler.execute(
                         new PurchaseAiSubscriptionCommand({
@@ -287,7 +287,7 @@ describe("PurchaseAiSubscriptionHandler",
                     amount: 100000,
                     checkoutUrl: "https://payos/existing",
                     paymentType: PaymentType.PayOS,
-                    // created just now → within the reuse window
+                    // created just now -> within the reuse window
                     createdAt: new Date(),
                 })
 

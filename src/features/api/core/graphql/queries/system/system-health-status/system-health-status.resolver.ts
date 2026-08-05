@@ -26,11 +26,11 @@ import {
 
 @Resolver()
 /**
- * PUBLIC "build in public" system health — the live liveness of every
+ * PUBLIC "build in public" system health -- the live liveness of every
  * infrastructure component (Postgres, Redis, NATS, Kafka, MinIO, Qdrant,
  * Elasticsearch, Keycloak, Judge0, Ollama), plus live CPU/memory/network
  * usage for the ones running as local Docker containers (cAdvisor via
- * Prometheus). No guard: intentionally public — real numbers, not a demo.
+ * Prometheus). No guard: intentionally public -- real numbers, not a demo.
  * Operational internals that would actually help an attacker (fail counts,
  * cooldowns, credentials) stay behind the admin queries.
  */

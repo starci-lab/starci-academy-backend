@@ -60,7 +60,7 @@ export class CourseSuggestionsResolver {
         @Args("request")
             request: SuggestionsRequest,
     ): Promise<SuggestionsPayload> {
-        // delegate to the service → CQRS query bus → CourseSuggestionsHandler;
+        // delegate to the service -> CQRS query bus -> CourseSuggestionsHandler;
         // the handler's SuggestionsPayloadShape is structurally the SuggestionsPayload
         return this.courseSuggestionsService.query(locale,
             request)

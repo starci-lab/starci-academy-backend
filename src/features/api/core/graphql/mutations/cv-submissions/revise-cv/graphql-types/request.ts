@@ -13,7 +13,7 @@ import {
 })
 /**
  * Request for {@link ReviseCvResponse}: revise an existing CV
- * (`UserCvGenerationEntity` — either `Generated` or `Uploaded`) using the
+ * (`UserCvGenerationEntity` -- either `Generated` or `Uploaded`) using the
  * user's free-text notes. The server validates the source generation exists +
  * belongs to the caller, then creates a `Pending` generation run and enqueues
  * the job (mode = Revise).

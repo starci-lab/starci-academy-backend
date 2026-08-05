@@ -12,14 +12,14 @@ import type {
 
 @Injectable()
 /**
- * Reads the viewer's flashcard review ("Học thẻ") stats for one course — the
+ * Reads the viewer's flashcard review stats for one course -- the
  * memory-health hero (mature/young retention) + weak-topic map that
- * `FlashcardReviewStats` renders (`stats-canonical-fold` — 1 hero + 1 zone).
+ * `FlashcardReviewStats` renders (`stats-canonical-fold` -- 1 hero + 1 zone).
  *
  * Outcome aggregates (leech-focus / weak-tag / deck-retention) are read from
  * the SAME `UserFlashcardCourseStatsProjectionService` `MyFlashcardQuizStatsService`
  * reads (shared enrollment-keyed projection, course-scoped, CDC on both
- * `flashcard_quiz_sessions` and `flashcard_review_sessions`) — no live
+ * `flashcard_quiz_sessions` and `flashcard_review_sessions`) -- no live
  * scan/fold at read time (per `.claude/be/rules/cqrs-no-inline-aggregate.md`).
  */
 export class MyFlashcardReviewStatsService {
@@ -53,7 +53,7 @@ export class MyFlashcardReviewStatsService {
 
         // outcome aggregates (leech-focus / weak-tag / deck-retention): point-read
         // the shared enrollment-keyed course-stats projection, NOT a live session
-        // scan — see the class doc.
+        // scan -- see the class doc.
         const {
             leechFocus,
             weakTags,

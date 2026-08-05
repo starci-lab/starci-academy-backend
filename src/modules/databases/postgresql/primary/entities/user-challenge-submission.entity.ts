@@ -77,7 +77,7 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         userId: string | null
 
     /**
-     * Enrollment this submission belongs to (user × course). The anchor for
+     * Enrollment this submission belongs to (user x course). The anchor for
      * per-course progress going forward; nullable while the re-key backfill runs.
      */
     @ManyToOne(

@@ -80,7 +80,7 @@ describe("LeagueService",
                             weekEndAt: new Date("2026-08-09T17:00:00.000Z"),
                         } as LeagueCohortEntity
                         entityManager.save.mockResolvedValueOnce(createdCohort)
-                        // upsert of the user's league row (return value unused — re-read below)
+                        // upsert of the user's league row (return value unused -- re-read below)
                         entityManager.save.mockResolvedValueOnce(undefined)
                         // final re-read with the cohort relation populated
                         entityManager.findOneOrFail.mockResolvedValueOnce({
@@ -107,7 +107,7 @@ describe("LeagueService",
                 it("keeps the user's already-settled tier when re-placing after their cohort was cleared",
                     async () => {
                         // outer read: a league row exists but has no cohort (cleared by the
-                        // just-run weekly reset) — still routes into placeUserLazily
+                        // just-run weekly reset) -- still routes into placeUserLazily
                         entityManager.findOne.mockResolvedValueOnce({
                             userId,
                             tier: LeagueTier.Gold,
@@ -167,7 +167,7 @@ describe("LeagueService",
                         const result = await service.getMyStanding(userId)
 
                         expect(result.tier).toBe(LeagueTier.Bronze)
-                        // no new cohort or league row was written — the race winner's row stood
+                        // no new cohort or league row was written -- the race winner's row stood
                         expect(entityManager.save).not.toHaveBeenCalled()
                         expect(entityManager.findOneOrFail).not.toHaveBeenCalled()
                     })
@@ -178,7 +178,7 @@ describe("LeagueService",
                 it("buildActiveUsersSql filters strictly on this-week points — no tautological OR that would re-bucket a dormant member",
                     async () => {
                         // no cohorts are ending this run, and no cohorts exist yet for the
-                        // new week — isolates the assertion to formNewCohorts' bucketing query
+                        // new week -- isolates the assertion to formNewCohorts' bucketing query
                         entityManager.find.mockResolvedValueOnce([])
                         entityManager.query.mockResolvedValueOnce([
                             {
@@ -206,7 +206,7 @@ describe("LeagueService",
                 it("only forms a cohort for / reassigns the users the active-users query returned",
                     async () => {
                         entityManager.find.mockResolvedValueOnce([])
-                        // the query already excluded the dormant member — only one active user
+                        // the query already excluded the dormant member -- only one active user
                         // comes back, so the bucketing step below must never reference the
                         // dormant user's id anywhere
                         entityManager.query.mockResolvedValueOnce([

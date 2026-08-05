@@ -36,11 +36,11 @@ import type {
 } from "./types"
 
 /**
- * Friendly ES index name (as written in `sync.reindex`) → its entity + resync target.
+ * Friendly ES index name (as written in `sync.reindex`) -> its entity + resync target.
  *
  * MUST mirror `configMap` in `src/modules/elasticsearch/config.ts` (same 12 indices).
  * Kept here as the single declarative source the parser needs for BOTH the
- * friendly→entity resolution and the index→sync-knob classification.
+ * friendly->entity resolution and the index->sync-knob classification.
  */
 const INDEX_META: Record<string, IndexMeta> = {
     "courses": {
@@ -93,7 +93,7 @@ const INDEX_META: Record<string, IndexMeta> = {
     },
 }
 
-/** An empty (off) per-sink scope — `[]` skips the whole track on that sink. */
+/** An empty (off) per-sink scope -- `[]` skips the whole track on that sink. */
 const offSink = (): SeedSyncCourseSink => ({
     cdn: [],
     elasticsearch: [],
@@ -129,13 +129,13 @@ export class InitConfigParserService {
         }
     }
 
-    /** Expand the `seed:` block into `SeedConfig.seeders`. Absent block → phase off. */
+    /** Expand the `seed:` block into `SeedConfig.seeders`. Absent block -> phase off. */
     private buildSeeders(config: InitConfig): SeedConfig["seeders"] {
         const seed = config.seed
         const enabled = Boolean(seed) && (seed?.enabled ?? true)
         const tracks: Record<string, SeedCourseTrack> = {
         }
-        // flashcard/interview seeding are single global passes → on if ANY course opted in
+        // flashcard/interview seeding are single global passes -> on if ANY course opted in
         let flashcardEnabled = false
         let interviewEnabled = false
         for (const [
@@ -185,7 +185,7 @@ export class InitConfigParserService {
         flashcards: boolean
         interview: boolean
     } {
-        // shorthand (scope string / index array) → modules only; other tracks off
+        // shorthand (scope string / index array) -> modules only; other tracks off
         if (!this.isPlainObject(value)) {
             return {
                 modules: value,
@@ -203,7 +203,7 @@ export class InitConfigParserService {
         }
     }
 
-    /** `true` → all, `false`/absent → off, otherwise the given scope. */
+    /** `true` -> all, `false`/absent -> off, otherwise the given scope. */
     private normalizeMilestoneScope(
         value: SeedScopeIndexes | boolean | undefined,
     ): SeedScopeIndexes {
@@ -216,14 +216,14 @@ export class InitConfigParserService {
         return value
     }
 
-    /** Expand the `sync:` block into `SeedConfig.synchronizers`. Absent block → phase off. */
+    /** Expand the `sync:` block into `SeedConfig.synchronizers`. Absent block -> phase off. */
     private buildSynchronizers(
         config: InitConfig,
         courseDisplayIds: Array<string>,
     ): SeedConfig["synchronizers"] {
         const sync = config.sync
         const enabled = Boolean(sync) && (sync?.enabled ?? true)
-        // hard master per sink — a false sink zeros that sink everywhere downstream
+        // hard master per sink -- a false sink zeros that sink everywhere downstream
         const sinkEnabled = {
             cdn: sync?.sinks?.cdn ?? true,
             elasticsearch: sync?.sinks?.elasticsearch ?? true,
@@ -252,7 +252,7 @@ export class InitConfigParserService {
                 sinkEnabled),
         }
         const reindex = this.resolveReindex(sync?.reindex)
-        // dropping an index → force its ES sync to full so it never stays empty
+        // dropping an index -> force its ES sync to full so it never stays empty
         this.applyReindexResync(reindex,
             courses,
             domains,
@@ -270,7 +270,7 @@ export class InitConfigParserService {
         value: InitSyncCourseValue,
         sinkEnabled: { cdn: boolean; elasticsearch: boolean; repo: boolean },
     ): SeedSyncCourseTrack {
-        // shorthand → same scope on every sink of BOTH tracks
+        // shorthand -> same scope on every sink of BOTH tracks
         if (!this.isPlainObject(value)) {
             const sink = this.normalizeTrack(value,
                 sinkEnabled)
@@ -291,7 +291,7 @@ export class InitConfigParserService {
         }
     }
 
-    /** Resolve one track value (per-sink object or shorthand) → a gated per-sink sink scope. */
+    /** Resolve one track value (per-sink object or shorthand) -> a gated per-sink sink scope. */
     private normalizeTrack(
         value: InitSyncTrackValue | undefined,
         sinkEnabled: { cdn: boolean; elasticsearch: boolean; repo: boolean },
@@ -318,7 +318,7 @@ export class InitConfigParserService {
         sinkEnabled)
     }
 
-    /** `true` → all, `false`/absent → off, otherwise the given scope. */
+    /** `true` -> all, `false`/absent -> off, otherwise the given scope. */
     private normalizeSinkScope(value: InitSyncSinkScope | undefined): SeedScopeIndexes {
         if (value === true) {
             return "all"
@@ -374,7 +374,7 @@ export class InitConfigParserService {
     }
 
     /**
-     * For every reindexed index, force its ES sync to FULL across the whole corpus —
+     * For every reindexed index, force its ES sync to FULL across the whole corpus --
      * a dropped index must be repopulated completely, regardless of the configured
      * course/domain scope, or it would be left empty.
      */

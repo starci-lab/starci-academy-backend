@@ -23,9 +23,9 @@ import {
  * is mocked (no DB); `gateConsultant` is pure.
  *
  * Locks the fair-monetization axiom: contact reveal keys ONLY on the viewer's
- * deterministic CV trust score — never on how many CVs/courses produced it
+ * deterministic CV trust score -- never on how many CVs/courses produced it
  * (2026-07-05: score is now `CvVerificationService.scoreOf(resolveLevel(...))`,
- * count-independent by construction — no AI, no CV row, no `source` read here).
+ * count-independent by construction -- no AI, no CV row, no `source` read here).
  */
 describe("ConsultantContactGateService",
     () => {
@@ -102,7 +102,7 @@ describe("ConsultantContactGateService",
 
                 it("short-circuits an anonymous viewer to 0 without resolving a level",
                     async () => {
-                        // no userId → always locked; the lookup must never run
+                        // no userId -> always locked; the lookup must never run
                         const best = await service.getBestCvScore({
                             userId: null,
                         })
@@ -185,7 +185,7 @@ describe("ConsultantContactGateService",
                         expect(fromOneCv.email).toBe(fromManyCvs.email)
 
                         // structural guarantee: the gate takes exactly two args
-                        // (consultant, bestCvScore) — there is no count parameter
+                        // (consultant, bestCvScore) -- there is no count parameter
                         expect(service.gateConsultant.length).toBe(2)
                     })
             })

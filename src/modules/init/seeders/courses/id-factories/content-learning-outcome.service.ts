@@ -20,7 +20,7 @@ import type {
 @Injectable()
 /**
  * Content learning-outcome ("what you will learn" bullet) UUIDs chain from the parent content id.
- * Position-based (ordinals only) so re-seeding the same bullet keeps a stable id → upsert updates.
+ * Position-based (ordinals only) so re-seeding the same bullet keeps a stable id -> upsert updates.
  */
 export class ContentLearningOutcomeIdFactoryService {
     constructor(

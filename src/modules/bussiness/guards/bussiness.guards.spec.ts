@@ -29,7 +29,7 @@ const ADMIN_API_KEY = "admin-secret-key"
 
 /**
  * Build a REST {@link ExecutionContext} exposing `switchToHttp().getRequest()`
- * — the only surface {@link AdminAccessGuard} reads.
+ * -- the only surface {@link AdminAccessGuard} reads.
  */
 const buildHttpContext = (
     request: Record<string, unknown>,
@@ -41,7 +41,7 @@ const buildHttpContext = (
 
 /**
  * Build a GraphQL {@link ExecutionContext}. `GqlExecutionContext.create` reads
- * the resolver args via `getArgs()` and exposes `getContext()` as index 2 —
+ * the resolver args via `getArgs()` and exposes `getContext()` as index 2 --
  * the `[root, args, ctx, info]` tuple, with `ctx.req` carrying the request.
  */
 const buildGqlContext = (
@@ -94,7 +94,7 @@ describe("AdminAccessGuard",
 
         it("allows a request carrying the correct admin key",
             () => {
-                // header matches the mounted secret → access granted
+                // header matches the mounted secret -> access granted
                 const allowed = guard.canActivate(
                     buildHttpContext({
                         headers: {
@@ -180,7 +180,7 @@ describe("GraphQLMustEnrolledGuard",
 
         it("allows an enrolled user for the requested course",
             async () => {
-                // user is enrolled → guard passes and checks the right pair
+                // user is enrolled -> guard passes and checks the right pair
                 const allowed = await guard.canActivate(
                     buildGqlContext({
                         user: {
@@ -201,7 +201,7 @@ describe("GraphQLMustEnrolledGuard",
 
         it("throws CourseIdRequiredException when the course id header is missing",
             async () => {
-                // no course id → cannot evaluate enrollment (400)
+                // no course id -> cannot evaluate enrollment (400)
                 await expect(
                     guard.canActivate(
                         buildGqlContext({
@@ -219,7 +219,7 @@ describe("GraphQLMustEnrolledGuard",
 
         it("throws EnrollmentNotFoundException when the user is not enrolled",
             async () => {
-                // enrollment check fails → access denied (403)
+                // enrollment check fails -> access denied (403)
                 userService.checkEnrollment.mockResolvedValueOnce(false)
 
                 await expect(

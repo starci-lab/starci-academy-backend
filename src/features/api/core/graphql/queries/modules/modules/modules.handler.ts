@@ -26,7 +26,7 @@ import {
 @Injectable()
 /**
  * Lists every module for a course from the per-locale Elasticsearch index,
- * ordered by `sortIndex` (cap 1000 — courses do not exceed this in practice).
+ * ordered by `sortIndex` (cap 1000 -- courses do not exceed this in practice).
  */
 export class ModulesHandler
     extends ICQRSHandler<ModulesQuery, ModulesResponseData>
@@ -51,7 +51,7 @@ export class ModulesHandler
             filters: [
                 {
                     term: {
-                        // courseId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                        // courseId is mapped as a pure keyword -> query it directly (no `.keyword` subfield)
                         courseId,
                     },
                 },

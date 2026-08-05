@@ -52,7 +52,7 @@ export class InstallmentPlanService {
     ) { }
 
     /**
-     * The markup schedule → offered term options for a given base price
+     * The markup schedule -> offered term options for a given base price
      * (loyalty/bundle-discounted, pre-markup). One entry per configured month
      * option, in ascending-month order. Returns `[]` when `baseVnd <= 0` (a free
      * course has no installment plan to offer).
@@ -69,12 +69,12 @@ export class InstallmentPlanService {
         return Object.keys(envConfig().installment.markupPercentByMonths)
             .map((months) => this.computeInstallmentTotal(baseVnd,
                 Number(months)))
-            // ascending months so the modal renders 3 → 6 → 12 left-to-right
+            // ascending months so the modal renders 3 -> 6 -> 12 left-to-right
             .sort((left, right) => left.months - right.months)
     }
 
     /**
-     * Resolve ONE term's markup/total/monthly for a base price — the single
+     * Resolve ONE term's markup/total/monthly for a base price -- the single
      * source used by BOTH the price preview (all options) and checkout (the
      * chosen option), so the modal's shown numbers always equal what's charged.
      * A month with no configured markup falls back to 0% (charged = base).
@@ -99,8 +99,8 @@ export class InstallmentPlanService {
 
     /**
      * The minimum amount owed THIS cycle:
-     * - `Fixed` — the fixed `monthlyAmountVnd` snapshot (never changes).
-     * - `FlexiblePool` — `max(remainingVnd * minPaymentPercent%, minPaymentFloorVnd)`,
+     * - `Fixed` -- the fixed `monthlyAmountVnd` snapshot (never changes).
+     * - `FlexiblePool` -- `max(remainingVnd * minPaymentPercent%, minPaymentFloorVnd)`,
      *   recomputed against the CURRENT balance every cycle (shrinks as the
      *   pool shrinks, but never below the floor).
      *
@@ -120,7 +120,7 @@ export class InstallmentPlanService {
     }
 
     /**
-     * Create a `Fixed` plan for a NEW purchase paying in installments — called
+     * Create a `Fixed` plan for a NEW purchase paying in installments -- called
      * right after the first cycle's payment is confirmed (mirrors
      * `MembershipService.grantMembership`'s "grant on success" shape).
      * `installmentsPaid` starts at 1 (the cycle just charged at checkout).
@@ -141,7 +141,7 @@ export class InstallmentPlanService {
     ): Promise<InstallmentPlanEntity> {
         const manager = entityManager ?? this.entityManager
         // remainder folded into the last cycle by rounding UP every cycle except
-        // the last is out of scope for v1 — a plain even split is good enough
+        // the last is out of scope for v1 -- a plain even split is good enough
         // (any leftover cent-equivalent is negligible at VND granularity)
         const monthlyAmountVnd = Math.round(totalAmountVnd / months)
         const plan = manager.create(
@@ -169,7 +169,7 @@ export class InstallmentPlanService {
     }
 
     /**
-     * Create a `FlexiblePool` plan from a legacy Pioneer arrears balance — used
+     * Create a `FlexiblePool` plan from a legacy Pioneer arrears balance -- used
      * by the one-off backfill script (§2.5 of `docs/installment-payment-plan.md`).
      * The original price is honoured (no markup): `remainingVnd` is the REAL
      * balance the learner already owes, not a fresh purchase.
@@ -213,10 +213,10 @@ export class InstallmentPlanService {
      * advances one cycle and always meets its fixed minimum by definition; a
      * `FlexiblePool` plan deducts the REAL amount paid from `remainingVnd` and
      * only advances the cycle (clears the overdue reminders + relocks the next
-     * `nextDueAt`) once the payment reaches THIS cycle's minimum — paying
+     * `nextDueAt`) once the payment reaches THIS cycle's minimum -- paying
      * under the minimum still reduces the balance but leaves the plan
      * `Overdue` until topped up. Paying MORE than the minimum is always
-     * allowed (encouraged for `FlexiblePool` — it shrinks next cycle's
+     * allowed (encouraged for `FlexiblePool` -- it shrinks next cycle's
      * percentage-based minimum too).
      *
      * @param params - {@link RecordInstallmentPaymentParams}.
@@ -230,7 +230,7 @@ export class InstallmentPlanService {
         }: RecordInstallmentPaymentParams,
     ): Promise<RecordInstallmentPaymentResult> {
         const manager = entityManager ?? this.entityManager
-        // typed lookup, not `findOneByOrFail` — a raw TypeORM
+        // typed lookup, not `findOneByOrFail` -- a raw TypeORM
         // `EntityNotFoundError` must never cross into the queue worker
         // (the reconcile worker calls this through
         // `applyPaymentForTransaction`), which needs a typed exception to
@@ -259,7 +259,7 @@ export class InstallmentPlanService {
             plan.dueRemindedAt = null
             plan.secondRemindedAt = null
             await manager.save(plan)
-            // Fixed always meets its own fixed minimum → any payment catches it up,
+            // Fixed always meets its own fixed minimum -> any payment catches it up,
             // so a previously-locked plan is unlocked here too
             if (wasDefaulted) {
                 await this.unlockGatedEnrollments(plan,
@@ -272,21 +272,21 @@ export class InstallmentPlanService {
             }
         }
 
-        // FlexiblePool — deduct the real amount paid, never below zero
+        // FlexiblePool -- deduct the real amount paid, never below zero
         plan.remainingVnd = Math.max((plan.remainingVnd ?? 0) - paidAmountVnd,
             0)
         const completed = plan.remainingVnd <= 0
         if (completed) {
             plan.status = InstallmentPlanStatus.Completed
         } else if (metMinimum) {
-            // caught up for this cycle — advance to the next one, clear warnings
+            // caught up for this cycle -- advance to the next one, clear warnings
             plan.status = InstallmentPlanStatus.Active
             plan.nextDueAt = this.dayjsService.now().add(1,
                 "month").toDate()
             plan.dueRemindedAt = null
             plan.secondRemindedAt = null
         }
-        // else: paid something but still under this cycle's minimum — balance
+        // else: paid something but still under this cycle's minimum -- balance
         // drops, but `nextDueAt`/status are left as-is (still Overdue/Defaulted
         // until they top up to the minimum)
         await manager.save(plan)
@@ -303,10 +303,10 @@ export class InstallmentPlanService {
 
     /**
      * Apply a succeeded `installmentPayment` transaction to its plan and mark
-     * the transaction succeeded — both inside one DB transaction, mirroring
+     * the transaction succeeded -- both inside one DB transaction, mirroring
      * `AiEntitlementService.grantTier`'s atomic-claim shape. Called by
      * `ReconcileTransactionWorker.finalize()` on gateway confirmation. The
-     * Pending→Succeeded transition is claimed FIRST via a guarded
+     * Pending->Succeeded transition is claimed FIRST via a guarded
      * `UPDATE ... WHERE status = 'pending'` (same technique as
      * `TransactionActionService.updateTransactionStatusIfExpected`); the
      * NON-idempotent `recordPayment` (mutates installmentsPaid/remainingVnd)
@@ -329,7 +329,7 @@ export class InstallmentPlanService {
         return manager.transaction(
             async (transactionalManager): Promise<boolean> => {
                 // atomically claim the Pending -> Succeeded transition BEFORE
-                // touching the plan's ledger — this IS the guard, replacing the
+                // touching the plan's ledger -- this IS the guard, replacing the
                 // earlier read-then-compare-in-app-code (TOCTOU) idempotency check
                 const claim = await transactionalManager.update(
                     TransactionEntity,
@@ -342,11 +342,11 @@ export class InstallmentPlanService {
                     },
                 )
                 if (!claim.affected) {
-                    // already claimed (applied) by a concurrent/earlier path → no-op
+                    // already claimed (applied) by a concurrent/earlier path -> no-op
                     return false
                 }
 
-                // this call alone won the claim → apply the ledger mutation
+                // this call alone won the claim -> apply the ledger mutation
                 // exactly once for this funding transaction
                 await this.recordPayment(
                     {
@@ -362,7 +362,7 @@ export class InstallmentPlanService {
 
     /**
      * Lock every enrollment {@link InstallmentPlanEntity.lockedCourseIds}
-     * snapshots (`is_enrolled = false`) — called by the enforcement cron the
+     * snapshots (`is_enrolled = false`) -- called by the enforcement cron the
      * moment a plan defaults. No-op for a legacy plan with an empty snapshot
      * (should never happen post-backfill, but never let a locking bug throw).
      *
@@ -395,7 +395,7 @@ export class InstallmentPlanService {
 
     /**
      * Restore every enrollment {@link InstallmentPlanEntity.lockedCourseIds}
-     * snapshots (`is_enrolled = true`) — called the moment a defaulted plan
+     * snapshots (`is_enrolled = true`) -- called the moment a defaulted plan
      * catches up (see {@link recordPayment}).
      *
      * @param plan - The plan whose gated courses should be unlocked.
@@ -424,7 +424,7 @@ export class InstallmentPlanService {
             },
         )
         // mirror EnrollStepService: a course just (re-)enrolled must never linger
-        // in the cart — the user could have added it back while it was locked
+        // in the cart -- the user could have added it back while it was locked
         await manager.delete(
             CartItemEntity,
             {

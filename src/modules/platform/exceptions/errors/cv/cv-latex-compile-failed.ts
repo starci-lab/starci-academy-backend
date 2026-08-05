@@ -8,11 +8,11 @@ import {
     AbstractException,
 } from "../abstract"
 
-/** Metadata for a CV `.tex` → PDF compile that failed under `tectonic`. */
+/** Metadata for a CV `.tex` -> PDF compile that failed under `tectonic`. */
 export type CvLatexCompileFailedExceptionMetadata = AbstractExceptionMetadata
 
 /**
- * Thrown when `tectonic` fails to compile a CV's `.tex` source into a PDF — a
+ * Thrown when `tectonic` fails to compile a CV's `.tex` source into a PDF -- a
  * LaTeX error in the (possibly user-edited) source, a missing package the bundle
  * can't fetch, or the engine exiting non-zero. The original stderr is carried in
  * `originalError` so the surface can show the compile log.

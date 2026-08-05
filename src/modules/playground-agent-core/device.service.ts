@@ -49,7 +49,7 @@ export class DeviceService {
                 return match ? match[1].trim() : null
             }
         } catch {
-            // best-effort — a GPU we can't read is fine, the UI shows "—".
+            // best-effort -- a GPU we can't read is fine, the UI shows "--".
         }
         return null
     }
@@ -80,7 +80,7 @@ export class DeviceService {
                 gpu: name || undefined,
             }
         } catch {
-            // best-effort — no NVIDIA GPU (or driver) just means undefined vram.
+            // best-effort -- no NVIDIA GPU (or driver) just means undefined vram.
             return {
             }
         }

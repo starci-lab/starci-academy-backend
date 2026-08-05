@@ -26,16 +26,16 @@ import type {
 
 @Injectable()
 /**
- * CQRS read-model service for per-course progress (Kiểu B — composite key
+ * CQRS read-model service for per-course progress (Type B -- composite key
  * `(user_id, course_id)`, aggregate stored as a jsonb `value`).
  *
  * The heavy XP aggregation runs ONLY in {@link recompute} / {@link recomputeCourse}
  * (the projector, triggered on XP-changing events + CDC), building the aggregate
  * jsonb. Reads ({@link getMyRank} / {@link getLeaderboard}) extract the metrics
- * from `value->>'...'` — no multi-CTE scan per request. The leaderboard ordering
+ * from `value->>'...'` -- no multi-CTE scan per request. The leaderboard ordering
  * is backed by a functional index on `(course_id, ((value->>'totalXp')::int))`
  * (created out-of-band; see the backfill script). Reads are eager-maintained
- * (inline + CDC) — no read-time TTL refresh here.
+ * (inline + CDC) -- no read-time TTL refresh here.
  */
 export class ProgressProjectionService {
     constructor(
@@ -60,7 +60,7 @@ export class ProgressProjectionService {
         // run inside the caller's transaction when given (atomic + fresh), else
         // on the service's own connection
         const manager = entityManager ?? this.entityManager
-        // scoped to a single enrollment row → cheap on the write path
+        // scoped to a single enrollment row -> cheap on the write path
         await manager.query(
             this.buildUpsertSql(true),
             [
@@ -101,7 +101,7 @@ export class ProgressProjectionService {
         // Trials (is_enrolled = false) are excluded from rank on BOTH sides: the viewer
         // row must be a real enrollment, and the higher-count subquery only counts peers
         // whose projection row is backed by a real enrollment. The projection is keyed by
-        // enrollment_id going forward — join the enrollment via enrollment_id (the rows are
+        // enrollment_id going forward -- join the enrollment via enrollment_id (the rows are
         // backfilled), falling back to (user_id, course_id) only for any not-yet-backfilled row.
         const rows = await this.entityManager.query<Array<MyRankRow>>(
             `
@@ -190,12 +190,12 @@ export class ProgressProjectionService {
         const totalChallenges = Number(totalsRows[0]?.total_challenges ?? 0)
         const maxPossibleScore = Number(totalsRows[0]?.max_possible_score ?? 0)
 
-        // ranked entries off the projection — metrics extracted from the jsonb value,
+        // ranked entries off the projection -- metrics extracted from the jsonb value,
         // ordered by total_xp (functional index on (course_id, (value->>'totalXp')::int)).
         // The projection is keyed by enrollment_id going forward, so join the enrollment
         // via enrollment_id (rows are backfilled), falling back to the (user_id, course_id)
         // pair only for any not-yet-backfilled row. Trials are EXCLUDED from the leaderboard
-        // (AND e.is_enrolled = true) — only real/paid enrollments rank.
+        // (AND e.is_enrolled = true) -- only real/paid enrollments rank.
         const rows = await this.entityManager.query<Array<ProgressLeaderboardRow>>(
             `
             SELECT e.id         AS enrollment_id,
@@ -253,7 +253,7 @@ export class ProgressProjectionService {
      * Every course the viewer is enrolled in, with its milestone progress for the
      * dashboard rail. `completed` is read from the projection (eager-maintained,
      * no read-time cache); `total` is counted live from the course's milestone
-     * tasks (a trivial course-level count, always fresh — kept out of the jsonb so
+     * tasks (a trivial course-level count, always fresh -- kept out of the jsonb so
      * a content reseed can never leave a stale denominator). Driven by enrollments
      * so a course with no projection row yet still shows (0 / total).
      *
@@ -261,7 +261,7 @@ export class ProgressProjectionService {
      * @returns one progress row per enrolled course, newest enrollment first
      */
     async getMyCourseProgress(userId: string): Promise<Array<MyCourseProgressResult>> {
-        // join: enrollments → course (title) + projection (completed) + a grouped
+        // join: enrollments -> course (title) + projection (completed) + a grouped
         // milestone-task count (total). LEFT JOINs so a fresh enrollment with no
         // projection row / no tasks still returns a 0-defaulted row.
         const rows = await this.entityManager.query<Array<MyCourseProgressRow>>(
@@ -333,19 +333,19 @@ export class ProgressProjectionService {
     }
 
     /**
-     * Build the projector UPSERT — the heavy XP aggregation assembled into one
+     * Build the projector UPSERT -- the heavy XP aggregation assembled into one
      * jsonb `value`. `scoped` adds a single-user filter for the hot write path;
      * unscoped recomputes the whole course (backfill).
      *
-     * @param scoped - true → filter to `$2` (one user); false → whole course (`$1`)
-     * @returns the parameterised INSERT … ON CONFLICT SQL
+     * @param scoped - true -> filter to `$2` (one user); false -> whole course (`$1`)
+     * @returns the parameterised INSERT ... ON CONFLICT SQL
      */
     private buildUpsertSql(scoped: boolean): string {
         // only the final SELECT changes (single user vs all enrollments). The scoped
-        // write path still passes the user id ($2) — we narrow the driving enrollment
-        // row by it (one enrollment per user × course).
+        // write path still passes the user id ($2) -- we narrow the driving enrollment
+        // row by it (one enrollment per user x course).
         const userFilter = scoped ? "AND e.user_id = $2" : ""
-        // Per-user activity is grouped/joined by ENROLLMENT id (e.id) end-to-end now —
+        // Per-user activity is grouped/joined by ENROLLMENT id (e.id) end-to-end now --
         // user_contents and user_challenge_submissions carry enrollment_id (backfilled),
         // so the aggregate is anchored on the enrollment, consistent with the milestone
         // CTE (which already keyed on the enrollment) and the final enrollment-driven

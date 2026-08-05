@@ -26,7 +26,7 @@ import {
 @ObjectType({
     description: "Record of an achievement (and tier) earned by a user.",
 })
-// idempotency: one row per user × achievement × tier reached
+// idempotency: one row per user x achievement x tier reached
 @Unique("UQ_user_achievement_user_achievement_tier",
     ["user",
         "achievement",

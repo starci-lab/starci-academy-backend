@@ -10,7 +10,7 @@ import type {
  * A single entity reference to resolve into a display label.
  */
 export interface EntityRef {
-    /** Entity class name (e.g. "CourseEntity") — matched against the entity's `.name`. */
+    /** Entity class name (e.g. "CourseEntity") -- matched against the entity's `.name`. */
     entityName: string
     /** Primary key (UUID) of the referenced entity. */
     id: string
@@ -22,7 +22,7 @@ export interface EntityRef {
 export interface ResolveLabelsParams {
     /** Batch of entity references to resolve; duplicates are deduped internally. */
     refs: Array<EntityRef>
-    /** Locale used for label localization (currently informational — v1 reads base columns). */
+    /** Locale used for label localization (currently informational -- v1 reads base columns). */
     locale: Locale
 }
 

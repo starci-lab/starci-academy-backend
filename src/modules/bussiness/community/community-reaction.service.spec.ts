@@ -121,7 +121,7 @@ describe("CommunityReactionService",
             () => {
                 it("throws CommunityPostNotFoundException for a non-existent post",
                     async () => {
-                        // count default resolves 0 → post does not exist
+                        // count default resolves 0 -> post does not exist
                         await expect(
                             service.reactToPost({
                                 postId,
@@ -165,7 +165,7 @@ describe("CommunityReactionService",
                             service.reactToPost({
                                 postId,
                                 // the reacting user IS the post's own author from the caller's
-                                // point of view — the service has no author check at all here
+                                // point of view -- the service has no author check at all here
                                 user,
                                 type: ReactionType.Love,
                             }),
@@ -227,7 +227,7 @@ describe("CommunityReactionService",
 
                         expect(entityManager.remove).not.toHaveBeenCalled()
                         expect(entityManager.save).not.toHaveBeenCalled()
-                        // the event still fans out — totals may have changed for other viewers
+                        // the event still fans out -- totals may have changed for other viewers
                         expect(eventEmitterService.emit).toHaveBeenCalled()
                     })
             })
@@ -236,7 +236,7 @@ describe("CommunityReactionService",
             () => {
                 it("throws CommunityPostCommentNotFoundException for a non-existent comment",
                     async () => {
-                        // findOne default resolves null → comment does not exist
+                        // findOne default resolves null -> comment does not exist
                         await expect(
                             service.reactToComment({
                                 commentId,

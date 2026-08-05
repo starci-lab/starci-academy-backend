@@ -81,7 +81,7 @@ describe("DailyQuestService",
             flashcardsToday: "5",
         })
 
-        // only 2 of the 5 tasks done — below the threshold
+        // only 2 of the 5 tasks done -- below the threshold
         const twoTasksDone = countsRow({
             lessonsToday: "1",
             challengesToday: "1",
@@ -96,7 +96,7 @@ describe("DailyQuestService",
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock() as EntityManagerMockWithInsert
-            // the completion row is a raw `insert` — not part of the shared mock's
+            // the completion row is a raw `insert` -- not part of the shared mock's
             // typed surface, so it is programmed locally per this suite
             entityManager.insert = jest.fn().mockResolvedValue({
                 identifiers: [
@@ -239,7 +239,7 @@ describe("DailyQuestService",
                         entityManager.query
                             .mockResolvedValueOnce(dateRow)
                             .mockResolvedValueOnce(threeTasksDone)
-                            // this replica's own sequential check still sees "not claimed" —
+                            // this replica's own sequential check still sees "not claimed" --
                             // the race is lost only at the unique-constrained insert below
                             .mockResolvedValueOnce(claimedRow(false))
                         const raceError = new QueryFailedError(

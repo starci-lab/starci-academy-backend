@@ -16,8 +16,8 @@ export interface UploadJsonParams<T> {
     /** The target object key in S3 bucket. */
     name: string
     /**
-     * Value to upload. Serialized once into the object body — with SuperJSON
-     * (default) or plain `JSON.stringify` (`encoding: "json"`) — and written as
+     * Value to upload. Serialized once into the object body -- with SuperJSON
+     * (default) or plain `JSON.stringify` (`encoding: "json"`) -- and written as
      * text directly, with no extra envelope wrapping.
      */
     payload: T

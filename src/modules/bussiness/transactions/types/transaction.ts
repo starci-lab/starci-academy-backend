@@ -36,8 +36,8 @@ export interface UpdateTransactionStatusResult {
 
 /**
  * Outcome of polling a payment gateway for a pending transaction:
- * - `paid` — gateway confirms payment → finalize (enroll / grant tier).
- * - `unpaid` — gateway confirms a terminal non-paid state (cancelled/expired/voided).
- * - `unknown` — still pending or undeterminable → keep polling until attempts run out.
+ * - `paid` -- gateway confirms payment -> finalize (enroll / grant tier).
+ * - `unpaid` -- gateway confirms a terminal non-paid state (cancelled/expired/voided).
+ * - `unknown` -- still pending or undeterminable -> keep polling until attempts run out.
  */
 export type TransactionReconcileStatus = "paid" | "unpaid" | "unknown"

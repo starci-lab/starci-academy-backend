@@ -35,7 +35,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL surface for `contentStatus` — authenticated read/favorite snapshot
+ * GraphQL surface for `contentStatus` -- authenticated read/favorite snapshot
  * for a single content id (drives lesson chrome chips).
  */
 export class ContentStatusResolver {

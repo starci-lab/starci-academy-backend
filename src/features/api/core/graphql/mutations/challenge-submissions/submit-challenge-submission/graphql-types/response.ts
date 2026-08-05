@@ -11,7 +11,7 @@ import {
     description: "Data for submit challenge submission mutation.",
 })
 /**
- * Only the enqueued `jobs.id` — grading is async; the client subscribes to
+ * Only the enqueued `jobs.id` -- grading is async; the client subscribes to
  * job notifications rather than blocking on the score.
  */
 export class SubmitChallengeSubmissionResponseData {

@@ -151,7 +151,7 @@ describe("AiBalancerService",
 
                 it("propagates NoActiveBalancerKeyException when the rotator has no eligible key",
                     async () => {
-                        // rotator throws when every key in the pool is disabled/cooling —
+                        // rotator throws when every key in the pool is disabled/cooling --
                         // acquire is a thin wrapper and must not swallow it
                         keyRotatorService.next.mockRejectedValueOnce(
                             new NoActiveBalancerKeyException({
@@ -170,7 +170,7 @@ describe("AiBalancerService",
             () => {
                 it("marks a key Active when the ping cache has no negative entry",
                     async () => {
-                        // empty cache → every key is treated healthy
+                        // empty cache -> every key is treated healthy
                         const snapshot = await service.healthSnapshot()
 
                         const provider = snapshot.providers[0]
@@ -222,9 +222,9 @@ describe("AiBalancerService",
                         const snapshot = await service.healthSnapshot()
                         const key = snapshot.providers[0].keys[0]
 
-                        // first 3 + last 3 chars of the raw value — never the raw value itself
+                        // first 3 + last 3 chars of the raw value -- never the raw value itself
                         expect(key.keyMask).toBe("sk-...def")
-                        // no separate disabled-timestamp field — mirrors the key's lastUsedAt
+                        // no separate disabled-timestamp field -- mirrors the key's lastUsedAt
                         expect(key.disabledAt).toEqual(longKey.lastUsedAt)
                     })
             })
@@ -259,7 +259,7 @@ describe("AiBalancerService",
                             fileBKey,
                         ])
                         // catalog only names a model for file A; file B has no
-                        // enabled model pointing at it → its group falls back to []
+                        // enabled model pointing at it -> its group falls back to []
                         aiModelCatalogService.enabledModels.mockResolvedValueOnce([
                             {
                                 name: "gpt-test",

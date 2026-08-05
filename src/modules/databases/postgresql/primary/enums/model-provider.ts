@@ -20,13 +20,13 @@ export enum ModelProvider {
      */
     Local = "local",
     /**
-     * OpenRouter — an OpenAI-compatible aggregator gateway fronting many model
+     * OpenRouter -- an OpenAI-compatible aggregator gateway fronting many model
      * vendors (e.g. `qwen/qwen-2.5-coder-32b-instruct`). Routed through
      * `ChatOpenAI` with a custom `baseURL` (see `OPENROUTER_BASE_URL`).
      */
     OpenRouter = "openrouter",
     /**
-     * Anthropic — native Claude API (e.g. `claude-opus-4-8`). Routed through
+     * Anthropic -- native Claude API (e.g. `claude-opus-4-8`). Routed through
      * `ChatAnthropic` with the Anthropic key pool. Used for the `frontier` tier.
      */
     Anthropic = "anthropic",

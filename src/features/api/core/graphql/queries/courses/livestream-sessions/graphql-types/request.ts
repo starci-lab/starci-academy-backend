@@ -17,7 +17,7 @@ import {
 export enum LivestreamSessionsSortBy {
     /** Orders sessions by curated display order within the course. */
     SortIndex = "sortIndex",
-    /** Orders sessions by weekday (Mon→Sun). */
+    /** Orders sessions by weekday (Mon->Sun). */
     DayOfWeek = "dayOfWeek",
     /** Orders sessions by wall-clock start time within a day. */
     StartTime = "startTime",
@@ -98,7 +98,7 @@ export class LivestreamSessionsRequestPaginationFilters
 @InputType({
     description: "Request for listing livestream sessions for a course with pagination.",
 })
-/** Client args for `livestreamSessions` — course scope plus page/sort filters. */
+/** Client args for `livestreamSessions` -- course scope plus page/sort filters. */
 export class LivestreamSessionsRequest {
     @Field(
         () => ID,

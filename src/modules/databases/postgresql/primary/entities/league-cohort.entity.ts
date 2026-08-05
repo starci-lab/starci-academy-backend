@@ -18,7 +18,7 @@ import {
  *
  * A cohort is the bucket of up to 30 users who race each other for the same week
  * + tier. It is created at a weekly reset and frozen for the week window
- * `[weekStartAt, weekEndAt)` (Sunday 00:00 → next Sunday 00:00 Asia/Ho_Chi_Minh).
+ * `[weekStartAt, weekEndAt)` (Sunday 00:00 -> next Sunday 00:00 Asia/Ho_Chi_Minh).
  * Members rank by their summed `xp_histories.points` in that window; the top 10
  * promote and the bottom 5 demote at the next reset. The composite index on
  * `(tier, weekStartAt)` makes "all cohorts for this tier this week" cheap.

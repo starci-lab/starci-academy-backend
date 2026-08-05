@@ -29,7 +29,7 @@ import {
 
 @Resolver()
 /**
- * Public GraphQL entry for `foundationCategories` — paginated + searchable
+ * Public GraphQL entry for `foundationCategories` -- paginated + searchable
  * category browse for the foundations catalog.
  */
 export class FoundationCategoriesResolver {

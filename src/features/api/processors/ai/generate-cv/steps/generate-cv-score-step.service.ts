@@ -44,11 +44,11 @@ import type {
 
 @Injectable()
 /**
- * Step 3 — score. Grades the freshly composed CV with the SOURCE-AGNOSTIC
+ * Step 3 -- score. Grades the freshly composed CV with the SOURCE-AGNOSTIC
  * {@link CvScoringService} (the same service the upload path will call in WF-03c)
  * and writes the resulting `score` + `feedback` onto the unified `cv_generations`
  * row, then advances the step. Scoring is best-effort: an AI/parse failure logs +
- * leaves `score`/`feedback` null (the generation itself already succeeded — a
+ * leaves `score`/`feedback` null (the generation itself already succeeded -- a
  * scoring miss must not fail the whole job or lose the rendered CV).
  */
 export class GenerateCvScoreStepService extends AbstractStepService<
@@ -116,7 +116,7 @@ export class GenerateCvScoreStepService extends AbstractStepService<
                 stage: "score",
             })
         }
-        // gather result is advisory here (level inference only) — its absence must
+        // gather result is advisory here (level inference only) -- its absence must
         // not fail scoring, so `mid` is the fallback rubric level.
         const gathered = await this.jobActionService.loadExecutionResult<
             GenerateCvGatherStepExecuteResult
@@ -131,7 +131,7 @@ export class GenerateCvScoreStepService extends AbstractStepService<
         try {
             // SOURCE-AGNOSTIC call: feed the composed CV JSON as `structuredData`.
             // WF-07: the uploaded-into-unified path is the sibling
-            // `ScoreUploadedCvService.scoreUploadedCv` (shared/cv-scoring) — it
+            // `ScoreUploadedCvService.scoreUploadedCv` (shared/cv-scoring) -- it
             // buffers `uploadedCdnKey`, extracts text, and calls the SAME
             // `cvScoringService.score({ userId, cvText, ... })` via the `cvText`
             // branch, persisting onto the same `cv_generations` row (identical
@@ -154,7 +154,7 @@ export class GenerateCvScoreStepService extends AbstractStepService<
                 feedback: scored.feedback,
             }
         } catch (error) {
-            // scoring is advisory relative to generation — never lose the rendered
+            // scoring is advisory relative to generation -- never lose the rendered
             // CV over a grade failure. Log + persist null; the CV still completes.
             this.winstonService.log(
                 WinstonLog.ProcessCVSubmissionStepExecuted,
@@ -190,7 +190,7 @@ export class GenerateCvScoreStepService extends AbstractStepService<
 
     /**
      * Infer the rubric seniority level from the verified achievement volume
-     * (mirrors the compose step's `inferLevel` bands). Missing gather data →
+     * (mirrors the compose step's `inferLevel` bands). Missing gather data ->
      * `mid` (the default rubric bar).
      */
     private inferTemplateLevel(

@@ -20,11 +20,11 @@ import type {
 
 /**
  * How far back a session's last sync may be for it to still be offered as
- * resumable — "resume mock interview session" (2026-07-08). A session synced
+ * resumable -- "resume mock interview session" (2026-07-08). A session synced
  * longer ago than this is treated as effectively abandoned (the learner has
  * long since moved on) even though `startMockInterviewSession` has not yet
  * flipped its status (that only happens when the SAME enrollment starts a
- * NEW draw) — this keeps a months-old forgotten "in_progress" row from
+ * NEW draw) -- this keeps a months-old forgotten "in_progress" row from
  * popping back up as a resume prompt indefinitely.
  */
 const RESUME_WINDOW_HOURS = 24
@@ -32,9 +32,9 @@ const RESUME_WINDOW_HOURS = 24
 @Injectable()
 /**
  * Reads back the learner's most recent RESUMABLE mock-interview session for
- * one course, so the FE can offer "Tiếp tục phiên phỏng vấn?" instead of
+ * one course, so the FE can offer "resume mock interview?" instead of
  * forcing a fresh draw. Mirrors `MyMockInterviewAttemptsService`'s structure
- * (plain query service, no CQRS command bus — a straight read has no command
+ * (plain query service, no CQRS command bus -- a straight read has no command
  * to dispatch).
  */
 export class MyInProgressMockInterviewSessionService {
@@ -69,8 +69,8 @@ export class MyInProgressMockInterviewSessionService {
             Date.now() - RESUME_WINDOW_HOURS * 60 * 60 * 1000,
         )
         // lazy-expiry, no cron (2026-07-11): a session drawn longer ago than
-        // its own 1h ask-loop duration has "hết giờ" even if it was synced
-        // more recently than the resume window above — both gates apply,
+        // its own 1h ask-loop duration has expired even if it was synced
+        // more recently than the resume window above -- both gates apply,
         // whichever is stricter wins (MoreThanOrEqual on createdAt = "not yet
         // expired"). Mirrors `MyInProgressFlashcardQuizSessionService`'s same
         // addition.

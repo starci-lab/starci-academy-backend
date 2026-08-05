@@ -34,7 +34,7 @@ const SUGGESTER = "categories"
 @QueryHandler(FoundationCategorySuggestionsQuery)
 @Injectable()
 /**
- * Foundation category autocomplete (typeahead) handler — ES Completion Suggester.
+ * Foundation category autocomplete (typeahead) handler -- ES Completion Suggester.
  *
  * Uses the FST-backed `suggest` completion field (populated by the sync builder
  * with the bare tech name + a popularity weight), so prefixes like "do" return
@@ -59,7 +59,7 @@ export class FoundationCategorySuggestionsHandler
             request,
         } = query.params
 
-        // empty prefix → no suggestions (the dropdown only shows while typing)
+        // empty prefix -> no suggestions (the dropdown only shows while typing)
         const prefix = request.query?.trim()
         if (!prefix) {
             return {

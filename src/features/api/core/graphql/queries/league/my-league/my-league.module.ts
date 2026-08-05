@@ -15,7 +15,7 @@ import {
 })
 /**
  * Wires the authenticated `myLeague` weekly standing query. Resolver-only
- * — never-seen users are lazily placed into Bronze + the open cohort on
+ * -- never-seen users are lazily placed into Bronze + the open cohort on
  * first read.
  */
 export class MyLeagueSingleQueryModule extends ConfigurableModuleClass {}

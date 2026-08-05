@@ -38,7 +38,7 @@ export interface PairAck {
 /** run (default) | install-service | uninstall-service. */
 export type AgentMode = "run" | "install" | "uninstall"
 
-/** A single OS command to run as `file arg arg …` (argv, quoting-safe + testable). */
+/** A single OS command to run as `file arg arg ...` (argv, quoting-safe + testable). */
 export interface ServiceCommand {
     file: string
     args: Array<string>

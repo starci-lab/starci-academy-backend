@@ -6,19 +6,19 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * User-facing AI surface ("hạng mục") a per-feature model ceiling can be set on.
+ * User-facing AI surface (feature) a per-feature model ceiling can be set on.
  *
  * Each surface maps to one routing entry point; the user-set ceiling for a
  * surface caps how high the Auto chain may climb on that surface (a `null`
  * surface in the setting means the global default). Distinct from the
- * difficulty FLOOR (system-set per task) — the surface only governs the CEIL.
+ * difficulty FLOOR (system-set per task) -- the surface only governs the CEIL.
  */
 export enum AiCeilSurface {
-    /** Hỏi AI khi đọc bài (lesson tutor chatbot). Floor = Free. */
+    /** Ask AI while reading a lesson (lesson tutor chatbot). Floor = Free. */
     Chatbot = "chatbot",
-    /** Chấm bài (challenge + capstone grading). Floor = by task difficulty. */
+    /** Grade submissions (challenge + capstone grading). Floor = by task difficulty. */
     Grading = "grading",
-    /** Phỏng vấn thử (mock interview grading). Floor = Economy. */
+    /** Mock interview (mock interview grading). Floor = Economy. */
     Interview = "interview",
 }
 
@@ -28,16 +28,16 @@ registerEnumType(
     GraphQLTypeAiCeilSurface,
     {
         name: "AiCeilSurface",
-        description: "AI surface (hạng mục) a per-feature model ceiling applies to.",
+        description: "AI surface (feature) a per-feature model ceiling applies to.",
         valuesMap: {
             [AiCeilSurface.Chatbot]: {
-                description: "Hỏi AI khi đọc bài (lesson tutor).",
+                description: "Ask AI while reading a lesson (lesson tutor).",
             },
             [AiCeilSurface.Grading]: {
-                description: "Chấm bài (challenge + capstone).",
+                description: "Grade submissions (challenge + capstone).",
             },
             [AiCeilSurface.Interview]: {
-                description: "Phỏng vấn thử (mock interview).",
+                description: "Mock interview.",
             },
         },
     },

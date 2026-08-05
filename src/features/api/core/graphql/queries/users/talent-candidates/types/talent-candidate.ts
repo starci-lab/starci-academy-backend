@@ -9,7 +9,7 @@ import type {
 
 /**
  * The single-track readiness snapshot a recruiter sees for a candidate on the
- * marketplace — the SAME shape as a {@link JobReadinessTrack} card, but scoped
+ * marketplace -- the SAME shape as a {@link JobReadinessTrack} card, but scoped
  * to the ONE track (course) currently being filtered on. There is deliberately
  * no cross-track composite here: a candidate is ranked purely on THIS track's
  * `depthScore`, never a blend of every course they own.
@@ -33,7 +33,7 @@ export interface TalentCandidate {
     /** This candidate's readiness card for the filtered track only. */
     track: TalentCandidateTrack
     /**
-     * How strongly this candidate's readiness is backed by graded StarCi work —
+     * How strongly this candidate's readiness is backed by graded StarCi work --
      * a recruiter trust badge (self-reported vs activity-backed vs capstone-verified)
      * and the secondary rank key that breaks equal-`depthScore` ties.
      */
@@ -43,7 +43,7 @@ export interface TalentCandidate {
 /** Params for {@link import("../talent-candidates.service").TalentCandidatesService.rankByTrack}. */
 export interface RankTalentCandidatesByTrackParams {
     /**
-     * The track identity to filter + rank on — the `courseId` of a
+     * The track identity to filter + rank on -- the `courseId` of a
      * {@link JobReadinessTrack} (matches `enrollments.course_id`). Ranking is
      * scoped to THIS course's depth only.
      */

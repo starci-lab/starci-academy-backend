@@ -32,10 +32,10 @@ import {
 @Injectable()
 /**
  * Parses behavioral (global, non-course-scoped) EQ mock-interview questions from
- * `mock-interview-eq/{bank}/questions/{question}/vi.md` (`vi.md` only — no `en.md` /
+ * `mock-interview-eq/{bank}/questions/{question}/vi.md` (`vi.md` only -- no `en.md` /
  * translations, same as the technical family).
  *
- * `courseId`/`moduleId` are ALWAYS `null` on every row — this family carries
+ * `courseId`/`moduleId` are ALWAYS `null` on every row -- this family carries
  * universal EQ competencies, never grounded in a course/module.
  */
 export class InterviewQuestionEqParserService {
@@ -51,7 +51,7 @@ export class InterviewQuestionEqParserService {
 
     /**
      * Parses every behavioral mock-interview bank under `mock-interview-eq/` into a
-     * flat list of question rows (there is no bank/deck entity — each question row
+     * flat list of question rows (there is no bank/deck entity -- each question row
      * carries a denormalized `bankSlug` instead).
      *
      * @returns Flat, global (course/module-less) question entity partials for TypeORM upsert.
@@ -87,7 +87,7 @@ export class InterviewQuestionEqParserService {
         bankPath: ResolvedFilePath,
     ): Promise<Array<DeepPartial<MockInterviewEntity>>> {
         // the bank META file lives at the bank folder root, sibling of `questions/`
-        // (read for authoring context only — no `# moduleRefs` to resolve, this bank is global)
+        // (read for authoring context only -- no `# moduleRefs` to resolve, this bank is global)
         this.extractJsonFromMdService.extract<RawInterviewQuestionEqBank>(
             await this.contextLoaderService.load(
                 "mock-interview-eq",
@@ -120,7 +120,7 @@ export class InterviewQuestionEqParserService {
                 ),
             )
             // deterministic question id anchored on the bank/question ordinals only
-            // (there is no owning course to anchor on — this bank is global)
+            // (there is no owning course to anchor on -- this bank is global)
             const questionId = this.interviewQuestionEqIdFactoryService.generate({
                 bankIndex,
                 questionIndex: questionPath.orderIndex,
@@ -133,13 +133,13 @@ export class InterviewQuestionEqParserService {
             questions.push({
                 id: questionId,
                 ...common,
-                // behavioral-only fields — never authored under the course-scoped technical tree
+                // behavioral-only fields -- never authored under the course-scoped technical tree
                 competency: this.coerceMdScalarService.toNullableStringColumn(raw.competency),
                 ownershipSignal: this.coerceMdScalarService.toNullableStringColumn(raw.ownershipSignal),
-                // no diagram/given-code for behavioral — no code/diagram to reason over
+                // no diagram/given-code for behavioral -- no code/diagram to reason over
                 diagram: null,
                 langs: [],
-                // global bank — never grounded in a course/module
+                // global bank -- never grounded in a course/module
                 courseId: null,
                 moduleId: null,
                 bankSlug,

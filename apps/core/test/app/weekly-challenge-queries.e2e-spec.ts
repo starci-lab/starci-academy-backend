@@ -52,7 +52,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the weekly-challenge event — `weeklyChallenge` (the current ISO
+ * e2e for the weekly-challenge event -- `weeklyChallenge` (the current ISO
  * week's auto-rotated challenge + leaderboard, optional-auth) and
  * `claimWeeklyChallengeReward` (claims the Coin reward once the viewer has
  * passed it this week). Drives the real {@link WeeklyChallengeService}
@@ -60,7 +60,7 @@ const POSTGRESQL_PRIMARY = "primary"
  *
  * Every test seeds its OWN challenge fixture (rather than a shared `beforeAll`
  * one) because the picker's `total` challenge count changes the deterministic
- * OFFSET math — keeping exactly one challenge per test keeps the pick
+ * OFFSET math -- keeping exactly one challenge per test keeps the pick
  * unconditionally deterministic regardless of the real calendar week.
  *
  * MOCKED: nothing beyond the two Keycloak guards. Postgres, Apollo, and the
@@ -76,7 +76,7 @@ describe("Weekly challenge event (e2e)",
         /** The "logged in" user the overridden Keycloak guards stamp onto the request. */
         let currentUser: UserEntity | null = null
 
-        // weeklyChallenge uses the OPTIONAL guard — always lets the request through,
+        // weeklyChallenge uses the OPTIONAL guard -- always lets the request through,
         // stamping req.user only when a fake "session" is set
         const fakeOptionalAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
@@ -88,7 +88,7 @@ describe("Weekly challenge event (e2e)",
                 return true
             },
         }
-        // claimWeeklyChallengeReward uses the REQUIRED guard — denies with no user
+        // claimWeeklyChallengeReward uses the REQUIRED guard -- denies with no user
         const fakeAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
                 if (!currentUser) {
@@ -197,7 +197,7 @@ describe("Weekly challenge event (e2e)",
             )
 
         /**
-         * Seed exactly ONE challenge (with its course/module/content chain) — with
+         * Seed exactly ONE challenge (with its course/module/content chain) -- with
          * `total = 1`, the deterministic OFFSET pick always lands on this challenge
          * regardless of the real ISO week.
          */
@@ -311,7 +311,7 @@ describe("Weekly challenge event (e2e)",
 
                 it("no challenges exist at all → data is null, no join ever runs",
                     async () => {
-                        // no challenge seeded this test — the candidate pool is empty
+                        // no challenge seeded this test -- the candidate pool is empty
                         currentUser = await seedUser("kc-weekly-no-challenges")
 
                         const response = await post(WEEKLY_CHALLENGE_QUERY)
@@ -352,7 +352,7 @@ describe("Weekly challenge event (e2e)",
                 it("viewer who has NOT passed this week's challenge is rejected — nothing granted",
                     async () => {
                         await seedTheOnlyChallenge("weekly-claim-not-eligible")
-                        // no passing attempt seeded — currentUser never passed
+                        // no passing attempt seeded -- currentUser never passed
                         currentUser = await seedUser("kc-weekly-claim-not-eligible")
 
                         const response = await post(CLAIM_WEEKLY_CHALLENGE_REWARD_MUTATION)

@@ -256,7 +256,7 @@ export class CodingProblemEntity extends UuidAbstractEntity {
     /**
      * Full reference solutions per language (the worked answer). NOT a GraphQL
      * field: solutions must never be served through the `codingProblem` detail
-     * read — they are gated behind the reveal flow ({@link CodingProblemSolutionEntity}).
+     * read -- they are gated behind the reveal flow ({@link CodingProblemSolutionEntity}).
      * Kept as a DB relation only (seeding/internal reads).
      */
     @OneToMany(

@@ -12,15 +12,15 @@ import {
  *
  * The remaining active consumers of the legacy tables were removed alongside
  * this migration: the `cvUrl` + `userCvSubmissionAttempts` queries and the
- * `verifySubmitCvPresignUrl` mutation (all confirmed dead — no live FE
+ * `verifySubmitCvPresignUrl` mutation (all confirmed dead -- no live FE
  * caller), the bookkeeping read/write inside `generateSubmitCvPresignUrl`
  * (simplified to pure presign-URL generation), and the "cv" branch of the
- * learner-CMS merged-feedback UNION (dropped — `cv_generations.feedback` is a
+ * learner-CMS merged-feedback UNION (dropped -- `cv_generations.feedback` is a
  * differently-shaped jsonb column, not a drop-in replacement; can be
  * re-added as a new UNION branch later if needed).
  *
  * Down migration re-creates both tables' STRUCTURE (columns/FKs/the
- * `cv_submission_status` enum type) from the entities' last-known shape —
+ * `cv_submission_status` enum type) from the entities' last-known shape --
  * rows dropped by `up` are gone for good, this is schema-only.
  */
 export class DropLegacyCvSubmissionTables1724000000000 implements MigrationInterface {
@@ -44,13 +44,13 @@ export class DropLegacyCvSubmissionTables1724000000000 implements MigrationInter
 
     /**
      * Reverse migration: re-create both tables' STRUCTURE only (rows dropped
-     * by `up` are gone for good — this is a best-effort schema-only rollback,
+     * by `up` are gone for good -- this is a best-effort schema-only rollback,
      * not a data restore).
      *
      * @param queryRunner - Active TypeORM query runner.
      */
     async down(queryRunner: QueryRunner): Promise<void> {
-        // the enum type may already exist (never dropped by `up`) — guard idempotently
+        // the enum type may already exist (never dropped by `up`) -- guard idempotently
         await queryRunner.query(`
             DO $$
             BEGIN

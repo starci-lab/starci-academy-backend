@@ -8,7 +8,7 @@ import type {
 
 /** One CDN-materialized entity type + its object-key prefix (with trailing slash). */
 export interface CdnTarget {
-    /** Entity class — queried for live id + displayId. */
+    /** Entity class -- queried for live id + displayId. */
     entity:
         | typeof CourseEntity
         | typeof ModuleEntity

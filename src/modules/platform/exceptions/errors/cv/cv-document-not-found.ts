@@ -16,7 +16,7 @@ export interface CvDocumentNotFoundExceptionMetadata extends AbstractExceptionMe
 
 /**
  * Thrown when an update/render/delete on a `cv_blocks` document finds no row
- * matching both the id and the caller's ownership — collapsed into one
+ * matching both the id and the caller's ownership -- collapsed into one
  * not-found error so ownership is never leaked to the caller.
  */
 export class CvDocumentNotFoundException extends AbstractException {

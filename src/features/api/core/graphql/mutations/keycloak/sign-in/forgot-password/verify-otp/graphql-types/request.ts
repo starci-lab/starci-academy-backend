@@ -12,7 +12,7 @@ import {
     description: "Input for verifying forgot-password OTP.",
 })
 /**
- * Challenge + OTP only — the new password is read from the server-held
+ * Challenge + OTP only -- the new password is read from the server-held
  * challenge payload, not re-submitted, so a stolen OTP cannot set an attacker password.
  */
 export class ForgotPasswordVerifyOtpRequest {

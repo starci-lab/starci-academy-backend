@@ -31,7 +31,7 @@ import {
  * granted on payment success and runs until {@link currentPeriodEnd}; a cron
  * sweep flips the row to {@link MembershipStatus.Expired} once that elapses.
  *
- * Membership is intentionally separate from course enrollment — it never
+ * Membership is intentionally separate from course enrollment -- it never
  * grants access to course content, only the member perks listed above.
  */
 export class MembershipEntity extends UuidAbstractEntity {

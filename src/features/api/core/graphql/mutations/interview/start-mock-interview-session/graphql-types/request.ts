@@ -12,7 +12,7 @@ import {
  * Request to have the SERVER pick a mock-interview prompt for one course +
  * seniority level. Unlike Pha 1 (client-side `drawRandomPrompt` from the full
  * `mockInterviewPrompts` list), the client never sees/sends which prompt was
- * drawn — it only asks for one, and `gradeMockInterviewSession` later grades
+ * drawn -- it only asks for one, and `gradeMockInterviewSession` later grades
  * against whatever the server actually handed back (looked up by
  * `sessionId`), not whatever the client echoes.
  */
@@ -40,14 +40,14 @@ export class StartMockInterviewSessionRequest {
         level: string
 
     /**
-     * The TOP-LEVEL flow to draw for — one of
+     * The TOP-LEVEL flow to draw for -- one of
      * {@link import("@modules/databases").MockInterviewMode} ("qna" |
      * "design"). Free-form string (not a pg enum, mirroring `level`);
      * unrecognized falls back to "qna" for pool selection. "qna" draws N
      * flashcard-card seeds, EACH randomly assigned its own cognitive frame
-     * (theory/reasoning/scenario — mixed within the session); "design" keeps
+     * (theory/reasoning/scenario -- mixed within the session); "design" keeps
      * the EXISTING capstone/classic 5-phase draw unchanged. "Mode split"
-     * (2026-07-06) — this REPLACES the earlier per-session `kind` field; the
+     * (2026-07-06) -- this REPLACES the earlier per-session `kind` field; the
      * client no longer picks a cognitive frame at setup at all.
      */
     @Field(
@@ -85,10 +85,10 @@ export class StartMockInterviewSessionRequest {
      * selected languages is EXCLUDED from the draw entirely (a different question
      * is drawn instead) rather than rendered in a language the candidate didn't
      * pick. A non-track given-code question (e.g. `dockerfile`) and every no-code
-     * question ignore this — their language is fixed by the question itself.
+     * question ignore this -- their language is fixed by the question itself.
      * Free-form strings ("typescript" | "java" | "csharp" | "go"); unrecognized
      * entries are dropped, and an empty/omitted set falls back to `lang` (if sent)
-     * else ALL four tracks (widest draw — nothing excluded).
+     * else ALL four tracks (widest draw -- nothing excluded).
      */
     @Field(
         () => [String],
@@ -100,11 +100,11 @@ export class StartMockInterviewSessionRequest {
         langs?: Array<string>
 
     /**
-     * How many Q&A questions to draw ("mode=\"qna\"" only) — the "Tùy chỉnh"
-     * (Configurable) setup screen's "Số câu" control (3 | 5 | 10). Omitted
-     * (or an unrecognized value) falls back to the same default the "Tự
-     * động" (Auto) mode always used ({@link import("../start-mock-interview-session-draw.service").QNA_SEED_COUNT}
-     * = 5) — an Auto draw never sends this field at all.
+     * How many Q&A questions to draw ("mode=\"qna\"" only) -- the Configurable
+     * (Configurable) setup screen's question count control (3 | 5 | 10). Omitted
+     * (or an unrecognized value) falls back to the same default the Auto
+     * mode always used ({@link import("../start-mock-interview-session-draw.service").QNA_SEED_COUNT}
+     * = 5) -- an Auto draw never sends this field at all.
      */
     @Field(
         () => Int,
@@ -117,11 +117,11 @@ export class StartMockInterviewSessionRequest {
 
     /**
      * Which cognitive frames ("mode=\"qna\"" only) each drawn question may be
-     * assigned — the "Tùy chỉnh" (Configurable) setup screen's "Kiểu câu"
-     * multi-select ("Tất cả" collapses to omitting this field entirely; a
+     * assigned -- the Configurable (Configurable) setup screen's question kind
+     * multi-select (All collapses to omitting this field entirely; a
      * subset like `["theory","reasoning"]` restricts every drawn seed's
      * randomly-assigned kind to that subset). Omitted/empty = every kind
-     * (theory | reasoning | scenario) — the same behavior the "Tự động"
+     * (theory | reasoning | scenario) -- the same behavior the Auto
      * (Auto) mode always had.
      */
     @Field(
@@ -135,8 +135,8 @@ export class StartMockInterviewSessionRequest {
 
     /**
      * Whether this session's graded attempt should feed job-readiness's
-     * rolling mock-interview average — true for every "Tự động" (Auto) qna
-     * draw and every "design" draw, FALSE for a "Tùy chỉnh" (Configurable)
+     * rolling mock-interview average -- true for every Auto (Auto) qna
+     * draw and every "design" draw, FALSE for a Configurable (Configurable)
      * qna draw (deliberate, learner-picked practice must never inflate/
      * dilute the readiness signal, which is meant to read like a random
      * exam). Defaults to true when omitted so an older FE build (or a
@@ -147,14 +147,14 @@ export class StartMockInterviewSessionRequest {
         {
             nullable: true,
             defaultValue: true,
-            description: "Whether this session's graded attempt should feed job-readiness (\"Tùy chỉnh\" qna sessions must send false); defaults to true.",
+            description: "Whether this session's graded attempt should feed job-readiness (Configurable qna sessions must send false); defaults to true.",
         },
     )
         countsToReadiness?: boolean
 
     /**
-     * Optional user-chosen name for this practice session (e.g. "Vòng 2 -
-     * Backend"), set at the setup screen. Stored verbatim — omitted/blank
+     * Optional user-chosen name for this practice session (e.g. "Round 2 -
+     * Backend"), set at the setup screen. Stored verbatim -- omitted/blank
      * stays null, and the server never generates one on the caller's behalf;
      * the FRONTEND renders a time-based fallback label when null.
      */

@@ -98,7 +98,7 @@ export class CodingProgressService {
      * Coin balance (`users.coin_balance`). NOTE: `totalPoints` here is the
      * whole Coin balance, not a coding-only figure; the coding-specific XP
      * metric (`codingXp`) is derived per-source from the `xp_histories` ledger via
-     * the `user_xp` projection — prefer that for a true "coding points" display.
+     * the `user_xp` projection -- prefer that for a true "coding points" display.
      */
     private async compute(userId: string): Promise<CodingProblemProgressCacheResult> {
         // distinct problems with an Accepted submission

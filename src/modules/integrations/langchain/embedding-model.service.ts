@@ -40,7 +40,7 @@ import {
 /**
  * `OllamaEmbeddings` hardcodes `maxConcurrency: 1` internally (fully
  * sequential embed calls) unless overridden. For any bulk embed job (e.g. the
- * lesson RAG index — hundreds of lessons split into thousands of chunks),
+ * lesson RAG index -- hundreds of lessons split into thousands of chunks),
  * strictly sequential requests at ~300-500ms each take tens of minutes and
  * can outlast every downstream client timeout. The local Ollama host (RTX
  * 5060) comfortably serves several concurrent small embed requests, so raise
@@ -54,13 +54,13 @@ const OLLAMA_EMBED_MAX_CONCURRENCY = 8
  *
  * Two ways to obtain an {@link Embeddings} client:
  *
- * - {@link EmbeddingModelService.get} — synchronous, pins an exact
+ * - {@link EmbeddingModelService.get} -- synchronous, pins an exact
  *   `{ model, provider }` and resolves the key from the provider pool file
  *   directly (first key). Used by the grading RAG stack (which passes the
  *   embedder straight into `QdrantVectorStore.fromDocuments`).
- * - {@link EmbeddingModelService.getViaBalancer} — async, routes through the AI
+ * - {@link EmbeddingModelService.getViaBalancer} -- async, routes through the AI
  *   balancer's Auto lane (`task = embedding`, FREE floor). Picks the
- *   health/latency-ordered embedding model — **local self-hosted first** when
+ *   health/latency-ordered embedding model -- **local self-hosted first** when
  *   the GPU is up ($0), falling back to a cloud embedding model otherwise.
  */
 export class EmbeddingModelService {
@@ -73,7 +73,7 @@ export class EmbeddingModelService {
      * Get an embedding model for an exact `{ model, provider }` (synchronous).
      *
      * Resolves the provider key from the same newline-separated pool file the AI
-     * balancer uses (first key of the pool) — NOT the legacy single-key mount —
+     * balancer uses (first key of the pool) -- NOT the legacy single-key mount --
      * so there is one key file per provider across the whole app.
      *
      * @param params - The exact model + provider to build.
@@ -100,7 +100,7 @@ export class EmbeddingModelService {
                 apiKey: this.mountFilesystemService.geminiApiKeys()[0] ?? "",
             })
         }
-        /** Local (self-hosted Ollama) embedding model — runs on our own GPU at $0. */
+        /** Local (self-hosted Ollama) embedding model -- runs on our own GPU at $0. */
         case ModelProvider.Local: {
             return new OllamaEmbeddings({
                 model,
@@ -157,7 +157,7 @@ export class EmbeddingModelService {
 
     /**
      * Build the per-provider {@link Embeddings} client from a balancer-resolved
-     * action context. Mirrors the chat `buildClient` switch — the balancer picks
+     * action context. Mirrors the chat `buildClient` switch -- the balancer picks
      * the model/provider/key, this turns it into a LangChain embedder.
      *
      * @param context - The discriminated key/model context from the balancer.
@@ -166,7 +166,7 @@ export class EmbeddingModelService {
     private buildEmbeddings(context: UseApiActionContext): Embeddings {
         switch (context.provider) {
         case ModelProvider.Local:
-            // self-hosted OpenAI-compatible host (Ollama) — native embeddings API
+            // self-hosted OpenAI-compatible host (Ollama) -- native embeddings API
             return new OllamaEmbeddings({
                 model: context.model,
                 baseUrl: this.localOllamaBaseUrl(),
@@ -206,11 +206,11 @@ export class EmbeddingModelService {
     }
 
     /**
-     * Bearer-auth header for the Local (self-hosted Ollama) provider — resolves the
+     * Bearer-auth header for the Local (self-hosted Ollama) provider -- resolves the
      * token from the SAME key pool the chat lane's `Authorization: Bearer <token>`
      * uses. Local dev's Ollama is ungated (any token is harmless there), but prod
      * reaches Ollama through a Cloudflare-tunneled gate that rejects unauthenticated
-     * requests — `OllamaEmbeddings` talks to the native `/api/embed` endpoint
+     * requests -- `OllamaEmbeddings` talks to the native `/api/embed` endpoint
      * directly (not through `ChatOpenAI`), so it needs this header wired explicitly.
      *
      * @returns `{ Authorization: "Bearer <token>" }` for the first pooled key.

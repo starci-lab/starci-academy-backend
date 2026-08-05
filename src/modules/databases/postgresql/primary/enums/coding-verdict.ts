@@ -13,7 +13,7 @@ import {
 export enum CodingVerdict {
     /** Submission row created, judging job not yet started. */
     Pending = "pending",
-    /** Judging in progress — Judge0 batch submitted, awaiting results. */
+    /** Judging in progress -- Judge0 batch submitted, awaiting results. */
     Judging = "judging",
     /** All testcases passed. */
     Accepted = "accepted",

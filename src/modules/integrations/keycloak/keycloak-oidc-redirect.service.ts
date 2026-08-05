@@ -61,7 +61,7 @@ export class KeycloakOidcRedirectService {
     }
 
     /**
- * Random PKCE code_verifier (43–128 chars, URL-safe).
+ * Random PKCE code_verifier (43-128 chars, URL-safe).
  */
     generateCodeVerifier(): string {
         return this.toBase64Url(

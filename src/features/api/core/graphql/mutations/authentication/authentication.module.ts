@@ -16,7 +16,7 @@ import {
     ],
 })
 /**
- * Authentication write-side group. Today only GitHub account linking — kept
+ * Authentication write-side group. Today only GitHub account linking -- kept
  * separate so later auth mutations do not land in the root MutationsModule.
  */
 export class AuthenticationMutationsModule extends ConfigurableModuleClass {}

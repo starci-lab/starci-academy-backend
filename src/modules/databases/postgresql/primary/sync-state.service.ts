@@ -20,7 +20,7 @@ import type {
 
 @Injectable()
 /**
- * Claims and advances `sync_states` rows (`shouldSync` → syncing, then synced
+ * Claims and advances `sync_states` rows (`shouldSync` -> syncing, then synced
  * or failed-with-backoff) so ES/Scylla workers do not double-write the same
  * source snapshot.
  */

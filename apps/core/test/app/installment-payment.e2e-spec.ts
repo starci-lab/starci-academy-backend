@@ -39,9 +39,9 @@ interface SeedFixedPlanParams {
 
 /**
  * Exercises `InstallmentPlanService.applyPaymentForTransaction` against a
- * real Postgres connection — the exact call `ReconcileTransactionWorker
+ * real Postgres connection -- the exact call `ReconcileTransactionWorker
  * .finalize()`'s `ActionType.InstallmentPayment` branch makes (see
- * `reconcile-transaction.worker.ts` — the branch is a bare guard + this one
+ * `reconcile-transaction.worker.ts` -- the branch is a bare guard + this one
  * delegate, so driving the service call IS driving that branch). Covers
  * `findings.md` #3: no e2e existed for pay-next-installment or the reconcile
  * worker's InstallmentPayment path, and no test proved the round-1 atomic
@@ -59,7 +59,7 @@ describe("Installment payment reconcile (e2e)",
             entityManager = e2e.app.get<EntityManager>(
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
-            // real service, real DayjsService (no external deps) — same
+            // real service, real DayjsService (no external deps) -- same
             // combination `ReconcileTransactionWorker` is constructed with
             installmentPlanService = new InstallmentPlanService(
                 entityManager,
@@ -69,7 +69,7 @@ describe("Installment payment reconcile (e2e)",
 
         afterAll(async () => {
             // TypeORM's shutdown hook looks up the default (unnamed) DataSource,
-            // which this named-only setup doesn't register — ignore that noise.
+            // which this named-only setup doesn't register -- ignore that noise.
             await e2e.app.close().catch(() => undefined)
         })
 
@@ -93,7 +93,7 @@ describe("Installment payment reconcile (e2e)",
             )
 
         /**
-         * Seed a `Fixed` installment plan (no `originTransaction` — the
+         * Seed a `Fixed` installment plan (no `originTransaction` -- the
          * origin checkout is out of scope for this cycle-payment flow) with
          * `months`/`installmentsPaid` controlling how many cycles remain.
          */
@@ -124,7 +124,7 @@ describe("Installment payment reconcile (e2e)",
         }
 
         /**
-         * Seed a Pending `InstallmentPayment` transaction linked to `plan` —
+         * Seed a Pending `InstallmentPayment` transaction linked to `plan` --
          * mirrors what `PayNextInstallmentHandler` creates for one cycle's
          * checkout (`installmentPlanId` set, amount = the cycle's minimum).
          */
@@ -187,7 +187,7 @@ describe("Installment payment reconcile (e2e)",
                 expect(afterFirst.status).toBe(InstallmentPlanStatus.Active)
 
                 // second finalize on the SAME now-Succeeded transaction (the
-                // webhook + reconcile-poll double-fire this guards against) —
+                // webhook + reconcile-poll double-fire this guards against) --
                 // the atomic claim (`UPDATE ... WHERE status = 'pending'`)
                 // affects 0 rows, so recordPayment must NOT run again
                 const secondApplied = await installmentPlanService.applyPaymentForTransaction({
@@ -203,7 +203,7 @@ describe("Installment payment reconcile (e2e)",
                         id: plan.id,
                     },
                 )
-                // still 2, NOT 3 — the ledger was not double-applied
+                // still 2, NOT 3 -- the ledger was not double-applied
                 expect(afterSecond.installmentsPaid).toBe(2)
                 expect(afterSecond.status).toBe(InstallmentPlanStatus.Active)
             })

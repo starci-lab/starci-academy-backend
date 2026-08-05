@@ -6,13 +6,13 @@ import {
 /**
  * Relaxes `content_comments.content_id` to nullable and adds a nullable `course_id`
  * FK so a comment can be either a per-lesson question (content set, course null) or
- * a course-general question with no specific lesson ("hỏi chung khóa" — course set,
+ * a course-general question with no specific lesson (course-wide question -- course set,
  * content null). A CHECK constraint enforces exactly one of the two is ever set.
  *
  * Dev runs schema via `synchronize` (relaxes the column + adds course_id + index);
  * this migration applies the same change where `synchronize` is disabled (prod).
  * Idempotent. No existing rows are affected (all have content_id set, course_id null
- * — satisfies the CHECK by construction).
+ * -- satisfies the CHECK by construction).
  */
 export class AllowCourseGeneralContentComments1722900000000 implements MigrationInterface {
     /** Stable name surfaced in the TypeORM migrations table. */

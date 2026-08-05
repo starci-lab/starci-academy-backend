@@ -42,7 +42,7 @@ describe("ProgressProjectionService",
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-            // every read in this service is a raw `query` — default to empty rows
+            // every read in this service is a raw `query` -- default to empty rows
             entityManager.query = jest.fn().mockResolvedValue([])
 
             module = await Test.createTestingModule({
@@ -93,7 +93,7 @@ describe("ProgressProjectionService",
                         // is_enrolled = false, are still listed)
                         expect(sqlText).toContain("FROM enrollments e")
                         expect(sqlText).toContain("WHERE e.user_id = $1")
-                        // it must NOT gate the listing on is_enrolled = true — trials stay
+                        // it must NOT gate the listing on is_enrolled = true -- trials stay
                         expect(sqlText).not.toContain("is_enrolled = true")
                         expect(params).toEqual([
                             userId,
@@ -138,7 +138,7 @@ describe("ProgressProjectionService",
 
                         const result = await service.getLeaderboard(courseId)
 
-                        // the SECOND call is the ranked-entries read — assert the trial gate
+                        // the SECOND call is the ranked-entries read -- assert the trial gate
                         const entriesSql = flat(entityManager.query.mock.calls[1][0])
                         expect(entriesSql).toContain("JOIN enrollments e")
                         expect(entriesSql).toContain("e.is_enrolled = true")
@@ -161,7 +161,7 @@ describe("ProgressProjectionService",
             () => {
                 it("requires the viewer's projection row to be backed by a PAID enrollment",
                     async () => {
-                        // a paid viewer with peers above → rank 3
+                        // a paid viewer with peers above -> rank 3
                         entityManager.query.mockResolvedValueOnce([
                             {
                                 user_id: userId,
@@ -182,9 +182,9 @@ describe("ProgressProjectionService",
                             params,
                         ] = entityManager.query.mock.calls[0]
                         const sqlText = flat(sql)
-                        // viewer row gated to a real enrollment …
+                        // viewer row gated to a real enrollment ...
                         expect(sqlText).toContain("FROM enrollments e WHERE e.is_enrolled = true")
-                        // … and peers counted above are likewise restricted to paid rows
+                        // ... and peers counted above are likewise restricted to paid rows
                         expect(sqlText).toContain("FROM enrollments he WHERE he.is_enrolled = true")
                         expect(params).toEqual([
                             courseId,

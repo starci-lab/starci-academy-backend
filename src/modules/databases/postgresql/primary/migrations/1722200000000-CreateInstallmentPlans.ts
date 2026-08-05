@@ -4,8 +4,8 @@ import {
 } from "typeorm"
 
 /**
- * Creates the `installment_plans` table backing "trả góp" (installment
- * payment) — a `Fixed` new-purchase schedule or a `FlexiblePool` legacy
+ * Creates the `installment_plans` table backing installment
+ * payment -- a `Fixed` new-purchase schedule or a `FlexiblePool` legacy
  * Pioneer arrears balance, both enforced by the same daily cron. See
  * `docs/installment-payment-plan.md` for the full design.
  *
@@ -23,7 +23,7 @@ export class CreateInstallmentPlans1722200000000 implements MigrationInterface {
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */
     async up(queryRunner: QueryRunner): Promise<void> {
-        // discriminator enums first — the table's columns reference them by type
+        // discriminator enums first -- the table's columns reference them by type
         await queryRunner.query(`
             DO $$
             BEGIN
@@ -70,7 +70,7 @@ export class CreateInstallmentPlans1722200000000 implements MigrationInterface {
             );
         `)
 
-        // per-user lookup (surface "Kế hoạch trả góp của tôi") + cron's daily due-scan
+        // per-user lookup (surface "My installment plan") + cron's daily due-scan
         await queryRunner.query(`
             CREATE INDEX "idx_installment_plans_user_id"
             ON "installment_plans" ("user_id");
@@ -87,7 +87,7 @@ export class CreateInstallmentPlans1722200000000 implements MigrationInterface {
             FOREIGN KEY ("user_id") REFERENCES "users" ("id")
             ON DELETE CASCADE ON UPDATE NO ACTION;
         `)
-        // nullable — a backfilled FlexiblePool (legacy Pioneer arrears) has no originating checkout
+        // nullable -- a backfilled FlexiblePool (legacy Pioneer arrears) has no originating checkout
         await queryRunner.query(`
             ALTER TABLE "installment_plans"
             ADD CONSTRAINT "fk_origin_transaction_id_installment_plans_transactions"

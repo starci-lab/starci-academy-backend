@@ -67,7 +67,7 @@ describe("UserMilestoneTaskFeedbacksHandler",
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
-            // findAndCount is not on the shared mock — add it per spec (no util edit)
+            // findAndCount is not on the shared mock -- add it per spec (no util edit)
             entityManager.findAndCount = jest.fn().mockResolvedValue([
                 [],
                 0,
@@ -105,7 +105,7 @@ describe("UserMilestoneTaskFeedbacksHandler",
 
         it("returns empty when the user has no enrollment (no latest attempt)",
             async () => {
-                // first findOne (enrollment) resolves null → resolveLatestAttemptId bails
+                // first findOne (enrollment) resolves null -> resolveLatestAttemptId bails
                 const result = await handler.execute(
                     new UserMilestoneTaskFeedbacksQuery({
                         request: buildRequest() as never,
@@ -183,7 +183,7 @@ describe("UserMilestoneTaskFeedbacksHandler",
                 const findArgs = (entityManager.findAndCount as jest.Mock).mock.calls[0][1]
                 // feedbacks scoped to the resolved latest attempt
                 expect(findArgs.where.attempt.id).toBe("att-1")
-                // page 1 with size 5 → skip 5, take 5
+                // page 1 with size 5 -> skip 5, take 5
                 expect(findArgs.skip).toBe(5)
                 expect(findArgs.take).toBe(5)
                 expect(findArgs.order).toEqual({

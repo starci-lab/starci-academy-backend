@@ -8,13 +8,13 @@ import {
     description: "A pinnable capstone candidate (enrollment with a project repo).",
 })
 /**
- * One of the current user's enrollments that has a capstone repo — a candidate
+ * One of the current user's enrollments that has a capstone repo -- a candidate
  * for the "pin a course project" picker. Only enrollments that have submitted a
  * personal-project repo OR completed their task plan appear here.
  */
 export class MyPinnableCapstoneItemData {
     /**
-     * Enrollment primary-key id — the value the pin mutation takes as
+     * Enrollment primary-key id -- the value the pin mutation takes as
      * `enrollmentId`.
      */
     @Field(
@@ -49,7 +49,7 @@ export class MyPinnableCapstoneItemData {
         githubUrl: string | null
 
     /**
-     * True when the enrollment's task plan is complete — drives the
+     * True when the enrollment's task plan is complete -- drives the
      * "Verified by StarCi" badge in the picker.
      */
     @Field(

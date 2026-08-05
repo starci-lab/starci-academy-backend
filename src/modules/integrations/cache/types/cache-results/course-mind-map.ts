@@ -16,7 +16,7 @@ export interface CourseMindMapCacheNodeLink {
     kind: MindMapNodeEntityType
     /** Resolved id of the target entity, or null when the slug did not resolve. */
     entityId: string | null
-    /** Owning module id — set for lesson/challenge links. */
+    /** Owning module id -- set for lesson/challenge links. */
     moduleId: string | null
     /** Authored mount slug of the target. */
     displayId: string | null
@@ -30,7 +30,7 @@ export interface CourseMindMapCacheNodeData {
     kind: MindMapNodeEntityType
     /** Id of the represented entity (course/module/content), null for concept nodes. */
     entityId: string | null
-    /** Owning module id — set on lesson nodes so the client can build the lesson URL. */
+    /** Owning module id -- set on lesson nodes so the client can build the lesson URL. */
     moduleId: string | null
     /** Stable mount slug (displayId) of the represented entity. */
     displayId: string | null
@@ -73,6 +73,6 @@ export interface CourseMindMapCacheEdge {
 export interface CourseMindMapCacheResult {
     /** Graph nodes (course root + module + lesson nodes). */
     nodes: Array<CourseMindMapCacheNode>
-    /** Graph edges (course→module, module→lesson). */
+    /** Graph edges (course->module, module->lesson). */
     edges: Array<CourseMindMapCacheEdge>
 }

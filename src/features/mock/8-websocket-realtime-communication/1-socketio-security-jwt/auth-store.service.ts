@@ -9,7 +9,7 @@ import type {
 interface StoredUser {
     /** Stable numeric subject id assigned on first register. */
     sub: number
-    /** Plaintext password — in-memory only, this is a throwaway demo store. */
+    /** Plaintext password -- in-memory only, this is a throwaway demo store. */
     password: string
 }
 
@@ -17,7 +17,7 @@ interface StoredUser {
 /**
  * In-memory user store for the JWT security lesson mock.
  *
- * Pure RAM — no database. Holds username -> { sub, password } so register can
+ * Pure RAM -- no database. Holds username -> { sub, password } so register can
  * mint a stable subject id and login can verify the password. Reset on process
  * restart, which is fine for a sandbox.
  */
@@ -62,7 +62,7 @@ export class AuthStoreService {
         const record = this.users.get(username)
         // reject unknown users or password mismatches
         if (!record || record.password !== password) return null
-        // credentials are valid — return the claims for token signing
+        // credentials are valid -- return the claims for token signing
         return {
             sub: record.sub, username 
         }

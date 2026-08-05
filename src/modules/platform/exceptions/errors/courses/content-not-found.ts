@@ -12,7 +12,7 @@ export interface ContentNotFoundExceptionMetadata extends AbstractExceptionMetad
 }
 
 /**
- * Fails the request when the content does not exist — progress/comments must not attach to
+ * Fails the request when the content does not exist -- progress/comments must not attach to
  * a missing lesson.
  */
 export class ContentNotFoundException extends AbstractException {

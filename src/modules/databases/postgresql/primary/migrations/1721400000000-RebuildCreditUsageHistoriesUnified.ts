@@ -5,25 +5,25 @@ import {
 
 /**
  * Rebuilds `credit_usage_histories` around the UNIFIED credit system: the
- * table is now written from exactly ONE place — `AiEntitlementService.consume`,
- * atomically alongside the `ai_subscriptions` debit — instead of being written
+ * table is now written from exactly ONE place -- `AiEntitlementService.consume`,
+ * atomically alongside the `ai_subscriptions` debit -- instead of being written
  * ad-hoc from several grade-step services while a SEPARATE, tier-blind gate
  * (`CreditUsageService`, deleted) read it back for quota decisions.
  *
  * Changes:
- * - DROP the `attempt`/`user_challenge_submission_attempt_id` FK — a charge can
+ * - DROP the `attempt`/`user_challenge_submission_attempt_id` FK -- a charge can
  *   happen before the attempt row exists (grade-time, before the complete step
  *   persists it), so the relation was frequently null anyway; the ledger now
  *   correlates by `userId` + `createdAt` + `surface`/`task` instead.
- * - `surface` becomes NOT NULL — every charge now always has one (consume()
+ * - `surface` becomes NOT NULL -- every charge now always has one (consume()
  *   requires it).
  * - Add `task` (finer-grained than `surface`, e.g. `challenge_grading` vs
  *   `task_grading`), `prompt_tokens`, `completion_tokens`, `attempts` for a
  *   richer, more useful history entry per the product's request.
- * - Existing rows are CLEARED (`TRUNCATE`) — they were written by the old,
+ * - Existing rows are CLEARED (`TRUNCATE`) -- they were written by the old,
  *   inconsistent multi-writer system and are not meaningfully comparable to
  *   the new unified rows (this is an explicit, intentional reset of the
- *   "Lịch sử dùng AI" history, not a data-loss bug).
+ *   AI usage history, not a data-loss bug).
  *
  * Dev runs schema via `synchronize`; this migration applies the same change
  * where `synchronize` is disabled (prod).
@@ -37,11 +37,11 @@ export class RebuildCreditUsageHistoriesUnified1721400000000 implements Migratio
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */
     async up(queryRunner: QueryRunner): Promise<void> {
-        // explicit, intentional reset — old rows came from a multi-writer, partially
+        // explicit, intentional reset -- old rows came from a multi-writer, partially
         // tier-blind system and are not worth carrying forward into the unified ledger
         await queryRunner.query("TRUNCATE TABLE \"credit_usage_histories\";")
 
-        // drop the attempt FK — a charge can happen before the attempt row exists
+        // drop the attempt FK -- a charge can happen before the attempt row exists
         await queryRunner.query(`
             ALTER TABLE "credit_usage_histories"
             DROP CONSTRAINT IF EXISTS "fk_attempt_id_credit_usage_histories_attempts";
@@ -51,7 +51,7 @@ export class RebuildCreditUsageHistoriesUnified1721400000000 implements Migratio
             DROP COLUMN IF EXISTS "user_challenge_submission_attempt_id";
         `)
 
-        // surface is now always known — make it required
+        // surface is now always known -- make it required
         await queryRunner.query(`
             ALTER TABLE "credit_usage_histories"
             ALTER COLUMN "surface" SET NOT NULL;

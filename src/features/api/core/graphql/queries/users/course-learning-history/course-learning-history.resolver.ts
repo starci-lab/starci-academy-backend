@@ -52,18 +52,18 @@ const MAX_LIMIT = 50
 
 @Resolver()
 /**
- * The viewer's learning events within a single course — the per-course
+ * The viewer's learning events within a single course -- the per-course
  * "learning history" tab the frontend groups by day. This is an explicit
  * EXCEPTION to the house CQRS-projection rule: it is a chronological FEED (like
  * `userFeed`), not a heavy aggregate, so it is built as a direct resolver.
  *
  * Activities are GLOBAL and never store a course id in their payload, so each
  * lessonRead / challengePassed / milestonePassed activity's target is joined
- * back to its course in a single UNION query — never N+1 per row:
+ * back to its course in a single UNION query -- never N+1 per row:
  *   - lessonRead       -> content -> module -> course
  *   - challengePassed  -> challenge -> content -> module -> course
  *   - milestonePassed  -> milestone_task -> milestone -> course
- * Ordering is absolute newest-first (created_at DESC, id DESC) → plain offset
+ * Ordering is absolute newest-first (created_at DESC, id DESC) -> plain offset
  * pagination, mirroring `userFeed`.
  */
 export class CourseLearningHistoryResolver {
@@ -94,7 +94,7 @@ export class CourseLearningHistoryResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<CourseLearningHistoryResponseData> {
-        // decode the opaque relay course id; malformed → typed exception (fail closed)
+        // decode the opaque relay course id; malformed -> typed exception (fail closed)
         const decoded = fromGlobalId(request.courseId)
         if (!decoded) {
             const exception = new CourseLearningHistoryFailedException({
@@ -116,7 +116,7 @@ export class CourseLearningHistoryResolver {
         const limit = Math.min(Math.max(request.limit ?? 20,
             1),
         MAX_LIMIT)
-        // absent/malformed cursor → page 1 (offset 0)
+        // absent/malformed cursor -> page 1 (offset 0)
         const offset = this.decodeCursor(request.cursor)?.offset ?? 0
 
         let rows: Array<CourseLearningHistoryRow>
@@ -198,7 +198,7 @@ export class CourseLearningHistoryResolver {
             throw exception
         }
 
-        // the (limit+1)th row only tells us there is more → trim it off
+        // the (limit+1)th row only tells us there is more -> trim it off
         const hasMore = rows.length > limit
         const pageRows = hasMore ? rows.slice(0,
             limit) : rows
@@ -239,7 +239,7 @@ export class CourseLearningHistoryResolver {
 
     /**
      * Decode an opaque cursor back to `{ offset }`. Returns null when absent or
-     * malformed (treated as page 1 → offset 0).
+     * malformed (treated as page 1 -> offset 0).
      *
      * @param cursor - the opaque cursor, or undefined
      * @returns the decoded cursor, or null
@@ -248,7 +248,7 @@ export class CourseLearningHistoryResolver {
         if (!cursor) {
             return null
         }
-        // base64url → JSON; bail to page 1 on any bad/partial token
+        // base64url -> JSON; bail to page 1 on any bad/partial token
         try {
             const raw = Buffer.from(cursor,
                 "base64url").toString("utf8")

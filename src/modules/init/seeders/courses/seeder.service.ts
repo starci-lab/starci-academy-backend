@@ -23,7 +23,7 @@ export class CourseSeederService {
     ) { }
 
     /**
-     * Parse course markdown/S3 sources and upsert PostgreSQL (courses → modules → … → milestones).
+     * Parse course markdown/S3 sources and upsert PostgreSQL (courses -> modules -> ... -> milestones).
      * Scope from `seed.yaml` seeders `courses` via {@link SeedScopeService}.
      */
     async seed(): Promise<void> {

@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Creates the `mock_interview_attempts` table — one row per GRADED mock
+ * Creates the `mock_interview_attempts` table -- one row per GRADED mock
  * interview session (the whole 5-phase run, not one question). Persists
  * the scorecard the FE renders: `overall_score` + `verdict` + `phase_scores` /
  * `attribute_scores` (jsonb rubric breakdowns) + `strengths` / `gaps` /
@@ -17,7 +17,7 @@ import {
 export class CreateMockInterviewAttempts1721500000000 implements MigrationInterface {
     async up(queryRunner: QueryRunner): Promise<void> {
         // one row per graded interview SESSION, enrollment-anchored from day one
-        // (no legacy user_id column — this table is new, unlike interview_attempts
+        // (no legacy user_id column -- this table is new, unlike interview_attempts
         // which predates the enrollment-centric re-key)
         await queryRunner.query(`
             CREATE TABLE IF NOT EXISTS "mock_interview_attempts" (
@@ -40,7 +40,7 @@ export class CreateMockInterviewAttempts1721500000000 implements MigrationInterf
             );
         `)
 
-        // FK to enrollments — deleting an enrollment removes its mock-interview history
+        // FK to enrollments -- deleting an enrollment removes its mock-interview history
         await queryRunner.query(`
             ALTER TABLE "mock_interview_attempts"
             ADD CONSTRAINT "fk_enrollment_id_mock_interview_attempts"

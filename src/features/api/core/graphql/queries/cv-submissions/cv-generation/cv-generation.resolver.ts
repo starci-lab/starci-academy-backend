@@ -45,7 +45,7 @@ export class CvGenerationResolver {
 
     /**
      * Fetch a single CV generation run by id (must belong to the caller).
-     * Exposes `structuredData` as a JSON scalar and `latexSource` — the raw
+     * Exposes `structuredData` as a JSON scalar and `latexSource` -- the raw
      * `.tex` text resolved server-side from MinIO; requires authentication.
      */
     @UseThrottler(ThrottlerConfig.Soft)

@@ -29,7 +29,7 @@ import type {
  * owned by {@link AbstractProjectionListener}.
  */
 export class ContributionProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "contribution-projection"
 
     /** Activity-ledger changes move the actor's contribution calendar. */
@@ -51,7 +51,7 @@ export class ContributionProjectionListener extends AbstractProjectionListener<s
      * An activity row touches only its actor. Returns the actor id, or empty to skip.
      *
      * @param message - {@link ProjectionCdcMessage}
-     * @returns the affected user id (0–1).
+     * @returns the affected user id (0-1).
      */
     protected deriveTargets(
         {

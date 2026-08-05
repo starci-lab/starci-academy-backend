@@ -91,7 +91,7 @@ describe("StreakService",
                         await expect(
                             service.buyStreakFreeze(userId),
                         ).rejects.toBeInstanceOf(StreakFreezeLimitReachedException)
-                        // a hard stop — no debit is attempted once the cap is hit
+                        // a hard stop -- no debit is attempted once the cap is hit
                         expect(entityManager.update).not.toHaveBeenCalled()
                     })
 

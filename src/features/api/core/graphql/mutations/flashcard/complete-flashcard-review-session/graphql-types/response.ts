@@ -14,7 +14,7 @@ import {
 /**
  * The outcome of finishing a flashcard review session: the reviewed-count
  * and XP bookkeeping values snapshotted onto the row. `xpEarned` here is
- * echoed straight back from the request — see
+ * echoed straight back from the request -- see
  * `CompleteFlashcardReviewSessionRequest`'s own doc for why no XP grant
  * happens server-side.
  */

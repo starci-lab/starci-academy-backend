@@ -42,7 +42,7 @@ import {
 
 @Resolver()
 /**
- * The viewer's flashcard review ("Học thẻ") HISTORY for one course — every
+ * The viewer's flashcard review HISTORY for one course -- every
  * past completed session (newest first), paginated, so the recap surface's
  * "past sessions" can list them. Mirrors `myFlashcardQuizHistory`.
  * Enrollment-scoped, same as `myInProgressFlashcardReviewSession`.

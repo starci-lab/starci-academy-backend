@@ -41,7 +41,7 @@ import {
 /**
  * Per-user notification bell list (newest first), paginated, with the unread
  * total folded in so the FE renders the list + badge from one round trip.
- * Reads `notifications` directly (not cached) — the bell is viewed on demand.
+ * Reads `notifications` directly (not cached) -- the bell is viewed on demand.
  */
 export class MyNotificationsResolver {
     constructor(
@@ -95,7 +95,7 @@ export class MyNotificationsResolver {
             })
             type: NotificationType | null,
     ): Promise<MyNotificationsResponseData> {
-        // run the page query + unread count together — both are cheap index reads
+        // run the page query + unread count together -- both are cheap index reads
         const [
             page,
             unreadCount,
@@ -122,7 +122,7 @@ export class MyNotificationsResolver {
                 id: notification.id,
                 type: notification.type,
                 // text-free: title/body are i18n descriptors in payload
-                // (normalise optional params → null for the GraphQL object shape)
+                // (normalise optional params -> null for the GraphQL object shape)
                 title: {
                     key: notification.payload?.title?.key ?? "",
                     params: notification.payload?.title?.params ?? null,

@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `ceil_overrides` (jsonb, nullable) to `ai_subscriptions` — the per-user,
+ * Adds `ceil_overrides` (jsonb, nullable) to `ai_subscriptions` -- the per-user,
  * per-surface model CEILING the learner sets in AI settings (cost control).
  * Shape: `{ default?, chatbot?, grading?, interview? }` of AiModelCategory.
  * Null = no caps (only the plan ceiling applies).

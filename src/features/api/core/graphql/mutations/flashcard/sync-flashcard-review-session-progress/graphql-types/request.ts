@@ -14,10 +14,10 @@ import {
     description: "Sync an in-flight flashcard review session's position + progress for later resume.",
 })
 /**
- * Periodically syncs an IN-FLIGHT flashcard review ("Học thẻ") session's
- * position + progress to the server — mirrors
+ * Periodically syncs an IN-FLIGHT flashcard review session's
+ * position + progress to the server -- mirrors
  * `SyncFlashcardQuizSessionProgressRequest`'s shape, but with no per-card
- * cloze breakdown (review has none — grading itself already happens per-card
+ * cloze breakdown (review has none -- grading itself already happens per-card
  * through the existing `reviewFlashcard` mutation); this just snapshots the
  * resumable cursor + counters so a learner who navigates away mid-review
  * (tab close, refresh, network drop) can pick their draw back up via
@@ -61,7 +61,7 @@ export class SyncFlashcardReviewSessionProgressRequest {
             description: "0-indexed card positions graded this session (order-independent) — drives the FE per-segment green, distinct from the plain reviewedCount. When provided it overwrites the row's set; when omitted the column is left unchanged.",
         },
     )
-    // optional — a sync that does not carry the graded set leaves it untouched
+    // optional -- a sync that does not carry the graded set leaves it untouched
     @IsOptional()
     // each entry is a non-negative card index
     @IsInt({

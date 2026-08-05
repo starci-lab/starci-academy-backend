@@ -16,7 +16,7 @@ export interface CvModelOutputParseExceptionMetadata extends AbstractExceptionMe
 
 /**
  * Thrown when a CV-related LLM reply cannot be `JSON.parse`d after extracting
- * the JSON block — the model drifted from the STRICT-JSON output contract.
+ * the JSON block -- the model drifted from the STRICT-JSON output contract.
  * The original parse error is preserved via `originalError` for debugging.
  */
 export class CvModelOutputParseException extends AbstractException {

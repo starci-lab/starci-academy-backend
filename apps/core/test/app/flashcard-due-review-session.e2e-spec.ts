@@ -34,18 +34,18 @@ const POSTGRESQL_PRIMARY = "primary"
 
 /**
  * e2e for the resumable CROSS-DECK due-review batch ("DueReview") session
- * bookkeeping wrapper — `.claude/canon/be/enforce/authoring/testing.md` §2
+ * bookkeeping wrapper -- `.claude/canon/be/enforce/authoring/testing.md` §2
  * names "a flashcard review" as a write flow that must carry
  * `*.e2e-spec.ts` coverage; this is that coverage for
- * {@link FlashcardDueReviewSessionService}'s start → sync → complete
+ * {@link FlashcardDueReviewSessionService}'s start -> sync -> complete
  * lifecycle, run against REAL Postgres (Testcontainers). Unlike the per-deck
  * `FlashcardReviewSessionService`, this session is scoped to an ENROLLMENT
- * only (a batch spans multiple decks in one course) — the actual SM-2 grading
+ * only (a batch spans multiple decks in one course) -- the actual SM-2 grading
  * still runs through `reviewFlashcard`, covered separately by
  * `flashcard-review.e2e-spec.ts`.
  *
  * MOCKED (no external infra available in this harness):
- *  - `CacheService` — real class talks to Redis; stubbed to always miss so
+ *  - `CacheService` -- real class talks to Redis; stubbed to always miss so
  *    `UserService.resolveOrCreateTrialEnrollment` hits real Postgres every
  *    time, never a stale cross-test cache entry.
  *
@@ -61,7 +61,7 @@ describe("Flashcard due-review BATCH session — start/sync/complete lifecycle (
         let entityManager: EntityManager
         let sessionService: FlashcardDueReviewSessionService
 
-        /** Read-only fixtures seeded ONCE — only per-test user/session state is reset. */
+        /** Read-only fixtures seeded ONCE -- only per-test user/session state is reset. */
         let course: CourseEntity
         let cardA: FlashcardCardEntity
         let cardB: FlashcardCardEntity
@@ -75,7 +75,7 @@ describe("Flashcard due-review BATCH session — start/sync/complete lifecycle (
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers-module/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -84,9 +84,9 @@ describe("Flashcard due-review BATCH session — start/sync/complete lifecycle (
                     }),
                 ],
                 providers: [
-                    // REAL — the batch start/sync/complete/find logic under test
+                    // REAL -- the batch start/sync/complete/find logic under test
                     FlashcardDueReviewSessionService,
-                    // REAL — resolveOrCreateTrialEnrollment runs real SQL against
+                    // REAL -- resolveOrCreateTrialEnrollment runs real SQL against
                     // real `enrollments` rows
                     UserService,
                     {
@@ -104,7 +104,7 @@ describe("Flashcard due-review BATCH session — start/sync/complete lifecycle (
             )
             sessionService = app.get(FlashcardDueReviewSessionService)
 
-            // seed the read-only course/deck/card fixtures ONCE — only
+            // seed the read-only course/deck/card fixtures ONCE -- only
             // users/enrollments/session state are reset between tests
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -116,7 +116,7 @@ describe("Flashcard due-review BATCH session — start/sync/complete lifecycle (
                         defaultLocale: Locale.En,
                     }),
             )
-            // two DIFFERENT decks — a due-review batch spans multiple decks in one course
+            // two DIFFERENT decks -- a due-review batch spans multiple decks in one course
             const deckOne = await entityManager.save(
                 entityManager.create(FlashcardDeckEntity,
                     {
@@ -164,7 +164,7 @@ describe("Flashcard due-review BATCH session — start/sync/complete lifecycle (
         afterAll(async () => {
             // the deck/card fixtures are read-only WITHIN this suite, but the
             // Testcontainers Postgres is shared across the whole e2e run (see
-            // setup-e2e.ts) — leaving them behind pollutes any OTHER file's
+            // setup-e2e.ts) -- leaving them behind pollutes any OTHER file's
             // courseId-less "global" flashcard query with cards this suite has no
             // control over (e.g. flashcard-stats-queries.e2e-spec.ts's
             // myDueFlashcards). CASCADE also clears flashcard_cards (+ their

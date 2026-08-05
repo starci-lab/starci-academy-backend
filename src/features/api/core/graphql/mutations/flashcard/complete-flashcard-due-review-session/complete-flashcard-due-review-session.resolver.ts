@@ -37,7 +37,7 @@ import {
 /**
  * Record a finished cross-deck due-review batch session via
  * {@link FlashcardDueReviewSessionService}, snapshotting the final
- * reviewed-count/xpEarned onto the row. Grants NO XP server-side — see
+ * reviewed-count/xpEarned onto the row. Grants NO XP server-side -- see
  * `CompleteFlashcardDueReviewSessionRequest`'s own doc. Mirrors
  * `CompleteFlashcardReviewSessionResolver`.
  */

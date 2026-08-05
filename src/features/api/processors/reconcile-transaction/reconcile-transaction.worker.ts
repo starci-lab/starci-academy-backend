@@ -66,10 +66,10 @@ import type {
  *
  * Fired on a delay by {@link EnqueueReconcileTransactionJobService}. Each run
  * polls the gateway for the transaction's status:
- * - already finalized (not pending) → no-op (idempotent; the webhook won).
- * - `paid` → run the same finalize path as the webhook (grant tier / enqueue enroll).
- * - `unpaid` (gateway terminal non-paid) → mark the transaction `unpaid`.
- * - `unknown` → re-enqueue the next attempt; once attempts are exhausted, mark `unpaid`.
+ * - already finalized (not pending) -> no-op (idempotent; the webhook won).
+ * - `paid` -> run the same finalize path as the webhook (grant tier / enqueue enroll).
+ * - `unpaid` (gateway terminal non-paid) -> mark the transaction `unpaid`.
+ * - `unknown` -> re-enqueue the next attempt; once attempts are exhausted, mark `unpaid`.
  */
 export class ReconcileTransactionWorker extends WorkerHost {
     constructor(
@@ -110,7 +110,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
                 },
             },
         )
-        // gone or already finalized by the webhook → nothing to do (idempotent)
+        // gone or already finalized by the webhook -> nothing to do (idempotent)
         if (!transaction || transaction.status !== TransactionStatus.Pending) {
             return
         }
@@ -118,12 +118,12 @@ export class ReconcileTransactionWorker extends WorkerHost {
         const status = await this.transactionReconcileQueryService.resolve(transaction)
         const maxAttempts = envConfig().services.api.transaction.reconcile.maxAttempts
         const exhausted = attempt >= maxAttempts
-        // crypto settles slowly and may clear AFTER the poll budget — never mark it
+        // crypto settles slowly and may clear AFTER the poll budget -- never mark it
         // unpaid from here, or a late IPN (which only matches a PENDING row) could
         // never grant. Leave it pending and let the webhook finalize it.
         const isCrypto = transaction.paymentType === PaymentType.Crypto
-        // decide the action: paid → finalize; gateway-terminal unpaid → mark unpaid;
-        // still unknown → retry while attempts remain, else give up (stop for crypto)
+        // decide the action: paid -> finalize; gateway-terminal unpaid -> mark unpaid;
+        // still unknown -> retry while attempts remain, else give up (stop for crypto)
         const decision = status === "paid"
             ? "finalize"
             : status === "unpaid"
@@ -150,7 +150,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
             return
         }
         if (decision === "reenqueue") {
-            // still pending and attempts remain → schedule the next poll
+            // still pending and attempts remain -> schedule the next poll
             await this.enqueueReconcileTransactionJobService.enqueue({
                 transactionId,
                 attempt: attempt + 1,
@@ -158,11 +158,11 @@ export class ReconcileTransactionWorker extends WorkerHost {
             return
         }
         if (decision === "stop") {
-            // crypto budget exhausted with no confirmation → stop polling but keep
+            // crypto budget exhausted with no confirmation -> stop polling but keep
             // the row pending so a late IPN can still finalize it
             return
         }
-        // gateway terminal non-paid, or all polls exhausted → mark unpaid, but ONLY
+        // gateway terminal non-paid, or all polls exhausted -> mark unpaid, but ONLY
         // if still pending so a webhook that just succeeded is never clobbered
         await this.transactionActionService.updateTransactionStatusIfExpected({
             id: transactionId,
@@ -175,7 +175,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
             transactionId,
         })
         // we only reach here from a PENDING row (guarded above), so this is the
-        // first-and-only unpaid transition → notify the buyer once.
+        // first-and-only unpaid transition -> notify the buyer once.
         await enqueuePaymentFailedEmail({
             entityManager: this.entityManager,
             enqueueSendMailJobService: this.enqueueSendMailJobService,
@@ -238,7 +238,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
             })
             return
         }
-        // installment (trả góp) cycle payment: advance/top-up the plan (also
+        // installment cycle payment: advance/top-up the plan (also
         // marks tx succeeded). A transaction of this action type is always
         // created with `installmentPlanId` set (see `PayNextInstallmentHandler`).
         case ActionType.InstallmentPayment: {

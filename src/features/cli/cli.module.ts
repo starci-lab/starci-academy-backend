@@ -17,7 +17,7 @@ import {
     ],
 })
 /**
- * CLI feature root. Only pulls `UtilsModule` globally — must not import
+ * CLI feature root. Only pulls `UtilsModule` globally -- must not import
  * `InitModule` / `SeedersService` or the CLI would boot the git-sourced seeder
  * graph.
  */

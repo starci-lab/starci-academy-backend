@@ -39,11 +39,11 @@ const MAX_LIMIT = 50
 
 @Resolver()
 /**
- * Public list of a user's followers (most recent first), keyed by username — the
+ * Public list of a user's followers (most recent first), keyed by username -- the
  * data behind the profile's "who follows" avatar group. Returns the header
  * fields (opaque id + username + display name + avatar) for each follower; the
  * total count lives on `userProfile.followerCount`, so this is just the visible
- * slice. Public (no auth) — a logged-out recruiter can see who follows a profile.
+ * slice. Public (no auth) -- a logged-out recruiter can see who follows a profile.
  */
 export class UserFollowersResolver {
     constructor(
@@ -102,7 +102,7 @@ export class UserFollowersResolver {
         const skip = Math.max(offset ?? 0,
             0)
 
-        // resolve the target user from the username; unknown / deleted → empty
+        // resolve the target user from the username; unknown / deleted -> empty
         const target = await this.entityManager.findOne(UserEntity,
             {
                 where: {
@@ -115,7 +115,7 @@ export class UserFollowersResolver {
         }
 
         // follower edges pointing at the target, newest first, with the follower user
-        // (repository find handles relation + limit cleanly — avoids the QB
+        // (repository find handles relation + limit cleanly -- avoids the QB
         // leftJoinAndSelect+take+orderBy "databaseName" pitfall)
         const follows: Array<UserFollowEntity> = await this.entityManager.find(UserFollowEntity,
             {

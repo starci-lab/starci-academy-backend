@@ -3,7 +3,7 @@ import {
 } from "@modules/databases"
 
 /**
- * Maps a {@link DayOfWeek} to the JavaScript `Date.getDay()` index (0 = Sunday …
+ * Maps a {@link DayOfWeek} to the JavaScript `Date.getDay()` index (0 = Sunday ...
  * 6 = Saturday) so we can advance a date to the right weekday.
  */
 const DAY_OF_WEEK_TO_INDEX: Record<DayOfWeek, number> = {
@@ -16,7 +16,7 @@ const DAY_OF_WEEK_TO_INDEX: Record<DayOfWeek, number> = {
     [DayOfWeek.Saturday]: 6,
 }
 
-/** Number of days in a week — the period a recurring weekly slot rolls over by. */
+/** Number of days in a week -- the period a recurring weekly slot rolls over by. */
 const DAYS_PER_WEEK = 7
 
 /** Params for computing the next concrete occurrence of a recurring weekly slot. */

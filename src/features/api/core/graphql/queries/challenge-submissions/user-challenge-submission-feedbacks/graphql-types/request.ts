@@ -15,7 +15,7 @@ import {
 
 /** Sort fields for listing submission feedbacks. */
 export enum UserChallengeSubmissionFeedbacksSortBy {
-    /** Default (Asc): scorer-written display order — reading order on the attempt. */
+    /** Default (Asc): scorer-written display order -- reading order on the attempt. */
     SortIndex = "sortIndex",
     /** Groups by severity so critical items can surface before nits. */
     Severity = "severity",
@@ -93,7 +93,7 @@ export class UserChallengeSubmissionFeedbacksRequestPaginationFilters extends Pa
 })
 /**
  * Paginated scorer feedback for one submission attempt. `submissionAttemptId`
- * is optional on the input type but the handler filters by it — omit it and
+ * is optional on the input type but the handler filters by it -- omit it and
  * the where-clause matches a null attempt id (empty page).
  */
 export class UserChallengeSubmissionFeedbacksRequest {

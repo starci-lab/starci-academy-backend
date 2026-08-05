@@ -112,7 +112,7 @@ export const configMap = {
     },
     [CacheKey.EntityLabel]: {
         ttl: envConfig().cache.ttl.entityLabel,
-        // simple label string — store the resolved display text directly
+        // simple label string -- store the resolved display text directly
         cacheResult: "" as EntityLabelCacheResult,
     },
 }

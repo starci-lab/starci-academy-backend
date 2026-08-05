@@ -56,10 +56,10 @@ const parseRangeString = (value: string): Set<number> => {
 /**
  * Convert a `seed.yaml` scope value into a per-course order-index filter.
  *
- * - `"all"`              -> `null`    (unrestricted — include every item).
- * - `Array<number>`      -> `Set(n…)` (allow-list of `orderIndex` values).
- * - `string` range       -> `Set(n…)` (`"1-5"`, `"0,2,4"`, mixed `"1-3,7"`).
- * - `[]` / `""`          -> `Set()`   (disabled — include nothing).
+ * - `"all"`              -> `null`    (unrestricted -- include every item).
+ * - `Array<number>`      -> `Set(n...)` (allow-list of `orderIndex` values).
+ * - `string` range       -> `Set(n...)` (`"1-5"`, `"0,2,4"`, mixed `"1-3,7"`).
+ * - `[]` / `""`          -> `Set()`   (disabled -- include nothing).
  *
  * Any unrecognized scalar is treated as disabled (safe default).
  *
@@ -84,7 +84,7 @@ export const parseScopeIndexes = (
     if (typeof value === "string") {
         return parseRangeString(value)
     }
-    // a bare single number (e.g. `modules: 3`) — YAML parses it as a number,
+    // a bare single number (e.g. `modules: 3`) -- YAML parses it as a number,
     // not a string, so treat it as a one-item allow-list rather than "off".
     if (typeof value === "number" && Number.isInteger(value)) {
         return new Set<number>([value])

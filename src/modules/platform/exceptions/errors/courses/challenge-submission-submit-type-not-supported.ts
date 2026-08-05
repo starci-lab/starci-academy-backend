@@ -15,7 +15,7 @@ export interface ChallengeSubmissionSubmitTypeNotSupportedExceptionMetadata exte
 }
 
 /**
- * Rejects auto-grade submit unless the submission is a GitHub repo — other types need a
+ * Rejects auto-grade submit unless the submission is a GitHub repo -- other types need a
  * different pipeline.
  */
 export class ChallengeSubmissionSubmitTypeNotSupportedException extends AbstractException {

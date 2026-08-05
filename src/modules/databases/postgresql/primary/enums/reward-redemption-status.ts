@@ -18,7 +18,7 @@ export enum RewardRedemptionStatus {
     Pending = "pending",
     /** Physical reward shipped / fulfilled by ops. */
     Fulfilled = "fulfilled",
-    /** Redemption voided — its cost no longer counts against the balance. */
+    /** Redemption voided -- its cost no longer counts against the balance. */
     Cancelled = "cancelled",
 }
 

@@ -126,7 +126,7 @@ describe("CourseEnrollmentStatusHandler",
 
         it("reports not-enrolled with a null row when no enrollment exists",
             async () => {
-                // default findOne resolves null → user is not enrolled
+                // default findOne resolves null -> user is not enrolled
                 const result = await handler.execute(
                     new CourseEnrollmentStatusQuery({
                         request: {

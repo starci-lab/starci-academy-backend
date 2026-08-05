@@ -59,8 +59,8 @@ const indexFiles = async (
  *
  * A path is "changed" when it is added (in new only), removed (in old only), or
  * modified (present in both with a different content hash). Paths are returned
- * relative to the snapshot roots — already free of any repo sub-directory prefix
- * — so they feed straight into `parseDataGitDiff(paths, "")`.
+ * relative to the snapshot roots -- already free of any repo sub-directory prefix
+ * -- so they feed straight into `parseDataGitDiff(paths, "")`.
  *
  * @param oldRoot - Absolute path of the previous snapshot (baseline)
  * @param newRoot - Absolute path of the freshly-pulled snapshot
@@ -72,7 +72,7 @@ export const diffSnapshots = async (
 ): Promise<Array<string>> => {
     const oldIndex = new Map<string, string>()
     const newIndex = new Map<string, string>()
-    // a missing baseline yields an empty index → every new file reads as "added"
+    // a missing baseline yields an empty index -> every new file reads as "added"
     if (existsSync(oldRoot)) {
         await indexFiles(oldRoot,
             "",

@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handlers pull `@modules/cqrs` — dodges a load-order
+// initialised before the handlers pull `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (same guard as
 // review-personal-project-task.handler.spec.ts).
 import "@modules/bussiness"
@@ -91,7 +91,7 @@ const POSTGRESQL_PRIMARY = "primary"
 const PASS_THRESHOLD = 0.7
 
 /**
- * e2e for the two progress QUERY reads — `.artifacts/states/progress/findings.md`
+ * e2e for the two progress QUERY reads -- `.artifacts/states/progress/findings.md`
  * #4: "no e2e coverage for either progress read path", both `.handler.spec.ts`
  * files mock the `EntityManager` + service entirely, so neither the real
  * multi-table join ({@link ChallengeProgressService.computeProgress} /
@@ -100,18 +100,18 @@ const PASS_THRESHOLD = 0.7
  *
  * This file seeds real challenge/milestone fixtures plus real user-submission
  * and user-milestone-task-attempt rows against Testcontainers Postgres, then
- * asserts the GraphQL response against what the REAL join computes — not a
+ * asserts the GraphQL response against what the REAL join computes -- not a
  * hand-written expectation that merely mirrors the source.
  *
  * MOCKED (no external infra in this harness):
- *  - `MountStorageService` — real class reads a mounted app-config file for
+ *  - `MountStorageService` -- real class reads a mounted app-config file for
  *    `systemConfig.{challenge,task}.passThreshold`; stubbed to a fixed 0.7.
- *  - `CacheService` — real class talks to Redis. The challenge-progress side
+ *  - `CacheService` -- real class talks to Redis. The challenge-progress side
  *    doesn't use it at all (it is a Postgres CQRS projection, TTL-checked off
  *    `updated_at`); the milestone-task side uses it as its ONLY cache layer,
- *    so it is stubbed to always MISS — every `milestoneTaskProgress` read in
+ *    so it is stubbed to always MISS -- every `milestoneTaskProgress` read in
  *    this file exercises the real `computeProgress` join, never a cached value.
- *  - `KeycloakAuthGraphQLGuard` — no Keycloak server here; overridden to stamp
+ *  - `KeycloakAuthGraphQLGuard` -- no Keycloak server here; overridden to stamp
  *    `request.user` with whichever fake user the test "logs in" as.
  *
  * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring, both CQRS
@@ -153,7 +153,7 @@ describe("Progress query reads (e2e)",
                 },
             },
         }
-        // milestone-task-progress's ONLY cache layer — always miss, so every
+        // milestone-task-progress's ONLY cache layer -- always miss, so every
         // read in this file exercises the real join, never a stale cached value.
         const cacheServiceMock = {
             get: jest.fn().mockResolvedValue(undefined),
@@ -251,10 +251,10 @@ describe("Progress query reads (e2e)",
                     MilestoneTaskProgressResolver,
                     MilestoneTaskProgressService,
                     MilestoneTaskProgressHandler,
-                    // REAL — the joins under test
+                    // REAL -- the joins under test
                     ChallengeProgressService,
                     PersonalProjectProgressService,
-                    // REAL — injected by MilestoneTaskProgressHandler but unused by its
+                    // REAL -- injected by MilestoneTaskProgressHandler but unused by its
                     // visible logic; still needs to resolve for DI to compile
                     UserService,
                     {
@@ -349,7 +349,7 @@ describe("Progress query reads (e2e)",
                             challenge,
                         }),
                 )
-            // seeds the row (a real submission with no graded attempt) — the
+            // seeds the row (a real submission with no graded attempt) -- the
             // "notStarted" progress case reads it from the DB, not from a var
             await makeSubmission(challengeNotStarted)
             submissionInProgress = await makeSubmission(challengeInProgress)
@@ -378,7 +378,7 @@ describe("Progress query reads (e2e)",
                             milestone,
                         }),
                 )
-            // sort order: completed(0) → failed(1) → notStarted(2) — proves
+            // sort order: completed(0) -> failed(1) -> notStarted(2) -- proves
             // currentTask picks the FIRST uncompleted one (failed), not merely
             // the first one in the array
             taskCompleted = await makeTask("task-completed",
@@ -396,7 +396,7 @@ describe("Progress query reads (e2e)",
         afterEach(async () => {
             // enrollments CASCADE-truncates user_challenge_submissions(+attempts),
             // user_milestone_tasks(+attempts), and user_challenge_progress_projections
-            // — every mutable row this suite writes. Challenge/milestone/task
+            // -- every mutable row this suite writes. Challenge/milestone/task
             // fixtures (seeded in beforeAll) are read-only across the whole suite.
             await entityManager.query(
                 "TRUNCATE TABLE \"users\", \"enrollments\" RESTART IDENTITY CASCADE",
@@ -463,7 +463,7 @@ describe("Progress query reads (e2e)",
                                     userChallengeSubmission: userSubmissionFailed,
                                 }),
                         )
-                        // challengeCompleted: TWO attempts — the LATEST by attemptNumber (not
+                        // challengeCompleted: TWO attempts -- the LATEST by attemptNumber (not
                         // insertion order) must win: attempt 1 fails, attempt 2 passes
                         const userSubmissionCompleted = await entityManager.save(
                             entityManager.create(UserChallengeSubmissionEntity,
@@ -557,8 +557,8 @@ describe("Progress query reads (e2e)",
                     async () => {
                         currentUser = await seedUser("kc-challenge-stale-projection")
                         const enrollment = await seedEnrollment(currentUser)
-                        // no user submissions at all → the REAL answer for every challenge
-                        // is notStarted/0 — seed a stale, WRONG cached row to prove it's
+                        // no user submissions at all -> the REAL answer for every challenge
+                        // is notStarted/0 -- seed a stale, WRONG cached row to prove it's
                         // ignored rather than trusted past its TTL (5 minutes)
                         await entityManager.query(
                             `INSERT INTO user_challenge_progress_projections (enrollment_id, value, updated_at)
@@ -612,7 +612,7 @@ describe("Progress query reads (e2e)",
                         currentUser = await seedUser("kc-milestone-progress")
                         const enrollment = await seedEnrollment(currentUser)
 
-                        // taskCompleted: two attempts — DESC order must pick attemptNumber 2
+                        // taskCompleted: two attempts -- DESC order must pick attemptNumber 2
                         // (score 85), not whichever was inserted last
                         const userTaskCompleted = await entityManager.save(
                             entityManager.create(UserMilestoneTaskEntity,
@@ -702,7 +702,7 @@ describe("Progress query reads (e2e)",
                             numAttempts: 0,
                         })
 
-                        // sort order is completed(0) → failed(1) → notStarted(2); the FIRST
+                        // sort order is completed(0) -> failed(1) -> notStarted(2); the FIRST
                         // uncompleted one (taskFailed) must win currentTask, not taskNotStarted
                         expect(body.data.currentTask.id).toBe(taskFailed.id)
 

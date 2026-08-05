@@ -6,7 +6,7 @@ import {
 } from "@modules/common"
 
 /**
- * Topic domain for a LeetCode-style coding problem — the primary interview
+ * Topic domain for a LeetCode-style coding problem -- the primary interview
  * category used to group the problem bank (e.g. arrays, graph, dynamic
  * programming). Stored in `coding_problems.domain`.
  *

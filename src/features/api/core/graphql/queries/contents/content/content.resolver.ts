@@ -35,7 +35,7 @@ import {
 
 @Resolver(() => ContentEntity)
 /**
- * GraphQL surface for `content` — authenticated single-lesson fetch with
+ * GraphQL surface for `content` -- authenticated single-lesson fetch with
  * premium truncation and scrape-rate protection applied in the handler.
  */
 export class ContentResolver {

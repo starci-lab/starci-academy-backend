@@ -18,7 +18,7 @@ import type {
 } from "./types"
 @Injectable()
 /**
- * Resolves indexed content folders under a module’s `contents/` directory (`{index}-{slug}` or legacy `{index}`).
+ * Resolves indexed content folders under a module's `contents/` directory (`{index}-{slug}` or legacy `{index}`).
  */
 export class PathResolverService {
     constructor(
@@ -66,7 +66,7 @@ export class PathResolverService {
 
     /**
      * Lists raw entry names (files and directories) under `baseDir/relativePath` WITHOUT the
-     * `{index}-{slug}` filter — used for non-indexed trees such as `.e2e/<lang>/flow-*.md`.
+     * `{index}-{slug}` filter -- used for non-indexed trees such as `.e2e/<lang>/flow-*.md`.
      * Mirrors {@link filePaths}' context resolution (staging root / filesystem, then S3).
      *
      * @param baseDir - The base directory (context prefix, e.g. `"courses"`).

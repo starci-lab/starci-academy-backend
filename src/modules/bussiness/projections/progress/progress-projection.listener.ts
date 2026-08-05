@@ -49,7 +49,7 @@ import type {
  * declares its group, its topics, and how to derive/recompute one target.
  */
 export class ProgressProjectionListener extends AbstractProjectionListener<DerivedProgressTarget> {
-    /** Stable groupId → restarts resume from the committed offset (no replay storm). */
+    /** Stable groupId -> restarts resume from the committed offset (no replay storm). */
     protected readonly groupId = "progress-projection"
 
     /** The four CDC topics whose row-changes can move a user's course progress. */
@@ -75,11 +75,11 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
     /**
      * Map a CDC row to the `(userId, courseId)` to recompute, branching on the
      * source topic (the table name suffix). Returns an empty array when the
-     * target cannot be derived (missing columns / deleted parent row) — the
+     * target cannot be derived (missing columns / deleted parent row) -- the
      * base class treats an empty array as "skip this message".
      *
      * @param message - {@link ProjectionCdcMessage} (source topic + parsed row).
-     * @returns the derived target wrapped in an array (0–1 elements).
+     * @returns the derived target wrapped in an array (0-1 elements).
      */
     protected async deriveTargets(
         {
@@ -123,7 +123,7 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
         if (topic.endsWith("enrollments")) {
             return this.deriveFromEnrollment(row as EnrollmentCdcRow)
         }
-        // unknown topic (mis-subscription) → nothing to do
+        // unknown topic (mis-subscription) -> nothing to do
         return null
     }
 
@@ -150,11 +150,11 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
     private async deriveFromUserContent(
         row: UserContentCdcRow,
     ): Promise<DerivedProgressTarget | null> {
-        // both columns are required to resolve a course → bail if either absent
+        // both columns are required to resolve a course -> bail if either absent
         if (!row.user_id || !row.content_id) {
             return null
         }
-        // walk content → module to find the owning course (dashboard has no course)
+        // walk content -> module to find the owning course (dashboard has no course)
         const rows = await this.entityManager.query<Array<ContentCourseLookupRow>>(
             `
             SELECT m.course_id
@@ -166,7 +166,7 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
                 row.content_id,
             ],
         )
-        // content was deleted / not found → skip
+        // content was deleted / not found -> skip
         if (rows.length === 0) {
             return null
         }
@@ -179,8 +179,8 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
     /**
      * `user_challenge_submission_attempts`: only the FK
      * `user_challenge_submission_id` is on the row; join up through
-     * user_challenge_submissions → challenge_submissions → challenges →
-     * contents → modules to reach both the user and the course.
+     * user_challenge_submissions -> challenge_submissions -> challenges ->
+     * contents -> modules to reach both the user and the course.
      *
      * @param row - the attempt row image
      * @returns the derived target, or `null` when the chain cannot be resolved
@@ -207,7 +207,7 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
                 row.user_challenge_submission_id,
             ],
         )
-        // parent submission deleted / orphan → skip
+        // parent submission deleted / orphan -> skip
         if (rows.length === 0) {
             return null
         }
@@ -219,7 +219,7 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
 
     /**
      * `user_milestone_task_attempts`: only the FK `user_milestone_task_id` is on
-     * the row; join up through user_milestone_tasks → enrollments to read the
+     * the row; join up through user_milestone_tasks -> enrollments to read the
      * enrollment's user_id + course_id directly.
      *
      * @param row - the attempt row image
@@ -244,7 +244,7 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
                 row.user_milestone_task_id,
             ],
         )
-        // milestone task / enrollment deleted → skip
+        // milestone task / enrollment deleted -> skip
         if (rows.length === 0) {
             return null
         }

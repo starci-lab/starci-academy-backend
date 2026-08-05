@@ -113,7 +113,7 @@ export class PlaygroundSessionEntity extends UuidAbstractEntity {
         playgroundId: string
 
     /**
-     * How much scaffolding this session gives the learner — "guided" (default,
+     * How much scaffolding this session gives the learner -- "guided" (default,
      * step `commandHint`s shown) or "free" (hints redacted server-side, see
      * {@link PlaygroundSessionMode}). Row count was 0 at the time this column
      * was added, so it is safe as NOT NULL with a default.
@@ -145,7 +145,7 @@ export class PlaygroundSessionEntity extends UuidAbstractEntity {
     )
     @Column({
         name: "pairing_code",
-        // holds a UUID (36 chars) — the pairing code is `randomUUID()` (unguessable,
+        // holds a UUID (36 chars) -- the pairing code is `randomUUID()` (unguessable,
         // no brute-force). Widened from the old short-code length via `synchronize`.
         type: "varchar",
         length: 36,

@@ -13,7 +13,7 @@ import {
 
 @Entity("user_flashcard_stats_projections")
 /**
- * CQRS projection of a user's flashcard study stats — ONE ROW PER user. The
+ * CQRS projection of a user's flashcard study stats -- ONE ROW PER user. The
  * inherited jsonb `value` holds `{ currentStreak, longestStreak, retentionRate,
  * totalReviewed, lastReviewedAt }`, all derived from the `flashcard_review_events`
  * log. The history scan runs only in the projection's recompute, never inline at
@@ -21,7 +21,7 @@ import {
  * `flashcard_review_events`.
  */
 export class UserFlashcardStatsProjectionEntity extends AbstractProjectionEntity {
-    /** Target user id — the natural (primary) key. */
+    /** Target user id -- the natural (primary) key. */
     @PrimaryColumn({
         name: "user_id",
         type: "uuid",

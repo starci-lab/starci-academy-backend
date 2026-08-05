@@ -14,7 +14,7 @@ import {
 })
 /**
  * Per-grade next-interval preview (in days) computed from a card's current SM-2
- * state without persisting — mirrors `DueFlashcardObject`'s own field so the two
+ * state without persisting -- mirrors `DueFlashcardObject`'s own field so the two
  * queries return interchangeable shapes for the FE.
  */
 export class FlashcardByIdNextIntervalsObject {
@@ -55,7 +55,7 @@ export class FlashcardByIdNextIntervalsObject {
     description: "A flashcard fetched by exact id (localized front/back + deck title), regardless of due status.",
 })
 /**
- * One flashcard fetched by exact id, localized — same shape as `DueFlashcardObject`
+ * One flashcard fetched by exact id, localized -- same shape as `DueFlashcardObject`
  * but not filtered by due status.
  */
 export class FlashcardByIdObject {

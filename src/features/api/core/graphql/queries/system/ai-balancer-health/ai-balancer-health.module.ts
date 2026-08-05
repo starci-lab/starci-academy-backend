@@ -13,5 +13,5 @@ import {
         AiBalancerHealthResolver,
     ],
 })
-/** Feature-module boundary for the admin `aiBalancerHealth` query — wires its resolver. */
+/** Feature-module boundary for the admin `aiBalancerHealth` query -- wires its resolver. */
 export class AiBalancerHealthSingleQueryModule extends ConfigurableModuleClass {}

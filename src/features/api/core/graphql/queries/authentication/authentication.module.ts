@@ -16,7 +16,7 @@ import {
     ],
 })
 /**
- * Auth-facing query group. Today only `me` — the identity snapshot the
+ * Auth-facing query group. Today only `me` -- the identity snapshot the
  * signed-in shell boots from. Login / logout / refresh are mutations.
  */
 export class AuthenticationQueriesModule extends ConfigurableModuleClass {}

@@ -20,7 +20,7 @@ import {
 import {
     DayjsService,
 } from "@modules/mixin"
-// value import (NOT `import type`) — Nest DI needs the class at runtime; deep path
+// value import (NOT `import type`) -- Nest DI needs the class at runtime; deep path
 // avoids the circular @modules/bussiness barrel (this file lives inside it)
 import {
     EnqueueSendMailJobService,
@@ -44,20 +44,20 @@ import {
 @Injectable()
 /**
  * Daily enforcement sweep for installment plans (§2.4 of
- * `docs/installment-payment-plan.md`) — mirrors {@link import("../streak/streak-freeze-cron.service").StreakFreezeCronService}'s
- * shape (find candidates → process each → log → swallow failures).
+ * `docs/installment-payment-plan.md`) -- mirrors {@link import("../streak/streak-freeze-cron.service").StreakFreezeCronService}'s
+ * shape (find candidates -> process each -> log -> swallow failures).
  *
  * Three stages past `nextDueAt`, shared by BOTH `Fixed` and `FlexiblePool`
- * plans (only the minimum-payment FORMULA differs — see
+ * plans (only the minimum-payment FORMULA differs -- see
  * {@link InstallmentPlanService.computeMinPaymentVnd}):
- * - **Day 0** (due) — send the first reminder, flip `Active` → `Overdue`.
- * - **`secondReminderAfterDays`** (default 7) — send the final-warning reminder.
- * - **`lockoutAfterDays`** (default 14) — flip to `Defaulted` and lock every
- *   enrollment in `lockedCourseIds`. No late fee — locking access is the only
+ * - **Day 0** (due) -- send the first reminder, flip `Active` -> `Overdue`.
+ * - **`secondReminderAfterDays`** (default 7) -- send the final-warning reminder.
+ * - **`lockoutAfterDays`** (default 14) -- flip to `Defaulted` and lock every
+ *   enrollment in `lockedCourseIds`. No late fee -- locking access is the only
  *   enforcement (2026-07-05 decision, v1).
  *
  * Every reminder is guarded by its own `*RemindedAt` timestamp so a daily
- * re-run never re-sends the same stage twice — `InstallmentPlanService.recordPayment`
+ * re-run never re-sends the same stage twice -- `InstallmentPlanService.recordPayment`
  * clears both timestamps whenever a cycle is paid off.
  */
 export class InstallmentPlanEnforcementCronService {
@@ -73,7 +73,7 @@ export class InstallmentPlanEnforcementCronService {
     /**
      * Run the enforcement sweep once per day (01:00 Asia/Ho_Chi_Minh). Any
      * failure is logged and swallowed so a bad run can never crash the
-     * scheduler — every step here is idempotent, so the next day self-heals.
+     * scheduler -- every step here is idempotent, so the next day self-heals.
      */
     @Cron(
         CronExpression.EVERY_DAY_AT_1AM,
@@ -118,8 +118,8 @@ export class InstallmentPlanEnforcementCronService {
     /**
      * Enforce ONE overdue plan against the three stages described above.
      *
-     * The stages are checked highest-first (3 → 2 → 1) and each branch
-     * unconditionally `return`s — that is what keeps them MUTUALLY EXCLUSIVE
+     * The stages are checked highest-first (3 -> 2 -> 1) and each branch
+     * unconditionally `return`s -- that is what keeps them MUTUALLY EXCLUSIVE
      * for a single run. Stage 1 only runs when the plan is below the
      * `secondReminderAfterDays` threshold precisely because stage 2's `if`
      * already returned for anything at or past it. Adding a 4th stage or
@@ -137,7 +137,7 @@ export class InstallmentPlanEnforcementCronService {
         const minPaymentVnd = this.installmentPlanService.computeMinPaymentVnd(plan)
         const webBaseUrl = envConfig().web.baseUrl
 
-        // stage 3 — past the full grace period: lock (idempotent — only acts once)
+        // stage 3 -- past the full grace period: lock (idempotent -- only acts once)
         if (daysPastDue >= plan.lockoutAfterDays) {
             if (plan.status === InstallmentPlanStatus.Defaulted) {
                 return
@@ -162,7 +162,7 @@ export class InstallmentPlanEnforcementCronService {
             return
         }
 
-        // stage 2 — past the second-reminder threshold: final warning (once per cycle)
+        // stage 2 -- past the second-reminder threshold: final warning (once per cycle)
         if (daysPastDue >= plan.secondReminderAfterDays) {
             if (!plan.secondRemindedAt) {
                 await enqueueInstallmentFinalWarningEmail({
@@ -187,7 +187,7 @@ export class InstallmentPlanEnforcementCronService {
             return
         }
 
-        // stage 1 — day 0..secondReminderAfterDays: first "it's due" reminder (once per cycle)
+        // stage 1 -- day 0..secondReminderAfterDays: first "it's due" reminder (once per cycle)
         if (!plan.dueRemindedAt) {
             await enqueueInstallmentDueEmail({
                 entityManager: this.entityManager,

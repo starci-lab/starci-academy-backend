@@ -28,7 +28,7 @@ import {
     ],
 })
 /**
- * Interview mutation group — server-side prompt draw + whole-session grading
+ * Interview mutation group -- server-side prompt draw + whole-session grading
  * for the System Design mock-interview rubric + in-flight session resume sync.
  */
 export class InterviewMutationsModule extends ConfigurableModuleClass { }

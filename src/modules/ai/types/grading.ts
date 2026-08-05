@@ -6,19 +6,19 @@ import type {
  * Caller input when enqueueing or persisting a grading model pick.
  */
 export interface GradingLaneRequest {
-    /** Concrete model name (GraphQL `selectedModel` / job `gradingModel`); absent → balancer picks. */
+    /** Concrete model name (GraphQL `selectedModel` / job `gradingModel`); absent -> balancer picks. */
     model?: string
     /** Provider for {@link GradingLaneRequest.model}. */
     provider?: ModelProvider
 }
 
 /**
- * Normalized model fields safe to persist on a row or BullMQ payload — the
+ * Normalized model fields safe to persist on a row or BullMQ payload -- the
  * pinned model the validator resolved, or neither when nothing was pinned (the
  * balancer picks).
  */
 export interface ValidatedGradingLane {
-    /** Model for a pinned pooled invoke; absent → balancer picks. */
+    /** Model for a pinned pooled invoke; absent -> balancer picks. */
     gradingModel?: string
     /** Provider for {@link ValidatedGradingLane.gradingModel}. */
     gradingProvider?: ModelProvider
@@ -41,7 +41,7 @@ export interface GradingStepAiUsage {
     /**
      * Prompt-cache hits, already counted inside {@link promptTokens}. Carried so
      * the post-commit billing can re-price them at the model's cache rate rather
-     * than the full input rate — see `creditForRun`.
+     * than the full input rate -- see `creditForRun`.
      */
     cachedTokens?: number
 }

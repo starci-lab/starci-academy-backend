@@ -22,6 +22,6 @@ import {
     ],
 })
 /**
- * Nest DI for `userPersonalTaskAttempts` — attempt history for one task.
+ * Nest DI for `userPersonalTaskAttempts` -- attempt history for one task.
  */
 export class UserPersonalTaskAttemptsSingleQueryModule extends ConfigurableModuleClass {}

@@ -19,7 +19,7 @@ export interface S3UploadFailedExceptionMetadata extends AbstractExceptionMetada
 }
 
 /**
- * Thrown when an S3-compatible `PutObjectCommand` rejects — carries the
+ * Thrown when an S3-compatible `PutObjectCommand` rejects -- carries the
  * provider/bucket/key context alongside the original SDK error for debugging.
  */
 export class S3UploadFailedException extends AbstractException {

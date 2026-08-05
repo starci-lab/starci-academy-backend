@@ -15,13 +15,13 @@ import {
 @Entity("mock_interview_translations")
 /**
  * Bilingual override for one field of {@link MockInterviewEntity}, keyed
- * `(mockInterviewId, locale, field)` — same house pattern as
+ * `(mockInterviewId, locale, field)` -- same house pattern as
  * `ContentTranslationEntity`/`MilestoneTaskBriefTranslationEntity`. Only needed
  * for the locale OTHER than the row's `defaultLocale`.
  *
  * `value` is plain text for text fields (`prompt`/`idealAnswer`/`ownershipSignal`).
  * For the jsonb-array fields (`rubric`/`followUps`/`hints`/`keywords`/`tags`),
- * `value` holds the JSON-serialized array as a string — callers must
+ * `value` holds the JSON-serialized array as a string -- callers must
  * `JSON.parse` it back when reading a non-default-locale override for one of
  * those fields.
  */

@@ -45,7 +45,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the weekly-KPI reads/writes — `myKpis` (current-week value vs
+ * e2e for the weekly-KPI reads/writes -- `myKpis` (current-week value vs
  * self-set target, per KPI) and `claimKpiReward` (claims the Coin reward for
  * one met KPI, floor-tracked). Drives the real {@link UserStatsProjectionService}
  * (the `xp_histories` aggregate) and {@link KpiRewardService} against
@@ -184,7 +184,7 @@ describe("Weekly KPI reward reads/writes (e2e)",
                 it("reports the REAL current-week value against the self-set target",
                     async () => {
                         currentUser = await seedUser("kc-mykpis-happy")
-                        // one XP event today → weeklyStudyDays = 1, meets the target of 1
+                        // one XP event today -> weeklyStudyDays = 1, meets the target of 1
                         await entityManager.save(
                             entityManager.create(XpHistoryEntity,
                                 {

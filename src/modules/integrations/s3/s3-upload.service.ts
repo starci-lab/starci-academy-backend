@@ -50,7 +50,7 @@ export class S3UploadService {
     /**
      * Whether DigitalOcean is configured (has an access key). When false, every DigitalOcean
      * upload is skipped instead of hitting Spaces with empty creds (which returns 400
-     * InvalidArgument) — a single switch to disable DO across all upload paths.
+     * InvalidArgument) -- a single switch to disable DO across all upload paths.
      */
     private isDigitalOceanEnabled(): boolean {
         return envConfig().s3.digitalOcean.accessKeyId.trim().length > 0
@@ -79,11 +79,11 @@ export class S3UploadService {
         for (const provider of providers) {
             switch (provider) {
             case S3Provider.DigitalOcean: {
-                // skip when DigitalOcean is not configured (empty creds → 400 InvalidArgument)
+                // skip when DigitalOcean is not configured (empty creds -> 400 InvalidArgument)
                 if (!this.isDigitalOceanEnabled()) {
                     break
                 }
-                // upload unconditionally — the caller (MaterializeAndUploadService) already
+                // upload unconditionally -- the caller (MaterializeAndUploadService) already
                 // does the hash/snapshot skip, so re-reading here would be a wasted round-trip
                 promises.push(
                     (async () => {
@@ -110,7 +110,7 @@ export class S3UploadService {
                 break
             }
             case S3Provider.Minio: {
-                // upload unconditionally — hash-equality skipping is the caller's responsibility
+                // upload unconditionally -- hash-equality skipping is the caller's responsibility
                 promises.push(
                     (async () => {
                         const bucket = envConfig().s3.minio.bucket
@@ -160,7 +160,7 @@ export class S3UploadService {
             contentType,
         }: UploadBufferParams,
     ): Promise<void> {
-        // skip DigitalOcean uploads entirely when DO is not configured (empty creds → 400)
+        // skip DigitalOcean uploads entirely when DO is not configured (empty creds -> 400)
         if (provider === S3Provider.DigitalOcean && !this.isDigitalOceanEnabled()) {
             return
         }
@@ -206,7 +206,7 @@ export class S3UploadService {
             contentType,
         }: UploadStreamParams,
     ): Promise<void> {
-        // skip DigitalOcean uploads entirely when DO is not configured (empty creds → 400)
+        // skip DigitalOcean uploads entirely when DO is not configured (empty creds -> 400)
         if (provider === S3Provider.DigitalOcean && !this.isDigitalOceanEnabled()) {
             return
         }

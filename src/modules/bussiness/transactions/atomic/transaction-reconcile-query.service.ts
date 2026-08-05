@@ -77,11 +77,11 @@ export class TransactionReconcileQueryService {
             case PaymentType.Crypto:
                 return await this.resolveCrypto(transaction)
             default:
-                // unknown provider → cannot poll, let the poll loop expire it
+                // unknown provider -> cannot poll, let the poll loop expire it
                 return "unknown"
             }
         } catch {
-            // never fail the reconcile job on a gateway error — keep polling (treat as unknown)
+            // never fail the reconcile job on a gateway error -- keep polling (treat as unknown)
             return "unknown"
         }
     }
@@ -105,7 +105,7 @@ export class TransactionReconcileQueryService {
         if (status === "CANCELLED" || status === "EXPIRED") {
             return "unpaid"
         }
-        // PENDING / PROCESSING → still open, keep polling
+        // PENDING / PROCESSING -> still open, keep polling
         return "unknown"
     }
 
@@ -193,7 +193,7 @@ export class TransactionReconcileQueryService {
         if (status === "COMPLETED") {
             return "paid"
         }
-        // approved but NOT captured → take the funds now (fallback for a missed
+        // approved but NOT captured -> take the funds now (fallback for a missed
         // webhook); only a completed capture counts as paid
         if (status === "APPROVED") {
             const capture = await this.paypalClient.captureOrder({
@@ -210,7 +210,7 @@ export class TransactionReconcileQueryService {
     /**
      * Crypto (NOWPayments): poll the invoice's payments (`providerPaymentId`).
      * Crypto settlement is slow, so a not-yet-paid invoice stays `unknown` (it is
-     * never marked `unpaid` from here — only the exhausted poll loop does that).
+     * never marked `unpaid` from here -- only the exhausted poll loop does that).
      *
      * @param transaction - The pending crypto transaction.
      * @returns Normalized reconcile status.

@@ -3,7 +3,7 @@ import type {
 } from "express"
 
 /**
- * Minimal request shape cookie reads need — Express `Request` or the Keycloak
+ * Minimal request shape cookie reads need -- Express `Request` or the Keycloak
  * guard's header bag. Avoids `as unknown as Request` at GraphQL/guard seams.
  */
 export interface CookieRequestLike {

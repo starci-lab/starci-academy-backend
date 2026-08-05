@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Wires only the Google IdP start controller — no handler, because Keycloak owns the
+ * Wires only the Google IdP start controller -- no handler, because Keycloak owns the
  * authorize round-trip.
  */
 export class KeycloakGoogleRedirectModule extends ConfigurableModuleClass {}

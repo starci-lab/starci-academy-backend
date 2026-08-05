@@ -16,7 +16,7 @@ export interface ResolveCheckoutParams {
     payosReturnUrl?: string
     /** PayOS cancel URL (required for PayOS). */
     payosCancelUrl?: string
-    /** AI subscription tier id — used in the missing-USD-price exception metadata. */
+    /** AI subscription tier id -- used in the missing-USD-price exception metadata. */
     tier: string
 }
 

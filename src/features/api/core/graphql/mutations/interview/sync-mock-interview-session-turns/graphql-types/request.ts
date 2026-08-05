@@ -13,13 +13,13 @@ import {
 })
 /**
  * Periodically syncs an IN-FLIGHT mock-interview session's transcript +
- * position to the server — "resume mock interview session" (2026-07-08), so
+ * position to the server -- "resume mock interview session" (2026-07-08), so
  * a learner who navigates away mid-session (tab close, refresh, network
  * drop) can pick their draw back up via `myInProgressMockInterviewSession`
  * instead of losing the conversation and being forced into a fresh draw.
  * Reuses {@link MockInterviewTurnInput} (the exact shape
  * `gradeMockInterviewSession` already accepts for the final transcript)
- * rather than a parallel duplicate type — the eventual grade call re-sends
+ * rather than a parallel duplicate type -- the eventual grade call re-sends
  * this same shape.
  */
 export class SyncMockInterviewSessionTurnsRequest {

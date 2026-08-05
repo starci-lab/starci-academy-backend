@@ -11,7 +11,7 @@ import {
     description: "A coding problem's approach-hint markdown (from Elasticsearch).",
 })
 /**
- * A coding problem's "approach hint" — guidance markdown sourced from
+ * A coding problem's "approach hint" -- guidance markdown sourced from
  * Elasticsearch (never stored in Postgres / the CDN).
  */
 export class CodingProblemHint {

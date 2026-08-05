@@ -12,10 +12,10 @@ import {
 })
 /**
  * Result of one sync attempt. `success: false` (never a thrown exception) for
- * every "the sync no longer applies" case — session not found, not owned by
+ * every "the sync no longer applies" case -- session not found, not owned by
  * the caller, or already `status !== "in_progress"` (a late/stale sync that
  * lands after `gradeMockInterviewSession` already completed the session, or
- * after a fresh draw abandoned it) — a background periodic sync must never
+ * after a fresh draw abandoned it) -- a background periodic sync must never
  * surface an error toast to a learner who is mid-interview.
  */
 export class SyncMockInterviewSessionTurnsData {

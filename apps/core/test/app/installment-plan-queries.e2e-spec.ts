@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handlers pull `@modules/cqrs` — dodges a load-order
+// initialised before the handlers pull `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (same guard as `course-enroll.e2e-spec.ts`).
 import "@modules/bussiness"
 import request from "supertest"
@@ -75,7 +75,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the installment plan surface — `myInstallmentPlans` (the
+ * e2e for the installment plan surface -- `myInstallmentPlans` (the
  * viewer's non-completed plans, enriched with this cycle's minimum payment +
  * gated course titles) and `payNextInstallment` (charges exactly that cycle's
  * minimum via a fresh Sepay checkout). Drives the real
@@ -83,7 +83,7 @@ const POSTGRESQL_PRIMARY = "primary"
  * Testcontainers Postgres.
  *
  * MOCKED (genuinely external): the PayOS/Sepay SDK clients (never hit the
- * network) and the delayed reconcile-poll queue hand-off — same pattern as
+ * network) and the delayed reconcile-poll queue hand-off -- same pattern as
  * `course-enroll.e2e-spec.ts`.
  *
  * REAL: Postgres, Apollo, `InstallmentPlanService`, `DayjsService`,
@@ -199,11 +199,11 @@ describe("Installment plan surface (e2e)",
                     PayNextInstallmentResolver,
                     PayNextInstallmentService,
                     PayNextInstallmentHandler,
-                    // REAL — the whole installment lifecycle stack under test
+                    // REAL -- the whole installment lifecycle stack under test
                     InstallmentPlanService,
                     DayjsService,
                     RetryService,
-                    // mocked — genuinely external SDK clients / the async queue hand-off
+                    // mocked -- genuinely external SDK clients / the async queue hand-off
                     {
                         provide: SEPAY,
                         useValue: sepayClient,

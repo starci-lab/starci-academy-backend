@@ -28,7 +28,7 @@ import {
     ],
 })
 /**
- * Feature-module boundary for the `modules` list query — imports Elasticsearch
+ * Feature-module boundary for the `modules` list query -- imports Elasticsearch
  * and wires resolver, service, and handler.
  */
 export class ModulesSingleQueryModule extends ConfigurableModuleClass {}

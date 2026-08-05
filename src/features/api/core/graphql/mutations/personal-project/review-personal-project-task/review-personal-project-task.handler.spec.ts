@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -67,10 +67,10 @@ describe("ReviewPersonalProjectTaskHandler",
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-            // `findOneOrFail` is not part of the shared mock surface — add it
+            // `findOneOrFail` is not part of the shared mock surface -- add it
             entityManager.findOneOrFail = jest.fn()
 
-            // grading job hand-off — assert it is enqueued on the happy path
+            // grading job hand-off -- assert it is enqueued on the happy path
             enqueueService = {
                 enqueue: jest.fn().mockResolvedValue({
                     id: "job-1",
@@ -85,7 +85,7 @@ describe("ReviewPersonalProjectTaskHandler",
                 }),
             } as unknown as jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
-            // url syntactic validation — resolves by default (valid url)
+            // url syntactic validation -- resolves by default (valid url)
             urlValidatorService = {
                 isParsable: jest.fn(),
             } as unknown as jest.Mocked<Pick<UrlValidatorService, "isParsable">>

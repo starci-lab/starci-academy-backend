@@ -11,7 +11,7 @@ import {
     description: "An upcoming livestream occurrence from one of the viewer's enrolled courses.",
 })
 /**
- * One upcoming livestream occurrence for the dashboard rail — the soonest next
+ * One upcoming livestream occurrence for the dashboard rail -- the soonest next
  * airing of a recurring weekly slot from one of the viewer's enrolled courses.
  * `nextStartAt` / `nextEndAt` are concrete instants computed from the slot's
  * weekday + wall-clock times, so the client can render an absolute countdown.

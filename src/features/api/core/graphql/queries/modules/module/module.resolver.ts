@@ -33,7 +33,7 @@ import {
 
 @Resolver(() => ModuleEntity)
 /**
- * Login-only (not enrollment-gated) GraphQL entry for `module` — trial readers
+ * Login-only (not enrollment-gated) GraphQL entry for `module` -- trial readers
  * may fetch a single module without lesson videos or challenges.
  */
 export class ModuleResolver {
@@ -46,7 +46,7 @@ export class ModuleResolver {
         [Locale.En]: "Module fetched successfully",
         [Locale.Vi]: "Lấy module thành công", // vn-ok: vi-locale string emitted to clients
     })
-    // Enroll guard removed — logged-in users may fetch a single module for trial reading.
+    // Enroll guard removed -- logged-in users may fetch a single module for trial reading.
     @UseGuards(
         KeycloakAuthGraphQLGuard,
     )

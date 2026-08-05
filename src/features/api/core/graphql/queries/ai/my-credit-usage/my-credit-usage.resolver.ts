@@ -32,9 +32,9 @@ import {
 
 @Resolver()
 /**
- * Per-user AI credit usage snapshot — used / quota / remaining / overQuota.
+ * Per-user AI credit usage snapshot -- used / quota / remaining / overQuota.
  * Source of truth is the unified pool (`ai_subscriptions`, tier-aware) via
- * {@link AiEntitlementService.snapshot} — the SAME source the quota gate reads,
+ * {@link AiEntitlementService.snapshot} -- the SAME source the quota gate reads,
  * so this can never drift from what actually blocks a grading call.
  */
 export class MyCreditUsageResolver {

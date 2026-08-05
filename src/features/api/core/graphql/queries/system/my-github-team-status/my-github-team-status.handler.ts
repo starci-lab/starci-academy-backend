@@ -24,7 +24,7 @@ import type {
 /**
  * Build the viewer's GitHub link + team-membership status. Linking a GitHub
  * identity (githubUsername) and being a member of a course's GitHub team are
- * SEPARATE states — this handler reports both so the FE can force the right step.
+ * SEPARATE states -- this handler reports both so the FE can force the right step.
  *
  * For each enrolled course that maps to a team (GITHUB_TEAM_SLUGS_BY_COURSE_SLUG),
  * it checks live GitHub membership (active / pending / none). `allInTeam` is true
@@ -49,7 +49,7 @@ export class MyGithubTeamStatusHandler {
                     user: {
                         id: user.id,
                     },
-                    // paid only — a trial (is_enrolled = false) viewer must NOT be pushed
+                    // paid only -- a trial (is_enrolled = false) viewer must NOT be pushed
                     // into the course GitHub team (team access is a purchased perk).
                     isEnrolled: true,
                 },
@@ -68,7 +68,7 @@ export class MyGithubTeamStatusHandler {
                 continue
             }
             const teamSlug = teamMap[course.displayId]
-            // course without a mapped team needs no membership → skip
+            // course without a mapped team needs no membership -> skip
             if (!teamSlug) {
                 continue
             }

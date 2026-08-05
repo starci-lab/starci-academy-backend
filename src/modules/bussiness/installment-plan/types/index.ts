@@ -6,8 +6,8 @@ import type {
 } from "@modules/databases"
 
 /**
- * One offered `Fixed`-plan term for a given base price — the shape the price
- * preview surfaces so the payment modal can show "N months · X/month · total (+markup%)"
+ * One offered `Fixed`-plan term for a given base price -- the shape the price
+ * preview surfaces so the payment modal can show "N months - X/month - total (+markup%)"
  * before checkout.
  */
 export interface InstallmentOption {
@@ -15,9 +15,9 @@ export interface InstallmentOption {
     months: number
     /** Markup percent this term adds over the base price. */
     markupPercent: number
-    /** Base price × (1 + markup%), rounded — the whole amount owed across the schedule. */
+    /** Base price x (1 + markup%), rounded -- the whole amount owed across the schedule. */
     totalAmountVnd: number
-    /** `totalAmountVnd / months`, rounded — the amount charged each cycle (incl. the first at checkout). */
+    /** `totalAmountVnd / months`, rounded -- the amount charged each cycle (incl. the first at checkout). */
     monthlyAmountVnd: number
 }
 
@@ -49,7 +49,7 @@ export interface CreateFlexiblePoolInstallmentPlanParams {
     remainingVnd: number
     /** Percent of the current balance owed each cycle. Defaults to 10 (2026-07-05 decision). */
     minPaymentPercent?: number
-    /** Absolute floor for the per-cycle minimum. Defaults to 500,000đ (2026-07-05 decision). */
+    /** Absolute floor for the per-cycle minimum. Defaults to 500,000đ (2026-07-05 decision). */ // vn-ok: VND currency suffix the product displays
     minPaymentFloorVnd?: number
     /** When the first cycle under the new system is due. */
     nextDueAt: Date
@@ -61,7 +61,7 @@ export interface CreateFlexiblePoolInstallmentPlanParams {
 export interface RecordInstallmentPaymentParams {
     /** The plan being paid against. */
     planId: string
-    /** The REAL amount just paid (may exceed the cycle's minimum — always allowed). */
+    /** The REAL amount just paid (may exceed the cycle's minimum -- always allowed). */
     paidAmountVnd: number
     /** Active transaction, when called inside one (e.g. from the reconcile worker). */
     entityManager?: EntityManager
@@ -71,7 +71,7 @@ export interface RecordInstallmentPaymentParams {
 export interface RecordInstallmentPaymentResult {
     /** The plan after applying the payment. */
     plan: InstallmentPlanEntity
-    /** Whether the paid amount met (or exceeded) this cycle's minimum — false leaves the plan `Overdue`. */
+    /** Whether the paid amount met (or exceeded) this cycle's minimum -- false leaves the plan `Overdue`. */
     metMinimum: boolean
     /** Whether this payment finished the plan (`Fixed`: every installment paid; `FlexiblePool`: balance reached zero). */
     completed: boolean

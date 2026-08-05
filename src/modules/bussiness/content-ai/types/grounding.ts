@@ -8,7 +8,7 @@ import type {
 
 /**
  * Result of a page-scope grounding resolver that ALSO resolves the surface's
- * owning course (content / task / challenge / quiz) — the course id doubles as
+ * owning course (content / task / challenge / quiz) -- the course id doubles as
  * the key for the additive BASE (course-wide) grounding, so it is returned
  * alongside the page text instead of being re-resolved a second time.
  */
@@ -27,7 +27,7 @@ export interface ResolveLessonGroundingParams {
     contentId: string
     /** The learner's question about this content. */
     question: string
-    /** Active request locale — which body locale to load. */
+    /** Active request locale -- which body locale to load. */
     locale: Locale
 }
 
@@ -102,7 +102,7 @@ export interface BuildSystemPromptParams {
     /**
      * The additive course-wide BASE grounding, rendered under its own
      * `=== COURSE KNOWLEDGE (retrieved) ===` header ahead of the scope
-     * section — empty ("") omits the section entirely. For the `"course"`
+     * section -- empty ("") omits the section entirely. For the `"course"`
      * scope this is always "" (its grounding is carried in `page` instead, so
      * it renders through the existing single `=== COURSE MATERIAL ===`
      * section rather than a duplicate header).
@@ -110,7 +110,7 @@ export interface BuildSystemPromptParams {
     base: string
     /** The scope's own page grounding (lesson body, task brief, course RAG, ...). */
     page: string
-    /** Active request locale — selects the reply language. */
+    /** Active request locale -- selects the reply language. */
     locale: Locale
     /** Which surface persona + section header to render. */
     scope: ContentAiScope

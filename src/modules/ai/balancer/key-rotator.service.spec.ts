@@ -68,7 +68,7 @@ describe("KeyRotatorService",
                 ]),
             } as unknown as jest.Mocked<Pick<KeyStoreService, "getPool">>
 
-            // ping cache: nothing recorded → every key is eligible
+            // ping cache: nothing recorded -> every key is eligible
             aiPingCacheService = {
                 getProviderMap: jest.fn(async () => ({
                 })),
@@ -134,7 +134,7 @@ describe("KeyRotatorService",
                             provider: ModelProvider.OpenAI,
                         })
 
-                        // bbbb has the lower failCount → picked
+                        // bbbb has the lower failCount -> picked
                         expect(result.state.keySuffix).toBe("bbbb")
                     })
 
@@ -159,7 +159,7 @@ describe("KeyRotatorService",
                             provider: ModelProvider.OpenAI,
                         })
 
-                        // bbbb was used longer ago → picked
+                        // bbbb was used longer ago -> picked
                         expect(result.state.keySuffix).toBe("bbbb")
                     })
 
@@ -192,7 +192,7 @@ describe("KeyRotatorService",
                             provider: ModelProvider.OpenAI,
                         })
 
-                        // "aaaa" sorts before "bbbb" lexicographically → deterministic tiebreak
+                        // "aaaa" sorts before "bbbb" lexicographically -> deterministic tiebreak
                         expect(result.state.keySuffix).toBe("aaaa")
                     })
 
@@ -229,7 +229,7 @@ describe("KeyRotatorService",
 
                 it("skips keys marked unhealthy in the ping cache",
                     async () => {
-                        // the first key is flagged status:false → excluded from rotation
+                        // the first key is flagged status:false -> excluded from rotation
                         aiPingCacheService.getProviderMap.mockResolvedValueOnce({
                             "sk-aaaa": {
                                 status: false,
@@ -263,7 +263,7 @@ describe("KeyRotatorService",
 
                 it("throws when no eligible key remains in the pool",
                     async () => {
-                        // both keys flagged unhealthy → exhaustion
+                        // both keys flagged unhealthy -> exhaustion
                         aiPingCacheService.getProviderMap.mockResolvedValueOnce({
                             "sk-aaaa": {
                                 status: false,
@@ -351,7 +351,7 @@ describe("KeyRotatorService",
 
                 it("treats a key with an expired cooldown as eligible again",
                     async () => {
-                        // cooldownUntil already in the past → auto-recovered, not excluded
+                        // cooldownUntil already in the past -> auto-recovered, not excluded
                         aiPingCacheService.getProviderMap.mockResolvedValueOnce({
                             "sk-aaaa": {
                                 status: false,
@@ -370,7 +370,7 @@ describe("KeyRotatorService",
                             provider: ModelProvider.OpenAI,
                         })
 
-                        // both keys eligible + tied failCount → keySuffix tiebreak picks aaaa
+                        // both keys eligible + tied failCount -> keySuffix tiebreak picks aaaa
                         expect(result.activeKeysCount).toBe(2)
                         expect(result.state.keySuffix).toBe("aaaa")
                     })
@@ -422,7 +422,7 @@ describe("KeyRotatorService",
             () => {
                 it("returns 0 when no rotation has happened yet",
                     async () => {
-                        // missing Redis key → counter is zero
+                        // missing Redis key -> counter is zero
                         redis.get.mockResolvedValueOnce(null)
 
                         expect(await service.getCounter(ModelProvider.OpenAI)).toBe(0)
@@ -452,7 +452,7 @@ describe("KeyRotatorService",
 
                 it("returns undefined when no key matches the suffix",
                     () => {
-                        // unknown suffix → no match
+                        // unknown suffix -> no match
                         expect(
                             service.findBySuffix(
                                 ModelProvider.OpenAI,

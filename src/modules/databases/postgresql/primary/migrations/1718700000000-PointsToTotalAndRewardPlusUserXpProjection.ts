@@ -7,8 +7,8 @@ import {
  * Splits the single `users.points` balance into two semantically distinct
  * columns and lands the supporting XP machinery:
  *
- *  1. Renames `users.points` → `users.total_points` (now = total lifetime XP).
- *  2. Adds `users.reward_points` (int, default 0) — the spendable balance.
+ *  1. Renames `users.points` -> `users.total_points` (now = total lifetime XP).
+ *  2. Adds `users.reward_points` (int, default 0) -- the spendable balance.
  *  3. Backfills from the `xp_histories` ledger:
  *       - `total_points`  = COALESCE(SUM(amount), 0) per user;
  *       - `reward_points` = COALESCE(SUM(points), 0) per user.
@@ -17,7 +17,7 @@ import {
  *     ledgered through `writeXpHistory`.
  *  5. Creates the `user_xp_projections` CQRS read-model table.
  *
- * NOTE: `transaction = false` — Postgres `ALTER TYPE ... ADD VALUE` cannot run
+ * NOTE: `transaction = false` -- Postgres `ALTER TYPE ... ADD VALUE` cannot run
  * inside a transaction block, so this migration manages its own statements.
  *
  * The repo runs schema via TypeORM `synchronize` in dev; this migration exists so
@@ -93,7 +93,7 @@ export class PointsToTotalAndRewardPlusUserXpProjection1718700000000 implements 
             );
         `)
 
-        // FK to users — deleting a user removes their XP projection row
+        // FK to users -- deleting a user removes their XP projection row
         await queryRunner.query(`
             ALTER TABLE "user_xp_projections"
             ADD CONSTRAINT "fk_user_id_user_xp_projections_users"

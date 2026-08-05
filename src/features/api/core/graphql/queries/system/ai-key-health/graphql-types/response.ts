@@ -18,7 +18,7 @@ import {
 /**
  * Public-safe view of one key: a masked label (`abc...def`) and a single
  * healthy flag. Deliberately omits the raw value, fail counts, cooldown and
- * disabled timestamps — those are operational intel kept behind the admin
+ * disabled timestamps -- those are operational intel kept behind the admin
  * `aiBalancerHealth` query.
  */
 export class PublicKeyHealthData {
@@ -92,7 +92,7 @@ export class AiKeyHealthGroupData {
     description: "Public AI key health payload.",
 })
 /**
- * Public status-page payload: masked key health grouped by model — no raw
+ * Public status-page payload: masked key health grouped by model -- no raw
  * secrets, fail counts, or cooldown timestamps.
  */
 export class AiKeyHealthResponseData {

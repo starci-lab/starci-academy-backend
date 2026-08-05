@@ -12,7 +12,7 @@ import {
 export type Bento4NoMovieFoundExceptionMetadata = AbstractExceptionMetadata
 
 /**
- * Thrown when Bento4's `mp4info` reports "No movie found in the file" —
+ * Thrown when Bento4's `mp4info` reports "No movie found in the file" --
  * the input is not a valid MP4/fragmented MP4.
  */
 export class Bento4NoMovieFoundException extends AbstractException {

@@ -85,7 +85,7 @@ describe("AiModelsHandler",
                 const result = await handler.execute()
 
                 // one active-model row per declared task kind (Grade, ReviewPersonalProject,
-                // ReviewCvSubmission — milestone generation was removed)
+                // ReviewCvSubmission -- milestone generation was removed)
                 expect(result.models).toHaveLength(3)
                 const grade = result.models.find(
                     (model) => model.taskKind === AiTaskKind.Grade,
@@ -137,7 +137,7 @@ describe("AiModelsHandler",
         it("includes Free models in the gradable list (shown flagged danger, not hidden)",
             async () => {
                 // Free models stay in the picker so a learner can pick one at their
-                // own risk (the FE flags them danger — may grade inaccurately)
+                // own risk (the FE flags them danger -- may grade inaccurately)
                 modelCatalog.enabledModels.mockResolvedValueOnce([
                     {
                         name: "qwen/qwen-2.5-coder-32b-instruct",

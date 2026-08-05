@@ -94,7 +94,7 @@ type PendingRow = Pick<TransactionEntity, "id" | "createdAt">
 
 /**
  * Build a pending-transaction row that has been pending for `elapsedMs` as of
- * {@link NOW_ISO} — the only two fields the SUT's `select` projection reads.
+ * {@link NOW_ISO} -- the only two fields the SUT's `select` projection reads.
  *
  * @param id - the transaction id
  * @param elapsedMs - how long ago (from NOW_ISO) the row was created
@@ -159,10 +159,10 @@ describe("ReconcileTransactionBootSweepService",
             () => {
                 it("queries the first page with the pending filter, then skips fresh rows and enqueues overdue ones with a clamped attempt",
                     async () => {
-                        // fresh: still has its originally-scheduled delayed job → skip
+                        // fresh: still has its originally-scheduled delayed job -> skip
                         const fresh = pendingRow("tx-fresh",
                             30_000)
-                        // overdue: 150s pending / 60s delay → floor(2.5) = attempt 2
+                        // overdue: 150s pending / 60s delay -> floor(2.5) = attempt 2
                         const overdue = pendingRow("tx-overdue",
                             150_000)
                         // way overdue: floor(15) clamped down to maxAttempts (5)
@@ -249,7 +249,7 @@ describe("ReconcileTransactionBootSweepService",
                             (_, index) => pendingRow(`tx-fresh-${index}`,
                                 30_000),
                         )
-                        // the tail page is short → the loop stops after this one
+                        // the tail page is short -> the loop stops after this one
                         const secondPage = [
                             pendingRow("tx-second-page-overdue",
                                 150_000),
@@ -289,7 +289,7 @@ describe("ReconcileTransactionBootSweepService",
 
                 it("propagates a page-read failure and never emits the summary log",
                     async () => {
-                        // no typed AbstractException fits here — the SUT does not catch or
+                        // no typed AbstractException fits here -- the SUT does not catch or
                         // wrap this call, so a raw driver failure is what actually propagates
                         const dbError = new Error("connection reset")
                         entityManager.find.mockRejectedValueOnce(dbError)
@@ -318,9 +318,9 @@ describe("ReconcileTransactionBootSweepService",
 
                         await expect(service.onApplicationBootstrap()).rejects.toThrow("queue unavailable")
 
-                        // both rows were attempted (first succeeded, second is where it broke) …
+                        // both rows were attempted (first succeeded, second is where it broke) ...
                         expect(enqueueReconcileTransactionJobService.enqueue).toHaveBeenCalledTimes(2)
-                        // … but the loop never reaches the trailing summary log
+                        // ... but the loop never reaches the trailing summary log
                         expect(winstonService.log).not.toHaveBeenCalled()
                     })
             })

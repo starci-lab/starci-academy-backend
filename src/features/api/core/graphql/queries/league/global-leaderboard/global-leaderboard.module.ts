@@ -15,7 +15,7 @@ import {
 })
 /**
  * Wires the authenticated `globalLeaderboard` query (top users by total
- * reward points + the viewer's own standing). Resolver-only — the FE
+ * reward points + the viewer's own standing). Resolver-only -- the FE
  * appends a "you" row when the viewer sits outside the visible top.
  */
 export class GlobalLeaderboardSingleQueryModule extends ConfigurableModuleClass {}

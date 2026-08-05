@@ -165,7 +165,7 @@ export class SubmitChallengeSubmissionHandler
                 id: challengeSubmission.challengeId,
             })
         }
-        // challenges are open ONLY inside FREE (non-premium) content for now — a
+        // challenges are open ONLY inside FREE (non-premium) content for now -- a
         // premium content's challenge requires purchasing the course first
         const ownerContent = await this.entityManager.findOne(
             ContentEntity,
@@ -187,8 +187,8 @@ export class SubmitChallengeSubmissionHandler
             })
         }
         /**
-         * Resolve the course (challenge → content → module → course) and
-         * resolve-or-create the trial enrollment (user × course) up front so we can
+         * Resolve the course (challenge -> content -> module -> course) and
+         * resolve-or-create the trial enrollment (user x course) up front so we can
          * key the submission row by enrollment going forward (we still set user_id
          * during the re-key transition) and pass the enrollment id to the grading job.
          */

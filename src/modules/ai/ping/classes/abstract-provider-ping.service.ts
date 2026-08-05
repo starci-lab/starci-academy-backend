@@ -30,18 +30,18 @@ import {
 /**
  * Shared staggered sweep scheduler for one {@link ModelProvider} ping service.
  *
- * Each concrete `*PingService` runs its **own** cycle — keys of different
+ * Each concrete `*PingService` runs its **own** cycle -- keys of different
  * providers never block each other.
  */
 export abstract class AbstractProviderPingService implements OnModuleInit, OnModuleDestroy {
-    /** Handle for the recurring cycle timer — cleared on shutdown. */
+    /** Handle for the recurring cycle timer -- cleared on shutdown. */
     private cycleIntervalHandle: NodeJS.Timeout | null = null
     /** Pending per-key stagger timers for the active sweep. */
     private staggerHandles: Array<NodeJS.Timeout> = []
     /** Whether a sweep is currently scheduling or awaiting stagger callbacks. */
     private sweepInProgress = false
 
-    /** Provider identity — used in logs and {@link AiPingService.pingKey} routing. */
+    /** Provider identity -- used in logs and {@link AiPingService.pingKey} routing. */
     protected abstract readonly provider: ModelProvider
 
     constructor(
@@ -51,7 +51,7 @@ export abstract class AbstractProviderPingService implements OnModuleInit, OnMod
     ) { }
 
     /**
-     * Zero-token ping for one API key — implemented by each provider service.
+     * Zero-token ping for one API key -- implemented by each provider service.
      * @param key - Raw API key value.
      * @returns Structured ping outcome.
      */
@@ -64,7 +64,7 @@ export abstract class AbstractProviderPingService implements OnModuleInit, OnMod
     protected abstract listMountKeys(): Array<string>
 
     /**
-     * Public ping entry — used by {@link AiPingService} and the AI Balancer.
+     * Public ping entry -- used by {@link AiPingService} and the AI Balancer.
      * @param key - Raw API key value.
      * @returns Structured ping outcome.
      */

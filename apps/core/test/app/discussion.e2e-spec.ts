@@ -76,30 +76,30 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the lesson-content discussion UGC write-flows —
+ * e2e for the lesson-content discussion UGC write-flows --
  * `.claude/canon/be/enforce/authoring/testing.md` §2 names "a community post or
  * reaction" (the sibling domain to community) explicitly as a write flow that must
  * carry `*.e2e-spec.ts` coverage. Exercises {@link CommentService} and
- * {@link ReactionService} against REAL Postgres (Testcontainers) — not the
+ * {@link ReactionService} against REAL Postgres (Testcontainers) -- not the
  * mocked-`EntityManager` unit level already covered by each service's own `.spec.ts`.
  *
- * In focus: the OWNERSHIP guard on comment update+delete (the IDOR class — a
+ * In focus: the OWNERSHIP guard on comment update+delete (the IDOR class -- a
  * non-author must never mutate someone else's comment), the content/course XOR scope
  * guard, the activity self-reaction guard, and soft-delete landing on the real
  * `is_deleted` column rather than removing the row.
  *
  * MOCKED (no external infra available in this harness, genuinely external to the
  * discussion domain under test):
- *  - `EventEmitterService` — real class fans out to EventEmitter2 + NATS; stubbed so
+ *  - `EventEmitterService` -- real class fans out to EventEmitter2 + NATS; stubbed so
  *    a mutation's room-broadcast side effect never touches either.
- *  - `CacheService` — real class talks to Redis; stubbed to always miss so
+ *  - `CacheService` -- real class talks to Redis; stubbed to always miss so
  *    `UserService.resolveOrCreateTrialEnrollment` (react-to-content's enrollment
  *    anchor) hits real Postgres every time, never a stale cross-test cache entry
  *    (mirrors `flashcard-review.e2e-spec.ts`'s own mock of this same service).
  *
  * REAL: Postgres (Testcontainers), `CommentService` + `ReactionService` (the logic
  * under test), `ContentEngagementProjectionService` (only an `EntityManager`
- * dependency — the react-to-content aggregate projection runs for real), and
+ * dependency -- the react-to-content aggregate projection runs for real), and
  * `UserService` (`resolveOrCreateTrialEnrollment` runs real SQL against real
  * `enrollments` rows).
  *
@@ -112,11 +112,11 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
         let commentService: CommentService
         let reactionService: ReactionService
 
-        /** Read-only fixtures seeded ONCE — only per-test user/comment/reaction state is reset. */
+        /** Read-only fixtures seeded ONCE -- only per-test user/comment/reaction state is reset. */
         let course: CourseEntity
         let content: ContentEntity
 
-        // CacheService always misses → UserService.resolveOrCreateTrialEnrollment hits
+        // CacheService always misses -> UserService.resolveOrCreateTrialEnrollment hits
         // real Postgres every time (no stale cross-test cache to reason about).
         const cacheServiceMock = {
             get: jest.fn().mockResolvedValue(undefined),
@@ -130,7 +130,7 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -139,12 +139,12 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
                     }),
                 ],
                 providers: [
-                    // REAL — the comment/reaction logic under test
+                    // REAL -- the comment/reaction logic under test
                     CommentService,
                     ReactionService,
-                    // REAL — only an EntityManager dependency, the projection runs for real
+                    // REAL -- only an EntityManager dependency, the projection runs for real
                     ContentEngagementProjectionService,
-                    // REAL — resolveOrCreateTrialEnrollment runs real SQL against real rows
+                    // REAL -- resolveOrCreateTrialEnrollment runs real SQL against real rows
                     UserService,
                     {
                         provide: CacheService,
@@ -166,7 +166,7 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
             commentService = app.get(CommentService)
             reactionService = app.get(ReactionService)
 
-            // seed the read-only course/module/content fixtures ONCE — only
+            // seed the read-only course/module/content fixtures ONCE -- only
             // users/comments/reactions/enrollments are reset between tests (see afterEach)
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -303,7 +303,7 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
                             user: author,
                         })
 
-                        // the caller passes contentId (wrong scope) alongside parentCommentId —
+                        // the caller passes contentId (wrong scope) alongside parentCommentId --
                         // the parent's scope must win, never the caller-supplied one
                         const reply = await commentService.createComment({
                             contentId: content.id,
@@ -395,7 +395,7 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
                         })
                         expect(result.id).toBe(comment.id)
 
-                        // the row still exists — soft delete, not a removal
+                        // the row still exists -- soft delete, not a removal
                         const row = await entityManager.findOneOrFail(ContentCommentEntity,
                             {
                                 where: {
@@ -404,7 +404,7 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
                             })
                         expect(row.isDeleted).toBe(true)
 
-                        // the reply row still exists — thread shape survives
+                        // the reply row still exists -- thread shape survives
                         const replyCount = await entityManager.count(ContentCommentEntity,
                             {
                                 where: {
@@ -612,7 +612,7 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
                         expect(enrollment.isEnrolled).toBe(false)
                         expect(row.enrollmentId).toBe(enrollment.id)
 
-                        // the engagement projection recomputed for real — not a mock
+                        // the engagement projection recomputed for real -- not a mock
                         const engagement = await reactionService.summarizeContent({
                             contentId: content.id,
                             userId: reactor.id,
@@ -661,11 +661,11 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
 
 /**
  * e2e for the discussion READ resolvers (`contentComments`, `contentReactions`)
- * plus the `reactToContent` mutation — driven over REAL HTTP through Apollo
+ * plus the `reactToContent` mutation -- driven over REAL HTTP through Apollo
  * (`ApolloServerModule` + guards), not the bare domain-service calls above. All
  * three GraphQL operations require `KeycloakAuthGraphQLGuard`
  * (`reactToContent` additionally chains `GraphQLEnrollmentGuard`); none of that
- * guard wiring had ever been exercised — the block above calls the services
+ * guard wiring had ever been exercised -- the block above calls the services
  * directly, bypassing every guard entirely.
  *
  * MOCKED (same externals as the block above):
@@ -674,7 +674,7 @@ describe("Discussion UGC — comments + reactions (content/comment/activity) (e2
  * REAL: Postgres (Testcontainers), the full Apollo/GraphQL stack, every resolver +
  * query/mutation service under test, `CommentService`/`ReactionService`/
  * `ContentEngagementProjectionService`/`UserService`, and `GraphQLEnrollmentGuard`
- * (permissive here — no `x-course-id` header is sent, matching how the FE calls
+ * (permissive here -- no `x-course-id` header is sent, matching how the FE calls
  * these two operations today). `KeycloakAuthGraphQLGuard` is overridden with a fake
  * `CanActivate` (mirrors `progress-query.e2e-spec.ts`) since there is no live
  * Keycloak server in this harness.
@@ -686,14 +686,14 @@ describe("Discussion GraphQL — contentComments/contentReactions queries + reac
         let app: INestApplication
         let entityManager: EntityManager
 
-        /** Read-only fixtures, seeded once — distinct displayIds from the block above. */
+        /** Read-only fixtures, seeded once -- distinct displayIds from the block above. */
         let course: CourseEntity
         let content: ContentEntity
 
         /** The "logged in" user the overridden guard stamps onto the request; null = unauthenticated. */
         let currentUser: UserEntity | null = null
 
-        // mirrors progress-query.e2e-spec.ts's fakeAuthGuard: denies (→ Nest's
+        // mirrors progress-query.e2e-spec.ts's fakeAuthGuard: denies (-> Nest's
         // default ForbiddenException) when nobody is "logged in".
         const fakeAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
@@ -784,14 +784,14 @@ describe("Discussion GraphQL — contentComments/contentReactions queries + reac
                     }),
                 ],
                 providers: [
-                    // REAL — resolvers + their query/mutation services under test
+                    // REAL -- resolvers + their query/mutation services under test
                     ContentCommentsResolver,
                     ContentCommentsService,
                     ContentReactionsResolver,
                     ContentReactionsService,
                     ReactToContentResolver,
                     ReactToContentService,
-                    // REAL — the domain services + guard the resolvers delegate to
+                    // REAL -- the domain services + guard the resolvers delegate to
                     CommentService,
                     ReactionService,
                     ContentEngagementProjectionService,
@@ -818,7 +818,7 @@ describe("Discussion GraphQL — contentComments/contentReactions queries + reac
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
 
-            // read-only course/module/content fixtures, seeded ONCE — distinct
+            // read-only course/module/content fixtures, seeded ONCE -- distinct
             // displayIds from the direct-service block above (same DB, same suite)
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -916,7 +916,7 @@ describe("Discussion GraphQL — contentComments/contentReactions queries + reac
 
                 it("auth denied: an UNAUTHENTICATED request is rejected before the resolver runs",
                     async () => {
-                        // currentUser left null — the auth guard must deny before the query runs
+                        // currentUser left null -- the auth guard must deny before the query runs
                         const response = await post(CONTENT_COMMENTS_QUERY,
                             {
                                 request: {
@@ -1008,7 +1008,7 @@ describe("Discussion GraphQL — contentComments/contentReactions queries + reac
 
                 it("auth denied: an UNAUTHENTICATED request is rejected before the resolver runs, writes NO row",
                     async () => {
-                        // currentUser left null — the auth guard must deny before the mutation runs
+                        // currentUser left null -- the auth guard must deny before the mutation runs
                         const response = await post(REACT_TO_CONTENT_MUTATION,
                             {
                                 request: {

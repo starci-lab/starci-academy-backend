@@ -16,7 +16,7 @@ export interface S3CopyUnsupportedProviderExceptionMetadata extends AbstractExce
 
 /**
  * Thrown when {@link S3CopyService.copySameBucket} is called with a provider
- * other than `Minio` — server-side copy is only implemented for MinIO so far.
+ * other than `Minio` -- server-side copy is only implemented for MinIO so far.
  */
 export class S3CopyUnsupportedProviderException extends AbstractException {
     constructor({

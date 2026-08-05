@@ -6,18 +6,18 @@ import {
 /**
  * Coin-shop rename + the two new reward effects (voucher, AI-credit top-up):
  *
- *  1. Renames `users.reward_points` → `users.coin_balance` (same column, same
- *     data — the spendable balance is now called "Coin").
- *  2. Renames `daily_quest_completions.reward_points` → `coin_reward` (the
+ *  1. Renames `users.reward_points` -> `users.coin_balance` (same column, same
+ *     data -- the spendable balance is now called "Coin").
+ *  2. Renames `daily_quest_completions.reward_points` -> `coin_reward` (the
  *     per-claim snapshot of the same currency).
  *  3. Adds `ai_subscriptions.bonus_credit_5h` / `bonus_credit_week` (int,
- *     default 0) — the Coin-shop `aiCredit` reward's top-up, additive to the
+ *     default 0) -- the Coin-shop `aiCredit` reward's top-up, additive to the
  *     tier/free allowance for the CURRENT window only.
- *  4. Adds `transactions.voucher_code` (nullable varchar) — the Coin-shop
+ *  4. Adds `transactions.voucher_code` (nullable varchar) -- the Coin-shop
  *     voucher applied at checkout, if any.
  *  5. Creates the `voucher_discount_type` (`percent`/`flat`) and
  *     `voucher_status` (`unused`/`reserved`/`used`/`expired`) enums.
- *  6. Creates the `course_vouchers` table — one row per voucher minted by
+ *  6. Creates the `course_vouchers` table -- one row per voucher minted by
  *     redeeming a `kind: "voucher"` reward.
  *
  * The repo runs schema via TypeORM `synchronize` in dev; this migration exists so
@@ -52,7 +52,7 @@ export class CoinShopAndAiCreditVouchers1721900000000 implements MigrationInterf
             ADD COLUMN IF NOT EXISTS "bonus_credit_week" int NOT NULL DEFAULT 0;
         `)
 
-        // 4. transactions.voucher_code (nullable — most checkouts use none)
+        // 4. transactions.voucher_code (nullable -- most checkouts use none)
         await queryRunner.query(`
             ALTER TABLE "transactions"
             ADD COLUMN IF NOT EXISTS "voucher_code" varchar(32);

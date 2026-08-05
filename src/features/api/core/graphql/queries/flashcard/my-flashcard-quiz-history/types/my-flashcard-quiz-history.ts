@@ -10,7 +10,7 @@ export interface FindMyFlashcardQuizHistoryParams {
     offset: number
 }
 
-/** One weak tag on a past completed session — same shape `completeFlashcardQuizSession` returns. */
+/** One weak tag on a past completed session -- same shape `completeFlashcardQuizSession` returns. */
 export interface MyFlashcardQuizHistoryWeakTagData {
     /** The technology tag (e.g. "NestJS", "Redis") this coverage is scoped to. */
     tag: string
@@ -34,7 +34,7 @@ export interface MyFlashcardQuizHistoryItemData {
     level: string | null
     /** How many cards this session drew. */
     cardCount: number
-    /** How many cards the learner got FULLY correct (all cloze blanks right) — the discrete score (correctCount/cardCount). */
+    /** How many cards the learner got FULLY correct (all cloze blanks right) -- the discrete score (correctCount/cardCount). */
     correctCount: number
     /** The session's server-derived aggregate coverage (0..1), or null if never completed with a coverage snapshot. */
     coverage: number | null

@@ -12,7 +12,7 @@ import type {
 @Injectable()
 /**
  * In-process named Loki collections so tests/dev can persist without Postgres.
- * `createCollection` is idempotent by name — a second call must reuse, not reset.
+ * `createCollection` is idempotent by name -- a second call must reuse, not reset.
  */
 export class LokiJSService {
     /**

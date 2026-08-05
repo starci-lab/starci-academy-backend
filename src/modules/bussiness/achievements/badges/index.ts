@@ -56,7 +56,7 @@ export * from "./devops-wolf.badge"
 /** DI token resolving to every {@link AbstractBadge} as an array. */
 export const ACHIEVEMENT_BADGES = "ACHIEVEMENT_BADGES"
 
-/** Every badge service class — registered as providers + folded into the token. */
+/** Every badge service class -- registered as providers + folded into the token. */
 export const ACHIEVEMENT_BADGE_PROVIDERS = [
     BabyDucklingBadge,
     BlazingFoxBadge,

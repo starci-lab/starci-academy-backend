@@ -141,7 +141,7 @@ export class ContentHandler
         // TECH DEBT (.techdebt#content-outcomes-stub): the `content_learning_outcomes`
         // table isn't seeded yet (authored `# outcomes` live only in `.contexts`, never
         // ported to the data-repo), so snapshots carry no outcomes. Stub a few bullets so
-        // the FE "Bạn sẽ nắm được" callout renders. Remove once outcomes are seeded.
+        // the FE learning outcomes callout renders. Remove once outcomes are seeded.
         this.stubOutcomesIfEmpty(content,
             locale)
 
@@ -173,7 +173,7 @@ export class ContentHandler
         const isPremium = row?.isPremium ?? content.isPremium
         const courseId = row?.module?.course?.id
 
-        // Gate premium content for "đọc thử" (trial read): a logged-in but
+        // Gate premium content for trial read: a logged-in but
         // non-enrolled viewer receives a truncated body so the FE can blur it
         // and surface the purchase modal. Free content and enrolled viewers get
         // the full body. `isPremium` on the response means "locked for you".
@@ -200,7 +200,7 @@ export class ContentHandler
      * rotation. On first breach we log the offender (with email) to Loki so the
      * account can be reviewed / disabled and used as takedown evidence.
      * @param userId Active user id (skips the guard for unauthenticated callers).
-     * @param email Active user email — recorded as evidence when the limit trips.
+     * @param email Active user email -- recorded as evidence when the limit trips.
      */
     private async enforceContentAccessRate(
         userId?: string,
@@ -212,7 +212,7 @@ export class ContentHandler
         const key = `content:access-rate:${userId}`
         const count = await this.redis.incr(key)
         // Set the window TTL only on the first hit so the window is FIXED (resets
-        // every `CONTENT_ACCESS_WINDOW_SECONDS`), not sliding — a steady human reader
+        // every `CONTENT_ACCESS_WINDOW_SECONDS`), not sliding -- a steady human reader
         // never accrues past the window. Guard against a stuck key with no TTL.
         if (count === 1) {
             await this.redis.expire(key,
@@ -246,7 +246,7 @@ export class ContentHandler
 
     /**
      * TEMPORARY: when the snapshot carries no learning outcomes (table not seeded
-     * yet — see `.techdebt#content-outcomes-stub`), fill a few placeholder bullets
+     * yet -- see `.techdebt#content-outcomes-stub`), fill a few placeholder bullets
      * in place so the FE "what you'll learn" callout has something to render. The
      * shape matches the `outcomes` GraphQL field (id / text / sortIndex). Delete this
      * method and its call site once real outcomes are seeded.
@@ -267,9 +267,9 @@ export class ContentHandler
                 "Recognise the common edge cases and pitfalls.",
             ]
             : [
-                "Nắm các ý cốt lõi mà bài học này xoay quanh.",
-                "Vận dụng khái niệm vào một ví dụ thực hành nhỏ.",
-                "Nhận ra các tình huống biên và lỗi thường gặp.",
+                "Nắm các ý cốt lõi mà bài học này xoay quanh.", // vn-ok: vi-locale stub outcome emitted when outcomes are empty
+                "Vận dụng khái niệm vào một ví dụ thực hành nhỏ.", // vn-ok: vi-locale stub outcome emitted when outcomes are empty
+                "Nhận ra các tình huống biên và lỗi thường gặp.", // vn-ok: vi-locale stub outcome emitted when outcomes are empty
             ]
         content.outcomes = bullets.map((text, index) => Object.assign(
             new ContentLearningOutcomeEntity(),
@@ -310,7 +310,7 @@ export class ContentHandler
 
     /**
      * Truncate the premium body in place to a teaser that runs up to (but not including) the
-     * "Verification / Kiểm thử" section — so the trial viewer still sees the full intro, core
+     * "Verification" section -- so the trial viewer still sees the full intro, core
      * concepts and code, then the FE fades the tail and shows the purchase modal. Premium-only
      * code assets (separate tabs) stay stripped.
      * @param content Parsed content to mutate.
@@ -323,8 +323,8 @@ export class ContentHandler
             if (!text) {
                 return ""
             }
-            // Cut right before the standard testing section heading (vi: "Kiểm thử", en: // vn-ok: vi-locale string emitted to clients
-            // "Verification" / "Testing") so the teaser includes the code but not the rest.
+            // Cut right before the standard testing section heading (locale-specific;
+            // see content mount headings) so the teaser includes the code but not the rest.
             // Drop everything from a dangling unclosed code fence so the teaser never ends inside a
             // ```mermaid/```code block (a half diagram fails to parse on the FE).
             const dropDanglingFence = (slice: string): string =>
@@ -338,7 +338,7 @@ export class ContentHandler
                 return dropDanglingFence(text.slice(0,
                     match.index)).trimEnd()
             }
-            // Fallback when no testing section exists: keep a generous leading slice (no ellipsis —
+            // Fallback when no testing section exists: keep a generous leading slice (no ellipsis --
             // the FE fades the tail).
             const limit = 4000
             return text.length > limit

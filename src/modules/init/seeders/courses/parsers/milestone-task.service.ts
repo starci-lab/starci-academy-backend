@@ -61,7 +61,7 @@ const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
  *
  * Follows the canonical mount-parse pattern (`.claude/pattern/16-mount-parsing.md`): extract once per
  * locale, merge via {@link MergeJsonService} with dot-path `translateFields`, then render straight
- * from `merged` — every array item already carries its aligned `translations[]`.
+ * from `merged` -- every array item already carries its aligned `translations[]`.
  */
 export class MilestoneTaskParserService {
     constructor(
@@ -148,7 +148,7 @@ export class MilestoneTaskParserService {
         // every `# criterias` item is a per-language brief block; the brief `body` is i18n, while
         // its outcome/approach grading criteria are agnostic-/per-language English-only rubrics
         const langBlocks: Array<MergedLangBlock> = merged.criterias ?? []
-        // outcome criteria are identical across the language blocks → pivot off the first block
+        // outcome criteria are identical across the language blocks -> pivot off the first block
         const outcomeRefs: Array<MergedCriterion> = langBlocks[0]?.outcome ?? []
         const approachRefs: Array<MergedCriterion> = langBlocks[0]?.approach ?? []
 
@@ -164,7 +164,7 @@ export class MilestoneTaskParserService {
                 merged.orderIndex,
                 taskIndex,
             ),
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 merged.sortIndex,
                 this.coerceMdScalarService.toRequiredNumber(
@@ -181,7 +181,7 @@ export class MilestoneTaskParserService {
                 merged.maxScore,
                 100,
             ),
-            // `# difficulty` drives Auto complexity routing; null when unset (→ treated as medium)
+            // `# difficulty` drives Auto complexity routing; null when unset (-> treated as medium)
             difficulty: this.coerceMdScalarService.toNullableEnum(
                 merged.difficulty,
                 ChallengeDifficulty,
@@ -203,7 +203,7 @@ export class MilestoneTaskParserService {
                     value,
                 }),
             ),
-            /** One learner-facing brief per language block (`# criterias` → `## N`); body is i18n. */
+            /** One learner-facing brief per language block (`# criterias` -> `## N`); body is i18n. */
             briefs: langBlocks.map(
                 (langBlock, briefIndex) => {
                     const briefId = this.briefIdFactoryService.generate(

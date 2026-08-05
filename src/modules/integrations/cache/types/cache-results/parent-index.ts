@@ -1,6 +1,6 @@
 /**
  * Minimal parent pointer (uuid + slug). Kept tiny so parent-index cache stays
- * cheap to prime — do not hang titles/bodies here or every indexer rebuild balloons.
+ * cheap to prime -- do not hang titles/bodies here or every indexer rebuild balloons.
  */
 export interface ParentIndexRef {
     id: string
@@ -23,7 +23,7 @@ export interface ChallengeParentIndexCacheResult {
 }
 
 /**
- * Parent chain for a content (lesson/etc.): content → module → course.
+ * Parent chain for a content (lesson/etc.): content -> module -> course.
  * Used to deep-link a content hit without joining the live catalog.
  */
 export interface ContentParentIndexCacheResult {
@@ -36,7 +36,7 @@ export interface ContentParentIndexCacheResult {
 }
 
 /**
- * Parent chain for a module: module → course.
+ * Parent chain for a module: module -> course.
  * A module hit with no course ref cannot build a course-scoped URL.
  */
 export interface ModuleParentIndexCacheResult {
@@ -57,7 +57,7 @@ export interface CourseParentIndexCacheResult {
 
 /**
  * Parent chain for a milestone: course + optional first task.
- * Milestones have no page — missing `task` lands the client on the project root.
+ * Milestones have no page -- missing `task` lands the client on the project root.
  */
 export interface MilestoneParentIndexCacheResult {
     /** The course that the milestone belongs to (drives the deep-link course slug). */
@@ -81,7 +81,7 @@ export interface FlashcardDeckParentIndexCacheResult {
 
 /**
  * Parent chain for a milestone task: course only.
- * Same deep-link slug rule as decks — no course ref means the task hit is dead.
+ * Same deep-link slug rule as decks -- no course ref means the task hit is dead.
  */
 export interface MilestoneTaskParentIndexCacheResult {
     /** The course that the task belongs to (drives the deep-link course slug). */
@@ -90,7 +90,7 @@ export interface MilestoneTaskParentIndexCacheResult {
 
 /**
  * Discriminated-by-shape union of parent-index cache hits. Callers must switch
- * on which chain they have — treating a milestone hit as a challenge chain
+ * on which chain they have -- treating a milestone hit as a challenge chain
  * invents missing parents.
  */
 export type ParentIndexCacheResult =

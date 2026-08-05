@@ -24,7 +24,7 @@ export interface SolvedSubmissionUserIdRow {
 
 /** One passed challenge submission in the projection's jsonb `value.challenges` (raw jsonb shape). */
 export interface UserSolvedChallengeValue {
-    /** Stable id for this submission (`user_challenge_submissions.id`) — the detail-lookup key. Absent on a cache row written before this field existed (self-heals on next recompute). */
+    /** Stable id for this submission (`user_challenge_submissions.id`) -- the detail-lookup key. Absent on a cache row written before this field existed (self-heals on next recompute). */
     id?: string
     /** Challenge / submission-requirement title. */
     title: string
@@ -34,7 +34,7 @@ export interface UserSolvedChallengeValue {
     submissionType: string
     /** Language the user chose, or null. */
     selectedLang: string | null
-    /** Challenge difficulty value (easy/medium/hard/insane/…), or null for legacy submissions lacking a parent challenge. */
+    /** Challenge difficulty value (easy/medium/hard/insane/...), or null for legacy submissions lacking a parent challenge. */
     difficulty: string | null
     /** Score from the passing attempt (the attempt that set passedAt), or null when not graded. */
     score: number | null
@@ -74,7 +74,7 @@ export interface ChallengeStrengthRow {
 
 /** One passed challenge submission in the typed view returned by the service. */
 export interface UserSolvedChallengeResult {
-    /** Stable id for this submission (`user_challenge_submissions.id`) — the detail-lookup key, or null for a not-yet-recomputed cache row. */
+    /** Stable id for this submission (`user_challenge_submissions.id`) -- the detail-lookup key, or null for a not-yet-recomputed cache row. */
     id: string | null
     /** Challenge / submission-requirement title. */
     title: string
@@ -84,15 +84,15 @@ export interface UserSolvedChallengeResult {
     submissionType: string
     /** Language the user chose, or null. */
     selectedLang: string | null
-    /** Challenge difficulty value (easy/medium/hard/insane/…), or null for legacy submissions lacking a parent challenge. */
+    /** Challenge difficulty value (easy/medium/hard/insane/...), or null for legacy submissions lacking a parent challenge. */
     difficulty: string | null
     /** Score from the passing attempt (the attempt that set passedAt), or null when not graded. */
     score: number | null
-    /** Raw id (`courses.id`) of the course the challenge belongs to, or null when unresolved — the resolver turns this into `courseGlobalId`. */
+    /** Raw id (`courses.id`) of the course the challenge belongs to, or null when unresolved -- the resolver turns this into `courseGlobalId`. */
     courseId: string | null
     /** Title of the course the challenge belongs to (default-locale snapshot), or null when the parent course is unresolved. */
     courseTitle: string | null
-    /** SEO-friendly slug of the course the challenge belongs to, or null when unresolved / unset — the resolver exposes this for public routing. */
+    /** SEO-friendly slug of the course the challenge belongs to, or null when unresolved / unset -- the resolver exposes this for public routing. */
     courseSlug: string | null
     /** Passed time, or null. */
     passedAt: Date | null

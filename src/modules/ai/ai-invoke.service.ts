@@ -58,7 +58,7 @@ import type {
 /**
  * Map the run surface to the model task it serves, so the Auto lane can filter
  * the catalog by `supportedTasks` + order the chain health/latency-aware.
- * Chatbot → chatting; grading + interview → grading; unknown → undefined (no filter).
+ * Chatbot -> chatting; grading + interview -> grading; unknown -> undefined (no filter).
  */
 const surfaceToTask = (surface?: AiCeilSurface): AiModelTask | undefined => {
     switch (surface) {
@@ -92,7 +92,7 @@ export class AiInvokeService {
     /**
      * Hard per-attempt timeout (ms) for one model call. A model that hasn't
      * finished within this window is aborted + surfaced as a TIMEOUT (classified
-     * Transient) so the balancer climbs to the next model — see `AI_INVOKE_TIMEOUT_MS`.
+     * Transient) so the balancer climbs to the next model -- see `AI_INVOKE_TIMEOUT_MS`.
      */
     private readonly invokeTimeoutMs = envConfig().ai.invokeTimeoutMs
 
@@ -105,7 +105,7 @@ export class AiInvokeService {
      * charge. The caller does the `consume(cost)` (idempotency differs per surface).
      *
      * @param params - {@link AiRunParams}.
-     * @returns {@link AiRunResult} — text, served model/provider, and cost.
+     * @returns {@link AiRunResult} -- text, served model/provider, and cost.
      */
     async run(
         {
@@ -128,7 +128,7 @@ export class AiInvokeService {
         const resolvedTask = task ?? surfaceToTask(surface)
 
         // explicit `ceil` wins; otherwise resolve the user's saved per-surface
-        // ceiling from settings (cost control). Omitted surface → uncapped.
+        // ceiling from settings (cost control). Omitted surface -> uncapped.
         const effectiveCeil = ceil
             ?? (surface
                 ? await this.aiEntitlementService.resolveCeil({
@@ -137,7 +137,7 @@ export class AiInvokeService {
                 })
                 : null)
 
-        // resolve the System routing (floor → ceiling → climb chain, or pinned model)
+        // resolve the System routing (floor -> ceiling -> climb chain, or pinned model)
         const options = await resolveGradingInvokeOptions({
             userId,
             selection,
@@ -148,7 +148,7 @@ export class AiInvokeService {
         })
 
         // cost = token-based credits for the served model. Billed by observed
-        // input/output tokens × the model's per-Mtok rates; falls back to the
+        // input/output tokens x the model's per-Mtok rates; falls back to the
         // model's flat `credit` when usage is unreported (see creditForRun).
         const costFor = (
             model: string,
@@ -234,7 +234,7 @@ export class AiInvokeService {
     ): Promise<AiInvokeResult> {
         // Default to deterministic sampling so the same submission grades the same.
         const resolvedTemperature = temperature ?? 0
-        // single action used by every lane — build the provider client and invoke once
+        // single action used by every lane -- build the provider client and invoke once
         const invokeAction = async (
             context: UseApiActionContext,
         ): Promise<StreamActionResult> => {
@@ -247,7 +247,7 @@ export class AiInvokeService {
                     cacheSessionId,
                 },
             )
-            // hard per-attempt timeout → abort + surface as TIMEOUT (not AbortError)
+            // hard per-attempt timeout -> abort + surface as TIMEOUT (not AbortError)
             // so the balancer classifies it Transient and climbs to the next model
             const controller = new AbortController()
             let timedOut = false
@@ -266,8 +266,8 @@ export class AiInvokeService {
                     },
                 )
                 // capture token usage from the response so the caller can bill by
-                // tokens (input + output) — the provider reports it on invoke too,
-                // not just on stream. Missing → 0 (caller falls back to a flat cost).
+                // tokens (input + output) -- the provider reports it on invoke too,
+                // not just on stream. Missing -> 0 (caller falls back to a flat cost).
                 const usage = response.usage_metadata
                 return {
                     text: typeof response.content === "string"
@@ -295,8 +295,8 @@ export class AiInvokeService {
         }
 
         // Premium lane = a single pinned category (set by the entitlement resolver).
-        // Auto lane = `categories` (the entitled tier set) → balancer loops them
-        // low→high by priority (Free → Economy → Balanced → Premium, capped here).
+        // Auto lane = `categories` (the entitled tier set) -> balancer loops them
+        // low->high by priority (Free -> Economy -> Balanced -> Premium, capped here).
         const isPremiumLane = category !== undefined
             && category !== AiModelCategory.Low
 
@@ -362,9 +362,9 @@ export class AiInvokeService {
             signal,
         }: AiStreamParams,
     ): Promise<AiStreamResult> {
-        // playground streams are generative — default to a mild temperature unless pinned
+        // playground streams are generative -- default to a mild temperature unless pinned
         const resolvedTemperature = temperature ?? 0
-        // single action used by every lane — build the provider client and stream once
+        // single action used by every lane -- build the provider client and stream once
         const streamAction = async (
             context: UseApiActionContext,
         ): Promise<StreamActionResult> => {
@@ -384,7 +384,7 @@ export class AiInvokeService {
             let cachedTokens = 0
             // hard per-attempt timeout aborts the stream; combine it with the
             // caller's abort signal (user-stop). A TIMEOUT is surfaced as a plain
-            // error → Transient → next model; a USER abort stays AbortError → stop.
+            // error -> Transient -> next model; a USER abort stays AbortError -> stop.
             const controller = new AbortController()
             let timedOut = false
             const timer = setTimeout(
@@ -426,7 +426,7 @@ export class AiInvokeService {
                         text += delta
                         onChunk(delta)
                     }
-                    // some providers attach running usage on the final chunk(s) — keep the
+                    // some providers attach running usage on the final chunk(s) -- keep the
                     // last reported counts so completion totals reflect the whole stream
                     const usage = chunk.usage_metadata
                     if (usage) {
@@ -434,7 +434,7 @@ export class AiInvokeService {
                         completionTokens = usage.output_tokens ?? completionTokens
                         // the chatbot resends its whole history every turn, so the
                         // cached share of the prompt is exactly where the saving
-                        // lives — capture it or the learner pays full price for
+                        // lives -- capture it or the learner pays full price for
                         // tokens the provider discounted
                         cachedTokens = usage.input_token_details?.cache_read
                             ?? cachedTokens
@@ -517,7 +517,7 @@ export class AiInvokeService {
     ): ChatOpenAI | ChatGoogleGenerativeAI | ChatAnthropic {
         // OpenRouter reuses a warm prompt-cache only when follow-up requests
         // route to the same upstream provider; its `x-session-id` header pins
-        // that routing to a stable key. A header, never the body — a bad value is
+        // that routing to a stable key. A header, never the body -- a bad value is
         // ignored, so the worst case is a cache miss, not a failed call.
         const openRouterHeaders = openRouterCacheHeaders(cacheSessionId)
         switch (provider) {
@@ -552,7 +552,7 @@ export class AiInvokeService {
                 },
             )
         case ModelProvider.OpenRouter:
-            // OpenRouter is an OpenAI-compatible aggregator gateway — reuse
+            // OpenRouter is an OpenAI-compatible aggregator gateway -- reuse
             // ChatOpenAI pointed at the OpenRouter baseURL with the pooled key.
             return new ChatOpenAI(
                 {
@@ -566,7 +566,7 @@ export class AiInvokeService {
                 },
             )
         case ModelProvider.Anthropic:
-            // native Anthropic Claude API (e.g. claude-opus-4-8) — used for the
+            // native Anthropic Claude API (e.g. claude-opus-4-8) -- used for the
             // frontier tier with the Anthropic key pool.
             return new ChatAnthropic(
                 {

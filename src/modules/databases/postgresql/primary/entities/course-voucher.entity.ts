@@ -46,7 +46,7 @@ import {
  * One discount voucher minted by redeeming a `kind: "voucher"` Coin-shop
  * reward. Percent- or flat-VND-off, scoped to one course or any course
  * (`course = null`), redeemable once. `status` tracks its lifecycle across a
- * checkout attempt: `unused` → `reserved` (a pending transaction claimed it) →
+ * checkout attempt: `unused` -> `reserved` (a pending transaction claimed it) ->
  * `used` (that transaction succeeded) or back to `unused` (it failed/expired).
  */
 export class CourseVoucherEntity extends UuidAbstractEntity {
@@ -220,7 +220,7 @@ export class CourseVoucherEntity extends UuidAbstractEntity {
         usedAt: Date | null
 
     /**
-     * The transaction currently holding this voucher — set when a checkout
+     * The transaction currently holding this voucher -- set when a checkout
      * reserves it, cleared when that checkout fails/expires (releasing the
      * code), left set once it transitions to `used`.
      */

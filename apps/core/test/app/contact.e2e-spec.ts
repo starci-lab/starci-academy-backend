@@ -14,27 +14,27 @@ import type {
     SubmitContactRequest,
 } from "@features/api/core/graphql/mutations/contact/submit-contact/graphql-types"
 
-/** Inbox that receives contact-form messages — mirrors the private constant in the resolver. */
+/** Inbox that receives contact-form messages -- mirrors the private constant in the resolver. */
 const CONTACT_INBOX = "cuongnvtse160875@gmail.com"
 
 /**
- * e2e for the public `submitContact` mutation — `.claude/canon/be/enforce/
+ * e2e for the public `submitContact` mutation -- `.claude/canon/be/enforce/
  * authoring/testing.md` §2 names every write flow as required e2e coverage;
  * this flow writes NO database row (it is anonymous, mail-only), so its
  * "commit" is the outbound `EnqueueSendMailJobService.enqueue` call. Runs the
- * real `SubmitContactResolver` (category → label mapping, HTML-escaping, the
+ * real `SubmitContactResolver` (category -> label mapping, HTML-escaping, the
  * anonymous/no-auth-guard wiring) end to end; only the mail queue itself is
- * stubbed — no Postgres/Testcontainers boot is needed for this spec, since
+ * stubbed -- no Postgres/Testcontainers boot is needed for this spec, since
  * `SubmitContactResolver` has no database dependency at all.
  *
  * MOCKED (genuinely external to the process, matches the pattern
  * `createE2eApp` uses for the same class):
- *  - `EnqueueSendMailJobService` — real class enqueues onto a live BullMQ
+ *  - `EnqueueSendMailJobService` -- real class enqueues onto a live BullMQ
  *    queue via `JobActionService` (itself a DB write + broker round trip);
  *    stubbed so this spec asserts the resolver's OWN logic (label mapping,
  *    escaping, envelope shape) without needing Redis/BullMQ infra.
  *
- * REAL: `SubmitContactResolver` (the mutation under test) — anonymous, no
+ * REAL: `SubmitContactResolver` (the mutation under test) -- anonymous, no
  * `@UseGuards`, matching its "anyone can reach out" contract.
  */
 describe("Public contact-form submission (e2e)",
@@ -51,7 +51,7 @@ describe("Public contact-form submission (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 providers: [
-                    // REAL — the mutation under test (category label mapping,
+                    // REAL -- the mutation under test (category label mapping,
                     // HTML-escaping, mail envelope assembly)
                     SubmitContactResolver,
                     {
@@ -135,12 +135,12 @@ describe("Public contact-form submission (e2e)",
                 })
 
                 const call = enqueueSendMailJobServiceMock.enqueue.mock.calls[0][0]
-                // html body: no raw tag survives — the angle brackets are entity-encoded
+                // html body: no raw tag survives -- the angle brackets are entity-encoded
                 expect(call.html).not.toContain("<script>")
                 expect(call.html).toContain("&lt;script&gt;")
                 expect(call.html).toContain("&amp;")
                 expect(call.html).toContain("&quot;quoted&quot;")
-                // text body: verbatim, unescaped — it's a plain-text mail part
+                // text body: verbatim, unescaped -- it's a plain-text mail part
                 expect(call.text).toContain(maliciousMessage)
             })
 

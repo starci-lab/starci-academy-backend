@@ -79,7 +79,7 @@ export class EnrollWorker extends WorkerHost {
                 }
             )
             // claim the job (bumps the fencing token, marks it Processing) so a
-            // stalled redelivery is fenced out — parity with the other processors
+            // stalled redelivery is fenced out -- parity with the other processors
             await this.jobActionService.processingJob(
                 {
                     job,
@@ -110,7 +110,7 @@ export class EnrollWorker extends WorkerHost {
                 job = syncedJob
                 context.job = syncedJob
                 // guard against a maxSteps/step-map mismatch: a missing step would
-                // never advance currentStep → an infinite loop pinning this worker
+                // never advance currentStep -> an infinite loop pinning this worker
                 const step = stepMap.get(syncedJob.currentStep)
                 if (!step) {
                     throw new StepNotFoundException({

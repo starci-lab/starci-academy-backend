@@ -34,7 +34,7 @@ import {
 @Resolver()
 /**
  * Public profile query: the pinned projects of the user named in the route,
- * ordered by `orderIndex`. Optional auth — anonymous viewers may call it; a
+ * ordered by `orderIndex`. Optional auth -- anonymous viewers may call it; a
  * locked profile is withheld from non-owners by {@link GraphQLProfileVisibilityGuard}.
  *
  * The list is served from the CQRS projection (eager-maintained by CDC on

@@ -26,13 +26,13 @@ import type {
     BlogPostLangFields,
 } from "./types"
 
-/** Mount data domain prefix — posts live under `<contextRoot>/blog/`. */
+/** Mount data domain prefix -- posts live under `<contextRoot>/blog/`. */
 const BLOG_BASE_DIR = "blog"
 
 @Injectable()
 /**
  * Seeds blog posts from `blog/<index>-<slug>/{en,vi}.md` (git-sourced data root
- * during init, else the local `.mount/data` fallback) — the same folder-per-item
+ * during init, else the local `.mount/data` fallback) -- the same folder-per-item
  * convention as course content, not a single combined file. Each language file
  * carries the full field set in the mount markdown grammar; per-language leaves
  * (`title` / `excerpt` / `body` / `ctaLabel`) are paired into bilingual jsonb,
@@ -80,11 +80,11 @@ export class BlogSeederService {
             "en.md")
         const vi = await this.loadLang(relativePath,
             "vi.md")
-        // a folder with no readable language file is not a post → skip
+        // a folder with no readable language file is not a post -> skip
         if (!en && !vi) {
             return
         }
-        // scalar metadata is language-agnostic — prefer the EN file, fall back to VI
+        // scalar metadata is language-agnostic -- prefer the EN file, fall back to VI
         const meta: BlogPostLangFields = en ?? vi ?? {
         }
         // pair the per-language leaves into bilingual jsonb (required fields fall
@@ -169,7 +169,7 @@ export class BlogSeederService {
             // top-level `# field` headings parse into a flat object of leaves
             return this.extractJsonFromMdService.extract<BlogPostLangFields>(content)
         } catch {
-            // missing file (ContextFileNotFoundException) → this locale is absent
+            // missing file (ContextFileNotFoundException) -> this locale is absent
             return null
         }
     }
@@ -190,7 +190,7 @@ export class BlogSeederService {
         // normalise empty strings to undefined so a blank section is "absent"
         const enValue = en?.trim() || undefined
         const viValue = vi?.trim() || undefined
-        // nothing authored in either language → no value
+        // nothing authored in either language -> no value
         if (!enValue && !viValue) {
             return null
         }
@@ -202,7 +202,7 @@ export class BlogSeederService {
     }
 
     /**
-     * Same as {@link BlogSeederService.pair} but for optional fields — kept
+     * Same as {@link BlogSeederService.pair} but for optional fields -- kept
      * separate only for call-site readability (both return null when empty).
      *
      * @param en - English value, if present.

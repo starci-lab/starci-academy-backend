@@ -35,7 +35,7 @@ import {
 
 @Resolver()
 /**
- * Public profile query: a user's XP aggregate — the per-source XP figures
+ * Public profile query: a user's XP aggregate -- the per-source XP figures
  * (challenge / milestone / coding / lesson) summed from the `xp_histories` ledger
  * plus the total-XP and spendable Coin balances. Thin read off the
  * per-user CQRS XP projection (the heavy GROUP BY runs in recompute, not per

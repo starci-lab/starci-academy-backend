@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -38,7 +38,7 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** Minimal user stand-in — only the id is read by the handler. */
+/** Minimal user stand-in -- only the id is read by the handler. */
 const fakeUser = (
     id: string,
 ): UserEntity => ({
@@ -165,7 +165,7 @@ describe("ContentsHandler",
                         ],
                     }),
                 )
-                // anonymous viewer → no entitlement DB lookup at all
+                // anonymous viewer -> no entitlement DB lookup at all
                 expect(entityManager.findOne).not.toHaveBeenCalled()
             })
 
@@ -180,7 +180,7 @@ describe("ContentsHandler",
                     ]),
                 )
                 entityManager.findOne
-                    // module row → owning course (loaded via the `course` relation,
+                    // module row -> owning course (loaded via the `course` relation,
                     // not the virtual @RelationId `courseId` column)
                     .mockResolvedValueOnce({
                         id: "m1",
@@ -227,7 +227,7 @@ describe("ContentsHandler",
                     ]),
                 )
                 entityManager.findOne
-                    // module row → owning course (loaded via the `course` relation,
+                    // module row -> owning course (loaded via the `course` relation,
                     // not the virtual @RelationId `courseId` column)
                     .mockResolvedValueOnce({
                         id: "m1",
@@ -256,7 +256,7 @@ describe("ContentsHandler",
                 )
 
                 const item = result.data[0]
-                // entitled → unlocked and full body / assets preserved
+                // entitled -> unlocked and full body / assets preserved
                 expect(item.isPremium).toBe(false)
                 expect(item.body).toContain("tail")
                 expect(item.codeImplementations).toHaveLength(1)
@@ -272,7 +272,7 @@ describe("ContentsHandler",
                         }),
                     ]),
                 )
-                // module row is missing → conservative deny, no enrollment lookup
+                // module row is missing -> conservative deny, no enrollment lookup
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 const result = await handler.execute(

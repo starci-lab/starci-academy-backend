@@ -180,7 +180,7 @@ export const envConfig = () => ({
             }),
             aiModelLatency: parseEnvMs({
                 key: "CACHE_TTL_AI_MODEL_LATENCY",
-                // effectively infinite — the probe scheduler keeps it fresh by
+                // effectively infinite -- the probe scheduler keeps it fresh by
                 // overwriting every cycle, so the TTL only matters as a backstop
                 defaultValue: "100years",
             }),
@@ -240,7 +240,7 @@ export const envConfig = () => ({
         },
     },
     /**
-     * Raw `NODE_ENV` string (development / production / test / …). Sentry and other
+     * Raw `NODE_ENV` string (development / production / test / ...). Sentry and other
      * pre-boot reporters tag events with this; prefer `isProduction` for branching.
      */
     nodeEnv: parseEnvString({
@@ -300,7 +300,7 @@ export const envConfig = () => ({
          * Standalone local-only ops "tools" service (the `apps/tools` app).
          * Serves the Vite ops dashboard at `/dashboard` and exposes
          * `/api/v1/tools/*` endpoints for managing cloud infra from a local
-         * machine (media→MinIO, Postgres snapshot/backup, S3 bucket snapshot).
+         * machine (media->MinIO, Postgres snapshot/backup, S3 bucket snapshot).
          * Hard-blocked (404) when `isProduction` is true.
          */
         tools: {
@@ -319,7 +319,7 @@ export const envConfig = () => ({
             /**
              * Dev-only artificial response latency so the frontend can exercise its
              * loading / skeleton states (real APIs are never instant). FORCED OFF in
-             * production. OFF by default — enable per-environment with
+             * production. OFF by default -- enable per-environment with
              * `API_RESPONSE_DELAY_ENABLE=true`; tune the latency with
              * `API_RESPONSE_DELAY_MS` (default 5000ms).
              */
@@ -344,7 +344,7 @@ export const envConfig = () => ({
                     /**
                      * Master switch for the reconcile poll. When false the
                      * delayed poll is never scheduled, so a pending transaction
-                     * is finalized ONLY by its gateway webhook — used to test the
+                     * is finalized ONLY by its gateway webhook -- used to test the
                      * webhook path in isolation before trusting the poller.
                      */
                     enabled: parseEnvBoolean({
@@ -391,7 +391,7 @@ export const envConfig = () => ({
             },
             /**
              * Stripe (international card gateway) configuration.
-             * Secrets (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET) are NOT env vars —
+             * Secrets (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET) are NOT env vars --
              * they live in mount-terraform files read via {@link MountFilesystemService}.
              */
             stripe: {
@@ -404,7 +404,7 @@ export const envConfig = () => ({
             /**
              * PayPal (international gateway) configuration.
              * Secrets (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PAYPAL_WEBHOOK_ID) are NOT
-             * env vars — they live in mount-terraform files read via {@link MountFilesystemService}.
+             * env vars -- they live in mount-terraform files read via {@link MountFilesystemService}.
              */
             paypal: {
                 /** REST API base URL (sandbox by default; live = api-m.paypal.com). */
@@ -419,8 +419,8 @@ export const envConfig = () => ({
                 }),
             },
             /**
-             * NOWPayments (crypto gateway — USDT/USDC) configuration.
-             * Secrets (NOWPAYMENTS_API_KEY, NOWPAYMENTS_IPN_SECRET) are NOT env vars —
+             * NOWPayments (crypto gateway -- USDT/USDC) configuration.
+             * Secrets (NOWPAYMENTS_API_KEY, NOWPAYMENTS_IPN_SECRET) are NOT env vars --
              * they live in mount-terraform files read via {@link MountFilesystemService}.
              */
             nowpayments: {
@@ -480,7 +480,7 @@ export const envConfig = () => ({
             }),
             /**
              * Safety cap: skip pruning an entity type (with a loud warn) when more
-             * than this fraction of its ES/CDN entries would be deleted — guards
+             * than this fraction of its ES/CDN entries would be deleted -- guards
              * against wiping everything if the DB came back empty (seed hiccup).
              */
             pruneMaxRatio: parseEnvFloat({
@@ -673,7 +673,7 @@ export const envConfig = () => ({
             },
         },
         /**
-         * Content RAG index — builds a persistent Qdrant collection over every
+         * Content RAG index -- builds a persistent Qdrant collection over every
          * lesson's body (+ sandbox code) at init so content-AI chat can retrieve
          * the most relevant chunks instead of stuffing the whole body.
          */
@@ -681,7 +681,7 @@ export const envConfig = () => ({
             /**
              * Build the lesson RAG index on init. Default OFF: embedding every
              * lesson hits the embedding lane (local GPU first, cloud fallback)
-             * and adds boot time on every reseed — enable explicitly when the
+             * and adds boot time on every reseed -- enable explicitly when the
              * RAG retrieval path is wanted.
              */
             enabled: parseEnvBoolean({
@@ -718,7 +718,7 @@ export const envConfig = () => ({
                 defaultValue: 6000,
             }),
             /**
-             * Per-kind toggles for the "search course content" expansion — each
+             * Per-kind toggles for the "search course content" expansion -- each
              * corpus is a separate (slow) MinIO/Postgres enumeration + embed pass,
              * so a kind can be disabled independently while iterating without
              * re-embedding the other three. All default true when `enabled` above
@@ -845,7 +845,7 @@ export const envConfig = () => ({
     },
     /**
      * Judge0 (self-hosted code-execution sandbox) configuration.
-     * The X-Auth-Token secret is NOT an env var — it lives in a mount-terraform
+     * The X-Auth-Token secret is NOT an env var -- it lives in a mount-terraform
      * file read via {@link MountFilesystemService} (see `mountPath.terraform.judge0AuthToken`).
      */
     judge0: {
@@ -859,7 +859,7 @@ export const envConfig = () => ({
             key: "JUDGE0_POLL_INTERVAL_MS",
             defaultValue: "600ms",
         }),
-        /** Max number of poll attempts before giving up (poll interval × this = timeout). */
+        /** Max number of poll attempts before giving up (poll interval x this = timeout). */
         maxPollAttempts: parseEnvInt({
             key: "JUDGE0_MAX_POLL_ATTEMPTS",
             defaultValue: 100,
@@ -879,7 +879,7 @@ export const envConfig = () => ({
             defaultValue: "15s",
         }),
         /**
-         * Map of {@link CodingLanguage} string value → Judge0 numeric `language_id`.
+         * Map of {@link CodingLanguage} string value -> Judge0 numeric `language_id`.
          * Defaults are the Judge0 CE stable ids; override per Judge0 version.
          */
         languageIds: parseEnvJson<Record<string, number>>({
@@ -1045,7 +1045,7 @@ export const envConfig = () => ({
             }),
         },
     ],
-    /** Data-git — the private GitHub repo holding seed content (courses, coding problems, rules). */
+    /** Data-git -- the private GitHub repo holding seed content (courses, coding problems, rules). */
     dataGit: {
         /** Repository owner (GitHub org or user). The seed-content `data` repo was
          * transferred to the `starci-lab` org (the module/code repos stay under
@@ -1278,7 +1278,7 @@ export const envConfig = () => ({
         },
         /**
          * File paths: rotating API-key pools consumed by the AI Balancer feature.
-         * Each file is newline-separated — one key per line; blank lines and
+         * Each file is newline-separated -- one key per line; blank lines and
          * `#`-comment lines are stripped (see `parseApiKeysFile`).
          */
         aiKeys: {
@@ -1312,8 +1312,8 @@ export const envConfig = () => ({
                     "gemini-api-keys.key"),
             }),
             /**
-             * Bearer token sent (as `Authorization: Bearer …`) to the self-hosted
-             * `local` provider behind its Caddy gate. File missing/empty → the
+             * Bearer token sent (as `Authorization: Bearer ...`) to the self-hosted
+             * `local` provider behind its Caddy gate. File missing/empty -> the
              * key-store falls back to a placeholder, fine for a direct local
              * Ollama with no auth gate.
              */
@@ -1326,8 +1326,8 @@ export const envConfig = () => ({
                     "qwen7b.key"),
             }),
             /**
-             * API-key pool sent to OpenRouter (`Authorization: Bearer …`).
-             * One key per line; missing/empty → empty pool (no crash).
+             * API-key pool sent to OpenRouter (`Authorization: Bearer ...`).
+             * One key per line; missing/empty -> empty pool (no crash).
              */
             openrouter: parseEnvString({
                 key: "AI_KEYS_OPENROUTER_MOUNT_PATH",
@@ -1338,8 +1338,8 @@ export const envConfig = () => ({
                     "openrouter-api-keys.key"),
             }),
             /**
-             * Native Anthropic API-key pool (frontier tier — Claude Opus).
-             * One key per line; missing/empty → empty pool (no crash).
+             * Native Anthropic API-key pool (frontier tier -- Claude Opus).
+             * One key per line; missing/empty -> empty pool (no crash).
              */
             anthropic: parseEnvString({
                 key: "AI_KEYS_ANTHROPIC_MOUNT_PATH",
@@ -1351,7 +1351,7 @@ export const envConfig = () => ({
             }),
         },
     },
-    /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */
+    /** CORS: allowed origins (CORS_ORIGIN_1 ... CORS_ORIGIN_10, empty skipped). */
     cors: {
         origins: Array.from({
             length: 10
@@ -1510,7 +1510,7 @@ export const envConfig = () => ({
              * `@qdrant/js-client-rest` default is 300000 (5 min), which a
              * first-time bulk upsert of a large corpus (e.g. the lesson RAG
              * index, thousands of chunks in one `fromDocuments` call) can
-             * exceed — the client aborts with a generic "operation was
+             * exceed -- the client aborts with a generic "operation was
              * aborted" error even though Qdrant itself is still healthy.
              */
             timeoutMs: parseEnvInt({
@@ -1583,7 +1583,7 @@ export const envConfig = () => ({
      */
     playgroundAgent: {
         /**
-         * Relay server the agent pairs with. Empty → caller falls back to its
+         * Relay server the agent pairs with. Empty -> caller falls back to its
          * baked-in DEFAULT_SERVER constant.
          */
         server: parseEnvString({
@@ -1607,7 +1607,7 @@ export const envConfig = () => ({
     /**
      * Local-only ops "tools" console configuration (the `apps/tools` app).
      * These artifacts are written to the local filesystem so the operator can
-     * inspect/sync them by hand — they never leave the machine unless a sync
+     * inspect/sync them by hand -- they never leave the machine unless a sync
      * tool pushes them.
      */
     tools: {
@@ -1747,7 +1747,7 @@ export const envConfig = () => ({
 
     /** Prometheus configuration (cAdvisor-scraped container resource metrics). */
     prometheus: {
-        /** Prometheus HTTP API base URL — reached from the host, not from inside Docker. */
+        /** Prometheus HTTP API base URL -- reached from the host, not from inside Docker. */
         url: parseEnvString({
             key: "PROMETHEUS_URL",
             defaultValue: "http://localhost:9090",
@@ -1872,7 +1872,7 @@ export const envConfig = () => ({
         },
         /** Process CV Submission job configuration. */
         processCvSubmission: {
-            // generate-cv pipeline steps: gather → compose → render → score → complete (5).
+            // generate-cv pipeline steps: gather -> compose -> render -> score -> complete (5).
             maxSteps: parseEnvInt({
                 key: "JOB_PROCESS.CV_SUBMISSION_MAX_STEPS",
                 defaultValue: 5,
@@ -1968,7 +1968,7 @@ export const envConfig = () => ({
         }),
         /**
          * When true, indices listed in `src/modules/elasticsearch/mappings` are (re)created with their
-         * explicit mapping instead of Elasticsearch's dynamic mapping — required for SCHEMA V2
+         * explicit mapping instead of Elasticsearch's dynamic mapping -- required for SCHEMA V2
          * challenges whose large jsonb blobs otherwise break dynamic indexing.
          */
         applyIndexMappings: parseEnvBoolean({
@@ -2172,7 +2172,7 @@ export const envConfig = () => ({
     },
     /** AI model routing configuration. */
     ai: {
-        /** "low" | "medium" | "high" — controls which model tier routers pick. */
+        /** "low" | "medium" | "high" -- controls which model tier routers pick. */
         modelRecommendation: parseEnvString({
             key: "AI_MODEL_RECOMMENDATION",
             defaultValue: "low",
@@ -2209,8 +2209,8 @@ export const envConfig = () => ({
          * Hard per-attempt timeout for a single model call (invoke + stream). A
          * model that hasn't finished within this window is ABORTED and surfaced as
          * a TIMEOUT (classified Transient) so the balancer climbs to the next model
-         * in the chain — distinct from a user-cancel (AbortError → stop). Generous
-         * by design: real grading completions run 10–60s; keep this well above that
+         * in the chain -- distinct from a user-cancel (AbortError -> stop). Generous
+         * by design: real grading completions run 10-60s; keep this well above that
          * so only a truly hung request trips it (NOT slow-but-working models).
          */
         invokeTimeoutMs: parseEnvMs({
@@ -2234,7 +2234,7 @@ export const envConfig = () => ({
                 defaultValue: "5s",
             }),
             /**
-             * Gap (ms) between individual key pings inside one sweep — spreads
+             * Gap (ms) between individual key pings inside one sweep -- spreads
              * load to reduce provider rate-limit hits when many keys are mounted.
              */
             keyStaggerMs: parseEnvMs({
@@ -2243,7 +2243,7 @@ export const envConfig = () => ({
             }),
         },
         /**
-         * Per-MODEL latency probe — a SEPARATE layer from {@link ai.ping}. Each
+         * Per-MODEL latency probe -- a SEPARATE layer from {@link ai.ping}. Each
          * cycle runs a real 1-token completion against every enabled model,
          * measures round-trip latency + up/down, caches the snapshot and
          * broadcasts it over Socket.IO for the public status page. This is
@@ -2260,14 +2260,14 @@ export const envConfig = () => ({
              * Time (ms) between the **start** of consecutive probe cycles. Each
              * cycle sweeps every enabled model once (staggered by
              * {@link staggerMs}). Defaults to 4h (the probe is metadata-cheap +
-             * also runs once on boot) — health changes slowly, no need to hammer.
+             * also runs once on boot) -- health changes slowly, no need to hammer.
              */
             cycleIntervalMs: parseEnvMs({
                 key: "AI_LATENCY_PROBE_CYCLE_INTERVAL_MS",
                 defaultValue: "4h",
             }),
             /**
-             * Gap (ms) between individual model probes inside one cycle — spreads
+             * Gap (ms) between individual model probes inside one cycle -- spreads
              * load so a fleet of models is not probed all at once. Defaults to 1s.
              */
             staggerMs: parseEnvMs({
@@ -2276,7 +2276,7 @@ export const envConfig = () => ({
             }),
             /**
              * Hard per-probe timeout (ms). A model that does not answer the
-             * 1-token completion within this window is recorded down. Short (15s) —
+             * 1-token completion within this window is recorded down. Short (15s) --
              * distinct from the generous {@link ai.invokeTimeoutMs} used for real
              * grading runs, but slack enough for slow free models (e.g. OpenRouter
              * `:free`) to answer instead of getting aborted.
@@ -2319,7 +2319,7 @@ export const envConfig = () => ({
         }),
     },
     /**
-     * Installment ("trả góp") payment tunables — see `docs/installment-payment-plan.md`.
+     * Installment payment tunables -- see `docs/installment-payment-plan.md`.
      * A NEW-buyer `Fixed` plan snapshots the markup for its chosen term at checkout
      * (later config changes never re-price a live plan); a Pioneer `FlexiblePool`
      * plan owes a real balance with no markup and pays a percentage-of-remaining
@@ -2328,9 +2328,9 @@ export const envConfig = () => ({
     installment: {
         /**
          * Markup percent added to the (loyalty/bundle-discounted) price per
-         * chosen term. The keys ARE the offered month options — a value the map
-         * has no key for is not a valid term. Fixed to 3-month ONLY (thầy
-         * 2026-07-14: "không cho extend thời gian" — no 6/12-month terms
+         * chosen term. The keys ARE the offered month options -- a value the map
+         * has no key for is not a valid term. Fixed to 3-month ONLY (teacher
+         * 2026-07-14: no term extension -- no 6/12-month terms
          * offered; a single fixed term keeps the plan simple, no term picker
          * needed on the FE).
          */
@@ -2340,7 +2340,7 @@ export const envConfig = () => ({
                 defaultValue: 10,
             }),
         } as Record<number, number>,
-        /** FlexiblePool per-cycle minimum = max(remaining × this%, floor). */
+        /** FlexiblePool per-cycle minimum = max(remaining x this%, floor). */
         minPaymentPercent: parseEnvInt({
             key: "INSTALLMENT_MIN_PAYMENT_PERCENT",
             defaultValue: 10,
@@ -2383,7 +2383,7 @@ export const envConfig = () => ({
             .filter((broker) => broker !== ""),
         /**
          * Prefix Debezium uses for the CDC topics (server name + schema). The
-         * listener appends the table name to build each topic — e.g.
+         * listener appends the table name to build each topic -- e.g.
          * `${cdcTopicPrefix}user_contents`.
          */
         cdcTopicPrefix: parseEnvString({
@@ -2394,7 +2394,7 @@ export const envConfig = () => ({
     /**
      * CQRS projection read-models. Projection rows are kept fresh eagerly by
      * inline recompute (in the write transaction) + the CDC listeners; the TTL
-     * below is the LAZY safety net — a read that finds its projection row older
+     * below is the LAZY safety net -- a read that finds its projection row older
      * than {@link staleAfterMs} recomputes it on the spot before returning, so a
      * gap in both eager paths self-heals within one TTL window. This replaces the
      * old Redis cache-aside layer (the projection table IS the cache now).
@@ -2422,7 +2422,7 @@ export const envConfig = () => ({
     },
     /**
      * Duolingo-style global weekly-league tunables. The league ranks users by
-     * their flat reward points (`xp_histories.points`) within a fixed Sunday→Sunday
+     * their flat reward points (`xp_histories.points`) within a fixed Sunday->Sunday
      * (Asia/Ho_Chi_Minh) week window inside a fixed-size cohort, promoting the top
      * performers and demoting the laggards each week.
      */

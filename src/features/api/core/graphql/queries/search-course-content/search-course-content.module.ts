@@ -18,7 +18,7 @@ import {
     ],
 })
 /**
- * "Tìm nội dung khóa" query module — RAG search over a course's content,
+ * search course content query module -- RAG search over a course's content,
  * powering the ContentAiChat panel's search view.
  */
 export class SearchCourseContentQueriesModule extends ConfigurableModuleClass {}

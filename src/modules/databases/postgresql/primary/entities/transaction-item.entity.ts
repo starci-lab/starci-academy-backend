@@ -38,7 +38,7 @@ import {
  * payment for the summed total, `course` left null) plus one
  * `TransactionItemEntity` per course being bought. Each row records the per-course
  * price detail (VND {@link amount}, {@link discountPercent}, {@link pricingPhase})
- * so the charged breakdown is auditable, and — on payment success — the enroll
+ * so the charged breakdown is auditable, and -- on payment success -- the enroll
  * fan-out reads these rows to enqueue one enroll job per course. Single-course
  * `courseEnroll` checkouts do NOT create item rows (they carry `transaction.course`
  * directly); items exist only for multi-course orders.
@@ -131,7 +131,7 @@ export class TransactionItemEntity extends UuidAbstractEntity {
         amount: number
 
     /**
-     * Loyalty discount percent applied to this line at checkout (0–100). Stored so
+     * Loyalty discount percent applied to this line at checkout (0-100). Stored so
      * the per-course charged price matches what the buyer was shown.
      */
     @Field(

@@ -88,7 +88,7 @@ const buildTransaction = (
     actionType: ActionType.Enroll,
     courseId: "course-1",
     aiSubTier: null,
-    // created just now → never trips the stale-transaction guard
+    // created just now -> never trips the stale-transaction guard
     createdAt: new Date(),
     ...overrides,
 })
@@ -114,7 +114,7 @@ describe("NowPaymentsWebhookHandler",
                 verifySignature: jest.fn(() => true),
             } as unknown as jest.Mocked<Pick<NowPaymentsClient, "verifySignature">>
 
-            // enroll worker hand-off — assert it is enqueued on the Enroll path.
+            // enroll worker hand-off -- assert it is enqueued on the Enroll path.
             // default to a successful single-course fan-out; the no-course test
             // overrides this to `{ enqueuedCount: 0 }` per-call.
             enqueueEnrollJobService = {
@@ -123,18 +123,18 @@ describe("NowPaymentsWebhookHandler",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
-            // entitlement grant — assert it fires on the subscription path
+            // entitlement grant -- assert it fires on the subscription path
             aiEntitlementService = {
                 grantTier: jest.fn(),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
 
-            // membership grant — only reached by the MembershipPurchase branch,
+            // membership grant -- only reached by the MembershipPurchase branch,
             // which none of these cases exercise; a plain mock satisfies DI.
             membershipService = {
                 grantMembership: jest.fn(),
             } as unknown as jest.Mocked<Pick<MembershipService, "grantMembership">>
 
-            // transactional email + in-app notification hand-offs — only reached
+            // transactional email + in-app notification hand-offs -- only reached
             // when a grant call above resolves truthy, which the mocks above never
             // do by default; a plain mock satisfies DI.
             enqueueSendMailJobService = {
@@ -147,7 +147,7 @@ describe("NowPaymentsWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     NowPaymentsWebhookHandler,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: NowPaymentsClient,
@@ -207,7 +207,7 @@ describe("NowPaymentsWebhookHandler",
 
                 // signature was verified before any mutation
                 expect(nowPaymentsClient.verifySignature).toHaveBeenCalled()
-                // enroll worker received the whole transaction — it resolves the
+                // enroll worker received the whole transaction -- it resolves the
                 // per-course fan-out (single- or multi-course) internally
                 expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
                     transaction,
@@ -245,7 +245,7 @@ describe("NowPaymentsWebhookHandler",
 
         it("rejects an invalid signature without touching the DB",
             async () => {
-                // HMAC mismatch → the payload is untrusted
+                // HMAC mismatch -> the payload is untrusted
                 nowPaymentsClient.verifySignature.mockReturnValueOnce(false)
 
                 await expect(
@@ -264,7 +264,7 @@ describe("NowPaymentsWebhookHandler",
 
         it("ignores intermediate payment statuses without side effects",
             async () => {
-                // a still-confirming IPN is not yet paid → handler returns early
+                // a still-confirming IPN is not yet paid -> handler returns early
                 await handler.execute(
                     new NowPaymentsWebhookCommand(
                         buildParams({
@@ -274,7 +274,7 @@ describe("NowPaymentsWebhookHandler",
                     ),
                 )
 
-                // early return → no lookup, no grant, no enqueue
+                // early return -> no lookup, no grant, no enqueue
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
                 expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
@@ -282,7 +282,7 @@ describe("NowPaymentsWebhookHandler",
 
         it("throws when the IPN omits our order id",
             async () => {
-                // finished payment without order_id → cannot match a transaction
+                // finished payment without order_id -> cannot match a transaction
                 await expect(
                     handler.execute(
                         new NowPaymentsWebhookCommand(
@@ -298,7 +298,7 @@ describe("NowPaymentsWebhookHandler",
 
         it("throws when no pending transaction matches the order id",
             async () => {
-                // findOne default resolves null → no pending row
+                // findOne default resolves null -> no pending row
                 await expect(
                     handler.execute(
                         new NowPaymentsWebhookCommand(
@@ -336,7 +336,7 @@ describe("NowPaymentsWebhookHandler",
         it("rejects an enrollment IPN that carries no course",
             async () => {
                 // enrollment transaction missing its courseId, and no
-                // transaction_items rows either → the fan-out enqueues nothing
+                // transaction_items rows either -> the fan-out enqueues nothing
                 entityManager.findOne.mockResolvedValueOnce(
                     buildTransaction({
                         courseId: null,

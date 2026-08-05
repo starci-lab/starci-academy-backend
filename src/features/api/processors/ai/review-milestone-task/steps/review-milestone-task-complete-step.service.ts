@@ -74,15 +74,15 @@ import {
     enqueueLearnerEmail,
 } from "@modules/transactional-email"
 
-/** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
+/** Postgres unique-violation SQLSTATE -- a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
 
-/** Per-course weighted XP granted once when a milestone task is first passed (matches leaderboard ×10). */
+/** Per-course weighted XP granted once when a milestone task is first passed (matches leaderboard x10). */
 const MILESTONE_PASS_XP = 10
 
 @Injectable()
 /**
- * Step 1: finalize — load grade result, then ATOMICALLY persist the user-milestone-task,
+ * Step 1: finalize -- load grade result, then ATOMICALLY persist the user-milestone-task,
  * its attempt, the XP/points grant, and the job step advance in ONE transaction. The attempt
  * carries `idempotencyKey = job.id`, so a retried/stalled job cannot create a duplicate attempt.
  */
@@ -245,7 +245,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                     /**
                      * Grant XP + reward points once when the task is passed. refId is the
                      * user-milestone-task id, so re-passing the same task never re-credits
-                     * (mirrors the leaderboard's DISTINCT-task ×10 count).
+                     * (mirrors the leaderboard's DISTINCT-task x10 count).
                      */
                     if (grade.passed) {
                         const enrollment = await entityManager.findOne(
@@ -255,7 +255,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                                     id: payload.enrollmentId,
                                 },
                                 // NOTE: `userId`/`courseId` are @RelationId virtual props
-                                // (not real columns) — they CANNOT appear in `select`.
+                                // (not real columns) -- they CANNOT appear in `select`.
                                 // Load the full row so @RelationId populates them.
                             },
                         )
@@ -326,12 +326,12 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 }
             )
         } catch (error) {
-            // a concurrent duplicate lost the unique race → already reviewed; treat as idempotent.
+            // a concurrent duplicate lost the unique race -> already reviewed; treat as idempotent.
             if (error instanceof QueryFailedError
                 && (error.driverError as { code?: string } | undefined)?.code === PG_UNIQUE_VIOLATION) {
                 return
             }
-            // a newer worker fenced this one out — its tx rolled back; the new owner finishes the job.
+            // a newer worker fenced this one out -- its tx rolled back; the new owner finishes the job.
             if (error instanceof JobFencedOutException) {
                 return
             }
@@ -358,7 +358,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
             }
         )
 
-        // Notify the learner — only on the run that created the attempt (idempotent).
+        // Notify the learner -- only on the run that created the attempt (idempotent).
         if (createdNewAttempt) {
             const enrollment = await this.entityManager.findOne(
                 EnrollmentEntity,
@@ -367,7 +367,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                         id: payload.enrollmentId,
                     },
                     // NOTE: `userId` is a @RelationId virtual prop (not a real
-                    // column) — it CANNOT appear in `select`. Load the full row
+                    // column) -- it CANNOT appear in `select`. Load the full row
                     // so @RelationId populates it.
                 },
             )
@@ -389,7 +389,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 )
                 // bill the capstone review like a challenge: charge the served
                 // model's catalog credit from the pool (idempotent via the
-                // attempt's `idempotencyKey` = job id → createdNewAttempt gate)
+                // attempt's `idempotencyKey` = job id -> createdNewAttempt gate)
                 await this.aiEntitlementService.consume({
                     userId: enrollment.userId,
                     cost: grade.aiUsage?.model
@@ -427,7 +427,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                         feedback: grade.evaluation.shortFeedback ?? "",
                     },
                 })
-                // a failed notification write must never crash grading — the
+                // a failed notification write must never crash grading -- the
                 // attempt + email already landed; just log and move on
                 try {
                     await this.notificationService.createNotification({

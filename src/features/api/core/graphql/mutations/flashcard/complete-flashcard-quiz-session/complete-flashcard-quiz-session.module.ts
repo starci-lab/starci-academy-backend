@@ -13,5 +13,5 @@ import {
         CompleteFlashcardQuizSessionResolver,
     ],
 })
-/** Feature-module boundary for the `completeFlashcardQuizSession` mutation — wires its resolver (business logic lives in the shared `FlashcardQuizSessionService`). */
+/** Feature-module boundary for the `completeFlashcardQuizSession` mutation -- wires its resolver (business logic lives in the shared `FlashcardQuizSessionService`). */
 export class CompleteFlashcardQuizSessionSingleMutationModule extends ConfigurableModuleClass {}

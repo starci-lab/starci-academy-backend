@@ -61,7 +61,7 @@ import type {
 
 @MockInterviewWebSocketGateway()
 /**
- * WebSocket gateway for the `/mock_interview` namespace — mock interviewer
+ * WebSocket gateway for the `/mock_interview` namespace -- mock interviewer
  * turn token streaming.
  *
  * The candidate emits an {@link PublicationEvent.AskMockInterviewTurn} carrying
@@ -73,7 +73,7 @@ import type {
  * {@link SubscriptionEvent.MockInterviewChunk} event. An
  * {@link PublicationEvent.AbortMockInterviewTurn} message cancels the in-flight
  * stream. Mirrors {@link import("../content-ai/content-ai.gateway").ContentAiGateway}
- * almost 1:1 — the interviewer's turns are ephemeral (never persisted here);
+ * almost 1:1 -- the interviewer's turns are ephemeral (never persisted here);
  * only the end-of-session grade (built elsewhere) is durable.
  */
 export class MockInterviewGateway {
@@ -88,7 +88,7 @@ export class MockInterviewGateway {
         private readonly winstonService: WinstonService,
     ) {}
 
-    /** The namespace server — used to attach the auth middleware. */
+    /** The namespace server -- used to attach the auth middleware. */
     @WebSocketServer()
     private readonly server: Namespace
 
@@ -111,7 +111,7 @@ export class MockInterviewGateway {
     /**
      * Ask the interviewer for its next turn, streaming the question
      * token-by-token back to the caller. The turn itself is never persisted
-     * here — only the end-of-session grade (built by a separate flow) is
+     * here -- only the end-of-session grade (built by a separate flow) is
      * durable; this gateway only ever produces ephemeral interviewer text.
      *
      * @param client - The asking socket (auth user id on `client.data.userId`).
@@ -138,10 +138,10 @@ export class MockInterviewGateway {
             currentSeed,
             questionIndex,
         } = payload.data
-        // absent/unrecognized mode → "design" (the pre-existing 5-phase flow),
+        // absent/unrecognized mode -> "design" (the pre-existing 5-phase flow),
         // so an FE build that predates the mode split keeps working unchanged
         const normalizedMode = normalizeMockInterviewMode(mode)
-        // THIS question's own kind — meaningful only for mode="qna" (a single
+        // THIS question's own kind -- meaningful only for mode="qna" (a single
         // qna session mixes kinds across its questions); absent/unrecognized
         // falls back to "theory" (harmless for mode="design", which ignores kind)
         const normalizedKind = normalizeMockInterviewKind(kind)
@@ -157,7 +157,7 @@ export class MockInterviewGateway {
             : undefined
         // the socket stamps the Keycloak subject id; resolve it to the real
         // users.id (uuid) so entitlement billing (which keys off users.id)
-        // matches — passing the raw sub would make the entitlement debit a
+        // matches -- passing the raw sub would make the entitlement debit a
         // silent mismatch against the wrong row
         const keycloakId = client.data.userId
         const userId = keycloakId
@@ -178,7 +178,7 @@ export class MockInterviewGateway {
         }
 
         // "session time limit" (2026-07-08): enforce the 1-hour ask-loop deadline
-        // SERVER-SIDE, anchored to the persisted session's OWN `createdAt` — never
+        // SERVER-SIDE, anchored to the persisted session's OWN `createdAt` -- never
         // trust a client-side clock. Scoped by ownership (mirrors
         // `syncMockInterviewSessionTurns`'s `enrollment.user.id` scoping) so a
         // sessionId can never be used to probe another learner's draw. Checked
@@ -234,7 +234,7 @@ export class MockInterviewGateway {
             controller)
         try {
             // normalize the wire-format transcript into the strict role union
-            // the prompt builder expects — any unexpected role string collapses
+            // the prompt builder expects -- any unexpected role string collapses
             // to "candidate" so a malformed client payload never throws here
             const normalizedHistory: Array<MockInterviewTurnHistoryEntry> = (history ?? []).map(
                 (entry) => ({
@@ -243,7 +243,7 @@ export class MockInterviewGateway {
                 }),
             )
 
-            // build the on-rails, RAG-grounded interviewer prompt for this turn —
+            // build the on-rails, RAG-grounded interviewer prompt for this turn --
             // branches internally on mode (design's 5-phase flow vs the qna
             // mode's N-question flow, where each question reads its OWN kind)
             const {
@@ -255,7 +255,7 @@ export class MockInterviewGateway {
                 kind: normalizedKind,
                 // the wire payload carries the phase as a plain string; cast
                 // through the enum since the FE only ever sends a valid value
-                // (meaningful only for mode="design" — ignored otherwise)
+                // (meaningful only for mode="design" -- ignored otherwise)
                 phase: phase as MockInterviewPhase,
                 currentSeed,
                 questionIndex,
@@ -265,7 +265,7 @@ export class MockInterviewGateway {
                 level,
             })
 
-            // ONE shared entry — stream on the Economy floor (mock-interview
+            // ONE shared entry -- stream on the Economy floor (mock-interview
             // grading floor policy), climbing to the tier ceiling for the
             // Interview surface
             const {
@@ -319,7 +319,7 @@ export class MockInterviewGateway {
                 },
             })
         } catch (error) {
-            // any failure (including abort) → terminal chunk carrying the error
+            // any failure (including abort) -> terminal chunk carrying the error
             const message = error instanceof Error
                 ? error.message
                 : String(error)
@@ -345,7 +345,7 @@ export class MockInterviewGateway {
                 },
             })
         } finally {
-            // the stream is no longer in flight — drop the abort controller
+            // the stream is no longer in flight -- drop the abort controller
             this.inFlight.delete(key)
         }
     }
@@ -371,9 +371,9 @@ export class MockInterviewGateway {
 
     /**
      * Resolve a Keycloak subject id to the real `users.id` (uuid), swallowing
-     * the "not found" failure into `null` — `UserService.getUserByKeycloakId`
+     * the "not found" failure into `null` -- `UserService.getUserByKeycloakId`
      * throws rather than returning nullish, so this boundary normalizes that
-     * into the same "unresolved → null" shape `ContentAiService` exposes.
+     * into the same "unresolved -> null" shape `ContentAiService` exposes.
      *
      * @param keycloakId - The Keycloak subject id from the socket.
      * @returns The real user id, or `null` when no user matches.
@@ -385,7 +385,7 @@ export class MockInterviewGateway {
             const user = await this.userService.getUserByKeycloakId(keycloakId)
             return user?.id ?? null
         } catch {
-            // no matching user row — treat exactly like an unresolved id
+            // no matching user row -- treat exactly like an unresolved id
             return null
         }
     }

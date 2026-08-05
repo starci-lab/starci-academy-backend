@@ -43,12 +43,12 @@ import type {
  * {@link AiModelLatencyCacheService}, then emits {@link EventName.AiModelHealthUpdated}
  * with the FULL cycle snapshot so the Socket.IO gateway can broadcast it.
  *
- * A SEPARATE layer from the per-provider key ping — this is UI/status only and
+ * A SEPARATE layer from the per-provider key ping -- this is UI/status only and
  * never feeds balancer key eligibility. Every step is wrapped in try/catch so a
  * failing probe can never crash the scheduler.
  */
 export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
-    /** Handle for the recurring cycle timer — cleared on shutdown. */
+    /** Handle for the recurring cycle timer -- cleared on shutdown. */
     private cycleIntervalHandle: NodeJS.Timeout | null = null
     /** Pending per-model stagger timers for the active cycle. */
     private staggerHandles: Array<NodeJS.Timeout> = []
@@ -67,7 +67,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
      * Arm the recurring probe cycle (gated by `ai.latencyProbe.enabled`).
      */
     onModuleInit(): void {
-        // read the gate + cadence at boot; disabled → scheduler stays idle
+        // read the gate + cadence at boot; disabled -> scheduler stays idle
         const {
             enabled,
             cycleIntervalMs,
@@ -107,14 +107,14 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
      * One staggered pass over every in-scope enabled model.
      */
     async runCycle(): Promise<void> {
-        // never overlap cycles — if the previous one is still draining its
+        // never overlap cycles -- if the previous one is still draining its
         // stagger timers, skip this tick
         if (this.cycleInProgress) {
             return
         }
 
         try {
-            // resolve the model set for this cycle (scope-filtered); empty → nothing to do
+            // resolve the model set for this cycle (scope-filtered); empty -> nothing to do
             const models = await this.listModelsInScope()
             if (models.length === 0) {
                 return
@@ -128,7 +128,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
                 staggerMs,
             } = envConfig().ai.latencyProbe
 
-            // schedule each model probe offset by index×staggerMs so we don't hit
+            // schedule each model probe offset by indexxstaggerMs so we don't hit
             // every provider at once; the LAST one flips `cycleInProgress` off and
             // emits the full snapshot
             for (let index = 0; index < models.length; index++) {
@@ -146,7 +146,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
                 this.staggerHandles.push(handle)
             }
         } catch (error) {
-            // listing models failed (DB blip) → log + release the lock so the next
+            // listing models failed (DB blip) -> log + release the lock so the next
             // tick can retry; never let it bubble out of the scheduler
             this.winstonService.log(WinstonLog.AiModelLatencyFailed,
                 {
@@ -189,7 +189,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
                 errorMessage: result.errorMessage,
             })
 
-            // surface WHY a model is down — the probe reason is otherwise only in the
+            // surface WHY a model is down -- the probe reason is otherwise only in the
             // cache/tooltip, never logged. Warn = visible; 60s cadence = low noise.
             if (!result.ok) {
                 this.winstonService.log(WinstonLog.AiModelLatencyFailed,
@@ -229,7 +229,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
         try {
             // pull the latest per-model snapshots written this cycle
             const latencyMap = await this.aiModelLatencyCacheService.getAll()
-            // category lives in the catalog, not the latency cache — index enabled
+            // category lives in the catalog, not the latency cache -- index enabled
             // models by name so we can attach it to each snapshot
             const enabled = await this.aiModelCatalogService.enabledModels()
             const categoryByName = new Map<string, AiModelCategory>(
@@ -266,7 +266,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
                 },
             })
         } catch (error) {
-            // emitting/reading the snapshot failed → log only; the cache still holds
+            // emitting/reading the snapshot failed -> log only; the cache still holds
             // the fresh data for the next query/poll
             this.winstonService.log(WinstonLog.AiModelLatencyFailed,
                 {
@@ -299,7 +299,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
     }
 
     /**
-     * Record a model down without throwing — used when the probe itself threw.
+     * Record a model down without throwing -- used when the probe itself threw.
      * @param model - The catalog row to mark down.
      */
     private async safeRecordDown(model: AiModelEntity): Promise<void> {
@@ -313,7 +313,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
                 errorMessage: "Probe threw before completing",
             })
         } catch (error) {
-            // even the cache write failed → log only; nothing else we can do here
+            // even the cache write failed -> log only; nothing else we can do here
             this.winstonService.log(WinstonLog.AiModelLatencyFailed,
                 {
                     op: "ai.latency.down-record-failed",

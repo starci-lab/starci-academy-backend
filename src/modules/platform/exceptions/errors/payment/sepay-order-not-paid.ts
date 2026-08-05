@@ -18,7 +18,7 @@ export interface SepayOrderNotPaidExceptionMetadata extends AbstractExceptionMet
 
 /**
  * Thrown when a SePay webhook fires for an order whose `detailStatus` is not
- * a paid state — reconciliation only proceeds on a confirmed payment.
+ * a paid state -- reconciliation only proceeds on a confirmed payment.
  */
 export class SepayOrderNotPaidException extends AbstractException {
     constructor({

@@ -18,7 +18,7 @@ import {
     description: "Public-safe latency snapshot for one AI model.",
 })
 /**
- * Public-safe latency snapshot for one AI model — its identity plus the latest
+ * Public-safe latency snapshot for one AI model -- its identity plus the latest
  * probe outcome. Deliberately carries no raw keys; the per-provider key health
  * stays behind the admin `aiBalancerHealth` query.
  */
@@ -85,7 +85,7 @@ export class AiModelLatencyData {
     description: "Public AI model latency payload.",
 })
 /**
- * Payload of the public `aiModelLatency` query — the latest probe snapshot for
+ * Payload of the public `aiModelLatency` query -- the latest probe snapshot for
  * every enabled AI model.
  */
 export class AiModelLatencyResponseData {

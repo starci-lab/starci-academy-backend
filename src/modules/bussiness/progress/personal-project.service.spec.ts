@@ -79,14 +79,14 @@ describe("PersonalProjectProgressService",
         }
 
         beforeEach(async () => {
-            // cache stubs — programmed per-test for hit / miss behavior
+            // cache stubs -- programmed per-test for hit / miss behavior
             cacheService = {
                 get: jest.fn(),
                 set: jest.fn(),
                 del: jest.fn(),
             } as unknown as jest.Mocked<CacheService>
 
-            // fresh entity manager with happy-path defaults (find → [], findOne → null)
+            // fresh entity manager with happy-path defaults (find -> [], findOne -> null)
             entityManager = makeEntityManagerMock()
 
             // mount config exposes the task pass threshold as a plain getter property
@@ -162,7 +162,7 @@ describe("PersonalProjectProgressService",
                         // a malformed cache row must fall through to compute
                         cacheService.get.mockResolvedValueOnce({
                         } as unknown as MilestoneTaskProgressCacheResult)
-                        // no tasks in the course → empty result
+                        // no tasks in the course -> empty result
                         entityManager.find.mockResolvedValueOnce([])
 
                         const result = await service.getProgress(enrollment)
@@ -181,15 +181,15 @@ describe("PersonalProjectProgressService",
                 it("computes from DB on a miss and stores the result",
                     async () => {
                         cacheService.get.mockResolvedValueOnce(undefined)
-                        // first find → milestone tasks
+                        // first find -> milestone tasks
                         entityManager.find.mockResolvedValueOnce([
                             buildMilestoneTask(),
                         ])
-                        // findOne → the user's task row exists
+                        // findOne -> the user's task row exists
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "user-task-1",
                         })
-                        // second find → attempts for that user task
+                        // second find -> attempts for that user task
                         entityManager.find.mockResolvedValueOnce([
                             buildAttempt(),
                         ])
@@ -205,7 +205,7 @@ describe("PersonalProjectProgressService",
                                 numAttempts: 1,
                             },
                         ])
-                        // every task completed → no "current" (next unfinished) task
+                        // every task completed -> no "current" (next unfinished) task
                         expect(result.currentTask).toBeNull()
                         expect(cacheService.set).toHaveBeenCalled()
                     })
@@ -215,12 +215,12 @@ describe("PersonalProjectProgressService",
             () => {
                 it("recomputes from DB and writes the result to cache",
                     async () => {
-                        // no tasks → trivial recompute, but the cache write must still happen
+                        // no tasks -> trivial recompute, but the cache write must still happen
                         entityManager.find.mockResolvedValueOnce([])
 
                         await service.updateProgress(enrollment)
 
-                        // updateProgress never reads cache — it always recomputes
+                        // updateProgress never reads cache -- it always recomputes
                         expect(cacheService.get).not.toHaveBeenCalled()
                         expect(cacheService.set).toHaveBeenCalledWith({
                             key: CacheKey.MilestoneTaskProgress,
@@ -254,7 +254,7 @@ describe("PersonalProjectProgressService",
                         entityManager.find.mockResolvedValueOnce([
                             buildMilestoneTask(),
                         ])
-                        // findOne → user never started this task
+                        // findOne -> user never started this task
                         entityManager.findOne.mockResolvedValueOnce(null)
 
                         const result = await service.getProgress(enrollment)
@@ -269,7 +269,7 @@ describe("PersonalProjectProgressService",
                         })
                         // first unfinished task becomes the "current" pointer
                         expect(result.currentTask).toBe(task)
-                        // no user row → the attempts find must NOT run
+                        // no user row -> the attempts find must NOT run
                         expect(entityManager.find).toHaveBeenCalledTimes(1)
                     })
 
@@ -282,7 +282,7 @@ describe("PersonalProjectProgressService",
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "user-task-1",
                         })
-                        // latest score 40 < 100 × 0.5 → failing
+                        // latest score 40 < 100 x 0.5 -> failing
                         entityManager.find.mockResolvedValueOnce([
                             buildAttempt({
                                 score: 40,
@@ -336,7 +336,7 @@ describe("PersonalProjectProgressService",
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "user-task-1",
                         })
-                        // attempt graded with no score → treated as 0, failing the threshold
+                        // attempt graded with no score -> treated as 0, failing the threshold
                         entityManager.find.mockResolvedValueOnce([
                             buildAttempt({
                                 score: null,

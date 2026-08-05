@@ -22,7 +22,7 @@ import type {
  * `ScalableBloomFilter` persisted as one shared cache entry (`CacheKey.BloomFilter`
  * / `BloomFilterType.Email`). Seeded at init by {@link BloomFilterSynchronizerService}
  * and kept warm by the write paths below; the Postgres email-uniqueness
- * constraint remains the actual source of truth — this filter is fail-open,
+ * constraint remains the actual source of truth -- this filter is fail-open,
  * never a hard gate.
  */
 export class EmailBloomFilterService {
@@ -50,7 +50,7 @@ export class EmailBloomFilterService {
      *
      * The filter is an ephemeral, best-effort dedup cache seeded during init
      * ({@link BloomFilterSynchronizerService}). If init has not run yet or Redis
-     * was flushed, the key is absent — recreating it empty here keeps write paths
+     * was flushed, the key is absent -- recreating it empty here keeps write paths
      * (account creation, OTP sign-up) from hard-failing with a
      * `CACHE_NOT_FOUND_EXCEPTION`. The database email-uniqueness constraint stays
      * the source of truth, so an empty filter is safe (it only loses fast-path

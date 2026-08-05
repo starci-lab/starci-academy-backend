@@ -7,7 +7,7 @@ import {
 
 @Injectable()
 /**
- * Current consecutive-day streak ending today/yesterday — gaps-and-islands
+ * Current consecutive-day streak ending today/yesterday -- gaps-and-islands
  * over the user's distinct XP-earning days.
  */
 export class BlazingFoxBadge extends AbstractBadge {

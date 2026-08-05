@@ -27,7 +27,7 @@ export class StartFlashcardDueReviewSessionData {
 })
 /**
  * Envelope for a newly opened cross-deck due-review batch. `data` is nullable
- * so the transform interceptor can null it on the error path — a required
+ * so the transform interceptor can null it on the error path -- a required
  * field would crash GraphQL and hide the real exception.
  */
 export class StartFlashcardDueReviewSessionResponse

@@ -7,7 +7,7 @@ import {
 } from "class-validator"
 
 /**
- * Request body for `POST /presign/put` — the client asks the server to sign a
+ * Request body for `POST /presign/put` -- the client asks the server to sign a
  * short-lived PUT URL for an object it is about to upload.
  */
 export class PresignPutDto {

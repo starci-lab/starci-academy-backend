@@ -20,7 +20,7 @@ import type {
  * Shape: `Record<modelName, { provider, ok, latencyMs, checkedAt, errorMessage }>`.
  * Written by the per-model latency probe scheduler each cycle and read by the
  * public `aiModelLatency` query. A SEPARATE layer from {@link AiPingCacheService}
- * (per-provider key health) — this one is UI/status only and never feeds key
+ * (per-provider key health) -- this one is UI/status only and never feeds key
  * eligibility. TTL is effectively infinite ({@link CacheKey.AiModelLatency});
  * the scheduler keeps it fresh by overwriting every cycle.
  */
@@ -68,7 +68,7 @@ export class AiModelLatencyCacheService implements OnModuleInit {
     }
 
     /**
-     * Read the full model → latency snapshot map from Redis.
+     * Read the full model -> latency snapshot map from Redis.
      * @returns Cached latency snapshots for every model probed so far.
      */
     async getAll(): Promise<AiModelLatencyMap> {
@@ -87,7 +87,7 @@ export class AiModelLatencyCacheService implements OnModuleInit {
         if (existing !== undefined) {
             return existing
         }
-        // nothing stored yet → seed an empty map so callers never see undefined
+        // nothing stored yet -> seed an empty map so callers never see undefined
         const empty: AiModelLatencyMap = {
         }
         await this.cacheService.set({

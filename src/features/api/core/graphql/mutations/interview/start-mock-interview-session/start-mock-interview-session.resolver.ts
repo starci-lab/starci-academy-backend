@@ -47,7 +47,7 @@ export class StartMockInterviewSessionResolver {
 
     /**
      * Draws ONE mock-interview session for a course + level + kind,
-     * SERVER-SIDE — the client never picks/sends which prompt (or, for the
+     * SERVER-SIDE -- the client never picks/sends which prompt (or, for the
      * Q&A kinds, which flashcard topics) was drawn, only asks for one.
      * Persists the draw so `gradeMockInterviewSession` can later grade against
      * the server-stored prompt/level/kind instead of trusting the client.

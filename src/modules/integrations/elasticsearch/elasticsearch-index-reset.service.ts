@@ -29,7 +29,7 @@ import {
  * `configMap` mapping, giving a clean, correctly-typed index for mixed V1/V2 documents (legacy
  * `body` and SCHEMA V2 `bodies`/`isPremium`/`verified` share one record/index).
  *
- * Destructive by design — called by the synchronizer phase for the entities listed
+ * Destructive by design -- called by the synchronizer phase for the entities listed
  * in `seed.yaml` `sync.reindex`, right before that data is repopulated.
  */
 export class ElasticsearchIndexResetService {

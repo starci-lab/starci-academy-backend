@@ -17,7 +17,7 @@ import type {
 
 @Injectable()
 /**
- * SCHEMA V2 git submission pipeline: load repo → split → vectorize → grade against criteria →
+ * SCHEMA V2 git submission pipeline: load repo -> split -> vectorize -> grade against criteria ->
  * complete. Reuses the legacy complete step (it keys off the shared `grade` step name).
  */
 export class ProcessGitSubmissionStepMappingService {

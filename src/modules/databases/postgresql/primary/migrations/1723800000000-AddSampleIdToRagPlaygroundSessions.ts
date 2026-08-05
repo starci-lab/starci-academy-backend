@@ -4,11 +4,11 @@ import {
 } from "typeorm"
 
 /**
- * Adds the nullable `sample_id` column to `rag_playground_sessions` — records
+ * Adds the nullable `sample_id` column to `rag_playground_sessions` -- records
  * which curated catalog entry a visitor picked when indexing via
  * `RagPlaygroundSourceKind.Sample` (see `PublicRagPlaygroundService`'s
  * `SAMPLE_CATALOG`). Null for every other source kind, and for existing rows.
- * Fully backward-compatible — no backfill needed.
+ * Fully backward-compatible -- no backfill needed.
  *
  * Dev runs schema via TypeORM `synchronize` (adds the column); this migration
  * applies the same change where `synchronize` is disabled (prod). Idempotent.

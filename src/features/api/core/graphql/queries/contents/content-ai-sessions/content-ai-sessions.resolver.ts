@@ -39,7 +39,7 @@ import type {
 
 @Resolver()
 /**
- * GraphQL surface for `contentAiSessions` — list by content/task/foundation/
+ * GraphQL surface for `contentAiSessions` -- list by content/task/foundation/
  * course scope, or search across the caller's conversations when `search` is set.
  */
 export class ContentAiSessionsResolver {

@@ -34,7 +34,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL surface for `userMilestoneTaskFeedbacks` — authenticated feedback page
+ * GraphQL surface for `userMilestoneTaskFeedbacks` -- authenticated feedback page
  * for the caller's own latest milestone-task attempt.
  */
 export class UserMilestoneTaskFeedbacksResolver {

@@ -15,7 +15,7 @@ import type {
 })
 /**
  * Per-task review input. URL / branch / taskId may be omitted to reuse
- * enrollment defaults — first-task fallback is `orderIndex = 0`, not
+ * enrollment defaults -- first-task fallback is `orderIndex = 0`, not
  * "whatever the UI last showed".
  */
 export class ReviewPersonalProjectTaskRequest {

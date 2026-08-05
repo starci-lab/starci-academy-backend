@@ -44,7 +44,7 @@ export interface CodingLeaderboardEntryResult {
 
 /** One solved-count bucket (language or difficulty) in the projection value / read. */
 export interface UserCodingSkillCountResult {
-    /** Language value (python/typescript/…) or difficulty value (easy/medium/hard). */
+    /** Language value (python/typescript/...) or difficulty value (easy/medium/hard). */
     key: string
     /** Distinct problems solved in this bucket. */
     solved: number
@@ -56,7 +56,7 @@ export interface UserCodingSkillsResult {
     byLanguage: Array<UserCodingSkillCountResult>
     /** Solved counts grouped by difficulty. */
     byDifficulty: Array<UserCodingSkillCountResult>
-    /** Solved counts grouped by problem domain (arrays/strings/trees/…). */
+    /** Solved counts grouped by problem domain (arrays/strings/trees/...). */
     byDomain: Array<UserCodingSkillCountResult>
 }
 
@@ -68,7 +68,7 @@ export interface UserCodingHistoryValue {
     slug: string
     /** Difficulty value (easy/medium/hard). */
     difficulty: string
-    /** Problem domain value (arrays/strings/trees/dynamicProgramming/…). */
+    /** Problem domain value (arrays/strings/trees/dynamicProgramming/...). */
     domain: string
     /** Language values the problem was solved in. */
     languages: Array<string>
@@ -84,7 +84,7 @@ export interface UserCodingHistoryResult {
     slug: string
     /** Difficulty value (easy/medium/hard). */
     difficulty: string
-    /** Problem domain value (arrays/strings/trees/dynamicProgramming/…). */
+    /** Problem domain value (arrays/strings/trees/dynamicProgramming/...). */
     domain: string
     /** Language values the problem was solved in. */
     languages: Array<string>

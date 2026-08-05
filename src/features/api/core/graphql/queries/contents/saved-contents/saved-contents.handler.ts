@@ -26,8 +26,8 @@ import type {
 @QueryHandler(SavedContentsQuery)
 @Injectable()
 /**
- * Lists the caller's isFavorite user_contents with content→module→course loaded
- * so the FE can group "Đã lưu" by course; empty when unauthenticated.
+ * Lists the caller's isFavorite user_contents with content->module->course loaded
+ * so the FE can group "saved" by course; empty when unauthenticated.
  */
 export class SavedContentsHandler
     extends ICQRSHandler<SavedContentsQuery, SavedContentsData>
@@ -79,8 +79,8 @@ export class SavedContentsHandler
                         : {
                         }),
                 },
-                // load the owning module → course so the client can group saved
-                // contents by course ("Đã lưu" grouped, like the learning-history page)
+                // load the owning module -> course so the client can group saved
+                // contents by course ("saved" grouped, like the learning-history page)
                 relations: {
                     content: {
                         module: {

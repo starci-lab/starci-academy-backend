@@ -22,7 +22,7 @@ export class FlashcardCardResolverService {
 
     /**
      * Resolves a single card's question/answer/explanation to the requested locale,
-     * in place — mirrors {@link FlashcardDeckResolverService.transform}. `question`
+     * in place -- mirrors {@link FlashcardDeckResolverService.transform}. `question`
      * always takes the resolved value since every card carries a translation row for
      * it; `answer`/`explanation` keep the base (nullable) value when no row exists,
      * so an answerless card is never blanked to `""`. `card.translations` is deleted
@@ -38,7 +38,7 @@ export class FlashcardCardResolverService {
         fallbackLocale: Locale,
     ): void {
         const rowFallback = card.defaultLocale ?? fallbackLocale
-        // question is required → always take the resolved value (the merge emits a row
+        // question is required -> always take the resolved value (the merge emits a row
         // per locale, so the requested-or-default locale is present)
         card.question = this.translationResolver.resolve(
             {

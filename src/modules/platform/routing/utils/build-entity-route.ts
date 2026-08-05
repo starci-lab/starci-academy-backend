@@ -22,13 +22,13 @@ export interface BuildEntityRouteParams {
 }
 
 /**
- * Single source of truth for "entity → canonical route". Builds a
+ * Single source of truth for "entity -> canonical route". Builds a
  * **locale-agnostic** path (caller prepends `/{locale}`) from an entity's class
  * name + id + cached ancestor chain. Server-side port of the old client
  * `buildHref`, so global search and the route resolver agree byte-for-byte.
  *
  * Returns `null` when the ancestors needed for that kind are missing (cache
- * miss / deleted) — the caller then renders a non-link.
+ * miss / deleted) -- the caller then renders a non-link.
  *
  * @param params - See {@link BuildEntityRouteParams}.
  * @returns The locale-agnostic path, or `null` when it cannot be built.
@@ -49,7 +49,7 @@ export const buildEntityRoute = (
         return course ? `/courses/${course.displayId}` : null
 
     // a module needs the owning course slug; the module segment uses its UUID
-    // (route is /learn/content/modules/<id> — the "content" segment is required)
+    // (route is /learn/content/modules/<id> -- the "content" segment is required)
     case ModuleEntity.name:
         return course ? `/courses/${course.displayId}/learn/content/modules/${id}` : null
 
@@ -70,7 +70,7 @@ export const buildEntityRoute = (
             : null
     }
 
-    // a milestone has no page → deep-link to its first task, else the project root
+    // a milestone has no page -> deep-link to its first task, else the project root
     case MilestoneEntity.name: {
         if (!course) {
             return null

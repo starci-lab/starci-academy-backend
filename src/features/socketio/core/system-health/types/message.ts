@@ -3,7 +3,7 @@ import type {
 } from "@modules/event"
 
 /**
- * Server → client message broadcast when a per-model AI latency probe cycle
+ * Server -> client message broadcast when a per-model AI latency probe cycle
  * completes. Carries the full snapshot of every probed model so the status page
  * can re-render in one shot.
  */

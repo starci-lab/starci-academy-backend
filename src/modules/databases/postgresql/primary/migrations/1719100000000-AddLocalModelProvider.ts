@@ -35,6 +35,6 @@ export class AddLocalModelProvider1719100000000 implements MigrationInterface {
      * in the enum is harmless when no row references it.
      */
     async down(): Promise<void> {
-        // no-op — see doc comment
+        // no-op -- see doc comment
     }
 }

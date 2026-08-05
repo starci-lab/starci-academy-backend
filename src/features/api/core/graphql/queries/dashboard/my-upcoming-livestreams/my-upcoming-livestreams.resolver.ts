@@ -135,11 +135,11 @@ export class MyUpcomingLivestreamsResolver {
             // fall back to the course's default locale when the viewer's is missing
             const fallbackLocale = course.defaultLocale ?? Locale.En
             for (const session of sessions) {
-                // overridable rows are superseded placeholders — skip them
+                // overridable rows are superseded placeholders -- skip them
                 if (session.isOverridable) {
                     continue
                 }
-                // localize the slot note in place → becomes the session title
+                // localize the slot note in place -> becomes the session title
                 this.livestreamSessionResolver.transform(
                     session,
                     locale,

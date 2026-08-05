@@ -4,15 +4,15 @@ import {
 
 @Injectable()
 /**
- * Runs local CLI probes (docker, kubectl, nvidia-smi, wmic, …) with NO shell —
+ * Runs local CLI probes (docker, kubectl, nvidia-smi, wmic, ...) with NO shell --
  * best-effort, never throws. The one place the agents shell out for READ-ONLY
  * snapshots, injected via DI so every capability shares the same runner.
  *
- * Loads execa via dynamic `import()` (execa v9 is ESM-only) — the same
+ * Loads execa via dynamic `import()` (execa v9 is ESM-only) -- the same
  * ESM-safe idiom the backend already uses (see api/.../compile-cv-pdf). Unlike
  * the strict {@link ExecaService}, this is deliberately LENIENT: a probe that
  * writes to stderr but still prints useful stdout (docker/kubectl warnings)
- * must not be discarded — only a throw (missing binary / non-zero / timeout)
+ * must not be discarded -- only a throw (missing binary / non-zero / timeout)
  * yields "".
  */
 export class CommandProbeService {
@@ -21,7 +21,7 @@ export class CommandProbeService {
         try {
             const { execa } = await import("execa")
             // no shell; a positive timeout maps to execa's `timeout`. Throw (missing
-            // binary / non-zero / timeout) is caught below → "". stderr alone does NOT
+            // binary / non-zero / timeout) is caught below -> "". stderr alone does NOT
             // throw, so stdout survives warning noise (lenient, unlike ExecaService).
             const options = timeoutMs > 0 ? {
                 shell: false as const, timeout: timeoutMs 

@@ -30,7 +30,7 @@ export interface PartitionUuidSyncParams<Entity extends UuidAbstractEntity> {
     entities: Array<DeepPartial<Entity>>
     /**
      * Optional parent filter scoping stale-row detection (e.g. `{ course: { id: "x" } }`).
-     * Omit to compare only against seed ids — nothing is deleted without a filter.
+     * Omit to compare only against seed ids -- nothing is deleted without a filter.
      */
     where?: FindOptionsWhere<Entity>
 }

@@ -9,7 +9,7 @@ import {
     description: "Request for listing comments of a content or a course-general question.",
 })
 /**
- * Request for listing comments — top-level of a lesson/course scope, or replies of one
+ * Request for listing comments -- top-level of a lesson/course scope, or replies of one
  * parent. A top-level listing (`parentCommentId` omitted) must set exactly one of
  * `contentId`/`courseId`; a reply listing only needs `parentCommentId`.
  */

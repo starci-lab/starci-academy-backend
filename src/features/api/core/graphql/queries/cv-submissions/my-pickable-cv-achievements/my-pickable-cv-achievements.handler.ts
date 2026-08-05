@@ -34,14 +34,14 @@ interface MilestoneTaskAttemptRow {
 @QueryHandler(MyPickableCvAchievementsQuery)
 @Injectable()
 /**
- * Handler for `myPickableCvAchievements` — exposes the passed capstone tasks
+ * Handler for `myPickableCvAchievements` -- exposes the passed capstone tasks
  * the CV block editor's "pick from StarCi" flow needs (block editor,
  * Direction A toolbar-led), synchronously (no BullMQ wait).
  *
  * The SQL mirrors `GenerateCvGatherStepService.gatherMilestoneTaskAttempts`
- * (`processors/ai/generate-cv/steps`) — same WHERE clause (passed=true), just
+ * (`processors/ai/generate-cv/steps`) -- same WHERE clause (passed=true), just
  * with the attempt id added so the FE can key a stable pick-list. CAPSTONE
- * ONLY (2026-07-05): challenges/achievements are deliberately NOT surfaced —
+ * ONLY (2026-07-05): challenges/achievements are deliberately NOT surfaced --
  * they don't go on the CV and don't count toward score. Every row here is
  * Verified by construction: it can only exist if a real, passed capstone does.
  */
@@ -68,7 +68,7 @@ export class MyPickableCvAchievementsHandler
         } = query.params
 
         // guard: the resolver is auth-guarded so `user` is present in practice,
-        // but ExecuteParams types it optional — no user means nothing to pick
+        // but ExecuteParams types it optional -- no user means nothing to pick
         if (!user) {
             return {
                 milestoneTaskAttempts: [],

@@ -16,6 +16,6 @@ import {
     ],
 })
 /**
- * Streak mutation group — buy a streak freeze with Coin.
+ * Streak mutation group -- buy a streak freeze with Coin.
  */
 export class StreakMutationsModule extends ConfigurableModuleClass {}

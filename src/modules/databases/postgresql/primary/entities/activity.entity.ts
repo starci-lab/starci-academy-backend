@@ -21,7 +21,7 @@ import {
  * The entity an activity points at, snapshotted so the feed renders a clickable
  * token without joining the target table. The route is resolved lazily at click
  * time via the route index (`resolveRoute(globalId)`), so only the identity +
- * label are stored here — never the full URL.
+ * label are stored here -- never the full URL.
  */
 export interface ActivityTargetRef {
     /** Target entity class name (the route-index namespace, e.g. "ContentEntity"). */
@@ -35,7 +35,7 @@ export interface ActivityTargetRef {
 /**
  * Denormalised snapshot carried on an {@link ActivityEntity} row so the home
  * feed can render text + a clickable token. The actor is the row's `user`; the
- * `target` is whatever the activity acted on (lesson/challenge/course/user…).
+ * `target` is whatever the activity acted on (lesson/challenge/course/user...).
  */
 export interface ActivityMetadata {
     /** The entity this activity points at (absent for activities with no target). */

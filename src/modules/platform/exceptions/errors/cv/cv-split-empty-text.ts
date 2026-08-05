@@ -13,7 +13,7 @@ export type CvSplitEmptyTextExceptionMetadata = AbstractExceptionMetadata
 
 /**
  * Thrown when `splitCvFromText` is called with empty (or whitespace-only)
- * pasted text — there is nothing to split into blocks.
+ * pasted text -- there is nothing to split into blocks.
  */
 export class CvSplitEmptyTextException extends AbstractException {
     constructor({

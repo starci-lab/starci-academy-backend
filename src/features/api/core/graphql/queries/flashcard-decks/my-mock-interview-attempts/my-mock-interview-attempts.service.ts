@@ -23,12 +23,12 @@ import type {
  * Sanitizes `phaseScores`/`attributeScores`/`questionReviews`-shaped jsonb
  * before it reaches the GraphQL layer, which declares several of their
  * fields non-nullable. A legacy/malformed row (e.g. graded before a field
- * was fully validated at write time) can have ANY of them null/missing —
+ * was fully validated at write time) can have ANY of them null/missing --
  * one bad entry must not null out the ENTIRE list for that page.
  *
  * - A numeric field coerces to `fallback` when not a finite number.
  * - An IDENTIFYING string field (`phase`/`key`/`kind`) that's missing makes
- *   the whole entry meaningless to render (nothing to label it with) — the
+ *   the whole entry meaningless to render (nothing to label it with) -- the
  *   entry is DROPPED rather than coerced to an empty/fabricated label.
  */
 const coerceScore = (value: unknown, fallback: number): number =>
@@ -38,7 +38,7 @@ const coerceScore = (value: unknown, fallback: number): number =>
 const coerceIdentifyingString = (value: unknown): string | null =>
     typeof value === "string" && value.length > 0 ? value : null
 
-/** A string field that's NOT the entry's identity (e.g. free-text body) — never drops the entry, just defaults to empty. */
+/** A string field that's NOT the entry's identity (e.g. free-text body) -- never drops the entry, just defaults to empty. */
 const coerceText = (value: unknown): string =>
     typeof value === "string" ? value : ""
 
@@ -73,10 +73,10 @@ export class MyMockInterviewAttemptsService {
             mode,
         }: ListMyMockInterviewAttemptsParams,
     ): Promise<ListMyMockInterviewAttemptsResult> {
-        // attempts are keyed by enrollment (user × course) — scan through that
+        // attempts are keyed by enrollment (user x course) -- scan through that
         // relation rather than requiring a separate enrollment lookup first.
         // "design" also matches a null-mode legacy attempt (predates the "mode
-        // split" — the only mode that could have existed then) via Or(IsNull()),
+        // split" -- the only mode that could have existed then) via Or(IsNull()),
         // since a plain `mode: "design"` equality would silently exclude it.
         const [
             attempts,
@@ -105,7 +105,7 @@ export class MyMockInterviewAttemptsService {
                             : {
                             }),
                 },
-                // newest session first — matches the scorecard's "recent attempts" framing
+                // newest session first -- matches the scorecard's "recent attempts" framing
                 order: {
                     createdAt: "DESC",
                 },
@@ -126,10 +126,10 @@ export class MyMockInterviewAttemptsService {
                 overallScore: attempt.overallScore,
                 verdict: attempt.verdict,
                 // jsonb columns are stored as loosely-typed records (schema-evolution
-                // friendly) — the named interfaces are structurally compatible with
+                // friendly) -- the named interfaces are structurally compatible with
                 // what `gradeMockInterviewSession` wrote, but a legacy/malformed row
                 // can have almost any field null/missing, and the GraphQL layer
-                // declares most of these non-nullable — sanitize (see
+                // declares most of these non-nullable -- sanitize (see
                 // `coerceScore`/`coerceIdentifyingString`/`coerceText`) so one bad
                 // entry drops out instead of nulling the WHOLE page.
                 phaseScores: toUnknownRecordArray(attempt.phaseScores)

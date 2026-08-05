@@ -135,7 +135,7 @@ export class CoursesCheckoutHandler
             })
         }
 
-        // installments (trả góp) are VND-only — read from the SSOT capability
+        // installments are VND-only -- read from the SSOT capability
         // matrix (see PAYMENT_MODIFIER_CAPABILITY) rather than hand-rolling the
         // currency check; the non-domestic gateways can't collect the later
         // cycles, so refuse before creating anything
@@ -153,7 +153,7 @@ export class CoursesCheckoutHandler
             userId: user.id,
             courseIds,
         })
-        // nothing purchasable (empty request, or every course already owned) → refuse
+        // nothing purchasable (empty request, or every course already owned) -> refuse
         // to open a zero-total checkout; the client should refresh the cart
         if (priced.lines.length === 0) {
             throw new CoursesCheckoutEmptyException({
@@ -161,7 +161,7 @@ export class CoursesCheckoutHandler
             })
         }
 
-        // installment (trả góp): the plan owes the WHOLE cart total × (1+markup); the
+        // installment : the plan owes the WHOLE cart total x (1+markup); the
         // gateway collects only the FIRST cycle now (monthly), the intent is snapshotted
         // onto the order transaction so the enroll fan-out creates the Fixed plan once
         // on payment success (§2.2/§2.3). One-shot order charges the full VND total.
@@ -185,7 +185,7 @@ export class CoursesCheckoutHandler
             cancelUrl,
         })
 
-        // persist the ORDER (transaction). `course` is null — the per-course rows
+        // persist the ORDER (transaction). `course` is null -- the per-course rows
         // live in `transaction_items`. pricingPhase is the first line's phase as a
         // record only; the enroll step re-reads each course's phase at grant time.
         const transaction = this.entityManager.create(
@@ -212,7 +212,7 @@ export class CoursesCheckoutHandler
         )
         await this.entityManager.save(transaction)
 
-        // persist one line per course with its own charged breakdown — the payment
+        // persist one line per course with its own charged breakdown -- the payment
         // success fan-out reads these rows to enqueue one enroll job per course
         const transactionItems = priced.lines.map(
             (line) => this.entityManager.create(
@@ -306,7 +306,7 @@ export class CoursesCheckoutHandler
                     hasPayOsCancelUrl: Boolean(cancelUrl),
                 })
             }
-            // never charge VND as USD — reject when any line lacked a USD price
+            // never charge VND as USD -- reject when any line lacked a USD price
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Stripe,
@@ -317,7 +317,7 @@ export class CoursesCheckoutHandler
             const {
                 currency,
             } = envConfig().services.api.stripe
-            // one line item for the whole order (summed USD total → cents)
+            // one line item for the whole order (summed USD total -> cents)
             const session = await this.retryService.retry({
                 action: async () => this.stripe.checkout.sessions.create({
                     mode: "payment",
@@ -330,7 +330,7 @@ export class CoursesCheckoutHandler
                             quantity: 1,
                             price_data: {
                                 currency,
-                                // Stripe expects cents → USD dollars × 100
+                                // Stripe expects cents -> USD dollars x 100
                                 unit_amount: Math.round(priceUsd * 100),
                                 product_data: {
                                     name: `${itemCount} courses (${orderCode})`,
@@ -356,7 +356,7 @@ export class CoursesCheckoutHandler
                     hasPayOsCancelUrl: Boolean(cancelUrl),
                 })
             }
-            // never charge VND as USD — reject when any line lacked a USD price
+            // never charge VND as USD -- reject when any line lacked a USD price
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Paypal,
@@ -389,7 +389,7 @@ export class CoursesCheckoutHandler
                     hasPayOsCancelUrl: Boolean(cancelUrl),
                 })
             }
-            // never charge VND as USD — reject when any line lacked a USD price
+            // never charge VND as USD -- reject when any line lacked a USD price
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Crypto,

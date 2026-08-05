@@ -30,7 +30,7 @@ export const creditRateFromUsd = (
  * that the billing path falls back to, so the flat charge and the metered
  * charge can never drift apart. Replaces the hand-set per-category constants,
  * which billed a coarse tier cap that bore no relation to what the model
- * actually charges — a cheap model was billed as if it were a frontier one.
+ * actually charges -- a cheap model was billed as if it were a frontier one.
  *
  * Never returns 0 for a priced model: a call that costs real money always costs
  * at least one credit.

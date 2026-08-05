@@ -35,7 +35,7 @@ import {
  * Returns per-provider + per-key health derived from in-memory state
  * (no DB read). ADMIN-ONLY: live key status is an attacker signal (which
  * provider is degraded / out of keys), so it is gated behind the
- * `x-admin-api-key` header. Raw API key values never leave the server — only
+ * `x-admin-api-key` header. Raw API key values never leave the server -- only
  * the 4-char suffix is exposed.
  */
 export class AiBalancerHealthResolver {

@@ -23,7 +23,7 @@ import {
 
 @Injectable()
 /**
- * Server-side copy within one S3-compatible bucket (used to freeze CV bytes under `attempts/…`).
+ * Server-side copy within one S3-compatible bucket (used to freeze CV bytes under `attempts/...`).
  */
 export class S3CopyService {
     constructor(

@@ -30,7 +30,7 @@ export type RewardRedemptionMetadata = Record<string, unknown>
  * One redemption of a code-defined reward by a user. The `cost` is the snapshot
  * of the reward's price at redeem time (catalog prices can change without
  * rewriting history). The user's spendable balance is DERIVED as
- * `user.coin_balance - SUM(cost WHERE status != 'cancelled')` — coin_balance
+ * `user.coin_balance - SUM(cost WHERE status != 'cancelled')` -- coin_balance
  * is NEVER debited here, so the balance that ranks the global leaderboard stays
  * intact.
  */
@@ -87,7 +87,7 @@ export class RewardRedemptionEntity extends UuidAbstractEntity {
     })
         status: RewardRedemptionStatus
 
-    /** Optional ops/fulfilment context (shipping, size, …); null for digital. */
+    /** Optional ops/fulfilment context (shipping, size, ...); null for digital. */
     @Column({
         name: "metadata",
         type: "jsonb",

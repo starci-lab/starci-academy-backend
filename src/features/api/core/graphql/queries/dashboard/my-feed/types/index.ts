@@ -31,7 +31,7 @@ export interface MyFeedRow {
 
 /**
  * Decoded feed cursor for the score-ranked feed. The relevance score depends on a
- * "now" reference, so we pin `asOf` on the first page and carry it across pages —
+ * "now" reference, so we pin `asOf` on the first page and carry it across pages --
  * the ranking stays stable while the user scrolls, and `offset` walks the ranked
  * list.
  */

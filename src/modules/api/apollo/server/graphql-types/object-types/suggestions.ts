@@ -15,7 +15,7 @@ import {
 /**
  * One generic autocomplete suggestion (any entity).
  *
- * Reused by every entity's `*Suggestions` query — the id deep-links/selects the
+ * Reused by every entity's `*Suggestions` query -- the id deep-links/selects the
  * entity on the client, the label is the clean display string.
  */
 export class SuggestionItem {
@@ -62,7 +62,7 @@ export class SuggestionsPayload {
 /**
  * Generic response wrapper for any entity `*Suggestions` query.
  *
- * Reused by every entity's `*Suggestions` query — wraps {@link SuggestionsPayload}
+ * Reused by every entity's `*Suggestions` query -- wraps {@link SuggestionsPayload}
  * in the standard success/message/error envelope.
  */
 /** The matching suggestions, ordered by relevance then display index. */

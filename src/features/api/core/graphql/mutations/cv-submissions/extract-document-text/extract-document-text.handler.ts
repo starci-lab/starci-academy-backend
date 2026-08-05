@@ -32,17 +32,17 @@ import {
 @CommandHandler(ExtractDocumentTextCommand)
 @Injectable()
 /**
- * Handler for `extractDocumentText` — buffers an already-uploaded document
+ * Handler for `extractDocumentText` -- buffers an already-uploaded document
  * (CV or job-description file) from MinIO by its `cdnKey` and extracts its
- * plain text (pdf → pdf-parse, docx → mammoth, else utf-8) via the SHARED
+ * plain text (pdf -> pdf-parse, docx -> mammoth, else utf-8) via the SHARED
  * {@link extractCvText} util (same machinery the legacy CV-upload scoring
- * path uses). Nothing is persisted — the text is handed straight back to the
+ * path uses). Nothing is persisted -- the text is handed straight back to the
  * FE so the user can review/edit it before it feeds `splitCvFromText` /
- * `tailorCvBlocks`. Kind-agnostic: one mutation serves both the "Dán CV có
- * sẵn" and "Chỉnh theo tin tuyển dụng" upload modes.
+ * `tailorCvBlocks`. Kind-agnostic: one mutation serves both existing-CV and
+ * job-tailored CV upload modes.
  *
  * Throws (rather than degrading to "") when the file is missing/empty or no
- * text could be extracted, so the FE can surface a clear error — unlike the
+ * text could be extracted, so the FE can surface a clear error -- unlike the
  * async scoring worker, this is a synchronous user-facing call.
  */
 export class ExtractDocumentTextHandler
@@ -81,7 +81,7 @@ export class ExtractDocumentTextHandler
             })
         }
 
-        // extract plain text (pdf → pdf-parse, docx → mammoth, else utf-8)
+        // extract plain text (pdf -> pdf-parse, docx -> mammoth, else utf-8)
         const text = await extractCvText({
             buffer,
             key: cdnKey,

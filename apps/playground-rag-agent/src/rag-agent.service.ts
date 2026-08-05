@@ -17,7 +17,7 @@ import type {
 @Injectable()
 /**
  * The RAG capability: probes local Ollama, indexes browser-supplied code, and
- * answers questions grounded ONLY in that code — all on-device. It reports no
+ * answers questions grounded ONLY in that code -- all on-device. It reports no
  * docker/k8s resources (there is nothing to verify), so it skips the resource loop.
  */
 export class RagAgentService extends BaseAgentService {

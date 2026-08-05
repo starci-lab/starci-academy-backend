@@ -62,7 +62,7 @@ export class EnqueueGeneratePersonalProjectTasksJobService {
     ): Promise<JobEntity> {
         // No default model: an absent model/provider means "let the balancer
         // pick", which is health- and cost-aware. Pinning a default here bypassed
-        // both — the job would keep naming one model even after it was retired
+        // both -- the job would keep naming one model even after it was retired
         // from the catalog or its keys went unhealthy.
         const payload: GeneratePersonalProjectTasksPayload = {
             enrollmentId,

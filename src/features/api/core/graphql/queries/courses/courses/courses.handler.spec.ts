@@ -150,9 +150,9 @@ describe("CoursesHandler",
                     }),
                 )
 
-                // object-form total → use its .value
+                // object-form total -> use its .value
                 expect(result.count).toBe(57)
-                // page 3 with size 5 → offset 15, and the sort order is lower-cased for ES
+                // page 3 with size 5 -> offset 15, and the sort order is lower-cased for ES
                 const searchArgs = elasticsearch.client.search.mock.calls[0][0]
                 expect(searchArgs.from).toBe(15)
                 expect(searchArgs.size).toBe(5)

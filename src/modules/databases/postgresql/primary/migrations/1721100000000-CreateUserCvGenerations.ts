@@ -4,12 +4,12 @@ import {
 } from "typeorm"
 
 /**
- * Creates `cv_generations` — one row per **CV generation run**, where the user
+ * Creates `cv_generations` -- one row per **CV generation run**, where the user
  * asks the system to build a new CV from free-text input (`mode` = `generate`)
  * or revise an existing uploaded submission (`mode` = `revise`, referencing the
  * legacy `cv_submissions` row via `source_cv_submission_id`). Distinct from the
  * legacy upload/review tables (`cv_submissions` / `cv_submission_attempts`),
- * which stay in place — this is a generation, not a graded review, so there is
+ * which stay in place -- this is a generation, not a graded review, so there is
  * no score / detail feedback here.
  *
  * Also creates the two enums this feature introduces (`cv_generation_mode`,

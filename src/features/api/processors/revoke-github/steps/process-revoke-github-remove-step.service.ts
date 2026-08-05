@@ -146,7 +146,7 @@ export class ProcessRevokeGithubRemoveStepService extends AbstractStepService<
             },
         )
 
-        // GitHub team membership removed → notify the learner their access ended.
+        // GitHub team membership removed -> notify the learner their access ended.
         await enqueueLearnerEmail({
             entityManager: this.entityManager,
             enqueueSendMailJobService: this.enqueueSendMailJobService,

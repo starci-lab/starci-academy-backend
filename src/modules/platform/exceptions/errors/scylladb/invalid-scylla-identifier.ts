@@ -16,7 +16,7 @@ export interface InvalidScyllaIdentifierExceptionMetadata extends AbstractExcept
 
 /**
  * Thrown when a ScyllaDB identifier (keyspace/table/column name) fails the
- * driver's identifier validation — guards against building unsafe CQL from an
+ * driver's identifier validation -- guards against building unsafe CQL from an
  * unvalidated string.
  */
 export class InvalidScyllaIdentifierException extends AbstractException {

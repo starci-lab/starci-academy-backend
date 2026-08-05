@@ -30,7 +30,7 @@ import {
     ],
 })
 /**
- * Feature-module boundary for `myGithubTeamStatus` — imports `GithubModule` and
+ * Feature-module boundary for `myGithubTeamStatus` -- imports `GithubModule` and
  * wires resolver, service, and handler.
  */
 export class MyGithubTeamStatusSingleQueryModule extends ConfigurableModuleClass {}

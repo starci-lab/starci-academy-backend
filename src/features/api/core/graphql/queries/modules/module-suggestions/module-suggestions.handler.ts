@@ -17,7 +17,7 @@ import {
 @QueryHandler(ModuleSuggestionsQuery)
 @Injectable()
 /**
- * Module autocomplete (typeahead) handler — ES Completion Suggester.
+ * Module autocomplete (typeahead) handler -- ES Completion Suggester.
  *
  * Inherits the entire suggest flow from {@link AbstractSuggestionsHandler}: it only
  * declares the entity name (`ModuleEntity`) so the base resolves the per-locale

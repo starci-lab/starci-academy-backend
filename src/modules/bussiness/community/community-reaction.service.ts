@@ -60,7 +60,7 @@ export class CommunityReactionService {
         user,
         type,
     }: ReactToCommunityPostParams): Promise<ReactionSummaryResult> {
-        // 404 guard — never let a reaction reference a non-existent post
+        // 404 guard -- never let a reaction reference a non-existent post
         const postExists = await this.entityManager.count(CommunityPostEntity,
             {
                 where: {
@@ -84,17 +84,17 @@ export class CommunityReactionService {
                     },
                 },
             })
-        // null type means "remove my reaction" — delete only if one exists
+        // null type means "remove my reaction" -- delete only if one exists
         if (type === null) {
             if (existing) {
                 await this.entityManager.remove(existing)
             }
         } else if (existing) {
-            // already reacted → just switch the emotion in place
+            // already reacted -> just switch the emotion in place
             existing.type = type
             await this.entityManager.save(existing)
         } else {
-            // first-time reaction → insert a new row via relation ids
+            // first-time reaction -> insert a new row via relation ids
             await this.entityManager.save(this.entityManager.create(CommunityPostReactionEntity,
                 {
                     type,
@@ -133,7 +133,7 @@ export class CommunityReactionService {
         user,
         type,
     }: ReactToCommunityCommentParams): Promise<ReactionSummaryResult> {
-        // resolve the comment first — we need its post id for the room event + 404 guard
+        // resolve the comment first -- we need its post id for the room event + 404 guard
         const comment = await this.entityManager.findOne(CommunityPostCommentEntity,
             {
                 where: {
@@ -201,13 +201,13 @@ export class CommunityReactionService {
     /**
      * Batch-computes reaction summaries for many posts in two grouped queries.
      * @param params - {@link SummarizeCommunityPostsParams}
-     * @returns Map of post id → reaction summary (every requested id is present).
+     * @returns Map of post id -> reaction summary (every requested id is present).
      */
     async summarizePosts({
         postIds,
         userId,
     }: SummarizeCommunityPostsParams): Promise<Record<string, ReactionSummaryResult>> {
-        // nothing requested → empty map (also guards an empty IN () clause)
+        // nothing requested -> empty map (also guards an empty IN () clause)
         if (postIds.length === 0) {
             return {
             }
@@ -229,7 +229,7 @@ export class CommunityReactionService {
             .groupBy("reaction.post_id")
             .addGroupBy("reaction.type")
             .getRawMany<CommunityPostReactionCountRow>()
-        // the viewing user's own reaction per post (for highlighting) — SKIPPED for an
+        // the viewing user's own reaction per post (for highlighting) -- SKIPPED for an
         // anonymous viewer (empty userId): binding "" to the uuid `user_id` column makes
         // Postgres reject the whole query (invalid input syntax for type uuid).
         const mineRows = userId
@@ -285,13 +285,13 @@ export class CommunityReactionService {
     /**
      * Batch-computes reaction summaries for many post comments in two grouped queries.
      * @param params - {@link SummarizeCommunityCommentsParams}
-     * @returns Map of comment id → reaction summary (every requested id is present).
+     * @returns Map of comment id -> reaction summary (every requested id is present).
      */
     async summarizeComments({
         commentIds,
         userId,
     }: SummarizeCommunityCommentsParams): Promise<Record<string, ReactionSummaryResult>> {
-        // nothing requested → empty map (also guards an empty IN () clause)
+        // nothing requested -> empty map (also guards an empty IN () clause)
         if (commentIds.length === 0) {
             return {
             }
@@ -313,7 +313,7 @@ export class CommunityReactionService {
             .groupBy("reaction.comment_id")
             .addGroupBy("reaction.type")
             .getRawMany<CommunityCommentReactionCountRow>()
-        // the viewing user's own reaction per comment (for highlighting) — SKIPPED for an
+        // the viewing user's own reaction per comment (for highlighting) -- SKIPPED for an
         // anonymous viewer (empty userId): binding "" to the uuid `user_id` column makes
         // Postgres reject the whole query (invalid input syntax for type uuid).
         const mineRows = userId

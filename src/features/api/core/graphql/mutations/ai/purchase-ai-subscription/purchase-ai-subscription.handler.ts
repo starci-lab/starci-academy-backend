@@ -78,7 +78,7 @@ import type {
 /**
  * Opens AI-tier checkout: persists a pending transaction, then hands the
  * client a provider URL (or SePay signed form fields). Fulfilment is webhook
- * + reconcile-job — this handler must not mark the subscription active.
+ * + reconcile-job -- this handler must not mark the subscription active.
  */
 export class PurchaseAiSubscriptionHandler
     extends ICQRSHandler<PurchaseAiSubscriptionCommand, PurchaseAiSubscriptionResponseData>
@@ -281,7 +281,7 @@ export class PurchaseAiSubscriptionHandler
                     hasPayOsCancelUrl: Boolean(payosCancelUrl),
                 })
             }
-            // never charge VND as USD — reject when no USD price is configured
+            // never charge VND as USD -- reject when no USD price is configured
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Stripe,
@@ -305,7 +305,7 @@ export class PurchaseAiSubscriptionHandler
                             quantity: 1,
                             price_data: {
                                 currency,
-                                // Stripe expects cents → convert USD dollars to integer cents
+                                // Stripe expects cents -> convert USD dollars to integer cents
                                 unit_amount: Math.round(priceUsd * 100),
                                 product_data: {
                                     name: `AI subscription ${orderCode}`,
@@ -315,7 +315,7 @@ export class PurchaseAiSubscriptionHandler
                     ],
                 }),
             })
-            // redirect provider → no signed form fields; amount stays VND reference
+            // redirect provider -> no signed form fields; amount stays VND reference
             return {
                 checkoutUrl: session.url ?? "",
                 amount,
@@ -331,7 +331,7 @@ export class PurchaseAiSubscriptionHandler
                     hasPayOsCancelUrl: Boolean(payosCancelUrl),
                 })
             }
-            // never charge VND as USD — reject when no USD price is configured
+            // never charge VND as USD -- reject when no USD price is configured
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Paypal,
@@ -349,7 +349,7 @@ export class PurchaseAiSubscriptionHandler
                     cancelUrl: payosCancelUrl,
                 }),
             })
-            // redirect provider → no signed form fields; amount stays VND reference
+            // redirect provider -> no signed form fields; amount stays VND reference
             return {
                 checkoutUrl: order.approveUrl,
                 amount,
@@ -365,7 +365,7 @@ export class PurchaseAiSubscriptionHandler
                     hasPayOsCancelUrl: Boolean(payosCancelUrl),
                 })
             }
-            // never charge VND as USD — reject when no USD price is configured
+            // never charge VND as USD -- reject when no USD price is configured
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Crypto,
@@ -383,7 +383,7 @@ export class PurchaseAiSubscriptionHandler
                     cancelUrl: payosCancelUrl,
                 }),
             })
-            // redirect provider → no signed form fields; amount stays VND reference
+            // redirect provider -> no signed form fields; amount stays VND reference
             return {
                 checkoutUrl: invoice.invoiceUrl,
                 amount,
@@ -401,7 +401,7 @@ export class PurchaseAiSubscriptionHandler
     /**
      * Build a SePay PG one-time-payment checkout: sign the order fields and
      * return the form action URL + the JSON-encoded signed fields. Pure (local
-     * HMAC signing) — safe to call on the transaction-reuse path too.
+     * HMAC signing) -- safe to call on the transaction-reuse path too.
      */
     private buildSepayCheckout({
         orderCode,

@@ -34,15 +34,15 @@ import type {
 /**
  * CDC consumer that keeps `user_pinned_projects_projections` fresh. Tails the
  * three tables whose changes can move a user's pinned-projects aggregate:
- *   - `user_pinned_projects` — the pin rows themselves (owner via `user_id`).
- *   - `enrollments` — `tasks_completed_at` drives a course pin's `isVerified`;
+ *   - `user_pinned_projects` -- the pin rows themselves (owner via `user_id`).
+ *   - `enrollments` -- `tasks_completed_at` drives a course pin's `isVerified`;
  *     resolved back to the owners of pins referencing the changed enrollment.
- *   - `courses` — the title fallback for course pins; resolved back to the
+ *   - `courses` -- the title fallback for course pins; resolved back to the
  *     owners of pins whose enrollment points at the changed course.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
 export class UserPinnedProjectsProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-pinned-projects-projection"
 
     /** Pin rows + the enrollment/course they derive title + verified state from. */
@@ -67,9 +67,9 @@ export class UserPinnedProjectsProjectionListener extends AbstractProjectionList
     /**
      * Resolve the affected user id(s) for one CDC row, branching on the source
      * table (carried by the fully-qualified `topic`):
-     *   - `user_pinned_projects` → the row's own `user_id` (0–1 ids).
-     *   - `enrollments` → owners of every pin referencing that enrollment id.
-     *   - `courses` → owners of every pin whose enrollment points at that course.
+     *   - `user_pinned_projects` -> the row's own `user_id` (0-1 ids).
+     *   - `enrollments` -> owners of every pin referencing that enrollment id.
+     *   - `courses` -> owners of every pin whose enrollment points at that course.
      *
      * @param message - {@link ProjectionCdcMessage}
      * @returns the affected user id(s) to recompute (deduplicated, may be empty).
@@ -83,7 +83,7 @@ export class UserPinnedProjectsProjectionListener extends AbstractProjectionList
         // a direct pin change carries the owner user_id on the row itself
         if (topic.endsWith("user_pinned_projects")) {
             const pinRow = row as PinnedProjectCdcRow
-            // no user_id (tombstone / unexpected shape) → nothing to recompute
+            // no user_id (tombstone / unexpected shape) -> nothing to recompute
             return pinRow.user_id ? [
                 pinRow.user_id,
             ] : []
@@ -121,7 +121,7 @@ export class UserPinnedProjectsProjectionListener extends AbstractProjectionList
                 courseRow.id,
             )
         }
-        // unknown topic → nothing to recompute
+        // unknown topic -> nothing to recompute
         return []
     }
 

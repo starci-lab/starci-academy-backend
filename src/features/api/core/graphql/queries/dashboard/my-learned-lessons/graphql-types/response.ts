@@ -11,7 +11,7 @@ import {
     description: "A recently-read lesson (rail token).",
 })
 /**
- * One recently-read lesson on the rail — a route-index token (resolves its route
+ * One recently-read lesson on the rail -- a route-index token (resolves its route
  * on click), so it carries only an opaque global id + a label.
  */
 export class MyLearnedLessonItemData {

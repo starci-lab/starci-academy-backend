@@ -66,7 +66,7 @@ export class RevokeSessionResolver {
         )
             request: RevokeSessionRequest,
     ): Promise<undefined> {
-        // revoke the targeted session for the authenticated owner only — the
+        // revoke the targeted session for the authenticated owner only -- the
         // service scopes the lookup by keycloakId so users can't revoke others'
         await this.sessionService.revokeSession({
             keycloakId: user.keycloakId,

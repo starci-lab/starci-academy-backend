@@ -6,7 +6,7 @@ import {
 } from "../abstract"
 
 /**
- * The RAG Playground question is empty (after trimming) — nothing to ask.
+ * The RAG Playground question is empty (after trimming) -- nothing to ask.
  */
 export class RagPlaygroundInvalidQuestionException extends AbstractException {
     /**
@@ -19,7 +19,7 @@ export class RagPlaygroundInvalidQuestionException extends AbstractException {
         },
     ) {
         super(
-            "Câu hỏi không được để trống",
+            "Câu hỏi không được để trống", // vn-ok: vi-locale string emitted to clients
             "RAG_PLAYGROUND_INVALID_QUESTION_EXCEPTION",
             {
                 originalError,

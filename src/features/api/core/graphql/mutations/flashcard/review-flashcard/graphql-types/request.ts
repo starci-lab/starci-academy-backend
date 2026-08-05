@@ -46,7 +46,7 @@ export class ReviewFlashcardRequest {
             description: "The review session this grade belongs to, so the event is attributed to the session for per-session stats. Omit for an untracked grade.",
         },
     )
-    // when present it must be a real session uuid; absent → the event's sessionId stays null
+    // when present it must be a real session uuid; absent -> the event's sessionId stays null
     @IsOptional()
     @IsUUID()
         sessionId?: string | null

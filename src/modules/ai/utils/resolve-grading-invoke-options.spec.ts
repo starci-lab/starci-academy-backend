@@ -77,7 +77,7 @@ describe("resolveGradingInvokeOptions",
                 })
 
                 // the plan unlocks Premium and Frontier, yet an unpinned run gets
-                // neither — reaching the frontier model requires picking it
+                // neither -- reaching the frontier model requires picking it
                 expect(result).toEqual({
                     categories: [
                         AiModelCategory.Medium,

@@ -28,7 +28,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the round-3a streak-freeze purchase mutation —
+ * e2e for the round-3a streak-freeze purchase mutation --
  * `.claude/canon/be/enforce/authoring/testing.md` §2 names every write flow
  * that commits state as required e2e coverage; {@link StreakService.buyStreakFreeze}
  * had zero coverage above the mocked-`EntityManager` unit level. Runs the real
@@ -36,7 +36,7 @@ const POSTGRESQL_PRIMARY = "primary"
  * atomic debit+credit) against REAL Postgres (Testcontainers).
  *
  * REAL: Postgres (Testcontainers), `StreakService` (the purchase logic under
- * test) — the service has no other dependencies (no event fan-out, no
+ * test) -- the service has no other dependencies (no event fan-out, no
  * external SDK), so nothing needs stubbing.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -50,7 +50,7 @@ describe("Streak-freeze purchase (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -59,7 +59,7 @@ describe("Streak-freeze purchase (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the buy/cap/balance logic under test
+                    // REAL -- the buy/cap/balance logic under test
                     StreakService,
                 ],
             }).compile()
@@ -151,7 +151,7 @@ describe("Streak-freeze purchase (e2e)",
                             id: user.id,
                         },
                     })
-                // cap check trips BEFORE the balance check / debit — coin_balance and
+                // cap check trips BEFORE the balance check / debit -- coin_balance and
                 // streak_freezes are both untouched by the rejected attempt
                 expect(reloaded.streakFreezes).toBe(STREAK_FREEZE_MAX)
                 expect(reloaded.coinBalance).toBe(1_000)
@@ -201,7 +201,7 @@ describe("Streak-freeze purchase (e2e)",
                             id: user.id,
                         },
                     })
-                // exactly one freeze bought, exactly one cost debited — not zero, not two
+                // exactly one freeze bought, exactly one cost debited -- not zero, not two
                 expect(reloaded.streakFreezes).toBe(1)
                 expect(reloaded.coinBalance).toBe(0)
             })

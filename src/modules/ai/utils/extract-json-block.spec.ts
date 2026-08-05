@@ -6,7 +6,7 @@ describe("extractJsonBlock",
     () => {
         it("returns a bare JSON object untouched",
             () => {
-                // already valid JSON — slicing must return the same object text
+                // already valid JSON -- slicing must return the same object text
                 expect(extractJsonBlock("{\"score\":10}")).toBe("{\"score\":10}")
             })
 
@@ -61,13 +61,13 @@ describe("extractJsonBlock",
 
         it("returns the text unchanged when there is no bracket at all",
             () => {
-                // no JSON structure → caller gets the trimmed text back verbatim
+                // no JSON structure -> caller gets the trimmed text back verbatim
                 expect(extractJsonBlock("  no json here  ")).toBe("no json here")
             })
 
         it("returns from the first bracket onward when brackets are unbalanced",
             () => {
-                // depth never returns to zero → best-effort slice from the first brace
+                // depth never returns to zero -> best-effort slice from the first brace
                 const raw = "{\"a\":1"
                 expect(extractJsonBlock(raw)).toBe("{\"a\":1")
             })

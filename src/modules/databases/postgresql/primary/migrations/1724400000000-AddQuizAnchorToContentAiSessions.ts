@@ -4,14 +4,14 @@ import {
 } from "typeorm"
 
 /**
- * Adds the QUIZ anchor to content-AI sessions: `origin_quiz_id` (nullable, FK →
+ * Adds the QUIZ anchor to content-AI sessions: `origin_quiz_id` (nullable, FK ->
  * flashcard_decks) so a quiz-scope conversation persists alongside content / task /
  * challenge / foundation / course sessions. A StarCi quiz is drawn from a flashcard
  * deck, so the anchor references `flashcard_decks`. Additive + nullable only.
  *
  * Dev + prod run schema via TypeORM `synchronize` (which applies the entity change
  * at boot); this migration exists so the SAME change applies deterministically
- * where `synchronize` is off. Nullable, no PG enum — synchronize-safe. Idempotent.
+ * where `synchronize` is off. Nullable, no PG enum -- synchronize-safe. Idempotent.
  */
 export class AddQuizAnchorToContentAiSessions1724400000000 implements MigrationInterface {
     /** Stable name surfaced in the TypeORM migrations table. */

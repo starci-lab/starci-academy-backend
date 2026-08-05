@@ -11,7 +11,7 @@ import {
     description: "GitHub team membership state for one enrolled course.",
 })
 /**
- * One enrolled course's GitHub team mapping — used to decide whether the
+ * One enrolled course's GitHub team mapping -- used to decide whether the
  * viewer still needs an invite / join modal for that course.
  */
 export class GithubTeamEntryData {
@@ -60,7 +60,7 @@ export class GithubTeamEntryData {
     description: "The viewer's GitHub link + per-course team membership status.",
 })
 /**
- * Viewer's GitHub link state plus every required course-team membership —
+ * Viewer's GitHub link state plus every required course-team membership --
  * `allInTeam` tells the client it can skip the blocking join modal.
  */
 export class MyGithubTeamStatusData {

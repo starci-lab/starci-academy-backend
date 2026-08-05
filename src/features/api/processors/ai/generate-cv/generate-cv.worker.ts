@@ -60,8 +60,8 @@ const GENERATE_CV_QUEUE_NAME = "generate-cv"
     },
 )
 /**
- * Generate-CV worker: gather verified achievements → compose structured CV via
- * LLM → render LaTeX + upload → score (shared rubric) → complete (persist onto
+ * Generate-CV worker: gather verified achievements -> compose structured CV via
+ * LLM -> render LaTeX + upload -> score (shared rubric) -> complete (persist onto
  * `cv_generations`). Runs the shared 5-step {@link AbstractStepService} pipeline;
  * `maxSteps` is `5`.
  */
@@ -179,7 +179,7 @@ export class GenerateCvWorker extends WorkerHost {
     }
 
     /**
-     * Mark the generation row `Failed` with the error message (best-effort — a
+     * Mark the generation row `Failed` with the error message (best-effort -- a
      * failure to write this must not mask the original error).
      */
     private async markGenerationFailed(
@@ -199,7 +199,7 @@ export class GenerateCvWorker extends WorkerHost {
                 },
             )
         } catch {
-            // swallow — the thrown original error is what matters
+            // swallow -- the thrown original error is what matters
         }
     }
 }

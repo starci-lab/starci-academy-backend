@@ -15,7 +15,7 @@ export interface UnsupportedPaymentTypeExceptionMetadata extends AbstractExcepti
 }
 
 /**
- * Thrown when a checkout's `paymentType` switch falls through to `default` —
+ * Thrown when a checkout's `paymentType` switch falls through to `default` --
  * every gateway is handled by an explicit `case`, so this only fires if a new
  * `PaymentType` enum member was added without wiring its checkout branch.
  */

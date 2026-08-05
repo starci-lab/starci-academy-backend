@@ -30,7 +30,7 @@ export class CoursesCheckoutPreviewLine {
     )
         courseId: string
 
-    /** List (pre-discount) VND price — the struck "before" price. */
+    /** List (pre-discount) VND price -- the struck "before" price. */
     @Field(
         () => Int,
         {
@@ -68,7 +68,7 @@ export class CoursesCheckoutPreviewLine {
     )
         chargedUsd: number | null
 
-    /** Combined loyalty + bundle discount percent applied to this line (0–100). */
+    /** Combined loyalty + bundle discount percent applied to this line (0-100). */
     @Field(
         () => Int,
         {
@@ -161,11 +161,11 @@ export class CoursesCheckoutPreviewData {
     )
         itemCount: number
 
-    /** Offered installment (trả góp) terms priced off the whole order's charged VND total — empty for a free/USD-only order. */
+    /** Offered installment terms priced off the whole order's charged VND total -- empty for a free/USD-only order. */
     @Field(
         () => [InstallmentOptionItem],
         {
-            description: "Offered installment (trả góp) terms for the order's charged VND total — empty for a free order.",
+            description: "Offered installment terms for the order's charged VND total — empty for a free order.",
         },
     )
         installmentOptions: Array<InstallmentOptionItem>

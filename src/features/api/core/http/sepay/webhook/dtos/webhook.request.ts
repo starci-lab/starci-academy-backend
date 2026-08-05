@@ -40,7 +40,7 @@ export class SepayWebhookOrder {
 /**
  * SePay Payment Gateway IPN request body (shape confirmed from a live IPN):
  * `{ notification_type, order: { order_invoice_number, order_status, ... },
- *    transaction: {...} }`. All fields optional — the handler verifies
+ *    transaction: {...} }`. All fields optional -- the handler verifies
  * authoritatively via the order-detail API (`order.retrieve`).
  */
 export class SepayWebhookRequest {

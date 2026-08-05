@@ -64,7 +64,7 @@ import type {
  * disk (no GitHub compare API, so it survives force-pushes/history rewrites).
  *
  * The orchestrator seeds/syncs from the new snapshot, then calls
- * {@link commitSnapshot} to record it in the manifest + prune the oldest — or
+ * {@link commitSnapshot} to record it in the manifest + prune the oldest -- or
  * {@link rollbackSnapshot} on failure, leaving the previous snapshot as the
  * baseline so a failed seed never corrupts the source.
  *
@@ -82,7 +82,7 @@ export class DataGitBootstrapService {
     /**
      * Resolves the remote `data` repo into a fresh snapshot and computes the diff.
      *
-     * Does NOT touch the manifest — call {@link commitSnapshot} after a successful
+     * Does NOT touch the manifest -- call {@link commitSnapshot} after a successful
      * seed to record + prune, or {@link rollbackSnapshot} to discard the snapshot.
      *
      * @param forceDownload - When true (forced reseed: `mode: all` / explicit seed:/sync:),
@@ -99,7 +99,7 @@ export class DataGitBootstrapService {
         } = envConfig().dataGit
         // resolve the root that holds every commit snapshot + the manifest
         const datasourcesRoot = this.resolveDatasourcesRoot()
-        // build an authenticated client — dedicated read-only data-git token
+        // build an authenticated client -- dedicated read-only data-git token
         // (falls back to the shared github access token when not mounted)
         const octokit = new Octokit({
             auth: this.mountFilesystemService.dataGitToken().trim(),
@@ -131,7 +131,7 @@ export class DataGitBootstrapService {
                     previousSha)
                 : null
 
-            // skip the download when the newest snapshot already holds this commit —
+            // skip the download when the newest snapshot already holds this commit --
             // diff mode only; a forced reseed must always pull fresh from git
             if (
                 !forceDownload
@@ -152,7 +152,7 @@ export class DataGitBootstrapService {
                     previousSha,
                     changedPaths: [],
                     diffAvailable: false,
-                    // up to date → seed from the existing newest snapshot if forced
+                    // up to date -> seed from the existing newest snapshot if forced
                     snapshotRoot: previousSnapshotRoot,
                     datasourcesRoot,
                     tempDir: null,
@@ -176,7 +176,7 @@ export class DataGitBootstrapService {
                 snapshotRoot)
 
             // compute the diff against the previous snapshot on disk; a first pull
-            // (or a re-pull of the same SHA) has no trustworthy baseline → full reseed
+            // (or a re-pull of the same SHA) has no trustworthy baseline -> full reseed
             let changedPaths: Array<string> = []
             let diffAvailable = false
             if (
@@ -204,7 +204,7 @@ export class DataGitBootstrapService {
             const normalized = error instanceof Error
                 ? error
                 : new Error(String(error))
-            // log loudly before failing — the boot must not silently seed stale data
+            // log loudly before failing -- the boot must not silently seed stale data
             this.winstonService.log(WinstonLog.DataGitBootstrapFailed,
                 {
                     owner,
@@ -226,7 +226,7 @@ export class DataGitBootstrapService {
 
     /**
      * Records the new snapshot in the manifest and prunes the oldest beyond the
-     * retention cap — the final "commit source" step, run only after a successful
+     * retention cap -- the final "commit source" step, run only after a successful
      * seed/sync. No-op when the run was up to date (nothing new was downloaded).
      *
      * @param result - The {@link ensure} result carrying the new snapshot
@@ -234,7 +234,7 @@ export class DataGitBootstrapService {
     async commitSnapshot(
         result: EnsureDataGitResult,
     ): Promise<void> {
-        // up to date / pull failed → no new snapshot to record
+        // up to date / pull failed -> no new snapshot to record
         if (!result.changed || !result.snapshotRoot) {
             return
         }
@@ -256,7 +256,7 @@ export class DataGitBootstrapService {
             manifest)
         await this.writeManifest(result.datasourcesRoot,
             manifest)
-        // surface the old → new transition (the "source committed" signal)
+        // surface the old -> new transition (the "source committed" signal)
         this.winstonService.log(WinstonLog.DataGitBootstrapUpdated,
             {
                 owner,
@@ -307,7 +307,7 @@ export class DataGitBootstrapService {
     }
 
     /**
-     * Resolves the data-sources root — the path of the first enabled filesystem
+     * Resolves the data-sources root -- the path of the first enabled filesystem
      * context, under which every commit snapshot + the manifest live.
      *
      * @returns Absolute path of the filesystem-context data-sources root
@@ -317,7 +317,7 @@ export class DataGitBootstrapService {
         const filesystemContext = envConfig().contexts.find(
             (context) => context.enabled && context.type === ContextType.Filesystem,
         )
-        // without one, there is nowhere consistent to extract into → misconfiguration
+        // without one, there is nowhere consistent to extract into -> misconfiguration
         if (!filesystemContext) {
             throw new DataGitBootstrapException({
                 owner: envConfig().dataGit.owner,
@@ -349,14 +349,14 @@ export class DataGitBootstrapService {
         try {
             const parsed = JSON.parse(await readFile(manifestPath,
                 "utf8")) as SnapshotManifest
-            // tolerate hand-edits / partial writes — only trust a well-formed array
+            // tolerate hand-edits / partial writes -- only trust a well-formed array
             return Array.isArray(parsed?.snapshots)
                 ? parsed
                 : {
                     snapshots: [],
                 }
         } catch {
-            // a corrupt manifest must not crash boot — treat it as a fresh store
+            // a corrupt manifest must not crash boot -- treat it as a fresh store
             return {
                 snapshots: [],
             }
@@ -503,7 +503,7 @@ export class DataGitBootstrapService {
         if (!existsSync(snapshotRoot)) {
             return false
         }
-        // an empty dir must be repopulated — every valid data tree has courses/
+        // an empty dir must be repopulated -- every valid data tree has courses/
         return existsSync(join(snapshotRoot,
             "courses"))
     }
@@ -530,7 +530,7 @@ export class DataGitBootstrapService {
             repo,
             ref,
         })
-        // the archive body arrives as an ArrayBuffer — persist it to disk for tar to read
+        // the archive body arrives as an ArrayBuffer -- persist it to disk for tar to read
         const tarballPath = join(tempDir,
             "repo.tar.gz")
         await writeFile(tarballPath,

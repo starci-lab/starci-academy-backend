@@ -8,7 +8,7 @@ import {
  *
  * Unlike `ai_model_category` / `model_provider` (true Postgres enum types that
  * need `ALTER TYPE ... ADD VALUE`), `AiModelTask` is stored inside the JSONB
- * array column `ai_models.supported_tasks` — so adding the `"embedding"` member
+ * array column `ai_models.supported_tasks` -- so adding the `"embedding"` member
  * is a pure TS-side change with **no enum DDL and no `ALTER TYPE`** (running one
  * here would fail, since there is no `ai_model_task` Postgres enum type). This
  * migration therefore only *backfills*: it tags any model that should serve
@@ -27,7 +27,7 @@ export class AddEmbeddingAiModelTask1720700000000 implements MigrationInterface 
 
     /**
      * Forward migration: backfill `"embedding"` onto known embedding models
-     * (by their catalog `name`) — no DDL, idempotent via the `@>` guard.
+     * (by their catalog `name`) -- no DDL, idempotent via the `@>` guard.
      *
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */

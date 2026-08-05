@@ -4,7 +4,7 @@ import {
 
 /**
  * Per-testcase judging detail. Input/expected/stdout are populated ONLY for
- * sample testcases — hidden testcases expose just the verdict + timing so the
+ * sample testcases -- hidden testcases expose just the verdict + timing so the
  * judging IO never leaks to the client.
  */
 export interface CodingPerCaseResult {

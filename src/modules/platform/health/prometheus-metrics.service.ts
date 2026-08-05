@@ -61,9 +61,9 @@ export class PrometheusMetricsService {
      * currently knows about, keyed by the same component name used by
      * {@link SystemHealthService} (e.g. `postgres`, `not `starci-postgres`).
      *
-     * @returns A map of component name → {@link ContainerMetrics}. Components
+     * @returns A map of component name -> {@link ContainerMetrics}. Components
      * with no local Docker container (Judge0, Ollama, mail, the AI balancer)
-     * simply never appear in the map — callers treat a missing key as `null`.
+     * simply never appear in the map -- callers treat a missing key as `null`.
      */
     async containerMetricsByName(): Promise<Map<string, ContainerMetrics>> {
         if (this.cached && Date.now() - this.cachedAt < CONTAINER_METRICS_CACHE_TTL_MS) {
@@ -129,7 +129,7 @@ export class PrometheusMetricsService {
 
     /**
      * Runs one PromQL instant query and reduces the vector result to a
-     * `{name label} → value` map. Never throws — Prometheus being down (or the
+     * `{name label} -> value` map. Never throws -- Prometheus being down (or the
      * query itself failing) yields an empty map so the caller degrades to
      * "no metrics" instead of crashing the whole health sweep.
      *
@@ -163,7 +163,7 @@ export class PrometheusMetricsService {
                 }
             }
         } catch (error) {
-            // Prometheus unreachable/timed out — log once at debug, degrade silently
+            // Prometheus unreachable/timed out -- log once at debug, degrade silently
             this.winstonService.log(WinstonLog.HealthProbeFailed,
                 {
                     op: "health.prometheus.query-failed",

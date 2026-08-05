@@ -10,7 +10,7 @@ import {
 
 /** Which feed to read. */
 export enum MyFeedTab {
-    /** Recommended — recent activity across the platform. */
+    /** Recommended -- recent activity across the platform. */
     ForYou = "forYou",
     /** Activity from users the viewer follows. */
     Following = "following",
@@ -34,7 +34,7 @@ registerEnumType(
     },
 )
 
-/** Filter chip — which slice of activity to show (maps to a set of activity types). */
+/** Filter chip -- which slice of activity to show (maps to a set of activity types). */
 export enum MyFeedCategory {
     /** Everything (no type filter). */
     All = "all",
@@ -74,7 +74,7 @@ registerEnumType(
     description: "Cursor-paginated request for the home feed.",
 })
 /**
- * Cursor-paginated request for the home feed (append-only activity stream →
+ * Cursor-paginated request for the home feed (append-only activity stream ->
  * cursor, not page).
  */
 export class MyFeedRequest {

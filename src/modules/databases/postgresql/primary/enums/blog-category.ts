@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * Editorial pillar of a blog post — drives the colored chip + section filter on
+ * Editorial pillar of a blog post -- drives the colored chip + section filter on
  * the FE `/blog` page. The "deep-dive" pillar is the SEO magnet (long technical
  * articles), the rest support build-in-public, career, AI and case-study content.
  */
@@ -24,7 +24,7 @@ export enum BlogCategory {
 
 /**
  * GraphQL type for the blog category enum. GraphQL enum names can only contain
- * `[_a-zA-Z0-9]`, so the hyphenated DB values (`deep-dive`, …) are exposed under
+ * `[_a-zA-Z0-9]`, so the hyphenated DB values (`deep-dive`, ...) are exposed under
  * snake_case member names that map back to those values.
  */
 export const GraphQLTypeBlogCategory = {

@@ -115,7 +115,7 @@ describe("ReactionService",
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-            // remove is not on the shared mock — add it here
+            // remove is not on the shared mock -- add it here
             entityManager.remove = jest.fn().mockResolvedValue(undefined)
             // one shared builder so chained grouped queries stay programmable in order
             queryBuilder = makeReactionQueryBuilderMock()
@@ -186,7 +186,7 @@ describe("ReactionService",
                             type: ReactionType.Like,
                         })
 
-                        // first-time reaction → a new row was created + saved
+                        // first-time reaction -> a new row was created + saved
                         expect(entityManager.create).toHaveBeenCalled()
                         expect(entityManager.save).toHaveBeenCalled()
                         // fanned out the content reaction-changed event

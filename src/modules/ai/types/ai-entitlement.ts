@@ -36,13 +36,13 @@ export interface AiCreditQuota {
 
 /** Per-surface model ceiling the user set (null = inherit default / no cap). */
 export interface AiCeilSnapshot {
-    /** Global default ceiling (null = no cap → plan ceiling only). */
+    /** Global default ceiling (null = no cap -> plan ceiling only). */
     default: AiModelCategory | null
-    /** Hỏi AI khi đọc bài override (null = follow default). */
+    /** Ask-AI-while-reading override (null = follow default). */
     chatbot: AiModelCategory | null
-    /** Chấm bài override (null = follow default). */
+    /** Grading override (null = follow default). */
     grading: AiModelCategory | null
-    /** Phỏng vấn thử override (null = follow default). */
+    /** Mock-interview override (null = follow default). */
     interview: AiModelCategory | null
 }
 
@@ -56,14 +56,14 @@ export interface AiQuotaSnapshot {
     window5hResetAt: Date | null
     /** When the weekly window rolls over. */
     windowWeekResetAt: Date | null
-    /** Categories the user's plan unlocks — the ceiling the user caps within. */
+    /** Categories the user's plan unlocks -- the ceiling the user caps within. */
     allowedCategories: Array<AiModelCategory>
     /** Per-surface model ceiling the user set in settings (cost control). */
     ceil: AiCeilSnapshot
 }
 
 /**
- * User-facing AI settings — the capabilities that gate which models the UI may
+ * User-facing AI settings -- the capabilities that gate which models the UI may
  * offer (unlock + active tier).
  */
 export interface AiSettings {
@@ -95,7 +95,7 @@ export interface ConsumeEntitlementParams {
     userId: string
     /** Credits to debit from the unified pool. */
     cost: number
-    /** AI surface this charge is for (chatbot / grading / interview) — labels the history row. */
+    /** AI surface this charge is for (chatbot / grading / interview) -- labels the history row. */
     surface: AiCeilSurface
     /** Concrete model that served, when known (e.g. Auto free-chain fallback); null/omit for a plain Auto pick with no attribution. */
     model?: string | null
@@ -103,7 +103,7 @@ export interface ConsumeEntitlementParams {
     provider?: string | null
     /** Model-recommendation tier billed (low / medium / high) for a Premium pick; null for Auto. */
     recommendation?: string | null
-    /** Finer-grained task (challenge_grading / task_grading / cv_generating / chatting / …) than {@link surface}. */
+    /** Finer-grained task (challenge_grading / task_grading / cv_generating / chatting / ...) than {@link surface}. */
     task?: AiModelTask | null
     /** Prompt (input) tokens the model consumed, when known. */
     promptTokens?: number | null

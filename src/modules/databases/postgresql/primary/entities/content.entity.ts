@@ -216,7 +216,7 @@ export class ContentEntity extends UuidAbstractEntity {
 
     /**
      * Relative difficulty tier for this lesson (mount `# difficulty`): beginner / intermediate /
-     * advanced. Nullable when unset — display badge only, does not gate access.
+     * advanced. Nullable when unset -- display badge only, does not gate access.
      */
     @Field(
         () => GraphQLTypeContentDifficulty,
@@ -370,7 +370,7 @@ export class ContentEntity extends UuidAbstractEntity {
         outcomes: Array<ContentLearningOutcomeEntity>
 
     /**
-     * Number of challenges for this content — GraphQL FIELD ONLY (no DB column), derived LIVE
+     * Number of challenges for this content -- GraphQL FIELD ONLY (no DB column), derived LIVE
      * from the loaded `challenges` relation so it is always accurate and reseed-safe. Returns 0
      * when the relation is not loaded.
      */
@@ -405,7 +405,7 @@ export class ContentEntity extends UuidAbstractEntity {
         isPremium: boolean
 
     /**
-     * Whether the "Bài giảng" tab renders a live Sandpack sandbox alongside the code explaining list.
+     * Whether the "Lesson" tab renders a live Sandpack sandbox alongside the code explaining list.
      * Set `# isSandbox` to `true` in the mount file for React/TSX lessons that should be interactive.
      */
     @Field(

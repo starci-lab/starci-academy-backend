@@ -25,7 +25,7 @@ export class JudgeCodingSubmissionStepMappingService {
     ) { }
 
     /**
-     * Get the step map (stepIndex → step service).
+     * Get the step map (stepIndex -> step service).
      * @returns The step map.
      */
     getStepMap(): Map<

@@ -62,7 +62,7 @@ export interface JobFencedOutExceptionMetadata extends AbstractExceptionMetadata
 
 /**
  * Thrown when a guarded job write (advance step / complete) affects 0 rows because
- * the row's `fencing_token` moved past `expectedFencingToken` — i.e. this worker is a
+ * the row's `fencing_token` moved past `expectedFencingToken` -- i.e. this worker is a
  * zombie whose lease was reassigned. The caller must abort QUIETLY, not fail the job
  * (a newer claimant owns it).
  */

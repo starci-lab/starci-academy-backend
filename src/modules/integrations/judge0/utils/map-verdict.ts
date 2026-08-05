@@ -8,7 +8,7 @@ import {
 /**
  * Map a single Judge0 status id to the canonical {@link CodingVerdict}.
  *
- * All runtime-error sub-statuses (SIGSEGV/SIGFPE/NZEC/…) collapse to
+ * All runtime-error sub-statuses (SIGSEGV/SIGFPE/NZEC/...) collapse to
  * {@link CodingVerdict.RuntimeError}; queue/processing statuses are treated as
  * {@link CodingVerdict.Judging} (non-terminal); unknown ids fall back to
  * {@link CodingVerdict.InternalError}.
@@ -19,7 +19,7 @@ import {
 export const mapJudge0StatusToVerdict = (statusId: Judge0StatusId): CodingVerdict => {
     // branch on the terminal status id Judge0 reported for the run
     switch (statusId) {
-    // queued/executing are non-terminal — report as still judging
+    // queued/executing are non-terminal -- report as still judging
     case Judge0StatusId.InQueue:
     case Judge0StatusId.Processing:
         return CodingVerdict.Judging
@@ -54,7 +54,7 @@ export const mapJudge0StatusToVerdict = (statusId: Judge0StatusId): CodingVerdic
 }
 
 /**
- * True when a Judge0 status id represents a terminal (finished) run — i.e. the
+ * True when a Judge0 status id represents a terminal (finished) run -- i.e. the
  * batch poller can stop waiting on this submission.
  *
  * @param statusId - Judge0 `status_id` for one submission

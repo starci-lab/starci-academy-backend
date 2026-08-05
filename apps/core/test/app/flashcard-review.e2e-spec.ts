@@ -60,25 +60,25 @@ const GRADE_EASY = 3
 const TRACKED_SESSION_ID = "8f3b2c1a-4d5e-4f6a-8b7c-9d0e1f2a3b4c"
 
 /**
- * e2e for the flashcard write-flows' grading core —
+ * e2e for the flashcard write-flows' grading core --
  * `.claude/canon/be/enforce/authoring/testing.md` §2 names "a flashcard
  * review" explicitly as a write flow that must carry `*.e2e-spec.ts`
  * coverage; this is that coverage for {@link FlashcardReviewService.review}
- * (the SM-2 grade → schedule commit) and the round-1 premium-answer gate on
+ * (the SM-2 grade -> schedule commit) and the round-1 premium-answer gate on
  * {@link FlashcardReviewService.listDue}/`listByIds`, run against REAL
- * Postgres (Testcontainers) — not the mocked-`EntityManager` unit level
+ * Postgres (Testcontainers) -- not the mocked-`EntityManager` unit level
  * already covered by `flashcard-review.service.spec.ts`.
  *
  * MOCKED (no external infra available in this harness):
- *  - `CacheService` — real class talks to Redis; stubbed to always miss so
+ *  - `CacheService` -- real class talks to Redis; stubbed to always miss so
  *    `UserService.checkEnrollment` (the premium gate's entitlement check)
  *    hits real Postgres every time, never a stale cross-test cache entry.
  *
  * REAL: Postgres (Testcontainers), `FlashcardReviewService` (the grading
  * logic under test), `UserService` (`resolveOrCreateTrialEnrollment` /
  * `checkEnrollment` run real SQL against real `enrollments` rows), and the
- * localization resolver chain (`FlashcardDeckResolverService` →
- * `FlashcardCardResolverService` → `TranslationResolverService`, all pure —
+ * localization resolver chain (`FlashcardDeckResolverService` ->
+ * `FlashcardCardResolverService` -> `TranslationResolverService`, all pure --
  * no external deps) so `listDue`'s premium gate runs exactly as production
  * wires it.
  *
@@ -90,12 +90,12 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
         let entityManager: EntityManager
         let flashcardReviewService: FlashcardReviewService
 
-        /** Read-only fixtures seeded ONCE — only per-test user/review state is reset. */
+        /** Read-only fixtures seeded ONCE -- only per-test user/review state is reset. */
         let course: CourseEntity
         let freeCard: FlashcardCardEntity
         let premiumCard: FlashcardCardEntity
 
-        // CacheService always misses → UserService.checkEnrollment hits real
+        // CacheService always misses -> UserService.checkEnrollment hits real
         // Postgres every time (no stale cross-test cache to reason about).
         const cacheServiceMock = {
             get: jest.fn().mockResolvedValue(undefined),
@@ -106,7 +106,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers-module/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -115,13 +115,13 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the SM-2 grading + premium-gate logic under test
+                    // REAL -- the SM-2 grading + premium-gate logic under test
                     FlashcardReviewService,
-                    // REAL — pure localization chain, no external deps
+                    // REAL -- pure localization chain, no external deps
                     FlashcardDeckResolverService,
                     FlashcardCardResolverService,
                     TranslationResolverService,
-                    // REAL — resolveOrCreateTrialEnrollment / checkEnrollment run
+                    // REAL -- resolveOrCreateTrialEnrollment / checkEnrollment run
                     // real SQL against real `enrollments` rows
                     UserService,
                     {
@@ -139,7 +139,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
             )
             flashcardReviewService = app.get(FlashcardReviewService)
 
-            // seed the read-only course/deck/card fixtures ONCE — only
+            // seed the read-only course/deck/card fixtures ONCE -- only
             // users/enrollments/review state are reset between tests (see afterEach)
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -182,11 +182,11 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                         deck,
                     }),
             )
-            // Cards are localized on the due path (listDue → deck resolver → card
+            // Cards are localized on the due path (listDue -> deck resolver -> card
             // resolver): the REQUIRED `question` field always takes its resolved
             // translation value, so a card carrying NO translation row reads back as
             // an empty `front`. Production always seeds one `question` row per locale
-            // (the hydration merge emits it) — mirror that here so `front` resolves to
+            // (the hydration merge emits it) -- mirror that here so `front` resolves to
             // the real prompt instead of "".
             for (const card of [
                 freeCard,
@@ -207,7 +207,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
         afterAll(async () => {
             // the deck/card fixtures are read-only WITHIN this suite, but the
             // Testcontainers Postgres is shared across the whole e2e run (see
-            // setup-e2e.ts) — leaving them behind pollutes any OTHER file's
+            // setup-e2e.ts) -- leaving them behind pollutes any OTHER file's
             // courseId-less "global" flashcard query with cards this suite has no
             // control over (e.g. flashcard-stats-queries.e2e-spec.ts's
             // myDueFlashcards). CASCADE also clears flashcard_cards (+ their
@@ -280,7 +280,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                         expect(review.repetitions).toBe(1)
                         expect(review.dueAt).toEqual(result.dueAt)
 
-                        // review sessions/queries key by ENROLLMENT — a trial
+                        // review sessions/queries key by ENROLLMENT -- a trial
                         // enrollment (is_enrolled: false) must have been
                         // resolve-or-created for (user, course) as a side effect
                         const enrollment = await entityManager.findOneOrFail(
@@ -499,7 +499,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                             {
                                 where: {
                                     // XpHistoryEntity.userId is a bare @RelationId
-                                    // (no @Column) — not queryable in `where`; filter
+                                    // (no @Column) -- not queryable in `where`; filter
                                     // through the relation instead
                                     user: {
                                         id: user.id,
@@ -571,7 +571,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                         // No enrollment is seeded here: `review()` is never gated on
                         // enrollment (only the premium ANSWER reveal in listDue/listByIds
                         // is), and the first grade above already resolve-or-created the
-                        // (user, course) trial enrollment both cards share — a second
+                        // (user, course) trial enrollment both cards share -- a second
                         // `seedEnrollment` would collide on UQ_enrollments_user_course.
                         const second = await flashcardReviewService.review({
                             userId: user.id,
@@ -637,7 +637,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                 it("withholds a premium card's answer for a viewer NOT enrolled in the owning course",
                     async () => {
                         const user = await seedUser("kc-premium-not-enrolled")
-                        // no enrollment row created — never enrolled
+                        // no enrollment row created -- never enrolled
 
                         const result = await flashcardReviewService.listDue({
                             userId: user.id,
@@ -649,7 +649,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                         const card = result.cards.find((c) => c.cardId === premiumCard.id)
                         expect(card).toBeDefined()
                         expect(card?.back).toBe("")
-                        // the prompt itself still shows — only the answer is withheld
+                        // the prompt itself still shows -- only the answer is withheld
                         expect(card?.front).toBe(premiumCard.question)
                     })
 
@@ -688,7 +688,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                     async () => {
                         const user = await seedUser("kc-premium-trial-only")
                         // grading the free card resolve-or-creates a TRIAL enrollment
-                        // (is_enrolled: false) — this must NOT unlock the premium card
+                        // (is_enrolled: false) -- this must NOT unlock the premium card
                         await flashcardReviewService.review({
                             userId: user.id,
                             cardId: freeCard.id,
@@ -709,7 +709,7 @@ describe("Flashcard review — SM-2 grading + XP grant + premium gate (e2e)",
                 it("listByIds mirrors the same gate off the due path (id-based rehydrate)",
                     async () => {
                         const user = await seedUser("kc-premium-listbyids")
-                        // no enrollment — never enrolled
+                        // no enrollment -- never enrolled
 
                         const result = await flashcardReviewService.listByIds({
                             userId: user.id,

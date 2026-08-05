@@ -29,12 +29,12 @@ const EMPTY_RESULT: MyMockInterviewStatsResultData = {
 
 @Injectable()
 /**
- * Reads the viewer's mock-interview stats for one course — the readiness
+ * Reads the viewer's mock-interview stats for one course -- the readiness
  * hero (vs the pass bar, projected from the trend delta) + the per-phase
- * breakdown that `MockInterviewStats` renders (`stats-canonical-fold` — 1
+ * breakdown that `MockInterviewStats` renders (`stats-canonical-fold` -- 1
  * hero + 1 zone). The heavy attempts scan + fold runs ONLY in
  * `UserMockInterviewCourseStatsProjectionService.recompute` (CQRS projection,
- * CDC on `mock_interview_attempts`) — this service is a pure point-read (TTL
+ * CDC on `mock_interview_attempts`) -- this service is a pure point-read (TTL
  * lazy-refresh), never re-scans/folds inline (per
  * `.claude/be/rules/cqrs-no-inline-aggregate.md`).
  */
@@ -59,7 +59,7 @@ export class MyMockInterviewStatsService {
     ): Promise<MyMockInterviewStatsResultData> {
         // a read never needs to resolve/create the trial enrollment first
         // (unlike flashcard quiz/review, mock-interview attempts don't
-        // auto-provision one) — just look up the existing enrollment; if none
+        // auto-provision one) -- just look up the existing enrollment; if none
         // exists there is nothing to aggregate.
         const enrollment = await this.entityManager.findOne(
             EnrollmentEntity,

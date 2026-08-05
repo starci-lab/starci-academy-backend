@@ -13,5 +13,5 @@ import {
         AiModelLatencyResolver,
     ],
 })
-/** Feature-module boundary for the public `aiModelLatency` query — wires its resolver. */
+/** Feature-module boundary for the public `aiModelLatency` query -- wires its resolver. */
 export class AiModelLatencySingleQueryModule extends ConfigurableModuleClass {}

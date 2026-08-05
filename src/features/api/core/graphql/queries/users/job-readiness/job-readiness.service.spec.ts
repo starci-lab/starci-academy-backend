@@ -28,11 +28,11 @@ const POSTGRESQL_PRIMARY = "primary"
 /**
  * Unit suite for {@link JobReadinessService}. Every DB read is mocked; the
  * `entityManager.query` mock is ORDER-SENSITIVE because `buildTracks` issues its
- * THREE aggregate reads via `Promise.all` in a fixed order — capstoneTotals,
+ * THREE aggregate reads via `Promise.all` in a fixed order -- capstoneTotals,
  * capstonePassed, interviewAverages. The CV pillar (2026-07-05: deterministic,
- * no AI/CV-row read) comes from {@link CvVerificationService} instead —
- * `resolveLevelForCourse` per track, `resolveLevel` for the global foundation —
- * mocked separately below, defaulting to `SelfReported` (→ null/0) unless a
+ * no AI/CV-row read) comes from {@link CvVerificationService} instead --
+ * `resolveLevelForCourse` per track, `resolveLevel` for the global foundation --
+ * mocked separately below, defaulting to `SelfReported` (-> null/0) unless a
  * test overrides it.
  *
  * Locks the fair-monetization axiom (see
@@ -54,7 +54,7 @@ describe("JobReadinessService",
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
 
-            // global foundation input — a single per-user percentile, independent of
+            // global foundation input -- a single per-user percentile, independent of
             // how many tracks/enrollments the user has
             userSolvedChallengesProjectionService = {
                 getChallengeStrength: jest.fn().mockResolvedValue({
@@ -66,9 +66,9 @@ describe("JobReadinessService",
                 Pick<UserSolvedChallengesProjectionService, "getChallengeStrength">
             >
 
-            // default: no graded StarCi work anywhere → every CV pillar (per-track
+            // default: no graded StarCi work anywhere -> every CV pillar (per-track
             // AND global foundation) degrades to null/0, same as the old "no CV
-            // row" default — individual tests override per courseId/globally
+            // row" default -- individual tests override per courseId/globally
             cvVerificationService = {
                 resolveLevel: jest.fn().mockResolvedValue(CvVerificationLevel.SelfReported),
                 resolveLevelForCourse: jest.fn().mockResolvedValue(CvVerificationLevel.SelfReported),
@@ -116,7 +116,7 @@ describe("JobReadinessService",
                 // THE core invariant: "1 course = N courses" for any EXISTING track.
                 // Adding a second qualified track (with depth <= the first) must leave
                 // the first track's depthScore/band/pillars byte-for-byte identical AND
-                // the global foundation identical — no shared composite/breadthBonus.
+                // the global foundation identical -- no shared composite/breadthBonus.
                 it("keeps an existing track's depthScore/band/pillars + foundation byte-identical when a second qualified track is added, with no composite/breadthBonus keys",
                     async () => {
                         // --- run A: exactly ONE enrollment (track A, high depth) ---
@@ -134,8 +134,8 @@ describe("JobReadinessService",
                             enrollmentA,
                         ])
                         // query order: capstoneTotals, capstonePassed, interviewAverages
-                        // (CV pillar comes from CvVerificationService, mocked separately —
-                        // default SelfReported → cv pillar absent, same as the old "no CV row")
+                        // (CV pillar comes from CvVerificationService, mocked separately --
+                        // default SelfReported -> cv pillar absent, same as the old "no CV row")
                         entityManager.query
                             .mockResolvedValueOnce([
                                 {
@@ -165,7 +165,7 @@ describe("JobReadinessService",
                         expect(trackABefore.courseId).toBe("course-a")
                         expect(trackABefore.depthScore).not.toBeNull()
 
-                        // --- run B: SAME user, now TWO enrollments — track A (identical
+                        // --- run B: SAME user, now TWO enrollments -- track A (identical
                         // inputs) + track B (weaker-or-equal depth, also qualifies) ---
                         const enrollmentB = {
                             id: "enrollment-b",
@@ -231,12 +231,12 @@ describe("JobReadinessService",
                         expect(trackAAfter?.interviewScore).toBe(trackABefore.interviewScore)
                         expect(trackAAfter?.cvScore).toBe(trackABefore.cvScore)
 
-                        // the global foundation is per-user — unaffected by track count
+                        // the global foundation is per-user -- unaffected by track count
                         expect(resultWithTwoTracks.foundation).toEqual(
                             resultWithOneTrack.foundation,
                         )
 
-                        // no composite/breadth-bonus scalar left on the result — the
+                        // no composite/breadth-bonus scalar left on the result -- the
                         // whole point of the portfolio refactor
                         expect(resultWithTwoTracks).not.toHaveProperty("compositeScore")
                         expect(resultWithTwoTracks).not.toHaveProperty("breadthBonus")
@@ -263,7 +263,7 @@ describe("JobReadinessService",
                             },
                         }
 
-                        // enrollments returned weak-first — the service must re-sort
+                        // enrollments returned weak-first -- the service must re-sort
                         entityManager.find.mockResolvedValueOnce([
                             weakerEnrollment,
                             strongerEnrollment,
@@ -309,12 +309,12 @@ describe("JobReadinessService",
                     })
 
                 // Recent-window interview pillar (WF-09): the query itself is mocked
-                // at the row level here, so this test locks the CONSUMPTION side —
+                // at the row level here, so this test locks the CONSUMPTION side --
                 // `avg_score` already reflects only the recent-N window by the time
                 // it reaches `buildTracks` (the window function lives in SQL, not in
                 // JS). What we assert is that a recent-window average (computed as if
                 // an old weak attempt had been excluded) produces a HIGH interview
-                // score, not one dragged down by history — i.e. the service trusts
+                // score, not one dragged down by history -- i.e. the service trusts
                 // whatever recency-filtered average the query hands back, rather than
                 // re-averaging or otherwise diluting it in code.
                 it("reflects a recent high-score trend rather than being dragged down by an old low-score attempt",
@@ -347,7 +347,7 @@ describe("JobReadinessService",
                                     passed: "8",
                                 },
                             ])
-                            // interviewAverages — an old attempt scored 20 (say, week 1),
+                            // interviewAverages -- an old attempt scored 20 (say, week 1),
                             // then several recent attempts scored 95+; the recent-N window
                             // query (mocked here at the row level) excludes the old attempt,
                             // so the average handed back is the recent high, NOT the
@@ -375,7 +375,7 @@ describe("JobReadinessService",
 
                 // CV per-track pillar: a course with a passed capstone/graded challenge
                 // IN THAT COURSE lands on THAT track's cvScore; a course with no such
-                // signal → cvScore null. Scoped per-course on purpose (fair-monetization:
+                // signal -> cvScore null. Scoped per-course on purpose (fair-monetization:
                 // a capstone passed in a DIFFERENT course must never leak in here).
                 it("attaches a deterministic CV score to its own track and leaves an unverified track's cvScore null",
                     async () => {
@@ -457,8 +457,8 @@ describe("JobReadinessService",
                         expect(noCv?.cvScore).toBeNull()
                     })
 
-                // 3-pillar renormalization: only-capstone present → depth == capstone;
-                // all pillars absent → depthScore null + "needsWork" band.
+                // 3-pillar renormalization: only-capstone present -> depth == capstone;
+                // all pillars absent -> depthScore null + "needsWork" band.
                 it("renormalizes over present pillars — capstone-only scores on capstone alone; all-null pillars → depthScore null and needsWork band",
                     async () => {
                         const capstoneOnly = {
@@ -485,23 +485,23 @@ describe("JobReadinessService",
                             emptyTrack,
                         ])
                         entityManager.query
-                            // capstoneTotals — only course-cap has capstone tasks
+                            // capstoneTotals -- only course-cap has capstone tasks
                             .mockResolvedValueOnce([
                                 {
                                     course_id: "course-cap",
                                     total: "10",
                                 },
                             ])
-                            // capstonePassed — only enrollment-cap passed tasks
+                            // capstonePassed -- only enrollment-cap passed tasks
                             .mockResolvedValueOnce([
                                 {
                                     enrollment_id: "enrollment-cap",
                                     passed: "6",
                                 },
                             ])
-                            // interviewAverages — none
+                            // interviewAverages -- none
                             .mockResolvedValueOnce([])
-                        // CV pillar — none (default SelfReported for both courses)
+                        // CV pillar -- none (default SelfReported for both courses)
 
                         const result = await service.compute({
                             userId: "user-4",
@@ -510,7 +510,7 @@ describe("JobReadinessService",
                         const capTrack = result.tracks.find(
                             (track) => track.courseId === "course-cap",
                         )
-                        // only capstone present (6/10 = 60%) → depth is capstone alone,
+                        // only capstone present (6/10 = 60%) -> depth is capstone alone,
                         // renormalized weight 0.4/0.4 = 1.0
                         expect(capTrack?.capstoneScore).toBe(60)
                         expect(capTrack?.interviewScore).toBeNull()
@@ -520,7 +520,7 @@ describe("JobReadinessService",
                         const emptyResultTrack = result.tracks.find(
                             (track) => track.courseId === "course-empty",
                         )
-                        // no capstone tasks, no interview, no CV → every pillar null
+                        // no capstone tasks, no interview, no CV -> every pillar null
                         expect(emptyResultTrack?.capstoneScore).toBeNull()
                         expect(emptyResultTrack?.interviewScore).toBeNull()
                         expect(emptyResultTrack?.cvScore).toBeNull()
@@ -530,7 +530,7 @@ describe("JobReadinessService",
 
                 it("returns an empty tracks list when the learner has no paid enrollments",
                     async () => {
-                        // no enrollments → buildTracks short-circuits, no query calls
+                        // no enrollments -> buildTracks short-circuits, no query calls
                         entityManager.find.mockResolvedValueOnce([])
 
                         const result = await service.compute({

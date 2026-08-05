@@ -13,5 +13,5 @@ import {
         MyDueFlashcardsResolver,
     ],
 })
-/** Feature-module boundary for the `myDueFlashcards` query — wires its resolver (business logic lives in the shared `FlashcardReviewService`). */
+/** Feature-module boundary for the `myDueFlashcards` query -- wires its resolver (business logic lives in the shared `FlashcardReviewService`). */
 export class MyDueFlashcardsSingleQueryModule extends ConfigurableModuleClass {}

@@ -23,13 +23,13 @@ export interface PinnedProjectCdcRow {
 
 /** CDC row from `enrollments` (used to reverse-resolve affected pin owners). */
 export interface PinnedProjectsEnrollmentCdcRow {
-    /** The changed enrollment's id — pins referencing it must recompute. */
+    /** The changed enrollment's id -- pins referencing it must recompute. */
     id?: string
 }
 
 /** CDC row from `courses` (used to reverse-resolve affected pin owners). */
 export interface PinnedProjectsCourseCdcRow {
-    /** The changed course's id — pins whose enrollment points at it must recompute. */
+    /** The changed course's id -- pins whose enrollment points at it must recompute. */
     id?: string
 }
 

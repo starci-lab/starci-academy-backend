@@ -15,7 +15,7 @@ import {
 })
 /**
  * NestJS module for the `userCodingRank` public-profile query. Wires only the
- * resolver — the data comes from `UserCodingProjectionService`, which is
+ * resolver -- the data comes from `UserCodingProjectionService`, which is
  * provided globally by the coding-projection module.
  */
 export class UserCodingRankSingleQueryModule extends ConfigurableModuleClass {}

@@ -16,6 +16,6 @@ export interface PruneOrphansParams {
     entity: string
     /** Locale suffix selecting the concrete `<index>-<locale>` index; omit for a non-localized index. */
     locale?: Locale
-    /** Doc ids that should remain — everything else in the index is deleted. */
+    /** Doc ids that should remain -- everything else in the index is deleted. */
     ids: Array<string>
 }

@@ -4,7 +4,7 @@ import type {
 } from "typeorm"
 
 /**
- * Add `cv_blocks.tex_source` (text, nullable) — the user-editable LaTeX source a
+ * Add `cv_blocks.tex_source` (text, nullable) -- the user-editable LaTeX source a
  * CV's PDF is compiled from (full-LaTeX pivot 2026-07-18).
  *
  * Dev runs schema via `synchronize`; this migration applies the same change

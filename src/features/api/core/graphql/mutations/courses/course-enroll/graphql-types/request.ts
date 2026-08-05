@@ -61,7 +61,7 @@ export class CourseEnrollRequest {
         () => Int,
         {
             nullable: true,
-            description: "Pay in installments (trả góp) over this many months (3/6/12). Omit/null = pay in full (unchanged behaviour). Only the domestic VND gateways (PayOS/Sepay) support it.",
+            description: "Pay in installments over this many months (3/6/12). Omit/null = pay in full (unchanged behaviour). Only the domestic VND gateways (PayOS/Sepay) support it.",
         },
     )
         installmentMonths?: number

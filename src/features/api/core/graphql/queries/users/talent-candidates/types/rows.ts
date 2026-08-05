@@ -5,7 +5,7 @@
  *
  * These mirror the job-readiness aggregate rows but are keyed to ONE course +
  * a BATCH of enrollments (many candidates, one track) rather than one learner's
- * many tracks — hence a separate, batch-shaped set.
+ * many tracks -- hence a separate, batch-shaped set.
  */
 
 /** One row: total capstone tasks for the single filtered course (the % denominator, shared by every candidate). */

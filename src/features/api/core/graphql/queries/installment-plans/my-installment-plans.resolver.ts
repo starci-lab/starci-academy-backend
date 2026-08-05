@@ -32,8 +32,8 @@ import {
 
 @Resolver()
 /**
- * Lists the authenticated viewer's installment ("trả góp") plans for the "Kế
- * hoạch trả góp của tôi" surface. Auth-only (NOT enrollment-scoped — a plan
+ * Lists the authenticated viewer's installment plans for the my-installment-plans
+ * surface. Auth-only (NOT enrollment-scoped -- a plan
  * spans whichever courses it gates), a per-viewer single-list read.
  */
 export class MyInstallmentPlansResolver {
@@ -52,7 +52,7 @@ export class MyInstallmentPlansResolver {
         () => MyInstallmentPlansResponse,
         {
             name: "myInstallmentPlans",
-            description: "The viewer's active/overdue/defaulted installment (trả góp) plans.",
+            description: "The viewer's active/overdue/defaulted installment plans.",
         },
     )
     async execute(

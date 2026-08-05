@@ -41,7 +41,7 @@ export class AiModelChoiceData {
     description: "Active model for a specific AI task.",
 })
 /**
- * One AI task router as shown in the admin panel — human label, the model the
+ * One AI task router as shown in the admin panel -- human label, the model the
  * balancer will try first, and the ordered fallback chain behind it.
  */
 export class AiActiveModelData {
@@ -90,7 +90,7 @@ export class AiActiveModelData {
     description: "A selectable model for the grading picker (name + provider + cost category).",
 })
 /**
- * One row in the grading model picker — cost category, free-lane flag, live
+ * One row in the grading model picker -- cost category, free-lane flag, live
  * key availability (locked when the provider pool is empty), and which tasks
  * the FE should offer it for.
  */

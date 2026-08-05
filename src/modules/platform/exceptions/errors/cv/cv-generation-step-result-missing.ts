@@ -18,7 +18,7 @@ export interface CvGenerationStepResultMissingExceptionMetadata extends Abstract
 
 /**
  * Thrown when a generate-CV pipeline step (`compose`/`score`/`render`/`complete`)
- * cannot load a required upstream step's persisted execution result — the
+ * cannot load a required upstream step's persisted execution result -- the
  * pipeline steps run strictly in order, so this only fires on a corrupted or
  * skipped step chain.
  */

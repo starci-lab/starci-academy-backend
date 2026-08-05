@@ -38,26 +38,26 @@ import {
 })
 @Entity("cv_generations")
 /**
- * **The unified "user CV"** — one row per CV the user owns, from either source
+ * **The unified "user CV"** -- one row per CV the user owns, from either source
  * (`source`): **generated** (the system builds a CV from the user's free-text
  * input / verified StarCi achievements) or **uploaded** (the user brings their
  * own CV file in via `uploadedCdnKey`). Both live in this one `cv_generations`
  * table and share a single scoring rubric.
  *
  * **Generated pipeline** (background worker)
- * 1. **Assemble** — LLM reads `extraPrompts` (and, when `mode` = `Revise`, the
- *    source submission at `sourceCvSubmissionId`) → persist the structured CV
+ * 1. **Assemble** -- LLM reads `extraPrompts` (and, when `mode` = `Revise`, the
+ *    source submission at `sourceCvSubmissionId`) -> persist the structured CV
  *    JSON into `structuredData` (header / summary / skills / experience /
  *    education).
- * 2. **Render** — turn `structuredData` into a `.tex` document, upload to MinIO
- *    → persist the object key into `latexCdnKey`.
+ * 2. **Render** -- turn `structuredData` into a `.tex` document, upload to MinIO
+ *    -> persist the object key into `latexCdnKey`.
  *
- * **`status`** moves Pending → Processing → Done (or Failed, with
+ * **`status`** moves Pending -> Processing -> Done (or Failed, with
  * `errorMessage` populated).
  *
- * **Customization / scoring** — the user may name the CV (`label`), tie it to a
+ * **Customization / scoring** -- the user may name the CV (`label`), tie it to a
  * track (`courseId`, optional), and note a `targetRole` / `language`. `score`
- * (0–100) + `feedback` are filled by the shared scoring step (WF-03b); they are
+ * (0-100) + `feedback` are filled by the shared scoring step (WF-03b); they are
  * intentionally nullable here so this schema pass adds the *place* to hold them
  * without any grading logic.
  *
@@ -157,7 +157,7 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
 
     /**
      * When `mode` = `Revise`, the id of the earlier `cv_generations` row being
-     * revised (`source_cv_submission_id` — legacy-named column, now points at
+     * revised (`source_cv_submission_id` -- legacy-named column, now points at
      * another `UserCvGenerationEntity`, not the removed legacy upload table).
      * Plain nullable uuid column (no FK relation) so the generation history
      * survives even if the source row is later deleted.
@@ -178,7 +178,7 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
 
     /**
      * User's free-text input describing projects, skills, and experience
-     * (e.g. "I built project A, project B, I know Golang / TypeScript…").
+     * (e.g. "I built project A, project B, I know Golang / TypeScript...").
      */
     @Field(
         () => String,
@@ -234,7 +234,7 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
      * MinIO object key of the PDF compiled (server-side, via `tectonic`) from
      * `latexCdnKey`'s `.tex` (`generated_pdf_cdn_key`). Set only for `Generated`
      * source rows whose compile step succeeded; null otherwise (pre-compile
-     * rows, `Uploaded` source, or a failed compile — degrades to the raw
+     * rows, `Uploaded` source, or a failed compile -- degrades to the raw
      * `.tex` download).
      */
     @Field(
@@ -286,7 +286,7 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
     /**
      * Optional course this CV is tied to (`course_id`). Lets the user organize a
      * CV per track; the fairness model reads MAX(score) per `courseId`. No
-     * cascade — deleting the course nulls this out (`SET NULL`) so the CV row
+     * cascade -- deleting the course nulls this out (`SET NULL`) so the CV row
      * survives. Optional relation: a CV need not belong to any track.
      */
     @Field(
@@ -326,7 +326,7 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
         courseId: string | null
 
     /**
-     * User-facing name for this CV (`label`), e.g. "Backend — Java". Nullable;
+     * User-facing name for this CV (`label`), e.g. "Backend -- Java". Nullable;
      * the frontend falls back to a generated name (e.g. "CV #n") when empty.
      */
     @Field(
@@ -346,7 +346,7 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
 
     /**
      * Free-text target role the user is aiming this CV at (`target_role`), e.g.
-     * "Senior Backend Engineer". Optional customization — no enforced taxonomy.
+     * "Senior Backend Engineer". Optional customization -- no enforced taxonomy.
      */
     @Field(
         () => String,
@@ -365,7 +365,7 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
 
     /**
      * Language / locale hint the user wants this CV in (`language`), e.g. "en"
-     * or "vi". Optional free-text — no enforced taxonomy.
+     * or "vi". Optional free-text -- no enforced taxonomy.
      */
     @Field(
         () => String,
@@ -402,8 +402,8 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
         uploadedCdnKey: string | null
 
     /**
-     * Holistic score (0–100) for this CV (`score`), filled by the shared scoring
-     * step (WF-03b). Nullable until scored — no grading logic is added here.
+     * Holistic score (0-100) for this CV (`score`), filled by the shared scoring
+     * step (WF-03b). Nullable until scored -- no grading logic is added here.
      */
     @Field(
         () => Int,

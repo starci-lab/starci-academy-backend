@@ -54,7 +54,7 @@ export class CsrfService {
         const token = this.generateToken()
         // when a parent COOKIE_DOMAIN is set, the canonical cookie is domain-scoped;
         // expire any legacy HOST-ONLY csrf_token (issued before the domain rollout) so
-        // it stops shadowing it — cookie-parser reads the first of duplicate names, so
+        // it stops shadowing it -- cookie-parser reads the first of duplicate names, so
         // a lingering host-only cookie causes a permanent "CSRF token mismatch". A
         // clear with no `domain` (path "/") targets exactly that host-only variant.
         if (envConfig().cookie.domain) {
@@ -100,7 +100,7 @@ export class CsrfService {
         }
         // recompute the expected signature over the payload
         const expected = this.sign(payload)
-        // length mismatch means timingSafeEqual would throw — bail early
+        // length mismatch means timingSafeEqual would throw -- bail early
         if (expected.length !== signature.length) {
             return false
         }
@@ -117,7 +117,7 @@ export class CsrfService {
      * @returns A freshly signed CSRF token.
      */
     private generateToken(): string {
-        // unguessable random payload — the per-token secret material
+        // unguessable random payload -- the per-token secret material
         const payload = randomBytes(CSRF_PAYLOAD_BYTES).toString("hex")
         // bind the payload to our server secret so it can't be forged off-site
         return `${payload}${CSRF_TOKEN_SEPARATOR}${this.sign(payload)}`

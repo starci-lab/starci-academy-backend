@@ -37,7 +37,7 @@ const MAX_LIMIT = 48
 @Resolver()
 /**
  * Public "talent directory" query: users who opted into "open to work", newest
- * first, for recruiters / headhunters to browse. Optional auth — anyone may
+ * first, for recruiters / headhunters to browse. Optional auth -- anyone may
  * browse (the listed users opted in to being discoverable). NOT behind the
  * profile-visibility guard: it lists only the public header fields, and each card
  * links to the user's profile (which enforces its own lock). Offset-paginated.

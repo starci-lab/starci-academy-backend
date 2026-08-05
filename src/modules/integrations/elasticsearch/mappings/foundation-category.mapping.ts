@@ -6,7 +6,7 @@ import type {
  * Index mapping for the `foundation-categories-*` indices.
  *
  * Types the real search/sort fields and adds a dedicated `suggest` field of type
- * `completion` (an in-memory FST) powering fast, ranked autocomplete — the
+ * `completion` (an in-memory FST) powering fast, ranked autocomplete -- the
  * builder populates it with the bare tech name + a popularity weight. Localized
  * translation blobs are stored but not indexed.
  */
@@ -46,7 +46,7 @@ export const foundationCategoryIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // localized override blob — stored, not indexed
+            // localized override blob -- stored, not indexed
             translations: {
                 type: "object",
                 enabled: false,

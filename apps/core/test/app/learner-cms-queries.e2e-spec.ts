@@ -66,7 +66,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the learner-CMS "my history" reads — `myChallengeSubmissions`,
+ * e2e for the learner-CMS "my history" reads -- `myChallengeSubmissions`,
  * `myMilestoneTaskAttempts`, `myLearningFeedbacks`. All three are the LIST
  * exception (plain paginated reads keyed by the viewer, no CQRS projection),
  * so this drives the real resolver + service + raw-SQL join against
@@ -74,7 +74,7 @@ const POSTGRESQL_PRIMARY = "primary"
  * REAL join computes.
  *
  * MOCKED: nothing beyond the Keycloak guard (stamped with whichever fake user
- * the test "logs in" as) — every other piece (Apollo, Postgres, the three
+ * the test "logs in" as) -- every other piece (Apollo, Postgres, the three
  * services) is real.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -411,7 +411,7 @@ describe("Learner-CMS 'my history' reads (e2e)",
 
                 it("no user attached to the request → guard denies before the resolver ever runs",
                     async () => {
-                        // currentUser stays null — the fake guard returns false
+                        // currentUser stays null -- the fake guard returns false
                         const response = await post(CHALLENGE_SUBMISSIONS_QUERY,
                             {
                                 limit: 10,
@@ -419,7 +419,7 @@ describe("Learner-CMS 'my history' reads (e2e)",
                             })
 
                         // a guard rejection surfaces as a GraphQL transport error
-                        // (data: null, errors present) — NOT the interceptor's
+                        // (data: null, errors present) -- NOT the interceptor's
                         // {success:false} body, since guards run before interceptors
                         expect(response.body.data).toBeNull()
                         expect(response.body.errors).toBeDefined()
@@ -492,7 +492,7 @@ describe("Learner-CMS 'my history' reads (e2e)",
                         currentUser = await seedUser("kc-mycms-milestone-clamp")
                         const enrollment = await seedEnrollment(currentUser)
 
-                        // 2 attempts exist, but limit is clamped to a floor of 1 —
+                        // 2 attempts exist, but limit is clamped to a floor of 1 --
                         // the page shrinks while `total` still reports the real count
                         for (const task of [
                             taskOne,

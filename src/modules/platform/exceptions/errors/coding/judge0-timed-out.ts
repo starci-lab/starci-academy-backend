@@ -15,7 +15,7 @@ export interface Judge0TimedOutExceptionMetadata extends AbstractExceptionMetada
 
 /**
  * Thrown when a Judge0 batch is still executing after the configured maximum
- * number of poll attempts — i.e. the judge did not return terminal results in
+ * number of poll attempts -- i.e. the judge did not return terminal results in
  * time. Distinct from a per-testcase Time-Limit-Exceeded verdict.
  */
 export class Judge0TimedOutException extends AbstractException {

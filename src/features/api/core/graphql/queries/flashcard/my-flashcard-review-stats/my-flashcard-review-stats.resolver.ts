@@ -37,7 +37,7 @@ import {
 
 @Resolver()
 /**
- * The viewer's aggregated flashcard review ("Học thẻ") stats for one course —
+ * The viewer's aggregated flashcard review stats for one course --
  * a reviewed-count/XP trend line plus a per-deck breakdown across their
  * recent completed sessions. Mirrors `myFlashcardQuizStats`, minus `byTag`
  * (see `MyFlashcardReviewStatsService`'s own doc). Enrollment-scoped, same

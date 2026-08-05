@@ -72,7 +72,7 @@ export class UserXpData {
 /**
  * Response wrapper for the userXp query.
  *
- * The named user's XP aggregate — per-source XP figures summed from the
+ * The named user's XP aggregate -- per-source XP figures summed from the
  * `xp_histories` ledger, plus the total-XP and spendable Coin balances.
  */
 export class UserXpResponse

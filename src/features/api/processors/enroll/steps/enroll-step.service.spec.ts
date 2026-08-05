@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the step pulls `@modules/bussiness` — dodges a load-order
+// initialised before the step pulls `@modules/bussiness` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -76,7 +76,7 @@ const makeContext = (): JobExtendedContext<EnrollPayload, undefined> => ({
 
 /**
  * A course stub with a pricing phase that still has slots (so the phase is not
- * advanced) — keeps the convert/create assertions focused on the enrollment row.
+ * advanced) -- keeps the convert/create assertions focused on the enrollment row.
  *
  * @returns a CourseEntity stub.
  */
@@ -134,7 +134,7 @@ const programFindOne = (
             return program.user
         }
         if (entity === ActivityEntity) {
-            // no prior activity → writeActivity proceeds to append the feed row
+            // no prior activity -> writeActivity proceeds to append the feed row
             return null
         }
         return null
@@ -157,7 +157,7 @@ describe("EnrollStepService",
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
-            // `count` of paid enrollments is read to decide phase advancement — keep it
+            // `count` of paid enrollments is read to decide phase advancement -- keep it
             // low so the phase stays put
             entityManager.count = jest.fn().mockResolvedValue(1)
 
@@ -238,7 +238,7 @@ describe("EnrollStepService",
 
         it("CONVERTS a trial placeholder → paid in place and runs the post-steps",
             async () => {
-                // a TRIAL row (is_enrolled = false) already exists for this user × course
+                // a TRIAL row (is_enrolled = false) already exists for this user x course
                 const trial = {
                     id: "enrollment-trial",
                     isEnrolled: false,
@@ -246,7 +246,7 @@ describe("EnrollStepService",
                 } as EnrollmentEntity
 
                 // dispatch by entity: the course lock + relations read resolve the course,
-                // the enrollment lookup resolves the TRIAL (→ must convert), and the post-tx
+                // the enrollment lookup resolves the TRIAL (-> must convert), and the post-tx
                 // user lookups resolve an emailed user (welcome mail) without a github name.
                 programFindOne(entityManager,
                     {
@@ -265,7 +265,7 @@ describe("EnrollStepService",
                 expect(trial.pricingPhase).toBe(PricingPhase.EarlyBird)
                 expect(entityManager.save).toHaveBeenCalledWith(trial)
 
-                // it is NOT treated as a duplicate → the transaction is marked succeeded
+                // it is NOT treated as a duplicate -> the transaction is marked succeeded
                 // AND the post-steps run (stats recompute + cache invalidation + welcome mail)
                 expect(transactionActionService.updateTransactionStatus).toHaveBeenCalledWith(
                     expect.objectContaining({
@@ -284,7 +284,7 @@ describe("EnrollStepService",
 
         it("CREATES a fresh paid enrollment when no row exists yet (post-steps run)",
             async () => {
-                // no existing enrollment → the create path; emailed user → welcome mail
+                // no existing enrollment -> the create path; emailed user -> welcome mail
                 programFindOne(entityManager,
                     {
                         course: fakeCourse(),
@@ -318,14 +318,14 @@ describe("EnrollStepService",
 
         it("is a NO-OP for a genuine duplicate (already paid): no convert, no post-steps",
             async () => {
-                // an ALREADY-PAID enrollment exists → duplicate enroll job
+                // an ALREADY-PAID enrollment exists -> duplicate enroll job
                 const paid = {
                     id: "enrollment-paid",
                     isEnrolled: true,
                     pricingPhase: PricingPhase.EarlyBird,
                 } as EnrollmentEntity
 
-                // existing PAID enrollment → genuine duplicate (no convert / no post-steps)
+                // existing PAID enrollment -> genuine duplicate (no convert / no post-steps)
                 programFindOne(entityManager,
                     {
                         course: fakeCourse(),
@@ -335,14 +335,14 @@ describe("EnrollStepService",
 
                 await service.process(makeContext())
 
-                // the transaction is still finalized as succeeded …
+                // the transaction is still finalized as succeeded ...
                 expect(transactionActionService.updateTransactionStatus).toHaveBeenCalledWith(
                     expect.objectContaining({
                         id: transactionId,
                         status: TransactionStatus.Succeeded,
                     }),
                 )
-                // … but nothing is converted/created and NONE of the post-steps fire
+                // ... but nothing is converted/created and NONE of the post-steps fire
                 expect(entityManager.save).not.toHaveBeenCalled()
                 expect(courseStatsProjectionService.recompute).not.toHaveBeenCalled()
                 expect(userService.invalidateEnrolledCourses).not.toHaveBeenCalled()
@@ -359,7 +359,7 @@ describe("EnrollStepService",
                 } as EnrollmentEntity
 
                 // the post-tx user resolves with BOTH an email (welcome mail) and a github
-                // username (→ resolve-github job enqueued)
+                // username (-> resolve-github job enqueued)
                 programFindOne(entityManager,
                     {
                         course: fakeCourse(),

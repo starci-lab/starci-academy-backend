@@ -1,6 +1,6 @@
 /**
  * Manifest file (under the data-sources root) that records the retained commit
- * snapshots in pull order — its tail is the newest snapshot the app seeded from.
+ * snapshots in pull order -- its tail is the newest snapshot the app seeded from.
  */
 export const DATA_GIT_MANIFEST_FILE = "manifest.json"
 

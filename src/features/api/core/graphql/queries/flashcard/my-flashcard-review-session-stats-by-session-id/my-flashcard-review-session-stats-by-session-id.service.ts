@@ -24,7 +24,7 @@ import type {
     MyFlashcardReviewSessionStatsBySessionIdResultData,
 } from "./types"
 
-/** XP granted per FIRST-EVER review of a card — mirrors `FLASHCARD_FIRST_REVIEW_XP` in `flashcard-review.service.ts`. */
+/** XP granted per FIRST-EVER review of a card -- mirrors `FLASHCARD_FIRST_REVIEW_XP` in `flashcard-review.service.ts`. */
 const FLASHCARD_FIRST_REVIEW_XP = 2
 
 /** How many weak-tag rows the recap surfaces (top-N most forgotten). */
@@ -32,15 +32,15 @@ const WEAK_TAG_LIMIT = 5
 
 @Injectable()
 /**
- * Computes the per-session recap for ONE flashcard review session — resolved by
- * its id alone (either kind: single-deck "Học thẻ" review, or the cross-deck
+ * Computes the per-session recap for ONE flashcard review session -- resolved by
+ * its id alone (either kind: single-deck review review, or the cross-deck
  * due-review batch), owner-scoped via the session's enrollment, REGARDLESS of
  * status (a completed/abandoned session still resolves so a stale link shows
- * the real recap instead of silently starting a fresh session — the FE
+ * the real recap instead of silently starting a fresh session -- the FE
  * resume-check reads `status` off this result).
  *
  * This is a per-viewer SINGLE-SESSION edge read (a recap fired once when a
- * session ends), bounded to that one session's handful of events/cards — the
+ * session ends), bounded to that one session's handful of events/cards -- the
  * same "per-viewer single-row edge check" exemption `MyMockInterviewAttemptBySessionService`
  * relies on (see `.claude/be/rules/cqrs-no-inline-aggregate.md`'s exception
  * list). It is NOT a hot/repeated dashboard aggregate, so it does not warrant a
@@ -69,7 +69,7 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
         }: FindMyFlashcardReviewSessionStatsBySessionIdParams,
     ): Promise<MyFlashcardReviewSessionStatsBySessionIdResultData | null> {
         // Resolve the session in EITHER table (deck-review first, then the
-        // cross-deck due-review batch), owner-scoped via enrollment.user — the
+        // cross-deck due-review batch), owner-scoped via enrollment.user -- the
         // same two-table seam MyFlashcardReviewSessionBySessionIdResolver uses.
         // We read the entity directly (not the bussiness `findById` services)
         // because those drop `status`/`reviewedCount` from their result DTOs,
@@ -150,13 +150,13 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
         }
 
         // Degraded fallback: a legacy/untracked session has no events carrying
-        // its id → trust the session entity's own reviewedCount snapshot so the
+        // its id -> trust the session entity's own reviewedCount snapshot so the
         // FE still renders the count-only recap.
         const reviewedCount = events.length > 0
             ? events.length
             : session.reviewedCount
 
-        // Wall-clock span — needs at least two events to be meaningful.
+        // Wall-clock span -- needs at least two events to be meaningful.
         const durationSeconds = events.length >= 2
             ? Math.max(
                 0,
@@ -195,9 +195,9 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
     }
 
     /**
-     * XP granted by this session = `FLASHCARD_FIRST_REVIEW_XP` × the number of
+     * XP granted by this session = `FLASHCARD_FIRST_REVIEW_XP` x the number of
      * cards whose FIRST-EVER review (across all of the user's events) happened
-     * inside this session — mirroring the grant condition in
+     * inside this session -- mirroring the grant condition in
      * `flashcard-review.service.ts` (XP fires only on a card's absolute first
      * review). Typically 0 for a due-review of already-seen cards.
      */
@@ -214,7 +214,7 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
         }
 
         // Pull every event the user has for these cards, oldest-first, then keep
-        // the earliest per card in JS — a card counts as a first-review of THIS
+        // the earliest per card in JS -- a card counts as a first-review of THIS
         // session iff its globally-earliest event carries this sessionId.
         const cardEvents = await this.entityManager.find(
             FlashcardReviewEventEntity,

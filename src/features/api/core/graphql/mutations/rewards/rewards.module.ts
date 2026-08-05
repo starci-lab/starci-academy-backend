@@ -28,7 +28,7 @@ import {
     ],
 })
 /**
- * Rewards mutation group — redeem a reward from the Coin shop, plus the
+ * Rewards mutation group -- redeem a reward from the Coin shop, plus the
  * ops-only terminal-state transitions (fulfil a shipped physical redemption,
  * cancel/refund a redemption).
  */

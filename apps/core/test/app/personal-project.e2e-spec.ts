@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handlers pull `@modules/cqrs` — dodges a load-order
+// initialised before the handlers pull `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (same guard as
 // review-personal-project-task.handler.spec.ts).
 import "@modules/bussiness"
@@ -109,34 +109,34 @@ interface EncryptionServiceEncryptParams {
 }
 
 /**
- * e2e for the three personal-project mutations — `.claude` task brief
+ * e2e for the three personal-project mutations -- `.claude` task brief
  * "personal-project mutations (submit / sync-personal-project-github /
  * review-personal-project-task)": none of the three had e2e coverage before
  * this file (their `.handler.spec.ts` siblings all mock the `EntityManager`).
- * Runs the real `GraphQLMustEnrolledGuard` (→ real `UserService.checkEnrollment`
+ * Runs the real `GraphQLMustEnrolledGuard` (-> real `UserService.checkEnrollment`
  * SQL against real `enrollments` rows), the real handlers' validation branches,
- * and real Postgres writes on `EnrollmentEntity` — not a mocked DB.
+ * and real Postgres writes on `EnrollmentEntity` -- not a mocked DB.
  *
  * MOCKED (genuinely external to the process, or out of scope for this spec):
- *  - `EncryptionService` — real class does AES-256-GCM keyed off a mounted
+ *  - `EncryptionService` -- real class does AES-256-GCM keyed off a mounted
  *    encryption key this harness doesn't have; stubbed to a deterministic
  *    encrypt so the stored ciphertext/last4 can still be asserted.
- *  - `GradingLaneValidationService` — real class resolves a pinned AI
+ *  - `GradingLaneValidationService` -- real class resolves a pinned AI
  *    model/provider against the `ai_models` catalog; this spec's mutations
  *    never inspect its result besides feeding it into the enqueue payload, so
  *    it is stubbed to "no pin" (matches `review-personal-project-task.handler.spec.ts`).
- *  - `EnqueueReviewPersonalProjectTaskJobService` — the BullMQ boundary; the
+ *  - `EnqueueReviewPersonalProjectTaskJobService` -- the BullMQ boundary; the
  *    actual AI grading + GitHub fetch happen in a separate worker
  *    (`ReviewMilestoneTaskWorker`) that is out of scope here (per
  *    `.artifacts/states/progress` research: no queue/worker is exercised by
  *    the mutation itself). Stubbed to hand back a fixed job id.
- *  - `KeycloakAuthGraphQLGuard` — no Keycloak server in this harness;
+ *  - `KeycloakAuthGraphQLGuard` -- no Keycloak server in this harness;
  *    overridden to stamp `request.user` with whichever fake user the test
  *    "logs in" as (same pattern as `content-ai-entitlement.e2e-spec.ts`).
  *
  * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring, the three
  * CQRS handlers under test, `GraphQLMustEnrolledGuard` + `UserService`
- * (`checkEnrollment` runs real SQL — `CacheService` is stubbed to always miss
+ * (`checkEnrollment` runs real SQL -- `CacheService` is stubbed to always miss
  * so it never short-circuits to a stale in-memory set), and `UrlValidatorService`
  * (no external deps, safe to use as-is).
  *
@@ -150,7 +150,7 @@ describe("Personal-project mutations (e2e)",
         /** The "logged in" user the overridden Keycloak guard stamps onto the request. */
         let currentUser: UserEntity | null = null
 
-        /** Overrides the real Keycloak JWT verification — no Keycloak server here. */
+        /** Overrides the real Keycloak JWT verification -- no Keycloak server here. */
         const fakeAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
                 if (!currentUser) {
@@ -163,9 +163,9 @@ describe("Personal-project mutations (e2e)",
             },
         }
 
-        /** Fixture ids shared by every test (seeded once — read-only material). */
+        /** Fixture ids shared by every test (seeded once -- read-only material). */
         let course: CourseEntity
-        /** A second course with NO milestone tasks — for the "no tasks" branch. */
+        /** A second course with NO milestone tasks -- for the "no tasks" branch. */
         let courseNoTasks: CourseEntity
         let task: MilestoneTaskEntity
 
@@ -188,7 +188,7 @@ describe("Personal-project mutations (e2e)",
             })),
             decrypt: jest.fn(),
         }
-        // CacheService always misses → UserService.checkEnrollment hits real
+        // CacheService always misses -> UserService.checkEnrollment hits real
         // Postgres every time (no stale cross-test cache to reason about).
         const cacheServiceMock = {
             get: jest.fn().mockResolvedValue(undefined),
@@ -271,7 +271,7 @@ describe("Personal-project mutations (e2e)",
                 ],
                 providers: [
                     // satisfies the GraphQL "Query root type must be provided"
-                    // rule — this module registers only mutation resolvers
+                    // rule -- this module registers only mutation resolvers
                     PingResolver,
                     SubmitPersonalGithubUrlResolver,
                     SubmitPersonalGithubUrlService,
@@ -282,12 +282,12 @@ describe("Personal-project mutations (e2e)",
                     ReviewPersonalProjectTaskResolver,
                     ReviewPersonalProjectTaskService,
                     ReviewPersonalProjectTaskHandler,
-                    // REAL — the enrollment gate under test, resolved lazily by
+                    // REAL -- the enrollment gate under test, resolved lazily by
                     // @UseGuards() from this module's own provider graph
                     GraphQLMustEnrolledGuard,
-                    // REAL — checkEnrollment runs real SQL against real `enrollments`
+                    // REAL -- checkEnrollment runs real SQL against real `enrollments`
                     UserService,
-                    // REAL — no external deps, just `new URL(...)`
+                    // REAL -- no external deps, just `new URL(...)`
                     UrlValidatorService,
                     {
                         provide: CacheService,
@@ -305,7 +305,7 @@ describe("Personal-project mutations (e2e)",
                         provide: EnqueueReviewPersonalProjectTaskJobService,
                         useValue: enqueueReviewJobMock,
                     },
-                    // KeycloakAuthGraphQLGuard deps — let Nest construct the real
+                    // KeycloakAuthGraphQLGuard deps -- let Nest construct the real
                     // guard at compile time; `.overrideGuard` swaps its runtime
                     // behaviour below (same pattern as content-progress.e2e-spec.ts)
                     {
@@ -336,7 +336,7 @@ describe("Personal-project mutations (e2e)",
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
 
-            // seed the read-only course/milestone/task fixtures ONCE — only
+            // seed the read-only course/milestone/task fixtures ONCE -- only
             // `users`/`enrollments` are reset between tests (see afterEach)
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -478,12 +478,12 @@ describe("Personal-project mutations (e2e)",
                             course.id)
 
                         // The enrollment gate is a GUARD (GraphQLMustEnrolledGuard), and
-                        // guards run BEFORE interceptors — so its thrown exception never
+                        // guards run BEFORE interceptors -- so its thrown exception never
                         // reaches GraphQLTransformInterceptor's `catchError` (which is what
                         // produces the `{success:false, error}` body). Instead it surfaces
                         // through Apollo's `formatError`: a GraphQL transport error carrying
                         // `extensions.code`, with the HTTP status set from the exception's
-                        // `httpStatus` (EnrollmentNotFoundException leaves it unset → 500).
+                        // `httpStatus` (EnrollmentNotFoundException leaves it unset -> 500).
                         // The FE keys off `extensions.code`, not the interceptor shape, for
                         // guard-gated operations.
                         expect(response.status).toBe(500)
@@ -575,7 +575,7 @@ describe("Personal-project mutations (e2e)",
                                     },
                                 },
                             })
-                        // the mocked encryption's deterministic shape — proves the real
+                        // the mocked encryption's deterministic shape -- proves the real
                         // handler round-tripped through EncryptionService.encrypt and
                         // persisted its JSON-stringified payload verbatim
                         expect(reloaded.personalProjectGithubTokenEncrypted).toBe(
@@ -585,7 +585,7 @@ describe("Personal-project mutations (e2e)",
                                 ciphertext: "ct-ghp_SUPERSECRETTOKEN1234",
                             }),
                         )
-                        // masked hint only — the plaintext is never stored/returned
+                        // masked hint only -- the plaintext is never stored/returned
                         expect(reloaded.personalProjectGithubTokenLast4).toBe("1234")
                     })
 
@@ -694,7 +694,7 @@ describe("Personal-project mutations (e2e)",
                                     },
                                 },
                             })
-                        // rejected before the transaction commits — branch never written
+                        // rejected before the transaction commits -- branch never written
                         expect(reloaded.personalProjectGithubBranch).toBeNull()
                     })
 
@@ -750,7 +750,7 @@ describe("Personal-project mutations (e2e)",
                                 branch: "main",
                             }),
                         )
-                        // enrollment untouched — request supplied neither url nor branch
+                        // enrollment untouched -- request supplied neither url nor branch
                         const reloaded = await entityManager.findOneOrFail(EnrollmentEntity,
                             {
                                 where: {

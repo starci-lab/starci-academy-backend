@@ -44,11 +44,11 @@ const POINTS_BY_DIFFICULTY: Record<CodingDifficulty, number> = {
  * Parses each coding-problem mount directory into a {@link ParsedCodingProblem}.
  * Problems use the house heading-markdown grammar (see {@link ExtractJsonFromMdService}):
  * one `en.md` (+ optional `vi.md`) with `# field` / `## <n>` / `### subfield`
- * sections — per-language `starterCodes` + `solutions`, plus two IO arrays
+ * sections -- per-language `starterCodes` + `solutions`, plus two IO arrays
  * (`# example` = public samples, `# testcases` = hidden judging cases).
  */
 export class CodingProblemParserService {
-    /** Supported difficulty values (mount string → enum). */
+    /** Supported difficulty values (mount string -> enum). */
     private readonly difficulties = new Set<string>(Object.values(CodingDifficulty))
     /** Supported domain values (camelCase). */
     private readonly domains = new Set<string>(Object.values(CodingDomain))
@@ -94,7 +94,7 @@ export class CodingProblemParserService {
         if (!slug || title.length === 0) {
             return null
         }
-        // example cases are public samples; testcases are the hidden judging set —
+        // example cases are public samples; testcases are the hidden judging set --
         // concatenated into one list with a sequential evaluation order
         const testcases = this.buildTestcases(raw.example,
             raw.testcases)
@@ -126,7 +126,7 @@ export class CodingProblemParserService {
                 title,
                 (raw.statement ?? "").trim()),
             // localized "thinking guidance" authored as the `# hint` heading field
-            // (en from this file, vi from vi.md) — indexed to Elasticsearch only
+            // (en from this file, vi from vi.md) -- indexed to Elasticsearch only
             hints: this.buildHints(raw.hint,
                 dir),
         }

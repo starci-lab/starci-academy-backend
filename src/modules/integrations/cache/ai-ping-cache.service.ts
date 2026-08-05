@@ -132,7 +132,7 @@ export class AiPingCacheService implements OnModuleInit {
     }
 
     /**
-     * Stamp a key as just-picked — updates only `lastUsedAt`, preserving health
+     * Stamp a key as just-picked -- updates only `lastUsedAt`, preserving health
      * (cooldown / disabled / failCount). Persisting the pick time in Redis lets
      * the rotator spread load least-recently-used across every instance (the C/D
      * of the balancer rotation design).
@@ -163,7 +163,7 @@ export class AiPingCacheService implements OnModuleInit {
 
 
     /**
-     * Read the full provider → key → status map from Redis.
+     * Read the full provider -> key -> status map from Redis.
      * @returns Cached ping snapshots for every provider that has been probed.
      */
     async getMap(): Promise<AiPingKeyStatusMap> {
@@ -173,7 +173,7 @@ export class AiPingCacheService implements OnModuleInit {
     /**
      * Read ping snapshots for one provider.
      * @param provider - Target {@link ModelProvider}.
-     * @returns Key → snapshot map, or an empty object when the provider has no entries.
+     * @returns Key -> snapshot map, or an empty object when the provider has no entries.
      */
     async getProviderMap(
         provider: ModelProvider,

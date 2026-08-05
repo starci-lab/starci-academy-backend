@@ -15,7 +15,7 @@ import {
 })
 /**
  * Latest attempt by attemptNumber for the subject, or null when enrolled but
- * never submitted / not enrolled — staff UIs treat null as "no review yet".
+ * never submitted / not enrolled -- staff UIs treat null as "no review yet".
  */
 export class LastPersonalTaskAttemptResponseData {
     @Field(
@@ -32,7 +32,7 @@ export class LastPersonalTaskAttemptResponseData {
     description: "Response wrapper for lastPersonalTaskAttempt.",
 })
 /**
- * Envelope for `lastPersonalTaskAttempt` — status metadata plus attempt-or-null.
+ * Envelope for `lastPersonalTaskAttempt` -- status metadata plus attempt-or-null.
  */
 export class LastPersonalTaskAttemptResponse
     extends AbstractGraphQLResponse

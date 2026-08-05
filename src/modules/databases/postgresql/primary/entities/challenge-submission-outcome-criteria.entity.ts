@@ -22,8 +22,8 @@ import {
  *
  * Normalized (no jsonb): the criterion's agnostic fields (`orderIndex`, `critical`) live here; the
  * per-language prose lives in {@link ChallengeSubmissionOutcomeCriteriaLangEntity}. Outcome criteria
- * grade observable behaviour/output. English-only grading rubric (internal — NOT in GraphQL).
- * Authored in `criterias/<submissionIndex>/outcome.md`. Per-item score is NOT stored — the 70/30
+ * grade observable behaviour/output. English-only grading rubric (internal -- NOT in GraphQL).
+ * Authored in `criterias/<submissionIndex>/outcome.md`. Per-item score is NOT stored -- the 70/30
  * weighting lives on the submission.
  */
 export class ChallengeSubmissionOutcomeCriteriaEntity extends UuidAbstractEntity {

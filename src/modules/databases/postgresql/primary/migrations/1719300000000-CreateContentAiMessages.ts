@@ -5,9 +5,9 @@ import {
 
 /**
  * Creates the `content_ai_messages` table backing persisted content-AI tutoring
- * conversations. Each row is one chat turn scoped to `(enrollment, content)` —
+ * conversations. Each row is one chat turn scoped to `(enrollment, content)` --
  * the conversation a learner has about one lesson within their course
- * enrollment — with FKs to `enrollments` + `contents` (ON DELETE CASCADE) and a
+ * enrollment -- with FKs to `enrollments` + `contents` (ON DELETE CASCADE) and a
  * `(enrollment_id, content_id)` lookup index for rebuilding the thread on reopen.
  *
  * The repo runs schema via TypeORM `synchronize` in dev; this migration exists so

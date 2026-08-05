@@ -31,7 +31,7 @@ import {
 })
 @Entity("challenge_steps")
 /**
- * SCHEMA V2 step ITEM for a challenge (normalized — no jsonb). One row per step position;
+ * SCHEMA V2 step ITEM for a challenge (normalized -- no jsonb). One row per step position;
  * per-programming-language `title` and `body` live under {@link ChallengeStepLangEntity}.
  */
 export class ChallengeStepEntity extends UuidAbstractEntity {

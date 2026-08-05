@@ -15,7 +15,7 @@ export interface AiModeNotEntitledExceptionMetadata extends AbstractExceptionMet
 
 /**
  * Thrown by `AiEntitlementService` when a caller asks to use paid-tier models
- * they are not entitled to — e.g. pinning a higher-tier model without an active
+ * they are not entitled to -- e.g. pinning a higher-tier model without an active
  * paid subscription or an enrollment.
  */
 export class AiModeNotEntitledException extends AbstractException {

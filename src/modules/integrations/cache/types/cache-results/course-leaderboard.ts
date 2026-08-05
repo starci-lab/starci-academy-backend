@@ -14,9 +14,9 @@ export interface CourseLeaderboardEntry {
     completedChallenges: number
     /** Number of lessons (contents) the user has marked as read in this course. */
     lessonsRead: number
-    /** Number of milestone tasks passed (≥1 passed attempt) in this course. */
+    /** Number of milestone tasks passed (>=1 passed attempt) in this course. */
     milestoneProgress: number
-    /** Total XP = challenge score + lessonsRead×3 + milestoneProgress×10 (drives rank). */
+    /** Total XP = challenge score + lessonsReadx3 + milestoneProgressx10 (drives rank). */
     totalXp: number
     /** 1-based rank position within the cached top window. */
     rank: number

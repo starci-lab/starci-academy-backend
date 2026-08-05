@@ -62,7 +62,7 @@ export class GradeMockInterviewSessionHandler
             })
         }
 
-        // delegate the RAG-grounded whole-session grade → parse → persist to the
+        // delegate the RAG-grounded whole-session grade -> parse -> persist to the
         // domain service; the request's turns already carry the ordered transcript
         const result = await this.mockInterviewGradingService.grade({
             userId: user.id,

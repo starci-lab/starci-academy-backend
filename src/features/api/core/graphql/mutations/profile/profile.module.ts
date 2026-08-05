@@ -83,7 +83,7 @@ import {
 })
 /**
  * Profile mutation group (edit display name, bio, avatar). Avatar upload is a
- * presigned-URL flow: generateAvatarPresignUrl → client PUTs to MinIO →
+ * presigned-URL flow: generateAvatarPresignUrl -> client PUTs to MinIO ->
  * verifyAvatarPresignUrl persists it (mirrors the CV submission flow).
  */
 export class ProfileMutationsModule extends ConfigurableModuleClass {}

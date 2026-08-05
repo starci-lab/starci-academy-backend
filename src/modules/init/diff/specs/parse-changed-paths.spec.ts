@@ -3,13 +3,13 @@ import {
 } from "../utils/parse-changed-paths"
 
 /**
- * Scenario coverage for {@link parseDataGitDiff} — the classifier that turns the
+ * Scenario coverage for {@link parseDataGitDiff} -- the classifier that turns the
  * raw GitHub-compare changed-path list into a structured {@link DataGitDiff}.
  *
  * The compare API is status-agnostic (it returns filenames, not add/remove/modify),
  * so a create, an update and a delete of the same path all land on the SAME scope
- * here — the actual create-vs-delete is reconciled downstream by the seeder upsert
- * + orphan-prune. The tests therefore assert "a change touching X → scope Y" and
+ * here -- the actual create-vs-delete is reconciled downstream by the seeder upsert
+ * + orphan-prune. The tests therefore assert "a change touching X -> scope Y" and
  * verify create/delete/update converge for representative entities.
  *
  * All paths assume the repo root IS the data root (`subdir = ""`) unless a test
@@ -37,7 +37,7 @@ describe("parseDataGitDiff",
 
                 it("treats create / update / delete of a course root file as the same scope",
                     () => {
-                        // create (master_plan.md), update (vi.md), delete (en.md) — all root touches
+                        // create (master_plan.md), update (vi.md), delete (en.md) -- all root touches
                         for (const file of [
                             "master_plan.md",
                             "vi.md",
@@ -107,7 +107,7 @@ describe("parseDataGitDiff",
 
                 it("de-duplicates the module index across many files under the same module",
                     () => {
-                        // a content edit + a challenge add under module 4 → still just {4}
+                        // a content edit + a challenge add under module 4 -> still just {4}
                         const diff = parseDataGitDiff([
                             "courses/0-fullstack-mastery/modules/4-server-state/contents/1-intro/en.md",
                             "courses/0-fullstack-mastery/modules/4-server-state/contents/1-intro/challenges/1-x-easy/vi.md",

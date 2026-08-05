@@ -4,7 +4,7 @@ import type {
 
 /** One retained commit snapshot recorded in the data-sources manifest. */
 export interface SnapshotManifestEntry {
-    /** Commit SHA — also the snapshot directory name under the data-sources root. */
+    /** Commit SHA -- also the snapshot directory name under the data-sources root. */
     sha: string
     /** ISO timestamp the snapshot was pulled (for diagnostics + ordering ties). */
     pulledAt: string
@@ -34,7 +34,7 @@ export interface EnsureDataGitResult {
     changedPaths: Array<string>
     /**
      * True when a reliable diff was computed (a previous snapshot existed to
-     * compare against). False on first boot — callers must full-reseed.
+     * compare against). False on first boot -- callers must full-reseed.
      */
     diffAvailable: boolean
     /**

@@ -14,15 +14,15 @@ import {
 @Entity("user_flashcard_course_stats_projections")
 /**
  * CQRS projection of a user's flashcard quick-quiz + review stats for ONE
- * course — ONE ROW PER enrollment. `enrollment_id` alone already uniquely
+ * course -- ONE ROW PER enrollment. `enrollment_id` alone already uniquely
  * determines the (user, course) grain (`flashcard_quiz_sessions` /
  * `flashcard_review_sessions` are both keyed by `enrollment_id` directly), so
  * this is a single-column primary key rather than a composite
- * `(user_id, course_id)` — simpler than `UserCourseProgressProjectionEntity`'s
- * Kiểu-B shape.
+ * `(user_id, course_id)` -- simpler than `UserCourseProgressProjectionEntity`'s
+ * Type-B shape.
  *
  * The inherited jsonb `value` holds `{ quizTrend, quizByTag, quizByDeck,
- * reviewByDeck }` — see `UserFlashcardCourseStatsResult`. The heavy scan/fold
+ * reviewByDeck }` -- see `UserFlashcardCourseStatsResult`. The heavy scan/fold
  * over `flashcard_quiz_sessions` / `flashcard_review_sessions` /
  * `flashcard_cards` runs ONLY in the projection's `recompute`, never inline at
  * read time (mirrors `MyFlashcardQuizStatsService` / `MyFlashcardReviewStatsService`,
@@ -30,7 +30,7 @@ import {
  * lazy-refresh; kept fresh by CDC on both source tables.
  */
 export class UserFlashcardCourseStatsProjectionEntity extends AbstractProjectionEntity {
-    /** Owning enrollment id — the natural (primary) key. */
+    /** Owning enrollment id -- the natural (primary) key. */
     @PrimaryColumn({
         name: "enrollment_id",
         type: "uuid",

@@ -22,6 +22,6 @@ import {
     ],
 })
 /**
- * Nest DI for `userMilestoneTaskFeedbacks` — latest-attempt feedback list.
+ * Nest DI for `userMilestoneTaskFeedbacks` -- latest-attempt feedback list.
  */
 export class UserMilestoneTaskFeedbacksSingleQueryModule extends ConfigurableModuleClass {}

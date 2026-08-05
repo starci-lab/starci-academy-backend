@@ -15,7 +15,7 @@ import {
 })
 /**
  * Full unpaginated slot list. Each row may include `userSubmission` for the
- * current caller only — not other users' progress.
+ * current caller only -- not other users' progress.
  */
 export class ChallengeSubmissionsResponseData {
     @Field(

@@ -57,7 +57,7 @@ const completedEvent = (
             id: "cs_test",
             object: "checkout.session",
             client_reference_id: referenceId,
-            // the handler only grants when funds have actually cleared — a
+            // the handler only grants when funds have actually cleared -- a
             // `checkout.session.completed` event can fire for an async payment
             // method whose session is still `payment_status: "unpaid"`. Without
             // this the handler silently no-ops (logs + returns) on every case
@@ -74,7 +74,7 @@ describe("Stripe webhook (e2e)",
 
         beforeAll(async () => {
             // the handler reads the webhook signing secret from a mount file via
-            // getStripeWebhookSecret() — point that path at a throwaway temp file
+            // getStripeWebhookSecret() -- point that path at a throwaway temp file
             // so the read succeeds (its value is irrelevant: constructEvent is mocked)
             const dir = mkdtempSync(join(tmpdir(),
                 "stripe-e2e-"))
@@ -92,7 +92,7 @@ describe("Stripe webhook (e2e)",
 
         afterAll(async () => {
             // TypeORM's shutdown hook looks up the default (unnamed) DataSource,
-            // which this named-only setup doesn't register — ignore that noise.
+            // which this named-only setup doesn't register -- ignore that noise.
             await e2e.app.close().catch(() => undefined)
         })
 
@@ -151,7 +151,7 @@ describe("Stripe webhook (e2e)",
         it("grants the tier and marks the transaction succeeded on a valid event",
             async () => {
                 const transaction = await seedPendingPurchase("STRIPE-OK")
-                // signature verification passes → returns our crafted event
+                // signature verification passes -> returns our crafted event
                 e2e.stripeClient.webhooks.constructEvent.mockReturnValueOnce(
                     completedEvent("STRIPE-OK"),
                 )
@@ -190,7 +190,7 @@ describe("Stripe webhook (e2e)",
         it("rejects an event with a bad signature and mutates nothing",
             async () => {
                 await seedPendingPurchase("STRIPE-BADSIG")
-                // constructEvent throws on a signature mismatch → request rejected
+                // constructEvent throws on a signature mismatch -> request rejected
                 e2e.stripeClient.webhooks.constructEvent.mockImplementationOnce(
                     () => {
                         throw new Error("No signatures found matching the expected signature")
@@ -239,7 +239,7 @@ describe("Stripe webhook (e2e)",
                 await postWebhook("valid-sig")
                     .expect(201)
 
-                // second delivery finds no pending transaction → rejected
+                // second delivery finds no pending transaction -> rejected
                 const replay = await postWebhook("valid-sig")
                 expect(replay.status).toBeGreaterThanOrEqual(400)
 

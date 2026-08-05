@@ -53,20 +53,20 @@ export class CreateDailyQuestCompletions1718800000000 implements MigrationInterf
             );
         `)
 
-        // per-user index — every read filters by user_id
+        // per-user index -- every read filters by user_id
         await queryRunner.query(`
             CREATE INDEX IF NOT EXISTS "idx_daily_quest_completions_user_id"
             ON "daily_quest_completions" ("user_id");
         `)
 
-        // one claim per user per VN day — the idempotency backstop for the claim mutation
+        // one claim per user per VN day -- the idempotency backstop for the claim mutation
         await queryRunner.query(`
             ALTER TABLE "daily_quest_completions"
             ADD CONSTRAINT "uq_daily_quest_completions_user_id_quest_date"
             UNIQUE ("user_id", "quest_date");
         `)
 
-        // FK to users — deleting a user removes their completions
+        // FK to users -- deleting a user removes their completions
         await queryRunner.query(`
             ALTER TABLE "daily_quest_completions"
             ADD CONSTRAINT "fk_user_id_daily_quest_completions_users"
@@ -78,7 +78,7 @@ export class CreateDailyQuestCompletions1718800000000 implements MigrationInterf
     /**
      * Reverse migration: drop FK, unique constraint, index and table.
      *
-     * The added `xp_source` enum value is intentionally NOT removed — Postgres
+     * The added `xp_source` enum value is intentionally NOT removed -- Postgres
      * cannot drop a single enum value, and dropping it could orphan ledger rows.
      *
      * @param queryRunner - Active TypeORM query runner.

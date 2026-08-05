@@ -14,6 +14,6 @@ export interface OpsLogMessage {
     count?: number
     /** Failure text when the event is a failure or a degraded path. */
     error?: string
-    /** Small extra fields (provider, path, queue, …). */
+    /** Small extra fields (provider, path, queue, ...). */
     meta?: Record<string, unknown>
 }

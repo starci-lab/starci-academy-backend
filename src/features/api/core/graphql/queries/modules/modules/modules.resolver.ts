@@ -33,7 +33,7 @@ import {
 
 @Resolver()
 /**
- * Login-only (not enrollment-gated) GraphQL entry for `modules` — trial readers
+ * Login-only (not enrollment-gated) GraphQL entry for `modules` -- trial readers
  * may browse a course's module list.
  */
 export class ModulesResolver {
@@ -46,7 +46,7 @@ export class ModulesResolver {
         [Locale.En]: "Modules fetched successfully",
         [Locale.Vi]: "Lấy danh sách module thành công", // vn-ok: vi-locale string emitted to clients
     })
-    // Enroll guard removed — logged-in users may browse module list for trial reading.
+    // Enroll guard removed -- logged-in users may browse module list for trial reading.
     @UseGuards(
         KeycloakAuthGraphQLGuard,
     )

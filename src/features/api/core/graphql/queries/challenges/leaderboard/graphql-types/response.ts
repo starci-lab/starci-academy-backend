@@ -13,7 +13,7 @@ import {
 })
 /**
  * One ranked enrollment in the cached top window. Rank is 1-based; `totalXp`
- * is the sort metric (challenge score + reads×3 + milestone×10).
+ * is the sort metric (challenge score + readsx3 + milestonex10).
  */
 export class LeaderboardEntryData {
     @Field(
@@ -103,7 +103,7 @@ export class LeaderboardEntryData {
     description: "Current viewer's standing within the leaderboard (even when outside the top window).",
 })
 /**
- * Viewer's standing across the whole course — returned even when they fall
+ * Viewer's standing across the whole course -- returned even when they fall
  * outside the top-N window. Null on the parent when they have no scored attempts.
  */
 export class LeaderboardMyRankData {

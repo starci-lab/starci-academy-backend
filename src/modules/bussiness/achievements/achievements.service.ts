@@ -40,7 +40,7 @@ import type {
  * `checkEligible(value, definition)` which tiers were reached. Eligibility bars
  * live on the seeded DB definition (matched by slug).
  *
- * Awards are computed on-read ({@link getMyAchievements}) — returning the full
+ * Awards are computed on-read ({@link getMyAchievements}) -- returning the full
  * list, the earned count, and the subset newly earned this read.
  */
 export class AchievementsService {
@@ -71,7 +71,7 @@ export class AchievementsService {
                 },
             },
         )
-        // fresh cache hit → return the snapshot, nothing newly earned
+        // fresh cache hit -> return the snapshot, nothing newly earned
         if (row && !this.isStale(row.updatedAt)) {
             const value = row.value as CachedMyAchievementsValue
             return {
@@ -80,7 +80,7 @@ export class AchievementsService {
                 newAchievements: [],
             }
         }
-        // miss / stale → recompute + award, then cache the snapshot
+        // miss / stale -> recompute + award, then cache the snapshot
         const view = await this.computeAndAward(userId)
         await this.entityManager.query(
             this.buildUpsertSql(),
@@ -111,7 +111,7 @@ export class AchievementsService {
     }
 
     /**
-     * Compute the achievement wall from source (composite metric query + award) —
+     * Compute the achievement wall from source (composite metric query + award) --
      * the list, the earned count, and the subset newly earned this pass.
      *
      * @param userId - the viewer.
@@ -211,7 +211,7 @@ export class AchievementsService {
 
     /**
      * Compute every badge's metric value in ONE composite query: each badge's
-     * scalar `getSql()` becomes one column. Returns a `slug → value` map.
+     * scalar `getSql()` becomes one column. Returns a `slug -> value` map.
      *
      * @param userId - the user to measure.
      * @param manager - the entity manager to run on.
@@ -221,7 +221,7 @@ export class AchievementsService {
         userId: string,
         manager: EntityManager,
     ): Promise<Map<string, number>> {
-        // nothing registered → nothing to query (avoids an empty `SELECT`)
+        // nothing registered -> nothing to query (avoids an empty `SELECT`)
         if (this.badges.length === 0) {
             return new Map()
         }
@@ -353,7 +353,7 @@ export class AchievementsService {
             "SELECT COUNT(*)::int AS c FROM users",
         )
         const total = Number(totalRows[0]?.c) || 0
-        // no users → no meaningful denominator
+        // no users -> no meaningful denominator
         if (total === 0) {
             return map
         }
@@ -420,7 +420,7 @@ export class AchievementsService {
      * Postgres treats NULLs as distinct in a unique index, so the single-tier
      * (`tier IS NULL`) row would NOT be caught by the `(user, achievement, tier)`
      * constraint. To dedupe both tiered and single-tier awards uniformly we
-     * INSERT … SELECT guarded by a `NOT EXISTS` check on the null-safe match
+     * INSERT ... SELECT guarded by a `NOT EXISTS` check on the null-safe match
      * (`tier IS NOT DISTINCT FROM $3`); the unique constraint is the backstop
      * against a concurrent racing insert of the same tiered row.
      *

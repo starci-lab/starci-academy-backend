@@ -35,7 +35,7 @@ import {
 )
 /**
  * Boilerplate starter code shown in the editor for one (problem, language)
- * pair — e.g. the function signature the user fills in. One row per supported
+ * pair -- e.g. the function signature the user fills in. One row per supported
  * language; uniqueness is enforced on (codingProblemId, language).
  */
 export class CodingProblemStarterCodeEntity extends UuidAbstractEntity {

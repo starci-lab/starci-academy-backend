@@ -9,7 +9,7 @@ import {
 @Module({
 })
 /**
- * Apollo Federation subgraph stub. `register()` currently imports nothing —
+ * Apollo Federation subgraph stub. `register()` currently imports nothing --
  * selecting {@link ApolloServerType.Federation} would serve no schema until wired.
  */
 export class FederationApolloServerModule extends ConfigurableModuleClass {

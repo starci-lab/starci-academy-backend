@@ -29,7 +29,7 @@ export class DockerAgentService extends BaseAgentService {
                 {
                     resources 
                 }))
-            .catch(() => { /* best-effort — a failed snapshot never tears down the relay. */ })
+            .catch(() => { /* best-effort -- a failed snapshot never tears down the relay. */ })
     }
 
     protected onSetup(): void {

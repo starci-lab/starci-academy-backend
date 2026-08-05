@@ -24,7 +24,7 @@ import {
 @CommandHandler(CreatePaymentLinkCommand)
 @Injectable()
 /**
- * Asks PayOS for a checkout URL/QR the SPA can open — amount and order code are fixed here
+ * Asks PayOS for a checkout URL/QR the SPA can open -- amount and order code are fixed here
  * so the client cannot rewrite the invoice.
  */
 export class CreatePaymentLinkHandler

@@ -15,14 +15,14 @@ import {
 
 @Entity("mock_interview_attempts")
 // fast scan of a user's mock-interview history, optionally scoped to a course
-// (enrollment already scopes to one course × user, so the composite mirrors
+// (enrollment already scopes to one course x user, so the composite mirrors
 // InterviewAttemptEntity's user+deck index)
 @Index("idx_mock_interview_attempts_enrollment",
     [
         "enrollmentId",
     ])
 /**
- * One graded mock-interview SESSION (not one question — the whole 5-phase
+ * One graded mock-interview SESSION (not one question -- the whole 5-phase
  * interview is graded once, at the end). Mirrors {@link import("./interview-attempt.entity").InterviewAttemptEntity}'s
  * append-only-log shape, but the unit is a full interview run rather than a
  * single flashcard answer: `phaseScores` + `attributeScores` carry the rubric
@@ -31,7 +31,7 @@ import {
  */
 export class MockInterviewAttemptEntity extends UuidAbstractEntity {
     /**
-     * Enrollment this interview session belongs to (user × course) — the anchor
+     * Enrollment this interview session belongs to (user x course) -- the anchor
      * for per-course history, consistent with the enrollment-centric re-key
      * already applied to {@link import("./interview-attempt.entity").InterviewAttemptEntity}.
      */
@@ -73,7 +73,7 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
     /**
      * The system the learner designed. Pha 1: a `milestone_tasks.id` (curated
      * capstone). Plain string (not a FK) because Pha 3 adds AI-generated
-     * "classic" prompts that have no milestone-task row — this column stores
+     * "classic" prompts that have no milestone-task row -- this column stores
      * whatever prompt id `mockInterviewPrompts` handed the client back.
      */
     @Column({
@@ -98,10 +98,10 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         level: string | null
 
     /**
-     * The TOP-LEVEL flow this graded session ran — a
+     * The TOP-LEVEL flow this graded session ran -- a
      * {@link import("../enums/mock-interview-mode").MockInterviewMode} value
      * ("qna" | "design"), or null for an attempt graded before the "mode
-     * split" (2026-07-06) — history readers treat a null `mode` as "design"
+     * split" (2026-07-06) -- history readers treat a null `mode` as "design"
      * (the only mode that existed then). Each Q&A QUESTION's own cognitive
      * frame is NOT stored here (it lives on the session's `seed_questions`
      * snapshot at grade time, not re-persisted per attempt).
@@ -113,14 +113,14 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
     })
         mode: string | null
 
-    /** Integer 0–100 overall score the model assigned to the whole session. */
+    /** Integer 0-100 overall score the model assigned to the whole session. */
     @Column({
         name: "overall_score",
         type: "int",
     })
         overallScore: number
 
-    /** Coarse verdict band — "pass" / "borderline" / "fail" (bussiness `InterviewVerdict`). */
+    /** Coarse verdict band -- "pass" / "borderline" / "fail" (bussiness `InterviewVerdict`). */
     @Column({
         name: "verdict",
         type: "varchar",
@@ -128,10 +128,10 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         verdict: string
 
     /**
-     * Per-phase score breakdown — `[{ phase, score, max }]` for each of the 5
+     * Per-phase score breakdown -- `[{ phase, score, max }]` for each of the 5
      * canonical phases (requirements / estimation / highLevel / deepDive /
      * tradeoffs). Kept as jsonb (not typed columns) so a phase can be added
-     * without a migration — the scorecard reads this array directly.
+     * without a migration -- the scorecard reads this array directly.
      */
     @Column({
         name: "phase_scores",
@@ -141,8 +141,8 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         phaseScores: Array<Record<string, unknown>>
 
     /**
-     * Per-attribute score breakdown — `[{ key, score }]` for named evaluation
-     * attributes (communication, structured thinking, …). jsonb for the same
+     * Per-attribute score breakdown -- `[{ key, score }]` for named evaluation
+     * attributes (communication, structured thinking, ...). jsonb for the same
      * schema-evolution reason as {@link phaseScores}.
      */
     @Column({
@@ -178,7 +178,7 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
 
     /**
      * Distinct content (lesson) ids the RAG grounding excerpt was retrieved
-     * from at grade time, in similarity order — snapshotted so a re-opened
+     * from at grade time, in similarity order -- snapshotted so a re-opened
      * past attempt (history) can still deep-link "study this" without
      * re-running retrieval. A plain jsonb string array (not a FK/relation):
      * the course's content tree can change after grading, and this is a
@@ -194,11 +194,11 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         matchedContentIds: Array<string>
 
     /**
-     * Per-question model-answer review — one entry per `mode="qna"` question,
+     * Per-question model-answer review -- one entry per `mode="qna"` question,
      * `[{ questionIndex, kind, question, candidateAnswer, modelAnswer,
      * feedback, score, max, matchedContentId }]` (see
      * {@link import("../../../../../features/api/core/graphql/mutations/interview/grade-mock-interview-session/types/mock-interview-grade").MockInterviewQuestionReview}
-     * for the full shape) — the anti-ChatGPT feature: pairs the candidate's
+     * for the full shape) -- the anti-ChatGPT feature: pairs the candidate's
      * own answer against the course's authored answer for the exact same
      * flashcard seed. Always empty for `mode="design"` (no single seed
      * flashcard to source a model answer from). jsonb (not typed columns) for
@@ -216,10 +216,10 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
 
     /**
      * Whether THIS graded attempt should feed job-readiness's rolling
-     * mock-interview average — "configurable setup" (2026-07-06): copied
+     * mock-interview average -- "configurable setup" (2026-07-06): copied
      * verbatim from the session row's own
      * {@link import("./mock-interview-session.entity").MockInterviewSessionEntity.countsToReadiness}
-     * at grade time (true for "Tự động"/design, false for a "Tùy chỉnh"
+     * at grade time (true for Auto/design, false for a Configurable
      * qna draw). {@link import("../../../../../features/api/core/graphql/queries/users/job-readiness/job-readiness.service").JobReadinessService}'s
      * recent-window average query MUST filter `WHERE counts_to_readiness =
      * true` so deliberate, learner-picked practice never dilutes the exam-like
@@ -237,9 +237,9 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
      * Optional user-chosen name for the practice session this attempt was
      * graded from, copied verbatim from
      * {@link import("./mock-interview-session.entity").MockInterviewSessionEntity.name}
-     * at grade time — so the history row keeps the name even after the
+     * at grade time -- so the history row keeps the name even after the
      * source session's 24h resume TTL expires. Null when the learner didn't
-     * name the session — the FRONTEND renders a time-based fallback label in
+     * name the session -- the FRONTEND renders a time-based fallback label in
      * that case (the server never invents one).
      */
     @Column({

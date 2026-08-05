@@ -28,7 +28,7 @@ export class FlashcardDeckResolverService {
 
     /**
      * Resolves the deck's title/description to the requested locale and recurses
-     * into every card, in place — callers must read the result off `deck` itself,
+     * into every card, in place -- callers must read the result off `deck` itself,
      * not off a return value. `deck.translations` is deleted once consumed so the
      * raw locale rows never leak past the resolver into the GraphQL response.
      * @param deck - Deck entity to localize; mutated directly.

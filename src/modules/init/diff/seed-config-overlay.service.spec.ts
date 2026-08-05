@@ -24,7 +24,7 @@ describe("SeedDiffOverlayService",
         let service: SeedDiffOverlayService
 
         beforeEach(() => {
-            // pure class, no DI graph — construct it directly
+            // pure class, no DI graph -- construct it directly
             service = new SeedDiffOverlayService()
         })
 
@@ -69,7 +69,7 @@ describe("SeedDiffOverlayService",
                         expect(config.seeders.codingProblems).toBe(false)
                         expect(config.seeders.courses.flashcard.enabled).toBe(false)
                         expect(config.synchronizers.flashcards.elasticsearch).toBe(false)
-                        // coarse full path never drops indices — only sync.reindex does
+                        // coarse full path never drops indices -- only sync.reindex does
                         expect(config.synchronizers.reindex).toEqual([])
                     })
             })
@@ -106,7 +106,7 @@ describe("SeedDiffOverlayService",
 
                         // sorted, de-duplicated allow-lists
                         expect(result.overlay?.seeders.courses.tracks["fullstack-mastery"]).toEqual({
-                            // root files did not change → course root not re-seeded
+                            // root files did not change -> course root not re-seeded
                             course: false,
                             modules: [
                                 0,
@@ -188,7 +188,7 @@ describe("SeedDiffOverlayService",
 
                         const result = service.buildDiffConfig(diff)
 
-                        // aiModels + subscriptions are seed-only — no synchronizer field exists
+                        // aiModels + subscriptions are seed-only -- no synchronizer field exists
                         expect(result.overlay?.seeders.aiModels).toBe(true)
                         expect(result.overlay?.seeders.subscriptions).toBe(true)
                         expect(result.domainCount).toBe(2)

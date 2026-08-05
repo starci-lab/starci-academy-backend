@@ -24,7 +24,7 @@ import {
  * Asia/Ho_Chi_Minh by default) and delegates the actual settlement +
  * cohort-forming to {@link LeagueService.runWeeklyReset}. Any failure is wrapped
  * in a typed {@link LeagueWeeklyResetException} and logged (never re-thrown) so a
- * bad run cannot crash the scheduler — the reset is idempotent and self-heals on
+ * bad run cannot crash the scheduler -- the reset is idempotent and self-heals on
  * the next trigger.
  */
 export class LeagueResetService {
@@ -56,12 +56,12 @@ export class LeagueResetService {
         } catch (error) {
             // normalize the caught value to an Error at the boundary
             const cause = error instanceof Error ? error : new Error(String(error))
-            // wrap in a typed, groupable exception (week unknown here → "current")
+            // wrap in a typed, groupable exception (week unknown here -> "current")
             const exception = new LeagueWeeklyResetException({
                 weekStartAt: "current",
                 originalError: cause,
             })
-            // log Error-style (message + stack) and swallow — next week self-heals
+            // log Error-style (message + stack) and swallow -- next week self-heals
             this.winstonService.log(WinstonLog.CronTickFailed,
                 {
                     op: "cron.league-reset.failed",

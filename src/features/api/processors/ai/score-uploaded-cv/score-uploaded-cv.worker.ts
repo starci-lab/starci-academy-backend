@@ -50,11 +50,11 @@ import {
     },
 )
 /**
- * WF-07 UPLOAD-scoring worker — SINGLE-STEP (score only), NOT a multi-step
+ * WF-07 UPLOAD-scoring worker -- SINGLE-STEP (score only), NOT a multi-step
  * pipeline. It grades a user-UPLOADED CV row (`cv_generations.source = uploaded`)
  * that already exists (created by the `uploadCv` mutation): it delegates the
- * whole "buffer `uploadedCdnKey` → extract text → score via the SHARED
- * {@link ScoreUploadedCvService} → persist" to {@link ScoreUploadedCvService}, then
+ * whole "buffer `uploadedCdnKey` -> extract text -> score via the SHARED
+ * {@link ScoreUploadedCvService} -> persist" to {@link ScoreUploadedCvService}, then
  * marks the row `Done`. On any failure the row is marked `Failed` so the FE stops
  * polling. This is the upload analogue of {@link GenerateCvWorker}, collapsed to a
  * single pass (there is nothing to compose/render for an already-uploaded file).
@@ -92,7 +92,7 @@ export class ScoreUploadedCvWorker extends WorkerHost {
             })
             payload = this.superJson.parse<ScoreUploadedCvPayload>(bullmqJob.data)
 
-            // single step: delegate buffer → extract → score → persist to the
+            // single step: delegate buffer -> extract -> score -> persist to the
             // shared service (the SAME CvScoringService the generate path uses).
             await this.scoreUploadedCvService.scoreUploadedCv({
                 cvGenerationId: payload.cvGenerationId,
@@ -163,7 +163,7 @@ export class ScoreUploadedCvWorker extends WorkerHost {
 
     /**
      * Mark the uploaded generation row `Failed` with the error message
-     * (best-effort — a failure to write this must not mask the original error).
+     * (best-effort -- a failure to write this must not mask the original error).
      * @param cvGenerationId - The `cv_generations.id` to fail.
      * @param errorMessage - The failure reason to persist.
      */
@@ -184,7 +184,7 @@ export class ScoreUploadedCvWorker extends WorkerHost {
                 },
             )
         } catch {
-            // swallow — the thrown original error is what matters
+            // swallow -- the thrown original error is what matters
         }
     }
 }

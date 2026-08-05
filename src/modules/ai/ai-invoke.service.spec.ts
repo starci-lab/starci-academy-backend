@@ -33,7 +33,7 @@ import type {
  * {@link AiInvokeService.stream}, plus {@link AiInvokeService.run}'s success
  * mapping + error propagation. {@link UseApiService.useApi} is mocked so the
  * LangChain client build / network invoke (a thin SDK wrapper) never runs for
- * the happy-path cases — only the premium/auto branch + result mapping is
+ * the happy-path cases -- only the premium/auto branch + result mapping is
  * under test. The `UnsupportedAiProviderException` cases are the one
  * exception: they let the mock run the real caller-supplied action, but the
  * private `buildClient` throws before touching any LangChain client or the
@@ -55,7 +55,7 @@ describe("AiInvokeService",
             },
         ]
 
-        // a rotator context whose `provider` matches no `buildClient` branch —
+        // a rotator context whose `provider` matches no `buildClient` branch --
         // simulates a catalog/config value drifting ahead of the enum switch.
         // Cast through `unknown` because the real union type has no such member.
         const unsupportedProviderContext = {
@@ -172,7 +172,7 @@ describe("AiInvokeService",
 
                 it("routes a category-less request onto the Auto lane",
                     async () => {
-                        // no category → balancer-driven Auto fallback chain
+                        // no category -> balancer-driven Auto fallback chain
                         await service.invoke({
                             messages,
                         })
@@ -187,7 +187,7 @@ describe("AiInvokeService",
                 it("propagates UnsupportedAiProviderException from an unrecognized provider",
                     async () => {
                         // this time let useApi actually run the caller-supplied action
-                        // against a context whose provider has no `buildClient` branch —
+                        // against a context whose provider has no `buildClient` branch --
                         // the throw happens before any LangChain client is touched, so
                         // this stays network-free.
                         useApiService.useApi.mockImplementationOnce(
@@ -250,7 +250,7 @@ describe("AiInvokeService",
 
                 it("routes a category-less request onto the Auto lane",
                     async () => {
-                        // no category → balancer-driven Auto fallback chain
+                        // no category -> balancer-driven Auto fallback chain
                         await service.stream({
                             messages,
                             onChunk,
@@ -283,7 +283,7 @@ describe("AiInvokeService",
             })
 
         // run() is the high-level entry every surface uses. These prove the
-        // success mapping AND that a balancer exhaustion is NOT swallowed — it
+        // success mapping AND that a balancer exhaustion is NOT swallowed -- it
         // rejects, so the gateway/handler surfaces the error to the client.
         describe("run",
             () => {
@@ -307,7 +307,7 @@ describe("AiInvokeService",
 
                 it("propagates a balancer exhaustion (surfaceable to the client)",
                     async () => {
-                        // every model/key failed → the balancer throws; run must NOT
+                        // every model/key failed -> the balancer throws; run must NOT
                         // swallow it (else the client would see a blank "success")
                         useApiService.useApi.mockRejectedValueOnce(
                             new Error("all models exhausted"),
@@ -323,7 +323,7 @@ describe("AiInvokeService",
 
                 it("propagates AiModeNotEntitledException for premium-only content without entitlement",
                     async () => {
-                        // allowFreeAuto: false → resolveGradingInvokeOptions requires the
+                        // allowFreeAuto: false -> resolveGradingInvokeOptions requires the
                         // paid/enrolled gate; an unentitled user must reject, not silently
                         // downgrade to the free lane.
                         aiEntitlementService.assertCanUsePaidModels.mockRejectedValueOnce(

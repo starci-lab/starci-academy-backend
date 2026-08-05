@@ -57,6 +57,6 @@ export const extractJsonBlock = (
         }
     }
 
-    // Unbalanced — return from the first bracket onward and let JSON.parse decide.
+    // Unbalanced -- return from the first bracket onward and let JSON.parse decide.
     return text.slice(start)
 }

@@ -7,7 +7,7 @@ import type {
  *
  * Types the real search/sort fields of a module document and adds a dedicated
  * `suggest` field of type `completion` (an in-memory FST) powering fast, ranked
- * autocomplete — the ES sync builder populates it with the clean module title +
+ * autocomplete -- the ES sync builder populates it with the clean module title +
  * a popularity weight derived from display order. Localized translation blobs are
  * stored but not indexed.
  */
@@ -23,27 +23,27 @@ export const modulesIndexMapping: ElasticsearchIndexMapping = {
             displayId: {
                 type: "keyword",
             },
-            // module title — full-text searchable
+            // module title -- full-text searchable
             title: {
                 type: "text",
             },
-            // short module description — full-text searchable
+            // short module description -- full-text searchable
             description: {
                 type: "text",
             },
-            // display order within the parent course's module list — sortable
+            // display order within the parent course's module list -- sortable
             orderIndex: {
                 type: "integer",
             },
-            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            // pure display-ordering index, decoupled from orderIndex -- sortable for reordering
             sortIndex: {
                 type: "integer",
             },
-            // hard per-module paywall flag — locks all the module's contents
+            // hard per-module paywall flag -- locks all the module's contents
             isPremium: {
                 type: "boolean",
             },
-            // learning tier (foundation / intermediate / advanced) — filterable, drives the display badge
+            // learning tier (foundation / intermediate / advanced) -- filterable, drives the display badge
             contentTier: {
                 type: "keyword",
             },
@@ -59,7 +59,7 @@ export const modulesIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // localized override blob — stored, not indexed
+            // localized override blob -- stored, not indexed
             translations: {
                 type: "object",
                 enabled: false,

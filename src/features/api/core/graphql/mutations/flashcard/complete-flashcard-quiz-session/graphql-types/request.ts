@@ -15,7 +15,7 @@ import {
     Type,
 } from "class-transformer"
 
-/** Upper bound on the answers array accepted in one complete call — mirrors the service's MAX_ANSWERED_CARDS ceiling. */
+/** Upper bound on the answers array accepted in one complete call -- mirrors the service's MAX_ANSWERED_CARDS ceiling. */
 const MAX_ANSWERS = 10
 
 @InputType({
@@ -24,7 +24,7 @@ const MAX_ANSWERS = 10
 /**
  * One card's outcome within the finished session, as reported by the client.
  * The server re-derives the session's aggregate coverage from this
- * per-card breakdown — it never trusts a client-sent aggregate score.
+ * per-card breakdown -- it never trusts a client-sent aggregate score.
  */
 export class QuizSessionAnswerRequest {
     @Field(
@@ -62,7 +62,7 @@ export class QuizSessionAnswerRequest {
     description: "Request to record a finished flashcard quick-quiz session.",
 })
 /**
- * Request to record a finished flashcard quick-quiz ("Hỏi nhanh") session and
+ * Request to record a finished flashcard quick-quiz session and
  * grant its capped XP reward. Carries the PER-CARD answer breakdown so the
  * server can re-derive coverage itself (never trusting a client-sent
  * aggregate score) and compute per-tag weak spots for the recap.

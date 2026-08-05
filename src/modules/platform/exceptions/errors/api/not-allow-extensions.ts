@@ -12,7 +12,7 @@ export interface NotAllowExtensionsExceptionMetadata extends AbstractExceptionMe
     fileName: string
 }
 
-/** Rejects the upload before storage — disallowed types must not land in the bucket. */
+/** Rejects the upload before storage -- disallowed types must not land in the bucket. */
 export class NotAllowExtensionsException extends AbstractException {
     constructor(
         { extensions, extension, fileName, originalError }: NotAllowExtensionsExceptionMetadata

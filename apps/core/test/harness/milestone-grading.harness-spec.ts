@@ -75,7 +75,7 @@ interface RetrieveGradingExcerptParams {
 }
 
 /**
- * Stub `GithubRepoLoader` so no real clone/network happens — every instance's
+ * Stub `GithubRepoLoader` so no real clone/network happens -- every instance's
  * `.load()` resolves the docs the current case programs via `loaderLoadMock`.
  * Mirrors `review-milestone-task-grade-step.service.spec.ts`.
  */
@@ -90,8 +90,8 @@ jest.mock(
 )
 
 /**
- * `GradingRetrievalService` (real chunk/embed/Qdrant retrieval) is mocked out below —
- * that infra isn't what this harness is judging — but importing its class still pulls
+ * `GradingRetrievalService` (real chunk/embed/Qdrant retrieval) is mocked out below --
+ * that infra isn't what this harness is judging -- but importing its class still pulls
  * in `@langchain/qdrant` transitively through the `@modules/rag` barrel. Stub it the
  * same way the unit spec does so no real Qdrant client construction is attempted.
  */
@@ -137,14 +137,14 @@ const USER_ID = "harness-user"
 //
 // A task mount doc (`.volume/data/courses/<course>/milestones/<milestone>/tasks/<task>/en.md`)
 // is one flat `readVolumeDoc`-parseable file for its TOP-LEVEL scalar fields (title,
-// description, verified, maxScore, …) — `readVolumeDoc` handles those directly. But its
-// `# criterias` field is itself a NESTED markdown tree (`## <langIndex>` → `### lang` /
-// `### outcome` / `### approach` → `#### <criterionIndex>` → `##### body` / `##### score` /
+// description, verified, maxScore, ...) -- `readVolumeDoc` handles those directly. But its
+// `# criterias` field is itself a NESTED markdown tree (`## <langIndex>` -> `### lang` /
+// `### outcome` / `### approach` -> `#### <criterionIndex>` -> `##### body` / `##### score` /
 // `##### critical`), which the app's real ingestion (`MilestoneTaskParserService`, via
 // `ExtractJsonFromMdService`) parses with a full heading-tree extractor. `readVolumeDoc`'s
 // flat SEP-splitter can't recover that structure, so this harness carries its own tiny
-// SEP-anchored extractor (below) — reading the SAME raw file, the SAME `SEP` marker, no
-// fabricated text — to pull out the real outcome/approach criteria for one language.
+// SEP-anchored extractor (below) -- reading the SAME raw file, the SAME `SEP` marker, no
+// fabricated text -- to pull out the real outcome/approach criteria for one language.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** The StarCi authoring separator (mirrors `volume.ts`'s private `SEP`; not exported there). */
@@ -161,14 +161,14 @@ const volumeDataPath = (relDir: string): string => join(process.cwd(),
 interface FieldRead {
     /** The trimmed value between the two separators. */
     value: string
-    /** Index right after the closing separator — where the NEXT field search should resume. */
+    /** Index right after the closing separator -- where the NEXT field search should resume. */
     nextIndex: number
 }
 
 /**
  * Reads the value of the first `header` occurrence at/after `fromIndex`, delimited by the
  * `SEP` markers that bracket it in the mount's authoring format. Throws when the header (or
- * its surrounding separators) is missing — a harness should fail loudly on a malformed real
+ * its surrounding separators) is missing -- a harness should fail loudly on a malformed real
  * doc, not silently grade an empty rubric.
  */
 const fieldAfter = (
@@ -236,7 +236,7 @@ const parseCriteriaSection = (
 }
 
 /**
- * Reads the REAL outcome + approach grading criteria for one language block (`## N` → `### lang`
+ * Reads the REAL outcome + approach grading criteria for one language block (`## N` -> `### lang`
  * matching `lang`) out of a real task's `en.md` mount doc. Bounds the approach section to the
  * CURRENT language block (stopping at the next `## ` block or the trailing `# difficulty`
  * heading) so it never bleeds into the next language's criteria.
@@ -358,9 +358,9 @@ interface BuildLegacyTaskFixtureParams {
 /**
  * Build a LEGACY (`verified: null`) `MilestoneTaskEntity`-shaped fixture from the SAME real
  * task mount, reshaping its real outcome+approach criteria into the legacy `criterias`
- * (`text`/`promptText`/`score`) schema. No task in `.volume` is actually legacy — every mount
+ * (`text`/`promptText`/`score`) schema. No task in `.volume` is actually legacy -- every mount
  * doc under `courses/*\/milestones/*\/tasks/*` carries `# verified` (confirmed by grepping all
- * 300 fullstack/system-design/devops task docs) — so this is how the SCHEMA V1 (legacy) path
+ * 300 fullstack/system-design/devops task docs) -- so this is how the SCHEMA V1 (legacy) path
  * gets exercised against real rubric prose instead of a fabricated one: same real criteria
  * text, reshaped into the older schema the grade step still supports.
  */
@@ -428,8 +428,8 @@ const excerptFromDocuments = (documents: Array<Document>): string =>
         .join("\n\n")
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TASK A submissions — real task: "Scaffold StarCi Shop Backend + Health Endpoint"
-// (three-layer http→domain→data architecture + a real GET /health liveness probe).
+// TASK A submissions -- real task: "Scaffold StarCi Shop Backend + Health Endpoint"
+// (three-layer http->domain->data architecture + a real GET /health liveness probe).
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** MEETS the real brief: correct layering, working /health, env-driven port, README evidence. */
@@ -519,7 +519,7 @@ const TASK_A_MEETS_FILES = [
 ]
 
 /** PARTIAL: meets BOTH critical criteria (layering + a working /health) but fails three
- * non-critical ones — hard-coded port, no graceful shutdown, no README evidence. */
+ * non-critical ones -- hard-coded port, no graceful shutdown, no README evidence. */
 const TASK_A_PARTIAL_FILES = [
     TASK_A_MEETS_FILES[0],
     TASK_A_MEETS_FILES[1],
@@ -627,11 +627,11 @@ const TASK_A_CASES: Array<GradeCase> = [
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TASK B submission — real task: "Let Shoppers Sign Up & Sign In (JWT)"
-// (bcrypt hash → compare-before-sign → short-lived signed JWT). ONE solid submission,
+// TASK B submission -- real task: "Let Shoppers Sign Up & Sign In (JWT)"
+// (bcrypt hash -> compare-before-sign -> short-lived signed JWT). ONE solid submission,
 // graded twice: once through the REAL SCHEMA V2 (verified) path, once through the
 // LEGACY (verified: null) path built from the SAME real criteria text (see
-// `buildLegacyTaskFixture`) — proving both schema paths parse and grade sensibly.
+// `buildLegacyTaskFixture`) -- proving both schema paths parse and grade sensibly.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const TASK_B_FILES = [
@@ -823,24 +823,24 @@ const makeContext = () => ({
  *
  * Grounds two REAL capstone tasks read straight from `.volume/data/courses/0-fullstack-mastery/`:
  * - `milestones/0-project-foundation/tasks/0-clean-architecture-and-health` ("Scaffold StarCi
- *   Shop Backend + Health Endpoint") — MEETS / MISSES / PARTIAL / DISCRIMINATION cases, all
+ *   Shop Backend + Health Endpoint") -- MEETS / MISSES / PARTIAL / DISCRIMINATION cases, all
  *   SCHEMA V2 (real `verified` date).
  * - `milestones/2-authentication-and-authorization/tasks/1-jwt-register-and-login` ("Let
- *   Shoppers Sign Up & Sign In (JWT)") — the SAME real criteria text graded once via the REAL
+ *   Shoppers Sign Up & Sign In (JWT)") -- the SAME real criteria text graded once via the REAL
  *   SCHEMA V2 path and once via a LEGACY (`verified: null`) reshaping of that same text (no
- *   `.volume` task is actually legacy — every mount doc sets `# verified` — so this is how the
+ *   `.volume` task is actually legacy -- every mount doc sets `# verified` -- so this is how the
  *   older schema path gets exercised against real rubric prose).
  *
  * The step SAVES its result via `JobActionService.saveExecutionResult` rather than
  * returning it, so `JobActionService` is mocked and the `{ evaluation, passed, aiUsage }`
  * argument (`ReviewMilestoneTaskGradeResult`) is captured off that mock call.
  *
- * DB choice: mirrors `review-milestone-task-grade-step.service.spec.ts` — a mocked
+ * DB choice: mirrors `review-milestone-task-grade-step.service.spec.ts` -- a mocked
  * `EntityManager` (`makeEntityManagerMock`) resolving `currentTaskFixture`, no Testcontainers
  * Postgres.
  *
  * MOCKED: `GradingRetrievalService` (real chunk/embed/Qdrant retrieval is infra, not the
- * biz under judgement — its mock still forwards the REAL per-case document content into
+ * biz under judgement -- its mock still forwards the REAL per-case document content into
  * the grading prompt via {@link excerptFromDocuments}), `MountStorageService` (github
  * token + `passThreshold`), `EncryptionService`, `AiEntitlementService.assertNotOverQuota`
  * (this step does NOT `consume`), `JobActionService` (captured), `WinstonService`,

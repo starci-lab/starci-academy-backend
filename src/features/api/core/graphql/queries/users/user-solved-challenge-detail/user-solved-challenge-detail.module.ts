@@ -17,5 +17,5 @@ import {
         UserSolvedChallengeDetailResolver,
     ],
 })
-/** Feature-module boundary for the `userSolvedChallengeDetail` query — wires its resolver + service. */
+/** Feature-module boundary for the `userSolvedChallengeDetail` query -- wires its resolver + service. */
 export class UserSolvedChallengeDetailSingleQueryModule extends ConfigurableModuleClass {}

@@ -43,7 +43,7 @@ const MAX_CHUNK_BYTES = 2 * 1024 * 1024
 /**
  * Mock controller for lesson `2-chunked-upload-with-progress`.
  *
- * Implements the init → PATCH-chunks → finalize flow with resume support: the
+ * Implements the init -> PATCH-chunks -> finalize flow with resume support: the
  * client slices the file by the server-returned `chunkSize`, PATCHes each raw
  * slice at its index, and the server tracks received/missing indices so an
  * interrupted upload can resume. The chunk PATCH carries no artificial delay so

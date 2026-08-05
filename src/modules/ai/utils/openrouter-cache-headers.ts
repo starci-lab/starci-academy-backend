@@ -9,7 +9,7 @@ export const OPENROUTER_SESSION_ID_MAX = 256
  * prefix to the same upstream provider, so its warm prompt-cache is reused.
  *
  * A HEADER, never a body field: an unrecognised or malformed value is ignored by
- * the gateway, so this can never corrupt the request itself — the worst case is
+ * the gateway, so this can never corrupt the request itself -- the worst case is
  * a cache miss, not a failed call. Returns `undefined` (no header) when there is
  * no key, and truncates to {@link OPENROUTER_SESSION_ID_MAX} rather than letting
  * the gateway reject an over-length value.

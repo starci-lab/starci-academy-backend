@@ -47,7 +47,7 @@ export class KafkaModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 ...providers,
             ],
-            // export only the service — the raw client stays an internal detail
+            // export only the service -- the raw client stays an internal detail
             exports: [
                 KafkaService,
             ],

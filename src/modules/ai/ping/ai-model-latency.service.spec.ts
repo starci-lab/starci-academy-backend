@@ -269,7 +269,7 @@ describe("AiModelLatencyService",
                             },
                         })
 
-                        // cycle lock released → a fresh cycle can schedule again
+                        // cycle lock released -> a fresh cycle can schedule again
                         useApiService.probeModel.mockClear()
                         await service.runCycle()
                         await jest.runAllTimersAsync()
@@ -288,7 +288,7 @@ describe("AiModelLatencyService",
                         ]
                         aiModelCatalogService.enabledModels.mockResolvedValue(models)
 
-                        // first probe explodes, second is fine — the cycle must survive
+                        // first probe explodes, second is fine -- the cycle must survive
                         useApiService.probeModel
                             .mockRejectedValueOnce(new Error("network down"))
                             .mockResolvedValueOnce({

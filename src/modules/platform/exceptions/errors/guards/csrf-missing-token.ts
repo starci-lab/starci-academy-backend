@@ -13,7 +13,7 @@ export type CsrfMissingTokenExceptionMetadata = AbstractExceptionMetadata
 
 /**
  * Thrown by {@link CsrfGuard} when either the `X-CSRF-Token` header or the
- * `csrf_token` cookie is absent — both halves of the double-submit are
+ * `csrf_token` cookie is absent -- both halves of the double-submit are
  * required.
  */
 export class CsrfMissingTokenException extends AbstractException {

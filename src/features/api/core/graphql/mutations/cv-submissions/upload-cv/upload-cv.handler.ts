@@ -114,7 +114,7 @@ export class UploadCvHandler
             ),
         )
 
-        // 2) enqueue async scoring — the single-step worker buffers `cdnKey`,
+        // 2) enqueue async scoring -- the single-step worker buffers `cdnKey`,
         // extracts text, scores via the SHARED CvScoringService, and persists.
         const { jobId } = await this.enqueueScoreUploadedCvJobService.enqueue({
             cvGenerationId: cvGeneration.id,

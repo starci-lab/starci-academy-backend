@@ -90,7 +90,7 @@ export class S3BucketService {
      * principals (`"*"`) on every prefix listed in {@link S3_PUBLIC_READ_PREFIXES}
      * (currently `repo/*` for sandbox code trees and `assets/*` for brand assets) in
      * one statement. Because the full prefix list is enumerated here, the policy is
-     * identical no matter which synchronizer re-applies it — idempotent and free of
+     * identical no matter which synchronizer re-applies it -- idempotent and free of
      * the clobbering that separate per-prefix policies would cause.
      *
      * @param bucket - Target bucket name.
@@ -100,7 +100,7 @@ export class S3BucketService {
         const resources = S3_PUBLIC_READ_PREFIXES.map(
             (prefix) => `arn:aws:s3:::${bucket}/${prefix}/*`,
         )
-        // single statement covering all public prefixes — keeps the one-policy bucket consistent
+        // single statement covering all public prefixes -- keeps the one-policy bucket consistent
         const policy = {
             Version: "2012-10-17",
             Statement: [

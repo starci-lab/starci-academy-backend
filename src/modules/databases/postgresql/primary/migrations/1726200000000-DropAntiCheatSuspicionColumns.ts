@@ -7,7 +7,7 @@ import {
  * Drops `coding_submissions.client_telemetry` / `suspicion_score` /
  * `flagged_for_review`. They were written on every submission by the
  * anti-cheat scoring path (`AntiCheatService.evaluate()`, called from
- * `CodingSubmissionService.submit()`), but never read anywhere — no
+ * `CodingSubmissionService.submit()`), but never read anywhere -- no
  * reviewer surface, no GraphQL field, no query, no job ever consumed them
  * (confirmed by a repo-wide grep across `src/` and `apps/`). The write path
  * itself was removed alongside this migration: `AntiCheatService` and its
@@ -15,10 +15,10 @@ import {
  * three field assignments in `CodingSubmissionService.submit()`.
  *
  * `ip_address` / `user_agent` / `device_fingerprint` on the same table are
- * NOT touched — they still feed `DeviceService.recordDevice()` and stay live.
+ * NOT touched -- they still feed `DeviceService.recordDevice()` and stay live.
  *
  * Down migration re-adds all three columns with their original shape/defaults
- * (schema-only — rows dropped by `up` are gone for good, and the removed
+ * (schema-only -- rows dropped by `up` are gone for good, and the removed
  * scoring code is not restored).
  */
 export class DropAntiCheatSuspicionColumns1726200000000 implements MigrationInterface {
@@ -44,7 +44,7 @@ export class DropAntiCheatSuspicionColumns1726200000000 implements MigrationInte
 
     /**
      * Reverse migration: re-add the three columns with their original
-     * shape/defaults (schema-only — this does not restore the removed
+     * shape/defaults (schema-only -- this does not restore the removed
      * scoring code or the values it would have written).
      *
      * @param queryRunner - Active TypeORM query runner.

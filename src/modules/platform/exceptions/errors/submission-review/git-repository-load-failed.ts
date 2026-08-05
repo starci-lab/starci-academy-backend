@@ -18,7 +18,7 @@ export interface GitRepositoryLoadFailedExceptionMetadata extends AbstractExcept
 
 /**
  * Thrown when the git-submission review's repo loader fails for a reason
- * other than not-found (404) or access-denied (403) — a generic loader
+ * other than not-found (404) or access-denied (403) -- a generic loader
  * failure (network, malformed repo, etc).
  */
 export class GitRepositoryLoadFailedException extends AbstractException {

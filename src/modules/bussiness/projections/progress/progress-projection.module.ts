@@ -21,7 +21,7 @@ import {
     ],
 })
 /**
- * Leaf module for the user×course progress projection (recompute service + CDC
+ * Leaf module for the userxcourse progress projection (recompute service + CDC
  * listener). Exports the service for inline recompute from write paths.
  */
 export class ProgressProjectionModule extends ConfigurableModuleClass {

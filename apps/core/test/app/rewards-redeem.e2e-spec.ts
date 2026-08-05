@@ -52,24 +52,24 @@ const STREAK_FREEZE_COST = 100
 const VOUCHER_10_COST = 800
 
 /**
- * e2e for the Coin-shop redeem/refund flow — `.artifacts/states/rewards/findings.md`
+ * e2e for the Coin-shop redeem/refund flow -- `.artifacts/states/rewards/findings.md`
  * #3: {@link RewardsService} and {@link VoucherService} had zero e2e coverage.
  * Runs the real balance check-and-spend transaction (pessimistic-locked user
  * row), the derived-balance formula (`coin_balance - SUM(non-cancelled cost)`),
  * voucher minting, and the round-3a cancel/refund path against REAL Postgres
- * (Testcontainers) — not the mocked-DB unit level.
+ * (Testcontainers) -- not the mocked-DB unit level.
  *
  * MOCKED (no external infra available in this harness, matches the pattern
  * `createE2eApp` uses for the same two services):
- *  - `MountFilesystemService` — real class reads the mounted app config file;
+ *  - `MountFilesystemService` -- real class reads the mounted app config file;
  *    stubbed to hand back an empty subscription-tier catalog.
- *  - `AiAutoQuotaConfigService` — real class reads the mounted quota config;
+ *  - `AiAutoQuotaConfigService` -- real class reads the mounted quota config;
  *    stubbed to hand back a fixed free-tier base.
  *
  * REAL: Postgres (Testcontainers), `RewardsService` (the redeem/fulfil/cancel
  * logic under test), `VoucherService` (mint), and `AiEntitlementService`
  * (`grantBonusCredit`, exercised transitively by the `aiCredit`-kind reward via
- * the DI graph — not the focus of this spec's assertions, but real so the
+ * the DI graph -- not the focus of this spec's assertions, but real so the
  * `redeem` transaction is exercised exactly as production wires it).
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -84,7 +84,7 @@ describe("Coin-shop rewards redeem/refund (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -93,11 +93,11 @@ describe("Coin-shop rewards redeem/refund (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the redeem/fulfil/cancel logic under test
+                    // REAL -- the redeem/fulfil/cancel logic under test
                     RewardsService,
-                    // REAL — mint/reserve/settle, exercised via RewardsService.redeem
+                    // REAL -- mint/reserve/settle, exercised via RewardsService.redeem
                     VoucherService,
-                    // REAL — grantBonusCredit is exercised transitively by the
+                    // REAL -- grantBonusCredit is exercised transitively by the
                     // aiCredit-kind reward; DayjsService has no deps
                     AiEntitlementService,
                     DayjsService,
@@ -183,7 +183,7 @@ describe("Coin-shop rewards redeem/refund (e2e)",
                 expect(redemption.status).toBe(RewardRedemptionStatus.Granted)
                 expect(redemption.cost).toBe(STREAK_FREEZE_COST)
 
-                // coin_balance itself is NEVER debited — only the derived wallet is
+                // coin_balance itself is NEVER debited -- only the derived wallet is
                 const reloaded = await entityManager.findOneOrFail(UserEntity,
                     {
                         where: {
@@ -267,7 +267,7 @@ describe("Coin-shop rewards redeem/refund (e2e)",
                 expect(voucher.discountType).toBe(VoucherDiscountType.Percent)
                 expect(voucher.value).toBe(10)
 
-                // VoucherService.reserve() can claim the freshly-minted code — proves
+                // VoucherService.reserve() can claim the freshly-minted code -- proves
                 // the mint really is a spendable voucher, not just a ledger echo
                 await entityManager.transaction(async (manager) => {
                     const reserved = await voucherService.reserve({
@@ -325,7 +325,7 @@ describe("Coin-shop rewards redeem/refund (e2e)",
                     }),
                 ).rejects.toThrow(InsufficientRewardPointsException)
 
-                // no redemption row was written — the balance check trips BEFORE
+                // no redemption row was written -- the balance check trips BEFORE
                 // any insert, inside the same locked transaction
                 const count = await entityManager.count(RewardRedemptionEntity)
                 expect(count).toBe(0)
@@ -341,7 +341,7 @@ describe("Coin-shop rewards redeem/refund (e2e)",
 
         it("overspend also accounts for ALREADY-spent (non-cancelled) redemptions, not just coin_balance",
             async () => {
-                // balance 1000, first redeem spends 800 (voucher10) → 200 left,
+                // balance 1000, first redeem spends 800 (voucher10) -> 200 left,
                 // a second sticker redemption (cost 300) must now be rejected even
                 // though coin_balance itself still reads 1000
                 const user = await seedUser("kc-overspend-cumulative",
@@ -358,7 +358,7 @@ describe("Coin-shop rewards redeem/refund (e2e)",
                     }),
                 ).rejects.toThrow(InsufficientRewardPointsException)
 
-                // exactly the first (voucher) redemption exists — the second never landed
+                // exactly the first (voucher) redemption exists -- the second never landed
                 const count = await entityManager.count(RewardRedemptionEntity)
                 expect(count).toBe(1)
             })
@@ -386,13 +386,13 @@ describe("Coin-shop rewards redeem/refund (e2e)",
                 const cancelled = await rewardsService.cancelRedemption(redemption.id)
                 expect(cancelled.status).toBe(RewardRedemptionStatus.Cancelled)
 
-                // computeSpent excludes Cancelled → the derived balance goes back up
+                // computeSpent excludes Cancelled -> the derived balance goes back up
                 // to the FULL coin_balance, purely from the status flip
                 const wallet = await rewardsService.getWallet(user.id)
                 expect(wallet.spent).toBe(0)
                 expect(wallet.balance).toBe(1_000)
 
-                // no separate coin credit ever happened — coin_balance was never
+                // no separate coin credit ever happened -- coin_balance was never
                 // touched by either redeem() or cancelRedemption()
                 const reloaded = await entityManager.findOneOrFail(UserEntity,
                     {
@@ -408,7 +408,7 @@ describe("Coin-shop rewards redeem/refund (e2e)",
                     rewardsService.cancelRedemption(redemption.id),
                 ).rejects.toThrow()
 
-                // the refunded balance is now spendable again — a fresh redeem for the
+                // the refunded balance is now spendable again -- a fresh redeem for the
                 // SAME reward succeeds using the freed-up room
                 const redeemedAgain = await rewardsService.redeem({
                     userId: user.id,

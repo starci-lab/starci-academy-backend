@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds quiz-meta columns to `flashcard_quiz_sessions` — "history + stats"
+ * Adds quiz-meta columns to `flashcard_quiz_sessions` -- "history + stats"
  * (2026-07-08): `myFlashcardQuizHistory` / `myFlashcardQuizStats` read these
  * columns straight off a completed row instead of re-deriving them, so the
  * session's mode/level (chosen at setup) and its coverage/xpEarned/weakTags

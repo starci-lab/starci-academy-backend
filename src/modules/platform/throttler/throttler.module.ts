@@ -52,7 +52,7 @@ export class ThrottlerModule extends ConfigurableModuleClass {
                         }
                         return new ThrottlerStorageRedisService(redis)
                     })(),
-                    // named windows with a no-op default limit → NO global cap;
+                    // named windows with a no-op default limit -> NO global cap;
                     // each endpoint opts in via @Throttle({ short, long })
                     throttlers: getModuleThrottlers(),
                 }),

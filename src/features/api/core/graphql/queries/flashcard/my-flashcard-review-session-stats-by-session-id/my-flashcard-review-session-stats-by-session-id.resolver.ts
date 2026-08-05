@@ -38,11 +38,11 @@ import {
 @Resolver()
 /**
  * Computed recap for ONE flashcard review session, resolved by its id ALONE
- * (whichever kind — single-deck "Học thẻ" review or the cross-deck due-review
+ * (whichever kind -- single-deck review review or the cross-deck due-review
  * batch) REGARDLESS of status. Powers the FE's post-session stats view: after
  * a session completes (or when a stale/completed session link is opened),
  * `myInProgressFlashcardReviewSession`/`...DueReviewSession` return null (they
- * are `in_progress`-scoped) — this recovers the session by id and returns its
+ * are `in_progress`-scoped) -- this recovers the session by id and returns its
  * per-grade breakdown, weak-tags, duration, xp, and next-due instead of a dead
  * end. Owner-scoped via the session's enrollment; resolves to `null` when the
  * id is not found / not owned by the caller. Degrades gracefully for legacy

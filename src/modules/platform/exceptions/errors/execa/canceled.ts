@@ -19,7 +19,7 @@ export interface ExecaCommandCanceledExceptionMetadata extends AbstractException
 }
 
 /**
- * Signals the subprocess was canceled on purpose — callers must not treat it as a tool
+ * Signals the subprocess was canceled on purpose -- callers must not treat it as a tool
  * failure.
  */
 export class ExecaCommandCanceledException extends AbstractException {

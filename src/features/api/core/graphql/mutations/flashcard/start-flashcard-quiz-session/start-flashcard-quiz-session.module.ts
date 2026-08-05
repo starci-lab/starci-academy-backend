@@ -30,5 +30,5 @@ import {
         StartFlashcardQuizSessionService,
     ],
 })
-/** Feature-module boundary for the `startFlashcardQuizSession` mutation — wires its resolver + service + CQRS handler; exports the service so `myInProgressFlashcardQuizSession` can share its resolution logic. */
+/** Feature-module boundary for the `startFlashcardQuizSession` mutation -- wires its resolver + service + CQRS handler; exports the service so `myInProgressFlashcardQuizSession` can share its resolution logic. */
 export class StartFlashcardQuizSessionSingleMutationModule extends ConfigurableModuleClass {}

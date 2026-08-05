@@ -32,7 +32,7 @@ export const clearRuntimeAppConfig = (): void => {
 }
 
 /**
- * Resolves app catalog: explicit override → post-seed runtime merge → disk
+ * Resolves app catalog: explicit override -> post-seed runtime merge -> disk
  * `app.yaml`. Init merges mount AI models/subscriptions into memory; reading
  * the file alone would drop that merge until the next process restart.
  */
@@ -83,7 +83,7 @@ export const getPayosApiKey = (): string => {
  * ```
  *
  * Used by the AI Balancer feature to load rotating-key pools per provider.
- * Missing or unreadable file returns an empty array — caller treats that
+ * Missing or unreadable file returns an empty array -- caller treats that
  * as "no key for this provider" without crashing boot.
  *
  * @param path - absolute path to the mount key list file
@@ -144,7 +144,7 @@ export const getGeminiApiKeys = (): Array<string> => {
 }
 
 /**
- * Get the Local (self-hosted) provider key — the bearer token validated by the
+ * Get the Local (self-hosted) provider key -- the bearer token validated by the
  * Caddy gate in front of Ollama. Falls back to a single placeholder ("ollama")
  * when the file is missing/empty, so a direct, gate-less local Ollama still
  * resolves an eligible key (the endpoint ignores the value).
@@ -208,7 +208,7 @@ export const getGithubAccessToken = (): string => {
  */
 export const getDataGitToken = (): string => {
     const path = envConfig().mountPath.terraform.dataGitToken
-    // no dedicated token mounted → reuse the shared github access token
+    // no dedicated token mounted -> reuse the shared github access token
     if (!existsSync(path)) {
         return getGithubAccessToken().trim()
     }
@@ -241,7 +241,7 @@ export const getSepayApiKey = (): string => {
  * Get the Judge0 `X-Auth-Token` (from terraform mount path).
  *
  * Optional: Judge0 can run without authentication, so a missing file is not an
- * error — an empty string means "no token", and the client simply omits the
+ * error -- an empty string means "no token", and the client simply omits the
  * header. Trimmed to drop any trailing newline added by editors.
  *
  * @returns The Judge0 auth token, or `""` when the mount file is absent.

@@ -11,7 +11,7 @@ import type {
  * schema on first connection, so each e2e run starts from an empty, real DB.
  *
  * The started container is stashed on `globalThis` so {@link teardown-e2e}
- * can stop it after the suite (mirrors the "spin up infra → test → drop it all"
+ * can stop it after the suite (mirrors the "spin up infra -> test -> drop it all"
  * flow used by the lesson content harness).
  */
 const setup = async (): Promise<void> => {
@@ -26,10 +26,10 @@ const setup = async (): Promise<void> => {
     process.env.POSTGRESQL_PRIMARY_USERNAME = container.getUsername()
     process.env.POSTGRESQL_PRIMARY_PASSWORD = container.getPassword()
     process.env.POSTGRESQL_PRIMARY_DATABASE = container.getDatabase()
-    // let TypeORM create every table/enum on connect — no migrations in tests
+    // let TypeORM create every table/enum on connect -- no migrations in tests
     process.env.POSTGRESQL_PRIMARY_SYNCHRONIZE = "true"
 
-    // hand the container to globalTeardown (same process → globalThis persists)
+    // hand the container to globalTeardown (same process -> globalThis persists)
     ;(globalThis as Record<string, unknown>).__PG_CONTAINER__ = container
 }
 

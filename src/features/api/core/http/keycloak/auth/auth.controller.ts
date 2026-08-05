@@ -31,7 +31,7 @@ import {
     version: "1",
 })
 /**
- * REST login/register/mail-adapter — password grants and admin adapter swaps that cannot
+ * REST login/register/mail-adapter -- password grants and admin adapter swaps that cannot
  * ride GraphQL (cookies, redirects, Keycloak admin).
  */
 export class KeycloakAuthController {

@@ -21,7 +21,7 @@ import type {
     AchievementSourceRow,
 } from "./types"
 
-/** Source tables whose changes can move a badge metric → invalidate the wall. */
+/** Source tables whose changes can move a badge metric -> invalidate the wall. */
 const SOURCE_TABLES = [
     "user_contents",
     "xp_histories",
@@ -39,13 +39,13 @@ const SOURCE_TABLES = [
 /**
  * CDC consumer that keeps `user_achievement_projections` honest. Rather than
  * recompute eagerly (the award pass is heavier than a per-row projection), it
- * INVALIDATES the affected user's cached wall — a hard delete — so the next read
+ * INVALIDATES the affected user's cached wall -- a hard delete -- so the next read
  * recomputes + re-awards from source. The projection's TTL is the lazy fallback
  * for any missed event. Kafka plumbing + per-message safety are owned by
  * {@link AbstractProjectionListener}.
  */
 export class AchievementProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "achievement-projection"
 
     /** Every badge-metric source table, prefixed to its CDC topic. */
@@ -68,7 +68,7 @@ export class AchievementProjectionListener extends AbstractProjectionListener<st
      * the FOLLOWED user's badge; everything else moves the acting user.
      *
      * @param message - {@link ProjectionCdcMessage}
-     * @returns the affected user id (0–1).
+     * @returns the affected user id (0-1).
      */
     protected deriveTargets(
         {

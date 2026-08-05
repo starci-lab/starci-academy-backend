@@ -20,7 +20,7 @@ import {
     description: "A single per-course learning event (lesson/challenge/milestone).",
 })
 /**
- * One learning event in the per-course history timeline — a lesson the viewer
+ * One learning event in the per-course history timeline -- a lesson the viewer
  * read, a challenge they passed, or a milestone task they completed within this
  * course. The frontend groups these by day using `at`.
  */
@@ -103,7 +103,7 @@ export class CourseLearningHistoryResponseData {
     description: "Response wrapper for the courseLearningHistory query.",
 })
 /**
- * Response wrapper for the courseLearningHistory query — a page of learning
+ * Response wrapper for the courseLearningHistory query -- a page of learning
  * events (items + nextCursor) for the viewer within one course.
  */
 export class CourseLearningHistoryResponse

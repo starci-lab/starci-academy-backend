@@ -21,10 +21,10 @@ import {
  * SCHEMA V2 APPROACH criterion of a milestone task (one yes/no item grading the per-language
  * mechanism / how it was built).
  *
- * Mirrors the Challenge V2 design (criterion-first, normalized — no jsonb): the agnostic fields
+ * Mirrors the Challenge V2 design (criterion-first, normalized -- no jsonb): the agnostic fields
  * (`orderIndex`, `score`, `critical`) live here; the per-language prose lives in
  * {@link MilestoneTaskApproachCriteriaLangEntity} (one row per language: typescript/java/csharp/go).
- * English-only grading rubric — INTERNAL, NOT in GraphQL.
+ * English-only grading rubric -- INTERNAL, NOT in GraphQL.
  */
 export class MilestoneTaskApproachCriteriaEntity extends UuidAbstractEntity {
     /**

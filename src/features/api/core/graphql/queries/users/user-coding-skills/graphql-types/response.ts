@@ -12,7 +12,7 @@ import {
     description: "A solved-count bucket keyed by language or difficulty value.",
 })
 /**
- * One bucket of solved coding problems — a `key` (a language value like
+ * One bucket of solved coding problems -- a `key` (a language value like
  * "python" / "typescript", or a difficulty value like "easy" / "medium" / "hard")
  * and how many DISTINCT problems the user solved in that bucket.
  */
@@ -26,7 +26,7 @@ export class UserCodingSkillCount {
     )
         key: string
 
-    /** Counts distinct problems, not raw accepted submissions — resubmitting a solved problem does not increase this. */
+    /** Counts distinct problems, not raw accepted submissions -- resubmitting a solved problem does not increase this. */
     @Field(
         () => Int,
         {
@@ -50,7 +50,7 @@ export class UserCodingSkillsData {
     )
         byLanguage: Array<UserCodingSkillCount>
 
-    /** Bucketed by the PROBLEM's difficulty, not the submission — every language a problem was solved in shares one difficulty bucket entry. */
+    /** Bucketed by the PROBLEM's difficulty, not the submission -- every language a problem was solved in shares one difficulty bucket entry. */
     @Field(
         () => [UserCodingSkillCount],
         {

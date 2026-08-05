@@ -8,13 +8,13 @@ import {
 @Injectable()
 /**
  * Snapshots local Kubernetes resources across the kinds StarCi steps verify.
- * Missing tooling / no cluster contributes nothing (no throw) — the agent still
+ * Missing tooling / no cluster contributes nothing (no throw) -- the agent still
  * runs and simply reports an empty list until a cluster is reachable.
  */
 export class K8sResourceService {
     constructor(private readonly probe: CommandProbeService) {}
 
-    /** One `kubectl get <kind> -A --no-headers` sweep → resources of `kind`. */
+    /** One `kubectl get <kind> -A --no-headers` sweep -> resources of `kind`. */
     private async kubectlList(
         resource: string,
         kind: string,

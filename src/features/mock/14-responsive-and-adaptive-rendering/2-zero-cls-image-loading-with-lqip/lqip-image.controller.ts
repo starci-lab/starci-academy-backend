@@ -22,7 +22,7 @@ import type {
  */
 const LQIP = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUEA/8QAHhAAAgIDAQEBAAAAAAAAAAAAAQIDBAUREiH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AgsPy7Jw7V9Zs6u5VYxasStGqIojGKSSSS6JJJJJJJJJJJJJJJJJJP/Z"
 
-/** Catalog seeds; image bytes come from picsum at a fixed 800×533 size. */
+/** Catalog seeds; image bytes come from picsum at a fixed 800x533 size. */
 const SEEDS: ReadonlyArray<{ id: number; name: string; seed: string }> = [
     {
         id: 1, name: "Wireless Headphones", seed: "headphones",

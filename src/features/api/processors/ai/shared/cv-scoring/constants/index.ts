@@ -14,7 +14,7 @@ export const DEFAULT_CV_TEMPLATE_LEVEL: CvTemplateLevel = "mid"
 /**
  * Human-readable expectation blurb per rubric level, folded into the scoring
  * prompt so the model grades against the right seniority bar. (One rubric,
- * parameterized by level — matches WF-03b's "default 1 rubric, expand later".)
+ * parameterized by level -- matches WF-03b's "default 1 rubric, expand later".)
  */
 export const CV_LEVEL_EXPECTATIONS: Record<CvTemplateLevel, string> = {
     junior: "Entry-level engineer: clear fundamentals, real projects, and evidence of learning velocity. Bullets should show what was built and the technologies used.",
@@ -25,7 +25,7 @@ export const CV_LEVEL_EXPECTATIONS: Record<CvTemplateLevel, string> = {
 /**
  * STRICT-JSON output contract the scoring model must return. Kept as a constant
  * object (mirrors the git-grade `template.json`) so the prompt and the parser
- * share one shape — `score` is the holistic 0–100 number, `items` are the
+ * share one shape -- `score` is the holistic 0-100 number, `items` are the
  * per-observation feedback entries.
  */
 export const CV_SCORE_OUTPUT_TEMPLATE = {

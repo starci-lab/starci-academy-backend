@@ -6,7 +6,7 @@ import {
 } from "./graphql-types"
 
 /**
- * CQRS envelope for starting a playground run — pairing-code mint and
+ * CQRS envelope for starting a playground run -- pairing-code mint and
  * free-mode hint redaction stay in the handler.
  */
 export class CreatePlaygroundSessionCommand {

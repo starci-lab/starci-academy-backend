@@ -61,7 +61,7 @@ import {
     },
 )
 /**
- * SCHEMA V2 worker: GitHub submission → split → embed → grade against outcome/approach criteria →
+ * SCHEMA V2 worker: GitHub submission -> split -> embed -> grade against outcome/approach criteria ->
  * update `user_challenge_submissions`. Enqueued jobs use the same 2-step pipeline (grade + complete)
  * as the legacy worker, so `maxSteps` is `2`.
  */

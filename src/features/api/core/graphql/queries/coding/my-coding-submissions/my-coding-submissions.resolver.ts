@@ -35,7 +35,7 @@ import {
 @Resolver()
 /**
  * Returns the authenticated user's submission history for one problem
- * (newest first) — used by the editor's "Submissions" tab.
+ * (newest first) -- used by the editor's "Submissions" tab.
  */
 export class MyCodingSubmissionsResolver {
     constructor(

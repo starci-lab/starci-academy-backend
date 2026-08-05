@@ -13,14 +13,14 @@ import {
 
 @Entity("user_capstone_projections")
 /**
- * CQRS projection of a user's passed capstone (personal-project milestone) tasks —
+ * CQRS projection of a user's passed capstone (personal-project milestone) tasks --
  * ONE ROW PER user. The inherited jsonb `value` holds `{ tasks: [{ courseId,
  * courseTitle, milestoneTitle, taskTitle, score, passedAt }] }`, recomputed from
  * the `user_milestone_task_attempts` ledger (DISTINCT-ON join). Read with a TTL
  * lazy-refresh; kept fresh by CDC on `user_milestone_task_attempts`.
  */
 export class UserCapstoneProjectionEntity extends AbstractProjectionEntity {
-    /** Target user id — the natural (primary) key. */
+    /** Target user id -- the natural (primary) key. */
     @PrimaryColumn({
         name: "user_id",
         type: "uuid",

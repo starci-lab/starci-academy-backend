@@ -37,7 +37,7 @@ import type {
 
 @Injectable()
 /**
- * WF-07 — UPLOAD-scoring path. Grades a user-UPLOADED CV that already lives in
+ * WF-07 -- UPLOAD-scoring path. Grades a user-UPLOADED CV that already lives in
  * the unified `cv_generations` table (`source = uploaded`, `uploadedCdnKey` set)
  * and writes the resulting `score` + `feedback` back onto that same row.
  *
@@ -46,8 +46,8 @@ import type {
  * `cvText` branch (instead of the composed `structuredData`), so both CV sources
  * are graded by one rubric in one place.
  *
- * Steps: load the row → buffer `uploadedCdnKey` from MinIO → extract text
- * (pdf/docx/plain via {@link extractCvText}) → score → persist. Scoring itself is
+ * Steps: load the row -> buffer `uploadedCdnKey` from MinIO -> extract text
+ * (pdf/docx/plain via {@link extractCvText}) -> score -> persist. Scoring itself is
  * best-effort at the persistence boundary: an AI/parse failure inside
  * {@link CvScoringService.score} is caught by the caller / worker; here a missing
  * row, empty file, or empty extracted text is a hard failure (nothing to grade),
@@ -115,7 +115,7 @@ export class ScoreUploadedCvService {
             })
         }
 
-        // extract plain text (pdf → pdf-parse, docx → mammoth, else utf-8)
+        // extract plain text (pdf -> pdf-parse, docx -> mammoth, else utf-8)
         const cvText = await extractCvText({
             buffer,
             key,
@@ -126,7 +126,7 @@ export class ScoreUploadedCvService {
             })
         }
 
-        // SOURCE-AGNOSTIC scoring via the SHARED service — the `cvText` branch
+        // SOURCE-AGNOSTIC scoring via the SHARED service -- the `cvText` branch
         // (upload) mirrors the generate step's `structuredData` branch. The
         // shared service throws on an unparseable model reply; the caller decides
         // whether to degrade (worker) or surface (sync mutation).
@@ -148,7 +148,7 @@ export class ScoreUploadedCvService {
         })
 
         // persist the grade onto the SAME unified row (identical write to the
-        // generate score step) — one table, one shape, whichever the source.
+        // generate score step) -- one table, one shape, whichever the source.
         await this.entityManager.update(
             UserCvGenerationEntity,
             {

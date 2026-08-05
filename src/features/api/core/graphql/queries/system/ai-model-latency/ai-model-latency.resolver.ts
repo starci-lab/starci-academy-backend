@@ -30,7 +30,7 @@ import {
 
 @Resolver()
 /**
- * PUBLIC "build in public" AI model latency — the latest per-model probe
+ * PUBLIC "build in public" AI model latency -- the latest per-model probe
  * snapshot (up/down + latency + freshness) read from the latency cache. The
  * category is joined from the enabled catalog. No guard, no raw keys: safe to
  * render on a public status page. The realtime counterpart is the
@@ -60,7 +60,7 @@ export class AiModelLatencyResolver {
     async execute(): Promise<AiModelLatencyResponseData> {
         // read the latest per-model probe snapshots written by the scheduler
         const latencyMap = await this.aiModelLatencyCacheService.getAll()
-        // category lives in the catalog, not the latency cache — index enabled
+        // category lives in the catalog, not the latency cache -- index enabled
         // models by name so we can attach it to each snapshot
         const enabled = await this.aiModelCatalogService.enabledModels()
         const categoryByName = new Map<string, AiModelCategory>(

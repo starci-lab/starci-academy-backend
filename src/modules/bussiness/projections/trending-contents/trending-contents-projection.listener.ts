@@ -22,7 +22,7 @@ const GLOBAL_KEY = "global"
 
 @Injectable()
 /**
- * CDC consumer that keeps `trending_contents_projections` fresh — any lesson-read
+ * CDC consumer that keeps `trending_contents_projections` fresh -- any lesson-read
  * change funnels into the one global trending row. Because trending is a global
  * rolling-window aggregate, every source change maps to the SAME key, so the TTL
  * lazy-refresh remains the primary throttle and the recompute is naturally
@@ -30,7 +30,7 @@ const GLOBAL_KEY = "global"
  * {@link AbstractProjectionListener}.
  */
 export class TrendingContentsProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "trending-contents-projection"
 
     /** Lesson-read changes move the global trending board. */

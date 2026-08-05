@@ -43,7 +43,7 @@ describe("SePay webhook (e2e)",
 
         afterAll(async () => {
             // TypeORM's shutdown hook looks up the default (unnamed) DataSource,
-            // which this named-only setup doesn't register — ignore that noise.
+            // which this named-only setup doesn't register -- ignore that noise.
             await e2e.app.close().catch(() => undefined)
         })
 
@@ -139,7 +139,7 @@ describe("SePay webhook (e2e)",
                         status: "PAID",
                     })
 
-                // missing order_invoice_number → handler throws, request fails
+                // missing order_invoice_number -> handler throws, request fails
                 expect(response.status).toBeGreaterThanOrEqual(400)
                 // never reached the verification call
                 expect(e2e.sepayClient.order.retrieve).not.toHaveBeenCalled()
@@ -178,7 +178,7 @@ describe("SePay webhook (e2e)",
                     })
                     .expect(201)
 
-                // second delivery finds no pending transaction → rejected
+                // second delivery finds no pending transaction -> rejected
                 const replay = await request(e2e.app.getHttpServer())
                     .post(WEBHOOK_URL)
                     .send({

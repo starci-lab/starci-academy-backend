@@ -14,7 +14,7 @@ import type {
     DomainFlags,
 } from "./types"
 
-/** All-off domain flags — the baseline every builder starts from. */
+/** All-off domain flags -- the baseline every builder starts from. */
 const NO_DOMAINS: DomainFlags = {
     flashcard: false,
     foundations: false,
@@ -85,7 +85,7 @@ export class SeedDiffOverlayService {
      * @returns The narrowed config (or `null` for full reseed) plus scope counts
      */
     buildDiffConfig(diff: DataGitDiff): BuildDiffOverlayResult {
-        // an unscopable diff (unknown paths) → caller falls back to a full reseed
+        // an unscopable diff (unknown paths) -> caller falls back to a full reseed
         if (diff.fullReseed) {
             return {
                 overlay: null,
@@ -137,12 +137,12 @@ export class SeedDiffOverlayService {
             }
         }
         // changed standalone domains (foundations, cv, headhunting, coding-problems,
-        // ai-models, subscriptions) re-seed/sync too — otherwise a domain-only edit
+        // ai-models, subscriptions) re-seed/sync too -- otherwise a domain-only edit
         // would resolve to an empty overlay and silently seed nothing
         const domains = this.domainFlagsFromDiff(diff.changedDomains,
             flashcardChangedAny)
         return {
-            // diff is a narrow incremental sync — never reIndex (would drop every
+            // diff is a narrow incremental sync -- never reIndex (would drop every
             // index but only repopulate the changed subset, wiping out-of-scope data)
             overlay: this.assemble(tracks,
                 syncCourses,
@@ -182,7 +182,7 @@ export class SeedDiffOverlayService {
      *
      * The course pipeline is always enabled; each standalone domain seeds/syncs
      * only when its {@link DomainFlags} bit is set. The coarse full/diff paths never
-     * reindex (`synchronizers.reindex: []`) — only the explicit `sync.reindex` block
+     * reindex (`synchronizers.reindex: []`) -- only the explicit `sync.reindex` block
      * drops indices. Note `aiModels` and `subscriptions` are seed-only catalogs.
      *
      * @param tracks - Seed course tracks keyed by displayId
@@ -205,7 +205,7 @@ export class SeedDiffOverlayService {
                         enabled: domains.flashcard,
                     },
                     // diff/full-reseed auto-detection doesn't track mock-interview bank
-                    // changes yet (no `DataGitDomain`/`DomainFlags` wiring) — only the
+                    // changes yet (no `DataGitDomain`/`DomainFlags` wiring) -- only the
                     // explicit `seed.courses.<course>.interview` block (via
                     // `InitConfigParserService`) can turn this on today.
                     interview: {
@@ -223,12 +223,12 @@ export class SeedDiffOverlayService {
                 blog: false,
                 achievements: false,
                 // the diff pipeline has no behavioral-question change detection either
-                // (this bank is global, not per-course) — never auto-enabled by a diff sync
+                // (this bank is global, not per-course) -- never auto-enabled by a diff sync
                 mockInterviewEq: false,
             },
             synchronizers: {
                 enabled: true,
-                // coarse full/diff never drops indices — explicit sync.reindex does
+                // coarse full/diff never drops indices -- explicit sync.reindex does
                 reindex: [],
                 courses: syncCourses,
                 cv: this.domainSink(domains.cv),
@@ -259,7 +259,7 @@ export class SeedDiffOverlayService {
      * @returns A sorted array of order-indexes
      */
     private sortedIndexes(indexes: Set<number> | undefined): Array<number> {
-        // no entry for this course → nothing changed → empty allow-list
+        // no entry for this course -> nothing changed -> empty allow-list
         if (!indexes) {
             return []
         }

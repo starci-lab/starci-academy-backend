@@ -12,7 +12,7 @@ import {
     description: "A day in the last-7-days streak strip.",
 })
 /**
- * One day in the "last 7 days" streak strip (oldest → today).
+ * One day in the "last 7 days" streak strip (oldest -> today).
  */
 export class MyWeeklyStatsDayData {
     @Field(
@@ -38,7 +38,7 @@ export class MyWeeklyStatsDayData {
 /**
  * The viewer's recent-activity stats for the streak strip. The current + longest
  * consecutive-day streaks plus the last 7 days (active flags) and rolling XP /
- * lessons — all read from the user-stats projection (never computed inline).
+ * lessons -- all read from the user-stats projection (never computed inline).
  */
 export class MyWeeklyStatsData {
     @Field(

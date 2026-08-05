@@ -24,7 +24,7 @@ import {
 @CommandHandler(StartFlashcardDueReviewSessionCommand)
 @Injectable()
 /**
- * Persists ONE resumable cross-deck due-review batch session draw —
+ * Persists ONE resumable cross-deck due-review batch session draw --
  * delegates the enrollment resolve + "abandon the prior draw" + insert to
  * {@link FlashcardDueReviewSessionService.start}, which is shared with
  * `myInProgressFlashcardDueReviewSession`'s own resolution.

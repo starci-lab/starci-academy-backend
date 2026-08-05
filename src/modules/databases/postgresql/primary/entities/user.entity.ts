@@ -174,7 +174,7 @@ export class UserEntity extends UuidAbstractEntity {
 
     /**
      * AES-256-GCM encrypted TOTP shared secret (JSON-stringified payload), or
-     * null when 2FA has never been set up. NOT exposed via GraphQL — secrets
+     * null when 2FA has never been set up. NOT exposed via GraphQL -- secrets
      * must never leave the server. Holds the pending secret between `setupTwoFactor`
      * and `confirmTwoFactor`, and the active secret while enabled.
      */
@@ -220,7 +220,7 @@ export class UserEntity extends UuidAbstractEntity {
         isDeleted: boolean
 
     /**
-     * The user's spendable Coin balance — the account currency that funds the
+     * The user's spendable Coin balance -- the account currency that funds the
      * reward store (voucher + AI-credit top-up + streak-freeze + physical
      * rewards) and ranks the global leaderboard. Credited by the flat per-event
      * reward (`xp_histories.points`: lessonRead=5, challengePassed=20,
@@ -242,7 +242,7 @@ export class UserEntity extends UuidAbstractEntity {
      * Profile visibility toggle (Facebook-style "lock profile"). When true, only
      * the owner sees the full profile; other viewers (signed-in or anonymous) get
      * just the public header (avatar / name / handle) and a "this profile is
-     * private" notice — the activity, achievements, courses and contribution tabs
+     * private" notice -- the activity, achievements, courses and contribution tabs
      * are withheld. Defaults to false (public).
      */
     @Field(() => Boolean,
@@ -291,7 +291,7 @@ export class UserEntity extends UuidAbstractEntity {
     /**
      * Slug of the achievement the user pins as their profile mascot (its rank ring
      * frames the avatar). Null = none chosen (the UI shows an "add" affordance to
-     * the owner). Public. Not FK-constrained — it mirrors a seeded achievement slug.
+     * the owner). Public. Not FK-constrained -- it mirrors a seeded achievement slug.
      */
     @Field(() => String,
         {
@@ -325,11 +325,11 @@ export class UserEntity extends UuidAbstractEntity {
         weeklyGoalLessons: number | null
 
     /**
-     * Per-KPI weekly targets the user has set for the dashboard "KPI tuần"
-     * summary + the `/kpi` editor — a map of {@link KpiKey} → target count
+     * Per-KPI weekly targets the user has set for the dashboard weekly KPI
+     * summary + the `/kpi` editor -- a map of {@link KpiKey} -> target count
      * (e.g. `{ lessons: 5, xp: 300 }`). A key absent / 0 means "no target set"
      * for that KPI (it is excluded from the composite score). Not exposed
-     * directly via GraphQL — read server-side by the `myKpis` query.
+     * directly via GraphQL -- read server-side by the `myKpis` query.
      */
     @Column({
         name: "weekly_kpi_targets",
@@ -357,7 +357,7 @@ export class UserEntity extends UuidAbstractEntity {
         streakFreezes: number
 
     /**
-     * Professional headline shown under the user's name (e.g. "Backend Engineer ·
+     * Professional headline shown under the user's name (e.g. "Backend Engineer -
      * NestJS"). The recruiter-facing one-liner on the public profile. Null until
      * the user sets one. Public.
      */
@@ -375,7 +375,7 @@ export class UserEntity extends UuidAbstractEntity {
         roleTitle: string | null
 
     /**
-     * Free-text location (e.g. "Hà Nội, Việt Nam") shown on the profile next to
+     * Free-text location (e.g. "Hanoi, Vietnam") shown on the profile next to
      * the work-mode chip. Null when unset. Public.
      */
     @Field(() => String,
@@ -447,7 +447,7 @@ export class UserEntity extends UuidAbstractEntity {
     /**
      * User-chosen accent color (hex, e.g. `#e84393`) overriding the default
      * brand `--accent` token app-wide. Null = the app's default accent. Purely
-     * cosmetic — independent of light/dark mode (which stays a separate axis).
+     * cosmetic -- independent of light/dark mode (which stays a separate axis).
      */
     @Field(() => String,
         {

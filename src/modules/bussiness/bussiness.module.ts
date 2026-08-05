@@ -120,7 +120,7 @@ export class BussinessModule extends ConfigurableModuleClass {
             AchievementsModule.register(options),
             // import the streak-freeze module (buy + daily auto-protect cron)
             StreakModule.register(options),
-            // import the installment-plan module (trả góp — plan lifecycle + daily enforcement cron)
+            // import the installment-plan module (installment plan -- plan lifecycle + daily enforcement cron)
             InstallmentPlanModule.register(options),
             // import the reward-store (Coin shop) module (catalog + wallet + redeem)
             RewardsModule.register(options),
@@ -132,7 +132,7 @@ export class BussinessModule extends ConfigurableModuleClass {
             LearnerCmsModule.register(options),
             // import the weekly-challenge module (auto-rotate read-only event)
             WeeklyChallengeModule.register(options),
-            // import the es-sync module (user → Elasticsearch `users` index sync)
+            // import the es-sync module (user -> Elasticsearch `users` index sync)
             EsSyncModule.register(options),
             // import the loyalty-discount module (engagement-based course discount)
             LoyaltyModule.register(options),

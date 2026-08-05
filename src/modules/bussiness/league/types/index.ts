@@ -28,7 +28,7 @@ export interface LeagueStandingMember {
 }
 
 /**
- * The viewer's full league standing — their tier, the ranked members of their
+ * The viewer's full league standing -- their tier, the ranked members of their
  * current cohort, and the promotion/demotion zone sizes + week deadline used by
  * the UI to draw the cut lines and countdown.
  */
@@ -124,7 +124,7 @@ export interface ShiftTierParams {
 }
 
 /**
- * Internal row shape for the per-cohort last-week-rank lookup — each member's
+ * Internal row shape for the per-cohort last-week-rank lookup -- each member's
  * finishing rank in their previous week, used to compute `rankDelta`.
  */
 export interface MemberLastWeekRankRow {
@@ -156,7 +156,7 @@ export interface GlobalLeaderboardMember {
  * outside the visible top).
  */
 export interface GlobalLeaderboardResult {
-    /** Top-ranked users (best → worst), capped by the query limit. */
+    /** Top-ranked users (best -> worst), capped by the query limit. */
     entries: Array<GlobalLeaderboardMember>
     /** The viewer's own 1-based rank across all users. */
     myRank: number

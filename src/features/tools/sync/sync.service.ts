@@ -52,7 +52,7 @@ import type {
  * This is the "sync to cloud" half of the local-first flow: a build tool writes
  * an artifact to disk and registers it, then this service uploads every file to
  * the target bucket. Because the local artifact is kept, the same push can be
- * re-run later ({@link syncArtifact}) without recomputing it — a re-PUT simply
+ * re-run later ({@link syncArtifact}) without recomputing it -- a re-PUT simply
  * overwrites the object.
  */
 export class SyncService {
@@ -115,7 +115,7 @@ export class SyncService {
     /**
      * (Re-)sync a registered artifact to every configured target.
      *
-     * Pushes the kept local artifact to each target independently — one failing
+     * Pushes the kept local artifact to each target independently -- one failing
      * target does not abort the others. The artifact is marked `synced` only
      * when every target succeeds, else `error` (it stays on disk for a retry).
      *
@@ -240,7 +240,7 @@ export class SyncService {
                 Bucket: bucket,
             }))
         } catch {
-            // missing (or no head permission) → try to create; ignore "already
+            // missing (or no head permission) -> try to create; ignore "already
             // owned" races so concurrent syncs don't fight
             try {
                 await client.send(new CreateBucketCommand({

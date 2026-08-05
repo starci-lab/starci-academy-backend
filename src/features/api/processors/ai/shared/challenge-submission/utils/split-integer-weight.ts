@@ -1,6 +1,6 @@
 /**
  * Split a whole-number rubric weight across `count` criteria so the parts sum exactly to
- * `totalWeight` (e.g. 30 across 7 → four 5s and three 4s).
+ * `totalWeight` (e.g. 30 across 7 -> four 5s and three 4s).
  *
  * @param totalWeight - Bucket weight (outcome 30 / approach 70).
  * @param count - Number of criteria in the bucket.

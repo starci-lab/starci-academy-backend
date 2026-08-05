@@ -37,12 +37,12 @@ import {
 
 @Resolver()
 /**
- * The resolved recap for ONE flashcard quick-quiz ("Hỏi nhanh") session,
+ * The resolved recap for ONE flashcard quick-quiz session,
  * resolved by its id ALONE REGARDLESS of status. Powers the FE's post-quiz
  * result view: after a quiz completes (or when a completed/abandoned session
  * link is re-opened), `myInProgressFlashcardQuizSession` returns null (it is
  * `in_progress`-scoped), so a stale link would otherwise dead-end to a fresh
- * setup — this recovers the session by id and returns its snapshotted recap
+ * setup -- this recovers the session by id and returns its snapshotted recap
  * (mode/level/coverage/xp/per-card + weak-tag breakdown) instead. Owner-scoped
  * via the session's enrollment; resolves to `null` when the id is not found /
  * not owned by the caller.

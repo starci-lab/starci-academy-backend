@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Nest DI for `contentAiSessions` — registers the resolver that lists / searches
+ * Nest DI for `contentAiSessions` -- registers the resolver that lists / searches
  * the caller's content-AI conversations.
  */
 export class ContentAiSessionsSingleQueryModule extends ConfigurableModuleClass { }

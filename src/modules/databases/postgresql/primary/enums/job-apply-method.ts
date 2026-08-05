@@ -6,7 +6,7 @@ import {
 } from "@modules/common"
 
 /**
- * How a candidate applies to a job posting (`job_postings.apply_method`) — a
+ * How a candidate applies to a job posting (`job_postings.apply_method`) -- a
  * discriminator for which of `applyUrl` / `applyEmail` is populated, mirroring
  * how `FoundationKind` discriminates a foundation resource's payload shape.
  */

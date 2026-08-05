@@ -53,7 +53,7 @@ const COURSES_MOUNT_ROOT = path.join(
 
 /**
  * Relative path under the `courses` context root for the SCHEMA V2
- * `0-clean-architecture-and-health` task — the real mount fixture this spec grounds against
+ * `0-clean-architecture-and-health` task -- the real mount fixture this spec grounds against
  * (the previously-referenced `3-postgresql-database-integration/.../health-db-readiness-probe`
  * task never existed on the mount; this points at an actual SCHEMA V2 task instead).
  */
@@ -117,7 +117,7 @@ describe("MilestoneTaskParserService",
                     },
                     {
                         // parse() never touches the DB, but the parser injects the primary
-                        // entity manager (used by milestoneTasksFromDatabase) → DI needs it
+                        // entity manager (used by milestoneTasksFromDatabase) -> DI needs it
                         provide: getEntityManagerToken("primary"),
                         useValue: makeEntityManagerMock(),
                     },
@@ -149,21 +149,21 @@ describe("MilestoneTaskParserService",
                             taskIndex: 0,
                         })
 
-                        // root scalars — En is the canonical default locale
+                        // root scalars -- En is the canonical default locale
                         expect(parsed.defaultLocale).toBe(Locale.En)
                         // displayId = the task mount folder slug (index prefix stripped)
                         expect(parsed.displayId).toBe("clean-architecture-and-health")
                         expect(parsed.title).toBe("Scaffold StarCi Shop Backend + Health Endpoint")
                         expect(parsed.type).toBe(PersonalProjectTaskType.TechIntegrate)
                         expect(parsed.maxScore).toBe(100)
-                        // `# verified` heading → non-null Date marks this as a SCHEMA V2 task
+                        // `# verified` heading -> non-null Date marks this as a SCHEMA V2 task
                         expect(parsed.verified).toBeInstanceOf(Date)
 
-                        // `# criterias` → one brief per language block (typescript/java/csharp/go)
+                        // `# criterias` -> one brief per language block (typescript/java/csharp/go)
                         expect(parsed.briefs).toHaveLength(4)
                         expect(parsed.briefs?.[0]?.lang).toBe("typescript")
                         expect((parsed.briefs?.[0]?.body?.length ?? 0)).toBeGreaterThan(0)
-                        // brief body is i18n → each brief carries an aligned Vi translation row
+                        // brief body is i18n -> each brief carries an aligned Vi translation row
                         expect(parsed.briefs?.[0]?.translations).toEqual(
                             expect.arrayContaining([
                                 expect.objectContaining({
@@ -173,14 +173,14 @@ describe("MilestoneTaskParserService",
                             ]),
                         )
 
-                        // outcome rubric is agnostic → 3 criteria, each with one lang row per language block
+                        // outcome rubric is agnostic -> 3 criteria, each with one lang row per language block
                         expect(parsed.outcomeCriteria).toHaveLength(3)
                         expect(parsed.outcomeCriteria?.[0]?.score).toBe(10)
                         expect(parsed.outcomeCriteria?.[0]?.critical).toBe(true)
                         expect(parsed.outcomeCriteria?.[0]?.langs).toHaveLength(4)
                         expect((parsed.outcomeCriteria?.[0]?.langs?.[0]?.body?.length ?? 0)).toBeGreaterThan(0)
 
-                        // approach rubric differs per language → 3 criteria, each with one lang row per block
+                        // approach rubric differs per language -> 3 criteria, each with one lang row per block
                         expect(parsed.approachCriteria).toHaveLength(3)
                         expect(parsed.approachCriteria?.[0]?.score).toBe(40)
                         expect(parsed.approachCriteria?.[0]?.critical).toBe(true)

@@ -31,7 +31,7 @@ import {
  * projection is numeric-only today). Composite primary key (courseId, locale, field).
  */
 export class CourseStatsProjectionTranslationEntity extends AbstractEntity {
-    /** Target projection natural key (course id) — part of the composite PK. */
+    /** Target projection natural key (course id) -- part of the composite PK. */
     @Field(
         () => String,
         {

@@ -101,7 +101,7 @@ export class AiModelCatalogParserService {
                 ),
                 // DERIVED, never authored. A credit REPRESENTS real money
                 // (1 credit ≡ $0.0002), so the flat fallback has to be what a
-                // typical call actually costs — not a per-category round number.
+                // typical call actually costs -- not a per-category round number.
                 // It is computed with the same estimator `creditForRun` falls
                 // back to when a provider reports no usage, so the two paths
                 // cannot disagree. The old hand-set constants charged a coarse
@@ -142,7 +142,7 @@ export class AiModelCatalogParserService {
                     0,
                 ),
                 // 0 (absent from the seed) is recorded as "not verified", not as
-                // a model with no context — the ranking treats null as neutral.
+                // a model with no context -- the ranking treats null as neutral.
                 contextWindowTokens: this.coerceMdScalarService.toRequiredNumber(
                     enMd.contextWindowTokens,
                     0,
@@ -164,8 +164,8 @@ export class AiModelCatalogParserService {
                     ))
                     : null,
                 // credit rate is DERIVED from the real USD price (single source):
-                // round(price$/M × CREDITS_PER_USD), i.e. 1 credit ≡ $0.0002 cost.
-                // EVERY model bills at its derived rate — `complimentary` only
+                // round(price$/M x CREDITS_PER_USD), i.e. 1 credit ≡ $0.0002 cost.
+                // EVERY model bills at its derived rate -- `complimentary` only
                 // grants free-lane ACCESS (no subscription), it does NOT zero the
                 // cost. This keeps the free pool (250/week) bounded: a free user
                 // gets a finite number of runs and the max loss per user is capped
@@ -268,9 +268,9 @@ export class AiModelCatalogParserService {
 }
 
 /**
- * Credits per 1 USD of real model cost — the fixed billing scale. `1 credit ≡
- * $0.0002` cost → `5000` credits per dollar. Per-Mtok credit rates are DERIVED
- * from the real USD price (`round(price$/M × this)`), so the USD price in the
+ * Credits per 1 USD of real model cost -- the fixed billing scale. `1 credit ≡
+ * $0.0002` cost -> `5000` credits per dollar. Per-Mtok credit rates are DERIVED
+ * from the real USD price (`round(price$/M x this)`), so the USD price in the
  * markdown is the single source of truth for both cost auditing and billing.
  */
 

@@ -4,7 +4,7 @@ import {
 } from "class-validator"
 
 /**
- * Tokens after Google-via-Keycloak login — same shape the SPA already stores from password
+ * Tokens after Google-via-Keycloak login -- same shape the SPA already stores from password
  * login.
  */
 export class KeycloakGoogleCallbackResponse {

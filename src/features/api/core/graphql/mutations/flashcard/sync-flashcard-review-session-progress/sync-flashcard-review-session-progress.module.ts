@@ -30,5 +30,5 @@ import {
         SyncFlashcardReviewSessionProgressService,
     ],
 })
-/** Feature-module boundary for the `syncFlashcardReviewSessionProgress` mutation — wires its resolver + service + CQRS handler. */
+/** Feature-module boundary for the `syncFlashcardReviewSessionProgress` mutation -- wires its resolver + service + CQRS handler. */
 export class SyncFlashcardReviewSessionProgressSingleMutationModule extends ConfigurableModuleClass {}

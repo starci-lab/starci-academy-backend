@@ -18,10 +18,10 @@ export interface VoucherNotSupportedForGatewayExceptionMetadata extends Abstract
 
 /**
  * Thrown when a checkout's `voucherCode` resolves to a discount type the
- * chosen `PaymentType` doesn't support (per `PAYMENT_MODIFIER_CAPABILITY`) —
+ * chosen `PaymentType` doesn't support (per `PAYMENT_MODIFIER_CAPABILITY`) --
  * today only a Flat (VND-denominated) voucher on a USD gateway (Stripe /
  * PayPal / Crypto), since Flat can't be FX-converted onto a USD charge.
- * Rejected loud, before any row or checkout is created — never a silent drop.
+ * Rejected loud, before any row or checkout is created -- never a silent drop.
  */
 export class VoucherNotSupportedForGatewayException extends AbstractException {
     constructor({

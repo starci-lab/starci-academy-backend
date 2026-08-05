@@ -16,7 +16,7 @@ import {
  * Live cAdvisor/Prometheus resource usage of one component's Docker
  * container. Every field is nullable: `null` means "no local container to
  * measure" (Judge0, Ollama, mail, the AI balancer) or "Prometheus has not
- * produced a sample yet" — never a fabricated zero.
+ * produced a sample yet" -- never a fabricated zero.
  */
 export class ComponentMetricsData {
     @Field(
@@ -70,8 +70,8 @@ export class ComponentMetricsData {
 })
 /**
  * Public-safe liveness of one infrastructure component. Exposes the
- * traffic-light status, a coarse latency, a short message, and — when the
- * component runs as a local Docker container — its live resource usage. This
+ * traffic-light status, a coarse latency, a short message, and -- when the
+ * component runs as a local Docker container -- its live resource usage. This
  * platform intentionally shows real operational numbers as a "build in
  * public" proof-of-work surface, not a fabricated demo.
  */
@@ -132,7 +132,7 @@ export class ComponentHealthData {
     description: "Public system health payload.",
 })
 /**
- * Payload of the public `systemHealthStatus` query — the liveness of every
+ * Payload of the public `systemHealthStatus` query -- the liveness of every
  * probed infrastructure component.
  */
 export class SystemHealthStatusResponseData {

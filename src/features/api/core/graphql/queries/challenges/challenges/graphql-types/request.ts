@@ -15,7 +15,7 @@ import {
 
 /** Sort fields for listing module challenges. */
 export enum ChallengesSortBy {
-    /** Alphabetical by title in the locale ES index — not curriculum order. */
+    /** Alphabetical by title in the locale ES index -- not curriculum order. */
     Title = "title",
     /** Default (Asc): display order within the content item. */
     SortIndex = "sortIndex",
@@ -70,7 +70,7 @@ export class ChallengesRequestSort extends SortInput<ChallengesSortBy> {
 })
 /**
  * Page + sort for `challenges`. The handler searches Elasticsearch (locale
- * index), not Postgres — missing page/limit use API pagination defaults.
+ * index), not Postgres -- missing page/limit use API pagination defaults.
  */
 export class ChallengesRequestPaginationFilters extends PaginationPageFilters<ChallengesSortBy> {
     @Field(

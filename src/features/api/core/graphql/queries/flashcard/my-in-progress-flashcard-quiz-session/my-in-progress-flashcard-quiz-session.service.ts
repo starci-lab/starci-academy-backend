@@ -20,11 +20,11 @@ import type {
 
 /**
  * How far back a session's last sync may be for it to still be offered as
- * resumable — mirrors `MyInProgressMockInterviewSessionService`'s own
+ * resumable -- mirrors `MyInProgressMockInterviewSessionService`'s own
  * `RESUME_WINDOW_HOURS` reasoning: a session synced longer ago than this is
  * treated as effectively abandoned (the learner has long since moved on)
  * even though `startFlashcardQuizSession` has not yet flipped its status
- * (that only happens when the SAME enrollment starts a NEW draw) — this
+ * (that only happens when the SAME enrollment starts a NEW draw) -- this
  * keeps a months-old forgotten "in_progress" row from popping back up as a
  * resume prompt indefinitely.
  */
@@ -33,10 +33,10 @@ const RESUME_WINDOW_HOURS = 24
 @Injectable()
 /**
  * Reads back the learner's most recent RESUMABLE flashcard quick-quiz
- * session for one course, so the FE can offer "Tiếp tục phiên hỏi nhanh?"
+ * session for one course, so the FE can offer "resume quick-quiz session?"
  * instead of forcing a fresh draw. Mirrors
  * `MyInProgressMockInterviewSessionService`'s structure (plain query
- * service, no CQRS command bus — a straight read has no command to
+ * service, no CQRS command bus -- a straight read has no command to
  * dispatch).
  */
 export class MyInProgressFlashcardQuizSessionService {
@@ -71,8 +71,8 @@ export class MyInProgressFlashcardQuizSessionService {
             Date.now() - RESUME_WINDOW_HOURS * 60 * 60 * 1000,
         )
         // lazy-expiry, no cron (2026-07-11): a session drawn longer ago than
-        // its own duration has "hết giờ" even if it was synced more recently
-        // than the resume window above — both gates apply, whichever is
+        // its own duration has expired even if it was synced more recently
+        // than the resume window above -- both gates apply, whichever is
         // stricter wins (MoreThanOrEqual on createdAt = "not yet expired").
         const notExpiredSince = new Date(
             Date.now() - FLASHCARD_QUIZ_SESSION_DURATION_MS,

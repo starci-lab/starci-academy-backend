@@ -16,7 +16,7 @@ import {
 
 /**
  * Course-root gate: skip rows with no `displayId` (cannot match `seed.yaml`)
- * and skip tracks not explicitly enabled. Missing map entry means off — otherwise
+ * and skip tracks not explicitly enabled. Missing map entry means off -- otherwise
  * a typo would sync every course.
  */
 export const shouldSyncCourseEntity = (
@@ -52,7 +52,7 @@ export const shouldSyncModuleEntity = (
 
 /**
  * Content gate: inherit the parent module allow-list. Fail-open when the
- * module→course chain is missing so a builder that loaded content alone still
+ * module->course chain is missing so a builder that loaded content alone still
  * syncs.
  */
 export const shouldSyncContentEntity = (
@@ -116,7 +116,7 @@ export const shouldSyncMilestoneEntity = (
 }
 
 /**
- * Milestone-task gate: no independent task filter in `seed.yaml` — a task
+ * Milestone-task gate: no independent task filter in `seed.yaml` -- a task
  * follows its parent milestone. Fail-open when the milestone relation is absent.
  */
 export const shouldSyncMilestoneTaskEntity = (

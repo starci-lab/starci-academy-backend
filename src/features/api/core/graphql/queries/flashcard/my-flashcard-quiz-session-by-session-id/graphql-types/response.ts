@@ -14,7 +14,7 @@ import {
     description: "A technology tag surfaced as weak on this quiz session, with its coverage and the module/content it maps to.",
 })
 /**
- * One weak-tag row snapshotted onto a finished quiz session — a technology tag
+ * One weak-tag row snapshotted onto a finished quiz session -- a technology tag
  * with its coverage across the session's cards carrying it, plus the module /
  * content it maps back to (null when the deck-to-module/content mapping is
  * ambiguous). Echoed verbatim from `flashcard_quiz_sessions.weak_tags`; feeds
@@ -60,7 +60,7 @@ export class FlashcardQuizSessionWeakTagData {
     description: "One card's per-card cloze-blank outcome within the quiz session.",
 })
 /**
- * One card's per-card outcome within the session — echoed verbatim from
+ * One card's per-card outcome within the session -- echoed verbatim from
  * `flashcard_quiz_sessions.results`. The FE re-fetches the card TEXT separately
  * by `cardId`; this only carries the correct/total cloze-blank counts.
  */
@@ -94,10 +94,10 @@ export class FlashcardQuizSessionResultData {
     description: "The resolved recap (mode, level, coverage, xp, per-card + weak-tag breakdown) for one flashcard quiz session.",
 })
 /**
- * The resolved recap for ONE flashcard quick-quiz ("Hỏi nhanh") session,
+ * The resolved recap for ONE flashcard quick-quiz session,
  * resolved by its id alone REGARDLESS of status (completed/abandoned/
  * in_progress) and owner-scoped via the session's enrollment. Every field is
- * read STRAIGHT off the snapshotted `flashcard_quiz_sessions` row — nothing is
+ * read STRAIGHT off the snapshotted `flashcard_quiz_sessions` row -- nothing is
  * recomputed. The query resolves to `null` (not this type) when the id is not
  * found / not owned by the caller.
  */
@@ -206,7 +206,7 @@ export class MyFlashcardQuizSessionBySessionIdData {
     description: "Response wrapper for the myFlashcardQuizSessionBySessionId query.",
 })
 /**
- * Response wrapper for the myFlashcardQuizSessionBySessionId query — `data` is
+ * Response wrapper for the myFlashcardQuizSessionBySessionId query -- `data` is
  * `null` when the session id is not found / not owned by the caller.
  */
 export class MyFlashcardQuizSessionBySessionIdResponse

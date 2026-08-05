@@ -31,7 +31,7 @@ const POSTGRESQL_PRIMARY = "primary"
  * loadCandidateCapstonePassed, loadCandidateInterviewAverages, loadCandidateCvScores.
  *
  * Locks the recruiter-marketplace fairness contract (WF-08 / WF-01/WF-02):
- * ranking is scoped to the ONE filtered track's depth — a candidate is NEVER
+ * ranking is scoped to the ONE filtered track's depth -- a candidate is NEVER
  * ranked using depth earned in some other course.
  */
 describe("TalentCandidatesService",
@@ -80,7 +80,7 @@ describe("TalentCandidatesService",
                     async () => {
                         // two open-to-work candidates PAID-enrolled in course-a. The mock
                         // `find` stands in for the WHERE { courseId, isEnrolled, user }
-                        // filter — so only course-a enrollments come back.
+                        // filter -- so only course-a enrollments come back.
                         const enrollmentAliceA = {
                             id: "enr-alice-a",
                             courseId: "course-a",
@@ -157,29 +157,29 @@ describe("TalentCandidatesService",
 
                         // both course-a candidates present
                         expect(result).toHaveLength(2)
-                        // ranked by course-a depth DESC → alice first (strong), bob second
+                        // ranked by course-a depth DESC -> alice first (strong), bob second
                         expect(result[0].user.id).toBe("user-alice")
                         expect(result[1].user.id).toBe("user-bob")
                         // every returned track is the FILTERED course, carrying qualitative badges
                         expect(result[0].track.courseId).toBe("course-a")
                         expect(result[1].track.courseId).toBe("course-a")
-                        // alice: capstone 90 (9/10) + interview 90 → depth 90 → jobReady
+                        // alice: capstone 90 (9/10) + interview 90 -> depth 90 -> jobReady
                         expect(result[0].track.depthScore).toBe(90)
                         expect(result[0].track.band).toBe("jobReady")
                         expect(result[0].track.isQualified).toBe(true)
-                        // bob: capstone 30 (3/10) + interview 40 → depth ~34 → needsWork
+                        // bob: capstone 30 (3/10) + interview 40 -> depth ~34 -> needsWork
                         expect(result[1].track.band).toBe("needsWork")
                     })
 
                 // THE fairness invariant: a candidate with a monster depth in a
                 // DIFFERENT track must NOT be ranked using that other track's score.
                 // When filtering course-a, bob's high course-b depth is structurally
-                // invisible — the service only ever loads + ranks the filtered course's
+                // invisible -- the service only ever loads + ranks the filtered course's
                 // enrollments, never blending in another course's depth.
                 it("ranks strictly within the filtered track — a high depthScore in a DIFFERENT track never lifts a candidate",
                     async () => {
                         // Filtering on course-a. Alice is strong IN course-a. Bob is weak
-                        // in course-a but (hypothetically) a superstar in course-b — that
+                        // in course-a but (hypothetically) a superstar in course-b -- that
                         // course-b strength must never enter this ranking.
                         const enrollmentAliceA = {
                             id: "enr-alice-a",
@@ -210,7 +210,7 @@ describe("TalentCandidatesService",
                             },
                         }
 
-                        // The course-a filter returns ONLY course-a enrollments — bob's
+                        // The course-a filter returns ONLY course-a enrollments -- bob's
                         // course-b enrollment is not here (nor are its aggregates ever read).
                         entityManager.find.mockResolvedValueOnce([
                             enrollmentAliceA,
@@ -234,7 +234,7 @@ describe("TalentCandidatesService",
                                     passed: "1",
                                 },
                             ])
-                            // course-a interview: alice 100, bob 10 — NOTE: if the service
+                            // course-a interview: alice 100, bob 10 -- NOTE: if the service
                             // ever leaked bob's course-b depth (say 99) into the sort key,
                             // bob would jump ahead; he must not.
                             .mockResolvedValueOnce([
@@ -257,7 +257,7 @@ describe("TalentCandidatesService",
                         })
 
                         // alice (strong in course-a) ranks first; bob (weak in course-a)
-                        // ranks last — his imagined course-b brilliance never counted
+                        // ranks last -- his imagined course-b brilliance never counted
                         expect(result.map((candidate) => candidate.user.id)).toEqual([
                             "user-alice",
                             "user-bob",
@@ -265,11 +265,11 @@ describe("TalentCandidatesService",
                         // bob's card reflects ONLY his course-a depth (low), not a blend
                         const bob = result.find((candidate) => candidate.user.id === "user-bob")
                         expect(bob?.track.courseId).toBe("course-a")
-                        // capstone 10 (1/10) + interview 10 → depth 10, decisively below alice
+                        // capstone 10 (1/10) + interview 10 -> depth 10, decisively below alice
                         expect(bob?.track.depthScore).toBeLessThan(20)
                         const alice = result.find((candidate) => candidate.user.id === "user-alice")
                         expect(alice?.track.depthScore).toBe(100)
-                        // every sort key used is the filtered course only — never blended:
+                        // every sort key used is the filtered course only -- never blended:
                         // the only aggregates the service read were keyed to course-a /
                         // its enrollments (no second course was ever queried).
                         expect(entityManager.find).toHaveBeenCalledTimes(1)
@@ -277,7 +277,7 @@ describe("TalentCandidatesService",
 
                 it("returns an empty list when no open-to-work candidate is enrolled in the filtered track",
                     async () => {
-                        // no enrollments → short-circuits, no aggregate queries fired
+                        // no enrollments -> short-circuits, no aggregate queries fired
                         entityManager.find.mockResolvedValueOnce([])
 
                         const result = await service.rankByTrack({
@@ -291,7 +291,7 @@ describe("TalentCandidatesService",
                     })
 
                 // With IDENTICAL track depth, the stronger StarCi verification tier
-                // breaks the tie — a capstone-verified candidate surfaces above a
+                // breaks the tie -- a capstone-verified candidate surfaces above a
                 // self-reported one. Depth stays the primary key; verification only
                 // decides exact ties.
                 it("breaks an exact depth tie by verification tier (verified above self-reported)",
@@ -338,7 +338,7 @@ describe("TalentCandidatesService",
                                     total: "10",
                                 },
                             ])
-                            // BOTH passed 5/10 → identical capstone %, hence identical depth
+                            // BOTH passed 5/10 -> identical capstone %, hence identical depth
                             .mockResolvedValueOnce([
                                 {
                                     enrollment_id: "enr-alice-a",
@@ -349,7 +349,7 @@ describe("TalentCandidatesService",
                                     passed: "5",
                                 },
                             ])
-                            // no interview rows (both null → depth is capstone-only, equal)
+                            // no interview rows (both null -> depth is capstone-only, equal)
                             .mockResolvedValueOnce([])
                             // no cv rows
                             .mockResolvedValueOnce([])
@@ -380,7 +380,7 @@ describe("TalentCandidatesService",
                             offset: 0,
                         })
 
-                        // equal depth → capstone-verified bob is surfaced first
+                        // equal depth -> capstone-verified bob is surfaced first
                         expect(result[0].track.depthScore).toBe(result[1].track.depthScore)
                         expect(result[0].user.id).toBe("user-bob")
                         expect(result[1].user.id).toBe("user-alice")

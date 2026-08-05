@@ -15,7 +15,7 @@ import {
 })
 /**
  * NestJS module for the `userCodingProgress` public-profile query. Wires only
- * the resolver — the data comes from `CodingProgressService`, provided by the
+ * the resolver -- the data comes from `CodingProgressService`, provided by the
  * coding business module.
  */
 export class UserCodingProgressSingleQueryModule extends ConfigurableModuleClass {}

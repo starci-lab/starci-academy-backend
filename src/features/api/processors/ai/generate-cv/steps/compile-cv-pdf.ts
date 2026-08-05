@@ -13,7 +13,7 @@ import path from "path"
 export interface CompileCvPdfParams {
     /** Raw LaTeX (`.tex`) source to compile. */
     latex: string
-    /** Job id — used only to namespace the temp working directory. */
+    /** Job id -- used only to namespace the temp working directory. */
     jobId: string
 }
 
@@ -21,16 +21,16 @@ export interface CompileCvPdfParams {
 const COMPILE_TIMEOUT_MS = 60_000
 
 /**
- * Compiles a `.tex` source into a PDF via `tectonic` — a self-contained,
+ * Compiles a `.tex` source into a PDF via `tectonic` -- a self-contained,
  * single-binary LaTeX engine (no full TeXLive install needed; packages fetch
  * on demand from its bundle). Writes the source to a scratch temp dir, shells
  * out to the CLI, reads the produced PDF back, then always cleans up the temp
  * dir.
  *
- * Best-effort by design: any failure (binary missing — e.g. local dev without
+ * Best-effort by design: any failure (binary missing -- e.g. local dev without
  * `tectonic` installed, a compile error in the AI-generated `.tex`, timeout) is
  * caught here and surfaced as a `null` return, never thrown. The caller (the
- * render step) degrades to offering the raw `.tex` download — the same
+ * render step) degrades to offering the raw `.tex` download -- the same
  * "graceful degrade" contract the FE preview already has.
  *
  * @returns the compiled PDF bytes, or `null` on any failure.
@@ -54,13 +54,13 @@ export const compileCvPdf = async (
         await writeFile(texPath,
             latex,
             "utf8")
-        // dynamic import — `execa` is ESM-only; a static import at the top of
+        // dynamic import -- `execa` is ESM-only; a static import at the top of
         // this file would make Jest eagerly `require()` it into every consumer's
         // module graph (even specs that never call `compileCvPdf`), which
         // crashes under ts-jest's CJS transform. Deferring to call-time avoids
         // that entirely.
         const { execa } = await import("execa")
-        // exit-code-only failure semantics — tectonic writes normal progress
+        // exit-code-only failure semantics -- tectonic writes normal progress
         // chatter to stderr even on success, so a generic "any stderr = failure"
         // wrapper would false-negative here.
         await execa(

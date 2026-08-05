@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * Thin `CommandBus` proxy for `startFlashcardQuizSession` — wraps the request into a
+ * Thin `CommandBus` proxy for `startFlashcardQuizSession` -- wraps the request into a
  * {@link StartFlashcardQuizSessionCommand} rather than calling {@link StartFlashcardQuizSessionHandler} directly,
  * keeping the resolver decoupled from the CQRS wiring.
  */

@@ -75,7 +75,7 @@ export class MyAiCreditQuotaData {
 })
 /**
  * Per-surface model CEILING the user set in settings (cost control). Null on a
- * field = inherit the default (or, for `default`, no cap → plan ceiling only).
+ * field = inherit the default (or, for `default`, no cap -> plan ceiling only).
  */
 export class MyAiCeilData {
     @Field(
@@ -91,7 +91,7 @@ export class MyAiCeilData {
         () => GraphQLTypeAiModelCategory,
         {
             nullable: true,
-            description: "Hỏi AI khi đọc bài override; null = follow default.",
+            description: "Content-AI chatbot override; null = follow default.",
         },
     )
         chatbot: AiModelCategory | null
@@ -100,7 +100,7 @@ export class MyAiCeilData {
         () => GraphQLTypeAiModelCategory,
         {
             nullable: true,
-            description: "Chấm bài override; null = follow default.",
+            description: "Grading override; null = follow default.",
         },
     )
         grading: AiModelCategory | null
@@ -109,7 +109,7 @@ export class MyAiCeilData {
         () => GraphQLTypeAiModelCategory,
         {
             nullable: true,
-            description: "Phỏng vấn thử override; null = follow default.",
+            description: "Mock-interview override; null = follow default.",
         },
     )
         interview: AiModelCategory | null

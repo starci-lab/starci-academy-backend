@@ -35,7 +35,7 @@ export class StartFlashcardQuizSessionData {
 })
 /**
      * ISO timestamp of when this run stops being resumable (server
-     * `createdAt + FLASHCARD_QUIZ_SESSION_DURATION_MS`) — the FE derives its
+     * `createdAt + FLASHCARD_QUIZ_SESSION_DURATION_MS`) -- the FE derives its
      * countdown from THIS, never a local clock start. Mirrors
      * `StartMockInterviewSessionData.deadlineAt`.
      */

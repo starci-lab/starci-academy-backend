@@ -26,7 +26,7 @@ import type {
     CourseEntity,
 } from "@modules/databases"
 
-/** Minimal course entity stand-in — only the id matters for assertions. */
+/** Minimal course entity stand-in -- only the id matters for assertions. */
 const fakeCourse = (
     id: string,
 ): CourseEntity => ({
@@ -41,7 +41,7 @@ describe("CourseHandler",
         let s3NameResolverService: jest.Mocked<Pick<S3NameResolverService, "course">>
 
         beforeEach(async () => {
-            // S3 read returns the JSON document the test programs (null by default → not found)
+            // S3 read returns the JSON document the test programs (null by default -> not found)
             s3ReadService = {
                 json: jest.fn(),
             } as unknown as jest.Mocked<Pick<S3ReadService, "json">>
@@ -113,7 +113,7 @@ describe("CourseHandler",
 
         it("throws when the S3 document is missing",
             async () => {
-                // the read resolves null → the course was never materialized in the bucket
+                // the read resolves null -> the course was never materialized in the bucket
                 s3ReadService.json.mockResolvedValueOnce(null)
 
                 await expect(

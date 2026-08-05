@@ -69,7 +69,7 @@ describe("GenerateCvScoreStepService",
         let cvScoringService: jest.Mocked<Pick<CvScoringService, "score">>
 
         beforeEach(async () => {
-            // entity manager mock — only `update` (persist score/feedback) and
+            // entity manager mock -- only `update` (persist score/feedback) and
             // `transaction` (finalize step) are exercised by this step
             entityManager = {
                 update: jest.fn().mockResolvedValue({
@@ -181,7 +181,7 @@ describe("GenerateCvScoreStepService",
 
                         await service.process(makeContext())
 
-                        // degrade to null — the generation itself already succeeded upstream
+                        // degrade to null -- the generation itself already succeeded upstream
                         expect(entityManager.update).toHaveBeenCalledWith(
                             UserCvGenerationEntity,
                             {
@@ -192,7 +192,7 @@ describe("GenerateCvScoreStepService",
                                 feedback: null,
                             }),
                         )
-                        // the step still completes normally — no failJob, still advances
+                        // the step still completes normally -- no failJob, still advances
                         expect(jobActionService.failJob).not.toHaveBeenCalled()
                         expect(jobActionService.increaseJob).toHaveBeenCalledTimes(1)
                         expect(jobActionService.saveExecutionResult).toHaveBeenCalledWith(
@@ -232,7 +232,7 @@ describe("GenerateCvScoreStepService",
                             .mockReset()
                             // compose result
                             .mockResolvedValueOnce(COMPOSED_CV)
-                            // gather result — high XP + capstone volume → senior band
+                            // gather result -- high XP + capstone volume -> senior band
                             .mockResolvedValueOnce({
                                 profile: {
                                 },

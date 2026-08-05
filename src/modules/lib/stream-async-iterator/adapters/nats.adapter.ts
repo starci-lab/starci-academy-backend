@@ -7,7 +7,7 @@ import {
 
 /**
  * Ctor bag for {@link NatsStreamConnection}. `nc` must already be connected;
- * `queueGroup` opts into competing consumers — omit it and every subscriber
+ * `queueGroup` opts into competing consumers -- omit it and every subscriber
  * gets a full copy of the stream.
  */
 export interface NatsStreamConnectionOptions {

@@ -8,7 +8,7 @@ import {
     description: "Request for fetching a module content row by primary id.",
 })
 /**
- * Args for `content` — lookup by primary id or displayId (exactly one required
+ * Args for `content` -- lookup by primary id or displayId (exactly one required
  * or the handler throws ContentContextNotFound).
  */
 export class ContentRequest {

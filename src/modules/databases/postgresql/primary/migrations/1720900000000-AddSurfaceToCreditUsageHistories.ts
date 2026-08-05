@@ -6,9 +6,9 @@ import {
 /**
  * Adds `surface` (new `ai_ceil_surface` enum: `chatbot` / `grading` / `interview`)
  * to `credit_usage_histories` so each charge row records WHICH AI surface
- * triggered it — the "Lịch sử dùng AI" page couldn't tell an interview-grading
+ * triggered it -- the AI usage history page couldn't tell an interview-grading
  * charge apart from a challenge-grading charge (both showed the same hardcoded
- * "Chấm challenge" label). Nullable: rows recorded before this column existed
+ * "Grade challenge" label). Nullable: rows recorded before this column existed
  * (and rows from surfaces not yet passing it through) stay null.
  *
  * Dev runs schema via `synchronize`; this migration applies the same change

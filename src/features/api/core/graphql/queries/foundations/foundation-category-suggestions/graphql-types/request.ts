@@ -11,7 +11,7 @@ import {
  * Request for the `foundationCategorySuggestions` autocomplete query.
  */
 export class FoundationCategorySuggestionsRequest {
-    /** The typed prefix to autocomplete (e.g. "do" → "Docker"). */
+    /** The typed prefix to autocomplete (e.g. "do" -> "Docker"). */
     @Field(
         () => String,
         {

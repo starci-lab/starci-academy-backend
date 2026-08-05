@@ -52,11 +52,11 @@ const MAX_LIMIT = 50
 
 @Resolver()
 /**
- * A single user's activity timeline — the profile "activity" tab. Unlike the
+ * A single user's activity timeline -- the profile "activity" tab. Unlike the
  * score-ranked home feed, ordering here is absolute newest-first
  * (created_at DESC, id DESC), so pagination is plain offset (no pinned decay
  * reference needed). Filtered to one `user_id`; target labels are batch-resolved
- * from id-only refs. Optional auth — anonymous viewers may read any user's
+ * from id-only refs. Optional auth -- anonymous viewers may read any user's
  * public timeline.
  */
 export class UserFeedResolver {
@@ -89,13 +89,13 @@ export class UserFeedResolver {
         @GraphQLLocale()
             locale: Locale,
     ): Promise<MyFeedResponseData> {
-        // optional-auth: viewer may be anonymous → no personal reaction / ownership
+        // optional-auth: viewer may be anonymous -> no personal reaction / ownership
         const viewerId = user?.id ?? null
         // clamp page size; fetch one extra row to know whether a next page exists
         const limit = Math.min(Math.max(request.limit ?? 20,
             1),
         MAX_LIMIT)
-        // absent/malformed cursor → page 1 (offset 0)
+        // absent/malformed cursor -> page 1 (offset 0)
         const offset = this.decodeCursor(request.cursor)?.offset ?? 0
 
         // newest-first timeline for exactly this user; limit+1 probes for "more"
@@ -123,7 +123,7 @@ export class UserFeedResolver {
             ],
         )
 
-        // the (limit+1)th row only tells us there is more → trim it off
+        // the (limit+1)th row only tells us there is more -> trim it off
         const hasMore = rows.length > limit
         const pageRows = hasMore ? rows.slice(0,
             limit) : rows
@@ -164,7 +164,7 @@ export class UserFeedResolver {
                 at: row.at,
                 reactionCount: Number(row.reactionCount),
                 myReaction: row.myReaction ?? null,
-                // own-profile timeline → every item is mine (→ read-only, no react)
+                // own-profile timeline -> every item is mine (-> read-only, no react)
                 isMine: row.actorUserId === viewerId,
             }
         })
@@ -191,7 +191,7 @@ export class UserFeedResolver {
 
     /**
      * Decode an opaque cursor back to `{ offset }`. Returns null when absent or
-     * malformed (treated as page 1 → offset 0).
+     * malformed (treated as page 1 -> offset 0).
      *
      * @param cursor - the opaque cursor, or undefined
      * @returns the decoded cursor, or null
@@ -200,7 +200,7 @@ export class UserFeedResolver {
         if (!cursor) {
             return null
         }
-        // base64url → JSON; bail to page 1 on any bad/partial token
+        // base64url -> JSON; bail to page 1 on any bad/partial token
         try {
             const raw = Buffer.from(cursor,
                 "base64url").toString("utf8")

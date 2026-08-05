@@ -35,7 +35,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL surface for `savedContents` — authenticated paginated favorites list.
+ * GraphQL surface for `savedContents` -- authenticated paginated favorites list.
  */
 export class SavedContentsResolver {
     constructor(

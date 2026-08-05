@@ -16,7 +16,7 @@ import {
     ],
 })
 /**
- * Jobs query group — status leaves for polling background job progress.
+ * Jobs query group -- status leaves for polling background job progress.
  * Currently the single `incompletedJobs` leaf; registered global so its
  * resolver is picked up by the schema.
  */

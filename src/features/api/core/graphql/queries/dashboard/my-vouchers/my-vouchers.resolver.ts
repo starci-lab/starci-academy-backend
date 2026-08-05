@@ -33,8 +33,8 @@ import {
 
 @Resolver()
 /**
- * The authenticated viewer's Coin-shop vouchers, newest first — the "Ví của
- * tôi" list (code, discount, scope, status, expiry). A stale `unused` row past
+ * The authenticated viewer's Coin-shop vouchers, newest first -- the my-wallet
+ * list (code, discount, scope, status, expiry). A stale `unused` row past
  * its `expiresAt` is surfaced here as `expired` even though no cron has
  * flipped the stored column (see {@link VoucherService.isEffectivelyExpired}).
  */

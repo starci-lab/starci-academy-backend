@@ -3,14 +3,14 @@ import {
 } from "@modules/databases"
 
 /**
- * AI model recommendation tier — controls cost vs quality trade-off.
+ * AI model recommendation tier -- controls cost vs quality trade-off.
  */
 export enum ModelRecommendation {
-    /** Cheapest models — suitable for development/testing. */
+    /** Cheapest models -- suitable for development/testing. */
     Low = "low",
-    /** Balanced cost/quality — suitable for staging. */
+    /** Balanced cost/quality -- suitable for staging. */
     Medium = "medium",
-    /** Best quality models — suitable for production. */
+    /** Best quality models -- suitable for production. */
     High = "high",
 }
 
@@ -25,7 +25,7 @@ export interface ModelChoice {
 }
 
 /**
- * Task kinds for the AI router — each has its own model tier matrix.
+ * Task kinds for the AI router -- each has its own model tier matrix.
  */
 export enum AiTaskKind {
     /** Grading code submissions (git, Google Docs). */
@@ -34,12 +34,12 @@ export enum AiTaskKind {
     GenerateMilestone = "generateMilestone",
     /** Reviewing personal project tasks. */
     ReviewPersonalProject = "reviewPersonalProject",
-    /** CV submission review pipeline (extract → plan → analyze). */
+    /** CV submission review pipeline (extract -> plan -> analyze). */
     ReviewCvSubmission = "reviewCvSubmission",
 }
 
 /**
- * Inputs to the catalog ranking score — the recorded metrics a model row
+ * Inputs to the catalog ranking score -- the recorded metrics a model row
  * carries. Extended by adding a field here and a factor in `computeModelWeight`.
  */
 export interface ComputeModelWeightParams {

@@ -37,7 +37,7 @@ import {
 @Injectable()
 /**
  * Confirms a direct avatar upload: authorises the key (must live under the
- * caller's own `avatars/{userId}/` prefix — never trust a client key), checks
+ * caller's own `avatars/{userId}/` prefix -- never trust a client key), checks
  * the object really landed in MinIO, then persists its public URL on the user.
  */
 export class VerifyAvatarPresignUrlHandler
@@ -65,7 +65,7 @@ export class VerifyAvatarPresignUrlHandler
             user,
             request,
         } = command.params
-        // authorization: the key must belong to THIS user's avatar folder — a
+        // authorization: the key must belong to THIS user's avatar folder -- a
         // client could otherwise point their avatar at someone else's object
         const ownedPrefix = `${AVATAR_KEY_PREFIX}/${user.id}/`
         if (!request.key.startsWith(ownedPrefix)) {
@@ -78,7 +78,7 @@ export class VerifyAvatarPresignUrlHandler
             provider: S3Provider.Minio,
         })
         if (!exists) {
-            // nothing uploaded → leave the current avatar untouched
+            // nothing uploaded -> leave the current avatar untouched
             return {
                 uploaded: false,
                 url: null,

@@ -21,7 +21,7 @@ import type {
 @Injectable()
 /**
  * Prices a cart for display, reusing the SAME {@link CoursesCheckoutPricingService}
- * the real checkout uses — so the total shown in the cart equals the total charged
+ * the real checkout uses -- so the total shown in the cart equals the total charged
  * at checkout (progressive loyalty + order bundle bonus included).
  */
 export class CoursesCheckoutPreviewService {
@@ -44,7 +44,7 @@ export class CoursesCheckoutPreviewService {
             user,
         }: ExecuteParams<CoursesCheckoutPreviewRequest>,
     ): Promise<CoursesCheckoutPreviewData> {
-        // a logged-in user is required — pricing depends on their loyalty + owned set
+        // a logged-in user is required -- pricing depends on their loyalty + owned set
         if (!user) {
             throw new UserNotFoundException({
             })
@@ -54,7 +54,7 @@ export class CoursesCheckoutPreviewService {
             userId: user.id,
             courseIds,
         })
-        // map internal priced lines → the GraphQL shape (course id + per-line prices)
+        // map internal priced lines -> the GraphQL shape (course id + per-line prices)
         const lines = priced.lines.map((line) => ({
             courseId: line.course.id,
             listVnd: line.listVnd,
@@ -77,7 +77,7 @@ export class CoursesCheckoutPreviewService {
             bundleBonusPercent: priced.bundleBonusPercent,
             itemCount: priced.itemCount,
             // installment terms priced off the WHOLE order's charged VND total
-            // (after per-line loyalty + order bundle bonus) — never per-line,
+            // (after per-line loyalty + order bundle bonus) -- never per-line,
             // per §2.3 of the design doc
             installmentOptions: this.installmentPlanService.computeInstallmentOptions(priced.totalChargedVnd),
         }

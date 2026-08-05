@@ -63,8 +63,8 @@ import type {
  * - **Allowance** = the free base credits (`systemConfig.ai.auto`, see
  *   {@link AiAutoQuotaConfigService}) + the active tier's catalog credits.
  * - **Model access** is gated by tier via {@link TIER_ALLOWED_CATEGORIES}. A
- *   call is billed by TOKENS actually used — `AiModelCatalogService.creditForRun`
- *   applies the served model's own per-million-token rates — not by a flat
+ *   call is billed by TOKENS actually used -- `AiModelCatalogService.creditForRun`
+ *   applies the served model's own per-million-token rates -- not by a flat
  *   per-category constant.
  *
  * Windows reset lazily on read: when a `*ResetAt` timestamp is in the past the
@@ -107,8 +107,8 @@ export class AiEntitlementService {
 
     /**
      * Debit the unified credit pool after a successful run AND append the
-     * audit-history row for it — ONE atomic write, the single source for both
-     * the quota counters and the "Lịch sử dùng AI" history list. No other code
+     * audit-history row for it -- ONE atomic write, the single source for both
+     * the quota counters and the AI usage history list. No other code
      * path may touch `credit5hUsed`/`creditWeekUsed` or write a
      * {@link CreditUsageHistoryEntity} row.
      *
@@ -132,7 +132,7 @@ export class AiEntitlementService {
         await this.entityManager.transaction(
             async (entityManager) => {
                 if (cost > 0) {
-                    // lock the subscription row FOR UPDATE — concurrent debits serialize
+                    // lock the subscription row FOR UPDATE -- concurrent debits serialize
                     // here, so a read-modify-write race can never drop a debit (over-spend)
                     const subscription = await entityManager
                         .createQueryBuilder(
@@ -157,7 +157,7 @@ export class AiEntitlementService {
                     }
                 }
                 // history row is written REGARDLESS of cost (even a free balancer pick
-                // is worth an audit entry) — same transaction as the debit above
+                // is worth an audit entry) -- same transaction as the debit above
                 await entityManager.save(
                     CreditUsageHistoryEntity,
                     {
@@ -180,7 +180,7 @@ export class AiEntitlementService {
     }
 
     /**
-     * Paginated AI credit charge history for the user, newest first — read
+     * Paginated AI credit charge history for the user, newest first -- read
      * directly from `credit_usage_histories` (not cached; viewed on demand, not
      * on the grading hot path).
      *
@@ -225,7 +225,7 @@ export class AiEntitlementService {
     }
 
     /**
-     * Full quota snapshot for the UI — caps + used + remaining for BOTH the
+     * Full quota snapshot for the UI -- caps + used + remaining for BOTH the
      * free Auto lane and the paid Premium lane, plus the window reset times.
      *
      * Applies due window resets first (same lazy reset as {@link resolve}) so
@@ -258,14 +258,14 @@ export class AiEntitlementService {
 
     /**
      * Assert the user still has room in the UNIFIED credit pool (same source
-     * as {@link snapshot}/{@link consume} — tier-aware: a paid tier's own
+     * as {@link snapshot}/{@link consume} -- tier-aware: a paid tier's own
      * allowance, or the free Auto base when unset). Grade-time gate for
      * surfaces that don't already gate at submit-time.
      *
      * Replaces the old free-base-only `CreditUsageService.getSnapshot(...)
-     * .overQuota` check that several grade-step services used — that read a
+     * .overQuota` check that several grade-step services used -- that read a
      * SEPARATE, tier-blind counter (`credit_usage_histories`) always compared
-     * against the free 50/5h · 250/week base, so a paid Pro/Max user could
+     * against the free 50/5h - 250/week base, so a paid Pro/Max user could
      * still get incorrectly blocked. This reads the same pool everyone else's
      * quota UI/gate reads.
      *
@@ -291,7 +291,7 @@ export class AiEntitlementService {
     }
 
     /**
-     * Read the user's AI settings — saved lane preference + the capabilities
+     * Read the user's AI settings -- saved lane preference + the capabilities
      * the UI needs to decide which lanes are selectable.
      *
      * @param params - the owning `userId`
@@ -321,13 +321,13 @@ export class AiEntitlementService {
 
     /**
      * Grant a paid tier on successful payment and mark the funding transaction
-     * succeeded — both inside one DB transaction. Atomic: the Pending→Succeeded
+     * succeeded -- both inside one DB transaction. Atomic: the Pending->Succeeded
      * transition is claimed FIRST via a guarded `UPDATE ... WHERE status =
      * 'pending'` (same technique as
      * `TransactionActionService.updateTransactionStatusIfExpected`); the tier is
      * only granted when THIS call is the one that won that claim (rows-affected
      * = 1). A concurrent webhook/reconcile-poll race that loses the claim sees
-     * 0 rows affected and no-ops — so a paid transaction is granted exactly
+     * 0 rows affected and no-ops -- so a paid transaction is granted exactly
      * once, not merely "checked then acted on".
      *
      * @param params - the owning `userId`, the `tier` to grant, and the
@@ -341,7 +341,7 @@ export class AiEntitlementService {
         return this.entityManager.transaction(
             async (entityManager): Promise<boolean> => {
                 // atomically claim the Pending -> Succeeded transition BEFORE
-                // granting anything — this IS the guard, replacing the earlier
+                // granting anything -- this IS the guard, replacing the earlier
                 // read-then-compare-in-app-code (TOCTOU) idempotency check
                 const claim = await entityManager.update(
                     TransactionEntity,
@@ -354,11 +354,11 @@ export class AiEntitlementService {
                     },
                 )
                 if (!claim.affected) {
-                    // already claimed (granted) by a concurrent/earlier path → not a new grant
+                    // already claimed (granted) by a concurrent/earlier path -> not a new grant
                     return false
                 }
 
-                // this call alone won the claim → activate the tier for a fresh
+                // this call alone won the claim -> activate the tier for a fresh
                 // billing period; runs exactly once for this transaction
                 const subscription = await this.loadOrCreate(
                     userId,
@@ -374,7 +374,7 @@ export class AiEntitlementService {
                 subscription.autoRenew = false
                 await entityManager.save(subscription)
 
-                // a new grant happened → caller may notify the buyer
+                // a new grant happened -> caller may notify the buyer
                 return true
             },
         )
@@ -412,11 +412,11 @@ export class AiEntitlementService {
     }
 
     /**
-     * Whether the user may use the higher (paid) model tiers — true when they
+     * Whether the user may use the higher (paid) model tiers -- true when they
      * have an active paid subscription **OR** are enrolled in any course. This is
      * the StarCi "enroll OR pay unlocks higher tiers" rule: an enrolled learner
      * gets the same model access as a paid AI subscriber (credit allowance still
-     * follows the actual tier — enrolled-not-paid spends the free base pool).
+     * follows the actual tier -- enrolled-not-paid spends the free base pool).
      *
      * @param userId - the owning user.
      * @param subscription - the user's subscription row (or null).
@@ -480,7 +480,7 @@ export class AiEntitlementService {
     }
 
     /**
-     * Assert the user may pick / grade with paid-tier models — passes when paid
+     * Assert the user may pick / grade with paid-tier models -- passes when paid
      * OR enrolled (the unlock rule), throws otherwise. Replaces a strict
      * `resolve({ requestedMode: Premium })` for the grading model-pick gate so an
      * enrolled learner can pin a higher model.
@@ -514,7 +514,7 @@ export class AiEntitlementService {
     /**
      * Build the user-facing {@link AiSettings} view from a (post-reset) entity.
      *
-     * `unlocked` (paid OR enrolled) drives `canPremium` — the FE picker's unlock
+     * `unlocked` (paid OR enrolled) drives `canPremium` -- the FE picker's unlock
      * for higher-tier models; an enrolled learner unlocks them too. `tier` is the
      * active paid tier (null when not paid).
      */
@@ -582,7 +582,7 @@ export class AiEntitlementService {
      * window has elapsed (or was never initialised). Mutates `subscription`.
      *
      * A Coin-shop `aiCredit` top-up (`bonusCredit5h`/`bonusCreditWeek`) resets
-     * to 0 in lockstep with its window — it funds the CURRENT cycle only, it is
+     * to 0 in lockstep with its window -- it funds the CURRENT cycle only, it is
      * not a permanent allowance bump.
      */
     private applyWindowResets(subscription: AiSubscriptionEntity): void {
@@ -616,7 +616,7 @@ export class AiEntitlementService {
      * Rolls any due window reset forward FIRST (under a row lock) so the bonus
      * always lands in the live window, never one that is about to reset away.
      * Called by {@link RewardsService.redeem} when redeeming an `aiCredit`
-     * reward — never called from anywhere else (single writer of these two
+     * reward -- never called from anywhere else (single writer of these two
      * columns besides the reset itself).
      *
      * @param params - owner + the bonus amounts to add to each window.
@@ -657,7 +657,7 @@ export class AiEntitlementService {
 
     /**
      * Derive the {@link AiEntitlement} view from a (post-reset) entity: the
-     * user's active tier (paid → its tier, else free) drives allowed categories
+     * user's active tier (paid -> its tier, else free) drives allowed categories
      * + credit allowance.
      */
     private toEntitlement(
@@ -690,7 +690,7 @@ export class AiEntitlementService {
     }
 
     /**
-     * The per-window credit allowance: a paid tier **OVERRIDES** the free base —
+     * The per-window credit allowance: a paid tier **OVERRIDES** the free base --
      * the tier catalog credits ARE the total (not added on top of the base). Free
      * (no tier) gets the base credits from `systemConfig.ai.auto`. Everyone spends
      * from this single pool; upgrading a tier replaces the cap, it does not stack.
@@ -717,7 +717,7 @@ export class AiEntitlementService {
     }
 
     /**
-     * Build the full {@link AiQuotaSnapshot} from a (post-reset) entity — both
+     * Build the full {@link AiQuotaSnapshot} from a (post-reset) entity -- both
      * lanes, with caps from constants (Auto) and the tier catalog (Premium).
      */
     private toSnapshot(
@@ -755,7 +755,7 @@ export class AiEntitlementService {
             },
             window5hResetAt: subscription.window5hResetAt,
             windowWeekResetAt: subscription.windowWeekResetAt,
-            // ceiling the user caps within — unlocked (paid OR enrolled) → all
+            // ceiling the user caps within -- unlocked (paid OR enrolled) -> all
             allowedCategories: unlocked
                 ? TIER_ALLOWED_CATEGORIES[AiSubTier.Plus]
                 : TIER_ALLOWED_CATEGORIES.free,
@@ -771,10 +771,10 @@ export class AiEntitlementService {
 
     /**
      * Resolve the model CEILING for one surface from the user's saved overrides:
-     * the surface override if set, else the global `default`, else null (no cap →
+     * the surface override if set, else the global `default`, else null (no cap ->
      * the plan ceiling alone limits the climb). Read-only, no row creation.
      *
-     * @param params - the owning `userId` + the `surface` (omit → just the default).
+     * @param params - the owning `userId` + the `surface` (omit -> just the default).
      * @returns the ceiling category, or null when uncapped.
      */
     async resolveCeil(
@@ -803,12 +803,12 @@ export class AiEntitlementService {
     }
 
     /**
-     * Set (or clear) the user's model ceiling for one surface — or the global
+     * Set (or clear) the user's model ceiling for one surface -- or the global
      * `default` when `surface` is omitted. A null `category` clears that key. The
      * overrides map is dropped to null when it becomes empty. Returns the refreshed
      * snapshot so the caller can echo the new state.
      *
-     * @param params - owner, the surface (omit → default), and the category (null → clear).
+     * @param params - owner, the surface (omit -> default), and the category (null -> clear).
      * @returns the user's refreshed {@link AiQuotaSnapshot}.
      */
     async setCeil(

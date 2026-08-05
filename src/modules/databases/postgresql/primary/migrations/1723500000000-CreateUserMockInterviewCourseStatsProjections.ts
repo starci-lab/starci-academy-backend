@@ -5,10 +5,10 @@ import {
 
 /**
  * Creates the `user_mock_interview_course_stats_projections` CQRS read-model
- * table — one row per enrollment, holding the full mock-interview course-stats
+ * table -- one row per enrollment, holding the full mock-interview course-stats
  * aggregate (`insufficientData`, `modeSplit`, `trend`, `byPhase`, `byKind`,
  * `weakest`) in the inherited jsonb `value`. The inherited `updated_at` drives
- * the read-time TTL lazy-refresh — mirrors
+ * the read-time TTL lazy-refresh -- mirrors
  * `1719600000000-CreateUserChallengeProgressProjection`'s enrollment-keyed
  * shape exactly.
  *
@@ -30,7 +30,7 @@ export class CreateUserMockInterviewCourseStatsProjections1723500000000 implemen
             );
         `)
 
-        // FK to enrollments — deleting an enrollment removes its mock-interview-course-stats projection row
+        // FK to enrollments -- deleting an enrollment removes its mock-interview-course-stats projection row
         await queryRunner.query(`
             ALTER TABLE "user_mock_interview_course_stats_projections"
             ADD CONSTRAINT "fk_enrollment_id_user_mock_interview_course_stats_projections"

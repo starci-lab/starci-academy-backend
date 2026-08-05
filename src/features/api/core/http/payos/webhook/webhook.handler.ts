@@ -66,7 +66,7 @@ import {
 @CommandHandler(PayosWebhookCommand)
 @Injectable()
 /**
- * Verifies the PayOS signature then settles — unsigned or failed probes are ignored so a
+ * Verifies the PayOS signature then settles -- unsigned or failed probes are ignored so a
  * cancelled checkout cannot enroll.
  */
 export class PayosWebhookHandler
@@ -95,9 +95,9 @@ export class PayosWebhookHandler
         // verifies the signature (throws on tamper) and returns the signed data
         await this.payos.webhooks.verify(body as Webhook)
 
-        // signature-valid ≠ paid: PayOS also signs failure/cancel callbacks. The
+        // signature-valid != paid: PayOS also signs failure/cancel callbacks. The
         // authoritative success signal is `code === "00"` (the top-level `success`
-        // boolean is not always present in the raw payload — e.g. the URL probe).
+        // boolean is not always present in the raw payload -- e.g. the URL probe).
         if (body.code !== "00" || body.success === false) {
             this.winstonService.log(
                 WinstonLog.PaymentWebhookIgnored,
@@ -117,7 +117,7 @@ export class PayosWebhookHandler
         }
 
         // PayOS validates the webhook URL by POSTing a probe with a sample orderCode.
-        // Ack (200) anything we can't match to a pending transaction — a probe or a
+        // Ack (200) anything we can't match to a pending transaction -- a probe or a
         // stray callback is not an error; throwing would make PayOS mark the URL
         // "inactive" and make real callbacks retry. Grant only on a real match.
         const orderCode = body.data?.orderCode

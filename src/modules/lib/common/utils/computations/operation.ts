@@ -9,7 +9,7 @@ import {
 
 /**
  * Inputs for {@link bnMulDecimal}. Named (not inline) so call sites share one
- * rounding contract — `isRoundUp` decides whether a partial unit is kept.
+ * rounding contract -- `isRoundUp` decides whether a partial unit is kept.
  */
 export interface BnMulDecimalParams {
     // the amount to convert to a decimal
@@ -119,7 +119,7 @@ export const bnDivBn = ({
 
 /**
  * Inputs for {@link bnDivBn}. `fractionDigits` is the kept scale after the
- * ratio — too low and a tiny share rounds to 0.
+ * ratio -- too low and a tiny share rounds to 0.
  */
 export interface BnDivBnParams {
     bn1: BN

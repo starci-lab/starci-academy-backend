@@ -37,8 +37,8 @@ import {
 
 @Resolver()
 /**
- * The viewer's aggregated flashcard quick-quiz ("Hỏi nhanh") stats for one
- * course — a coverage/XP trend line plus per-tag and per-deck breakdowns
+ * The viewer's aggregated flashcard quick-quiz stats for one
+ * course -- a coverage/XP trend line plus per-tag and per-deck breakdowns
  * across their recent completed sessions, so the recap/stats surface has
  * progress data without the client re-deriving any of it. Enrollment-scoped,
  * same as `myFlashcardQuizHistory`.

@@ -50,15 +50,15 @@ import {
  * Stripe-specific course enrollment: creates a hosted Checkout Session
  * (redirect provider) and persists a pending preflight row.
  *
- * International gateway → charges the explicit USD price (`pricing_phases.priceUsd`),
+ * International gateway -> charges the explicit USD price (`pricing_phases.priceUsd`),
  * not the VND amount. Stripe `unit_amount` is the smallest currency unit (cents), so
  * the USD dollar price is multiplied by 100. The VND price is still stored on the
  * transaction as a stable reference.
  *
- * Honours a **Percent** `request.voucherCode` (currency-agnostic — applies to
+ * Honours a **Percent** `request.voucherCode` (currency-agnostic -- applies to
  * `priceUsd`) per `PAYMENT_MODIFIER_CAPABILITY`; a Flat (VND) voucher is
  * rejected before dispatch (see course-enroll.handler.ts), so this service
- * only ever sees Percent here. Same preview → reserve pattern as
+ * only ever sees Percent here. Same preview -> reserve pattern as
  * {@link CourseEnrollSepayService}.
  */
 export class CourseEnrollStripeService {
@@ -128,7 +128,7 @@ export class CourseEnrollStripeService {
             course,
             discountPercent,
         })
-        // never charge VND as USD — reject when no USD price is configured
+        // never charge VND as USD -- reject when no USD price is configured
         if (!priceUsd || priceUsd <= 0) {
             throw new MissingUsdPriceException({
                 paymentType: PaymentType.Stripe,
@@ -137,9 +137,9 @@ export class CourseEnrollStripeService {
         }
 
         // an invalid/unsupported code throws HERE (before any row or Stripe
-        // session is created) — a valid Percent voucher further discounts the
+        // session is created) -- a valid Percent voucher further discounts the
         // USD price. A Flat voucher never reaches here (rejected before dispatch
-        // in course-enroll.handler.ts — Flat is VND-only per PAYMENT_MODIFIER_CAPABILITY).
+        // in course-enroll.handler.ts -- Flat is VND-only per PAYMENT_MODIFIER_CAPABILITY).
         const discountedPriceUsd = voucherCode
             ? this.voucherService.applyToAmount(
                 priceUsd,
@@ -202,7 +202,7 @@ export class CourseEnrollStripeService {
                         quantity: 1,
                         price_data: {
                             currency,
-                            // Stripe expects cents → convert USD dollars to integer cents
+                            // Stripe expects cents -> convert USD dollars to integer cents
                             unit_amount: Math.round(discountedPriceUsd * 100),
                             product_data: {
                                 name: `Course enrollment ${orderCode}`,
@@ -237,7 +237,7 @@ export class CourseEnrollStripeService {
             )
             const saved = await manager.save(created)
             if (voucherCode) {
-                // re-validate + reserve UNDER LOCK — the earlier previewDiscount() was
+                // re-validate + reserve UNDER LOCK -- the earlier previewDiscount() was
                 // advisory only (no lock held), so a race since then is still caught here
                 await this.voucherService.reserve({
                     entityManager: manager,
@@ -254,7 +254,7 @@ export class CourseEnrollStripeService {
             transactionId: transaction.id,
         })
 
-        // redirect provider → no signed form fields (checkoutFields stays null)
+        // redirect provider -> no signed form fields (checkoutFields stays null)
         return {
             checkoutUrl: session.url ?? "",
             referenceId: String(orderCode),

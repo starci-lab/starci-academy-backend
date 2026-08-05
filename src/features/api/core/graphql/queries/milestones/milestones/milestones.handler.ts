@@ -51,7 +51,7 @@ export class MilestonesHandler
             filters: [
                 {
                     term: {
-                        // courseId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                        // courseId is mapped as a pure keyword -> query it directly (no `.keyword` subfield)
                         courseId,
                     },
                 },

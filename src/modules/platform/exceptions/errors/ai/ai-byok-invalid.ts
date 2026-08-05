@@ -14,7 +14,7 @@ export interface AiByokInvalidExceptionMetadata extends AbstractExceptionMetadat
 }
 
 /**
- * Thrown by `AiEntitlementService` when a BYOK update is malformed — e.g. an
+ * Thrown by `AiEntitlementService` when a BYOK update is malformed -- e.g. an
  * API key supplied without a provider, or selecting the `byok` lane without a
  * key on file.
  */

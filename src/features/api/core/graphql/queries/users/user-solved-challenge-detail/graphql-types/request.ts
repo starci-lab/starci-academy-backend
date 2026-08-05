@@ -9,7 +9,7 @@ import {
 })
 /**
  * Request for a single passed challenge submission's detail on a user's
- * PUBLIC profile — `userId` is the profile owner (NOT necessarily the
+ * PUBLIC profile -- `userId` is the profile owner (NOT necessarily the
  * caller); the caller's own identity (if any) is resolved separately by
  * `KeycloakOptionalAuthGraphQLGuard` for the owner-bypass check inside
  * {@link GraphQLProfileVisibilityGuard}.

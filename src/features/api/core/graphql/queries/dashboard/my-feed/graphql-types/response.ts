@@ -18,7 +18,7 @@ import {
     description: "A home-feed activity item (token-based).",
 })
 /**
- * One activity item in the GitHub-style home feed — something a followed user (or,
+ * One activity item in the GitHub-style home feed -- something a followed user (or,
  * on the "for you" tab, anyone) did (read/bookmark/pass/enroll/comment/follow).
  * Route + label are token-based: resolved lazily on click via the route index.
  */

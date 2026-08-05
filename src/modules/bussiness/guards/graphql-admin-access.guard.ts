@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * GraphQL counterpart of {@link AdminAccessGuard} — grants access only when the
+ * GraphQL counterpart of {@link AdminAccessGuard} -- grants access only when the
  * `x-admin-api-key` header matches the mounted admin secret.
  *
  * GraphQL resolvers have no HTTP request on `switchToHttp()`; the request lives

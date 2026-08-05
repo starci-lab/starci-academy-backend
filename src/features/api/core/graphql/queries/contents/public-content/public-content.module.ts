@@ -22,6 +22,6 @@ import {
     ],
 })
 /**
- * Nest DI for `publicContent` — no auth module; free lessons only.
+ * Nest DI for `publicContent` -- no auth module; free lessons only.
  */
 export class PublicContentSingleQueryModule extends ConfigurableModuleClass {}

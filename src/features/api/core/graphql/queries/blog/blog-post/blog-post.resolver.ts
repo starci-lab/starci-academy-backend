@@ -97,7 +97,7 @@ export class BlogPostResolver {
                 },
             },
         )
-        // unknown / unpublished slug → null so the FE can render a 404
+        // unknown / unpublished slug -> null so the FE can render a 404
         if (!post) {
             return null
         }
@@ -133,7 +133,7 @@ export class BlogPostResolver {
     }
 
     /**
-     * Whether the viewer is an active community member. Fails closed — an
+     * Whether the viewer is an active community member. Fails closed -- an
      * anonymous viewer, or a membership lookup error, counts as not active so a
      * premium body is never leaked when the gate cannot be evaluated.
      *

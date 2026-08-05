@@ -15,14 +15,14 @@ interface RagChunk {
     embedding: Array<number>
 }
 
-/** ~35-line windows with ~8-line overlap — enough context per chunk without blowing the prompt budget. */
+/** ~35-line windows with ~8-line overlap -- enough context per chunk without blowing the prompt budget. */
 const CHUNK_LINES = 35
 const CHUNK_OVERLAP_LINES = 8
 
 @Injectable()
 /**
  * On-device RAG engine, single session per agent process. Talks to the
- * learner's LOCAL Ollama (no cloud, no auth) — every method is best-effort
+ * learner's LOCAL Ollama (no cloud, no auth) -- every method is best-effort
  * and never throws, so a missing/unhealthy Ollama degrades gracefully.
  */
 export class RagService {
@@ -62,7 +62,7 @@ export class RagService {
         return chunks
     }
 
-    /** Embed one piece of text via local Ollama. Throws on failure — callers decide how to handle it. */
+    /** Embed one piece of text via local Ollama. Throws on failure -- callers decide how to handle it. */
     private async embed(text: string): Promise<Array<number>> {
         const response = await fetch(`${OLLAMA_BASE}/api/embeddings`,
             {
@@ -100,7 +100,7 @@ export class RagService {
                 })
             }
         } catch {
-            // best-effort — whatever embedded before the failure stays indexed.
+            // best-effort -- whatever embedded before the failure stays indexed.
         }
         return {
             chunkCount: this.chunks.length, sourceLabel: label 

@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -37,7 +37,7 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** Minimal user stand-in — only the id is read by the handler. */
+/** Minimal user stand-in -- only the id is read by the handler. */
 const fakeUser = (
     id: string,
 ): UserEntity => ({
@@ -154,7 +154,7 @@ describe("ChallengeSubmissionsHandler",
                     },
                 ] as Array<UserChallengeSubmissionEntity>
                 // attempts come back ascending; the Map keeps the last write per
-                // userChallengeSubmissionId — i.e. the highest attempt number.
+                // userChallengeSubmissionId -- i.e. the highest attempt number.
                 const attempts = [
                     {
                         id: "a1",
@@ -190,7 +190,7 @@ describe("ChallengeSubmissionsHandler",
                 // sub-1 gets its join + the highest-numbered attempt
                 expect(result.data[0].userSubmission).toBe(joins[0])
                 expect(result.data[0].userSubmission?.lastAttempt).toBe(attempts[1])
-                // sub-2 has a join but no attempts → lastAttempt stays undefined
+                // sub-2 has a join but no attempts -> lastAttempt stays undefined
                 expect(result.data[1].userSubmission).toBe(joins[1])
                 expect(result.data[1].userSubmission?.lastAttempt).toBeUndefined()
             })

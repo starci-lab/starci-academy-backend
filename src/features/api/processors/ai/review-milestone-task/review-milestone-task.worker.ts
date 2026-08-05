@@ -51,7 +51,7 @@ import {
     },
 )
 /**
- * Review milestone task: `grade` → `complete`.
+ * Review milestone task: `grade` -> `complete`.
  */
 export class ReviewMilestoneTaskWorker extends WorkerHost {
     constructor(

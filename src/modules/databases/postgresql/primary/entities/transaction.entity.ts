@@ -168,7 +168,7 @@ export class TransactionEntity extends UuidAbstractEntity {
         amount: number
 
     /**
-     * Loyalty discount percent applied at checkout (0–100). The persisted
+     * Loyalty discount percent applied at checkout (0-100). The persisted
      * {@link amount} already reflects this discount; stored so the charged price
      * matches what the buyer was shown.
      */
@@ -310,7 +310,7 @@ export class TransactionEntity extends UuidAbstractEntity {
      * The installment plan this transaction pays one cycle of, when
      * {@link actionType} is `installmentPayment`; null for every other action
      * type. Not a relation (the reconcile worker only ever needs the id to
-     * call `InstallmentPlanService`) — deliberately a plain column to avoid a
+     * call `InstallmentPlanService`) -- deliberately a plain column to avoid a
      * circular entity reference (`InstallmentPlanEntity` already points back
      * at a transaction via `originTransaction`).
      */
@@ -329,7 +329,7 @@ export class TransactionEntity extends UuidAbstractEntity {
         installmentPlanId: string | null
 
     /**
-     * Installment ("trả góp") INTENT carried by a FIRST-cycle checkout — set on
+     * Installment INTENT carried by a FIRST-cycle checkout -- set on
      * an `Enroll` transaction when the buyer chose to pay in installments (null
      * for a normal one-shot purchase). The enroll worker reads these on payment
      * success to create the `Fixed` {@link InstallmentPlanEntity} exactly once

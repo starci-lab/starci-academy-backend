@@ -33,7 +33,7 @@ import {
 
 @Resolver()
 /**
- * Public profile query: a user's DERIVED challenge-strength standing — a
+ * Public profile query: a user's DERIVED challenge-strength standing -- a
  * percentile + 1-based global rank by a difficulty-weighted sum over their
  * distinct passed challenges. Purely derived (does NOT touch the points / XP /
  * league economy); thin read off the per-user CQRS solved-challenges projection

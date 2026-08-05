@@ -101,7 +101,7 @@ describe("KpiRewardService",
             () => {
                 it("clamps a target above the KPI's max down to KPI_TARGET_MAX[key]",
                     async () => {
-                        // StudyDays caps at 7 — a wildly over-large request must be clamped
+                        // StudyDays caps at 7 -- a wildly over-large request must be clamped
                         const result = await service.setTarget({
                             userId,
                             key: KpiKey.StudyDays,
@@ -187,7 +187,7 @@ describe("KpiRewardService",
                             target: 0,
                         })
 
-                        // only the jsonb_set write happens — no floor upsert for a clear
+                        // only the jsonb_set write happens -- no floor upsert for a clear
                         expect(entityManager.query).toHaveBeenCalledTimes(1)
                     })
 
@@ -222,7 +222,7 @@ describe("KpiRewardService",
                                 weeklyLessons: 10,
                             }),
                         )
-                        // #2 findOne: writeCoinHistory's ledger dedupe check — no prior grant
+                        // #2 findOne: writeCoinHistory's ledger dedupe check -- no prior grant
                         entityManager.findOne.mockResolvedValueOnce(null)
                         entityManager.findOneOrFail.mockResolvedValueOnce({
                             id: userId,
@@ -383,7 +383,7 @@ describe("KpiRewardService",
                                 weeklyLessons: 10,
                             }),
                         )
-                        // #2 findOne: a ledger row ALREADY exists for this (source, refId) —
+                        // #2 findOne: a ledger row ALREADY exists for this (source, refId) --
                         // a racing double-claim must not re-credit the balance
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "ledger-existing",

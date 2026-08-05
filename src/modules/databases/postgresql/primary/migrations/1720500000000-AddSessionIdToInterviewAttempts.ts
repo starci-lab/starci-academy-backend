@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `interview_session_id` (nullable uuid) to `interview_attempts` — the
+ * Adds `interview_session_id` (nullable uuid) to `interview_attempts` -- the
  * client-generated id that groups all answers from one interview run (5/10
  * questions) back into a single session, so cross-session history can list runs
  * rather than individual answers. Nullable so legacy rows (logged before

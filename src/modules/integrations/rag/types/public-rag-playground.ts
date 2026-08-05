@@ -35,11 +35,11 @@ export interface RagPlaygroundSampleEntry {
     label: string
     /** Display-only file path attached to the indexed chunk's citation metadata. */
     filePath: string
-    /** The sample's source code — stays server-side, only revealed via indexing. */
+    /** The sample's source code -- stays server-side, only revealed via indexing. */
     code: string
 }
 
-/** A catalog entry's public listing shape — id + label only, never the code. */
+/** A catalog entry's public listing shape -- id + label only, never the code. */
 export type RagPlaygroundSampleSummary = Pick<RagPlaygroundSampleEntry, "id" | "label">
 
 /** Result of {@link PublicRagPlaygroundService.index}. */
@@ -48,7 +48,7 @@ export interface IndexRagPlaygroundResult {
     sessionId: string
     /** How many chunks were indexed. */
     chunkCount: number
-    /** Human-readable label of the indexed source (file name / repo / "Repo mẫu"). */
+    /** Human-readable label of the indexed source (file name / repo / "Sample repo"). */
     sourceLabel: string
 }
 

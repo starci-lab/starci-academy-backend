@@ -52,7 +52,7 @@ describe("creditForTypicalCall",
         it("tracks the real dollar cost of the call, not a per-tier round number",
             () => {
                 // the charge must be within a credit of the true cost converted at the
-                // published rate — this is what makes a credit MEAN something
+                // published rate -- this is what makes a credit MEAN something
                 for (const model of [
                     QWEN_FLASH,
                     DEEPSEEK_FLASH,

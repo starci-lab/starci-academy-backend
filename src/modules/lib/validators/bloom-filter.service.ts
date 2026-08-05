@@ -75,7 +75,7 @@ export class BloomFilterService {
         }
     }
 
-    /** Returns true if the item may exist (false → definitely not). */
+    /** Returns true if the item may exist (false -> definitely not). */
     has(
         state: BloomFilterState,
         value: string,

@@ -47,7 +47,7 @@ describe("TransactionActionService",
         let entityManager: EntityManagerMock
 
         beforeEach(async () => {
-            // fresh entity manager with happy-path defaults (findOne → null)
+            // fresh entity manager with happy-path defaults (findOne -> null)
             entityManager = makeEntityManagerMock()
 
             module = await Test.createTestingModule({
@@ -95,7 +95,7 @@ describe("TransactionActionService",
 
                 it("throws TransactionNotFoundException when the row is missing",
                     async () => {
-                        // default findOne resolves null → the guard must fire
+                        // default findOne resolves null -> the guard must fire
                         await expect(
                             service.updateTransactionStatus({
                                 id: "missing",

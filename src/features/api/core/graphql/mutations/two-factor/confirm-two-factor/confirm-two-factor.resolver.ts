@@ -84,7 +84,7 @@ export class ConfirmTwoFactorResolver {
             },
         )
 
-        // nothing to confirm → caller skipped setupTwoFactor
+        // nothing to confirm -> caller skipped setupTwoFactor
         if (!current.twoFactorSecret) {
             throw new TwoFactorInvalidCodeException({
                 userId: user.id,
@@ -105,7 +105,7 @@ export class ConfirmTwoFactorResolver {
             })
         }
 
-        // code matched → promote the pending secret to active
+        // code matched -> promote the pending secret to active
         await this.entityManager.update(
             UserEntity,
             {

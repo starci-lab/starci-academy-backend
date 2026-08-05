@@ -6,7 +6,7 @@ import {
 /**
  * Adds the appearance-customization columns on `users`: `accent_color`
  * (nullable hex string; null = default brand accent) and `background_effect`
- * (new `background_effect` enum, default `none`) — the Settings → "Giao diện"
+ * (new `background_effect` enum, default `none`) -- the Settings -> Appearance
  * picker. Independent of light/dark mode, which stays on `next-themes` client-side.
  *
  * Dev runs schema via `synchronize`; this migration applies the same change

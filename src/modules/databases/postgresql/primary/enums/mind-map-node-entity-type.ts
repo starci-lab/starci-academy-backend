@@ -10,7 +10,7 @@ import {
  * (`@xyflow/react` node `data.kind`).
  */
 export enum MindMapNodeEntityType {
-    /** Root node — the course itself. */
+    /** Root node -- the course itself. */
     Course = "course",
     /** Node links to a ModuleEntity row. */
     Module = "module",

@@ -1,8 +1,8 @@
 /** A single resolved ancestor (course/module/content/challenge) of a search hit. */
 export interface GlobalSearchParentRef {
-    /** Primary key (UUID) of the ancestor — used for module/content learn URLs. */
+    /** Primary key (UUID) of the ancestor -- used for module/content learn URLs. */
     id: string
-    /** Human-facing slug of the ancestor — used for the course URL segment. */
+    /** Human-facing slug of the ancestor -- used for the course URL segment. */
     displayId: string
 }
 
@@ -19,7 +19,7 @@ export interface GlobalSearchParentPath {
     content?: GlobalSearchParentRef
     /** The challenge itself (present for challenge hits). */
     challenge?: GlobalSearchParentRef
-    /** The milestone's first task (present for milestone hits) — used to deep-link into the personal-project page. */
+    /** The milestone's first task (present for milestone hits) -- used to deep-link into the personal-project page. */
     task?: GlobalSearchParentRef
 }
 
@@ -48,7 +48,7 @@ export interface GlobalSearchItem {
      */
     isEnrolled?: boolean
     /**
-     * COURSE hits only: whether the course is free — no paid price
+     * COURSE hits only: whether the course is free -- no paid price
      * (`originalPrice` null/0 AND no pricing phase has `price > 0`). Undefined for
      * non-course kinds / when enrichment was skipped. No live/discounted pricing.
      */

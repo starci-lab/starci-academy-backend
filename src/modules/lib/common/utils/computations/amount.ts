@@ -9,7 +9,7 @@ import {
 
 /**
  * Inputs for {@link toDecimalAmount}. `decimals` is the token's on-chain scale;
- * `fractionDigits` is display precision — mixing them truncates mid-conversion.
+ * `fractionDigits` is display precision -- mixing them truncates mid-conversion.
  */
 export interface ToDecimalAmountParams {
     // the amount to convert to a decimal

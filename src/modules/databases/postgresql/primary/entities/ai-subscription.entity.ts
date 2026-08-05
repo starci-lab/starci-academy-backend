@@ -18,7 +18,7 @@ import {
 } from "../enums"
 
 /**
- * Per-surface AI model CEILING overrides ("trần" the user sets in settings).
+ * Per-surface AI model CEILING overrides (the ceiling the user sets in settings).
  * `default` caps every surface; a surface key (chatbot/grading/interview)
  * overrides the default for that surface. Absent key = inherit default; absent
  * default = only the plan ceiling caps. The Auto chain never climbs past the
@@ -27,11 +27,11 @@ import {
 export interface AiCeilOverrides {
     /** Global default ceiling for every surface. */
     default?: AiModelCategory
-    /** Hỏi AI khi đọc bài. */
+    /** Ask AI while reading a lesson. */
     chatbot?: AiModelCategory
-    /** Chấm bài (challenge + capstone). */
+    /** Grade submissions (challenge + capstone). */
     grading?: AiModelCategory
-    /** Phỏng vấn thử. */
+    /** Mock interview. */
     interview?: AiModelCategory
 }
 import {
@@ -51,8 +51,8 @@ import {
  * Holds a single **credit** pool spent by every run, with two shared
  * reset windows (5h + week).
  *
- * - Free / course users: `tier` is null → allowance = the free base credits.
- * - Paid users: `tier` set → allowance = free base + the tier catalog credits.
+ * - Free / course users: `tier` is null -> allowance = the free base credits.
+ * - Paid users: `tier` set -> allowance = free base + the tier catalog credits.
  *   A tier also unlocks the higher model categories (free = Economy only).
  *
  * Counters track credits spent WITHIN the current window; remaining = limit −
@@ -169,7 +169,7 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
 
     /**
      * Bonus platform credit granted for the CURRENT 5-hour window by redeeming
-     * an `aiCredit`-kind Coin-shop reward — added on top of the tier/free
+     * an `aiCredit`-kind Coin-shop reward -- added on top of the tier/free
      * allowance (magnitude only; it never unlocks a higher model category).
      * Reset to 0 alongside {@link credit5hUsed} whenever the window rolls
      * (see `AiEntitlementService`), so a top-up funds the CURRENT cycle only.
@@ -205,7 +205,7 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
      * Per-surface model CEILING overrides the user set in AI settings (cost
      * control). jsonb `{ default?, chatbot?, grading?, interview? }` of
      * {@link AiModelCategory}. Null = no caps (only the plan ceiling applies).
-     * Not exposed directly via GraphQL — surfaced through the quota query.
+     * Not exposed directly via GraphQL -- surfaced through the quota query.
      */
     @Column({
         name: "ceil_overrides",

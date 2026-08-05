@@ -18,7 +18,7 @@ export interface AcquireKeyParams {
  * Result of {@link AiBalancerService.acquire}.
  */
 export interface AcquireKeyResult {
-    /** Raw API key value — pass to SDK constructor (never log in full). */
+    /** Raw API key value -- pass to SDK constructor (never log in full). */
     value: string
     /** Opaque handle identifying the key in the pool. */
     handle: AcquiredKeyHandle
@@ -30,7 +30,7 @@ export interface AcquireKeyResult {
 export interface AcquiredKeyHandle {
     /** Provider that owns the key. */
     provider: ModelProvider
-    /** Last 4 chars of the key value — uniquely identifies the state in the pool. */
+    /** Last 4 chars of the key value -- uniquely identifies the state in the pool. */
     keySuffix: string
 }
 
@@ -43,7 +43,7 @@ export interface HealthSnapshotResult {
 }
 
 /**
- * One model/file group in {@link AiBalancerService.modelKeyHealth} — the keys
+ * One model/file group in {@link AiBalancerService.modelKeyHealth} -- the keys
  * loaded from a single `keysFilePath` plus the models that use them, each key
  * carrying its live health from the ping cache.
  */
@@ -65,7 +65,7 @@ export interface ModelKeyHealthGroup {
 }
 
 /**
- * Result of {@link AiBalancerService.modelKeyHealth} — key health grouped per
+ * Result of {@link AiBalancerService.modelKeyHealth} -- key health grouped per
  * model/file (one `.key` per model), for the admin system-health page.
  */
 export interface ModelKeyHealthResult {

@@ -8,7 +8,7 @@ import {
 /**
  * How a visitor supplied code to the PUBLIC RAG Playground. Stored as a plain
  * `varchar` on {@link import("../entities").RagPlaygroundSessionEntity} (not a
- * Postgres enum type — avoids the ALTER-TYPE-ADD-VALUE pitfall for a column
+ * Postgres enum type -- avoids the ALTER-TYPE-ADD-VALUE pitfall for a column
  * that will likely grow more source kinds over time).
  */
 export enum RagPlaygroundSourceKind {
@@ -16,7 +16,7 @@ export enum RagPlaygroundSourceKind {
     Paste = "paste",
     /** Uploaded a file. */
     Upload = "upload",
-    /** Used the built-in curated sample — no input required. */
+    /** Used the built-in curated sample -- no input required. */
     Sample = "sample",
     /** Imported a public GitHub repository by URL. */
     Github = "github",

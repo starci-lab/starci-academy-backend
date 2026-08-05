@@ -18,10 +18,9 @@ import type {
 
 @Injectable()
 /**
- * Reads back the viewer's completed flashcard quick-quiz ("Hỏi nhanh")
- * sessions, newest first, so the recap/history surface can list past runs
+ * Reads back the viewer's completed flashcard quick-quiz * sessions, newest first, so the recap/history surface can list past runs
  * with the outcome each one already snapshotted at completion time (mode,
- * level, coverage, xpEarned, weakTags) — no re-derivation from `results` or a
+ * level, coverage, xpEarned, weakTags) -- no re-derivation from `results` or a
  * join to `xp_histories`. Mirrors `MyMockInterviewAttemptsService`'s
  * structure (plain query service, no CQRS command bus).
  */
@@ -70,7 +69,7 @@ export class MyFlashcardQuizHistoryService {
                     },
                     status: "completed",
                 },
-                // newest completed session first — matches the history's "recent attempts" framing
+                // newest completed session first -- matches the history's "recent attempts" framing
                 order: {
                     updatedAt: "DESC",
                 },

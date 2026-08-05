@@ -15,12 +15,12 @@ const MIN_SESSIONS_FOR_STATS = 3
 
 @Injectable()
 /**
- * Reads the viewer's flashcard quick-quiz ("Hỏi nhanh") stats for one course —
+ * Reads the viewer's flashcard quick-quiz stats for one course --
  * the coverage-vs-target hero + weak-topic map that `FlashcardQuizStats`
- * renders (`stats-canonical-fold` — 1 hero + 1 zone). The heavy scan/fold over
+ * renders (`stats-canonical-fold` -- 1 hero + 1 zone). The heavy scan/fold over
  * `flashcard_quiz_sessions` + `flashcard_cards` runs ONLY in
  * `UserFlashcardCourseStatsProjectionService.recompute` (CQRS projection, CDC
- * on `flashcard_quiz_sessions`/`flashcard_review_sessions`) — this service is
+ * on `flashcard_quiz_sessions`/`flashcard_review_sessions`) -- this service is
  * a pure point-read (TTL lazy-refresh), never re-scans/folds inline (per
  * `.claude/be/rules/cqrs-no-inline-aggregate.md`).
  */

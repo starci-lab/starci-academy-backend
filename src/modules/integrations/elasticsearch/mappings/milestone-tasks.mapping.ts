@@ -7,7 +7,7 @@ import type {
  *
  * Types the real search/sort fields of a milestone task and adds a dedicated
  * `suggest` field of type `completion` (an in-memory FST) powering fast, ranked
- * autocomplete — the ES sync builder populates it with the clean task title plus
+ * autocomplete -- the ES sync builder populates it with the clean task title plus
  * a weight derived from display order. Localized translation blobs are stored but
  * not indexed.
  */
@@ -19,7 +19,7 @@ export const milestoneTasksIndexMapping: ElasticsearchIndexMapping = {
             id: {
                 type: "keyword",
             },
-            // human-facing stable id (folder slug) — exact-match lookup/filter
+            // human-facing stable id (folder slug) -- exact-match lookup/filter
             displayId: {
                 type: "keyword",
             },
@@ -35,11 +35,11 @@ export const milestoneTasksIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
-            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            // pure display-ordering index, decoupled from orderIndex -- sortable for reordering
             sortIndex: {
                 type: "integer",
             },
-            // priority weight — lower values are higher priority
+            // priority weight -- lower values are higher priority
             weight: {
                 type: "integer",
             },
@@ -47,7 +47,7 @@ export const milestoneTasksIndexMapping: ElasticsearchIndexMapping = {
             type: {
                 type: "keyword",
             },
-            // parent milestone id — used to scope/filter suggestions per milestone
+            // parent milestone id -- used to scope/filter suggestions per milestone
             milestoneId: {
                 type: "keyword",
             },
@@ -59,7 +59,7 @@ export const milestoneTasksIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // localized override blob — stored, not indexed
+            // localized override blob -- stored, not indexed
             translations: {
                 type: "object",
                 enabled: false,

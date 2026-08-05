@@ -5,7 +5,7 @@ const BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
  * Encode a buffer to an unpadded RFC 4648 base32 string (TOTP secret format).
  *
  * @param buffer - Raw bytes to encode.
- * @returns The base32 representation (A–Z, 2–7), no `=` padding.
+ * @returns The base32 representation (A-Z, 2-7), no `=` padding.
  */
 export const base32Encode = (buffer: Buffer): string => {
     // accumulate bits 5 at a time across byte boundaries

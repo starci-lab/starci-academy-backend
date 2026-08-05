@@ -19,15 +19,15 @@ import type {
 /**
  * Learner-CMS read service for the current user's milestone-task review attempts.
  *
- * Plain paginated list keyed by the viewer (the LIST exception) — reads the live
+ * Plain paginated list keyed by the viewer (the LIST exception) -- reads the live
  * tables directly via the primary {@link EntityManager}, no CQRS projection. The
  * join chain mirrors the capstone projection's recompute:
  *
  *   user_milestone_task_attempts (mta)
- *     → user_milestone_tasks (umt, mta.user_milestone_task_id)
- *     → milestone_tasks (mt, umt.milestone_task_id)
- *     → milestones (m, mt.milestone_id)
- *     → enrollments (e, umt.enrollment_id)  → courses (c, e.course_id)
+ *     -> user_milestone_tasks (umt, mta.user_milestone_task_id)
+ *     -> milestone_tasks (mt, umt.milestone_task_id)
+ *     -> milestones (m, mt.milestone_id)
+ *     -> enrollments (e, umt.enrollment_id)  -> courses (c, e.course_id)
  *
  * Both passed and failed attempts are included; ordering is newest-first by the
  * attempt's `created_at`.
@@ -51,7 +51,7 @@ export class MilestoneTaskAttemptsCmsService {
             offset,
         }: ListLearnerCmsParams,
     ): Promise<PaginatedLearnerCmsResult<MilestoneTaskAttemptResult>> {
-        // run the page query and the total count together — both hit the same
+        // run the page query and the total count together -- both hit the same
         // enrollment.user_id scope, so parallelising halves the round-trip cost
         const [
             rows,
@@ -87,13 +87,13 @@ export class MilestoneTaskAttemptsCmsService {
                 score: row.score,
                 attemptedAt: row.attempted_at,
             })),
-            // single-row count, text-encoded bigint → number
+            // single-row count, text-encoded bigint -> number
             total: Number(countRows[0]?.total ?? 0),
         }
     }
 
     /**
-     * Build the page SQL — one row per attempt with task / milestone / course
+     * Build the page SQL -- one row per attempt with task / milestone / course
      * titles, newest-first, windowed by `$2` (limit) / `$3` (offset) for the
      * enrollments owned by user `$1`.
      *
@@ -123,7 +123,7 @@ export class MilestoneTaskAttemptsCmsService {
     }
 
     /**
-     * Build the count SQL — every attempt under enrollments owned by user `$1`
+     * Build the count SQL -- every attempt under enrollments owned by user `$1`
      * (no page window).
      *
      * @returns the parameterised count SQL.

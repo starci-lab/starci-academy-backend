@@ -58,7 +58,7 @@ import type {
     VerifyNowSocketIoPayload,
 } from "./types"
 
-/** Pairing code lifetime (ms). After this, `agent:pair` is rejected — bounds how
+/** Pairing code lifetime (ms). After this, `agent:pair` is rejected -- bounds how
  * long a leaked pairing code stays usable (the code is a UUID, so this + the rate
  * limit are defense-in-depth, not the primary guard). */
 const PAIRING_CODE_TTL_MS = 30 * 60 * 1000
@@ -69,7 +69,7 @@ const PAIR_RATE_WINDOW_SECONDS = 60
 
 @PlaygroundByomWebSocketGateway()
 /**
- * WebSocket gateway for the `/playground_byom` namespace — relays shell
+ * WebSocket gateway for the `/playground_byom` namespace -- relays shell
  * commands + resource reports between a browser and a learner's local CLI
  * agent (a plain `socket.io-client` process, connecting OUTBOUND over WSS).
  *
@@ -81,7 +81,7 @@ const PAIR_RATE_WINDOW_SECONDS = 60
  *
  * Verification is "lite": `resources:report` is checked against the current
  * step's `verifyResourceKind`/`verifyResourceNamePattern`/`verifyExpectedStatus`
- * — a substring/prefix + optional status match, no AI grading.
+ * -- a substring/prefix + optional status match, no AI grading.
  */
 export class PlaygroundByomGateway implements OnGatewayDisconnect {
     constructor(
@@ -89,7 +89,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
         private readonly entityManager: EntityManager,
         private readonly playgroundByomRoomService: PlaygroundByomRoomService,
         private readonly wsResponseService: WsResponseService,
-        // `Cache` ioredis instance — SHARED across app instances, so the pairing
+        // `Cache` ioredis instance -- SHARED across app instances, so the pairing
         // rate limit holds cluster-wide (unlike an in-memory per-instance counter).
         @InjectIoRedis(IoRedisInstanceKey.Cache)
         private readonly redis: Redis,
@@ -100,7 +100,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     @WebSocketServer()
     private readonly server: Namespace
 
-    /** sessionId → the currently-bound agent socket id. Enforces ONE live agent per
+    /** sessionId -> the currently-bound agent socket id. Enforces ONE live agent per
      * session: a 2nd concurrent `agent:pair` with the same code (while the first
      * agent is still connected) is rejected, so a leaked code can't attach a rogue
      * agent that spoofs the learner's terminal output / step verification. */
@@ -109,7 +109,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     /**
      * Records an `agent:pair` attempt from `ip` in Redis (shared across instances)
      * and returns whether it is within the per-IP budget. Fixed window via an atomic
-     * INCR + first-hit EXPIRE. Fails OPEN on a Redis blip — a cache outage must never
+     * INCR + first-hit EXPIRE. Fails OPEN on a Redis blip -- a cache outage must never
      * lock a legit learner out of pairing.
      */
     private async withinPairRateLimit(ip: string): Promise<boolean> {
@@ -182,7 +182,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
             })
             return
         }
-        // (C) reject an expired code — bounds the window a leaked/guessed code stays usable.
+        // (C) reject an expired code -- bounds the window a leaked/guessed code stays usable.
         if (Date.now() - session.createdAt.getTime() > PAIRING_CODE_TTL_MS) {
             ack({
                 error: "This pairing code has expired — restart the lab for a new one.",
@@ -252,12 +252,12 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
             },
         )
         // (A) verify this browser OWNS the session (its Keycloak `sub` matches the
-        // owner) and stamp `data.ownedSessionId` — the flag `command:run` checks so
+        // owner) and stamp `data.ownedSessionId` -- the flag `command:run` checks so
         // ONLY the owner browser can push commands to the paired agent.
         await this.markOwnerBrowser(client,
             session)
         await client.join(this.playgroundByomRoomService.name(payload.sessionId))
-        // seed the freshly-subscribed browser with the CURRENT pairing state —
+        // seed the freshly-subscribed browser with the CURRENT pairing state --
         // the agent may already have paired before the browser opened, so the UI
         // must not sit on "waiting" forever.
         client.emit(
@@ -274,7 +274,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
      * Verifies a browser socket's Keycloak token and, when the token's `sub`
      * matches the session's owner, stamps `data.ownedSessionId` (+ `userId`).
      * Best-effort: a missing/invalid/foreign token just leaves the socket
-     * UNMARKED — it can still observe the room, but `command:run` will reject it.
+     * UNMARKED -- it can still observe the room, but `command:run` will reject it.
      */
     private async markOwnerBrowser(
         client: TypedSocket,
@@ -301,7 +301,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
                 client.data.ownedSessionId = session!.id
             }
         } catch {
-            // unverifiable token → leave unmarked (read-only observer).
+            // unverifiable token -> leave unmarked (read-only observer).
         }
     }
 
@@ -309,7 +309,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
      * A socket dropped. Only the AGENT stamps `data.sessionId` (on pair), so a
      * socket carrying one is the learner's machine leaving: mark the session
      * disconnected and tell the browser room the machine went away (re-gating the
-     * UI). A browser drop carries no sessionId → no-op.
+     * UI). A browser drop carries no sessionId -> no-op.
      *
      * @param client - The socket that disconnected.
      */
@@ -354,8 +354,8 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
      *
      * (A) AUTHORIZATION: only the socket VERIFIED as the session owner on
      * `browser:subscribe` (`data.ownedSessionId === sessionId`) may issue commands.
-     * This is the gate that stops a paired agent — or any other socket that merely
-     * guessed the pairing code and learned the `sessionId` — from relaying a command
+     * This is the gate that stops a paired agent -- or any other socket that merely
+     * guessed the pairing code and learned the `sessionId` -- from relaying a command
      * that the learner's agent would run as an arbitrary shell (RCE).
      *
      * @param payload - Carries the target `sessionId` and the `command` to run.
@@ -367,7 +367,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
         @ConnectedSocket() client: TypedSocket,
     ): void {
         if (client.data.ownedSessionId !== payload.sessionId) {
-            // not the verified owner browser (an agent, or an unauthorized socket) —
+            // not the verified owner browser (an agent, or an unauthorized socket) --
             // never relay a command it could run on the learner's machine.
             this.winstonService.log(
                 WinstonLog.BestEffortOperationFailed,
@@ -383,7 +383,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
             return
         }
         const room = this.playgroundByomRoomService.name(payload.sessionId)
-        // socket.to(room) excludes the sender — only the paired agent gets this
+        // socket.to(room) excludes the sender -- only the paired agent gets this
         client.to(room).emit(
             SubscriptionEvent.PlaygroundCommandRun,
             {
@@ -420,7 +420,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     /**
      * Relays one chunk of command output from the agent up to the browser room.
      *
-     * @param payload - Carries the `output` text (no `sessionId` — derived from `socket.data.sessionId`).
+     * @param payload - Carries the `output` text (no `sessionId` -- derived from `socket.data.sessionId`).
      * @param client - The agent's socket (excluded from the relay; carries `data.sessionId`).
      */
     @SubscribeMessage(PublicationEvent.PlaygroundCommandOutput)
@@ -430,7 +430,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     ): void {
         const sessionId = client.data.sessionId
         if (!sessionId) {
-            // agent emitted before pairing — nothing to relay to
+            // agent emitted before pairing -- nothing to relay to
             return
         }
         const room = this.playgroundByomRoomService.name(sessionId)
@@ -467,7 +467,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
      * Relays the agent's pong (echoed browser timestamp) back up to the browser
      * room so the browser can compute `Date.now() - t` as the round-trip latency.
      *
-     * @param payload - Carries the echoed timestamp `t` (no `sessionId` — derived from `socket.data.sessionId`).
+     * @param payload - Carries the echoed timestamp `t` (no `sessionId` -- derived from `socket.data.sessionId`).
      * @param client - The agent's socket (excluded from the relay; carries `data.sessionId`).
      */
     @SubscribeMessage(PublicationEvent.PlaygroundAgentPong)
@@ -490,10 +490,10 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
 
     /**
      * Relays the agent's self-reported resource snapshot to the browser room,
-     * then runs the "lite" verify against the session's current step — on a
+     * then runs the "lite" verify against the session's current step -- on a
      * match, marks the step passed and emits `step:verified`.
      *
-     * @param payload - Carries the `resources` list (no `sessionId` — derived from `socket.data.sessionId`).
+     * @param payload - Carries the `resources` list (no `sessionId` -- derived from `socket.data.sessionId`).
      * @param client - The agent's socket (excluded from the relay; carries `data.sessionId`).
      */
     @SubscribeMessage(PublicationEvent.PlaygroundResourcesReport)
@@ -503,7 +503,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     ): Promise<void> {
         const sessionId = client.data.sessionId
         if (!sessionId) {
-            // agent emitted before pairing — nothing to relay to / verify against
+            // agent emitted before pairing -- nothing to relay to / verify against
             return
         }
         const room = this.playgroundByomRoomService.name(sessionId)
@@ -556,7 +556,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
         if (!session) {
             return
         }
-        // already passed — nothing to do
+        // already passed -- nothing to do
         if (session.passedStepIndexes.includes(session.currentStepIndex)) {
             return
         }
@@ -593,7 +593,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
             passedIndex,
         ]
         // advance the SERVER-SIDE pointer so the next `resources:report` verifies the
-        // NEXT step. Nothing else moves `currentStepIndex` — without this, verify is
+        // NEXT step. Nothing else moves `currentStepIndex` -- without this, verify is
         // pinned to step 0 forever and steps 1..N can never pass.
         session.currentStepIndex = passedIndex + 1
         await this.entityManager.save(

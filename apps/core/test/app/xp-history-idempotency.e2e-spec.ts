@@ -89,7 +89,7 @@ describe("XP history idempotency (e2e)",
                             id: user.id,
                         },
                     })
-                // credited 80 exactly once, NOT 160 — writeXpHistory credits the
+                // credited 80 exactly once, NOT 160 -- writeXpHistory credits the
                 // spendable Coin balance (`users.coin_balance`), not a separate
                 // XP counter (there isn't one; the ledger IS the XP source of truth)
                 expect(fresh?.coinBalance).toBe(80)

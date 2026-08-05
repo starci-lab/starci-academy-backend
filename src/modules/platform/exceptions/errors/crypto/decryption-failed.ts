@@ -14,7 +14,7 @@ export type DecryptionFailedExceptionMetadata = AbstractExceptionMetadata
 /**
  * Thrown when {@link EncryptionService.decrypt} fails for any reason other
  * than an invalid IV length (wrong key, tampered ciphertext, auth-tag
- * mismatch). Always carries `originalError` — decrypt failures are otherwise
+ * mismatch). Always carries `originalError` -- decrypt failures are otherwise
  * very hard to diagnose without the underlying `crypto` error.
  */
 export class DecryptionFailedException extends AbstractException {

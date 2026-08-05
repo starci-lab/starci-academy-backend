@@ -86,7 +86,7 @@ export class CommunityPostService {
         await this.communityPostQuotaService.assertCanCreatePost({
             userId: user.id,
         })
-        // build the row via relation id only — no need to load the full user row
+        // build the row via relation id only -- no need to load the full user row
         const draft = this.entityManager.create(CommunityPostEntity,
             {
                 body,
@@ -181,7 +181,7 @@ export class CommunityPostService {
     }
 
     /**
-     * Pins or unpins a post. Founder-only — the FE shows the control just for the
+     * Pins or unpins a post. Founder-only -- the FE shows the control just for the
      * founder, but the gate is enforced here so a forged call still fails.
      * @param params - {@link SetCommunityPostPinnedParams}
      * @returns The updated post (author relation loaded).
@@ -202,7 +202,7 @@ export class CommunityPostService {
         const post = await this.getPostOrThrow(postId)
         post.isPinned = pinned
         await this.entityManager.save(post)
-        // pin state changes feed ordering → tell the channel/feed room to refetch
+        // pin state changes feed ordering -> tell the channel/feed room to refetch
         await this.eventEmitterService.emit({
             event: EventName.CommunityPostUpdated,
             payload: {

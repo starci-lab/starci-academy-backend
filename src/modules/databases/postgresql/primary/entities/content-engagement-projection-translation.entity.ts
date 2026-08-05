@@ -28,12 +28,12 @@ import {
  * Localized overrides for {@link ContentEngagementProjectionEntity} fields.
  *
  * Each row: (contentId, locale, field) -> translated value. The projection is
- * numeric-only today so this table starts EMPTY — it exists so any future
+ * numeric-only today so this table starts EMPTY -- it exists so any future
  * display text on the projection can be localized without a schema change.
  * Composite primary key (contentId, locale, field).
  */
 export class ContentEngagementProjectionTranslationEntity extends AbstractEntity {
-    /** Target projection natural key (content id) — part of the composite PK. */
+    /** Target projection natural key (content id) -- part of the composite PK. */
     @Field(
         () => String,
         {

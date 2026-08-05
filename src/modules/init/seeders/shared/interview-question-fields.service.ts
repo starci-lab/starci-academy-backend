@@ -14,7 +14,7 @@ export interface RawInterviewQuestionRef {
 }
 
 /**
- * Fields shared by BOTH mock-interview question families (technical + behavioral) —
+ * Fields shared by BOTH mock-interview question families (technical + behavioral) --
  * the common subset of `# field` headings every question document carries regardless
  * of where it's mounted (`courses/{c}/mock-interview/` vs `mock-interview-eq/`).
  * Family-specific fields (`diagram`/`givenCodes` for technical; `competency`/
@@ -41,9 +41,9 @@ export interface RawInterviewQuestionCommonFields {
     followUps?: Array<RawInterviewQuestionRef>
     /** Progressive hints (`# hints / ## N`). */
     hints?: Array<RawInterviewQuestionRef>
-    /** Authored model answer/outline — a `:::muted` sectioned leaf, stored verbatim. */
+    /** Authored model answer/outline -- a `:::muted` sectioned leaf, stored verbatim. */
     idealAnswer?: string
-    /** Raw `:::chip` leaf — parsed into `Array<string>` by {@link InterviewQuestionFieldsService}. */
+    /** Raw `:::chip` leaf -- parsed into `Array<string>` by {@link InterviewQuestionFieldsService}. */
     keywords?: string
     /** Index signature so the markdown->JSON extractor generic is satisfied. */
     [key: string]: unknown
@@ -63,14 +63,14 @@ export interface ParsedInterviewQuestionCommonFields {
     tags: Array<string> | null
     sortIndex: number
     isPremium: boolean
-    /** Always `"vi"` — mock-interview questions are genuinely single-locale. */
+    /** Always `"vi"` -- mock-interview questions are genuinely single-locale. */
     defaultLocale: string
 }
 
 @Injectable()
 /**
  * Parses the `# field` headings shared by every mock-interview question document
- * (technical `courses/{c}/mock-interview/…` and behavioral `mock-interview-eq/…`)
+ * (technical `courses/{c}/mock-interview/...` and behavioral `mock-interview-eq/...`)
  * into their common {@link MockInterviewEntity} column values. Family-specific
  * fields (technical `diagram`/`givenCode`/`langs`, behavioral `competency`/`ownershipSignal`)
  * are parsed separately by each caller.
@@ -102,7 +102,7 @@ export class InterviewQuestionFieldsService {
             tier: this.coerceMdScalarService.toNullableStringColumn(raw.tier),
             prompt: this.coerceMdScalarService.toRequiredString(raw.prompt,
                 ""),
-            // `# idealAnswer` is a `:::muted`-sectioned leaf — stored VERBATIM, the FE
+            // `# idealAnswer` is a `:::muted`-sectioned leaf -- stored VERBATIM, the FE
             // renderer handles the directive; never strip/reshape it here
             idealAnswer: this.coerceMdScalarService.toNullableStringColumn(raw.idealAnswer),
             rubric: this.mapIndexedValues(raw.rubric),

@@ -24,10 +24,10 @@ import {
     description: "One CV scoring observation (a strength or a gap), with an optional fix suggestion.",
 })
 /**
- * One observation (strength or gap) from the shared CV scoring rubric — mirrors
+ * One observation (strength or gap) from the shared CV scoring rubric -- mirrors
  * `CvScoreFeedbackItem` (`shared/cv-scoring/types`), typed for GraphQL. Reuses
  * the existing {@link SubmissionFeedbackSeverity} enum (`low`/`medium`/`high`)
- * rather than a CV-specific one — same semantic, no duplicate type.
+ * rather than a CV-specific one -- same semantic, no duplicate type.
  */
 export class CvFeedbackItem {
     @Field(
@@ -68,7 +68,7 @@ export class CvFeedbackItem {
     description: "Structured CV scoring feedback: a one-line summary plus per-observation findings.",
 })
 /**
- * Structured CV scoring feedback (`cv_generations.feedback`) — a one-line
+ * Structured CV scoring feedback (`cv_generations.feedback`) -- a one-line
  * summary plus the per-observation breakdown. Null until scored.
  */
 export class CvFeedback {
@@ -103,8 +103,8 @@ export class CvFeedback {
 /**
  * One CV generation run, resolved for the FE: the assembled `structuredData`
  * exposed as a JSON scalar, the generated `.tex` document resolved from MinIO
- * to its raw text (`latexSource`) server-side — so the client never needs
- * direct MinIO access — and the structured scoring `feedback` typed for the
+ * to its raw text (`latexSource`) server-side -- so the client never needs
+ * direct MinIO access -- and the structured scoring `feedback` typed for the
  * findings accordion.
  */
 export class CvGenerationPayload {

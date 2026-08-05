@@ -45,7 +45,7 @@ describe("VoucherService",
         /** A past expiry, used to exercise the expiry rejection branch. */
         const pastExpiry = () => new Date(Date.now() - 1000 * 60 * 60)
 
-        /** A valid, redeemable voucher row — tests override just the field under test. */
+        /** A valid, redeemable voucher row -- tests override just the field under test. */
         const makeVoucher = (
             overrides: Partial<CourseVoucherEntity> = {
             },
@@ -69,7 +69,7 @@ describe("VoucherService",
             module = await Test.createTestingModule({
                 providers: [
                     VoucherService,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -376,7 +376,7 @@ describe("VoucherService",
                             discountType: VoucherDiscountType.Percent,
                             value: 10,
                         })
-                        // preview is read-only — never writes back
+                        // preview is read-only -- never writes back
                         expect(entityManager.save).not.toHaveBeenCalled()
                     })
 

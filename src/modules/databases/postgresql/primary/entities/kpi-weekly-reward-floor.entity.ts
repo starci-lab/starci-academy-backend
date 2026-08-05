@@ -32,10 +32,10 @@ import type {
  * week, plus (once claimed) the coin-reward snapshot. `floor_target` starts at
  * whatever target was in effect the first time it's touched this week, then can
  * only move DOWN (`LEAST`) on every subsequent `setKpiTarget` call during the
- * SAME week — so raising a target AFTER already exceeding a lower one cannot
+ * SAME week -- so raising a target AFTER already exceeding a lower one cannot
  * inflate the reward for work already done. A week where the user never calls
  * `setKpiTarget` has NO row here; the claim falls back to the user's current
- * `weekly_kpi_targets` value (safe — it hasn't moved all week either).
+ * `weekly_kpi_targets` value (safe -- it hasn't moved all week either).
  *
  * `week_start_at` uses the SAME Monday-8am-Asia/Ho_Chi_Minh boundary as the
  * KPI weekly-reset window (`user-stats-projection.service.ts`'s
@@ -101,7 +101,7 @@ export class KpiWeeklyRewardFloorEntity extends UuidAbstractEntity {
     })
         claimedAt: Date | null
 
-    /** Coin granted by the claim (snapshot — the catalog value can change later). */
+    /** Coin granted by the claim (snapshot -- the catalog value can change later). */
     @Column({
         name: "coin_reward",
         type: "int",

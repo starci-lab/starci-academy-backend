@@ -27,7 +27,7 @@ export interface NotificationSnapshot {
  * real time (and the unread badge increments).
  */
 export interface NotificationCreatedEventPayload {
-    /** Recipient user id — the private room key the gateway emits to. */
+    /** Recipient user id -- the private room key the gateway emits to. */
     userId: string
     /** The created notification, ready for the FE to render. */
     notification: NotificationSnapshot

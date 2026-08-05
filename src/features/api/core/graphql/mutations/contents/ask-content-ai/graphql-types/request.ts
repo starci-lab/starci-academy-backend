@@ -34,7 +34,7 @@ export class ContentAiChatMessageInput {
 })
 /**
  * Request for {@link AskContentAiResponse}: ask StarCi AI a question grounded in
- * one content's body. The server loads the content + body by id — the client only
+ * one content's body. The server loads the content + body by id -- the client only
  * sends the question + the recent conversation turns for short-term memory.
  */
 export class AskContentAiRequest {

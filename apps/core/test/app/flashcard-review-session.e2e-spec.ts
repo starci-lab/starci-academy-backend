@@ -39,18 +39,18 @@ const POSTGRESQL_PRIMARY = "primary"
 
 /**
  * e2e for the resumable flashcard REVIEW session bookkeeping
- * wrapper — `.claude/canon/be/enforce/authoring/testing.md` §2 names "a
+ * wrapper -- `.claude/canon/be/enforce/authoring/testing.md` §2 names "a
  * flashcard review" as a write flow that must carry `*.e2e-spec.ts` coverage;
  * this is that coverage for {@link FlashcardReviewSessionService}'s
- * start → sync → complete lifecycle (per-deck resumable draw), run against
- * REAL Postgres (Testcontainers) — the actual SM-2 grading is covered
+ * start -> sync -> complete lifecycle (per-deck resumable draw), run against
+ * REAL Postgres (Testcontainers) -- the actual SM-2 grading is covered
  * separately by `flashcard-review.e2e-spec.ts`, this file only proves the
  * session-row bookkeeping around it: the "abandon prior in_progress draw"
  * race-guard, the `Not("completed")` completion guard (the documented
  * 2026-07-12 stuck-session fix), and the "due" mode's dueAt-based card filter.
  *
  * MOCKED (no external infra available in this harness):
- *  - `CacheService` — real class talks to Redis; stubbed to always miss so
+ *  - `CacheService` -- real class talks to Redis; stubbed to always miss so
  *    `UserService.resolveOrCreateTrialEnrollment` hits real Postgres every
  *    time, never a stale cross-test cache entry.
  *
@@ -66,7 +66,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
         let entityManager: EntityManager
         let sessionService: FlashcardReviewSessionService
 
-        /** Read-only fixtures seeded ONCE — only per-test user/session state is reset. */
+        /** Read-only fixtures seeded ONCE -- only per-test user/session state is reset. */
         let course: CourseEntity
         let deck: FlashcardDeckEntity
         let cardA: FlashcardCardEntity
@@ -81,7 +81,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers-module/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -90,9 +90,9 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the session start/sync/complete/find logic under test
+                    // REAL -- the session start/sync/complete/find logic under test
                     FlashcardReviewSessionService,
-                    // REAL — resolveOrCreateTrialEnrollment runs real SQL against
+                    // REAL -- resolveOrCreateTrialEnrollment runs real SQL against
                     // real `enrollments` rows
                     UserService,
                     {
@@ -110,7 +110,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
             )
             sessionService = app.get(FlashcardReviewSessionService)
 
-            // seed the read-only course/deck/card fixtures ONCE — only
+            // seed the read-only course/deck/card fixtures ONCE -- only
             // users/enrollments/session/review state are reset between tests
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -158,7 +158,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
         afterAll(async () => {
             // the deck/card fixtures are read-only WITHIN this suite, but the
             // Testcontainers Postgres is shared across the whole e2e run (see
-            // setup-e2e.ts) — leaving them behind pollutes any OTHER file's
+            // setup-e2e.ts) -- leaving them behind pollutes any OTHER file's
             // courseId-less "global" flashcard query with cards this suite has no
             // control over (e.g. flashcard-stats-queries.e2e-spec.ts's
             // myDueFlashcards). CASCADE also clears flashcard_cards (+ their
@@ -253,7 +253,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
                                 }),
                         )
                         // cardA is scheduled far in the future (NOT due); cardB has no
-                        // review row at all (never reviewed → always due)
+                        // review row at all (never reviewed -> always due)
                         await entityManager.save(
                             entityManager.create(UserFlashcardReviewEntity,
                                 {
@@ -302,7 +302,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
                                     isEnrolled: true,
                                 }),
                         )
-                        // BOTH cards scheduled far in the future — nothing is due
+                        // BOTH cards scheduled far in the future -- nothing is due
                         for (const card of [
                             cardA,
                             cardB,
@@ -646,7 +646,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
                                 },
                             },
                         )
-                        // the learner genuinely finished — their completion wins over the race
+                        // the learner genuinely finished -- their completion wins over the race
                         expect(completedRow.status).toBe("completed")
                         expect(completedRow.reviewedCount).toBe(1)
                     })
@@ -668,7 +668,7 @@ describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
                             xpEarned: 0,
                         })
 
-                        // a replay sends DIFFERENT numbers — must not overwrite the first snapshot
+                        // a replay sends DIFFERENT numbers -- must not overwrite the first snapshot
                         await sessionService.complete({
                             userId: user.id,
                             sessionId: started.sessionId,

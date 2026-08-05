@@ -46,7 +46,7 @@ export class ContentSuggestionsService {
     }
 
     /**
-     * Convenience wrapper used by the resolver — packs locale + request together.
+     * Convenience wrapper used by the resolver -- packs locale + request together.
      *
      * @param locale - Locale resolved from the request (selects the ES index).
      * @param request - The typed prefix + optional limit.

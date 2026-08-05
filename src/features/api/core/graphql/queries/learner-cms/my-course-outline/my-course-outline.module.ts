@@ -31,7 +31,7 @@ import {
     ],
 })
 /**
- * Feature-module boundary for the `myCourseOutline` query — wires resolver + service +
+ * Feature-module boundary for the `myCourseOutline` query -- wires resolver + service +
  * handler, and re-exports the service so sibling learner-cms reads can reuse the outline.
  */
 export class MyCourseOutlineSingleQueryModule extends ConfigurableModuleClass {}

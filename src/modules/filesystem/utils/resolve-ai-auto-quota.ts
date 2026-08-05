@@ -10,7 +10,7 @@ import {
 
 /**
  * Resolve free Auto-lane CREDIT caps from mounted `app.yaml` with product
- * defaults. Pure credit-based (the legacy "uses/lượt" model is removed).
+ * defaults. Pure credit-based (the legacy per-use model is removed).
  * @param appConfig - Runtime app config (`MountStorageService` / `getAppConfig()`).
  * @returns Merged Auto credit quota (per window + per-grading cost estimate).
  */

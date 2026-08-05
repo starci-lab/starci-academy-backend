@@ -44,7 +44,7 @@ export const createHelmetOptions = (): HelmetOptions => ({
     frameguard: {
         action: "deny",
     },
-    // strip the X-Powered-By fingerprint helmet removes by default — keep it on
+    // strip the X-Powered-By fingerprint helmet removes by default -- keep it on
     hidePoweredBy: true,
     // prevent MIME sniffing so browsers honour declared content types
     noSniff: true,

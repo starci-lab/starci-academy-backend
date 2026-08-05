@@ -30,7 +30,7 @@ import type {
 @Injectable()
 /**
  * Opt-in service mode: install the agent (baked to ONE pairing code) as an
- * OS-managed background service — Task Scheduler (win), systemd user unit
+ * OS-managed background service -- Task Scheduler (win), systemd user unit
  * (linux), launchd agent (mac). No native deps; the OS supervisor owns restart.
  * Names come from {@link AgentMeta} so the docker / k8s / rag agents can each
  * install their own service without colliding.
@@ -278,7 +278,7 @@ export class ServiceInstallerService {
         return {
             platform: process.platform,
             nodePath: process.execPath,
-            // the invoked bin script (its main.js) — robust across the webpack dist layout.
+            // the invoked bin script (its main.js) -- robust across the webpack dist layout.
             scriptPath: process.argv[1] ?? join(__dirname,
                 "main.js"),
             pairingCode,

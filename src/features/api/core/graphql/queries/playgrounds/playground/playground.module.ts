@@ -15,7 +15,7 @@ import {
 })
 /**
  * Wires the public `playground` detail query (by slug + ordered steps).
- * Resolver-only — reads Postgres directly; verify secrets stay off the
+ * Resolver-only -- reads Postgres directly; verify secrets stay off the
  * wire via the response type.
  */
 export class PlaygroundSingleQueryModule extends ConfigurableModuleClass {}

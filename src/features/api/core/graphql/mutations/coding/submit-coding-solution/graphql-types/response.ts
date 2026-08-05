@@ -22,7 +22,7 @@ export class SubmitCodingSolutionResponseData {
     )
         submissionId: string
 
-    /** The client must subscribe to this id to learn the verdict — the mutation itself returns before judging finishes. */
+    /** The client must subscribe to this id to learn the verdict -- the mutation itself returns before judging finishes. */
     @Field(
         () => ID,
         {
@@ -40,7 +40,7 @@ export class SubmitCodingSolutionResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SubmitCodingSolutionResponseData>
 {
-    /** Null on error — inspect the wrapper's status/error fields instead. */
+    /** Null on error -- inspect the wrapper's status/error fields instead. */
     @Field(
         () => SubmitCodingSolutionResponseData,
         {

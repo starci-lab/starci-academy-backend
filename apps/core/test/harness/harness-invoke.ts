@@ -21,7 +21,7 @@ import type {
 /**
  * Flatten the `system`+`human` LangChain messages a flow's prompt builder
  * produced into a `{ system, prompt }` pair for {@link generate}. The grounding
- * context is carried verbatim — only the transport changes, so the business
+ * context is carried verbatim -- only the transport changes, so the business
  * prompt under test is exactly what production builds.
  */
 export const messagesToPrompt = (

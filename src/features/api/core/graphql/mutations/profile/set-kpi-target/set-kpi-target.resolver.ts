@@ -68,7 +68,7 @@ export class SetKpiTargetResolver {
             key: request.key,
             target: request.target,
         })
-        // no payload — the client already knows the value it sent (post-clamp it can
+        // no payload -- the client already knows the value it sent (post-clamp it can
         // re-fetch via myKpis if it needs the canonical number)
         return {
         } as SetKpiTargetResponse

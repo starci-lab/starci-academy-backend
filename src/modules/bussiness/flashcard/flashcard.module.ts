@@ -39,7 +39,7 @@ import {
 /**
  * Module for flashcard business logic (deck reads + spaced-repetition review).
  * `AiInvokeService` / `AiEntitlementService` come from the globally-registered
- * `AiModule`, so no explicit AI import is needed here — the unified credit pool
+ * `AiModule`, so no explicit AI import is needed here -- the unified credit pool
  * (gate + charge + history) is metered entirely through `AiEntitlementService`.
  */
 export class FlashcardModule extends ConfigurableModuleClass {

@@ -80,7 +80,7 @@ const MEMBERSHIP_LABEL = "community-membership"
 @Injectable()
 /**
  * Opens community-membership checkout: pending transaction first, then a
- * provider URL / SePay form. Activation is webhook + reconcile — this path
+ * provider URL / SePay form. Activation is webhook + reconcile -- this path
  * must not flip membership on.
  */
 export class PurchaseMembershipHandler
@@ -278,7 +278,7 @@ export class PurchaseMembershipHandler
                     hasPayOsCancelUrl: Boolean(payosCancelUrl),
                 })
             }
-            // never charge VND as USD — reject when no USD price is configured
+            // never charge VND as USD -- reject when no USD price is configured
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Stripe,
@@ -302,7 +302,7 @@ export class PurchaseMembershipHandler
                             quantity: 1,
                             price_data: {
                                 currency,
-                                // Stripe expects cents → convert USD dollars to integer cents
+                                // Stripe expects cents -> convert USD dollars to integer cents
                                 unit_amount: Math.round(priceUsd * 100),
                                 product_data: {
                                     name: `Community membership ${orderCode}`,
@@ -312,7 +312,7 @@ export class PurchaseMembershipHandler
                     ],
                 }),
             })
-            // redirect provider → no signed form fields; amount stays VND reference
+            // redirect provider -> no signed form fields; amount stays VND reference
             return {
                 checkoutUrl: session.url ?? "",
                 amount,
@@ -328,7 +328,7 @@ export class PurchaseMembershipHandler
                     hasPayOsCancelUrl: Boolean(payosCancelUrl),
                 })
             }
-            // never charge VND as USD — reject when no USD price is configured
+            // never charge VND as USD -- reject when no USD price is configured
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Paypal,
@@ -346,7 +346,7 @@ export class PurchaseMembershipHandler
                     cancelUrl: payosCancelUrl,
                 }),
             })
-            // redirect provider → no signed form fields; amount stays VND reference
+            // redirect provider -> no signed form fields; amount stays VND reference
             return {
                 checkoutUrl: order.approveUrl,
                 amount,
@@ -362,7 +362,7 @@ export class PurchaseMembershipHandler
                     hasPayOsCancelUrl: Boolean(payosCancelUrl),
                 })
             }
-            // never charge VND as USD — reject when no USD price is configured
+            // never charge VND as USD -- reject when no USD price is configured
             if (!priceUsd || priceUsd <= 0) {
                 throw new MissingUsdPriceException({
                     paymentType: PaymentType.Crypto,
@@ -380,7 +380,7 @@ export class PurchaseMembershipHandler
                     cancelUrl: payosCancelUrl,
                 }),
             })
-            // redirect provider → no signed form fields; amount stays VND reference
+            // redirect provider -> no signed form fields; amount stays VND reference
             return {
                 checkoutUrl: invoice.invoiceUrl,
                 amount,
@@ -398,7 +398,7 @@ export class PurchaseMembershipHandler
     /**
      * Build a SePay PG one-time-payment checkout: sign the order fields and
      * return the form action URL + the JSON-encoded signed fields. Pure (local
-     * HMAC signing) — safe to call on the transaction-reuse path too.
+     * HMAC signing) -- safe to call on the transaction-reuse path too.
      */
     private buildSepayCheckout({
         orderCode,

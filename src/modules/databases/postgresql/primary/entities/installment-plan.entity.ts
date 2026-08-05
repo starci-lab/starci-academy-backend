@@ -27,22 +27,22 @@ import {
 } from "./transaction.entity"
 
 @ObjectType({
-    description: "An installment (trả góp) payment plan — a fixed new-purchase schedule or a legacy flexible arrears pool.",
+    description: "An installment payment plan — a fixed new-purchase schedule or a legacy flexible arrears pool.",
 })
 @Entity("installment_plans")
 /**
- * An installment (trả góp) payment plan — either:
- * - `Fixed` — a NEW purchase paying in installments (fixed 3/6/12-month
+ * An installment payment plan -- either:
+ * - `Fixed` -- a NEW purchase paying in installments (fixed 3/6/12-month
  *   schedule, a markup snapshot applied at checkout, `originTransaction` set).
- * - `FlexiblePool` — a legacy Pioneer arrears balance migrated into the
- *   system (no schedule, no markup — the original price is honoured;
+ * - `FlexiblePool` -- a legacy Pioneer arrears balance migrated into the
+ *   system (no schedule, no markup -- the original price is honoured;
  *   `originTransaction` is null since no new checkout created it).
  *
- * Both modes share ONE daily enforcement cron (remind → warn → lock) — see
- * `InstallmentPlanEnforcementCronService` — differing only in how the
+ * Both modes share ONE daily enforcement cron (remind -> warn -> lock) -- see
+ * `InstallmentPlanEnforcementCronService` -- differing only in how the
  * per-cycle minimum payment is computed (`InstallmentPlanService.computeMinPaymentVnd`).
  * A plan tracks a WHOLE checkout (possibly a multi-course cart), never a
- * single course — see `originTransaction` (the transaction may itself fan out
+ * single course -- see `originTransaction` (the transaction may itself fan out
  * to several `TransactionItemEntity` lines / enrollments).
  */
 export class InstallmentPlanEntity extends UuidAbstractEntity {
@@ -78,7 +78,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
         userId: string
 
     /**
-     * The checkout transaction this plan originated from — null for a
+     * The checkout transaction this plan originated from -- null for a
      * `FlexiblePool` plan backfilled from a legacy Pioneer arrears balance
      * (no new checkout created it). A `Fixed` plan always has one.
      */
@@ -116,11 +116,11 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
         originTransactionId: string | null
 
     /**
-     * Snapshot of every course this plan gates access to — locked (`is_enrolled
+     * Snapshot of every course this plan gates access to -- locked (`is_enrolled
      * = false`) together when the plan defaults, unlocked together when it
      * catches up. For a `Fixed` plan this is copied from `originTransaction`'s
      * course(s) at creation time; for a backfilled `FlexiblePool` plan (no
-     * originating transaction — the legacy purchase happened outside the
+     * originating transaction -- the legacy purchase happened outside the
      * system) it is supplied explicitly by the backfill script. Snapshotting
      * here (rather than re-deriving from the transaction every cron run) keeps
      * both modes self-contained and immune to a transaction's course list
@@ -139,7 +139,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
     })
         lockedCourseIds: Array<string>
 
-    /** Which flavour of installment plan this is — drives how the minimum payment is computed. */
+    /** Which flavour of installment plan this is -- drives how the minimum payment is computed. */
     @Field(
         () => GraphQLTypeInstallmentPlanType,
         {
@@ -218,7 +218,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
         totalAmountVnd: number | null
 
     /**
-     * The markup percent SNAPSHOT applied at checkout (e.g. 5/10/20) — frozen
+     * The markup percent SNAPSHOT applied at checkout (e.g. 5/10/20) -- frozen
      * at purchase time so a later change to the markup schedule never
      * retroactively changes what an existing buyer owes. Fixed mode only.
      */
@@ -253,7 +253,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
     // ─── FlexiblePool mode only (null for Fixed) ──────────────────────────
 
     /**
-     * The REAL remaining arrears balance (e.g. 5,000,000 / 6,000,000 — a
+     * The REAL remaining arrears balance (e.g. 5,000,000 / 6,000,000 -- a
      * distinct amount per learner, never split into equal fixed cycles).
      * FlexiblePool mode only.
      */
@@ -274,7 +274,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
     /**
      * Absolute floor for the per-cycle minimum payment, regardless of how
      * small `remainingVnd` has shrunk. FlexiblePool mode only. Default
-     * 500,000đ per the 2026-07-05 decision.
+     * 500,000 VND per the 2026-07-05 decision.
      */
     @Field(
         () => Int,
@@ -325,7 +325,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
     /**
      * Days past {@link nextDueAt} before the enforcement cron sends the
      * SECOND (final-warning) reminder. Default 7 per the 2026-07-05 proposal
-     * (thầy chưa final — adjustable per plan without a schema change).
+     * (teacher not yet final -- adjustable per plan without a schema change).
      */
     @Field(
         () => Int,
@@ -342,7 +342,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
 
     /**
      * Total days past {@link nextDueAt} before the enforcement cron locks the
-     * related enrollment(s) (`status` → `Defaulted`). Default 14 per the
+     * related enrollment(s) (`status` -> `Defaulted`). Default 14 per the
      * 2026-07-05 proposal.
      */
     @Field(
@@ -359,7 +359,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
         lockoutAfterDays: number
 
     /**
-     * When the day-0 "due now" reminder last fired for the CURRENT cycle —
+     * When the day-0 "due now" reminder last fired for the CURRENT cycle --
      * cleared on every successful payment so a new cycle gets its own
      * reminder. Null = not yet sent for this cycle (keeps the daily cron
      * idempotent instead of re-sending on every run).
@@ -380,7 +380,7 @@ export class InstallmentPlanEntity extends UuidAbstractEntity {
 
     /**
      * When the second (final-warning) reminder last fired for the CURRENT
-     * cycle — same idempotency purpose as {@link dueRemindedAt}.
+     * cycle -- same idempotency purpose as {@link dueRemindedAt}.
      */
     @Field(
         () => Date,

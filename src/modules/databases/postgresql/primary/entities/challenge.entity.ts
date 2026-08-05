@@ -274,7 +274,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
 
     /**
      * Outcome grading criteria (language-agnostic yes/no items) stored as jsonb. INTERNAL grading
-     * rubric — deliberately NOT a `@Field`, so it is never exposed through GraphQL to the learner.
+     * rubric -- deliberately NOT a `@Field`, so it is never exposed through GraphQL to the learner.
      */
     @Column({
         name: "outcome_criteria",
@@ -285,7 +285,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
 
     /**
      * Approach grading criteria (per-language yes/no items) stored as jsonb. INTERNAL grading
-     * rubric — deliberately NOT a `@Field`, so it is never exposed through GraphQL to the learner.
+     * rubric -- deliberately NOT a `@Field`, so it is never exposed through GraphQL to the learner.
      */
     @Column({
         name: "approach_criteria",
@@ -382,7 +382,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
     /**
      * The content-AI conversation the learner last used on this challenge's
      * surface, so the FE can resume the remembered chat instead of starting a
-     * fresh one. Nullable — set once a `content-ai session` (scope = `challenge`)
+     * fresh one. Nullable -- set once a `content-ai session` (scope = `challenge`)
      * exists for this challenge; never set at seed time.
      */
     @Field(

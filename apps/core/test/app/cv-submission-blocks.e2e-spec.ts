@@ -67,20 +67,20 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the CV block-editor document lifecycle — `cv_blocks` rows, the
+ * e2e for the CV block-editor document lifecycle -- `cv_blocks` rows, the
  * "draft" half of the CV-submission state machine. The "submitted"/"generated"
- * half (a `cv_generations` row moving Pending → ...) is covered separately in
+ * half (a `cv_generations` row moving Pending -> ...) is covered separately in
  * `cv-submission-generation.e2e-spec.ts` (generate/upload/revise), since that
  * half touches the AI-job queue and this half never does.
  *
  * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring (same
  * pattern as `content-ai-entitlement.e2e-spec.ts`), and every resolver/
- * service/handler in the create/update/delete chain — nothing needs mocking
+ * service/handler in the create/update/delete chain -- nothing needs mocking
  * here, these three mutations touch only Postgres (no AI, no queue, no S3).
  *
  * Covers: create (empty + pre-filled defaults), update (partial-write
  * semantics + `pdfCdnKey` invalidation on ANY edit), delete, and ownership on
- * update/delete — a row scoped to a different user 404s as
+ * update/delete -- a row scoped to a different user 404s as
  * `CV_DOCUMENT_NOT_FOUND_EXCEPTION` (collapsed with genuinely-missing so
  * ownership is never leaked to the caller) and the row is left untouched.
  *
@@ -94,7 +94,7 @@ describe("CV block-editor documents — create/update/delete (e2e)",
         /** The "logged in" user the overridden Keycloak guard stamps onto the request. */
         let currentUser: UserEntity | null = null
 
-        /** Overrides the real Keycloak JWT verification — no Keycloak server here. */
+        /** Overrides the real Keycloak JWT verification -- no Keycloak server here. */
         const fakeAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
                 if (!currentUser) {
@@ -192,7 +192,7 @@ describe("CV block-editor documents — create/update/delete (e2e)",
                         type: ApolloServerType.Monolithic,
                         useServices: false,
                     }),
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -353,7 +353,7 @@ describe("CV block-editor documents — create/update/delete (e2e)",
                                     style: {
                                         font: "Inter",
                                     },
-                                    // a previous export exists — proves the update path nulls it
+                                    // a previous export exists -- proves the update path nulls it
                                     pdfCdnKey: "cv-blocks/prev-export.pdf",
                                 }),
                         )

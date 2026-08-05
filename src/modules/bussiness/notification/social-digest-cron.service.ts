@@ -30,7 +30,7 @@ import {
     EnqueueSendMailJobService,
 } from "../jobs"
 
-/** One grouped `(recipient, type) → count` row from the digest aggregation query. */
+/** One grouped `(recipient, type) -> count` row from the digest aggregation query. */
 interface DigestCountRow {
     userId: string
     type: NotificationType
@@ -44,7 +44,7 @@ const DIGEST_WINDOW_MS = 24 * 60 * 60 * 1000
 /**
  * Daily activity-digest cron. Once a day it aggregates every recipient's in-app
  * notifications from the last 24 hours (new followers, replies, community
- * activity, …) and sends ONE summary email per user — only to users who still
+ * activity, ...) and sends ONE summary email per user -- only to users who still
  * have {@link UserEntity.emailDigestEnabled} on and who actually have activity.
  *
  * Recipient-correct by construction: it reads {@link NotificationEntity}, whose
@@ -62,7 +62,7 @@ export class SocialDigestCronService {
     ) {}
 
     /**
-     * Send the daily digests (08:00 Asia/Ho_Chi_Minh — morning, after the night's
+     * Send the daily digests (08:00 Asia/Ho_Chi_Minh -- morning, after the night's
      * activity settled). Aggregates per recipient, then enqueues one email each.
      */
     @Cron(
@@ -116,7 +116,7 @@ export class SocialDigestCronService {
                     entry)
             }
 
-            // one best-effort email per user with activity — a single
+            // one best-effort email per user with activity -- a single
             // enqueue failure must never abort the sweep for the OTHER
             // recipients still waiting in the loop (mirrors
             // PublicRagPlaygroundCleanupService.dropSession's per-item isolation)
@@ -148,7 +148,7 @@ export class SocialDigestCronService {
                     })
                     sentCount += 1
                 } catch (error) {
-                    // this user's enqueue failed — log and move on to the next
+                    // this user's enqueue failed -- log and move on to the next
                     // recipient rather than aborting the whole sweep
                     const cause = error instanceof Error ? error : new Error(String(error))
                     this.winstonService.log(WinstonLog.BestEffortOperationFailed,
@@ -169,7 +169,7 @@ export class SocialDigestCronService {
                 })
         } catch (error) {
             // normalize, wrap in a typed exception so the failure is groupable
-            // and observable, then log (message + stack) and swallow — a bad
+            // and observable, then log (message + stack) and swallow -- a bad
             // run (e.g. a broken aggregation query) can never crash the
             // scheduler, and the next day self-heals
             const cause = error instanceof Error ? error : new Error(String(error))

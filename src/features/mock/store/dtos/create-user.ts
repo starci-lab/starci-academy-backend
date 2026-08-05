@@ -6,7 +6,7 @@ import {
 } from "class-validator"
 
 /**
- * Request body for creating a user. Accepts any signup/wizard/user payload —
+ * Request body for creating a user. Accepts any signup/wizard/user payload --
  * both fields are optional and the store derives the missing one.
  */
 export class CreateUserDto {

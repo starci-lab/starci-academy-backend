@@ -27,7 +27,7 @@ import {
 
 @Resolver()
 /**
- * Public GraphQL entry for `platformStats` — no auth; feeds the landing-page
+ * Public GraphQL entry for `platformStats` -- no auth; feeds the landing-page
  * social-proof counters.
  */
 export class PlatformStatsResolver {

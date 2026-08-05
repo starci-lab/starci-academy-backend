@@ -9,12 +9,12 @@ import {
  * The rule: a question authored across the four tracks is served in one of the
  * candidate's picked languages and dropped when none overlap, while a question with a
  * SINGLE authored body has its language fixed by the question itself (`agnostic` prose,
- * a `hcl`/`yaml`/`dockerfile` snippet — or `typescript` code that only makes sense in
+ * a `hcl`/`yaml`/`dockerfile` snippet -- or `typescript` code that only makes sense in
  * TypeScript) and must stay eligible for every candidate.
  *
  * Body COUNT, not the language label, is what separates the two. Gating a single-body
  * question on the track selection silently removes it from the pool for anyone who picked
- * a different track — which is exactly what would happen to the 165 fixed-language code
+ * a different track -- which is exactly what would happen to the 165 fixed-language code
  * questions (49 of them labelled `typescript`) once their content moves under `bodies/`.
  */
 describe("MockInterviewSessionDrawService — track gating by body count",

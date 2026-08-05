@@ -21,7 +21,7 @@ import {
 
 @Injectable()
 /**
- * RFC 6238 TOTP (time-based one-time password) helper — secret generation,
+ * RFC 6238 TOTP (time-based one-time password) helper -- secret generation,
  * otpauth URI building, and code verification with clock-skew tolerance.
  *
  * Self-contained (Node `crypto` only, no third-party OTP dependency) so it can
@@ -151,7 +151,7 @@ export class TotpService {
     ): boolean {
         const expectedBuffer = Buffer.from(expected)
         const actualBuffer = Buffer.from(actual)
-        // timingSafeEqual throws on length mismatch — guard first
+        // timingSafeEqual throws on length mismatch -- guard first
         if (expectedBuffer.length !== actualBuffer.length) {
             return false
         }

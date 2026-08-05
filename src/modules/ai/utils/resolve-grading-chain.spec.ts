@@ -10,7 +10,7 @@ describe("GRADING_FLOOR_CATEGORY",
     () => {
         it("is the balanced rung — every automatic grading run lands here",
             () => {
-                // difficulty used to pick the rung (easy→Economy … insane→Frontier);
+                // difficulty used to pick the rung (easy->Economy ... insane->Frontier);
                 // it no longer does. Easy and insane submissions grade on the same
                 // model, because the rubric the prompt carries does the discriminating.
                 expect(GRADING_FLOOR_CATEGORY).toBe(AiModelCategory.Medium)
@@ -40,7 +40,7 @@ describe("resolveGradingChain",
                 it("ignores a ceil that would raise the climb past the grading category",
                     () => {
                         // a user asking for Frontier via the per-feature cap still does
-                        // not get it automatically — only pinning the model does
+                        // not get it automatically -- only pinning the model does
                         expect(
                             resolveGradingChain({
                                 floor: GRADING_FLOOR_CATEGORY,

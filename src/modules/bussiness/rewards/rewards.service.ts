@@ -214,8 +214,8 @@ export class RewardsService {
                 shipping
                 && (shipping.recipientName || shipping.phone || shipping.address),
             )
-            // jsonb metadata: `undefined` (→ column null) when absent + plain strings
-            // for present fields — TypeORM's DeepPartial of a Record<string, unknown>
+            // jsonb metadata: `undefined` (-> column null) when absent + plain strings
+            // for present fields -- TypeORM's DeepPartial of a Record<string, unknown>
             // jsonb column rejects null/unknown values
             const metadata: RewardRedemptionMetadata | undefined =
                 reward.kind === "physical" && hasShipping
@@ -225,7 +225,7 @@ export class RewardsService {
                         address: shipping?.address ?? "",
                     }
                     : undefined
-            // record the redemption (digital/voucher/aiCredit → granted, physical → pending)
+            // record the redemption (digital/voucher/aiCredit -> granted, physical -> pending)
             const inserted = await manager.insert(RewardRedemptionEntity,
                 {
                     userId,
@@ -262,7 +262,7 @@ export class RewardsService {
                 aiCreditGranted = reward.aiCredit
             }
             return {
-                // coin_balance is never debited — the spendable balance is derived
+                // coin_balance is never debited -- the spendable balance is derived
                 balance: balance - reward.cost,
                 streakFreezes,
                 voucherCode,
@@ -273,7 +273,7 @@ export class RewardsService {
 
     /**
      * Ops-only: mark a `pending` physical redemption `fulfilled` (the gift has
-     * shipped). Rejects any redemption that isn't currently `pending` — a
+     * shipped). Rejects any redemption that isn't currently `pending` -- a
      * digital reward is already `granted` on redeem, and an already
      * `fulfilled`/`cancelled` row has nothing left to transition.
      *
@@ -309,7 +309,7 @@ export class RewardsService {
     }
 
     /**
-     * Ops-only: void a redemption — sets it `cancelled`. `computeSpent` EXCLUDES
+     * Ops-only: void a redemption -- sets it `cancelled`. `computeSpent` EXCLUDES
      * `cancelled` rows from the spent sum, so flipping the status alone IS the
      * refund; this never touches `user.coin_balance` (same never-debit invariant
      * as {@link redeem}, so the double-refund a direct coin credit would cause

@@ -12,5 +12,5 @@ export interface DeleteEntityParams {
     locale?: Locale
 }
 
-/** Result of deleting a single document (no payload — a missing doc is treated as success). */
+/** Result of deleting a single document (no payload -- a missing doc is treated as success). */
 export type DeleteEntityResult = void

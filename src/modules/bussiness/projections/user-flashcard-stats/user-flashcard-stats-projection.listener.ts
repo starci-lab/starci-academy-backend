@@ -23,14 +23,14 @@ import type {
 
 @Injectable()
 /**
- * CDC consumer that keeps `user_flashcard_stats_projections` fresh — each new
+ * CDC consumer that keeps `user_flashcard_stats_projections` fresh -- each new
  * `flashcard_review_events` row moves the reviewer's streak / retention / totals.
  * The event carries the reviewer's `user_id`, resolving to a single recompute
  * target. Connection + per-message safety are owned by
  * {@link AbstractProjectionListener}.
  */
 export class UserFlashcardStatsProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-flashcard-stats-projection"
 
     /** A new review-event row moves the reviewer's flashcard stats. */
@@ -52,7 +52,7 @@ export class UserFlashcardStatsProjectionListener extends AbstractProjectionList
      * A flashcard_review_events row carries the reviewer's `user_id`.
      *
      * @param message - {@link ProjectionCdcMessage}
-     * @returns the affected user id (0–1).
+     * @returns the affected user id (0-1).
      */
     protected deriveTargets(
         {

@@ -116,7 +116,7 @@ describe("ModuleHandler",
 
         it("throws when no module matches",
             async () => {
-                // default findOne resolves null → nothing found
+                // default findOne resolves null -> nothing found
                 await expect(
                     handler.execute(
                         new ModuleQuery({

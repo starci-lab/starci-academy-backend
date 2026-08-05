@@ -43,7 +43,7 @@ import type {
 @Injectable()
 /**
  * Weekly-KPI coin-reward business logic: the anti-gaming FLOOR tracking (a
- * target can only lower the floor within a week — see
+ * target can only lower the floor within a week -- see
  * {@link KpiWeeklyRewardFloorEntity}) and the per-KPI claim (mirrors
  * `DailyQuestService.claimReward`'s idempotent transaction + `writeCoinHistory`
  * grant, but scaled by the floor instead of a flat amount).
@@ -65,7 +65,7 @@ export class KpiRewardService {
 
     /**
      * Lower the tracked floor for one KPI this week (never raises it). Called
-     * from `setKpiTarget` right after the target itself is persisted — creates
+     * from `setKpiTarget` right after the target itself is persisted -- creates
      * the week's floor row on the FIRST touch (seeded at the just-set value),
      * or takes `LEAST(existing, new)` on every touch after that.
      *
@@ -99,7 +99,7 @@ export class KpiRewardService {
      * into the user's `weekly_kpi_targets` jsonb map via an atomic
      * `jsonb_set` so concurrent writes to different keys don't clobber each
      * other. Also lowers this week's anti-gaming floor to match the new
-     * target — skipped for a clear (target 0), which isn't a real commitment
+     * target -- skipped for a clear (target 0), which isn't a real commitment
      * to track.
      *
      * @param params - {@link SetKpiTargetParams}
@@ -145,7 +145,7 @@ export class KpiRewardService {
     /**
      * Read this week's floor + claimed state for every KPI that has EITHER a
      * floor row this week OR a current self-set target (untouched-this-week
-     * KPIs fall back to `currentTargets` — safe, since nothing moved it).
+     * KPIs fall back to `currentTargets` -- safe, since nothing moved it).
      *
      * @param params - {@link GetKpiRewardFloorStatesParams}
      * @returns floor state per KPI key that has a target this week.
@@ -178,7 +178,7 @@ export class KpiRewardService {
             const row = floorByKey.get(key)
             const fallbackTarget = Number(currentTargets[key]) || 0
             if (!row && fallbackTarget <= 0) {
-                // no floor row this week AND no current target → not eligible, skip
+                // no floor row this week AND no current target -> not eligible, skip
                 continue
             }
             result[key] = {
@@ -215,7 +215,7 @@ export class KpiRewardService {
                     },
                 },
             )
-            // no floor row yet this week (user never called setKpiTarget) → lazily
+            // no floor row yet this week (user never called setKpiTarget) -> lazily
             // seed one from the CURRENT target (safe: nothing has moved it this week)
             if (!floorRow) {
                 const user = await manager.findOneOrFail(
@@ -261,7 +261,7 @@ export class KpiRewardService {
             }
             const coinReward = computeKpiCoinReward(key,
                 floorRow.floorTarget)
-            // idempotent ledger write + Coin credit — refId unique per user+kpi+week
+            // idempotent ledger write + Coin credit -- refId unique per user+kpi+week
             await writeCoinHistory({
                 entityManager: manager,
                 userId,

@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -52,7 +52,7 @@ describe("SubmitPersonalGithubUrlHandler",
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-            // `findOneOrFail` is not part of the shared mock surface — add it
+            // `findOneOrFail` is not part of the shared mock surface -- add it
             entityManager.findOneOrFail = jest.fn()
 
             module = await Test.createTestingModule({
@@ -98,7 +98,7 @@ describe("SubmitPersonalGithubUrlHandler",
                     personalProjectGithubUrl: null,
                 }
                 entityManager.findOneOrFail.mockResolvedValueOnce(enrollment)
-                // two-arg save(Entity, row) → program it to echo the saved row
+                // two-arg save(Entity, row) -> program it to echo the saved row
                 entityManager.save.mockResolvedValueOnce(enrollment)
 
                 const result = await handler.execute(
@@ -123,7 +123,7 @@ describe("SubmitPersonalGithubUrlHandler",
 
         it("propagates the not-found error when the enrollment is missing",
             async () => {
-                // no enrollment for this user + course → findOneOrFail rejects
+                // no enrollment for this user + course -> findOneOrFail rejects
                 entityManager.findOneOrFail.mockRejectedValueOnce(
                     new Error("enrollment not found"),
                 )

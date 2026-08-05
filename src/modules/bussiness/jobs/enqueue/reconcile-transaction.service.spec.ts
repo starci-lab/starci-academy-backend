@@ -88,7 +88,7 @@ describe("EnqueueReconcileTransactionJobService",
                 add: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<Queue<string>, "add">>
 
-            // superjson stub — stringify returns a fixed marker so the payload
+            // superjson stub -- stringify returns a fixed marker so the payload
             // handed to the queue can be asserted without depending on real SuperJSON
             superJson = {
                 stringify: jest.fn().mockReturnValue("serialized-payload"),
@@ -185,7 +185,7 @@ describe("EnqueueReconcileTransactionJobService",
 
                         await service.enqueue({
                             transactionId: "txn-3",
-                            // the boot sweep passes 0 to poll immediately — must win over the
+                            // the boot sweep passes 0 to poll immediately -- must win over the
                             // configured delay (`??`, not `||`, so 0 is honored, not defaulted)
                             delayMs: 0,
                         })

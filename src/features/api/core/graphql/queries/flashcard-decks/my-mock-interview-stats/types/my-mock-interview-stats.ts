@@ -38,7 +38,7 @@ export interface MockInterviewStatsModeSplitData {
 export interface MyMockInterviewStatsResultData {
     /**
      * True when the scanned window has fewer than the minimum attempts
-     * required for a trustworthy aggregate — every other field is empty/zero
+     * required for a trustworthy aggregate -- every other field is empty/zero
      * when this is true (HONEST gate: never show a trend/breakdown derived
      * from too small a sample).
      */

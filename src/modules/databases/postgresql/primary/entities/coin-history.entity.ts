@@ -32,14 +32,14 @@ import {
 @Index(["user"])
 @Entity("coin_histories")
 /**
- * Append-only audit ledger of Coin a user was granted — SEPARATE from
+ * Append-only audit ledger of Coin a user was granted -- SEPARATE from
  * {@link XpHistoryEntity} (real, weighted XP): every row here is a flat,
  * course-agnostic coin-only reward (daily quest, streak bonus, KPI reward,
- * weekly-challenge reward — see {@link CoinSource}). Split out so "XP history"
+ * weekly-challenge reward -- see {@link CoinSource}). Split out so "XP history"
  * (`myXpHistory`) stays real XP only, and this ledger's own idempotency
  * (`(source, refId)` unique) covers coin grants independently.
  *
- * `source` is a plain `varchar` (NOT a native Postgres enum) — deliberately,
+ * `source` is a plain `varchar` (NOT a native Postgres enum) -- deliberately,
  * so adding a future coin-only source never risks the enum-ADD-VALUE /
  * synchronize-DROP-TYPE trap that a shared native enum column would (see
  * `KpiWeeklyRewardFloorEntity.kpiKey` for the same choice).

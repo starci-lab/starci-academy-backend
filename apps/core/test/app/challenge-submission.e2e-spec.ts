@@ -103,12 +103,12 @@ const PROCESS_GOOGLE_DOCS_SUBMISSION_QUEUE_NAME =
     bullData[BullQueueName.ProcessGoogleDocsSubmission].name
 
 // the enqueue services fire `queue.add` after a short UX delay
-// (`sleepEnqueueUxDelay`, default 100ms) on a detached promise chain — collapse
+// (`sleepEnqueueUxDelay`, default 100ms) on a detached promise chain -- collapse
 // it to next-to-nothing so `waitForQueueAdd` below doesn't have to sleep long.
 process.env.BULLMQ_ENQUEUE_UX_DELAY = "1ms"
 
 /**
- * Poll until `predicate()` is true or `timeoutMs` elapses — used to observe the
+ * Poll until `predicate()` is true or `timeoutMs` elapses -- used to observe the
  * fire-and-forget `queue.add` call the enqueue services schedule via
  * `void sleepEnqueueUxDelay().then(() => queue.add(...))` rather than awaiting it.
  */
@@ -127,9 +127,9 @@ const waitFor = async (
 }
 
 /**
- * e2e for the challenge-submissions write flows —
+ * e2e for the challenge-submissions write flows --
  * `submitChallengeSubmission` (`submit-challenge-submission.handler.ts`) and
- * `syncSubmission` (`sync-submission.handler.ts`) — run through the real
+ * `syncSubmission` (`sync-submission.handler.ts`) -- run through the real
  * {@link CommandBus} (proving CQRS discovery/wiring, not just the handler
  * class) against REAL Postgres (Testcontainers), not the mocked-`EntityManager`
  * unit level already covered by each handler's own `.handler.spec.ts`.
@@ -137,20 +137,20 @@ const waitFor = async (
  * MOCKED (no external infra available in this harness, and the true system
  * boundary the enqueue path stops at):
  *  - the BullMQ `Queue` clients (`@InjectQueue` tokens for the
- *    process-git-submission / process-google-docs-submission queues) — no
+ *    process-git-submission / process-google-docs-submission queues) -- no
  *    Redis in this harness; `JobActionService.createJob` still writes the real
  *    tracked `jobs` row, only the broker hand-off (`queue.add`) is stubbed.
  *    Grading itself (the worker pipeline behind that queue, which calls the
  *    LLM) is proven by the harness tier (`.claude/canon/be/enforce/authoring/testing.md`
- *    §3), never here — an e2e only proves the job WAS queued, not what the
+ *    §3), never here -- an e2e only proves the job WAS queued, not what the
  *    model returns.
- *  - `CacheService` — real class talks to Redis; stubbed to always miss
- *    (unused by the paths under test — `UserService.resolveOrCreateTrialEnrollment`
- *    never reads it — but the constructor still needs a provider to compile).
- *  - `EventEmitterService` — real class fans out to NATS; stubbed (only
+ *  - `CacheService` -- real class talks to Redis; stubbed to always miss
+ *    (unused by the paths under test -- `UserService.resolveOrCreateTrialEnrollment`
+ *    never reads it -- but the constructor still needs a provider to compile).
+ *  - `EventEmitterService` -- real class fans out to NATS; stubbed (only
  *    `JobActionService.completeJob`/`failJob` call it, neither of which this
  *    spec's paths reach).
- *  - `MountFilesystemService` / `AiAutoQuotaConfigService` — real classes read
+ *  - `MountFilesystemService` / `AiAutoQuotaConfigService` -- real classes read
  *    mounted config files; stubbed to a fixed free-tier base (matches the
  *    pattern `createE2eApp` and `rewards-redeem.e2e-spec.ts` already use).
  *
@@ -172,7 +172,7 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
         let processGitSubmissionQueue: jest.Mocked<Pick<Queue<string>, "add">>
         let processGoogleDocsSubmissionQueue: jest.Mocked<Pick<Queue<string>, "add">>
 
-        /** Read-only fixtures seeded ONCE per describe block below — see each block's `beforeAll`. */
+        /** Read-only fixtures seeded ONCE per describe block below -- see each block's `beforeAll`. */
         let course: CourseEntity
         let module_: ModuleEntity
         let content: ContentEntity
@@ -194,39 +194,39 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
                         withHydration: false,
                         withResolvers: false,
                     }),
-                    // CommandBus + automatic @CommandHandler discovery — proves the
+                    // CommandBus + automatic @CommandHandler discovery -- proves the
                     // two handlers under test are actually wired, not just callable
                     CqrsModule,
                 ],
                 providers: [
-                    // REAL — the two handlers under test
+                    // REAL -- the two handlers under test
                     SubmitChallengeSubmissionHandler,
                     SyncSubmissionHandler,
-                    // REAL — the tracked `jobs` row + advisory lock the handlers use
+                    // REAL -- the tracked `jobs` row + advisory lock the handlers use
                     JobActionService,
                     JobStalledService,
                     PostgreSqlAdvisoryLockService,
-                    // REAL — enqueue services (write the jobs row for real; only the
+                    // REAL -- enqueue services (write the jobs row for real; only the
                     // BullMQ queue client underneath is stubbed, see below)
                     EnqueueProcessGitSubmissionJobService,
                     EnqueueProcessGoogleDocsSubmissionJobService,
-                    // REAL — grading-quota gate + model-pick validation, real SQL
+                    // REAL -- grading-quota gate + model-pick validation, real SQL
                     GradingLaneValidationService,
                     AiEntitlementService,
                     AiModelCatalogService,
-                    // REAL — resolveOrCreateTrialEnrollment runs real SQL
+                    // REAL -- resolveOrCreateTrialEnrollment runs real SQL
                     UserService,
-                    // REAL — pure regex validators, no external deps
+                    // REAL -- pure regex validators, no external deps
                     UrlValidatorService,
                     DayjsService,
-                    // REAL superjson instance — the enqueue services serialize the
+                    // REAL superjson instance -- the enqueue services serialize the
                     // job payload with it and this spec parses it back with the same one
                     createSuperJsonServiceProvider(),
                     // mocked config services the AiEntitlement constructor needs but
@@ -261,7 +261,7 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
                         },
                     },
                     // the true system boundary: no Redis in this harness, so the
-                    // BullMQ broker hand-off itself is stubbed — everything upstream
+                    // BullMQ broker hand-off itself is stubbed -- everything upstream
                     // of it (the tracked `jobs` row) is real
                     {
                         provide: getQueueToken(PROCESS_GIT_SUBMISSION_QUEUE_NAME),
@@ -282,7 +282,7 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
             )
             commandBus = app.get(CommandBus)
 
-            // seed the read-only course/module/content/challenge fixtures ONCE —
+            // seed the read-only course/module/content/challenge fixtures ONCE --
             // only users/submissions/jobs are reset between tests (see afterEach)
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -408,7 +408,7 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
                         expect(userChallengeSubmission.enrollmentId).toBeDefined()
 
                         // resolveOrCreateTrialEnrollment must have written a TRIAL row
-                        // (is_enrolled: false) — submitting a challenge never itself
+                        // (is_enrolled: false) -- submitting a challenge never itself
                         // grants a paid enrollment
                         const enrollment = await entityManager.findOneOrFail(
                             EnrollmentEntity,
@@ -443,7 +443,7 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
                         expect(job.refs.challengeSubmissionId).toBe(submission.id)
 
                         // the enqueue services fire `queue.add` on a detached, delayed
-                        // promise chain — wait for it, then assert the SAME job row
+                        // promise chain -- wait for it, then assert the SAME job row
                         // was actually handed to the (stubbed) BullMQ broker
                         await waitFor(() => processGitSubmissionQueue.add.mock.calls.length > 0)
                         expect(processGitSubmissionQueue.add).toHaveBeenCalledWith(
@@ -722,7 +722,7 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
                         )
                         expect(enrollment.isEnrolled).toBe(false)
 
-                        // sync never enqueues grading — that's submitChallengeSubmission's job
+                        // sync never enqueues grading -- that's submitChallengeSubmission's job
                         const jobCount = await entityManager.count(JobEntity)
                         expect(jobCount).toBe(0)
                     })
@@ -828,7 +828,7 @@ describe("Challenge-submissions write flows — submit + sync (e2e)",
                         )
 
                         // a well-formed, `new URL()`-parsable link that is NOT a
-                        // GitHub URL — passes `UrlValidatorService.isParsable` so it
+                        // GitHub URL -- passes `UrlValidatorService.isParsable` so it
                         // reaches the type-pattern check that raises
                         // SubmissionUrlInvalidException (an unparsable string like
                         // "not-a-github-url" would trip `isParsable` first and throw

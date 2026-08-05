@@ -75,7 +75,7 @@ describe("UseApiService",
                 })),
             } as unknown as jest.Mocked<Pick<AiBalancerService, "acquire">>
 
-            // ping cache: empty map → every key eligible; record is a no-op spy
+            // ping cache: empty map -> every key eligible; record is a no-op spy
             aiPingCacheService = {
                 getProviderMap: jest.fn(async () => ({
                 })),
@@ -177,8 +177,8 @@ describe("UseApiService",
 
                 it("throws AllModelsExhausted after every attempt fails",
                     async () => {
-                        // the action always throws → retry until max attempts → exhausted
-                        // (a raw, unclassified provider-call failure — the SUT is what
+                        // the action always throws -> retry until max attempts -> exhausted
+                        // (a raw, unclassified provider-call failure -- the SUT is what
                         // classifies it, that's the behavior under test)
                         const providerError = new Error("boom")
                         await expect(
@@ -200,7 +200,7 @@ describe("UseApiService",
                 it("retries on the next eligible key after one acquire returns null",
                     async () => {
                         // first acquire yields no key (treated as a failed attempt),
-                        // the second acquire succeeds → result served on attempt 2
+                        // the second acquire succeeds -> result served on attempt 2
                         aiBalancerService.acquire
                             .mockRejectedValueOnce(new Error("transient"))
                             .mockResolvedValueOnce({
@@ -231,7 +231,7 @@ describe("UseApiService",
 
                 it("throws AllModelsExhausted without acquiring when every key is unhealthy",
                     async () => {
-                        // every pool key flagged unhealthy in the ping cache → zero
+                        // every pool key flagged unhealthy in the ping cache -> zero
                         // eligible keys on every model. The sweep must terminate and
                         // throw rather than spin forever re-scanning empty pools.
                         keyStoreService.getPool.mockReturnValue([
@@ -267,7 +267,7 @@ describe("UseApiService",
 
                 it("surfaces a NonKey fault immediately without trying another key",
                     async () => {
-                        // an aborted request is a prompt/content fault, not a bad key —
+                        // an aborted request is a prompt/content fault, not a bad key --
                         // another key would fail the exact same way, so the chain must
                         // stop and surface the ORIGINAL error unwrapped
                         const abortErr = new Error("the request was aborted")
@@ -288,7 +288,7 @@ describe("UseApiService",
 
                 it("hard-disables the key with a zero cooldown on an Auth fault",
                     async () => {
-                        // an invalid/revoked key never recovers on its own — disable it
+                        // an invalid/revoked key never recovers on its own -- disable it
                         // outright instead of a timed cooldown
                         const authErr = new Error("Invalid API Key provided")
 
@@ -310,7 +310,7 @@ describe("UseApiService",
 
                 it("honors the provider's Retry-After header on a rate-limit fault",
                     async () => {
-                        // provider sent a 5s delta-seconds Retry-After — the cooldown
+                        // provider sent a 5s delta-seconds Retry-After -- the cooldown
                         // must use that instead of the class default (60s)
                         const rateLimitErr = Object.assign(
                             new Error("Too Many Requests"),
@@ -366,7 +366,7 @@ describe("UseApiService",
                 it("cools down with the 20s Transient default on an unrecognized error",
                     async () => {
                         // classifyAiError falls through to Transient for anything that
-                        // isn't Auth/RateLimit/NonKey — the class default is 20s, not
+                        // isn't Auth/RateLimit/NonKey -- the class default is 20s, not
                         // hard-disabled and no Retry-After lookup
                         const unrecognizedError = new Error("boom")
                         await expect(
@@ -387,7 +387,7 @@ describe("UseApiService",
 
                 it("excludes a model whose supportedTasks does not include the requested task",
                     async () => {
-                        // chat-only vs grade-only model — requesting `chatting` must
+                        // chat-only vs grade-only model -- requesting `chatting` must
                         // filter the grade-only row out of the fallback chain entirely
                         aiModelCatalogService.enabledModels.mockResolvedValue([
                             {
@@ -415,7 +415,7 @@ describe("UseApiService",
 
                 it("climbs to the next category once the lower category has no eligible key",
                     async () => {
-                        // Free tier has zero keys loaded; Economy's key is healthy — the
+                        // Free tier has zero keys loaded; Economy's key is healthy -- the
                         // chain must climb past the exhausted Free row without ever
                         // trying to acquire a Free-provider key
                         const freeRow = {
@@ -473,7 +473,7 @@ describe("UseApiService",
                 it("skips catalog rows that do not match a model+provider pin inside the chain",
                     async () => {
                         // the `model`/`provider` fields on the Auto params pin the chain
-                        // to one exact row — every other row must be skipped via `continue`
+                        // to one exact row -- every other row must be skipped via `continue`
                         const modelA = buildModelRow("model-a",
                             ModelProvider.OpenAI)
                         const modelB = buildModelRow("model-b",
@@ -542,7 +542,7 @@ describe("UseApiService",
 
                 it("throws Unsupported when the pinned model is not in the catalog",
                     async () => {
-                        // pinned (model, provider) not present → unsupported
+                        // pinned (model, provider) not present -> unsupported
                         aiModelCatalogService.enabledModels.mockResolvedValue([
                             buildModelRow("gpt-4o"),
                         ])
@@ -560,7 +560,7 @@ describe("UseApiService",
 
                 it("falls back to the highest-priority model when none is pinned",
                     async () => {
-                        // no pin → take catalog[0] (already priority-ordered)
+                        // no pin -> take catalog[0] (already priority-ordered)
                         aiModelCatalogService.enabledModels.mockResolvedValue([
                             buildModelRow("gpt-4o"),
                             buildModelRow("gpt-4o-mini"),
@@ -577,7 +577,7 @@ describe("UseApiService",
 
                 it("throws NoActiveBalancerKey when no eligible key remains",
                     async () => {
-                        // the resolved model's key is unhealthy → no eligible key
+                        // the resolved model's key is unhealthy -> no eligible key
                         aiPingCacheService.getProviderMap.mockResolvedValue({
                             "sk-aaaa": {
                                 status: false,
@@ -599,7 +599,7 @@ describe("UseApiService",
 
                 it("throws AllModelsExhausted when the catalog is empty",
                     async () => {
-                        // no models + no pin → nothing to resolve
+                        // no models + no pin -> nothing to resolve
                         aiModelCatalogService.enabledModels.mockResolvedValue([])
 
                         await expect(
@@ -613,7 +613,7 @@ describe("UseApiService",
 
                 it("resolves a pinned model by name only when provider is omitted",
                     async () => {
-                        // (model, provider) branch requires BOTH — a name-only pin falls
+                        // (model, provider) branch requires BOTH -- a name-only pin falls
                         // into the name-only `find`, still resolving the right row
                         aiModelCatalogService.enabledModels.mockResolvedValue([
                             buildModelRow("gpt-4o",
@@ -820,7 +820,7 @@ describe("UseApiService",
                         fetchSpy = jest
                             .spyOn(global,
                                 "fetch")
-                            // no `body` arg → `.json()` rejects, exercising the catch path
+                            // no `body` arg -> `.json()` rejects, exercising the catch path
                             .mockResolvedValue(fakeResponse(500))
 
                         const result = await service.probeModel({
@@ -893,7 +893,7 @@ describe("UseApiService",
                             init] = fetchSpy.mock.calls[0]
                         expect(url).toBe("https://api.openai.com/v1/chat/completions")
                         const body = JSON.parse((init as RequestInit).body as string)
-                        // 16 (not 1) — reasoning-family models need headroom past hidden
+                        // 16 (not 1) -- reasoning-family models need headroom past hidden
                         // reasoning before a visible token, else OpenAI 400s instead of a
                         // clean empty 2xx completion
                         expect(body.max_completion_tokens).toBe(16)
@@ -922,7 +922,7 @@ describe("UseApiService",
                         expect(headers.Authorization).toBe("Bearer openrouter-key")
                         const body = JSON.parse((init as RequestInit).body as string)
                         // reasoning-family OpenRouter routes reject `max_tokens` the same
-                        // way native OpenAI does — same 16-token reasoning-headroom floor
+                        // way native OpenAI does -- same 16-token reasoning-headroom floor
                         expect(body.max_completion_tokens).toBe(16)
                         expect(body.max_tokens).toBeUndefined()
                     })
@@ -1149,7 +1149,7 @@ describe("UseApiService",
                         )
 
                         // Free tier (local) stays ahead of Economy; within Economy the
-                        // original (weight) order is preserved — paid tiers untouched.
+                        // original (weight) order is preserved -- paid tiers untouched.
                         expect(ordered.map((m) => m.name)).toEqual([
                             "qwen-local",
                             "eco-hi",
@@ -1163,7 +1163,7 @@ describe("UseApiService",
                 it("includes only providers with at least one eligible key",
                     async () => {
                         // two loaded providers; OpenAI's key is healthy, Gemini's is
-                        // still cooling down → only OpenAI should come back usable
+                        // still cooling down -> only OpenAI should come back usable
                         keyStoreService.listProviders.mockReturnValue([
                             {
                                 provider: ModelProvider.OpenAI,

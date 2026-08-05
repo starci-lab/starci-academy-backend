@@ -10,7 +10,7 @@ import {
 /**
  * The StarCi authoring separator that delimits fields inside a `.volume/data`
  * markdown doc. A doc is a flat sequence
- * `# field <SEP> value <SEP> # field2 <SEP> value2 …`.
+ * `# field <SEP> value <SEP> # field2 <SEP> value2 ...`.
  */
 const SEP = "<!-- @starci/seperator -->"
 
@@ -19,13 +19,13 @@ const VOLUME_DATA = join(process.cwd(),
     ".volume",
     "data")
 
-/** A parsed `.volume/data` doc — its fields plus convenience `title`/`body`. */
+/** A parsed `.volume/data` doc -- its fields plus convenience `title`/`body`. */
 export interface VolumeDoc {
-    /** Every `# field` → value pair, verbatim. */
+    /** Every `# field` -> value pair, verbatim. */
     fields: Record<string, string>
     /** The `title` field ("" when absent). */
     title: string
-    /** The `body` field — the doc's main markdown ("" when absent). */
+    /** The `body` field -- the doc's main markdown ("" when absent). */
     body: string
 }
 
@@ -36,7 +36,7 @@ export interface VolumeDoc {
  * bank) instead of a hand-made fixture.
  *
  * @param relDir - path under `.volume/data` (e.g. `"cv/samples/06-senior-backend-systemdesign"`).
- * @param locale - `"en"` (default) or `"vi"` — selects `<locale>.md`.
+ * @param locale - `"en"` (default) or `"vi"` -- selects `<locale>.md`.
  * @returns the parsed {@link VolumeDoc}.
  * @throws when the file is absent (a harness should skip the case, not silently pass on empty).
  */

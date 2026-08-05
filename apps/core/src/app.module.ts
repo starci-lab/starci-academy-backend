@@ -211,15 +211,15 @@ import {
                     isGlobal: true,
                 }
             ),
-            /** AI module — includes the rotating API-key balancer. */
+            /** AI module -- includes the rotating API-key balancer. */
             AiModule.register({
                 isGlobal: true,
             }),
-            /** Community membership module — entitlement grant/expiry. */
+            /** Community membership module -- entitlement grant/expiry. */
             MembershipModule.register({
                 isGlobal: true,
             }),
-            /** Kafka infrastructure module — shared broker client for CDC/event listeners. */
+            /** Kafka infrastructure module -- shared broker client for CDC/event listeners. */
             KafkaModule.register({
                 isGlobal: true,
             }),
@@ -322,7 +322,7 @@ import {
                     isGlobal: true,
                 }
             ),
-            /** Assets module — syncs local static brand assets to MinIO on boot. */
+            /** Assets module -- syncs local static brand assets to MinIO on boot. */
             AssetsModule.register(
                 {
                     isGlobal: true,
@@ -357,7 +357,7 @@ import {
                     isGlobal: true,
                 }
             ),
-            /** NOWPayments client module (crypto gateway — USDT/USDC). */
+            /** NOWPayments client module (crypto gateway -- USDT/USDC). */
             NowPaymentsModule.register(
                 {
                     isGlobal: true,
@@ -382,7 +382,7 @@ import {
                     isGlobal: true,
                 }
             ),
-            /** Routing module — provides LabelResolverService for id-only ref rendering. */
+            /** Routing module -- provides LabelResolverService for id-only ref rendering. */
             RoutingModule.register(
                 {
                     isGlobal: true,
@@ -496,7 +496,7 @@ import {
                 }
             ),
             /**
-             * Init module — boot-time seed/sync orchestrator. The git-sourced
+             * Init module -- boot-time seed/sync orchestrator. The git-sourced
              * `InitModule` pulls the private `data` repo (diff-based) before
              * seeding; it is the only init path (the parked local-file
              * LegacyInitModule has been retired).
@@ -540,7 +540,7 @@ import {
     }
 )
 /**
- * Core API composition root — GraphQL, HTTP, Socket.IO, workers, backup crons,
+ * Core API composition root -- GraphQL, HTTP, Socket.IO, workers, backup crons,
  * video encoder, and init. Thinner apps (cli/tools/mock/agents) are slices of
  * this graph; a new global module belongs here if it must reach production
  * traffic.

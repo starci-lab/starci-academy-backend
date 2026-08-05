@@ -13,5 +13,5 @@ import {
         MyWeeklyStatsResolver,
     ],
 })
-/** Feature-module boundary for the `myWeeklyStats` query — wires its resolver so the dashboard group can mount this widget independently. */
+/** Feature-module boundary for the `myWeeklyStats` query -- wires its resolver so the dashboard group can mount this widget independently. */
 export class MyWeeklyStatsSingleQueryModule extends ConfigurableModuleClass {}

@@ -109,8 +109,8 @@ export class PlaygroundEntity extends UuidAbstractEntity {
 
     /**
      * Interaction kind driving the right-hand widget + verify family:
-     * `terminal` (Docker/K8s — CLI agent + resource verify) or `rag`
-     * (import code → ask → cite). Stored as varchar (NOT a PG enum) to dodge
+     * `terminal` (Docker/K8s -- CLI agent + resource verify) or `rag`
+     * (import code -> ask -> cite). Stored as varchar (NOT a PG enum) to dodge
      * the synchronize enum ADD-VALUE trap; legacy rows default to `terminal`.
      */
     @Field(

@@ -46,13 +46,13 @@ export class MembershipService {
 
     /**
      * Grant or extend a membership on successful payment and mark the funding
-     * transaction succeeded — both inside one DB transaction. Atomic: the
-     * Pending→Succeeded transition is claimed FIRST via a guarded `UPDATE ...
+     * transaction succeeded -- both inside one DB transaction. Atomic: the
+     * Pending->Succeeded transition is claimed FIRST via a guarded `UPDATE ...
      * WHERE status = 'pending'` (same technique as
      * `TransactionActionService.updateTransactionStatusIfExpected`); the period
      * is only extended when THIS call is the one that won that claim (rows-
      * affected = 1). A concurrent webhook/reconcile-poll race that loses the
-     * claim sees 0 rows affected and no-ops — so a paid transaction extends the
+     * claim sees 0 rows affected and no-ops -- so a paid transaction extends the
      * membership exactly once, not merely "checked then acted on".
      *
      * @param params - the owning `userId` and the `transactionId` that funded it
@@ -64,7 +64,7 @@ export class MembershipService {
         return this.entityManager.transaction(
             async (entityManager): Promise<boolean> => {
                 // atomically claim the Pending -> Succeeded transition BEFORE
-                // granting anything — this IS the guard, replacing the earlier
+                // granting anything -- this IS the guard, replacing the earlier
                 // read-then-compare-in-app-code (TOCTOU) idempotency check
                 const claim = await entityManager.update(
                     TransactionEntity,
@@ -77,11 +77,11 @@ export class MembershipService {
                     },
                 )
                 if (!claim.affected) {
-                    // already claimed (granted) by a concurrent/earlier path → not a new grant
+                    // already claimed (granted) by a concurrent/earlier path -> not a new grant
                     return false
                 }
 
-                // this call alone won the claim → extend the period by one
+                // this call alone won the claim -> extend the period by one
                 // billing cycle, stacking on any time left; runs exactly once
                 // for this transaction
                 await this.extendPeriod({
@@ -90,15 +90,15 @@ export class MembershipService {
                     entityManager,
                 })
 
-                // a new grant happened → caller may notify the buyer
+                // a new grant happened -> caller may notify the buyer
                 return true
             },
         )
     }
 
     /**
-     * Grant free membership months not tied to a payment — used by the
-     * "buy a course → get N months free" reverse funnel. Stacks on any time
+     * Grant free membership months not tied to a payment -- used by the
+     * "buy a course -> get N months free" reverse funnel. Stacks on any time
      * the user already has left.
      *
      * @param params - the owning `userId` and the number of `months` to add
@@ -142,7 +142,7 @@ export class MembershipService {
                 },
             },
         )
-        // no row → never a member
+        // no row -> never a member
         if (!membership?.currentPeriodEnd) {
             return false
         }
@@ -215,7 +215,7 @@ export class MembershipService {
         const nextPeriodEnd = base.add(months,
             "month").toDate()
 
-        // first-ever payment → create the row; otherwise mutate in place
+        // first-ever payment -> create the row; otherwise mutate in place
         const membership = existing ?? entityManager.create(
             MembershipEntity,
             {

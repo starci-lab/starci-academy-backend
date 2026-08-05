@@ -30,13 +30,13 @@ import type {
 
 @Injectable()
 /**
- * CDC consumer that keeps `user_capstone_projections` fresh — a new milestone-task
+ * CDC consumer that keeps `user_capstone_projections` fresh -- a new milestone-task
  * attempt rebuilds the owner's capstone aggregate. The attempts row carries only
  * `user_milestone_task_id`, so the owning user id is resolved via
- * `user_milestone_tasks → enrollments`. TTL lazy-refresh is the fallback.
+ * `user_milestone_tasks -> enrollments`. TTL lazy-refresh is the fallback.
  */
 export class UserCapstoneProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-capstone-projection"
 
     /** Milestone-task attempts move the owner's capstone aggregate. */
@@ -58,7 +58,7 @@ export class UserCapstoneProjectionListener extends AbstractProjectionListener<s
 
     /**
      * Resolve the owning user id from the attempt's `user_milestone_task_id`
-     * (via user_milestone_tasks → enrollments). Returns 0–1 user ids.
+     * (via user_milestone_tasks -> enrollments). Returns 0-1 user ids.
      *
      * @param message - {@link ProjectionCdcMessage}
      * @returns the affected user id(s).
@@ -72,7 +72,7 @@ export class UserCapstoneProjectionListener extends AbstractProjectionListener<s
         if (!attemptRow.user_milestone_task_id) {
             return []
         }
-        // the attempts table has no user_id → walk up to the enrollment's owner
+        // the attempts table has no user_id -> walk up to the enrollment's owner
         const found = await this.entityManager.query<Array<CapstoneEnrollmentUserIdRow>>(
             `
             SELECT e.user_id

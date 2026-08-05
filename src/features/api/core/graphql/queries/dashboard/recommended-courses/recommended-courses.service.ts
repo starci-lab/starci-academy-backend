@@ -89,7 +89,7 @@ export class RecommendedCoursesService {
             course,
         ]))
 
-        // one loyalty computation per viewer — the same percent prices every course
+        // one loyalty computation per viewer -- the same percent prices every course
         const {
             percent,
             reason,

@@ -82,7 +82,7 @@ const EMPTY_RESULT: AutocompleteGlobalSearchExecuteResult = {
  * Orchestrates parallel per-entity ES searches, then hydrates each hit with a
  * cached ancestor chain + a server-built route so the client can deep-link
  * without a second round-trip. State flags (enrolled/free/premium) are
- * best-effort — search must still return if enrichment fails.
+ * best-effort -- search must still return if enrichment fails.
  */
 export class AutocompleteGlobalSearchService {
     constructor(
@@ -112,7 +112,7 @@ export class AutocompleteGlobalSearchService {
             return EMPTY_RESULT
         }
 
-        // resolver always supplies a locale, but the type is optional → default to En
+        // resolver always supplies a locale, but the type is optional -> default to En
         const searchLocale = locale ?? Locale.En
         const size = request.size ?? DEFAULT_SIZE
         const selected = new Set<SearchableEntity>(
@@ -261,7 +261,7 @@ export class AutocompleteGlobalSearchService {
 
     /**
      * Enriches course + content hits with state flags for state-aware, free-first
-     * rendering — NO live/discounted pricing:
+     * rendering -- NO live/discounted pricing:
      * - course `isEnrolled`: authed user has a real enrollment (is_enrolled = true);
      *   always false for guests.
      * - course `isFree`: no paid price (originalPrice null/0 AND no priced phase).
@@ -269,7 +269,7 @@ export class AutocompleteGlobalSearchService {
      *
      * Batched: one query for the course rows (id + originalPrice + phase prices),
      * one cached read for the user's enrolled-course set, one IN query for content
-     * premium flags. Non-fatal — on any error the original buckets are returned
+     * premium flags. Non-fatal -- on any error the original buckets are returned
      * unchanged (search must not break).
      *
      * @param params - {@link AttachStateFlagsParams}
@@ -333,10 +333,10 @@ export class AutocompleteGlobalSearchService {
 
     /**
      * Loads free-detection data for the given course ids in ONE query and derives
-     * `isFree` per course: true when the course has no paid price — `originalPrice`
+     * `isFree` per course: true when the course has no paid price -- `originalPrice`
      * is null or 0 AND no pricing phase has `price > 0`.
      * @param courseIds - The course hit ids to resolve.
-     * @returns Map of course id → isFree (empty when there are no ids).
+     * @returns Map of course id -> isFree (empty when there are no ids).
      */
     private async loadCourseFreeRows(
         courseIds: Array<string>,
@@ -386,7 +386,7 @@ export class AutocompleteGlobalSearchService {
     private async loadEnrolledCourseIds(
         userId: string | undefined,
     ): Promise<Array<string>> {
-        // guests are never enrolled → skip the DB entirely
+        // guests are never enrolled -> skip the DB entirely
         if (!userId) {
             return []
         }
@@ -400,7 +400,7 @@ export class AutocompleteGlobalSearchService {
         if (cached !== undefined) {
             return cached
         }
-        // cache miss → rebuild the whole set with a single indexed read on (user_id)
+        // cache miss -> rebuild the whole set with a single indexed read on (user_id)
         const rows = await this.entityManager.find(
             EnrollmentEntity,
             {
@@ -438,7 +438,7 @@ export class AutocompleteGlobalSearchService {
     /**
      * Loads the `isPremium` flag for the given content ids in ONE `IN` query.
      * @param contentIds - The content hit ids to resolve.
-     * @returns Map of content id → isPremium (empty when there are no ids).
+     * @returns Map of content id -> isPremium (empty when there are no ids).
      */
     private async loadContentPremiumMap(
         contentIds: Array<string>,
@@ -479,7 +479,7 @@ export class AutocompleteGlobalSearchService {
             entityName,
         }: AttachParentPathsParams,
     ): Promise<Array<GlobalSearchItem>> {
-        // resolve every hit's ancestor chain in parallel — one cache read per hit
+        // resolve every hit's ancestor chain in parallel -- one cache read per hit
         return Promise.all(items.map(async (item) => {
             // look up the precomputed parent graph cached during indexer sync
             const parentRef = await this.cacheService.get({
@@ -512,7 +512,7 @@ export class AutocompleteGlobalSearchService {
     private toParentPath(
         parentRef: ParentIndexCacheResult | undefined,
     ): GlobalSearchParentPath | undefined {
-        // nothing cached → leave parentPath unset so the client falls back gracefully
+        // nothing cached -> leave parentPath unset so the client falls back gracefully
         if (!parentRef) {
             return undefined
         }

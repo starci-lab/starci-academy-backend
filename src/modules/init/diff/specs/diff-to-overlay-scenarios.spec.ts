@@ -8,9 +8,9 @@ import {
 /**
  * End-to-end scenarios wiring the two pure diff stages together:
  *
- *   changed paths → {@link parseDataGitDiff} → {@link SeedDiffOverlayService.buildDiffConfig}
+ *   changed paths -> {@link parseDataGitDiff} -> {@link SeedDiffOverlayService.buildDiffConfig}
  *
- * Each test reads as "this file change → exactly this seed/sync scope", mirroring
+ * Each test reads as "this file change -> exactly this seed/sync scope", mirroring
  * how a real `StarCi-Academy/data` commit narrows the boot. Invariants checked
  * throughout: a partial diff NEVER reindexes (`synchronizers.reindex: []`) and
  * milestones never push to the repo sink (`repo: []`).
@@ -87,7 +87,7 @@ describe("data-git diff → seed overlay (scenarios)",
                     elasticsearch: [
                         1,
                     ],
-                    // milestones are CDN/ES only — repo push stays empty
+                    // milestones are CDN/ES only -- repo push stays empty
                     repo: [],
                 })
             })

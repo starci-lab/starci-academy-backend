@@ -9,7 +9,7 @@ describe("validatedLaneToAiJobSelection",
     () => {
         it("maps an empty lane to a model-less selection",
             () => {
-                // no pinned model — the balancer chooses at grade time
+                // no pinned model -- the balancer chooses at grade time
                 const selection = validatedLaneToAiJobSelection({
                 })
 

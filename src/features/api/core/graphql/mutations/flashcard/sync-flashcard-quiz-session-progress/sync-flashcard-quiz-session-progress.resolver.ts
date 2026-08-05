@@ -36,7 +36,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL entrypoint for `syncFlashcardQuizSessionProgress` — delegates to {@link SyncFlashcardQuizSessionProgressService.execute},
+ * GraphQL entrypoint for `syncFlashcardQuizSessionProgress` -- delegates to {@link SyncFlashcardQuizSessionProgressService.execute},
  * which dispatches the CQRS command {@link SyncFlashcardQuizSessionProgressHandler} owns. See {@link execute}'s
  * own doc below for what the mutation actually does.
  */
@@ -49,7 +49,7 @@ export class SyncFlashcardQuizSessionProgressResolver {
      * Periodically syncs an in-flight flashcard quick-quiz session's per-card
      * results + position so a learner who navigates away mid-quiz can resume
      * it via `myInProgressFlashcardQuizSession`. Never throws for a
-     * stale/late sync (session already completed/abandoned) — see the
+     * stale/late sync (session already completed/abandoned) -- see the
      * handler's own doc.
      */
     @UseThrottler(ThrottlerConfig.Soft)

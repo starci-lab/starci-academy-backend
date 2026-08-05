@@ -44,7 +44,7 @@ export class CodingProblemService {
     /**
      * List enabled problems (the shared catalog) from the per-locale Elasticsearch
      * index with optional difficulty/tag filters + pagination. Per-user state
-     * (solved/points) is served separately by {@link CodingProgressService} — the
+     * (solved/points) is served separately by {@link CodingProgressService} -- the
      * catalog here carries no user-specific data. Documents are pre-localized
      * (title) and only catalog fields are returned (never testcases/solutions).
      *
@@ -113,7 +113,7 @@ export class CodingProblemService {
             // accurate total beyond the default 10k cap
             track_total_hits: true,
         })
-        // map hits to entities; ES throws (caught) only on a missing index → empty page
+        // map hits to entities; ES throws (caught) only on a missing index -> empty page
         const problems = response.hits.hits
             .map((hit) => hit._source)
             .filter((source): source is CodingProblemEntity => Boolean(source))
@@ -152,7 +152,7 @@ export class CodingProblemService {
             query: {
                 bool: {
                     filter: [
-                        // exact slug lookup — tolerate either keyword shape across indices
+                        // exact slug lookup -- tolerate either keyword shape across indices
                         {
                             bool: {
                                 should: [
@@ -182,7 +182,7 @@ export class CodingProblemService {
             size: 1,
         })
         const hit = response.hits.hits[0]?._source
-        // missing/disabled → typed not-found
+        // missing/disabled -> typed not-found
         if (!hit) {
             throw new CodingProblemNotFoundException({
                 identifier: slug,
@@ -190,7 +190,7 @@ export class CodingProblemService {
         }
         // Reference solutions can never leak here: they are not a GraphQL `@Field`
         // on CodingProblemEntity (so the schema never serializes them) and the ES
-        // sync builder never indexes them — exposure is gated at the schema, not by
+        // sync builder never indexes them -- exposure is gated at the schema, not by
         // read-time stripping.
         return hit
     }
@@ -198,7 +198,7 @@ export class CodingProblemService {
     /**
      * Load a problem's localized "approach hint" markdown from Elasticsearch.
      * Hints live only in ES (index `coding-problem-hints-<locale>`, keyed by
-     * slug) — never in Postgres. Falls back to the English hint when the
+     * slug) -- never in Postgres. Falls back to the English hint when the
      * requested locale has none, and returns null when no hint exists at all.
      *
      * @param params - slug + locale
@@ -246,7 +246,7 @@ export class CodingProblemService {
                 hint: source.hint,
             }
         } catch {
-            // 404 (missing doc or index) → no hint for this locale
+            // 404 (missing doc or index) -> no hint for this locale
             return null
         }
     }

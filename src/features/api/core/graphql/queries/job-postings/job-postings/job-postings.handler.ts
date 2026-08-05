@@ -30,7 +30,7 @@ import type {
 @Injectable()
 /**
  * Lists job postings from Postgres (newest first), with optional work-mode /
- * employment-type filters and a case-insensitive title search. Public — no
+ * employment-type filters and a case-insensitive title search. Public -- no
  * auth/enrollment guard, this is an open job board.
  */
 export class JobPostingsHandler
@@ -85,7 +85,7 @@ export class JobPostingsHandler
                         }),
                 },
                 // company is always needed to render the poster's identity
-                // (name/logo) on the list — load it eagerly to avoid N+1
+                // (name/logo) on the list -- load it eagerly to avoid N+1
                 relations: {
                     company: true,
                 },

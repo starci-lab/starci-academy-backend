@@ -68,7 +68,7 @@ import {
 @CommandHandler(PaypalWebhookCommand)
 @Injectable()
 /**
- * Verifies the event via PayPal's signature API then settles — a failed verify means the
+ * Verifies the event via PayPal's signature API then settles -- a failed verify means the
  * payload is forged and must not enroll.
  */
 export class PaypalWebhookHandler
@@ -113,7 +113,7 @@ export class PaypalWebhookHandler
             webhookEvent: toUnknownRecord(body),
         })
         if (!verified) {
-            // a failed verification means the payload is untrusted → reject
+            // a failed verification means the payload is untrusted -> reject
             throw new InvalidPaypalWebhookSignatureException({
                 eventId: body.id,
             })
@@ -138,7 +138,7 @@ export class PaypalWebhookHandler
             return
         }
 
-        // with intent=CAPTURE, approval alone moves NO money — capture the funds
+        // with intent=CAPTURE, approval alone moves NO money -- capture the funds
         // before granting anything. Idempotent: an already-captured order returns
         // captured=true. If the capture does not complete, we do NOT grant.
         if (isApproved) {
@@ -154,7 +154,7 @@ export class PaypalWebhookHandler
                 orderId,
             })
             if (!capture.captured) {
-                // funds were not taken → reject so nothing is granted for free
+                // funds were not taken -> reject so nothing is granted for free
                 throw new PaypalCaptureNotConfirmedException({
                     orderId,
                     status: capture.status,
@@ -165,7 +165,7 @@ export class PaypalWebhookHandler
         // resolve our reference id: prefer custom_id on the resource, else look up the order
         const referenceId = await this.resolveReferenceId(body.resource)
         if (!referenceId) {
-            // without our reference id we cannot match a transaction → reject
+            // without our reference id we cannot match a transaction -> reject
             throw new TransactionNotFoundException({
                 referenceId: "missing custom_id",
             })
@@ -297,7 +297,7 @@ export class PaypalWebhookHandler
     private async resolveReferenceId(
         resource?: Record<string, unknown>,
     ): Promise<string | undefined> {
-        // no resource at all → nothing to resolve
+        // no resource at all -> nothing to resolve
         if (!resource) {
             return undefined
         }

@@ -43,7 +43,7 @@ import type {
 } from "./types"
 
 /**
- * How many most-recent completed sessions to scan for the aggregation —
+ * How many most-recent completed sessions to scan for the aggregation --
  * bounds the aggregation cost; same reasoning + value as the inline services
  * this projection replaces (`MyFlashcardQuizStatsService.STATS_SESSION_SCAN_CAP` /
  * `MyFlashcardReviewStatsService.STATS_SESSION_SCAN_CAP`).
@@ -53,10 +53,10 @@ const STATS_SESSION_SCAN_CAP = 50
 /** How many of the most recent scanned quiz sessions feed the trend line. */
 const STATS_TREND_LENGTH = 10
 
-/** Upper bound on tags returned in `quizByTag` — a sane ceiling for the response payload. */
+/** Upper bound on tags returned in `quizByTag` -- a sane ceiling for the response payload. */
 const STATS_MAX_TAGS = 20
 
-/** Max "câu hay sai" hard quiz cards surfaced — a tight, actionable list (mirrors `LEECH_LIMIT`). */
+/** Max frequently-missed quiz cards surfaced -- a tight, actionable list (mirrors `LEECH_LIMIT`). */
 const QUIZ_HARD_CARD_LIMIT = 5
 
 /** Minimum times a card must be answered before it's eligible to be a "hard" card (avoid a 1-off miss). */
@@ -71,7 +71,7 @@ const MASTERED_REPETITIONS = 2
 /** SM-2 grade at/above which a review counts as a successful recall (retention numerator). */
 const RECALLED_GRADE = 2
 
-/** Max leech cards surfaced ("cần ôn lại" hero) — a tight, actionable list. */
+/** Max leech cards surfaced (needs-review hero) -- a tight, actionable list. */
 const LEECH_LIMIT = 5
 
 /** Minimum graded reviews a card needs before it can be flagged a leech (avoid a 1-off Again). */
@@ -89,9 +89,9 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000
 /**
  * `interval_days` cut between "young" and "mature" for {@link FlashcardMaturityLadderData}
  * (young: 1..this inclusive; mature: strictly above). A SEPARATE, slightly
- * different cut from {@link RETENTION_MATURE_THRESHOLD_DAYS} — the ladder is a
+ * different cut from {@link RETENTION_MATURE_THRESHOLD_DAYS} -- the ladder is a
  * headcount bucket (3-way split), the retention split is a 2-way "is recall
- * worse on new material or on stuff I've already committed" diagnosis; thầy's
+ * worse on new material or on stuff I've already committed" diagnosis; PO
  * 2026-07-17 spec gave each its own boundary.
  */
 const MATURITY_LADDER_YOUNG_MAX_DAYS = 21
@@ -105,7 +105,7 @@ const FORGET_SOON_HEADLINE_DAYS = 2
 /** Minimum repeated-Hard grades before a card counts as "stuck" (never forgets outright, never firms up either). */
 const STUCK_HARD_MIN_COUNT = 2
 
-/** Max cards surfaced in `leechFocus` — a tight, actionable rewrite list (mirrors `LEECH_LIMIT`). */
+/** Max cards surfaced in `leechFocus` -- a tight, actionable rewrite list (mirrors `LEECH_LIMIT`). */
 const LEECH_FOCUS_LIMIT = 8
 
 /** Minimum graded reviews an HOUR-of-day bucket needs before it's eligible to be "the best review hour" (sample-size floor). */
@@ -215,17 +215,17 @@ interface CourseTagCountRow {
 
 @Injectable()
 /**
- * CQRS projection service for a user's flashcard COURSE stats — shared by both
+ * CQRS projection service for a user's flashcard COURSE stats -- shared by both
  * the quick-quiz and review recap surfaces. The heavy scan/fold over
  * `flashcard_quiz_sessions` / `flashcard_review_sessions` / `flashcard_cards`
  * runs ONLY in {@link recompute} (the projector, triggered by CDC on both
  * source tables), building the aggregate jsonb. {@link getStats} reads the
- * flat row with a TTL lazy-refresh — no per-request scan/fold.
+ * flat row with a TTL lazy-refresh -- no per-request scan/fold.
  *
  * This mirrors what `MyFlashcardQuizStatsService.compute` and
  * `MyFlashcardReviewStatsService.compute`'s `computeByDeck` used to do inline
- * on every read (a bounded ≤50-row scan + GROUP BY) — a violation of
- * `.claude/be/rules/cqrs-no-inline-aggregate.md` ("kể cả scale nhỏ").
+ * on every read (a bounded <=50-row scan + GROUP BY) -- a violation of
+ * `.claude/be/rules/cqrs-no-inline-aggregate.md` (even at small scale).
  */
 export class UserFlashcardCourseStatsProjectionService {
     constructor(
@@ -345,9 +345,9 @@ export class UserFlashcardCourseStatsProjectionService {
             },
         )
         // missing / past freshness window / SCHEMA-DRIFTED (a fresh row written
-        // before the outcome fields existed lacks `leechCards` etc. — recompute
-        // once so those keys populate instead of reading as empty forever, thầy
-        // 2026-07-13: "sao không thấy leech/chart") → recompute + re-read.
+        // before the outcome fields existed lacks `leechCards` etc. -- recompute
+        // once so those keys populate instead of reading as empty forever, PO
+        // 2026-07-13: leech/chart fields missing after schema drift).
         const missingOutcomeFields = row
             ? (() => {
                 const value = row.value as Partial<UserFlashcardCourseStatsResult> | undefined
@@ -355,7 +355,7 @@ export class UserFlashcardCourseStatsProjectionService {
                 // quiz-outcome drift (added later); maturityLadder = the
                 // stats-insight-redesign drift (2026-07-17, this batch of new
                 // fields); reviewedTotal = the course-scoped floor/hero drift
-                // (2026-07-17, same day, added after maturityLadder shipped) —
+                // (2026-07-17, same day, added after maturityLadder shipped) --
                 // any absent means the row predates that fold, so recompute once
                 // to populate it.
                 return value?.leechCards === undefined
@@ -424,7 +424,7 @@ export class UserFlashcardCourseStatsProjectionService {
     }
 
     /**
-     * The quick-quiz side of the aggregate — trend/byTag/byDeck, COPIED
+     * The quick-quiz side of the aggregate -- trend/byTag/byDeck, COPIED
      * verbatim (parameterized by `enrollmentId`) from
      * `MyFlashcardQuizStatsService.compute`/`computeByTag`/`computeByDeck`.
      */
@@ -462,7 +462,7 @@ export class UserFlashcardCourseStatsProjectionService {
         const difficultyMix = this.computeDifficultyMix(sessions)
 
         // `sessions` is newest-first (DESC); reverse to oldest-first, then take
-        // the last N of that ascending list — i.e. the most recent N sessions,
+        // the last N of that ascending list -- i.e. the most recent N sessions,
         // oldest-of-those-first, which is what a left-to-right trend line wants
         const quizTrend = [...sessions]
             .reverse()
@@ -495,7 +495,7 @@ export class UserFlashcardCourseStatsProjectionService {
             }
         }
 
-        // ONE query for both the tag breakdown and the deck breakdown — avoids
+        // ONE query for both the tag breakdown and the deck breakdown -- avoids
         // querying FlashcardCardEntity twice
         const cards = await manager.find(
             FlashcardCardEntity,
@@ -508,11 +508,11 @@ export class UserFlashcardCourseStatsProjectionService {
                 },
                 // NO `deckId` here: it is a virtual `@RelationId` on
                 // FlashcardCardEntity, and TypeORM's find `select` only accepts real
-                // columns/relations — listing it throws EntityPropertyNotFoundError
+                // columns/relations -- listing it throws EntityPropertyNotFoundError
                 // ("Property \"deckId\" was not found in \"FlashcardCardEntity\"") at
                 // RUNTIME, which killed `recompute()` on its FIRST fold (computeQuiz)
                 // and so silently left EVERY flashcard course-stat empty since
-                // b0c780f4. Nothing reads `card.deckId` here anyway — the deck comes
+                // b0c780f4. Nothing reads `card.deckId` here anyway -- the deck comes
                 // from the `deck` relation below (2026-07-17 fix).
                 select: {
                     id: true,
@@ -557,7 +557,7 @@ export class UserFlashcardCourseStatsProjectionService {
     }
 
     /**
-     * Bucket completed quiz sessions by their `level` filter — Staff folds
+     * Bucket completed quiz sessions by their `level` filter -- Staff folds
      * into `senior` (the FE only shows 3 difficulty buckets) and sessions
      * drawn with NO level filter ("all levels") are excluded, since they
      * can't be attributed to a single difficulty.
@@ -583,7 +583,7 @@ export class UserFlashcardCourseStatsProjectionService {
                 mix.senior += 1
                 break
             default:
-                // null ("all levels") — not attributable to one bucket, skip
+                // null ("all levels") -- not attributable to one bucket, skip
                 break
             }
         }
@@ -592,7 +592,7 @@ export class UserFlashcardCourseStatsProjectionService {
 
     /**
      * How many of the course's technology tags the learner has attempted vs
-     * how many exist — `total` is a real `COUNT(DISTINCT tag)` over the
+     * how many exist -- `total` is a real `COUNT(DISTINCT tag)` over the
      * course's decks (cheap: one query, mirrors the `totalCardsRow` pattern in
      * {@link computeDueAndMastery}), not the byTag-length approximation the
      * spec allows as a fallback. Null only when the course itself has no tag
@@ -625,15 +625,15 @@ export class UserFlashcardCourseStatsProjectionService {
     }
 
     /**
-     * The quiz OUTCOME diagnosis (thầy 2026-07-13 quiz-stats redesign — dẫn bằng
-     * lỗ hổng, not vanity) — the "câu hay sai" list, the quiz analogue of a review
+     * The quiz OUTCOME diagnosis (PO 2026-07-13 quiz-stats redesign -- lead
+     * with gaps, not vanity) -- the frequently-missed quiz list, the quiz analogue of a review
      * leech. Folds each (session, result) pair from `results[]` per card:
      * aggregate coverage = ΣcorrectBlanks / ΣtotalBlanks, `attempts` = times
      * answered, `wrongCount` = attempts with any blank missed (coverage < 1). Only
      * cards answered >= {@link QUIZ_HARD_CARD_MIN_ATTEMPTS} times qualify (avoid a
      * 1-off miss), ranked lowest coverage first, capped at
      * {@link QUIZ_HARD_CARD_LIMIT}. Derived from the same in-memory `sessions` +
-     * `cardById` the tag/deck folds use — no extra query.
+     * `cardById` the tag/deck folds use -- no extra query.
      */
     private computeQuizHardCards(
         sessions: Array<FlashcardQuizSessionEntity>,
@@ -647,7 +647,7 @@ export class UserFlashcardCourseStatsProjectionService {
         for (const session of sessions) {
             for (const result of session.results ?? []) {
                 if (!cardById.has(result.cardId)) {
-                    // card id not found (deleted / bad input) — skip silently
+                    // card id not found (deleted / bad input) -- skip silently
                     continue
                 }
                 const total = Math.max(0,
@@ -715,7 +715,7 @@ export class UserFlashcardCourseStatsProjectionService {
             for (const result of session.results ?? []) {
                 const card = cardById.get(result.cardId)
                 if (!card) {
-                    // card id not found (deleted / bad input) — skip silently
+                    // card id not found (deleted / bad input) -- skip silently
                     continue
                 }
                 const coverage = this.resultCoverage(result)
@@ -743,7 +743,7 @@ export class UserFlashcardCourseStatsProjectionService {
 
     /**
      * Derive the weakest-tags-with-a-study-link list from each session's
-     * already-snapshotted `weakTags` (no re-derivation from `results[]`) —
+     * already-snapshotted `weakTags` (no re-derivation from `results[]`) --
      * walks `sessions` in their existing DESC (newest-first) order and keeps
      * ONLY the first (i.e. most recent) occurrence of each tag, then sorts
      * the kept occurrences by coverage ascending (weakest first), capped at
@@ -757,7 +757,7 @@ export class UserFlashcardCourseStatsProjectionService {
             for (const weakTag of session.weakTags ?? []) {
                 if (linkByTag.has(weakTag.tag)) {
                     // already recorded this tag's MOST RECENT occurrence
-                    // (sessions are newest-first) — skip older occurrences
+                    // (sessions are newest-first) -- skip older occurrences
                     continue
                 }
                 linkByTag.set(weakTag.tag,
@@ -771,7 +771,7 @@ export class UserFlashcardCourseStatsProjectionService {
                 STATS_MAX_TAGS)
     }
 
-    /** Normalize one session-snapshotted weak tag into the projection's link shape (undefined → null). */
+    /** Normalize one session-snapshotted weak tag into the projection's link shape (undefined -> null). */
     private toWeakTagLink(
         weakTag: FlashcardQuizSessionWeakTag,
     ): FlashcardQuizWeakTagLinkData {
@@ -851,7 +851,7 @@ export class UserFlashcardCourseStatsProjectionService {
     }
 
     /**
-     * The review side of the aggregate — `reviewByDeck`, COPIED verbatim
+     * The review side of the aggregate -- `reviewByDeck`, COPIED verbatim
      * (parameterized by `enrollmentId`) from
      * `MyFlashcardReviewStatsService.computeByDeck`.
      */
@@ -932,7 +932,7 @@ export class UserFlashcardCourseStatsProjectionService {
     }
 
     /**
-     * The due/mastery side of the aggregate — `dueToday`/`dueForecast`/
+     * The due/mastery side of the aggregate -- `dueToday`/`dueForecast`/
      * `masteryBreakdown`/`maturityLadder`/`forgetSoon`, all scoped to this
      * enrollment via `user_flashcard_reviews.enrollment_id` (+ the
      * enrollment's course for `totalCards`). Small raw aggregates, run ONLY
@@ -960,7 +960,7 @@ export class UserFlashcardCourseStatsProjectionService {
         )
         const dueToday = Number(dueTodayRow?.count) || 0
 
-        // 2. cards due per VN-day over the next DUE_FORECAST_DAYS days —
+        // 2. cards due per VN-day over the next DUE_FORECAST_DAYS days --
         // grouped in SQL, zero-filled in JS (mirrors `foldDailyCounts` in
         // `UserFlashcardStatsProjectionService`)
         const forecastRows = await manager.query<Array<DueForecastRow>>(
@@ -1026,10 +1026,10 @@ export class UserFlashcardCourseStatsProjectionService {
         )
         const totalCards = Number(totalCardsRow?.total) || 0
 
-        // 4. maturity LADDER — a coarser, interval_days-based 3-way cut
+        // 4. maturity LADDER -- a coarser, interval_days-based 3-way cut
         // (learning/young/mature) than the repetitions-based masteryBreakdown
-        // above; "never reviewed" cards fold into `learning` (thầy 2026-07-17:
-        // "chỉ 8% chín = tiến độ THẬT").
+        // above; "never reviewed" cards fold into `learning` (PO 2026-07-17:
+        // only 8% mature = true progress).
         const [ladderRow] = await manager.query<Array<MaturityLadderRow>>(
             `SELECT COUNT(*) FILTER (WHERE interval_days < 1)::text AS learning,
                     COUNT(*) FILTER (WHERE interval_days >= 1 AND interval_days <= ${MATURITY_LADDER_YOUNG_MAX_DAYS})::text AS young,
@@ -1048,8 +1048,8 @@ export class UserFlashcardCourseStatsProjectionService {
             mature: Number(ladderRow?.mature) || 0,
         }
 
-        // 5. forget SOON — same 7-day-forward series as `dueForecast` (no
-        // extra query), just a leading-window sum for the "sẽ quên sớm" headline.
+        // 5. forget SOON -- same 7-day-forward series as `dueForecast` (no
+        // extra query), just a leading-window sum for the forget-soon headline.
         const forgetSoon: FlashcardForgetSoonData = {
             count: dueForecast
                 .slice(0,
@@ -1074,19 +1074,19 @@ export class UserFlashcardCourseStatsProjectionService {
     }
 
     /**
-     * The review-OUTCOME side of the aggregate (thầy 2026-07-13 "thống kê vô
-     * nghĩa quá, render lại" — dẫn bằng việc-CẦN-SỬA, not vanity effort): the
-     * outcome aggregates that turn the stats tab into a fix-funnel —
+     * The review-OUTCOME side of the aggregate (PO 2026-07-13 stats tab was
+     * meaningless -- rebuild it; lead with what needs fixing, not vanity effort): the
+     * outcome aggregates that turn the stats tab into a fix-funnel --
      * `leechCards`/`leechFocus` (kept forgetting), `weakReviewTag`/`weakTags`
      * (worst-retention tag(s)), `deckRetention` (outcome per deck vs the
-     * footprint `reviewByDeck`), `retentionTrend` ("đang cải thiện?"), the
+     * footprint `reviewByDeck`), `retentionTrend` (improving?), the
      * mature-vs-young retention split, and `bestReviewHour`. All derived from
      * `flashcard_review_events` (the SM-2 grade log) joined to the
-     * enrollment's course cards — scoped to this enrollment's USER (events
-     * are user-keyed) and COURSE (card → deck → course), and folded HERE only
+     * enrollment's course cards -- scoped to this enrollment's USER (events
+     * are user-keyed) and COURSE (card -> deck -> course), and folded HERE only
      * (CDC-triggered), never per-request
      * (`.claude/be/rules/cqrs-no-inline-aggregate.md`). `recalled` = grade >=
-     * {@link RECALLED_GRADE}; retention = recalled/total × 100.
+     * {@link RECALLED_GRADE}; retention = recalled/total x 100.
      */
     private async computeReviewOutcome(
         manager: EntityManager,
@@ -1114,7 +1114,7 @@ export class UserFlashcardCourseStatsProjectionService {
             JOIN flashcard_cards card ON card.id = e.flashcard_card_id
             JOIN flashcard_decks deck ON deck.id = card.flashcard_deck_id AND deck.course_id = en.course_id`
 
-        // 1. LEECH — cards graded Again the most (>= LEECH_MIN_AGAIN times), top LEECH_LIMIT.
+        // 1. LEECH -- cards graded Again the most (>= LEECH_MIN_AGAIN times), top LEECH_LIMIT.
         const leechRows = await manager.query<Array<LeechCardRow>>(
             `SELECT card.id AS card_id,
                     card.question AS question,
@@ -1138,11 +1138,11 @@ export class UserFlashcardCourseStatsProjectionService {
             deckTitle: row.deck_title ?? "",
         }))
 
-        // 2. WEAK TAGS — EVERY tag's retention with >= WEAK_TAG_MIN_SAMPLE graded
-        // reviews, worst-first (thầy 2026-07-17: "bỏ LIMIT 1" — the old query
+        // 2. WEAK TAGS -- EVERY tag's retention with >= WEAK_TAG_MIN_SAMPLE graded
+        // reviews, worst-first (PO 2026-07-17: drop LIMIT 1 -- the old query
         // only ever surfaced the single worst tag; `weakReviewTag` below is now
         // just this same list's head, no second query). `card.tags` is a jsonb
-        // string array → unnest with jsonb_array_elements_text.
+        // string array -> unnest with jsonb_array_elements_text.
         const tagRows = await manager.query<Array<TagRetentionWithCardCountRow>>(
             `SELECT tag.value AS tag,
                     COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::text AS recalled,
@@ -1173,7 +1173,7 @@ export class UserFlashcardCourseStatsProjectionService {
             }
             : null
 
-        // 3. DECK RETENTION — recalled/total per deck, weakest first (outcome, not footprint).
+        // 3. DECK RETENTION -- recalled/total per deck, weakest first (outcome, not footprint).
         const deckRows = await manager.query<Array<DeckRetentionRow>>(
             `SELECT deck.id AS deck_id,
                     deck.title AS deck_title,
@@ -1195,7 +1195,7 @@ export class UserFlashcardCourseStatsProjectionService {
             reviewCount: Number(row.total) || 0,
         }))
 
-        // 4. RETENTION TREND — recalled/total per VN-day over the trailing window,
+        // 4. RETENTION TREND -- recalled/total per VN-day over the trailing window,
         // only days WITH reviews (the FE line skips gaps), most-recent last.
         const trendRows = await manager.query<Array<RetentionTrendRow>>(
             `SELECT (e.reviewed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day,
@@ -1216,11 +1216,11 @@ export class UserFlashcardCourseStatsProjectionService {
             reviewCount: Number(row.total) || 0,
         }))
 
-        // 5. MATURE vs YOUNG retention — is forgetting concentrated on freshly-seen
+        // 5. MATURE vs YOUNG retention -- is forgetting concentrated on freshly-seen
         // cards (young, still spacing out) or on stuff already committed (mature)?
         // Joins the event log to the CURRENT `user_flashcard_reviews.interval_days`
         // (an approximation: buckets by the card's interval NOW, not at each past
-        // event's time — cheap and stable enough for a "where's the problem" split).
+        // event's time -- cheap and stable enough for a "where's the problem" split).
         const [maturityRetentionRow] = await manager.query<Array<MaturityRetentionRow>>(
             `SELECT COUNT(*) FILTER (WHERE r.interval_days >= ${RETENTION_MATURE_THRESHOLD_DAYS} AND e.grade >= ${RECALLED_GRADE})::text AS "matureRecalled",
                     COUNT(*) FILTER (WHERE r.interval_days >= ${RETENTION_MATURE_THRESHOLD_DAYS})::text AS "matureTotal",
@@ -1240,9 +1240,9 @@ export class UserFlashcardCourseStatsProjectionService {
             maturityRetentionRow?.youngRecalled ?? "0",
             maturityRetentionRow?.youngTotal ?? "0",
         )
-        // COURSE-SCOPED review volume + retention — the mature/young split above
+        // COURSE-SCOPED review volume + retention -- the mature/young split above
         // already scanned exactly this course's graded events, so summing its two
-        // buckets costs no extra query. These are what the "Thống kê" tab's floor +
+        // buckets costs no extra query. These are what the Statistics tab's floor +
         // memory-health hero must read: the per-USER lifetime `totalReviewed`/
         // `retentionRate` blend every course together, which is wrong for a
         // course-scoped tab (2026-07-17).
@@ -1254,7 +1254,7 @@ export class UserFlashcardCourseStatsProjectionService {
             String(reviewedTotal),
         )
 
-        // 6. LEECH FOCUS — reason-tagged rewrite list: `lapsed` = graded Again
+        // 6. LEECH FOCUS -- reason-tagged rewrite list: `lapsed` = graded Again
         // AFTER at least one prior Good/Easy on the SAME card (learned it once,
         // then forgot); `stuckHard` = repeatedly graded Hard (never forgets
         // outright, never firms up either). The window function looks ONLY at
@@ -1296,7 +1296,7 @@ export class UserFlashcardCourseStatsProjectionService {
         const leechFocus: Array<FlashcardLeechFocusCardData> = leechFocusRows.map((row) => {
             const lapsedCount = Number(row.lapsed_count) || 0
             const hardCount = Number(row.hard_count) || 0
-            // lapsed takes priority — "learned it once, then forgot" is the
+            // lapsed takes priority -- "learned it once, then forgot" is the
             // sharper signal than "keeps grading Hard"
             const reason: "lapsed" | "stuckHard" = lapsedCount > 0 ? "lapsed" : "stuckHard"
             return {
@@ -1309,7 +1309,7 @@ export class UserFlashcardCourseStatsProjectionService {
             }
         })
 
-        // 7. BEST REVIEW HOUR — the hour-of-day (VN time) with the best
+        // 7. BEST REVIEW HOUR -- the hour-of-day (VN time) with the best
         // retention, guarded by BEST_HOUR_MIN_SAMPLE so a single lucky review
         // at 3am can't "win".
         const [bestHourRow] = await manager.query<Array<BestHourRow>>(

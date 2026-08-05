@@ -25,7 +25,7 @@ export interface AppConfigSystemTask {
 export interface AppConfigSystemCourse {
     /**
      * Pricing phase a course starts at when its `course_metadata` row is first
-     * seeded (Pioneer already sold out → default EarlyBird). Only applied when
+     * seeded (Pioneer already sold out -> default EarlyBird). Only applied when
      * the metadata row is absent; an existing (possibly-advanced) phase is kept.
      */
     defaultPricingPhase: PricingPhase
@@ -55,7 +55,7 @@ export interface AppConfigAiModel {
     name: string
     /** Provider that serves the model. */
     provider: ModelProvider
-    /** Coarse cost/quality category — Economy / Balanced / Premium. */
+    /** Coarse cost/quality category -- Economy / Balanced / Premium. */
     category: AiModelCategory
     /** Absolute / mount path to the newline-separated key file. */
     keysFilePath: string
@@ -65,23 +65,23 @@ export interface AppConfigAiModel {
     credit: number
     /** Within-category Auto try-order key (higher first; decimals allowed). */
     weight: number
-    /** Real provider price (USD) per 1,000,000 input tokens — cost source of truth. */
+    /** Real provider price (USD) per 1,000,000 input tokens -- cost source of truth. */
     priceInUsdPerMTok: number
-    /** Real provider price (USD) per 1,000,000 output tokens — cost source of truth. */
+    /** Real provider price (USD) per 1,000,000 output tokens -- cost source of truth. */
     priceOutUsdPerMTok: number
     /** Published context window in tokens; null when not yet verified. */
     contextWindowTokens?: number | null
     /** USD per 1,000,000 cached input tokens; null when not published. */
     priceCacheReadUsdPerMTok?: number | null
-    /** Credits per 1,000,000 cached input tokens — DERIVED from the cache price. */
+    /** Credits per 1,000,000 cached input tokens -- DERIVED from the cache price. */
     creditPerMTokCached?: number | null
-    /** Credits per 1,000,000 input tokens — DERIVED from {@link priceInUsdPerMTok}. */
+    /** Credits per 1,000,000 input tokens -- DERIVED from {@link priceInUsdPerMTok}. */
     creditPerMTokIn: number
-    /** Credits per 1,000,000 output tokens — DERIVED from {@link priceOutUsdPerMTok}. */
+    /** Credits per 1,000,000 output tokens -- DERIVED from {@link priceOutUsdPerMTok}. */
     creditPerMTokOut: number
-    /** Kill-switch — `false` removes the model from rotation without deleting the row. */
+    /** Kill-switch -- `false` removes the model from rotation without deleting the row. */
     enabled: boolean
-    /** Usable on the free Auto lane — no subscription, debited by uses ("lượt"). */
+    /** Usable on the free Auto lane -- no subscription, debited by uses. */
     complimentary: boolean
     /** Tasks this model is suited for (chatting / grading). */
     supportedTasks: Array<AiModelTask>
@@ -92,7 +92,7 @@ export interface AppConfigAiModel {
  * `subscriptions.tiers`. Mount files live under `.mount/data/subcriptions/`.
  */
 export interface AppConfigSubscriptionTier {
-    /** Stable tier id — matches {@link AiSubTier} enum values. */
+    /** Stable tier id -- matches {@link AiSubTier} enum values. */
     tier: string
     /** UI label (optional; defaults to capitalized tier). */
     displayName?: string
@@ -106,9 +106,9 @@ export interface AppConfigSubscriptionTier {
     creditsPer5h: number
     /** Additive credits per weekly rolling window. */
     creditsPerWeek: number
-    /** Highlight as “most popular” in checkout UI. */
+    /** Highlight as "most popular" in checkout UI. */
     popular?: boolean
-    /** Kill-switch — `false` hides tier without deleting config. */
+    /** Kill-switch -- `false` hides tier without deleting config. */
     enabled: boolean
 }
 
@@ -118,7 +118,7 @@ export interface AppConfigSubscriptions {
 }
 
 /**
- * `membership` section in mounted `app.yaml` — the single community-membership
+ * `membership` section in mounted `app.yaml` -- the single community-membership
  * product ($5/month equivalent) plus the perks it controls.
  */
 export interface AppConfigMembership {
@@ -130,7 +130,7 @@ export interface AppConfigMembership {
     courseDiscountPercent: number
     /** Free membership months auto-granted when a user buys any course. */
     freeMonthsOnCoursePurchase: number
-    /** Kill-switch — `false` hides membership purchase without deleting config. */
+    /** Kill-switch -- `false` hides membership purchase without deleting config. */
     enabled: boolean
 }
 

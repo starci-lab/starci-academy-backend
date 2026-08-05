@@ -10,7 +10,7 @@ import {
 @ObjectType({
     description: "Response for pinning an external project.",
 })
-/** Response for pinning an external project — returns the new pin id. */
+/** Response for pinning an external project -- returns the new pin id. */
 export class PinExternalProjectResponse extends AbstractGraphQLResponse {
     @Field(
         () => ID,

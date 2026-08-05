@@ -8,12 +8,12 @@ import {
 /**
  * The weekly KPI a learner can set a personal target for. Each key maps to a
  * rolling-7-day counter (from the user-stats projection or derived) on the
- * dashboard "KPI tuần" summary + the `/kpi` editor page.
+ * dashboard weekly KPI summary + the `/kpi` editor page.
  */
 export enum KpiKey {
     /** Lessons read this week. */
     Lessons = "lessons",
-    /** Distinct days active this week (0–7). */
+    /** Distinct days active this week (0-7). */
     StudyDays = "studyDays",
     /** Challenges passed this week. */
     Challenges = "challenges",

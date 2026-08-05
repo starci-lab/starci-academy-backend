@@ -36,10 +36,10 @@ import {
 @Resolver()
 /**
  * Learner-CMS query: the authenticated viewer's full outline for ONE enrolled
- * course — the module/lesson/challenge tree plus the milestone/task tree, with
+ * course -- the module/lesson/challenge tree plus the milestone/task tree, with
  * read flags + challenge/task progress overlaid and a current-task pointer. The
  * resolver stays thin: it resolves the viewer + locale and delegates assembly to
- * the service → CQRS handler.
+ * the service -> CQRS handler.
  */
 export class MyCourseOutlineResolver {
     constructor(

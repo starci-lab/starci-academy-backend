@@ -29,7 +29,7 @@ import type {
 /**
  * Thin infrastructure wrapper around the shared {@link Kafka} client. It hides
  * broker/connection details from domain code: callers ask for a connected
- * consumer (or ensure topics exist) and the service owns the lifecycle —
+ * consumer (or ensure topics exist) and the service owns the lifecycle --
  * tracking every consumer it hands out and disconnecting them on shutdown so
  * the broker rebalances promptly and Jest/graceful-shutdown never hangs.
  *
@@ -50,7 +50,7 @@ export class KafkaService implements OnModuleDestroy {
 
     /**
      * Create + connect a consumer for the given group and register it for
-     * cleanup. The caller still drives `subscribe`/`run` — this only removes the
+     * cleanup. The caller still drives `subscribe`/`run` -- this only removes the
      * client-construction + connect boilerplate and centralises disconnect.
      *
      * @param params - {@link CreateConsumerParams}
@@ -93,7 +93,7 @@ export class KafkaService implements OnModuleDestroy {
      * Best-effort topic creation via the Kafka admin client. Avoids the
      * "unknown topic" race when a consumer boots before the producer (or
      * Debezium) has created the topic. Existing topics are left untouched and a
-     * broker that rejects the call is logged, not thrown — topic auto-create may
+     * broker that rejects the call is logged, not thrown -- topic auto-create may
      * be enabled, making this a no-op.
      *
      * @param params - {@link EnsureTopicsParams}
@@ -107,7 +107,7 @@ export class KafkaService implements OnModuleDestroy {
             numPartitions = 1,
         }: EnsureTopicsParams,
     ): Promise<void> {
-        // nothing requested → skip opening an admin connection entirely
+        // nothing requested -> skip opening an admin connection entirely
         if (topics.length === 0) {
             return
         }
@@ -169,7 +169,7 @@ export class KafkaService implements OnModuleDestroy {
                 // leave the group + close sockets cleanly
                 await consumer.disconnect()
             } catch (error) {
-                // a noisy disconnect must not crash shutdown → log Error-style,
+                // a noisy disconnect must not crash shutdown -> log Error-style,
                 // preserving the original broker stack via the typed exception
                 const exception = new KafkaConsumerDisconnectException({
                     originalError: error instanceof Error ? error : undefined,

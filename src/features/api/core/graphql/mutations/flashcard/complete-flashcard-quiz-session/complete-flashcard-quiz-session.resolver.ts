@@ -35,7 +35,7 @@ import {
 
 @Resolver()
 /**
- * Record a finished flashcard quick-quiz ("Hỏi nhanh") session and grant its
+ * Record a finished flashcard quick-quiz session and grant its
  * capped, idempotent XP reward via {@link FlashcardQuizSessionService}, returning
  * the XP earned.
  */

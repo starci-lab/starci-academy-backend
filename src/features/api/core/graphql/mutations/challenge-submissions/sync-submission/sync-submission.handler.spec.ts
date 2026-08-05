@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -69,10 +69,10 @@ describe("SyncSubmissionHandler",
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
         beforeEach(async () => {
-            // fresh jest-backed entity manager — `transaction` runs the callback inline
+            // fresh jest-backed entity manager -- `transaction` runs the callback inline
             entityManager = makeEntityManagerMock()
 
-            // url validation hook — only invoked when a url is supplied
+            // url validation hook -- only invoked when a url is supplied
             urlValidatorService = {
                 isValid: jest.fn(),
             } as unknown as jest.Mocked<Pick<UrlValidatorService, "isValid">>
@@ -108,7 +108,7 @@ describe("SyncSubmissionHandler",
                         useValue: gradingLaneValidationService,
                     },
                     {
-                        // best-effort trial-enrollment resolution — a bare stub keeps the
+                        // best-effort trial-enrollment resolution -- a bare stub keeps the
                         // enrollment-lookup path inert for these specs
                         provide: UserService,
                         useValue: {
@@ -173,7 +173,7 @@ describe("SyncSubmissionHandler",
                         id: "sub-1",
                         type: "githubUrl",
                     })
-                    // 2. existing UserChallengeSubmissionEntity → none
+                    // 2. existing UserChallengeSubmissionEntity -> none
                     .mockResolvedValueOnce(null)
 
                 await handler.execute(
@@ -221,7 +221,7 @@ describe("SyncSubmissionHandler",
                     new SyncSubmissionCommand({
                         request: {
                             id: "sub-1",
-                            // no url → validation skipped; only the model pick is synced
+                            // no url -> validation skipped; only the model pick is synced
                             selectedModel: "gpt-4o",
                             selectedModelProvider: ModelProvider.OpenAI,
                         },

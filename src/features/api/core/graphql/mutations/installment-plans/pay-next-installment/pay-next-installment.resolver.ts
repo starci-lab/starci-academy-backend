@@ -35,7 +35,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL entry for paying the current cycle of an installment (trả góp) plan.
+ * GraphQL entry for paying the current cycle of an installment plan.
  */
 export class PayNextInstallmentResolver {
     constructor(
@@ -44,8 +44,8 @@ export class PayNextInstallmentResolver {
 
     /**
      * Creates a PayOS/Sepay checkout for the plan's current minimum payment.
-     * The learner reaches this from the reminder email or the "Kế hoạch trả
-     * góp" surface, which opens the existing PaymentModal in installment mode.
+     * The learner reaches this from the reminder email or the installment-plans
+     * surface, which opens the existing PaymentModal in installment mode.
      *
      * @param user - Authenticated user from Keycloak (must own the plan).
      * @param request - Plan id, payment type, and redirect URLs.

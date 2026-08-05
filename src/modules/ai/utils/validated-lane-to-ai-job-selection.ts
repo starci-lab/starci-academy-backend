@@ -5,7 +5,7 @@ import type {
 
 /**
  * Maps a {@link ValidatedGradingLane} into the {@link AiJobSelection} carried on
- * grading job payloads — simply carries the pinned model/provider the validator
+ * grading job payloads -- simply carries the pinned model/provider the validator
  * resolved (or neither, when nothing was pinned and the balancer picks).
  *
  * @param lane - Output of {@link GradingLaneValidationService.validate}.

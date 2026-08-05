@@ -19,7 +19,7 @@ import type {
 
 @Injectable()
 /**
- * Thin QueryBus facade — wraps the public display-id lookup in
+ * Thin QueryBus facade -- wraps the public display-id lookup in
  * {@link JobPostingQuery}. Logic lives in the matching handler.
  */
 export class JobPostingService {

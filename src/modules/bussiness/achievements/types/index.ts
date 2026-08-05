@@ -14,7 +14,7 @@ export interface RecomputeAchievementsForUserParams {
     /** The user whose definitions to (re)evaluate and award. */
     userId: string
     /**
-     * Caller's transaction manager — pass it from an inline write so the award
+     * Caller's transaction manager -- pass it from an inline write so the award
      * INSERTs commit atomically with the source change; omit for the CDC path.
      */
     entityManager?: EntityManager
@@ -97,7 +97,7 @@ export interface AchievementHolderCountRow {
 }
 
 /**
- * Internal row shape returned by the award INSERT … RETURNING id (present only
+ * Internal row shape returned by the award INSERT ... RETURNING id (present only
  * when a new award row was actually created).
  */
 export interface InsertedIdRow {
@@ -105,11 +105,11 @@ export interface InsertedIdRow {
     id: string
 }
 
-/** CDC row image — every source table exposes the affected user via one of these. */
+/** CDC row image -- every source table exposes the affected user via one of these. */
 export interface AchievementSourceRow {
     /** The acting user (most tables). */
     user_id?: string
-    /** The FOLLOWED user (user_follows) — whose `followers` badge moves. */
+    /** The FOLLOWED user (user_follows) -- whose `followers` badge moves. */
     following_id?: string
 }
 

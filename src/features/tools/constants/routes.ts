@@ -6,7 +6,7 @@
  * controllers) so the dashboard and the controllers share one source of truth.
  */
 export const toolsRoutes = {
-    /** Media processing tool (ffmpeg → MinIO). */
+    /** Media processing tool (ffmpeg -> MinIO). */
     media: {
         /** Controller base path. */
         tag: "tools/media",
@@ -19,7 +19,7 @@ export const toolsRoutes = {
         tag: "tools/pg",
         /** Dump a list of cloud databases to local `.dump` files. */
         snapshot: "snapshot",
-        /** Dump → gzip → encrypt → upload one database to object storage. */
+        /** Dump -> gzip -> encrypt -> upload one database to object storage. */
         backup: "backup",
     },
     /** S3/MinIO bucket tools. */
@@ -36,7 +36,7 @@ export const toolsRoutes = {
         /** Upload file(s) and sync to the chosen targets. */
         process: "process",
     },
-    /** Video → MPEG-DASH packaging tool. */
+    /** Video -> MPEG-DASH packaging tool. */
     dash: {
         /** Controller base path. */
         tag: "tools/dash",

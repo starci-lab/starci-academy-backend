@@ -31,7 +31,7 @@ import {
 })
 @Entity("challenge_outputs")
 /**
- * SCHEMA V2 output ITEM for a challenge (normalized — no jsonb). One row per output position; the
+ * SCHEMA V2 output ITEM for a challenge (normalized -- no jsonb). One row per output position; the
  * per-language `text` lives under {@link ChallengeOutputLangEntity}. Outputs carry no item-level
  * title, so there is no item translation table.
  */

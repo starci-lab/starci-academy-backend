@@ -23,7 +23,7 @@ import {
 /**
  * Coin bonus for keeping the streak alive on ONE calendar day (Asia/Ho_Chi_Minh),
  * granted once per day on top of whatever per-activity coin the day's actions
- * already earned. Finalized deliberately LOW (below dailyQuest's 20) — "streak
+ * already earned. Finalized deliberately LOW (below dailyQuest's 20) -- "streak
  * still alive" is an easier bar than "3/5 daily tasks done", so it's a thin
  * consistency layer, not a competing reward (see
  * `.artifacts/proposals/coin-xp-economy-numbers.proposal.md`).
@@ -40,7 +40,7 @@ export interface StreakMilestone {
 
 /**
  * Platform-wide streak milestones (7/30/100 consecutive days), ordered
- * ascending. Each is granted exactly once per user — see {@link
+ * ascending. Each is granted exactly once per user -- see {@link
  * StreakMilestoneService.checkAndGrant}.
  */
 export const STREAK_MILESTONES: ReadonlyArray<StreakMilestone> = [
@@ -65,11 +65,11 @@ export const STREAK_MILESTONES: ReadonlyArray<StreakMilestone> = [
  * crosses one of {@link STREAK_MILESTONES}.
  *
  * {@link checkAndGrant} is designed to be called on every streak-affecting
- * event (today: the `user_stats_projections` CDC recompute), not just once —
+ * event (today: the `user_stats_projections` CDC recompute), not just once --
  * so its idempotency guard is load-bearing rather than defensive: without the
  * pre-check-before-grant, a user sitting ABOVE an already-granted milestone
- * (e.g. on day 45, past the day-30 bonus) would be re-notified — and, absent
- * `writeCoinHistory`'s own (source, refId) guard, re-credited — on every single
+ * (e.g. on day 45, past the day-30 bonus) would be re-notified -- and, absent
+ * `writeCoinHistory`'s own (source, refId) guard, re-credited -- on every single
  * recompute while their streak stays there. The Coin-history row keyed by
  * `streak:<userId>:<days>` is the single source of truth for "already granted",
  * so the check-then-grant here is really a fast-path avoiding the wasted
@@ -97,7 +97,7 @@ export class StreakMilestoneService {
             if (milestone.days > streak) {
                 continue
             }
-            // stable per-(user, milestone) key — doubles as the Coin-history refId
+            // stable per-(user, milestone) key -- doubles as the Coin-history refId
             // and the "already granted" lookup key
             const refId = `streak:${userId}:${milestone.days}`
             // fast-path: skip the transaction entirely when already granted, so a
@@ -147,18 +147,18 @@ export class StreakMilestoneService {
 
     /**
      * Grant {@link STREAK_DAILY_BONUS_COIN} once for TODAY (Asia/Ho_Chi_Minh)
-     * when the user was active today — reuses `last7Days`' last entry (today's
+     * when the user was active today -- reuses `last7Days`' last entry (today's
      * slot) rather than a fresh query, since {@link checkAndGrant} already
      * forces a fresh {@link UserStatsProjectionService.getStats} read on every
      * streak-affecting event. A non-active today (e.g. a stats read with no new
-     * activity) is a no-op — idempotent via the `(source, refId)` Coin-history
+     * activity) is a no-op -- idempotent via the `(source, refId)` Coin-history
      * key, same backstop pattern as {@link checkAndGrant}.
      *
      * @param userId - the user whose stats just changed.
      */
     async checkAndGrantDailyBonus(userId: string): Promise<void> {
         const { last7Days } = await this.userStatsProjectionService.getStats(userId)
-        // last7Days is ordered oldest → today; the last entry IS today (VN calendar)
+        // last7Days is ordered oldest -> today; the last entry IS today (VN calendar)
         const today = last7Days[last7Days.length - 1]
         if (!today?.active) {
             return

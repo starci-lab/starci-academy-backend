@@ -91,7 +91,7 @@ export enum ActionType {
      */
     MembershipPurchase = "membershipPurchase",
     /**
-     * Pay one cycle of an installment (trả góp) plan (advances/tops up the plan on payment success).
+     * Pay one cycle of an installment plan (advances/tops up the plan on payment success).
      */
     InstallmentPayment = "installmentPayment",
 }
@@ -162,7 +162,7 @@ registerEnumType(
                 description: "Purchase a community membership (grants/extends membership on payment success).",
             },
             [ActionType.InstallmentPayment]: {
-                description: "Pay one cycle of an installment (trả góp) plan (advances/tops up the plan on payment success).",
+                description: "Pay one cycle of an installment plan (advances/tops up the plan on payment success).",
             },
         },
     },

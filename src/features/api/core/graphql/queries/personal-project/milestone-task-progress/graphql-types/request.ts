@@ -21,7 +21,7 @@ export class MilestoneTaskProgressRequest {
             description: "Course ID.",
         },
     )
-    // must be a real course uuid — rejected before it reaches the TypeORM lookup
+    // must be a real course uuid -- rejected before it reaches the TypeORM lookup
     @IsUUID()
         courseId: string
 }

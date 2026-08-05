@@ -36,7 +36,7 @@ export interface ParsePlaygroundStepsParams {
     playgroundId: string
 }
 
-/** A playground META document (`<playground>/{en,vi}.md`) — steps live in `steps/` folders. */
+/** A playground META document (`<playground>/{en,vi}.md`) -- steps live in `steps/` folders. */
 export interface RawPlayground {
     /** URL-facing stable identifier. */
     slug?: string
@@ -46,9 +46,9 @@ export interface RawPlayground {
     description?: string
     /** Icon shown next to the playground title (emoji or icon key). */
     icon?: string
-    /** Interaction kind (`terminal` | `rag`); absent → `terminal`. */
+    /** Interaction kind (`terminal` | `rag`); absent -> `terminal`. */
     kind?: string
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    /** Index signature so the markdown->JSON extractor generic is satisfied. */
     [key: string]: unknown
 }
 
@@ -70,6 +70,6 @@ export interface RawPlaygroundStep {
     verifyResourceNamePattern?: string
     /** Expected reported status; null = existence check only. */
     verifyExpectedStatus?: string
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    /** Index signature so the markdown->JSON extractor generic is satisfied. */
     [key: string]: unknown
 }

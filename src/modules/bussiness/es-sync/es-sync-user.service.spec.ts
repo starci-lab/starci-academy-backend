@@ -215,7 +215,7 @@ describe("EsSyncUserService",
                                 id: "user-2",
                             }),
                         ]
-                        // short page (< REINDEX_PAGE_SIZE) → loop stops after the first read
+                        // short page (< REINDEX_PAGE_SIZE) -> loop stops after the first read
                         entityManager.find.mockResolvedValueOnce(users)
 
                         const result = await service.reindexAll()

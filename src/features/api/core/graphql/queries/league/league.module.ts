@@ -22,7 +22,7 @@ import {
     ],
 })
 /**
- * League query group — the weekly-league leaf queries: the `myLeague` standing
+ * League query group -- the weekly-league leaf queries: the `myLeague` standing
  * board + the `globalLeaderboard` all-users board. Registered global so the
  * resolvers are picked up by the GraphQL schema builder.
  */

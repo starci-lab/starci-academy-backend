@@ -36,7 +36,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL entrypoint for `startFlashcardDueReviewSession` — delegates to {@link StartFlashcardDueReviewSessionService.execute},
+ * GraphQL entrypoint for `startFlashcardDueReviewSession` -- delegates to {@link StartFlashcardDueReviewSessionService.execute},
  * which dispatches the CQRS command {@link StartFlashcardDueReviewSessionHandler} owns. See {@link execute}'s
  * own doc below for what the mutation actually does.
  */
@@ -47,7 +47,7 @@ export class StartFlashcardDueReviewSessionResolver {
 
     /**
      * Persists ONE cross-deck due-review batch session draw so it becomes
-     * resumable — mirrors `startFlashcardReviewSession`. Retires any PRIOR
+     * resumable -- mirrors `startFlashcardReviewSession`. Retires any PRIOR
      * "in_progress" draw for the same enrollment first, so a learner never
      * has two resumable due-review batches at once.
      */

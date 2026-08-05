@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -35,7 +35,7 @@ describe("SignUpResendOtpHandler",
                 refreshActionChallengeOtp: jest.fn(),
             } as unknown as jest.Mocked<Pick<OtpChallengeService, "refreshActionChallengeOtp">>
 
-            // mail worker hand-off — assert the refreshed OTP email is queued
+            // mail worker hand-off -- assert the refreshed OTP email is queued
             enqueueSendMailJobService = {
                 enqueue: jest.fn(),
             } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
@@ -63,7 +63,7 @@ describe("SignUpResendOtpHandler",
 
         it("rotates the OTP and re-queues the sign-up email for a known challenge",
             async () => {
-                // the challenge exists → a fresh OTP + expiry is returned
+                // the challenge exists -> a fresh OTP + expiry is returned
                 otpChallengeService.refreshActionChallengeOtp.mockResolvedValueOnce({
                     email: "user@example.com",
                     otp: "654321",
@@ -99,7 +99,7 @@ describe("SignUpResendOtpHandler",
 
         it("throws when the challenge id is unknown (no email queued)",
             async () => {
-                // refresh returns null → the challenge id does not exist / expired
+                // refresh returns null -> the challenge id does not exist / expired
                 otpChallengeService.refreshActionChallengeOtp.mockResolvedValueOnce(null as never)
 
                 await expect(

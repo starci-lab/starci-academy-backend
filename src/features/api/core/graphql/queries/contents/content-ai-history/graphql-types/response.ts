@@ -47,7 +47,7 @@ export class ContentAiHistoryData {
     description: "Response wrapper for the contentAiHistory query.",
 })
 /**
- * Envelope for `contentAiSessionMessages` — status metadata plus the saved
+ * Envelope for `contentAiSessionMessages` -- status metadata plus the saved
  * turns payload (null when the transform interceptor wraps a failure).
  */
 export class ContentAiHistoryResponse

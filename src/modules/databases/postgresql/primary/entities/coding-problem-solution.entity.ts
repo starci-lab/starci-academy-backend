@@ -34,7 +34,7 @@ import {
         "language"],
 )
 /**
- * Full reference solution for one (problem, language) pair — the worked answer a
+ * Full reference solution for one (problem, language) pair -- the worked answer a
  * learner can reveal in their language of choice. One row per supported language;
  * uniqueness is enforced on (codingProblemId, language).
  */

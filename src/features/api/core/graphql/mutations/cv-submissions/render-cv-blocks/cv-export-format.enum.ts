@@ -7,7 +7,7 @@ import {
 
 /**
  * The file format a CV document is exported to. Both are produced from the SAME
- * HTML the FE renders for its live preview (single-source, HTML-first) — PDF via
+ * HTML the FE renders for its live preview (single-source, HTML-first) -- PDF via
  * Puppeteer, DOCX via html-to-docx.
  */
 export enum CvExportFormat {

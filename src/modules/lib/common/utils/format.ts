@@ -1,5 +1,5 @@
 /**
- * HTTPS RPC URL → `wss://` twin so subscription clients reuse the same host
+ * HTTPS RPC URL -> `wss://` twin so subscription clients reuse the same host
  * without a second config key that can drift from the HTTP endpoint.
  */
 export const httpsToWss = (httpsUrl: string): string => {

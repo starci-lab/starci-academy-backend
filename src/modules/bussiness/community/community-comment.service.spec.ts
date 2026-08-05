@@ -91,12 +91,12 @@ describe("CommunityCommentService",
             countQueryBuilder = makeCountQueryBuilderMock()
             entityManager.createQueryBuilder = jest.fn(() => countQueryBuilder)
 
-            // event bus stub — every mutation fans out a room event
+            // event bus stub -- every mutation fans out a room event
             eventEmitterService = {
                 emit: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<EventEmitterService, "emit">>
 
-            // notification fan-out stub — createComment notifies post/parent authors
+            // notification fan-out stub -- createComment notifies post/parent authors
             notificationService = {
                 createNotification: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<NotificationService, "createNotification">>
@@ -215,7 +215,7 @@ describe("CommunityCommentService",
                                 parentCommentId: null,
                             },
                         })
-                        // notified the post author (not a reply → no parent-author target)
+                        // notified the post author (not a reply -> no parent-author target)
                         expect(notificationService.createNotification).toHaveBeenCalledTimes(1)
                         expect(notificationService.createNotification).toHaveBeenCalledWith(
                             expect.objectContaining({
@@ -453,7 +453,7 @@ describe("CommunityCommentService",
                             skip: number
                             take: number
                         }
-                        // page 2 of size 10 → offset 10
+                        // page 2 of size 10 -> offset 10
                         expect(options.skip).toBe(10)
                         expect(options.take).toBe(10)
                     })

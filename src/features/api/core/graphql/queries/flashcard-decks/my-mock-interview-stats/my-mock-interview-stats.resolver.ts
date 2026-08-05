@@ -37,10 +37,10 @@ import {
 
 @Resolver()
 /**
- * The viewer's aggregated mock-interview stats for one course — an
+ * The viewer's aggregated mock-interview stats for one course -- an
  * overall-score trend, a mode split, per-phase (design) / per-kind (qna)
- * breakdowns, and the single weakest entry across both axes — so the setup
- * screen's "Thống kê" tab has progress data without the client re-deriving
+ * breakdowns, and the single weakest entry across both axes -- so the setup
+ * screen's stats tab has progress data without the client re-deriving
  * any of it. Enrolled-only, same surface as `myMockInterviewAttempts`.
  */
 export class MyMockInterviewStatsResolver {

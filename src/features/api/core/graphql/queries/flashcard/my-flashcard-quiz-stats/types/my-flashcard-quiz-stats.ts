@@ -24,7 +24,7 @@ export interface FlashcardQuizStatsConceptCoverageData {
 
 /** The viewer's aggregated flashcard quick-quiz stats for one course. */
 export interface MyFlashcardQuizStatsResultData {
-    /** Whether the viewer has scanned fewer than `MIN_SESSIONS_FOR_STATS` completed quiz sessions — too little history to show meaningfully. */
+    /** Whether the viewer has scanned fewer than `MIN_SESSIONS_FOR_STATS` completed quiz sessions -- too little history to show meaningfully. */
     insufficientData: boolean
     /** Per-tag aggregate coverage across the scanned sessions, ranked by coverage descending. */
     byTag: Array<FlashcardQuizStatsTagItemData>

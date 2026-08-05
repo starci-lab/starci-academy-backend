@@ -74,7 +74,7 @@ export class ResolveRouteResolver {
         @Args("request")
             request: ResolveRouteRequest,
     ): Promise<ResolveRouteData> {
-        // decode the opaque token → { entityName, id }; bail to null on garbage
+        // decode the opaque token -> { entityName, id }; bail to null on garbage
         const decoded = fromGlobalId(request.globalId)
         if (!decoded) {
             return {
@@ -86,14 +86,14 @@ export class ResolveRouteResolver {
             id,
         } = decoded
 
-        // user has no parent-index entry → route straight to the public profile
+        // user has no parent-index entry -> route straight to the public profile
         if (entityName === UserEntity.name) {
             return {
                 path: `/users/${id}`,
             }
         }
 
-        // coding problems are slug-routed and not in the parent index → look up slug
+        // coding problems are slug-routed and not in the parent index -> look up slug
         if (entityName === CodingProblemEntity.name) {
             const problem = await this.entityManager.findOne(
                 CodingProblemEntity,
@@ -112,7 +112,7 @@ export class ResolveRouteResolver {
             }
         }
 
-        // course/module/content/challenge/milestone(Task)/flashcardDeck → parent-index
+        // course/module/content/challenge/milestone(Task)/flashcardDeck -> parent-index
         const parentRef = await this.cacheService.get({
             key: CacheKey.ParentIndex,
             args: [

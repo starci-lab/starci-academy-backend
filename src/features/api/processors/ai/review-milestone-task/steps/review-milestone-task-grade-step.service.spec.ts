@@ -12,7 +12,7 @@ import {
 } from "@modules/mixin"
 
 /**
- * Stub `GithubRepoLoader` so no real clone/network happens — every instance's
+ * Stub `GithubRepoLoader` so no real clone/network happens -- every instance's
  * `.load()` resolves the docs the test programs via `loaderLoadMock`.
  */
 const loaderLoadMock = jest.fn()
@@ -26,7 +26,7 @@ jest.mock(
 )
 
 /**
- * Spy on QdrantVectorStore to PROVE the unified path never touches it directly —
+ * Spy on QdrantVectorStore to PROVE the unified path never touches it directly --
  * retrieval now goes through the shared GradingRetrievalService.
  */
 const qdrantCtor = jest.fn()
@@ -184,7 +184,7 @@ describe("ReviewMilestoneTaskGradeStepService",
 
         it("V2 task: maps v2Criteria → [{ body }] and feeds the unified retrieval excerpt to the grade",
             async () => {
-                // verified (non-null) → V2 path; outcome/approach criteria with per-lang langs
+                // verified (non-null) -> V2 path; outcome/approach criteria with per-lang langs
                 programTask({
                     id: "task-1",
                     title: "Build the API",
@@ -255,7 +255,7 @@ describe("ReviewMilestoneTaskGradeStepService",
 
         it("legacy task: maps criterias (sorted by orderIndex) → [{ body: `text\\npromptText` }]",
             async () => {
-                // no `verified` → legacy path; out-of-order criterias must be sorted
+                // no `verified` -> legacy path; out-of-order criterias must be sorted
                 programTask({
                     id: "task-1",
                     title: "Legacy task",

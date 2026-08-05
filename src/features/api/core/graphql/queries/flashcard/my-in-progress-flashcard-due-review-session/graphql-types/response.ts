@@ -80,7 +80,7 @@ export class MyInProgressFlashcardDueReviewSessionData {
 })
 /**
  * GraphQL envelope for `myInProgressFlashcardDueReviewSession`. `data` is
- * null when the learner has no resumable cross-deck due batch — the FE
+ * null when the learner has no resumable cross-deck due batch -- the FE
  * should start a new session rather than resume.
  */
 export class MyInProgressFlashcardDueReviewSessionResponse

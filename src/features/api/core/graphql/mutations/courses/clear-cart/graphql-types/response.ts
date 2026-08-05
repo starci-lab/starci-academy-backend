@@ -30,7 +30,7 @@ export class ClearCartResponseData {
  * Response wrapper for the clearCart mutation.
  *
  * `data` is `nullable: true` because the transform interceptor sets `data = null`
- * on the error path — a non-nullable field would crash GraphQL and mask the real
+ * on the error path -- a non-nullable field would crash GraphQL and mask the real
  * error.
  */
 export class ClearCartResponse

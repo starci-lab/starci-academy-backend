@@ -53,10 +53,10 @@ import {
 /**
  * PayOS-specific course enrollment: payment link + preflight row.
  *
- * A domestic VND gateway — honours BOTH `request.voucherCode` discount types
+ * A domestic VND gateway -- honours BOTH `request.voucherCode` discount types
  * (Percent and Flat) per `PAYMENT_MODIFIER_CAPABILITY`. See
- * {@link CourseEnrollSepayService} for the shared pattern (preview → reserve
- * inside the same insert transaction → persist the code).
+ * {@link CourseEnrollSepayService} for the shared pattern (preview -> reserve
+ * inside the same insert transaction -> persist the code).
  */
 export class CourseEnrollPayOsService {
     constructor(
@@ -172,7 +172,7 @@ export class CourseEnrollPayOsService {
             course,
             discountPercent,
         })
-        // an invalid code throws HERE (before the PayOS link is created) — a
+        // an invalid code throws HERE (before the PayOS link is created) -- a
         // valid one further discounts the loyalty-discounted amount
         const discountedAmount = voucherCode
             ? this.voucherService.applyToAmount(
@@ -184,7 +184,7 @@ export class CourseEnrollPayOsService {
                 }),
             )
             : loyaltyAmount
-        // installment (trả góp): charge only the FIRST cycle now (monthly), snapshot
+        // installment : charge only the FIRST cycle now (monthly), snapshot
         // the whole-schedule intent (months/markup/total) onto the Enroll transaction
         // so the enroll worker creates the Fixed plan on payment success (§2.2). A
         // one-shot purchase (no installmentMonths) charges the full discounted amount.
@@ -234,7 +234,7 @@ export class CourseEnrollPayOsService {
             )
             const saved = await manager.save(created)
             if (voucherCode) {
-                // re-validate + reserve UNDER LOCK — the earlier previewDiscount() was
+                // re-validate + reserve UNDER LOCK -- the earlier previewDiscount() was
                 // advisory only (no lock held), so a race since then is still caught here
                 await this.voucherService.reserve({
                     entityManager: manager,

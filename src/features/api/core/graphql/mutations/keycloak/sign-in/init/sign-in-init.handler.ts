@@ -31,7 +31,7 @@ import type {
 @Injectable()
 /**
  * Verifies password with Keycloak, parks the tokens on an OTP challenge, and
- * mails the code — login is incomplete until verify consumes that challenge.
+ * mails the code -- login is incomplete until verify consumes that challenge.
  */
 export class SignInInitHandler
     extends ICQRSHandler<SignInInitCommand, SignInInitData>

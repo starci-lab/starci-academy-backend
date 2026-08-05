@@ -37,7 +37,7 @@ import type {
  * {@link recompute} (eager: in the grade-complete transaction + CDC); reads
  * ({@link getProgress}) extract the stored aggregate and lazily recompute when
  * the row is missing or older than the projection TTL. This replaces the old
- * Redis `challenge.submission.progress` cache — the projection table IS the cache
+ * Redis `challenge.submission.progress` cache -- the projection table IS the cache
  * now, and its `updated_at` timestamp drives staleness.
  */
 export class ChallengeProgressService {
@@ -62,7 +62,7 @@ export class ChallengeProgressService {
         const result = await this.computeProgress(enrollment,
             manager)
         // raw UPSERT so `updated_at = now()` is bumped on conflict (TypeORM's
-        // @UpdateDateColumn is not re-stamped by `upsert`) — the timestamp the
+        // @UpdateDateColumn is not re-stamped by `upsert`) -- the timestamp the
         // read-path staleness check relies on.
         await manager.query(
             `
@@ -96,7 +96,7 @@ export class ChallengeProgressService {
                 },
             },
         )
-        // TTL safety net: missing / past freshness window → recompute + re-read
+        // TTL safety net: missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute(enrollment)
             row = await this.entityManager.findOne(
@@ -118,7 +118,7 @@ export class ChallengeProgressService {
     /**
      * Drop the projection row for an enrollment so the next read recomputes a
      * fresh aggregate. Called eagerly from the grade-complete step (and the
-     * event listener) — the shared row is the source of truth, so deleting it
+     * event listener) -- the shared row is the source of truth, so deleting it
      * is globally effective without any cache/event indirection.
      * @param enrollmentId - The enrollment whose projection to invalidate.
      */
@@ -187,7 +187,7 @@ export class ChallengeProgressService {
         }
 
         // the viewer's own submission rows for these challenges, keyed by ENROLLMENT
-        // (the anchor for per-course progress going forward) — user_challenge_submissions
+        // (the anchor for per-course progress going forward) -- user_challenge_submissions
         // carries enrollment_id (backfilled). Without this filter the aggregate would
         // span EVERY user's submissions for the course's challenges.
         const userSubmissions = await manager.find(
@@ -237,14 +237,14 @@ export class ChallengeProgressService {
                 const userSubmission = submissionsForChallenge.find(
                     (us) => us.submission.id === submission.id,
                 )
-                // Submission never created → not submitted, cannot pass.
+                // Submission never created -> not submitted, cannot pass.
                 if (!userSubmission) {
                     allSubmittedAndPassed = false
                     continue
                 }
                 anyUserSubmission = true
                 const attempts = userSubmission.attempts ?? []
-                // User submission row exists but was never submitted for grading → in progress.
+                // User submission row exists but was never submitted for grading -> in progress.
                 if (attempts.length === 0) {
                     hasPendingSubmission = true
                     allSubmittedAndPassed = false

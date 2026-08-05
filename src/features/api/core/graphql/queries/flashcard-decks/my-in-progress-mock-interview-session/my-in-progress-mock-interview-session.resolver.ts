@@ -38,9 +38,9 @@ import {
 
 @Resolver()
 /**
- * The learner's most recent RESUMABLE mock-interview session for one course —
- * "resume mock interview session" (2026-07-08) — so the FE can offer
- * "Tiếp tục phiên phỏng vấn?" instead of forcing a fresh draw. Null when
+ * The learner's most recent RESUMABLE mock-interview session for one course --
+ * "resume mock interview session" (2026-07-08) -- so the FE can offer
+ * "resume mock interview?" instead of forcing a fresh draw. Null when
  * there is none. Enrolled-only, mirroring `myMockInterviewAttempts`.
  */
 export class MyInProgressMockInterviewSessionResolver {

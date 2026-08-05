@@ -16,17 +16,17 @@ export enum Judge0StatusId {
     TimeLimitExceeded = 5,
     /** Source failed to compile. */
     CompilationError = 6,
-    /** Runtime crash — segmentation fault (SIGSEGV). */
+    /** Runtime crash -- segmentation fault (SIGSEGV). */
     RuntimeErrorSigsegv = 7,
-    /** Runtime crash — output file size limit (SIGXFSZ). */
+    /** Runtime crash -- output file size limit (SIGXFSZ). */
     RuntimeErrorSigxfsz = 8,
-    /** Runtime crash — floating point exception (SIGFPE). */
+    /** Runtime crash -- floating point exception (SIGFPE). */
     RuntimeErrorSigfpe = 9,
-    /** Runtime crash — aborted (SIGABRT). */
+    /** Runtime crash -- aborted (SIGABRT). */
     RuntimeErrorSigabrt = 10,
-    /** Runtime crash — non-zero exit code (NZEC). */
+    /** Runtime crash -- non-zero exit code (NZEC). */
     RuntimeErrorNzec = 11,
-    /** Runtime crash — other cause. */
+    /** Runtime crash -- other cause. */
     RuntimeErrorOther = 12,
     /** Judge0 internal error (infrastructure, not user code). */
     InternalError = 13,

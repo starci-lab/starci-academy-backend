@@ -29,7 +29,7 @@ import type {
 /** Matches a canonical v4-style UUID so we know whether to look the course up by id or by slug. */
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu
 
-/** Horizontal gap between graph columns (each keyword-tree depth level). Tightened 2026-07-18 (thầy: "các node gần nhau tí"). */
+/** Horizontal gap between graph columns (each keyword-tree depth level). Tightened 2026-07-18 . */
 const COLUMN_X = 268
 
 /** Card chrome (top+bottom padding + border) added to the text height of a node. */
@@ -40,8 +40,8 @@ const NODE_LINE_Y = 20
 const ROW_GAP_Y = 20
 /**
  * Approx characters that fit on one line at the node's max width (~220px, `body-sm`). A label longer
- * than this wraps to a 2nd line (nodes are `line-clamp-2`), so its row must reserve more height —
- * the FIX for 2-line nodes overlapping the one below (thầy 2026-07-18). Deliberately a touch LOW so
+ * than this wraps to a 2nd line (nodes are `line-clamp-2`), so its row must reserve more height --
+ * the FIX for 2-line nodes overlapping the one below . Deliberately a touch LOW so
  * we over-reserve rather than overlap.
  */
 const CHARS_PER_LINE = 22
@@ -56,14 +56,14 @@ const estimateLeafHeight = (label: string): number => {
 
 @Injectable()
 /**
- * Serves the course "sơ đồ tư duy": the authored `mind_map` jsonb keyword tree, laid out as a tidy
+ * Serves the course mind map: the authored `mind_map` jsonb keyword tree, laid out as a tidy
  * left-to-right tree in `@xyflow/react` node/edge shape.
  *
  * Reading it is a SINGLE indexed row fetch (`courses` by `display_id`/`id`) plus an in-memory jsonb
- * walk — no joins, no link resolution (keywords carry no hard links; the client finds related
+ * walk -- no joins, no link resolution (keywords carry no hard links; the client finds related
  * content by RAG on the label). So it is served DIRECTLY from Postgres with NO Redis cache: a cache
- * would only add staleness (needing manual purges on re-seed) for an already-O(1) read — thầy
- * 2026-07-18: *"cache redis chi, query thẳng chứ O(1) mà"*.
+ * would only add staleness (needing manual purges on re-seed) for an already-O(1) read --
+ * query Postgres directly for this O(1) fetch (2026-07-18).
  */
 export class CourseMindMapService {
     constructor(
@@ -74,8 +74,8 @@ export class CourseMindMapService {
     /**
      * Resolves the course (by id or slug) and returns its authored keyword tree as React Flow
      * nodes + edges. A course with NO authored map returns an EMPTY graph (the client shows an
-     * authored-map-only empty state + funnel to "Học phần") rather than a derived module graph — a
-     * mechanical course→module→lesson dump read as the broken "vertical strand" (thầy 2026-07-18).
+     * authored-map-only empty state + funnel to learning section) rather than a derived module graph -- a
+     * mechanical course->module->lesson dump read as the broken "vertical strand" .
      *
      * @param params - {@link BuildCourseMindMapParams}
      * @returns Nodes + edges ready to feed React Flow.
@@ -86,7 +86,7 @@ export class CourseMindMapService {
             locale,
         }: BuildCourseMindMapParams,
     ): Promise<CourseMindMapResponseData> {
-        // the route passes a slug (`fullstack-mastery`) but callers may hold a UUID — branch on shape
+        // the route passes a slug (`fullstack-mastery`) but callers may hold a UUID -- branch on shape
         const isUuid = UUID_REGEX.test(courseId)
         // resolve by id OR slug; only include the id branch when the value is a valid UUID (a
         // non-uuid string compared against a uuid column throws at the Postgres layer)
@@ -112,7 +112,7 @@ export class CourseMindMapService {
                 displayId: isUuid ? undefined : courseId,
             })
         }
-        // unauthored course → EMPTY (no derived module graph)
+        // unauthored course -> EMPTY (no derived module graph)
         if (!course.mindMap) {
             return {
                 nodes: [],
@@ -125,10 +125,10 @@ export class CourseMindMapService {
     }
 
     /**
-     * Lays the authored keyword tree out as a tidy left-to-right tree: depth → column, each
+     * Lays the authored keyword tree out as a tidy left-to-right tree: depth -> column, each
      * subtree's leaves stacked in a contiguous band, every parent centred against its children.
      *
-     * PURE + synchronous (in-memory) — the tree is keywords only, so there is no DB join / slug
+     * PURE + synchronous (in-memory) -- the tree is keywords only, so there is no DB join / slug
      * resolution; each node carries an EMPTY `links` (the client resolves related surfaces by RAG
      * on the keyword) and the authored `desc` (the drawer explainer) picked for the locale.
      *
@@ -146,11 +146,11 @@ export class CourseMindMapService {
         const text = (value: { en: string; vi: string }) =>
             (locale === "vi" ? (value.vi || value.en) : (value.en || value.vi))
 
-        // ---- lay out the tree: depth → column, leaves stacked, parents centered ----
+        // ---- lay out the tree: depth -> column, leaves stacked, parents centered ----
         const nodes: Array<MindMapNode> = []
         const edges: Array<MindMapEdge> = []
         // running VERTICAL position (px). Each leaf advances it by its OWN estimated height + a gap,
-        // so a 2-line node reserves more room and never overlaps the node below (thầy 2026-07-18).
+        // so a 2-line node reserves more room and never overlaps the node below .
         let yCursor = 0
         const rootNodeId = `course-${course.id}`
 
@@ -217,7 +217,7 @@ export class CourseMindMapService {
                     : 0,
             },
             data: {
-                // root shows the real COURSE TITLE (not the authored persona label) — thầy 2026-07-18.
+                // root shows the real COURSE TITLE (not the authored persona label).
                 label: course.title,
                 kind: MindMapNodeEntityType.Course,
                 entityId: course.id,

@@ -53,7 +53,7 @@ export class CoursesCheckoutPricingService {
      * {@link CourseNotFoundException} on a missing id), drops courses the buyer
      * already owns (paid enrollment), then prices the remainder with progressive
      * loyalty + the order bundle bonus. Returns empty `lines` when nothing is
-     * purchasable (empty request or all already owned) — the caller decides whether
+     * purchasable (empty request or all already owned) -- the caller decides whether
      * that is an error (checkout) or an empty preview.
      *
      * @param params - The buyer id + the requested course ids.
@@ -67,7 +67,7 @@ export class CoursesCheckoutPricingService {
     ): Promise<PriceCartResult> {
         // de-duplicate the requested ids (a course cannot be bought twice per order)
         const uniqueCourseIds = Array.from(new Set(courseIds))
-        // nothing requested → empty result (caller decides if that is an error)
+        // nothing requested -> empty result (caller decides if that is an error)
         if (uniqueCourseIds.length === 0) {
             return this.emptyResult()
         }
@@ -86,7 +86,7 @@ export class CoursesCheckoutPricingService {
                 },
             },
         )
-        // a requested id that did not resolve is bad data → surface the first missing
+        // a requested id that did not resolve is bad data -> surface the first missing
         if (courses.length !== uniqueCourseIds.length) {
             const foundIds = new Set(courses.map((course) => course.id))
             const missingId = uniqueCourseIds.find((courseId) => !foundIds.has(courseId))
@@ -95,7 +95,7 @@ export class CoursesCheckoutPricingService {
             })
         }
 
-        // drop courses the buyer already OWNS (paid enrollment) — re-buying is a
+        // drop courses the buyer already OWNS (paid enrollment) -- re-buying is a
         // no-op the enroll step would skip. Trial rows (is_enrolled=false) are NOT
         // ownership, so those courses are still purchasable.
         const paidEnrollments = await this.entityManager.find(
@@ -119,7 +119,7 @@ export class CoursesCheckoutPricingService {
         const purchasableCourses = courses.filter(
             (course) => !ownedCourseIds.has(course.id),
         )
-        // nothing left to buy → empty result (caller decides if that is an error)
+        // nothing left to buy -> empty result (caller decides if that is an error)
         if (purchasableCourses.length === 0) {
             return this.emptyResult()
         }
@@ -127,7 +127,7 @@ export class CoursesCheckoutPricingService {
         // the order-wide bundle bonus is a function of the purchasable count only
         const bundleBonusPercent = this.loyaltyDiscountService
             .computeBundleBonusPercent(purchasableCourses.length)
-        // fetch the user's loyalty inputs ONCE — owned-count + diligence are identical
+        // fetch the user's loyalty inputs ONCE -- owned-count + diligence are identical
         // for every line; only the progressive `extraOwnedCount` varies (pure arithmetic),
         // so this avoids N per-line DB round-trips for an N-course cart.
         const loyaltyContext = await this.loyaltyDiscountService.computeLoyaltyContext(userId)
@@ -180,7 +180,7 @@ export class CoursesCheckoutPricingService {
             (acc, line) => acc + line.listVnd,
             0,
         )
-        // USD totals are only meaningful when EVERY line has a USD price — a mixed
+        // USD totals are only meaningful when EVERY line has a USD price -- a mixed
         // cart (one course lacks USD) cannot be paid internationally at all
         const everyLineHasChargedUsd = lines.every((line) => line.chargedUsd != null)
         const everyLineHasListUsd = lines.every((line) => line.listUsd != null)

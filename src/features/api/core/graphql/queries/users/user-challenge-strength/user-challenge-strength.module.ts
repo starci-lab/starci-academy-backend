@@ -13,5 +13,5 @@ import {
         UserChallengeStrengthResolver,
     ],
 })
-/** Feature-module boundary for the `userChallengeStrength` query — wires its resolver so the users group can mount this profile tab independently. */
+/** Feature-module boundary for the `userChallengeStrength` query -- wires its resolver so the users group can mount this profile tab independently. */
 export class UserChallengeStrengthSingleQueryModule extends ConfigurableModuleClass {}

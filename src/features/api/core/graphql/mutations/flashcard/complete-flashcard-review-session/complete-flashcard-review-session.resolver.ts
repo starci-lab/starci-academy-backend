@@ -35,9 +35,9 @@ import {
 
 @Resolver()
 /**
- * Record a finished flashcard review ("Học thẻ") session via
+ * Record a finished flashcard review session via
  * {@link FlashcardReviewSessionService}, snapshotting the final
- * reviewed-count/xpEarned onto the row. Grants NO XP server-side — see
+ * reviewed-count/xpEarned onto the row. Grants NO XP server-side -- see
  * `CompleteFlashcardReviewSessionRequest`'s own doc.
  */
 export class CompleteFlashcardReviewSessionResolver {

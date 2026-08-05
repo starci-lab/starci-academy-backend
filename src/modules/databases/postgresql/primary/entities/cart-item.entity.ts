@@ -37,10 +37,10 @@ import {
  * A single course a user has placed in their shopping cart.
  *
  * The cart is modelled as a set of `(user, course)` rows rather than a parent
- * cart aggregate: there is exactly one row per user × course (enforced by
+ * cart aggregate: there is exactly one row per user x course (enforced by
  * {@link UQ_cart_items_user_course}), and "the user's cart" is simply every row
  * with that `user_id`. Rows are removed when the user drops the course from the
- * cart, clears the cart, or the course is enrolled (paid) — the enroll step
+ * cart, clears the cart, or the course is enrolled (paid) -- the enroll step
  * deletes the matching row so a bought course never lingers in the cart.
  */
 export class CartItemEntity extends UuidAbstractEntity {

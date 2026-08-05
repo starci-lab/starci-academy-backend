@@ -20,7 +20,7 @@ import {
     ],
 })
 /**
- * Leaf query module for `searchUsers` — free-text search over the Elasticsearch
+ * Leaf query module for `searchUsers` -- free-text search over the Elasticsearch
  * `users` index. Imports the Elasticsearch module for the shared client.
  */
 export class SearchUsersSingleQueryModule extends ConfigurableModuleClass {}

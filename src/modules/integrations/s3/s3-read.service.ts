@@ -266,12 +266,12 @@ export class S3ReadService {
             break
         }
         }
-        // accumulate keys across pages — a bucket can hold far more than the 1000/page S3 cap
+        // accumulate keys across pages -- a bucket can hold far more than the 1000/page S3 cap
         const keys: Array<string> = []
         // ContinuationToken drives pagination; undefined on the first request
         let continuationToken: string | undefined = undefined
         do {
-            // request one page of objects under the prefix (no Delimiter → flat key list)
+            // request one page of objects under the prefix (no Delimiter -> flat key list)
             const result = await s3Client.send(
                 new ListObjectsV2Command({
                     Bucket: bucket,

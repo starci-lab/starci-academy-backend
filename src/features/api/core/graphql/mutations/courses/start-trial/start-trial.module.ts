@@ -21,5 +21,5 @@ import {
         StartTrialHandler,
     ],
 })
-/** Isolated Nest registration for the trial ("Học thử") flow without pulling paid enroll into the same graph. */
+/** Isolated Nest registration for the trial flow without pulling paid enroll into the same graph. */
 export class StartTrialSingleMutationModule extends ConfigurableModuleClass {}

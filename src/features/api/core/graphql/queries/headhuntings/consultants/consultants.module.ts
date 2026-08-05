@@ -21,5 +21,5 @@ import {
         ConsultantsHandler,
     ],
 })
-/** Feature-module boundary for the `consultants` query — wires its resolver + service + CQRS handler. */
+/** Feature-module boundary for the `consultants` query -- wires its resolver + service + CQRS handler. */
 export class ConsultantsSingleQueryModule extends ConfigurableModuleClass {}

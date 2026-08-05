@@ -70,7 +70,7 @@ export class ChallengeHandler
                 id: request.id,
             })
         }
-        // challenges are readable ONLY inside FREE (non-premium) content — a premium
+        // challenges are readable ONLY inside FREE (non-premium) content -- a premium
         // content's challenge requires enrolling first (mirrors the submit gate).
         const ownerContent = await this.entityManager.findOne(
             ContentEntity,

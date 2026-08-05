@@ -5,7 +5,7 @@ import type {
 } from "@modules/databases"
 
 /**
- * Raw activity row for a single user's timeline (joined with the actor — always
+ * Raw activity row for a single user's timeline (joined with the actor -- always
  * the profile owner). Carries `at` + `id` for stable newest-first tie-breaking.
  */
 export interface UserFeedRow {
@@ -31,7 +31,7 @@ export interface UserFeedRow {
 
 /**
  * Decoded cursor for the chronological user timeline. Newest-first ordering is
- * absolute (created_at DESC, id DESC), so a plain row offset is enough — no need
+ * absolute (created_at DESC, id DESC), so a plain row offset is enough -- no need
  * to pin a decay reference the way the score-ranked home feed does.
  */
 export interface DecodedUserFeedCursor {

@@ -15,15 +15,15 @@ import {
 
 /** Sort fields for listing submission attempts. */
 export enum UserChallengeSubmissionAttemptsSortBy {
-    /** Highest/lowest graded score first — pick a "best attempt" without scanning dates. */
+    /** Highest/lowest graded score first -- pick a "best attempt" without scanning dates. */
     Score = "score",
-    /** Attempt sequence (1, 2, 3…) — Asc is chronological try order. */
+    /** Attempt sequence (1, 2, 3...) -- Asc is chronological try order. */
     AttemptNumber = "attemptNumber",
     /** Default (Desc): newest attempts first on the history list. */
     CreatedAt = "createdAt",
     /** Recently edited attempt rows first when Desc. */
     UpdatedAt = "updatedAt",
-    /** When scoring finished — pending attempts sort apart from graded ones. */
+    /** When scoring finished -- pending attempts sort apart from graded ones. */
     ProcessedAt = "processedAt",
 }
 

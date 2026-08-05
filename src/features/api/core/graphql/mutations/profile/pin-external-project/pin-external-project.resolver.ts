@@ -83,7 +83,7 @@ export class PinExternalProjectResolver {
         } = request
 
         // count the user's existing pins to enforce the cap and compute the order
-        // (scope via the user relation's FK — `userId` is a @RelationId, not a column)
+        // (scope via the user relation's FK -- `userId` is a @RelationId, not a column)
         const existingCount = await this.entityManager.count(UserPinnedProjectEntity,
             {
                 where: {

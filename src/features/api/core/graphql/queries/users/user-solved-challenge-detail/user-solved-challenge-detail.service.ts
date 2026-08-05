@@ -19,7 +19,7 @@ import {
 @Injectable()
 /**
  * Live read of a single passed challenge submission's detail, scoped to the
- * TARGET user (`request.userId`, the profile owner) rather than the caller —
+ * TARGET user (`request.userId`, the profile owner) rather than the caller --
  * this backs the public profile's submission-detail surface, unlike
  * {@link ChallengeSubmissionQueryService} which scopes to the caller. Visibility
  * for locked profiles is enforced upstream by
@@ -44,7 +44,7 @@ export class UserSolvedChallengeDetailService {
             {
                 where: {
                     id: submissionId,
-                    // scope by the TARGET user, not the caller — this is the
+                    // scope by the TARGET user, not the caller -- this is the
                     // public-profile detail read
                     user: {
                         id: userId,
@@ -74,7 +74,7 @@ export class UserSolvedChallengeDetailService {
             })
         }
 
-        // the "passing" attempt: graded + score > 0, newest such attempt — same
+        // the "passing" attempt: graded + score > 0, newest such attempt -- same
         // predicate the solved-challenges projection uses (buildPassedAttemptsSubquery),
         // so score/passedAt/feedbacks here mirror what set the list's passedAt.
         const passingAttempt = (userSubmission.attempts ?? [])

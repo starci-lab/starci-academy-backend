@@ -17,7 +17,7 @@ export interface ChangelogSeedItem {
     body?: LocalizedText | null
     /** Category chip, optional. */
     category?: ChangelogCategory | null
-    /** Publish date (ISO) — drives ordering + the shown date. */
+    /** Publish date (ISO) -- drives ordering + the shown date. */
     publishedAt: string
     /** Optional "read more" destination. */
     linkUrl?: string | null
@@ -28,7 +28,7 @@ export interface ChangelogSeedItem {
 /**
  * Root shape returned by the markdown extractor for `changelog.md`. The mount
  * grammar's top-level `# <n>` array items are wrapped under a `data` key, so the
- * extractor's generic argument is this object — not the bare array.
+ * extractor's generic argument is this object -- not the bare array.
  */
 export interface ChangelogSeedRoot {
     /** The parsed changelog entries; absent when the file has no array items. */

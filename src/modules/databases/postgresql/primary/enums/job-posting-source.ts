@@ -6,7 +6,7 @@ import {
 } from "@modules/common"
 
 /**
- * Where a job posting row originated (`job_postings.source`) — a provenance
+ * Where a job posting row originated (`job_postings.source`) -- a provenance
  * tag, NOT a moderation state. Both values go live immediately on insert;
  * there is no approve/reject workflow for v1.
  */

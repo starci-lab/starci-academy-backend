@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * Thin CQRS dispatch for `myPickableCvAchievements` — the CV block editor's
+ * Thin CQRS dispatch for `myPickableCvAchievements` -- the CV block editor's
  * "pick from StarCi" data source. Delegates entirely to
  * {@link MyPickableCvAchievementsHandler} via the query bus.
  */

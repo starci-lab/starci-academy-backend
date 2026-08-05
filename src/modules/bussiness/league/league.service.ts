@@ -38,7 +38,7 @@ import type {
  * Business logic for the Duolingo-style GLOBAL weekly league.
  *
  * Ranks users by their flat reward points (`xp_histories.points`, course-agnostic)
- * summed inside a fixed Sunday→Sunday (Asia/Ho_Chi_Minh) week window, within a
+ * summed inside a fixed Sunday->Sunday (Asia/Ho_Chi_Minh) week window, within a
  * fixed-size cohort (30). {@link getMyStanding} reads a viewer's cohort board
  * (lazily placing them in Bronze + the open cohort on first sight); the weekly
  * cron calls {@link runWeeklyReset} to promote the top 10 / demote the bottom 5
@@ -75,7 +75,7 @@ export class LeagueService {
                 },
             },
         )
-        // first time we see this user (or their cohort got cleared) → lazily place
+        // first time we see this user (or their cohort got cleared) -> lazily place
         // them into Bronze + the current open cohort so the board is never empty
         if (!userLeague || !userLeague.cohort) {
             userLeague = await this.placeUserLazily(userId)
@@ -86,7 +86,7 @@ export class LeagueService {
         // SUM GROUP BY runs in the projection's recompute, not inline per request)
         const members = await this.leagueCohortPointsProjectionService.getMembers(cohort.id)
         // last-week finishing rank per member (snapshotted at the previous reset)
-        // → the rank-movement caret. A flat read on the per-user league rows.
+        // -> the rank-movement caret. A flat read on the per-user league rows.
         const lastWeekRankRows = await this.entityManager.query(
             "SELECT user_id, last_week_rank FROM user_leagues WHERE cohort_id = $1",
             [
@@ -123,7 +123,7 @@ export class LeagueService {
      * Read the global (all-users) leaderboard ranked by spendable Coin:
      * the top `limit` users plus the viewer's own rank + points (so the UI can
      * append a "you" row when they sit outside the visible top). Sorts on the
-     * already-materialized `users.coin_balance` balance — no per-request recompute.
+     * already-materialized `users.coin_balance` balance -- no per-request recompute.
      *
      * @param userId - the viewer's user id (for their own rank).
      * @param limit - how many top users to return.
@@ -177,10 +177,10 @@ export class LeagueService {
 
     /**
      * Run the weekly reset (idempotent on the new week's start):
-     *  (a) close every cohort whose window just ended — rank members by week
+     *  (a) close every cohort whose window just ended -- rank members by week
      *      points, promote the top N / demote the bottom N, write each member's
      *      new tier onto their {@link UserLeagueEntity};
-     *  (b) form fresh cohorts for the NEW week — bucket all active users by their
+     *  (b) form fresh cohorts for the NEW week -- bucket all active users by their
      *      (post promote/demote) tier, deterministically shuffle, chunk into
      *      groups of the configured size, and reassign each user's cohort.
      *
@@ -238,7 +238,7 @@ export class LeagueService {
                     },
                 },
             )
-            // already placed into a live cohort by a racing request → reuse it
+            // already placed into a live cohort by a racing request -> reuse it
             if (existing?.cohort) {
                 return existing
             }
@@ -373,12 +373,12 @@ export class LeagueService {
             const memberCount = rows.length
             // apply the tier move per member based on their finishing rank
             for (let index = 0; index < memberCount; index++) {
-                // 1-based finishing rank (rows are pre-ordered best → worst)
+                // 1-based finishing rank (rows are pre-ordered best -> worst)
                 const rank = index + 1
                 // promotion: top `promoteCount` go up one tier
                 const isPromoted = rank <= promoteCount
                 // demotion: bottom `demoteCount` go down one tier (guard against the
-                // zones overlapping in a tiny cohort — promotion wins)
+                // zones overlapping in a tiny cohort -- promotion wins)
                 const isDemoted = !isPromoted && rank > memberCount - demoteCount
                 // resolve the next tier from the move (clamped at the ends)
                 const nextTier = this.shiftTier({
@@ -419,7 +419,7 @@ export class LeagueService {
         }: FormNewCohortsParams,
     ): Promise<void> {
         // idempotency guard: if cohorts already exist for the new week, a prior run
-        // already formed them → nothing to do (re-run safe)
+        // already formed them -> nothing to do (re-run safe)
         const existingNewCohorts = await manager.count(
             LeagueCohortEntity,
             {
@@ -524,7 +524,7 @@ export class LeagueService {
     }
 
     /**
-     * Start of the current week — the most recent Sunday 00:00 in
+     * Start of the current week -- the most recent Sunday 00:00 in
      * Asia/Ho_Chi_Minh, returned as the equivalent UTC instant.
      *
      * @returns the week-start {@link Date}.
@@ -562,7 +562,7 @@ export class LeagueService {
     /**
      * Build the cohort week-points aggregate SQL (params: `$1` cohort id, `$2`
      * window start, `$3` window end). LEFT JOINs xp_histories so zero-point
-     * members still rank; ordered best → worst, tie-broken by user id.
+     * members still rank; ordered best -> worst, tie-broken by user id.
      *
      * @returns the parameterised SELECT.
      */
@@ -591,7 +591,7 @@ export class LeagueService {
      * salt). Returns every league member with >= 1 point in the ending week,
      * with their current tier, ordered by `md5(user_id || $3)` so the shuffle
      * is stable across re-runs (no Math.random). Having a league row alone is
-     * NOT enough — a member who earned nothing in the ending week is pruned
+     * NOT enough -- a member who earned nothing in the ending week is pruned
      * from this pass: they keep their tier and current row, but are left
      * without a cohort (`cohort: null`, set by {@link settleEndingCohorts}) and
      * simply do not get a fresh one this week, freeing their cohort slot for an

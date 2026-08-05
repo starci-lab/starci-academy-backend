@@ -18,7 +18,7 @@ import {
 @UseInterceptors(MockDelayInterceptor)
 @Controller("mocks/4-server-state-with-tanstack-query/1-mutations-and-invalidation-graph/sessions/:sessionId")
 /**
- * Mock controller for lesson `1-mutations-and-invalidation-graph` — exposes the
+ * Mock controller for lesson `1-mutations-and-invalidation-graph` -- exposes the
  * read + create + delete endpoints the mutation/invalidation-graph demo calls.
  */
 export class MutationsController {

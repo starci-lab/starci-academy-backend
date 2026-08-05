@@ -68,7 +68,7 @@ describe("ScoreUploadedCvService",
         let cvScoringService: jest.Mocked<Pick<CvScoringService, "score">>
 
         beforeEach(async () => {
-            // entity manager mock — `findOne` loads the row, `update` persists the grade
+            // entity manager mock -- `findOne` loads the row, `update` persists the grade
             entityManager = {
                 findOne: jest.fn().mockResolvedValue(UPLOADED_ROW),
                 update: jest.fn().mockResolvedValue({
@@ -76,17 +76,17 @@ describe("ScoreUploadedCvService",
                 }),
             } as unknown as jest.Mocked<Pick<EntityManager, "findOne" | "update">>
 
-            // storage mock — returns non-empty bytes by default
+            // storage mock -- returns non-empty bytes by default
             s3ReadService = {
                 buffer: jest.fn().mockResolvedValue(Buffer.from("PDF-BYTES")),
             } as unknown as jest.Mocked<Pick<S3ReadService, "buffer">>
 
-            // shared scoring mock — happy path returns a valid grade
+            // shared scoring mock -- happy path returns a valid grade
             cvScoringService = {
                 score: jest.fn().mockResolvedValue(SCORE_RESULT),
             } as unknown as jest.Mocked<Pick<CvScoringService, "score">>
 
-            // extraction mock — happy path returns non-empty text
+            // extraction mock -- happy path returns non-empty text
             mockedExtractCvText.mockReset()
             mockedExtractCvText.mockResolvedValue("Extracted CV text content.")
 
@@ -249,7 +249,7 @@ describe("ScoreUploadedCvService",
                             }),
                         ).rejects.toThrow("model exploded")
 
-                        // no partial write — the row keeps its prior (null) grade
+                        // no partial write -- the row keeps its prior (null) grade
                         expect(entityManager.update).not.toHaveBeenCalled()
                     })
             })

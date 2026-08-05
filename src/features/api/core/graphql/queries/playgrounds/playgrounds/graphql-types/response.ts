@@ -61,7 +61,7 @@ export class PlaygroundSummary {
 })
 /**
  * GraphQL envelope for the public `playgrounds` course listing. Rows are
- * summaries (id/slug/title/icon/stepCount) — starting a session is a
+ * summaries (id/slug/title/icon/stepCount) -- starting a session is a
  * separate gated mutation.
  */
 export class PlaygroundsResponse

@@ -28,6 +28,6 @@ import {
     ],
 })
 /**
- * Nest DI for `contents` — includes ElasticsearchModule for the paginated list.
+ * Nest DI for `contents` -- includes ElasticsearchModule for the paginated list.
  */
 export class ContentsSingleQueryModule extends ConfigurableModuleClass {}

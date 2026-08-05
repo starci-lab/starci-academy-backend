@@ -40,7 +40,7 @@ const makeContext = (overrides: Record<string, unknown> = {
         challenge: {
             title: "Design a URL shortener",
         },
-        // empty criteria → maxScore 0; grading still runs (focused on flow, not scoring math)
+        // empty criteria -> maxScore 0; grading still runs (focused on flow, not scoring math)
         challengeSubmission: {
             outcomeCriteria: [],
             approachCriteria: [],
@@ -83,7 +83,7 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
             )
 
             jobActionService = {
-                // "creditCharged" marker absent by default → grading charges once
+                // "creditCharged" marker absent by default -> grading charges once
                 loadExecutionResult: jest.fn().mockResolvedValue(undefined),
                 increaseJob: jest.fn(),
                 saveExecutionResult: jest.fn(),

@@ -211,7 +211,7 @@ export class WeeklyChallengeService {
                 })
             }
             const coinReward = WEEKLY_CHALLENGE_REWARD_COIN
-            // idempotent ledger write + Coin credit — refId unique per user+week
+            // idempotent ledger write + Coin credit -- refId unique per user+week
             await writeCoinHistory({
                 entityManager: manager,
                 userId,

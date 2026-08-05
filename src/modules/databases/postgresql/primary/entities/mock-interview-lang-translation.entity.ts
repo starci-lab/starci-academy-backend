@@ -15,7 +15,7 @@ import {
 @Entity("mock_interview_lang_translations")
 /**
  * Bilingual override for one field of {@link MockInterviewLangEntity} (currently
- * only `givenCode`), keyed `(mockInterviewLangId, locale, field)` — same shape as
+ * only `givenCode`), keyed `(mockInterviewLangId, locale, field)` -- same shape as
  * {@link MockInterviewTranslationEntity}/`MilestoneTaskBriefTranslationEntity`.
  */
 export class MockInterviewLangTranslationEntity extends AbstractEntity {

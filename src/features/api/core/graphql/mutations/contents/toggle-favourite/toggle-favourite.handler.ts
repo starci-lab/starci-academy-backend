@@ -32,7 +32,7 @@ import {
 @Injectable()
 /**
  * Upserts user-content favourite keyed by enrollment and records a feed
- * bookmark only when turning favourite on — unfavourite must not duplicate activity.
+ * bookmark only when turning favourite on -- unfavourite must not duplicate activity.
  */
 export class ToggleFavouriteHandler
     extends ICQRSHandler<ToggleFavouriteCommand, void>
@@ -72,7 +72,7 @@ export class ToggleFavouriteHandler
         )
 
         // resolve the course for this content so we can key the row by enrollment
-        // (user × course) — the anchor going forward — while still setting user_id
+        // (user x course) -- the anchor going forward -- while still setting user_id
         // during the re-key transition. Reuse the loaded content for the activity.
         const content = await this.entityManager.findOne(
             ContentEntity,

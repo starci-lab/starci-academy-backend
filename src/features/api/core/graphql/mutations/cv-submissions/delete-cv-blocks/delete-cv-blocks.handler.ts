@@ -29,7 +29,7 @@ import {
 @CommandHandler(DeleteCvBlocksCommand)
 @Injectable()
 /**
- * Handler for `deleteCvBlocks` — removes a CV document the caller owns.
+ * Handler for `deleteCvBlocks` -- removes a CV document the caller owns.
  */
 export class DeleteCvBlocksHandler
     extends ICQRSHandler<DeleteCvBlocksCommand, DeleteCvBlocksData>

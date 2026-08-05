@@ -11,7 +11,7 @@ import {
     description: "A resolved ancestor (course/module/content/challenge) of a search hit.",
 })
 /**
- * One ancestor node — `id` for UUID-keyed learn URLs, `displayId` for the
+ * One ancestor node -- `id` for UUID-keyed learn URLs, `displayId` for the
  * course slug segment. Without both, the client cannot assemble a deep-link.
  */
 export class AutocompleteGlobalSearchParentRef {

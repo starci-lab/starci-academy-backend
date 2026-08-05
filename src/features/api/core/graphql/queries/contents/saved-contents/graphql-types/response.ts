@@ -16,7 +16,7 @@ import {
 })
 /**
  * Favorited lessons for the caller, newest-saved first, with total count for
- * pagination; each content includes module→course for FE grouping.
+ * pagination; each content includes module->course for FE grouping.
  */
 export class SavedContentsData {
     @Field(
@@ -40,7 +40,7 @@ export class SavedContentsData {
     description: "Response wrapper for the savedContents query.",
 })
 /**
- * Envelope for `savedContents` — status metadata plus the favorites page.
+ * Envelope for `savedContents` -- status metadata plus the favorites page.
  */
 export class SavedContentsResponse
     extends AbstractGraphQLResponse

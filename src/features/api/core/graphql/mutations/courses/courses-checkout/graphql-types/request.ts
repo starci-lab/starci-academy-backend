@@ -69,7 +69,7 @@ export class CoursesCheckoutRequest {
         () => Int,
         {
             nullable: true,
-            description: "Pay the whole cart in installments (trả góp) over this many months (3/6/12). Omit/null = pay in full. Only the domestic VND gateways (PayOS/Sepay) support it.",
+            description: "Pay the whole cart in installments over this many months (3/6/12). Omit/null = pay in full. Only the domestic VND gateways (PayOS/Sepay) support it.",
         },
     )
         installmentMonths?: number

@@ -51,9 +51,9 @@ const BLOCK_TYPES = [
 ] as const
 
 /**
- * Each block type's item `fields` shape — MUST mirror the FE per-block editors /
- * `CvHtmlDocument` renderers (`personal` reads `fields.name/email/…`, `experience`
- * reads `fields.company/role/…`, etc.). The AI is told this so its output loads
+ * Each block type's item `fields` shape -- MUST mirror the FE per-block editors /
+ * `CvHtmlDocument` renderers (`personal` reads `fields.name/email/...`, `experience`
+ * reads `fields.company/role/...`, etc.). The AI is told this so its output loads
  * straight into the editor; the parser also uses PRIMARY_FIELD_KEY to salvage a
  * bare string an item might drift into.
  */
@@ -93,16 +93,16 @@ const PRIMARY_FIELD_KEY: Record<(typeof BLOCK_TYPES)[number], string> = {
 @CommandHandler(SplitCvFromTextCommand)
 @Injectable()
 /**
- * Handler for `splitCvFromText` — parses a raw pasted CV / free-text resume into
+ * Handler for `splitCvFromText` -- parses a raw pasted CV / free-text resume into
  * an ordered array of block-editor blocks via a SYNCHRONOUS AI invoke (no BullMQ
  * enqueue). Nothing is persisted; the FE loads the returned blocks into the
  * editor for the user to refine.
  *
  * The AI is prompted for STRICT JSON (an array of `{ id, type, title, order,
- * items }`); the reply is parsed + validated defensively — a parse failure or a
+ * items }`); the reply is parsed + validated defensively -- a parse failure or a
  * non-array reply throws a clear error rather than returning malformed data.
  * Free-tier friendly: no explicit model is pinned, so the balancer's Auto lane
- * picks (local-first) — text parsing does not need a grading floor.
+ * picks (local-first) -- text parsing does not need a grading floor.
  */
 export class SplitCvFromTextHandler
     extends ICQRSHandler<SplitCvFromTextCommand, SplitCvFromTextData>
@@ -145,11 +145,11 @@ export class SplitCvFromTextHandler
             trimmed,
         ].join("\n")
 
-        // synchronous, inline invoke via the shared balancer path — no explicit
-        // model pinned so the Auto lane climbs (Economy → tier ceiling). Floor is
+        // synchronous, inline invoke via the shared balancer path -- no explicit
+        // model pinned so the Auto lane climbs (Economy -> tier ceiling). Floor is
         // pinned to Economy EXPLICITLY (not left to the difficulty default): this
         // is structured JSON extraction against an 11-type schema, so the weakest
-        // Free/local tier mangles the shape too often — but it needs no reasoning,
+        // Free/local tier mangles the shape too often -- but it needs no reasoning,
         // so we do NOT floor higher (Balanced/Premium would be wasted here).
         const {
             text: raw,
@@ -182,12 +182,12 @@ export class SplitCvFromTextHandler
             {
                 id: "personal",
                 type: "personal",
-                title: "Thông tin cá nhân",
+                title: "Thông tin cá nhân", // vn-ok: example CV block title in the split prompt template
                 order: 0,
                 items: [
                     {
                         id: "personal-1", fields: {
-                            name: "Nguyễn Văn A", email: "a@email.com", phone: "0900000000" 
+                            name: "Nguyễn Văn A", email: "a@email.com", phone: "0900000000" // vn-ok: example CV field values in the split prompt template
                         } 
                     },
                 ],
@@ -195,12 +195,12 @@ export class SplitCvFromTextHandler
             {
                 id: "exp",
                 type: "experience",
-                title: "Kinh nghiệm",
+                title: "Kinh nghiệm", // vn-ok: example CV block title in the split prompt template
                 order: 1,
                 items: [
                     {
                         id: "exp-1", fields: {
-                            company: "Công ty X", role: "Backend Developer", startDate: "2022", endDate: "2024", bullets: "Xây API thanh toán\nTối ưu truy vấn" 
+                            company: "Công ty X", role: "Backend Developer", startDate: "2022", endDate: "2024", bullets: "Xây API thanh toán; Tối ưu truy vấn" // vn-ok: example CV field values in the split prompt template
                         } 
                     },
                 ],
@@ -208,7 +208,7 @@ export class SplitCvFromTextHandler
             {
                 id: "skills",
                 type: "skills",
-                title: "Kỹ năng",
+                title: "Kỹ năng", // vn-ok: example CV block title in the split prompt template
                 order: 2,
                 items: [
                     {
@@ -299,7 +299,7 @@ export class SplitCvFromTextHandler
             }
             const type = allowedType(record.type)
             const rawItemsAll = Array.isArray(record.items) ? record.items : []
-            // `personal`/`summary` hold a single fields set — keep only the first item.
+            // `personal`/`summary` hold a single fields set -- keep only the first item.
             const rawItems = SINGLE_ITEM_TYPES.has(type) ? rawItemsAll.slice(0,
                 1) : rawItemsAll
             const items = rawItems.map((item, itemIndex) => ({
@@ -320,7 +320,7 @@ export class SplitCvFromTextHandler
     /**
      * Coerce one model item into the FE `{fields}` shape (a `Record<string,
      * string>`): reads `item.fields` if present (else treats the object itself as
-     * the fields), drops `id`/`fields` meta keys, stringifies values (array →
+     * the fields), drops `id`/`fields` meta keys, stringifies values (array ->
      * newline-joined for `bullets`), and salvages a bare-string item into the
      * type's PRIMARY_FIELD_KEY.
      */
@@ -358,7 +358,7 @@ export class SplitCvFromTextHandler
         return fields
     }
 
-    /** Stringify a field value — array → newline-joined (e.g. `bullets`), scalar → string. */
+    /** Stringify a field value -- array -> newline-joined (e.g. `bullets`), scalar -> string. */
     private coerceFieldValue(
         value: unknown,
     ): string {

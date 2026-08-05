@@ -55,7 +55,7 @@ export class FlashcardReviewSessionGradeCountsData {
     description: "A technology tag the learner forgot on this session, with its forgot count.",
 })
 /**
- * One weak-tag row — a technology tag the learner forgot ("Again") on during
+ * One weak-tag row -- a technology tag the learner forgot ("Again") on during
  * this session, with the number of times. Feeds the FE weak-tags chips + the
  * RAG "study this" query.
  */
@@ -82,13 +82,13 @@ export class FlashcardReviewSessionWeakTagData {
 })
 /**
  * Computed recap for ONE flashcard review session, resolved by its id alone
- * (either kind — single-deck review or cross-deck due-review) REGARDLESS of
+ * (either kind -- single-deck review or cross-deck due-review) REGARDLESS of
  * status, and owner-scoped via the session's enrollment. The query resolves to
  * `null` (not this type) when the id is not found / not owned by the caller.
  *
  * DEGRADED case (a legacy/untracked session whose events carry no `sessionId`)
  * still returns a valid object: `reviewedCount` comes from the session entity,
- * `gradeCounts` are all zero, `weakTags` is empty, `durationSeconds` is null —
+ * `gradeCounts` are all zero, `weakTags` is empty, `durationSeconds` is null --
  * so the FE renders a count-only fallback instead of erroring.
  */
 export class MyFlashcardReviewSessionStatsBySessionIdData {
@@ -163,7 +163,7 @@ export class MyFlashcardReviewSessionStatsBySessionIdData {
     description: "Response wrapper for the myFlashcardReviewSessionStatsBySessionId query.",
 })
 /**
- * Response wrapper for the myFlashcardReviewSessionStatsBySessionId query —
+ * Response wrapper for the myFlashcardReviewSessionStatsBySessionId query --
  * `data` is `null` when the session id is not found / not owned by the caller.
  */
 export class MyFlashcardReviewSessionStatsBySessionIdResponse

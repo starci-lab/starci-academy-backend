@@ -16,7 +16,7 @@ export interface ContentNotSandboxExceptionMetadata extends AbstractExceptionMet
 
 /**
  * Thrown when a sandbox-repo-url request targets a `ContentEntity` whose
- * `isSandbox` flag is false — no bundled file tree to serve.
+ * `isSandbox` flag is false -- no bundled file tree to serve.
  */
 export class ContentNotSandboxException extends AbstractException {
     constructor({

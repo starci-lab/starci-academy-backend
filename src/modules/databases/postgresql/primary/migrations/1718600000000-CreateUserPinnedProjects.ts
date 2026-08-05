@@ -22,7 +22,7 @@ export class CreateUserPinnedProjects1718600000000 implements MigrationInterface
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
      */
     async up(queryRunner: QueryRunner): Promise<void> {
-        // create the discriminator enum first — the table column references it by type
+        // create the discriminator enum first -- the table column references it by type
         await queryRunner.query(`
             DO $$
             BEGIN
@@ -51,13 +51,13 @@ export class CreateUserPinnedProjects1718600000000 implements MigrationInterface
             );
         `)
 
-        // per-user index — every read filters by user_id and orders by order_index
+        // per-user index -- every read filters by user_id and orders by order_index
         await queryRunner.query(`
             CREATE INDEX "idx_user_pinned_projects_user_id"
             ON "user_pinned_projects" ("user_id");
         `)
 
-        // FK to users — deleting a user removes their pins
+        // FK to users -- deleting a user removes their pins
         await queryRunner.query(`
             ALTER TABLE "user_pinned_projects"
             ADD CONSTRAINT "fk_user_id_user_pinned_projects_users"
@@ -65,7 +65,7 @@ export class CreateUserPinnedProjects1718600000000 implements MigrationInterface
             ON DELETE CASCADE ON UPDATE NO ACTION;
         `)
 
-        // FK to enrollments (nullable) — deleting an enrollment removes its course pin
+        // FK to enrollments (nullable) -- deleting an enrollment removes its course pin
         await queryRunner.query(`
             ALTER TABLE "user_pinned_projects"
             ADD CONSTRAINT "fk_enrollment_id_user_pinned_projects_enrollments"

@@ -79,7 +79,7 @@ export class CodingSubmissionService {
                     enabled: true,
                 },
             })
-        // unknown/disabled slug → typed not-found
+        // unknown/disabled slug -> typed not-found
         if (!problem) {
             throw new CodingProblemNotFoundException({
                 identifier: slug,
@@ -104,7 +104,7 @@ export class CodingSubmissionService {
             })
         // best-effort: remember the device this submission came from. The
         // submission row already exists at this point, so a failure here
-        // must be swallowed (logged, not thrown) — otherwise it would strand
+        // must be swallowed (logged, not thrown) -- otherwise it would strand
         // an already-persisted Pending submission with no judging job ever
         // enqueued for it.
         try {
@@ -139,7 +139,7 @@ export class CodingSubmissionService {
     /**
      * Record that the user revealed a problem's reference solution. Idempotent
      * (one row per user+problem). Once recorded, a later first solve of that
-     * problem awards no points — peeking the answer forfeits the score.
+     * problem awards no points -- peeking the answer forfeits the score.
      *
      * @param params - the viewing user's id + the problem slug
      * @returns whether a new reveal row was created (false when already revealed)
@@ -150,7 +150,7 @@ export class CodingSubmissionService {
         slug,
     }: RecordSolutionRevealParams): Promise<RecordSolutionRevealResult> {
         // resolve the target problem (must exist + be enabled) and load its reference
-        // solutions — this gated mutation is the ONLY place they are served to the client
+        // solutions -- this gated mutation is the ONLY place they are served to the client
         // (the problem detail read never carries them: not a GraphQL field, not indexed).
         const problem = await this.entityManager.findOne(CodingProblemEntity,
             {
@@ -168,7 +168,7 @@ export class CodingSubmissionService {
             })
         }
         const solutions = problem.solutions ?? []
-        // already revealed → idempotent: skip re-recording but still serve the answer
+        // already revealed -> idempotent: skip re-recording but still serve the answer
         const existing = await this.entityManager.findOne(CodingSolutionRevealEntity,
             {
                 where: {
@@ -186,7 +186,7 @@ export class CodingSubmissionService {
                 solutions,
             }
         }
-        // first reveal → persist the forfeit marker
+        // first reveal -> persist the forfeit marker
         await this.entityManager.save(CodingSolutionRevealEntity,
             {
                 user: {
@@ -223,7 +223,7 @@ export class CodingSubmissionService {
                     enabled: true,
                 },
             })
-        // unknown/disabled slug → typed not-found
+        // unknown/disabled slug -> typed not-found
         if (!problem) {
             throw new CodingProblemNotFoundException({
                 identifier: slug,
@@ -259,7 +259,7 @@ export class CodingSubmissionService {
     }
 
     /**
-     * Read a target user's accepted-submission summary for one problem — the
+     * Read a target user's accepted-submission summary for one problem -- the
      * language(s) used across ALL accepted attempts, plus the testcase counts
      * and first-solve time from the EARLIEST accepted attempt. Backs the
      * public profile's `userCodingProblemDetail` read; deliberately hand-rolled
@@ -294,7 +294,7 @@ export class CodingSubmissionService {
             ],
         )
         const row = rows[0]
-        // no accepted attempt for this user+problem → nothing to show
+        // no accepted attempt for this user+problem -> nothing to show
         if (!row?.first_solved_at) {
             return null
         }

@@ -1,5 +1,5 @@
 /**
- * A single stored object for the presigned-URL lesson — the raw bytes a client
+ * A single stored object for the presigned-URL lesson -- the raw bytes a client
  * PUT to a signed URL, kept until the GET (download / preview) round-trip.
  */
 export interface StoredObject {

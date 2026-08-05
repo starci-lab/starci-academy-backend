@@ -39,7 +39,7 @@ import {
  * Public profile query: every achievement with a given user's earned status +
  * live progress. Mirrors `myAchievements` but reads for the user named in the
  * route (id from args) rather than the authenticated viewer, so a profile page
- * can render anyone's badge wall. Optional auth — anonymous viewers may call it;
+ * can render anyone's badge wall. Optional auth -- anonymous viewers may call it;
  * a locked profile is withheld from non-owners by {@link GraphQLProfileVisibilityGuard}.
  */
 export class UserAchievementsResolver {
@@ -74,7 +74,7 @@ export class UserAchievementsResolver {
         @GraphQLLocale()
             locale: Locale,
     ): Promise<Array<MyAchievementItemData>> {
-        // service computes the badge wall for the named user — same code path as
+        // service computes the badge wall for the named user -- same code path as
         // the viewer's own achievements; a public profile only needs the list
         // (the newly-earned subset / congrats modal is for the owner's own view)
         const result = await this.achievementsService.getMyAchievements(userId)

@@ -10,7 +10,7 @@ import type {
 
 /** Loose model-pick fields carried on a GraphQL input (mirrors the submit-challenge shape). */
 export interface FlatAiSelectionFields {
-    /** Concrete model the learner picked; absent → balancer picks. */
+    /** Concrete model the learner picked; absent -> balancer picks. */
     selectedModel?: string
     /** Provider serving the picked model; required together with `selectedModel`. */
     selectedModelProvider?: ModelProvider
@@ -21,7 +21,7 @@ export interface FlatAiSelectionFields {
  * GraphQL mutation input into the {@link AiJobSelection} the business layer
  * expects.
  *
- * A model + provider pins that model; neither → undefined (the caller treats
+ * A model + provider pins that model; neither -> undefined (the caller treats
  * undefined as "balancer picks"). The downstream
  * `resolveGradingInvokeOptions` / `GradingLaneValidationService.validate` calls
  * re-validate the pairing against the catalog, so this only shapes the object.
@@ -37,7 +37,7 @@ export function flatFieldsToAiJobSelection(
         selectedModel,
         selectedModelProvider,
     } = fields
-    // nothing pinned → let the caller apply the balancer default
+    // nothing pinned -> let the caller apply the balancer default
     if (!selectedModel && !selectedModelProvider) {
         return undefined
     }

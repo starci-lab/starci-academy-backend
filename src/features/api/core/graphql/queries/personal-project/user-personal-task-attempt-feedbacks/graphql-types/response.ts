@@ -39,7 +39,7 @@ export class UserPersonalTaskAttemptFeedbacksResponseData {
     description: "Response wrapper for the userPersonalTaskAttemptFeedbacks query.",
 })
 /**
- * Envelope for `userPersonalTaskAttemptFeedbacks` — status metadata plus feedback page.
+ * Envelope for `userPersonalTaskAttemptFeedbacks` -- status metadata plus feedback page.
  */
 export class UserPersonalTaskAttemptFeedbacksResponse
     extends AbstractGraphQLResponse

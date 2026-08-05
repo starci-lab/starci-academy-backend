@@ -44,7 +44,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the weekly-league reads — `myLeague` (the viewer's tier + ranked
+ * e2e for the weekly-league reads -- `myLeague` (the viewer's tier + ranked
  * cohort board, lazily placing a never-seen user into Bronze) and
  * `globalLeaderboard` (the all-users board ranked by spendable Coin). Drives
  * the real {@link LeagueService} (+ its cohort-points CQRS projection) against
@@ -188,7 +188,7 @@ describe("Weekly league reads (e2e)",
                             {
                                 username: "league-happy",
                             })
-                        // one XP-earning event this week → the projection's SUM picks it up
+                        // one XP-earning event this week -> the projection's SUM picks it up
                         await entityManager.save(
                             entityManager.create(XpHistoryEntity,
                                 {
@@ -261,7 +261,7 @@ describe("Weekly league reads (e2e)",
                         expect(entries[0].username).toBe(leader.username)
                         expect(entries[0].rank).toBe(1)
                         expect(entries[0].points).toBe(500)
-                        // the viewer sits in the middle — their own standing is reported
+                        // the viewer sits in the middle -- their own standing is reported
                         // directly, not merely re-derived from the top-N list
                         expect(body.data.myRank).toBe(2)
                         expect(body.data.myPoints).toBe(100)

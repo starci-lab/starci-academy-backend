@@ -60,20 +60,20 @@ const MAX_XP_PER_SESSION = 15
 const FLASHCARD_QUIZ_SESSION_POINTS = 5
 
 /**
- * e2e for the flashcard quick-quiz session's start → sync →
- * complete lifecycle — `.claude/canon/be/enforce/authoring/testing.md` §2
+ * e2e for the flashcard quick-quiz session's start -> sync ->
+ * complete lifecycle -- `.claude/canon/be/enforce/authoring/testing.md` §2
  * names "a flashcard review" as a write flow that must carry
  * `*.e2e-spec.ts` coverage; this is that coverage for
  * `startFlashcardQuizSession`/`syncFlashcardQuizSessionProgress` (thin CQRS
- * handlers under `features/api`, called directly here — bypassing
- * `CommandBus` — since {@link import("@modules/platform/cqrs").ICQRSHandler.execute}
+ * handlers under `features/api`, called directly here -- bypassing
+ * `CommandBus` -- since {@link import("@modules/platform/cqrs").ICQRSHandler.execute}
  * dispatches straight to `process`, no bus wiring needed) and
  * {@link FlashcardQuizSessionService.complete} (the bussiness-layer XP grant
  * under test), run against REAL Postgres (Testcontainers).
  *
  * MOCKED (no external infra available in this harness):
- *  - `CacheService` — real class talks to Redis; stubbed to always miss.
- *  - `CourseRagRetrievalService` — real class talks to Qdrant; stubbed to
+ *  - `CacheService` -- real class talks to Redis; stubbed to always miss.
+ *  - `CourseRagRetrievalService` -- real class talks to Qdrant; stubbed to
  *    return no hits, so a session that DOES rank weak tags still degrades
  *    exactly like a production Qdrant outage (tag + coverage kept, no deep
  *    link) rather than needing a live vector index in the test harness.
@@ -81,7 +81,7 @@ const FLASHCARD_QUIZ_SESSION_POINTS = 5
  * REAL: Postgres (Testcontainers), the start/sync handlers, `UserService`
  * (`resolveOrCreateTrialEnrollment` runs real SQL), `FlashcardQuizSessionService`
  * (the XP-grant logic under test), `UserFlashcardStatsProjectionService`
- * (the readiness proxy, pure Postgres — no external deps).
+ * (the readiness proxy, pure Postgres -- no external deps).
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
@@ -93,7 +93,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
         let syncHandler: SyncFlashcardQuizSessionProgressHandler
         let quizSessionService: FlashcardQuizSessionService
 
-        /** Read-only fixtures seeded ONCE — only per-test user/session/XP state is reset. */
+        /** Read-only fixtures seeded ONCE -- only per-test user/session/XP state is reset. */
         let course: CourseEntity
         let deck: FlashcardDeckEntity
         let cards: Array<FlashcardCardEntity>
@@ -112,7 +112,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers-module/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -121,15 +121,15 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the CQRS handlers under test (called directly, no CommandBus)
+                    // REAL -- the CQRS handlers under test (called directly, no CommandBus)
                     StartFlashcardQuizSessionHandler,
                     SyncFlashcardQuizSessionProgressHandler,
-                    // REAL — the XP-grant/completion logic under test
+                    // REAL -- the XP-grant/completion logic under test
                     FlashcardQuizSessionService,
-                    // REAL — the readiness proxy `complete()` reads (pure Postgres, no
+                    // REAL -- the readiness proxy `complete()` reads (pure Postgres, no
                     // external deps)
                     UserFlashcardStatsProjectionService,
-                    // REAL — resolveOrCreateTrialEnrollment runs real SQL
+                    // REAL -- resolveOrCreateTrialEnrollment runs real SQL
                     UserService,
                     {
                         provide: CacheService,
@@ -152,7 +152,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
             syncHandler = app.get(SyncFlashcardQuizSessionProgressHandler)
             quizSessionService = app.get(FlashcardQuizSessionService)
 
-            // seed the read-only course/deck/card fixtures ONCE — only
+            // seed the read-only course/deck/card fixtures ONCE -- only
             // users/enrollments/session/XP state are reset between tests
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -200,7 +200,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
         afterAll(async () => {
             // the deck/card fixtures are read-only WITHIN this suite, but the
             // Testcontainers Postgres is shared across the whole e2e run (see
-            // setup-e2e.ts) — leaving them behind pollutes any OTHER file's
+            // setup-e2e.ts) -- leaving them behind pollutes any OTHER file's
             // courseId-less "global" flashcard query with cards this suite has no
             // control over (e.g. flashcard-stats-queries.e2e-spec.ts's
             // myDueFlashcards). CASCADE also clears flashcard_cards (+ their
@@ -530,7 +530,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
                             {
                                 where: {
                                     // XpHistoryEntity.userId is a bare @RelationId
-                                    // (no @Column) — not queryable in `where`; filter
+                                    // (no @Column) -- not queryable in `where`; filter
                                     // through the relation instead
                                     user: {
                                         id: user.id,
@@ -638,7 +638,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
                     async () => {
                         const user = await seedUser("kc-complete-daily-cap")
                         // pre-existing grants totalling 58 today, leaving only 2 headroom
-                        // under the 60/day cap for this (user, course) — a fully-correct
+                        // under the 60/day cap for this (user, course) -- a fully-correct
                         // single card would earn round(1*1*3)=3, which EXCEEDS the 2
                         // remaining headroom, so the clamp must actually engage
                         await entityManager.save(XpHistoryEntity,
@@ -700,7 +700,7 @@ describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
                                     source: XpSource.FlashcardQuiz,
                                 })
                             .getRawOne<{ sum: string }>()
-                        // the cap is never exceeded — 58 (baseline) + 2 (clamped grant) = 60
+                        // the cap is never exceeded -- 58 (baseline) + 2 (clamped grant) = 60
                         expect(Number(grantedTotal?.sum)).toBe(60)
                     })
 

@@ -4,7 +4,7 @@ import type {
 
 /** Params for {@link AiModelCatalogService.enabledModels}. */
 export interface EnabledModelsParams {
-    /** Optional category filter — restricts to one cost/quality tier. */
+    /** Optional category filter -- restricts to one cost/quality tier. */
     category?: AiModelCategory
 }
 

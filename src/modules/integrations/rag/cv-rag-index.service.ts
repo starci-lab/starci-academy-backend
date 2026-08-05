@@ -23,8 +23,8 @@ import {
     EmbeddingModelService,
 } from "@modules/langchain"
 /* eslint-disable starci-be/no-deep-module-import --
- * `@modules/init` evaluates init.module + data-git (octokit) into rag →
- * flashcard → `@modules/bussiness`. Only seeder shared/CV parse helpers needed.
+ * `@modules/init` evaluates init.module + data-git (octokit) into rag ->
+ * flashcard -> `@modules/bussiness`. Only seeder shared/CV parse helpers needed.
  */
 import {
     ContextLoaderService,
@@ -43,17 +43,17 @@ import {
     CvRagKind,
 } from "./cv-rag-retrieval.service"
 
-/** Chunk size/overlap for splitting CV corpus markdown — local constants (mirrors {@link CvRagRetrievalService}'s "no env dependency" choice, since this corpus is small and fixed, unlike the lesson-body corpus). */
+/** Chunk size/overlap for splitting CV corpus markdown -- local constants (mirrors {@link CvRagRetrievalService}'s "no env dependency" choice, since this corpus is small and fixed, unlike the lesson-body corpus). */
 const CV_RAG_CHUNK_SIZE = 1000
 const CV_RAG_CHUNK_OVERLAP = 200
 
-/** Chunks per embed+upsert round — bounds each round so a corpus growth spike still gives progress heartbeats (mirrors {@link ContentRagIndexService}). */
+/** Chunks per embed+upsert round -- bounds each round so a corpus growth spike still gives progress heartbeats (mirrors {@link ContentRagIndexService}). */
 const CV_RAG_EMBED_BATCH_SIZE = 200
 
 /**
  * One top-level folder under `.mount/data/cv/` scanned by {@link CvRagIndexService.build},
  * mapped to the `kind` payload filter {@link CvRagRetrievalService.retrieveCvContext} scopes on.
- * `refs/` (the teacher's cleaned real-world CVs) are tagged `sample` — same retrieval role as
+ * `refs/` (the teacher's cleaned real-world CVs) are tagged `sample` -- same retrieval role as
  * the authored samples (exemplar phrasing), `CvRagKind` has no separate `ref` bucket.
  */
 const CV_RAG_SOURCE_DIRS: Array<{ relativePath: string, kind: CvRagKind }> = [
@@ -89,7 +89,7 @@ export interface BuildCvRagIndexResult {
  * hash/batch/collection-auto-create shape) but reads its corpus from the
  * `.mount/data/cv/` mount tree via {@link ContextLoaderService}/{@link PathResolverService}
  * (the same services the `TemplateCVEntity` seeder uses) instead of from
- * MinIO snapshots — the CV reference corpus (rubrics/catalogs/samples/refs)
+ * MinIO snapshots -- the CV reference corpus (rubrics/catalogs/samples/refs)
  * lives in the data-repo mount, not in per-content snapshots.
  *
  * For every entry under each folder in {@link CV_RAG_SOURCE_DIRS} it reads
@@ -98,7 +98,7 @@ export interface BuildCvRagIndexResult {
  * `title + description + body` per locale as one document, tagged with the
  * `kind` payload {@link CvRagRetrievalService} filters retrieval by.
  *
- * DIFF-AWARE: identical strategy to {@link ContentRagIndexService} — loads
+ * DIFF-AWARE: identical strategy to {@link ContentRagIndexService} -- loads
  * the `{entryId -> sourceHash}` pairs already sitting in the collection's
  * payloads, skips unchanged entries, re-embeds changed/new ones, and drops
  * points for entries no longer enumerated (renamed/deleted corpus files). A
@@ -311,7 +311,7 @@ export class CvRagIndexService {
                 content = await this.contextLoaderService.load("cv",
                     `${entry.entryId}/${fileName}`)
             } catch {
-                continue // en.md missing → entry unreadable; vi.md missing → optional, skip
+                continue // en.md missing -> entry unreadable; vi.md missing -> optional, skip
             }
             if (!content) {
                 continue
@@ -355,8 +355,8 @@ export class CvRagIndexService {
                         limit: 1000,
                         offset,
                         // LangChain nests doc metadata under a `metadata` payload
-                        // sub-object → read that, not top-level keys (which are
-                        // undefined). Same 28×-duplicate bug fixed in
+                        // sub-object -> read that, not top-level keys (which are
+                        // undefined). Same 28x-duplicate bug fixed in
                         // ContentRagIndexService (2026-07-11).
                         with_payload: [
                             "metadata",
@@ -397,9 +397,9 @@ export class CvRagIndexService {
                     filter: {
                         must: [
                             {
-                                // LangChain nests metadata under `metadata` → filter on
-                                // `metadata.entryId`, not top-level (matched 0 → never
-                                // cleared stale → duplicates piled up). Same fix as
+                                // LangChain nests metadata under `metadata` -> filter on
+                                // `metadata.entryId`, not top-level (matched 0 -> never
+                                // cleared stale -> duplicates piled up). Same fix as
                                 // ContentRagIndexService (2026-07-11).
                                 key: "metadata.entryId",
                                 match: {
@@ -410,7 +410,7 @@ export class CvRagIndexService {
                     },
                 })
         } catch {
-            // collection may not exist yet, or nothing to delete for this entry — fine
+            // collection may not exist yet, or nothing to delete for this entry -- fine
         }
     }
 

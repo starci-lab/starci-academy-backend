@@ -41,7 +41,7 @@ describe("CvScoringService",
         let cvRagRetrievalService: jest.Mocked<Pick<CvRagRetrievalService, "retrieveCvContext">>
 
         beforeEach(async () => {
-            // AI mock — happy path returns a valid STRICT-JSON scoring reply
+            // AI mock -- happy path returns a valid STRICT-JSON scoring reply
             aiInvokeService = {
                 run: jest.fn().mockResolvedValue({
                     text: VALID_SCORE_REPLY,
@@ -52,7 +52,7 @@ describe("CvScoringService",
                 }),
             } as unknown as jest.Mocked<Pick<AiInvokeService, "run">>
 
-            // RAG mock — happy path returns an advisory rubric excerpt
+            // RAG mock -- happy path returns an advisory rubric excerpt
             cvRagRetrievalService = {
                 retrieveCvContext: jest.fn().mockResolvedValue({
                     excerpt: "RUBRIC-EXCERPT",
@@ -219,7 +219,7 @@ describe("CvScoringService",
                             "CV scoring requires either structuredData or cvText.",
                         )
 
-                        // never reached the AI — content build fails first
+                        // never reached the AI -- content build fails first
                         expect(aiInvokeService.run).not.toHaveBeenCalled()
                     })
 

@@ -21,7 +21,7 @@ export interface MergeJsonTranslationRow {
 }
 
 /**
- * Canonical mount JSON with optional `translations` at every object level — root
+ * Canonical mount JSON with optional `translations` at every object level -- root
  * and each array item that received locale rows from `translateFields`.
  */
 export type MergeJsonResult<T> =
@@ -42,7 +42,7 @@ export type MergeJsonResult<T> =
 
 /** Inputs for building one canonical object + `translations` from locale extracts. */
 export interface MergeJsonParams<T extends Record<string, unknown>> {
-    /** Locale extracts — English/default locale drives the canonical scalar fields. */
+    /** Locale extracts -- English/default locale drives the canonical scalar fields. */
     jsons: Array<LocaleJson<T>>
     /**
      * Dot-paths to translatable scalar leaves, e.g. `"title"`, `"meta.author"`,

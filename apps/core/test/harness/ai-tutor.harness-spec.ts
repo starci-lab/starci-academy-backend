@@ -9,7 +9,7 @@ import {
 } from "./judge"
 
 /**
- * Shared tutor persona every query case generates under — the StarCi Academy
+ * Shared tutor persona every query case generates under -- the StarCi Academy
  * AI answers learner questions concisely and correctly.
  */
 const TUTOR_SYSTEM = [
@@ -23,8 +23,8 @@ const PASS_SCORE = 60
 /**
  * One eval case: a learner query generated at a given {@link HarnessTierName}
  * and graded by {@link judge} against a rubric. The five cases deliberately
- * vary in content — definitional, debugging, conceptual/trade-off, non-English
- * (Vietnamese), and step-by-step math — and rotate across all three tiers, so
+ * vary in content -- definitional, debugging, conceptual/trade-off, non-English
+ * (Vietnamese), and step-by-step math -- and rotate across all three tiers, so
  * the harness proves the model/auth wiring works under any scenario.
  */
 interface QueryCase {
@@ -104,8 +104,8 @@ const QUERY_CASES: Array<QueryCase> = [
 /**
  * LLM-eval harness: run five content-varied learner queries through the model
  * tiers and grade each answer with the independent Opus judge. This proves the
- * end-to-end wiring — OAuth-token auth ({@link client}), the low/mid/high tier
- * remap, and structured judging — holds across factual, debugging, conceptual,
+ * end-to-end wiring -- OAuth-token auth ({@link client}), the low/mid/high tier
+ * remap, and structured judging -- holds across factual, debugging, conceptual,
  * multilingual, and math scenarios.
  *
  * Requires a Claude Code OAuth token (`.secrets/claude-code-token.txt` or the

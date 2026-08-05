@@ -14,7 +14,7 @@ import {
     
 @Injectable()
 /**
- * Resolves indexed module mount directories under a course’s `modules/` folder.
+ * Resolves indexed module mount directories under a course's `modules/` folder.
  */
 export class ModulePathService {
     constructor(

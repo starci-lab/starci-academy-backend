@@ -2,7 +2,7 @@
  * Injectable UUID factories for course seed graphs: each `generate` hashes a typed
  * preimage (via `Sha256Service`) then applies UUID v5 with `envConfig().uuidNamespace.course`.
  *
- * Indices are **ordinals** (0-based list positions), not `CourseId` slugs—distinct from
+ * Indices are **ordinals** (0-based list positions), not `CourseId` slugs--distinct from
  * `data/utils/ids` `build*` helpers used by static markdown seeds.
  */
 export * from "./types"

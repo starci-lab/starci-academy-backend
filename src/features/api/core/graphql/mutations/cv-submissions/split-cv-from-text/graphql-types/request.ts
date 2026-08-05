@@ -8,7 +8,7 @@ import {
 })
 /**
  * Split a raw pasted CV / free-text resume into ordered block-editor blocks.
- * The AI parses the prose into structured blocks; nothing is persisted — the
+ * The AI parses the prose into structured blocks; nothing is persisted -- the
  * frontend loads the returned blocks into the editor for the user to refine.
  */
 export class SplitCvFromTextRequest {

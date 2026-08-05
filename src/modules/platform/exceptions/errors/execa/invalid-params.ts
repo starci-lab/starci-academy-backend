@@ -16,7 +16,7 @@ export interface ExecaInvalidParamsExceptionMetadata extends AbstractExceptionMe
     reason: string
 }
 
-/** Rejects a malformed execa call before spawn — prevents confusing OS errors. */
+/** Rejects a malformed execa call before spawn -- prevents confusing OS errors. */
 export class ExecaInvalidParamsException extends AbstractException {
     constructor(
         {

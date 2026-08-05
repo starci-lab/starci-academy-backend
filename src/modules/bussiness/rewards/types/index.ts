@@ -31,7 +31,7 @@ export interface RewardVoucherConfig {
 /**
  * AiCredit-kind config: the bonus platform credit granted on top of the
  * redeemer's tier allowance for the CURRENT 5h + weekly window (the bonus is
- * NOT a permanent allowance bump — it resets to 0 the same time the window
+ * NOT a permanent allowance bump -- it resets to 0 the same time the window
  * counters reset, same as buying "more credit for this cycle").
  */
 export interface RewardAiCreditConfig {
@@ -58,7 +58,7 @@ export interface RewardDefinition {
     descVi: string
     /** Points cost to redeem. */
     cost: number
-    /** Delivery kind — drives the initial redemption status + effect. */
+    /** Delivery kind -- drives the initial redemption status + effect. */
     kind: RewardKind
     /** Present only when `kind === "voucher"`: the discount it mints. */
     voucher?: RewardVoucherConfig

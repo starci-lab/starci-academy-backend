@@ -4,13 +4,13 @@ import {
 } from "typeorm"
 
 /**
- * Adds "resume mock interview session" support to `mock_interview_sessions` —
+ * Adds "resume mock interview session" support to `mock_interview_sessions` --
  * lets a learner who navigated away mid-session (tab close, refresh, network
  * drop) pick their in-progress draw back up instead of losing the transcript
  * and being forced into a fresh draw:
  *
- * - `status` — plain varchar (not a pg enum, mirroring every other free-form
- *   column on this entity — `source`/`mode`/`level` — for the same
+ * - `status` -- plain varchar (not a pg enum, mirroring every other free-form
+ *   column on this entity -- `source`/`mode`/`level` -- for the same
  *   TypeORM-synchronize `ADD VALUE` footgun reasoning), one of
  *   "in_progress" | "completed" | "abandoned". Defaults to "in_progress" so
  *   every historical row (all pre-dating this feature, all necessarily
@@ -18,13 +18,13 @@ import {
  *   rather than an empty string; `startMockInterviewSession` immediately
  *   flips any PRIOR "in_progress" row for the same enrollment to "abandoned"
  *   before drawing a new one, and `gradeMockInterviewSession` flips the
- *   graded row to "completed" — so in practice only a row that is genuinely
+ *   graded row to "completed" -- so in practice only a row that is genuinely
  *   mid-flight right now stays "in_progress".
- * - `turns` — nullable jsonb snapshot of the in-flight transcript (same
+ * - `turns` -- nullable jsonb snapshot of the in-flight transcript (same
  *   shape as the grading mutation's `MockInterviewTurnInput`), periodically
  *   synced by the new `syncMockInterviewSessionTurns` mutation so a resume
  *   can replay the conversation exactly where the learner left off.
- * - `question_index` / `phase_index` — the learner's position within the
+ * - `question_index` / `phase_index` -- the learner's position within the
  *   session (which Q&A question, or which of the 5 design phases) at the
  *   last sync, NOT NULL defaulting to 0 (the position a session always
  *   starts at) so a resume always has a valid position to restart from even

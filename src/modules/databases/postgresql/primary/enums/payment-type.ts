@@ -17,7 +17,7 @@ export enum PaymentType {
     Stripe = "stripe",
     /** International gateway PayPal (redirect approval link). */
     Paypal = "paypal",
-    /** Crypto gateway NOWPayments — USDT / USDC (redirect invoice). */
+    /** Crypto gateway NOWPayments -- USDT / USDC (redirect invoice). */
     Crypto = "crypto",
 }
 

@@ -27,7 +27,7 @@ import type {
  * target(s), and how to recompute one target. Connection + shutdown are owned by
  * {@link KafkaService}; boot is best-effort (Kafka may be down in some
  * environments and must not block the app). One bad message is logged and
- * swallowed — recompute is an idempotent UPSERT, so the next message self-heals.
+ * swallowed -- recompute is an idempotent UPSERT, so the next message self-heals.
  *
  * @typeParam TTarget - the recompute key a CDC row resolves to (e.g. a contentId
  *   wrapper, or a `{ userId, courseId }`).

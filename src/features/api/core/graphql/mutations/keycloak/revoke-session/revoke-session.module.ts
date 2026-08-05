@@ -13,5 +13,5 @@ import {
         RevokeSessionResolver,
     ],
 })
-/** Wires device-session revoke as its own mutation — no CQRS, just SessionService. */
+/** Wires device-session revoke as its own mutation -- no CQRS, just SessionService. */
 export class RevokeSessionSingleMutationModule extends ConfigurableModuleClass {}

@@ -60,7 +60,7 @@ export class MyWeeklyStatsResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<MyWeeklyStatsData> {
-        // single projection read — the heavy aggregates live in the projection's
+        // single projection read -- the heavy aggregates live in the projection's
         // recompute, not here
         const stats = await this.userStatsProjectionService.getStats(user.id)
         // expose only the activity slice (the projection also carries social/inbox
@@ -72,7 +72,7 @@ export class MyWeeklyStatsResolver {
             lessons: stats.weeklyLessons,
             days: stats.last7Days,
             // the goal lives on the user row (set via setWeeklyGoal), not the
-            // projection — read it straight off the guard-attached user
+            // projection -- read it straight off the guard-attached user
             weeklyGoalLessons: user.weeklyGoalLessons,
             // streak-freeze inventory also lives on the user row (bought via
             // buyStreakFreeze, consumed by the daily auto-protect cron)

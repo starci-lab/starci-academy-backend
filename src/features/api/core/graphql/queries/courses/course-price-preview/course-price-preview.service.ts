@@ -39,9 +39,9 @@ export interface PreviewCoursePriceParams {
 /**
  * Prices a single course for the payment modal exactly as it would be charged at
  * checkout: the active pricing phase resolved by {@link CoursePricingService} with
- * the viewer's {@link LoyaltyDiscountService} discount applied — so the shown price
+ * the viewer's {@link LoyaltyDiscountService} discount applied -- so the shown price
  * equals the eventual charge (no FE price guessing). Optionally previews a
- * Coin-shop voucher code ON TOP (read-only — {@link VoucherService.previewDiscount}
+ * Coin-shop voucher code ON TOP (read-only -- {@link VoucherService.previewDiscount}
  * validates but does not reserve/consume the code).
  */
 export class CoursePricePreviewService {
@@ -97,14 +97,14 @@ export class CoursePricePreviewService {
             userId,
         })
 
-        // original = LIST/MSRP price (struck "before"); discounted = active phase ×
+        // original = LIST/MSRP price (struck "before"); discounted = active phase x
         // (1 − loyalty) = the real charge. The gap therefore shows the FULL saving
-        // (phase tier discount + loyalty), not loyalty alone — so a Pioneer/Early-bird
+        // (phase tier discount + loyalty), not loyalty alone -- so a Pioneer/Early-bird
         // tier surfaces even when the viewer has no loyalty discount.
         const originalPriceVnd = this.coursePricingService.resolveListAmountVnd({
             course,
         })
-        // phase price = active tier BEFORE loyalty (the middle step list → phase → charge)
+        // phase price = active tier BEFORE loyalty (the middle step list -> phase -> charge)
         const phasePriceVnd = this.coursePricingService.resolveAmountVnd({
             course,
         })
@@ -123,7 +123,7 @@ export class CoursePricePreviewService {
             discountPercent: percent,
         })
 
-        // voucher preview is OPTIONAL and read-only — an invalid code throws
+        // voucher preview is OPTIONAL and read-only -- an invalid code throws
         // (surfaces as a GraphQL error the FE shows inline), a valid one further
         // discounts the ALREADY loyalty-discounted VND price
         let voucherDiscountedPriceVnd: number | null = null
@@ -139,10 +139,10 @@ export class CoursePricePreviewService {
             )
         }
 
-        // Pricing-phase SCARCITY (real numbers only — never a fabricated countdown):
+        // Pricing-phase SCARCITY (real numbers only -- never a fabricated countdown):
         // how many seats remain at the CURRENT phase price (seat cap − PAID enrollments)
         // and what a buyer pays once it sells out (the next tier's price). Powers an
-        // honest "Pioneer N/M · giá tăng lên X" urgency line on the paywall.
+        // honest Pioneer N/M urgency line urgency line on the paywall.
         const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
         const nextPhase = nextPricingPhase(currentPhase)
         const hasNextPhase = nextPhase !== currentPhase
@@ -165,8 +165,8 @@ export class CoursePricePreviewService {
             ? Math.max(0,
                 slotAvailable - seatsTaken)
             : null
-        // next-tier price (before loyalty — comparable to `phasePriceVnd`). VND can throw
-        // when a tier has no configured price → fall back to null so scarcity just hides
+        // next-tier price (before loyalty -- comparable to `phasePriceVnd`). VND can throw
+        // when a tier has no configured price -> fall back to null so scarcity just hides
         // the number rather than breaking the whole preview.
         let nextPhasePriceVnd: number | null = null
         if (hasNextPhase) {

@@ -36,7 +36,7 @@ export interface ProcessModulesParams {
 
 /** {@link ModuleProcessorService.process} output (reserved for flashcard link map). */
 export interface ProcessModulesResult {
-    /** `moduleDisplayId/contentDisplayId` → content id for flashcard linking. */
+    /** `moduleDisplayId/contentDisplayId` -> content id for flashcard linking. */
     contentIdByPath: Map<string, string>
 }
 

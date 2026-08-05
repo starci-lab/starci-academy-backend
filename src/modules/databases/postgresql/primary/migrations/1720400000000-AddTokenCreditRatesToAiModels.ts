@@ -5,10 +5,10 @@ import {
 
 /**
  * Adds token-based billing rates to `ai_models`:
- * - `credit_per_mtok_in` (integer) — credits charged per 1,000,000 INPUT tokens.
- * - `credit_per_mtok_out` (integer) — credits charged per 1,000,000 OUTPUT tokens.
+ * - `credit_per_mtok_in` (integer) -- credits charged per 1,000,000 INPUT tokens.
+ * - `credit_per_mtok_out` (integer) -- credits charged per 1,000,000 OUTPUT tokens.
  *
- * A grading run is billed `ceil((promptTok·in + completionTok·out)/1e6)`; the
+ * A grading run is billed `ceil((promptTok-in + completionTok-out)/1e6)`; the
  * flat `credit` column stays as the FALLBACK used only when token usage is
  * unreported by the provider.
  *

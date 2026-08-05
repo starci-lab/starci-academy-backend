@@ -13,7 +13,7 @@ import type {
  * based on ping results and failure counters from `AiBalancerService`.
  */
 export interface KeyState {
-    /** Raw API key value — never log this in full; use `keySuffix` for logs. */
+    /** Raw API key value -- never log this in full; use `keySuffix` for logs. */
     value: string
     provider: ModelProvider
     /**
@@ -43,7 +43,7 @@ export interface KeyState {
 export interface KeyHealthInfo {
     provider: ModelProvider
     keySuffix: string
-    /** Masked key for display — `abc...def` (first 3 + last 3); never the raw value. */
+    /** Masked key for display -- `abc...def` (first 3 + last 3); never the raw value. */
     keyMask: string
     status: KeyStatus
     failCount: number
@@ -53,7 +53,7 @@ export interface KeyHealthInfo {
 }
 
 /**
- * Snapshot of a provider's full pool — used by `healthSnapshot()` and admin UI.
+ * Snapshot of a provider's full pool -- used by `healthSnapshot()` and admin UI.
  */
 export interface ProviderHealthSnapshot {
     provider: ModelProvider

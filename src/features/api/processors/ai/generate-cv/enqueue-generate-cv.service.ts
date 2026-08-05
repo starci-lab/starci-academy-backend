@@ -59,7 +59,7 @@ import {
 
 /** Parameters for {@link EnqueueGenerateCvJobService.enqueue}. */
 export interface EnqueueGenerateCvJobParams {
-    /** `users.id` — owner of the generation run. */
+    /** `users.id` -- owner of the generation run. */
     userId: string
     /** Build a new CV or revise an existing submission. */
     mode: CvGenerationMode
@@ -106,10 +106,10 @@ export class EnqueueGenerateCvJobService {
      *
      * @param params - {@link EnqueueGenerateCvJobParams}
      * @returns The created `cv_generations` row (status `Pending`) + the tracked
-     * `jobs.id` — callers need BOTH: `cvGenerationId` to poll/display the result,
+     * `jobs.id` -- callers need BOTH: `cvGenerationId` to poll/display the result,
      * `jobId` to subscribe to realtime progress over the `job_notifications` socket
      * (the FE's `subscribeJob` call needs this; it is NOT derivable from
-     * `cvGenerationId` — the two ids are unrelated UUIDs on separate tables).
+     * `cvGenerationId` -- the two ids are unrelated UUIDs on separate tables).
      */
     async enqueue(
         {
@@ -125,7 +125,7 @@ export class EnqueueGenerateCvJobService {
             language,
         }: EnqueueGenerateCvJobParams,
     ): Promise<{ cvGeneration: UserCvGenerationEntity, jobId: string }> {
-        // 1) create the Pending generation row FIRST — the worker/steps update it.
+        // 1) create the Pending generation row FIRST -- the worker/steps update it.
         // Both generate + revise flow through here, so this row is always
         // `source = Generated`; the uploaded source is written by its own path.
         const cvGeneration = await this.entityManager.save(
@@ -180,7 +180,7 @@ export class EnqueueGenerateCvJobService {
             userId,
             actionType: ActionType.ProcessCvSubmission,
             category: JobCategory.ReviewCv,
-            // CV job config: gather → compose → render → score → complete (default 5).
+            // CV job config: gather -> compose -> render -> score -> complete (default 5).
             maxSteps: envConfig().job.processCvSubmission.maxSteps,
             payload: this.superJson.stringify(payloadBody),
         })

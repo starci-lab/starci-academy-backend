@@ -10,7 +10,7 @@ export interface DeriveUsernameParams {
  * Derive the default username for a newly-created user.
  *
  * The username is the URL-facing, GitHub-style handle, so by default it is the
- * local-part of the email — `"tucuong183@gmail.com"` → `"tucuong183"`. When no
+ * local-part of the email -- `"tucuong183@gmail.com"` -> `"tucuong183"`. When no
  * usable email is present it falls back to `fallback` (e.g. the Keycloak
  * `preferred_username`), then to the raw email, then to an empty string.
  *
@@ -24,7 +24,7 @@ export const deriveUsername = ({
     email,
     fallback,
 }: DeriveUsernameParams): string => {
-    // an email with a local-part wins — take everything before the first "@"
+    // an email with a local-part wins -- take everything before the first "@"
     const localPart = email && email.includes("@")
         ? email.slice(0,
             email.indexOf("@"))

@@ -33,7 +33,7 @@ import {
 
 @Injectable()
 /**
- * Email bloom filter synchronizer — creates bloom filter and batch-adds all user emails.
+ * Email bloom filter synchronizer -- creates bloom filter and batch-adds all user emails.
  */
 export class BloomFilterSynchronizerService {
 

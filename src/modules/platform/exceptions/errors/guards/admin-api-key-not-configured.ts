@@ -13,7 +13,7 @@ export type AdminApiKeyNotConfiguredExceptionMetadata = AbstractExceptionMetadat
 
 /**
  * Thrown when the admin API key guard (REST or GraphQL) cannot read a
- * configured admin secret — a server misconfiguration, not a caller error,
+ * configured admin secret -- a server misconfiguration, not a caller error,
  * so it maps to 500 rather than 401.
  */
 export class AdminApiKeyNotConfiguredException extends AbstractException {

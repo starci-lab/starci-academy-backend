@@ -137,7 +137,7 @@ export class VoucherService {
     }
 
     /**
-     * Look up + validate one voucher code for a course, WITHOUT mutating it —
+     * Look up + validate one voucher code for a course, WITHOUT mutating it --
      * safe to call repeatedly from a price-preview endpoint. Throws
      * {@link InvalidVoucherException} when the code is unknown, not owned by
      * this user, expired, already reserved/used, or scoped to a different course.
@@ -243,7 +243,7 @@ export class VoucherService {
 
     /**
      * Release a voucher reserved by a transaction that ultimately failed/expired
-     * — gives the code back (`unused`) instead of burning it. No-op when the
+     * -- gives the code back (`unused`) instead of burning it. No-op when the
      * transaction reserved no voucher (or it was already settled `used`).
      */
     async release(
@@ -306,7 +306,7 @@ export class VoucherService {
 
     /**
      * List a user's minted vouchers, newest first, with the scoped course
-     * (when any) eager-loaded for display. Read-only — does NOT lazily flip a
+     * (when any) eager-loaded for display. Read-only -- does NOT lazily flip a
      * past-expiry `unused` row to `expired` in the DB; the resolver derives the
      * DISPLAYED status from `expiresAt` instead (see {@link isEffectivelyExpired}),
      * so an unused-but-past-expiry voucher still can't be redeemed elsewhere
@@ -334,7 +334,7 @@ export class VoucherService {
 
     /**
      * Whether a voucher should be DISPLAYED as expired even though its stored
-     * `status` is still `unused` (no cron flips it) — past `expiresAt`.
+     * `status` is still `unused` (no cron flips it) -- past `expiresAt`.
      *
      * @param voucher - the voucher to check.
      * @returns true when unused but past its expiry.
@@ -347,10 +347,10 @@ export class VoucherService {
     /**
      * Apply a resolved voucher discount ON TOP OF an already-loyalty-discounted
      * price: percent takes a further percent off the remaining price (currency-
-     * agnostic — safe for a VND `amount` OR a USD `priceUsd`, per
+     * agnostic -- safe for a VND `amount` OR a USD `priceUsd`, per
      * `PAYMENT_MODIFIER_CAPABILITY`); flat subtracts a flat VND amount, so it
      * must only ever be called with a VND `amount` (the caller is expected to
-     * have already rejected a Flat voucher on a USD gateway — see
+     * have already rejected a Flat voucher on a USD gateway -- see
      * `VoucherNotSupportedForGatewayException`). Floored at 0 either way
      * (never negative).
      *

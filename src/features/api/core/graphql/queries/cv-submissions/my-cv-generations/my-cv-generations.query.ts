@@ -7,7 +7,7 @@ import {
 
 /**
  * QueryBus payload for `myCvGenerations`: request + locale + user into
- * {@link MyCvGenerationsHandler}. Constructed by the query service — not injected.
+ * {@link MyCvGenerationsHandler}. Constructed by the query service -- not injected.
  */
 export class MyCvGenerationsQuery {
     constructor(

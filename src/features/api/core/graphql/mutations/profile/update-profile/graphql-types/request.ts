@@ -26,7 +26,7 @@ import {
  *
  * Every field is optional and follows partial-update semantics: a field left
  * out (`undefined`) is untouched, while an explicit `null` clears the stored
- * value. Avatar is the public URL returned by the avatar-upload REST endpoint —
+ * value. Avatar is the public URL returned by the avatar-upload REST endpoint --
  * this mutation only persists the chosen URL, it does not handle the binary.
  */
 export class UpdateProfileRequest {
@@ -37,7 +37,7 @@ export class UpdateProfileRequest {
             description: "New display name; null clears it (UI falls back to username).",
         },
     )
-    // optional → skip validation when omitted or explicitly null
+    // optional -> skip validation when omitted or explicitly null
     @IsOptional()
     @IsString()
     // cap matches the `display_name` varchar(100) column so we reject before the DB does
@@ -190,7 +190,7 @@ export class UpdateProfileRequest {
     )
     @IsOptional()
     @IsString()
-    // #RGB / #RRGGBB only — this is a display token, never render it unvalidated
+    // #RGB / #RRGGBB only -- this is a display token, never render it unvalidated
     @Matches(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/)
         accentColor?: string | null
 

@@ -34,12 +34,12 @@ import {
 
 @Resolver()
 /**
- * GitHub-style contribution calendar for ONE year — the viewer's daily learning
+ * GitHub-style contribution calendar for ONE year -- the viewer's daily learning
  * activity counts (contents / challenges / milestones). Thin read of the
  * contribution projection keyed by `(user_id, year)` (the per-day GROUP BY runs in
  * the projection's recompute, never inline here). Only active days are returned;
  * the client fills the grid gaps with zero-cells. GitHub renders one year at a
- * time + lets you flip years — `year` selects which.
+ * time + lets you flip years -- `year` selects which.
  */
 export class MyContributionCalendarResolver {
     constructor(

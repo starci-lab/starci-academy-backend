@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `content_ai_session_id` (nullable uuid, no FK — mirrors the plain
+ * Adds `content_ai_session_id` (nullable uuid, no FK -- mirrors the plain
  * `mock_interview_attempts.session_id` pattern, not a `@ManyToOne`) to
  * `challenges` and `milestone_tasks`: the content-AI conversation the learner
  * last used on that surface, so the FE can resume the remembered chat instead

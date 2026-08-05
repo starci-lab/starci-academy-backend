@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -61,9 +61,9 @@ describe("SyncPersonalProjectGithubHandler",
         let encryptionService: jest.Mocked<Pick<EncryptionService, "encrypt">>
 
         beforeEach(async () => {
-            // fresh jest-backed entity manager — `transaction` runs the callback inline
+            // fresh jest-backed entity manager -- `transaction` runs the callback inline
             entityManager = makeEntityManagerMock()
-            // `findOneOrFail` is not part of the shared mock surface — add it
+            // `findOneOrFail` is not part of the shared mock surface -- add it
             entityManager.findOneOrFail = jest.fn()
 
             // url syntactic-validation hook used only when a url is supplied
@@ -169,7 +169,7 @@ describe("SyncPersonalProjectGithubHandler",
                     }),
                 )
 
-                // no url supplied → url validation is skipped
+                // no url supplied -> url validation is skipped
                 expect(urlValidatorService.isParsable).not.toHaveBeenCalled()
                 // the new branch is written onto the enrollment
                 expect(enrollment.personalProjectGithubBranch).toBe("feature/x")

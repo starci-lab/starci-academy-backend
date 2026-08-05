@@ -39,7 +39,7 @@ export class UserMilestoneTaskFeedbacksResponseData {
     description: "Response wrapper for userMilestoneTaskFeedbacks.",
 })
 /**
- * Envelope for `userMilestoneTaskFeedbacks` — status metadata plus feedback page.
+ * Envelope for `userMilestoneTaskFeedbacks` -- status metadata plus feedback page.
  */
 export class UserMilestoneTaskFeedbacksResponse
     extends AbstractGraphQLResponse

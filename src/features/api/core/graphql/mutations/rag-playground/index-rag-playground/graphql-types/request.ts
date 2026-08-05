@@ -13,7 +13,7 @@ import {
 /**
  * Index a code source into a PUBLIC (anonymous) RAG Playground session. The
  * server owns which fields matter per `kind` (paste/upload need `code`,
- * github needs `githubUrl`, sample needs nothing) — the client just fills
+ * github needs `githubUrl`, sample needs nothing) -- the client just fills
  * what applies to its chosen kind.
  */
 export class IndexRagPlaygroundRequest {

@@ -48,7 +48,7 @@ export class SyncMockInterviewSessionTurnsResolver {
      * Periodically syncs an in-flight mock-interview session's transcript +
      * position so a learner who navigates away mid-session can resume it via
      * `myInProgressMockInterviewSession`. Never throws for a stale/late sync
-     * (session already graded/abandoned) — see the handler's own doc.
+     * (session already graded/abandoned) -- see the handler's own doc.
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({

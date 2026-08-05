@@ -62,7 +62,7 @@ export class PurchaseAiSubscriptionResponseData {
 })
 /**
  * GraphQL envelope for AI-subscription checkout. `data` is nullable so the
- * transform interceptor can null it on the error path — a required field would
+ * transform interceptor can null it on the error path -- a required field would
  * crash GraphQL and hide the real payment-provider failure.
  */
 export class PurchaseAiSubscriptionResponse

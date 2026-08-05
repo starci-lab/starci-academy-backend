@@ -36,7 +36,7 @@ import {
 @Resolver()
 /**
  * The authenticated viewer's reward wallet: spendable Coin balance (derived
- * from lifetime points minus what they've spent — never touching the leaderboard
+ * from lifetime points minus what they've spent -- never touching the leaderboard
  * score), plus their redemption history with localized titles.
  */
 export class MyRewardWalletResolver {

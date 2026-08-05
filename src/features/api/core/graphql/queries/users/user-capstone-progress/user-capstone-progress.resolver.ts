@@ -39,12 +39,12 @@ import {
 
 @Resolver()
 /**
- * Public profile query: a user's per-course capstone roadmap — for each enrolled
+ * Public profile query: a user's per-course capstone roadmap -- for each enrolled
  * course, the ordered milestones with totals / passed counts plus every task and the
  * user's pass state. Thin read of the CQRS capstone projection (the nested aggregate
  * runs in the projection's recompute). Maps each stored course/milestone/task id to an
  * opaque global id (milestone/task ids let the FE key rows and deep-link a single
- * milestone later; no enrolled-only criteria/code is exposed here — see the
+ * milestone later; no enrolled-only criteria/code is exposed here -- see the
  * viewer-gated `milestone`/`task` queries for that).
  * Optional auth; a locked profile is withheld by {@link GraphQLProfileVisibilityGuard}.
  */

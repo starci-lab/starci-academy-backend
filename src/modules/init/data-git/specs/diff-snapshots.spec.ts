@@ -15,7 +15,7 @@ import {
 } from "../utils/diff-snapshots"
 
 /**
- * Filesystem-diff coverage for {@link diffSnapshots} — the content-hash compare
+ * Filesystem-diff coverage for {@link diffSnapshots} -- the content-hash compare
  * that replaces the GitHub compare API. Each test materializes two real snapshot
  * directories in a temp area, runs the diff, then asserts the changed-path set.
  */

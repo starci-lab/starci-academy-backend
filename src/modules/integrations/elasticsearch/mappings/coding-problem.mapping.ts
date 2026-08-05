@@ -7,7 +7,7 @@ import type {
  *
  * Types the real search/sort fields of a coding-practice problem and adds a
  * dedicated `suggest` field of type `completion` (an in-memory FST) powering
- * fast, ranked autocomplete — the ES sync builder populates it with the clean
+ * fast, ranked autocomplete -- the ES sync builder populates it with the clean
  * problem title + a popularity weight derived from display order. Localized
  * translation blobs are stored but not indexed.
  *
@@ -22,7 +22,7 @@ export const codingProblemsIndexMapping: ElasticsearchIndexMapping = {
             id: {
                 type: "keyword",
             },
-            // stable URL slug (e.g. `two-sum`) — exact-match lookup/deep-link
+            // stable URL slug (e.g. `two-sum`) -- exact-match lookup/deep-link
             slug: {
                 type: "keyword",
             },
@@ -30,15 +30,15 @@ export const codingProblemsIndexMapping: ElasticsearchIndexMapping = {
             title: {
                 type: "text",
             },
-            // difficulty tier — exact-match facet
+            // difficulty tier -- exact-match facet
             difficulty: {
                 type: "keyword",
             },
-            // problem domain (algorithms, data-structures, …) — exact-match facet
+            // problem domain (algorithms, data-structures, ...) -- exact-match facet
             domain: {
                 type: "keyword",
             },
-            // topic tags — exact-match facet/filter
+            // topic tags -- exact-match facet/filter
             tags: {
                 type: "keyword",
             },
@@ -53,7 +53,7 @@ export const codingProblemsIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // localized override blob — stored, not indexed
+            // localized override blob -- stored, not indexed
             translations: {
                 type: "object",
                 enabled: false,

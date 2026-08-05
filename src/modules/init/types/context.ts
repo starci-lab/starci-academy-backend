@@ -2,7 +2,7 @@
  * Per-course module/milestone filter built from `seed.yaml`.
  *
  * Map value: `null` = all order indexes; `Set()` = disabled;
- * `Set(n…)` = allow-list (e.g. `0,1` → folders `0-*`, `1-*`).
+ * `Set(n...)` = allow-list (e.g. `0,1` -> folders `0-*`, `1-*`).
  */
 export type CourseIndexFilterByDisplayId = Map<string, Set<number> | null>
 

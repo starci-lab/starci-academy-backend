@@ -13,7 +13,7 @@ import {
 
 export * from "./types"
 
-/** Module display id → that module's lesson mock map. */
+/** Module display id -> that module's lesson mock map. */
 const MODULE_MOCKS: Record<string, ModuleMockMap> = {
     "4-server-state-with-tanstack-query": serverStateWithTanstackQueryMocks,
     "5-form-mastery-rhf-zod": formMasteryMocks,
@@ -65,7 +65,7 @@ export const resolveMockDefinition = (
         return definition
     }
 
-    // unregistered lesson → generic fallback so the sandbox still renders
+    // unregistered lesson -> generic fallback so the sandbox still renders
     return {
         seedUsers: FALLBACK_SEED_USERS,
     }

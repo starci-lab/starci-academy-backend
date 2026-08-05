@@ -22,14 +22,14 @@ import type {
 @ObjectType({
     description: "Definition of an earnable achievement / badge.",
 })
-// stable natural key — idempotent upsert from the boot seeder
+// stable natural key -- idempotent upsert from the boot seeder
 @Unique("UQ_achievement_slug",
     ["slug"])
 @Entity("achievements")
 /**
  * Definition row for a GitHub-style achievement / badge. These are a small,
  * curated reference set (seeded on boot, upserted by `slug`); they describe WHAT
- * can be earned, not who earned it — the earned ledger lives in
+ * can be earned, not who earned it -- the earned ledger lives in
  * {@link UserAchievementEntity}.
  *
  * `threshold` is the single-tier bar; `tierThresholds` (when set) describes a
@@ -40,7 +40,7 @@ import type {
  */
 export class AchievementEntity extends UuidAbstractEntity {
     /**
-     * Stable slug — the badge identity, also the MinIO art filename stem.
+     * Stable slug -- the badge identity, also the MinIO art filename stem.
      */
     @Field(
         () => String,

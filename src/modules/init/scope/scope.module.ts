@@ -16,7 +16,7 @@ import {
 @Module({
 })
 /**
- * Scope module — resolves the init seed/sync scope from `seed.yaml`.
+ * Scope module -- resolves the init seed/sync scope from `seed.yaml`.
  *
  * Exports {@link SeedScopeService} and {@link SyncScopeService} so seeders,
  * synchronizers, and the init orchestrator can inject them. Reads config via

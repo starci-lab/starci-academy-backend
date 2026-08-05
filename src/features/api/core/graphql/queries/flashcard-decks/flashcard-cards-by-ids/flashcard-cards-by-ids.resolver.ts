@@ -37,7 +37,7 @@ const MAX_IDS = 100
 
 @Resolver()
 /**
- * Flashcards fetched by an EXACT set of ids, regardless of current due status —
+ * Flashcards fetched by an EXACT set of ids, regardless of current due status --
  * rehydrates a resumable `DueReview` batch to its original draw (see
  * {@link FlashcardReviewService.listByIds} for why a due-status filter breaks
  * resume: a card graded since the batch was drawn is no longer "due" and would

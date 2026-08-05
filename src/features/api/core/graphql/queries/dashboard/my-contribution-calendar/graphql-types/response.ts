@@ -12,7 +12,7 @@ import {
     description: "A single active day in the contribution calendar.",
 })
 /**
- * One day in the GitHub-style contribution calendar — the viewer's learning
+ * One day in the GitHub-style contribution calendar -- the viewer's learning
  * activity counts for that calendar day. Only days with activity are returned;
  * the client fills the empty cells of the grid with zeros.
  */

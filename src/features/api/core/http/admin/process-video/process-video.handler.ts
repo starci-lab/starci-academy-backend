@@ -82,7 +82,7 @@ export class ProcessVideoHandler
         // Generate a unique asset ID
         const assetId = uuidv4()
 
-        // Build the payload — store the full URL so the worker can download
+        // Build the payload -- store the full URL so the worker can download
         const payload = {
             assetId,
             filename,

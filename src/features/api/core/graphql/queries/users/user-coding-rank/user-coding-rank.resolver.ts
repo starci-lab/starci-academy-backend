@@ -33,10 +33,10 @@ import {
 
 @Resolver()
 /**
- * Public profile query: a user's DERIVED coding standing — a 1-based global rank
+ * Public profile query: a user's DERIVED coding standing -- a 1-based global rank
  * + a percentile by distinct solved coding problems (same ordering as the coding
  * leaderboard). Thin read off the per-user CQRS coding projection (computed in a
- * single pass over the materialised solved counts — no aggregation per request).
+ * single pass over the materialised solved counts -- no aggregation per request).
  * Both fields null when the user has 0 solves.
  * Optional auth; a locked profile is withheld by {@link GraphQLProfileVisibilityGuard}.
  */

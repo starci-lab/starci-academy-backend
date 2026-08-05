@@ -18,7 +18,7 @@ export interface ResolveCvVerificationLevelForCourseParams {
 
 /**
  * One raw-SQL row of a "user has this class of graded StarCi work" existence
- * probe — a single distinct `user_id`. Column name is the exact wire-format
+ * probe -- a single distinct `user_id`. Column name is the exact wire-format
  * (snake_case) returned by Postgres.
  */
 export interface CvVerificationUserIdRow {

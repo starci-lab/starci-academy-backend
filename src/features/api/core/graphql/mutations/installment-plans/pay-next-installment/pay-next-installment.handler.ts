@@ -72,13 +72,13 @@ const INSTALLMENT_PAYMENT_LABEL = "installment-payment"
 @CommandHandler(PayNextInstallmentCommand)
 @Injectable()
 /**
- * Pays the CURRENT cycle of an installment (trả góp) plan: charges exactly
- * `InstallmentPlanService.computeMinPaymentVnd(plan)` — never the whole
- * remaining balance — via a fresh (or reused-pending) gateway checkout. The
+ * Pays the CURRENT cycle of an installment plan: charges exactly
+ * `InstallmentPlanService.computeMinPaymentVnd(plan)` -- never the whole
+ * remaining balance -- via a fresh (or reused-pending) gateway checkout. The
  * plan itself only advances once the payment is confirmed
- * (`ReconcileTransactionWorker.finalize()` → `InstallmentPlanService.
+ * (`ReconcileTransactionWorker.finalize()` -> `InstallmentPlanService.
  * applyPaymentForTransaction`), exactly like every other purchase in this
- * codebase — this handler only ever creates the pending checkout.
+ * codebase -- this handler only ever creates the pending checkout.
  *
  * MVP is VND-only (see `docs/installment-payment-plan.md`): only PayOS and
  * Sepay are supported; every other {@link PaymentType} is rejected.
@@ -174,7 +174,7 @@ export class PayNextInstallmentHandler
         }
 
         // reuse a still-fresh pending transaction for the same plan + provider
-        // (mirrors the AI-subscription / membership checkout reuse window) —
+        // (mirrors the AI-subscription / membership checkout reuse window) --
         // avoids opening a second gateway payment while one is already pending
         const existing = await this.entityManager.findOne(
             TransactionEntity,
@@ -267,7 +267,7 @@ export class PayNextInstallmentHandler
     }
 
     /**
-     * Create a checkout link for the chosen provider (PayOS / Sepay only —
+     * Create a checkout link for the chosen provider (PayOS / Sepay only --
      * MVP is VND-only, see the class doc comment).
      *
      * @param params - Payment type, the cycle's charged amount, order code, and redirect URLs.
@@ -321,7 +321,7 @@ export class PayNextInstallmentHandler
     /**
      * Build a SePay PG one-time-payment checkout: sign the order fields and
      * return the form action URL + the JSON-encoded signed fields. Pure
-     * (local HMAC signing) — safe to call on the transaction-reuse path too.
+     * (local HMAC signing) -- safe to call on the transaction-reuse path too.
      *
      * @param params - Order code, VND amount, and redirect URLs.
      */

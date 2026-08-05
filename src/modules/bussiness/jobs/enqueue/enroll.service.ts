@@ -78,7 +78,7 @@ export class EnqueueEnrollJobService {
             transaction,
         }: EnqueueEnrollmentsForTransactionParams,
     ): Promise<EnqueueEnrollmentsForTransactionResult> {
-        // multi-course order → the courses live in transaction_items (transaction.course is null)
+        // multi-course order -> the courses live in transaction_items (transaction.course is null)
         const items = await this.entityManager.find(
             TransactionItemEntity,
             {
@@ -90,19 +90,19 @@ export class EnqueueEnrollJobService {
             },
         )
         // resolve the course ids of this order (multi-course items, else the single
-        // course on the transaction) — drives both the per-course enroll fan-out AND
+        // course on the transaction) -- drives both the per-course enroll fan-out AND
         // the installment plan's `lockedCourseIds` (all courses gated together)
         const courseIds = items.length > 0
             ? items.map((item) => item.courseId)
             : (transaction.courseId ? [transaction.courseId] : [])
-        // neither items nor a course → malformed Enroll transaction; let the caller surface it
+        // neither items nor a course -> malformed Enroll transaction; let the caller surface it
         if (courseIds.length === 0) {
             return {
                 enqueuedCount: 0,
             }
         }
         // enqueue sequentially (AWAITED per line) so a broker failure propagates:
-        // the webhook then returns non-2xx and the gateway re-delivers → no line stranded.
+        // the webhook then returns non-2xx and the gateway re-delivers -> no line stranded.
         // Each enroll job is idempotent per (user, course), so a re-delivery is safe.
         for (const courseId of courseIds) {
             await this.enqueue({
@@ -111,7 +111,7 @@ export class EnqueueEnrollJobService {
                 transactionId: transaction.id,
             })
         }
-        // installment (trả góp) first cycle: create the Fixed plan ONCE per paid
+        // installment (installment plan) first cycle: create the Fixed plan ONCE per paid
         // checkout (the enroll jobs above grant access; this only records the
         // schedule + gated courses). Idempotent against re-delivery (webhook + poll)
         // by the plan's unique origin transaction.
@@ -124,7 +124,7 @@ export class EnqueueEnrollJobService {
 
     /**
      * When a paid Enroll transaction carries installment intent (the buyer chose
-     * trả góp at checkout), create its `Fixed` {@link InstallmentPlanEntity} —
+     * installment plan at checkout), create its `Fixed` {@link InstallmentPlanEntity} --
      * exactly once. A no-op for a one-shot purchase (no `installmentMonths`) or a
      * re-delivered confirmation (a plan already exists for this origin transaction).
      *
@@ -202,7 +202,7 @@ export class EnqueueEnrollJobService {
                 ),
             })
         }
-        // push the job to the broker — AWAITED (not fire-and-forget): this runs on
+        // push the job to the broker -- AWAITED (not fire-and-forget): this runs on
         // the payment-finalize path, so returning before the broker job exists would
         // strand a paid transaction with no enroll job (and the gateway, already
         // 2xx'd, never retries). On failure mark the job failed AND rethrow so the

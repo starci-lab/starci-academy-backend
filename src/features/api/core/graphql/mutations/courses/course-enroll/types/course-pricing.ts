@@ -13,10 +13,10 @@ export interface GetCoursePricingPhaseRowParams {
 export interface ResolveCourseAmountVndParams {
     /** Course with `pricingPhases` loaded; the active phase decides the charged price. */
     course: CourseEntity
-    /** Loyalty discount percent (0–100) to apply to the resolved base price. Default 0. */
+    /** Loyalty discount percent (0-100) to apply to the resolved base price. Default 0. */
     discountPercent?: number
     /**
-     * Price a SPECIFIC phase instead of the course's current phase — used to preview
+     * Price a SPECIFIC phase instead of the course's current phase -- used to preview
      * a future tier (e.g. "price rises to X" scarcity). Defaults to the current phase.
      */
     phase?: PricingPhase
@@ -26,10 +26,10 @@ export interface ResolveCourseAmountVndParams {
 export interface ResolveCourseAmountUsdParams {
     /** Course with `pricingPhases` loaded; the active phase decides the charged USD price. */
     course: CourseEntity
-    /** Loyalty discount percent (0–100) to apply to the resolved base price. Default 0. */
+    /** Loyalty discount percent (0-100) to apply to the resolved base price. Default 0. */
     discountPercent?: number
     /**
-     * Price a SPECIFIC phase instead of the course's current phase — used to preview
+     * Price a SPECIFIC phase instead of the course's current phase -- used to preview
      * a future tier (e.g. "price rises to X" scarcity). Defaults to the current phase.
      */
     phase?: PricingPhase

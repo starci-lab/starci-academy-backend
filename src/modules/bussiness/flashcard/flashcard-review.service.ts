@@ -46,12 +46,12 @@ export const NEW_CARD_STATE: Omit<ApplySm2Params, "grade"> = {
     prevRepetitions: 0,
 }
 
-/** SM-2 grade value for "Again" (a lapse → reset). */
+/** SM-2 grade value for "Again" (a lapse -> reset). */
 const GRADE_AGAIN = 0
 
 /**
  * Per-course weighted XP granted the FIRST time a user ever grades a given card
- * (mirrors `mark-as-readed`'s `LESSON_READ_XP`). Repeat reviews grant nothing —
+ * (mirrors `mark-as-readed`'s `LESSON_READ_XP`). Repeat reviews grant nothing --
  * the reward is for turning up a NEW card, not for re-drilling a known one.
  */
 const FLASHCARD_FIRST_REVIEW_XP = 2
@@ -71,7 +71,7 @@ const DAILY_NEW_LIMIT = 20
 /**
  * Spaced-repetition (SM-2) read + write for flashcards. {@link listDue} serves
  * the viewer's due-card queue (no review row yet OR past its `dueAt`) across all
- * decks — enrollment is NOT required, so trial viewers can review too; {@link review}
+ * decks -- enrollment is NOT required, so trial viewers can review too; {@link review}
  * applies an SM-2 grade and upserts the per-(user, card) review row.
  */
 export class FlashcardReviewService {
@@ -100,9 +100,9 @@ export class FlashcardReviewService {
         }: ListDueFlashcardsParams,
     ): Promise<DueFlashcardsResult> {
         // On a COURSE page, the review row is keyed by ENROLLMENT (the anchor for
-        // per-course progress going forward) — resolve the viewer's enrollment id for
+        // per-course progress going forward) -- resolve the viewer's enrollment id for
         // this course READ-ONLY (no trial create on a read; a viewer with no enrollment
-        // simply has no review rows → every card reads as NEW). The DASHBOARD (global)
+        // simply has no review rows -> every card reads as NEW). The DASHBOARD (global)
         // queue spans every course, so it keeps keying the review by user_id (a single
         // enrollment id does not exist across courses).
         const enrollmentId = courseId
@@ -126,10 +126,10 @@ export class FlashcardReviewService {
             )?.id ?? null
             : null
 
-        // shared scaffold: card → deck SCOPED TO THE COURSE (the "đến hạn" count on
+        // shared scaffold: card -> deck SCOPED TO THE COURSE (the due count on
         // a course page must reflect only that course's decks, not every deck
         // system-wide), with the per-viewer review row left-joined. Enrollment is NOT
-        // required — trial viewers review flashcards too. The review join keys by
+        // required -- trial viewers review flashcards too. The review join keys by
         // enrollment_id on a course page (and by user_id on the global dashboard queue).
         const base = () => {
             const reviewJoin = courseId
@@ -150,7 +150,7 @@ export class FlashcardReviewService {
                         enrollmentId,
                     },
                 )
-            // scope to one course on a course page; omit → global queue (dashboard)
+            // scope to one course on a course page; omit -> global queue (dashboard)
             if (courseId) {
                 qb.andWhere("deck.course_id = :courseId",
                     {
@@ -162,7 +162,7 @@ export class FlashcardReviewService {
 
         // Split "due" into its two semantically-different buckets instead of lumping
         // never-reviewed cards into "due today" (that made a fresh viewer see the
-        // whole backlog as due — the "449" bug).
+        // whole backlog as due -- the "449" bug).
         //  - overdue REVIEW = already learned once, now past dueAt
         //  - NEW = never reviewed; capped to DAILY_NEW_LIMIT for "today"
         const OVERDUE = "review.id IS NOT NULL AND review.due_at <= now()"
@@ -174,7 +174,7 @@ export class FlashcardReviewService {
         const dueCount = dueReviewCount + newCount
 
         // page: overdue first (oldest-due first), then fill the rest with today's
-        // capped new batch — so reviews never starve behind new cards.
+        // capped new batch -- so reviews never starve behind new cards.
         const SELECT_COLS = (qb: ReturnType<typeof base>) => qb
             .select("card.id",
                 "card_id")
@@ -268,12 +268,12 @@ export class FlashcardReviewService {
         }
 
         // Gate premium answers behind enrollment, mirroring the content paywall's
-        // isEntitled/lockPremiumContent pair (`content.handler.ts:174-184`) — this
+        // isEntitled/lockPremiumContent pair (`content.handler.ts:174-184`) -- this
         // is the enforcement `FlashcardCardEntity.isPremium`'s own doc claims exists
         // but never did (see `.artifacts/states/flashcard/findings.md` #1). The
         // GLOBAL (cross-course) queue can mix cards from many courses, so entitlement
         // is resolved per the CARD'S OWN course (`card.deck.courseId`), not the
-        // request's optional `courseId` — cached per distinct course id so a shared
+        // request's optional `courseId` -- cached per distinct course id so a shared
         // course is only checked once.
         const entitledByCourseId = await this.resolveEntitlementByCourseId(
             cards,
@@ -310,15 +310,15 @@ export class FlashcardReviewService {
     }
 
     /**
-     * List flashcards by an EXACT set of ids, regardless of current due status —
+     * List flashcards by an EXACT set of ids, regardless of current due status --
      * unlike {@link listDue}, a card graded (and so no longer "due") since the
      * batch was drawn is NOT dropped. Rehydrates a resumable due-review batch to
      * its ORIGINAL draw: a `DueReviewSession`'s persisted `cardIds` intersected
      * against a fresh `listDue` call shrinks every time a card in it gets graded
-     * (its `dueAt` moves to the future) — a small/near-finished batch easily hits
+     * (its `dueAt` moves to the future) -- a small/near-finished batch easily hits
      * zero overlap on the very next visit, silently discarding a legitimately
-     * in-progress session and starting a new one (thầy 2026-07-11: "due review
-     * cũng mở session mới"). Output order matches `cardIds` (a card id that no
+     * in-progress session and starting a new one (PO 2026-07-11: due review
+     * must not silently open a new session). Output order matches `cardIds` (a card id that no
      * longer exists is simply dropped, not errored).
      *
      * @param params - {@link ListFlashcardsByIdsParams}
@@ -336,8 +336,8 @@ export class FlashcardReviewService {
             return []
         }
 
-        // same enrollment-vs-user review-row keying as `listDue` (course page →
-        // enrollment; no course context → user-wide).
+        // same enrollment-vs-user review-row keying as `listDue` (course page ->
+        // enrollment; no course context -> user-wide).
         const enrollmentId = courseId
             ? (
                 await this.entityManager.findOne(
@@ -361,7 +361,7 @@ export class FlashcardReviewService {
 
         // a course-scoped call with NO resolved enrollment has no course-scoped
         // review rows to find (mirrors `listDue`'s raw-SQL `review.enrollment_id
-        // = :enrollmentId` with a null param — always zero rows) — skip the
+        // = :enrollmentId` with a null param -- always zero rows) -- skip the
         // query rather than pass `undefined` into the `where`, which TypeORM
         // reads as "no filter on this field" and would match every OTHER
         // user's enrollment-scoped reviews instead of none.
@@ -446,7 +446,7 @@ export class FlashcardReviewService {
                 card)
         }
 
-        // Gate premium answers behind enrollment — same rationale as `listDue`
+        // Gate premium answers behind enrollment -- same rationale as `listDue`
         // (see the comment there); this batch can likewise mix cards drawn from
         // several courses (a resumed cross-course due-review batch).
         const entitledByCourseId = await this.resolveEntitlementByCourseId(
@@ -496,9 +496,9 @@ export class FlashcardReviewService {
         }: ReviewFlashcardParams,
     ): Promise<ReviewFlashcardResult> {
         return this.entityManager.transaction(async (manager) => {
-            // the card must exist (FK target) — a typed 404 otherwise. Load its deck
-            // so we can derive the course (card → deck → course) and key the review
-            // row by enrollment (user × course) — the anchor going forward.
+            // the card must exist (FK target) -- a typed 404 otherwise. Load its deck
+            // so we can derive the course (card -> deck -> course) and key the review
+            // row by enrollment (user x course) -- the anchor going forward.
             const cardExists = await manager.findOne(
                 FlashcardCardEntity,
                 {
@@ -516,7 +516,7 @@ export class FlashcardReviewService {
                 })
             }
 
-            // resolve-or-create the trial enrollment for this user × course; set it on
+            // resolve-or-create the trial enrollment for this user x course; set it on
             // the row going forward (we still set user_id during the re-key transition).
             // A deck without a course (global deck) leaves enrollment unset.
             const courseId = cardExists.deck?.courseId ?? null
@@ -533,7 +533,7 @@ export class FlashcardReviewService {
                 {
                     where: {
                         // userId is a real column; flashcardCardId is a @RelationId
-                        // (virtual, not queryable) — filter through the relation
+                        // (virtual, not queryable) -- filter through the relation
                         userId,
                         flashcardCard: {
                             id: cardId,
@@ -557,7 +557,7 @@ export class FlashcardReviewService {
             const dueAt = new Date(now.getTime() + next.intervalDays * 24 * 60 * 60 * 1000)
 
             // upsert the per-(user, card) review row. XP is granted ONLY on the
-            // first-ever review of this card by this user — the `!existing` branch
+            // first-ever review of this card by this user -- the `!existing` branch
             // (no prior review row). Repeat reviews grant 0.
             let xpEarned = 0
             if (existing) {
@@ -605,7 +605,7 @@ export class FlashcardReviewService {
                 await manager.save(review)
 
                 // grant the flat first-review XP + Coin in the SAME tx. Idempotent on
-                // (source, refId) — the review-row id is the stable ref, so a retry
+                // (source, refId) -- the review-row id is the stable ref, so a retry
                 // of this exact grade never double-credits. A global deck with no
                 // course leaves courseId null (still a valid course-agnostic grant).
                 await writeXpHistory({
@@ -623,7 +623,7 @@ export class FlashcardReviewService {
             // append to the immutable review-event log so history-based stats
             // (streak / retention / total / per-session) can be projected from it.
             // `sessionId` attributes the grade to the client's current review session
-            // (null when the client threaded none → an untracked grade).
+            // (null when the client threaded none -> an untracked grade).
             await manager.save(
                 manager.create(
                     FlashcardReviewEventEntity,
@@ -646,7 +646,7 @@ export class FlashcardReviewService {
 
     /**
      * Preview the interval (in days) each SM-2 grade would schedule from a card's
-     * current state, WITHOUT persisting — powers the rating buttons so the learner
+     * current state, WITHOUT persisting -- powers the rating buttons so the learner
      * sees the consequence of each choice. Same arithmetic as {@link review}.
      *
      * @param prior - the card's current ease / interval / repetitions.
@@ -670,7 +670,7 @@ export class FlashcardReviewService {
 
     /**
      * Resolves, once per DISTINCT owning course, whether the viewer is entitled to
-     * read premium cards from that course — mirrors `ContentHandler.isEntitled`
+     * read premium cards from that course -- mirrors `ContentHandler.isEntitled`
      * (`content.handler.ts:283-300`). A batch of cards (due queue or an id-based
      * rehydrate) can span several courses, so this is checked per course rather
      * than once for the whole batch; `UserService.checkEnrollment` is backed by a
@@ -678,7 +678,7 @@ export class FlashcardReviewService {
      *
      * @param cards - The loaded cards (each card's `deck.courseId` identifies its course).
      * @param userId - Active user id.
-     * @returns Entitlement keyed by course id — only courses that actually own a
+     * @returns Entitlement keyed by course id -- only courses that actually own a
      *   premium card in this batch are checked.
      */
     private async resolveEntitlementByCourseId(
@@ -739,7 +739,7 @@ export class FlashcardReviewService {
             prevRepetitions,
         }: ApplySm2Params,
     ): ApplySm2Result {
-        // Again: a lapse → restart the repetition count and re-show tomorrow.
+        // Again: a lapse -> restart the repetition count and re-show tomorrow.
         // Ease is left untouched on a lapse (classic SM-2 only adjusts ease on recall).
         if (grade === GRADE_AGAIN) {
             return {
@@ -753,7 +753,7 @@ export class FlashcardReviewService {
         const delta = 0.1 - (3 - grade) * (0.08 + (3 - grade) * 0.02)
         const ease = Math.max(EASE_FLOOR,
             prevEase + delta)
-        // interval schedule: 1d → 6d → round(prevInterval * ease)
+        // interval schedule: 1d -> 6d -> round(prevInterval * ease)
         const intervalDays = repetitions === 1
             ? 1
             : repetitions === 2

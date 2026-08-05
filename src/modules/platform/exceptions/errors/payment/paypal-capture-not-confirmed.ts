@@ -18,7 +18,7 @@ export interface PaypalCaptureNotConfirmedExceptionMetadata extends AbstractExce
 
 /**
  * Thrown when a PayPal webhook fires for an order whose capture status is not
- * `COMPLETED` — reconciliation only proceeds once PayPal confirms the funds
+ * `COMPLETED` -- reconciliation only proceeds once PayPal confirms the funds
  * were actually captured, not merely approved.
  */
 export class PaypalCaptureNotConfirmedException extends AbstractException {

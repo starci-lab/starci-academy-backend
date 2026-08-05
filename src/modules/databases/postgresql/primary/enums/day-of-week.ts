@@ -5,7 +5,7 @@ import {
     registerEnumType,
 } from "@nestjs/graphql"
 
-/** Day of week for recurring livestream slots (Monday–Sunday). */
+/** Day of week for recurring livestream slots (Monday-Sunday). */
 export enum DayOfWeek {
     /** Recurring livestream fires every Monday (`Date#getDay()` = 1). */
     Monday = "monday",
@@ -19,7 +19,7 @@ export enum DayOfWeek {
     Friday = "friday",
     /** Recurring livestream fires every Saturday (`Date#getDay()` = 6). */
     Saturday = "saturday",
-    /** Recurring livestream fires every Sunday (`Date#getDay()` = 0 — not 7). */
+    /** Recurring livestream fires every Sunday (`Date#getDay()` = 0 -- not 7). */
     Sunday = "sunday",
 }
 

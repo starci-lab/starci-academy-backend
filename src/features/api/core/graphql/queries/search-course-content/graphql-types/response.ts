@@ -13,10 +13,10 @@ import {
     description: "One distinct source matched by a course content search.",
 })
 /**
- * One distinct source matched by "Tìm nội dung khóa" — a lesson, a challenge
+ * One distinct source matched by search course content -- a lesson, a challenge
  * (which lives on a lesson page), a flashcard deck, or a milestone task. The
  * FE branches on {@link kind} to build the right jump link (via `pathConfig`)
- * — only the fields relevant to that kind are non-null.
+ * -- only the fields relevant to that kind are non-null.
  */
 export class SearchCourseContentItem {
     @Field(

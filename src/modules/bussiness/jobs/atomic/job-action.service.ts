@@ -62,7 +62,7 @@ export class JobActionService {
      * @param id - The ID of the job.
      * @param entityManager - The entity manager.
      * @param userId - Optional caller to scope the lookup to. When provided,
-     * a job owned by someone else (or with no owner) never leaves the query —
+     * a job owned by someone else (or with no owner) never leaves the query --
      * it surfaces as `JobNotFoundException`, same as a genuinely missing row.
      * @returns The job.
      */
@@ -98,7 +98,7 @@ export class JobActionService {
 
     /**
      * Create a job. Domain ids are stored loosely: `userId` as a plain (FK-less)
-     * column, everything else under `jobs.refs` — `jobs` keeps no FK to domain.
+     * column, everything else under `jobs.refs` -- `jobs` keeps no FK to domain.
      * @param params - The job creation params.
      * @returns The job.
      */
@@ -147,7 +147,7 @@ export class JobActionService {
 
     /**
      * Increase the job step. When `expectedFencingToken` is given, the advance is
-     * guarded — it only lands if the row still carries that token; otherwise a
+     * guarded -- it only lands if the row still carries that token; otherwise a
      * {@link JobFencedOutException} is thrown (a newer worker owns this job).
      * @param params - step / job / entityManager / expectedFencingToken.
      */

@@ -24,12 +24,12 @@ import {
  * frontend can exercise its loading / skeleton states (real APIs are never
  * instant). Registered globally in the core bootstrap.
  *
- * HARD-DISABLED in production and OFF by default — enable per-environment with
+ * HARD-DISABLED in production and OFF by default -- enable per-environment with
  * `API_RESPONSE_DELAY_ENABLE=true` (latency `API_RESPONSE_DELAY_MS`, default 5000ms).
  *
  * Because it runs globally it also wraps GraphQL resolvers; the delay is applied
  * ONLY to the root operation (query/mutation field), never to nested `@ResolveField`
- * resolvers, so a deep query is delayed once — not once per resolver.
+ * resolvers, so a deep query is delayed once -- not once per resolver.
  */
 export class ResponseDelayInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {

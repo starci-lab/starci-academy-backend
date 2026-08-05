@@ -97,7 +97,7 @@ export class GithubApiOrgService {
     /**
      * Read a user's membership state in an org team. `active` = accepted member,
      * `pending` = invited but not yet accepted, `none` = neither (GitHub 404).
-     * Used to gate the "request to team" flow — linking a GitHub identity and
+     * Used to gate the "request to team" flow -- linking a GitHub identity and
      * actually being in the team are separate states.
      *
      * @param param - Team slug and username.
@@ -126,7 +126,7 @@ export class GithubApiOrgService {
                 state: response.data.state === "active" ? "active" : "pending",
             }
         } catch (error) {
-            // 404 → user is neither a member nor has a pending invite
+            // 404 -> user is neither a member nor has a pending invite
             if ((error as { status?: number }).status === 404) {
                 return {
                     state: "none",

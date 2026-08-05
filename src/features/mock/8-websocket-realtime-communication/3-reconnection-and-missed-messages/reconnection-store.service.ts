@@ -60,7 +60,7 @@ export class ReconnectionStoreService {
      * Return messages newer than `lastSeq`, oldest first, capped to the ring size.
      */
     replaySince(roomId: string, lastSeq: number): Array<ChatMessage> {
-        // unknown room → nothing to replay
+        // unknown room -> nothing to replay
         const buffer = this.history.get(roomId)
         if (!buffer) return []
         // keep only messages the client has not seen yet

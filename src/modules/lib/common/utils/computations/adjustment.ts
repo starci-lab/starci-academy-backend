@@ -27,7 +27,7 @@ export const adjustSlippage = (
 
 /**
  * Inputs for {@link adjustSlippage}. `fractionDigits` / `isRoundUp` control the
- * BN×Decimal scale so a tight slippage does not round the buffer away.
+ * BNxDecimal scale so a tight slippage does not round the buffer away.
  */
 export interface AdjustSlippageParams {
     bn: BN

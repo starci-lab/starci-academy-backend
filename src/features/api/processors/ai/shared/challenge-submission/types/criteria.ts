@@ -1,7 +1,7 @@
 /** Where a SCHEMA V2 grading criterion came from within the rubric. */
 export type ResolvedChallengeCriterionKind = "outcome" | "approach"
 
-/** Minimal shape shared by approach/outcome criterion language rows (structural — either entity). */
+/** Minimal shape shared by approach/outcome criterion language rows (structural -- either entity). */
 export interface CriterionLangProse {
     /** Programming language of this prose row. */
     lang: string

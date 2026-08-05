@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -36,7 +36,7 @@ describe("SignUpInitHandler",
         let keycloakUserService: jest.Mocked<Pick<KeycloakUserService, "getUserByUsername">>
 
         beforeEach(async () => {
-            // OTP challenge issuer — returns the new challenge handle + otp code
+            // OTP challenge issuer -- returns the new challenge handle + otp code
             otpChallengeService = {
                 createActionChallenge: jest.fn().mockResolvedValue({
                     challengeId: "chal-1",
@@ -45,7 +45,7 @@ describe("SignUpInitHandler",
                 }),
             } as unknown as jest.Mocked<Pick<OtpChallengeService, "createActionChallenge">>
 
-            // mail worker hand-off — assert the OTP email is queued
+            // mail worker hand-off -- assert the OTP email is queued
             enqueueSendMailJobService = {
                 enqueue: jest.fn(),
             } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
@@ -163,7 +163,7 @@ describe("SignUpInitHandler",
 
         it("throws when the email is already verified (no OTP issued)",
             async () => {
-                // the account already completed verification → sign-up is rejected
+                // the account already completed verification -> sign-up is rejected
                 keycloakUserService.getUserByUsername.mockResolvedValueOnce({
                     id: "kc-existing",
                     emailVerified: true,

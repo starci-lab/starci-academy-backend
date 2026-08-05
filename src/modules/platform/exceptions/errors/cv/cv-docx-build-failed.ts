@@ -13,7 +13,7 @@ export type CvDocxBuildFailedExceptionMetadata = AbstractExceptionMetadata
 
 /**
  * Thrown when `html-to-docx` resolves a value that is neither a `Buffer` nor
- * an `ArrayBuffer` — an unexpected library/runtime output shape.
+ * an `ArrayBuffer` -- an unexpected library/runtime output shape.
  */
 export class CvDocxBuildFailedException extends AbstractException {
     constructor({

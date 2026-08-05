@@ -77,7 +77,7 @@ export class ContributionProjectionService {
                 },
             },
         )
-        // the current year still grows → TTL-refresh it; past years are immutable
+        // the current year still grows -> TTL-refresh it; past years are immutable
         // once built, so only (re)compute them when the row is missing entirely
         const isCurrentYear = year === new Date().getFullYear()
         const needsRecompute = !row || (isCurrentYear && this.isStale(row.updatedAt))
@@ -121,7 +121,7 @@ export class ContributionProjectionService {
     }
 
     /**
-     * Build the scoped calendar UPSERT — the per-day counts (contents / challenges
+     * Build the scoped calendar UPSERT -- the per-day counts (contents / challenges
      * / milestones) for year `$2` folded into one jsonb `value.days` array for the
      * single user `$1`.
      *

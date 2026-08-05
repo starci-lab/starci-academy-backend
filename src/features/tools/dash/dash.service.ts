@@ -45,9 +45,9 @@ import type {
  * Encodes an uploaded video to MPEG-DASH locally, registers it as an artifact,
  * and (optionally) syncs it to a saved S3 target.
  *
- * Flow (local-first): write source → multi-bitrate encode (local CPU/GPU) →
- * fragment each rendition (Bento4) → generate the DASH manifest → register the
- * whole working directory as a kept artifact → push to the target. The artifact
+ * Flow (local-first): write source -> multi-bitrate encode (local CPU/GPU) ->
+ * fragment each rendition (Bento4) -> generate the DASH manifest -> register the
+ * whole working directory as a kept artifact -> push to the target. The artifact
  * stays on disk so it can be re-synced later without re-encoding.
  */
 export class DashService {
@@ -105,7 +105,7 @@ export class DashService {
             sourceName),
         file.buffer)
 
-        // multi-bitrate encode → 1080/720/480/360.mp4 in the working dir
+        // multi-bitrate encode -> 1080/720/480/360.mp4 in the working dir
         await this.ffmpegService.encodeAtMultipleBitrates(workDir,
             sourceName)
 

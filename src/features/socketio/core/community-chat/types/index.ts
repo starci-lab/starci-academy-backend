@@ -8,10 +8,10 @@ export interface SubscribeCommunityChatData {
     conversationId: string
 }
 
-/** Client → server payload to join a conversation's chat room. */
+/** Client -> server payload to join a conversation's chat room. */
 export type SubscribeCommunityChatSocketIoPayload = SocketIoPayload<SubscribeCommunityChatData>
 
-/** Server → client message when a chat message is created in a conversation. */
+/** Server -> client message when a chat message is created in a conversation. */
 export interface ChatMessageCreatedSocketIoMessage {
     /** Conversation the message belongs to. */
     conversationId: string

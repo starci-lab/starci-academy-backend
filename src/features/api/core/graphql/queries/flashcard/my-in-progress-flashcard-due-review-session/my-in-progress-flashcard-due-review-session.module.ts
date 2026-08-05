@@ -13,5 +13,5 @@ import {
         MyInProgressFlashcardDueReviewSessionResolver,
     ],
 })
-/** Feature-module boundary for the `myInProgressFlashcardDueReviewSession` query — wires its resolver (business logic lives in the shared `FlashcardDueReviewSessionService`). */
+/** Feature-module boundary for the `myInProgressFlashcardDueReviewSession` query -- wires its resolver (business logic lives in the shared `FlashcardDueReviewSessionService`). */
 export class MyInProgressFlashcardDueReviewSessionSingleQueryModule extends ConfigurableModuleClass {}

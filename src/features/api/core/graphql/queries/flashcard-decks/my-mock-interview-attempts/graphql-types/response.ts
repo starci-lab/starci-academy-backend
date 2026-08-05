@@ -65,7 +65,7 @@ export class MockInterviewAttemptAttributeScoreItem {
     description: "Per-question model-answer review for one mode=\"qna\" question, on a past attempt.",
 })
 /**
- * One persisted per-question model-answer review inside a past attempt —
+ * One persisted per-question model-answer review inside a past attempt --
  * mirrors {@link import("../../../../mutations/interview/grade-mock-interview-session/graphql-types/response").MockInterviewQuestionReviewItem}
  * exactly, so the history drawer renders it identically to the live
  * scorecard. Always empty on the parent for a `mode="design"` attempt.

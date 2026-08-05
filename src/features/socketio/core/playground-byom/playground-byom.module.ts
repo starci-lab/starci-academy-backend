@@ -37,7 +37,7 @@ import {
  * agent, in the `/playground_byom` namespace).
  *
  * Imports the `Cache` ioredis instance so the gateway can rate-limit the
- * unauthenticated `agent:pair` endpoint (atomic INCR+EXPIRE) — shared across
+ * unauthenticated `agent:pair` endpoint (atomic INCR+EXPIRE) -- shared across
  * app instances, unlike an in-memory counter.
  */
 export class PlaygroundByomSocketModule extends ConfigurableModuleClass {}

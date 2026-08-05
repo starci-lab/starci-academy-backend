@@ -34,7 +34,7 @@ import type {
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
 export class UserStatsProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-stats-projection"
 
     /** Follow-graph + notification + XP-earning changes move a user's stats. */
@@ -60,7 +60,7 @@ export class UserStatsProjectionListener extends AbstractProjectionListener<stri
      * recipient. Returns the affected user id(s), de-duplicated.
      *
      * @param message - {@link ProjectionCdcMessage}
-     * @returns the affected user ids (0–2), or empty to skip.
+     * @returns the affected user ids (0-2), or empty to skip.
      */
     protected deriveTargets(
         {

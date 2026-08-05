@@ -10,7 +10,7 @@ export interface BackupEncryptionPasswordNotSetExceptionMetadata extends Abstrac
     envPath?: string
 }
 
-/** Aborts backup before dump — an unencrypted artifact must never be uploaded. */
+/** Aborts backup before dump -- an unencrypted artifact must never be uploaded. */
 export class BackupEncryptionPasswordNotSetException extends AbstractException {
     constructor(
         {

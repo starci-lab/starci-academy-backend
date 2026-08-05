@@ -35,8 +35,8 @@ import {
 
 @Resolver()
 /**
- * The learner's most recent RESUMABLE flashcard review ("Học thẻ") session
- * for one deck — so the FE can offer "Tiếp tục ôn tập?" instead of forcing a
+ * The learner's most recent RESUMABLE flashcard review session
+ * for one deck -- so the FE can offer "resume review?" instead of forcing a
  * fresh draw. Null when there is none. Mirrors
  * `myInProgressFlashcardQuizSession`, scoped by deck instead of course.
  */

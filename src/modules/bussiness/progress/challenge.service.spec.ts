@@ -141,7 +141,7 @@ describe("ChallengeProgressService",
         })
 
         beforeEach(async () => {
-            // fresh entity manager with happy-path defaults (findOne → null, find → [])
+            // fresh entity manager with happy-path defaults (findOne -> null, find -> [])
             entityManager = makeEntityManagerMock()
 
             // mount config exposes the pass threshold as a plain getter property
@@ -205,7 +205,7 @@ describe("ChallengeProgressService",
                                 passedTask,
                             ],
                         }
-                        // 1st read → miss; 2nd read (after recompute) → the fresh row
+                        // 1st read -> miss; 2nd read (after recompute) -> the fresh row
                         entityManager.findOne
                             .mockResolvedValueOnce(null)
                             .mockResolvedValueOnce(projectionRow(recomputed,
@@ -276,7 +276,7 @@ describe("ChallengeProgressService",
 
                         await service.recompute(enrollment)
 
-                        // recompute never reads the projection row — it always rebuilds
+                        // recompute never reads the projection row -- it always rebuilds
                         expect(entityManager.findOne).not.toHaveBeenCalled()
                         const [sql,
                             params] = entityManager.query.mock.calls[0] as [string, Array<string>]
@@ -289,7 +289,7 @@ describe("ChallengeProgressService",
 
                 it("short-circuits to an empty list when the course has no challenges",
                     async () => {
-                        // no challenges → the second find (user submissions) must NOT run
+                        // no challenges -> the second find (user submissions) must NOT run
                         entityManager.find.mockResolvedValueOnce([])
 
                         await service.recompute(enrollment)
@@ -342,7 +342,7 @@ describe("ChallengeProgressService",
                             .mockResolvedValueOnce([
                                 buildChallenge(),
                             ])
-                            // 40 < 100 × 0.5 → submitted but failed
+                            // 40 < 100 x 0.5 -> submitted but failed
                             .mockResolvedValueOnce([
                                 buildUserSubmission({
                                     attempts: [

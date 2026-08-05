@@ -70,7 +70,7 @@ const addCourseIndex = (
  * @returns The path relative to the data root, or `null` when it lies outside `subdir`
  */
 const stripSubdir = (rawPath: string, subdir: string): string | null => {
-    // no subdir → the whole repo maps to the data root
+    // no subdir -> the whole repo maps to the data root
     if (!subdir) {
         return rawPath
     }
@@ -97,12 +97,12 @@ const classifyCoursePath = (
 ): void => {
     // need at least `courses/<courseDir>` to identify a course
     if (segments.length < 2) {
-        // a stray file directly under courses/ — cannot scope it safely
+        // a stray file directly under courses/ -- cannot scope it safely
         diff.fullReseed = true
         return
     }
     const displayId = stripOrderIndex(segments[1])
-    // `courses/<courseDir>` (no deeper segment) → treat as a course-root touch
+    // `courses/<courseDir>` (no deeper segment) -> treat as a course-root touch
     if (segments.length === 2) {
         diff.courseRootChanged.add(displayId)
         return
@@ -111,7 +111,7 @@ const classifyCoursePath = (
     // module / milestone tracks are indexed; capture which order-index changed
     if (subFolder === "modules" || subFolder === "milestones") {
         const trackIndex = parseLeadingIndex(segments[3] ?? "")
-        // a file straight under modules/ (no `{index}-` dir) is unexpected → full reseed
+        // a file straight under modules/ (no `{index}-` dir) is unexpected -> full reseed
         if (trackIndex === null) {
             diff.fullReseed = true
             return
@@ -129,7 +129,7 @@ const classifyCoursePath = (
         diff.flashcardChangedCourses.add(displayId)
         return
     }
-    // anything else directly under the course dir (en.md, vi.md, master_plan.md, …) is course-root
+    // anything else directly under the course dir (en.md, vi.md, master_plan.md, ...) is course-root
     diff.courseRootChanged.add(displayId)
 }
 
@@ -167,7 +167,7 @@ export const parseDataGitDiff = (
             continue
         }
         const topLevel = segments[0]
-        // authoring rules are not seeded — ignore their changes
+        // authoring rules are not seeded -- ignore their changes
         if (topLevel === "rules") {
             continue
         }
@@ -183,7 +183,7 @@ export const parseDataGitDiff = (
             diff.changedDomains.add(domain)
             continue
         }
-        // an unknown top-level entry means we cannot guarantee scope → full reseed
+        // an unknown top-level entry means we cannot guarantee scope -> full reseed
         diff.fullReseed = true
     }
     return diff

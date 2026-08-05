@@ -9,9 +9,9 @@ import {
 
 /** Sort order. */
 export enum SortOrder {
-    /** Earlier rows first (A→Z / oldest). Unstable order makes pagination skip or duplicate. */
+    /** Earlier rows first (A->Z / oldest). Unstable order makes pagination skip or duplicate. */
     Asc = "ASC",
-    /** Later rows first — "newest" feeds so page 1 is the latest, not the oldest. */
+    /** Later rows first -- "newest" feeds so page 1 is the latest, not the oldest. */
     Desc = "DESC",
 }
 

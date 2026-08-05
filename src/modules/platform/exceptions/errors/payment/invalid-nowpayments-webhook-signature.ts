@@ -16,7 +16,7 @@ export interface InvalidNowpaymentsWebhookSignatureExceptionMetadata extends Abs
 
 /**
  * Thrown when a NOWPayments IPN callback's HMAC signature verification fails
- * — the payload is discarded rather than reconciled, since it may not
+ * -- the payload is discarded rather than reconciled, since it may not
  * actually be from NOWPayments.
  */
 export class InvalidNowpaymentsWebhookSignatureException extends AbstractException {

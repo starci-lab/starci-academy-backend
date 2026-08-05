@@ -1,19 +1,19 @@
 /**
  * Params for starting (or resume-replacing) ONE resumable flashcard reviewer
- * ("Học thẻ") session over a single deck.
+ * session over a single deck.
  */
 export interface StartFlashcardReviewSessionParams {
     /** The learner starting the draw. */
     userId: string
-    /** The deck this session reviews — review sessions are scoped to ONE deck. */
+    /** The deck this session reviews -- review sessions are scoped to ONE deck. */
     deckId: string
     /** The `flashcard_cards.id` set for this deck, in the order they will be reviewed. */
     cardIds: Array<string>
     /**
-     * Which cards to actually persist into the session (thầy 2026-07-13 "modal
-     * chọn mode, full hoặc quên"):
-     * - `"full"` (default) — keep the whole `cardIds` set (review the entire deck).
-     * - `"due"` — keep only the cards that need review (no review row yet OR past
+     * Which cards to actually persist into the session (PO 2026-07-13 mode
+     * picker -- full deck or due-only):
+     * - `"full"` (default) -- keep the whole `cardIds` set (review the entire deck).
+     * - `"due"` -- keep only the cards that need review (no review row yet OR past
      *   `due_at`), matching the deck's `dueCount` semantics. When the filter would
      *   yield ZERO cards the full set is kept instead (never persist an empty draw).
      */
@@ -22,7 +22,7 @@ export interface StartFlashcardReviewSessionParams {
 
 /** Result of persisting a new resumable flashcard review session. */
 export interface StartFlashcardReviewSessionResult {
-    /** Id of the persisted session — pass to `syncFlashcardReviewSessionProgress` / `completeFlashcardReviewSession`. */
+    /** Id of the persisted session -- pass to `syncFlashcardReviewSessionProgress` / `completeFlashcardReviewSession`. */
     sessionId: string
 }
 
@@ -37,19 +37,19 @@ export interface SyncFlashcardReviewSessionProgressParams {
     /** Cards actually graded so far this session (via `reviewFlashcard`). */
     reviewedCount: number
     /**
-     * 0-indexed card positions graded this session (order-independent) —
+     * 0-indexed card positions graded this session (order-independent) --
      * drives the FE per-segment green, distinct from the plain `reviewedCount`.
      * Optional: when omitted the column is left unchanged (same tolerance the
      * sync already has); when provided it overwrites the row's set.
      */
     gradedIndexes?: Array<number>
-    /** Client-reported XP bookkeeping snapshot so far this session (no server grant — see {@link CompleteFlashcardReviewSessionParams}). */
+    /** Client-reported XP bookkeeping snapshot so far this session (no server grant -- see {@link CompleteFlashcardReviewSessionParams}). */
     xpEarned: number
 }
 
 /** Result of one sync attempt. */
 export interface SyncFlashcardReviewSessionProgressResult {
-    /** Whether the sync was applied — false when the session is not found/owned, or is no longer "in_progress". */
+    /** Whether the sync was applied -- false when the session is not found/owned, or is no longer "in_progress". */
     success: boolean
 }
 
@@ -57,7 +57,7 @@ export interface SyncFlashcardReviewSessionProgressResult {
  * Params for recording a finished flashcard review session.
  *
  * `reviewFlashcard` (the per-card SM-2 grading mutation) grants no XP today
- * and writes no `xp_histories` row — so, unlike `completeFlashcardQuizSession`,
+ * and writes no `xp_histories` row -- so, unlike `completeFlashcardQuizSession`,
  * this does NOT compute or grant any XP. `xpEarned` here is purely the
  * client-reported bookkeeping snapshot to persist onto the row for
  * history/stats display; it is never used to write `xp_histories` and never
@@ -70,7 +70,7 @@ export interface CompleteFlashcardReviewSessionParams {
     sessionId: string
     /** Final reviewed-card count to snapshot onto the row. */
     reviewedCount: number
-    /** Final XP bookkeeping snapshot to persist onto the row (NOT granted server-side — see class doc). */
+    /** Final XP bookkeeping snapshot to persist onto the row (NOT granted server-side -- see class doc). */
     xpEarned: number
 }
 
@@ -97,7 +97,7 @@ export interface FindMyInProgressFlashcardReviewSessionParams {
  * window).
  */
 export interface MyInProgressFlashcardReviewSessionResultData {
-    /** Id of the persisted session — pass to `syncFlashcardReviewSessionProgress` / `completeFlashcardReviewSession`. */
+    /** Id of the persisted session -- pass to `syncFlashcardReviewSessionProgress` / `completeFlashcardReviewSession`. */
     sessionId: string
     /** The `flashcard_cards.id` set for this deck, in review order. */
     cardIds: Array<string>
@@ -105,7 +105,7 @@ export interface MyInProgressFlashcardReviewSessionResultData {
     currentIndex: number
     /** Cards actually graded so far this session. */
     reviewedCount: number
-    /** 0-indexed card positions graded this session (order-independent) — rehydrates the FE per-segment green on resume. */
+    /** 0-indexed card positions graded this session (order-independent) -- rehydrates the FE per-segment green on resume. */
     gradedIndexes: Array<number>
     /** Client-reported XP bookkeeping snapshot so far this session. */
     xpEarned: number
@@ -122,10 +122,10 @@ export interface FindFlashcardReviewSessionByIdParams {
 }
 
 /**
- * A review session found by id, with its deck identity attached — so the FE's
+ * A review session found by id, with its deck identity attached -- so the FE's
  * unified `/review/sessions/[sessionId]` route can resolve full context
  * (which deck, its title) from the id ALONE, no `deckId` carried in the URL
- * (thầy 2026-07-11: "ý là không cần &deckId ấy, session đã persist hết rồi").
+ * (PO 2026-07-11: no `deckId` query param needed -- session already persists everything).
  */
 export interface FlashcardReviewSessionByIdResultData extends MyInProgressFlashcardReviewSessionResultData {
     /** The deck this session reviews. */

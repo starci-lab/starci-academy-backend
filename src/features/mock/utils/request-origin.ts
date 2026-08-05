@@ -7,7 +7,7 @@ import type {
  *
  * The presigned-URL lesson needs to hand the browser an absolute URL that
  * points back at this very service, whether it is reached directly on
- * `localhost:3002` or through the `mock.starci.org` reverse proxy — so we
+ * `localhost:3002` or through the `mock.starci.org` reverse proxy -- so we
  * prefer the `x-forwarded-*` headers the proxy sets and fall back to the
  * request's own protocol/host otherwise.
  */
@@ -27,6 +27,6 @@ const firstHeaderValue = (value: string | Array<string> | undefined): string | u
     if (Array.isArray(value)) {
         return value[0]
     }
-    // forwarded headers may be a comma-separated chain — take the first hop
+    // forwarded headers may be a comma-separated chain -- take the first hop
     return value?.split(",")[0]?.trim() || undefined
 }

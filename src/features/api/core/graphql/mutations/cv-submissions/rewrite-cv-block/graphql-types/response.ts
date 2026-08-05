@@ -12,7 +12,7 @@ import {
     description: "The rewritten CV block (not persisted).",
 })
 /**
- * Rewritten-block payload for `rewriteCvBlock` — the SAME block shape with
+ * Rewritten-block payload for `rewriteCvBlock` -- the SAME block shape with
  * improved item text (FE-owned JSON: `{ id, type, title, order, items }`). Not
  * persisted.
  */

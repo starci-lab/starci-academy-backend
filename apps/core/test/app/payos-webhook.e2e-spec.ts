@@ -66,7 +66,7 @@ describe("payOS webhook (e2e)",
 
         afterAll(async () => {
             // TypeORM's shutdown hook looks up the default (unnamed) DataSource,
-            // which this named-only setup doesn't register — ignore that noise.
+            // which this named-only setup doesn't register -- ignore that noise.
             await e2e.app.close().catch(() => undefined)
         })
 
@@ -150,7 +150,7 @@ describe("payOS webhook (e2e)",
         it("rejects a webhook with a bad signature and mutates nothing",
             async () => {
                 await seedPendingPurchase("700002")
-                // signature verification fails → handler throws before any grant
+                // signature verification fails -> handler throws before any grant
                 e2e.payosClient.webhooks.verify.mockRejectedValueOnce(
                     new Error("invalid signature"),
                 )
@@ -176,7 +176,7 @@ describe("payOS webhook (e2e)",
             async () => {
                 // valid signature but no matching pending transaction exists.
                 // Unlike SePay/Stripe, the PayOS handler treats an unmatched order
-                // as an unmatched probe/stray callback — it logs and ACKs (201)
+                // as an unmatched probe/stray callback -- it logs and ACKs (201)
                 // rather than throwing, so PayOS never marks the webhook URL
                 // "inactive" and retries a real callback into a black hole.
                 e2e.payosClient.webhooks.verify.mockResolvedValueOnce(undefined)
@@ -203,7 +203,7 @@ describe("payOS webhook (e2e)",
                     .expect(201)
 
                 // second delivery finds no matching PENDING transaction (already
-                // settled) — same "unmatched order" path as the probe case above,
+                // settled) -- same "unmatched order" path as the probe case above,
                 // so the handler ACKs (201) rather than throwing; the entitlement
                 // count staying at 1 is what actually proves no double grant
                 await request(e2e.app.getHttpServer())

@@ -15,7 +15,7 @@ import {
 })
 /**
  * Wires the public (no-login) `ragPlaygroundSamples` catalog. Resolver-
- * only — lists id + label; code is revealed only when a session indexes
+ * only -- lists id + label; code is revealed only when a session indexes
  * the chosen sample.
  */
 export class RagPlaygroundSamplesSingleQueryModule extends ConfigurableModuleClass {}

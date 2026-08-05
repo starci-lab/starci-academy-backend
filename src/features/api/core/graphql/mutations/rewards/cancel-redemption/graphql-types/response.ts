@@ -16,7 +16,7 @@ import {
 })
 /**
  * The redemption's id + refreshed status after the cancel transition. The
- * cost is refunded implicitly — `computeSpent` excludes `cancelled` rows from
+ * cost is refunded implicitly -- `computeSpent` excludes `cancelled` rows from
  * the spent sum, so no balance field is returned here; the client re-fetches
  * `myRewardWallet`/an ops listing for the refreshed balance.
  */

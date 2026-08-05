@@ -33,7 +33,7 @@ import {
 @Resolver()
 /**
  * Returns the authenticated user's coding-practice status (solved/attempted/
- * revealed ids + total points) from the Redis-cached progress — decoupled from
+ * revealed ids + total points) from the Redis-cached progress -- decoupled from
  * the shared `codingProblems` catalog (served from Elasticsearch).
  */
 export class MyCodingProgressResolver {

@@ -45,7 +45,7 @@ export interface BuildAutocompleteGlobalSearchPayloadResult {
 /** Params for executing the global search autocomplete query. */
 export type AutocompleteGlobalSearchExecuteParams =
     ExecuteParams<AutocompleteGlobalSearchRequest> & {
-        /** Undefined for guests — the query is public (free courses/challenges are searchable by anyone). */
+        /** Undefined for guests -- the query is public (free courses/challenges are searchable by anyone). */
         user?: UserEntity
     }
 
@@ -66,7 +66,7 @@ export interface AttachStateFlagsParams {
     courses: Array<GlobalSearchItem>
     /** Content (lesson) hits to enrich with `isPremium`. */
     contents: Array<GlobalSearchItem>
-    /** Undefined for guests — used to compute per-course `isEnrolled` (false for guests). */
+    /** Undefined for guests -- used to compute per-course `isEnrolled` (false for guests). */
     user?: UserEntity
 }
 

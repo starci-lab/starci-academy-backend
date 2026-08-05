@@ -9,7 +9,7 @@ import {
 } from "./k8s-resource.service"
 
 @Injectable()
-/** The Kubernetes capability: reports pods / deployments / services / … for step verification. A failed snapshot is swallowed so it never tears down the command relay. */
+/** The Kubernetes capability: reports pods / deployments / services / ... for step verification. A failed snapshot is swallowed so it never tears down the command relay. */
 export class K8sAgentService extends BaseAgentService {
     private resourceTimer?: NodeJS.Timeout
 
@@ -29,7 +29,7 @@ export class K8sAgentService extends BaseAgentService {
                 {
                     resources 
                 }))
-            .catch(() => { /* best-effort — a failed snapshot never tears down the relay. */ })
+            .catch(() => { /* best-effort -- a failed snapshot never tears down the relay. */ })
     }
 
     protected onSetup(): void {

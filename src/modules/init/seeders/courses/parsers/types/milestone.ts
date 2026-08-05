@@ -16,7 +16,7 @@ export interface MilestoneTaskTranslation {
 }
 
 /**
- * One outcome/approach grading criterion as authored under a language block (`#### N` →
+ * One outcome/approach grading criterion as authored under a language block (`#### N` ->
  * `{ body, score, critical }`). Outcome prose is agnostic; approach prose differs per language.
  */
 export interface MergedCriterion {
@@ -33,7 +33,7 @@ export interface MergedCriterion {
 }
 
 /**
- * One per-language brief block (`# criterias` → `## N`) after extract+merge: the learner-facing
+ * One per-language brief block (`# criterias` -> `## N`) after extract+merge: the learner-facing
  * `body` carries aligned `translations[]`; `outcome`/`approach` are English-only criterion lists.
  */
 export interface MergedLangBlock {
@@ -76,7 +76,7 @@ export interface MergedMilestoneTask {
     difficulty?: string
     /** SCHEMA V2 verification marker (non-null marks rubric-graded). */
     verified?: unknown
-    /** Per-language brief blocks (`# criterias` → `## N`). */
+    /** Per-language brief blocks (`# criterias` -> `## N`). */
     criterias?: Array<MergedLangBlock>
     /** Aligned i18n translation rows for the task itself. */
     translations?: Array<MilestoneTaskTranslation>

@@ -14,7 +14,7 @@ import type {
 
 @Injectable()
 /**
- * Invokes the handler directly (no CommandBus) — this leaf predates the
+ * Invokes the handler directly (no CommandBus) -- this leaf predates the
  * bus hop used elsewhere; do not "fix" it to CommandBus without checking
  * the handler's execute signature.
  */

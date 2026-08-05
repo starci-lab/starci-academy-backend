@@ -16,7 +16,7 @@ import {
     ],
 })
 /**
- * Achievements query group — profile badge leaves. Currently the single
+ * Achievements query group -- profile badge leaves. Currently the single
  * `myAchievements` leaf (every definition + the viewer's earned status +
  * progress); registered global so its resolver is picked up by the schema.
  */

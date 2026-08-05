@@ -73,7 +73,7 @@ import type {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the multi-course cart checkout (`courses/courses-checkout`) — no e2e
+ * e2e for the multi-course cart checkout (`courses/courses-checkout`) -- no e2e
  * previously exercised `CoursesCheckoutHandler` against a real Postgres: the ONE
  * `transactions` order row (`course: null`) + one `TransactionItemEntity` per
  * course, the progressive-loyalty + bundle-bonus pricing
@@ -83,7 +83,7 @@ const POSTGRESQL_PRIMARY = "primary"
  * handler's persistence).
  *
  * MOCKED (genuinely external): the 5 gateway SDK clients + the reconcile-job
- * queue — same shape as `course-enroll.e2e-spec.ts`.
+ * queue -- same shape as `course-enroll.e2e-spec.ts`.
  *
  * REAL: Postgres (Testcontainers), `CoursesCheckoutHandler`,
  * `CoursesCheckoutPricingService`, `CoursePricingService`,
@@ -315,7 +315,7 @@ describe("Courses checkout — multi-course cart (e2e)",
                             id: result.transactionId,
                         },
                         // `courseId` is a pure @RelationId (no @Column) and `course`
-                        // is a lazy relation — neither is populated by a bare find, so
+                        // is a lazy relation -- neither is populated by a bare find, so
                         // `order.course` would be `undefined`, not `null`. Load the
                         // relation so the cart order's null course is asserted as null.
                         relations: {

@@ -58,7 +58,7 @@ import {
     ],
 })
 /**
- * System query group — config, AI roster/health, platform counters, GitHub team
+ * System query group -- config, AI roster/health, platform counters, GitHub team
  * status, and public infrastructure probes. Registered global so each leaf
  * resolver is picked up by the schema.
  */

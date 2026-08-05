@@ -6,7 +6,7 @@ import {
 } from "./graphql-types"
 
 /**
- * Handler input for connectGithubAccount — typed here (not ExecuteParams)
+ * Handler input for connectGithubAccount -- typed here (not ExecuteParams)
  * because the mutation takes a named `input` arg rather than `request`.
  */
 export interface ConnectGithubAccountCommandParams {

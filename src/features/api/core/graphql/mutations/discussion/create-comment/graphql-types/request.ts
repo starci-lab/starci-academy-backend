@@ -10,7 +10,7 @@ import {
 /**
  * Request to create a comment (top-level or reply). A top-level comment must set
  * exactly one of `contentId` (a lesson question) or `courseId` (a course-general
- * "hỏi chung khóa" question); a reply only needs `parentCommentId` — it inherits its
+ * course-general question); a reply only needs `parentCommentId` -- it inherits its
  * scope from the parent, so both scope fields may be omitted.
  */
 export class CreateCommentRequest {

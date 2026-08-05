@@ -95,7 +95,7 @@ describe("MilestoneParserService",
                     },
                     {
                         // parse() never touches the DB, but the parser injects the primary
-                        // entity manager (used by milestonesFromDatabase) → DI needs it
+                        // entity manager (used by milestonesFromDatabase) -> DI needs it
                         provide: getEntityManagerToken("primary"),
                         useValue: makeEntityManagerMock(),
                     },
@@ -138,7 +138,7 @@ describe("MilestoneParserService",
                                 expect.objectContaining({
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Nền Tảng Dự Án",
+                                    value: "Nền Tảng Dự Án", // vn-ok: vi-locale seed fixture assertion
                                 }),
                             ]),
                         )

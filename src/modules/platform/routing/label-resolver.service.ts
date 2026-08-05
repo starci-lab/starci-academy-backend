@@ -47,7 +47,7 @@ import type {
  *   1. Dedupe refs and group them by `entityName`.
  *   2. For each known kind, bulk-read the Redis cache for every id.
  *   3. Issue ONE `WHERE id IN (...)` query for the cache misses, then warm the cache.
- *   4. Return a Map keyed by `toGlobalId(entityName, id)` → label.
+ *   4. Return a Map keyed by `toGlobalId(entityName, id)` -> label.
  *
  * Unknown entity names are skipped (they produce no Map entry).
  *
@@ -64,7 +64,7 @@ export class LabelResolverService {
      * Built once per process from each entity's `.name` so the keys stay in sync
      * with the actual class names used by {@link toGlobalId}.
      *
-     * TODO: localized labels — read the per-locale translation column/relation
+     * TODO: localized labels -- read the per-locale translation column/relation
      * instead of the base column once translation tables are wired in.
      */
     private readonly kinds: Record<string, LabelKind> = {
@@ -100,18 +100,18 @@ export class LabelResolverService {
      * Resolve a batch of entity references into display labels.
      *
      * @param params - Refs to resolve plus the active locale.
-     * @returns Map keyed by `toGlobalId(entityName, id)` → label (unknown kinds omitted).
+     * @returns Map keyed by `toGlobalId(entityName, id)` -> label (unknown kinds omitted).
      */
     async resolveLabels({
         refs, locale,
     }: ResolveLabelsParams): Promise<Map<string, string>> {
-        // accumulate the final globalId → label mapping returned to the caller
+        // accumulate the final globalId -> label mapping returned to the caller
         const labels = new Map<string, string>()
 
         // dedupe + group refs by entity name so each kind is queried at most once
         const idsByEntityName = this.groupUniqueIdsByEntityName(refs)
 
-        // resolve every group in parallel — each kind hits its own cache + table
+        // resolve every group in parallel -- each kind hits its own cache + table
         await Promise.all(
             Array.from(idsByEntityName.entries()).map(
                 async ([entityName,
@@ -127,7 +127,7 @@ export class LabelResolverService {
                         entityName, ids, locale, labels,
                     })
 
-                    // nothing left to query → this kind was fully served from cache
+                    // nothing left to query -> this kind was fully served from cache
                     if (missingIds.length === 0) {
                         return
                     }
@@ -147,12 +147,12 @@ export class LabelResolverService {
      * Dedupe refs and group their ids by entity name.
      *
      * @param refs - Raw (possibly duplicated) entity references.
-     * @returns Map of entityName → unique array of ids.
+     * @returns Map of entityName -> unique array of ids.
      */
     private groupUniqueIdsByEntityName(
         refs: Array<EntityRef>,
     ): Map<string, Array<string>> {
-        // entityName → Set of ids guarantees each id is queried once per kind
+        // entityName -> Set of ids guarantees each id is queried once per kind
         const seen = new Map<string, Set<string>>()
         for (const ref of refs) {
             // lazily create the per-entity id set on first sight
@@ -184,7 +184,7 @@ export class LabelResolverService {
         // accumulate ids that missed the cache for the follow-up DB query
         const missingIds: Array<string> = []
 
-        // one cache GET per id — manager already pipelines these to Redis
+        // one cache GET per id -- manager already pipelines these to Redis
         await Promise.all(
             ids.map(async (id) => {
                 // cache key args mirror the EntityLabel namespace: [entityName, id, locale]
@@ -240,7 +240,7 @@ export class LabelResolverService {
                 const id = String(typedRow.id)
                 const rawLabel = typedRow[kind.labelColumn]
 
-                // skip rows whose label column is null/empty — nothing useful to show
+                // skip rows whose label column is null/empty -- nothing useful to show
                 if (typeof rawLabel !== "string" || rawLabel.length === 0) {
                     return
                 }

@@ -52,20 +52,20 @@ import {
         MixinModule.register({
             isGlobal: true,
         }),
-        /** Primary PostgreSQL module — entity manager access for DB-touching subcommands. */
+        /** Primary PostgreSQL module -- entity manager access for DB-touching subcommands. */
         PrimaryPostgreSQLModule.register({
             isGlobal: true,
             withResolvers: false,
         }),
-        /** Crypto module — `Sha256Service` for deterministic seed id factories. */
+        /** Crypto module -- `Sha256Service` for deterministic seed id factories. */
         CryptoModule.register({
             isGlobal: true,
         }),
-        /** Mount filesystem module — `MountStorageService` local secrets/config. */
+        /** Mount filesystem module -- `MountStorageService` local secrets/config. */
         FilesystemModule.register({
             isGlobal: true,
         }),
-        /** S3 module — `S3ReadService` fallback context reader for seed parsers. */
+        /** S3 module -- `S3ReadService` fallback context reader for seed parsers. */
         S3Module.register({
             isGlobal: true,
         }),
@@ -76,13 +76,13 @@ import {
     ],
 })
 /**
- * CLI application root — only imports required by {@link CliModule}.
+ * CLI application root -- only imports required by {@link CliModule}.
  * `PrimaryPostgreSQLModule` added for `utils playground-seed` (and any future
- * subcommand needing `@InjectPrimaryPostgreSQLEntityManager` — none did before,
+ * subcommand needing `@InjectPrimaryPostgreSQLEntityManager` -- none did before,
  * so it was never wired here; `withResolvers: false` since the CLI has no
  * GraphQL layer to resolve entity fields for).
  * `CryptoModule` / `FilesystemModule` / `S3Module` added for
- * `utils playground-seed-test` — the seeder's shared parser/context services
+ * `utils playground-seed-test` -- the seeder's shared parser/context services
  * transitively need `Sha256Service`, `MountStorageService`, and `S3ReadService`.
  * None of the three pulls in `InitModule`/`SeedersService`/`DataGitBootstrapService`.
  */

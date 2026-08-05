@@ -37,12 +37,12 @@ const MAX_LIMIT = 48
 @Resolver()
 /**
  * Recruiter marketplace query: open-to-work candidates FILTERED to ONE track
- * (course) and RANKED by that track's `depthScore` DESC. Optional auth — anyone
+ * (course) and RANKED by that track's `depthScore` DESC. Optional auth -- anyone
  * may browse (the listed users opted into being discoverable). Offset-paginated.
  *
  * Fairness contract (WF-01/WF-02): the `courseId` arg picks exactly ONE track;
  * ranking uses only THAT track's depth. There is deliberately no "sort by total
- * across all tracks" — a recruiter chooses one track to rank on, never a blended
+ * across all tracks" -- a recruiter chooses one track to rank on, never a blended
  * composite (which the fair-monetization axiom forbids). Each item carries the
  * track's `band` / `isQualified` so the FE shows qualitative badges, not just a
  * raw number.

@@ -35,7 +35,7 @@ export class RedeemRewardRequest {
             description: "Stable catalog key of the reward to redeem (e.g. 'streakFreeze').",
         },
     )
-    // required — an unknown key is rejected by the handler (UnknownRewardException)
+    // required -- an unknown key is rejected by the handler (UnknownRewardException)
     @IsString()
         rewardKey: string
 

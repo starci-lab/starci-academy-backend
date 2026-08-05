@@ -15,13 +15,13 @@ import {
 
 /** Sort fields for listing feedback rows on the latest milestone-task attempt. */
 export enum UserMilestoneTaskFeedbacksSortBy {
-    /** Authoring / AI display order — default so feedback reads top-to-bottom as written. */
+    /** Authoring / AI display order -- default so feedback reads top-to-bottom as written. */
     SortIndex = "sortIndex",
-    /** Cluster critical issues first — triage view, not narrative reading order. */
+    /** Cluster critical issues first -- triage view, not narrative reading order. */
     Severity = "severity",
-    /** When the feedback row was written — chronological audit, not display order. */
+    /** When the feedback row was written -- chronological audit, not display order. */
     CreatedAt = "createdAt",
-    /** Last edit time — surfaces revised feedback ahead of untouched rows. */
+    /** Last edit time -- surfaces revised feedback ahead of untouched rows. */
     UpdatedAt = "updatedAt",
 }
 
@@ -91,7 +91,7 @@ export class UserMilestoneTaskFeedbacksRequestPaginationFilters extends Paginati
     description: "Request for feedback items on the caller’s latest attempt for a milestone task.",
 })
 /**
- * Args for `userMilestoneTaskFeedbacks` — course + task identify the caller's
+ * Args for `userMilestoneTaskFeedbacks` -- course + task identify the caller's
  * latest attempt whose feedback rows are listed (no attemptId needed).
  */
 export class UserMilestoneTaskFeedbacksRequest {

@@ -46,7 +46,7 @@ import type {
 } from "./types"
 
 /**
- * Every content entity type with an Elasticsearch index — reconciled per locale.
+ * Every content entity type with an Elasticsearch index -- reconciled per locale.
  * The class `.name` is the key {@link ElasticsearchService.pruneOrphans} resolves
  * its `<base>-<locale>` index from, and the seeded doc `_id` is the entity id.
  */
@@ -66,7 +66,7 @@ const ELASTICSEARCH_TARGETS = [
 ]
 
 /**
- * Content entity types uploaded to the CDN — objects are keyed by both id and
+ * Content entity types uploaded to the CDN -- objects are keyed by both id and
  * displayId (with/without a locale suffix), so the live set unions both.
  */
 const CDN_TARGETS: Array<CdnTarget> = [
@@ -95,13 +95,13 @@ const CDN_TARGETS: Array<CdnTarget> = [
 @Injectable()
 /**
  * Deletes Elasticsearch docs + CDN objects whose entity no longer exists in
- * PostgreSQL — the ghosts left behind when content is removed or renumbered.
+ * PostgreSQL -- the ghosts left behind when content is removed or renumbered.
  *
  * Runs after the sync phase (PostgreSQL is then the authoritative, complete set,
  * even after a partial diff seed). For every content entity type it pulls the live
  * id/displayId set from the DB and prunes anything in ES/CDN that isn't in it. A
  * per-target ratio guard skips (with a loud warn) when more than
- * `pruneMaxRatio` of a type would be deleted — so an empty DB (seed hiccup) can
+ * `pruneMaxRatio` of a type would be deleted -- so an empty DB (seed hiccup) can
  * never wipe the search index or CDN.
  */
 export class ReconcileSynchronizerService {
@@ -261,7 +261,7 @@ export class ReconcileSynchronizerService {
         liveSet: Set<string>,
         maxRatio: number,
     ): Promise<number> {
-        // sync uploads to MinIO only → reconcile the same provider
+        // sync uploads to MinIO only -> reconcile the same provider
         const keys = await this.s3ReadService.listAll({
             prefix,
             provider: S3Provider.Minio,

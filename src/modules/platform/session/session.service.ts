@@ -71,7 +71,7 @@ import type {
  * with its device, IP, and geo-location.
  *
  * The Redis hash `session:<keycloakSub>` is the source of truth for what is
- * currently active: each field is a `sessionId` → JSON {@link SessionRecord}. On
+ * currently active: each field is a `sessionId` -> JSON {@link SessionRecord}. On
  * each login a fresh session is added; once the hash is full the oldest session
  * is evicted (its device fails its next guarded request). Every session is also
  * mirrored into the `login_sessions` Postgres table so the account can list and
@@ -104,7 +104,7 @@ export class SessionService {
     async startSession({ res, req, accessToken }: StartSessionParams): Promise<StartSessionResult> {
         // identify the user from the freshly-minted token's subject claim
         const userId = this.extractSubject(accessToken)
-        // without a subject we cannot bind a session — skip silently
+        // without a subject we cannot bind a session -- skip silently
         if (!userId) {
             return
         }
@@ -170,7 +170,7 @@ export class SessionService {
         })
 
         // security alert: a sign-in from a device we have not seen before.
-        // `userId` here is the Keycloak subject — resolve the local user row for
+        // `userId` here is the Keycloak subject -- resolve the local user row for
         // the email address. Best-effort: never let a mail failure break login.
         if (isNewDevice) {
             const user = await this.entityManager.findOne(
@@ -222,11 +222,11 @@ export class SessionService {
         const key = this.key(userId)
         // how many managed sessions the account currently has (heals legacy keys)
         const activeCount = await this.readActiveCount(key)
-        // no managed session → nothing to enforce (rollout / expiry safety)
+        // no managed session -> nothing to enforce (rollout / expiry safety)
         if (activeCount === 0) {
             return
         }
-        // managed sessions exist but this request carries no id → unmanaged device
+        // managed sessions exist but this request carries no id -> unmanaged device
         if (!sessionId) {
             throw new SessionSupersededException({
                 userId,
@@ -237,7 +237,7 @@ export class SessionService {
             key,
             sessionId,
         )
-        // not active → this device was evicted by a newer login or revoked
+        // not active -> this device was evicted by a newer login or revoked
         if (!isActive) {
             throw new SessionSupersededException({
                 userId,
@@ -274,7 +274,7 @@ export class SessionService {
                 await this.redis.hdel(key,
                     sessionId)
             } catch (error) {
-                // a legacy single-session string key breaks hdel with WRONGTYPE →
+                // a legacy single-session string key breaks hdel with WRONGTYPE ->
                 // drop the whole key on sign-out (it was the only session anyway)
                 if (this.isWrongTypeError(error)) {
                     await this.redis.del(key)
@@ -304,7 +304,7 @@ export class SessionService {
     async listSessions({ keycloakId, currentSessionId }: ListSessionsParams): Promise<ListSessionsResult> {
         // the enforcement hash holds exactly the session ids that are still active
         const activeSessionIds = await this.readSessionIds(this.key(keycloakId))
-        // no active sessions → empty list
+        // no active sessions -> empty list
         if (activeSessionIds.length === 0) {
             return []
         }
@@ -361,7 +361,7 @@ export class SessionService {
                 },
             },
         )
-        // unknown/already-revoked → typed error so callers can branch on the code
+        // unknown/already-revoked -> typed error so callers can branch on the code
         if (!row) {
             throw new LoginSessionNotFoundException({
                 keycloakId,
@@ -389,10 +389,10 @@ export class SessionService {
         const key = this.key(keycloakId)
         // configured maximum number of concurrent devices per account
         const max = envConfig().session.maxDevices
-        // snapshot every current session field → value (heals legacy keys)
+        // snapshot every current session field -> value (heals legacy keys)
         const all = await this.readSessionMap(key)
         const sessionIds = Object.keys(all)
-        // still room for one more → no eviction needed
+        // still room for one more -> no eviction needed
         if (sessionIds.length < max) {
             return
         }
@@ -482,7 +482,7 @@ export class SessionService {
      * @returns The parsed record, or null when missing/corrupt.
      */
     private parseRecord(raw: string | undefined): SessionRecord | null {
-        // missing field → nothing to parse
+        // missing field -> nothing to parse
         if (!raw) {
             return null
         }
@@ -490,7 +490,7 @@ export class SessionService {
             // trusted source (our own writes), but guard against corruption
             return JSON.parse(raw) as SessionRecord
         } catch {
-            // corrupt entry → treat as absent so callers can evict it
+            // corrupt entry -> treat as absent so callers can evict it
             return null
         }
     }
@@ -509,7 +509,7 @@ export class SessionService {
             // hash length; missing key returns 0 without throwing
             return await this.redis.hlen(key)
         } catch (error) {
-            // legacy string key → drop it so the next login establishes a hash
+            // legacy string key -> drop it so the next login establishes a hash
             if (this.isWrongTypeError(error)) {
                 await this.redis.del(key)
                 return 0
@@ -523,14 +523,14 @@ export class SessionService {
      * {@link readActiveCount}).
      *
      * @param key - The Redis key holding the user's sessions hash.
-     * @returns The field → record-JSON map (empty when absent or healed).
+     * @returns The field -> record-JSON map (empty when absent or healed).
      */
     private async readSessionMap(key: string): Promise<Record<string, string>> {
         try {
             // missing key returns {} without throwing
             return await this.redis.hgetall(key)
         } catch (error) {
-            // legacy string key → drop it and treat as no sessions
+            // legacy string key -> drop it and treat as no sessions
             if (this.isWrongTypeError(error)) {
                 await this.redis.del(key)
                 return {
@@ -552,7 +552,7 @@ export class SessionService {
             // missing key returns [] without throwing
             return await this.redis.hkeys(key)
         } catch (error) {
-            // legacy string key → drop it and treat as no sessions
+            // legacy string key -> drop it and treat as no sessions
             if (this.isWrongTypeError(error)) {
                 await this.redis.del(key)
                 return []
@@ -583,7 +583,7 @@ export class SessionService {
     private extractSubject(token: string): string | undefined {
         // decode-only: we just need the subject, signature is trusted at source
         const payload = decode(token)
-        // opaque/invalid tokens decode to null or a bare string → no subject
+        // opaque/invalid tokens decode to null or a bare string -> no subject
         if (!payload || typeof payload === "string") {
             return undefined
         }

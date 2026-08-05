@@ -13,18 +13,18 @@ import {
 
 @Entity("user_mock_interview_course_stats_projections")
 /**
- * CQRS projection of a user's mock-interview COURSE stats — one row per
- * enrollment (Kiểu A — single key `enrollment_id`, mirrors
+ * CQRS projection of a user's mock-interview COURSE stats -- one row per
+ * enrollment (Type A -- single key `enrollment_id`, mirrors
  * {@link import("./user-challenge-progress-projection.entity").UserChallengeProgressProjectionEntity}).
  *
  * The inherited jsonb `value` holds the full `MyMockInterviewStatsResultData`
  * shape (`insufficientData`, `modeSplit`, `trend`, `byPhase`, `byKind`,
- * `weakest`) — the SAME aggregate `MyMockInterviewStatsService.compute` used
- * to fold live on every read from a bounded ≤50-row scan, a rule violation
- * per `.claude/be/rules/cqrs-no-inline-aggregate.md` ("kể cả scale nhỏ").
+ * `weakest`) -- the SAME aggregate `MyMockInterviewStatsService.compute` used
+ * to fold live on every read from a bounded <=50-row scan, a rule violation
+ * per `.claude/be/rules/cqrs-no-inline-aggregate.md` (even at small scale).
  */
 export class UserMockInterviewCourseStatsProjectionEntity extends AbstractProjectionEntity {
-    /** Enrollment this course-stats row belongs to — the natural primary key. */
+    /** Enrollment this course-stats row belongs to -- the natural primary key. */
     @PrimaryColumn({
         name: "enrollment_id",
         type: "uuid",

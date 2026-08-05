@@ -53,7 +53,7 @@ export class CodingProblemInsertService {
      * @param problem - the parsed problem
      */
     private async upsertOne(problem: ParsedCodingProblem): Promise<void> {
-        // deterministic id from the slug → stable across re-seeds
+        // deterministic id from the slug -> stable across re-seeds
         const id = uuidv5(problem.slug,
             envConfig().uuidNamespace.codingProblem)
         // do the parent upsert + child replacement atomically
@@ -134,7 +134,7 @@ export class CodingProblemInsertService {
                     })),
                 )
             }
-            // insert solutions (one per language) — deterministic id keyed by
+            // insert solutions (one per language) -- deterministic id keyed by
             // problem id + language, replaced wholesale like starter codes
             if (problem.solutions.length > 0) {
                 await entityManager.save(
@@ -150,7 +150,7 @@ export class CodingProblemInsertService {
                     })),
                 )
             }
-            // insert translations — one row per (locale, field) for title + statement
+            // insert translations -- one row per (locale, field) for title + statement
             const translationRows = problem.translations.flatMap((translation) => [
                 {
                     codingProblemId: id,

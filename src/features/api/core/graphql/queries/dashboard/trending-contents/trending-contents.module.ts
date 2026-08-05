@@ -13,5 +13,5 @@ import {
         TrendingContentsResolver,
     ],
 })
-/** Feature-module boundary for the `trendingContents` query — wires its resolver so the dashboard group can mount this widget independently. */
+/** Feature-module boundary for the `trendingContents` query -- wires its resolver so the dashboard group can mount this widget independently. */
 export class TrendingContentsSingleQueryModule extends ConfigurableModuleClass {}

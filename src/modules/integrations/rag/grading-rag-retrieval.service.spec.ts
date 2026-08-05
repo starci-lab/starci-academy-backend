@@ -102,7 +102,7 @@ describe("GradingRetrievalService",
                     ],
                     criteria: [],
                     embeddingModel,
-                    // budget only fits the first chunk + nothing more → truncated
+                    // budget only fits the first chunk + nothing more -> truncated
                     maxChars: 4,
                     jobId: "job-1",
                 })
@@ -110,7 +110,7 @@ describe("GradingRetrievalService",
                 expect(result.degraded).toBe(false)
                 expect(result.excerpt).toBe("AAAA")
                 expect(result.truncated).toBe(true)
-                // no criteria → no Qdrant work at all
+                // no criteria -> no Qdrant work at all
                 expect(fromDocuments).not.toHaveBeenCalled()
             })
 
@@ -128,7 +128,7 @@ describe("GradingRetrievalService",
                     "CCCC",
                     "c.ts",
                 )
-                // criterion 1 → [A, B]; criterion 2 → [B, C] (B overlaps and must appear once)
+                // criterion 1 -> [A, B]; criterion 2 -> [B, C] (B overlaps and must appear once)
                 const similaritySearch = jest.fn(async (query: string) =>
                     query === "q1"
                         ? [
@@ -163,7 +163,7 @@ describe("GradingRetrievalService",
                     jobId: "job-1",
                 })
 
-                // round-robin rank-0 (A, B) then rank-1 (B dup→skip, C) → A, B, C exactly once
+                // round-robin rank-0 (A, B) then rank-1 (B dup->skip, C) -> A, B, C exactly once
                 expect(result.excerpt).toBe("AAAA\n\nBBBB\n\nCCCC")
                 expect(result.retrievedChunks).toBe(3)
                 expect(result.degraded).toBe(false)

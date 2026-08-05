@@ -1,6 +1,6 @@
 /** Message for when the Elasticsearch index reset starts dropping/recreating indices at boot. */
 export interface ElasticsearchIndexResetStartedMessage {
-    /** Number of concrete indices (entity × locale) being dropped and recreated. */
+    /** Number of concrete indices (entity x locale) being dropped and recreated. */
     indexCount: number
 }
 

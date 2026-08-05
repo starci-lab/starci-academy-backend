@@ -2,7 +2,7 @@
 export interface FindMyFlashcardQuizSessionBySessionIdParams {
     /** Viewer the session must belong to (owner-scoped via the session's enrollment.user). */
     userId: string
-    /** The quiz-session id to resolve — resolved REGARDLESS of status (completed/abandoned/in_progress). */
+    /** The quiz-session id to resolve -- resolved REGARDLESS of status (completed/abandoned/in_progress). */
     sessionId: string
 }
 
@@ -29,10 +29,10 @@ export interface FlashcardQuizSessionResult {
 }
 
 /**
- * The resolved recap for ONE flashcard quick-quiz ("Hỏi nhanh") session — the
+ * The resolved recap for ONE flashcard quick-quiz session -- the
  * result of {@link import("../my-flashcard-quiz-session-by-session-id.service").MyFlashcardQuizSessionBySessionIdService.find}.
  * Everything is read straight off the snapshotted `flashcard_quiz_sessions` row
- * (NO recompute) — the entity already persists coverage/xp/weakTags/results at
+ * (NO recompute) -- the entity already persists coverage/xp/weakTags/results at
  * completion time.
  */
 export interface MyFlashcardQuizSessionBySessionIdResultData {

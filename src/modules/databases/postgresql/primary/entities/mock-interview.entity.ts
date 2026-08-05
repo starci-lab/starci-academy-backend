@@ -26,48 +26,48 @@ import {
     ["family",
         "tier"])
 /**
- * One authored MOCK-INTERVIEW question — the static side of the "đề tĩnh · phản
- * hồi sống" split. Unlike a flashcard (a recall fact you read the answer to),
+ * One authored MOCK-INTERVIEW question -- the static side of the static-prompt - live-response
+ * split. Unlike a flashcard (a recall fact you read the answer to),
  * an interview question is an express/analyze-tier prompt the candidate answers
  * OUT LOUD, graded by AI against this row's AUTHORED `idealAnswer` + `rubric`
- * (no lesson-content RAG — the authored answer IS the ground truth).
+ * (no lesson-content RAG -- the authored answer IS the ground truth).
  *
  * Two FAMILIES share this table (routed by {@link family}):
- *  - `technical` — grounded in a course/module (`courseId`/`moduleId` set),
+ *  - `technical` -- grounded in a course/module (`courseId`/`moduleId` set),
  *    graded on technical substance; carries the rich `diagram`/`givenCodes`/
  *    `idealAnswer` fields per `kind`.
- *  - `behavioral` — GLOBAL (no course/module — universal EQ competencies),
+ *  - `behavioral` -- GLOBAL (no course/module -- universal EQ competencies),
  *    graded on STAR via `rubric` + `ownershipSignal`; no code/diagram.
  *
  * Seeded from `.mount` (technical: `courses/<c>/mock-interview/`; behavioral:
- * `mock-interview-eq/`) — the DSL uses the SAME `# field`/separator grammar as
+ * `mock-interview-eq/`) -- the DSL uses the SAME `# field`/separator grammar as
  * flashcards, so the shared `ExtractJsonFromMdService` parses it. List fields
  * (`rubric`/`followUps`/`hints`/`keywords`/`tags`) land as jsonb arrays;
- * `family`/`kind`/`tier` are varchar (never pg_enum — same reasoning as
+ * `family`/`kind`/`tier` are varchar (never pg_enum -- same reasoning as
  * `mock_interview_sessions.mode`, avoids the synchronize enum-add trap).
  *
- * Bilingual override via {@link translations} ({@link MockInterviewTranslationEntity}) —
+ * Bilingual override via {@link translations} ({@link MockInterviewTranslationEntity}) --
  * same house pattern as content/milestone/challenge, added alongside the rename
  * from `interview_questions`. Per-programming-language `givenCode` variants (for
  * questions grounded in a multi-lang module) live in {@link langs}
- * ({@link MockInterviewLangEntity}) — the inline `givenCode`/`givenLang` columns
+ * ({@link MockInterviewLangEntity}) -- the inline `givenCode`/`givenLang` columns
  * on this row stay as the single-language default; `langs` is populated only
  * when a question needs more than one language variant.
  */
 export class MockInterviewEntity extends UuidAbstractEntity {
-    /** `technical` | `behavioral` — routes source, grading model + surfaced tools. */
+    /** `technical` | `behavioral` -- routes source, grading model + surfaced tools. */
     @Column({
         type: "varchar", length: 32 
     })
         family: string
 
-    /** Cognitive frame — theory/reasoning/scenario/debug/review/optimize/coding/design (technical) or behavioral/situational/culture (behavioral). */
+    /** Cognitive frame -- theory/reasoning/scenario/debug/review/optimize/coding/design (technical) or behavioral/situational/culture (behavioral). */
     @Column({
         type: "varchar", length: 32 
     })
         kind: string
 
-    /** junior | middle | senior — drives draw pool + rubric strictness. */
+    /** junior | middle | senior -- drives draw pool + rubric strictness. */
     @Column({
         type: "varchar", length: 16, nullable: true 
     })
@@ -79,19 +79,19 @@ export class MockInterviewEntity extends UuidAbstractEntity {
     })
         prompt: string
 
-    /** Authored model answer / outline — the grading ground-truth (technical). Null for behavioral (no single ideal story). */
+    /** Authored model answer / outline -- the grading ground-truth (technical). Null for behavioral (no single ideal story). */
     @Column({
         name: "ideal_answer", type: "text", nullable: true 
     })
         idealAnswer: string | null
 
-    /** The reasoning points that earn credit (`## N` items) — the grading anchor. jsonb array of strings. */
+    /** The reasoning points that earn credit (`## N` items) -- the grading anchor. jsonb array of strings. */
     @Column({
         type: "jsonb", nullable: true 
     })
         rubric: Array<string> | null
 
-    /** 1–3 probe questions the interviewer may ask next (AI picks per answer). jsonb array. */
+    /** 1-3 probe questions the interviewer may ask next (AI picks per answer). jsonb array. */
     @Column({
         name: "follow_ups", type: "jsonb", nullable: true 
     })
@@ -103,7 +103,7 @@ export class MockInterviewEntity extends UuidAbstractEntity {
     })
         hints: Array<string> | null
 
-    /** Coverage keywords (from the `:::chip` block) — secondary grading signal. jsonb array. */
+    /** Coverage keywords (from the `:::chip` block) -- secondary grading signal. jsonb array. */
     @Column({
         type: "jsonb", nullable: true 
     })
@@ -127,7 +127,7 @@ export class MockInterviewEntity extends UuidAbstractEntity {
     })
         givenLang: string | null
 
-    /** EQ competency being probed — conflict/ownership/leadership/communication/growth (behavioral only). */
+    /** EQ competency being probed -- conflict/ownership/leadership/communication/growth (behavioral only). */
     @Column({
         type: "varchar", length: 48, nullable: true 
     })
@@ -208,7 +208,7 @@ export class MockInterviewEntity extends UuidAbstractEntity {
         langs: Array<MockInterviewLangEntity>
 
     /**
-     * Coverage checkpoints — the grading anchor that succeeds {@link rubric}. Each row
+     * Coverage checkpoints -- the grading anchor that succeeds {@link rubric}. Each row
      * carries the structure a bare rubric string could not (dimension/critical/weight).
      */
     @OneToMany(

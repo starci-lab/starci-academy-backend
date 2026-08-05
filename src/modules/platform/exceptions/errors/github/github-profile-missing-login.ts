@@ -12,7 +12,7 @@ import {
 export type GithubProfileMissingLoginExceptionMetadata = AbstractExceptionMetadata
 
 /**
- * Thrown when GitHub's `/user` endpoint responds without a `login` field —
+ * Thrown when GitHub's `/user` endpoint responds without a `login` field --
  * an unexpected shape for an authenticated request.
  */
 export class GithubProfileMissingLoginException extends AbstractException {

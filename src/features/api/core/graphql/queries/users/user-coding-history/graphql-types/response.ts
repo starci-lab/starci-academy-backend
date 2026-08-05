@@ -11,7 +11,7 @@ import {
     description: "A solved coding problem with the language(s) used.",
 })
 /**
- * One solved coding problem on a user's profile — the problem, its difficulty,
+ * One solved coding problem on a user's profile -- the problem, its difficulty,
  * which language(s) the user solved it in, and when it was first solved.
  */
 export class UserCodingHistoryItemData {

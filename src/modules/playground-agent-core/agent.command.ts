@@ -41,7 +41,7 @@ interface AgentCommandOptions {
  *   <agent> <pairingCode> --install-service       -> install background service
  *   <agent> --uninstall-service                   -> remove background service
  *
- * `isDefault: true` means it runs directly (`<agent> <code>`, no subcommand) —
+ * `isDefault: true` means it runs directly (`<agent> <code>`, no subcommand) --
  * so the static `name` here is cosmetic; each app's binary name comes from its
  * generated package.json `bin`, and the exact usage/label come from the meta.
  */
@@ -91,7 +91,7 @@ export class AgentCommand extends CommandRunner {
             if (!pairingCode) {
                 // CLI usage text, not application logging: this is a standalone npx binary
                 // whose output channel IS the terminal. WinstonService ships structured
-                // events to Loki — it cannot tell the operator how to invoke the command.
+                // events to Loki -- it cannot tell the operator how to invoke the command.
                 // eslint-disable-next-line no-console
                 console.error(`--install-service needs a pairing code: ${this.meta.cliName} <pairingCode> --install-service`)
                 process.exit(1)
@@ -106,7 +106,7 @@ export class AgentCommand extends CommandRunner {
             console.error(`Usage: npx ${this.meta.packageName} <pairingCode> [--server <url>]`)
             process.exit(1)
         }
-        // RUN mode: wire up the relay, then keep the command pending forever — the
+        // RUN mode: wire up the relay, then keep the command pending forever -- the
         // socket keeps the process alive and nest-commander must NOT close the context.
         this.agentService.run(pairingCode,
             server)

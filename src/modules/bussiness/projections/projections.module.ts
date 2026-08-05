@@ -56,7 +56,7 @@ import {
 })
 /**
  * Umbrella module aggregating every CQRS projection leaf-module: progress
- * (user×course), content engagement (content), user stats (user), course stats
+ * (userxcourse), content engagement (content), user stats (user), course stats
  * (course), contribution, user coding, user XP, user capstone, user pinned
  * projects, user solved challenges, trending contents, league cohort points,
  * user flashcard stats, user flashcard course stats, and user mock-interview

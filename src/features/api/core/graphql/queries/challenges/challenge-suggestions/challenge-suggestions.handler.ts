@@ -17,7 +17,7 @@ import {
 @QueryHandler(ChallengeSuggestionsQuery)
 @Injectable()
 /**
- * Challenge autocomplete (typeahead) handler — ES Completion Suggester.
+ * Challenge autocomplete (typeahead) handler -- ES Completion Suggester.
  *
  * Inherits the entire suggest flow from {@link AbstractSuggestionsHandler}: it
  * reads `{ locale, request: { query, limit } }`, resolves the per-locale `challenges`
@@ -31,6 +31,6 @@ import {
  */
 export class ChallengeSuggestionsHandler
     extends AbstractSuggestionsHandler<ChallengeSuggestionsQuery> {
-    /** Entity this handler autocompletes — drives `challenges` index resolution. */
+    /** Entity this handler autocompletes -- drives `challenges` index resolution. */
     protected readonly entityName = ChallengeEntity.name
 }

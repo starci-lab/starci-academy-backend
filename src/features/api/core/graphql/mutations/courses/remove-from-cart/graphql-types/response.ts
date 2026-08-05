@@ -29,7 +29,7 @@ export class RemoveFromCartResponseData {
  * Response wrapper for the removeFromCart mutation.
  *
  * `data` is `nullable: true` because the transform interceptor sets `data = null`
- * on the error path — a non-nullable field would crash GraphQL and mask the real
+ * on the error path -- a non-nullable field would crash GraphQL and mask the real
  * error.
  */
 export class RemoveFromCartResponse

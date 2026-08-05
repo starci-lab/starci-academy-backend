@@ -3,7 +3,7 @@ import type {
 } from "@modules/socketio"
 
 /**
- * Server → client message carrying one streamed token delta for the mock
+ * Server -> client message carrying one streamed token delta for the mock
  * interviewer's next turn. The final emission of a stream sets `done: true`;
  * a failed stream sets `done: true` plus an `error` message.
  */

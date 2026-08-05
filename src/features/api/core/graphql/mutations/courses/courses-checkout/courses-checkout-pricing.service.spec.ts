@@ -32,7 +32,7 @@ import {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** The buyer under test — value is irrelevant; it is only threaded into params. */
+/** The buyer under test -- value is irrelevant; it is only threaded into params. */
 const USER_ID = "user-1"
 
 /** Fixed per-course prices the mocked {@link CoursePricingService} returns. */
@@ -52,7 +52,7 @@ describe("CoursesCheckoutPricingService",
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
 
-            // pricing math is mocked to fixed values — this suite tests priceCart's
+            // pricing math is mocked to fixed values -- this suite tests priceCart's
             // orchestration (filter / progressive loyalty / summation), not the pricing
             coursePricingService = {
                 resolveAmountVnd: jest.fn().mockReturnValue(CHARGED_VND),
@@ -63,7 +63,7 @@ describe("CoursesCheckoutPricingService",
             } as unknown as jest.Mocked<CoursePricingService>
 
             loyaltyDiscountService = {
-                // the DB-backed context — the fix asserts this is called ONCE per cart
+                // the DB-backed context -- the fix asserts this is called ONCE per cart
                 computeLoyaltyContext: jest.fn().mockResolvedValue({
                     ownedCount: 0,
                     diligent: false,
@@ -186,7 +186,7 @@ describe("CoursesCheckoutPricingService",
                                 buildCourse("c1"),
                                 buildCourse("c2"),
                             ],
-                            // a paid enrollment for c2 → c2 is not purchasable
+                            // a paid enrollment for c2 -> c2 is not purchasable
                             ownedEnrollments: [
                                 {
                                     courseId: "c2",
@@ -246,7 +246,7 @@ describe("CoursesCheckoutPricingService",
                                 buildCourse("c2"),
                             ],
                         })
-                        // c2 (2nd priced line) has no USD price → the order cannot total in USD
+                        // c2 (2nd priced line) has no USD price -> the order cannot total in USD
                         coursePricingService.resolveAmountUsd
                             .mockReturnValueOnce(CHARGED_USD)
                             .mockReturnValueOnce(null)
@@ -260,7 +260,7 @@ describe("CoursesCheckoutPricingService",
                         })
 
                         expect(result.totalChargedUsd).toBeNull()
-                        // VND total is unaffected — domestic checkout still works
+                        // VND total is unaffected -- domestic checkout still works
                         expect(result.totalChargedVnd).toBe(2 * CHARGED_VND)
                     })
             })

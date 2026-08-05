@@ -2,7 +2,7 @@ import type {
     ModuleMockMap, MockDefinition,
 } from "../types"
 
-/** Lesson 0 — useForm + zodResolver: signup POSTs a new user; a couple of rows suffice. */
+/** Lesson 0 -- useForm + zodResolver: signup POSTs a new user; a couple of rows suffice. */
 const useFormAndZodResolver: MockDefinition = {
     seedUsers: [
         {
@@ -15,8 +15,8 @@ const useFormAndZodResolver: MockDefinition = {
 }
 
 /**
- * Lesson 1 — async validation: `admin` must read as TAKEN (the spec types `admin`
- * → "taken" and `zora42` → "available"), so seed users whose names collide.
+ * Lesson 1 -- async validation: `admin` must read as TAKEN (the spec types `admin`
+ * -> "taken" and `zora42` -> "available"), so seed users whose names collide.
  */
 const asyncValidationWithDebounce: MockDefinition = {
     seedUsers: [
@@ -32,7 +32,7 @@ const asyncValidationWithDebounce: MockDefinition = {
     ],
 }
 
-/** Lesson 2 — multi-step wizard: submit POSTs the wizard payload as a user. */
+/** Lesson 2 -- multi-step wizard: submit POSTs the wizard payload as a user. */
 const multiStepWizardForm: MockDefinition = {
     seedUsers: [
         {
@@ -41,7 +41,7 @@ const multiStepWizardForm: MockDefinition = {
     ],
 }
 
-/** Lesson 3 — dynamic fields: submits invoices (not users); a single seed row is enough. */
+/** Lesson 3 -- dynamic fields: submits invoices (not users); a single seed row is enough. */
 const dynamicFieldsWithUseFieldArray: MockDefinition = {
     seedUsers: [
         {

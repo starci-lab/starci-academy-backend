@@ -42,11 +42,11 @@ import type {
 
 @Injectable()
 /**
- * Step 4 — complete. ATOMICALLY finalizes the run: reads the compose (structured
+ * Step 4 -- complete. ATOMICALLY finalizes the run: reads the compose (structured
  * data) + render (latex/pdf cdn keys) results, then in ONE transaction updates
  * the `cv_generations` row (created `Pending` at enqueue time) to `Done` with
  * its `structuredData` / `latexCdnKey` / `generatedPdfCdnKey` / `processedAt`,
- * and advances the job step — fenced so a stalled re-dispatch (a newer worker
+ * and advances the job step -- fenced so a stalled re-dispatch (a newer worker
  * owns the job) rolls back instead of double-writing. `score` / `feedback` are
  * already persisted by the preceding score step (index 3).
  */
@@ -151,7 +151,7 @@ export class GenerateCvCompleteStepService extends AbstractStepService<
                 },
             )
         } catch (error) {
-            // a newer worker fenced this one out — its tx rolled back; the new
+            // a newer worker fenced this one out -- its tx rolled back; the new
             // owner finishes the job. Treat as idempotent no-op.
             if (error instanceof JobFencedOutException) {
                 return

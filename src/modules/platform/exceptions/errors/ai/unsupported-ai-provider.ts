@@ -15,7 +15,7 @@ export interface UnsupportedAiProviderExceptionMetadata extends AbstractExceptio
 
 /**
  * Thrown when AI-Balancer code encounters a `ModelProvider` enum value that
- * has no concrete branch — either because a new provider was added to the
+ * has no concrete branch -- either because a new provider was added to the
  * enum without wiring the consumer side, or because the catalog/config
  * carries an unknown string value.
  *

@@ -119,7 +119,7 @@ export const getInitConfig = (): InitConfig => {
         return cachedInitConfig
     }
     const path = envConfig().mountPath.config.initScope
-    // a missing file means "no overrides" → diff mode
+    // a missing file means "no overrides" -> diff mode
     if (!existsSync(path)) {
         cachedInitConfig = {
         }

@@ -119,7 +119,7 @@ export class WeeklyChallengeObject {
     description: "Response wrapper for the weeklyChallenge query.",
 })
 /**
- * Response wrapper for the weeklyChallenge query (data is nullable — null when
+ * Response wrapper for the weeklyChallenge query (data is nullable -- null when
  * there are no challenges to rotate over).
  */
 export class WeeklyChallengeResponse

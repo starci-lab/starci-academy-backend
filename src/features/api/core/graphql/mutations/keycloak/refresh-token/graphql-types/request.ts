@@ -14,7 +14,7 @@ import {
 })
 /**
  * Optional TTL gate so the client can skip a Keycloak round-trip when the
- * current access token is still good enough — cuts refresh storms on tab focus.
+ * current access token is still good enough -- cuts refresh storms on tab focus.
  */
 export class RefreshTokenRequest {
     @Field(

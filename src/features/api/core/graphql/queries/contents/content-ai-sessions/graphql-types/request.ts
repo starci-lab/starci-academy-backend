@@ -10,7 +10,7 @@ import {
 })
 /**
  * Request for {@link ContentAiSessionsResponse}: list the current user's
- * content-AI conversations for a content, OR — when `search` is given — search
+ * content-AI conversations for a content, OR -- when `search` is given -- search
  * ALL their conversations in the content's course (title + message text).
  */
 export class ContentAiSessionsRequest {

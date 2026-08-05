@@ -39,7 +39,7 @@ export class MockFileRequiredException extends AbstractException {
 
 /** Thrown when a lesson-mock upload exceeds its per-object/session byte cap. */
 export interface MockFileTooLargeExceptionMetadata extends AbstractExceptionMetadata {
-    /** What exceeded the cap (object / chunk session / tus upload / …). */
+    /** What exceeded the cap (object / chunk session / tus upload / ...). */
     reason: string
     /** The byte cap that was exceeded. */
     maxBytes: number
@@ -72,7 +72,7 @@ export class MockFileTooLargeException extends AbstractException {
 
 /** Thrown when a lesson-mock upload request fails a validation check. */
 export interface MockInvalidUploadRequestExceptionMetadata extends AbstractExceptionMetadata {
-    /** Which check failed (missing/invalid header, bad chunk index, incomplete session, …). */
+    /** Which check failed (missing/invalid header, bad chunk index, incomplete session, ...). */
     reason: string
 }
 
@@ -107,7 +107,7 @@ export interface MockUploadOffsetConflictExceptionMetadata extends AbstractExcep
 
 /**
  * Thrown by the tus lesson mock when a PATCH's declared offset does not match
- * the bytes already received — the tus protocol's resumability contract.
+ * the bytes already received -- the tus protocol's resumability contract.
  */
 export class MockUploadOffsetConflictException extends AbstractException {
     constructor(

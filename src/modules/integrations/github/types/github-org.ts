@@ -56,9 +56,9 @@ export interface RemoveGithubUserFromTeamInOrgResult {
 
 /**
  * Membership of a user in a GitHub org team:
- * - `active`  — accepted member (in the team).
- * - `pending` — invited, not yet accepted.
- * - `none`    — neither member nor invited.
+ * - `active`  -- accepted member (in the team).
+ * - `pending` -- invited, not yet accepted.
+ * - `none`    -- neither member nor invited.
  */
 export type GithubTeamMembershipState = "active" | "pending" | "none"
 
@@ -76,7 +76,7 @@ export interface GetGithubUserTeamMembershipParams {
  * Result of a team-membership lookup.
  */
 export interface GetGithubUserTeamMembershipResult {
-    /** Membership state from GitHub (404 → `none`). */
+    /** Membership state from GitHub (404 -> `none`). */
     state: GithubTeamMembershipState
 }
 

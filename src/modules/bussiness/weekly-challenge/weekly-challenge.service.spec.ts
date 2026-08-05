@@ -115,7 +115,7 @@ describe("WeeklyChallengeService",
                         const result = await service.getWeeklyChallenge(null)
 
                         expect(result).toBeNull()
-                        // stops right after the empty pick — never queries week-end/passers
+                        // stops right after the empty pick -- never queries week-end/passers
                         expect(entityManager.query).toHaveBeenCalledTimes(1)
                     })
 
@@ -353,7 +353,7 @@ describe("WeeklyChallengeService",
                         ])
                         // no existing claim row this week
                         entityManager.findOne.mockResolvedValueOnce(null)
-                        // writeCoinHistory's ledger dedupe check — no prior grant
+                        // writeCoinHistory's ledger dedupe check -- no prior grant
                         entityManager.findOne.mockResolvedValueOnce(null)
                         entityManager.findOneOrFail.mockResolvedValueOnce({
                             id: userId,
@@ -413,7 +413,7 @@ describe("WeeklyChallengeService",
                             },
                         ])
                         entityManager.findOne.mockResolvedValueOnce(null)
-                        // a ledger row already exists for this (source, refId) — a racing
+                        // a ledger row already exists for this (source, refId) -- a racing
                         // double-claim must not re-credit the balance
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "ledger-existing",

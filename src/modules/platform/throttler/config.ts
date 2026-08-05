@@ -24,7 +24,7 @@ const LONG_TTL_MS = 60 * 60_000
 /**
  * No-op default limit for the module-level throttlers. It is intentionally
  * huge so that endpoints WITHOUT an explicit `@Throttle(...)` are effectively
- * unlimited — there is NO global rate cap; every limit is opt-in per endpoint.
+ * unlimited -- there is NO global rate cap; every limit is opt-in per endpoint.
  */
 const NOOP_LIMIT = 1_000_000
 
@@ -34,12 +34,12 @@ const NOOP_LIMIT = 1_000_000
  */
 export const throttlerConfig: Record<ThrottlerConfig, Array<ThrottleWindowOptions>> = {
     [ThrottlerConfig.Soft]: [
-        // 1 minute — loose limit
+        // 1 minute -- loose limit
         {
             ttl: SHORT_TTL_MS,
             limit: 100,
         },
-        // 1 hour — long-term total cap
+        // 1 hour -- long-term total cap
         {
             ttl: LONG_TTL_MS,
             limit: 1000,
@@ -60,12 +60,12 @@ export const throttlerConfig: Record<ThrottlerConfig, Array<ThrottleWindowOption
     ],
 
     [ThrottlerConfig.Strict]: [
-        // 1 minute — very strict
+        // 1 minute -- very strict
         {
             ttl: SHORT_TTL_MS,
             limit: 10,
         },
-        // 1 hour — strict long-term cap
+        // 1 hour -- strict long-term cap
         {
             ttl: LONG_TTL_MS,
             limit: 100,
@@ -81,13 +81,13 @@ export const throttlerConfig: Record<ThrottlerConfig, Array<ThrottleWindowOption
  * @returns The named module throttler windows (short + long).
  */
 export const getModuleThrottlers = (): Array<ThrottlerOptions> => [
-    // per-minute window — overridden per endpoint, no-op otherwise
+    // per-minute window -- overridden per endpoint, no-op otherwise
     {
         name: SHORT_WINDOW,
         ttl: SHORT_TTL_MS,
         limit: NOOP_LIMIT,
     },
-    // per-hour window — overridden per endpoint, no-op otherwise
+    // per-hour window -- overridden per endpoint, no-op otherwise
     {
         name: LONG_WINDOW,
         ttl: LONG_TTL_MS,
@@ -115,11 +115,11 @@ const buildTierThrottle = (tier: ThrottlerConfig): ThrottleTierOptions => ({
     },
 })
 
-/** Loose preset — pass to `@Throttle(SoftThrottle)` on read-heavy endpoints. */
+/** Loose preset -- pass to `@Throttle(SoftThrottle)` on read-heavy endpoints. */
 export const SoftThrottle: ThrottleTierOptions = buildTierThrottle(ThrottlerConfig.Soft)
 
-/** Medium preset — pass to `@Throttle(MediumThrottle)` on normal mutations. */
+/** Medium preset -- pass to `@Throttle(MediumThrottle)` on normal mutations. */
 export const MediumThrottle: ThrottleTierOptions = buildTierThrottle(ThrottlerConfig.Medium)
 
-/** Strict preset — pass to `@Throttle(StrictThrottle)` on auth / sensitive endpoints. */
+/** Strict preset -- pass to `@Throttle(StrictThrottle)` on auth / sensitive endpoints. */
 export const StrictThrottle: ThrottleTierOptions = buildTierThrottle(ThrottlerConfig.Strict)

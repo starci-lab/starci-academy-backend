@@ -58,7 +58,7 @@ import {
  * Ad-free exemptions are enforced here (single policy gate) so the client only
  * needs `ad != null ? render : hide`: active community members see no ads at
  * all, and a viewer already enrolled in the supplied `courseId` is not shown a
- * lesson ad. Auth is optional — anonymous viewers always see ads.
+ * lesson ad. Auth is optional -- anonymous viewers always see ads.
  */
 export class ActiveAdvertisementResolver {
     constructor(
@@ -151,7 +151,7 @@ export class ActiveAdvertisementResolver {
             .addOrderBy("a.createdAt",
                 "DESC")
             .getOne()
-        // nothing active in this slot → let the client hide the rail block
+        // nothing active in this slot -> let the client hide the rail block
         if (!ad) {
             return null
         }

@@ -28,8 +28,8 @@ import {
     ],
 })
 /**
- * Autocomplete query group — global typeahead, single-index fuzzy search, and
- * route resolution — so the GraphQL app can mount search without importing each leaf.
+ * Autocomplete query group -- global typeahead, single-index fuzzy search, and
+ * route resolution -- so the GraphQL app can mount search without importing each leaf.
  */
 export class AutocompleteQueriesModule extends ConfigurableModuleClass {
 }

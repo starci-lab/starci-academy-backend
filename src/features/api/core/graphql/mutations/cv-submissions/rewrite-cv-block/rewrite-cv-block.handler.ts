@@ -57,19 +57,19 @@ interface CapstoneGroundingRow {
 @CommandHandler(RewriteCvBlockCommand)
 @Injectable()
 /**
- * Handler for `rewriteCvBlock` — improves a single CV block's item text via a
+ * Handler for `rewriteCvBlock` -- improves a single CV block's item text via a
  * SYNCHRONOUS AI invoke (no BullMQ enqueue). Nothing is persisted; the FE swaps
  * the returned block into the editor.
  *
  * RAG-grounded: when `capstoneAttemptId` is present, the real capstone context
  * (task title + description, milestone, course, the user's score + short
- * feedback) is fetched from Postgres — scoped to THIS user for security — and
+ * feedback) is fetched from Postgres -- scoped to THIS user for security -- and
  * fed as grounding so the AI writes an ACCURATE description of the real StarCi
  * project instead of hallucinating. Without it, the block is rewritten from its
  * own content plus the optional `instruction`.
  *
  * The AI is prompted for STRICT JSON (the single block); the reply is parsed +
- * validated defensively — a parse failure or a non-object reply throws rather
+ * validated defensively -- a parse failure or a non-object reply throws rather
  * than returning malformed data. Free-tier friendly: no explicit model pinned.
  */
 export class RewriteCvBlockHandler
@@ -145,7 +145,7 @@ export class RewriteCvBlockHandler
         ].join("\n")
 
         // synchronous, inline invoke via the shared balancer path. A validated
-        // pick threads through `selection`; no pick → empty selection → Auto lane
+        // pick threads through `selection`; no pick -> empty selection -> Auto lane
         // picks (local-first). Behaviour is identical when no model is passed.
         const {
             text: raw,
@@ -170,8 +170,8 @@ export class RewriteCvBlockHandler
 
     /**
      * Fetch the real capstone context for a PASSED attempt owned by the user.
-     * Mirrors the `myPickableCvAchievements` join (attempts → tasks → milestones
-     * → enrollments → courses), scoped to `e.user_id = $userId` so a user can
+     * Mirrors the `myPickableCvAchievements` join (attempts -> tasks -> milestones
+     * -> enrollments -> courses), scoped to `e.user_id = $userId` so a user can
      * only ground on their own capstones, and pulls the task `description` +
      * attempt `short_feedback` for accuracy. Returns null if not found.
      */

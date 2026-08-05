@@ -11,7 +11,7 @@ export interface ChallengeNotFoundExceptionMetadata extends AbstractExceptionMet
 }
 
 /**
- * Fails the request when the challenge id is unknown — downstream must not grade a ghost
+ * Fails the request when the challenge id is unknown -- downstream must not grade a ghost
  * challenge.
  */
 export class ChallengeNotFoundException extends AbstractException {

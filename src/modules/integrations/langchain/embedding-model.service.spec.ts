@@ -57,7 +57,7 @@ jest.mock("@langchain/community/embeddings/ollama",
         }),
     }))
 
-// NOTE: @modules/env is NOT mocked — the real envConfig().ai.local.baseUrl
+// NOTE: @modules/env is NOT mocked -- the real envConfig().ai.local.baseUrl
 // defaults to "http://localhost:11434/v1" (OLLAMA_BASE_URL default), which is
 // exactly the /v1-suffixed value these tests assert gets stripped. Mocking the
 // whole module breaks other modules that read full config at load time.
@@ -164,10 +164,10 @@ describe("EmbeddingModelService",
                         expect(embedder.__kind).toBe("ollama")
                         expect(embedder.opts).toEqual({
                             model: "nomic-embed-text",
-                            // root URL — no /v1 (native Ollama embeddings API)
+                            // root URL -- no /v1 (native Ollama embeddings API)
                             baseUrl: LOCAL_BASE_URL_ROOT,
                             maxConcurrency: 8,
-                            // Bearer token from the pool — the prod tunnel gate requires it
+                            // Bearer token from the pool -- the prod tunnel gate requires it
                             headers: {
                                 Authorization: "Bearer local-token",
                             },

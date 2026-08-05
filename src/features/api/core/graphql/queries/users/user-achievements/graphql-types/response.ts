@@ -18,7 +18,7 @@ import {
  *
  * Reuses {@link MyAchievementItemData} (same shape): each item carries the
  * profile owner's earned status + live progress toward the achievement. The
- * difference from `myAchievements` is only the subject — here it is the user
+ * difference from `myAchievements` is only the subject -- here it is the user
  * named in the route, not the authenticated viewer.
  */
 export class UserAchievementsResponse

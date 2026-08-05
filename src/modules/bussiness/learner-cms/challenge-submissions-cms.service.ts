@@ -25,15 +25,15 @@ import type {
  * projection's recompute, extended up to the course:
  *
  *   user_challenge_submission_attempts (ucsa)
- *     → user_challenge_submissions (ucs, ucsa.user_challenge_submission_id)
- *     → challenge_submissions (cs, ucs.submission_id)
- *     → challenges (ch, cs.challenge_id)           [LEFT — V1 rows may lack it]
- *     → contents (co, ch.content_id)
- *     → modules (mo, co.module_id)
- *     → courses (c, mo.course_id)
+ *     -> user_challenge_submissions (ucs, ucsa.user_challenge_submission_id)
+ *     -> challenge_submissions (cs, ucs.submission_id)
+ *     -> challenges (ch, cs.challenge_id)           [LEFT -- V1 rows may lack it]
+ *     -> contents (co, ch.content_id)
+ *     -> modules (mo, co.module_id)
+ *     -> courses (c, mo.course_id)
  *
- * Status is derived from the attempt's grading state: not-yet-processed →
- * "pending", graded with a positive score → "passed", otherwise "failed".
+ * Status is derived from the attempt's grading state: not-yet-processed ->
+ * "pending", graded with a positive score -> "passed", otherwise "failed".
  */
 export class ChallengeSubmissionsCmsService {
     constructor(
@@ -54,7 +54,7 @@ export class ChallengeSubmissionsCmsService {
             offset,
         }: ListLearnerCmsParams,
     ): Promise<PaginatedLearnerCmsResult<ChallengeSubmissionAttemptResult>> {
-        // run the page query and the total count together — both hit the same
+        // run the page query and the total count together -- both hit the same
         // index on ucs.user_id, so doing them in parallel halves the latency
         const [
             rows,
@@ -88,7 +88,7 @@ export class ChallengeSubmissionsCmsService {
                 // collapse the grading state into the contract's status bucket
                 status: this.deriveStatus(row.score,
                     row.processed_at),
-                // an ungraded attempt has a null score → surface 0 to the FE
+                // an ungraded attempt has a null score -> surface 0 to the FE
                 score: row.score ?? 0,
                 selectedLang: row.selected_lang ?? null,
                 submissionUrl: row.submission_url ?? null,
@@ -110,20 +110,20 @@ export class ChallengeSubmissionsCmsService {
         score: number | null,
         processedAt: Date | null,
     ): string {
-        // grading has not finished yet → the attempt is still pending
+        // grading has not finished yet -> the attempt is still pending
         if (!processedAt) {
             return "pending"
         }
-        // graded with a positive score → passed (mirrors the solved-challenges rule)
+        // graded with a positive score -> passed (mirrors the solved-challenges rule)
         if ((score ?? 0) > 0) {
             return "passed"
         }
-        // graded but no positive score → failed
+        // graded but no positive score -> failed
         return "failed"
     }
 
     /**
-     * Build the page SQL — one row per attempt with its challenge + course titles,
+     * Build the page SQL -- one row per attempt with its challenge + course titles,
      * newest-first, windowed by `$2` (limit) / `$3` (offset) for user `$1`.
      *
      * @returns the parameterised page SQL.
@@ -154,7 +154,7 @@ export class ChallengeSubmissionsCmsService {
     }
 
     /**
-     * Build the count SQL — every attempt owned by user `$1` (no page window).
+     * Build the count SQL -- every attempt owned by user `$1` (no page window).
      *
      * @returns the parameterised count SQL.
      */

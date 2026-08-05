@@ -17,7 +17,7 @@ import {
 export interface ResolveGradingInvokeOptionsParams {
     /** Submitter whose entitlement gates the requested lane + tier ceiling. */
     userId: string
-    /** The user's model pick from the job payload (absent → balancer picks). */
+    /** The user's model pick from the job payload (absent -> balancer picks). */
     selection?: AiJobSelection
     /** Entitlement resolver injected by the caller (avoids circular DI). */
     aiEntitlementService: AiEntitlementService
@@ -29,12 +29,12 @@ export interface ResolveGradingInvokeOptionsParams {
     allowFreeAuto?: boolean
     /**
      * Explicit FLOOR category override (wins over `difficulty`). Used by surfaces
-     * that don't have a difficulty — e.g. the chatbot passes `Free`.
+     * that don't have a difficulty -- e.g. the chatbot passes `Free`.
      */
     floor?: AiModelCategory | null
     /**
-     * User-set per-feature ceiling cap (from settings config per hạng mục): the
-     * chain never climbs past this, even within the plan ceiling. Omitted → only
+     * User-set per-feature ceiling cap (from settings config per surface): the
+     * chain never climbs past this, even within the plan ceiling. Omitted -> only
      * the plan ceiling caps.
      */
     ceil?: AiModelCategory | null
@@ -44,9 +44,9 @@ export interface ResolveGradingInvokeOptionsParams {
 export interface ResolveGradingInvokeOptionsResult {
     /** Single-category filter (unused by the climb chain; kept for compatibility). */
     category?: AiModelCategory
-    /** Ordered category chain the Auto lane climbs (floor → tier ceiling). */
+    /** Ordered category chain the Auto lane climbs (floor -> tier ceiling). */
     categories?: Array<AiModelCategory>
-    /** User-pinned model (System Manual — an explicit model pick). */
+    /** User-pinned model (System Manual -- an explicit model pick). */
     model?: string
     /** Provider for {@link ResolveGradingInvokeOptionsResult.model}. */
     provider?: ModelProvider
@@ -54,12 +54,12 @@ export interface ResolveGradingInvokeOptionsResult {
 
 /**
  * Map a job's {@link AiJobSelection} + difficulty + user entitlement to
- * {@link AiInvokeService.invoke} args — the ONE shared grading routing.
+ * {@link AiInvokeService.invoke} args -- the ONE shared grading routing.
  *
  * Grading runs ONLY on the System pool. Two selection paths:
- * - **pinned model** → a user-pinned model + provider (gated on the unlock).
+ * - **pinned model** -> a user-pinned model + provider (gated on the unlock).
  *   This is the ONLY way to reach the frontier model.
- * - **balancer** (default, no pin) → {@link GRADING_FLOOR_CATEGORY}, whatever
+ * - **balancer** (default, no pin) -> {@link GRADING_FLOOR_CATEGORY}, whatever
  *   the task's difficulty; within that category the balancer tries the
  *   highest-weight (cheapest, roomiest) model first. Nothing automatic
  *   escalates past it.
@@ -78,8 +78,8 @@ export async function resolveGradingInvokeOptions(
         ceil,
     }: ResolveGradingInvokeOptionsParams,
 ): Promise<ResolveGradingInvokeOptionsResult> {
-    // premium-only content (no free Auto) or a pinned model → require unlock
-    // (paid OR enrolled — the StarCi rule; throws for an unentitled user, no
+    // premium-only content (no free Auto) or a pinned model -> require unlock
+    // (paid OR enrolled -- the StarCi rule; throws for an unentitled user, no
     // silent downgrade). Enrolled learners may pin a higher model too.
     const hasPinnedModel = Boolean(selection?.model && selection?.provider)
     const requiresPaid = !allowFreeAuto
@@ -97,12 +97,12 @@ export async function resolveGradingInvokeOptions(
         }
     }
 
-    // floor → climb chain, clamped to the tier ceiling (and the user `ceil` cap)
+    // floor -> climb chain, clamped to the tier ceiling (and the user `ceil` cap)
     const tierCategories = await aiEntitlementService.resolveTierCategories({
         userId,
     })
-    // explicit `floor` wins; otherwise every automatic grading run — any
-    // difficulty, any surface — starts (and ends) on the same grading category.
+    // explicit `floor` wins; otherwise every automatic grading run -- any
+    // difficulty, any surface -- starts (and ends) on the same grading category.
     // The frontier model is reached only by pinning it above.
     const effectiveFloor = floor ?? GRADING_FLOOR_CATEGORY
     return {

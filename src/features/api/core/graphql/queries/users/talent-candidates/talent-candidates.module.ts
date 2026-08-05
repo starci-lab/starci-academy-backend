@@ -18,7 +18,7 @@ import {
     ],
 })
 /**
- * Recruiter-marketplace query group — `talentCandidates` filters open-to-work
+ * Recruiter-marketplace query group -- `talentCandidates` filters open-to-work
  * users to ONE track (course) and ranks them by that track's depth, backed by
  * {@link TalentCandidatesService}.
  */

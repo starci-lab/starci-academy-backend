@@ -84,30 +84,30 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /** Founder username the pin gate reads from `envConfig().community.founderUsername`
- *  (unmocked here — its default, see `src/modules/platform/env/config.ts`). */
+ *  (unmocked here -- its default, see `src/modules/platform/env/config.ts`). */
 const FOUNDER_USERNAME = "starci183"
 
 /** Default non-member post cap + rolling window, also read off the unmocked env default. */
 const NON_MEMBER_POST_LIMIT = 3
 
 /**
- * e2e for the community UGC write-flows — `.claude/canon/be/enforce/authoring/testing.md`
+ * e2e for the community UGC write-flows -- `.claude/canon/be/enforce/authoring/testing.md`
  * §2 names "a community post or reaction" explicitly as a write flow that must carry
  * `*.e2e-spec.ts` coverage. Exercises {@link CommunityPostService},
  * {@link CommunityCommentService}, {@link CommunityReactionService}, and
- * {@link CommunityPostQuotaService} against REAL Postgres (Testcontainers) — not the
+ * {@link CommunityPostQuotaService} against REAL Postgres (Testcontainers) -- not the
  * mocked-`EntityManager` unit level already covered by each service's own `.spec.ts`.
  *
- * In focus: the OWNERSHIP guard on post/comment update+delete (the IDOR class — a
+ * In focus: the OWNERSHIP guard on post/comment update+delete (the IDOR class -- a
  * non-author must never mutate someone else's row), the founder-only pin gate, the
  * non-member post quota (rolling window, deleted rows still count), and soft-delete
  * landing on the real `is_deleted` column rather than removing the row.
  *
  * MOCKED (no external infra available in this harness, genuinely external to the
  * community domain under test):
- *  - `EventEmitterService` — real class fans out to EventEmitter2 + NATS; stubbed so
+ *  - `EventEmitterService` -- real class fans out to EventEmitter2 + NATS; stubbed so
  *    a mutation's room-broadcast side effect never touches either.
- *  - `NotificationService` — real class writes a notification row AND re-fans-out
+ *  - `NotificationService` -- real class writes a notification row AND re-fans-out
  *    through the (mocked) event emitter; stubbed to a bare `createNotification` spy
  *    since reply-notification delivery is a different domain, not this spec's focus.
  *
@@ -135,7 +135,7 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -144,12 +144,12 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the post/comment/reaction/quota logic under test
+                    // REAL -- the post/comment/reaction/quota logic under test
                     CommunityPostService,
                     CommunityCommentService,
                     CommunityReactionService,
                     CommunityPostQuotaService,
-                    // REAL — the quota's member/non-member branch + rolling-window math
+                    // REAL -- the quota's member/non-member branch + rolling-window math
                     MembershipService,
                     DayjsService,
                     // mocked externals genuinely outside the community domain
@@ -311,7 +311,7 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
                         })
                         expect(result.id).toBe(post.id)
 
-                        // the row still exists — soft delete, not a removal
+                        // the row still exists -- soft delete, not a removal
                         const row = await entityManager.findOneOrFail(CommunityPostEntity,
                             {
                                 where: {
@@ -528,7 +528,7 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
                             })
                         expect(row.isDeleted).toBe(true)
 
-                        // the reply row still exists — thread shape survives
+                        // the reply row still exists -- thread shape survives
                         const replyCount = await entityManager.count(CommunityPostCommentEntity,
                             {
                                 where: {
@@ -844,12 +844,12 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
 /**
  * e2e for the community READ resolvers (`communityFeed`, `communityPost`,
  * `communityPostComments`) plus the `createCommunityPostComment` /
- * `reactToCommunityPostComment` mutations — driven over REAL HTTP through Apollo
+ * `reactToCommunityPostComment` mutations -- driven over REAL HTTP through Apollo
  * (`ApolloServerModule` + guards), not the bare domain-service calls above. None of
  * these five GraphQL operations had coverage that exercised the resolver + guard +
  * response-wrapper layer: the block above proves the domain services are correct,
- * this block proves production's actual request path (auth guard → resolver →
- * query/mutation service → `GraphQLTransformInterceptor`'s success/error envelope)
+ * this block proves production's actual request path (auth guard -> resolver ->
+ * query/mutation service -> `GraphQLTransformInterceptor`'s success/error envelope)
  * wires them together correctly.
  *
  * MOCKED (same externals as the block above, genuinely outside this domain):
@@ -859,7 +859,7 @@ describe("Community UGC — posts, comments, reactions, pin gate, quota (e2e)",
  * query/mutation service under test, and the community domain services they call.
  * `KeycloakOptionalAuthGraphQLGuard` / `KeycloakAuthGraphQLGuard` are overridden
  * with a fake `CanActivate` (mirrors `progress-query.e2e-spec.ts`) since there is no
- * live Keycloak server in this harness — the override still exercises the REAL
+ * live Keycloak server in this harness -- the override still exercises the REAL
  * per-resolver `@UseGuards` wiring (optional-auth passthrough vs. auth-required
  * rejection), only the token verification itself is stubbed.
  *
@@ -873,7 +873,7 @@ describe("Community GraphQL — communityFeed/communityPost/communityPostComment
         /** The "logged in" user the overridden guards stamp onto the request; null = anonymous/unauthenticated. */
         let currentUser: UserEntity | null = null
 
-        // KeycloakOptionalAuthGraphQLGuard: never blocks — stamps req.user when
+        // KeycloakOptionalAuthGraphQLGuard: never blocks -- stamps req.user when
         // a viewer is "logged in", leaves it unset (truly anonymous) otherwise.
         const fakeOptionalAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
@@ -885,8 +885,8 @@ describe("Community GraphQL — communityFeed/communityPost/communityPostComment
                 return true
             },
         }
-        // KeycloakAuthGraphQLGuard: mirrors progress-query.e2e-spec.ts's fakeAuthGuard —
-        // rejects (→ Nest's default ForbiddenException) when nobody is "logged in".
+        // KeycloakAuthGraphQLGuard: mirrors progress-query.e2e-spec.ts's fakeAuthGuard --
+        // rejects (-> Nest's default ForbiddenException) when nobody is "logged in".
         const fakeAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
                 if (!currentUser) {
@@ -1018,7 +1018,7 @@ describe("Community GraphQL — communityFeed/communityPost/communityPostComment
                     }),
                 ],
                 providers: [
-                    // REAL — resolvers + their query/mutation services under test
+                    // REAL -- resolvers + their query/mutation services under test
                     CommunityFeedResolver,
                     CommunityFeedService,
                     CommunityPostResolver,
@@ -1029,7 +1029,7 @@ describe("Community GraphQL — communityFeed/communityPost/communityPostComment
                     CreateCommunityPostCommentService,
                     ReactToCommunityPostCommentResolver,
                     ReactToCommunityPostCommentService,
-                    // REAL — the domain services the query/mutation services delegate to
+                    // REAL -- the domain services the query/mutation services delegate to
                     CommunityPostService,
                     CommunityCommentService,
                     CommunityReactionService,
@@ -1152,7 +1152,7 @@ describe("Community GraphQL — communityFeed/communityPost/communityPostComment
                             )
                         }
 
-                        // anonymous (currentUser stays null) — communityFeed is optional-auth
+                        // anonymous (currentUser stays null) -- communityFeed is optional-auth
                         const response = await post(COMMUNITY_FEED_QUERY,
                             {
                                 request: {
@@ -1163,7 +1163,7 @@ describe("Community GraphQL — communityFeed/communityPost/communityPostComment
                         expect(response.status).toBe(200)
                         const body = response.body.data.communityFeed
                         expect(body.success).toBe(true)
-                        // only 3 posts exist — proves the clamp didn't error, it just bounded the query
+                        // only 3 posts exist -- proves the clamp didn't error, it just bounded the query
                         expect(body.data.items).toHaveLength(3)
                         expect(body.data.items.every((item: { reactions: { myReaction: string | null } }) =>
                             item.reactions.myReaction === null)).toBe(true)
@@ -1345,7 +1345,7 @@ describe("Community GraphQL — communityFeed/communityPost/communityPostComment
                                 }),
                         )
 
-                        // currentUser left null — the auth guard must deny before the mutation runs
+                        // currentUser left null -- the auth guard must deny before the mutation runs
                         const response = await post(CREATE_COMMUNITY_POST_COMMENT_MUTATION,
                             {
                                 request: {

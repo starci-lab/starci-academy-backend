@@ -28,7 +28,7 @@ import {
     ],
 })
 /**
- * Feature-module boundary for the `milestones` list query — imports
+ * Feature-module boundary for the `milestones` list query -- imports
  * Elasticsearch and wires resolver, service, and handler.
  */
 export class MilestonesSingleQueryModule extends ConfigurableModuleClass {}

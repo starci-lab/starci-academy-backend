@@ -23,7 +23,7 @@ export interface CreateContentAiSessionParams {
     /**
      * Born-archived: stamp `archived_at = now()` at creation so the
      * conversation never clutters the default history list yet stays
-     * searchable. Used for selection-passage ("explain this") chats — a
+     * searchable. Used for selection-passage ("explain this") chats -- a
      * one-off side-thread that inherits the surface grounding + the passage.
      */
     archived?: boolean | null

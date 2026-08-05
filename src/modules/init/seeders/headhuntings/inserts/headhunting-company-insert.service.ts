@@ -15,7 +15,7 @@ import {
 @Injectable()
 /**
  * Upserts one headhunting company + `headhunting_company_translations`. Child
- * consultants are NOT written here — {@link ConsultantInsertService} runs after
+ * consultants are NOT written here -- {@link ConsultantInsertService} runs after
  * the company row exists so the FK is valid.
  */
 export class HeadhuntingCompanyInsertService {

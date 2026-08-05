@@ -14,7 +14,7 @@ import {
 /**
  * Collect the grading criteria for a SCHEMA V2 submission: the per-language `outcomeCriteria` and
  * `approachCriteria` of the SPECIFIC submission being graded, resolved to the learner's chosen
- * language. Per-criterion score is NOT stored — each bucket's weight (`outcomeScore` 30 /
+ * language. Per-criterion score is NOT stored -- each bucket's weight (`outcomeScore` 30 /
  * `approachScore` 70 on the submission) is split equally across its criteria.
  *
  * @param submission - The hydrated challenge submission (with `approachCriteria.langs` +

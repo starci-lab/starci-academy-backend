@@ -4,7 +4,7 @@ import type {
 
 /** Params for recomputing one enrollment's mock-interview-course-stats projection row. */
 export interface RecomputeUserMockInterviewCourseStatsParams {
-    /** The enrollment (user × course) whose mock-interview stats to rebuild. */
+    /** The enrollment (user x course) whose mock-interview stats to rebuild. */
     enrollmentId: string
     /** Caller's transaction manager (inline write path); omit for the read path. */
     entityManager?: EntityManager
@@ -22,14 +22,14 @@ export interface MockInterviewCourseStatsTrendPointData {
     completedAt: Date
     /** The attempt's overall score, 0-100. */
     overallScore: number
-    /** The attempt's mode ("qna" | "design") — null-mode legacy attempts read as "design". */
+    /** The attempt's mode ("qna" | "design") -- null-mode legacy attempts read as "design". */
     mode: string
     /** The attempt's coarse verdict band ("pass" | "borderline" | "fail"). */
     verdict: string
 }
 
 /**
- * One breakdown axis entry — either a `design` canonical phase or a `qna`
+ * One breakdown axis entry -- either a `design` canonical phase or a `qna`
  * cognitive kind, aggregated across every scanned attempt that carries it.
  */
 export interface MockInterviewCourseStatsBreakdownItemData {
@@ -52,7 +52,7 @@ export interface MockInterviewCourseStatsBreakdownItemData {
 export interface MockInterviewCourseStatsWeakestData {
     /** The weak phase/kind literal. */
     key: string
-    /** Which axis this key belongs to — drives the FE's i18n lookup (`mockInterview.phase.*` vs `mockInterview.kind.*` vs `mockInterview.attribute.*`). */
+    /** Which axis this key belongs to -- drives the FE's i18n lookup (`mockInterview.phase.*` vs `mockInterview.kind.*` vs `mockInterview.attribute.*`). */
     axis: "phase" | "kind" | "attribute"
     /** Average score across every attempt carrying this key. */
     avgScore: number
@@ -68,7 +68,7 @@ export interface MockInterviewCourseStatsWeakestData {
 }
 
 /**
- * One normalized-and-tallied recurring gap — `attempt.gaps[]` entries across
+ * One normalized-and-tallied recurring gap -- `attempt.gaps[]` entries across
  * the scanned window, trimmed+lowercased for tallying so "Trade-off" and
  * "trade-off " count as the same recurring pattern; `text` keeps the
  * MOST-RECENTLY-SEEN casing (attempts are scanned newest-first) for display.
@@ -99,7 +99,7 @@ export interface MockInterviewCourseStatsVerdictCountsData {
 }
 
 /**
- * The full mock-interview-course-stats aggregate for one enrollment — mirrors
+ * The full mock-interview-course-stats aggregate for one enrollment -- mirrors
  * `MyMockInterviewStatsResultData` field-for-field so the read side is a pure
  * point-read (no re-deriving anything, including `insufficientData`, at read
  * time).
@@ -107,7 +107,7 @@ export interface MockInterviewCourseStatsVerdictCountsData {
 export interface UserMockInterviewCourseStatsResult {
     /**
      * True when the scanned window has fewer than the minimum attempts
-     * required for a trustworthy aggregate — every other field is empty/zero
+     * required for a trustworthy aggregate -- every other field is empty/zero
      * when this is true (HONEST gate).
      */
     insufficientData: boolean
@@ -121,17 +121,17 @@ export interface UserMockInterviewCourseStatsResult {
     byKind: Array<MockInterviewCourseStatsBreakdownItemData>
     /** Per-attribute aggregate (communication/structuredThinking/tradeoffAwareness), across EVERY attempt regardless of mode. */
     byAttribute: Array<MockInterviewCourseStatsBreakdownItemData>
-    /** Per-seniority-level aggregate (junior/middle/senior), across EVERY attempt regardless of mode — `attempt.level` is null-skipped (no "any level" bucket). */
+    /** Per-seniority-level aggregate (junior/middle/senior), across EVERY attempt regardless of mode -- `attempt.level` is null-skipped (no "any level" bucket). */
     byLevel: Array<MockInterviewCourseStatsBreakdownItemData>
     /**
-     * Per-drawn-language aggregate — `mode="qna"` CODE questions only (those
+     * Per-drawn-language aggregate -- `mode="qna"` CODE questions only (those
      * whose seed carried `givenCodes`), scored per question and grouped by
      * the language the question was drawn in. Entries below the service's
      * min-sample guard (a language drawn once ever is noise, not a
      * comparison) are dropped.
      */
     byLanguage: Array<MockInterviewCourseStatsBreakdownItemData>
-    /** Top recurring gaps across every scanned attempt's `gaps[]`, worst (most-frequent) first; only gaps seen ≥2 times qualify. */
+    /** Top recurring gaps across every scanned attempt's `gaps[]`, worst (most-frequent) first; only gaps seen >=2 times qualify. */
     recurringGaps: Array<MockInterviewCourseStatsRecurringGapData>
     /** The single weakest phase/kind/attribute across all three axes, when it qualifies; null otherwise. */
     weakest: MockInterviewCourseStatsWeakestData | null
@@ -140,7 +140,7 @@ export interface UserMockInterviewCourseStatsResult {
 }
 
 /**
- * CDC row from `mock_interview_attempts` — a new graded attempt carries
+ * CDC row from `mock_interview_attempts` -- a new graded attempt carries
  * `enrollment_id` directly, no join needed to derive the recompute target.
  */
 export interface MockInterviewAttemptCdcRow {

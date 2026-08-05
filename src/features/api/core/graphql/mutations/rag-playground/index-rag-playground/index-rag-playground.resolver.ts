@@ -28,7 +28,7 @@ import {
 
 @Resolver()
 /**
- * PUBLIC (no login) mutation — index a code source into an anonymous RAG
+ * PUBLIC (no login) mutation -- index a code source into an anonymous RAG
  * Playground session. Strict throttle: this triggers a real chunk+embed+Qdrant
  * write on an unauthenticated endpoint, so it is the tightest tier in the app.
  */

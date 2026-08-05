@@ -33,14 +33,14 @@ export interface SearchCourseContentParams {
     query: string
     /**
      * Optional corpus-kind filter (`["challenge"]`, `["milestone"]`, or
-     * `["content", "code"]` for lessons). Omit → search every indexed kind.
+     * `["content", "code"]` for lessons). Omit -> search every indexed kind.
      */
     kinds?: Array<string>
 }
 
 @Injectable()
 /**
- * "Tìm nội dung khóa" — resolves RAG hits (raw vectors, no entity knowledge)
+ * search course content -- resolves RAG hits (raw vectors, no entity knowledge)
  * into display-ready results per kind: joins each matched id back to its real
  * entity (Content/Challenge/FlashcardDeck/MilestoneTask) for title/breadcrumb,
  * resolved in whichever locale the winning chunk was embedded in (so a vi
@@ -59,7 +59,7 @@ export class SearchCourseContentService {
      *
      * @param params - {@link SearchCourseContentParams}.
      * @returns Distinct matched sources, best match first (a hit whose source
-     * row vanished since indexing — e.g. deleted content — is silently dropped).
+     * row vanished since indexing -- e.g. deleted content -- is silently dropped).
      */
     async search(
         {
@@ -78,7 +78,7 @@ export class SearchCourseContentService {
         }
 
         // "code" chunks share their parent lesson's id with "content" chunks
-        // (both stamped by ContentRagIndexService with contentId = content.id) —
+        // (both stamped by ContentRagIndexService with contentId = content.id) --
         // group them under the SAME lookup so a code-only match still resolves
         // to its lesson.
         const idsByKind = new Map<string, Array<string>>()
@@ -235,7 +235,7 @@ export class SearchCourseContentService {
     /**
      * Join one RAG hit to its display-ready result. Returns null when the
      * matched row is missing from the batch-load (its source vanished since
-     * indexing — a stale chunk not yet swept by the next diff-aware rebuild).
+     * indexing -- a stale chunk not yet swept by the next diff-aware rebuild).
      */
     private resolveItem(
         hit: SearchCourseHit,

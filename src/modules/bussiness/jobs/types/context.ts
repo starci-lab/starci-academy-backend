@@ -8,7 +8,7 @@ export interface JobContext<T> {
     payload: T
     /** The BullMQ queue this job was dispatched on, when known. */
     queueName?: string
-    /** The `jobs` row backing this run — steps read/write its progress through it. */
+    /** The `jobs` row backing this run -- steps read/write its progress through it. */
     job: JobEntity
 }
 

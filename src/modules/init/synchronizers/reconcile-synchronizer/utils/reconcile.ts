@@ -17,7 +17,7 @@ export const segmentFromCdnKey = (
     if (!key.startsWith(prefix)) {
         return null
     }
-    // `<seg>.json` (locale-less) or `<seg>/<locale>.json` → first path part is the seg
+    // `<seg>.json` (locale-less) or `<seg>/<locale>.json` -> first path part is the seg
     const first = key.slice(prefix.length).split("/")[0]
     const segment = first.replace(/\.json$/u,
         "")
@@ -28,7 +28,7 @@ export const segmentFromCdnKey = (
 
 /** Result of partitioning CDN keys into live vs orphan. */
 export interface PartitionCdnKeysResult {
-    /** Keys whose id/displayId segment is NOT in the live set → safe to delete. */
+    /** Keys whose id/displayId segment is NOT in the live set -> safe to delete. */
     orphanKeys: Array<string>
     /** Distinct id/displayId segments seen across all keys. */
     totalSegments: number
@@ -75,7 +75,7 @@ export const partitionOrphanCdnKeys = (
 /**
  * Whether deleting `orphan` out of `total` entries exceeds the safety ratio.
  *
- * When true the caller skips the prune (with a warning) — this catches the
+ * When true the caller skips the prune (with a warning) -- this catches the
  * catastrophic case where the DB returned nothing and we'd otherwise wipe the
  * entire index/prefix.
  *
@@ -89,7 +89,7 @@ export const exceedsPruneRatio = (
     total: number,
     maxRatio: number,
 ): boolean => {
-    // nothing present → nothing to over-delete
+    // nothing present -> nothing to over-delete
     if (total <= 0) {
         return false
     }

@@ -31,7 +31,7 @@ export enum AchievementCriteriaType {
     DiscussionComments = "discussionComments",
     /** Followers the user has gained (count of `user_follows.following_id`). */
     Followers = "followers",
-    /** Highest league tier reached, as an ordinal (bronze=1 … legend=7). */
+    /** Highest league tier reached, as an ordinal (bronze=1 ... legend=7). */
     LeagueTier = "leagueTier",
 }
 

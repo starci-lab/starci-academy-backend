@@ -56,7 +56,7 @@ import {
  *
  * Follows the canonical mount-parse pattern (`.claude/pattern/16-mount-parsing.md`): extract once per
  * locale, merge via {@link MergeJsonService} with dot-path `translateFields`, then render straight
- * from `merged` — every array item already carries its aligned `translations[]`.
+ * from `merged` -- every array item already carries its aligned `translations[]`.
  */
 export class FlashcardDeckParserService {
     constructor(
@@ -91,7 +91,7 @@ export class FlashcardDeckParserService {
         const path = paths.find(
             (path) => path.orderIndex === flashcardDeckIndex,
         )
-        // a missing folder is a hard error — caller logs + skips this deck
+        // a missing folder is a hard error -- caller logs + skips this deck
         if (!path) {
             throw new FlashcardDeckPathNotFoundException(
                 {
@@ -131,7 +131,7 @@ export class FlashcardDeckParserService {
                 flashcardDeckIndex,
             },
         )
-        // deck→content/module associations are no longer stored (M:N removed) —
+        // deck->content/module associations are no longer stored (M:N removed) --
         // "which lesson/module this deck is about" is resolved at read time via RAG
         // (searchCourse), so `# contentRefs` / `# moduleRefs` in the markdown are
         // ignored here.
@@ -146,14 +146,14 @@ export class FlashcardDeckParserService {
             description: merged.description ?? "",
             // difficulty comes from the `# difficulty` heading; VALIDATE against the enum
             // (an unknown value like a seniority word "senior" would otherwise pass through
-            // raw and blow up the `challenge_difficulty` enum insert) → fall back to easy.
+            // raw and blow up the `challenge_difficulty` enum insert) -> fall back to easy.
             difficulty: this.coerceMdScalarService.toRequiredEnum(
                 merged.difficulty,
                 ChallengeDifficulty,
                 ChallengeDifficulty.Easy,
             ),
             orderIndex: flashcardDeckIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,
                 flashcardDeckIndex,
@@ -196,7 +196,7 @@ export class FlashcardDeckParserService {
     }
 
     /**
-     * Parses the per-card folders under a deck's `cards/` directory — one folder
+     * Parses the per-card folders under a deck's `cards/` directory -- one folder
      * per interview question. Each card folder holds `{en,vi}.md` with top-level
      * `# question / # level / # tags / # answer / # explanation` headings.
      *
@@ -228,7 +228,7 @@ export class FlashcardDeckParserService {
                     ),
                 )
             }
-            // merge locales → default-locale card + aligned per-field translation rows
+            // merge locales -> default-locale card + aligned per-field translation rows
             const merged = this.mergeJsonService.merge({
                 jsons: Object.values(Locale).map((locale) => ({
                     locale,
@@ -247,21 +247,21 @@ export class FlashcardDeckParserService {
                 flashcardDeckIndex,
                 flashcardCardIndex: cardPath.orderIndex,
             })
-            // `# level` scalar → validated enum, null when missing/unknown
+            // `# level` scalar -> validated enum, null when missing/unknown
             const rawLevel = (this.coerceMdScalarService.toNullableStringColumn(
                 cardJsonMap.get(Locale.En)?.level,
             ) ?? "").trim().toLowerCase()
             const level = (Object.values(FlashcardLevel) as Array<string>).includes(rawLevel)
                 ? (rawLevel as FlashcardLevel)
                 : null
-            // `# tags / ## N` → array of trimmed tag strings
+            // `# tags / ## N` -> array of trimmed tag strings
             const tags = ((cardJsonMap.get(Locale.En)?.tags ?? []) as Array<RawFlashcardCardTag>)
                 .map((tag) => (tag.value ?? "").trim())
                 .filter((value) => value.length > 0)
             cards.push({
                 id: flashcardCardId,
                 orderIndex: cardPath.orderIndex,
-                // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+                // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
                 sortIndex: this.toSortIndex(
                     (merged as { sortIndex?: unknown }).sortIndex,
                     cardPath.orderIndex,
@@ -272,7 +272,7 @@ export class FlashcardDeckParserService {
                 explanation: this.coerceMdScalarService.toNullableStringColumn(merged.explanation),
                 level,
                 tags,
-                // `# isPremium` scalar → boolean, false when missing (first 20%/deck are free)
+                // `# isPremium` scalar -> boolean, false when missing (first 20%/deck are free)
                 isPremium: this.coerceMdScalarService.toRequiredBoolean(merged.isPremium,
                     false),
                 defaultLocale: Locale.En,

@@ -43,7 +43,7 @@ import {
 
 @Resolver(() => MilestoneEntity)
 /**
- * Auth + enrollment-gated GraphQL entry for `milestone` — cached per id so the
+ * Auth + enrollment-gated GraphQL entry for `milestone` -- cached per id so the
  * hydrated task tree is not re-fetched on every detail-page load.
  */
 export class MilestoneResolver {

@@ -13,5 +13,5 @@ import {
         MyUpcomingLivestreamsResolver,
     ],
 })
-/** Feature-module boundary for the `myUpcomingLivestreams` query — wires its resolver so the dashboard group can mount this widget independently. */
+/** Feature-module boundary for the `myUpcomingLivestreams` query -- wires its resolver so the dashboard group can mount this widget independently. */
 export class MyUpcomingLivestreamsSingleQueryModule extends ConfigurableModuleClass {}

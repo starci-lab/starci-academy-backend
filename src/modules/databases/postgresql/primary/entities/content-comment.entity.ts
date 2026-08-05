@@ -44,8 +44,8 @@ import {
     ],
 )
 /**
- * A threaded comment — either on a lesson content (per-lesson "Thảo luận"), OR a
- * course-general question with no specific lesson ("hỏi chung khóa"). Exactly one of
+ * A threaded comment -- either on a lesson content (per-lesson "Discussion"), OR a
+ * course-general question with no specific lesson (course-wide question). Exactly one of
  * `content`/`course` is set (never both, never neither); enforced by a DB CHECK
  * constraint (see the migration) since TypeORM cannot express XOR at the entity level.
  * Replies point at a parent comment via `parentComment` (self relation), enabling
@@ -104,7 +104,7 @@ export class ContentCommentEntity extends UuidAbstractEntity {
 
     /**
      * Content this comment belongs to. Null for a course-general question (see
-     * `course` below) — exactly one of the two is ever set.
+     * `course` below) -- exactly one of the two is ever set.
      */
     @ManyToOne(
         () => ContentEntity,
@@ -135,9 +135,9 @@ export class ContentCommentEntity extends UuidAbstractEntity {
         contentId: string | null
 
     /**
-     * Course this comment belongs to when it has no specific lesson ("hỏi chung khóa").
+     * Course this comment belongs to when it has no specific lesson (course-wide question).
      * Null for a per-lesson comment (where `content` carries the course transitively via
-     * content → module → course).
+     * content -> module -> course).
      */
     @ManyToOne(
         () => CourseEntity,

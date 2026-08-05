@@ -21,7 +21,7 @@ export interface NextKeyParams {
  * for SDK initialization.
  */
 export interface NextKeyResult {
-    /** Picked key state — mutable reference held by `KeyStoreService`. */
+    /** Picked key state -- mutable reference held by `KeyStoreService`. */
     state: KeyState
     /** Number of active keys available at pick time (for logging). */
     activeKeysCount: number

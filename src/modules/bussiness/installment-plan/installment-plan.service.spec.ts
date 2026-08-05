@@ -33,7 +33,7 @@ const POSTGRESQL_PRIMARY = "primary"
 
 /**
  * The mocked {@link EntityManagerMock} does not model `findOneBy` (a plain
- * `findOne` covers every other spec's needs) — `recordPayment` is the first
+ * `findOne` covers every other spec's needs) -- `recordPayment` is the first
  * caller, so this test file's manager is widened locally rather than growing
  * the shared mock for one caller.
  */
@@ -78,13 +78,13 @@ describe("InstallmentPlanService",
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock() as ManagerMockWithFindOneBy
             // `recordPayment` looks the plan up by id via a typed `findOneBy`,
-            // not the shared mock's `findOne` — default to "not found"
+            // not the shared mock's `findOne` -- default to "not found"
             entityManager.findOneBy = jest.fn().mockResolvedValue(null)
 
             module = await Test.createTestingModule({
                 providers: [
                     InstallmentPlanService,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -143,7 +143,7 @@ describe("InstallmentPlanService",
 
                 it("falls back to the floor for a FlexiblePool plan whose balance has shrunk",
                     () => {
-                        // 10% of 1,000,000 = 100,000 < the 500,000 floor → floor wins
+                        // 10% of 1,000,000 = 100,000 < the 500,000 floor -> floor wins
                         const min = service.computeMinPaymentVnd(
                             buildPlan({
                                 planType: InstallmentPlanType.FlexiblePool,
@@ -158,8 +158,8 @@ describe("InstallmentPlanService",
 
                 it("ceils the percent-of-remaining share rather than truncating it",
                     () => {
-                        // 10% of 1,000,001 = 100,000.1 → ceil'd to 100,001, still under
-                        // the floor here so the floor still wins — use a floor low
+                        // 10% of 1,000,001 = 100,000.1 -> ceil'd to 100,001, still under
+                        // the floor here so the floor still wins -- use a floor low
                         // enough that the ceil'd share is the one that surfaces
                         const min = service.computeMinPaymentVnd(
                             buildPlan({
@@ -184,7 +184,7 @@ describe("InstallmentPlanService",
                             }),
                         )
 
-                        // 10% of 0 is 0 → the floor is all that's left
+                        // 10% of 0 is 0 -> the floor is all that's left
                         expect(min).toBe(500000)
                     })
             })
@@ -267,7 +267,7 @@ describe("InstallmentPlanService",
                             paidAmountVnd: 500000,
                         })
 
-                        // Fixed always meets its own minimum → a previously-defaulted
+                        // Fixed always meets its own minimum -> a previously-defaulted
                         // plan is unlocked the moment ANY payment lands
                         expect(entityManager.update).toHaveBeenCalledWith(
                             expect.anything(),
@@ -294,7 +294,7 @@ describe("InstallmentPlanService",
                         entityManager.findOneBy.mockResolvedValueOnce(plan)
                         const dueBefore = plan.nextDueAt
 
-                        // minimum this cycle is 1,000,000 — pay less than that
+                        // minimum this cycle is 1,000,000 -- pay less than that
                         const result = await service.recordPayment({
                             planId: plan.id,
                             paidAmountVnd: 200000,
@@ -303,7 +303,7 @@ describe("InstallmentPlanService",
                         expect(plan.remainingVnd).toBe(9800000)
                         expect(result.metMinimum).toBe(false)
                         expect(result.completed).toBe(false)
-                        // status/nextDueAt are left as-is — still Overdue until topped up
+                        // status/nextDueAt are left as-is -- still Overdue until topped up
                         expect(plan.status).toBe(InstallmentPlanStatus.Overdue)
                         expect(plan.nextDueAt).toBe(dueBefore)
                     })
@@ -321,7 +321,7 @@ describe("InstallmentPlanService",
                         })
                         entityManager.findOneBy.mockResolvedValueOnce(plan)
 
-                        // minimum this cycle is 1,000,000 — pay exactly that
+                        // minimum this cycle is 1,000,000 -- pay exactly that
                         const result = await service.recordPayment({
                             planId: plan.id,
                             paidAmountVnd: 1000000,
@@ -383,7 +383,7 @@ describe("InstallmentPlanService",
 
                 it("claims the Pending→Succeeded transition and applies the payment on the winning call",
                     async () => {
-                        // guarded UPDATE affects the row → this call won the claim
+                        // guarded UPDATE affects the row -> this call won the claim
                         entityManager.update.mockResolvedValueOnce({
                             affected: 1,
                         })
@@ -412,7 +412,7 @@ describe("InstallmentPlanService",
                                 status: TransactionStatus.Succeeded,
                             },
                         )
-                        // the claim was won → the ledger mutation ran
+                        // the claim was won -> the ledger mutation ran
                         expect(plan.installmentsPaid).toBe(2)
                         expect(entityManager.save).toHaveBeenCalledWith(plan)
                     })

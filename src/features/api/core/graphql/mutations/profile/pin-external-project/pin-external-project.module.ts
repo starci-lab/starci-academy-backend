@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Registers pinning a URL the user typed (not an enrollment) — kept off
+ * Registers pinning a URL the user typed (not an enrollment) -- kept off
  * pinCourseProject so course ownership checks are never skipped.
  */
 export class PinExternalProjectSingleMutationModule extends ConfigurableModuleClass {}

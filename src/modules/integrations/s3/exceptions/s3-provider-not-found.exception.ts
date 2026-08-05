@@ -13,7 +13,7 @@ export type S3ProviderNotFoundExceptionDetails = {
 
 /**
  * Thrown when an S3 operation names a provider outside DigitalOcean/MinIO.
- * Fail closed — guessing a client would write to the wrong bucket.
+ * Fail closed -- guessing a client would write to the wrong bucket.
  */
 export class S3ProviderNotFoundException extends BadRequestException {
     constructor(

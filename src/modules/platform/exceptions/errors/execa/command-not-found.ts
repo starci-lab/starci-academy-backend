@@ -20,7 +20,7 @@ export interface ExecaCommandNotFoundExceptionMetadata extends AbstractException
 }
 
 /**
- * Fails fast when the executable is not on PATH — retrying the same command cannot
+ * Fails fast when the executable is not on PATH -- retrying the same command cannot
  * succeed.
  */
 export class ExecaCommandNotFoundException extends AbstractException {

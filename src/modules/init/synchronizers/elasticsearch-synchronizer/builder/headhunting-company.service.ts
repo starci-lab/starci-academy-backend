@@ -46,7 +46,7 @@ export class ElasticsearchHeadhunterCompanyBuildService {
                     localizedCompany,
                     locale,
                 )
-                // the resolved `title` is the clean company display name — use it as the
+                // the resolved `title` is the clean company display name -- use it as the
                 // single completion input (already free of any localized wrapper)
                 const label = (localizedCompany.title ?? "").trim()
                 // populate the FST-backed autocomplete field: clean company name weighted

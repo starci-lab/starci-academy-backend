@@ -87,7 +87,7 @@ describe("FlashcardReviewService",
             () => {
                 it("schedules every successful grade to a 1-day interval on a brand-new card (repetition 1 rule)",
                     () => {
-                        // NEW_CARD_STATE: prevEase 2.5, prevInterval 0, prevRepetitions 0 —
+                        // NEW_CARD_STATE: prevEase 2.5, prevInterval 0, prevRepetitions 0 --
                         // repetitions becomes 1 on ANY successful grade, and rep===1 always
                         // schedules 1 day regardless of which grade got there
                         const result = service.previewIntervals(NEW_CARD_STATE)
@@ -113,11 +113,11 @@ describe("FlashcardReviewService",
 
                         // again always resets to 1 regardless of prior state
                         expect(result.again).toBe(1)
-                        // hard: delta = 0.1 - 2*(0.08+2*0.02) = -0.14 → ease 2.36 → round(6*2.36) = 14
+                        // hard: delta = 0.1 - 2*(0.08+2*0.02) = -0.14 -> ease 2.36 -> round(6*2.36) = 14
                         expect(result.hard).toBe(14)
-                        // good: delta = 0.1 - 1*(0.08+1*0.02) = 0 → ease unchanged 2.5 → round(6*2.5) = 15
+                        // good: delta = 0.1 - 1*(0.08+1*0.02) = 0 -> ease unchanged 2.5 -> round(6*2.5) = 15
                         expect(result.good).toBe(15)
-                        // easy: delta = 0.1 - 0 = 0.1 → ease 2.6 → round(6*2.6) = 16
+                        // easy: delta = 0.1 - 0 = 0.1 -> ease 2.6 -> round(6*2.6) = 16
                         expect(result.easy).toBe(16)
                     })
 
@@ -132,7 +132,7 @@ describe("FlashcardReviewService",
 
                         const result = service.previewIntervals(prior)
 
-                        // rep becomes 2 on any successful grade → fixed 6-day slot,
+                        // rep becomes 2 on any successful grade -> fixed 6-day slot,
                         // independent of the ease the grade itself produces
                         expect(result.hard).toBe(6)
                         expect(result.good).toBe(6)
@@ -150,7 +150,7 @@ describe("FlashcardReviewService",
 
                         const result = service.previewIntervals(prior)
 
-                        // unclamped would be 1.35 - 0.14 = 1.21 → clamped to 1.3 →
+                        // unclamped would be 1.35 - 0.14 = 1.21 -> clamped to 1.3 ->
                         // round(10 * 1.3) = 13, not round(10 * 1.21) = 12
                         expect(result.hard).toBe(13)
                     })
@@ -397,7 +397,7 @@ describe("FlashcardReviewService",
                                 grade: 2,
                             })
 
-                            // rep 1 → 2 at grade Good → fixed 6-day interval
+                            // rep 1 -> 2 at grade Good -> fixed 6-day interval
                             expect(result.dueAt).toEqual(
                                 new Date("2026-01-07T00:00:00.000Z"),
                             )
@@ -603,7 +603,7 @@ describe("FlashcardReviewService",
         describe("listDue — DAILY_NEW_LIMIT cap (the \"449\" regression)",
             () => {
                 /**
-                 * Builds a stand-in for the query builder chain `listDue` drives —
+                 * Builds a stand-in for the query builder chain `listDue` drives --
                  * `.innerJoin/.leftJoin/.andWhere/.select/.addSelect/.orderBy/
                  * .addOrderBy/.limit` all return the SAME builder so the fluent
                  * chain works; `getCount`/`getRawMany` are the terminals the test
@@ -634,7 +634,7 @@ describe("FlashcardReviewService",
                         const qb = makeQueryBuilderStub()
                         entityManager.createQueryBuilder = jest.fn(() => qb) as never
 
-                        // dueReviewCount (overdue) = 0, newTotalCount = 449 — the exact
+                        // dueReviewCount (overdue) = 0, newTotalCount = 449 -- the exact
                         // shape of the reported "449" bug: a huge never-reviewed backlog
                         qb.getCount
                             .mockResolvedValueOnce(0)
@@ -676,8 +676,8 @@ describe("FlashcardReviewService",
                         // ...but what's actually offered today is capped
                         expect(result.newCount).toBe(20)
                         expect(result.dueReviewCount).toBe(0)
-                        // dueCount (the "đến hạn hôm nay" headline) must reflect the CAP,
-                        // not the full backlog — this is the regression the cap fixes
+                        // dueCount (the "due today" headline) must reflect the CAP,
+                        // not the full backlog -- this is the regression the cap fixes
                         expect(result.dueCount).toBe(20)
                         expect(result.cards).toHaveLength(20)
                     })
@@ -752,7 +752,7 @@ describe("FlashcardReviewService",
                         expect(userService.checkEnrollment).toHaveBeenCalledWith(userId,
                             courseId)
                         expect(result.cards[0].back).toBe("")
-                        // the prompt itself still shows — only the answer is withheld
+                        // the prompt itself still shows -- only the answer is withheld
                         expect(result.cards[0].front).toBe("Q")
                     })
 

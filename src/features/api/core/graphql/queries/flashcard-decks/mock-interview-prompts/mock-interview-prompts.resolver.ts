@@ -36,7 +36,7 @@ import {
 
 @Resolver()
 /**
- * The mock-interview prompt bank for a course — the capstone systems the
+ * The mock-interview prompt bank for a course -- the capstone systems the
  * learner can pick to work through. Enrolled-only (the interview spends AI
  * credits, same guard as the flashcard interview).
  */

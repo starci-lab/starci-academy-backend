@@ -33,27 +33,27 @@ export const CATEGORY_TYPE_MAP: Record<MyFeedCategory, Array<ActivityType> | nul
  * Base relevance weight per activity type, before recency decay. Accomplishments
  * (passing a milestone / AI-Lab / challenge) float to the top of the feed;
  * low-signal social noise (follows, bookmarks) sinks. The final feed score is
- * `weight × 0.5 ^ (ageHours / FEED_SCORE_HALF_LIFE_HOURS)`, so a fresh follow can
- * still out-rank a week-old completion — recency always matters.
+ * `weight x 0.5 ^ (ageHours / FEED_SCORE_HALF_LIFE_HOURS)`, so a fresh follow can
+ * still out-rank a week-old completion -- recency always matters.
  */
 export const ACTIVITY_TYPE_WEIGHT: Record<ActivityType, number> = {
-    /** Beat a personal-project milestone — top accomplishment. */
+    /** Beat a personal-project milestone -- top accomplishment. */
     [ActivityType.MilestonePassed]: 100,
-    /** Passed an AI-Lab eval — top accomplishment. */
+    /** Passed an AI-Lab eval -- top accomplishment. */
     [ActivityType.AiLabPassed]: 100,
-    /** Passed a challenge — strong accomplishment. */
+    /** Passed a challenge -- strong accomplishment. */
     [ActivityType.ChallengePassed]: 80,
-    /** Accepted a coding solution — strong accomplishment. */
+    /** Accepted a coding solution -- strong accomplishment. */
     [ActivityType.CodingSolved]: 80,
-    /** Finished reading a lesson — meaningful progress. */
+    /** Finished reading a lesson -- meaningful progress. */
     [ActivityType.LessonRead]: 45,
-    /** Enrolled in a course — intent signal. */
+    /** Enrolled in a course -- intent signal. */
     [ActivityType.CourseEnrolled]: 45,
-    /** Commented in a discussion — engagement. */
+    /** Commented in a discussion -- engagement. */
     [ActivityType.DiscussionCommented]: 25,
-    /** Bookmarked a lesson — low signal. */
+    /** Bookmarked a lesson -- low signal. */
     [ActivityType.LessonBookmarked]: 15,
-    /** Followed someone — lowest signal. */
+    /** Followed someone -- lowest signal. */
     [ActivityType.UserFollowed]: 12,
 }
 
@@ -62,7 +62,7 @@ export const DEFAULT_ACTIVITY_WEIGHT = 20
 
 /**
  * Half-life (hours) of the feed-score recency decay. After this many hours an
- * event's weight is halved; after 2× it is quartered, etc. 48h keeps roughly the
+ * event's weight is halved; after 2x it is quartered, etc. 48h keeps roughly the
  * last two days prominent while older events fade but never fully vanish.
  */
 export const FEED_SCORE_HALF_LIFE_HOURS = 48

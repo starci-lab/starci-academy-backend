@@ -13,7 +13,7 @@ import {
     description: "A flashcard review/due-review session resolved by its id, whichever kind it is.",
 })
 /**
- * A flashcard "Học thẻ" session resolved directly by its id — either kind
+ * A flashcard review session resolved directly by its id -- either kind
  * (single-deck review, or the cross-deck due-review batch). The query itself
  * resolves to `null` (not this type) when the id is not found/not owned by
  * the caller.
@@ -107,7 +107,7 @@ export class MyFlashcardReviewSessionBySessionIdData {
 })
 /**
  * GraphQL envelope for `myFlashcardReviewSessionBySessionId`. `data` is
- * null when the id is missing or not owned by the caller — do not leak
+ * null when the id is missing or not owned by the caller -- do not leak
  * another learner's session. `kind` tells the FE whether to render the
  * single-deck or cross-deck due UI.
  */

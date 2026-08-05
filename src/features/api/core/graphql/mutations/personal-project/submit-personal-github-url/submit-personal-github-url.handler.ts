@@ -26,7 +26,7 @@ import {
 @Injectable()
 /**
  * Persists `personalProjectGithubUrl` on the caller's enrollment. Does not
- * invite to the org team — that is requestToTeam, so a URL save never
+ * invite to the org team -- that is requestToTeam, so a URL save never
  * accidentally triggers a GitHub invite.
  */
 export class SubmitPersonalGithubUrlHandler

@@ -74,7 +74,7 @@ export class UserStatsProjectionService {
                 },
             },
         )
-        // TTL safety net: missing / past freshness window → recompute + re-read
+        // TTL safety net: missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 userId,
@@ -126,7 +126,7 @@ export class UserStatsProjectionService {
     }
 
     /**
-     * Build the scoped user-stats UPSERT — the aggregate assembled into one jsonb
+     * Build the scoped user-stats UPSERT -- the aggregate assembled into one jsonb
      * `value` for the single user `$1`.
      *
      * @returns the parameterised UPSERT SQL.

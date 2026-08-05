@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Registers the bulk mark-read write — kept distinct from single-id mark
+ * Registers the bulk mark-read write -- kept distinct from single-id mark
  * so a mistaken client call cannot wipe the inbox via the wrong leaf.
  */
 export class MarkAllNotificationsAsReadSingleMutationModule extends ConfigurableModuleClass {}

@@ -10,7 +10,7 @@ import {
     IsString,
 } from "class-validator"
 
-/** Upper bound on the card set a single due-review batch may draw — generous
+/** Upper bound on the card set a single due-review batch may draw -- generous
  *  since a due batch spans multiple decks; still bounded so a spoofed/buggy
  *  client cannot persist an unbounded array. */
 const MAX_CARD_IDS = 200
@@ -23,7 +23,7 @@ const MAX_CARD_IDS = 200
  * batch session for a course, mirroring `startFlashcardReviewSession`'s
  * server-persisted-draw shape. Unlike the deck-scoped review draw, this is
  * NOT anchored to a `deckId` (the FE's existing cross-deck due-set draw is
- * unchanged) — this mutation only PERSISTS the drawn card order so the batch
+ * unchanged) -- this mutation only PERSISTS the drawn card order so the batch
  * becomes resumable and so `completeFlashcardDueReviewSession` has a real
  * server-issued `sessionId` to anchor its status flip to.
  */

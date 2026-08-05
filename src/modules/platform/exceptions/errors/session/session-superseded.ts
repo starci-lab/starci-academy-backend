@@ -17,7 +17,7 @@ export interface SessionSupersededExceptionMetadata extends AbstractExceptionMet
 /**
  * Thrown by {@link SessionService.assertCurrent} when the presented request
  * either carries no session id, or an id no longer among the account's
- * active sessions — the device was evicted by a newer login or revoked
+ * active sessions -- the device was evicted by a newer login or revoked
  * elsewhere.
  */
 export class SessionSupersededException extends AbstractException {

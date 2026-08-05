@@ -29,7 +29,7 @@ import {
 @CommandHandler(SyncMockInterviewSessionTurnsCommand)
 @Injectable()
 /**
- * Applies one `syncMockInterviewSessionTurns` sync — small enough (a single
+ * Applies one `syncMockInterviewSessionTurns` sync -- small enough (a single
  * ownership-scoped lookup + guard + update) that, unlike
  * `startMockInterviewSession`/`gradeMockInterviewSession`, it does not
  * warrant a separate domain service; the logic lives directly in the handler.
@@ -63,7 +63,7 @@ export class SyncMockInterviewSessionTurnsHandler
         }
 
         // ownership check mirrors `gradeMockInterviewSession`'s
-        // `resolveTrustedPromptIdentity` — a session can never be synced on
+        // `resolveTrustedPromptIdentity` -- a session can never be synced on
         // behalf of a different learner's draw. Scoped through the relation
         // (`enrollment: { user: { id } }`), NOT the virtual `enrollment.userId`
         // @RelationId column, which TypeORM cannot filter on directly.
@@ -87,7 +87,7 @@ export class SyncMockInterviewSessionTurnsHandler
 
         // not found/not owned, or no longer resumable (already graded by
         // gradeMockInterviewSession, or abandoned by a fresh
-        // startMockInterviewSession draw) — a late/stale sync must silently
+        // startMockInterviewSession draw) -- a late/stale sync must silently
         // no-op rather than throw, so a background periodic sync never
         // surfaces an error toast mid-interview.
         if (!session || session.status !== "in_progress") {

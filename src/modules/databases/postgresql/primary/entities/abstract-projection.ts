@@ -18,7 +18,7 @@ import {
  * Shared base for every CQRS projection entity.
  *
  * A projection row is keyed by its NATURAL key (declared in the concrete entity
- * — a single foreign key for an entity-grained projection, or two for a
+ * -- a single foreign key for an entity-grained projection, or two for a
  * relation-grained one) and stores the whole aggregate under one `value` jsonb
  * column (no typed-per-field columns, so adding a metric needs no migration).
  * Inherited `updatedAt` (from {@link AbstractEntity}) drives the read-time TTL

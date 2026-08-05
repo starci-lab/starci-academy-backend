@@ -9,12 +9,12 @@ import {
 /**
  * Snapshots local Docker resources (containers / images / networks) the way the
  * StarCi gateway's "lite" verify expects them. Missing tooling contributes
- * nothing (no throw) — a machine without Docker simply reports an empty list.
+ * nothing (no throw) -- a machine without Docker simply reports an empty list.
  */
 export class DockerResourceService {
     constructor(private readonly probe: CommandProbeService) {}
 
-    /** Title-case a docker state token (`running` → `Running`) to match the expected status. */
+    /** Title-case a docker state token (`running` -> `Running`) to match the expected status. */
     private titleCase(value: string): string {
         return value ? value.charAt(0).toUpperCase() + value.slice(1).toLowerCase() : value
     }

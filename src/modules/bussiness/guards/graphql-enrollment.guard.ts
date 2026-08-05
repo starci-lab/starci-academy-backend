@@ -15,8 +15,8 @@ import {
 
 @Injectable()
 /**
- * Resolves the caller's enrollment for the `x-course-id` course — creating a
- * TRIAL placeholder (`is_enrolled = false`) when none exists yet — and injects
+ * Resolves the caller's enrollment for the `x-course-id` course -- creating a
+ * TRIAL placeholder (`is_enrolled = false`) when none exists yet -- and injects
  * `enrollmentId` (and the `enrollment`) onto the GraphQL request. In the
  * enrollment-centric model, course-scoped resolvers/handlers read
  * `req.enrollmentId` instead of `req.user.id`, so all per-course progress is
@@ -45,7 +45,7 @@ export class GraphQLEnrollmentGuard implements CanActivate {
         const courseId = Array.isArray(rawCourseId)
             ? rawCourseId[0]
             : rawCourseId
-        // Permissive: no course context on the request → do nothing. These
+        // Permissive: no course context on the request -> do nothing. These
         // course-scoped handlers self-resolve the enrollment from the entity's own
         // course (via resolveOrCreateTrialEnrollment), so a missing `x-course-id`
         // header must NOT 400 them. When present, we pre-resolve + inject it.

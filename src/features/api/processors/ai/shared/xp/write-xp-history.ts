@@ -9,7 +9,7 @@ import type {
 
 /** Params for {@link writeXpHistory}. */
 export interface WriteXpHistoryParams {
-    /** Transaction manager — the XP row is written in the SAME tx as its source effect. */
+    /** Transaction manager -- the XP row is written in the SAME tx as its source effect. */
     entityManager: EntityManager
     /** User who earned the XP. */
     userId: string
@@ -30,12 +30,12 @@ export interface WriteXpHistoryParams {
 
 /**
  * Append one XP-earning event to the audit ledger AND credit `users.coin_balance`
- * by the flat `points` reward — idempotently and in the caller's transaction.
+ * by the flat `points` reward -- idempotently and in the caller's transaction.
  * Guards on the `(source, refId)` unique key: if the event was already recorded,
- * NOTHING happens — no duplicate ledger row and, crucially, no double credit.
+ * NOTHING happens -- no duplicate ledger row and, crucially, no double credit.
  *
  * The global "Points" figure (total XP summed across every course + coding) is
- * NOT a separately-maintained counter — it's `SUM(amount) FROM xp_histories`,
+ * NOT a separately-maintained counter -- it's `SUM(amount) FROM xp_histories`,
  * computed live by {@link UserXpProjectionService} (single source of truth,
  * ledger-derived, same as the per-course/per-source breakdowns). This function
  * intentionally does NOT increment any XP counter on the user row.
@@ -70,7 +70,7 @@ export const writeXpHistory = async (
     if (existing) {
         return
     }
-    // ledger row (audit) — kept even if the user later un-reads, so it is append-only
+    // ledger row (audit) -- kept even if the user later un-reads, so it is append-only
     await entityManager.save(
         XpHistoryEntity,
         {
@@ -86,7 +86,7 @@ export const writeXpHistory = async (
             refId,
         },
     )
-    // XP itself is never counter-maintained — the ledger row above IS the
+    // XP itself is never counter-maintained -- the ledger row above IS the
     // source of truth; UserXpProjectionService derives every XP figure
     // (per-source + global "Points") from `SUM(amount) FROM xp_histories`.
     // credit the spendable Coin balance by the flat reward exactly once

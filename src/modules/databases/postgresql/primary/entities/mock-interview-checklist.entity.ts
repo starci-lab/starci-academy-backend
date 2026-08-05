@@ -23,24 +23,24 @@ import {
         unique: true,
     })
 /**
- * One coverage CHECKPOINT of a {@link MockInterviewEntity} — the grading anchor that
+ * One coverage CHECKPOINT of a {@link MockInterviewEntity} -- the grading anchor that
  * succeeds the parent's flat `rubric` jsonb array.
  *
  * A checkpoint states, declaratively, one thing a complete answer establishes ("a
- * per-handler try/catch bypasses the centralized error layer…"), as opposed to `rubric`'s
- * grader-facing phrasing ("points out that…"). It gets its own table rather than another
- * jsonb array because a checkpoint carries structure the grader scores against —
- * {@link dimension}, {@link critical}, {@link weight} — which a bare string cannot hold;
+ * per-handler try/catch bypasses the centralized error layer..."), as opposed to `rubric`'s
+ * grader-facing phrasing ("points out that..."). It gets its own table rather than another
+ * jsonb array because a checkpoint carries structure the grader scores against --
+ * {@link dimension}, {@link critical}, {@link weight} -- which a bare string cannot hold;
  * the old rubric smuggled the dimension in as a `[technical]` text prefix.
  *
- * Authored as `# checklist` → `## N` → `### text` / `### dimension` / `### critical` /
+ * Authored as `# checklist` -> `## N` -> `### text` / `### dimension` / `### critical` /
  * `### weight`, mirroring how `# langs` authors {@link MockInterviewLangEntity}.
  *
  * English-only in both locales (same as `keywords`/`tags`), so unlike the lang variants
  * there is no translation child table.
  */
 export class MockInterviewChecklistEntity extends UuidAbstractEntity {
-    /** The checkpoint itself — a declarative statement of what a complete answer establishes. */
+    /** The checkpoint itself -- a declarative statement of what a complete answer establishes. */
     @Column({
         name: "text",
         type: "text",
@@ -48,7 +48,7 @@ export class MockInterviewChecklistEntity extends UuidAbstractEntity {
         text: string
 
     /**
-     * Which axis this checkpoint scores on — `technical` | `problemSolving` |
+     * Which axis this checkpoint scores on -- `technical` | `problemSolving` |
      * `communication` | `testing`. Varchar rather than a pg enum (same synchronize
      * enum-add trap the parent avoids for `family`/`kind`).
      */
@@ -70,7 +70,7 @@ export class MockInterviewChecklistEntity extends UuidAbstractEntity {
 
     /**
      * Points this checkpoint is worth. The scoreBands of one question's checkpoints SUM
-     * TO 100, so a graded answer's score is just the sum of the bands it covered — no
+     * TO 100, so a graded answer's score is just the sum of the bands it covered -- no
      * normalising a relative-weight total at grade time, and the authored allocation is
      * readable on its own ("this point is worth 25 of the 100").
      */

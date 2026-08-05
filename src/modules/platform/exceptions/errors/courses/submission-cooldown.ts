@@ -10,7 +10,7 @@ export interface SubmissionCooldownExceptionMetadata extends AbstractExceptionMe
     nextAllowedAt: Date
 }
 
-/** Rejects resubmit until cooldown elapses — prevents hammering the grader. */
+/** Rejects resubmit until cooldown elapses -- prevents hammering the grader. */
 export class SubmissionCooldownException extends AbstractException {
     constructor({
         nextAllowedAt,

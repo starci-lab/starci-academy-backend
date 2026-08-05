@@ -9,7 +9,7 @@ import {
 
 @ObjectType()
 /**
- * Ancestor displayIds for an index-search hit. Only displayIds (not UUIDs) —
+ * Ancestor displayIds for an index-search hit. Only displayIds (not UUIDs) --
  * enough for slug-based URLs, unlike global-search which also returns ids.
  */
 export class IndexSearchParentPath {
@@ -69,7 +69,7 @@ export class IndexSearchItem {
 @ObjectType()
 /**
  * Flat hit list for one index. Unlike global search, results are not grouped
- * by kind — the request already pinned the index.
+ * by kind -- the request already pinned the index.
  */
 export class IndexSearchData {
     @Field(() => [IndexSearchItem])

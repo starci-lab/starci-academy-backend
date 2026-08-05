@@ -13,5 +13,5 @@ import {
         UserContributionCalendarResolver,
     ],
 })
-/** Feature-module boundary for the `userContributionCalendar` query — wires its resolver so the users group can mount this profile tab independently. */
+/** Feature-module boundary for the `userContributionCalendar` query -- wires its resolver so the users group can mount this profile tab independently. */
 export class UserContributionCalendarSingleQueryModule extends ConfigurableModuleClass {}

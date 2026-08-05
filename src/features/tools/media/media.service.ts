@@ -45,8 +45,8 @@ import type {
  * registers them as a kept artifact, and (optionally) syncs to a saved S3
  * target.
  *
- * Flow (local-first): write source → multi-bitrate encode on local CPU/GPU →
- * register the working directory as a re-syncable artifact → push to the
+ * Flow (local-first): write source -> multi-bitrate encode on local CPU/GPU ->
+ * register the working directory as a re-syncable artifact -> push to the
  * target. The renditions stay on disk as a cache so the same artifact can be
  * re-synced later without re-encoding.
  */

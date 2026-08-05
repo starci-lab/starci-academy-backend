@@ -10,13 +10,13 @@ export interface ContentAiHistoryTurn {
     content: string
 }
 
-/** Client → server payload to ask a content-AI question and stream the answer. */
+/** Client -> server payload to ask a content-AI question and stream the answer. */
 export type AskContentAiSocketIoPayload = SocketIoPayload<{
     /** Client-generated id correlating this question's streamed chunks. */
     streamId: string
-    /** Conversation (session) this turn belongs to — the completed turn is saved under it. */
+    /** Conversation (session) this turn belongs to -- the completed turn is saved under it. */
     sessionId: string
-    /** Lesson content the question is grounded on (lesson scope; recorded per turn — a session can span lessons). Omitted on a task/foundation page. */
+    /** Lesson content the question is grounded on (lesson scope; recorded per turn -- a session can span lessons). Omitted on a task/foundation page. */
     contentId?: string | null
     /** Capstone / personal-project task the question is grounded on (task scope). */
     taskId?: string | null
@@ -32,13 +32,13 @@ export type AskContentAiSocketIoPayload = SocketIoPayload<{
     question: string
     /** Recent prior turns (oldest first) for short-term memory; capped server-side. */
     history?: Array<ContentAiHistoryTurn>
-    /** Pinned model name (absent → balancer picks from the free chain). */
+    /** Pinned model name (absent -> balancer picks from the free chain). */
     model?: string | null
     /** Provider of the pinned model (required together with `model`). */
     provider?: string | null
 }>
 
-/** Client → server payload to abort an in-flight content-AI answer stream. */
+/** Client -> server payload to abort an in-flight content-AI answer stream. */
 export type AbortContentAiSocketIoPayload = SocketIoPayload<{
     /** Stream whose in-flight answer should be aborted. */
     streamId: string

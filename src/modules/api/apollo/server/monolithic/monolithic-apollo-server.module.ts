@@ -30,10 +30,10 @@ import {
 /**
  * Reads the `extensions.http.status` Apollo convention (set by `formatError`
  * below, per https://www.apollographql.com/docs/apollo-server/data/errors#setting-http-status-code)
- * off the response's errors and applies it as the ACTUAL HTTP status —
+ * off the response's errors and applies it as the ACTUAL HTTP status --
  * `formatError` alone can only shape the error body, not the transport status.
  * When multiple errors disagree, the highest status wins (an unambiguous
- * failure outranks a partial one). No qualifying error → leaves Apollo's
+ * failure outranks a partial one). No qualifying error -> leaves Apollo's
  * default (200), which is correct for a request that otherwise succeeded.
  */
 const httpStatusFromExceptionsPlugin: ApolloServerPlugin = {
@@ -67,7 +67,7 @@ const httpStatusFromExceptionsPlugin: ApolloServerPlugin = {
 })
 /**
  * The production GraphQL HTTP server: auto-schema, sandbox landing, and
- * AbstractException → `extensions.http.status` so auth failures are not 200.
+ * AbstractException -> `extensions.http.status` so auth failures are not 200.
  * Disables Nest's `autoTransformHttpErrors` because that plugin forces 200
  * whenever `data` is present (including `data: null`).
  */
@@ -83,7 +83,7 @@ export class MonolithicApolloServerModule extends ConfigurableModuleClass {
                     autoSchemaFile: true,
                     // @nestjs/apollo's default `createPreserveHttpStatusPlugin` forces the
                     // HTTP status back to 200 whenever the response has a `data` key at
-                    // all (even `data: null`) — which clobbers our own status mapping for
+                    // all (even `data: null`) -- which clobbers our own status mapping for
                     // every guard/auth failure (those responses ARE `{data: null, errors}`).
                     // Disabling this also turns off Nest's auto-mapping of raw Nest
                     // `HttpException`s to GraphQL codes, but every exception in this repo
@@ -103,7 +103,7 @@ export class MonolithicApolloServerModule extends ConfigurableModuleClass {
                     }),
                     // stamp the exception's stable `code` + the real HTTP status (Apollo's
                     // `extensions.http.status` convention) onto every AbstractException
-                    // error — `httpStatusFromExceptionsPlugin` above reads the latter to
+                    // error -- `httpStatusFromExceptionsPlugin` above reads the latter to
                     // set the actual transport status; `code` matching (not status alone)
                     // stays the FE's primary signal since GraphQL responses can carry
                     // multiple errors with different severities
@@ -123,14 +123,14 @@ export class MonolithicApolloServerModule extends ConfigurableModuleClass {
                                 },
                             }
                         }
-                        // any OTHER error (graphql-js's own execution errors — e.g. "Cannot
+                        // any OTHER error (graphql-js's own execution errors -- e.g. "Cannot
                         // return null for non-nullable field", resolver throws not wrapped in
                         // AbstractException, etc.) is by definition an UNEXPECTED server bug,
-                        // never the client's fault — default it to 500 too, so
+                        // never the client's fault -- default it to 500 too, so
                         // `httpStatusFromExceptionsPlugin` above surfaces it as a real 5xx on
-                        // the wire instead of silently staying 200. Thầy 2026-07-11: "lỗi kiểu
-                        // này trả về 400/500 dc không" — chốt 500 (server bug, không phải client
-                        // gửi sai). Never overrides an EXISTING extensions.http.status (e.g. a
+                        // the wire instead of silently staying 200. Teacher 2026-07-11: return
+                        // 500 for these (server bug, not a client mistake). Never overrides an
+                        // EXISTING extensions.http.status (e.g. a
                         // raw HttpException Nest may have already stamped).
                         return {
                             ...formattedError,

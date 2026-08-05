@@ -34,7 +34,7 @@ import {
 
 /** Lower bound for the weekly goal (0 lessons = effectively "no target"). */
 const MIN_GOAL = 0
-/** Upper bound — a sane cap so the progress ring never reflects an absurd target. */
+/** Upper bound -- a sane cap so the progress ring never reflects an absurd target. */
 const MAX_GOAL = 100
 
 @Resolver()
@@ -89,7 +89,7 @@ export class SetWeeklyGoalResolver {
             },
         )
 
-        // no payload — the client already knows the value it sent (post-clamp it can
+        // no payload -- the client already knows the value it sent (post-clamp it can
         // re-fetch via myWeeklyStats if it needs the canonical number)
         return {
         } as SetWeeklyGoalResponse

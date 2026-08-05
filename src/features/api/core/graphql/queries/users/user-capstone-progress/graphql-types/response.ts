@@ -12,7 +12,7 @@ import {
     description: "A milestone task on a user's capstone roadmap.",
 })
 /**
- * One milestone task on a user's capstone roadmap — the task plus whether the
+ * One milestone task on a user's capstone roadmap -- the task plus whether the
  * user has passed it (latest passing attempt), its score, and when it was passed.
  */
 export class CapstoneTaskItemObject {
@@ -62,7 +62,7 @@ export class CapstoneTaskItemObject {
     description: "A milestone on a user's capstone roadmap.",
 })
 /**
- * One milestone on a user's capstone roadmap — its ordered tasks plus how many
+ * One milestone on a user's capstone roadmap -- its ordered tasks plus how many
  * the user has passed.
  */
 export class CapstoneMilestoneProgressObject {
@@ -119,7 +119,7 @@ export class CapstoneMilestoneProgressObject {
     description: "An enrolled course's capstone roadmap on a user's profile.",
 })
 /**
- * One enrolled course on a user's capstone roadmap — its ordered milestones plus
+ * One enrolled course on a user's capstone roadmap -- its ordered milestones plus
  * the course-level totals and passed counts that power the project-showcase card.
  */
 export class CapstoneCourseProgressObject {

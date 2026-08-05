@@ -51,7 +51,7 @@ describe("ConsultantHandler",
 
             consultantContactGateService = {
                 getBestCvScore: jest.fn().mockResolvedValue(0),
-                // pass the consultant through untouched — contact-gating logic
+                // pass the consultant through untouched -- contact-gating logic
                 // is covered by consultant-contact-gate.service.spec.ts
                 gateConsultant: jest.fn((consultant: ConsultantEntity) => consultant),
             } as unknown as jest.Mocked<

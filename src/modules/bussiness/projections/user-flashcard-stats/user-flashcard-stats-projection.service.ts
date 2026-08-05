@@ -26,7 +26,7 @@ import type {
 /** SM-2 grade at/above which a review counts as "recalled" for retention. */
 const RECALLED_GRADE = 2
 
-/** A zeroed grade distribution — the fallback for a row without this key (old row / no history). */
+/** A zeroed grade distribution -- the fallback for a row without this key (old row / no history). */
 const EMPTY_GRADE_DISTRIBUTION: FlashcardGradeDistribution = {
     again: 0,
     hard: 0,
@@ -73,7 +73,7 @@ export class UserFlashcardStatsProjectionService {
         // honour the caller's transaction when given, else the service connection
         const manager = entityManager ?? this.entityManager
 
-        // one row per graded review (its VN day + grade) — the history to fold
+        // one row per graded review (its VN day + grade) -- the history to fold
         const history = await manager.query<Array<ReviewHistoryRow>>(
             `SELECT (reviewed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day,
                     grade
@@ -143,7 +143,7 @@ export class UserFlashcardStatsProjectionService {
      * Read a user's trailing daily-review-activity window (cards graded per VN
      * day), TTL lazy-refreshed off the SAME projection row. The window is built
      * at READ time (today's VN day back `days-1`) and zero-filled from the
-     * stored `dailyReviewCounts` map — so it never drifts even if the row was
+     * stored `dailyReviewCounts` map -- so it never drifts even if the row was
      * last recomputed days ago (within TTL).
      *
      * @param params - {@link UserFlashcardDailyActivityParams}
@@ -157,14 +157,14 @@ export class UserFlashcardStatsProjectionService {
     ): Promise<Array<FlashcardDailyActivityPoint>> {
         const value = await this.readValue(userId)
         const raw = value.dailyReviewCounts
-        // tolerate an old row written before this key existed (→ all zeros)
+        // tolerate an old row written before this key existed (-> all zeros)
         const counts = (raw && typeof raw === "object")
             ? raw as Record<string, number>
             : {
             }
 
         // anchor today's VN day at a UTC midnight so day-stepping is a plain
-        // 86.4M-ms subtraction (no DST in VN); enumerate oldest → newest.
+        // 86.4M-ms subtraction (no DST in VN); enumerate oldest -> newest.
         const [year,
             month,
             day] = this.vnTodayKey().split("-").map(Number)
@@ -237,7 +237,7 @@ export class UserFlashcardStatsProjectionService {
 
     /**
      * Tally graded reviews by SM-2 grade (0=Again, 1=Hard, 2=Good, 3=Easy) from
-     * the same history scan {@link foldStats} already has in hand — no extra query.
+     * the same history scan {@link foldStats} already has in hand -- no extra query.
      *
      * @param history - one row per graded review (VN day + grade).
      * @returns the grade tally.
@@ -264,7 +264,7 @@ export class UserFlashcardStatsProjectionService {
                 distribution.easy += 1
                 break
             default:
-                // out-of-range grade (shouldn't happen) — skip silently
+                // out-of-range grade (shouldn't happen) -- skip silently
                 break
             }
         }
@@ -275,18 +275,18 @@ export class UserFlashcardStatsProjectionService {
      * Count reviews per VN day from the same history, retaining only the last
      * {@link DAILY_COUNTS_RETAIN_DAYS} days (relative to today) so the stored map
      * stays bounded. `history[].day` is ALREADY the VN calendar day (the SQL scan
-     * casts `AT TIME ZONE 'Asia/Ho_Chi_Minh'`), so this is pure counting — no
+     * casts `AT TIME ZONE 'Asia/Ho_Chi_Minh'`), so this is pure counting -- no
      * timezone math here.
      *
      * @param history - one row per graded review (VN day + grade).
      * @param meta - today (VN) + latest review timestamp.
-     * @returns `YYYY-MM-DD` → cards graded that day, within the retained window.
+     * @returns `YYYY-MM-DD` -> cards graded that day, within the retained window.
      */
     private foldDailyCounts(
         history: Array<ReviewHistoryRow>,
         meta: ReviewMetaRow | undefined,
     ): Record<string, number> {
-        // no "today" anchor (never reviewed) → nothing to retain a window against
+        // no "today" anchor (never reviewed) -> nothing to retain a window against
         if (!meta) {
             return {
             }
@@ -296,7 +296,7 @@ export class UserFlashcardStatsProjectionService {
         }
         for (const row of history) {
             if (this.toEpochDay(row.day) < cutoffEpoch) {
-                // older than the retained window → drop (bounds the stored map)
+                // older than the retained window -> drop (bounds the stored map)
                 continue
             }
             counts[row.day] = (counts[row.day] ?? 0) + 1
@@ -307,7 +307,7 @@ export class UserFlashcardStatsProjectionService {
     /**
      * Compute the current + longest consecutive-day streaks from ascending
      * epoch-day numbers. The current streak counts only when the latest review day
-     * is today or yesterday (else the run has lapsed → 0).
+     * is today or yesterday (else the run has lapsed -> 0).
      *
      * @param epochDaysAsc - distinct review days, ascending epoch-day numbers.
      * @param todayEpoch - today's epoch-day (VN).
@@ -331,7 +331,7 @@ export class UserFlashcardStatsProjectionService {
             longestStreak = Math.max(longestStreak,
                 run)
         }
-        // current run ending at the latest day — only "current" if reviewed
+        // current run ending at the latest day -- only "current" if reviewed
         // today or yesterday, otherwise the streak has lapsed
         const lastEpoch = epochDaysAsc[epochDaysAsc.length - 1]
         let currentStreak = 0
@@ -392,7 +392,7 @@ export class UserFlashcardStatsProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 userId,

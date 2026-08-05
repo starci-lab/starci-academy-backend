@@ -9,8 +9,8 @@ export class AbstractException extends Error {
     readonly metadata?: Record<string, unknown>
     /**
      * Optional HTTP status this exception should map to when it crosses a
-     * REST boundary (via {@link AbstractExceptionHttpFilter}). Undefined →
-     * the filter defaults to 500 — most domain exceptions don't set this;
+     * REST boundary (via {@link AbstractExceptionHttpFilter}). Undefined ->
+     * the filter defaults to 500 -- most domain exceptions don't set this;
      * it exists for cases (guards, auth) that need to preserve a specific
      * status code (401/403/404/400) instead of the generic default.
      */

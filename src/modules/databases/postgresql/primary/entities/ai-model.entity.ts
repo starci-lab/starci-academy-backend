@@ -76,7 +76,7 @@ export class AiModelEntity extends UuidAbstractEntity {
     })
         provider: ModelProvider
 
-    /** Coarse cost/quality category — economy / balanced / premium. */
+    /** Coarse cost/quality category -- economy / balanced / premium. */
     @Field(
         () => GraphQLTypeAiModelCategory,
         {
@@ -141,7 +141,7 @@ export class AiModelEntity extends UuidAbstractEntity {
     /**
      * Within-category try-order key for the Auto lane (higher tried first, then
      * climb to the next category). Accepts decimals so models sharing a credit
-     * tier still order distinctly (e.g. credit 5 → weights 5.3 / 5.2 / 5.1).
+     * tier still order distinctly (e.g. credit 5 -> weights 5.3 / 5.2 / 5.1).
      * Sourced from the `# weight` markdown heading. This is the ORDERING value
      * (distinct from {@link credit}).
      */
@@ -161,7 +161,7 @@ export class AiModelEntity extends UuidAbstractEntity {
     /**
      * REAL provider price in USD per 1,000,000 INPUT tokens (the true cost to
      * us). Source of truth for billing: {@link creditPerMTokIn} is DERIVED from
-     * this at seed time (`round(price × credits-per-USD)`). Kept in the DB for
+     * this at seed time (`round(price x credits-per-USD)`). Kept in the DB for
      * cost/margin auditing. Free / self-hosted models = 0.
      */
     @Field(
@@ -192,7 +192,7 @@ export class AiModelEntity extends UuidAbstractEntity {
         priceOutUsdPerMTok: number
 
     /**
-     * REAL provider price in USD per 1,000,000 CACHED input tokens — a
+     * REAL provider price in USD per 1,000,000 CACHED input tokens -- a
      * prompt-cache hit, which providers re-price at roughly 0.1x-0.2x of a fresh
      * input token and OpenRouter passes through. Null when the model publishes
      * no cache pricing (billing then treats cached tokens as fresh).
@@ -232,7 +232,7 @@ export class AiModelEntity extends UuidAbstractEntity {
     /**
      * Total context window in tokens, as published by the provider. Together
      * with the two prices this is the whole recorded metric set the catalog
-     * ranks on — see `computeModelWeight`, where a roomier window and a cheaper
+     * ranks on -- see `computeModelWeight`, where a roomier window and a cheaper
      * call both push a model earlier in its category's chain.
      *
      * Nullable on purpose: a window we have not verified stays `null` rather
@@ -254,9 +254,9 @@ export class AiModelEntity extends UuidAbstractEntity {
 
     /**
      * Token-based billing rate: credits charged per 1,000,000 INPUT tokens.
-     * DERIVED at seed from {@link priceInUsdPerMTok} (`round(price × 5000)`, i.e.
+     * DERIVED at seed from {@link priceInUsdPerMTok} (`round(price x 5000)`, i.e.
      * 1 credit ≡ $0.0002 real cost). A grading run is billed
-     * `ceil((promptTok·in + completionTok·out)/1e6)`; {@link credit} is the flat
+     * `ceil((promptTok-in + completionTok-out)/1e6)`; {@link credit} is the flat
      * FALLBACK used only when token usage is unreported.
      */
     @Field(
@@ -286,7 +286,7 @@ export class AiModelEntity extends UuidAbstractEntity {
     })
         creditPerMTokOut: number
 
-    /** Kill-switch — `false` removes the model from rotation without deleting. */
+    /** Kill-switch -- `false` removes the model from rotation without deleting. */
     @Field(
         () => Boolean,
         {
@@ -300,7 +300,7 @@ export class AiModelEntity extends UuidAbstractEntity {
     })
         enabled: boolean
 
-    /** Usable on the free Auto lane — no subscription, debited by uses ("lượt"). */
+    /** Usable on the free Auto lane -- no subscription, debited by uses. */
     @Field(
         () => Boolean,
         {
@@ -316,7 +316,7 @@ export class AiModelEntity extends UuidAbstractEntity {
 
     /**
      * Tasks this model is suited for (`chatting` / `grading`). JSONB array of
-     * {@link AiModelTask} string values (NOT a Postgres enum) — drives FE picker
+     * {@link AiModelTask} string values (NOT a Postgres enum) -- drives FE picker
      * visibility (a grading-only model is hidden from the chat picker, etc.).
      */
     @Field(

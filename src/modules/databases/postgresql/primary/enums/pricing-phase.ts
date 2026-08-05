@@ -10,11 +10,11 @@ import {
  * Stored in the `pricing_phases.phase` column; display label is mapped by FE.
  */
 export enum PricingPhase {
-    /** Launch price — cheapest; `nextPricingPhase` advances this to EarlyBird. */
+    /** Launch price -- cheapest; `nextPricingPhase` advances this to EarlyBird. */
     Pioneer = "pioneer",
     /** Mid-tier price; default when `metadata.currentPhase` is unset. */
     EarlyBird = "earlyBird",
-    /** Terminal full price — `nextPricingPhase` stays here; also the snapshot for non-course purchases. */
+    /** Terminal full price -- `nextPricingPhase` stays here; also the snapshot for non-course purchases. */
     Regular = "regular",
 }
 

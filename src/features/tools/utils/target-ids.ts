@@ -16,7 +16,7 @@ export const parseTargetIds = (raw: unknown): Array<string> => {
         if (!trimmed) {
             return []
         }
-        // JSON array string → parse
+        // JSON array string -> parse
         if (trimmed.startsWith("[")) {
             try {
                 const parsed = JSON.parse(trimmed)

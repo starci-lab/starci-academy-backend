@@ -14,14 +14,14 @@ import type {
 export type CvTemplateLevel = "junior" | "mid" | "senior"
 
 /**
- * Input to {@link CvScoringService.score} — SOURCE-AGNOSTIC. The caller supplies
+ * Input to {@link CvScoringService.score} -- SOURCE-AGNOSTIC. The caller supplies
  * the CV either as `structuredData` (the composed CV JSON, used by the generate
  * pipeline) OR as `cvText` (extracted plain text, used by the upload pipeline in
  * WF-03c). At least one must be present; when both are given, the structured JSON
  * is preferred as the primary grading input and the text is appended as context.
  */
 export interface ScoreCvParams {
-    /** The acting user — drives AI entitlement / lane routing. */
+    /** The acting user -- drives AI entitlement / lane routing. */
     userId: string
     /**
      * The composed CV JSON (header / summary / skills / experience / education).
@@ -94,29 +94,29 @@ export interface CvScoreFeedback {
 }
 
 /**
- * Result of {@link CvScoringService.score}: the holistic 0–100 score plus the
+ * Result of {@link CvScoringService.score}: the holistic 0-100 score plus the
  * structured feedback. `feedback` is widened to `Record<string, unknown>` so the
  * caller can assign it directly to the entity's jsonb column.
  */
 export interface ScoreCvResult {
-    /** Holistic CV score, clamped to the 0–100 range and integer-normalized. */
+    /** Holistic CV score, clamped to the 0-100 range and integer-normalized. */
     score: number
     /** Structured feedback (assignable to `cv_generations.feedback`). */
     feedback: Record<string, unknown>
 }
 
 /**
- * Input to `ScoreUploadedCvService.scoreUploadedCv` — the WF-07 upload-scoring
+ * Input to `ScoreUploadedCvService.scoreUploadedCv` -- the WF-07 upload-scoring
  * path. It targets a single unified `cv_generations` row (`source = uploaded`),
  * buffers its `uploadedCdnKey` from MinIO, extracts the text, and grades it with
  * the shared {@link CvScoringService} via the `cvText` branch (NOT
- * `structuredData`) — the upload analogue of the generate score step.
+ * `structuredData`) -- the upload analogue of the generate score step.
  */
 export interface ScoreUploadedCvParams {
     /** `cv_generations.id` of the uploaded CV row to grade + persist onto. */
     cvGenerationId: string
     /**
-     * `users.id` — owner of the row; drives AI entitlement / lane routing in the
+     * `users.id` -- owner of the row; drives AI entitlement / lane routing in the
      * shared scoring service.
      */
     userId: string

@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * Thin `CommandBus` proxy for `syncFlashcardDueReviewSessionProgress` — wraps the request into a
+ * Thin `CommandBus` proxy for `syncFlashcardDueReviewSessionProgress` -- wraps the request into a
  * {@link SyncFlashcardDueReviewSessionProgressCommand} rather than calling {@link SyncFlashcardDueReviewSessionProgressHandler} directly,
  * keeping the resolver decoupled from the CQRS wiring.
  */

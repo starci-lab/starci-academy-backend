@@ -6,7 +6,7 @@ import {
 export interface ExtractCvTextParams {
     /** Raw bytes of the uploaded source CV file. */
     buffer: Buffer
-    /** The file's MinIO object key — its extension selects the extractor. */
+    /** The file's MinIO object key -- its extension selects the extractor. */
     key: string
 }
 
@@ -73,7 +73,7 @@ export interface GatheredUserProfile {
     openToWork: boolean
 }
 
-/** Per-source XP totals — a signal for which skill categories to emphasize. */
+/** Per-source XP totals -- a signal for which skill categories to emphasize. */
 export interface GatheredXpBreakdown {
     challengeXp: number
     milestoneXp: number
@@ -96,7 +96,7 @@ export interface GenerateCvGatherStepExecuteResult {
     sourceCvText: string | null
 }
 
-/** One skill category with its items (e.g. "Backend" → ["NestJS", "PostgreSQL"]). */
+/** One skill category with its items (e.g. "Backend" -> ["NestJS", "PostgreSQL"]). */
 export interface ComposedSkillGroup {
     category: string
     items: Array<string>
@@ -135,7 +135,7 @@ export interface GenerateCvComposeStepExecuteResult {
 /**
  * Result of the render step: the MinIO object key of the generated `.tex` file,
  * plus the object key of its compiled PDF (`tectonic`) when the compile
- * succeeded — `null` when it failed (degrades to the `.tex` download). Persisted
+ * succeeded -- `null` when it failed (degrades to the `.tex` download). Persisted
  * as the render step result; the complete step copies both to
  * `cv_generations.latex_cdn_key` / `generated_pdf_cdn_key`.
  */
@@ -145,12 +145,12 @@ export interface GenerateCvRenderStepExecuteResult {
 }
 
 /**
- * Result of the score step: the holistic 0–100 score + structured feedback the
+ * Result of the score step: the holistic 0-100 score + structured feedback the
  * shared {@link CvScoringService} produced from the composed CV. Persisted as the
  * score step result; the complete step copies both onto `cv_generations`.
  */
 export interface GenerateCvScoreStepExecuteResult {
-    /** Holistic CV score (0–100), or `null` when scoring degraded gracefully. */
+    /** Holistic CV score (0-100), or `null` when scoring degraded gracefully. */
     score: number | null
     /** Structured AI feedback (jsonb-assignable), or `null` when unavailable. */
     feedback: Record<string, unknown> | null

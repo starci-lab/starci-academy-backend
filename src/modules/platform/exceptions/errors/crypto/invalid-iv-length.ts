@@ -18,7 +18,7 @@ export interface InvalidIvLengthExceptionMetadata extends AbstractExceptionMetad
 
 /**
  * Thrown when {@link EncryptionService.decrypt} receives a payload whose
- * decoded IV does not match `IV_LENGTH` — the payload is malformed/tampered
+ * decoded IV does not match `IV_LENGTH` -- the payload is malformed/tampered
  * before decryption is even attempted.
  */
 export class InvalidIvLengthException extends AbstractException {

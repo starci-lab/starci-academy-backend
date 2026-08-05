@@ -6,7 +6,7 @@ import type {
 } from "../types"
 
 /**
- * Category ladder, cheapest → strongest. The Auto lane climbs this in order
+ * Category ladder, cheapest -> strongest. The Auto lane climbs this in order
  * from a `floor` up to the user's tier ceiling.
  */
 export const CATEGORY_LADDER: Array<AiModelCategory> = [
@@ -19,15 +19,15 @@ export const CATEGORY_LADDER: Array<AiModelCategory> = [
  * The one category every automatic grading run uses, whatever the task's
  * difficulty.
  *
- * Difficulty used to pick the rung (easy → Economy … insane → Frontier). It no
- * longer does: every graded submission — easy through insane, challenge through
- * interview — runs on the same workhorse model, because grading marks a
+ * Difficulty used to pick the rung (easy -> Economy ... insane -> Frontier). It no
+ * longer does: every graded submission -- easy through insane, challenge through
+ * interview -- runs on the same workhorse model, because grading marks a
  * submission against a rubric that the prompt already spells out, which a
  * mid-priced model does as well as a frontier one at a fraction of the cost.
  *
  * The stronger `Frontier` model is reachable ONLY by pinning it explicitly
  * (`selection.model`, the premium lane). Nothing automatic ever escalates into
- * it — see {@link resolveGradingChain}, which caps the climb here.
+ * it -- see {@link resolveGradingChain}, which caps the climb here.
  */
 export const GRADING_FLOOR_CATEGORY = AiModelCategory.Medium
 

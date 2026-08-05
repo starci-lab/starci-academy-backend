@@ -7,7 +7,7 @@ import {
 
 /**
  * Kind of learning event surfaced in the per-course learning history timeline.
- * A deliberately narrow subset of the global {@link ActivityType} ledger — only
+ * A deliberately narrow subset of the global {@link ActivityType} ledger -- only
  * the three "made progress in this course" events the history groups by day.
  */
 export enum CourseLearningEventType {

@@ -81,7 +81,7 @@ export class CommentService {
     /**
      * Creates a top-level comment or a reply. A top-level comment must be scoped to
      * exactly one of `contentId` (a lesson question) or `courseId` (a course-general
-     * "hỏi chung khóa" question) — see {@link CreateCommentParams}. A reply always
+     * course-general question) -- see {@link CreateCommentParams}. A reply always
      * inherits its scope from the parent (the caller's own scope fields are ignored
      * for a reply, so a reply can never be spoofed into a different scope).
      * @param params - {@link CreateCommentParams}
@@ -109,7 +109,7 @@ export class CommentService {
                 courseId: resolvedCourseId,
             })
         }
-        // build the row via relation ids only — no need to load full content/course/user rows
+        // build the row via relation ids only -- no need to load full content/course/user rows
         const draft = this.entityManager.create(ContentCommentEntity,
             {
                 body,
@@ -132,7 +132,7 @@ export class CommentService {
         // persist then reload so RelationId virtual columns + author are populated for the node
         const saved = await this.entityManager.save(draft)
         const comment = await this.getCommentOrThrow(saved.id)
-        // a course-general question has no per-lesson room to broadcast into — only
+        // a course-general question has no per-lesson room to broadcast into -- only
         // per-lesson comments push a realtime update to viewers of that content
         if (resolvedContentId) {
             await this.eventEmitterService.emit({
@@ -170,7 +170,7 @@ export class CommentService {
         comment.body = body
         comment.editedAt = new Date()
         await this.entityManager.save(comment)
-        // fan out so subscribers refetch the edited comment — only a per-lesson comment
+        // fan out so subscribers refetch the edited comment -- only a per-lesson comment
         // has a content room to target; a course-general question has none (its roll-up
         // page re-fetches via normal query, no realtime push needed there).
         if (comment.contentId) {
@@ -207,7 +207,7 @@ export class CommentService {
         // flag as deleted instead of removing so child replies + thread shape survive
         comment.isDeleted = true
         await this.entityManager.save(comment)
-        // notify the room so clients swap the body for a "[deleted]" placeholder —
+        // notify the room so clients swap the body for a "[deleted]" placeholder --
         // course-general questions have no content room (see updateComment above).
         if (comment.contentId) {
             await this.eventEmitterService.emit({
@@ -225,10 +225,10 @@ export class CommentService {
     }
 
     /**
-     * Lists comments — top-level comments of a lesson/course scope by default, or one
+     * Lists comments -- top-level comments of a lesson/course scope by default, or one
      * parent's replies when `parentCommentId` is provided. Paged (1-based).
      *
-     * A reply listing is scoped by `parentCommentId` ALONE — the parent already pins the
+     * A reply listing is scoped by `parentCommentId` ALONE -- the parent already pins the
      * exact thread, so no separate content/course match is needed (and a course-general
      * question's replies have no `contentId` to match against anyway). A top-level listing
      * requires exactly one of `contentId`/`courseId`.
@@ -245,7 +245,7 @@ export class CommentService {
         // translate 1-based page into an offset; clamp to non-negative
         const skip = Math.max(0,
             page - 1) * limit
-        // a top-level listing must pin EXACTLY one scope — an unscoped `where` would
+        // a top-level listing must pin EXACTLY one scope -- an unscoped `where` would
         // silently match every comment across every content/course (TypeORM ignores
         // `undefined` conditions), so guard against a caller omitting both
         if (!parentCommentId && Boolean(contentId) === Boolean(courseId)) {
@@ -293,10 +293,10 @@ export class CommentService {
     /**
      * Counts direct replies for a set of comments in one grouped query (avoids N+1).
      * @param commentIds - Parent comment ids to count replies for.
-     * @returns Map of comment id → direct reply count (missing key = 0).
+     * @returns Map of comment id -> direct reply count (missing key = 0).
      */
     async countReplies(commentIds: Array<string>): Promise<Record<string, number>> {
-        // nothing to count → cheap exit, also avoids an empty IN () clause
+        // nothing to count -> cheap exit, also avoids an empty IN () clause
         if (commentIds.length === 0) {
             return {
             }
@@ -326,12 +326,12 @@ export class CommentService {
 
     /**
      * Returns the set of question ids (from the given ids) that have at least one
-     * reply authored by the founder — used to flag "officially answered" questions.
+     * reply authored by the founder -- used to flag "officially answered" questions.
      * @param questionIds - Top-level comment ids to test for a founder reply.
      * @returns A set of the ids that have a founder reply (subset of the input).
      */
     async findFounderAnswered(questionIds: Array<string>): Promise<Set<string>> {
-        // empty input → nothing to test; also avoids an invalid empty IN () clause
+        // empty input -> nothing to test; also avoids an invalid empty IN () clause
         if (questionIds.length === 0) {
             return new Set<string>()
         }
@@ -380,8 +380,8 @@ export class CommentService {
         // translate 1-based page into a row offset; clamp to non-negative
         const skip = Math.max(0,
             page - 1) * limit
-        // base query: top-level comments in this course — either a per-lesson question
-        // (content → module → course) OR a course-general question (comment.course_id
+        // base query: top-level comments in this course -- either a per-lesson question
+        // (content -> module -> course) OR a course-general question (comment.course_id
         // set directly, no content). LEFT joins so a course-general row's null content
         // does not exclude it; the WHERE below accepts EITHER path.
         const queryBuilder = this.entityManager
@@ -419,7 +419,7 @@ export class CommentService {
                     search: `%${trimmedSearch}%`,
                 })
         }
-        // `mine` → restrict to questions the caller authored
+        // `mine` -> restrict to questions the caller authored
         if (filter === CourseQuestionFilter.Mine) {
             queryBuilder.andWhere("comment.user_id = :userId",
                 {
@@ -429,12 +429,12 @@ export class CommentService {
         // answered/unanswered folded into WHERE via EXISTS so `total` matches the filter.
         // a reply = a non-deleted comment whose parent is this question.
         if (filter === CourseQuestionFilter.Unanswered) {
-            // no non-deleted reply exists → still in the answering queue
+            // no non-deleted reply exists -> still in the answering queue
             queryBuilder.andWhere(
                 "NOT EXISTS (SELECT 1 FROM content_comments reply WHERE reply.parent_comment_id = comment.id AND reply.is_deleted = false)",
             )
         } else if (filter === CourseQuestionFilter.Answered) {
-            // at least one non-deleted reply exists → already answered
+            // at least one non-deleted reply exists -> already answered
             queryBuilder.andWhere(
                 "EXISTS (SELECT 1 FROM content_comments reply WHERE reply.parent_comment_id = comment.id AND reply.is_deleted = false)",
             )

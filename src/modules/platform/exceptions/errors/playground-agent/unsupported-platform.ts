@@ -12,7 +12,7 @@ export interface PlaygroundAgentUnsupportedPlatformExceptionMetadata extends Abs
 
 /**
  * Thrown by {@link ServiceInstallerService} when `process.platform` is none of
- * `win32` / `linux` / `darwin` — there is no known service manager to install
+ * `win32` / `linux` / `darwin` -- there is no known service manager to install
  * against.
  */
 export class PlaygroundAgentUnsupportedPlatformException extends AbstractException {

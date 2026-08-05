@@ -12,7 +12,7 @@ import {
     description: "Ordered CV blocks parsed from pasted text (not persisted).",
 })
 /**
- * Parsed CV blocks payload for `splitCvFromText` — an ordered array of blocks
+ * Parsed CV blocks payload for `splitCvFromText` -- an ordered array of blocks
  * (FE-owned JSON: `{ id, type, title, order, items }`) parsed from the pasted
  * text. Not persisted.
  */

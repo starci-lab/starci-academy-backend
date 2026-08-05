@@ -12,7 +12,7 @@ export interface RagPlaygroundSessionNotFoundExceptionMetadata extends AbstractE
 }
 
 /**
- * The RAG Playground session has no indexed source — the visitor must
+ * The RAG Playground session has no indexed source -- the visitor must
  * (re-)index a code source before asking a question. Also thrown when the
  * session was dropped by the idle cleanup cron.
  */

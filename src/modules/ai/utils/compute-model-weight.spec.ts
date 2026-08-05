@@ -28,7 +28,7 @@ describe("computeModelWeight",
             () => {
                 it("prices a call with the billing estimator's own 1500/800 token mix",
                     () => {
-                        // (1500 × 0.09 + 800 × 0.18) / 1e6
+                        // (1500 x 0.09 + 800 x 0.18) / 1e6
                         expect(estimateUsdPerCall(DEEPSEEK_FLASH)).toBeCloseTo(0.000279,
                             9)
                     })

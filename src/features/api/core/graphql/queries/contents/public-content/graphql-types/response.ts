@@ -14,7 +14,7 @@ import {
     description: "Response wrapper for the publicContent query.",
 })
 /**
- * Envelope for `publicContent` — unauthenticated free-lesson payload only.
+ * Envelope for `publicContent` -- unauthenticated free-lesson payload only.
  */
 export class PublicContentResponse
     extends AbstractGraphQLResponse

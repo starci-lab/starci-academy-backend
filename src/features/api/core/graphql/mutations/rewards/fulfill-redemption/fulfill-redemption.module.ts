@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Registers fulfillRedemption — the admin mark-as-shipped write — as its own
+ * Registers fulfillRedemption -- the admin mark-as-shipped write -- as its own
  * Nest unit so fulfilment cannot be wired without its resolver.
  */
 export class FulfillRedemptionSingleMutationModule extends ConfigurableModuleClass {}

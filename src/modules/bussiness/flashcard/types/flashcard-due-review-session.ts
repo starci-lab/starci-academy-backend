@@ -5,7 +5,7 @@
 export interface StartFlashcardDueReviewSessionParams {
     /** The learner starting the draw. */
     userId: string
-    /** The course this due-review batch belongs to — resolves the enrollment the session is anchored to. */
+    /** The course this due-review batch belongs to -- resolves the enrollment the session is anchored to. */
     courseId: string
     /** The `flashcard_cards.id` set drawn for this batch (across decks), in the order they will be asked. */
     cardIds: Array<string>
@@ -13,7 +13,7 @@ export interface StartFlashcardDueReviewSessionParams {
 
 /** Result of persisting a new resumable due-review batch session. */
 export interface StartFlashcardDueReviewSessionResult {
-    /** Id of the persisted session — pass to `syncFlashcardDueReviewSessionProgress` / `completeFlashcardDueReviewSession`. */
+    /** Id of the persisted session -- pass to `syncFlashcardDueReviewSessionProgress` / `completeFlashcardDueReviewSession`. */
     sessionId: string
 }
 
@@ -28,19 +28,19 @@ export interface SyncFlashcardDueReviewSessionProgressParams {
     /** Cards actually graded so far this batch (via `reviewFlashcard`). */
     reviewedCount: number
     /**
-     * 0-indexed card positions graded this batch (order-independent) — drives
+     * 0-indexed card positions graded this batch (order-independent) -- drives
      * the FE per-segment green, distinct from the plain `reviewedCount`.
      * Optional: when omitted the column is left unchanged (same tolerance the
      * sync already has); when provided it overwrites the row's set.
      */
     gradedIndexes?: Array<number>
-    /** Client-reported XP bookkeeping snapshot so far this batch (no server grant — see {@link CompleteFlashcardDueReviewSessionParams}). */
+    /** Client-reported XP bookkeeping snapshot so far this batch (no server grant -- see {@link CompleteFlashcardDueReviewSessionParams}). */
     xpEarned: number
 }
 
 /** Result of one sync attempt. */
 export interface SyncFlashcardDueReviewSessionProgressResult {
-    /** Whether the sync was applied — false when the session is not found/owned, or is no longer "in_progress". */
+    /** Whether the sync was applied -- false when the session is not found/owned, or is no longer "in_progress". */
     success: boolean
 }
 
@@ -48,7 +48,7 @@ export interface SyncFlashcardDueReviewSessionProgressResult {
  * Params for recording a finished due-review batch session.
  *
  * `reviewFlashcard` (the per-card SM-2 grading mutation) grants no XP today
- * and writes no `xp_histories` row — so, like `completeFlashcardReviewSession`,
+ * and writes no `xp_histories` row -- so, like `completeFlashcardReviewSession`,
  * this does NOT compute or grant any XP. `xpEarned` here is purely the
  * client-reported bookkeeping snapshot to persist onto the row for
  * history/stats display; it is never used to write `xp_histories` and never
@@ -61,7 +61,7 @@ export interface CompleteFlashcardDueReviewSessionParams {
     sessionId: string
     /** Final reviewed-card count to snapshot onto the row. */
     reviewedCount: number
-    /** Final XP bookkeeping snapshot to persist onto the row (NOT granted server-side — see class doc). */
+    /** Final XP bookkeeping snapshot to persist onto the row (NOT granted server-side -- see class doc). */
     xpEarned: number
 }
 
@@ -88,7 +88,7 @@ export interface FindMyInProgressFlashcardDueReviewSessionParams {
  * resume window).
  */
 export interface MyInProgressFlashcardDueReviewSessionResultData {
-    /** Id of the persisted session — pass to `syncFlashcardDueReviewSessionProgress` / `completeFlashcardDueReviewSession`. */
+    /** Id of the persisted session -- pass to `syncFlashcardDueReviewSessionProgress` / `completeFlashcardDueReviewSession`. */
     sessionId: string
     /** The `flashcard_cards.id` set drawn for this batch, in ask order. */
     cardIds: Array<string>
@@ -96,7 +96,7 @@ export interface MyInProgressFlashcardDueReviewSessionResultData {
     currentIndex: number
     /** Cards actually graded so far this batch. */
     reviewedCount: number
-    /** 0-indexed card positions graded this batch (order-independent) — rehydrates the FE per-segment green on resume. */
+    /** 0-indexed card positions graded this batch (order-independent) -- rehydrates the FE per-segment green on resume. */
     gradedIndexes: Array<number>
     /** Client-reported XP bookkeeping snapshot so far this batch. */
     xpEarned: number

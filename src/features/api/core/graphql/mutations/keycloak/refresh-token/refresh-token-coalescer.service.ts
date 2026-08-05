@@ -37,7 +37,7 @@ import type {
  * would have all but the first call present an already-consumed token and fail.
  * This service elects a single caller per distinct token to hit Keycloak (via a
  * Redis `SET NX` lock) and shares its fresh token set with the others through a
- * short-lived Redis result cache — so a burst yields one round-trip and one
+ * short-lived Redis result cache -- so a burst yields one round-trip and one
  * consistent rotated pair.
  *
  * @example
@@ -93,13 +93,13 @@ export class RefreshTokenCoalescerService {
             })
         }
 
-        // another caller holds the lock — wait for its result to be published
+        // another caller holds the lock -- wait for its result to be published
         const coalesced = await this.awaitResult(resultKey)
         if (coalesced) {
             return coalesced
         }
 
-        // last resort: the holder crashed or exceeded the wait budget — exchange
+        // last resort: the holder crashed or exceeded the wait budget -- exchange
         // directly so the request still completes (correctness over dedup)
         return this.keycloakTokenService.exchangeRefreshTokenForToken({
             refreshToken,

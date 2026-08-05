@@ -68,7 +68,7 @@ export class MyKpisResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<MyKpisData> {
-        // single projection read — current-week counters are precomputed there
+        // single projection read -- current-week counters are precomputed there
         const stats = await this.userStatsProjectionService.getStats(user.id)
         // the current value for each KPI, keyed by KpiKey (shared with the reward claim)
         const currentByKey = getKpiCurrentValues(stats)

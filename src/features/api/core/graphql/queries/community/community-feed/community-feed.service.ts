@@ -53,7 +53,7 @@ export class CommunityFeedService {
         const limit = Math.min(Math.max(request.limit ?? DEFAULT_LIMIT,
             1),
         MAX_LIMIT)
-        // decode the opaque cursor → offset; absent/bad cursor means page 1 (offset 0)
+        // decode the opaque cursor -> offset; absent/bad cursor means page 1 (offset 0)
         const offset = this.decodeCursor(request.cursor)?.offset ?? 0
         // pull the page of posts + the total so we can tell whether more remain
         const {
@@ -113,16 +113,16 @@ export class CommunityFeedService {
 
     /**
      * Decode an opaque cursor back to `{ offset }`. Returns null when absent or
-     * malformed (treated as page 1 → offset 0).
+     * malformed (treated as page 1 -> offset 0).
      * @param cursor - the opaque cursor, or undefined
      * @returns the decoded cursor, or null
      */
     private decodeCursor(cursor?: string): DecodedCommunityFeedCursor | null {
-        // no cursor → page 1
+        // no cursor -> page 1
         if (!cursor) {
             return null
         }
-        // base64url → JSON; bail to page 1 on any bad/partial token
+        // base64url -> JSON; bail to page 1 on any bad/partial token
         try {
             const raw = Buffer.from(cursor,
                 "base64url").toString("utf8")

@@ -13,7 +13,7 @@ export type OidcStateExpiredExceptionMetadata = AbstractExceptionMetadata
 
 /**
  * Thrown when the OIDC redirect handler cannot decrypt/validate the `state`
- * round-tripped through the identity provider — the sign-in session expired
+ * round-tripped through the identity provider -- the sign-in session expired
  * or the state was tampered with; the caller must restart sign-in.
  */
 export class OidcStateExpiredException extends AbstractException {

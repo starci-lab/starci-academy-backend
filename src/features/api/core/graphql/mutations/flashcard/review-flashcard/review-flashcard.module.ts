@@ -13,5 +13,5 @@ import {
         ReviewFlashcardResolver,
     ],
 })
-/** Feature-module boundary for the `reviewFlashcard` mutation — wires its resolver (business logic lives in the shared `FlashcardReviewService`). */
+/** Feature-module boundary for the `reviewFlashcard` mutation -- wires its resolver (business logic lives in the shared `FlashcardReviewService`). */
 export class ReviewFlashcardSingleMutationModule extends ConfigurableModuleClass {}

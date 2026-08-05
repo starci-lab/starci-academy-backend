@@ -69,14 +69,14 @@ const MEMBERSHIP_PRICE_VND = 99_000
 const MEMBERSHIP_PRICE_USD = 4.99
 
 /**
- * e2e for `membership/purchase-membership` — `.artifacts/states/transactions/`
- * findings: the single-product membership checkout had zero e2e coverage — only
+ * e2e for `membership/purchase-membership` -- `.artifacts/states/transactions/`
+ * findings: the single-product membership checkout had zero e2e coverage -- only
  * the `enabled` kill-switch and gateway routing were reachable via a mocked
  * `MountFilesystemService`/entity manager in a unit spec, never a real Postgres
  * `Pending` `TransactionEntity` row.
  *
  * MOCKED: the 5 gateway SDK clients + the reconcile-job queue (same shape as
- * `course-enroll.e2e-spec.ts`) and `MountFilesystemService.appConfig()` — the
+ * `course-enroll.e2e-spec.ts`) and `MountFilesystemService.appConfig()` -- the
  * real class reads the mounted `app.yaml`, which this harness has no file for;
  * stubbed to hand back a fixed `membership` product config.
  *
@@ -119,7 +119,7 @@ describe("Purchase membership (e2e)",
         }
         let membershipEnabled: boolean
 
-        /** Rebuildable mounted-config stub — tests flip `membershipEnabled` per case. */
+        /** Rebuildable mounted-config stub -- tests flip `membershipEnabled` per case. */
         const mountFilesystemServiceMock = {
             appConfig: (): Partial<AppConfig> => ({
                 membership: {
@@ -358,7 +358,7 @@ describe("Purchase membership (e2e)",
                 )
 
                 expect(second.transactionId).toBe(first.transactionId)
-                // the gateway link is created exactly once — the second call reused the row
+                // the gateway link is created exactly once -- the second call reused the row
                 expect(payosClient.paymentRequests.create).toHaveBeenCalledTimes(1)
                 const count = await entityManager.count(TransactionEntity)
                 expect(count).toBe(1)

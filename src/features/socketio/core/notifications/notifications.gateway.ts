@@ -44,13 +44,13 @@ import type {
 
 @NotificationsWebSocketGateway()
 /**
- * WebSocket gateway for the `/notifications` namespace — per-user bell realtime.
+ * WebSocket gateway for the `/notifications` namespace -- per-user bell realtime.
  *
  * A client connects with its Keycloak access token (verified by the auth
  * middleware, which stamps `socket.data.userId` with the keycloak `sub`), then
  * subscribes. The handler resolves the keycloak sub to the internal
  * {@link UserEntity} id and joins the caller to its OWN private room
- * (`notifications:{userId}`) — so a client can never receive another user's
+ * (`notifications:{userId}`) -- so a client can never receive another user's
  * notifications. Whenever {@link NotificationService} creates a notification it
  * fans out a local {@link EventName.NotificationCreated} event; this gateway
  * forwards it to the recipient's room as a {@link SubscriptionEvent.NotificationCreated}.
@@ -101,12 +101,12 @@ export class NotificationsGateway implements OnModuleInit {
                 })
                 return
             }
-            // map keycloak sub → internal user id (the room key the producer emits to)
+            // map keycloak sub -> internal user id (the room key the producer emits to)
             const user = await this.userService.getUserByKeycloakId(keycloakId)
             // join the per-user room; future creates for this user reach this socket
             await client.join(this.notificationRoomService.name(user.id))
         } catch (error) {
-            // resolution failed (no user row / lookup error) → surface a ws error
+            // resolution failed (no user row / lookup error) -> surface a ws error
             // and log, but never crash the namespace for one bad socket
             this.winstonService.log(
                 WinstonLog.RealtimeStreamFailed,
@@ -131,7 +131,7 @@ export class NotificationsGateway implements OnModuleInit {
      * recipient's private room.
      */
     onModuleInit(): void {
-        // a notification was created → push the snapshot to its recipient's room
+        // a notification was created -> push the snapshot to its recipient's room
         this.eventEmitterService.on({
             event: EventName.NotificationCreated,
             listener: (payload: NotificationCreatedEventPayload) => {

@@ -13,7 +13,7 @@ export interface CodingProblemNotFoundExceptionMetadata extends AbstractExceptio
 
 /**
  * Thrown when a coding problem cannot be found (or is disabled) for the given
- * slug/id — e.g. a submit targets a problem that does not exist.
+ * slug/id -- e.g. a submit targets a problem that does not exist.
  */
 export class CodingProblemNotFoundException extends AbstractException {
     constructor({

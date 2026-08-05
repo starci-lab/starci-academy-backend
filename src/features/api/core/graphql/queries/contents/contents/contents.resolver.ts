@@ -35,7 +35,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL surface for `contents` — module-scoped paginated list; enroll guard
+ * GraphQL surface for `contents` -- module-scoped paginated list; enroll guard
  * intentionally omitted so logged-in users can trial-browse truncated premiums.
  */
 export class ContentsResolver {
@@ -45,7 +45,7 @@ export class ContentsResolver {
 
     /**
      * Lists contents for a module with page-based pagination.
-     * Enroll guard removed — logged-in users may browse the content list for trial reading.
+     * Enroll guard removed -- logged-in users may browse the content list for trial reading.
      * Premium content bodies are truncated server-side; the FE shows a paywall overlay.
      */
     @UseThrottler(ThrottlerConfig.Soft)

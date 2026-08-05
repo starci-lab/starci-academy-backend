@@ -18,7 +18,7 @@ import {
  * imported code (paste / upload / sample / GitHub repo), indexed into an
  * ephemeral Qdrant collection named `playground-${sessionId}`. Tracks the
  * collection's lifecycle so a cron ({@link import("../../../../rag").PublicRagPlaygroundCleanupService})
- * can drop idle sessions instead of leaking Qdrant collections forever — the
+ * can drop idle sessions instead of leaking Qdrant collections forever -- the
  * ONE piece of this demo feature that is persisted (Q&A turns are NOT stored;
  * see {@link import("../../../../rag").RagPlaygroundRunRegistryService}, in-memory only).
  */
@@ -31,14 +31,14 @@ export class RagPlaygroundSessionEntity extends UuidAbstractEntity {
     })
         sessionId: string
 
-    /** How the code was imported — "paste" | "upload" | "sample" | "github". */
+    /** How the code was imported -- "paste" | "upload" | "sample" | "github". */
     @Column({
         name: "source_kind",
         type: "varchar",
     })
         sourceKind: string
 
-    /** Human-readable label for the imported source (file name / repo / "Repo mẫu"). */
+    /** Human-readable label for the imported source (file name / repo / "Sample repo"). */
     @Column({
         name: "source_label",
         type: "varchar",

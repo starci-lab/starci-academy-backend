@@ -17,5 +17,5 @@ import {
         MyInProgressMockInterviewSessionService,
     ],
 })
-/** Feature-module boundary for the `myInProgressMockInterviewSession` query — wires its resolver + service. */
+/** Feature-module boundary for the `myInProgressMockInterviewSession` query -- wires its resolver + service. */
 export class MyInProgressMockInterviewSessionSingleQueryModule extends ConfigurableModuleClass {}

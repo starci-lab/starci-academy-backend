@@ -51,7 +51,7 @@ export interface SeedCoursesConfig {
     interview: SeedInterviewConfig
 }
 
-/** Phase 1 — seeders (sources -> PostgreSQL). */
+/** Phase 1 -- seeders (sources -> PostgreSQL). */
 export interface SeedSeedersConfig {
     /** Master switch for the whole seed phase. */
     enabled: boolean
@@ -79,7 +79,7 @@ export interface SeedSyncCourseSink {
     /** Elasticsearch indexing scope. */
     elasticsearch: SeedScopeIndexes
     /**
-     * Repo code sync scope — walks `.repo/` for matched modules and uploads
+     * Repo code sync scope -- walks `.repo/` for matched modules and uploads
      * Sandpack file trees to CDN (`repo/{repoName}/{githubDir}.json`).
      */
     repo: SeedScopeIndexes
@@ -94,18 +94,18 @@ export interface SeedSyncCourseTrack {
 }
 
 /**
- * Per-sink toggle for a standalone domain (foundations, headhunting, …). Only the
+ * Per-sink toggle for a standalone domain (foundations, headhunting, ...). Only the
  * `elasticsearch` sink is wired today (the CDN synchronizer has no domain kinds), but
  * the shape mirrors the per-sink course tracks so the schema stays symmetric.
  */
 export interface SeedSyncDomainSink {
-    /** Sync this domain's documents to CDN (currently inert — no CDN domain sync). */
+    /** Sync this domain's documents to CDN (currently inert -- no CDN domain sync). */
     cdn: boolean
     /** Sync this domain's documents to the Elasticsearch search/autocomplete index. */
     elasticsearch: boolean
 }
 
-/** Phase 2 — synchronizers (PostgreSQL -> CDN + Elasticsearch). */
+/** Phase 2 -- synchronizers (PostgreSQL -> CDN + Elasticsearch). */
 export interface SeedSynchronizersConfig {
     /** Master switch for the whole sync phase. */
     enabled: boolean
@@ -117,7 +117,7 @@ export interface SeedSynchronizersConfig {
     reindex: Array<string>
     /** Per-course scopes, keyed by course `displayId`. */
     courses: Record<string, SeedSyncCourseTrack>
-    /** Standalone domains — per-sink (only `elasticsearch` is wired today). */
+    /** Standalone domains -- per-sink (only `elasticsearch` is wired today). */
     cv: SeedSyncDomainSink
     foundations: SeedSyncDomainSink
     headhunting: SeedSyncDomainSink
@@ -142,14 +142,14 @@ export interface SeedConfig {
  * Coarse init mode (`seed.yaml` `mode`), used as a fallback ONLY when neither the
  * `seed:` nor `sync:` block is present.
  *
- * - `"all"`  → full reseed/sync of every course (ignores the diff).
- * - `"diff"` → default: seed/sync only the changed courses/modules.
- * - `"none"` → skip both phases (no-op boot).
+ * - `"all"`  -> full reseed/sync of every course (ignores the diff).
+ * - `"diff"` -> default: seed/sync only the changed courses/modules.
+ * - `"none"` -> skip both phases (no-op boot).
  */
 export type InitScopeMode = "all" | "diff" | "none"
 
 // ─────────────────────────────────────────────────────────────────────────────
-// seed.yaml INPUT schema (`InitConfig`) — friendly, shorthand-rich surface that
+// seed.yaml INPUT schema (`InitConfig`) -- friendly, shorthand-rich surface that
 // the parser expands into the runtime `SeedConfig` above.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -158,12 +158,12 @@ export type ReindexScope = "all" | "none" | Array<string>
 
 /**
  * One `seed.courses` entry: a shorthand module scope, or a per-track object.
- * Shorthand (`all`/range/list) → modules scope; milestones/flashcards default off.
+ * Shorthand (`all`/range/list) -> modules scope; milestones/flashcards default off.
  */
 export type InitSeedCourseValue = SeedScopeIndexes | {
     /** Module/contents track scope. */
     modules?: SeedScopeIndexes
-    /** Milestone track scope — `true` = all, `false`/`[]` = off, or an index scope. */
+    /** Milestone track scope -- `true` = all, `false`/`[]` = off, or an index scope. */
     milestones?: SeedScopeIndexes | boolean
     /** Seed this course's flashcard decks. */
     flashcards?: boolean
@@ -171,7 +171,7 @@ export type InitSeedCourseValue = SeedScopeIndexes | {
     interview?: boolean
 }
 
-/** Phase 1 input — sources → PostgreSQL. Omit, or `enabled: false`, to skip seeding. */
+/** Phase 1 input -- sources -> PostgreSQL. Omit, or `enabled: false`, to skip seeding. */
 export interface InitSeedBlock {
     enabled?: boolean
     courses?: Record<string, InitSeedCourseValue>
@@ -211,12 +211,12 @@ export type InitSyncDomainValue = boolean | {
     elasticsearch?: boolean
 }
 
-/** Phase 2 input — PostgreSQL → CDN/ES/repo. Omit, or `enabled: false`, to skip syncing. */
+/** Phase 2 input -- PostgreSQL -> CDN/ES/repo. Omit, or `enabled: false`, to skip syncing. */
 export interface InitSyncBlock {
     enabled?: boolean
     /** DROP + re-create these ES indices before syncing (auto-forces their ES sync to full). */
     reindex?: ReindexScope
-    /** Hard master per sink — a `false` sink zeros that sink across every course/domain. */
+    /** Hard master per sink -- a `false` sink zeros that sink across every course/domain. */
     sinks?: {
         cdn?: boolean
         elasticsearch?: boolean
@@ -237,7 +237,7 @@ export interface InitSyncBlock {
  */
 export interface InitConfig {
     /**
-     * Master switch. `false` skips the ENTIRE init at boot — no git pull, no seed,
+     * Master switch. `false` skips the ENTIRE init at boot -- no git pull, no seed,
      * no sync (fastest local start). Defaults to `true` (omitted = enabled).
      */
     enable?: boolean

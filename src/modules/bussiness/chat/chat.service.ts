@@ -54,7 +54,7 @@ export class ChatService {
      * @returns The community conversation row.
      */
     async getOrCreateCommunityConversation(): Promise<ChatConversationEntity> {
-        // there is exactly one community room (member = null) — find it first
+        // there is exactly one community room (member = null) -- find it first
         const existing = await this.entityManager.findOne(ChatConversationEntity,
             {
                 where: {
@@ -64,7 +64,7 @@ export class ChatService {
         if (existing) {
             return existing
         }
-        // first access ever → create the singleton community room
+        // first access ever -> create the singleton community room
         return this.entityManager.save(this.entityManager.create(ChatConversationEntity,
             {
                 type: ChatConversationType.Community,
@@ -80,7 +80,7 @@ export class ChatService {
     async getOrCreateFounderDm({
         memberId,
     }: GetOrCreateFounderDmParams): Promise<ChatConversationEntity> {
-        // one DM per member — find this member's thread first
+        // one DM per member -- find this member's thread first
         const existing = await this.entityManager.findOne(ChatConversationEntity,
             {
                 where: {
@@ -93,7 +93,7 @@ export class ChatService {
         if (existing) {
             return existing
         }
-        // first time the member opens the DM → create it
+        // first time the member opens the DM -> create it
         return this.entityManager.save(this.entityManager.create(ChatConversationEntity,
             {
                 type: ChatConversationType.FounderDm,
@@ -184,7 +184,7 @@ export class ChatService {
             conversation,
             user,
         })
-        // build the row via relation ids only — no need to load full rows
+        // build the row via relation ids only -- no need to load full rows
         const draft = this.entityManager.create(ChatMessageEntity,
             {
                 body,
@@ -231,7 +231,7 @@ export class ChatService {
         conversation,
         user,
     }: AssertChatAccessParams): Promise<void> {
-        // chat is member-only — block anyone without an active membership
+        // chat is member-only -- block anyone without an active membership
         const isMember = await this.membershipService.isActive(user.id)
         if (!isMember) {
             throw new ChatMembershipRequiredException({

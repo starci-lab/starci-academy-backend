@@ -66,19 +66,19 @@ export const extractRetryAfterMs = (error: unknown): number | undefined => {
  * Classify a failed AI call into a rotation-relevant bucket so the balancer can
  * react correctly instead of blindly marking every failure as "key unhealthy":
  *
- * - {@link AiErrorKind.Auth} — invalid / revoked key (401/403): hard-disable it.
- * - {@link AiErrorKind.RateLimit} — 429 / quota: short cooldown, auto-recovers.
- * - {@link AiErrorKind.NonKey} — the prompt/content/abort is at fault, NOT the key
+ * - {@link AiErrorKind.Auth} -- invalid / revoked key (401/403): hard-disable it.
+ * - {@link AiErrorKind.RateLimit} -- 429 / quota: short cooldown, auto-recovers.
+ * - {@link AiErrorKind.NonKey} -- the prompt/content/abort is at fault, NOT the key
  *   (context length, content filter, malformed request, aborted, JSON parse):
  *   do NOT penalize the key and stop retrying other keys (they will fail too).
- * - {@link AiErrorKind.Transient} — everything else (5xx, network, timeout): light
+ * - {@link AiErrorKind.Transient} -- everything else (5xx, network, timeout): light
  *   cooldown + try another key. The safe default for unknown errors.
  */
 export const classifyAiError = (error: unknown): AiErrorKind => {
     const status = extractStatus(error)
     const message = (error instanceof Error ? error.message : String(error)).toLowerCase()
 
-    // aborted request / our own JSON parsing — never the key's fault
+    // aborted request / our own JSON parsing -- never the key's fault
     if (
         (error instanceof Error && error.name === "AbortError")
         || error instanceof SyntaxError
@@ -100,7 +100,7 @@ export const classifyAiError = (error: unknown): AiErrorKind => {
         return AiErrorKind.Auth
     }
 
-    // rate limit / quota exhaustion — transient, recovers on its own
+    // rate limit / quota exhaustion -- transient, recovers on its own
     if (
         status === 429
         || message.includes("rate limit")
@@ -126,6 +126,6 @@ export const classifyAiError = (error: unknown): AiErrorKind => {
         return AiErrorKind.NonKey
     }
 
-    // 5xx / network / timeout / unknown → transient (penalize lightly, retry next key)
+    // 5xx / network / timeout / unknown -> transient (penalize lightly, retry next key)
     return AiErrorKind.Transient
 }

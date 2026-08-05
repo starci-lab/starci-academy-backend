@@ -35,7 +35,7 @@ export class UserCodingProblemDetailSubmissionData {
     )
         languages: Array<CodingLanguage>
 
-    /** A constant, not a real per-submission verdict — this object only exists for solved problems. */
+    /** A constant, not a real per-submission verdict -- this object only exists for solved problems. */
     @Field(
         () => GraphQLTypeCodingVerdict,
         {
@@ -44,7 +44,7 @@ export class UserCodingProblemDetailSubmissionData {
     )
         verdict: CodingVerdict
 
-    /** Paired with totalCount from the SAME (earliest) attempt — do not mix with a later attempt's totalCount. */
+    /** Paired with totalCount from the SAME (earliest) attempt -- do not mix with a later attempt's totalCount. */
     @Field(
         () => Int,
         {
@@ -62,7 +62,7 @@ export class UserCodingProblemDetailSubmissionData {
     )
         totalCount: number
 
-    /** Earliest accepted attempt's timestamp, not the latest — do not confuse with a resubmission date. */
+    /** Earliest accepted attempt's timestamp, not the latest -- do not confuse with a resubmission date. */
     @Field(
         () => Date,
         {
@@ -77,14 +77,14 @@ export class UserCodingProblemDetailSubmissionData {
 })
 /**
  * Detail of one coding problem for a public profile's
- * `/profile/<username>/skills/<slug>` surface — the problem itself (statement,
+ * `/profile/<username>/skills/<slug>` surface -- the problem itself (statement,
  * tags, sample testcases, starter codes; same read as the `codingProblem`
  * query, no ownership check) plus the TARGET user's accepted-submission
  * summary for it (null when they haven't solved it, e.g. a visitor browsing
  * an unsolved problem via the catalog).
  */
 export class UserCodingProblemDetailData {
-    /** Reused entity shape (never carries hidden testcases or reference solutions) — same as `codingProblem`. */
+    /** Reused entity shape (never carries hidden testcases or reference solutions) -- same as `codingProblem`. */
     @Field(
         () => CodingProblemEntity,
         {
@@ -113,7 +113,7 @@ export class UserCodingProblemDetailData {
 export class UserCodingProblemDetailResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<UserCodingProblemDetailData> {
-    /** Always present when the request succeeds — the problem lookup itself throws on an unknown slug. */
+    /** Always present when the request succeeds -- the problem lookup itself throws on an unknown slug. */
     @Field(
         () => UserCodingProblemDetailData,
         {

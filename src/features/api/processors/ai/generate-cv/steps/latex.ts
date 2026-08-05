@@ -7,8 +7,8 @@ import Handlebars from "handlebars"
  * Order matters: backslash MUST be escaped first (it is the escape character
  * itself), otherwise the replacement sequences we add for the other specials
  * would be double-escaped. Applied to EVERY interpolated value (names, company
- * names, bullet text, emails, URLs shown as text, …) before it enters the
- * template — omitting it produces documents that fail to compile.
+ * names, bullet text, emails, URLs shown as text, ...) before it enters the
+ * template -- omitting it produces documents that fail to compile.
  *
  * @param text - Raw user text (undefined/null coerced to empty string).
  * @returns The LaTeX-safe string.
@@ -18,7 +18,7 @@ export const escapeLatex = (text: string | null | undefined): string => {
         return ""
     }
     return String(text)
-        // backslash first — it is the escape char; map to \textbackslash{}
+        // backslash first -- it is the escape char; map to \textbackslash{}
         .replace(/\\/g,
             "\\textbackslash{}")
         .replace(/&/g,
@@ -98,7 +98,7 @@ const CV_TEMPLATE_SOURCE = String.raw`\documentclass[11pt,a4paper]{article}
 {{/each}}\end{document}
 `
 
-/** Compiled once — the Handlebars template is a pure function of its context. */
+/** Compiled once -- the Handlebars template is a pure function of its context. */
 const compiledCvTemplate = Handlebars.compile(
     CV_TEMPLATE_SOURCE,
     {

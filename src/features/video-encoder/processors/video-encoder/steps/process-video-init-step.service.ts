@@ -47,7 +47,7 @@ import {
 
 @Injectable()
 /**
- * Step 0 — pulls the source object into a per-asset temp dir via the
+ * Step 0 -- pulls the source object into a per-asset temp dir via the
  * authenticated S3 client (a public URL is not enough; MinIO vs DO must be
  * distinguished). Runs `queryAtStart` here so asset status flips with job
  * progress before encode begins.

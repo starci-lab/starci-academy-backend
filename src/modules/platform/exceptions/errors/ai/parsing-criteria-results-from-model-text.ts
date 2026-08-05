@@ -11,7 +11,7 @@ export interface ParsingCriteriaResultsFromModelTextExceptionMetadata extends Ab
 }
 
 /**
- * Stops grading when per-criteria JSON cannot be extracted — otherwise criteria rows would
+ * Stops grading when per-criteria JSON cannot be extracted -- otherwise criteria rows would
  * be invented.
  */
 export class ParsingCriteriaResultsFromModelTextException extends AbstractException {

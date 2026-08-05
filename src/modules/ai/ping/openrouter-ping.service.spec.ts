@@ -4,7 +4,7 @@ import {
 } from "./openrouter-ping.service"
 
 jest.mock("openai")
-// NOTE: do NOT mock @modules/env wholesale — its envConfig is consumed at
+// NOTE: do NOT mock @modules/env wholesale -- its envConfig is consumed at
 // module-load by @modules/cache (config.ts). The SUT only needs
 // envConfig().ai.openrouter.baseUrl, which the real config already provides.
 

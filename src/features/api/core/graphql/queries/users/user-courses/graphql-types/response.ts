@@ -18,7 +18,7 @@ import {
  *
  * Reuses {@link MyCourseItemData} (same shape): each item is a course the
  * profile owner has joined with its milestone / content / challenge progress.
- * Differs from `myCourses` only in subject — the user named in the route.
+ * Differs from `myCourses` only in subject -- the user named in the route.
  */
 export class UserCoursesResponse
     extends AbstractGraphQLResponse

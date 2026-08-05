@@ -21,7 +21,7 @@ import type {
  * CQRS projection service for per-course counters (currently enrollment count).
  * The COUNT runs ONLY in {@link recompute}, writing the aggregate as a jsonb
  * `value` keyed by `course_id`; {@link getStats} reads the flat row with a TTL
- * lazy-refresh and parses the jsonb into a typed view — replaces the old Redis
+ * lazy-refresh and parses the jsonb into a typed view -- replaces the old Redis
  * enrollment-count cache.
  */
 export class CourseStatsProjectionService {
@@ -68,7 +68,7 @@ export class CourseStatsProjectionService {
                 },
             },
         )
-        // TTL safety net: missing / past freshness window → recompute + re-read
+        // TTL safety net: missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 courseId,
@@ -102,7 +102,7 @@ export class CourseStatsProjectionService {
     }
 
     /**
-     * Build the scoped course-stats UPSERT — the aggregate assembled into one
+     * Build the scoped course-stats UPSERT -- the aggregate assembled into one
      * jsonb `value` for the single course `$1`.
      *
      * @returns the parameterised UPSERT SQL.

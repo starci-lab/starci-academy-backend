@@ -16,7 +16,7 @@ import {
 })
 /**
  * One recorded turn of a completed mock-interview transcript. The candidate
- * answered across all 5 phases in a single conversation (kind="design") — the
+ * answered across all 5 phases in a single conversation (kind="design") -- the
  * server grades the WHOLE ordered list of turns at once, not one question at
  * a time.
  */
@@ -47,10 +47,10 @@ export class MockInterviewTurnInput {
 
     /**
      * 0-based index of the question this turn belongs to, for a Q&A-kind
-     * (theory/reasoning/scenario) session — additive field (nullable, so an
+     * (theory/reasoning/scenario) session -- additive field (nullable, so an
      * older client omitting it still validates); REQUIRED for the server to
      * group a Q&A session's turns into per-question `phaseScores` entries
-     * ("Câu 1", "Câu 2", …). Ignored for kind="design" (grouping there still
+     * (Question 1, Question 2, ... as emitted by the grader). Ignored for kind="design" (grouping there still
      * comes from `phase`).
      */
     @Field(
@@ -63,14 +63,14 @@ export class MockInterviewTurnInput {
         questionIndex?: number
 
     /**
-     * Free-form string (not an enum — the only value that currently exists is
-     * "code") mirroring the FE's `MockInterviewTurn.artifactHint` — set on an
+     * Free-form string (not an enum -- the only value that currently exists is
+     * "code") mirroring the FE's `MockInterviewTurn.artifactHint` -- set on an
      * interviewer turn whose question shipped GIVEN code seeded into the
      * editable code tool, so a session resumed from
      * `syncMockInterviewSessionTurns`'s snapshot can re-render the "code
      * loaded into the editor" chip instead of the code inline, matching what
      * the learner originally saw. Reused by (and additive to)
-     * `syncMockInterviewSessionTurns` — `gradeMockInterviewSession` itself
+     * `syncMockInterviewSessionTurns` -- `gradeMockInterviewSession` itself
      * never reads this field, only echoes/ignores it.
      */
     @Field(
@@ -89,7 +89,7 @@ export class MockInterviewTurnInput {
 /**
  * Request for grading a WHOLE completed mock-interview session against the
  * 5-phase rubric, grounded in what the course actually taught. The server
- * RAG-retrieves course material scoped to `courseId` — the client never
+ * RAG-retrieves course material scoped to `courseId` -- the client never
  * sends grading criteria. `locale` is taken from the request context
  * decorator, not this input.
  */

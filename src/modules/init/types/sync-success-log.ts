@@ -6,7 +6,7 @@ export interface SyncSuccessLogPayload {
     entityId: string
     /** Mount slug / display id of the synced row. */
     displayId: string
-    /** Ancestor display ids from course → … → parent (empty for course). */
+    /** Ancestor display ids from course -> ... -> parent (empty for course). */
     relativeDisplayIds: Array<string>
     /** `true` when row uses legacy mount schema (no `# verified` / `verified` null). */
     isLegacy?: boolean

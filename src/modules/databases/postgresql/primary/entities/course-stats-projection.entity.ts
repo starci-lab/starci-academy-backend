@@ -17,14 +17,14 @@ import {
 
 @Entity("course_stats_projections")
 /**
- * CQRS projection of a course's counters (Kiểu A — single key).
+ * CQRS projection of a course's counters (Type A -- single key).
  *
  * Primary key is `course_id`; the aggregate (`{ enrollmentCount }`) lives in the
  * inherited jsonb `value`. Recomputed on enroll/unenroll + CDC, read with a TTL
- * lazy-refresh — replaces the old Redis enrollment-count cache.
+ * lazy-refresh -- replaces the old Redis enrollment-count cache.
  */
 export class CourseStatsProjectionEntity extends AbstractProjectionEntity {
-    /** Target course id — the natural primary key (one row per course). */
+    /** Target course id -- the natural primary key (one row per course). */
     @PrimaryColumn({
         name: "course_id",
         type: "uuid",

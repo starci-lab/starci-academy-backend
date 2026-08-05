@@ -128,7 +128,7 @@ export const ContentAiWebSocketGateway = () => WebSocketGateway(
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the system-health
- * namespace (public per-model AI latency snapshot broadcast — no auth).
+ * namespace (public per-model AI latency snapshot broadcast -- no auth).
  */
 export const SystemHealthWebSocketGateway = () => WebSocketGateway(
     {
@@ -144,7 +144,7 @@ export const SystemHealthWebSocketGateway = () => WebSocketGateway(
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the RAG Playground
- * namespace (public, anonymous — grounded-answer token streaming for the
+ * namespace (public, anonymous -- grounded-answer token streaming for the
  * marketing demo; no auth, mirrors {@link SystemHealthWebSocketGateway}).
  */
 export const RagPlaygroundWebSocketGateway = () => WebSocketGateway(
@@ -178,7 +178,7 @@ export const MockInterviewWebSocketGateway = () => WebSocketGateway(
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the Playground BYOM
- * (Bring-Your-Own-Machine) namespace — relays shell commands + resource
+ * (Bring-Your-Own-Machine) namespace -- relays shell commands + resource
  * reports between a browser and a learner's local CLI agent. Unauthenticated
  * (no Keycloak guard): the agent side is gated by a short-lived pairing code
  * instead of a JWT.

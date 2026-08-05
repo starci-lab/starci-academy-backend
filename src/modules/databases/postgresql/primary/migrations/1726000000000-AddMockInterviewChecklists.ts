@@ -4,12 +4,12 @@ import {
 } from "typeorm"
 
 /**
- * Creates `mock_interview_checklists` — the coverage checkpoints that succeed
+ * Creates `mock_interview_checklists` -- the coverage checkpoints that succeed
  * `mock_interviews.rubric` as the grading anchor.
  *
  * A checkpoint gets a row rather than another jsonb array entry because it carries
  * structure the grader scores against: `dimension` (which axis it tests), `critical`
- * (missing it should sink the answer), and `score_band` (the points it is worth — a
+ * (missing it should sink the answer), and `score_band` (the points it is worth -- a
  * question's bands sum to 100). The old rubric could only smuggle the dimension in as a
  * `[technical]` text prefix.
  *

@@ -18,7 +18,7 @@ export interface RawMockInterviewListItem {
     [key: string]: unknown
 }
 
-/** One `# langs` item (`## N` → `### lang` / `### givenCode`). */
+/** One `# langs` item (`## N` -> `### lang` / `### givenCode`). */
 export interface RawMockInterviewLang {
     /** Zero-based ordinal. */
     orderIndex: number
@@ -31,7 +31,7 @@ export interface RawMockInterviewLang {
 }
 
 /**
- * One `# checklist` checkpoint (`## N` → `### text` / `### dimension` / `### critical` /
+ * One `# checklist` checkpoint (`## N` -> `### text` / `### dimension` / `### critical` /
  * `### scoreBand`). English-only in both locales, so it carries no `translations`.
  */
 export interface RawMockInterviewChecklistItem {
@@ -51,7 +51,7 @@ export interface RawMockInterviewChecklistItem {
 
 /**
  * One per-language body document (`<question>/bodies/{index}-{lang}/{en,vi}.md`) for a
- * code question — carries that stack's `prompt` + `givenCode` + `idealAnswer` (mirrors
+ * code question -- carries that stack's `prompt` + `givenCode` + `idealAnswer` (mirrors
  * lesson content `bodies/`; the parent question holds the shared rubric/tags/followUps).
  */
 export interface RawMockInterviewBody {
@@ -63,19 +63,19 @@ export interface RawMockInterviewBody {
     givenCode?: string
     /** This stack's ground-truth answer outline. */
     idealAnswer?: string
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    /** Index signature so the markdown->JSON extractor generic is satisfied. */
     [key: string]: unknown
 }
 
-/** A bank META document (`<N>-bank/{en,vi}.md`) — questions live in `questions/` folders. */
+/** A bank META document (`<N>-bank/{en,vi}.md`) -- questions live in `questions/` folders. */
 export interface RawMockInterviewBank {
-    /** Bank title (display-only, not persisted — no bank entity). */
+    /** Bank title (display-only, not persisted -- no bank entity). */
     title?: string
-    /** Bank description (display-only, not persisted — no bank entity). */
+    /** Bank description (display-only, not persisted -- no bank entity). */
     description?: string
-    /** Referenced module `displayId`s — resolves to `MockInterviewEntity.moduleId` (first match). */
+    /** Referenced module `displayId`s -- resolves to `MockInterviewEntity.moduleId` (first match). */
     moduleRefs?: Array<RawMockInterviewListItem>
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    /** Index signature so the markdown->JSON extractor generic is satisfied. */
     [key: string]: unknown
 }
 
@@ -83,7 +83,7 @@ export interface RawMockInterviewBank {
 export interface RawMockInterviewQuestion {
     /** `technical` | `behavioral`. */
     family?: string
-    /** Cognitive frame — see `interview-answer.md` §2 for the 11-kind enum. */
+    /** Cognitive frame -- see `interview-answer.md` §2 for the 11-kind enum. */
     kind?: string
     /** `junior` | `middle` | `senior`. */
     tier?: string
@@ -93,7 +93,7 @@ export interface RawMockInterviewQuestion {
     idealAnswer?: string
     /** Reasoning points that earn credit. */
     rubric?: Array<RawMockInterviewListItem>
-    /** Coverage checkpoints — succeeds `rubric` as the grading anchor. */
+    /** Coverage checkpoints -- succeeds `rubric` as the grading anchor. */
     checklist?: Array<RawMockInterviewChecklistItem>
     /** Probe questions the interviewer may ask next. */
     followUps?: Array<RawMockInterviewListItem>
@@ -117,8 +117,8 @@ export interface RawMockInterviewQuestion {
     tags?: Array<RawMockInterviewListItem>
     /** Whether this question is premium (`# isPremium`), false by default. */
     isPremium?: boolean
-    /** Display/draw order within the bank — falls back to the question folder ordinal. */
+    /** Display/draw order within the bank -- falls back to the question folder ordinal. */
     sortIndex?: number
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    /** Index signature so the markdown->JSON extractor generic is satisfied. */
     [key: string]: unknown
 }

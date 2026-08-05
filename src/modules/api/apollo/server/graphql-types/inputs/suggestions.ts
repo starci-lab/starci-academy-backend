@@ -10,11 +10,11 @@ import {
 /**
  * Generic request for any entity autocomplete (typeahead) query.
  *
- * Reused by every entity's `*Suggestions` query — the prefix + an optional
+ * Reused by every entity's `*Suggestions` query -- the prefix + an optional
  * server-clamped limit are all an ES Completion Suggester needs.
  */
 export class SuggestionsRequest {
-    /** The typed prefix to autocomplete (e.g. "do" → "Docker"). */
+    /** The typed prefix to autocomplete (e.g. "do" -> "Docker"). */
     @Field(
         () => String,
         {

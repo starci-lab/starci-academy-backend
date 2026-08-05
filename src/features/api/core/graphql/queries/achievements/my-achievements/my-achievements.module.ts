@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Registers {@link MyAchievementsResolver} as a leaf query module — the schema
+ * Registers {@link MyAchievementsResolver} as a leaf query module -- the schema
  * discovers the `myAchievements` operation through this registration, per
  * [[naming-and-structure]] §5.
  */

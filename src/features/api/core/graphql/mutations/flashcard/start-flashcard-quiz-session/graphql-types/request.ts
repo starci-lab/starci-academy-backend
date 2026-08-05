@@ -12,7 +12,7 @@ import {
     IsString,
 } from "class-validator"
 
-/** Upper bound on the card set a single quick-quiz session may draw — mirrors `completeFlashcardQuizSession`'s MAX_ANSWERS ceiling so a session can never outgrow what it can eventually be scored on. */
+/** Upper bound on the card set a single quick-quiz session may draw -- mirrors `completeFlashcardQuizSession`'s MAX_ANSWERS ceiling so a session can never outgrow what it can eventually be scored on. */
 const MAX_CARD_IDS = 10
 
 @InputType({
@@ -20,10 +20,10 @@ const MAX_CARD_IDS = 10
 })
 /**
  * Request to start (or resume-replace) ONE resumable flashcard quick-quiz
- * ("Hỏi nhanh") session — "resume flashcard quiz session" (2026-07-08),
+ * session -- "resume flashcard quiz session" (2026-07-08),
  * mirroring `startMockInterviewSession`'s server-persisted-draw shape. Unlike
  * the mock-interview draw, the SERVER does not pick the cards here (the FE's
- * existing client-side deck/level selection is unchanged) — this mutation
+ * existing client-side deck/level selection is unchanged) -- this mutation
  * only PERSISTS the drawn set so the session becomes resumable and so
  * `completeFlashcardQuizSession` has a real server-issued `sessionId` to
  * anchor its idempotency + status flip to.
@@ -75,8 +75,8 @@ export class StartFlashcardQuizSessionRequest {
         level: string | null
 
     /**
-     * Optional user-chosen name for this practice session (e.g. "Ôn NestJS
-     * trước phỏng vấn"), set at the setup screen. Stored verbatim —
+     * Optional user-chosen name for this practice session (e.g. "NestJS prep before
+     * interview"), set at the setup screen. Stored verbatim --
      * omitted/blank stays null, and the server never generates one on the
      * caller's behalf; the FRONTEND renders a time-based fallback label when
      * null.

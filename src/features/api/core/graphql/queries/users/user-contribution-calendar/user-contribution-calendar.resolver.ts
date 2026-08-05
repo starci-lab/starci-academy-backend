@@ -37,10 +37,10 @@ import {
 @Resolver()
 /**
  * Public profile query: a given user's GitHub-style contribution calendar for one
- * year — daily learning-activity counts (contents / challenges / milestones).
+ * year -- daily learning-activity counts (contents / challenges / milestones).
  * Mirrors `myContributionCalendar` but reads for the user named in the route (id
  * from args), so a profile page can render anyone's activity heatmap. Optional
- * auth — anonymous viewers may call it; a locked profile is withheld from
+ * auth -- anonymous viewers may call it; a locked profile is withheld from
  * non-owners by {@link GraphQLProfileVisibilityGuard}. Thin read of the
  * contribution projection keyed by `(user_id, year)`; only active days are returned.
  */

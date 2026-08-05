@@ -45,7 +45,7 @@ import type {
  * snapshot directory, preserving the key hierarchy as folders.
  *
  * A throwaway {@link S3Client} is built from the per-request credentials because
- * the operator targets an arbitrary remote server — not the app's own MinIO /
+ * the operator targets an arbitrary remote server -- not the app's own MinIO /
  * DigitalOcean clients. The local snapshot can then be inspected or pushed back
  * up to another bucket by hand.
  */
@@ -95,7 +95,7 @@ export class S3SnapshotService {
         let totalBytes = 0
         const failed: Array<string> = []
 
-        // ListObjectsV2 caps at 1000 keys/page → follow the continuation token
+        // ListObjectsV2 caps at 1000 keys/page -> follow the continuation token
         let continuationToken: string | undefined = undefined
         do {
             const page = await client.send(
@@ -122,7 +122,7 @@ export class S3SnapshotService {
                     downloaded += 1
                     totalBytes += bytes
                 } catch (error) {
-                    // record the failed key and keep going — one bad object
+                    // record the failed key and keep going -- one bad object
                     // must not abort a multi-thousand-object snapshot
                     this.winstonService.log(WinstonLog.ToolsOperationFailed,
                         {

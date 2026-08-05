@@ -1,6 +1,6 @@
 // Import the module barrels that own the CQRS / elasticsearch base classes
 // first so their classes are fully initialised before the handler pulls
-// `@modules/cqrs` — avoids a "Class extends value undefined" load-order cycle.
+// `@modules/cqrs` -- avoids a "Class extends value undefined" load-order cycle.
 import "@modules/bussiness"
 import {
     Test,
@@ -106,7 +106,7 @@ describe("ToggleFavouriteHandler",
 
         it("creates a new user-content row when none exists",
             async () => {
-                // no existing row → handler must create one with the flag set
+                // no existing row -> handler must create one with the flag set
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 await handler.execute(
@@ -138,7 +138,7 @@ describe("ToggleFavouriteHandler",
 
         it("updates the flag on an existing row instead of creating one",
             async () => {
-                // an existing row is found → its flag is flipped in place
+                // an existing row is found -> its flag is flipped in place
                 const existing = {
                     userId: "user-1",
                     contentId: "content-1",

@@ -11,7 +11,7 @@ export interface CacheNotFoundExceptionMetadata extends AbstractExceptionMetadat
     args: Array<string>
 }
 /**
- * Signals a required cache entry is absent — caller must recompute rather than read
+ * Signals a required cache entry is absent -- caller must recompute rather than read
  * undefined.
  */
 export class CacheNotFoundException extends AbstractException {

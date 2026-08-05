@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds the installment ("trả góp") INTENT columns to `transactions` — set on a
+ * Adds the installment INTENT columns to `transactions` -- set on a
  * first-cycle `Enroll` transaction when the buyer chose to pay in installments,
  * so the enroll worker can create the `Fixed` installment plan on payment
  * success (see `docs/installment-payment-plan.md` §2.2). Null for every one-shot

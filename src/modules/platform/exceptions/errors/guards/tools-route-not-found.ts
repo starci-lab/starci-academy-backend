@@ -12,7 +12,7 @@ import {
 export type ToolsRouteNotFoundExceptionMetadata = AbstractExceptionMetadata
 
 /**
- * Thrown by {@link LocalOnlyGuard} in production — every guarded tools route
+ * Thrown by {@link LocalOnlyGuard} in production -- every guarded tools route
  * answers 404 so it is indistinguishable from a route that does not exist.
  */
 export class ToolsRouteNotFoundException extends AbstractException {

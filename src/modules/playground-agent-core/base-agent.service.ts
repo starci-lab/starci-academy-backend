@@ -35,7 +35,7 @@ import type {
  */
 export abstract class BaseAgentService {
     protected readonly logger: Logger
-    /** Live once {@link run} has been called — hooks may use it freely. */
+    /** Live once {@link run} has been called -- hooks may use it freely. */
     protected socket!: Socket
     /** Console + browser log sink; live once {@link run} has been called. */
     protected sendLog!: (line: string, level?: "info" | "warn" | "error") => void

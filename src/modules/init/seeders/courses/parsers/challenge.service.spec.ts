@@ -93,7 +93,7 @@ async function listIndexedMountDirs(
                 dashIndex === -1 ? entry.name : entry.name.split("-")[0],
                 10,
             )
-            // bare numeric folder has no slug → displayId is the bare number too
+            // bare numeric folder has no slug -> displayId is the bare number too
             const displayId = dashIndex === -1
                 ? entry.name
                 : entry.name.substring(dashIndex + 1)
@@ -243,7 +243,7 @@ describe("ChallengeParserService",
                                 expect.objectContaining({
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Tách hai module độc lập và khai báo ranh giới export/import",
+                                    value: "Tách hai module độc lập và khai báo ranh giới export/import", // vn-ok: vi-locale seed fixture assertion
                                 }),
                             ]),
                         )
@@ -298,7 +298,7 @@ describe("ChallengeParserService",
                                     challengeId: parsed.id,
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Dùng lại service giữa hai vùng qua Dependency Injection",
+                                    value: "Dùng lại service giữa hai vùng qua Dependency Injection", // vn-ok: vi-locale seed fixture assertion
                                 },
                             ]),
                         )
@@ -325,7 +325,7 @@ describe("ChallengeParserService",
                         expect(parsed.score).toBe(100)
                         expect(parsed.verified).toEqual(new Date("2026-05-30"))
 
-                        // medium has 3 lang buckets (ts/java/csharp) → 3 entities per V2 section,
+                        // medium has 3 lang buckets (ts/java/csharp) -> 3 entities per V2 section,
                         // each carrying its bucket items in `langs[]` (2 / 3 / 2 / 2 respectively)
                         expect(parsed.requirements).toHaveLength(2)
                         expect(parsed.requirements?.[0]?.orderIndex).toBe(0)
@@ -355,7 +355,7 @@ describe("ChallengeParserService",
                                     challengeId: parsed.id,
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Hoán đổi implementation qua DI và cấu hình lúc compose",
+                                    value: "Hoán đổi implementation qua DI và cấu hình lúc compose", // vn-ok: vi-locale seed fixture assertion
                                 },
                             ]),
                         )

@@ -63,8 +63,8 @@ export interface ConfigMapData {
   indices: string;
   /**
    * Explicit index mapping (settings + mappings) used when an index is reset. Holds the unified
-   * V1+V2 field shape — both legacy (`body`) and SCHEMA V2 (`bodies`, `isPremium`, `verified`)
-   * fields live in the same record/index. Omitted → the index is reset with dynamic mapping.
+   * V1+V2 field shape -- both legacy (`body`) and SCHEMA V2 (`bodies`, `isPremium`, `verified`)
+   * fields live in the same record/index. Omitted -> the index is reset with dynamic mapping.
    */
   mapping?: ElasticsearchIndexMapping;
 }
@@ -125,7 +125,7 @@ export const configMap: ConfigMap = {
         indices: "coding-problems",
         mapping: codingProblemsIndexMapping,
     },
-    // non-localized user index (search + "who to follow") — written by es-sync,
+    // non-localized user index (search + "who to follow") -- written by es-sync,
     // NOT by the per-locale content synchronizer, so it stays out of the
     // ElasticsearchService auto-create `indices` list
     [UserEntity.name]: {

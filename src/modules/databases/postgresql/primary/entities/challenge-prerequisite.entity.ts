@@ -31,7 +31,7 @@ import {
 })
 @Entity("challenge_prerequisites")
 /**
- * SCHEMA V2 prerequisite ITEM for a challenge (normalized — no jsonb). One row per prerequisite
+ * SCHEMA V2 prerequisite ITEM for a challenge (normalized -- no jsonb). One row per prerequisite
  * position; the per-language `text` lives under {@link ChallengePrerequisiteLangEntity}.
  * Prerequisites carry no item-level title, so there is no item translation table.
  */

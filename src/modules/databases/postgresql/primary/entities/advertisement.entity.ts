@@ -13,7 +13,7 @@ import {
 } from "../enums"
 
 /**
- * Inline bilingual text (no translation table — these are small config rows).
+ * Inline bilingual text (no translation table -- these are small config rows).
  * Resolved to a single string by the request locale at read time.
  */
 export interface LocalizedText {
@@ -82,7 +82,7 @@ export type AdvertisementMedia =
  * stored as a discriminated jsonb `media` keyed by `mediaType`.
  */
 export class AdvertisementEntity extends UuidAbstractEntity {
-    /** Stable slug from the seed file — used to upsert idempotently. */
+    /** Stable slug from the seed file -- used to upsert idempotently. */
     @Column({
         name: "slug",
         type: "varchar",
@@ -99,7 +99,7 @@ export class AdvertisementEntity extends UuidAbstractEntity {
     })
         placement: AdvertisementPlacement
 
-    /** Media kind — drives how the client renders + the `media` jsonb shape. */
+    /** Media kind -- drives how the client renders + the `media` jsonb shape. */
     @Column({
         name: "media_type",
         type: "enum",

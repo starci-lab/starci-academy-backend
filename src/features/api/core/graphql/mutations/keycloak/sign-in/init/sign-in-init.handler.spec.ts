@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -31,12 +31,12 @@ describe("SignInInitHandler",
         let keycloakTokenService: jest.Mocked<Pick<KeycloakTokenService, "exchangePasswordForToken">>
 
         beforeEach(async () => {
-            // OTP challenge issuer — returns the new challenge handle + otp code
+            // OTP challenge issuer -- returns the new challenge handle + otp code
             otpChallengeService = {
                 createActionChallenge: jest.fn(),
             } as unknown as jest.Mocked<Pick<OtpChallengeService, "createActionChallenge">>
 
-            // mail worker hand-off — assert the OTP email is queued
+            // mail worker hand-off -- assert the OTP email is queued
             enqueueSendMailJobService = {
                 enqueue: jest.fn(),
             } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>

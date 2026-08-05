@@ -34,7 +34,7 @@ import {
     ],
 })
 /**
- * Foundations query group — categories, category typeahead, list, and detail
+ * Foundations query group -- categories, category typeahead, list, and detail
  * leaves. Registered global so each leaf resolver is picked up by the schema.
  */
 export class FoundationsModule extends ConfigurableModuleClass {}

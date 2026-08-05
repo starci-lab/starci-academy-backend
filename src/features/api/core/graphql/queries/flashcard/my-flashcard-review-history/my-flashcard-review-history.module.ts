@@ -17,5 +17,5 @@ import {
         MyFlashcardReviewHistoryService,
     ],
 })
-/** Feature-module boundary for the `myFlashcardReviewHistory` query — wires its resolver + service. */
+/** Feature-module boundary for the `myFlashcardReviewHistory` query -- wires its resolver + service. */
 export class MyFlashcardReviewHistorySingleQueryModule extends ConfigurableModuleClass {}

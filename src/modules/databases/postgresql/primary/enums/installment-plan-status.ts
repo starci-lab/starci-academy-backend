@@ -14,9 +14,9 @@ import {
 export enum InstallmentPlanStatus {
     /** Current cycle not yet due, or just paid on time. */
     Active = "active",
-    /** Past `nextDueAt`, within the grace period — reminders sent, access still granted. */
+    /** Past `nextDueAt`, within the grace period -- reminders sent, access still granted. */
     Overdue = "overdue",
-    /** Past the full grace period without reaching the cycle's minimum payment — enrollment(s) locked. */
+    /** Past the full grace period without reaching the cycle's minimum payment -- enrollment(s) locked. */
     Defaulted = "defaulted",
     /** Fixed: every installment paid. FlexiblePool: `remainingVnd` reached zero. */
     Completed = "completed",

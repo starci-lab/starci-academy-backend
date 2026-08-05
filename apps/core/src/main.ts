@@ -1,6 +1,6 @@
 
 // Sentry must init before any other `@modules/sentry` symbol (filters/Nest
-// module) is loaded — a barrel import would pull those in too early.
+// module) is loaded -- a barrel import would pull those in too early.
 // eslint-disable-next-line starci-be/no-deep-module-import
 import "@modules/sentry/instrument"
 import {
@@ -56,7 +56,7 @@ const bootstrap = async () => {
         }
     )
     // trust the single upstream reverse proxy (Traefik) so `req.ip` reflects the
-    // real client address from `X-Forwarded-For` instead of the proxy's IP —
+    // real client address from `X-Forwarded-For` instead of the proxy's IP --
     // needed for accurate per-device session IP/geo capture
     app.set("trust proxy",
         1)

@@ -27,7 +27,7 @@ import {
  * newest-first. Seeded from `.mount/data/changelog`.
  */
 export class ChangelogEntryEntity extends UuidAbstractEntity {
-    /** Stable slug from the seed file — used to upsert idempotently. */
+    /** Stable slug from the seed file -- used to upsert idempotently. */
     @Column({
         name: "slug",
         type: "varchar",

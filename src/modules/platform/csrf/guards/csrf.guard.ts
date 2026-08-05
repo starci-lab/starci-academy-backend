@@ -61,7 +61,7 @@ export class CsrfGuard implements CanActivate {
         // pull the underlying express request out of the GraphQL context
         const request = GqlExecutionContext.create(context)
             .getContext<{ req?: Request }>().req
-        // without an HTTP request there is nothing to validate — fail closed
+        // without an HTTP request there is nothing to validate -- fail closed
         if (!request) {
             throw new CsrfMissingHttpRequestException({
             })
@@ -70,7 +70,7 @@ export class CsrfGuard implements CanActivate {
         this.assertTrustedOrigin(request)
         // read the token the client mirrored into the header
         const headerToken = this.readHeaderToken(request)
-        // read EVERY csrf_token the browser sent — a COOKIE_DOMAIN rollout can leave
+        // read EVERY csrf_token the browser sent -- a COOKIE_DOMAIN rollout can leave
         // a legacy host-only cookie alongside the new domain-scoped one, and
         // cookie-parser would only surface the first (often the stale one)
         const cookieTokens = this.cookieService.getAllCookieValues(request,
@@ -93,7 +93,7 @@ export class CsrfGuard implements CanActivate {
             throw new InvalidCsrfTokenException({
             })
         }
-        // all checks passed — allow the mutation through
+        // all checks passed -- allow the mutation through
         return true
     }
 
@@ -123,7 +123,7 @@ export class CsrfGuard implements CanActivate {
         // prefer the Origin header; fall back to deriving it from Referer
         const origin = request.headers.origin
             ?? this.originFromReferer(request.headers.referer)
-        // no origin info at all → let double-submit be the gate
+        // no origin info at all -> let double-submit be the gate
         if (!origin) {
             return
         }
@@ -150,7 +150,7 @@ export class CsrfGuard implements CanActivate {
             // a Referer is a full URL; its origin is what we compare against
             return new URL(referer).origin
         } catch {
-            // malformed Referer → treat as no usable origin
+            // malformed Referer -> treat as no usable origin
             return undefined
         }
     }

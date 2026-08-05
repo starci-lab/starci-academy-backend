@@ -20,7 +20,7 @@ export interface CreateNotificationParams {
     userId: string
     /** Kind of notification (drives the FE icon + phrasing). */
     type: NotificationType
-    /** Headline as an i18n descriptor (key + params) — no stored text. */
+    /** Headline as an i18n descriptor (key + params) -- no stored text. */
     title: NotificationI18nText
     /** Optional supporting line as an i18n descriptor; omit when title is enough. */
     body?: NotificationI18nText

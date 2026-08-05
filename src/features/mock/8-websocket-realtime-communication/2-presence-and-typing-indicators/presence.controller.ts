@@ -17,8 +17,8 @@ import {
 /**
  * REST presence controller for lesson `2-presence-and-typing-indicators`.
  *
- * Exposes an HTTP snapshot of who is online in a room — the same data the WS
- * `join` ack returns — so the demo can show that presence is queryable out of
+ * Exposes an HTTP snapshot of who is online in a room -- the same data the WS
+ * `join` ack returns -- so the demo can show that presence is queryable out of
  * band. Mounted under the session path used by the sandbox `VITE_API_BASE`.
  */
 export class PresenceController {

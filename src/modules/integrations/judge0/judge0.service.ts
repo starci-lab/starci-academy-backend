@@ -38,7 +38,7 @@ import type {
  * Thin client over the self-hosted Judge0 REST API. Responsible for encoding
  * submissions, submitting them as a batch, polling until every run is terminal,
  * and decoding the results into {@link Judge0SubmissionResult}. It knows nothing
- * about coding problems or verdicts — that mapping lives in the judging worker.
+ * about coding problems or verdicts -- that mapping lives in the judging worker.
  *
  * @example
  * const { results } = await judge0Service.judgeBatch({ submissions })
@@ -118,7 +118,7 @@ export class Judge0Service {
         const { overallTimeoutMs } = envConfig().judge0
         // hold the timer handle so the race can cancel it once it settles
         let timeoutHandle: NodeJS.Timeout | undefined
-        // wall-clock cap — rejects if judging outruns the hard budget no matter
+        // wall-clock cap -- rejects if judging outruns the hard budget no matter
         // how Judge0 (or a hung HTTP request) behaves
         const timeout = new Promise<never>((_resolve, reject) => {
             timeoutHandle = setTimeout(
@@ -132,7 +132,7 @@ export class Judge0Service {
             )
         })
         try {
-            // race the poll loop against the wall-clock cap — first to settle wins
+            // race the poll loop against the wall-clock cap -- first to settle wins
             return await Promise.race([
                 this.pollUntilTerminal(submissions),
                 timeout,
@@ -174,7 +174,7 @@ export class Judge0Service {
                 }
             }
         }
-        // budget exhausted — surface a typed timeout with how many are still pending
+        // budget exhausted -- surface a typed timeout with how many are still pending
         const finalResults = await this.getBatch(tokens)
         const pendingCount = finalResults.filter(
             (result) => !isJudge0Terminal(result.statusId),
@@ -244,7 +244,7 @@ export class Judge0Service {
 
     /** Build request headers, attaching the auth token only when one exists. */
     private buildHeaders(): Record<string, string> {
-        // base headers — we always send/receive JSON
+        // base headers -- we always send/receive JSON
         const headers: Record<string, string> = {
             "Content-Type": "application/json",
         }
@@ -274,7 +274,7 @@ export class Judge0Service {
 
     /** Base64-decode a Judge0 field back to a UTF-8 string, or null when empty. */
     private decode(value: unknown): string | null {
-        // Judge0 omits/empties absent fields — treat those as null
+        // Judge0 omits/empties absent fields -- treat those as null
         if (typeof value !== "string" || value.length === 0) {
             return null
         }

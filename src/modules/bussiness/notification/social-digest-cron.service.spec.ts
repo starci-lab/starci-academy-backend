@@ -35,13 +35,13 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 // the cron calls the free `enqueueLearnerEmail(...)` helper directly rather than
-// through DI — mock the module so each test can program success/failure per user
+// through DI -- mock the module so each test can program success/failure per user
 jest.mock("@modules/transactional-email",
     () => ({
         enqueueLearnerEmail: jest.fn(),
     }))
 
-// `envConfig()` is read for the web base URL used in the digest email context —
+// `envConfig()` is read for the web base URL used in the digest email context --
 // mock only the module so tests can stub the slice actually read
 jest.mock("@modules/env",
     () => {
@@ -49,7 +49,7 @@ jest.mock("@modules/env",
         return {
             ...actual,
             // default to the real envConfig so a module-load-time call (e.g. the
-            // cache config's top-level `envConfig().cache…`) doesn't hit an
+            // cache config's top-level `envConfig().cache...`) doesn't hit an
             // undefined return; individual tests still override via mockReturnValue
             envConfig: jest.fn(actual.envConfig),
         }
@@ -60,7 +60,7 @@ const mockEnvConfig = envConfig as jest.MockedFunction<typeof envConfig>
 
 /**
  * A chainable stand-in for the digest aggregation query builder
- * (`createQueryBuilder(NotificationEntity, "n").innerJoin(...).select(...)…`).
+ * (`createQueryBuilder(NotificationEntity, "n").innerJoin(...).select(...)...`).
  * Every select/where/group method returns the builder; `getRawMany` is the
  * terminal the test programs.
  */
@@ -241,7 +241,7 @@ describe("SocialDigestCronService",
 
                         await service.sendDailyDigests()
 
-                        // neither row survives the count filter → nobody gets a digest
+                        // neither row survives the count filter -> nobody gets a digest
                         expect(mockEnqueueLearnerEmail).not.toHaveBeenCalled()
                     })
 
@@ -266,10 +266,10 @@ describe("SocialDigestCronService",
                             }
                         })
 
-                        // the sweep itself must not reject — a bad user must never abort it
+                        // the sweep itself must not reject -- a bad user must never abort it
                         await expect(service.sendDailyDigests()).resolves.toBeUndefined()
 
-                        // both recipients were attempted — the loop kept going past the failure
+                        // both recipients were attempted -- the loop kept going past the failure
                         expect(mockEnqueueLearnerEmail).toHaveBeenCalledTimes(2)
                         expect(mockEnqueueLearnerEmail).toHaveBeenCalledWith(
                             expect.objectContaining({
@@ -303,7 +303,7 @@ describe("SocialDigestCronService",
                         const aggregationFailure = new Error("relation \"notifications\" does not exist")
                         queryBuilder.getRawMany.mockRejectedValueOnce(aggregationFailure)
 
-                        // the scheduler must never see a rejection — a bad run self-heals tomorrow
+                        // the scheduler must never see a rejection -- a bad run self-heals tomorrow
                         await expect(service.sendDailyDigests()).resolves.toBeUndefined()
 
                         // no per-user email work happens once the aggregation itself failed

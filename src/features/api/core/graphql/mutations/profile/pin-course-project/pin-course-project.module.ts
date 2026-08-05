@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Registers pinning an enrolled course project — distinct from external
+ * Registers pinning an enrolled course project -- distinct from external
  * pins so a forged course id cannot land on the external-project table.
  */
 export class PinCourseProjectSingleMutationModule extends ConfigurableModuleClass {}

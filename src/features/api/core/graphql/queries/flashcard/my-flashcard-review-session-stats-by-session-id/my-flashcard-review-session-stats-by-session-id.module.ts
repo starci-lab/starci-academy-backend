@@ -17,5 +17,5 @@ import {
         MyFlashcardReviewSessionStatsBySessionIdService,
     ],
 })
-/** Feature-module boundary for the `myFlashcardReviewSessionStatsBySessionId` query — wires its resolver + service. */
+/** Feature-module boundary for the `myFlashcardReviewSessionStatsBySessionId` query -- wires its resolver + service. */
 export class MyFlashcardReviewSessionStatsBySessionIdSingleQueryModule extends ConfigurableModuleClass {}

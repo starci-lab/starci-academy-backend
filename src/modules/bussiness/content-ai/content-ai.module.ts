@@ -24,7 +24,7 @@ import {
  * All collaborators come from globally-registered modules: `S3ReadService` /
  * `S3NameResolverService` from `S3Module`, `UserService` from the bussiness
  * `UserModule`, the entity manager from the databases module, and
- * `CourseRagRetrievalService` from the app-root-global `RagModule` — so this
+ * `CourseRagRetrievalService` from the app-root-global `RagModule` -- so this
  * module declares no imports.
  */
 export class ContentAiModule extends ConfigurableModuleClass {

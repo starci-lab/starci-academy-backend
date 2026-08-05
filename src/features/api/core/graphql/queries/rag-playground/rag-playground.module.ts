@@ -16,7 +16,7 @@ import {
     ],
 })
 /**
- * RAG Playground query group — currently just the curated sample catalog
+ * RAG Playground query group -- currently just the curated sample catalog
  * listing (`ragPlaygroundSamples`), a PUBLIC (no login) read matching the
  * `@modules/rag` `PublicRagPlaygroundService` mutation group.
  */

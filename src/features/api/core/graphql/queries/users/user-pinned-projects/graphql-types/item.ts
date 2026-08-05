@@ -16,9 +16,9 @@ import {
  * A single pinned project as exposed to the public profile.
  *
  * Built from a {@link UserPinnedProjectEntity} row with two resolved fields:
- * - `title` — the display title (course pins fall back to the course title when
+ * - `title` -- the display title (course pins fall back to the course title when
  *   no custom title was set).
- * - `isVerified` — true only for a `course` pin whose linked enrollment has a
+ * - `isVerified` -- true only for a `course` pin whose linked enrollment has a
  *   completed task plan ("Verified by StarCi").
  */
 export class UserPinnedProjectItemData {
@@ -106,7 +106,7 @@ export class UserPinnedProjectItemData {
 
     /**
      * True only for a course pin whose linked enrollment has completed its task
-     * plan — drives the "Verified by StarCi" highlight.
+     * plan -- drives the "Verified by StarCi" highlight.
      */
     @Field(
         () => Boolean,

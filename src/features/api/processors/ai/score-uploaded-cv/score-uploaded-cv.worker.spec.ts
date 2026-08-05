@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its base classes are initialised before the
-// worker pulls its deps — dodges a load-order "Class extends value undefined"
+// worker pulls its deps -- dodges a load-order "Class extends value undefined"
 // cycle (mirrors the CV handler specs).
 import "@modules/bussiness"
 import {
@@ -88,7 +88,7 @@ describe("ScoreUploadedCvWorker",
                 failJob: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<JobActionService, "getJob" | "processingJob" | "completeJob" | "failJob">>
 
-            // shared upload-scoring service — happy path resolves the written grade
+            // shared upload-scoring service -- happy path resolves the written grade
             scoreUploadedCvService = {
                 scoreUploadedCv: jest.fn().mockResolvedValue({
                     score: 82,
@@ -104,13 +104,13 @@ describe("ScoreUploadedCvWorker",
                 }),
             } as unknown as jest.Mocked<Pick<EntityManager, "update">>
 
-            // superjson stub — parse returns the fixed payload regardless of input
+            // superjson stub -- parse returns the fixed payload regardless of input
             const superJson = {
                 parse: jest.fn().mockReturnValue(PAYLOAD),
                 stringify: jest.fn(),
             }
 
-            // dayjs stub — `now()` returns a chainable object with `diff` + `toDate`
+            // dayjs stub -- `now()` returns a chainable object with `diff` + `toDate`
             const nowStub = {
                 diff: jest.fn().mockReturnValue(0),
                 toDate: jest.fn().mockReturnValue(new Date(0)),
@@ -171,7 +171,7 @@ describe("ScoreUploadedCvWorker",
                                 job: JOB_ROW,
                             }),
                         )
-                        // delegated the whole buffer→extract→score→persist to the shared service
+                        // delegated the whole buffer->extract->score->persist to the shared service
                         expect(scoreUploadedCvService.scoreUploadedCv).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 cvGenerationId: "cv-gen-upload-1",

@@ -7,7 +7,7 @@ import {
 
 /**
  * QueryBus payload for `courseLeaderboard`: request + user into
- * {@link LeaderboardHandler}. Constructed by the query service — not injected.
+ * {@link LeaderboardHandler}. Constructed by the query service -- not injected.
  */
 export class LeaderboardQuery {
     constructor(

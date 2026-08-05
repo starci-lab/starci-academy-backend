@@ -21,7 +21,7 @@ import {
 
 @Entity("user_leagues")
 /**
- * A user's standing in the global weekly league — exactly one row per user.
+ * A user's standing in the global weekly league -- exactly one row per user.
  *
  * Holds the user's CURRENT tier (the ladder rung they sit on) and a pointer to
  * the {@link LeagueCohortEntity} they are racing in this week (nullable: a user
@@ -30,7 +30,7 @@ import {
  * per-user projection of league state, recomputed only at the weekly reset.
  */
 export class UserLeagueEntity extends AbstractEntity {
-    /** Owning user id — the natural primary key (one row per user). */
+    /** Owning user id -- the natural primary key (one row per user). */
     @PrimaryColumn({
         name: "user_id",
         type: "uuid",

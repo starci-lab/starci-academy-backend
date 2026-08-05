@@ -14,7 +14,7 @@ import {
 })
 /**
  * Video-encoder feature root. `useProcessors` is opt-in because only the core
- * API process should consume the queue — CLI/tools/mock must not start ffmpeg.
+ * API process should consume the queue -- CLI/tools/mock must not start ffmpeg.
  */
 export class VideoEncoderModule extends ConfigurableModuleClass { 
     static register(options: typeof OPTIONS_TYPE): DynamicModule {

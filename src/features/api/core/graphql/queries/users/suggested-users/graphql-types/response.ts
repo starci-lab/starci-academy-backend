@@ -11,7 +11,7 @@ import {
     description: "A suggested user to follow (who-to-follow card).",
 })
 /**
- * One "who to follow" suggestion for the dashboard rail — a user the viewer does
+ * One "who to follow" suggestion for the dashboard rail -- a user the viewer does
  * not already follow, surfaced as a clickable card. Carries the opaque global id
  * (resolved to the profile route on click) plus the header fields the card shows.
  */

@@ -23,7 +23,7 @@ import {
 })
 /**
  * Registers avatar-upload confirm (resolver + service + handler) separately
- * from presign mint — verification must see an object that already landed
+ * from presign mint -- verification must see an object that already landed
  * in storage.
  */
 export class VerifyAvatarPresignUrlSingleMutationModule extends ConfigurableModuleClass {}

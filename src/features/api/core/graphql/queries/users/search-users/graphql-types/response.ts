@@ -12,7 +12,7 @@ import {
     description: "A user search result (from the Elasticsearch `users` index).",
 })
 /**
- * One user search hit from the `users` Elasticsearch index — the header fields a
+ * One user search hit from the `users` Elasticsearch index -- the header fields a
  * result row / who-to-follow card shows. Carries the opaque global id (resolved
  * to the profile route on click) plus identity + discovery fields.
  */

@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * Thin `CommandBus` proxy for `startFlashcardReviewSession` — wraps the request into a
+ * Thin `CommandBus` proxy for `startFlashcardReviewSession` -- wraps the request into a
  * {@link StartFlashcardReviewSessionCommand} rather than calling {@link StartFlashcardReviewSessionHandler} directly,
  * keeping the resolver decoupled from the CQRS wiring.
  */

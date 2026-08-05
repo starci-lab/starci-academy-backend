@@ -13,7 +13,7 @@ export type InvalidOAuthStatePayloadExceptionMetadata = AbstractExceptionMetadat
 
 /**
  * Thrown when the GitHub OAuth callback's `state` param decodes into a
- * payload missing `iv`/`authTag`/`ciphertext` — the state was tampered with
+ * payload missing `iv`/`authTag`/`ciphertext` -- the state was tampered with
  * or came from a different flow.
  */
 export class InvalidOAuthStatePayloadException extends AbstractException {

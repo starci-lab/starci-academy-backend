@@ -106,7 +106,7 @@ describe("ChallengeSubmissionsCmsService",
                             userId,
                         ])
 
-                        // raw rows mapped into the typed contract, with ungraded → 0 score default
+                        // raw rows mapped into the typed contract, with ungraded -> 0 score default
                         expect(result).toEqual({
                             items: [
                                 {

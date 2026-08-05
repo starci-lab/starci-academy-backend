@@ -42,7 +42,7 @@ export class TouchContentAiSessionResolver {
     ) { }
 
     /**
-     * Mark a content-AI conversation as just-opened (bumps recency → it is the
+     * Mark a content-AI conversation as just-opened (bumps recency -> it is the
      * one auto-reopened on reload). Requires authentication.
      */
     @UseThrottler(ThrottlerConfig.Soft)

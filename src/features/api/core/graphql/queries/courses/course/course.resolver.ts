@@ -62,7 +62,7 @@ export class CourseResolver {
                 course: CourseEntity,
     ): PricingPhase {
         // metadata is seeded (seed-if-missing) with the app.yaml default (EarlyBird);
-        // fall back to EarlyBird — NOT Regular — when it is somehow absent, so the UI
+        // fall back to EarlyBird -- NOT Regular -- when it is somehow absent, so the UI
         // does not wrongly mark every earlier phase as sold out.
         return course.metadata?.currentPhase ?? PricingPhase.EarlyBird
     }

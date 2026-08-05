@@ -38,7 +38,7 @@ import type {
 @Resolver()
 /**
  * Owner-scoped query feeding the "pin a course project" picker: the current
- * user's enrollments that already have a capstone repo — either a submitted
+ * user's enrollments that already have a capstone repo -- either a submitted
  * personal-project GitHub URL or a completed task plan.
  *
  * This is a small owner-only list, so it reads the join directly via the
@@ -71,7 +71,7 @@ export class MyPinnableCapstonesResolver {
             user: UserEntity,
     ): Promise<Array<MyPinnableCapstoneItemData>> {
         // direct owner-scoped join: every enrollment of this user that already
-        // has something to pin — a submitted project repo OR a completed plan.
+        // has something to pin -- a submitted project repo OR a completed plan.
         // LEFT JOIN courses so a missing course row still yields the enrollment.
         const rows = await this.entityManager
             .createQueryBuilder(EnrollmentEntity,

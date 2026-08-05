@@ -25,7 +25,7 @@ import type {
  * Verifies Cloudflare Turnstile tokens server-side.
  *
  * When captcha is disabled (no secret / `CAPTCHA_ENABLED=false`) every check
- * passes — this keeps local dev and tests working without a Turnstile key.
+ * passes -- this keeps local dev and tests working without a Turnstile key.
  * In production (enabled + secret set) a missing/invalid token fails.
  *
  * @example
@@ -57,7 +57,7 @@ export class CaptchaService {
     async verify({ token, remoteIp }: VerifyCaptchaParams): Promise<VerifyCaptchaResult> {
         // read the captcha config once per call (env is cheap + dynamic)
         const { enabled, turnstileSecret } = envConfig().captcha
-        // disabled or unconfigured → pass through so dev/test isn't blocked
+        // disabled or unconfigured -> pass through so dev/test isn't blocked
         if (!enabled || !turnstileSecret) {
             return true
         }
@@ -89,7 +89,7 @@ export class CaptchaService {
             // trust only an explicit success flag from Cloudflare
             return response.data.success === true
         } catch {
-            // network/verify failure → fail closed (treat as invalid)
+            // network/verify failure -> fail closed (treat as invalid)
             return false
         }
     }

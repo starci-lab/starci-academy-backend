@@ -15,12 +15,12 @@ import type {
 export interface AiInvokeParams {
     /** Chat messages (system + human) to send to the model. */
     messages: Array<BaseMessage>
-    /** Optional category filter — restricts the fallback chain to one tier. */
+    /** Optional category filter -- restricts the fallback chain to one tier. */
     category?: AiModelCategory
     /**
      * Auto-lane allowed categories (the user's entitled tiers). When set, the
      * Auto lane loops every enabled model whose category is in this set, by
-     * priority (low→high: Free → Economy → Balanced → Premium), capped here by
+     * priority (low->high: Free -> Economy -> Balanced -> Premium), capped here by
      * entitlement. Takes precedence over {@link category} for the Auto lane.
      */
     categories?: Array<AiModelCategory>
@@ -37,7 +37,7 @@ export interface AiInvokeParams {
     /**
      * Stable key grouping requests that share a prompt PREFIX onto the same
      * upstream provider, so its warm prompt-cache is reused (sent as OpenRouter's
-     * `x-session-id`, ≤256 chars). Grading passes the challenge/task id — every
+     * `x-session-id`, <=256 chars). Grading passes the challenge/task id -- every
      * submission of one challenge repeats the same rubric system prompt, and
      * without this each submission's differing first user message hashes to a
      * different route and misses that shared cache. Chat passes the conversation
@@ -85,12 +85,12 @@ export type AiStreamOnChunk = (delta: string) => void
 export interface AiStreamParams {
     /** Chat messages (system + human) to send to the model. */
     messages: Array<BaseMessage>
-    /** Optional category filter — restricts the fallback chain to one tier. */
+    /** Optional category filter -- restricts the fallback chain to one tier. */
     category?: AiModelCategory
     /**
      * Auto-lane allowed categories (the user's entitled tiers). When set, the
      * Auto lane loops every enabled model whose category is in this set, by
-     * priority (low→high: Free → Economy → Balanced → Premium), capped here by
+     * priority (low->high: Free -> Economy -> Balanced -> Premium), capped here by
      * entitlement. Takes precedence over {@link category} for the Auto lane.
      */
     categories?: Array<AiModelCategory>
@@ -105,8 +105,8 @@ export interface AiStreamParams {
     task?: AiModelTask
     /**
      * Stable key grouping same-prefix requests onto one provider for prompt-
-     * cache reuse (OpenRouter `x-session-id`, ≤256 chars). Grading → challenge id;
-     * chat → conversation id. Omit when there is no reusable prefix.
+     * cache reuse (OpenRouter `x-session-id`, <=256 chars). Grading -> challenge id;
+     * chat -> conversation id. Omit when there is no reusable prefix.
      */
     cacheSessionId?: string
     /**
@@ -117,7 +117,7 @@ export interface AiStreamParams {
     /** Called for every incremental token delta as the model streams. */
     onChunk: AiStreamOnChunk
     /**
-     * Optional abort signal — when it fires the underlying model stream is
+     * Optional abort signal -- when it fires the underlying model stream is
      * cancelled, surfacing as a thrown abort error the caller can handle.
      */
     signal?: AbortSignal
@@ -143,9 +143,9 @@ export interface StreamActionResult {
 }
 
 /**
- * Params for {@link AiInvokeService.run} — the ONE high-level entry every AI
+ * Params for {@link AiInvokeService.run} -- the ONE high-level entry every AI
  * surface uses (grading, capstone, eval, interview, chatbot, future services).
- * Resolves the System routing (floor → tier ceiling → `ceil` cap → climb),
+ * Resolves the System routing (floor -> tier ceiling -> `ceil` cap -> climb),
  * invokes (or streams when `onChunk` is set), and returns the served model + cost.
  */
 export interface AiRunParams {
@@ -153,7 +153,7 @@ export interface AiRunParams {
     userId: string
     /** Chat messages (system + human) to send to the model. */
     messages: Array<BaseMessage>
-    /** The user's lane/model pick (System Auto vs Manual). Absent → Auto. */
+    /** The user's lane/model pick (System Auto vs Manual). Absent -> Auto. */
     selection?: AiJobSelection
     /**
      * Task difficulty, carried for logging/analytics only. It no longer selects
@@ -163,7 +163,7 @@ export interface AiRunParams {
     difficulty?: string | null
     /** Explicit floor override (chatbot passes Free). */
     floor?: AiModelCategory | null
-    /** User-set per-feature ceiling cap (settings config per hạng mục). */
+    /** User-set per-feature ceiling cap (settings config per surface). */
     ceil?: AiModelCategory | null
     /**
      * Task override (chatting / grading). Usually derived from {@link surface};
@@ -173,8 +173,8 @@ export interface AiRunParams {
     task?: AiModelTask
     /**
      * Stable key grouping same-prefix requests onto one provider for prompt-
-     * cache reuse (OpenRouter `x-session-id`, ≤256 chars). Grading → challenge id;
-     * chat → conversation id. Omit when there is no reusable prefix.
+     * cache reuse (OpenRouter `x-session-id`, <=256 chars). Grading -> challenge id;
+     * chat -> conversation id. Omit when there is no reusable prefix.
      */
     cacheSessionId?: string
     /**

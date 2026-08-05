@@ -12,7 +12,7 @@ import {
 @Injectable()
 /**
  * Picks locale then fallback from an already-loaded `translations` array so
- * hydration stays a single query — hitting the DB per field would N+1 the
+ * hydration stays a single query -- hitting the DB per field would N+1 the
  * read path.
  */
 export class TranslationResolverService {

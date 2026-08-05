@@ -78,7 +78,7 @@ export class CoursesCheckoutResolver {
         @GraphQLLocale()
             locale: Locale,
     ): Promise<CoursesCheckoutResponseData> {
-        // delegate to the service → command handler
+        // delegate to the service -> command handler
         return this.coursesCheckoutService.execute(
             {
                 request,

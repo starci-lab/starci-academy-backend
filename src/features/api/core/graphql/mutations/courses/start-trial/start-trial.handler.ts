@@ -63,7 +63,7 @@ export class StartTrialHandler
             throw new UserNotFoundException({
             })
         }
-        // course must exist (and we read the current pricing phase as a placeholder —
+        // course must exist (and we read the current pricing phase as a placeholder --
         // the real phase is locked when the trial converts to a paid enrollment)
         const course = await this.entityManager.findOne(
             CourseEntity,
@@ -81,7 +81,7 @@ export class StartTrialHandler
                 id: courseId,
             })
         }
-        // idempotent: a trial row OR a real enrollment already exists → no-op
+        // idempotent: a trial row OR a real enrollment already exists -> no-op
         const existing = await this.entityManager.findOne(
             EnrollmentEntity,
             {
@@ -118,7 +118,7 @@ export class StartTrialHandler
             await this.entityManager.save(enrollment)
         } catch {
             // UQ_enrollments_user_course race: another concurrent request created it
-            // first → idempotent, return whatever now exists
+            // first -> idempotent, return whatever now exists
             const raced = await this.entityManager.findOne(
                 EnrollmentEntity,
                 {

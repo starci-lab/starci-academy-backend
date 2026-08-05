@@ -9,7 +9,7 @@ export interface CoursesSeededSuccessfullyMessage {
 }
 
 /**
- * Message for when a single user trips the per-user content-access rate limit —
+ * Message for when a single user trips the per-user content-access rate limit --
  * i.e. suspected bulk scraping of lesson content. Logged (with the offender's
  * email) so the account can be reviewed / disabled and used as takedown evidence.
  */

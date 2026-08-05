@@ -52,7 +52,7 @@ describe("MilestoneTaskProgressHandler",
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
 
-            // userService is injected but unused by the read path — a bare stub is enough
+            // userService is injected but unused by the read path -- a bare stub is enough
             userService = {
             } as unknown as jest.Mocked<UserService>
 
@@ -100,7 +100,7 @@ describe("MilestoneTaskProgressHandler",
 
         it("returns an empty progress shape when the user is not enrolled",
             async () => {
-                // default findOne resolves null → no enrollment
+                // default findOne resolves null -> no enrollment
                 const result = await handler.execute(
                     new MilestoneTaskProgressQuery({
                         request: {

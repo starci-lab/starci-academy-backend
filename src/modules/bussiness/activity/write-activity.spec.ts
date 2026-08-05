@@ -13,7 +13,7 @@ import type {
 } from "@modules/tests"
 
 /**
- * `writeActivity` is a plain function (no DI) — the caller's transaction
+ * `writeActivity` is a plain function (no DI) -- the caller's transaction
  * manager IS the dependency, so the mock is passed straight in rather than
  * wired through a `Test.createTestingModule`.
  */
@@ -98,7 +98,7 @@ describe("writeActivity",
 
         it("is an idempotent no-op when a row for the (type, idempotencyKey) pair already exists",
             async () => {
-                // a duplicate event — the row was already recorded (re-read, re-grade, re-follow)
+                // a duplicate event -- the row was already recorded (re-read, re-grade, re-follow)
                 entityManager.findOne.mockResolvedValueOnce({
                     id: "activity-existing",
                 })
@@ -117,7 +117,7 @@ describe("writeActivity",
                     },
                 })
 
-                // NOTHING is written — no duplicate feed row, ever
+                // NOTHING is written -- no duplicate feed row, ever
                 expect(entityManager.save).not.toHaveBeenCalled()
             })
 

@@ -43,7 +43,7 @@ export class ConsultantSuggestionsService {
     }
 
     /**
-     * Convenience wrapper used by the resolver — assembles params from the
+     * Convenience wrapper used by the resolver -- assembles params from the
      * resolved locale + the incoming request and delegates to {@link execute}.
      *
      * @param locale - Locale resolved from the request context.

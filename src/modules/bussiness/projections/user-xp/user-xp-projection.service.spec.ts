@@ -24,7 +24,7 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** The user under test — value is irrelevant; it is only threaded into params. */
+/** The user under test -- value is irrelevant; it is only threaded into params. */
 const USER_ID = "user-xp-1"
 
 /** Default TTL the SUT reads off `envConfig().projection.staleAfterMs` (5 minutes). */
@@ -138,7 +138,7 @@ describe("UserXpProjectionService",
                             totalPoints: 18,
                             coinBalance: 100,
                         })
-                        // fresh row → the TTL lazy-refresh must NOT fire
+                        // fresh row -> the TTL lazy-refresh must NOT fire
                         expect(entityManager.query).not.toHaveBeenCalled()
                         expect(entityManager.findOne).toHaveBeenCalledTimes(1)
                     })
@@ -223,7 +223,7 @@ describe("UserXpProjectionService",
                 it("propagates a recompute failure triggered by the lazy refresh",
                     async () => {
                         const service = await build()
-                        // findOne defaults to null → drives getXp into the recompute branch
+                        // findOne defaults to null -> drives getXp into the recompute branch
                         const dbError = new Error("upsert failed")
                         entityManager.query.mockRejectedValueOnce(dbError)
 

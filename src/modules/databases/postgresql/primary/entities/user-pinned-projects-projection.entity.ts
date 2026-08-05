@@ -13,7 +13,7 @@ import {
 
 @Entity("user_pinned_projects_projections")
 /**
- * CQRS projection of a user's pinned projects — ONE ROW PER user. The inherited
+ * CQRS projection of a user's pinned projects -- ONE ROW PER user. The inherited
  * jsonb `value` holds an ORDERED array of pin states under `value.pins`:
  * `{ pins: [{ id, type, title, description, url, techStack, isVerified,
  * orderIndex }] }`, ordered by `orderIndex` ascending. Recomputed from the
@@ -22,7 +22,7 @@ import {
  * fresh by CDC on `user_pinned_projects`, `enrollments`, and `courses`.
  */
 export class UserPinnedProjectsProjectionEntity extends AbstractProjectionEntity {
-    /** Target user id — the natural (primary) key. */
+    /** Target user id -- the natural (primary) key. */
     @PrimaryColumn({
         name: "user_id",
         type: "uuid",

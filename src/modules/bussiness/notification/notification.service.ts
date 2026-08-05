@@ -69,7 +69,7 @@ export class NotificationService {
             body,
             target,
         }
-        // build the row via relation id only — no need to load the full user row
+        // build the row via relation id only -- no need to load the full user row
         const draft = manager.create(NotificationEntity,
             {
                 user: {
@@ -166,7 +166,7 @@ export class NotificationService {
      */
     async countUnread(userId: string): Promise<number> {
         // unread badge now reads the flat user-stats projection (lazy-recomputed
-        // if stale) — replaces the old per-request COUNT
+        // if stale) -- replaces the old per-request COUNT
         const stats = await this.userStatsProjectionService.getStats(userId)
         return stats.unreadNotificationCount
     }
@@ -180,7 +180,7 @@ export class NotificationService {
         userId,
         notificationId,
     }: MarkNotificationAsReadParams): Promise<void> {
-        // load the row scoped to the recipient — never trust the client's ownership
+        // load the row scoped to the recipient -- never trust the client's ownership
         const notification = await this.entityManager.findOne(NotificationEntity,
             {
                 where: {
@@ -201,7 +201,7 @@ export class NotificationService {
                 userId,
             })
         }
-        // already read → idempotent no-op so a double tap never churns the row
+        // already read -> idempotent no-op so a double tap never churns the row
         if (notification.readAt) {
             return
         }
@@ -227,7 +227,7 @@ export class NotificationService {
     async markAllAsRead({
         userId,
     }: MarkAllNotificationsAsReadParams): Promise<MarkAllNotificationsAsReadResult> {
-        // single bulk UPDATE over the unread rows — no per-row round trips
+        // single bulk UPDATE over the unread rows -- no per-row round trips
         const result = await this.entityManager.update(NotificationEntity,
             {
                 user: {
@@ -242,7 +242,7 @@ export class NotificationService {
         await this.userStatsProjectionService.recompute({
             userId,
         })
-        // affected is undefined on some drivers → coerce to 0 for a stable contract
+        // affected is undefined on some drivers -> coerce to 0 for a stable contract
         return {
             markedCount: result.affected ?? 0,
         }

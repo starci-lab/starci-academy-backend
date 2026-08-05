@@ -11,7 +11,7 @@ import type {
  * Request body payOS sends to the payment webhook endpoint.
  *
  * All fields are optional so the global ValidationPipe never rejects a payload
- * before the handler runs — PayOS's webhook-URL confirmation probe omits some
+ * before the handler runs -- PayOS's webhook-URL confirmation probe omits some
  * fields (e.g. `success`), and the handler verifies the signature + `code`
  * authoritatively anyway (mirrors the SePay / NOWPayments webhook DTOs).
  */

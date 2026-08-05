@@ -465,9 +465,82 @@ const noEmoji = {
     },
 }
 
+// ── 11. no-ai-symbol ─────────────────────────────────────────────────────────────────────────
+// Typographic punctuation nobody reaches for on a keyboard — the em dash, the arrow, the
+// middle dot — reads as machine-written, and it is a real portability tax besides: this repo
+// has already lost measurements to shell tools mangling non-ASCII. Comments stay ASCII, and
+// every banned character has an exact ASCII spelling, so the rule is auto-fixable: one
+// `eslint --fix` converts the whole backlog with no judgement calls.
+//
+// COMMENTS ONLY. A string literal can be user-facing copy or a value the code matches on;
+// rewriting one is a product decision, not a lint fix.
+const AI_SYMBOLS = {
+    "—": "--",
+    "–": "-",
+    "→": "->",
+    "⇒": "=>",
+    "←": "<-",
+    "·": "-",
+    "…": "...",
+    "•": "-",
+    "×": "x",
+    "≥": ">=",
+    "≤": "<=",
+    "≠": "!=",
+    "“": "\"",
+    "”": "\"",
+    "‘": "'",
+    "’": "'",
+}
+const AI_SYMBOL_RE = new RegExp(`[${Object.keys(AI_SYMBOLS).join("")}]`, "g")
+
+const noAiSymbol = {
+    meta: {
+        type: "problem",
+        fixable: "whitespace",
+        docs: {
+            description: "Comments are ASCII — no em dash, arrow, middle dot or smart quote.",
+        },
+        schema: [],
+        messages: {
+            symbol: "`{{symbol}}` in a comment — write `{{ascii}}`. Comments stay ASCII: typographic punctuation reads as machine-written and breaks shell tooling.",
+        },
+    },
+    create(context) {
+        const sourceCode = context.sourceCode || context.getSourceCode()
+
+        return {
+            Program() {
+                for (const comment of sourceCode.getAllComments()) {
+                    const found = comment.value.match(AI_SYMBOL_RE)
+                    if (!found) continue
+                    const symbol = found[0]
+                    context.report({
+                        node: comment,
+                        messageId: "symbol",
+                        data: {
+                            symbol,
+                            ascii: AI_SYMBOLS[symbol],
+                        },
+                        fix(fixer) {
+                            const raw = sourceCode.getText().slice(comment.range[0],
+                                comment.range[1])
+                            return fixer.replaceTextRange(
+                                comment.range,
+                                raw.replace(AI_SYMBOL_RE, (ch) => AI_SYMBOLS[ch]),
+                            )
+                        },
+                    })
+                }
+            },
+        }
+    },
+}
+
 export default {
     meta: { name: "eslint-plugin-starci-be", version: "0.1.0" },
     rules: {
+        "no-ai-symbol": noAiSymbol,
         "no-vietnamese": noVietnamese,
         "no-emoji": noEmoji,
         "require-exception-object-arg": requireExceptionObjectArg,

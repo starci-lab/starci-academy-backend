@@ -13,15 +13,15 @@ import {
 
 @Entity("league_cohort_points_projections")
 /**
- * CQRS projection of a league cohort's ranked week-points board — ONE ROW PER
+ * CQRS projection of a league cohort's ranked week-points board -- ONE ROW PER
  * cohort. The inherited jsonb `value` holds `{ members: [{ userId, username,
- * avatar, weekPoints }] }` (ordered best → worst), recomputed from the
+ * avatar, weekPoints }] }` (ordered best -> worst), recomputed from the
  * `SUM(xp_histories.points)` GROUP BY inside the cohort's week window (the heavy
  * aggregate runs only in the projection's recompute, never inline at read time).
  * Read with a TTL lazy-refresh; kept fresh by CDC on `xp_histories`.
  */
 export class LeagueCohortPointsProjectionEntity extends AbstractProjectionEntity {
-    /** Target cohort id — the natural (primary) key. */
+    /** Target cohort id -- the natural (primary) key. */
     @PrimaryColumn({
         name: "cohort_id",
         type: "uuid",

@@ -63,7 +63,7 @@ export class AddToCartHandler
             user,
         } = command.params
 
-        // reject unauthenticated callers up front — cart rows are per-user
+        // reject unauthenticated callers up front -- cart rows are per-user
         if (!user) {
             throw new UserNotFoundException({
             })
@@ -73,7 +73,7 @@ export class AddToCartHandler
             courseId,
         } = request
 
-        // the course must exist before it can be carted — guards against stale/forged ids
+        // the course must exist before it can be carted -- guards against stale/forged ids
         const courseExists = await this.entityManager.exists(
             CourseEntity,
             {
@@ -88,7 +88,7 @@ export class AddToCartHandler
             })
         }
 
-        // a course the user already OWNS must not be carted — real enrollment (paid)
+        // a course the user already OWNS must not be carted -- real enrollment (paid)
         // only, so a trial/preview row (is_enrolled = false) still allows adding to cart
         const alreadyEnrolled = await this.entityManager.exists(
             EnrollmentEntity,
@@ -111,7 +111,7 @@ export class AddToCartHandler
             })
         }
 
-        // idempotent add: if the (user, course) row already exists, return it as-is —
+        // idempotent add: if the (user, course) row already exists, return it as-is --
         // creating a second one would violate UQ_cart_items_user_course
         const existing = await this.entityManager.findOne(
             CartItemEntity,
@@ -130,7 +130,7 @@ export class AddToCartHandler
             return existing
         }
 
-        // no row yet → build a fresh cart entry linked to the user and course by relation
+        // no row yet -> build a fresh cart entry linked to the user and course by relation
         const cartItem = this.entityManager.create(
             CartItemEntity,
             {

@@ -23,6 +23,6 @@ import {
 })
 /**
  * Wires the public `jobPosting` detail query (by display id, employer
- * company resolved). No auth — mirrors the headhunting company directory.
+ * company resolved). No auth -- mirrors the headhunting company directory.
  */
 export class JobPostingSingleQueryModule extends ConfigurableModuleClass {}

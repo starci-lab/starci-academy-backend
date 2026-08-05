@@ -16,7 +16,7 @@ export interface ElasticsearchIndexConfigMissingExceptionMetadata extends Abstra
 
 /**
  * Thrown when {@link ElasticsearchService.indicateName} is called for an
- * entity that has no entry in `configMap` — a new synced entity was added
+ * entity that has no entry in `configMap` -- a new synced entity was added
  * without registering its index config.
  */
 export class ElasticsearchIndexConfigMissingException extends AbstractException {

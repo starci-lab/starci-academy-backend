@@ -124,7 +124,7 @@ export class MyInProgressMockInterviewSessionTurnItem {
     description: "The learner's most recent resumable mock-interview session for one course.",
 })
 /**
- * The learner's most recent RESUMABLE mock-interview session for one course —
+ * The learner's most recent RESUMABLE mock-interview session for one course --
  * "resume mock interview session" (2026-07-08). The query itself resolves to
  * `null` (not this type) when there is none.
  */
@@ -251,7 +251,7 @@ export class MyInProgressMockInterviewSessionData {
 })
 /**
      * ISO timestamp of the session's 1-hour ask-loop deadline (`createdAt` +
-     * 1h) — a RESUMED session's countdown reflects the TRUE remaining time
+     * 1h) -- a RESUMED session's countdown reflects the TRUE remaining time
      * (anchored to the original draw), never a freshly-reset hour.
      */
 export class MyInProgressMockInterviewSessionResponse

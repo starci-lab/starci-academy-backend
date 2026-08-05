@@ -62,21 +62,21 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the content-AI READ surface — `contentAiSessions` (list) and
- * `contentAiSessionMessages` (saved turns) — over REAL HTTP + REAL Postgres
+ * e2e for the content-AI READ surface -- `contentAiSessions` (list) and
+ * `contentAiSessionMessages` (saved turns) -- over REAL HTTP + REAL Postgres
  * (Testcontainers). `content-ai-session.e2e-spec.ts` covers the mutations
  * (create/delete/rename/archive/touch) and the write-side IDOR regression;
  * this file is the matching read-side coverage neither that spec nor
  * `content-ai-entitlement.e2e-spec.ts` exercises.
  *
- * MOCKED: nothing outbound — both queries are pure Postgres reads
+ * MOCKED: nothing outbound -- both queries are pure Postgres reads
  * (`ContentAiService.sessions` / `loadSessionMessages`), no S3/RAG/model call
  * on this path.
  *
  * REAL: Postgres (Testcontainers), `ContentAiService` (the exact read methods
  * under test), `UserService`, the full GraphQL/Apollo wiring
  * (`ApolloServerModule`) and `GraphQLTransformInterceptor`, and
- * `KeycloakAuthGraphQLGuard` — overridden only to stamp `request.user` with
+ * `KeycloakAuthGraphQLGuard` -- overridden only to stamp `request.user` with
  * whichever fake user the test "logs in" as (no Keycloak server here).
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -101,12 +101,12 @@ describe("Content-AI read queries — contentAiSessions / contentAiSessionMessag
             },
         }
 
-        /** Fixture ids shared by every test (seeded once — read-only material). */
+        /** Fixture ids shared by every test (seeded once -- read-only material). */
         let course: CourseEntity
         let content: ContentEntity
 
         // ContentAiService's constructor deps beyond the entityManager/UserService
-        // under test here — neither read query (`sessions` / `loadSessionMessages`)
+        // under test here -- neither read query (`sessions` / `loadSessionMessages`)
         // touches S3 or RAG, but Nest still needs these to resolve at compile time.
         const s3ReadServiceMock = {
             json: jest.fn(),
@@ -115,7 +115,7 @@ describe("Content-AI read queries — contentAiSessions / contentAiSessionMessag
             retrieveContentExcerpt: jest.fn(),
             retrieveCourseExcerpt: jest.fn(),
         }
-        // UserService.checkEnrollment's only cache layer — always miss, so the
+        // UserService.checkEnrollment's only cache layer -- always miss, so the
         // ownership scoping hits real Postgres every time
         const cacheServiceMock = {
             get: jest.fn().mockResolvedValue(undefined),
@@ -181,18 +181,18 @@ describe("Content-AI read queries — contentAiSessions / contentAiSessionMessag
                     }),
                 ],
                 providers: [
-                    // REAL — the two query resolvers under test
+                    // REAL -- the two query resolvers under test
                     ContentAiSessionsResolver,
                     ContentAiHistoryResolver,
-                    // REAL — sessions()/loadSessionMessages() run real SQL
+                    // REAL -- sessions()/loadSessionMessages() run real SQL
                     ContentAiService,
-                    // REAL — resolveEnrollmentId/checkEnrollment run real SQL
+                    // REAL -- resolveEnrollmentId/checkEnrollment run real SQL
                     UserService,
                     {
                         provide: S3ReadService,
                         useValue: s3ReadServiceMock,
                     },
-                    // real class, no external deps — safe to use as-is
+                    // real class, no external deps -- safe to use as-is
                     S3NameResolverService,
                     {
                         provide: CourseRagRetrievalService,
@@ -215,7 +215,7 @@ describe("Content-AI read queries — contentAiSessions / contentAiSessionMessag
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
 
-            // seed the read-only course/content fixtures ONCE — only users/
+            // seed the read-only course/content fixtures ONCE -- only users/
             // enrollments/sessions/messages are reset between tests (see afterEach)
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -339,7 +339,7 @@ describe("Content-AI read queries — contentAiSessions / contentAiSessionMessag
                             enrollment,
                             "assistant",
                             "A closure is...")
-                        // bump recency so `newer` sorts first — updated_at defaults to
+                        // bump recency so `newer` sorts first -- updated_at defaults to
                         // creation time otherwise indistinguishable within the same tick
                         await entityManager.query(
                             "UPDATE content_ai_sessions SET updated_at = now() - interval '1 hour' WHERE id = $1",
@@ -388,7 +388,7 @@ describe("Content-AI read queries — contentAiSessions / contentAiSessionMessag
                         currentUser = user
 
                         // created via the real service, exactly like createContentAiSession
-                        // would — no messages ever saved on it
+                        // would -- no messages ever saved on it
                         await entityManager.save(
                             entityManager.create(ContentAiSessionEntity,
                                 {
@@ -506,7 +506,7 @@ describe("Content-AI read queries — contentAiSessions / contentAiSessionMessag
                         expect(body.success).toBe(true)
                         expect(body.data.messages).toEqual([])
 
-                        // the owner still sees the real turns — proves the empty result
+                        // the owner still sees the real turns -- proves the empty result
                         // above is the ownership gate, not data loss
                         currentUser = owner
                         const ownerResponse = await gql(MESSAGES_QUERY,

@@ -16,7 +16,7 @@ import type {
 
 @Injectable()
 /**
- * Classifies candidates into a {@link CvVerificationLevel} — a recruiter TRUST
+ * Classifies candidates into a {@link CvVerificationLevel} -- a recruiter TRUST
  * signal tied to REAL, graded StarCi work (never to payment or CV count). A
  * strong external developer who only uploaded a CV is `SelfReported`; graded
  * challenge work is `ActivityBacked`; a passed capstone is `CapstoneVerified`.
@@ -25,7 +25,7 @@ import type {
  * to badge candidates and break depth ties (verified above self-reported).
  * Deliberately does NOT touch the CV-score contact gate
  * ({@link import("./consultant-contact-gate.service").ConsultantContactGateService})
- * — this is an additive trust tier, not a new access lock.
+ * -- this is an additive trust tier, not a new access lock.
  */
 export class CvVerificationService {
     constructor(
@@ -39,7 +39,7 @@ export class CvVerificationService {
      * marketplace can classify a whole candidate page in two queries.
      *
      * @param params - {@link ResolveCvVerificationLevelsParams}
-     * @returns a map of `userId → level`; every requested user is present (defaults to `SelfReported`).
+     * @returns a map of `userId -> level`; every requested user is present (defaults to `SelfReported`).
      *
      * @example
      * const levels = await service.resolveLevels({ userIds })
@@ -50,12 +50,12 @@ export class CvVerificationService {
             userIds,
         }: ResolveCvVerificationLevelsParams,
     ): Promise<Map<string, CvVerificationLevel>> {
-        // empty batch → nothing to classify, skip the DB round-trips
+        // empty batch -> nothing to classify, skip the DB round-trips
         if (userIds.length === 0) {
             return new Map()
         }
 
-        // two existence probes over the whole batch in parallel — each returns
+        // two existence probes over the whole batch in parallel -- each returns
         // the DISTINCT set of user ids that HAVE that class of graded StarCi work
         const [
             capstoneRows,
@@ -70,7 +70,7 @@ export class CvVerificationService {
         const challengeUserIds = new Set(challengeRows.map((row) => row.user_id))
 
         // classify every REQUESTED user (not just the ones with a row) so callers
-        // always get a level back — absent from both sets means self-reported
+        // always get a level back -- absent from both sets means self-reported
         const levels = new Map<string, CvVerificationLevel>()
         userIds.forEach((userId) => {
             // a passed capstone/milestone task is the strongest proof of real project work
@@ -85,7 +85,7 @@ export class CvVerificationService {
                     CvVerificationLevel.ActivityBacked)
                 return
             }
-            // no graded StarCi work at all → the CV stands on self-reported claims only
+            // no graded StarCi work at all -> the CV stands on self-reported claims only
             levels.set(userId,
                 CvVerificationLevel.SelfReported)
         })
@@ -109,11 +109,11 @@ export class CvVerificationService {
     }
 
     /**
-     * Deterministic "CV trust score" for a level — REPLACES the old AI-judged
+     * Deterministic "CV trust score" for a level -- REPLACES the old AI-judged
      * `cv_generations.score` rubric everywhere that number gated something
      * (recruiter contact, job-readiness). No AI, no CV prose involved: a pure
      * function of the existence-checked signal, so it is count-independent and
-     * payment-independent by construction — a learner with 1 enrollment who
+     * payment-independent by construction -- a learner with 1 enrollment who
      * passed a capstone scores identically to one with 5 enrollments who also
      * passed one, and nothing here can be inflated by writing more into a CV
      * (there is no CV text in this computation at all).
@@ -123,14 +123,14 @@ export class CvVerificationService {
      * `ActivityBacked` learner (graded challenges but no capstone) scores 0
      * like `SelfReported`: challenges are practice exercises that never go on
      * the CV, so they must not silently unlock a recruiter's contact details
-     * either — "a recruiter trusts a real capstone project, not a pile of
+     * either -- "a recruiter trusts a real capstone project, not a pile of
      * graded exercises". The 3-level classification is still kept for the
      * marketplace tie-break ({@link rankOf}); it just no longer feeds the gate.
      *
      * CAUTION: the step value (100) and the downstream unlock threshold
      * ({@link import("./constants").CV_SCORE_UNLOCK_THRESHOLD}) are a
-     * placeholder pending calibration — deliberately NOT tuned yet (2026-07-05:
-     * "khoan check điểm thật đã, check điểm cv để fair cho mọi người trước").
+     * placeholder pending calibration -- deliberately NOT tuned yet (2026-07-05:
+     * PO: defer real score checks; gate on CV score first so everyone is treated fairly).
      * Fairness of the FORMULA is what's locked here; the THRESHOLD is not.
      *
      * @param level - the verification level to score.
@@ -140,7 +140,7 @@ export class CvVerificationService {
         switch (level) {
         case CvVerificationLevel.CapstoneVerified:
             return 100
-        // challenges (activity-backed) do NOT count toward the CV/gate score —
+        // challenges (activity-backed) do NOT count toward the CV/gate score --
         // only a real passed capstone does; treated the same as self-reported
         case CvVerificationLevel.ActivityBacked:
         case CvVerificationLevel.SelfReported:
@@ -149,7 +149,7 @@ export class CvVerificationService {
     }
 
     /**
-     * Sort rank of a level — higher = stronger StarCi proof. Lets the marketplace
+     * Sort rank of a level -- higher = stronger StarCi proof. Lets the marketplace
      * break equal-depth ties by surfacing verified candidates above self-reported
      * ones without importing the enum's ordering into another module.
      *
@@ -169,11 +169,11 @@ export class CvVerificationService {
     }
 
     /**
-     * Same classification as {@link resolveLevel}, but scoped to ONE course —
+     * Same classification as {@link resolveLevel}, but scoped to ONE course --
      * "did this learner pass a capstone / get a challenge graded IN THIS
      * course's enrollment", not anywhere on the platform. Powers the
      * per-track CV pillar ({@link import("../../../features/api/core/graphql/queries/users/job-readiness/job-readiness.service").JobReadinessService}),
-     * which is per-course by design — reusing the platform-wide
+     * which is per-course by design -- reusing the platform-wide
      * {@link resolveLevel} there would let 1 unrelated capstone in ANOTHER
      * course inflate THIS track's depth, which is exactly the count/cross-track
      * leak the fair-monetization axiom forbids. Existence-checked (not summed)
@@ -233,14 +233,14 @@ export class CvVerificationService {
     }
 
     /**
-     * Distinct users with ≥1 PASSED capstone/milestone task attempt, reached via
+     * Distinct users with >=1 PASSED capstone/milestone task attempt, reached via
      * their enrollments. A passed capstone is the strongest verification signal.
      *
      * @param userIds - the candidate batch's user ids.
      * @returns one row per qualifying user id.
      */
     private async loadUsersWithPassedCapstone(userIds: Array<string>): Promise<Array<CvVerificationUserIdRow>> {
-        // join enrollments → user_milestone_tasks → attempts, keep only passed
+        // join enrollments -> user_milestone_tasks -> attempts, keep only passed
         // attempts, and collapse to one distinct user_id per qualifying user
         return this.entityManager.query<Array<CvVerificationUserIdRow>>(
             `
@@ -257,9 +257,9 @@ export class CvVerificationService {
     }
 
     /**
-     * Distinct users with ≥1 AI-graded challenge submission attempt. A non-null
+     * Distinct users with >=1 AI-graded challenge submission attempt. A non-null
      * `score` means the attempt was actually processed/graded (regardless of
-     * pass/fail) — proof the user did + submitted real hands-on StarCi work,
+     * pass/fail) -- proof the user did + submitted real hands-on StarCi work,
      * unlike a bare uploaded CV. (Challenge attempts carry no `passed` boolean,
      * so "graded" is the cleanest available signal.)
      *
@@ -267,7 +267,7 @@ export class CvVerificationService {
      * @returns one row per qualifying user id.
      */
     private async loadUsersWithGradedChallenge(userIds: Array<string>): Promise<Array<CvVerificationUserIdRow>> {
-        // join submissions → attempts, keep only scored (graded) attempts, and
+        // join submissions -> attempts, keep only scored (graded) attempts, and
         // collapse to one distinct user_id per qualifying user
         return this.entityManager.query<Array<CvVerificationUserIdRow>>(
             `

@@ -391,7 +391,7 @@ describe("MergeJsonService",
                                 {
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Định nghĩa interface Store + hai implementation và một dynamic module forRoot(options)",
+                                    value: "Định nghĩa interface Store + hai implementation và một dynamic module forRoot(options)", // vn-ok: vi-locale seed fixture assertion
                                 },
                                 {
                                     locale: Locale.En,
@@ -425,7 +425,7 @@ describe("MergeJsonService",
                                 {
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Khởi tạo project và định nghĩa interface Store + hai impl",
+                                    value: "Khởi tạo project và định nghĩa interface Store + hai impl", // vn-ok: vi-locale seed fixture assertion
                                 },
                             ]),
                         )
@@ -440,7 +440,7 @@ describe("MergeJsonService",
                                 {
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Hoán đổi implementation qua DI và cấu hình lúc compose",
+                                    value: "Hoán đổi implementation qua DI và cấu hình lúc compose", // vn-ok: vi-locale seed fixture assertion
                                 },
                             ]),
                         )

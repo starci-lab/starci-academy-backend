@@ -18,7 +18,7 @@ export interface RewardRedemptionNotFulfillableExceptionMetadata extends Abstrac
 
 /**
  * Thrown when `fulfillRedemption` targets a redemption that isn't currently
- * `pending` — a digital reward that's already `granted`, or a physical
+ * `pending` -- a digital reward that's already `granted`, or a physical
  * redemption already `fulfilled`/`cancelled`. Only a pending physical
  * redemption has a fulfilment step.
  */

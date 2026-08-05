@@ -32,7 +32,7 @@ export class ChallengeSubmissionCriteriaIdFactoryService {
     ) { }
 
     /**
-     * Generates the deterministic UUID for one (submission × kind × language) rubric bucket.
+     * Generates the deterministic UUID for one (submission x kind x language) rubric bucket.
      *
      * @param params - Parent submission ordinals + rubric `kind` + programming-language bucket index.
      * @returns Stable UUID v5 derived from the parent submission id, the kind, and the language index.
@@ -69,7 +69,7 @@ export class ChallengeSubmissionCriteriaIdFactoryService {
     }
 
     /**
-     * Generates the deterministic UUID for one (criterion × programming-language) prose row.
+     * Generates the deterministic UUID for one (criterion x programming-language) prose row.
      *
      * @param params - Criterion params + the programming-language variant index.
      * @returns Stable UUID v5 derived from the parent criterion id and the language index.

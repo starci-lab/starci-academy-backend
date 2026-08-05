@@ -1,5 +1,5 @@
 /**
- * Row-count snapshot for the playground seed test — one field per table touched
+ * Row-count snapshot for the playground seed test -- one field per table touched
  * by {@link import("../playground-seed-test.command").PlaygroundSeedTestCommand}.
  */
 export interface PlaygroundSeedTestRowCounts {

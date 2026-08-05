@@ -7,7 +7,7 @@ import {
 } from "@modules/exceptions"
 
 /**
- * Drops the three AI Lab Playground tables — the prompt-sandbox lesson
+ * Drops the three AI Lab Playground tables -- the prompt-sandbox lesson
  * surface that sat alongside (but was distinct from) the already-removed AI
  * Lab eval feature (see `DropAiLabEvalTables1726100000000`, which left these
  * three tables "intentionally untouched" at the time). The whole AI Lab
@@ -16,13 +16,13 @@ import {
  * the codebase, so these tables are dropped here too.
  *
  * Tables dropped (children before parent to respect FK constraints):
- * - `ai_lab_playground_translations` — localized label/description overrides (FK → playgrounds)
- * - `ai_lab_runs`                    — one learner playground run / run-cache cold store (FK → playgrounds, users)
- * - `ai_lab_playgrounds`             — the playground definition attached to a lesson content, the parent
+ * - `ai_lab_playground_translations` -- localized label/description overrides (FK -> playgrounds)
+ * - `ai_lab_runs`                    -- one learner playground run / run-cache cold store (FK -> playgrounds, users)
+ * - `ai_lab_playgrounds`             -- the playground definition attached to a lesson content, the parent
  *
  * The `ai_lab_playground_kind` and `ai_lab_run_status` enum types (and the
  * `openrouter` value on the unrelated, still-live `model_provider` enum) are
- * intentionally left in place — Postgres enum types are cheap to leave
+ * intentionally left in place -- Postgres enum types are cheap to leave
  * orphaned, and this mirrors the same choice made by
  * `DropAiLabEvalTables1726100000000` for its own enum columns.
  *
@@ -59,7 +59,7 @@ export class DropAiLabPlaygroundTables1726400000000 implements MigrationInterfac
      * every playground definition and learner run.
      *
      * @param _queryRunner - Active TypeORM query runner (unused).
-     * @throws Always — this migration is not reversible.
+     * @throws Always -- this migration is not reversible.
      */
     async down(_queryRunner: QueryRunner): Promise<void> {
         throw new IrreversibleMigrationException({

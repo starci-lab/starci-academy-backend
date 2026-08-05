@@ -25,10 +25,10 @@ import {
  * request context and (optionally) fires side-effect events.
  *
  * Canonical example of the clean CQRS pattern used across the API:
- *   - `extends ICQRSHandler<Query, Response>` — inherits the
+ *   - `extends ICQRSHandler<Query, Response>` -- inherits the
  *     validate/process/emit lifecycle.
  *   - `implements IQueryHandler<Query, Response>` + `@QueryHandler`
- *     decorator — registers the handler with `@nestjs/cqrs`.
+ *     decorator -- registers the handler with `@nestjs/cqrs`.
  *   - The query/command is passed via `execute(query)` (NOT the
  *     constructor). Only true dependencies are injected.
  */

@@ -16,7 +16,7 @@ export interface ToolsTargetReferenceInvalidExceptionMetadata extends AbstractEx
 /**
  * Thrown by the `apps/tools` ops console (DASH, media, upload, pg-backup) when
  * a `targetIds` entry on a processing request does not match a saved S3 target
- * — a validation error on the caller's input, not a resource lookup.
+ * -- a validation error on the caller's input, not a resource lookup.
  */
 export class ToolsTargetReferenceInvalidException extends AbstractException {
     constructor(

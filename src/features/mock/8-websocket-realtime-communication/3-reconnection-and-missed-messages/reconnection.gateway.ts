@@ -26,7 +26,7 @@ import type {
  * Hosted on namespace `/8-websocket-realtime-communication/3-reconnection-and-missed-messages`.
  * Every message gets a monotonic per-room seq and lands in a ring buffer. A
  * client that drops and reconnects emits `replay-since` with its last seen seq
- * and the server returns exactly the messages it missed — no auth, this lesson
+ * and the server returns exactly the messages it missed -- no auth, this lesson
  * is purely about reconnection + replay.
  */
 export class ReconnectionGateway {

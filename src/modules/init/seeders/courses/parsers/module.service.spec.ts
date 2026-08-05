@@ -101,7 +101,7 @@ describe("ModuleParserService",
                     },
                     {
                         // parse() never touches the DB, but the parser injects the primary
-                        // entity manager (used by modulesFromDatabase) → DI needs it
+                        // entity manager (used by modulesFromDatabase) -> DI needs it
                         provide: getEntityManagerToken("primary"),
                         useValue: makeEntityManagerMock(),
                     },
@@ -157,7 +157,7 @@ describe("ModuleParserService",
                                     locale: Locale.Vi,
                                     field: "title",
                                     value:
-                                        "Nền tảng backend: Framework, vòng đời request, cấu hình và logging",
+                                        "Nền tảng backend: Framework, vòng đời request, cấu hình và logging", // vn-ok: vi-locale seed fixture assertion
                                 }),
                             ]),
                         )

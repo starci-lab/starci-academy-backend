@@ -30,11 +30,11 @@ import {
 
 @Resolver()
 /**
- * Ops mutation: void a reward redemption — sets it `cancelled`. The
+ * Ops mutation: void a reward redemption -- sets it `cancelled`. The
  * spendable-balance derivation (`RewardsService.computeSpent`) EXCLUDES
  * `cancelled` rows from the spent sum, so this status flip alone IS the
  * refund; `user.coin_balance` is never touched (no separate credit is issued,
- * so there is no double-refund). Admin-only — gated behind the
+ * so there is no double-refund). Admin-only -- gated behind the
  * `x-admin-api-key` header (same {@link GraphQLAdminAccessGuard} as the other
  * operator-only surfaces), NOT the learner auth guard, since this mutates
  * another user's redemption.

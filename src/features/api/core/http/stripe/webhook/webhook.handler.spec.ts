@@ -71,7 +71,7 @@ const WEBHOOK_PARAMS = {
 /**
  * Build a Stripe checkout.session.completed event with the given reference id
  * on the session object. Pass `referenceId: null` to model a missing id.
- * `payment_status` defaults to "paid" — the handler ignores any completed
+ * `payment_status` defaults to "paid" -- the handler ignores any completed
  * session whose funds have not cleared yet (e.g. a pending async payment).
  */
 const buildCompletedEvent = (
@@ -102,7 +102,7 @@ const buildTransaction = (
     actionType: ActionType.Enroll,
     courseId: "course-1",
     aiSubTier: null,
-    // created just now → never trips the stale-transaction guard
+    // created just now -> never trips the stale-transaction guard
     createdAt: new Date(),
     ...overrides,
 })
@@ -130,7 +130,7 @@ describe("StripeWebhookHandler",
                 },
             }
 
-            // enroll worker hand-off — assert it is enqueued on the Enroll path;
+            // enroll worker hand-off -- assert it is enqueued on the Enroll path;
             // default resolves a successful single-course fan-out
             enqueueEnrollJobService = {
                 enqueueForTransaction: jest.fn().mockResolvedValue({
@@ -138,23 +138,23 @@ describe("StripeWebhookHandler",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
 
-            // entitlement grant — assert it fires on the subscription path
+            // entitlement grant -- assert it fires on the subscription path
             aiEntitlementService = {
                 grantTier: jest.fn(),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
 
-            // community membership grant — not exercised by the Enroll/AiSubscription
+            // community membership grant -- not exercised by the Enroll/AiSubscription
             // paths under test, but required by the handler's constructor
             membershipService = {
                 grantMembership: jest.fn(),
             } as unknown as jest.Mocked<Pick<MembershipService, "grantMembership">>
 
-            // best-effort post-grant email — only fires when a grant actually happens
+            // best-effort post-grant email -- only fires when a grant actually happens
             enqueueSendMailJobService = {
                 enqueue: jest.fn(),
             } as unknown as jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
 
-            // best-effort post-grant in-app notification — same as above
+            // best-effort post-grant in-app notification -- same as above
             notificationService = {
                 createNotification: jest.fn(),
             } as unknown as jest.Mocked<Pick<NotificationService, "createNotification">>
@@ -162,7 +162,7 @@ describe("StripeWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     StripeWebhookHandler,
-                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {
                         provide: STRIPE,
@@ -252,7 +252,7 @@ describe("StripeWebhookHandler",
 
         it("rejects a bad signature without touching the DB",
             async () => {
-                // constructEvent throws on a signature mismatch — a raw Stripe SDK
+                // constructEvent throws on a signature mismatch -- a raw Stripe SDK
                 // failure that propagates unwrapped (the handler does not catch it)
                 const signatureError = new Error("Webhook signature verification failed")
                 stripe.webhooks.constructEvent.mockImplementationOnce(() => {
@@ -273,7 +273,7 @@ describe("StripeWebhookHandler",
 
         it("ignores non-completion event types without side effects",
             async () => {
-                // a refund event is not a paid checkout → handler returns early
+                // a refund event is not a paid checkout -> handler returns early
                 stripe.webhooks.constructEvent.mockReturnValueOnce({
                     type: "charge.refunded",
                     data: {
@@ -286,7 +286,7 @@ describe("StripeWebhookHandler",
                     new StripeWebhookCommand(WEBHOOK_PARAMS),
                 )
 
-                // early return → no lookup, no grant, no enqueue
+                // early return -> no lookup, no grant, no enqueue
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
                 expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
@@ -294,7 +294,7 @@ describe("StripeWebhookHandler",
 
         it("throws when the session omits our reference id",
             async () => {
-                // completed session without client_reference_id → cannot match
+                // completed session without client_reference_id -> cannot match
                 stripe.webhooks.constructEvent.mockReturnValueOnce(
                     buildCompletedEvent(null),
                 )
@@ -310,7 +310,7 @@ describe("StripeWebhookHandler",
 
         it("throws when no pending transaction matches the reference id",
             async () => {
-                // findOne default resolves null → no pending row
+                // findOne default resolves null -> no pending row
                 await expect(
                     handler.execute(
                         new StripeWebhookCommand(WEBHOOK_PARAMS),
@@ -343,7 +343,7 @@ describe("StripeWebhookHandler",
 
         it("rejects an enrollment event that carries no course",
             async () => {
-                // enrollment transaction missing its courseId — the fan-out service
+                // enrollment transaction missing its courseId -- the fan-out service
                 // (mocked here) resolves this to zero enqueued jobs
                 entityManager.findOne.mockResolvedValueOnce(
                     buildTransaction({

@@ -117,7 +117,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
     }
 
     /**
-     * Execute the grade step: fetch doc text → similarity search on criteria → LLM grades each criterion.
+     * Execute the grade step: fetch doc text -> similarity search on criteria -> LLM grades each criterion.
      */
     private async execute(
         context: JobExtendedContext<
@@ -137,7 +137,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         const challenge = context.extended?.challenge
         const challengeTitle = (challenge?.title ?? "").trim()
         // outcome + approach criteria of the SPECIFIC submission being graded, resolved to the
-        // learner's chosen programming language (per-submission, per-language — not challenge-level)
+        // learner's chosen programming language (per-submission, per-language -- not challenge-level)
         const criteria = collectSubmissionCriteria(
             context.extended?.challengeSubmission,
             payload.lang,
@@ -153,7 +153,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             },
         )
 
-        /** ONE high-level RAG call owns chunk → embed → retrieve; the worker only gathers
+        /** ONE high-level RAG call owns chunk -> embed -> retrieve; the worker only gathers
             the source text + criteria. The run namespace (submission + fencing token) isolates
             a stalled re-dispatch from corrupting the live owner's vectors mid-search. */
         const gradingCfg = envConfig().services.githubWorker.processGitSubmission
@@ -185,13 +185,13 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         const maxScore = criteria.reduce((sum, criterion) => sum + criterion.score,
             0)
 
-        // CACHE INVARIANT — do NOT interpolate anything submission-specific here.
+        // CACHE INVARIANT -- do NOT interpolate anything submission-specific here.
         // The provider caches this prompt by its exact prefix and re-prices repeat
         // reads at a fraction (see creditForRun's cachedTokens path). Every value
         // below is challenge-level (title, maxScore, language), so all submissions
         // of one challenge share the cached prefix. Splicing in the learner's name,
         // an id, or a timestamp would make every call a unique prefix and kill the
-        // discount silently — no error, just a bigger bill. Submission content
+        // discount silently -- no error, just a bigger bill. Submission content
         // belongs in the HumanMessage, which follows this.
         const systemText = [
             `You are a strict, experienced reviewer grading a learner's submitted document for the challenge: "${challengeTitle}".`,
@@ -254,7 +254,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             userId: enrollment.userId,
         })
         // ONE shared entry: TEXT grading (googleDocs submission = design-doc / write-up)
-        // floors at Economy — eval showed Economy models grade text/reading tasks
+        // floors at Economy -- eval showed Economy models grade text/reading tasks
         // correctly (right score ordering, no length bias). Only CODE grading
         // (githubUrl + capstone) needs the higher Balanced floor. Climbs to ceiling.
         const {
@@ -272,7 +272,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             cacheSessionId: challenge?.id,
         })
 
-        // Charge for the LLM usage NOW (idempotently), BEFORE parsing — a parse failure must not
+        // Charge for the LLM usage NOW (idempotently), BEFORE parsing -- a parse failure must not
         // leak free usage. The `creditCharged` marker keeps a stalled re-run from double-charging,
         // and the complete step skips its own debit when this marker is present.
         const alreadyCharged = await this.jobActionService.loadExecutionResult<boolean>({

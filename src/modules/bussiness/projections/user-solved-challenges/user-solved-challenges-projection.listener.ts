@@ -30,14 +30,14 @@ import type {
 
 @Injectable()
 /**
- * CDC consumer that keeps `user_solved_challenges_projections` fresh — a new
+ * CDC consumer that keeps `user_solved_challenges_projections` fresh -- a new
  * challenge-submission attempt rebuilds the owner's solved-challenges aggregate.
  * The attempts row carries only `user_challenge_submission_id`, so the owning
  * user id is resolved via `user_challenge_submissions`. TTL lazy-refresh is the
  * fallback.
  */
 export class UserSolvedChallengesProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "user-solved-challenges-projection"
 
     /** Challenge-submission attempts move the owner's solved-challenges aggregate. */
@@ -59,7 +59,7 @@ export class UserSolvedChallengesProjectionListener extends AbstractProjectionLi
 
     /**
      * Resolve the owning user id from the attempt's `user_challenge_submission_id`.
-     * Returns 0–1 user ids.
+     * Returns 0-1 user ids.
      *
      * @param message - {@link ProjectionCdcMessage}
      * @returns the affected user id(s).
@@ -73,7 +73,7 @@ export class UserSolvedChallengesProjectionListener extends AbstractProjectionLi
         if (!attemptRow.user_challenge_submission_id) {
             return []
         }
-        // the attempts table has no user_id → look up the owning submission
+        // the attempts table has no user_id -> look up the owning submission
         const found = await this.entityManager.query<Array<SolvedSubmissionUserIdRow>>(
             `
             SELECT user_id

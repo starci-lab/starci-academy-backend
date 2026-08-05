@@ -182,7 +182,7 @@ describe("SessionService",
 
                 it("adds without eviction when below the device limit",
                     async () => {
-                        // only one existing device → still room for one more
+                        // only one existing device -> still room for one more
                         redis.hgetall.mockResolvedValue({
                             "only-session": JSON.stringify({
                                 sessionId: "only-session",
@@ -246,7 +246,7 @@ describe("SessionService",
 
                 it("fails open when no managed session exists",
                     async () => {
-                        // empty hash → nothing to enforce (rollout safety)
+                        // empty hash -> nothing to enforce (rollout safety)
                         redis.hlen.mockResolvedValue(0)
 
                         await expect(

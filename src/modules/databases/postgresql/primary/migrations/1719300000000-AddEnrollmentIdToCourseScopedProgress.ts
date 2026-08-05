@@ -5,8 +5,8 @@ import {
 
 /**
  * Re-keys the course-scoped progress tables from `user_id` to `enrollment_id`,
- * making "enrollment" (the user × course relationship) the anchor for all
- * per-course progress — mirroring `user_milestone_tasks`, which is already keyed
+ * making "enrollment" (the user x course relationship) the anchor for all
+ * per-course progress -- mirroring `user_milestone_tasks`, which is already keyed
  * by `enrollment_id`.
  *
  * Six tables are affected:
@@ -27,7 +27,7 @@ import {
  *
  * Backfill of `enrollment_id` (including creating trial enrollments for legacy
  * rows) is done by the companion script `scratch/backfill-enrollment-id.sql`,
- * not inside this migration — it depends on derivation joins per table and is
+ * not inside this migration -- it depends on derivation joins per table and is
  * run/verified out of band.
  *
  * The repo runs schema via TypeORM `synchronize` in dev; this migration exists
@@ -43,7 +43,7 @@ export class AddEnrollmentIdToCourseScopedProgress1719300000000 implements Migra
      *
      * `dropUserNotNull` is `false` only for `user_course_progress_projections`,
      * whose `user_id` is part of the composite primary key (user_id, course_id)
-     * and therefore cannot be made nullable without rebuilding the PK — that is
+     * and therefore cannot be made nullable without rebuilding the PK -- that is
      * a separate later phase. The other five get `user_id` relaxed to nullable.
      */
     private readonly tables: ReadonlyArray<{
@@ -74,7 +74,7 @@ export class AddEnrollmentIdToCourseScopedProgress1719300000000 implements Migra
      * Forward migration: for each table add a nullable `enrollment_id uuid` and
      * relax `user_id` to nullable (both idempotent). `user_id` on
      * `user_course_progress_projections` is left NOT NULL because it is a PK
-     * column. No data is moved here — the backfill script populates
+     * column. No data is moved here -- the backfill script populates
      * `enrollment_id` afterwards.
      *
      * @param queryRunner - Active TypeORM query runner bound to the transaction.
@@ -97,7 +97,7 @@ export class AddEnrollmentIdToCourseScopedProgress1719300000000 implements Migra
 
     /**
      * Reverse migration: drop the `enrollment_id` columns (idempotent). The
-     * `user_id` NOT NULL constraint is intentionally NOT re-added — existing
+     * `user_id` NOT NULL constraint is intentionally NOT re-added -- existing
      * rows may legitimately have a null `user_id` once writes switch to
      * `enrollment_id`, and restoring NOT NULL could fail.
      *

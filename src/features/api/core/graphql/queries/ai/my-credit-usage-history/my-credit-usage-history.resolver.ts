@@ -39,7 +39,7 @@ const MAX_LIMIT = 200
 /**
  * Per-user AI credit charge history (newest first), paginated. Source of truth
  * is `credit_usage_histories`, written atomically by
- * {@link AiEntitlementService.consume} alongside the unified pool debit — read
+ * {@link AiEntitlementService.consume} alongside the unified pool debit -- read
  * directly here (not cached) since history is viewed on demand, not on the
  * grading hot path.
  */

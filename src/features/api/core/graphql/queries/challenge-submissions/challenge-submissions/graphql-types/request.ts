@@ -14,11 +14,11 @@ import {
 
 /** Sort fields for listing challenge submissions. */
 export enum ChallengeSubmissionsSortBy {
-    /** Alphabetical by submission display name — browse by title, not recency. */
+    /** Alphabetical by submission display name -- browse by title, not recency. */
     Name = "name",
     /** Default (Asc): oldest first, matching curriculum creation order. */
     CreatedAt = "createdAt",
-    /** Recently mutated submissions first when Desc — stale drafts sink. */
+    /** Recently mutated submissions first when Desc -- stale drafts sink. */
     UpdatedAt = "updatedAt",
 }
 
@@ -64,7 +64,7 @@ export class ChallengeSubmissionsRequestSort extends SortInput<ChallengeSubmissi
     description: "Challenge scope and optional sort (returns all submissions, no pagination).",
 })
 /**
- * Sort-only filters for `challengeSubmissions`. There is no page/limit —
+ * Sort-only filters for `challengeSubmissions`. There is no page/limit --
  * the handler returns every submission on the challenge. Scope lives on
  * {@link ChallengeSubmissionsRequest.challengeId}, not here.
  */

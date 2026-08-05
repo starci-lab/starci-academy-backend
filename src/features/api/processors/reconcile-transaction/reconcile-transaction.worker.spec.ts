@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its base classes are initialised before the
-// worker pulls its deps — dodges a load-order "Class extends value undefined"
+// worker pulls its deps -- dodges a load-order "Class extends value undefined"
 // cycle (mirrors the CV-scoring worker specs).
 import "@modules/bussiness"
 import {
@@ -52,7 +52,7 @@ import {
     ReconcileTransactionWorker,
 } from "./reconcile-transaction.worker"
 
-// the worker calls these three free functions directly (not through DI) — stub
+// the worker calls these three free functions directly (not through DI) -- stub
 // the whole module so a "finalize"/"unpaid" branch never touches the real
 // mailer plumbing (which needs its own deep dependency chain).
 jest.mock("@modules/transactional-email",
@@ -76,7 +76,7 @@ const USER_ID = "user-1"
 
 /**
  * Build a minimal BullMQ job stand-in carrying only the fields the worker reads.
- * `data` is real JSON (not SuperJSON's wire format) — the SuperJSON stub below
+ * `data` is real JSON (not SuperJSON's wire format) -- the SuperJSON stub below
  * just runs it through `JSON.parse`, so the wrapper format is irrelevant here.
  *
  * @param payload - The `{ transactionId, attempt }` poll payload.
@@ -90,7 +90,7 @@ const fakeBullJob = (
     queueName: "reconcile-transaction",
 }) as unknown as Job<string>
 
-/** Build a pending-transaction fixture; override per test (status/paymentType/actionType/…). */
+/** Build a pending-transaction fixture; override per test (status/paymentType/actionType/...). */
 const buildTransaction = (
     overrides: Partial<TransactionEntity> = {
     },
@@ -491,7 +491,7 @@ describe("ReconcileTransactionWorker",
 
                 it("stops polling WITHOUT marking unpaid once a crypto transaction's attempts are exhausted",
                     async () => {
-                        // crypto settles slowly and may clear after the poll budget — never
+                        // crypto settles slowly and may clear after the poll budget -- never
                         // mark it unpaid, or a late IPN could never grant (see worker docblock)
                         const transaction = buildTransaction({
                             paymentType: PaymentType.Crypto,
@@ -575,7 +575,7 @@ describe("ReconcileTransactionWorker",
                             })),
                         ).rejects.toThrow("gateway timed out")
 
-                        // the decision/log step never ran — nothing was decided yet
+                        // the decision/log step never ran -- nothing was decided yet
                         expect(winstonService.log).not.toHaveBeenCalled()
                         expect(transactionActionService.updateTransactionStatusIfExpected).not.toHaveBeenCalled()
                     })

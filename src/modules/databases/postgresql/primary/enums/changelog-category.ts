@@ -6,7 +6,7 @@ import {
 } from "@modules/common"
 
 /**
- * Category of a system changelog entry — drives the colored chip on the FE.
+ * Category of a system changelog entry -- drives the colored chip on the FE.
  */
 export enum ChangelogCategory {
     /** A new feature shipped. */

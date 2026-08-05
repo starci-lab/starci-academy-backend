@@ -38,7 +38,7 @@ export interface ReactionSummaryResult {
     viewCount: number
     /**
      * Number of times this content has been shared.
-     * Reserved — always 0 until share tracking is implemented.
+     * Reserved -- always 0 until share tracking is implemented.
      */
     shareCount: number
 }

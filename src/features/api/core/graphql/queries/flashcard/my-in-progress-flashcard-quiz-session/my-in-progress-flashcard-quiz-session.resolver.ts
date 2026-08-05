@@ -39,8 +39,8 @@ import {
 @Resolver()
 /**
  * The learner's most recent RESUMABLE flashcard quick-quiz session for one
- * course — "resume flashcard quiz session" (2026-07-08) — so the FE can
- * offer "Tiếp tục phiên hỏi nhanh?" instead of forcing a fresh draw. Null
+ * course -- "resume flashcard quiz session" (2026-07-08) -- so the FE can
+ * offer "resume quick-quiz session?" instead of forcing a fresh draw. Null
  * when there is none. Mirrors `myInProgressMockInterviewSession`.
  */
 export class MyInProgressFlashcardQuizSessionResolver {

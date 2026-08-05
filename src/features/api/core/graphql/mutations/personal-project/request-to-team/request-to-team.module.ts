@@ -23,6 +23,6 @@ import {
 })
 /**
  * Registers team-invite as one Nest unit. The service calls the handler
- * directly (no command bus) — keep them registered together.
+ * directly (no command bus) -- keep them registered together.
  */
 export class RequestToTeamSingleMutationModule extends ConfigurableModuleClass {}

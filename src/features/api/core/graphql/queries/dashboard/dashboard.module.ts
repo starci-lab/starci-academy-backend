@@ -112,7 +112,7 @@ import {
     ],
 })
 /**
- * Dashboard query group — logged-in home leaf queries (one resolver per rail
+ * Dashboard query group -- logged-in home leaf queries (one resolver per rail
  * section: courses / learned lessons / in-progress challenges / weekly stats) plus
  * the cursor-paginated feed and the right-rail content (ad banner + changelog).
  */

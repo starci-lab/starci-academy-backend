@@ -8,8 +8,8 @@ import {
  * (WF-03c). For every user, their BEST-scored legacy attempt (`cv_submission_attempts`
  * joined to `cv_submissions`) is copied into `cv_generations` as an
  * `source = 'uploaded'` row, carrying:
- *   - `score`            ← the legacy attempt's `score`
- *   - `uploaded_cdn_key` ← the legacy attempt's `cdn_key` (the uploaded file)
+ *   - `score`            <- the legacy attempt's `score`
+ *   - `uploaded_cdn_key` <- the legacy attempt's `cdn_key` (the uploaded file)
  *   - `mode = 'generate'`, `status = 'done'` (already scored), `course_id = NULL`
  *     (the legacy upload flow was never course-scoped, so there is no track to
  *     attach).
@@ -20,10 +20,10 @@ import {
  * per-track / foundation CV pillars (WF-03c consumers), which read `score`.
  *
  * **Idempotent:** a user is skipped when the unified table already holds an
- * `uploaded` row with the SAME `uploaded_cdn_key` — so re-running the migration
+ * `uploaded` row with the SAME `uploaded_cdn_key` -- so re-running the migration
  * never duplicates a backfilled CV.
  *
- * **Safety:** this migration is ADDITIVE ONLY — it never deletes or mutates any
+ * **Safety:** this migration is ADDITIVE ONLY -- it never deletes or mutates any
  * legacy row. The legacy tables (`cv_submissions` / `cv_submission_attempts`)
  * are retained (no DROP TABLE), but the code no longer reads or writes them:
  * `ConsultantContactGateService.getBestCvScore` and
@@ -94,7 +94,7 @@ export class BackfillLegacyCvIntoUnified1721800000000 implements MigrationInterf
     }
 
     /**
-     * Reverse migration: remove only the rows THIS backfill could have created —
+     * Reverse migration: remove only the rows THIS backfill could have created --
      * `uploaded` CVs whose `uploaded_cdn_key` matches a legacy attempt's
      * `cdn_key`. Bounded to backfilled rows so genuine user uploads (added via
      * the app) are never touched.

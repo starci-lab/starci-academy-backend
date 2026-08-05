@@ -17,6 +17,6 @@ import {
     ],
 })
 /**
- * TOTP module — exposes {@link TotpService} for app-level two-factor auth.
+ * TOTP module -- exposes {@link TotpService} for app-level two-factor auth.
  */
 export class TotpModule extends ConfigurableModuleClass {}

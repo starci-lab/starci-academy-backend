@@ -89,22 +89,22 @@ import {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** CV score a viewer needs to unlock a consultant's direct contact fields — mirrors `CV_SCORE_UNLOCK_THRESHOLD` in `src/modules/bussiness/headhuntings/constants/index.ts` (a passed capstone scores 100, comfortably above it). */
+/** CV score a viewer needs to unlock a consultant's direct contact fields -- mirrors `CV_SCORE_UNLOCK_THRESHOLD` in `src/modules/bussiness/headhuntings/constants/index.ts` (a passed capstone scores 100, comfortably above it). */
 const CV_SCORE_UNLOCK_THRESHOLD = 70
 
 /**
- * e2e for four previously-untested headhuntings/job-readiness READS —
+ * e2e for four previously-untested headhuntings/job-readiness READS --
  * `consultants`, `headhuntingCompanies`, `talentCandidates`, `myJobReadiness`.
  *
- * MOCKED (genuinely external — no Elasticsearch Testcontainer wired into this
+ * MOCKED (genuinely external -- no Elasticsearch Testcontainer wired into this
  * harness, matching how every other spec here mocks a genuinely-external SDK):
- *  - `ElasticsearchService` — `consultants`/`headhuntingCompanies` are ES-backed
+ *  - `ElasticsearchService` -- `consultants`/`headhuntingCompanies` are ES-backed
  *    reads; `client.search` is stubbed to hand back hand-built documents so the
- *    REAL, Postgres-backed logic downstream of the ES hit — the CV-score
+ *    REAL, Postgres-backed logic downstream of the ES hit -- the CV-score
  *    contact gate ({@link ConsultantContactGateService} /
- *    {@link CvVerificationService}) — runs against a real database, never a
+ *    {@link CvVerificationService}) -- runs against a real database, never a
  *    mocked one.
- *  - `KeycloakOptionalAuthGraphQLGuard` / `KeycloakAuthGraphQLGuard` — no
+ *  - `KeycloakOptionalAuthGraphQLGuard` / `KeycloakAuthGraphQLGuard` -- no
  *    Keycloak server here; overridden to stamp `request.user` with whichever
  *    fake user the test "logs in" as (same technique as
  *    `progress-query.e2e-spec.ts`). The REQUIRED guard (myJobReadiness) is
@@ -115,7 +115,7 @@ const CV_SCORE_UNLOCK_THRESHOLD = 70
  * query handlers for `consultants`/`headhuntingCompanies`,
  * {@link ConsultantContactGateService}, {@link CvVerificationService},
  * {@link TalentCandidatesService}, {@link JobReadinessService}, and
- * {@link UserSolvedChallengesProjectionService} — every one of these reads real
+ * {@link UserSolvedChallengesProjectionService} -- every one of these reads real
  * capstone/challenge rows off Postgres to derive its scores/gates.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -137,7 +137,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
             }
         }
 
-        /** Optional auth: never blocks — anonymous viewers still get the (gated) data. */
+        /** Optional auth: never blocks -- anonymous viewers still get the (gated) data. */
         const fakeOptionalAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
                 stampUser(context)
@@ -145,7 +145,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
             },
         }
 
-        /** Required auth: blocks when nobody is "logged in" — the auth-denied non-happy case. */
+        /** Required auth: blocks when nobody is "logged in" -- the auth-denied non-happy case. */
         const fakeRequiredAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
                 if (!currentUser) {
@@ -278,11 +278,11 @@ describe("Headhuntings + job-readiness query reads (e2e)",
                     // myJobReadiness
                     MyJobReadinessResolver,
                     JobReadinessService,
-                    // REAL — Postgres-backed logic shared by every flow above
+                    // REAL -- Postgres-backed logic shared by every flow above
                     ConsultantContactGateService,
                     CvVerificationService,
                     UserSolvedChallengesProjectionService,
-                    // mocked — no Elasticsearch Testcontainer in this harness
+                    // mocked -- no Elasticsearch Testcontainer in this harness
                     {
                         provide: ElasticsearchService,
                         useValue: elasticsearchServiceMock,
@@ -366,7 +366,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
                     }),
             )
 
-        /** Grant a user a PASSED capstone attempt — the only signal that scores > 0 in `CvVerificationService`. */
+        /** Grant a user a PASSED capstone attempt -- the only signal that scores > 0 in `CvVerificationService`. */
         const grantPassedCapstone = async (enrollment: EnrollmentEntity): Promise<void> => {
             const userMilestoneTask = await entityManager.save(
                 entityManager.create(UserMilestoneTaskEntity,
@@ -444,7 +444,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
                 it("insufficient-entitlement: a viewer with NO passed capstone (CV score 0) gets contact fields nulled server-side",
                     async () => {
                         currentUser = await seedUser("kc-consultants-locked")
-                        // enrolled, but never passed a capstone task — CV score stays 0
+                        // enrolled, but never passed a capstone task -- CV score stays 0
                         await seedPaidEnrollment(currentUser)
 
                         elasticsearchSearch.mockResolvedValueOnce(
@@ -474,7 +474,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
 
                         const consultant = response.body.data.consultants.data.data[0]
                         expect(consultant.contactUnlocked).toBe(false)
-                        // stripped server-side — never sent over the wire, not merely hidden client-side
+                        // stripped server-side -- never sent over the wire, not merely hidden client-side
                         expect(consultant.email).toBeNull()
                         expect(consultant.phoneNumber).toBeNull()
                         expect(consultant.zaloNumber).toBeNull()
@@ -486,7 +486,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
             () => {
                 it("an anonymous viewer still gets the company list, with any embedded consultants gated LOCKED",
                     async () => {
-                        // no currentUser set at all — anonymous viewer, optional guard allows it through
+                        // no currentUser set at all -- anonymous viewer, optional guard allows it through
                         elasticsearchSearch.mockResolvedValueOnce(
                             buildEsResponse([
                                 {
@@ -516,7 +516,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
                         expect(body.data).toHaveLength(1)
                         expect(body.data[0].title).toBe("Pegasi")
                         const embeddedConsultant = body.data[0].consultants[0]
-                        // anonymous viewer → best CV score 0 → gate applies to the embedded list too
+                        // anonymous viewer -> best CV score 0 -> gate applies to the embedded list too
                         expect(embeddedConsultant.contactUnlocked).toBe(false)
                         expect(embeddedConsultant.email).toBeNull()
                     })
@@ -525,7 +525,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
                     async () => {
                         currentUser = await seedUser("kc-companies-locked")
                         await seedPaidEnrollment(currentUser)
-                        // enrolled but no passed capstone → CV score 0, same as anonymous
+                        // enrolled but no passed capstone -> CV score 0, same as anonymous
 
                         elasticsearchSearch.mockResolvedValueOnce(
                             buildEsResponse([
@@ -573,7 +573,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
                         // enrolled, open-to-work, but never touched the capstone
                         await seedPaidEnrollment(weak)
 
-                        // a THIRD user is enrolled but NOT open-to-work — must be excluded entirely
+                        // a THIRD user is enrolled but NOT open-to-work -- must be excluded entirely
                         const hidden = await seedUser("kc-talent-hidden")
                         await seedPaidEnrollment(hidden)
 
@@ -648,18 +648,18 @@ describe("Headhuntings + job-readiness query reads (e2e)",
                         const track = body.data.tracks[0]
                         expect(track.courseId).toBe(course.id)
                         // ONLY the capstone pillar is present (no interview/CV-per-course
-                        // signal seeded) → depth equals the capstone score itself
+                        // signal seeded) -> depth equals the capstone score itself
                         expect(track.capstoneScore).toBe(100)
                         expect(track.depthScore).toBe(100)
                         expect(track.band).toBe("jobReady")
                         expect(track.isQualified).toBe(true)
-                        // global foundation: capstone-verified anywhere → CV score 100
+                        // global foundation: capstone-verified anywhere -> CV score 100
                         expect(body.data.foundation.cvScore).toBe(100)
                     })
 
                 it("auth denied: an unauthenticated caller is rejected, no readiness data leaks",
                     async () => {
-                        // currentUser stays null — fakeRequiredAuthGuard denies the request
+                        // currentUser stays null -- fakeRequiredAuthGuard denies the request
                         const response = await request(app.getHttpServer())
                             .post(GRAPHQL_ENDPOINT)
                             .send({

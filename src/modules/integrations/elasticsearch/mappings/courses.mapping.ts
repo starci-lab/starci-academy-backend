@@ -7,7 +7,7 @@ import type {
  *
  * Types the real search/sort fields of a course and adds a dedicated `suggest`
  * field of type `completion` (an in-memory FST) powering fast, ranked autocomplete
- * — the ES sync builder populates it with the clean course title + a popularity
+ * -- the ES sync builder populates it with the clean course title + a popularity
  * weight derived from display order. Localized translation blobs are stored but
  * not indexed.
  */
@@ -35,7 +35,7 @@ export const coursesIndexMapping: ElasticsearchIndexMapping = {
             description: {
                 type: "text",
             },
-            // cover image URL — stored only, never queried/sorted
+            // cover image URL -- stored only, never queried/sorted
             coverImageUrl: {
                 type: "keyword",
                 index: false,
@@ -44,7 +44,7 @@ export const coursesIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
-            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            // pure display-ordering index, decoupled from orderIndex -- sortable for reordering
             sortIndex: {
                 type: "integer",
             },
@@ -56,7 +56,7 @@ export const coursesIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // localized override blob — stored, not indexed
+            // localized override blob -- stored, not indexed
             translations: {
                 type: "object",
                 enabled: false,

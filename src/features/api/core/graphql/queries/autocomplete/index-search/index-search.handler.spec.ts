@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -158,7 +158,7 @@ describe("IndexSearchHandler",
                         {
                             _id: "hit-id",
                             _source: {
-                                // no id field → handler falls back to _id
+                                // no id field -> handler falls back to _id
                                 displayId: "kafka",
                                 title: "Kafka",
                             },
@@ -177,11 +177,11 @@ describe("IndexSearchHandler",
                 )
 
                 const item = result.items[0]
-                // source.id missing → uses the hit _id
+                // source.id missing -> uses the hit _id
                 expect(item.id).toBe("hit-id")
-                // no highlights → texts defaults to [title]
+                // no highlights -> texts defaults to [title]
                 expect(item.texts).toEqual(["Kafka"])
-                // no cached parent ref → parentPath omitted
+                // no cached parent ref -> parentPath omitted
                 expect(item.parentPath).toBeUndefined()
             })
 

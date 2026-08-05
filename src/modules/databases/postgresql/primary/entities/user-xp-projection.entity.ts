@@ -13,18 +13,18 @@ import {
 
 @Entity("user_xp_projections")
 /**
- * CQRS projection of a user's XP aggregate — ONE ROW PER user. The inherited
+ * CQRS projection of a user's XP aggregate -- ONE ROW PER user. The inherited
  * jsonb `value` holds `{ challengeXp, milestoneXp, codingXp, lessonXp,
- * totalPoints, coinBalance }`: every XP figure — the 4 per-source breakdowns
- * AND the global `totalPoints` — is `SUM(amount)` of the `xp_histories` ledger
+ * totalPoints, coinBalance }`: every XP figure -- the 4 per-source breakdowns
+ * AND the global `totalPoints` -- is `SUM(amount)` of the `xp_histories` ledger
  * (per-source is `GROUP BY source`, `totalPoints` has no filter). `coinBalance`
- * is the one figure NOT ledger-derived here — it snapshots the materialized
+ * is the one figure NOT ledger-derived here -- it snapshots the materialized
  * `users.coin_balance`. The heavy aggregates run only in the projection's
  * recompute, never inline at read time. Read with a TTL lazy-refresh; kept fresh
  * by CDC on `xp_histories` + `users`.
  */
 export class UserXpProjectionEntity extends AbstractProjectionEntity {
-    /** Target user id — the natural (primary) key. */
+    /** Target user id -- the natural (primary) key. */
     @PrimaryColumn({
         name: "user_id",
         type: "uuid",

@@ -24,9 +24,9 @@ import type {
  * Validates a grading model pick against entitlement and the `ai_models` catalog.
  *
  * Rules:
- * - **no model pinned** — nothing to validate; the balancer picks from the
+ * - **no model pinned** -- nothing to validate; the balancer picks from the
  *   user's entitled category chain.
- * - **model + provider pinned** — both required together; gated on the UNLOCK
+ * - **model + provider pinned** -- both required together; gated on the UNLOCK
  *   (paid OR enrolled) and the model's category must be in the user's tier
  *   categories, with the row existing + `enabled`.
  */
@@ -56,13 +56,13 @@ export class GradingLaneValidationService {
             provider,
         )
 
-        // no model pinned → the balancer picks from the entitled chain; nothing to validate
+        // no model pinned -> the balancer picks from the entitled chain; nothing to validate
         if (!model?.trim() || !provider) {
             return {
             }
         }
 
-        // a pinned model requires the UNLOCK (paid OR enrolled — the StarCi rule,
+        // a pinned model requires the UNLOCK (paid OR enrolled -- the StarCi rule,
         // same as the grade-time gate) and its category must be in the user's tier
         // categories (enroll-aware).
         await this.aiEntitlementService.assertCanUsePaidModels({

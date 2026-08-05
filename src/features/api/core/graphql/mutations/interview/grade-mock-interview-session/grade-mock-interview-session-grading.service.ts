@@ -61,7 +61,7 @@ import {
 
 /**
  * One `questionFeedback[]` entry as returned raw by the model (see
- * {@link MockInterviewGradePromptService.buildQna}'s new output field) —
+ * {@link MockInterviewGradePromptService.buildQna}'s new output field) --
  * intermediate shape between the raw JSON parse and the fully-built
  * {@link MockInterviewQuestionReview} (which also needs the transcript +
  * seed groundings, not available inside {@link MockInterviewGradingService.parse}).
@@ -74,7 +74,7 @@ interface MockInterviewQuestionFeedbackItem {
 }
 
 /**
- * One `coveredCheckpoints[]` entry as returned raw by the model — which authored
+ * One `coveredCheckpoints[]` entry as returned raw by the model -- which authored
  * checkpoints the candidate actually established for one question. The SCORE is derived
  * from these in code, so the model reports evidence rather than picking a number.
  */
@@ -100,12 +100,12 @@ const DEFAULT_PHASE_MAX = 100
 /** Score at/above which a missing/garbled verdict falls back to a pass. */
 const PASS_SCORE_THRESHOLD = 75
 
-/** Score at/above which a missing/garbled verdict falls back to borderline (below → fail). */
+/** Score at/above which a missing/garbled verdict falls back to borderline (below -> fail). */
 const BORDERLINE_SCORE_THRESHOLD = 50
 
 /**
  * Maximum characters of joined candidate turns fed into the RAG retrieval
- * query — keeps the query short (embedding models degrade on very long
+ * query -- keeps the query short (embedding models degrade on very long
  * inputs) while still capturing the substance of what the candidate said
  * across the whole session.
  */
@@ -113,16 +113,15 @@ const RAG_QUERY_MAX_CHARS = 2000
 
 /**
  * Minimum total characters across the candidate's own turns (joined, the same
- * text used to build the RAG query — see {@link RAG_QUERY_MAX_CHARS}) required
+ * text used to build the RAG query -- see {@link RAG_QUERY_MAX_CHARS}) required
  * before a session is considered substantive enough to grade. Below this, the
  * transcript is functionally empty (a learner who clicked through without
- * answering, or answered with a couple of filler words) — grading it would
+ * answering, or answered with a couple of filler words) -- grading it would
  * only ever produce a "fail", would burn a real AI credit charge on a
  * non-attempt, and would pollute the rolling job-readiness interview average
  * ({@link import("@modules/api/core/graphql/queries/users/job-readiness/job-readiness.service").JobReadinessService})
  * with a data point that isn't a real attempt. 100 chars is roughly one short
- * real sentence ("Chúng ta có thể dùng hàng đợi tin nhắn để tách rời các
- * service." / "We could use a message queue to decouple the services.") —
+ * real sentence ("We could use a message queue to decouple the services.") --
  * comfortably above a one-word/filler non-answer, comfortably below any
  * genuine attempt at any of the 5 phases.
  */
@@ -130,12 +129,12 @@ const MIN_SUBSTANTIVE_ANSWER_LENGTH = 100
 
 @Injectable()
 /**
- * Grading for a WHOLE mock-interview SESSION (not one question — the
+ * Grading for a WHOLE mock-interview SESSION (not one question -- the
  * candidate answered across all 5 phases in a single conversation). Retrieves
  * course material via RAG to ground the grading in what the course actually
  * taught, builds the 5-phase rubric prompt, invokes the shared AI grading
  * lane, and parses the strict-JSON scorecard. Also records the AI credit
- * charge (surfaced on the "Lịch sử dùng AI" page) and a
+ * charge (surfaced on the AI usage history page) and a
  * {@link MockInterviewAttemptEntity} row for cross-session interview history.
  * Mirrors the flashcard `InterviewGradingService`'s structure closely, but
  * grades a whole session against a 5-phase rubric instead of one answer
@@ -180,7 +179,7 @@ export class MockInterviewGradingService {
         } = params
 
         // Pha 2 integrity fix: prefer the SERVER-stored prompt/level/mode from the
-        // `startMockInterviewSession` draw over whatever the client echoes back —
+        // `startMockInterviewSession` draw over whatever the client echoes back --
         // a client-sent promptId/promptTitle/level can be tampered with (e.g. a
         // learner claiming to have drawn a harder capstone prompt than they
         // actually did, to inflate their job-readiness interview average), and
@@ -208,7 +207,7 @@ export class MockInterviewGradingService {
             clientLevel,
         })
 
-        // mode="qna" grades each question against ITS OWN kind's rubric — a
+        // mode="qna" grades each question against ITS OWN kind's rubric -- a
         // "theory" question needs its seed card's authored answer + `:::chip`
         // keywords (fetched here, server-side, never trusted from the client, so
         // a learner cannot forge/omit the reference answer used against them);
@@ -221,7 +220,7 @@ export class MockInterviewGradingService {
                 sessionLang)
             : []
 
-        // join the CANDIDATE's own words only — the interviewer's prompts would just
+        // join the CANDIDATE's own words only -- the interviewer's prompts would just
         // echo the rubric back at itself and dilute both the substance check and the
         // retrieval query with phrasing that isn't what the candidate actually said.
         // Used for BOTH the near-empty-session guard below AND the RAG query.
@@ -232,7 +231,7 @@ export class MockInterviewGradingService {
             .trim()
 
         // reject a near-empty session BEFORE charging credit or touching the AI lane
-        // at all — a learner who clicked through without answering must not burn a
+        // at all -- a learner who clicked through without answering must not burn a
         // real charge, and must not get a persisted "fail" attempt polluting their
         // rolling job-readiness interview average with a non-attempt.
         if (candidateAnswerText.length < MIN_SUBSTANTIVE_ANSWER_LENGTH) {
@@ -243,7 +242,7 @@ export class MockInterviewGradingService {
         }
 
         // gate on the SAME unified credit pool every other grading surface reads
-        // (tier-aware — a paid Pro/Max user gets their tier's real ceiling, not the
+        // (tier-aware -- a paid Pro/Max user gets their tier's real ceiling, not the
         // free base).
         await this.aiEntitlementService.assertNotOverQuota({
             userId,
@@ -261,7 +260,7 @@ export class MockInterviewGradingService {
         const selection = validatedLaneToAiJobSelection(validatedLane)
 
         // qna (interview-bank) grades by comparing the candidate to each question's
-        // AUTHORED answer/rubric — the authored answer IS the ground truth, so NO
+        // AUTHORED answer/rubric -- the authored answer IS the ground truth, so NO
         // content RAG (cheaper + more precise + immune to retrieval miss). `design`
         // has no per-question reference, so it still grounds in course material.
         const { excerpt: courseExcerpt, matchedContentIds } = mode === MockInterviewMode.Qna
@@ -276,7 +275,7 @@ export class MockInterviewGradingService {
                 topK: 10,
             })
 
-        // build the grading messages — the design's 5-phase rubric or the qna
+        // build the grading messages -- the design's 5-phase rubric or the qna
         // mode's per-question rubric (each question graded by ITS OWN kind:
         // coverage for theory, open for reasoning/scenario), branched inside the
         // prompt service by `mode`
@@ -290,7 +289,7 @@ export class MockInterviewGradingService {
             locale,
         })
 
-        // ONE shared entry (temperature defaults to 0 → deterministic grading)
+        // ONE shared entry (temperature defaults to 0 -> deterministic grading)
         const {
             text, model, provider, cost, promptTokens, completionTokens, attempts,
         } = await this.aiInvokeService.run({
@@ -300,7 +299,7 @@ export class MockInterviewGradingService {
             surface: AiCeilSurface.Interview,
         })
 
-        // charge NOW — before parsing — so a malformed model response can never leak a
+        // charge NOW -- before parsing -- so a malformed model response can never leak a
         // free grading call. Billed by the model that served, matching the
         // challenge-grading service exactly.
         await this.aiEntitlementService.consume({
@@ -340,7 +339,7 @@ export class MockInterviewGradingService {
                     covered),
             }
         })
-        // keep the headline consistent with the per-question scores it summarises —
+        // keep the headline consistent with the per-question scores it summarises --
         // leaving the model's own overall next to recomputed question scores would let
         // the two contradict each other on the same scorecard
         const overallScore = rescored && phaseScores.length > 0
@@ -350,7 +349,7 @@ export class MockInterviewGradingService {
             )
             : parsed.overallScore
 
-        // build the per-question model-answer reviews (qna only — see
+        // build the per-question model-answer reviews (qna only -- see
         // buildQuestionReviews's own doc for why design has none) from the
         // SAME three server-held sources used to grade: the transcript's
         // turns, the session's persisted seed groundings, and the model's own
@@ -374,7 +373,7 @@ export class MockInterviewGradingService {
             matchedContentIds,
             questionReviews,
         }
-        // persist the graded session for cross-session interview history (best-effort —
+        // persist the graded session for cross-session interview history (best-effort --
         // a history write must never fail the grade the user is waiting on)
         await this.persistAttempt({
             userId,
@@ -393,16 +392,16 @@ export class MockInterviewGradingService {
 
     /**
      * Resolve the TRUSTED prompt/mode identity (`promptId` / `promptTitle` /
-     * `level` / `mode` / `seedQuestions`) for one grade call — looked up from
+     * `level` / `mode` / `seedQuestions`) for one grade call -- looked up from
      * the persisted {@link MockInterviewSessionEntity} row
      * `startMockInterviewSession` wrote, scoped to the caller's OWN enrollment
      * (a session can never be graded on behalf of a different enrollment's
      * draw). `mode` is NEVER accepted from the client (there is no client-sent
-     * `mode` on the grading request at all — this is the ONLY place it can
+     * `mode` on the grading request at all -- this is the ONLY place it can
      * come from), so a learner cannot pick a lenient rubric for their own
      * answers. Falls back to the client-sent prompt/level values (+
      * `mode="design"`) when no session row is found (session predates this
-     * fix, or the caller supplied a stale/unknown `sessionId`) — logged as a
+     * fix, or the caller supplied a stale/unknown `sessionId`) -- logged as a
      * WARN rather than thrown, so an in-flight session started before this
      * change ships never hard-fails grading.
      *
@@ -485,15 +484,15 @@ export class MockInterviewGradingService {
                 promptId: clientPromptId,
                 promptTitle: clientPromptTitle,
                 level: clientLevel,
-                // no session row → predates the mode split (or an unknown
-                // sessionId) → the only mode that could have existed is "design"
+                // no session row -> predates the mode split (or an unknown
+                // sessionId) -> the only mode that could have existed is "design"
                 mode: MockInterviewMode.Design,
                 seedQuestions: [],
                 lang: null,
-                // a "design" fallback always counts towards job-readiness —
+                // a "design" fallback always counts towards job-readiness --
                 // there was no configurable-setup axis before this column existed
                 countsToReadiness: true,
-                // no session row → no user-chosen name to copy
+                // no session row -> no user-chosen name to copy
                 name: null,
             }
         }
@@ -513,19 +512,19 @@ export class MockInterviewGradingService {
     /**
      * Fetch each seed card's authored answer + parsed `:::chip` keywords for
      * every drawn question, ALONGSIDE that question's own randomly-assigned
-     * kind — server-side, from the persisted `seedQuestions` snapshot (never
+     * kind -- server-side, from the persisted `seedQuestions` snapshot (never
      * re-derived from the client), preserving the ORDER the cards were asked
      * in (index-aligned with the transcript's `questionIndex`). The
      * answer/keywords are only USED by the prompt service for a "theory"-kind
      * question's coverage rubric; reasoning/scenario questions still get a
      * grounding entry (carrying their kind) even though their answer/keywords
      * go unused. A card that no longer exists (deleted after the session
-     * started) is simply omitted — the prompt service's grouping already
+     * started) is simply omitted -- the prompt service's grouping already
      * tolerates a shorter `seedGroundings` array than the transcript's
      * question count.
      *
      * @param seedQuestions - The session's persisted seed questions (cardId + kind + title), in ask order.
-     * @param turns - The full recorded transcript — used ONLY to find each question's own
+     * @param turns - The full recorded transcript -- used ONLY to find each question's own
      *   candidate-submitted `[Code lang=X]` artifact, so the GIVEN-code baseline handed to
      *   the grader matches whichever language the candidate actually solved in (not just
      *   whichever variant happens to be authored first).
@@ -571,7 +570,7 @@ export class MockInterviewGradingService {
                 card]),
         )
         // the code lang the CANDIDATE actually submitted for question `index`, parsed off
-        // the same "[Code lang=X]" marker `submitQnaAnswer` (FE) writes — undefined when the
+        // the same "[Code lang=X]" marker `submitQnaAnswer` (FE) writes -- undefined when the
         // candidate never touched the code tab for that question (shouldn't happen for a
         // debug/review/optimize question, but a question can't assume it did)
         const submittedLangByIndex = new Map<number, string>()
@@ -593,7 +592,7 @@ export class MockInterviewGradingService {
                 if (bank) {
                     // fold the behavioral "I vs we" ownership note in as an extra
                     // rubric point so the grader is forced to score it (research §4)
-                    // authored checkpoints win over the legacy flat `rubric` — each carries
+                    // authored checkpoints win over the legacy flat `rubric` -- each carries
                     // its dimension / must-hit flag / score band, which the grader scores
                     // against directly. `rubric` remains the fallback for any question
                     // whose content has not been converted to `# checklist` yet.
@@ -620,14 +619,14 @@ export class MockInterviewGradingService {
                     }
                     // Resolve the per-language body to grade this question against. With the
                     // multi-language draw (2026-07-17) each question is served in its OWN
-                    // randomly-chosen track language, snapshotted on the seed at draw time —
+                    // randomly-chosen track language, snapshotted on the seed at draw time --
                     // so `seed.givenCodes[0].lang` (the language THIS question was actually
                     // rendered in) is the authoritative match, NOT `session.lang` (now only a
                     // single representative across a session that may mix languages; grading
                     // against it would score a Go-drawn question against the TypeScript
-                    // idealAnswer/givenCode). Fall back in order: the drawn language →
-                    // the language the candidate actually submitted in (`[Code lang=X]`) →
-                    // the legacy session language → the first authored body. A legacy variant
+                    // idealAnswer/givenCode). Fall back in order: the drawn language ->
+                    // the language the candidate actually submitted in (`[Code lang=X]`) ->
+                    // the legacy session language -> the first authored body. A legacy variant
                     // (prompt/idealAnswer null) still falls back to the parent's shared prompt.
                     const bodies = [...(bank.langs ?? [])]
                         .sort((left, right) => left.sortIndex - right.sortIndex)
@@ -647,7 +646,7 @@ export class MockInterviewGradingService {
                         answer: chosenBody?.idealAnswer ?? bank.idealAnswer,
                         keywords: bank.keywords ?? [],
                         rubric: rubricPoints.length > 0 ? rubricPoints : undefined,
-                        // structured form of the same checkpoints — lets the score be
+                        // structured form of the same checkpoints -- lets the score be
                         // summed from the bands the grader reports as covered instead of
                         // taken on trust from a number it picked
                         checkpoints: orderedCheckpoints.length > 0
@@ -658,7 +657,7 @@ export class MockInterviewGradingService {
                                 scoreBand: checkpoint.scoreBand,
                             }))
                             : undefined,
-                        // the GIVEN (buggy) code — lets the grader diff the candidate's
+                        // the GIVEN (buggy) code -- lets the grader diff the candidate's
                         // fix against the baseline (debug/review/optimize questions)
                         givenCode: chosenBody?.givenCode ?? bank.givenCode ?? null,
                         givenLang: chosenBody?.lang ?? bank.givenLang ?? null,
@@ -718,8 +717,8 @@ export class MockInterviewGradingService {
             name,
         } = params
         try {
-            // resolve (or lazily create) the trial enrollment (user × course) so the
-            // attempt can be keyed by enrollment — the anchor for per-course history,
+            // resolve (or lazily create) the trial enrollment (user x course) so the
+            // attempt can be keyed by enrollment -- the anchor for per-course history,
             // consistent with the enrollment-centric re-key already applied to
             // InterviewAttemptEntity. Mirrors InterviewGradingService.recordAttempt.
             const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
@@ -755,7 +754,7 @@ export class MockInterviewGradingService {
             )
 
             // "resume mock interview session" (2026-07-08): a session that just
-            // graded successfully is no longer resumable — flip it to "completed"
+            // graded successfully is no longer resumable -- flip it to "completed"
             // so myInProgressMockInterviewSession stops offering it back, and a
             // late/stale syncMockInterviewSessionTurns call for the same session
             // no-ops instead of clobbering the now-finished transcript.
@@ -772,14 +771,14 @@ export class MockInterviewGradingService {
                 },
             )
         } catch {
-            // history is non-critical — never fail the grade over a persistence write
+            // history is non-critical -- never fail the grade over a persistence write
         }
     }
 
     /**
      * Parse + normalize the model's strict-JSON response into a
-     * {@link MockInterviewGradeSessionResult} (minus `matchedContentIds` —
-     * comes from RAG retrieval, not the model's response — and
+     * {@link MockInterviewGradeSessionResult} (minus `matchedContentIds` --
+     * comes from RAG retrieval, not the model's response -- and
      * `questionReviews`, built separately by {@link buildQuestionReviews}
      * once the transcript/seed groundings are also in scope), clamping scores
      * and coercing the verdict + phase/attribute breakdowns. Also parses the
@@ -831,7 +830,7 @@ export class MockInterviewGradingService {
     /**
      * Coerce an unknown value to a clean array of
      * {@link MockInterviewQuestionFeedbackItem}. A malformed or missing array
-     * degrades to empty rather than throwing — mode="design" never sends this
+     * degrades to empty rather than throwing -- mode="design" never sends this
      * field at all, and a model that omits/garbles it for mode="qna" must
      * still let the rest of the grade through (the FE just shows no
      * per-question feedback line for the affected index).
@@ -842,7 +841,7 @@ export class MockInterviewGradingService {
     /**
      * Coerce the raw `coveredCheckpoints` value into clean `{ index, covered }` entries.
      * Missing or malformed degrades to empty, which simply leaves the model's own score in
-     * place — the same tolerance `questionFeedback` gets.
+     * place -- the same tolerance `questionFeedback` gets.
      *
      * @param value - The raw `coveredCheckpoints` value from the parsed JSON.
      * @returns A clean array (possibly empty).
@@ -940,14 +939,14 @@ export class MockInterviewGradingService {
     }
 
     /**
-     * Build the per-question model-answer reviews for a `mode="qna"` session —
+     * Build the per-question model-answer reviews for a `mode="qna"` session --
      * the anti-ChatGPT feature: pairs the candidate's own words against the
      * course's CANONICAL authored answer for the exact same question, which
      * no generic tool can do (see {@link MockInterviewQuestionReview}'s doc).
      * One review per question, in index order, spanning
      * `max(transcript question count, seed grounding count)` so a question
-     * with turns but no resolved grounding (a deleted seed card) — or vice
-     * versa — still gets a row (with `modelAnswer: null` / empty
+     * with turns but no resolved grounding (a deleted seed card) -- or vice
+     * versa -- still gets a row (with `modelAnswer: null` / empty
      * question-answer text respectively) rather than being silently dropped.
      *
      * @param params - The full transcript, the session's seed groundings, the
@@ -987,13 +986,13 @@ export class MockInterviewGradingService {
                 item.feedback]),
         )
 
-        // best-effort single per-question content match — the RAG retrieval is
+        // best-effort single per-question content match -- the RAG retrieval is
         // one flat top-K pass over the WHOLE session (see the caller's
         // `contentRagRetrievalService.retrieveCourseExcerpt` call), so there is
         // no real per-question ranking to draw from; the closest honest
         // best-effort signal is "the single content id the retrieval ranked
         // most relevant overall" attached to every question that resolves a
-        // grounding, and null otherwise — never invented when the whole
+        // grounding, and null otherwise -- never invented when the whole
         // session had zero matches.
         const bestEffortContentId = matchedContentIds[0] ?? null
 
@@ -1026,7 +1025,7 @@ export class MockInterviewGradingService {
                     questionIndex: index,
                     kind: grounding?.kind ?? "theory",
                     // fall back to the seed's OWN question text when the interviewer
-                    // turn wasn't recorded/tagged with this index — still gives the
+                    // turn wasn't recorded/tagged with this index -- still gives the
                     // learner something to compare their answer against
                     question: question || grounding?.question || "",
                     candidateAnswer,
@@ -1112,7 +1111,7 @@ export class MockInterviewGradingService {
 
     /**
      * Coerce an unknown value to a clean array of {@link MockInterviewPhaseScore}.
-     * A malformed or missing array degrades to empty rather than throwing — a
+     * A malformed or missing array degrades to empty rather than throwing -- a
      * partial rubric breakdown must never sink the whole grade.
      *
      * @param value - The raw `phaseScores` value from the parsed JSON.
@@ -1127,7 +1126,7 @@ export class MockInterviewGradingService {
         return value
             .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
             .map((item) => {
-                // phase is echoed back as-is (string) — the entity column is a plain
+                // phase is echoed back as-is (string) -- the entity column is a plain
                 // varchar array element, so an unrecognized literal is still stored
                 // rather than silently dropped
                 const phase = typeof item.phase === "string"
@@ -1141,7 +1140,7 @@ export class MockInterviewGradingService {
                 const max = Number.isFinite(maxRaw) && maxRaw > 0
                     ? maxRaw
                     : DEFAULT_PHASE_MAX
-                // clamp the phase score into [0, max] — a model that over/under-shoots
+                // clamp the phase score into [0, max] -- a model that over/under-shoots
                 // its own declared max is still bounded to something renderable
                 const scoreRaw = typeof item.score === "number"
                     ? item.score

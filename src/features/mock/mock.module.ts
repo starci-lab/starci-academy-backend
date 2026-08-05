@@ -27,7 +27,7 @@ import {
 /**
  * Feature module for the standalone mock-sandbox service.
  *
- * Pure in-memory — no database, cache, or external dependencies. It aggregates
+ * Pure in-memory -- no database, cache, or external dependencies. It aggregates
  * the per-module mock bundles (HTTP controllers + the single realtime Socket.IO
  * gateway); each leaf imports `StoreModule`/`FileStoreModule` transitively and
  * applies `MockDelayInterceptor` per-controller (binary upload endpoints opt

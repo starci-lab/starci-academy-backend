@@ -95,10 +95,10 @@ export class MockInterviewStatsModeSplit {
     description: "The viewer's aggregated mock-interview stats for one course.",
 })
 /**
- * The viewer's aggregated mock-interview stats for one course — the
+ * The viewer's aggregated mock-interview stats for one course -- the
  * readiness hero (vs the pass bar, projected from the trend delta) +
  * the per-phase breakdown that `MockInterviewStats` renders
- * (`stats-canonical-fold` — 1 hero + 1 zone).
+ * (`stats-canonical-fold` -- 1 hero + 1 zone).
  */
 export class MyMockInterviewStatsData {
     @Field(

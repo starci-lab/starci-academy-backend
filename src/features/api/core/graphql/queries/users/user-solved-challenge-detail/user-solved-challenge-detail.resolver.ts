@@ -36,7 +36,7 @@ import {
 @Resolver()
 /**
  * Public profile query: the detail of ONE of a user's passed challenge
- * submissions — title, link, language, score, course, and the AI feedback
+ * submissions -- title, link, language, score, course, and the AI feedback
  * list from the passing attempt. Same guard stack as `userSolvedChallenges`
  * (optional auth + {@link GraphQLProfileVisibilityGuard}) so a locked profile
  * withholds this the same way it withholds the list.

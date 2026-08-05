@@ -38,7 +38,7 @@ describe("UserPersonalTaskAttemptFeedbacksHandler",
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
-            // findAndCount is not on the shared mock — add it per spec (no util edit)
+            // findAndCount is not on the shared mock -- add it per spec (no util edit)
             entityManager.findAndCount = jest.fn().mockResolvedValue([
                 [],
                 0,
@@ -101,7 +101,7 @@ describe("UserPersonalTaskAttemptFeedbacksHandler",
                 const findArgs = (entityManager.findAndCount as jest.Mock).mock.calls[0][1]
                 // scoped to the requested attempt
                 expect(findArgs.where.attempt.id).toBe("attempt-1")
-                // page 2 with size 5 → skip 10, take 5
+                // page 2 with size 5 -> skip 10, take 5
                 expect(findArgs.skip).toBe(10)
                 expect(findArgs.take).toBe(5)
                 // sort field maps to the requested order

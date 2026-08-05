@@ -42,7 +42,7 @@ import {
 
 @Resolver()
 /**
- * The viewer's mock-interview HISTORY for one course — every past graded
+ * The viewer's mock-interview HISTORY for one course -- every past graded
  * session (newest first), paginated, so the scorecard's "past attempts" can
  * list and re-open them. Enrolled-only (the same surface that spends AI
  * credits to grade a session).
@@ -114,7 +114,7 @@ export class MyMockInterviewAttemptsResolver {
             offset: safeOffset,
             mode: mode ?? undefined,
         })
-        // project to the GraphQL shape — serialize each attempt's timestamp
+        // project to the GraphQL shape -- serialize each attempt's timestamp
         return {
             totalCount: result.totalCount,
             items: result.items.map((attempt) => ({

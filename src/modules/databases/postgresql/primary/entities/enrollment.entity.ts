@@ -115,9 +115,9 @@ export class EnrollmentEntity extends UuidAbstractEntity {
     /**
      * Whether this is a REAL (committed / paid) enrollment versus a trial /
      * preview placeholder. The row may exist the moment a user engages with a
-     * course (trial → `false`); it flips to `true` when they actually
+     * course (trial -> `false`); it flips to `true` when they actually
      * enroll / pay. Gates that mean "is a paying member" (capstone, milestone,
-     * personal-project, premium) check THIS flag, not mere row existence —
+     * personal-project, premium) check THIS flag, not mere row existence --
      * activity (lesson reads, challenge submissions) is tracked regardless, but
      * a trial row must not unlock paid-only surfaces. Defaults to `true` so any
      * creation path that does not explicitly opt into a trial is treated as a
@@ -175,7 +175,7 @@ export class EnrollmentEntity extends UuidAbstractEntity {
     /**
      * AES-256-GCM encrypted GitHub access token (JSON-stringified `{iv,authTag,ciphertext}`
      * payload) used to clone a PRIVATE personal-project repo for AI grading, or null when the
-     * repo is public / no token supplied. **NOT exposed via GraphQL** — the plaintext token must
+     * repo is public / no token supplied. **NOT exposed via GraphQL** -- the plaintext token must
      * never leave the server. The masked {@link personalProjectGithubTokenLast4} is what the
      * UI shows.
      */
@@ -187,8 +187,8 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         personalProjectGithubTokenEncrypted: string | null
 
     /**
-     * Last 4 chars of the stored GitHub token — a log-safe masked hint for the UI
-     * (`••••{last4}`); the plaintext is never returned again. Null when no token is stored.
+     * Last 4 chars of the stored GitHub token -- a log-safe masked hint for the UI
+     * (`----{last4}`); the plaintext is never returned again. Null when no token is stored.
      */
     @Field(
         () => String,

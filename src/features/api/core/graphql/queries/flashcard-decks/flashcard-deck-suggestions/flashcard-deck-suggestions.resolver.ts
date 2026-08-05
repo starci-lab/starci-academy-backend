@@ -60,7 +60,7 @@ export class FlashcardDeckSuggestionsResolver {
         @Args("request")
             request: SuggestionsRequest,
     ): Promise<SuggestionsPayload> {
-        // delegate to the service → CQRS query bus → FlashcardDeckSuggestionsHandler;
+        // delegate to the service -> CQRS query bus -> FlashcardDeckSuggestionsHandler;
         // the handler's SuggestionsPayloadShape is structurally the SuggestionsPayload
         return this.flashcardDeckSuggestionsService.query(locale,
             request)

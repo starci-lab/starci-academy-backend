@@ -28,7 +28,7 @@ import {
     })
 /**
  * Per-programming-language variant of a {@link MockInterviewEntity}'s GIVEN CODE
- * (`kind ∈ {debug, review, optimize, coding}`) — one row per language
+ * (`kind ∈ {debug, review, optimize, coding}`) -- one row per language
  * (`typescript`/`java`/`csharp`/`go`/`agnostic`). Only populated for questions
  * grounded in a multi-language module (e.g. a lesson with parallel
  * `bodies/{0-typescript,1-java,2-csharp,3-go}` tracks) where a single
@@ -54,7 +54,7 @@ export class MockInterviewLangEntity extends UuidAbstractEntity {
 
     /**
      * Per-language PROMPT (default-locale body). Populated from
-     * `bodies/<lang>/{vi,en}.md` — a code question renders THIS language's prompt,
+     * `bodies/<lang>/{vi,en}.md` -- a code question renders THIS language's prompt,
      * not just its code. Null for legacy single-`givenCode` variants that carry no
      * own prompt (the parent's shared prompt is used instead).
      */
@@ -68,7 +68,7 @@ export class MockInterviewLangEntity extends UuidAbstractEntity {
     /**
      * Per-language IDEAL ANSWER / grading ground-truth (default-locale body).
      * Populated from `bodies/<lang>/{vi,en}.md`; the fix differs per stack
-     * (AsyncLocalStorage vs ThreadLocal vs context.Context …). Null for legacy
+     * (AsyncLocalStorage vs ThreadLocal vs context.Context ...). Null for legacy
      * variants (the parent's shared idealAnswer is used).
      */
     @Column({
@@ -94,7 +94,7 @@ export class MockInterviewLangEntity extends UuidAbstractEntity {
     })
         sortIndex: number
 
-    /** Locale the authored `givenCode` is in (varchar — matches `MockInterviewEntity.defaultLocale`'s enum-trap-free convention). */
+    /** Locale the authored `givenCode` is in (varchar -- matches `MockInterviewEntity.defaultLocale`'s enum-trap-free convention). */
     @Column({
         name: "default_locale",
         type: "varchar",

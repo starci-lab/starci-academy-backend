@@ -32,7 +32,7 @@ import {
 @Entity("modules")
 /**
  * Ordered unit inside a course that owns lessons and challenges. Progress,
- * hydration, paywall (`isPremium`), and CDN sync all key off module id — a
+ * hydration, paywall (`isPremium`), and CDN sync all key off module id -- a
  * lesson never hangs directly off the course.
  */
 export class ModuleEntity extends UuidAbstractEntity {
@@ -117,7 +117,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         sortIndex: number
 
     /**
-     * Hard per-module paywall flag — when true, all of the module's contents are
+     * Hard per-module paywall flag -- when true, all of the module's contents are
      * premium (locked for non-entitled viewers). Set explicitly via `# isPremium`
      * in the module mount; independent of `contentTier` (a display-only badge).
      */
@@ -135,7 +135,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         isPremium: boolean
 
     /**
-     * Learning tier of the module — stored explicitly so tiering never depends on
+     * Learning tier of the module -- stored explicitly so tiering never depends on
      * `orderIndex`. Drives the tier-based paywall (advanced + later-half intermediate
      * are premium). Seeded from the module's `# contentType` field.
      */

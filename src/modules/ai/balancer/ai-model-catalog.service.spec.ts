@@ -27,7 +27,7 @@ const POSTGRESQL_PRIMARY = "primary"
 /**
  * {@link EntityManagerMock} extended with the nested `connection.
  * queryResultCache` the SUT reads in {@link AiModelCatalogService.invalidate}
- * — a shape the shared mock does not model since most services never touch it.
+ * -- a shape the shared mock does not model since most services never touch it.
  */
 type CatalogEntityManagerMock = EntityManagerMock & {
     connection: {
@@ -38,7 +38,7 @@ type CatalogEntityManagerMock = EntityManagerMock & {
 }
 
 /**
- * Build an enabled catalog row — only the fields the service reads (name,
+ * Build an enabled catalog row -- only the fields the service reads (name,
  * provider, category, credit, per-token rates) carry meaningful values.
  */
 const buildModelRow = (
@@ -147,7 +147,7 @@ describe("AiModelCatalogService",
 
                 it("propagates a DB failure instead of swallowing it",
                     async () => {
-                        // the service does not catch/wrap — a Postgres outage must
+                        // the service does not catch/wrap -- a Postgres outage must
                         // surface to the caller rather than resolve as "no models"
                         const dbError = new Error("connection terminated unexpectedly")
                         entityManager.find.mockRejectedValueOnce(dbError)
@@ -190,7 +190,7 @@ describe("AiModelCatalogService",
                             fallback: 1,
                         })
 
-                        // (2000*3000 + 1000*4000) / 1e6 = 10 exactly — the flat 999 credit is ignored
+                        // (2000*3000 + 1000*4000) / 1e6 = 10 exactly -- the flat 999 credit is ignored
                         expect(result).toBe(10)
                     })
 
@@ -213,8 +213,8 @@ describe("AiModelCatalogService",
                             fallback: 1,
                         })
 
-                        // 2000 fresh × 1000 + 8000 cached × 200 + 1000 out × 1000
-                        // = (2e6 + 1.6e6 + 1e6) / 1e6 = 4.6 → 5
+                        // 2000 fresh x 1000 + 8000 cached x 200 + 1000 out x 1000
+                        // = (2e6 + 1.6e6 + 1e6) / 1e6 = 4.6 -> 5
                         expect(result).toBe(5)
                     })
 
@@ -242,7 +242,7 @@ describe("AiModelCatalogService",
                             fallback: 1,
                         })
 
-                        // identical prompt, identical output — the only difference is
+                        // identical prompt, identical output -- the only difference is
                         // that the provider served most of it from cache, and the
                         // discount reaches the learner instead of stopping at us
                         expect(warm).toBeLessThan(cold)
@@ -267,8 +267,8 @@ describe("AiModelCatalogService",
                             fallback: 1,
                         })
 
-                        // cached share bills at 0.5 × the input rate:
-                        // (2000×1000 + 8000×500 + 1000×1000) / 1e6 = 7
+                        // cached share bills at 0.5 x the input rate:
+                        // (2000x1000 + 8000x500 + 1000x1000) / 1e6 = 7
                         expect(result).toBe(7)
                     })
 
@@ -291,7 +291,7 @@ describe("AiModelCatalogService",
                             fallback: 1,
                         })
 
-                        // clamped to the 1000 prompt tokens, all cached: 1000×200/1e6
+                        // clamped to the 1000 prompt tokens, all cached: 1000x200/1e6
                         expect(result).toBe(1)
                     })
 
@@ -312,7 +312,7 @@ describe("AiModelCatalogService",
                             fallback: 1,
                         })
 
-                        // (100*1 + 100*1) / 1e6 = 0.0002 — Math.ceil pushes it up to 1, never 0
+                        // (100*1 + 100*1) / 1e6 = 0.0002 -- Math.ceil pushes it up to 1, never 0
                         expect(result).toBe(1)
                     })
 
@@ -334,7 +334,7 @@ describe("AiModelCatalogService",
                             fallback: 1,
                         })
 
-                        // hasRates is an OR — the flat `credit` (7) must NOT be used here
+                        // hasRates is an OR -- the flat `credit` (7) must NOT be used here
                         expect(result).toBe(1)
                     })
 
@@ -370,7 +370,7 @@ describe("AiModelCatalogService",
                             }),
                         ])
 
-                        // promptTokens / completionTokens omitted — provider reported no usage
+                        // promptTokens / completionTokens omitted -- provider reported no usage
                         const result = await service.creditForRun({
                             name: "gpt-4o",
                             fallback: 1,
@@ -397,7 +397,7 @@ describe("AiModelCatalogService",
                 it("does not throw when the DataSource has no query-result cache configured",
                     async () => {
                         // `connection.queryResultCache` is optional (only set when query
-                        // caching is enabled on the DataSource) — the SUT reads it via `?.`
+                        // caching is enabled on the DataSource) -- the SUT reads it via `?.`
                         const bareEntityManager = {
                             ...makeEntityManagerMock(),
                             connection: {

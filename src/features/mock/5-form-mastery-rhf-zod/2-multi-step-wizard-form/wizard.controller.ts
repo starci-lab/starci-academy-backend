@@ -18,7 +18,7 @@ import {
 @UseInterceptors(MockDelayInterceptor)
 @Controller("mocks/5-form-mastery-rhf-zod/2-multi-step-wizard-form/sessions/:sessionId")
 /**
- * Mock controller for lesson `2-multi-step-wizard-form` — accepts the merged
+ * Mock controller for lesson `2-multi-step-wizard-form` -- accepts the merged
  * payload from the final wizard step and returns the created user.
  */
 export class WizardController {

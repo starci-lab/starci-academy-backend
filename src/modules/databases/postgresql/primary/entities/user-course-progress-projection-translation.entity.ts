@@ -33,7 +33,7 @@ import {
  * back to the projection.
  */
 export class UserCourseProgressProjectionTranslationEntity extends AbstractEntity {
-    /** Owner user id — part of the composite PK + composite FK. */
+    /** Owner user id -- part of the composite PK + composite FK. */
     @Field(
         () => String,
         {
@@ -46,7 +46,7 @@ export class UserCourseProgressProjectionTranslationEntity extends AbstractEntit
     })
         userId: string
 
-    /** Course id — part of the composite PK + composite FK. */
+    /** Course id -- part of the composite PK + composite FK. */
     @Field(
         () => String,
         {

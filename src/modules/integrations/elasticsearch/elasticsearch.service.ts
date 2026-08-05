@@ -160,7 +160,7 @@ export class ElasticsearchService implements OnModuleInit {
             typeof existsResult === "boolean"
                 ? existsResult
                 : (existsResult as { body: boolean }).body
-        // missing index → create with the full mapping (settings + mappings) or plain when none
+        // missing index -> create with the full mapping (settings + mappings) or plain when none
         if (!exists) {
             await this.client.indices.create({
                 index,
@@ -169,7 +169,7 @@ export class ElasticsearchService implements OnModuleInit {
             })
             return
         }
-        // existing index → ADDITIVELY apply the mapping (new fields only) instead of dropping
+        // existing index -> ADDITIVELY apply the mapping (new fields only) instead of dropping
         // it, so out-of-scope documents are preserved. A type conflict on a pre-existing
         // dynamically-mapped field is ignored so the sync keeps going.
         if (mapping?.mappings) {
@@ -243,7 +243,7 @@ export class ElasticsearchService implements OnModuleInit {
             locale
         }: IndexEntitiesParams<T>,
     ): Promise<IndexEntitiesResult> {
-        // Nothing to index → skip. An empty bulk body is rejected by ES with
+        // Nothing to index -> skip. An empty bulk body is rejected by ES with
         // `action_request_validation_exception: no requests added`.
         if (data.length === 0) {
             return
@@ -258,7 +258,7 @@ export class ElasticsearchService implements OnModuleInit {
         // The bulk API needs a FLATTENED action/source stream: each doc is an
         // `index` action line IMMEDIATELY followed by its source line. Emitting
         // one `{ index, document }` object per item (the old shape) yields zero
-        // valid operations → `no requests added`. flatMap pairs action + source.
+        // valid operations -> `no requests added`. flatMap pairs action + source.
         const result = await this.client.bulk({
             refresh: true,
             operations: data.flatMap((document) => [
@@ -286,7 +286,7 @@ export class ElasticsearchService implements OnModuleInit {
      *
      * Used by event-driven sync paths to drop a doc when its source row is
      * removed or soft-deleted. A missing document (or absent index) is treated
-     * as success — the desired end-state (doc gone) already holds.
+     * as success -- the desired end-state (doc gone) already holds.
      *
      * @param params - Entity class name, doc id, and optional locale.
      *
@@ -313,21 +313,21 @@ export class ElasticsearchService implements OnModuleInit {
                 refresh: true,
             })
         } catch (error) {
-            // doc already absent (404) → desired state reached, nothing to do
+            // doc already absent (404) -> desired state reached, nothing to do
             if (
                 error?.meta?.statusCode === 404 ||
                 error?.meta?.body?.result === "not_found"
             ) {
                 return
             }
-            // index never created yet → nothing to delete
+            // index never created yet -> nothing to delete
             if (
                 error?.meta?.body?.error?.type === "index_not_found_exception" ||
                 error?.message?.includes("index_not_found_exception")
             ) {
                 return
             }
-            // any other failure is real → surface it to the caller
+            // any other failure is real -> surface it to the caller
             throw error
         }
     }
@@ -376,7 +376,7 @@ export class ElasticsearchService implements OnModuleInit {
     /**
      * Delete every document in a per-locale index whose id is NOT in `ids`.
      *
-     * This prunes orphans left behind by the append-only indexer — docs for
+     * This prunes orphans left behind by the append-only indexer -- docs for
      * entities that were removed/renamed in the database but never cleaned up.
      *
      * @param params - Entity class name, locale, and the doc ids to keep.
@@ -398,7 +398,7 @@ export class ElasticsearchService implements OnModuleInit {
             locale,
         })
         try {
-            // when there are zero desired ids the whole index is orphaned → match everything;
+            // when there are zero desired ids the whole index is orphaned -> match everything;
             // otherwise delete every doc whose _id is not in the keep-list
             const result = await this.client.deleteByQuery({
                 index,
@@ -423,7 +423,7 @@ export class ElasticsearchService implements OnModuleInit {
                         },
                     },
             })
-            // `deleted` is optional in the response typing → default to 0
+            // `deleted` is optional in the response typing -> default to 0
             return result.deleted ?? 0
         } catch (error) {
             // nothing to prune if the index was never created

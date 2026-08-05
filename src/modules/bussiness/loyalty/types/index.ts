@@ -15,7 +15,7 @@ export interface ComputeLoyaltyDiscountParams {
     /** The user to price for. */
     userId: string
     /**
-     * Extra courses to treat as already owned on top of the real enrolled count —
+     * Extra courses to treat as already owned on top of the real enrolled count --
      * lets a multi-course checkout price line N as if lines `0..N-1` of the SAME
      * order were already bought, matching what the buyer would get checking out
      * sequentially instead of in one cart. Defaults to 0 (single-course checkouts,
@@ -39,7 +39,7 @@ export interface LoyaltyContext {
 
 /**
  * Params for deriving a loyalty percent from an already-fetched {@link LoyaltyContext}
- * — the pure, DB-free half of the computation.
+ * -- the pure, DB-free half of the computation.
  */
 export interface ResolveLoyaltyPercentParams {
     /** The user's DB-derived loyalty inputs (fetched once). */
@@ -47,7 +47,7 @@ export interface ResolveLoyaltyPercentParams {
     /**
      * Extra courses to treat as owned on top of {@link LoyaltyContext.ownedCount},
      * so a multi-course checkout can price line N as if the N earlier lines of the
-     * SAME order were already bought. Defaults to 0. MUST be non-negative — every
+     * SAME order were already bought. Defaults to 0. MUST be non-negative -- every
      * current caller passes a cart-line index so this is not reachable today, but
      * the value is not floored, so a negative caller would silently under-discount
      * rather than throw.
@@ -61,7 +61,7 @@ export interface ResolveLoyaltyPercentParams {
  * copy such as "5% per owned course").
  */
 export interface LoyaltyDiscountResult {
-    /** Discount percent to apply to the price (0–30, before any bundle bonus). */
+    /** Discount percent to apply to the price (0-30, before any bundle bonus). */
     percent: number
     /** Why the discount applies (drives FE copy). */
     reason: DiscountReason

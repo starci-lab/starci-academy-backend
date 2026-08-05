@@ -192,7 +192,7 @@ export class ChallengeParserService {
             ),
             verified: this.coerceMdScalarService.toNullableDate(merged.verified),
             orderIndex: challengeIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,
                 challengeIndex,
@@ -397,7 +397,7 @@ export class ChallengeParserService {
                         }),
                 }
             }),
-            // each `<challenge>/submissions/<N>/{locale}.md` folder → one submission row
+            // each `<challenge>/submissions/<N>/{locale}.md` folder -> one submission row
             submissions: await this.parseSubmissions(
                 {
                     challengeRelativePath: path.relativePath,
@@ -448,7 +448,7 @@ export class ChallengeParserService {
         )
         const submissions: Array<DeepPartial<ChallengeSubmissionEntity>> = []
         for (const path of paths) {
-            // extract every locale's submission markdown — missing locale file collapses to {}
+            // extract every locale's submission markdown -- missing locale file collapses to {}
             const submissionJsonMap = new Map<Locale, Record<string, unknown>>()
             for (const locale of Object.values(Locale)) {
                 try {
@@ -477,7 +477,7 @@ export class ChallengeParserService {
                 challengeIndex,
                 submissionIndex: submissionOrderIndex,
             })
-            // merge title/description across locales — type/score/url are scalar (no translation)
+            // merge title/description across locales -- type/score/url are scalar (no translation)
             const merged = this.mergeJsonService.merge({
                 jsons: Object.values(Locale).map((locale) => ({
                     locale,
@@ -502,7 +502,7 @@ export class ChallengeParserService {
                         field,
                         value,
                     }))
-            // English-only rubric blocks (approach/outcome) — extract walks straight into the criteria
+            // English-only rubric blocks (approach/outcome) -- extract walks straight into the criteria
             // array now that the mount drops the outer separator wrap
             const approach = this.parseCriteria({
                 criteria: (merged as Record<string, unknown>).approachCriterias,
@@ -566,11 +566,11 @@ export class ChallengeParserService {
      * + per-language entity partials, plus the per-section weight total (sum of every criterion's
      * `## score`).
      *
-     * Mount shape (no separator wrap on the outer heading): `# <n>` (criterion) → `## body` →
+     * Mount shape (no separator wrap on the outer heading): `# <n>` (criterion) -> `## body` ->
      * `### <m>` (lang bucket with `#### lang` / `#### body`), `## score`, `## critical`.
      *
      * @param params - Extracted criteria array + rubric kind + parent submission ordinals.
-     * @returns `{ rows, totalScore }` — entity rows for cascade + the sum used as approach/outcome score.
+     * @returns `{ rows, totalScore }` -- entity rows for cascade + the sum used as approach/outcome score.
      */
     private parseCriteria(
         {
@@ -587,7 +587,7 @@ export class ChallengeParserService {
         rows: Array<DeepPartial<ChallengeSubmissionApproachCriteriaEntity>>
         totalScore: number
         } {
-        // absent or wrong shape → empty rubric (insert layer treats this as null jsonb / empty rows)
+        // absent or wrong shape -> empty rubric (insert layer treats this as null jsonb / empty rows)
         if (!Array.isArray(criteria)) {
             return {
                 rows: [],
@@ -610,7 +610,7 @@ export class ChallengeParserService {
                 kind,
                 criterionIndex,
             })
-            // `## body` is itself a numeric-keyed array → one lang bucket per `### N`
+            // `## body` is itself a numeric-keyed array -> one lang bucket per `### N`
             const langItems = Array.isArray(criterion.body)
                 ? (criterion.body as Array<Record<string, unknown>>)
                 : []

@@ -6,13 +6,13 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * Duolingo-style weekly-league tiers, lowest → highest. Mirrors the exact string
+ * Duolingo-style weekly-league tiers, lowest -> highest. Mirrors the exact string
  * values the frontend declares in `src/components/reuseable/LeagueTierBadge`.
  * A user is promoted (top 10 of a 30-person cohort) up this ladder or demoted
  * (bottom 5) down it at each weekly reset; the ends (Bronze / Legend) clamp.
  */
 export enum LeagueTier {
-    /** Entry tier — every user starts here on first placement. */
+    /** Entry tier -- every user starts here on first placement. */
     Bronze = "bronze",
     /** Second tier. */
     Silver = "silver",
@@ -24,7 +24,7 @@ export enum LeagueTier {
     Diamond = "diamond",
     /** Sixth tier. */
     Champion = "champion",
-    /** Top tier — promotion clamps here. */
+    /** Top tier -- promotion clamps here. */
     Legend = "legend",
 }
 

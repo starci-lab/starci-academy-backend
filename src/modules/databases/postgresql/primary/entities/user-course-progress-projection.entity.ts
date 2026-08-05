@@ -26,25 +26,25 @@ import {
 @Index(["courseId"])
 @Entity("user_course_progress_projections")
 /**
- * CQRS projection of a user's progress in a course (Kiểu B — composite key of
+ * CQRS projection of a user's progress in a course (Type B -- composite key of
  * two foreign keys).
  *
  * Primary key is `(user_id, course_id)`; the aggregate (`{ totalScore,
  * completedChallenges, lessonsRead, milestoneProgress, totalXp }`) lives in the
  * inherited jsonb `value`. The leaderboard reads order by `(value->>'totalXp')`;
  * a functional index on `(course_id, ((value->>'totalXp')::int) DESC)` backs
- * that ordering (created out-of-band — TypeORM `synchronize` does not emit
+ * that ordering (created out-of-band -- TypeORM `synchronize` does not emit
  * expression indexes). The plain `course_id` index here covers the WHERE filter.
  */
 export class UserCourseProgressProjectionEntity extends AbstractProjectionEntity {
-    /** Owner user id — first half of the composite primary key. */
+    /** Owner user id -- first half of the composite primary key. */
     @PrimaryColumn({
         name: "user_id",
         type: "uuid",
     })
         userId: string
 
-    /** Course id — second half of the composite primary key. */
+    /** Course id -- second half of the composite primary key. */
     @PrimaryColumn({
         name: "course_id",
         type: "uuid",
@@ -80,7 +80,7 @@ export class UserCourseProgressProjectionEntity extends AbstractProjectionEntity
         course: CourseEntity
 
     /**
-     * Enrollment this progress projection belongs to (user × course). The anchor
+     * Enrollment this progress projection belongs to (user x course). The anchor
      * for per-course progress going forward; nullable while the re-key backfill
      * runs. The composite PK `(user_id, course_id)` is intentionally left
      * untouched in this phase.

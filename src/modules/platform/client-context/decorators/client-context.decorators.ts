@@ -60,7 +60,7 @@ export const ClientContextParam = createParamDecorator(
         const request = resolveRequest(context)
         // prefer the first X-Forwarded-For hop (real client behind proxies)
         const forwardedFor = firstHeader(request.headers["x-forwarded-for"])
-        // X-Forwarded-For may be "client, proxy1, proxy2" → take the first token
+        // X-Forwarded-For may be "client, proxy1, proxy2" -> take the first token
         const ipAddress = forwardedFor
             ? forwardedFor.split(",")[0]?.trim() ?? null
             : request.ip ?? null

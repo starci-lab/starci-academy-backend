@@ -12,7 +12,7 @@ import type {
     FetchRawFileParams,
 } from "./types"
 
-/** Only `https://github.com/<owner>/<repo>` URLs are accepted — never fetch an arbitrary host (SSRF guard). */
+/** Only `https://github.com/<owner>/<repo>` URLs are accepted -- never fetch an arbitrary host (SSRF guard). */
 const GITHUB_URL_PATTERN = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/
 
 /** GitHub requires a User-Agent on every REST API request. */
@@ -60,7 +60,7 @@ const ALLOWED_EXTENSIONS = new Set([
     "proto",
 ])
 
-/** Path segments that mark a file as generated/vendored/irrelevant — always skipped. */
+/** Path segments that mark a file as generated/vendored/irrelevant -- always skipped. */
 const EXCLUDED_PATH_SEGMENTS = [
     "node_modules/",
     "dist/",
@@ -83,7 +83,7 @@ interface GithubTreeEntry {
 @Injectable()
 /**
  * Imports a PUBLIC GitHub repository into LangChain {@link Document}s for the
- * RAG Playground — fetched entirely through the GitHub REST API (never a raw
+ * RAG Playground -- fetched entirely through the GitHub REST API (never a raw
  * `git clone`, so there is no local temp-dir / disk-usage / binary-execution
  * surface). Only `github.com/<owner>/<repo>` URLs are accepted; every fetch
  * target is built from the validated `owner`/`repo`, never from user input
@@ -104,7 +104,7 @@ export class GithubRepoImportService {
         const match = GITHUB_URL_PATTERN.exec(githubUrl.trim())
         if (!match) {
             throw new RagPlaygroundImportException({
-                reason: "Chỉ hỗ trợ link GitHub công khai dạng https://github.com/owner/repo",
+                reason: "Chỉ hỗ trợ link GitHub công khai dạng https://github.com/owner/repo", // vn-ok: user-facing import error reason
             })
         }
         const [, owner,
@@ -115,7 +115,7 @@ export class GithubRepoImportService {
         )
         if (!repoInfo || repoInfo.private) {
             throw new RagPlaygroundImportException({
-                reason: "Không tìm thấy repo công khai này (có thể là repo riêng tư hoặc không tồn tại)",
+                reason: "Không tìm thấy repo công khai này (có thể là repo riêng tư hoặc không tồn tại)", // vn-ok: user-facing import error reason
             })
         }
 
@@ -124,7 +124,7 @@ export class GithubRepoImportService {
         )
         const candidates = (tree?.tree ?? []).filter((entry) => this.isImportable(entry))
 
-        // smaller files first — packs more distinct files within the byte budget
+        // smaller files first -- packs more distinct files within the byte budget
         candidates.sort((left, right) => (left.size ?? 0) - (right.size ?? 0))
 
         const selected: Array<GithubTreeEntry> = []
@@ -139,7 +139,7 @@ export class GithubRepoImportService {
 
         if (selected.length === 0) {
             throw new RagPlaygroundImportException({
-                reason: "Không tìm thấy file phù hợp để index trong repo này (đã lọc file nhị phân/vendor/quá lớn)",
+                reason: "Không tìm thấy file phù hợp để index trong repo này (đã lọc file nhị phân/vendor/quá lớn)", // vn-ok: user-facing import error reason
             })
         }
 
@@ -151,7 +151,7 @@ export class GithubRepoImportService {
         })
         if (documents.length === 0) {
             throw new RagPlaygroundImportException({
-                reason: "Không tải được nội dung file nào từ repo này",
+                reason: "Không tải được nội dung file nào từ repo này", // vn-ok: user-facing import error reason
             })
         }
         return documents
@@ -216,7 +216,7 @@ export class GithubRepoImportService {
     }
 
     /**
-     * Fetch one file's raw content, or null on any failure (best-effort — a
+     * Fetch one file's raw content, or null on any failure (best-effort -- a
      * single broken file must never sink the whole import).
      */
     private async fetchRawFile(

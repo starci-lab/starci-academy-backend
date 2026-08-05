@@ -28,7 +28,7 @@ import {
 
 @Injectable()
 /**
- * Loads a course graph (modules, pricing, livestreams, QnA, …) for CDN/API
+ * Loads a course graph (modules, pricing, livestreams, QnA, ...) for CDN/API
  * so downstream resolvers share one relation contract instead of N+1 joins.
  */
 export class CourseHydrationService {

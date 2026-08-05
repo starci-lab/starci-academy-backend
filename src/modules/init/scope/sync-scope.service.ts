@@ -123,7 +123,7 @@ export class SyncScopeService {
         return this.buildScopeForSink("elasticsearch")
     }
 
-    /** Scope for repo code sync (Sandpack file trees → CDN). */
+    /** Scope for repo code sync (Sandpack file trees -> CDN). */
     buildRepoScope(): SynchronizerSyncScope {
         return this.buildScopeForSink("repo")
     }

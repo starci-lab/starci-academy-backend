@@ -38,10 +38,10 @@ import type {
 } from "@modules/tests"
 
 // Control the hybrid stuff-vs-RAG threshold deterministically while keeping the
-// REST of the real env config intact — the `@modules/rag` barrel transitively
+// REST of the real env config intact -- the `@modules/rag` barrel transitively
 // loads cache/ai modules that read other env fields at module-init, so a bare
 // stub would crash boot. Spread the real config and override only the threshold.
-// NOTE: the factory is hoisted above module init → inline the literal (no outer const).
+// NOTE: the factory is hoisted above module init -> inline the literal (no outer const).
 jest.mock("@modules/env",
     () => {
         const actual = jest.requireActual("@modules/env")
@@ -91,10 +91,10 @@ describe("ContentAiService",
         const userId = "user-1"
         const contentId = "content-1"
 
-        /** A short lesson body (≤ threshold) → whole-body stuff path. */
+        /** A short lesson body (<= threshold) -> whole-body stuff path. */
         const smallBody = "A database index speeds up lookups."
 
-        /** A long lesson body (> threshold) → RAG retrieval path. */
+        /** A long lesson body (> threshold) -> RAG retrieval path. */
         const largeBody = "x".repeat(STUFF_THRESHOLD + 200)
 
         /** Standard prepareMessages params for the happy path. */
@@ -124,7 +124,7 @@ describe("ContentAiService",
             s3NameResolverService = {
                 content: jest.fn(() => `contents/${contentId}/en.json`),
             }
-            // default: not premium → entitlement never consulted; program per-test
+            // default: not premium -> entitlement never consulted; program per-test
             userService = {
                 checkEnrollment: jest.fn().mockResolvedValue(false),
             }
@@ -187,13 +187,13 @@ describe("ContentAiService",
 
                 const { messages } = await service.prepareMessages(baseParams)
 
-                // small lesson → no retrieval round-trip
+                // small lesson -> no retrieval round-trip
                 expect(contentRagRetrievalService.retrieveContentExcerpt)
                     .not.toHaveBeenCalled()
                 const system = messages[0] as SystemMessage
                 expect(system).toBeInstanceOf(SystemMessage)
                 expect(system.content).toContain(smallBody)
-                // ordered: system → (no history) → question
+                // ordered: system -> (no history) -> question
                 const last = messages[messages.length - 1] as HumanMessage
                 expect(last).toBeInstanceOf(HumanMessage)
                 expect(last.content).toBe(baseParams.question)
@@ -233,14 +233,14 @@ describe("ContentAiService",
                 expect(contentRagRetrievalService.retrieveContentExcerpt)
                     .toHaveBeenCalled()
                 const system = messages[0] as SystemMessage
-                // empty retrieval → never degrade below stuffing the whole body
+                // empty retrieval -> never degrade below stuffing the whole body
                 expect(system.content).toContain(largeBody)
             })
 
         it("caps replayed history at the last MAX_HISTORY_MESSAGES turns",
             async () => {
                 // 105 short prior turns; the window caps at MAX_HISTORY_MESSAGES
-                // (100) — the turns are tiny so all 100 also fit the char budget.
+                // (100) -- the turns are tiny so all 100 also fit the char budget.
                 const history = Array.from({
                     length: 105,
                 },
@@ -329,7 +329,7 @@ describe("ContentAiService",
                 ).rejects.toBeInstanceOf(ContentNotFoundException)
             })
 
-        // ── ENTITLEMENT PER SCOPE — the security surface ────────────────────────
+        // ── ENTITLEMENT PER SCOPE -- the security surface ────────────────────────
         // A content-AI answer must never surface material the viewer is not
         // entitled to. Each non-content scope has its own gate; these lock the
         // enrolled/not-enrolled behaviour so a future refactor can't silently
@@ -340,7 +340,7 @@ describe("ContentAiService",
                 const foundationId = "foundation-1"
                 const courseId = "course-9"
 
-                /** A milestone-task row joined to its owning course (task→course gate). */
+                /** A milestone-task row joined to its owning course (task->course gate). */
                 const taskRow = {
                     id: taskId,
                     milestone: {
@@ -367,7 +367,7 @@ describe("ContentAiService",
                         expect(userService.checkEnrollment)
                             .toHaveBeenCalledWith(userId,
                                 courseId)
-                        // ...and refused BEFORE retrieval → no capstone brief pulled
+                        // ...and refused BEFORE retrieval -> no capstone brief pulled
                         expect(contentRagRetrievalService.retrieveContentExcerpt)
                             .not.toHaveBeenCalled()
                         const system = messages[0] as SystemMessage
@@ -401,7 +401,7 @@ describe("ContentAiService",
 
                 it("CHALLENGE · not enrolled → NO brief/test-cases fetched (no leak)",
                     async () => {
-                        // challenge → content → module → course row
+                        // challenge -> content -> module -> course row
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "challenge-1",
                             content: {
@@ -434,7 +434,7 @@ describe("ContentAiService",
 
                 it("QUIZ · not enrolled → NO answers fetched (no leak)",
                     async () => {
-                        // quiz deck → course (direct course_id)
+                        // quiz deck -> course (direct course_id)
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "deck-1",
                             course: {
@@ -485,7 +485,7 @@ describe("ContentAiService",
                         expect(userService.checkEnrollment)
                             .toHaveBeenCalledWith(userId,
                                 courseId)
-                        // never the binary block anymore — the RAG call itself
+                        // never the binary block anymore -- the RAG call itself
                         // excludes every premium lesson id of the course
                         expect(contentRagRetrievalService.retrieveCourseExcerpt)
                             .toHaveBeenCalledWith({
@@ -538,7 +538,7 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        // foundation is a global library → NO enrollment check at all
+                        // foundation is a global library -> NO enrollment check at all
                         expect(userService.checkEnrollment)
                             .not.toHaveBeenCalled()
                         expect(contentRagRetrievalService.retrieveContentExcerpt)
@@ -551,12 +551,12 @@ describe("ContentAiService",
                     })
             })
 
-        // ── SESSION PERSISTENCE PER SCOPE — the anchor + ownership surface ───────
+        // ── SESSION PERSISTENCE PER SCOPE -- the anchor + ownership surface ───────
         // The session-per-scope model persists task/foundation/course conversations
         // alongside content ones. These lock (1) which anchor column each scope
         // writes, (2) that a foundation session keys off the raw USER (no
         // enrollment), and (3) that a turn only persists under a session the caller
-        // OWNS — the security invariant that stops writing into someone else's chat.
+        // OWNS -- the security invariant that stops writing into someone else's chat.
         describe("session persistence per scope",
             () => {
                 const taskId = "task-1"
@@ -565,7 +565,7 @@ describe("ContentAiService",
                 const enrollmentId = "enr-1"
                 const sessionId = "session-1"
 
-                /** A milestone-task row joined to its owning course (task→course anchor). */
+                /** A milestone-task row joined to its owning course (task->course anchor). */
                 const taskRow = {
                     id: taskId,
                     milestone: {
@@ -576,7 +576,7 @@ describe("ContentAiService",
                     },
                 }
 
-                /** `insert` is not part of the shared mock — wire it per test. */
+                /** `insert` is not part of the shared mock -- wire it per test. */
                 let insert: jest.Mock
                 beforeEach(() => {
                     insert = jest.fn().mockResolvedValue({
@@ -586,7 +586,7 @@ describe("ContentAiService",
 
                 it("createSession CONTENT → anchors on origin_content_id + enrollment",
                     async () => {
-                        // resolveEnrollmentId: content → owning course, then enrollment row
+                        // resolveEnrollmentId: content -> owning course, then enrollment row
                         entityManager.findOne.mockResolvedValueOnce({
                             id: contentId,
                             module: {
@@ -680,7 +680,7 @@ describe("ContentAiService",
                             foundationId,
                         })
 
-                        // global doc → never resolves an enrollment
+                        // global doc -> never resolves an enrollment
                         expect(entityManager.query).not.toHaveBeenCalled()
                         expect(id).not.toBeNull()
                         const created = entityManager.create.mock.calls[0][1]
@@ -709,7 +709,7 @@ describe("ContentAiService",
                 it("saveTurn FOUNDATION → owned via USER: writes user_id, null enrollment + content",
                     async () => {
                         entityManager.query
-                            // resolveOwnedSession → owned via user (no enrollment)
+                            // resolveOwnedSession -> owned via user (no enrollment)
                             .mockResolvedValueOnce([
                                 {
                                     enrollmentId: null,
@@ -742,7 +742,7 @@ describe("ContentAiService",
 
                 it("saveTurn · session NOT owned → no insert (cannot write into another's chat)",
                     async () => {
-                        // resolveOwnedSession → no owned row
+                        // resolveOwnedSession -> no owned row
                         entityManager.query.mockResolvedValueOnce([])
 
                         await service.saveTurn({
@@ -756,7 +756,7 @@ describe("ContentAiService",
                     })
             })
 
-        // ── SCOPE-AWARE HISTORY LISTING — the reload/re-open surface ─────────────
+        // ── SCOPE-AWARE HISTORY LISTING -- the reload/re-open surface ─────────────
         // Listing must fetch only the CURRENT scope's conversations, keyed off the
         // right owner: a task lists by (enrollment, origin_task_id); a GLOBAL
         // foundation lists by (user_id, origin_foundation_id) with NO enrollment.
@@ -825,7 +825,7 @@ describe("ContentAiService",
                             foundationId,
                         })
 
-                        // global doc → NO enrollment lookup, single (list) query
+                        // global doc -> NO enrollment lookup, single (list) query
                         expect(entityManager.findOne).not.toHaveBeenCalled()
                         expect(entityManager.query).toHaveBeenCalledTimes(1)
                         const [
@@ -844,7 +844,7 @@ describe("ContentAiService",
 
                 it("COURSE · not enrolled → empty list, no leak",
                     async () => {
-                        // resolveEnrollmentByCourse → no enrollment
+                        // resolveEnrollmentByCourse -> no enrollment
                         entityManager.query.mockResolvedValueOnce([])
 
                         const list = await service.sessions({
@@ -859,10 +859,10 @@ describe("ContentAiService",
                     })
             })
 
-        // ── ADDITIVE BASE GROUNDING — the app-wide layered-context surface ───────
+        // ── ADDITIVE BASE GROUNDING -- the app-wide layered-context surface ───────
         // A question layers a course-wide BASE under whichever page grounding
         // applies (content/task/challenge/quiz), and a truly anchorless request
-        // (no page, no course) is the "global" app-wide chat — never throws.
+        // (no page, no course) is the "global" app-wide chat -- never throws.
         describe("additive BASE grounding (app-wide chat)",
             () => {
                 it("CONTENT · additive BASE layers course-wide RAG UNDER the lesson's own material",
@@ -897,7 +897,7 @@ describe("ContentAiService",
                             locale: Locale.En,
                         })
 
-                        // no course to resolve → no entitlement / RAG machinery touched at all
+                        // no course to resolve -> no entitlement / RAG machinery touched at all
                         expect(userService.checkEnrollment).not.toHaveBeenCalled()
                         expect(contentRagRetrievalService.retrieveCourseExcerpt).not.toHaveBeenCalled()
                         expect(contentRagRetrievalService.retrieveContentExcerpt).not.toHaveBeenCalled()

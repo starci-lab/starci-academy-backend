@@ -61,7 +61,7 @@ export class FoundationCategoriesHandler
         const from = (pageNumber - 1) * limit
 
         // tight name typeahead: prefix-match the TITLE only (e.g. "do" -> Docker).
-        // intentionally NOT searching description — matching descriptions made a
+        // intentionally NOT searching description -- matching descriptions made a
         // single letter return almost every category. Empty search matches all.
         const search = request?.search?.trim()
         const esQuery: estypes.QueryDslQueryContainer = search && search.length > 0
@@ -95,7 +95,7 @@ export class FoundationCategoriesHandler
             track_total_hits: true,
         })
 
-        // ES total is either a number or a { value, relation } object — normalize to a number
+        // ES total is either a number or a { value, relation } object -- normalize to a number
         const total = response.hits.total
         const totalCount = typeof total === "number"
             ? total

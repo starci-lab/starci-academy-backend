@@ -26,7 +26,7 @@ import {
 /**
  * One per (user, ISO week): proof that a user claimed the coin reward for
  * passing that week's auto-rotated weekly-challenge event. The row exists ONLY
- * after a successful claim, so its presence is the idempotency backstop — a
+ * after a successful claim, so its presence is the idempotency backstop -- a
  * second claim for the same `(user_id, week_start_at)` is rejected by the
  * unique constraint. `week_start_at` uses the SAME ISO-week boundary
  * (`date_trunc('week', now())`) as `WeeklyChallengeService.getWeeklyChallenge`'s

@@ -18,22 +18,22 @@ import type {
  *
  * Trade-offs (acceptable for small, hot, rarely-changing catalogs like
  * `ai_models`):
- * - **Per-instance** — each pod keeps its own copy; entries expire by TTL, so
+ * - **Per-instance** -- each pod keeps its own copy; entries expire by TTL, so
  *   staleness is bounded by the query's `milliseconds`.
- * - **No eviction cap** — fine because the keyspace is a handful of stable
+ * - **No eviction cap** -- fine because the keyspace is a handful of stable
  *   `identifier`s; never cache unbounded user-supplied keys here.
  */
 export class InMemoryQueryResultCache implements QueryResultCache {
-    /** identifier (or raw query) → last stored cache entry. */
+    /** identifier (or raw query) -> last stored cache entry. */
     private readonly store = new Map<string, QueryResultCacheOptions>()
 
     constructor(
         private readonly dataSource: DataSource,
     ) { }
 
-    /** No external connection — the cache lives in this process's heap. */
+    /** No external connection -- the cache lives in this process's heap. */
     async connect(): Promise<void> {
-        // intentionally empty — nothing to connect to
+        // intentionally empty -- nothing to connect to
     }
 
     /** Drop every entry when the DataSource disconnects. */
@@ -43,7 +43,7 @@ export class InMemoryQueryResultCache implements QueryResultCache {
 
     /** No schema to provision for an in-memory map. */
     async synchronize(): Promise<void> {
-        // intentionally empty — no backing table
+        // intentionally empty -- no backing table
     }
 
     /**

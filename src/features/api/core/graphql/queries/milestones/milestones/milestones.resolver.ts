@@ -36,7 +36,7 @@ import {
 
 @Resolver()
 /**
- * Auth + enrollment-gated GraphQL entry for `milestones` — full course outline
+ * Auth + enrollment-gated GraphQL entry for `milestones` -- full course outline
  * ordered by `sortIndex`.
  */
 export class MilestonesResolver {

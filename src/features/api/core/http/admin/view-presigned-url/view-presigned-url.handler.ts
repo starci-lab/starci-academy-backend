@@ -20,7 +20,7 @@ import {
 @CommandHandler(ViewPresignedUrlCommand)
 @Injectable()
 /**
- * Builds public (unsigned) MPEG-DASH manifest URLs — objects are uploaded ACL public-read,
+ * Builds public (unsigned) MPEG-DASH manifest URLs -- objects are uploaded ACL public-read,
  * so a signed GET would only add expiry the player cannot refresh.
  */
 export class ViewPresignedUrlHandler

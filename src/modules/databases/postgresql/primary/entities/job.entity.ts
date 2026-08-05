@@ -25,7 +25,7 @@ import {
  * Loose, queryable correlation map a job carries to the domain rows it touches.
  *
  * `jobs` is an infrastructure table (queue + execution ledger) shared by every
- * `actionType`, so it deliberately holds NO foreign keys into domain tables —
+ * `actionType`, so it deliberately holds NO foreign keys into domain tables --
  * the domain ids live here as plain values (and in the worker `payload`). To
  * filter jobs by one of these keys, add an expression index on `refs->>'key'`.
  */
@@ -51,11 +51,11 @@ export interface JobRefs {
 @Entity("jobs")
 /**
  * Tracks lifecycle status of worker jobs. Pure infrastructure: no FK to domain
- * tables — correlate via {@link JobRefs} (`refs`) and the serialized `payload`.
+ * tables -- correlate via {@link JobRefs} (`refs`) and the serialized `payload`.
  */
 export class JobEntity extends UuidAbstractEntity {
     /**
-     * Loose owner id (no FK) — the user this job is associated with, when applicable.
+     * Loose owner id (no FK) -- the user this job is associated with, when applicable.
      */
     @Field(
         () => ID,
@@ -175,7 +175,7 @@ export class JobEntity extends UuidAbstractEntity {
         currentStep: number
 
     /**
-     * How many times this job has been dispatched/run (poison-pill cap → DLQ).
+     * How many times this job has been dispatched/run (poison-pill cap -> DLQ).
      */
     @Field(
         () => Int,

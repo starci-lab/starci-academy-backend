@@ -60,7 +60,7 @@ export class ContentSuggestionsResolver {
         @Args("request")
             request: SuggestionsRequest,
     ): Promise<SuggestionsPayload> {
-        // delegate to the service → CQRS bus → ES completion suggester
+        // delegate to the service -> CQRS bus -> ES completion suggester
         return this.contentSuggestionsService.query(locale,
             request)
     }

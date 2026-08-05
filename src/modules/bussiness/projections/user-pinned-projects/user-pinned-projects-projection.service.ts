@@ -22,7 +22,7 @@ import type {
 /**
  * CQRS projection service for a user's pinned projects (the public-profile
  * "pinned projects" list). The join over `user_pinned_projects` LEFT JOINed with
- * the linked enrollment + course runs ONLY in {@link recompute} (the projector —
+ * the linked enrollment + course runs ONLY in {@link recompute} (the projector --
  * called by the CDC listener and by any inline write path), folding an ordered
  * `{ pins: [...] }` array into the jsonb `value` keyed by user. {@link getByUser}
  * reads the flat row with a TTL lazy-refresh and parses the jsonb into a typed,
@@ -59,7 +59,7 @@ export class UserPinnedProjectsProjectionService {
 
     /**
      * Read a user's pinned projects (ordered by `orderIndex` ascending), TTL
-     * lazy-refreshed. Missing / stale → recompute on the spot, then re-read.
+     * lazy-refreshed. Missing / stale -> recompute on the spot, then re-read.
      *
      * @param userId - the user whose pinned projects to read.
      * @returns the ordered pinned-project view.
@@ -74,7 +74,7 @@ export class UserPinnedProjectsProjectionService {
                 },
             },
         )
-        // TTL safety net: missing / past freshness window → recompute + re-read
+        // TTL safety net: missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 userId,

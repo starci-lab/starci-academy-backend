@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (mirrors generate-cv.handler.spec.ts).
 import "@modules/bussiness"
 import {
@@ -62,7 +62,7 @@ describe("UploadCvHandler",
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
         beforeEach(async () => {
-            // entity manager mock — `create` echoes its payload, `save` stamps an id
+            // entity manager mock -- `create` echoes its payload, `save` stamps an id
             entityManager = {
                 create: jest.fn().mockImplementation((_entity, data) => data),
                 save: jest.fn().mockImplementation(async (_entity, data) => ({
@@ -71,7 +71,7 @@ describe("UploadCvHandler",
                 })),
             } as unknown as jest.Mocked<Pick<EntityManager, "create" | "save">>
 
-            // enqueue service is mocked wholesale — reports back a tracked jobId
+            // enqueue service is mocked wholesale -- reports back a tracked jobId
             enqueueScoreUploadedCvJobService = {
                 enqueue: jest.fn().mockResolvedValue({
                     jobId: "job-1",
@@ -133,7 +133,7 @@ describe("UploadCvHandler",
 
                 it("creates a Pending source=uploaded row with the cdnKey + customization, then enqueues scoring",
                     async () => {
-                        // an explicit model pick — proves selectedModel/provider flow through
+                        // an explicit model pick -- proves selectedModel/provider flow through
                         gradingLaneValidationService.validate.mockResolvedValueOnce({
                             gradingModel: "gpt-4o",
                             gradingProvider: ModelProvider.OpenAI,

@@ -6,7 +6,7 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * AI subscription tier — bumps weekly/5h credit caps on top of
+ * AI subscription tier -- bumps weekly/5h credit caps on top of
  * the base contribution from each enrollment.
  *
  * Pricing (VND/month):
@@ -20,11 +20,11 @@ import {
  * - Max: +2000 credits/5h, +20000 credits/week
  */
 export enum AiSubTier {
-    /** Entry AI sub — adds +250 credits/5h and +2500/week on top of enrollments. */
+    /** Entry AI sub -- adds +250 credits/5h and +2500/week on top of enrollments. */
     Plus = "plus",
-    /** Popular AI sub — adds +500 credits/5h and +5000/week on top of enrollments. */
+    /** Popular AI sub -- adds +500 credits/5h and +5000/week on top of enrollments. */
     Pro = "pro",
-    /** Power-user AI sub — adds +2000 credits/5h and +20000/week on top of enrollments. */
+    /** Power-user AI sub -- adds +2000 credits/5h and +20000/week on top of enrollments. */
     Max = "max",
 }
 

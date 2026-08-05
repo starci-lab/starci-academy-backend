@@ -18,7 +18,7 @@ import {
 
 @Entity("challenge_submission_prompts")
 /**
- * LLM / grading prompt attached to a challenge submission slot (English; internal — not in GraphQL).
+ * LLM / grading prompt attached to a challenge submission slot (English; internal -- not in GraphQL).
  */
 export class ChallengeSubmissionPromptEntity extends UuidAbstractEntity {
     /**

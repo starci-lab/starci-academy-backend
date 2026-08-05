@@ -48,15 +48,15 @@ import type {
 
 @ContentAiWebSocketGateway()
 /**
- * WebSocket gateway for the `/content_ai` namespace — grounded lesson Q&A
+ * WebSocket gateway for the `/content_ai` namespace -- grounded lesson Q&A
  * answer streaming.
  *
  * The learner emits an {@link PublicationEvent.AskContentAi} with their question
  * (plus recent turns for short-term memory). This gateway grounds the question
  * in the lesson body + enforces the premium gate via {@link ContentAiService},
  * then drives the LangChain `.stream()` through {@link AiInvokeService} on the
- * System engine (floor=free → climb to the tier ceiling, billed by served model
- * like grading — free models = 0),
+ * System engine (floor=free -> climb to the tier ceiling, billed by served model
+ * like grading -- free models = 0),
  * emitting each token delta straight back to the requesting socket as a
  * {@link SubscriptionEvent.ContentAiChunk} event. An
  * {@link PublicationEvent.AbortContentAi} message cancels the in-flight stream.
@@ -70,7 +70,7 @@ export class ContentAiGateway {
         private readonly winstonService: WinstonService,
     ) {}
 
-    /** The namespace server — used to attach the auth middleware. */
+    /** The namespace server -- used to attach the auth middleware. */
     @WebSocketServer()
     private readonly server: Namespace
 
@@ -128,7 +128,7 @@ export class ContentAiGateway {
             : undefined
         // the socket stamps the Keycloak subject id; resolve it to the real
         // users.id (uuid) so the premium gate + per-session persistence (which
-        // key off enrollments.user_id) match — passing the raw sub would make
+        // key off enrollments.user_id) match -- passing the raw sub would make
         // saveTurn a silent no-op (sessions with 0 saved turns)
         const keycloakId = client.data.userId
         const userId = keycloakId
@@ -156,7 +156,7 @@ export class ContentAiGateway {
             controller)
         try {
             // ground the question by scope (lesson body + premium gate, or task /
-            // foundation RAG) — the service dispatches on which anchor id is present
+            // foundation RAG) -- the service dispatches on which anchor id is present
             const {
                 messages,
             } = await this.contentAiService.prepareMessages({
@@ -174,8 +174,8 @@ export class ContentAiGateway {
 
             // accumulate the full answer so the completed turn can be persisted
             let answer = ""
-            // ONE shared entry — stream on the free floor, climbing to the tier
-            // ceiling (local Qwen → OpenRouter free → economy+ only if all free fail)
+            // ONE shared entry -- stream on the free floor, climbing to the tier
+            // ceiling (local Qwen -> OpenRouter free -> economy+ only if all free fail)
             const {
                 model,
                 provider,
@@ -209,7 +209,7 @@ export class ContentAiGateway {
                 },
             })
 
-            // bill by the model that actually served — free model = 0 (normal);
+            // bill by the model that actually served -- free model = 0 (normal);
             // a climbed economy+ model is charged to the user (platform doesn't eat it)
             await this.aiEntitlementService.consume({
                 userId,
@@ -223,7 +223,7 @@ export class ContentAiGateway {
                 attempts,
             })
 
-            // persist the completed (question → answer) turn under its session —
+            // persist the completed (question -> answer) turn under its session --
             // best-effort: a save failure must NOT turn a successful answer into an
             // error for the user. Any scope persists now (content / task / foundation
             // / course); `saveTurn` inherits the session's owner anchor and no-ops
@@ -265,7 +265,7 @@ export class ContentAiGateway {
                 },
             })
         } catch (error) {
-            // any failure (including abort) → terminal chunk carrying the error
+            // any failure (including abort) -> terminal chunk carrying the error
             const message = error instanceof Error
                 ? error.message
                 : String(error)
@@ -291,7 +291,7 @@ export class ContentAiGateway {
                 },
             })
         } finally {
-            // the stream is no longer in flight — drop the abort controller
+            // the stream is no longer in flight -- drop the abort controller
             this.inFlight.delete(key)
         }
     }

@@ -57,7 +57,7 @@ export class LeagueCohortPointsProjectionService {
     }
 
     /**
-     * Read a cohort's ranked members (best → worst), TTL lazy-refreshed. Rank is
+     * Read a cohort's ranked members (best -> worst), TTL lazy-refreshed. Rank is
      * the 1-based position in the stored (pre-ordered) list.
      *
      * @param cohortId - the cohort to read.
@@ -94,7 +94,7 @@ export class LeagueCohortPointsProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 cohortId,
@@ -123,9 +123,9 @@ export class LeagueCohortPointsProjectionService {
     }
 
     /**
-     * Build the cohort week-points UPSERT — each member's flat points summed inside
+     * Build the cohort week-points UPSERT -- each member's flat points summed inside
      * the cohort's own `[week_start_at, week_end_at)` window (LEFT JOIN so a
-     * zero-point member still appears), ranked best → worst, folded into
+     * zero-point member still appears), ranked best -> worst, folded into
      * `value.members` for the single cohort `$1`.
      *
      * @returns the parameterised UPSERT SQL.

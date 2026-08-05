@@ -6,7 +6,7 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * How strongly a candidate's readiness is backed by REAL, graded StarCi work —
+ * How strongly a candidate's readiness is backed by REAL, graded StarCi work --
  * a recruiter trust signal, tied to activity (not payment). Uploading a polished
  * CV proves nothing on its own; passing a StarCi capstone / getting challenge
  * work AI-graded does. Used to badge candidates and as a secondary marketplace
@@ -18,18 +18,18 @@ import {
  */
 export enum CvVerificationLevel {
     /**
-     * No graded StarCi work behind the CV — e.g. an externally-strong developer
+     * No graded StarCi work behind the CV -- e.g. an externally-strong developer
      * who only uploaded their own CV file. Their readiness rests on self-reported
      * claims a recruiter cannot verify through StarCi.
      */
     SelfReported = "self_reported",
     /**
-     * Has AI-graded StarCi work (≥1 challenge submission that was scored) but has
-     * not passed a capstone yet — hands-on engagement StarCi can vouch for.
+     * Has AI-graded StarCi work (>=1 challenge submission that was scored) but has
+     * not passed a capstone yet -- hands-on engagement StarCi can vouch for.
      */
     ActivityBacked = "activity_backed",
     /**
-     * Has passed ≥1 StarCi capstone / milestone task — the strongest proof:
+     * Has passed >=1 StarCi capstone / milestone task -- the strongest proof:
      * real project work completed and graded to a pass. The signal recruiters
      * weight most.
      */

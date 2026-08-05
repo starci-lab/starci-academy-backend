@@ -17,7 +17,7 @@ const FOUNDATIONS_ITEMS_DIR = "foundations"
 
 @Injectable()
 /**
- * Resolves indexed foundation item folders under a category’s `foundations/` folder
+ * Resolves indexed foundation item folders under a category's `foundations/` folder
  * (`{category}/foundations/{index}-{slug}/`), mirroring `ModulePathService` + `modules/`.
  */
 export class FoundationPathService {

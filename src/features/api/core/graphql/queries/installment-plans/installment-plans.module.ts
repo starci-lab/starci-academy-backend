@@ -18,8 +18,8 @@ import {
     ],
 })
 /**
- * Installment-plan query module — the read side of the "Kế hoạch trả góp của
- * tôi" surface (`myInstallmentPlans`). The write side (`payNextInstallment`)
+ * Installment-plan query module -- the read side of the my-installment-plans
+ * surface (`myInstallmentPlans`). The write side (`payNextInstallment`)
  * lives in the mutations module; the plan lifecycle in `@modules/bussiness`.
  */
 export class InstallmentPlansQueriesModule extends ConfigurableModuleClass {}

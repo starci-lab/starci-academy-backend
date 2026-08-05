@@ -4,7 +4,7 @@ import type {
 
 /**
  * Cookie + optional bearer inputs for refresh. The refresh token is not on the
- * GraphQL input — it arrives from the httpOnly cookie so XSS cannot steal it.
+ * GraphQL input -- it arrives from the httpOnly cookie so XSS cannot steal it.
  */
 export interface RefreshTokenCommandParams {
     refreshToken: string

@@ -12,7 +12,7 @@ import {
 export type CvTailorMissingJobDescriptionExceptionMetadata = AbstractExceptionMetadata
 
 /**
- * Thrown when `tailorCvBlocks` is called with an empty `jobDescription` —
+ * Thrown when `tailorCvBlocks` is called with an empty `jobDescription` --
  * there is nothing to tailor the CV toward.
  */
 export class CvTailorMissingJobDescriptionException extends AbstractException {

@@ -82,7 +82,7 @@ export interface RunCompletionSuggestParams {
  * Run an ES Completion Suggester query and map the options to `{ id, label }`.
  *
  * The completion option's `text` is the matched input (clean label) and `_id` is
- * the document id, so no post-processing is needed. Empty prefix → empty result.
+ * the document id, so no post-processing is needed. Empty prefix -> empty result.
  *
  * @param params - {@link RunCompletionSuggestParams}
  * @returns the suggestions, best (weighted) match first

@@ -14,7 +14,7 @@ import {
     ],
 })
 /**
- * Wires the `myXpHistory` resolver (reads `xp_histories` directly — no CQRS
+ * Wires the `myXpHistory` resolver (reads `xp_histories` directly -- no CQRS
  * handler). Registered globally from {@link ChallengesModule}.
  */
 export class MyXpHistorySingleQueryModule extends ConfigurableModuleClass {}

@@ -10,7 +10,7 @@ import {
     exports: [FileStoreService],
 })
 /**
- * Shared store module for the file-upload lesson mocks — provides the single
+ * Shared store module for the file-upload lesson mocks -- provides the single
  * in-memory {@link FileStoreService} that the presign, chunked, and tus
  * controllers inject. Exported so per-lesson leaf modules can import it.
  */

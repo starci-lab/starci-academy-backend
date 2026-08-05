@@ -25,7 +25,7 @@ export interface PriceCartParams {
 export interface CartPricedLine {
     /** The course being bought on this line (loaded with pricing phases + metadata). */
     course: CourseEntity
-    /** Per-course LIST (pre-discount) price in VND — the struck "before" price. */
+    /** Per-course LIST (pre-discount) price in VND -- the struck "before" price. */
     listVnd: number
     /** Per-course CHARGED price in VND (loyalty + bundle discount applied). */
     chargedVnd: number
@@ -33,7 +33,7 @@ export interface CartPricedLine {
     listUsd: number | null
     /** Per-course CHARGED price in USD dollars, or null when the course has no USD price. */
     chargedUsd: number | null
-    /** Combined loyalty + bundle discount percent applied to this line (0–100). */
+    /** Combined loyalty + bundle discount percent applied to this line (0-100). */
     discountPercent: number
     /** The course's active pricing phase at checkout time. */
     pricingPhase: PricingPhase
@@ -42,7 +42,7 @@ export interface CartPricedLine {
 /**
  * Result of pricing a cart: the per-course lines plus the summed order totals and
  * the bundle-bonus context. `lines` is empty when nothing is purchasable (empty
- * request or every course already owned) — each caller decides how to handle that.
+ * request or every course already owned) -- each caller decides how to handle that.
  */
 export interface PriceCartResult {
     /** One priced line per purchasable course (empty when nothing to buy). */

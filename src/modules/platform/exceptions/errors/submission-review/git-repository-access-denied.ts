@@ -15,7 +15,7 @@ export interface GitRepositoryAccessDeniedExceptionMetadata extends AbstractExce
 }
 
 /**
- * Thrown when the git-submission review's repo loader receives a 403 — the
+ * Thrown when the git-submission review's repo loader receives a 403 -- the
  * GitHub token lacks permission, or the rate limit was exceeded.
  */
 export class GitRepositoryAccessDeniedException extends AbstractException {

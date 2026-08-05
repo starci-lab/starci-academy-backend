@@ -6,11 +6,11 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * Where a unit of real, weighted XP was earned from — every value here grants
+ * Where a unit of real, weighted XP was earned from -- every value here grants
  * a non-zero `amount` (the per-course leaderboard signal; also feeds the
  * global "Points" figure, `SUM(amount)` across every course, computed live by
- * `UserXpProjectionService` — never a maintained counter). Coin-ONLY rewards
- * (never XP) live in the separate {@link CoinSource} enum instead — see
+ * `UserXpProjectionService` -- never a maintained counter). Coin-ONLY rewards
+ * (never XP) live in the separate {@link CoinSource} enum instead -- see
  * `CoinHistoryEntity`. Used as the `source` of an append-only
  * {@link XpHistoryEntity} audit row.
  */
@@ -25,7 +25,7 @@ export enum XpSource {
     Coding = "coding",
     /** XP from finishing a flashcard quick-quiz session (amount = capped coverage reward). */
     FlashcardQuiz = "flashcardQuiz",
-    /** XP from grading a flashcard for the FIRST time ever (amount = 2, once per user × card). */
+    /** XP from grading a flashcard for the FIRST time ever (amount = 2, once per user x card). */
     FlashcardFirstReview = "flashcardFirstReview",
 }
 

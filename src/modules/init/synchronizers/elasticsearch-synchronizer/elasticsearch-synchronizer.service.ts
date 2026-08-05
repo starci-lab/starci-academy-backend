@@ -67,7 +67,7 @@ import {
 
 @Injectable()
 /**
- * Elasticsearch synchronizer — iterates all entities and calls ES builder for each.
+ * Elasticsearch synchronizer -- iterates all entities and calls ES builder for each.
  */
 export class ElasticsearchSynchronizerService {
 

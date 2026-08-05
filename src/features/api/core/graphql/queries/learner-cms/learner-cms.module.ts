@@ -34,7 +34,7 @@ import {
     ],
 })
 /**
- * Learner self-management CMS query group — the viewer's own paginated history:
+ * Learner self-management CMS query group -- the viewer's own paginated history:
  * challenge-submission attempts (`myChallengeSubmissions`), milestone-task review
  * attempts (`myMilestoneTaskAttempts`), merged learning feedback
  * (`myLearningFeedbacks`), and the per-course outline with progress overlaid

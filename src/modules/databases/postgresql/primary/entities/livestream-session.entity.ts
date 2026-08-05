@@ -82,7 +82,7 @@ export class LivestreamSessionEntity extends UuidAbstractEntity {
         dayOfWeek: DayOfWeek
 
     /**
-     * Wall-clock start time (no timezone; interpret in the course’s display timezone).
+     * Wall-clock start time (no timezone; interpret in the course's display timezone).
      */
     @Field(
         () => String,

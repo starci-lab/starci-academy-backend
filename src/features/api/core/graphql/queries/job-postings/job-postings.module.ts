@@ -22,7 +22,7 @@ import {
     ],
 })
 /**
- * Public "IT job board" queries — structured postings, distinct from the
+ * Public "IT job board" queries -- structured postings, distinct from the
  * `headhuntings` module's freestyle consultant directory.
  */
 export class JobPostingsModule extends ConfigurableModuleClass {}

@@ -14,7 +14,7 @@ import type {
 /**
  * Where the stack's infra actually runs.
  * - "local" / "dockercloud": boot real Testcontainers (Docker Cloud only
- *   changes which Docker daemon they build against — the boot code here is
+ *   changes which Docker daemon they build against -- the boot code here is
  *   identical, the daemon selection is Testcontainers' own `DOCKER_HOST` wiring).
  * - "vps": no containers are started; the stack targets an already-running
  *   VPS deployment instead.
@@ -25,8 +25,8 @@ export type E2eStackProvider = "local" | "dockercloud" | "vps"
  * Shared Testcontainers-backed infra stack used by BOTH the e2e lane
  * (`apps/core/test`) and the harness lane.
  *
- * Mirrors the boot sequence in {@link setup-e2e} — same image, same
- * `POSTGRESQL_PRIMARY_*` env vars — but packaged as an instance (rather than
+ * Mirrors the boot sequence in {@link setup-e2e} -- same image, same
+ * `POSTGRESQL_PRIMARY_*` env vars -- but packaged as an instance (rather than
  * Jest's globalSetup/globalTeardown pair) so a harness run can start/stop the
  * stack around a single flow.
  *
@@ -38,7 +38,7 @@ export class E2eStackService {
     /** The started Postgres container, once {@link up} has run for local/dockercloud. */
     public postgresContainer?: StartedPostgreSqlContainer
 
-    /** Base URL of the stack under test — set from `VPS_BASE_URL` for "vps"; undefined for local/dockercloud (no HTTP server is booted by this stack). */
+    /** Base URL of the stack under test -- set from `VPS_BASE_URL` for "vps"; undefined for local/dockercloud (no HTTP server is booted by this stack). */
     public baseUrl?: string
 
     /**
@@ -65,7 +65,7 @@ export class E2eStackService {
      * `POSTGRESQL_PRIMARY_*` env vars, so any code path that reads them
      * (e.g. `PrimaryPostgreSQLModule`) connects to the container transparently.
      *
-     * "vps": start nothing — a VPS run targets an already-deployed
+     * "vps": start nothing -- a VPS run targets an already-deployed
      * environment, read from `VPS_BASE_URL`.
      */
     public async up(): Promise<void> {
@@ -86,17 +86,17 @@ export class E2eStackService {
         process.env.POSTGRESQL_PRIMARY_USERNAME = this.postgresContainer.getUsername()
         process.env.POSTGRESQL_PRIMARY_PASSWORD = this.postgresContainer.getPassword()
         process.env.POSTGRESQL_PRIMARY_DATABASE = this.postgresContainer.getDatabase()
-        // let TypeORM create every table/enum on connect — no migrations in tests
+        // let TypeORM create every table/enum on connect -- no migrations in tests
         process.env.POSTGRESQL_PRIMARY_SYNCHRONIZE = "true"
 
         // TODO: no flow needs Redis/NATS yet. When one does, call
         // `startGenericContainer("redis:7-alpine", [6379])` (or the NATS
-        // image) from here and read the mapped port off the returned handle —
+        // image) from here and read the mapped port off the returned handle --
         // do NOT hand-roll a second container lifecycle helper.
     }
 
     /**
-     * Per-flow fixture seeding hook — a documented no-op for now. Individual
+     * Per-flow fixture seeding hook -- a documented no-op for now. Individual
      * e2e/harness flows still seed their own fixtures inline (see
      * `createE2eApp` callers); this is the future home for fixtures shared
      * across flows once one actually needs them.
@@ -131,10 +131,10 @@ export class E2eStackService {
     }
 
     /**
-     * Start an ad-hoc infra container (Redis, NATS, …) and track it so
+     * Start an ad-hoc infra container (Redis, NATS, ...) and track it so
      * {@link down} stops it automatically.
      *
-     * No default caller today — Postgres is the only infra every flow needs
+     * No default caller today -- Postgres is the only infra every flow needs
      * (see the TODO in {@link up}). A future flow that requires more infra
      * calls this instead of hand-rolling its own container lifecycle.
      */

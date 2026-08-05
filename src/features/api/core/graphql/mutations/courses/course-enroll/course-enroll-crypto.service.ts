@@ -49,14 +49,14 @@ import {
  * Crypto (NOWPayments) course enrollment: creates a hosted invoice (redirect
  * provider, USDT/USDC) and persists a pending preflight row.
  *
- * International gateway → charges the explicit USD price (`pricing_phases.priceUsd`)
+ * International gateway -> charges the explicit USD price (`pricing_phases.priceUsd`)
  * as the invoice `price_amount` (dollars in the configured price currency), not the
  * VND amount. The VND price is still stored on the transaction as a stable reference.
  *
- * Honours a **Percent** `request.voucherCode` (currency-agnostic — applies to
+ * Honours a **Percent** `request.voucherCode` (currency-agnostic -- applies to
  * `priceUsd`) per `PAYMENT_MODIFIER_CAPABILITY`; a Flat (VND) voucher is
  * rejected before dispatch (see course-enroll.handler.ts), so this service
- * only ever sees Percent here. Same preview → reserve pattern as
+ * only ever sees Percent here. Same preview -> reserve pattern as
  * {@link CourseEnrollSepayService}.
  */
 export class CourseEnrollCryptoService {
@@ -125,7 +125,7 @@ export class CourseEnrollCryptoService {
             course,
             discountPercent,
         })
-        // never charge VND as USD — reject when no USD price is configured
+        // never charge VND as USD -- reject when no USD price is configured
         if (!priceUsd || priceUsd <= 0) {
             throw new MissingUsdPriceException({
                 paymentType: PaymentType.Crypto,
@@ -134,9 +134,9 @@ export class CourseEnrollCryptoService {
         }
 
         // an invalid/unsupported code throws HERE (before any row or invoice is
-        // created) — a valid Percent voucher further discounts the USD price. A
+        // created) -- a valid Percent voucher further discounts the USD price. A
         // Flat voucher never reaches here (rejected before dispatch in
-        // course-enroll.handler.ts — Flat is VND-only per PAYMENT_MODIFIER_CAPABILITY).
+        // course-enroll.handler.ts -- Flat is VND-only per PAYMENT_MODIFIER_CAPABILITY).
         const discountedPriceUsd = voucherCode
             ? this.voucherService.applyToAmount(
                 priceUsd,
@@ -219,7 +219,7 @@ export class CourseEnrollCryptoService {
             )
             const saved = await manager.save(created)
             if (voucherCode) {
-                // re-validate + reserve UNDER LOCK — the earlier previewDiscount() was
+                // re-validate + reserve UNDER LOCK -- the earlier previewDiscount() was
                 // advisory only (no lock held), so a race since then is still caught here
                 await this.voucherService.reserve({
                     entityManager: manager,
@@ -236,7 +236,7 @@ export class CourseEnrollCryptoService {
             transactionId: transaction.id,
         })
 
-        // redirect provider → no signed form fields (checkoutFields stays null)
+        // redirect provider -> no signed form fields (checkoutFields stays null)
         return {
             checkoutUrl: invoice.invoiceUrl,
             referenceId: String(orderCode),

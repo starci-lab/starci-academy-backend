@@ -20,7 +20,7 @@ import type {
  * // => { deviceType: "desktop", os: "Windows", browser: "Chrome" }
  */
 export const parseUserAgent = (userAgent: string | undefined): DeviceInfo => {
-    // no header → nothing to parse; surface an all-null record
+    // no header -> nothing to parse; surface an all-null record
     if (!userAgent) {
         return {
             deviceType: null,
@@ -31,9 +31,9 @@ export const parseUserAgent = (userAgent: string | undefined): DeviceInfo => {
     // ua-parser-js extracts browser/os/device from the user-agent grammar
     const result = new UAParser(userAgent).getResult()
     return {
-        // device.type is undefined for desktops → normalise to the "desktop" class
+        // device.type is undefined for desktops -> normalise to the "desktop" class
         deviceType: result.device.type ?? "desktop",
-        // os/browser names are undefined on unrecognised agents → null
+        // os/browser names are undefined on unrecognised agents -> null
         os: result.os.name ?? null,
         browser: result.browser.name ?? null,
     }

@@ -18,12 +18,12 @@ import {
  *
  * Reuses {@link MyCodingProgressResponseData} (same shape): the profile owner's
  * solved / attempted / revealed problem ids + total coding points. Differs from
- * `myCodingProgress` only in subject — the user named in the route.
+ * `myCodingProgress` only in subject -- the user named in the route.
  */
 export class UserCodingProgressResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<MyCodingProgressResponseData> {
-    /** Same shape as `myCodingProgress`'s data — only the subject user differs. */
+    /** Same shape as `myCodingProgress`'s data -- only the subject user differs. */
     @Field(
         () => MyCodingProgressResponseData,
         {

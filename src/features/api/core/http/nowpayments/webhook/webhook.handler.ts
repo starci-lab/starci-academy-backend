@@ -64,7 +64,7 @@ import {
 @CommandHandler(NowPaymentsWebhookCommand)
 @Injectable()
 /**
- * Verifies HMAC over the raw body then settles the transaction — a mismatched signature
+ * Verifies HMAC over the raw body then settles the transaction -- a mismatched signature
  * means the payload is untrusted and must be rejected.
  */
 export class NowPaymentsWebhookHandler
@@ -100,7 +100,7 @@ export class NowPaymentsWebhookHandler
             signature,
         })
         if (!verified) {
-            // mismatched signature means the payload is untrusted → reject
+            // mismatched signature means the payload is untrusted -> reject
             throw new InvalidNowpaymentsWebhookSignatureException({
                 paymentId: body.payment_id != null ? String(body.payment_id) : undefined,
             })
@@ -127,7 +127,7 @@ export class NowPaymentsWebhookHandler
         }
 
         // underpayment guard: crypto can settle "finished" while the buyer sent
-        // less than quoted — require the received amount to cover the expected one
+        // less than quoted -- require the received amount to cover the expected one
         const payAmount = Number(body.pay_amount)
         const actuallyPaid = Number(body.actually_paid)
         if (
@@ -154,7 +154,7 @@ export class NowPaymentsWebhookHandler
         // order_id carries our transaction reference id
         const referenceId = body.order_id
         if (!referenceId) {
-            // without our reference id we cannot match a transaction → reject
+            // without our reference id we cannot match a transaction -> reject
             throw new TransactionNotFoundException({
                 referenceId: "missing order_id",
             })

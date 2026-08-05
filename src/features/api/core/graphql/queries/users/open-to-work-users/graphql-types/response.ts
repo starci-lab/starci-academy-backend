@@ -14,7 +14,7 @@ import {
     description: "Response wrapper for the openToWorkUsers query.",
 })
 /**
- * Response wrapper for the openToWorkUsers query — a page of users who opted into
+ * Response wrapper for the openToWorkUsers query -- a page of users who opted into
  * "open to work". Each item is a `UserEntity`, so the shared resolved fields
  * (follower / following counts) come along; the client renders a candidate card
  * and links to `/profile/<username>`.

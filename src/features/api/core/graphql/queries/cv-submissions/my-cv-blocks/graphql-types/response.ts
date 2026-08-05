@@ -82,7 +82,7 @@ export class CvBlocksDocument {
     description: "Response for the current user's CV documents.",
 })
 /**
- * Response wrapper for the `myCvBlocks` query — the signed-in user's CV
+ * Response wrapper for the `myCvBlocks` query -- the signed-in user's CV
  * documents, most recently updated first.
  */
 export class MyCvBlocksResponse

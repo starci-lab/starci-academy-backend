@@ -36,7 +36,7 @@ export class SeedScopeService {
         return this.seeders().enabled
     }
 
-    /** Whether the course pipeline (modules → … → milestones) is enabled. */
+    /** Whether the course pipeline (modules -> ... -> milestones) is enabled. */
     isCoursesSeederEnabled(): boolean {
         return this.seeders().courses.enabled
     }

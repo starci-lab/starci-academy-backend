@@ -1,4 +1,4 @@
-/** Server → client message when a comment is created/updated/deleted. */
+/** Server -> client message when a comment is created/updated/deleted. */
 export interface CommentChangedSocketIoMessage {
     /** Content the comment belongs to. */
     contentId: string
@@ -8,13 +8,13 @@ export interface CommentChangedSocketIoMessage {
     parentCommentId: string | null
 }
 
-/** Server → client message when a content's aggregate reactions change. */
+/** Server -> client message when a content's aggregate reactions change. */
 export interface ContentReactionChangedSocketIoMessage {
     /** Content whose reaction summary changed. */
     contentId: string
 }
 
-/** Server → client message when a comment's aggregate reactions change. */
+/** Server -> client message when a comment's aggregate reactions change. */
 export interface CommentReactionChangedSocketIoMessage {
     /** Content the comment belongs to. */
     contentId: string

@@ -52,16 +52,16 @@ const baseRequest: SubmitJobPostingRequest = {
 } as SubmitJobPostingRequest
 
 /**
- * e2e for the public `submitJobPosting` mutation — `.claude/canon/be/enforce/
+ * e2e for the public `submitJobPosting` mutation -- `.claude/canon/be/enforce/
  * authoring/testing.md` §2 names every write flow that commits state as
  * required e2e coverage; `SubmitJobPostingResolver` (the resolver IS the
- * write logic here — there is no separate domain service) had zero coverage
+ * write logic here -- there is no separate domain service) had zero coverage
  * above `submit-job-posting.resolver` unit-level mocks. Runs the real
  * transactional company-resolve-or-create + posting insert + unique-slug
  * generation against REAL Postgres (Testcontainers).
  *
  * REAL: Postgres (Testcontainers), `SubmitJobPostingResolver` (the mutation
- * under test) — the resolver has no other dependencies (no event fan-out, no
+ * under test) -- the resolver has no other dependencies (no event fan-out, no
  * external SDK, no other service), so nothing needs stubbing. The resolver's
  * `@UseGuards(KeycloakAuthGraphQLGuard)` HTTP-level auth is out of scope here
  * (covered by calling `execute` directly with an already-resolved user, same
@@ -79,7 +79,7 @@ describe("Public job-posting submission (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -88,11 +88,11 @@ describe("Public job-posting submission (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the transactional insert logic under test; the class
+                    // REAL -- the transactional insert logic under test; the class
                     // is a plain `@Resolver()` provider, resolvable by Nest DI the
                     // same as any other injectable outside a GraphQLModule context
                     SubmitJobPostingResolver,
-                    // guard deps — the resolver's class-level
+                    // guard deps -- the resolver's class-level
                     // `@UseGuards(KeycloakAuthGraphQLGuard)` makes Nest construct
                     // the guard at compile time, so its constructor deps must
                     // resolve. The guard never runs here (tests call `execute`
@@ -269,7 +269,7 @@ describe("Public job-posting submission (e2e)",
                 })
 
                 expect(await entityManager.count(JobPostingEntity)).toBe(0)
-                // the pre-existing seeded company must be the only row — no orphan
+                // the pre-existing seeded company must be the only row -- no orphan
                 // extra company was created by the rejected attempt
                 expect(await entityManager.count(HeadhuntingCompanyEntity)).toBe(1)
             })

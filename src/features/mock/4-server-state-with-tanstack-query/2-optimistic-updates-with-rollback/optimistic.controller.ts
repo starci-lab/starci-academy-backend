@@ -18,7 +18,7 @@ import {
 @UseInterceptors(MockDelayInterceptor)
 @Controller("mocks/4-server-state-with-tanstack-query/2-optimistic-updates-with-rollback/sessions/:sessionId")
 /**
- * Mock controller for lesson `2-optimistic-updates-with-rollback` — exposes a
+ * Mock controller for lesson `2-optimistic-updates-with-rollback` -- exposes a
  * read + patch endpoint where `?fail=true` forces a server error so the demo can
  * show optimistic-update rollback.
  */

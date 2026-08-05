@@ -21,8 +21,8 @@ import type {
 
 @Injectable()
 /**
- * Reads a viewer's installment ("trả góp") plans for the "Kế hoạch trả góp của
- * tôi" surface — a per-viewer single-list read (exempt from the CQRS-projection
+ * Reads a viewer's installment plans for the my-installment-plans surface -- a
+ * per-viewer single-list read (exempt from the CQRS-projection
  * rule, like `MyMockInterviewAttemptBySessionService`), NOT an aggregate. Each
  * plan is enriched with THIS cycle's minimum payment (via the shared
  * {@link InstallmentPlanService.computeMinPaymentVnd}, so the surface and the
@@ -52,7 +52,7 @@ export class MyInstallmentPlansService {
                     user: {
                         id: userId,
                     },
-                    // a finished plan has nothing to pay — hide it from the "plans to pay" surface
+                    // a finished plan has nothing to pay -- hide it from the "plans to pay" surface
                     status: Not(InstallmentPlanStatus.Completed),
                 },
                 order: {
@@ -64,7 +64,7 @@ export class MyInstallmentPlansService {
             return []
         }
 
-        // resolve every gated course's title in ONE query (id → title)
+        // resolve every gated course's title in ONE query (id -> title)
         const courseIds = [...new Set(plans.flatMap((plan) => plan.lockedCourseIds))]
         const courses = courseIds.length > 0
             ? await this.entityManager.find(

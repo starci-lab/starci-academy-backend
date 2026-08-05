@@ -35,7 +35,7 @@ let currentTier: HarnessTierName = "high"
 
 /**
  * REAL CV samples from the `.volume` SSOT mount, labelled by seniority. These
- * are the gold-standard exemplars the app itself ships — grading them (rather
+ * are the gold-standard exemplars the app itself ships -- grading them (rather
  * than hand-written fixtures) tests the grader against the actual material and
  * lets us assert it DISCRIMINATES real seniority (senior scores above junior).
  */
@@ -189,7 +189,7 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
                 expect(seniorGrade.score).toBeGreaterThan(juniorGrade.score)
             })
 
-        // ── guard: no CV content → throws before any model call ──
+        // ── guard: no CV content -> throws before any model call ──
         it("throws when neither structuredData nor cvText is provided",
             async () => {
                 await expect(

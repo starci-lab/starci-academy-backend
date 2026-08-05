@@ -17,7 +17,7 @@ export interface ChangelogSeedItem {
     body?: LocalizedText | null
     /** Category chip, optional. */
     category?: ChangelogCategory | null
-    /** Publish date (ISO) — drives ordering + the shown date. */
+    /** Publish date (ISO) -- drives ordering + the shown date. */
     publishedAt: string
     /** Optional "read more" destination. */
     linkUrl?: string | null
@@ -26,7 +26,7 @@ export interface ChangelogSeedItem {
 }
 
 /**
- * Root object the markdown JSON extractor returns for the changelog seed file —
+ * Root object the markdown JSON extractor returns for the changelog seed file --
  * the authored `# N` sections are wrapped under a single `data` array.
  *
  * Declared as a `type` (not `interface`) so its implicit index signature

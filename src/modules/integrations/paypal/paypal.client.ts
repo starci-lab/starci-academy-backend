@@ -134,7 +134,7 @@ export class PaypalClient {
 
     /**
      * Capture the funds of an APPROVED order. With `intent: CAPTURE`, buyer
-     * approval alone does NOT move money — the funds are only taken when this
+     * approval alone does NOT move money -- the funds are only taken when this
      * capture call runs. Treats an already-captured order (PayPal 422
      * `ORDER_ALREADY_CAPTURED`) as a success so retries/webhook+reconcile races
      * are idempotent.
@@ -169,7 +169,7 @@ export class PaypalClient {
                 captured: status === "COMPLETED",
             }
         } catch (error) {
-            // an already-captured order is not a failure — the money is in
+            // an already-captured order is not a failure -- the money is in
             const issue = this.extractPaypalIssue(error)
             if (issue === "ORDER_ALREADY_CAPTURED") {
                 // recover the authoritative status + reference id via the detail API
@@ -183,7 +183,7 @@ export class PaypalClient {
                     captured: true,
                 }
             }
-            // any other failure is a real capture failure → propagate
+            // any other failure is a real capture failure -> propagate
             throw error
         }
     }

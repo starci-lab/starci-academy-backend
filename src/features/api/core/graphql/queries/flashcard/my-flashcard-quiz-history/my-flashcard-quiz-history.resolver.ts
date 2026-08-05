@@ -42,7 +42,7 @@ import {
 
 @Resolver()
 /**
- * The viewer's flashcard quick-quiz ("Hỏi nhanh") HISTORY for one course —
+ * The viewer's flashcard quick-quiz HISTORY for one course --
  * every past completed session (newest first), paginated, so the recap
  * surface's "past sessions" can list them without re-deriving coverage or
  * joining `xp_histories`. Enrollment-scoped, same as
@@ -107,7 +107,7 @@ export class MyFlashcardQuizHistoryResolver {
             limit: safeLimit,
             offset: safeOffset,
         })
-        // project to the GraphQL shape — serialize each session's timestamp
+        // project to the GraphQL shape -- serialize each session's timestamp
         return {
             totalCount: result.totalCount,
             items: result.items.map((item) => ({

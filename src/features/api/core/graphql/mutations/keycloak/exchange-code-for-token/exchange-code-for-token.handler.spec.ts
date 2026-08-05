@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -125,7 +125,7 @@ describe("ExchangeCodeForTokenHandler",
                     email: "new@example.com",
                     preferred_username: "newbie",
                 } as never)
-                // no local user yet → one is created
+                // no local user yet -> one is created
                 entityManager.findOne.mockResolvedValueOnce(null)
 
                 const result = await handler.execute(
@@ -190,7 +190,7 @@ describe("ExchangeCodeForTokenHandler",
 
         it("throws when the exchanged token decodes to an invalid payload",
             async () => {
-                // decode yields no subject → invalid payload
+                // decode yields no subject -> invalid payload
                 jwtService.decode.mockReturnValueOnce(null as never)
 
                 await expect(

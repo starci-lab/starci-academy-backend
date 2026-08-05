@@ -106,7 +106,7 @@ describe("TaskHandler",
                     }),
                 )
 
-                // missing request locale → En
+                // missing request locale -> En
                 expect(s3NameResolverService.milestoneTask).toHaveBeenCalledWith(
                     "task-2",
                     Locale.En,

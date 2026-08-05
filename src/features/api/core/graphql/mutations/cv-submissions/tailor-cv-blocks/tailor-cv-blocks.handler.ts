@@ -40,7 +40,7 @@ import {
 @CommandHandler(TailorCvBlocksCommand)
 @Injectable()
 /**
- * Handler for `tailorCvBlocks` — tailors the ENTIRE CV blocks array toward a job
+ * Handler for `tailorCvBlocks` -- tailors the ENTIRE CV blocks array toward a job
  * description via a SYNCHRONOUS AI invoke (no BullMQ enqueue). Nothing is
  * persisted; the FE swaps the returned blocks into the editor.
  *
@@ -48,12 +48,12 @@ import {
  * better match the JD WITHOUT inventing false facts, and MUST return the SAME
  * block structure (same block `id`/`type`, same item `id`) with adjusted item
  * `fields`. The reply is prompted as a STRICT JSON array; it is parsed +
- * validated defensively (extract → JSON.parse → assert array) and each returned
+ * validated defensively (extract -> JSON.parse -> assert array) and each returned
  * block is merged back onto the ORIGINAL by `id`, so structural identity is
  * preserved even if the model drifts. A parse failure or non-array reply throws
  * a clear error rather than returning malformed data.
  *
- * A validated model pick threads through `selection`; no pick → the Auto lane
+ * A validated model pick threads through `selection`; no pick -> the Auto lane
  * picks (local-first). Mirrors rewrite-cv-block's invoke path.
  */
 export class TailorCvBlocksHandler
@@ -121,9 +121,9 @@ export class TailorCvBlocksHandler
             JSON.stringify(blocks),
         ].join("\n")
 
-        // synchronous, inline invoke via the shared balancer path — mirrors
+        // synchronous, inline invoke via the shared balancer path -- mirrors
         // rewrite-cv-block. A validated pick threads through `selection`; no pick
-        // → empty selection → Auto lane picks (local-first).
+        // -> empty selection -> Auto lane picks (local-first).
         const {
             text: raw,
         } = await this.aiInvokeService.run({
@@ -242,7 +242,7 @@ export class TailorCvBlocksHandler
             const id = typeof originalBlock.id === "string" ? originalBlock.id : ""
             const tailoredBlock = id ? tailoredById.get(id) : undefined
             if (!tailoredBlock) {
-                // model dropped this block — keep the original untouched.
+                // model dropped this block -- keep the original untouched.
                 return originalBlock
             }
             // merge tailored wording over the original, but hard-preserve the

@@ -78,7 +78,7 @@ export class SocketioRealtimeChatGateway implements OnGatewayDisconnect {
             room: body.room,
             createdAt: new Date().toISOString(),
         }
-        // fan out to all members of the room (sender included → echo)
+        // fan out to all members of the room (sender included -> echo)
         this.server.to(body.room).emit("chatToClient",
             message)
     }

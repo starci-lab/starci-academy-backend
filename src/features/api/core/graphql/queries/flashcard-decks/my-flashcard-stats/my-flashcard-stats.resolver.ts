@@ -34,8 +34,8 @@ import {
 
 @Resolver()
 /**
- * The viewer's flashcard study stats — review streak, retention rate, and total
- * reviewed — derived from the `flashcard_review_events` log. Thin read off the
+ * The viewer's flashcard study stats -- review streak, retention rate, and total
+ * reviewed -- derived from the `flashcard_review_events` log. Thin read off the
  * per-user CQRS projection (the history scan runs in recompute, not per request).
  */
 export class MyFlashcardStatsResolver {

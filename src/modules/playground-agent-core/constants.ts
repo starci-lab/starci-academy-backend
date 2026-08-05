@@ -1,5 +1,5 @@
 /**
- * Wire event names — MUST match the server `PublicationEvent` enum verbatim.
+ * Wire event names -- MUST match the server `PublicationEvent` enum verbatim.
  * The full set lives here so every agent shares one vocabulary; a capability
  * that doesn't use an event (e.g. the RAG agent ignores `resourcesReport`)
  * simply never emits/listens for it.
@@ -29,5 +29,5 @@ export const NAMESPACE = "/playground_byom"
 /** How often (ms) to push a fresh resource snapshot even without a command. */
 export const RESOURCE_INTERVAL_MS = 5000
 
-/** Default StarCi API origin (prod) — overridable via `--server` or `STARCI_PLAYGROUND_SERVER`. */
+/** Default StarCi API origin (prod) -- overridable via `--server` or `STARCI_PLAYGROUND_SERVER`. */
 export const DEFAULT_SERVER = "wss://api.academy.starci.org"

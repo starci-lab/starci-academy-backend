@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * Maps step index → send then complete so a failed SMTP call never marks the mail job
+ * Maps step index -> send then complete so a failed SMTP call never marks the mail job
  * complete.
  */
 export class SendMailStepMappingService {

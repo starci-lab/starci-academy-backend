@@ -57,7 +57,7 @@ export class CaptchaGuard implements CanActivate {
             throw new CaptchaVerificationFailedException({
             })
         }
-        // captcha satisfied → allow the mutation through
+        // captcha satisfied -> allow the mutation through
         return true
     }
 
@@ -96,7 +96,7 @@ export class CaptchaGuard implements CanActivate {
      * @returns The client IP, or null when unknown.
      */
     private resolveRemoteIp(request: Request): string | null {
-        // X-Forwarded-For may be a list "client, proxy1, ..." → take first hop
+        // X-Forwarded-For may be a list "client, proxy1, ..." -> take first hop
         const forwarded = request.headers["x-forwarded-for"]
         const firstForwarded = Array.isArray(forwarded) ? forwarded[0] : forwarded
         // prefer the forwarded client address, else the socket address

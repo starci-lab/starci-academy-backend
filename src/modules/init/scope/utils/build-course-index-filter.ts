@@ -17,7 +17,7 @@ import {
  *
  * @param tracksByDisplayId - `seed.yaml` tracks keyed by course displayId
  * @param pickIndexes - selects the scope value from one track (modules / milestones / sink)
- * @returns Filter map keyed by displayId (`null` = all, `Set()` = off, `Set(n…)` = allow-list)
+ * @returns Filter map keyed by displayId (`null` = all, `Set()` = off, `Set(n...)` = allow-list)
  */
 export const buildCourseIndexFilterByDisplayId = <TrackType>(
     tracksByDisplayId: Record<string, TrackType>,

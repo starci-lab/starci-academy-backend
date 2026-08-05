@@ -7,13 +7,13 @@
  * - `"quiz"`: a flashcard-quiz deck (RAG chunk, enrolled-only).
  * - `"foundation"`: a global foundation-library doc (single-doc RAG, no course gate).
  * - `"course"`: the whole course, no page of its own (course-wide RAG is the ONLY
- *   grounding — the additive BASE described below IS the course's grounding here).
- * - `"global"`: the app-wide chat — no page anchor AND no course (truly anchorless).
+ *   grounding -- the additive BASE described below IS the course's grounding here).
+ * - `"global"`: the app-wide chat -- no page anchor AND no course (truly anchorless).
  *   Anchored on the USER (like `foundation`), never an enrollment.
  *
  * ADDITIVE grounding: every anchored scope above (content/task/challenge/quiz)
  * layers a course-wide BASE (this course's RAG, premium-excluded for a
- * non-enrolled viewer) UNDER its own page-specific grounding — see
+ * non-enrolled viewer) UNDER its own page-specific grounding -- see
  * {@link import("../content-ai.service").ContentAiService.prepareMessages}.
  */
 export type ContentAiScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course" | "global"

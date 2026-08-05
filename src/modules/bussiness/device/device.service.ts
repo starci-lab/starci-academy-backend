@@ -44,7 +44,7 @@ export class DeviceService {
         ipAddress,
         userAgent,
     }: RecordDeviceParams): Promise<RecordDeviceResult> {
-        // without a fingerprint we cannot identify the device → skip silently
+        // without a fingerprint we cannot identify the device -> skip silently
         if (!fingerprint) {
             return
         }
@@ -58,7 +58,7 @@ export class DeviceService {
                     fingerprint,
                 },
             })
-        // first sighting → create a fresh (untrusted) device row
+        // first sighting -> create a fresh (untrusted) device row
         if (!existing) {
             await this.entityManager.save(DeviceEntity,
                 {
@@ -73,7 +73,7 @@ export class DeviceService {
                 })
             return
         }
-        // returning device → refresh the latest IP/UA and bump last-seen
+        // returning device -> refresh the latest IP/UA and bump last-seen
         existing.ipAddress = ipAddress
         existing.userAgent = userAgent
         existing.lastSeenAt = new Date()

@@ -17,7 +17,7 @@ import {
 
 @Injectable()
 /**
- * SCHEMA V2 Google Docs submission pipeline: grade against criteria → complete (2-step). Reuses the
+ * SCHEMA V2 Google Docs submission pipeline: grade against criteria -> complete (2-step). Reuses the
  * legacy complete step (it keys off the shared `grade` step name).
  */
 export class ProcessGoogleDocsSubmissionStepMappingService {

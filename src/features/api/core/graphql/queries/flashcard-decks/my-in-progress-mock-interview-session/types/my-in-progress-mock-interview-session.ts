@@ -12,7 +12,7 @@ export interface MyInProgressMockInterviewSeedQuestion {
 
 /** One synced transcript turn, read back for a resumable session. */
 export interface MyInProgressMockInterviewSessionTurn {
-    /** Who spoke this turn — "interviewer" or "candidate". */
+    /** Who spoke this turn -- "interviewer" or "candidate". */
     role: string
     /** Which of the 5 canonical interview phases this turn belongs to (mode="design" only). */
     phase: string
@@ -33,13 +33,13 @@ export interface FindMyInProgressMockInterviewSessionParams {
 }
 
 /**
- * The learner's most recent RESUMABLE mock-interview session for one course —
+ * The learner's most recent RESUMABLE mock-interview session for one course --
  * "resume mock interview session" (2026-07-08). Null when there is none (no
  * draw was ever left in-flight, the last draw already graded/was abandoned,
  * or the last sync is older than the resume window).
  */
 export interface MyInProgressMockInterviewSessionResult {
-    /** Id of the persisted session draw — pass to `syncMockInterviewSessionTurns` / `gradeMockInterviewSession`. */
+    /** Id of the persisted session draw -- pass to `syncMockInterviewSessionTurns` / `gradeMockInterviewSession`. */
     sessionId: string
     /** The drawn prompt's id. */
     promptId: string
@@ -49,7 +49,7 @@ export interface MyInProgressMockInterviewSessionResult {
     level: string | null
     /** The drawn prompt's difficulty tier. */
     difficulty: string
-    /** Where the drawn prompt came from — "capstone" | "classic" | "flashcard" | "interview-bank". */
+    /** Where the drawn prompt came from -- "capstone" | "classic" | "flashcard" | "interview-bank". */
     source: string
     /** The top-level flow this session runs ("qna" | "design"). */
     mode: string | null
@@ -63,7 +63,7 @@ export interface MyInProgressMockInterviewSessionResult {
     phaseIndex: number
     /** When this session was last synced/updated. */
     updatedAt: Date
-    /** When the persisted session row was drawn — the anchor for the 1-hour session time limit, so a RESUMED session's countdown reflects the true remaining time, not a freshly-reset hour. */
+    /** When the persisted session row was drawn -- the anchor for the 1-hour session time limit, so a RESUMED session's countdown reflects the true remaining time, not a freshly-reset hour. */
     createdAt: Date
     /** Optional user-chosen name for this practice session; null when the learner didn't name it (FE renders a time-based fallback). */
     name: string | null

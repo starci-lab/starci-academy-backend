@@ -85,13 +85,13 @@ export class PinCourseProjectResolver {
             techStack,
         } = request
 
-        // verify the enrollment exists AND belongs to the caller — otherwise a
+        // verify the enrollment exists AND belongs to the caller -- otherwise a
         // user could pin someone else's capstone
         const enrollment = await this.entityManager.findOne(EnrollmentEntity,
             {
                 where: {
                     id: enrollmentId,
-                    // userId is a @RelationId (virtual, not queryable) — filter via
+                    // userId is a @RelationId (virtual, not queryable) -- filter via
                     // the user relation's real FK column
                     user: {
                         id: user.id,
@@ -108,7 +108,7 @@ export class PinCourseProjectResolver {
         }
 
         // count the user's existing pins to enforce the cap and compute the order
-        // (scope via the user relation's FK — `userId` is a @RelationId, not a column)
+        // (scope via the user relation's FK -- `userId` is a @RelationId, not a column)
         const existingCount = await this.entityManager.count(UserPinnedProjectEntity,
             {
                 where: {

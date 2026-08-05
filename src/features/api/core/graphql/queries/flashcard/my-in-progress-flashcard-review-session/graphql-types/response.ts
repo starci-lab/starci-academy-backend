@@ -13,7 +13,7 @@ import {
     description: "The learner's most recent resumable flashcard review session for one deck.",
 })
 /**
- * The learner's most recent RESUMABLE flashcard review ("Học thẻ") session
+ * The learner's most recent RESUMABLE flashcard review session
  * for one deck. The query itself resolves to `null` (not this type) when
  * there is none.
  */
@@ -80,7 +80,7 @@ export class MyInProgressFlashcardReviewSessionData {
 })
 /**
  * GraphQL envelope for `myInProgressFlashcardReviewSession`. `data` is
- * null when the learner has no resumable single-deck "Học thẻ" session —
+ * null when the learner has no resumable single-deck review session --
  * the FE should start a new review rather than resume.
  */
 export class MyInProgressFlashcardReviewSessionResponse

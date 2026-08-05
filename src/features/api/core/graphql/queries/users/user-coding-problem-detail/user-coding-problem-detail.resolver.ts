@@ -37,7 +37,7 @@ import {
 @Resolver()
 /**
  * Public profile query: the detail of ONE coding problem, backing
- * `/profile/<username>/skills/<slug>` — the problem itself (statement, tags,
+ * `/profile/<username>/skills/<slug>` -- the problem itself (statement, tags,
  * sample testcases, starter codes; no ownership check) plus the TARGET user's
  * accepted-submission summary (languages/verdict/passedCount/totalCount/
  * firstSolvedAt), or null when unsolved. Same guard stack as

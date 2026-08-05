@@ -30,13 +30,13 @@ import type {
 
 @Injectable()
 /**
- * CDC consumer that keeps `league_cohort_points_projections` fresh — a points
+ * CDC consumer that keeps `league_cohort_points_projections` fresh -- a points
  * event rebuilds the earner's current cohort board. The xp_histories row carries
  * only `user_id`, so the affected cohort is resolved via `user_leagues`. A user
  * with no current cohort (unplaced) is skipped. TTL lazy-refresh is the fallback.
  */
 export class LeagueCohortPointsProjectionListener extends AbstractProjectionListener<string> {
-    /** Stable group → restarts resume from the committed offset. */
+    /** Stable group -> restarts resume from the committed offset. */
     protected readonly groupId = "league-cohort-points-projection"
 
     /** Points events move the earner's cohort board. */
@@ -58,7 +58,7 @@ export class LeagueCohortPointsProjectionListener extends AbstractProjectionList
 
     /**
      * Resolve the earner's current cohort id from the points event's `user_id`
-     * (via user_leagues). Returns 0–1 cohort ids (skips unplaced users).
+     * (via user_leagues). Returns 0-1 cohort ids (skips unplaced users).
      *
      * @param message - {@link ProjectionCdcMessage}
      * @returns the affected cohort id(s).
@@ -72,7 +72,7 @@ export class LeagueCohortPointsProjectionListener extends AbstractProjectionList
         if (!xpRow.user_id) {
             return []
         }
-        // xp_histories has no cohort_id → look up the earner's current cohort
+        // xp_histories has no cohort_id -> look up the earner's current cohort
         const found = await this.entityManager.query<Array<CohortIdRow>>(
             `
             SELECT ul.cohort_id

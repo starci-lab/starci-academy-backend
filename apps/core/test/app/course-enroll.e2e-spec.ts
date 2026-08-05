@@ -92,25 +92,25 @@ import type {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for every `courses/course-enroll` gateway path — `.artifacts/states/transactions/`
+ * e2e for every `courses/course-enroll` gateway path -- `.artifacts/states/transactions/`
  * findings: none of the 5 per-provider services (PayOS/Sepay/Stripe/PayPal/Crypto) nor the
  * handler's cross-cutting guards (already-enrolled, installment/voucher capability) had
- * coverage against a REAL Postgres — only the handler's routing was unit-tested against a
+ * coverage against a REAL Postgres -- only the handler's routing was unit-tested against a
  * mocked entity manager and mocked provider sub-services
  * (`course-enroll.handler.spec.ts`). This spec drives the real
  * {@link CourseEnrollHandler} with every real sub-service + real pricing/loyalty/voucher
  * stack against Testcontainers Postgres, asserting the persisted `Pending` `TransactionEntity`
  * row (amount, discount, installment snapshot) and the gateway SDK call shape.
  *
- * MOCKED (genuinely external — never hit the network in a test):
- *  - The 5 gateway SDK clients (SePay/PayOS/Stripe/PayPal/Crypto) — `checkout`/`paymentRequests`/
+ * MOCKED (genuinely external -- never hit the network in a test):
+ *  - The 5 gateway SDK clients (SePay/PayOS/Stripe/PayPal/Crypto) -- `checkout`/`paymentRequests`/
  *    `sessions`/`createOrder`/`createInvoice` calls are jest-backed and asserted, never real HTTP.
- *  - `EnqueueReconcileTransactionJobService` — the delayed reconcile-poll hand-off (mirrors the
+ *  - `EnqueueReconcileTransactionJobService` -- the delayed reconcile-poll hand-off (mirrors the
  *    `sepay-webhook.e2e-spec.ts` pattern for the enroll-job queue).
  *
  * REAL: Postgres (Testcontainers), `CourseEnrollHandler`, all 5 provider services,
  * `CoursePricingService`, `LoyaltyDiscountService` (+ its two projection services),
- * `VoucherService`, `InstallmentPlanService`, `DayjsService`, `RetryService` — the entire
+ * `VoucherService`, `InstallmentPlanService`, `DayjsService`, `RetryService` -- the entire
  * pricing/capability/persistence stack production wires.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -188,7 +188,7 @@ describe("Course enroll — all gateways (e2e)",
 
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused module doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -197,14 +197,14 @@ describe("Course enroll — all gateways (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the handler + every per-gateway service under test
+                    // REAL -- the handler + every per-gateway service under test
                     CourseEnrollHandler,
                     CourseEnrollPayOsService,
                     CourseEnrollSepayService,
                     CourseEnrollStripeService,
                     CourseEnrollPaypalService,
                     CourseEnrollCryptoService,
-                    // REAL — the whole pricing/loyalty/voucher/installment stack, so the
+                    // REAL -- the whole pricing/loyalty/voucher/installment stack, so the
                     // amounts asserted are exactly what production computes, not a stub echo
                     CoursePricingService,
                     LoyaltyDiscountService,
@@ -214,7 +214,7 @@ describe("Course enroll — all gateways (e2e)",
                     InstallmentPlanService,
                     DayjsService,
                     RetryService,
-                    // mocked — genuinely external SDK clients / the async queue hand-off
+                    // mocked -- genuinely external SDK clients / the async queue hand-off
                     {
                         provide: SEPAY,
                         useValue: sepayClient,
@@ -276,7 +276,7 @@ describe("Course enroll — all gateways (e2e)",
 
         /**
          * Seed a fixture course with ONE EarlyBird `PricingPhaseEntity` row (the tier every
-         * gateway service charges by default — no `metadata` relation loaded means
+         * gateway service charges by default -- no `metadata` relation loaded means
          * `CoursePricingService.getCurrentPricingPhase` falls back to EarlyBird).
          */
         const seedCourse = async (
@@ -293,7 +293,7 @@ describe("Course enroll — all gateways (e2e)",
                         title: "Fullstack Mastery",
                         displayId,
                         description: "e2e fixture course",
-                        // Regular-tier list price — unused by these tests (EarlyBird is charged)
+                        // Regular-tier list price -- unused by these tests (EarlyBird is charged)
                         originalPrice: 999_000,
                         defaultLocale: Locale.En,
                     }),
@@ -422,8 +422,8 @@ describe("Course enroll — all gateways (e2e)",
                             }),
                         )
 
-                        // markup 10% (env default) on the 10,000₫ base → 11,000 total,
-                        // split over 3 cycles → round(11000/3) = 3667 charged now
+                        // markup 10% (env default) on the 10,000₫ base -> 11,000 total,
+                        // split over 3 cycles -> round(11000/3) = 3667 charged now
                         const expectedTotalVnd = 11_000
                         const expectedMonthlyVnd = 3_667
                         expect(result.amount).toBe(expectedMonthlyVnd)
@@ -467,7 +467,7 @@ describe("Course enroll — all gateways (e2e)",
                             }),
                         )
 
-                        // Stripe charges cents: USD dollars × 100
+                        // Stripe charges cents: USD dollars x 100
                         expect(stripeClient.checkout.sessions.create).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 line_items: [
@@ -667,7 +667,7 @@ describe("Course enroll — all gateways (e2e)",
                 it("loyalty: 2 already-owned courses lower the charged VND amount by 10%",
                     async () => {
                         const user = await seedUser("loyalty")
-                        // 2 OTHER paid enrollments (not the course being bought) → +5% each = 10%
+                        // 2 OTHER paid enrollments (not the course being bought) -> +5% each = 10%
                         const owned1 = await seedCourse("loyalty-owned-1")
                         const owned2 = await seedCourse("loyalty-owned-2")
                         await entityManager.save([
@@ -845,7 +845,7 @@ describe("Course enroll — all gateways (e2e)",
                         expect(stripeClient.checkout.sessions.create).not.toHaveBeenCalled()
                         const count = await entityManager.count(TransactionEntity)
                         expect(count).toBe(0)
-                        // the voucher was never reserved — still spendable elsewhere
+                        // the voucher was never reserved -- still spendable elsewhere
                         const untouchedVoucher = await entityManager.findOneOrFail(
                             CourseVoucherEntity,
                             {

@@ -6,7 +6,7 @@ import type {
 /**
  * Params to create a comment (top-level or reply). A top-level comment is scoped to
  * EITHER a lesson content ({@link contentId}) or a whole course ({@link courseId}, a
- * "hỏi chung khóa" course-general question) — exactly one must be set. A reply
+ * course-general question) -- exactly one must be set. A reply
  * (`parentCommentId` set) inherits its scope from the parent instead; both scope
  * fields are ignored for replies.
  */
@@ -50,7 +50,7 @@ export interface DeleteCommentResult {
 /**
  * Params to list comments, optionally scoped to one parent (replies). A top-level
  * listing (`parentCommentId` omitted) requires exactly one of `contentId`/`courseId`;
- * a reply listing only needs `parentCommentId` — it ignores both scope fields (the
+ * a reply listing only needs `parentCommentId` -- it ignores both scope fields (the
  * parent already pins the exact thread, and a course-general question's replies have
  * no `contentId` to scope by anyway).
  */
@@ -99,7 +99,7 @@ export enum CourseQuestionFilter {
     Answered = "answered",
     /** Questions authored by the calling user. */
     Mine = "mine",
-    /** No answer-status filter — every question in the course. */
+    /** No answer-status filter -- every question in the course. */
     All = "all",
 }
 
@@ -117,14 +117,14 @@ export interface ListCourseQuestionsParams {
     page?: number
     /** Page size (default 20). */
     limit?: number
-    /** Calling user id — required to resolve the `mine` filter. */
+    /** Calling user id -- required to resolve the `mine` filter. */
     userId: string
 }
 
 /**
  * One question row: the top-level comment entity plus the computed answer
  * aggregates the resolver needs to build a client node. The comment carries its
- * `content` (→ `module`) and `user` relations loaded.
+ * `content` (-> `module`) and `user` relations loaded.
  */
 export interface CourseQuestionRow {
     /** The top-level comment entity (with `content.module` + `user` loaded). */
@@ -145,7 +145,7 @@ export interface ListCourseQuestionsResult {
 
 /**
  * One raw grouped-count row from the founder-answered lookup
- * (`SELECT parent_comment_id AS parentId`). Only the parent id is selected —
+ * (`SELECT parent_comment_id AS parentId`). Only the parent id is selected --
  * presence in the set means "answered by founder".
  */
 export interface FounderAnsweredRow {

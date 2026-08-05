@@ -22,6 +22,6 @@ import {
     ],
 })
 /**
- * Per-user AI mutation group (subscription purchase, per-surface model ceiling, …).
+ * Per-user AI mutation group (subscription purchase, per-surface model ceiling, ...).
  */
 export class AiMutationsModule extends ConfigurableModuleClass { }

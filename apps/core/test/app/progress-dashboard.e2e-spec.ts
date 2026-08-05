@@ -91,25 +91,25 @@ const POSTGRESQL_PRIMARY = "primary"
 const PASS_THRESHOLD = 0.7
 
 /**
- * e2e for two learner-dashboard READ queries — `myInProgressChallenges` (rail
+ * e2e for two learner-dashboard READ queries -- `myInProgressChallenges` (rail
  * list) and `myCourseOutline` (the full module/lesson/challenge + milestone/
- * task tree with progress overlaid) — over REAL HTTP + REAL Postgres
+ * task tree with progress overlaid) -- over REAL HTTP + REAL Postgres
  * (Testcontainers). Neither had e2e coverage; `progress-query.e2e-spec.ts`
  * covers the two lower-level progress READS (`challengeSubmissionProgress` /
  * `milestoneTaskProgress`) these two queries build on top of.
  *
  * MOCKED (no external infra available in this harness, and the true system
  * boundary these read paths stop at):
- *  - `S3ReadService.json` — `myCourseOutline`'s course tree is S3-sourced
+ *  - `S3ReadService.json` -- `myCourseOutline`'s course tree is S3-sourced
  *    (`CourseHandler`); stubbed to hand back a canned tree whose ids match the
  *    REAL DB rows seeded below, so the progress/read-flag overlay is asserted
  *    against a real join, not a hand-picked stub.
- *  - `ElasticsearchService` — the milestone tree is ES-sourced
+ *  - `ElasticsearchService` -- the milestone tree is ES-sourced
  *    (`MilestonesHandler`); stubbed to `client.search` returning a canned hit
  *    whose milestone/task ids likewise match the real seeded rows.
- *  - `CacheService` — real class talks to Redis; stubbed to always miss, so
+ *  - `CacheService` -- real class talks to Redis; stubbed to always miss, so
  *    `PersonalProjectProgressService` exercises its real DB computation.
- *  - `MountStorageService` — real class reads a mounted app-config file for
+ *  - `MountStorageService` -- real class reads a mounted app-config file for
  *    the pass threshold; stubbed to a fixed 0.7 (matches
  *    `progress-query.e2e-spec.ts`).
  *
@@ -118,7 +118,7 @@ const PASS_THRESHOLD = 0.7
  * `CourseHandler`, `MilestonesHandler`), `ChallengeProgressService` (its real
  * `user_challenge_progress_projections` UPSERT + TTL lazy-refresh),
  * `PersonalProjectProgressService`'s real per-task join, and
- * `KeycloakAuthGraphQLGuard` — overridden only to stamp `request.user`.
+ * `KeycloakAuthGraphQLGuard` -- overridden only to stamp `request.user`.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
@@ -171,7 +171,7 @@ describe("Learner-dashboard read queries — myInProgressChallenges / myCourseOu
 
         const GRAPHQL_ENDPOINT = "/graphql"
 
-        /** Fixture ids shared by every test (seeded once — read-only material). */
+        /** Fixture ids shared by every test (seeded once -- read-only material). */
         let course: CourseEntity
         let courseModule: ModuleEntity
         let content: ContentEntity
@@ -205,18 +205,18 @@ describe("Learner-dashboard read queries — myInProgressChallenges / myCourseOu
                     CqrsModule,
                 ],
                 providers: [
-                    // REAL — the two resolvers under test
+                    // REAL -- the two resolvers under test
                     MyInProgressChallengesResolver,
                     MyCourseOutlineResolver,
                     MyCourseOutlineService,
-                    // REAL — the CQRS handlers myCourseOutline assembles from
+                    // REAL -- the CQRS handlers myCourseOutline assembles from
                     MyCourseOutlineHandler,
                     CourseHandler,
                     MilestonesHandler,
-                    // REAL — the joins under test
+                    // REAL -- the joins under test
                     ChallengeProgressService,
                     PersonalProjectProgressService,
-                    // real, pure — computes the S3 object key (return value unused by
+                    // real, pure -- computes the S3 object key (return value unused by
                     // the mocked S3ReadService.json below)
                     S3NameResolverService,
                     {
@@ -293,7 +293,7 @@ describe("Learner-dashboard read queries — myInProgressChallenges / myCourseOu
                         content,
                     }),
             )
-            // a SECOND challenge (same course) that stays permanently failable — the
+            // a SECOND challenge (same course) that stays permanently failable -- the
             // mutable UserChallengeSubmission(+attempt) rows a test seeds on it are
             // cleaned by afterEach's enrollment CASCADE; the requirement row itself
             // is read-only fixture material, exactly like `challenge` above.
@@ -396,9 +396,9 @@ describe("Learner-dashboard read queries — myInProgressChallenges / myCourseOu
                         const enrollment = await seedEnrollment(user)
                         currentUser = user
 
-                        // the shared fixture `challenge` has no submission at all →
+                        // the shared fixture `challenge` has no submission at all ->
                         // NotStarted, correctly excluded from the rail. `failedChallenge`
-                        // gets one failing attempt here → Failed, which SHOULD appear.
+                        // gets one failing attempt here -> Failed, which SHOULD appear.
                         const userSubmission = await entityManager.save(
                             entityManager.create(UserChallengeSubmissionEntity,
                                 {
@@ -602,7 +602,7 @@ describe("Learner-dashboard read queries — myInProgressChallenges / myCourseOu
                             // (1 [lessons] + 0 [challenges] + 0 [tasks]) / 3 = 33%
                             completionPercent: 33,
                         })
-                        // capstone task is not yet completed → it wins currentTask over
+                        // capstone task is not yet completed -> it wins currentTask over
                         // the (already-read) lesson fallback
                         expect(data.currentTask).toEqual({
                             kind: "milestoneTask",

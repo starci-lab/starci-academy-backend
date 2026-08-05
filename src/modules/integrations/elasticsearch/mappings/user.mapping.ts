@@ -6,7 +6,7 @@ import type {
  * Index mapping for the non-localized `users` index.
  *
  * Powers user search + "who to follow" discovery. A user record is identity
- * data (handle / display name / bio), so — unlike content — it is NOT split per
+ * data (handle / display name / bio), so -- unlike content -- it is NOT split per
  * locale: every viewer searches the same single `users` index.
  *
  * `username` and `displayName` are dual-mapped: a `text` field for normal
@@ -24,7 +24,7 @@ export const userIndexMapping: ElasticsearchIndexMapping = {
             id: {
                 type: "keyword",
             },
-            // public handle — full-text/prefix search + exact-match keyword sub-field
+            // public handle -- full-text/prefix search + exact-match keyword sub-field
             username: {
                 type: "text",
                 fields: {
@@ -33,7 +33,7 @@ export const userIndexMapping: ElasticsearchIndexMapping = {
                     },
                 },
             },
-            // user-owned display name — same dual mapping as username
+            // user-owned display name -- same dual mapping as username
             displayName: {
                 type: "text",
                 fields: {
@@ -42,27 +42,27 @@ export const userIndexMapping: ElasticsearchIndexMapping = {
                     },
                 },
             },
-            // short profile tagline — full-text search target only
+            // short profile tagline -- full-text search target only
             bio: {
                 type: "text",
             },
-            // profile picture URL — stored, exact-match only (not analyzed)
+            // profile picture URL -- stored, exact-match only (not analyzed)
             avatar: {
                 type: "keyword",
             },
-            // GitHub handle — exact-match facet/lookup
+            // GitHub handle -- exact-match facet/lookup
             githubUsername: {
                 type: "keyword",
             },
-            // "open to work" hiring flag — exact-match boolean facet
+            // "open to work" hiring flag -- exact-match boolean facet
             openToWork: {
                 type: "boolean",
             },
-            // spendable Coin balance — sortable for popularity ranking
+            // spendable Coin balance -- sortable for popularity ranking
             points: {
                 type: "integer",
             },
-            // soft-delete flag — lets the read side exclude removed users
+            // soft-delete flag -- lets the read side exclude removed users
             isDeleted: {
                 type: "boolean",
             },

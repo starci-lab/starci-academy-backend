@@ -8,7 +8,7 @@ export enum EventName {
     JobStatusUpdated = "job.status.updated",
     /** Personal-project listeners refresh milestone-task progress UI for the enrollment. */
     MilestoneTaskProgressUpdated = "milestone.task.progress.updated",
-    /** NATS/local heartbeat — subscribers treat it as liveness, not business data. */
+    /** NATS/local heartbeat -- subscribers treat it as liveness, not business data. */
     Ping = "ping",
     /** System-health gateway broadcasts the latency snapshot to status-page sockets. */
     AiModelHealthUpdated = "ai.model.health.updated",

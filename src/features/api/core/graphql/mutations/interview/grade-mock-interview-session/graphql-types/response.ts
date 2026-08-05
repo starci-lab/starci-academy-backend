@@ -65,7 +65,7 @@ export class MockInterviewAttributeScoreItem {
     description: "Per-question model-answer review for one mode=\"qna\" question.",
 })
 /**
- * One `mode="qna"` question's full review — the candidate's own answer paired
+ * One `mode="qna"` question's full review -- the candidate's own answer paired
  * with the course's CANONICAL authored answer for the exact same flashcard
  * seed, so the learner can see exactly what a "correct" answer for THIS
  * course looks like (a generic tool has no ground truth to compare against).
@@ -231,7 +231,7 @@ export class MockInterviewGradeSessionData {
 })
 /**
  * Envelope for a finished session grade. `data` is nullable so the transform
- * interceptor can null it on the error path — a required field would crash
+ * interceptor can null it on the error path -- a required field would crash
  * GraphQL and hide the real exception (e.g. RAG/model failure).
  */
 export class GradeMockInterviewSessionResponse

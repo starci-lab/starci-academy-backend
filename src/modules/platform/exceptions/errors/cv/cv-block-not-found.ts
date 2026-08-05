@@ -16,7 +16,7 @@ export interface CvBlockNotFoundExceptionMetadata extends AbstractExceptionMetad
 
 /**
  * Thrown when a CV-block operation is called with a missing/non-object
- * `block` — there is nothing to operate on.
+ * `block` -- there is nothing to operate on.
  */
 export class CvBlockNotFoundException extends AbstractException {
     constructor({

@@ -37,13 +37,13 @@ const MAX_PATCH_BYTES = 10 * 1024 * 1024
 /**
  * Mock controller for lesson `3-resumable-upload-tus-protocol`.
  *
- * Implements the tus 1.0.0 core protocol plus the `creation` extension —
+ * Implements the tus 1.0.0 core protocol plus the `creation` extension --
  * enough for tus-js-client v4 to create an upload slot (`POST /files`), stream
  * chunks (`PATCH /files/:id` advancing `Upload-Offset`), and resume after a
  * pause (`HEAD /files/:id` reporting the current offset). The bytes live in
  * memory only. Mounted at the bare origin (`new URL(VITE_API_BASE).origin`).
  *
- * Note: the tus response headers (`Location`, `Upload-Offset`, …) are only
+ * Note: the tus response headers (`Location`, `Upload-Offset`, ...) are only
  * readable cross-origin because `main.ts` lists them under `exposedHeaders`.
  */
 export class TusController {
@@ -69,7 +69,7 @@ export class TusController {
             })
         }
 
-        // Upload-Metadata is opaque to us — store and echo it back verbatim
+        // Upload-Metadata is opaque to us -- store and echo it back verbatim
         const metadata = this.headerValue(request.headers["upload-metadata"])
         const id = this.store.createTusUpload(length,
             metadata)

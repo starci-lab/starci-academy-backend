@@ -68,11 +68,11 @@ const POSTGRESQL_PRIMARY = "primary"
 /** Admin key the mocked mount store hands back on the happy fulfillRedemption path. */
 const ADMIN_API_KEY = "admin-secret-key-rewards-e2e"
 
-/** Catalog key of the physical "sticker" reward (cost 300, kind "physical") — not exported by `rewards.catalog.ts`, mirrored here like `rewards-redeem.e2e-spec.ts` does. */
+/** Catalog key of the physical "sticker" reward (cost 300, kind "physical") -- not exported by `rewards.catalog.ts`, mirrored here like `rewards-redeem.e2e-spec.ts` does. */
 const STICKER_REWARD_KEY = "sticker"
 
 /**
- * e2e for four previously-untested Coin-shop READ/ops surfaces — the public
+ * e2e for four previously-untested Coin-shop READ/ops surfaces -- the public
  * `rewards` catalog, `myVouchers`, `myRewardWallet`, and the ops-only
  * `fulfillRedemption` mutation. `rewards-redeem.e2e-spec.ts` already covers
  * {@link RewardsService.redeem}/`cancelRedemption` directly; this file covers
@@ -81,22 +81,22 @@ const STICKER_REWARD_KEY = "sticker"
  *
  * MOCKED (no external infra available in this harness, mirrors
  * `rewards-redeem.e2e-spec.ts`'s own MOCKED section):
- *  - `MountFilesystemService` / `AiAutoQuotaConfigService` — real classes read
+ *  - `MountFilesystemService` / `AiAutoQuotaConfigService` -- real classes read
  *    a mounted app-config file; stubbed to a fixed free-tier base (unused by
  *    any path this file exercises, but required for `AiEntitlementService`'s
  *    provider graph to resolve at `compile()`).
- *  - `MountStorageService` — real class reads the mounted admin secret;
+ *  - `MountStorageService` -- real class reads the mounted admin secret;
  *    stubbed to a fixed key so {@link GraphQLAdminAccessGuard} (run FOR REAL,
  *    not overridden) has something deterministic to compare
  *    `x-admin-api-key` against.
- *  - `KeycloakAuthGraphQLGuard` — no Keycloak server here; overridden to stamp
+ *  - `KeycloakAuthGraphQLGuard` -- no Keycloak server here; overridden to stamp
  *    `request.user` with whichever fake user the test "logs in" as (same
  *    technique as `progress-query.e2e-spec.ts`), so the auth-denied case is a
  *    genuine guard rejection, not a hand-rolled stand-in.
  *
  * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring,
  * {@link RewardsService}, {@link VoucherService}, {@link GraphQLAdminAccessGuard}
- * (exercised for real on `fulfillRedemption` — the ONE flow in this file that
+ * (exercised for real on `fulfillRedemption` -- the ONE flow in this file that
  * keeps its own guard un-mocked, since that guard IS the surface under test).
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -208,10 +208,10 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
                     // myVouchers / myRewardWallet (auth-required)
                     MyVouchersResolver,
                     MyRewardWalletResolver,
-                    // fulfillRedemption (admin-only — guard runs for real)
+                    // fulfillRedemption (admin-only -- guard runs for real)
                     FulfillRedemptionResolver,
                     GraphQLAdminAccessGuard,
-                    // REAL — the redeem/fulfil/wallet logic under test
+                    // REAL -- the redeem/fulfil/wallet logic under test
                     RewardsService,
                     VoucherService,
                     AiEntitlementService,
@@ -313,7 +313,7 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
                 it("locale variant (VI): same 5 rewards, VI-localized titles — no auth required, no guard blocks it either way",
                     async () => {
                         // this catalog has no failure surface (no args, no auth, no DB
-                        // read) — the representative non-happy angle here is proving
+                        // read) -- the representative non-happy angle here is proving
                         // the OTHER locale branch resolves correctly, not an error path
                         const response = await request(app.getHttpServer())
                             .post(GRAPHQL_ENDPOINT)
@@ -357,7 +357,7 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
                                     discountType: VoucherDiscountType.Percent,
                                     value: 10,
                                     status: VoucherStatus.Unused,
-                                    // already past expiry — DISPLAYED as expired even though the
+                                    // already past expiry -- DISPLAYED as expired even though the
                                     // stored column still reads `unused` (no cron sweep)
                                     expiresAt: new Date(Date.now() - 1000 * 60 * 60),
                                 }),
@@ -401,7 +401,7 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
 
                 it("auth denied: an unauthenticated caller is rejected, no vouchers leak",
                     async () => {
-                        // currentUser stays null — fakeAuthGuard denies the request
+                        // currentUser stays null -- fakeAuthGuard denies the request
                         const response = await request(app.getHttpServer())
                             .post(GRAPHQL_ENDPOINT)
                             .send({
@@ -429,7 +429,7 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
                                     metadata: null,
                                 }),
                         )
-                        // a CANCELLED redemption must NOT count toward `spent` — this is
+                        // a CANCELLED redemption must NOT count toward `spent` -- this is
                         // the edge this test specifically pins down
                         await entityManager.save(
                             entityManager.create(RewardRedemptionEntity,
@@ -451,7 +451,7 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
                         expect(response.status).toBe(200)
                         const body = response.body.data.myRewardWallet
                         expect(body.success).toBe(true)
-                        // ONLY the pending sticker (300) counts — the cancelled 100 does not
+                        // ONLY the pending sticker (300) counts -- the cancelled 100 does not
                         expect(body.data.spent).toBe(300)
                         expect(body.data.balance).toBe(1_000 - 300)
                         expect(body.data.redemptions).toHaveLength(2)
@@ -569,7 +569,7 @@ describe("Rewards — catalog / vouchers / wallet / fulfil (e2e)",
                                 },
                             },
                         )
-                        // rejected BEFORE the resolver ever ran — status untouched
+                        // rejected BEFORE the resolver ever ran -- status untouched
                         expect(reloaded.status).toBe(RewardRedemptionStatus.Pending)
                     })
             })

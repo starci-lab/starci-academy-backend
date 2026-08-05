@@ -1,7 +1,7 @@
 /**
  * Raw row shape returned by the pinnable-capstones LEFT JOIN query.
  *
- * Wire-format DB row — column aliases come back exactly as named in the SQL
+ * Wire-format DB row -- column aliases come back exactly as named in the SQL
  * `SELECT`, so they stay in the casing the query emits. The `is_verified`
  * predicate is computed in SQL (`tasks_completed_at IS NOT NULL`) and Postgres
  * returns a real boolean for it.

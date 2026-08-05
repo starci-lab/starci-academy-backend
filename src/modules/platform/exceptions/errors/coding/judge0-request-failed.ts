@@ -16,7 +16,7 @@ export interface Judge0RequestFailedExceptionMetadata extends AbstractExceptionM
 }
 
 /**
- * Thrown when a call to the Judge0 REST API fails — non-2xx response, network
+ * Thrown when a call to the Judge0 REST API fails -- non-2xx response, network
  * error, or request timeout. Wraps the underlying cause as `originalError`.
  */
 export class Judge0RequestFailedException extends AbstractException {

@@ -40,12 +40,12 @@ import {
  * Learner-CMS query: the authenticated user's learning feedback, merged across
  * the two sources (challenge submission feedback, milestone-task feedback) and
  * paginated with `{ items, total }`. A plain list read keyed by the viewer (the
- * LIST exception — no CQRS projection). The merged rows have no single primary
+ * LIST exception -- no CQRS projection). The merged rows have no single primary
  * key, so the resolver synthesises a stable list key from the source bucket +
  * the absolute row offset.
  *
  * A third source (CV review feedback) was dropped when the legacy
- * `cv_submissions`/`cv_submission_attempts` tables were retired — see
+ * `cv_submissions`/`cv_submission_attempts` tables were retired -- see
  * {@link LearningFeedbacksCmsService} for why it isn't a drop-in replacement.
  */
 export class MyLearningFeedbacksResolver {

@@ -52,7 +52,7 @@ export class MockInterviewPathService {
     }
 
     /**
-     * Lists per-question folders under a bank's `questions/` directory — one
+     * Lists per-question folders under a bank's `questions/` directory -- one
      * folder per authored interview question (`{index}-{slug}/{en,vi}.md`).
      *
      * @param bankRelativePath - The bank folder path segment under `courses/`
@@ -69,7 +69,7 @@ export class MockInterviewPathService {
 
     /**
      * Lists per-language body folders under a code question's `bodies/` directory
-     * (`{index}-{lang}/{en,vi}.md`, e.g. `0-typescript`, `3-go` — mirrors lesson
+     * (`{index}-{lang}/{en,vi}.md`, e.g. `0-typescript`, `3-go` -- mirrors lesson
      * content `bodies/`). Empty when the question has no `bodies/` dir (a no-code
      * kind, or a legacy single-`givenCode` question).
      *

@@ -44,7 +44,7 @@ export class MyInProgressFlashcardQuizSessionResultItem {
 })
 /**
  * The learner's most recent RESUMABLE flashcard quick-quiz session for one
- * course — "resume flashcard quiz session" (2026-07-08). The query itself
+ * course -- "resume flashcard quiz session" (2026-07-08). The query itself
  * resolves to `null` (not this type) when there is none.
  */
 export class MyInProgressFlashcardQuizSessionData {
@@ -111,7 +111,7 @@ export class MyInProgressFlashcardQuizSessionData {
 })
 /**
      * ISO timestamp of the session's lazy-expiry deadline (`createdAt` +
-     * `FLASHCARD_QUIZ_SESSION_DURATION_MS`) — "session lazy-expiry"
+     * `FLASHCARD_QUIZ_SESSION_DURATION_MS`) -- "session lazy-expiry"
      * (2026-07-11): a RESUMED session's countdown reflects the TRUE
      * remaining time (anchored to the original draw), never a freshly-reset
      * window. Mirrors `myInProgressMockInterviewSession`'s own `deadlineAt`.

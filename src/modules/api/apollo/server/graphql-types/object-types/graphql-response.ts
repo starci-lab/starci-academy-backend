@@ -14,7 +14,7 @@ import {
 /**
  * Envelope every GraphQL op returns so the interceptor can stamp
  * success/message/error uniformly. `data` lives on subclasses and stays null
- * on failure — do not put payload fields here or errors leak typed data.
+ * on failure -- do not put payload fields here or errors leak typed data.
  */
 export abstract class AbstractGraphQLResponse {
     @IsBoolean()

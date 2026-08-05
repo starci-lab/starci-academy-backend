@@ -19,7 +19,7 @@ export interface ExecaCommandTimedOutExceptionMetadata extends AbstractException
 }
 
 /**
- * Aborts after the subprocess exceeded its timeout — hung tools must not block the worker
+ * Aborts after the subprocess exceeded its timeout -- hung tools must not block the worker
  * forever.
  */
 export class ExecaCommandTimedOutException extends AbstractException {

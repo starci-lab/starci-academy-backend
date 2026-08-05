@@ -1,5 +1,5 @@
 // ============================================================================
-// WIRING TODO (another step wires the parent aggregator — do NOT edit it here):
+// WIRING TODO (another step wires the parent aggregator -- do NOT edit it here):
 //   Register this module in
 //   `src/features/api/core/graphql/queries/cv-submissions/cv-submissions.module.ts`
 //   (class `CvSubmissionsQueriesModule`) alongside the other CV queries:

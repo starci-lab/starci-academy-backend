@@ -133,7 +133,7 @@ describe("ProcessGitSubmissionCompleteStepService",
                                 courseId: "course-1",
                             })
                         }
-                        // attempt-by-idempotencyKey + xp-history idempotency lookup → none yet
+                        // attempt-by-idempotencyKey + xp-history idempotency lookup -> none yet
                         return Promise.resolve(null)
                     },
                 )
@@ -169,7 +169,7 @@ describe("ProcessGitSubmissionCompleteStepService",
 
         it("is idempotent: a re-run with an existing attempt makes no new attempt and no charge",
             async () => {
-                // an attempt with this idempotency key already exists → the whole body is skipped
+                // an attempt with this idempotency key already exists -> the whole body is skipped
                 entityManager.findOne.mockResolvedValue({
                     id: "attempt-existing",
                 })

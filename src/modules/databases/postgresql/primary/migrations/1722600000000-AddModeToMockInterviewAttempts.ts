@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `mode` to `mock_interview_attempts` — the "mode split" (2026-07-06)
+ * Adds `mode` to `mock_interview_attempts` -- the "mode split" (2026-07-06)
  * snapshot of which TOP-LEVEL flow ("qna" | "design") a graded session ran
  * in, so interview history can distinguish them. Nullable (a null `mode` on
  * an existing/legacy row reads as "design", the only mode that existed

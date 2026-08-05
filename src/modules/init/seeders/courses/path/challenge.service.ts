@@ -11,7 +11,7 @@ import {
 
 @Injectable()
 /**
- * Resolves indexed challenge mount folders under a content’s `challenges/` directory (`{index}-{slug}` or legacy `{index}`).
+ * Resolves indexed challenge mount folders under a content's `challenges/` directory (`{index}-{slug}` or legacy `{index}`).
  */
 export class ChallengePathService {
     constructor(

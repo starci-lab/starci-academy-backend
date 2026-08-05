@@ -49,7 +49,7 @@ import {
 @Entity("challenge_submissions")
 /**
  * One submission slot on a challenge (Docs vs GitHub, score weights, prompts).
- * Attempts and grading jobs hang off this row — without it there is nothing to
+ * Attempts and grading jobs hang off this row -- without it there is nothing to
  * submit against, even if the parent challenge exists.
  */
 export class ChallengeSubmissionEntity extends UuidAbstractEntity {
@@ -224,7 +224,7 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
     )
         prompts: Array<ChallengeSubmissionPromptEntity>
 
-    // SCHEMA V2 grading rubric: per-language approach criteria (internal — not in GraphQL)
+    // SCHEMA V2 grading rubric: per-language approach criteria (internal -- not in GraphQL)
     @OneToMany(
         () => ChallengeSubmissionApproachCriteriaEntity,
         (criteria: ChallengeSubmissionApproachCriteriaEntity) => criteria.challengeSubmission,
@@ -234,7 +234,7 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
     )
         approachCriteria: Array<ChallengeSubmissionApproachCriteriaEntity>
 
-    // SCHEMA V2 grading rubric: per-language outcome criteria (internal — not in GraphQL)
+    // SCHEMA V2 grading rubric: per-language outcome criteria (internal -- not in GraphQL)
     @OneToMany(
         () => ChallengeSubmissionOutcomeCriteriaEntity,
         (criteria: ChallengeSubmissionOutcomeCriteriaEntity) => criteria.challengeSubmission,

@@ -81,7 +81,7 @@ export class ContentParserService {
      * True when the mount carries a parseable `# verified` day (SCHEMA V2 marker).
      *
      * @param params - Content folder relative path.
-     * @returns `true` for V2 content; `false` → use {@link ContentLegacyParserService}.
+     * @returns `true` for V2 content; `false` -> use {@link ContentLegacyParserService}.
      */
     async isV2(
         params: IsContentV2Params,
@@ -171,7 +171,7 @@ export class ContentParserService {
                 orderIndex,
             })
             // defensive: a body without a resolvable id would cascade a null-FK
-            // translation (crashes the whole lesson's seed) — skip it so the rest seeds.
+            // translation (crashes the whole lesson's seed) -- skip it so the rest seeds.
             if (!contentBodyId) {
                 continue
             }
@@ -198,7 +198,7 @@ export class ContentParserService {
                     }) => ({
                         // set the FK via the RELATION (not the raw `contentBodyId` column):
                         // `content_body_id` is BOTH the FK and part of the composite PK, and
-                        // TypeORM's cascade derives it from the relation — a raw-only value can
+                        // TypeORM's cascade derives it from the relation -- a raw-only value can
                         // land as null on insert (the observed content_body_translations crash).
                         contentBody: {
                             id: contentBodyId,
@@ -209,7 +209,7 @@ export class ContentParserService {
             bodies.push({
                 id: contentBodyId,
                 orderIndex,
-                // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+                // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
                 sortIndex: this.toSortIndex(
                     (merged as { sortIndex?: unknown }).sortIndex,
                     orderIndex,
@@ -407,7 +407,7 @@ export class ContentParserService {
                 "",
             ),
             orderIndex: contentIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,
                 contentIndex,

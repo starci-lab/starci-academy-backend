@@ -70,8 +70,8 @@ import {
     ],
 })
 /**
- * Flashcard quick-quiz ("Hỏi nhanh") + review ("Học thẻ") resumable-session
- * query group — a new, sensibly-named sibling of `flashcard-decks` (which
+ * Flashcard quick-quiz + review resumable-session
+ * query group -- a new, sensibly-named sibling of `flashcard-decks` (which
  * owns deck/card reads + the Mock Interview reads that historically ended up
  * nested there); this group is reserved for flashcard-SESSION reads so
  * future additions have a proper home instead of piling onto

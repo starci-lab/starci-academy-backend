@@ -28,7 +28,7 @@ import {
 export interface RetrieveContentExcerptParams {
     /** Content the chunks must belong to (payload filter). */
     contentId: string
-    /** The learner's question — the retrieval query. */
+    /** The learner's question -- the retrieval query. */
     query: string
     /** Optional override for how many chunks to pull (defaults to env top-k). */
     topK?: number
@@ -44,7 +44,7 @@ export interface RetrieveContentExcerptResult {
 
 /** Params for {@link CourseRagRetrievalService.retrieveCourseExcerpt}. */
 export interface RetrieveCourseExcerptParams {
-    /** Course the chunks must belong to (payload filter — spans every lesson of the course). */
+    /** Course the chunks must belong to (payload filter -- spans every lesson of the course). */
     courseId: string
     /** The retrieval query (e.g. an interviewer's next probe, or a grading question). */
     query: string
@@ -54,7 +54,7 @@ export interface RetrieveCourseExcerptParams {
      * Content (lesson) ids to EXCLUDE from retrieval (Qdrant `must_not` on
      * `metadata.contentId`). The app-wide chat uses this to keep a course's
      * PREMIUM lessons out of the whole-course grounding for a viewer who has not
-     * paid for them — so a trial learner can chat course-wide over the free
+     * paid for them -- so a trial learner can chat course-wide over the free
      * material without the RAG surfacing locked content through the AI. Omit (or
      * empty) to retrieve across every lesson of the course.
      */
@@ -71,7 +71,7 @@ export interface RetrieveCourseExcerptResult {
      * Distinct content (lesson) ids the retrieved chunks were pulled from, in
      * similarity order (best-matching chunk's content first). Empty when
      * retrieval missed / failed / index absent, or when a hit is missing its
-     * `contentId` payload (defensive — every chunk is written with one by
+     * `contentId` payload (defensive -- every chunk is written with one by
      * `ContentRagIndexService`, but retrieval never trusts payload shape
      * blindly). Lets a caller (e.g. mock-interview grading) deep-link "study
      * this" straight to the real lesson the grounding excerpt came from.
@@ -81,12 +81,12 @@ export interface RetrieveCourseExcerptResult {
 
 /** Params for {@link CourseRagRetrievalService.searchCourse}. */
 export interface SearchCourseParams {
-    /** Course the chunks must belong to (payload filter — spans every kind indexed for the course). */
+    /** Course the chunks must belong to (payload filter -- spans every kind indexed for the course). */
     courseId: string
     /** The learner's search query (keyword or natural-language question alike). */
     query: string
     /**
-     * Optional corpus-kind filter (Qdrant payload `metadata.kind` — any of these).
+     * Optional corpus-kind filter (Qdrant payload `metadata.kind` -- any of these).
      * e.g. `["challenge"]` to search ONLY challenges, `["content", "code"]` for
      * lessons. Omit to span every indexed kind (the default "search everything").
      */
@@ -97,15 +97,15 @@ export interface SearchCourseParams {
 
 /** One distinct source (lesson/challenge/flashcard-deck/milestone-task) matched by {@link CourseRagRetrievalService.searchCourse}. */
 export interface SearchCourseHit {
-    /** The matched row's own id (content/challenge/flashcard-deck/milestone-task — shared UUID id-space). */
+    /** The matched row's own id (content/challenge/flashcard-deck/milestone-task -- shared UUID id-space). */
     contentId: string
-    /** Which corpus this id belongs to — `"content"` | `"code"` | `"challenge"` | `"flashcard"` | `"milestone"`. */
+    /** Which corpus this id belongs to -- `"content"` | `"code"` | `"challenge"` | `"flashcard"` | `"milestone"`. */
     kind: string
     /** Locale the matched chunk was embedded in. */
     lang: string
     /** Cosine similarity of the BEST-matching chunk for this source (0-1, higher = closer). */
     score: number
-    /** The best-matching chunk's raw text (for a result-list snippet — NOT html-safe, caller truncates/escapes). */
+    /** The best-matching chunk's raw text (for a result-list snippet -- NOT html-safe, caller truncates/escapes). */
     snippet: string
 }
 
@@ -127,7 +127,7 @@ export interface SearchCourseResult {
  * than per-run ephemeral.
  *
  * Degrades to an EMPTY excerpt on any failure (collection missing, embedder/
- * Qdrant down) so the caller can fall back to whole-body stuffing — retrieval is
+ * Qdrant down) so the caller can fall back to whole-body stuffing -- retrieval is
  * never allowed to blackhole the chat.
  */
 export class CourseRagRetrievalService {
@@ -173,7 +173,7 @@ export class CourseRagRetrievalService {
                     collectionName,
                 },
             )
-            // LangChain stores doc metadata under a `metadata` payload sub-object →
+            // LangChain stores doc metadata under a `metadata` payload sub-object ->
             // filter keys are prefixed `metadata.`
             const hits = await vectorStore.similaritySearch(
                 trimmed,
@@ -194,7 +194,7 @@ export class CourseRagRetrievalService {
                 retrievedChunks: hits.length,
             }
         } catch (error) {
-            // index missing / Qdrant or embedder down → empty excerpt, caller falls
+            // index missing / Qdrant or embedder down -> empty excerpt, caller falls
             // back to whole-body stuffing (retrieval never blocks the chat)
             this.winstonService.log(WinstonLog.RagRetrievalFailed,
                 {
@@ -211,11 +211,11 @@ export class CourseRagRetrievalService {
 
     /**
      * Retrieve the top-k chunks across an ENTIRE course (not one lesson) for a
-     * query and assemble them into one excerpt — grounds the System Design mock
+     * query and assemble them into one excerpt -- grounds the System Design mock
      * interview (interviewer probes + end-of-session grading) in "what this
      * course actually taught", spanning every lesson instead of one. Returns an
      * empty excerpt (caller degrades gracefully) when the index is absent or
-     * retrieval fails — mirrors {@link retrieveContentExcerpt} exactly, just
+     * retrieval fails -- mirrors {@link retrieveContentExcerpt} exactly, just
      * filtered on `metadata.courseId` instead of `metadata.contentId` (both
      * fields are written by {@link import("./content-rag-index.service").ContentRagIndexService}
      * onto every indexed chunk).
@@ -253,7 +253,7 @@ export class CourseRagRetrievalService {
                 },
             )
             // filter on courseId (spans every content of the course) instead of
-            // one contentId — the payload key is prefixed `metadata.` (LangChain
+            // one contentId -- the payload key is prefixed `metadata.` (LangChain
             // nests doc metadata under a `metadata` sub-object). `must_not` is only
             // added when the caller actually asked to exclude something, so the
             // no-exclude path (the pre-existing callers) sends the exact same
@@ -291,7 +291,7 @@ export class CourseRagRetrievalService {
                 matchedContentIds: this.extractMatchedContentIds(hits),
             }
         } catch (error) {
-            // index missing / Qdrant or embedder down → empty excerpt, caller falls
+            // index missing / Qdrant or embedder down -> empty excerpt, caller falls
             // back gracefully (interviewer/grader still run, just un-grounded)
             this.winstonService.log(WinstonLog.RagRetrievalFailed,
                 {
@@ -308,22 +308,22 @@ export class CourseRagRetrievalService {
     }
 
     /**
-     * "Tìm nội dung khóa" search — unlike {@link retrieveCourseExcerpt} (which
+     * Course content search -- unlike {@link retrieveCourseExcerpt} (which
      * ASSEMBLES chunks into one prompt-ready string for an LLM), this returns
      * STRUCTURED per-source hits with a real similarity score, for rendering a
-     * search-results list (title/breadcrumb resolved by the caller per `kind` —
+     * search-results list (title/breadcrumb resolved by the caller per `kind` --
      * this service only knows vectors, not entity metadata).
      *
      * Spans every kind indexed for the course (content/code/challenge/
-     * flashcard/milestone — {@link ContentRagIndexService} stamps `kind` on
+     * flashcard/milestone -- {@link ContentRagIndexService} stamps `kind` on
      * every chunk), filtered on `metadata.courseId`. Multiple chunks from the
      * SAME source (e.g. 2 chunks of one long lesson) collapse to ONE hit
-     * (its best-scoring chunk) — a learner wants one result per lesson/
+     * (its best-scoring chunk) -- a learner wants one result per lesson/
      * challenge/deck/task, not the same source competing for multiple slots in
      * a short top-k list.
      *
      * Degrades to an EMPTY result on any failure (collection missing, embedder/
-     * Qdrant down) — search is never allowed to 500 the panel, it just shows
+     * Qdrant down) -- search is never allowed to 500 the panel, it just shows
      * "no results".
      *
      * @param params - The course id, the search query, and an optional top-k.
@@ -354,7 +354,7 @@ export class CourseRagRetrievalService {
                     collectionName,
                 },
             )
-            // over-fetch chunks (a source can have several) then collapse below —
+            // over-fetch chunks (a source can have several) then collapse below --
             // 4x the requested distinct-source count is enough headroom without a
             // second round-trip in the common case
             const results = await vectorStore.similaritySearchWithScore(
@@ -368,7 +368,7 @@ export class CourseRagRetrievalService {
                                 value: courseId,
                             },
                         },
-                        // optional corpus-kind scope: "tìm challenges" must search
+                        // optional corpus-kind scope: search challenges must search
                         // ONLY challenge chunks, else a topical query returns a
                         // content-dominated top-k that the caller's kind filter empties
                         ...(kinds && kinds.length > 0
@@ -452,7 +452,7 @@ export class CourseRagRetrievalService {
      * Pull the distinct `contentId` each hit's chunk was written under
      * (`ContentRagIndexService` stamps this on every point's metadata),
      * preserving similarity order and de-duplicating repeats. Skips any hit
-     * whose payload is missing/malformed rather than throwing — a shape
+     * whose payload is missing/malformed rather than throwing -- a shape
      * surprise here must never break grading/interview flows that only need
      * the excerpt text.
      *

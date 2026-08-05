@@ -8,7 +8,7 @@ import {
 /**
  * Lifecycle status of a {@link CourseVoucherEntity} minted from the Coin shop.
  * `reserved` is the in-flight state between "a pending checkout claimed this
- * code" and "the payment actually succeeded" — it prevents a second checkout
+ * code" and "the payment actually succeeded" -- it prevents a second checkout
  * from spending the same code while the first is still awaiting its gateway
  * webhook, without burning the code if that first checkout fails/expires.
  */
@@ -17,9 +17,9 @@ export enum VoucherStatus {
     Unused = "unused",
     /** Claimed by a pending (not-yet-confirmed) checkout. */
     Reserved = "reserved",
-    /** Applied to a succeeded checkout — spent, cannot be reused. */
+    /** Applied to a succeeded checkout -- spent, cannot be reused. */
     Used = "used",
-    /** Passed its `expires_at` without being used — inert. */
+    /** Passed its `expires_at` without being used -- inert. */
     Expired = "expired",
 }
 

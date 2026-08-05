@@ -80,7 +80,7 @@ export class AskContentAiHandler
         }
 
         // ground the question by scope (lesson body + premium gate, or task /
-        // foundation RAG) — shared with the streaming `/content_ai` socket gateway
+        // foundation RAG) -- shared with the streaming `/content_ai` socket gateway
         const {
             messages,
         } = await this.contentAiService.prepareMessages({
@@ -96,8 +96,8 @@ export class AskContentAiHandler
             locale: locale ?? Locale.En,
         })
 
-        // content AI ("đọc bài") = same System engine as grading, floor=free:
-        // local Qwen → OpenRouter free, then (only if all free fail) climb to
+        // content AI = same System engine as grading, floor=free:
+        // local Qwen -> OpenRouter free, then (only if all free fail) climb to
         // economy+ within the tier ceiling.
         const {
             text,
@@ -114,7 +114,7 @@ export class AskContentAiHandler
             surface: AiCeilSurface.Chatbot,
         })
 
-        // bill by the model that actually served — a free model = 0 (normal case);
+        // bill by the model that actually served -- a free model = 0 (normal case);
         // a climbed economy+ model is charged to the user (platform doesn't eat it)
         await this.aiEntitlementService.consume({
             userId: user.id,

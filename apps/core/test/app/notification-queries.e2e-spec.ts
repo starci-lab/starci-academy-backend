@@ -46,21 +46,21 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the notification-bell READ surface — `myNotifications` and
- * `myUnreadNotificationCount` — over REAL HTTP + REAL Postgres
+ * e2e for the notification-bell READ surface -- `myNotifications` and
+ * `myUnreadNotificationCount` -- over REAL HTTP + REAL Postgres
  * (Testcontainers). `notifications.e2e-spec.ts` covers the write-side
  * (`markNotificationAsRead` / `markAllNotificationsAsRead`); this file is the
  * matching read-side coverage neither spec exercises yet.
  *
  * MOCKED (genuinely external, matches `notifications.e2e-spec.ts`):
- *  - `EventEmitterService` — real class fans out through a NATS producer that
+ *  - `EventEmitterService` -- real class fans out through a NATS producer that
  *    needs a live broker connection; stubbed to a no-op so
  *    `createNotification` can seed fixture rows without booting NATS.
  *
  * REAL: Postgres (Testcontainers), both resolvers under test,
  * `NotificationService` (`listNotifications` / `countUnread`),
  * `UserStatsProjectionService` (the unread-badge projection `countUnread`
- * reads, lazily recomputed), and `KeycloakAuthGraphQLGuard` — overridden only
+ * reads, lazily recomputed), and `KeycloakAuthGraphQLGuard` -- overridden only
  * to stamp `request.user` with whichever fake user the test "logs in" as.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -145,12 +145,12 @@ describe("Notification-bell read queries — myNotifications / myUnreadNotificat
                     }),
                 ],
                 providers: [
-                    // REAL — the two resolvers under test
+                    // REAL -- the two resolvers under test
                     MyNotificationsResolver,
                     MyUnreadNotificationCountResolver,
-                    // REAL — listNotifications/countUnread run real SQL
+                    // REAL -- listNotifications/countUnread run real SQL
                     NotificationService,
-                    // REAL — the unread-badge projection countUnread reads (lazy
+                    // REAL -- the unread-badge projection countUnread reads (lazy
                     // recompute), pure SQL, no external deps
                     UserStatsProjectionService,
                     {

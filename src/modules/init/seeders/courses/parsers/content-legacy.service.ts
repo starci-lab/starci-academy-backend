@@ -37,7 +37,7 @@ import {
  * Parses the **old** lesson markdown shape (documented in
  * `.claude/pattern/17-legacy-content-challenge-format.md`, live examples = M0 L1/L2): `# title`,
  * `# description`, `# body` (full Markdown prose inline, per-locale), `# minutesRead`,
- * `# isPremium`. The body is a single inline blob — NOT the V2 `bodies/<N>-<lang>/` per-language folder.
+ * `# isPremium`. The body is a single inline blob -- NOT the V2 `bodies/<N>-<lang>/` per-language folder.
  *
  * Follows the canonical mount-parse pattern (`.claude/pattern/16-mount-parsing.md`): extract once per
  * locale, merge via {@link MergeJsonService} with dot-path `translateFields`, then render straight
@@ -129,7 +129,7 @@ export class ContentLegacyParserService {
                 "",
             ),
             orderIndex: contentIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,
                 contentIndex,

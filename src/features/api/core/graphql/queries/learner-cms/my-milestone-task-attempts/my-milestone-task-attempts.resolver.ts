@@ -43,7 +43,7 @@ import {
 /**
  * Learner-CMS query: the authenticated user's milestone-task review attempts
  * (newest first), paginated with `{ items, total }`. A plain list read keyed by
- * the viewer (the LIST exception — no CQRS projection); the service reads the
+ * the viewer (the LIST exception -- no CQRS projection); the service reads the
  * live tables and the resolver wraps the course UUID into the opaque global id.
  */
 export class MyMilestoneTaskAttemptsResolver {

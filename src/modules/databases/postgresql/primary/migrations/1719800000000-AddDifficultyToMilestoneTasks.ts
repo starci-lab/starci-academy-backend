@@ -7,10 +7,10 @@ import {
  * Adds a nullable `difficulty` column to `milestone_tasks`, reusing the existing
  * `challenge_difficulty` Postgres enum type (easy/medium/hard/insane/expert).
  *
- * Drives the Auto grading lane's complexity routing for capstone task review —
+ * Drives the Auto grading lane's complexity routing for capstone task review --
  * harder tasks pick a stronger model category within the user's entitlement.
  * The enum type already exists (created with `challenges.difficulty`), so this
- * only adds a column — no `ALTER TYPE … ADD VALUE` (no enum trap).
+ * only adds a column -- no `ALTER TYPE ... ADD VALUE` (no enum trap).
  *
  * Dev runs schema via `synchronize` (adds the column automatically); this
  * migration applies the same change where `synchronize` is disabled (prod).

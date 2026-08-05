@@ -69,8 +69,8 @@ export class CookieService {
         )
         // The refresh token is HttpOnly + host-only on the API host, so the FE edge
         // (proxy) can't read it. Issue a parallel JS-readable "session hint" at the
-        // SAME lifetime + parent-domain scope so the FE can decide the home→dashboard
-        // bounce. UX hint ONLY — never trusted for authorization.
+        // SAME lifetime + parent-domain scope so the FE can decide the home->dashboard
+        // bounce. UX hint ONLY -- never trusted for authorization.
         if (name === CookieName.KeycloakRefreshToken) {
             this.attachReadableCookie({
                 res,
@@ -81,7 +81,7 @@ export class CookieService {
                     // "lax" (not "strict"): the FE edge proxy must read this hint on a
                     // TOP-LEVEL navigation that may originate cross-site (a logged-in
                     // user clicking a link from email/Google straight into a protected
-                    // page). "strict" would withhold it on that first hop → the proxy
+                    // page). "strict" would withhold it on that first hop -> the proxy
                     // would mis-bounce them to the landing. Safe to relax: the hint is a
                     // non-secret "1" used only to pick the first-paint shell, never authz.
                     sameSite: "lax",
@@ -118,7 +118,7 @@ export class CookieService {
             path: "/",
             // scope to the parent domain (e.g. ".academy.starci.org") so the SPA
             // on the apex/sibling host can read the cookie that api.<...> issued.
-            // empty config → undefined → host-only cookie (local dev)
+            // empty config -> undefined -> host-only cookie (local dev)
             domain: envConfig().cookie.domain || undefined,
             maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
         }
@@ -153,7 +153,7 @@ export class CookieService {
                 path: "/",
                 ...options,
             })
-        // drop the parallel session hint alongside the refresh token — match the
+        // drop the parallel session hint alongside the refresh token -- match the
         // attributes it was issued with (non-HttpOnly + parent-domain scope) so the
         // browser actually removes it
         if (name === CookieName.KeycloakRefreshToken) {
@@ -202,7 +202,7 @@ export class CookieService {
      * Returns EVERY value for a cookie name from the raw `Cookie` header.
      *
      * `cookie-parser` collapses duplicate cookie names to the FIRST occurrence, but
-     * a browser can legitimately send two same-named cookies with different scopes —
+     * a browser can legitimately send two same-named cookies with different scopes --
      * e.g. a legacy host-only `csrf_token` alongside a newer domain-scoped one during
      * a `COOKIE_DOMAIN` rollout. The CSRF double-submit needs every candidate so it
      * can match whichever value the SPA was able to read.

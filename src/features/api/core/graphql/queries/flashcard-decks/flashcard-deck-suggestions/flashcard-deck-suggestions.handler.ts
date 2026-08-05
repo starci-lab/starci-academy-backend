@@ -17,7 +17,7 @@ import {
 @QueryHandler(FlashcardDeckSuggestionsQuery)
 @Injectable()
 /**
- * Flashcard-deck autocomplete (typeahead) handler — ES Completion Suggester.
+ * Flashcard-deck autocomplete (typeahead) handler -- ES Completion Suggester.
  *
  * Inherits the entire suggest flow from {@link AbstractSuggestionsHandler}: it
  * reads `{ locale, request: { query, limit } }`, resolves the per-locale
@@ -31,6 +31,6 @@ import {
  */
 export class FlashcardDeckSuggestionsHandler
     extends AbstractSuggestionsHandler<FlashcardDeckSuggestionsQuery> {
-    /** Entity this handler autocompletes — drives `flashcard-decks` index resolution. */
+    /** Entity this handler autocompletes -- drives `flashcard-decks` index resolution. */
     protected readonly entityName = FlashcardDeckEntity.name
 }

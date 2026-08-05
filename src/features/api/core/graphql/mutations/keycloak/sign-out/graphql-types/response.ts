@@ -10,7 +10,7 @@ import {
     description: "Response wrapper for signOut mutation.",
 })
 /**
- * Empty success envelope — sign-out's work is cookie/session side-effects,
+ * Empty success envelope -- sign-out's work is cookie/session side-effects,
  * not a returned payload.
  */
 export class SignOutResponse

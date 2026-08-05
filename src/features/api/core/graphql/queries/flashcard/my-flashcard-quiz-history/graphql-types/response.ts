@@ -18,7 +18,7 @@ import {
 })
 /**
  * One completed flashcard quick-quiz session, as read back for the viewer's
- * history — "history + stats" (2026-07-08).
+ * history -- "history + stats" (2026-07-08).
  */
 export class MyFlashcardQuizHistoryItem {
     @Field(

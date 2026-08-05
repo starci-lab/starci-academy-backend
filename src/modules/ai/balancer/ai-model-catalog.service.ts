@@ -81,12 +81,12 @@ export class AiModelCatalogService {
     }
 
     /**
-     * TOKEN-BASED billing for one run: `ceil((promptTok·rateIn + completionTok·
+     * TOKEN-BASED billing for one run: `ceil((promptTok-rateIn + completionTok-
      * rateOut) / 1e6)`, where the per-million-token rates come from the served
      * model's catalog row (proportional to its real `$/M` price). Falls back to
      * the model's flat `credit` when the model has no rates OR the provider did
      * not report token usage (so a run is never billed 0 by accident). Unknown /
-     * disabled model → {@link fallback}.
+     * disabled model -> {@link fallback}.
      *
      * @param params - served model `name`, observed token counts, fallback credit.
      * @returns the credits to charge for this run.
@@ -114,8 +114,8 @@ export class AiModelCatalogService {
             return found.credit
         }
         // Rated model: bill by tokens. When the provider reported no usage at all,
-        // ESTIMATE with typical token counts × this model's rates rather than the
-        // flat per-model `credit` — the flat is a coarse cap that massively over-
+        // ESTIMATE with typical token counts x this model's rates rather than the
+        // flat per-model `credit` -- the flat is a coarse cap that massively over-
         // charges (Balanced flat 211 vs a real ~24), which would drain a free
         // user's whole 5h pool on a single un-metered call.
         const noUsage = inputTokens === 0 && outputTokens === 0
@@ -133,7 +133,7 @@ export class AiModelCatalogService {
                 0),
             billedInput)
         const freshInput = billedInput - cachedInput
-        // no recorded cache price → fall back to the conservative multiplier
+        // no recorded cache price -> fall back to the conservative multiplier
         // rather than inventing a discount the provider may not give
         const cachedRate = found.creditPerMTokCached
             ?? found.creditPerMTokIn * CACHE_READ_RATE_MULTIPLIER

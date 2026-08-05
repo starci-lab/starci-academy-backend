@@ -30,16 +30,16 @@ import {
     AskRagPlaygroundResponse,
 } from "./graphql-types"
 
-/** Hard cap on question length — bounds prompt size on a public, unauthenticated endpoint. */
+/** Hard cap on question length -- bounds prompt size on a public, unauthenticated endpoint. */
 const MAX_QUESTION_CHARS = 500
 
 @Resolver()
 /**
- * PUBLIC (no login) mutation — retrieve grounded context for a question and
+ * PUBLIC (no login) mutation -- retrieve grounded context for a question and
  * prepare it for streaming. Does NOT invoke the model itself: it stashes the
  * prepared messages in {@link RagPlaygroundRunRegistryService} and returns a
  * `runId` the client subscribes to over the `/rag_playground` Socket.IO
- * namespace, which does the (local, $0) model call. Strict throttle — the
+ * namespace, which does the (local, $0) model call. Strict throttle -- the
  * retrieval step is real Qdrant + embedding work on an anonymous endpoint.
  */
 export class AskRagPlaygroundResolver {

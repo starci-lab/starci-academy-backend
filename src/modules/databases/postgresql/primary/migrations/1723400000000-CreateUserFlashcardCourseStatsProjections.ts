@@ -5,10 +5,10 @@ import {
 
 /**
  * Creates the `user_flashcard_course_stats_projections` CQRS read-model table
- * — one row per enrollment, shared by BOTH the flashcard quick-quiz and
+ * -- one row per enrollment, shared by BOTH the flashcard quick-quiz and
  * review recap surfaces, holding `{ quizTrend, quizByTag, quizByDeck,
  * reviewByDeck }` in the inherited jsonb `value`. The inherited `updated_at`
- * drives the read-time TTL lazy-refresh — mirrors
+ * drives the read-time TTL lazy-refresh -- mirrors
  * `1719600000000-CreateUserChallengeProgressProjection`'s enrollment-keyed
  * shape exactly.
  *
@@ -30,7 +30,7 @@ export class CreateUserFlashcardCourseStatsProjections1723400000000 implements M
             );
         `)
 
-        // FK to enrollments — deleting an enrollment removes its flashcard-course-stats projection row
+        // FK to enrollments -- deleting an enrollment removes its flashcard-course-stats projection row
         await queryRunner.query(`
             ALTER TABLE "user_flashcard_course_stats_projections"
             ADD CONSTRAINT "fk_enrollment_id_user_flashcard_course_stats_projections"

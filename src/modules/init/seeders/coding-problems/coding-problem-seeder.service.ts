@@ -33,7 +33,7 @@ export class CodingProblemSeederService {
         private readonly seedScopeService: SeedScopeService,
     ) {}
 
-    /** Parse mount data → upsert problems. No-op when the seeder is disabled. */
+    /** Parse mount data -> upsert problems. No-op when the seeder is disabled. */
     async seed(): Promise<void> {
         // respect the seed.yaml gate so ops can skip problem seeding per environment
         if (!this.seedScopeService.isCodingProblemsSeederEnabled()) {

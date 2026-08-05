@@ -49,7 +49,7 @@ const escapeHtml = (value: string): string =>
 
 @Resolver()
 /**
- * Public contact-form endpoint. Anonymous (no auth guard) — anyone can reach out.
+ * Public contact-form endpoint. Anonymous (no auth guard) -- anyone can reach out.
  * The message is delivered to the founder's inbox via the shared mailer, with the
  * sender's address set as reply-to so a reply lands back in their mailbox.
  */

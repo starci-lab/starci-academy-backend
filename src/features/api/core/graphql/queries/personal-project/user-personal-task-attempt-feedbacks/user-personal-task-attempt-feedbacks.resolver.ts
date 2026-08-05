@@ -32,7 +32,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL surface for `userPersonalTaskAttemptFeedbacks` — paginated feedback
+ * GraphQL surface for `userPersonalTaskAttemptFeedbacks` -- paginated feedback
  * for an explicit attemptId (history drill-down, not "latest").
  */
 export class UserPersonalTaskAttemptFeedbacksResolver {

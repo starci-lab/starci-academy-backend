@@ -9,14 +9,14 @@ import type {
 
 /** Params for {@link writeActivity}. */
 export interface WriteActivityParams {
-    /** Transaction manager — the activity row is written in the SAME tx as its source effect. */
+    /** Transaction manager -- the activity row is written in the SAME tx as its source effect. */
     entityManager: EntityManager
     /** User who performed the activity (the feed actor). */
     userId: string
     /** Kind of activity. */
     type: ActivityType
     /**
-     * Scalar dedup key — a natural row id, or a synthesized `dedupeKey(...)`.
+     * Scalar dedup key -- a natural row id, or a synthesized `dedupeKey(...)`.
      * Combined with `type` it is unique, so the activity is idempotent.
      */
     idempotencyKey: string
@@ -28,7 +28,7 @@ export interface WriteActivityParams {
  * Append one activity event to the home-feed ledger, idempotently and in the
  * caller's transaction. Guards on the `(type, idempotencyKey)` unique key: if the
  * event was already recorded (re-read lesson, re-graded attempt, re-follow),
- * NOTHING happens — no duplicate feed row. Mirrors `writeXpHistory`.
+ * NOTHING happens -- no duplicate feed row. Mirrors `writeXpHistory`.
  *
  * @param params - See {@link WriteActivityParams}.
  */

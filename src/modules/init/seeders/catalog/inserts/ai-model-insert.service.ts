@@ -39,7 +39,7 @@ export class AiModelInsertService {
      * The retire pass matters because the upsert is keyed on `(provider, name)`:
      * dropping a model from the mount folder would otherwise leave its row
      * behind, still `enabled`, and the balancer would keep routing to a model
-     * nobody maintains any more — including ids the provider has since removed,
+     * nobody maintains any more -- including ids the provider has since removed,
      * which fail every attempt they are given.
      *
      * Rows are disabled rather than deleted so that transactions and grading

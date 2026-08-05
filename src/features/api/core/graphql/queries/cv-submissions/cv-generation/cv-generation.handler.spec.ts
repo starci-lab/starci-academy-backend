@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle (mirrors sync-submission.handler.spec.ts).
 import "@modules/bussiness"
 import {
@@ -93,17 +93,17 @@ describe("CvGenerationHandler",
         let s3BuildService: jest.Mocked<Pick<S3BuildService, "buildSignedGetObjectUrl">>
 
         beforeEach(async () => {
-            // fresh jest-backed entity manager — only `findOne` (ownership lookup) is
+            // fresh jest-backed entity manager -- only `findOne` (ownership lookup) is
             // exercised by this handler; no real DB access
             entityManager = makeEntityManagerMock()
 
-            // s3 read is mocked wholesale — resolves null unless a test programs a
+            // s3 read is mocked wholesale -- resolves null unless a test programs a
             // .tex body for a row that carries a `latexCdnKey`
             s3ReadService = {
                 text: jest.fn().mockResolvedValue(null),
             } as unknown as jest.Mocked<Pick<S3ReadService, "text">>
 
-            // s3 build (presign) is mocked wholesale — resolves a fake signed URL
+            // s3 build (presign) is mocked wholesale -- resolves a fake signed URL
             // unless a test asserts it's never called (generated-source rows)
             s3BuildService = {
                 buildSignedGetObjectUrl: jest.fn().mockResolvedValue("https://minio.local/signed"),
@@ -211,16 +211,16 @@ describe("CvGenerationHandler",
                                 language: "en",
                             }),
                         )
-                        // no feedback on this row yet → null (not an empty object)
+                        // no feedback on this row yet -> null (not an empty object)
                         expect(result.feedback).toBeNull()
-                        // no stored .tex key on this row → latexSource resolves to null,
+                        // no stored .tex key on this row -> latexSource resolves to null,
                         // and the S3 read is skipped entirely
                         expect(result.latexSource).toBeNull()
                         expect(s3ReadService.text).not.toHaveBeenCalled()
-                        // Generated source, no uploaded file → uploadedCvUrl stays null and
+                        // Generated source, no uploaded file -> uploadedCvUrl stays null and
                         // the presign is never attempted
                         expect(result.uploadedCvUrl).toBeNull()
-                        // Generated source, but no compiled PDF yet → generatedPdfUrl stays
+                        // Generated source, but no compiled PDF yet -> generatedPdfUrl stays
                         // null too, same "no presign attempted" contract
                         expect(result.generatedPdfUrl).toBeNull()
                         expect(s3BuildService.buildSignedGetObjectUrl).not.toHaveBeenCalled()

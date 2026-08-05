@@ -11,7 +11,7 @@ export interface PgBackupGzipFailedExceptionMetadata extends AbstractExceptionMe
     stderr?: string
 }
 
-/** Stops the backup pipeline after gzip fails — a raw dump is not uploaded as the artifact. */
+/** Stops the backup pipeline after gzip fails -- a raw dump is not uploaded as the artifact. */
 export class PgBackupGzipFailedException extends AbstractException {
     constructor(
         {

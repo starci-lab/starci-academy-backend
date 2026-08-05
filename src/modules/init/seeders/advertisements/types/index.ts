@@ -41,7 +41,7 @@ export interface AdvertisementSeedItem {
 
 /**
  * Root object the markdown JSON extractor returns for the advertisements seed
- * file — the authored `# N` sections are wrapped under a single `data` array.
+ * file -- the authored `# N` sections are wrapped under a single `data` array.
  *
  * Declared as a `type` (not `interface`) so its implicit index signature
  * satisfies the `Record<string, unknown>` constraint of

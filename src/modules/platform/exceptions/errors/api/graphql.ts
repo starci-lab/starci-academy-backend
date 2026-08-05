@@ -12,7 +12,7 @@ export interface GraphQLDataNotFoundExceptionMetadata extends AbstractExceptionM
     url: string
 }
 /**
- * Upstream GraphQL returned no data for the query — callers must not treat an empty
+ * Upstream GraphQL returned no data for the query -- callers must not treat an empty
  * payload as success.
  */
 export class GraphQLDataNotFoundException extends AbstractException {

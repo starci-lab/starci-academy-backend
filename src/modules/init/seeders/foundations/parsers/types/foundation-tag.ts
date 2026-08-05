@@ -11,7 +11,7 @@ export interface ParseFoundationTagsParams {
     foundationId: string
 }
 
-/** One raw foundation-tag item parsed from a mount `# tags` block (`## {index}` → `### value`). */
+/** One raw foundation-tag item parsed from a mount `# tags` block (`## {index}` -> `### value`). */
 export interface RawFoundationTagItem {
     /** The tag ordinal from `## {index}`. */
     orderIndex: number

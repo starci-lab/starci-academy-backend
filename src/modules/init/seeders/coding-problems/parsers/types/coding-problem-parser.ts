@@ -1,4 +1,4 @@
-/** One per-language code item (`## <n>` → `### lang` + `### content`). */
+/** One per-language code item (`## <n>` -> `### lang` + `### content`). */
 export interface RawLangCodeItem {
     /** Language string from `### lang`. */
     lang?: string
@@ -6,7 +6,7 @@ export interface RawLangCodeItem {
     content?: string
 }
 
-/** One IO item (`## <n>` → `### input` + `### output`). */
+/** One IO item (`## <n>` -> `### input` + `### output`). */
 export interface RawIoItem {
     /** Stdin string from `### input`. */
     input?: string
@@ -14,7 +14,7 @@ export interface RawIoItem {
     output?: string
 }
 
-/** One topic tag item (`## <n>` → `### value`) from a problem's `# tags`. */
+/** One topic tag item (`## <n>` -> `### value`) from a problem's `# tags`. */
 export interface RawCodingProblemTag {
     /** Tag value string from `### value`. */
     value?: string

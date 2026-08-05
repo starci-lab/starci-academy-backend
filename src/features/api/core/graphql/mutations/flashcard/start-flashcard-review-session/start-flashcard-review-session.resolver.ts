@@ -36,7 +36,7 @@ import {
 
 @Resolver()
 /**
- * GraphQL entrypoint for `startFlashcardReviewSession` — delegates to {@link StartFlashcardReviewSessionService.execute},
+ * GraphQL entrypoint for `startFlashcardReviewSession` -- delegates to {@link StartFlashcardReviewSessionService.execute},
  * which dispatches the CQRS command {@link StartFlashcardReviewSessionHandler} owns. See {@link execute}'s
  * own doc below for what the mutation actually does.
  */
@@ -46,8 +46,8 @@ export class StartFlashcardReviewSessionResolver {
     ) { }
 
     /**
-     * Persists ONE flashcard review ("Học thẻ") session draw over a single
-     * deck so it becomes resumable — mirrors `startFlashcardQuizSession`.
+     * Persists ONE flashcard review session draw over a single
+     * deck so it becomes resumable -- mirrors `startFlashcardQuizSession`.
      * Retires any PRIOR "in_progress" draw for the same enrollment+deck
      * first, so a learner never has two resumable review sessions on the
      * same deck at once.

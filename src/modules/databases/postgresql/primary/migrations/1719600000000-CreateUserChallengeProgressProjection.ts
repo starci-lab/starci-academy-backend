@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Creates the `user_challenge_progress_projections` CQRS read-model table — one
+ * Creates the `user_challenge_progress_projections` CQRS read-model table -- one
  * row per enrollment, holding the per-challenge progress aggregate
  * (`{ completionTasks: [...] }`) in the jsonb `value`. The inherited `updated_at`
  * drives the read-time TTL lazy-refresh; this projection table replaces the old
@@ -27,7 +27,7 @@ export class CreateUserChallengeProgressProjection1719600000000 implements Migra
             );
         `)
 
-        // FK to enrollments — deleting an enrollment removes its progress projection row
+        // FK to enrollments -- deleting an enrollment removes its progress projection row
         await queryRunner.query(`
             ALTER TABLE "user_challenge_progress_projections"
             ADD CONSTRAINT "fk_enrollment_id_user_challenge_progress_projections"

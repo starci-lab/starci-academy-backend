@@ -13,9 +13,9 @@ import {
     description: "Set the user's AI model ceiling for a surface (or the global default).",
 })
 /**
- * Set the current user's AI model CEILING for one surface — or the global
+ * Set the current user's AI model CEILING for one surface -- or the global
  * `default` when `surface` is omitted. A null/omitted `category` clears that
- * ceiling (uncap → only the plan ceiling limits the climb).
+ * ceiling (uncap -> only the plan ceiling limits the climb).
  */
 export class SetAiCeilRequest {
     @Field(

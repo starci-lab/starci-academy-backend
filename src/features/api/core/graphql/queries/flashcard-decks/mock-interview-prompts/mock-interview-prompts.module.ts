@@ -17,5 +17,5 @@ import {
         MockInterviewPromptsService,
     ],
 })
-/** Feature-module boundary for the `mockInterviewPrompts` query — wires its resolver + service. */
+/** Feature-module boundary for the `mockInterviewPrompts` query -- wires its resolver + service. */
 export class MockInterviewPromptsSingleQueryModule extends ConfigurableModuleClass {}

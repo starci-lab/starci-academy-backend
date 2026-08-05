@@ -81,7 +81,7 @@ export class KeyRotatorService {
 
         // health-weighted least-recently-used: prefer the key with the fewest
         // recent failures, then the one used longest ago (lastUsedAt persisted in
-        // Redis → load spreads evenly across instances), keySuffix as a stable
+        // Redis -> load spreads evenly across instances), keySuffix as a stable
         // tiebreak. Replaces the old global round-robin counter.
         const picked = [...eligibleKeys].sort((a, b) => {
             const entryA = providerCache[a.value]
@@ -131,7 +131,7 @@ export class KeyRotatorService {
     /**
      * Snapshot the current counter value (for admin debug).
      * @param provider - Target provider.
-     * @returns Numeric counter — `0` when no rotation has happened yet.
+     * @returns Numeric counter -- `0` when no rotation has happened yet.
      */
     async getCounter(provider: ModelProvider): Promise<number> {
         const raw = await this.redis.get(this.counterKey(provider))
@@ -142,7 +142,7 @@ export class KeyRotatorService {
     }
 
     /**
-     * Find a key state by its suffix — used when reporting failure for a previously-picked key.
+     * Find a key state by its suffix -- used when reporting failure for a previously-picked key.
      * @param provider - Target provider.
      * @param keySuffix - Last 4 chars of the key value.
      */

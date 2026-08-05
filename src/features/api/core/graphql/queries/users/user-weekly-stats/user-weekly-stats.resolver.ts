@@ -37,7 +37,7 @@ import {
 /**
  * Public profile query: a given user's streak + rolling 7-day activity. Mirrors
  * `myWeeklyStats` but reads for the user named in the route (id from args), so a
- * profile can show a Duolingo-style streak. Optional auth — anonymous viewers may
+ * profile can show a Duolingo-style streak. Optional auth -- anonymous viewers may
  * call it; a locked profile is withheld from non-owners by
  * {@link GraphQLProfileVisibilityGuard}. Reads the user-stats projection.
  */
@@ -71,7 +71,7 @@ export class UserWeeklyStatsResolver {
         )
             userId: string,
     ): Promise<MyWeeklyStatsData> {
-        // single projection read — heavy aggregates live in the projection recompute
+        // single projection read -- heavy aggregates live in the projection recompute
         const stats = await this.userStatsProjectionService.getStats(userId)
         // expose only the activity slice (the projection also carries social counters)
         return {
@@ -80,10 +80,10 @@ export class UserWeeklyStatsResolver {
             xp: stats.weeklyXp,
             lessons: stats.weeklyLessons,
             days: stats.last7Days,
-            // the weekly goal is the owner's private target — not surfaced when
+            // the weekly goal is the owner's private target -- not surfaced when
             // viewing another user's public stats
             weeklyGoalLessons: null,
-            // streak-freeze inventory is the owner's private currency — surfaced
+            // streak-freeze inventory is the owner's private currency -- surfaced
             // only on the viewer's own myWeeklyStats, 0 here for other users
             streakFreezes: 0,
         }

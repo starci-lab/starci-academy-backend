@@ -7,7 +7,7 @@ import {
 @InputType({
     description: "Fetch one Headhunter by primary key (`id`) or globally unique `displayId`.",
 })
-/** Request for the Headhunter GraphQL query — provide `id` or `displayId`, not both required. */
+/** Request for the Headhunter GraphQL query -- provide `id` or `displayId`, not both required. */
 export class ConsultantRequest {
     /** Headhunter UUID (preferred for FE routes). */
     @Field(

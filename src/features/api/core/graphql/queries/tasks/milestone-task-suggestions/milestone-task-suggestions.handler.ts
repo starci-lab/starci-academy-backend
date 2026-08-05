@@ -17,7 +17,7 @@ import {
 @QueryHandler(MilestoneTaskSuggestionsQuery)
 @Injectable()
 /**
- * Milestone task autocomplete (typeahead) handler — ES Completion Suggester.
+ * Milestone task autocomplete (typeahead) handler -- ES Completion Suggester.
  *
  * Inherits the entire suggest flow from {@link AbstractSuggestionsHandler}: it
  * reads `{ locale, request: { query, limit } }`, resolves the per-locale
@@ -32,6 +32,6 @@ import {
  */
 export class MilestoneTaskSuggestionsHandler
     extends AbstractSuggestionsHandler<MilestoneTaskSuggestionsQuery> {
-    /** Entity this handler autocompletes — drives `milestone-tasks` index resolution. */
+    /** Entity this handler autocompletes -- drives `milestone-tasks` index resolution. */
     protected readonly entityName = MilestoneTaskEntity.name
 }

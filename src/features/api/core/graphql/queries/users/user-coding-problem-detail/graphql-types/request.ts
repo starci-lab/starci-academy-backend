@@ -9,13 +9,13 @@ import {
 })
 /**
  * Request for a coding problem's detail on a user's PUBLIC profile
- * (`/profile/<username>/skills/<slug>`) — `userId` is the profile owner (NOT
+ * (`/profile/<username>/skills/<slug>`) -- `userId` is the profile owner (NOT
  * necessarily the caller); the caller's own identity (if any) is resolved
  * separately by `KeycloakOptionalAuthGraphQLGuard` for the owner-bypass check
  * inside {@link GraphQLProfileVisibilityGuard}.
  */
 export class UserCodingProblemDetailRequest {
-    /** The profile being viewed, NOT the caller — determines whose submission summary is returned. */
+    /** The profile being viewed, NOT the caller -- determines whose submission summary is returned. */
     @Field(
         () => ID,
         {

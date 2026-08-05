@@ -109,13 +109,13 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
             },
         }: JobExtendedContext<EnrollPayload, undefined>
     ): Promise<EnrollStepExecutionResult> {
-        // whether the enrollment already existed (duplicate enroll job) → skip post-steps
+        // whether the enrollment already existed (duplicate enroll job) -> skip post-steps
         let alreadyEnrolled = false
         // process the transaction
         await this.entityManager.transaction(
             async (entityManager) => {
                 // SERIALIZE concurrent enrollments for this course (pessimistic row lock on the
-                // bare `courses` row — no relations, so FOR UPDATE is not applied to a nullable
+                // bare `courses` row -- no relations, so FOR UPDATE is not applied to a nullable
                 // outer join). Every enroll path must take this lock BEFORE counting seats /
                 // advancing the pricing phase, so two users checking out at the same time can
                 // never both slip into the same phase past its slot limit.
@@ -151,7 +151,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         },
                     )
                 }
-                // this course is now being enrolled → drop it from the buyer's cart
+                // this course is now being enrolled -> drop it from the buyer's cart
                 // so a bought course never lingers there. Idempotent (no-op when it
                 // was never carted / already cleared) and runs for every path below,
                 // covering both single-course and per-line multi-course enroll jobs.
@@ -167,14 +167,14 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     },
                 )
                 // get the current pricing phase
-                // default to EarlyBird (Pioneer is internal/sold) — NOT Regular — when metadata
+                // default to EarlyBird (Pioneer is internal/sold) -- NOT Regular -- when metadata
                 // is absent, so a first enrollment does not wrongly jump the course to Regular.
-                // Computed up front so BOTH the convert (trial→paid) and the fresh-create paths
+                // Computed up front so BOTH the convert (trial->paid) and the fresh-create paths
                 // stamp the same phase.
                 const currentPhase = course?.metadata?.currentPhase ?? PricingPhase.EarlyBird
                 // idempotency (find-or-create, like the other processor steps): a duplicate
                 // PAID enroll job (multiple reconcile polls, or webhook + reconcile) must NOT
-                // re-insert the enrollment — it would violate UQ_enrollments_user_course.
+                // re-insert the enrollment -- it would violate UQ_enrollments_user_course.
                 // A TRIAL placeholder (`is_enrolled = false`) is NOT a paid duplicate, though:
                 // it must be CONVERTED in place to a real enrollment and run the same post-steps.
                 const existingEnrollment = await entityManager.findOne(
@@ -190,13 +190,13 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         },
                     },
                 )
-                // already a PAID enrollment → genuine duplicate: just finalize and stop.
+                // already a PAID enrollment -> genuine duplicate: just finalize and stop.
                 if (existingEnrollment?.isEnrolled === true) {
                     alreadyEnrolled = true
                     // guarded write (only applies while still Pending): a transaction
                     // funding a MULTI-course order is shared by one enroll job per
                     // course line, so a sibling course's job may have already flipped
-                    // this same row to Succeeded — this must never clobber that (or
+                    // this same row to Succeeded -- this must never clobber that (or
                     // any other terminal status) back to Succeeded from a stale read.
                     // Unlike the AI/installment grants, this write does NOT gate the
                     // enrollment effect itself: per-course enrollment is already
@@ -217,18 +217,18 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     })
                     return
                 }
-                // either CONVERT the existing trial placeholder (is_enrolled=false) → paid,
-                // or CREATE a fresh paid enrollment — then fall through to the SAME post-steps.
+                // either CONVERT the existing trial placeholder (is_enrolled=false) -> paid,
+                // or CREATE a fresh paid enrollment -- then fall through to the SAME post-steps.
                 let enrollment: EnrollmentEntity
                 if (existingEnrollment) {
-                    // CONVERT trial → paid: flip the flag + stamp the current pricing phase
+                    // CONVERT trial -> paid: flip the flag + stamp the current pricing phase
                     existingEnrollment.isEnrolled = true
                     existingEnrollment.pricingPhase = currentPhase
                     enrollment = await entityManager.save(
                         existingEnrollment,
                     )
                 } else {
-                    // fresh PAID creation path (post-payment) → a real enrollment
+                    // fresh PAID creation path (post-payment) -> a real enrollment
                     const created = entityManager.create(
                         EnrollmentEntity,
                         {
@@ -270,7 +270,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 const phase = course?.pricingPhases.find(
                     (phase) => phase.phase === currentPhase,
                 )
-                // get the enrollment count — only PAID rows consume a pricing-phase slot
+                // get the enrollment count -- only PAID rows consume a pricing-phase slot
                 // (trial placeholders, is_enrolled=false, must not advance the phase)
                 const enrollmentCount = await entityManager.count(
                     EnrollmentEntity,
@@ -298,7 +298,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     }
                     await entityManager.save(course)
                 }
-                // guarded write (only applies while still Pending) — same reasoning
+                // guarded write (only applies while still Pending) -- same reasoning
                 // as the `alreadyEnrolled` branch above: this transaction may be
                 // shared by other course lines' enroll jobs, so use the atomic
                 // guard rather than an unconditional write that could clobber a
@@ -319,7 +319,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
             }
         )
 
-        // a new enrollment changes this user's membership → drop the cached
+        // a new enrollment changes this user's membership -> drop the cached
         // enrolled-courses set so the next authorization check rebuilds it and
         // the just-bought course is immediately accessible (no stale `false`)
         if (!alreadyEnrolled) {

@@ -13,7 +13,7 @@ import {
 })
 /**
  * Opaque challenge handle for the OTP step. The Keycloak user may already
- * exist unverified — this payload must not leak tokens before email proof.
+ * exist unverified -- this payload must not leak tokens before email proof.
  */
 export class SignUpInitData {
     @Field(() => String,

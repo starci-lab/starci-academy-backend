@@ -3,7 +3,7 @@ import {
 } from "./types"
 
 /**
- * CQRS envelope for enqueue-grading — quota, premium lock, and job dispatch
+ * CQRS envelope for enqueue-grading -- quota, premium lock, and job dispatch
  * stay in the handler so the resolver cannot accidentally skip them.
  */
 export class SubmitChallengeSubmissionCommand {

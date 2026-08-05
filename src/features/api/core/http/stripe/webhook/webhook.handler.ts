@@ -65,7 +65,7 @@ import {
 @Injectable()
 /**
  * Constructs the Stripe event with the webhook secret then settles only
- * `checkout.session.completed` — other types must not enroll or refund here.
+ * `checkout.session.completed` -- other types must not enroll or refund here.
  */
 export class StripeWebhookHandler
     extends ICQRSHandler<StripeWebhookCommand, void>
@@ -125,7 +125,7 @@ export class StripeWebhookHandler
         const session = event.data.object as Stripe.Checkout.Session
 
         // `checkout.session.completed` can fire for an async payment method whose
-        // funds have NOT cleared yet — only a `paid` session means money is in
+        // funds have NOT cleared yet -- only a `paid` session means money is in
         if (session.payment_status !== "paid") {
             this.winstonService.log(
                 WinstonLog.PaymentWebhookIgnored,
@@ -143,7 +143,7 @@ export class StripeWebhookHandler
 
         const referenceId = session.client_reference_id
         if (!referenceId) {
-            // without our reference id we cannot match a transaction → reject
+            // without our reference id we cannot match a transaction -> reject
             throw new TransactionNotFoundException({
                 referenceId: "missing client_reference_id",
             })

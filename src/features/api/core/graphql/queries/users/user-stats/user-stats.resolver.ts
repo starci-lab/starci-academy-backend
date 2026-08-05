@@ -97,11 +97,11 @@ export class UserStatsResolver {
     ): Promise<boolean> {
         // viewer is set by the (optional) auth guard on the parent query
         const viewer = context.req?.user
-        // anonymous viewer or self-view → not "followed by me"
+        // anonymous viewer or self-view -> not "followed by me"
         if (!viewer || viewer.id === user.id) {
             return false
         }
-        // does an edge viewer → user exist?
+        // does an edge viewer -> user exist?
         const existing = await this.entityManager.count(
             UserFollowEntity,
             {

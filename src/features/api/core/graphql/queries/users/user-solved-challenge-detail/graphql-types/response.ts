@@ -72,7 +72,7 @@ export class UserSolvedChallengeDetailFeedbackData {
 /**
  * One recorded attempt against a solved challenge submission (mirrors
  * {@link UserChallengeSubmissionAttemptEntity}, trimmed to what a profile
- * visitor should see) — the attempts record, newest first.
+ * visitor should see) -- the attempts record, newest first.
  */
 export class UserSolvedChallengeDetailAttemptData {
     @Field(
@@ -123,7 +123,7 @@ export class UserSolvedChallengeDetailAttemptData {
     description: "Detail of a single passed challenge submission, including AI feedback from the passing attempt.",
 })
 /**
- * Detail of one passed challenge submission on a user's public profile —
+ * Detail of one passed challenge submission on a user's public profile --
  * the same fields as a `userSolvedChallenges` list item, plus the structured
  * AI feedback list from the attempt that passed it.
  */

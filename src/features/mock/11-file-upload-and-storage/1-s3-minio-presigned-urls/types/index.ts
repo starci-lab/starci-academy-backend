@@ -1,4 +1,4 @@
-/** Response of `POST /presign/put` — a short-lived signed PUT URL. */
+/** Response of `POST /presign/put` -- a short-lived signed PUT URL. */
 export interface PresignPutResponse {
     /** Server-generated object key. */
     key: string
@@ -12,7 +12,7 @@ export interface PresignPutResponse {
     filename: string
 }
 
-/** Response of `GET /presign/get/:key` — a short-lived signed GET URL. */
+/** Response of `GET /presign/get/:key` -- a short-lived signed GET URL. */
 export interface PresignGetResponse {
     /** Absolute URL the client reads the bytes from. */
     url: string

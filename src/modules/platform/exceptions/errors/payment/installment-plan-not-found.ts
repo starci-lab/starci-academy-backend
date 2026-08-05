@@ -11,14 +11,14 @@ export interface InstallmentPlanNotFoundExceptionMetadata extends AbstractExcept
     planId: string
     /**
      * Id of the user attempting to pay it. Omitted for a lookup that is not
-     * user-scoped — e.g. `InstallmentPlanService.recordPayment`, driven by
+     * user-scoped -- e.g. `InstallmentPlanService.recordPayment`, driven by
      * the reconcile worker off a plan id alone.
      */
     userId?: string
 }
 
 /**
- * Thrown when an installment plan id does not resolve to a row — either a
+ * Thrown when an installment plan id does not resolve to a row -- either a
  * "pay next installment" request targeting a plan that does not exist or
  * does not belong to the requesting user (both collapsed into one not-found
  * error so ownership is never leaked to the caller), or an internal

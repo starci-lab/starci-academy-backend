@@ -13,5 +13,5 @@ import {
         AiSubscriptionTiersResolver,
     ],
 })
-/** Feature-module boundary for the `aiSubscriptionTiers` query — wires its resolver so the AI group can mount this read independently. */
+/** Feature-module boundary for the `aiSubscriptionTiers` query -- wires its resolver so the AI group can mount this read independently. */
 export class AiSubscriptionTiersSingleQueryModule extends ConfigurableModuleClass {}

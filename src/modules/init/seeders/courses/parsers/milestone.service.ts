@@ -115,7 +115,7 @@ export class MilestoneParserService {
         return {
             id: milestoneId,
             orderIndex: milestoneIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,
                 milestoneIndex,

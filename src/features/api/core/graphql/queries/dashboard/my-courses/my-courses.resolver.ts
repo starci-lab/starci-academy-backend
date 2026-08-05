@@ -41,7 +41,7 @@ import {
 /**
  * Rail query: every course the viewer has joined, each with its milestone
  * progress. Reads the CQRS progress projection (`completed` is eager-maintained
- * via inline recompute + CDC — no read-time Redis cache, so it never goes stale
+ * via inline recompute + CDC -- no read-time Redis cache, so it never goes stale
  * the way the old cache-aside did); the `total` denominator is counted live from
  * the course's milestone tasks. The list doubles as the rail's "my courses" list.
  */

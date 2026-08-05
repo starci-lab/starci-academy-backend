@@ -43,7 +43,7 @@ export class DeleteContentAiSessionResolver {
 
     /**
      * Delete the current user's saved content-AI conversation (a hard delete
-     * of the session row, cascading its messages — not a partial history
+     * of the session row, cascading its messages -- not a partial history
      * wipe), scoped to their enrollment. Requires authentication.
      */
     @UseThrottler(ThrottlerConfig.Soft)

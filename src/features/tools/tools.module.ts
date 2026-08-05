@@ -69,7 +69,7 @@ import {
  * Aggregates the build tools (media, dash, pg-snapshot, pg-backup, s3-snapshot),
  * the saved-target + artifact-registry controllers, and the shared local store
  * ({@link ToolsStoreService}) and {@link SyncService} that implement the
- * "build locally → register artifact → sync to cloud → re-sync" flow.
+ * "build locally -> register artifact -> sync to cloud -> re-sync" flow.
  *
  * Infrastructure services ({@link FfmpegService}, {@link Bento4Service},
  * {@link ExecaService}) are provided by the globally-registered infra modules in

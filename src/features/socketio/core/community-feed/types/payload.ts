@@ -13,5 +13,5 @@ export interface SubscribeCommunityFeedData {
     postId?: string | null
 }
 
-/** Client → server payload to join community feed rooms. */
+/** Client -> server payload to join community feed rooms. */
 export type SubscribeCommunityFeedSocketIoPayload = SocketIoPayload<SubscribeCommunityFeedData>

@@ -16,7 +16,7 @@ import {
  * The ops console is meant to run only on an operator's local machine. If the
  * `apps/tools` service is ever started with `NODE_ENV=production`, every guarded
  * route answers `404 Not Found` so the endpoints are indistinguishable from
- * routes that do not exist — this is the API-layer half of the prod lockdown
+ * routes that do not exist -- this is the API-layer half of the prod lockdown
  * (the static `/dashboard` is gated by a sibling middleware in `main.ts`).
  */
 export class LocalOnlyGuard implements CanActivate {
@@ -31,7 +31,7 @@ export class LocalOnlyGuard implements CanActivate {
             throw new ToolsRouteNotFoundException({
             })
         }
-        // local/dev — let the tool run
+        // local/dev -- let the tool run
         return true
     }
 }

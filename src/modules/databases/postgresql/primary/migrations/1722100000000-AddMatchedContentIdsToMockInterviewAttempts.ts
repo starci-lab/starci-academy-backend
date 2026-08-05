@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `matched_content_ids` to `mock_interview_attempts` — a point-in-time
+ * Adds `matched_content_ids` to `mock_interview_attempts` -- a point-in-time
  * jsonb snapshot of the distinct content (lesson) ids the RAG grounding
  * excerpt was retrieved from at grade time, so a re-opened past attempt
  * (history) can deep-link "study this" without re-running retrieval.

@@ -226,7 +226,7 @@ import {
     ],
 })
 /**
- * Root GraphQL query aggregator — registers every domain query group as
+ * Root GraphQL query aggregator -- registers every domain query group as
  * global so a single import at the API feature root exposes the full read
  * surface. Mutations live in a sibling module, not here.
  */

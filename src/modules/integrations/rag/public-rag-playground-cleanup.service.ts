@@ -28,11 +28,11 @@ const IDLE_TTL_MS = 2 * 60 * 60_000
 
 @Injectable()
 /**
- * Cron driver that drops idle PUBLIC RAG Playground sessions — a visitor who
+ * Cron driver that drops idle PUBLIC RAG Playground sessions -- a visitor who
  * indexes code then abandons the tab would otherwise leak a Qdrant collection
  * forever (there's no logout / account to tie cleanup to; the surface is
  * anonymous by design). Runs every 30 minutes, best-effort per session (one
- * failure never blocks the rest), and is idempotent — a session dropped by a
+ * failure never blocks the rest), and is idempotent -- a session dropped by a
  * prior run simply won't be found again.
  */
 export class PublicRagPlaygroundCleanupService {
@@ -77,7 +77,7 @@ export class PublicRagPlaygroundCleanupService {
     }
 
     /**
-     * Drop one session's Qdrant collection + DB row. Best-effort — a failure is
+     * Drop one session's Qdrant collection + DB row. Best-effort -- a failure is
      * logged, not thrown, so one bad session never blocks the rest of the sweep.
      */
     private async dropSession(

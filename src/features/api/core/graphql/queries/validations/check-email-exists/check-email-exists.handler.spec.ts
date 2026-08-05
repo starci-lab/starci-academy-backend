@@ -62,7 +62,7 @@ describe("CheckEmailExistsHandler",
 
         it("reports not-ready when the bloom filter is absent from the cache",
             async () => {
-                // cache miss → the filter has not been built yet
+                // cache miss -> the filter has not been built yet
                 cacheService.get.mockResolvedValueOnce(null)
 
                 const result = await handler.execute(

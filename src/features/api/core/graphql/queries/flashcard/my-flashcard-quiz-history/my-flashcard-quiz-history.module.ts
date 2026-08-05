@@ -17,5 +17,5 @@ import {
         MyFlashcardQuizHistoryService,
     ],
 })
-/** Feature-module boundary for the `myFlashcardQuizHistory` query — wires its resolver + service. */
+/** Feature-module boundary for the `myFlashcardQuizHistory` query -- wires its resolver + service. */
 export class MyFlashcardQuizHistorySingleQueryModule extends ConfigurableModuleClass {}

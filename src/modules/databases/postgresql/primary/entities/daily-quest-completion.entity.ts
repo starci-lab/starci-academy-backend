@@ -26,7 +26,7 @@ import {
 /**
  * One per (user, calendar day): proof that a user completed ALL of their daily
  * quest tasks that day AND claimed the reward. The row exists ONLY after a
- * successful claim, so its presence is the idempotency backstop — a second claim
+ * successful claim, so its presence is the idempotency backstop -- a second claim
  * for the same `(user_id, quest_date)` is rejected by the unique constraint.
  *
  * `quest_date` is the Asia/Ho_Chi_Minh calendar day (a `date`, no time), so a

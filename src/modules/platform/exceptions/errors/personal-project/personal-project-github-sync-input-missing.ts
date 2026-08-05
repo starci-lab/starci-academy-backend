@@ -13,7 +13,7 @@ export type PersonalProjectGithubSyncInputMissingExceptionMetadata = AbstractExc
 
 /**
  * Thrown when `syncPersonalProjectGithub` is called with none of
- * `githubUrl`/`branch`/`githubToken`/`clearGithubToken` set — nothing to sync.
+ * `githubUrl`/`branch`/`githubToken`/`clearGithubToken` set -- nothing to sync.
  */
 export class PersonalProjectGithubSyncInputMissingException extends AbstractException {
     constructor({

@@ -36,7 +36,7 @@ import type {
 const POSTGRESQL_PRIMARY = "primary"
 
 // the founder gate reads envConfig().community.founderUsername, whose default
-// (unmocked here) is "starci183" — see src/modules/env/config.ts
+// (unmocked here) is "starci183" -- see src/modules/env/config.ts
 const FOUNDER_USERNAME = "starci183"
 
 describe("CommunityPostService",
@@ -61,12 +61,12 @@ describe("CommunityPostService",
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
 
-            // event bus stub — every mutation fans out a room event
+            // event bus stub -- every mutation fans out a room event
             eventEmitterService = {
                 emit: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<EventEmitterService, "emit">>
 
-            // quota gate stub — default allows creation; a test can reject it
+            // quota gate stub -- default allows creation; a test can reject it
             communityPostQuotaService = {
                 assertCanCreatePost: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<CommunityPostQuotaService, "assertCanCreatePost">>
@@ -100,7 +100,7 @@ describe("CommunityPostService",
             () => {
                 it("throws CommunityPostNotFoundException when the row is missing",
                     async () => {
-                        // findOne default resolves null → no such post
+                        // findOne default resolves null -> no such post
                         await expect(
                             service.getPostOrThrow(postId),
                         ).rejects.toBeInstanceOf(CommunityPostNotFoundException)
@@ -283,7 +283,7 @@ describe("CommunityPostService",
                             service.setPinned({
                                 postId,
                                 pinned: true,
-                                // the AUTHOR themself, still not the founder — a forged call must
+                                // the AUTHOR themself, still not the founder -- a forged call must
                                 // still fail even from the post's own owner
                                 user: author,
                             }),

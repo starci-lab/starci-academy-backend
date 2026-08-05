@@ -156,7 +156,7 @@ export class CourseParserService {
                 courseIndex,
             },
         )
-        // authored concept mind-map (optional sibling `mind-map.json`) — absent/invalid →
+        // authored concept mind-map (optional sibling `mind-map.json`) -- absent/invalid ->
         // null, and the mind-map query falls back to a module-derived graph.
         let mindMap: CourseMindMapTree | null = null
         try {
@@ -180,7 +180,7 @@ export class CourseParserService {
                 0,
             ),
             orderIndex: courseIndex,
-            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            // pure display-ordering index -- explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,
                 courseIndex,

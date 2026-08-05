@@ -69,7 +69,7 @@ describe("InitConfigParserService",
                             modules: "0-3",
                             milestones: "all",
                         })
-                        // flashcard is a single global pass → on because a course opted in
+                        // flashcard is a single global pass -> on because a course opted in
                         expect(config.seeders.courses.flashcard.enabled).toBe(true)
                         expect(config.seeders.foundations).toBe(true)
                         expect(config.seeders.headhunting).toBe(false)

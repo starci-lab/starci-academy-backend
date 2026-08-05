@@ -16,7 +16,7 @@ export interface InstallmentCurrencyNotSupportedExceptionMetadata extends Abstra
 
 /**
  * Thrown when a checkout requests `installmentMonths` on a gateway other than
- * PayOS/Sepay — installments are VND-only, later cycles can't be collected on
+ * PayOS/Sepay -- installments are VND-only, later cycles can't be collected on
  * international gateways.
  */
 export class InstallmentCurrencyNotSupportedException extends AbstractException {

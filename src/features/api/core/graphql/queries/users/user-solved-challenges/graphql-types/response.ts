@@ -13,7 +13,7 @@ import {
     description: "A passed challenge submission with its submission link + language.",
 })
 /**
- * One passed challenge submission on a user's profile — the challenge, the
+ * One passed challenge submission on a user's profile -- the challenge, the
  * submission link (a GitHub repo or Google Docs URL the user submitted), the
  * language they chose, and when it passed. The git link is the dev's "flex".
  */

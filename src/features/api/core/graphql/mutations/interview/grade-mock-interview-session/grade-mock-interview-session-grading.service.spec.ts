@@ -8,7 +8,7 @@ import {
  *
  * Two properties matter. The score is the SUM of the covered bands, so the same answer
  * always earns the same score and the total is explainable per checkpoint. And missing a
- * checkpoint marked `critical` caps the result — a candidate who skipped the point the
+ * checkpoint marked `critical` caps the result -- a candidate who skipped the point the
  * question exists to test has not passed it, however much peripheral credit they piled up.
  */
 describe("MockInterviewGradingService — scoring from covered checkpoints",
@@ -56,7 +56,7 @@ describe("MockInterviewGradingService — scoring from covered checkpoints",
         ]
 
         /**
-     * First point is must-hit. The other two sum to 80, deliberately ABOVE the cap — an
+     * First point is must-hit. The other two sum to 80, deliberately ABOVE the cap -- an
      * uncapped implementation would return 80 here, so the cap test actually discriminates
      * instead of landing on a number both behaviours produce.
      */
@@ -101,7 +101,7 @@ describe("MockInterviewGradingService — scoring from covered checkpoints",
 
         it("caps the score when a critical checkpoint was missed",
             () => {
-                // covered both non-critical points — 80 raw — but skipped the must-hit one
+                // covered both non-critical points -- 80 raw -- but skipped the must-hit one
                 expect(score(withCritical,
                     [1,
                         2])).toBe(60)

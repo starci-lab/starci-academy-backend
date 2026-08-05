@@ -95,7 +95,7 @@ export class CommunityCommentService {
                 where: {
                     id: postId,
                 },
-                // authorId is a @RelationId (virtual, not selectable) — load the
+                // authorId is a @RelationId (virtual, not selectable) -- load the
                 // author relation and read author.id instead
                 relations: {
                     author: true,
@@ -116,7 +116,7 @@ export class CommunityCommentService {
         const parent = parentCommentId
             ? await this.getCommentOrThrow(parentCommentId)
             : null
-        // build the row via relation ids only — no need to load full post/user rows
+        // build the row via relation ids only -- no need to load full post/user rows
         const draft = this.entityManager.create(CommunityPostCommentEntity,
             {
                 body,
@@ -240,7 +240,7 @@ export class CommunityCommentService {
         // translate 1-based page into an offset; clamp to non-negative
         const skip = Math.max(0,
             page - 1) * limit
-        // null parent → top-level comments; a value → that comment's replies
+        // null parent -> top-level comments; a value -> that comment's replies
         const [
             comments,
             total,
@@ -273,10 +273,10 @@ export class CommunityCommentService {
     /**
      * Counts direct replies for a set of comments in one grouped query (avoids N+1).
      * @param commentIds - Parent comment ids to count replies for.
-     * @returns Map of comment id → direct reply count (missing key = 0).
+     * @returns Map of comment id -> direct reply count (missing key = 0).
      */
     async countReplies(commentIds: Array<string>): Promise<Record<string, number>> {
-        // nothing to count → cheap exit, also avoids an empty IN () clause
+        // nothing to count -> cheap exit, also avoids an empty IN () clause
         if (commentIds.length === 0) {
             return {
             }
@@ -308,10 +308,10 @@ export class CommunityCommentService {
      * Counts comments for a set of posts in one grouped query (avoids N+1).
      * Soft-deleted comments still count so the feed's "N comments" stays stable.
      * @param postIds - Post ids to count comments for.
-     * @returns Map of post id → comment count (missing key = 0).
+     * @returns Map of post id -> comment count (missing key = 0).
      */
     async countCommentsByPosts(postIds: Array<string>): Promise<Record<string, number>> {
-        // nothing to count → cheap exit, also avoids an empty IN () clause
+        // nothing to count -> cheap exit, also avoids an empty IN () clause
         if (postIds.length === 0) {
             return {
             }
@@ -341,7 +341,7 @@ export class CommunityCommentService {
 
     /**
      * Fans out "someone engaged with your post" notifications for a new comment.
-     * Notifies the post author and, on a reply, the parent comment author — never
+     * Notifies the post author and, on a reply, the parent comment author -- never
      * the actor themselves, and never the same recipient twice.
      * @param params - Post id, the post + parent author ids, and the acting user.
      */

@@ -41,7 +41,7 @@ import {
 
 @Resolver()
 /**
- * Optional-auth GraphQL entry for `courses` — anonymous viewers get the page
+ * Optional-auth GraphQL entry for `courses` -- anonymous viewers get the page
  * with `isEnrolled` unset; authenticated viewers get a single batched
  * enrollment lookup across the page (never N+1 per row).
  */
@@ -53,7 +53,7 @@ export class CoursesResolver {
     ) {}
 
     /**
-     * Lists courses with page-based pagination. Optional auth — anonymous
+     * Lists courses with page-based pagination. Optional auth -- anonymous
      * viewers may call it (`isEnrolled` stays null on every row); an
      * authenticated viewer's enrollment is looked up in ONE batched query
      * across the page's course ids (never N+1 per row).

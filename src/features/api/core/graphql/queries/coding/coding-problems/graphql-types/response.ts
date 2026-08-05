@@ -14,7 +14,7 @@ import {
 @ObjectType({
     description: "A page of coding problems (catalog only; solved state is myCodingProgress).",
 })
-/** Page of coding problems (shared catalog — per-user state is myCodingProgress). */
+/** Page of coding problems (shared catalog -- per-user state is myCodingProgress). */
 export class CodingProblemsResponseData {
     /** The page of problems (title localized; no testcases). */
     @Field(

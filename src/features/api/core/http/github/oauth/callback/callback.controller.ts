@@ -24,7 +24,7 @@ import {
     }
 )
 /**
- * Browser return from GitHub OAuth — exchanges the code server-side and 302s to the SPA so
+ * Browser return from GitHub OAuth -- exchanges the code server-side and 302s to the SPA so
  * the client secret never leaves this process.
  */
 export class GithubOauthCallbackController {

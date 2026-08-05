@@ -37,7 +37,7 @@ import {
  */
 export class UserMilestoneTaskAttemptEntity extends UuidAbstractEntity {
     /**
-     * Idempotency key (= grading job id) — one attempt per review job; a retried
+     * Idempotency key (= grading job id) -- one attempt per review job; a retried
      * job hits this unique constraint instead of creating a duplicate attempt.
      */
     @Column({

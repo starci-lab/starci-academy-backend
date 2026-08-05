@@ -7,22 +7,22 @@ import {
 
 /**
  * Tasks an AI model is suited for. Stored on `ai_models.supported_tasks`
- * (JSONB array of these string values — NOT a Postgres enum type) and surfaced
+ * (JSONB array of these string values -- NOT a Postgres enum type) and surfaced
  * to the FE so the model pickers can hide models that do not serve a task
  * (e.g. a grading-only model is hidden from the chat picker).
  */
 export enum AiModelTask {
-    /** Conversational tutor — shown in the chat model picker. */
+    /** Conversational tutor -- shown in the chat model picker. */
     Chatting = "chatting",
-    /** Code / submission grading — shown in the grading model picker. */
+    /** Code / submission grading -- shown in the grading model picker. */
     Grading = "grading",
-    /** Vector embedding generation — RAG indexing / retrieval. */
+    /** Vector embedding generation -- RAG indexing / retrieval. */
     Embedding = "embedding",
-    /** CV generation / revision — shown in the CV-generation model picker. */
+    /** CV generation / revision -- shown in the CV-generation model picker. */
     CVGenerating = "cv_generating",
-    /** Personal-project / capstone milestone-task review — shown in that grading model picker. */
+    /** Personal-project / capstone milestone-task review -- shown in that grading model picker. */
     TaskGrading = "task_grading",
-    /** Challenge submission grading (Git repo / Google Docs) — shown in that grading model picker. */
+    /** Challenge submission grading (Git repo / Google Docs) -- shown in that grading model picker. */
     ChallengeGrading = "challenge_grading",
 }
 

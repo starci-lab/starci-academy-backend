@@ -10,7 +10,7 @@ export interface FileNotExistsExceptionMetadata extends AbstractExceptionMetadat
     key: string
 }
 
-/** Fails when the S3/MinIO object is missing — callers must not parse an empty stand-in. */
+/** Fails when the S3/MinIO object is missing -- callers must not parse an empty stand-in. */
 export class FileNotExistsException extends AbstractException {
     constructor(
         { key, originalError }: FileNotExistsExceptionMetadata

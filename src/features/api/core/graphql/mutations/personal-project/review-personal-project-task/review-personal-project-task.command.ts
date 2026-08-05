@@ -6,7 +6,7 @@ import {
 } from "./graphql-types"
 
 /**
- * CQRS envelope for per-task review enqueue — branch validation and job
+ * CQRS envelope for per-task review enqueue -- branch validation and job
  * dispatch stay in the handler, not the GraphQL leaf.
  */
 export class ReviewPersonalProjectTaskCommand {

@@ -4,8 +4,8 @@ import {
 } from "typeorm"
 
 /**
- * Creates the `flashcard_review_sessions` table — one row per resumable SM-2
- * flashcard reviewer ("Học thẻ") draw over a single deck, mirroring the SAME
+ * Creates the `flashcard_review_sessions` table -- one row per resumable SM-2
+ * flashcard reviewer ("Study cards") draw over a single deck, mirroring the SAME
  * resumable-session shape as `flashcard_quiz_sessions`
  * (`CreateFlashcardQuizSessions` / `AddQuizMetaToFlashcardQuizSessions`), but
  * scoped to a deck instead of a whole course and without any cloze-quiz
@@ -36,7 +36,7 @@ export class CreateFlashcardReviewSessions1723300000000 implements MigrationInte
             );
         `)
 
-        // FK to enrollments — deleting an enrollment removes its drawn sessions
+        // FK to enrollments -- deleting an enrollment removes its drawn sessions
         await queryRunner.query(`
             ALTER TABLE "flashcard_review_sessions"
             ADD CONSTRAINT "fk_enrollment_id_flashcard_review_sessions"
@@ -44,7 +44,7 @@ export class CreateFlashcardReviewSessions1723300000000 implements MigrationInte
             ON DELETE CASCADE ON UPDATE NO ACTION;
         `)
 
-        // FK to flashcard_decks — deleting a deck removes its drawn sessions
+        // FK to flashcard_decks -- deleting a deck removes its drawn sessions
         await queryRunner.query(`
             ALTER TABLE "flashcard_review_sessions"
             ADD CONSTRAINT "fk_deck_id_flashcard_review_sessions"
@@ -58,7 +58,7 @@ export class CreateFlashcardReviewSessions1723300000000 implements MigrationInte
             ON "flashcard_review_sessions" ("enrollment_id");
         `)
 
-        // fast per-deck resume lookup — `myInProgressFlashcardReviewSession` is
+        // fast per-deck resume lookup -- `myInProgressFlashcardReviewSession` is
         // scoped by (enrollment, deck), unlike quiz sessions which are scoped
         // by enrollment alone
         await queryRunner.query(`

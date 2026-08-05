@@ -127,7 +127,7 @@ export class HeadhuntingCompanyHandler
                 filters: [
                     {
                         term: {
-                            // displayId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                            // displayId is mapped as a pure keyword -> query it directly (no `.keyword` subfield)
                             displayId,
                         },
                     },

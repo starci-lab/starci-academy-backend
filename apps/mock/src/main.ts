@@ -14,7 +14,7 @@ import {
 /**
  * Bootstraps the standalone mock-sandbox service.
  *
- * Relaxed, credential-free CORS reflecting any origin — the Sandpack preview
+ * Relaxed, credential-free CORS reflecting any origin -- the Sandpack preview
  * iframe calls this API from an unpredictable (often sandboxed `null`) origin,
  * and the data is public dummy data with no cookies. No Helmet, so no
  * `Cross-Origin-Resource-Policy: same-origin` header blocks the cross-origin read.
@@ -44,7 +44,7 @@ const bootstrap = async () => {
     // reflect any caller origin; no credentials so this is safe for public data.
     // PUT/HEAD are needed by the file-upload lessons (presigned PUT, tus HEAD);
     // exposedHeaders lets the browser READ the upload response headers it relies
-    // on — the ETag from a presigned PUT and the tus protocol headers.
+    // on -- the ETag from a presigned PUT and the tus protocol headers.
     app.enableCors({
         origin: true,
         credentials: false,

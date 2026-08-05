@@ -38,12 +38,12 @@ export class InstallmentPlanCourseItem {
 }
 
 @ObjectType({
-    description: "One of the viewer's installment (trả góp) plans.",
+    description: "One of the viewer's installment plans.",
 })
 /**
- * One of the viewer's installment ("trả góp") plans, read back for the "Kế
- * hoạch trả góp của tôi" surface. Fixed vs FlexiblePool fields are both present
- * on the type (nullable) — the FE branches on {@link planType} to render either
+ * One of the viewer's installment plans, read back for the my-installment-plans
+ * surface. Fixed vs FlexiblePool fields are both present
+ * on the type (nullable) -- the FE branches on {@link planType} to render either
  * the "N/M cycles" schedule or the "remaining balance + dynamic minimum" pool.
  */
 export class InstallmentPlanItem {
@@ -177,7 +177,7 @@ export class InstallmentPlanItem {
 }
 
 @ObjectType({
-    description: "The viewer's installment (trả góp) plans.",
+    description: "The viewer's installment plans.",
 })
 /** Payload of the `myInstallmentPlans` query. */
 export class MyInstallmentPlansData {

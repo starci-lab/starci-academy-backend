@@ -28,7 +28,7 @@ export interface PrepareContentAiMessagesParams {
     question: string
     /** Recent prior turns (oldest first) for short-term memory; capped here. */
     history?: Array<ContentAiHistoryMessage>
-    /** Active request locale — reply language + which body locale to load. */
+    /** Active request locale -- reply language + which body locale to load. */
     locale: Locale
 }
 

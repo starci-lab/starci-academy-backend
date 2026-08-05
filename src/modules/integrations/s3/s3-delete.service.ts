@@ -54,7 +54,7 @@ export class S3DeleteService {
             provider,
         }: DeleteObjectsParams,
     ): Promise<number> {
-        // nothing to delete → avoid an empty (and invalid) DeleteObjects request
+        // nothing to delete -> avoid an empty (and invalid) DeleteObjects request
         if (keys.length === 0) {
             return 0
         }
@@ -71,7 +71,7 @@ export class S3DeleteService {
             bucket = envConfig().s3.minio.bucket
             break
         default:
-            // unknown provider → surface a typed exception instead of silently no-op
+            // unknown provider -> surface a typed exception instead of silently no-op
             throw new S3ProviderNotFoundException({
                 provider,
                 supportedProviders: Object.values(S3Provider),
@@ -79,7 +79,7 @@ export class S3DeleteService {
         }
         // running tally of keys we asked S3 to remove
         let deleted = 0
-        // S3 caps DeleteObjects at 1000 keys/request → split into batches
+        // S3 caps DeleteObjects at 1000 keys/request -> split into batches
         for (const batch of _.chunk(keys,
             DELETE_BATCH_SIZE)) {
             // Quiet mode suppresses the per-key success list, keeping the response small

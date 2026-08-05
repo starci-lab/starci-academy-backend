@@ -34,7 +34,7 @@ import {
 @Resolver()
 /**
  * Set the current user's AI model CEILING for one surface (or the global
- * default) — the per-hạng-mục cap the learner uses for cost control. Writes the
+ * default) -- the per-category cap the learner uses for cost control. Writes the
  * `ai_subscriptions.ceil_overrides` jsonb; clients refetch `myAiQuota` after.
  */
 export class SetAiCeilResolver {
@@ -67,7 +67,7 @@ export class SetAiCeilResolver {
             surface: request.surface ?? null,
             category: request.category ?? null,
         })
-        // no data — the client refetches myAiQuota for the refreshed state
+        // no data -- the client refetches myAiQuota for the refreshed state
         return {
         }
     }

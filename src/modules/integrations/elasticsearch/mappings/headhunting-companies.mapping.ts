@@ -7,7 +7,7 @@ import type {
  *
  * Types the real search/sort fields of a recruitment company and adds a dedicated
  * `suggest` field of type `completion` (an in-memory FST) powering fast, ranked
- * autocomplete — the ES sync builder populates it with the clean company name and
+ * autocomplete -- the ES sync builder populates it with the clean company name and
  * a popularity weight derived from `orderIndex`. The localized translation blob is
  * stored but not indexed so it cannot blow the dynamic field limit.
  */
@@ -15,33 +15,33 @@ export const headhuntingCompaniesIndexMapping: ElasticsearchIndexMapping = {
     mappings: {
         dynamic: true,
         properties: {
-            // stable primary key — exact-match/term lookups only
+            // stable primary key -- exact-match/term lookups only
             id: {
                 type: "keyword",
             },
-            // routing slug — exact-match only
+            // routing slug -- exact-match only
             displayId: {
                 type: "keyword",
             },
-            // company display name — full-text searchable
+            // company display name -- full-text searchable
             title: {
                 type: "text",
             },
-            // free-form company description — full-text searchable
+            // free-form company description -- full-text searchable
             description: {
                 type: "text",
             },
-            // public website URL — stored, not analyzed for search
+            // public website URL -- stored, not analyzed for search
             websiteUrl: {
                 type: "keyword",
                 index: false,
             },
-            // logo image URL — stored, not analyzed for search
+            // logo image URL -- stored, not analyzed for search
             logoUrl: {
                 type: "keyword",
                 index: false,
             },
-            // display order — drives the suggest weight and list sorting
+            // display order -- drives the suggest weight and list sorting
             orderIndex: {
                 type: "integer",
             },
@@ -49,7 +49,7 @@ export const headhuntingCompaniesIndexMapping: ElasticsearchIndexMapping = {
             sortIndex: {
                 type: "integer",
             },
-            // default locale for company copy — exact-match only
+            // default locale for company copy -- exact-match only
             defaultLocale: {
                 type: "keyword",
             },
@@ -57,7 +57,7 @@ export const headhuntingCompaniesIndexMapping: ElasticsearchIndexMapping = {
             suggest: {
                 type: "completion",
             },
-            // localized override blob — stored, not indexed
+            // localized override blob -- stored, not indexed
             translations: {
                 type: "object",
                 enabled: false,

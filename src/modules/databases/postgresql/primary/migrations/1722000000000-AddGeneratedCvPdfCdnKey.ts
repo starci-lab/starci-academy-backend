@@ -4,7 +4,7 @@ import {
 } from "typeorm"
 
 /**
- * Adds `generated_pdf_cdn_key` to `cv_generations` — the MinIO object key of the
+ * Adds `generated_pdf_cdn_key` to `cv_generations` -- the MinIO object key of the
  * PDF produced by compiling a `Generated`-source CV's `.tex` with `tectonic`
  * (server-side). Nullable: rows created before this pass, `Uploaded`-source
  * rows, and `Generated` rows whose compile step failed (degrades gracefully to

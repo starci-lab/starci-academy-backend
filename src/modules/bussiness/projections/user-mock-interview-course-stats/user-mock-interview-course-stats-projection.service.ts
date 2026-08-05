@@ -29,31 +29,31 @@ import type {
     UserMockInterviewCourseStatsResult,
 } from "./types"
 
-/** How many most-recent completed attempts to scan for the aggregation — bounds the aggregation cost. */
+/** How many most-recent completed attempts to scan for the aggregation -- bounds the aggregation cost. */
 const STATS_SCAN_CAP = 50
 
 /** How many of the most recent scanned attempts feed the trend line. */
 const STATS_TREND_LENGTH = 10
 
-/** Below this many scanned attempts, every aggregate is noise — HONEST gate, mirrors the FE Scorecard/FlashcardStats convention of never showing a stat derived from too small a sample. */
+/** Below this many scanned attempts, every aggregate is noise -- HONEST gate, mirrors the FE Scorecard/FlashcardStats convention of never showing a stat derived from too small a sample. */
 const MIN_ATTEMPTS_FOR_STATS = 3
 
-/** A phase/kind below this fraction of its max is "weak" — mirrors `MockInterviewScorecard`'s own `WEAK_PHASE_THRESHOLD`. */
+/** A phase/kind below this fraction of its max is "weak" -- mirrors `MockInterviewScorecard`'s own `WEAK_PHASE_THRESHOLD`. */
 const WEAK_THRESHOLD = 0.6
 
 /** A phase/kind must be weak at least this many times before it is surfaced as THE pattern to fix (not one bad day). */
 const WEAK_MIN_COUNT = 3
 
-/** `attributeScores` entries have no `max` field — always 0-100 direct, so every fold treats `max` as this fixed constant. */
+/** `attributeScores` entries have no `max` field -- always 0-100 direct, so every fold treats `max` as this fixed constant. */
 const ATTRIBUTE_SCORE_MAX = 100
 
-/** The 5 canonical design phase literals — `byPhase` only ever aggregates these (a legacy/garbled phase literal is dropped, never silently mixed in). */
+/** The 5 canonical design phase literals -- `byPhase` only ever aggregates these (a legacy/garbled phase literal is dropped, never silently mixed in). */
 const DESIGN_PHASE_KEYS: ReadonlySet<string> = new Set(Object.values(MockInterviewPhase))
 
-/** The 3 canonical seniority-level literals — `byLevel` only ever aggregates these (a null/legacy level is dropped, never silently mixed in). */
+/** The 3 canonical seniority-level literals -- `byLevel` only ever aggregates these (a null/legacy level is dropped, never silently mixed in). */
 const VALID_LEVEL_KEYS: ReadonlySet<string> = new Set(Object.values(FlashcardLevel))
 
-/** A `byLanguage` entry needs at least this many scored questions before it's trustworthy enough to compare against another language — a language drawn once ever is noise, not a signal. */
+/** A `byLanguage` entry needs at least this many scored questions before it's trustworthy enough to compare against another language -- a language drawn once ever is noise, not a signal. */
 const MIN_LANGUAGE_BREAKDOWN_SAMPLE = 2
 
 /** A gap must recur at least this many times across scanned attempts to count as "recurring" (one mention is just one bad session, not a pattern). */
@@ -74,7 +74,7 @@ interface BreakdownAccumulator {
 
 /** Accumulator for one normalized recurring-gap key while scanning attempts. */
 interface RecurringGapAccumulator {
-    /** Most-recently-seen original casing (attempts are scanned newest-first) — used for display. */
+    /** Most-recently-seen original casing (attempts are scanned newest-first) -- used for display. */
     text: string
     /** How many scanned attempts recorded this (normalized) gap. */
     count: number
@@ -104,16 +104,16 @@ const EMPTY_RESULT: UserMockInterviewCourseStatsResult = {
 
 @Injectable()
 /**
- * CQRS projection service for a user's mock-interview COURSE stats — one row
+ * CQRS projection service for a user's mock-interview COURSE stats -- one row
  * per enrollment. The heavy attempts scan + fold (trend / mode split / two
  * breakdown axes / weakest) runs ONLY in {@link recompute} (the projector,
  * triggered by CDC on `mock_interview_attempts`), building the aggregate
- * jsonb. {@link getStats} reads the flat row with a TTL lazy-refresh — no
+ * jsonb. {@link getStats} reads the flat row with a TTL lazy-refresh -- no
  * per-request scan/fold.
  *
  * This mirrors what `MyMockInterviewStatsService.compute` used to do inline
- * on every read (a bounded ≤50-row scan) — a violation of
- * `.claude/be/rules/cqrs-no-inline-aggregate.md` ("kể cả scale nhỏ").
+ * on every read (a bounded <=50-row scan) -- a violation of
+ * `.claude/be/rules/cqrs-no-inline-aggregate.md` (even at small scale).
  */
 export class UserMockInterviewCourseStatsProjectionService {
     constructor(
@@ -171,7 +171,7 @@ export class UserMockInterviewCourseStatsProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
+        // missing / past freshness window -> recompute + re-read
         if (!row || this.isStale(row.updatedAt)) {
             await this.recompute({
                 enrollmentId,
@@ -205,8 +205,8 @@ export class UserMockInterviewCourseStatsProjectionService {
     }
 
     /**
-     * The full aggregate — trend / mode split / both breakdown axes /
-     * weakest — COPIED verbatim (parameterized by `enrollmentId`) from
+     * The full aggregate -- trend / mode split / both breakdown axes /
+     * weakest -- COPIED verbatim (parameterized by `enrollmentId`) from
      * `MyMockInterviewStatsService.compute`.
      */
     private async computeAggregate(
@@ -235,7 +235,7 @@ export class UserMockInterviewCourseStatsProjectionService {
 
         // `byLanguage` needs each qna attempt's DRAWN session (the language
         // lives on `seedQuestions[i].givenCodes`, not on the attempt itself)
-        // — batch-fetch once instead of a per-attempt N+1 lookup.
+        // -- batch-fetch once instead of a per-attempt N+1 lookup.
         const qnaSessionIds = [...new Set(
             attempts
                 .filter((attempt) => attempt.mode === "qna")
@@ -257,7 +257,7 @@ export class UserMockInterviewCourseStatsProjectionService {
         ]))
 
         // `attempts` is newest-first (DESC); reverse to oldest-first, then take
-        // the last N of that ascending list — i.e. the most recent N attempts,
+        // the last N of that ascending list -- i.e. the most recent N attempts,
         // oldest-of-those-first, which is what a left-to-right trend line wants
         const trend: Array<MockInterviewCourseStatsTrendPointData> = [...attempts]
             .reverse()
@@ -265,7 +265,7 @@ export class UserMockInterviewCourseStatsProjectionService {
             .map((attempt) => ({
                 completedAt: attempt.createdAt,
                 overallScore: attempt.overallScore,
-                // a null-mode legacy attempt predates the "mode split" — the only
+                // a null-mode legacy attempt predates the "mode split" -- the only
                 // mode that could have existed then was design
                 mode: attempt.mode ?? "design",
                 verdict: attempt.verdict,
@@ -367,7 +367,7 @@ export class UserMockInterviewCourseStatsProjectionService {
 
     /**
      * Fold one `mode="design"` attempt's `phaseScores[]` into the per-phase
-     * accumulator — only entries whose `phase` is one of the 5 canonical
+     * accumulator -- only entries whose `phase` is one of the 5 canonical
      * design phases are counted (a garbled/legacy literal is dropped, never
      * silently mixed in). The attempt's OWN `matchedContentIds[0]` is
      * recorded as this phase's deep-link candidate for THIS attempt when the
@@ -401,7 +401,7 @@ export class UserMockInterviewCourseStatsProjectionService {
 
     /**
      * Fold one `mode="qna"` attempt's `questionReviews[]` into the per-kind
-     * accumulator — grouped by `kind` (theory/reasoning/scenario), each
+     * accumulator -- grouped by `kind` (theory/reasoning/scenario), each
      * entry's OWN `matchedContentId` recorded as this kind's deep-link
      * candidate for THIS attempt when the question came in weak.
      */
@@ -432,11 +432,11 @@ export class UserMockInterviewCourseStatsProjectionService {
 
     /**
      * Fold one `mode="qna"` attempt's `questionReviews[]` into the per-language
-     * accumulator — the language a question was drawn in lives on the SESSION
+     * accumulator -- the language a question was drawn in lives on the SESSION
      * (`seedQuestions[questionIndex].givenCodes[0].lang`), not on the attempt,
      * so this joins each review to its drawn session (batch-fetched by the
      * caller) by `questionIndex`. Only CODE questions (a non-empty
-     * `givenCodes`) carry a language — a theory/reasoning question with no
+     * `givenCodes`) carry a language -- a theory/reasoning question with no
      * given code is skipped, never defaulted into a fake "no language"
      * bucket. Missing session (drawn before session rows existed, or
      * resolved as undefined) skips the whole attempt's reviews.
@@ -474,10 +474,10 @@ export class UserMockInterviewCourseStatsProjectionService {
 
     /**
      * Fold one attempt's `attributeScores[]` into the per-attribute
-     * accumulator — reads EVERY attempt regardless of mode (unlike
+     * accumulator -- reads EVERY attempt regardless of mode (unlike
      * `accumulatePhaseScores`/`accumulateQuestionReviews`, which are gated by
      * `isQna`). `max` has no persisted field on this entry (confirmed against
-     * `grade-mock-interview-session-prompt.service.ts` — the score is always
+     * `grade-mock-interview-session-prompt.service.ts` -- the score is always
      * 0-100 direct), so it is fixed at {@link ATTRIBUTE_SCORE_MAX} for every
      * entry. The attempt's own `matchedContentIds[0]` is recorded as this
      * attribute's deep-link candidate for THIS attempt when it came in weak,
@@ -505,7 +505,7 @@ export class UserMockInterviewCourseStatsProjectionService {
     }
 
     /**
-     * Fold one attempt's `overallScore` into its seniority-level accumulator —
+     * Fold one attempt's `overallScore` into its seniority-level accumulator --
      * reads EVERY attempt regardless of mode, same as
      * {@link accumulateAttributeScores}. A null/legacy level (not one of the 3
      * canonical {@link VALID_LEVEL_KEYS}) is dropped rather than mixed into a
@@ -530,7 +530,7 @@ export class UserMockInterviewCourseStatsProjectionService {
     }
 
     /**
-     * Tally one attempt's `gaps[]` into the recurring-gap map — each entry is
+     * Tally one attempt's `gaps[]` into the recurring-gap map -- each entry is
      * trimmed+lowercased to a dedupe key (so "Trade-off" and "trade-off "
      * count as the same recurring gap), while the map keeps the
      * MOST-RECENTLY-SEEN original casing for display (attempts are scanned
@@ -564,7 +564,7 @@ export class UserMockInterviewCourseStatsProjectionService {
         }
     }
 
-    /** Turn the recurring-gap tally into the top-N, most-frequent-first array the response returns — gaps seen fewer than {@link RECURRING_GAP_MIN_COUNT} times don't qualify (one mention is one bad session, not a pattern). */
+    /** Turn the recurring-gap tally into the top-N, most-frequent-first array the response returns -- gaps seen fewer than {@link RECURRING_GAP_MIN_COUNT} times don't qualify (one mention is one bad session, not a pattern). */
     private finalizeRecurringGaps(
         tally: Map<string, RecurringGapAccumulator>,
     ): Array<MockInterviewCourseStatsRecurringGapData> {
@@ -627,7 +627,7 @@ export class UserMockInterviewCourseStatsProjectionService {
 
     /**
      * Pick the single weakest entry across BOTH axes (lowest score/max ratio
-     * AND weak often enough to be a real pattern — `weakCount >=
+     * AND weak often enough to be a real pattern -- `weakCount >=
      * WEAK_MIN_COUNT`, not one bad day), resolving its deep-link from the
      * MOST RECENT attempt where it came in weak.
      */

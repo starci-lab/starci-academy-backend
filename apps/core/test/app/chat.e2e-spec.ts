@@ -66,12 +66,12 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 // the founder DM gate reads envConfig().community.founderUsername, whose
-// default (unset here) is "starci183" — see src/modules/platform/env/config.ts
+// default (unset here) is "starci183" -- see src/modules/platform/env/config.ts
 // (mirrors the same constant already asserted in chat.service.spec.ts)
 const FOUNDER_USERNAME = "starci183"
 
 /**
- * e2e for community chat's write flow — `sendMessage` — `.claude/canon/be/
+ * e2e for community chat's write flow -- `sendMessage` -- `.claude/canon/be/
  * enforce/authoring/testing.md` §2 names every write flow that commits state
  * as required e2e coverage; {@link ChatService.sendMessage} had zero coverage
  * above the mocked-`EntityManager` unit level. Runs the real member-only gate
@@ -80,14 +80,14 @@ const FOUNDER_USERNAME = "starci183"
  *
  * MOCKED (genuinely external to the process, matches the pattern
  * `createE2eApp` uses for the same class):
- *  - `EventEmitterService` — real class fans out through a NATS producer that
+ *  - `EventEmitterService` -- real class fans out through a NATS producer that
  *    needs a live broker connection; stubbed to a no-op so `sendMessage`'s
  *    room-broadcast side effect doesn't need NATS.
  *
  * REAL: Postgres (Testcontainers), `ChatService` (the send + access-check
- * logic under test), `MembershipService` (the member-only gate — real SQL
+ * logic under test), `MembershipService` (the member-only gate -- real SQL
  * against real `memberships` rows), and `DayjsService` (membership period
- * comparison, no external deps) — so the private-DM access check runs
+ * comparison, no external deps) -- so the private-DM access check runs
  * exactly as production wires it.
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
@@ -107,7 +107,7 @@ describe("Community chat — sendMessage + private-DM access (e2e)",
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
-                    // real Postgres against the Testcontainers DB — no hydration/
+                    // real Postgres against the Testcontainers DB -- no hydration/
                     // resolvers/seeders, this focused app doesn't need them
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
@@ -116,9 +116,9 @@ describe("Community chat — sendMessage + private-DM access (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL — the send + access-check logic under test
+                    // REAL -- the send + access-check logic under test
                     ChatService,
-                    // REAL — the member-only gate; only needs Postgres + DayjsService
+                    // REAL -- the member-only gate; only needs Postgres + DayjsService
                     MembershipService,
                     DayjsService,
                     {
@@ -224,7 +224,7 @@ describe("Community chat — sendMessage + private-DM access (e2e)",
                 it("a user with NO active membership is rejected with ChatMembershipRequiredException and writes NO message row",
                     async () => {
                         const nonMember = await seedUser("kc-chat-non-member")
-                        // no membership row seeded at all — never a member
+                        // no membership row seeded at all -- never a member
                         const conversation = await chatService.getOrCreateCommunityConversation()
 
                         await expect(
@@ -348,7 +348,7 @@ describe("Community chat — sendMessage + private-DM access (e2e)",
                     async () => {
                         const member = await seedUser("kc-chat-dm-owner-4")
                         await seedActiveMembership(member.id)
-                        // same username as the founder, but no membership row —
+                        // same username as the founder, but no membership row --
                         // isActive() is checked BEFORE the founder-identity check
                         const unpaidFounder = await seedUser("kc-chat-founder-unpaid",
                             FOUNDER_USERNAME)
@@ -382,7 +382,7 @@ describe("Community chat — sendMessage + private-DM access (e2e)",
                             {
                                 where: {
                                     type: ChatConversationType.FounderDm,
-                                    // `memberId` is a @RelationId virtual column — not
+                                    // `memberId` is a @RelationId virtual column -- not
                                     // queryable in `where`; filter through the real
                                     // `member` relation instead.
                                     member: {
@@ -397,14 +397,14 @@ describe("Community chat — sendMessage + private-DM access (e2e)",
 
 /**
  * e2e for the chat READ resolvers (`chatMessages`, `myFounderConversation`,
- * `communityChatConversation`) — driven over REAL HTTP through Apollo
+ * `communityChatConversation`) -- driven over REAL HTTP through Apollo
  * (`ApolloServerModule` + `KeycloakAuthGraphQLGuard`), not the bare
  * `ChatService` calls above. All three require auth; `chatMessages` additionally
  * runs `ChatService.listMessages`'s real member-only + DM-ownership access check.
- * None of that guard/resolver wiring had ever been exercised — the block above
+ * None of that guard/resolver wiring had ever been exercised -- the block above
  * calls `ChatService` directly, bypassing the GraphQL layer entirely.
  *
- * MOCKED: `EventEmitterService` (same as the block above — no live NATS broker).
+ * MOCKED: `EventEmitterService` (same as the block above -- no live NATS broker).
  *
  * REAL: Postgres (Testcontainers), the full Apollo/GraphQL stack, every resolver +
  * query service under test, `ChatService`, `MembershipService`, `DayjsService`.
@@ -422,7 +422,7 @@ describe("Chat GraphQL — chatMessages/myFounderConversation/communityChatConve
         /** The "logged in" user the overridden guard stamps onto the request; null = unauthenticated. */
         let currentUser: UserEntity | null = null
 
-        // mirrors progress-query.e2e-spec.ts's fakeAuthGuard: denies (→ Nest's
+        // mirrors progress-query.e2e-spec.ts's fakeAuthGuard: denies (-> Nest's
         // default ForbiddenException) when nobody is "logged in".
         const fakeAuthGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
@@ -511,14 +511,14 @@ describe("Chat GraphQL — chatMessages/myFounderConversation/communityChatConve
                     }),
                 ],
                 providers: [
-                    // REAL — resolvers + their query services under test
+                    // REAL -- resolvers + their query services under test
                     ChatMessagesResolver,
                     ChatMessagesService,
                     MyFounderConversationResolver,
                     MyFounderConversationService,
                     CommunityChatConversationResolver,
                     CommunityChatConversationService,
-                    // REAL — the domain service + member-only gate the resolvers delegate to
+                    // REAL -- the domain service + member-only gate the resolvers delegate to
                     ChatService,
                     MembershipService,
                     DayjsService,
@@ -628,7 +628,7 @@ describe("Chat GraphQL — chatMessages/myFounderConversation/communityChatConve
                     async () => {
                         const conversation = await chatService.getOrCreateCommunityConversation()
                         currentUser = await seedUser("kc-gql-chatmessages-nonmember")
-                        // no membership row seeded — never a member
+                        // no membership row seeded -- never a member
 
                         const response = await post(CHAT_MESSAGES_QUERY,
                             {
@@ -670,7 +670,7 @@ describe("Chat GraphQL — chatMessages/myFounderConversation/communityChatConve
 
                 it("auth denied: an UNAUTHENTICATED request is rejected before the resolver runs",
                     async () => {
-                        // currentUser left null — the auth guard must deny before the query runs
+                        // currentUser left null -- the auth guard must deny before the query runs
                         const response = await post(MY_FOUNDER_CONVERSATION_QUERY)
 
                         expect(response.body.errors).toBeDefined()

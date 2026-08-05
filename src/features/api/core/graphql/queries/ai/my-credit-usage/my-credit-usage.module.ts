@@ -13,5 +13,5 @@ import {
         MyCreditUsageResolver,
     ],
 })
-/** Feature-module boundary for the `myCreditUsage` query — wires its resolver so the AI group can mount this read independently. */
+/** Feature-module boundary for the `myCreditUsage` query -- wires its resolver so the AI group can mount this read independently. */
 export class MyCreditUsageSingleQueryModule extends ConfigurableModuleClass {}

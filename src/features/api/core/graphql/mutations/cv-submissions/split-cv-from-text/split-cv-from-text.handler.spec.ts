@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS base classes initialise before
-// the handler pulls `@modules/cqrs` — dodges a load-order "Class extends value
+// the handler pulls `@modules/cqrs` -- dodges a load-order "Class extends value
 // undefined" cycle (mirrors generate-cv.handler.spec.ts).
 import "@modules/bussiness"
 import {
@@ -129,17 +129,17 @@ describe("SplitCvFromTextHandler",
                             {
                                 id: "exp",
                                 type: "experience",
-                                title: "Kinh nghiệm",
+                                title: "Experience",
                                 order: 1,
                                 items: [
                                     {
                                         id: "whatever",
                                         fields: {
-                                            company: "Công ty X",
+                                            company: "Company X",
                                             role: "Backend Developer",
                                             startDate: "2022",
                                             endDate: "2024",
-                                            bullets: "Xây API\nTối ưu",
+                                            bullets: "Built API\nOptimized",
                                         },
                                     },
                                 ],
@@ -151,11 +151,11 @@ describe("SplitCvFromTextHandler",
                         expect(block.type).toBe("experience")
                         expect(block.items[0].id).toBe("item-0-0")
                         expect(block.items[0].fields).toEqual({
-                            company: "Công ty X",
+                            company: "Company X",
                             role: "Backend Developer",
                             startDate: "2022",
                             endDate: "2024",
-                            bullets: "Xây API\nTối ưu",
+                            bullets: "Built API\nOptimized",
                         })
                     })
 
@@ -165,7 +165,7 @@ describe("SplitCvFromTextHandler",
                             {
                                 id: "skills",
                                 type: "skills",
-                                title: "Kỹ năng",
+                                title: "Skills",
                                 order: 0,
                                 items: ["TypeScript",
                                     "PostgreSQL"],
@@ -173,13 +173,13 @@ describe("SplitCvFromTextHandler",
                             {
                                 id: "exp",
                                 type: "experience",
-                                title: "Kinh nghiệm",
+                                title: "Experience",
                                 order: 1,
                                 items: ["Backend dev at X"],
                             },
                         ]))
 
-                        // skills strings → { name: <string> }
+                        // skills strings -> { name: <string> }
                         expect(blocks[0].items).toEqual([
                             {
                                 id: "item-0-0", fields: {
@@ -192,7 +192,7 @@ describe("SplitCvFromTextHandler",
                                 } 
                             },
                         ])
-                        // experience string → primary key `bullets`
+                        // experience string -> primary key `bullets`
                         expect(blocks[1].items[0].fields).toEqual({
                             bullets: "Backend dev at X" 
                         })
@@ -211,7 +211,7 @@ describe("SplitCvFromTextHandler",
                             {
                                 id: "edu",
                                 type: "education",
-                                title: "Học vấn",
+                                title: "Education",
                                 order: 0,
                                 items: [
                                     {
@@ -234,7 +234,7 @@ describe("SplitCvFromTextHandler",
                             {
                                 id: "exp",
                                 type: "experience",
-                                title: "Kinh nghiệm",
+                                title: "Experience",
                                 order: 0,
                                 items: [
                                     {
@@ -276,7 +276,7 @@ describe("SplitCvFromTextHandler",
                             {
                                 id: "p",
                                 type: "personal",
-                                title: "Thông tin",
+                                title: "Personal info",
                                 order: 0,
                                 items: [
                                     {

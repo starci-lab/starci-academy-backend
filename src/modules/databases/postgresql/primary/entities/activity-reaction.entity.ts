@@ -38,9 +38,9 @@ import {
 )
 /**
  * A single user's reaction on a feed activity (someone passing a challenge,
- * earning a badge…). A user holds at most one reaction per activity (composite
+ * earning a badge...). A user holds at most one reaction per activity (composite
  * unique); changing the emotion updates the row. Mirrors {@link ContentReactionEntity}.
- * A user can never react to their OWN activity — enforced in the mutation service.
+ * A user can never react to their OWN activity -- enforced in the mutation service.
  */
 export class ActivityReactionEntity extends UuidAbstractEntity {
     /**

@@ -86,7 +86,7 @@ const POSTGRESQL_PRIMARY = "primary"
 const WEBHOOK_URL = "/v1/sepay/webhook"
 
 /**
- * Narrow view onto {@link ReconcileTransactionWorker}'s private `finalize` —
+ * Narrow view onto {@link ReconcileTransactionWorker}'s private `finalize` --
  * the same method `process()` calls internally on a "paid" poll result. Cast
  * to this, a spec can drive the SECOND finalize path directly, exactly the
  * way `process()` would after resolving the gateway status itself.
@@ -99,14 +99,14 @@ interface ReconcileFinalizer {
  * Regression coverage for `.artifacts/states/transactions/findings.md` #1: the
  * atomic Pending -> Succeeded claim inside {@link AiEntitlementService.grantTier}
  * (the Round-1 money-race fix). Unlike `sepay-webhook.e2e-spec.ts`'s own
- * "idempotent" case — which only proves a SEQUENTIAL replay (await the first
- * delivery, then await a second) — this spec fires the webhook and the
+ * "idempotent" case -- which only proves a SEQUENTIAL replay (await the first
+ * delivery, then await a second) -- this spec fires the webhook and the
  * reconcile worker's `finalize()` at the SAME still-Pending row CONCURRENTLY,
  * which is the actual race `grantTier`'s guarded `UPDATE ... WHERE status =
  * 'pending'` claim exists to close.
  *
  * Boots a dedicated module (not the shared `createE2eApp` helper) because this
- * spec needs a second finalize path — {@link ReconcileTransactionWorker} — that
+ * spec needs a second finalize path -- {@link ReconcileTransactionWorker} -- that
  * the shared helper does not wire up.
  */
 describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
@@ -118,14 +118,14 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
         let reconcileWorker: ReconcileFinalizer
 
         beforeAll(async () => {
-            // outbound SePay SDK — never hits the network in a test (same stub
+            // outbound SePay SDK -- never hits the network in a test (same stub
             // sepay-webhook.e2e-spec.ts uses)
             sepayClient = {
                 order: {
                     retrieve: jest.fn(),
                 },
             }
-            // course-enrollment hand-off — unused by the AI-subscription branch
+            // course-enrollment hand-off -- unused by the AI-subscription branch
             // this spec exercises, stubbed like sepay-webhook.e2e-spec.ts
             const enqueueEnrollJob = {
                 enqueue: jest.fn(),
@@ -148,7 +148,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                 providers: [
                     SepayWebhookService,
                     SepayWebhookHandler,
-                    // the SECOND finalize path under test — resolved from the app
+                    // the SECOND finalize path under test -- resolved from the app
                     // exactly like production DI would resolve it for a real poll
                     ReconcileTransactionWorker,
                     // real services so grantTier's atomic claim runs against the real DB
@@ -192,7 +192,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                     },
                     // constructor deps of SepayWebhookHandler / ReconcileTransactionWorker
                     // that the AiSubscriptionPurchase-grant branch under test never
-                    // reaches beyond "fire the post-grant side effect once" — stubbed
+                    // reaches beyond "fire the post-grant side effect once" -- stubbed
                     // the same way the enroll queue above is stubbed, not exercised
                     // for real (no mail/queue/DB-adjacent infra involved)
                     {
@@ -253,7 +253,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
             }).compile()
 
             app = moduleRef.createNestApplication()
-            // match the controller's `version: "1"` → routes resolve at /v1/...
+            // match the controller's `version: "1"` -> routes resolve at /v1/...
             app.enableVersioning({
                 type: VersioningType.URI,
             })
@@ -265,14 +265,14 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
             aiEntitlementService = app.get(AiEntitlementService)
-            // `finalize` is private — this cast is the only way to drive it directly,
+            // `finalize` is private -- this cast is the only way to drive it directly,
             // the same way `process()` drives it internally after a "paid" poll
             reconcileWorker = app.get(ReconcileTransactionWorker) as unknown as ReconcileFinalizer
         })
 
         afterAll(async () => {
             // TypeORM's shutdown hook looks up the default (unnamed) DataSource,
-            // which this named-only setup doesn't register — ignore that noise.
+            // which this named-only setup doesn't register -- ignore that noise.
             await app.close().catch(() => undefined)
         })
 
@@ -286,7 +286,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
 
         /**
          * Seed a user + a pending AI-subscription-purchase transaction and return
-         * the persisted transaction — same shape `sepay-webhook.e2e-spec.ts` seeds
+         * the persisted transaction -- same shape `sepay-webhook.e2e-spec.ts` seeds
          * (with an email added so the post-grant notify path has a recipient).
          */
         const seedPendingPurchase = async (
@@ -324,7 +324,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                     },
                 })
 
-                // spy on the real atomic claim BOTH finalize paths call through to —
+                // spy on the real atomic claim BOTH finalize paths call through to --
                 // webhook handler and worker share the same singleton instance
                 const grantTierSpy = jest.spyOn(aiEntitlementService,
                     "grantTier")
@@ -332,8 +332,8 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                 // fire BOTH production finalize paths concurrently on the SAME
                 // still-Pending row. The webhook has its own app-level guard
                 // (`findOne` WHERE status=Pending) before it ever reaches grantTier;
-                // the reconcile worker's `finalize()` — reached here exactly as
-                // `process()` reaches it after a "paid" poll — has no such guard of
+                // the reconcile worker's `finalize()` -- reached here exactly as
+                // `process()` reaches it after a "paid" poll -- has no such guard of
                 // its own. The atomic `UPDATE ... WHERE status = 'pending'` claim
                 // inside grantTier is the ONLY thing standing between this and a
                 // double grant.
@@ -349,8 +349,8 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                     reconcileWorker.finalize(transaction),
                 ])
 
-                // neither racer should reject purely from losing the race — a lost
-                // claim is a silent no-op (affected: 0 → return false), not a throw
+                // neither racer should reject purely from losing the race -- a lost
+                // claim is a silent no-op (affected: 0 -> return false), not a throw
                 expect(webhookOutcome.status).toBe("fulfilled")
                 expect(reconcileOutcome.status).toBe("fulfilled")
 
@@ -375,7 +375,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                     })
                 expect(settled?.status).toBe(TransactionStatus.Succeeded)
 
-                // exactly one entitlement row exists, granted exactly once — not
+                // exactly one entitlement row exists, granted exactly once -- not
                 // double-applied by the loser of the race
                 const subscriptions = await entityManager.find(AiSubscriptionEntity,
                     {
@@ -408,7 +408,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                     .expect(201)
 
                 // second delivery is fully AWAITED after the first already committed
-                // — the row is no longer Pending, so the webhook's own findOne guard
+                // -- the row is no longer Pending, so the webhook's own findOne guard
                 // rejects it before grantTier is even reached (this is the scenario
                 // sepay-webhook.e2e-spec.ts's "idempotent" test already covers)
                 const replay = await request(app.getHttpServer())
@@ -420,7 +420,7 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
 
                 // the reconcile worker's finalize(), called directly with the now-
                 // stale in-memory transaction object (as if a late poll fired after
-                // the webhook already won), also cannot grant a second time — proof
+                // the webhook already won), also cannot grant a second time -- proof
                 // that it's the atomic claim inside grantTier stopping it, not a
                 // fresh read of the row's status
                 await expect(

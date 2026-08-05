@@ -41,7 +41,7 @@ import {
  * Sequential sync orchestrator.
  *
  * Runs all sync tasks (CDN, Elasticsearch, Indexer, Email Bloom Filter)
- * sequentially — one domain completes before the next starts.
+ * sequentially -- one domain completes before the next starts.
  * Called by InitService as a plugin.
  */
 export class SynchronizersService {
@@ -61,7 +61,7 @@ export class SynchronizersService {
     ) { }
 
     /**
-     * Initialize — runs all sync tasks sequentially.
+     * Initialize -- runs all sync tasks sequentially.
      */
     async init(): Promise<void> {
         const cdnScope = this.syncScopeService.buildCdnScope()
@@ -83,7 +83,7 @@ export class SynchronizersService {
         // (one-shot bulk index + orphan prune); the CDC listener keeps it fresh
         // afterwards. Users live outside the per-locale content scope above.
         // Non-fatal: an ES bulk timeout here must not abort the remaining sync
-        // steps (indexer / bloom / repo / reconcile) — the CDC listener backfills
+        // steps (indexer / bloom / repo / reconcile) -- the CDC listener backfills
         // the users index on the next user change regardless.
         try {
             await this.esSyncUserService.reindexAll()
@@ -98,7 +98,7 @@ export class SynchronizersService {
         await this.bloomFilterSynchronizerService.sync()
         const repoScope = this.syncScopeService.buildRepoScope()
         await this.repoSynchronizerService.sync(repoScope)
-        // ES + CDN now reflect the freshly-seeded DB → delete any leftover ghost
+        // ES + CDN now reflect the freshly-seeded DB -> delete any leftover ghost
         // docs/objects for entities removed/renumbered out of the source
         await this.reconcileSynchronizerService.reconcile()
         /**

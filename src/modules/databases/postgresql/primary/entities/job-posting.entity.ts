@@ -43,7 +43,7 @@ import {
  * {@link HeadhuntingCompanyEntity} + `ConsultantEntity`. Rows may come from
  * either the `.mount/data/jobs` curated seed pipeline or the public
  * `submitJobPosting` mutation ({@link JobPostingSource} tags which); both are
- * live immediately on insert — there is no approval workflow for v1.
+ * live immediately on insert -- there is no approval workflow for v1.
  *
  * Single-locale per row (no `translations` sub-table), matching
  * `UserPinnedProjectEntity`: this is user-submitted-capable content, not
@@ -258,7 +258,7 @@ export class JobPostingEntity extends UuidAbstractEntity {
     /**
      * Employer. The company directory entity ({@link HeadhuntingCompanyEntity})
      * IS the "organization" concept for both roles it plays (a company that
-     * headhunts through consultants, and a company that posts jobs directly) —
+     * headhunts through consultants, and a company that posts jobs directly) --
      * there is intentionally no separate `Company` entity.
      */
     @Field(
@@ -292,7 +292,7 @@ export class JobPostingEntity extends UuidAbstractEntity {
 
     /**
      * Submitting user. Null for seeded rows (no submitter) and SET NULL if the
-     * submitting account is later deleted — the posting itself outlives the
+     * submitting account is later deleted -- the posting itself outlives the
      * account that created it.
      */
     @Field(

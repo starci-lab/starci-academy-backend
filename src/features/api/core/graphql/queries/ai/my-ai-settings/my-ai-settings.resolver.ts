@@ -32,7 +32,7 @@ import {
 
 @Resolver()
 /**
- * Per-user AI lane settings — the saved lane preference plus the capabilities
+ * Per-user AI lane settings -- the saved lane preference plus the capabilities
  * the UI needs to decide which lanes are selectable (Auto / Premium).
  * Drives the lane selector on the AI settings page.
  *

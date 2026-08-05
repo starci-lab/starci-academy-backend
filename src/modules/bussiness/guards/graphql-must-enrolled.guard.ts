@@ -19,7 +19,7 @@ import {
 
 @Injectable()
 /**
- * The paid-only gate — enforces `is_enrolled = true` for the `x-course-id`
+ * The paid-only gate -- enforces `is_enrolled = true` for the `x-course-id`
  * course before letting a resolver run. Backs capstone / milestone /
  * personal-project / premium mutations and queries, where a trial placeholder
  * (`is_enrolled = false`, see {@link GraphQLEnrollmentGuard}) must NOT be

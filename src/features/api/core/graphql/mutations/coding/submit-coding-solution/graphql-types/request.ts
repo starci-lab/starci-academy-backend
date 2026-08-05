@@ -24,7 +24,7 @@ export class SubmitCodingSolutionRequest {
     )
         slug: string
 
-    /** Selects the judge runtime — must match a language the problem actually offers a checker for. */
+    /** Selects the judge runtime -- must match a language the problem actually offers a checker for. */
     @Field(
         () => GraphQLTypeCodingLanguage,
         {

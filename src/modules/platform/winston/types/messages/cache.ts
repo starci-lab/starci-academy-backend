@@ -3,7 +3,7 @@ import type {
 } from "@modules/cache"
 
 /**
- * Structured fields when a cache GET throws — key + backend so ops can tell Redis vs
+ * Structured fields when a cache GET throws -- key + backend so ops can tell Redis vs
  * memory.
  */
 export interface ErrorGettingCacheMessage {
@@ -13,7 +13,7 @@ export interface ErrorGettingCacheMessage {
 }
 
 /**
- * Structured fields when a cache SET throws — write path failed, callers may still
+ * Structured fields when a cache SET throws -- write path failed, callers may still
  * continue uncached.
  */
 export interface ErrorSettingCacheMessage {
@@ -22,7 +22,7 @@ export interface ErrorSettingCacheMessage {
     cacheType: CacheType
 }
 
-/** Structured fields when a cache DEL throws — stale entries may linger until TTL. */
+/** Structured fields when a cache DEL throws -- stale entries may linger until TTL. */
 export interface ErrorDeletingCacheMessage {
     error: string
     cacheKey: string
@@ -30,7 +30,7 @@ export interface ErrorDeletingCacheMessage {
 }
 
 /**
- * Round-trip probe succeeded against Redis — balancer/debug route can report the backend
+ * Round-trip probe succeeded against Redis -- balancer/debug route can report the backend
  * is live.
  */
 export interface CacheDebugOkRedisMessage {

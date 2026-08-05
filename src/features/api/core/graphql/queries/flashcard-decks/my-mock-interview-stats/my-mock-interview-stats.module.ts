@@ -17,5 +17,5 @@ import {
         MyMockInterviewStatsService,
     ],
 })
-/** Feature-module boundary for the `myMockInterviewStats` query — wires its resolver + service. */
+/** Feature-module boundary for the `myMockInterviewStats` query -- wires its resolver + service. */
 export class MyMockInterviewStatsSingleQueryModule extends ConfigurableModuleClass {}

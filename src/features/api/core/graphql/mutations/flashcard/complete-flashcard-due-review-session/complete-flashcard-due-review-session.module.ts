@@ -13,5 +13,5 @@ import {
         CompleteFlashcardDueReviewSessionResolver,
     ],
 })
-/** Feature-module boundary for the `completeFlashcardDueReviewSession` mutation — wires its resolver (business logic lives in the shared `FlashcardDueReviewSessionService`). */
+/** Feature-module boundary for the `completeFlashcardDueReviewSession` mutation -- wires its resolver (business logic lives in the shared `FlashcardDueReviewSessionService`). */
 export class CompleteFlashcardDueReviewSessionSingleMutationModule extends ConfigurableModuleClass {}

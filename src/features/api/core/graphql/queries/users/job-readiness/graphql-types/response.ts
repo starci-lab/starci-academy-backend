@@ -118,7 +118,7 @@ export class JobReadinessFoundationData {
 @ObjectType({
     description: "Job-readiness portfolio — a global foundation plus independent per-track competency cards.",
 })
-/** Job-readiness portfolio for one learner — per-track cards + global foundation, no blended composite. */
+/** Job-readiness portfolio for one learner -- per-track cards + global foundation, no blended composite. */
 export class JobReadinessData {
     @Field(
         () => JobReadinessFoundationData,

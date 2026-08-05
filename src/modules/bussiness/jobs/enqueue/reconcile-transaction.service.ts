@@ -34,7 +34,7 @@ import {
 /**
  * Enqueues a delayed reconcile-transaction poll. Each enqueue schedules a single
  * BullMQ job fired after `transaction.reconcile.delayMs` (BullMQ-native `delay`,
- * so it survives restarts — unlike an in-process sleep). The worker re-enqueues
+ * so it survives restarts -- unlike an in-process sleep). The worker re-enqueues
  * the next attempt itself, producing the "poll every N minutes" cadence.
  */
 export class EnqueueReconcileTransactionJobService {

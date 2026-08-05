@@ -6,27 +6,27 @@ import {
 /**
  * Widens content-AI conversations to the SESSION-PER-SCOPE model: a session (and
  * its turns) can now be anchored to a capstone TASK, a global FOUNDATION doc, or a
- * whole COURSE — not only a lesson content. Additive + widening only:
+ * whole COURSE -- not only a lesson content. Additive + widening only:
  *
  * `content_ai_sessions`:
- * - `+ scope` varchar(16) NOT NULL DEFAULT 'content' — which surface the
+ * - `+ scope` varchar(16) NOT NULL DEFAULT 'content' -- which surface the
  *   conversation grounds on (`content` | `task` | `foundation` | `course`).
- * - `origin_content_id` / `enrollment_id` → **nullable** (task/foundation/course
+ * - `origin_content_id` / `enrollment_id` -> **nullable** (task/foundation/course
  *   sessions have no content anchor; a GLOBAL foundation session has no enrollment).
  * - `+ origin_task_id` (FK milestone_tasks), `+ origin_foundation_id` (FK
- *   foundations) — the typed anchor for task/foundation sessions.
- * - `+ user_id` (FK users) — owner of a course-agnostic (foundation) session, which
+ *   foundations) -- the typed anchor for task/foundation sessions.
+ * - `+ user_id` (FK users) -- owner of a course-agnostic (foundation) session, which
  *   has no enrollment to key off. Course-scoped sessions keep keying off enrollment.
  *
  * `content_ai_messages`:
- * - `content_id` / `enrollment_id` → **nullable** (a task/foundation/course turn has
+ * - `content_id` / `enrollment_id` -> **nullable** (a task/foundation/course turn has
  *   no content/enrollment anchor).
- * - `+ user_id` (FK users) — owner of a foundation turn.
+ * - `+ user_id` (FK users) -- owner of a foundation turn.
  *
  * Dev runs schema via TypeORM `synchronize` (and prod runs `synchronize=true`),
  * which applies these entity changes at boot; this migration exists so the SAME
  * change can be applied deterministically where `synchronize` is off. Additive,
- * nullable/widening, no PG enum (scope is varchar) — synchronize-safe, no
+ * nullable/widening, no PG enum (scope is varchar) -- synchronize-safe, no
  * enum-ADD-VALUE / DROP-TYPE boot trap. Idempotent.
  */
 export class AddScopeAnchorsToContentAiSessions1724200000000 implements MigrationInterface {
@@ -115,7 +115,7 @@ export class AddScopeAnchorsToContentAiSessions1724200000000 implements Migratio
     /**
      * Reverse migration: drop the added FKs/indexes/columns and restore the NOT
      * NULLs. Reversing is only safe when no task/foundation/course sessions exist
-     * (those rows have null content/enrollment) — rows created under the new model
+     * (those rows have null content/enrollment) -- rows created under the new model
      * would violate the restored NOT NULL, so the constraint restore is guarded to
      * run only when no such rows remain.
      *

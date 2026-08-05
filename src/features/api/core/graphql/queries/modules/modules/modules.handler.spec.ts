@@ -78,7 +78,7 @@ describe("ModulesHandler",
                         },
                         {
                             id: "m2",
-                            // no contents → handler should normalize to []
+                            // no contents -> handler should normalize to []
                         },
                     ]),
                 )

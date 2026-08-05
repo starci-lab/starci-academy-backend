@@ -8,7 +8,7 @@
 export interface CapstoneTotalRow {
     /** `courses.id` the count belongs to. */
     course_id: string
-    /** `COUNT(milestone_tasks.id)` for that course — total capstone tasks. */
+    /** `COUNT(milestone_tasks.id)` for that course -- total capstone tasks. */
     total: string
 }
 

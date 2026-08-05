@@ -11,7 +11,7 @@ import {
 
 @Injectable()
 /**
- * Resolves indexed content folders under a module’s `contents/` directory (`{index}-{slug}` or legacy `{index}`).
+ * Resolves indexed content folders under a module's `contents/` directory (`{index}-{slug}` or legacy `{index}`).
  */
 export class ContentPathService {
     constructor(

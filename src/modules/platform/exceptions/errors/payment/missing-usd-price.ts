@@ -18,7 +18,7 @@ export interface MissingUsdPriceExceptionMetadata extends AbstractExceptionMetad
 /**
  * Thrown when an international gateway checkout (Stripe / PayPal / NOWPayments) is
  * requested but no USD price is configured for the item. We never silently charge
- * the VND amount as USD — the operator must set an explicit USD price first.
+ * the VND amount as USD -- the operator must set an explicit USD price first.
  */
 export class MissingUsdPriceException extends AbstractException {
     constructor({

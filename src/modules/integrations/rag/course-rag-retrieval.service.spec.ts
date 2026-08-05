@@ -29,8 +29,8 @@ jest.mock("@modules/env",
         }),
     }))
 
-// break the heavy barrel imports the SUT pulls (langchain → ai → cache → config that
-// reads the real env at module load) — we only need the injected instances, not the modules
+// break the heavy barrel imports the SUT pulls (langchain -> ai -> cache -> config that
+// reads the real env at module load) -- we only need the injected instances, not the modules
 jest.mock("@modules/langchain",
     () => ({
         EmbeddingModelService: class {
@@ -178,7 +178,7 @@ describe("CourseRagRetrievalService",
                     query: "q",
                 })
 
-                // caller falls back to whole-body stuffing — retrieval never blackholes chat
+                // caller falls back to whole-body stuffing -- retrieval never blackholes chat
                 expect(result.excerpt).toBe("")
                 expect(result.retrievedChunks).toBe(0)
             })
@@ -198,7 +198,7 @@ describe("CourseRagRetrievalService",
                 expect(fromExistingCollection).not.toHaveBeenCalled()
             })
 
-        // ── retrieveCourseExcerpt · excludeContentIds (must_not) ─────────────────
+        // ── retrieveCourseExcerpt - excludeContentIds (must_not) ─────────────────
         // The app-wide chat's premium-exclusion path: a non-enrolled viewer's
         // whole-course BASE grounding passes `excludeContentIds` so the RAG never
         // surfaces a locked lesson's chunks.

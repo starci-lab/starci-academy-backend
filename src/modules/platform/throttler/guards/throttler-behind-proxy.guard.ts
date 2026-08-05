@@ -52,7 +52,7 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
                 res: gqlContext.res,
             }
         }
-        // REST path → defer to the stock HTTP resolution
+        // REST path -> defer to the stock HTTP resolution
         return super.getRequestResponse(context)
     }
 }

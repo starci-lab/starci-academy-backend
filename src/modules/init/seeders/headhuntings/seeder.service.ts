@@ -22,7 +22,7 @@ import {
 
 @Injectable()
 /**
- * Parse headhuntings mount data and upsert PostgreSQL (companies → consultants).
+ * Parse headhuntings mount data and upsert PostgreSQL (companies -> consultants).
  */
 export class HeadhuntingSeederService {
     constructor(

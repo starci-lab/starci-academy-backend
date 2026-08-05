@@ -6,7 +6,7 @@ export interface LqipProduct {
     name: string
     /** Full-resolution image URL. */
     src: string
-    /** Native image width in px (used to reserve aspect-ratio → zero CLS). */
+    /** Native image width in px (used to reserve aspect-ratio -> zero CLS). */
     width: number
     /** Native image height in px. */
     height: number

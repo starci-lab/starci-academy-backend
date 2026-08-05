@@ -93,9 +93,9 @@ const POSTGRESQL_PRIMARY = "primary"
 /**
  * e2e for the content-AI session management mutations
  * (`createContentAiSession`, `askContentAi` + `saveTurn`, `deleteContentAiSession`
- * — renamed from `clearContentAiHistory` — `renameContentAiSession`,
- * `setContentAiSessionArchived`, `touchContentAiSession`) —
- * `.artifacts/states/content-ai/findings.md` round-1 IDOR fix — over REAL
+ * -- renamed from `clearContentAiHistory` -- `renameContentAiSession`,
+ * `setContentAiSessionArchived`, `touchContentAiSession`) --
+ * `.artifacts/states/content-ai/findings.md` round-1 IDOR fix -- over REAL
  * HTTP + REAL Postgres (Testcontainers), not the mocked-DB unit level (see
  * `content-ai.service.spec.ts`).
  *
@@ -103,35 +103,35 @@ const POSTGRESQL_PRIMARY = "primary"
  * `renameContentAiSession`, `setContentAiSessionArchived`, `touchSession`)
  * carries the owner predicate (`enrollment.userId = caller OR session.userId =
  * caller`) IN THE WRITE ITSELF (the `WHERE` clause of the `DELETE`/`UPDATE`),
- * not just a preceding `SELECT` — so a non-owner's call is a silent no-op, never
+ * not just a preceding `SELECT` -- so a non-owner's call is a silent no-op, never
  * a mutation. This spec seeds a session owned by user A, attempts each mutating
  * call as user B, and asserts the row survives untouched; then repeats as the
  * real owner and asserts the mutation lands. This is the regression test for
  * the round-1 IDOR class (`.artifacts/states/content-ai/findings.md`).
  *
  * `askContentAi` (the one-shot GraphQL mutation) never persists anything by
- * itself — persistence only happens when the caller (the `/content_ai` socket
+ * itself -- persistence only happens when the caller (the `/content_ai` socket
  * gateway in production) separately calls `ContentAiService.saveTurn` after the
  * answer completes. This spec mirrors that exact two-step flow: mutation over
  * HTTP for the answer, then a direct `saveTurn` call (the real, DI-resolved
- * service instance) for the persistence — there is no dedicated GraphQL
+ * service instance) for the persistence -- there is no dedicated GraphQL
  * mutation for "save a turn".
  *
  * MOCKED (no external infra available in this harness):
- *  - `S3ReadService` — real class talks to MinIO; stubbed to hand back a canned
+ *  - `S3ReadService` -- real class talks to MinIO; stubbed to hand back a canned
  *    lesson body.
- *  - `CourseRagRetrievalService` — real class talks to Qdrant; stubbed (unused
+ *  - `CourseRagRetrievalService` -- real class talks to Qdrant; stubbed (unused
  *    by the small-body/no-code grounding path this spec exercises).
- *  - `AiInvokeService.run` — real class calls the model balancer/providers;
+ *  - `AiInvokeService.run` -- real class calls the model balancer/providers;
  *    stubbed to return a canned answer.
- *  - `AiEntitlementService.consume` — real class writes AI-credit ledger rows;
+ *  - `AiEntitlementService.consume` -- real class writes AI-credit ledger rows;
  *    stubbed to a no-op (billing is out of scope here).
- *  - `KeycloakAuthGraphQLGuard` — overridden to stamp `request.user` with
+ *  - `KeycloakAuthGraphQLGuard` -- overridden to stamp `request.user` with
  *    whichever fake user the test "logs in" as (no Keycloak server here).
  *
  * REAL: Postgres (Testcontainers), `ContentAiService` (the mutations under
  * test, including the owner-scoped SQL), `UserService`, the full GraphQL/
- * Apollo wiring (`ApolloServerModule`) and `GraphQLTransformInterceptor` — so
+ * Apollo wiring (`ApolloServerModule`) and `GraphQLTransformInterceptor` -- so
  * the "always success, silent no-op" response shape a non-owner sees is
  * asserted exactly as the client receives it.
  *
@@ -158,7 +158,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
             },
         }
 
-        /** Fixture ids shared by every test (seeded once — read-only material). */
+        /** Fixture ids shared by every test (seeded once -- read-only material). */
         let course: CourseEntity
         let content: ContentEntity
 
@@ -168,7 +168,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
             json: jest.fn(),
         }
         // both default to the real service's own empty-degrade shape (never
-        // undefined) — additive grounding calls `retrieveCourseExcerpt` for the
+        // undefined) -- additive grounding calls `retrieveCourseExcerpt` for the
         // course-wide BASE layer on every request that resolves a course, in
         // addition to whichever page-specific PAGE layer call applies, so both
         // must resolve even when a test only cares about the page-level answer.
@@ -288,7 +288,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                     CqrsModule,
                 ],
                 providers: [
-                    // satisfies "Query root type must be provided" — this module
+                    // satisfies "Query root type must be provided" -- this module
                     // registers only mutation resolvers, so the generated schema
                     // needs a no-op root `@Query` to pass validation at `app.init()`.
                     PingResolver,
@@ -300,9 +300,9 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                     AskContentAiResolver,
                     AskContentAiService,
                     AskContentAiHandler,
-                    // REAL — the mutations (incl. the owner-scoped SQL) under test
+                    // REAL -- the mutations (incl. the owner-scoped SQL) under test
                     ContentAiService,
-                    // REAL — resolveEnrollmentId/checkEnrollment run real SQL
+                    // REAL -- resolveEnrollmentId/checkEnrollment run real SQL
                     UserService,
                     {
                         provide: CacheService,
@@ -312,7 +312,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                         provide: S3ReadService,
                         useValue: s3ReadServiceMock,
                     },
-                    // real class, no external deps — safe to use as-is
+                    // real class, no external deps -- safe to use as-is
                     S3NameResolverService,
                     {
                         provide: CourseRagRetrievalService,
@@ -340,7 +340,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
             )
             contentAiService = app.get(ContentAiService)
 
-            // seed the read-only course/content fixtures ONCE — only users/
+            // seed the read-only course/content fixtures ONCE -- only users/
             // enrollments/sessions/messages are reset between tests (see afterEach)
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -427,7 +427,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
 
         /**
          * Seed a content-scope session directly (bypassing the `createContentAiSession`
-         * mutation, whose happy path is covered separately) — owned via the
+         * mutation, whose happy path is covered separately) -- owned via the
          * enrollment, exactly like a real lesson conversation.
          */
         const seedEnrollmentOwnedSession = async (
@@ -447,7 +447,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
             )
 
         /**
-         * Seed a foundation-scope session directly — owned via the raw `user`
+         * Seed a foundation-scope session directly -- owned via the raw `user`
          * column (the OTHER half of `resolveOwnedSession`'s ownership OR-clause,
          * `enrollment.userId = caller OR session.userId = caller`). No foundation
          * doc fixture is needed: `originFoundationId` is a nullable FK and this
@@ -509,7 +509,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 expect(askedBody.success).toBe(true)
                 expect(askedBody.data.answer).toBe(ANSWER_MARKER)
 
-                // askContentAi alone never persists anything — the answer is ephemeral
+                // askContentAi alone never persists anything -- the answer is ephemeral
                 // unless the caller separately calls saveTurn (`.artifacts/states/
                 // content-ai/business.md`: "An answer is ONLY persisted when sessionId
                 // is supplied AND saveTurn succeeds").
@@ -553,7 +553,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
 
         it("createContentAiSession with NO enrollment for the content's course → silent no-op: null id, no row persisted",
             async () => {
-                // deliberately no seedEnrollment() call — the caller has never
+                // deliberately no seedEnrollment() call -- the caller has never
                 // touched this course at all
                 currentUser = await seedUser("kc-content-ai-create-no-enrollment")
 
@@ -565,7 +565,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 expect(response.status).toBe(200)
                 const body = response.body.data.createContentAiSession
                 // createSession's contract: a missing anchor / enrollment resolves to
-                // `null` (no row created) rather than throwing — the interceptor still
+                // `null` (no row created) rather than throwing -- the interceptor still
                 // reports success (nothing errored), so `data.id` is the signal to check
                 expect(body.success).toBe(true)
                 expect(body.data.id).toBeNull()
@@ -588,7 +588,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
                 expect(attackerAttempt.status).toBe(200)
                 // the resolver's response shape claims success/cleared regardless of
                 // whether a row was actually deleted (deleteSession is a silent
-                // no-op) — asserted here exactly as-is, not as a bug: the DB row
+                // no-op) -- asserted here exactly as-is, not as a bug: the DB row
                 // below is the real proof of what happened.
                 expect(attackerAttempt.body.data.deleteContentAiSession.success).toBe(true)
 
@@ -707,7 +707,7 @@ describe("Content-AI session mutations + owner-scoped-write IDOR (e2e)",
             async () => {
                 const owner = await seedUser("kc-content-ai-touch-owner")
                 const attacker = await seedUser("kc-content-ai-touch-attacker")
-                // foundation scope: owned via session.userId, NOT enrollment.userId —
+                // foundation scope: owned via session.userId, NOT enrollment.userId --
                 // exercises the other side of `resolveOwnedSession`'s OR-clause
                 const session = await seedUserOwnedSession(owner)
                 const beforeAt = (await entityManager.findOneOrFail(ContentAiSessionEntity,

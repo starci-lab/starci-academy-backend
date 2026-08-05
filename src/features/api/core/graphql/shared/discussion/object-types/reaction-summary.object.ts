@@ -79,7 +79,7 @@ export class ReactionSummaryObject {
 
     /**
      * Number of times this content has been shared.
-     * Reserved for future use — always 0 until share tracking is implemented.
+     * Reserved for future use -- always 0 until share tracking is implemented.
      */
     @Field(
         () => Int,

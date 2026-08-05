@@ -40,7 +40,7 @@ import {
 /**
  * Remove one of the current user's pinned projects.
  *
- * The pin must belong to the caller — the delete is scoped by both id and
+ * The pin must belong to the caller -- the delete is scoped by both id and
  * userId, and an unaffected delete (the pin does not exist or is owned by
  * someone else) surfaces a typed exception rather than silently succeeding.
  */
@@ -77,7 +77,7 @@ export class UnpinProjectResolver {
 
         // delete scoped by both id AND the user_id FK so a user can only remove their
         // own pins; capture the affected count to detect a missing / foreign pin.
-        // (`userId` is a @RelationId — not a real column — so it can't be used directly
+        // (`userId` is a @RelationId -- not a real column -- so it can't be used directly
         // in delete criteria; filter on the FK column instead.)
         const result = await this.entityManager
             .createQueryBuilder()
@@ -101,7 +101,7 @@ export class UnpinProjectResolver {
             })
         }
 
-        // no payload — the client removes the pin from its local list optimistically
+        // no payload -- the client removes the pin from its local list optimistically
         return {
         } as UnpinProjectResponse
     }

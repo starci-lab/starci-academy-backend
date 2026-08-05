@@ -15,7 +15,7 @@ import {
 /**
  * One PASSED milestone/capstone task attempt the learner can pick into a CV
  * "Project" block. Existence of this row (not its score) is the trust signal
- * — see `CvVerificationService`.
+ * -- see `CvVerificationService`.
  */
 export class PickableMilestoneAchievement {
     @Field(
@@ -54,13 +54,13 @@ export class PickableMilestoneAchievement {
     description: "The current user's pickable StarCi capstone projects (passed milestone tasks).",
 })
 /**
- * The authenticated user's pickable StarCi achievements — the raw material
+ * The authenticated user's pickable StarCi achievements -- the raw material
  * for the CV block editor's "pick from StarCi" flow (block editor, Direction A
  * toolbar-led). Every item here is Verified by construction: it only exists
  * because a real, passed capstone record exists for the current user.
  *
  * CAPSTONE ONLY (2026-07-05, teacher-approved): challenges are practice
- * exercises — too granular to be CV-worthy — and StarCi "achievements"
+ * exercises -- too granular to be CV-worthy -- and StarCi "achievements"
  * (leaderboard rank / coding count / badges) are vanity a recruiter won't
  * trust. Neither goes on the CV, so neither is exposed here. The single
  * legit, verifiable CV signal is a passed capstone project.

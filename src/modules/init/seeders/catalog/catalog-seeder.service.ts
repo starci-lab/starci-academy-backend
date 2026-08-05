@@ -28,10 +28,10 @@ import {
 /**
  * Seeds the catalog from `.mount/data/*`:
  *
- * - **AI models** → upserted into the `ai_models` table (the runtime source of
+ * - **AI models** -> upserted into the `ai_models` table (the runtime source of
  *   truth read by `KeyStoreService` + `UseApiService`). After upsert the query
  *   cache is invalidated and the key pools reloaded.
- * - **Subscriptions** → merged into the runtime `MountStorageService.appConfig`
+ * - **Subscriptions** -> merged into the runtime `MountStorageService.appConfig`
  *   (tiers are still served from `appConfig().subscriptions`).
  */
 export class CatalogSeederService {

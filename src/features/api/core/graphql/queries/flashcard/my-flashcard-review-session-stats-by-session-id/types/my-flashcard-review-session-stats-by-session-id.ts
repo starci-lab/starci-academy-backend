@@ -6,7 +6,7 @@ import type {
 export interface FindMyFlashcardReviewSessionStatsBySessionIdParams {
     /** Viewer the session (and every event aggregated) must belong to. */
     userId: string
-    /** The review-session id to resolve + aggregate — resolved in EITHER session table (deck-review or cross-deck due-review). */
+    /** The review-session id to resolve + aggregate -- resolved in EITHER session table (deck-review or cross-deck due-review). */
     sessionId: string
 }
 
@@ -14,7 +14,7 @@ export interface FindMyFlashcardReviewSessionStatsBySessionIdParams {
 export interface ComputeFirstReviewXpParams {
     /** Viewer whose globally-earliest event per card decides the first-review attribution. */
     userId: string
-    /** The session whose XP is being computed — a card counts only if ITS earliest event carries this id. */
+    /** The session whose XP is being computed -- a card counts only if ITS earliest event carries this id. */
     sessionId: string
     /** This session's graded events, oldest-first. */
     events: Array<FlashcardReviewEventEntity>
@@ -36,13 +36,13 @@ export interface ComputeWeakTagsParams {
 
 /** Per-SM-2-grade tally of the events graded within one session (grade 0/1/2/3). */
 export interface FlashcardReviewSessionGradeCounts {
-    /** Grade 0 — "Again" (forgot). */
+    /** Grade 0 -- "Again" (forgot). */
     again: number
-    /** Grade 1 — "Hard". */
+    /** Grade 1 -- "Hard". */
     hard: number
-    /** Grade 2 — "Good". */
+    /** Grade 2 -- "Good". */
     good: number
-    /** Grade 3 — "Easy". */
+    /** Grade 3 -- "Easy". */
     easy: number
 }
 
@@ -55,7 +55,7 @@ export interface FlashcardReviewSessionWeakTag {
 }
 
 /**
- * Computed per-session recap for ONE flashcard review session — the result of
+ * Computed per-session recap for ONE flashcard review session -- the result of
  * {@link import("../my-flashcard-review-session-stats-by-session-id.service").MyFlashcardReviewSessionStatsBySessionIdService.find}.
  * `nextDueAt` is a `Date` here (the resolver serializes it to an ISO string).
  */
@@ -65,7 +65,7 @@ export interface MyFlashcardReviewSessionStatsBySessionIdResultData {
     /** The session's lifecycle state (resolved regardless of status). */
     status: "in_progress" | "completed" | "abandoned"
     /**
-     * Total reviews attributed to this session — the count of
+     * Total reviews attributed to this session -- the count of
      * `flashcard_review_events` carrying this `sessionId`, or the session
      * entity's own `reviewedCount` fallback when no event carries the id
      * (degraded/legacy session).

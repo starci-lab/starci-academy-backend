@@ -74,7 +74,7 @@ describe("StreakFreezeCronService",
             () => {
                 it("does nothing when the candidate scan finds no one to protect",
                     async () => {
-                        // the single set-based candidate query — empty result
+                        // the single set-based candidate query -- empty result
                         entityManager.query.mockResolvedValueOnce([])
 
                         await service.consumeStreakFreezeForMisses()
@@ -92,7 +92,7 @@ describe("StreakFreezeCronService",
                                     user_id: userId,
                                 },
                             ])
-                            // INSERT ... ON CONFLICT DO NOTHING RETURNING id — this replica won the race
+                            // INSERT ... ON CONFLICT DO NOTHING RETURNING id -- this replica won the race
                             .mockResolvedValueOnce([
                                 {
                                     id: "protected-day-1",
@@ -132,7 +132,7 @@ describe("StreakFreezeCronService",
                                     user_id: userId,
                                 },
                             ])
-                            // a racing replica already inserted the protected day — 0 rows back
+                            // a racing replica already inserted the protected day -- 0 rows back
                             .mockResolvedValueOnce([])
 
                         await service.consumeStreakFreezeForMisses()

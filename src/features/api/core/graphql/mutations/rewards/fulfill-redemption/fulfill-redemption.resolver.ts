@@ -31,7 +31,7 @@ import {
 @Resolver()
 /**
  * Ops mutation: mark a `pending` physical reward redemption `fulfilled` once
- * it has shipped. Admin-only — gated behind the `x-admin-api-key` header
+ * it has shipped. Admin-only -- gated behind the `x-admin-api-key` header
  * (same {@link GraphQLAdminAccessGuard} as the other operator-only surfaces),
  * NOT the learner auth guard, since this mutates another user's redemption.
  * Delegates the status transition + guard to {@link RewardsService.fulfillRedemption}.

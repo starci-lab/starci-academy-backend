@@ -1,5 +1,5 @@
 // Load the bussiness barrel first so its CQRS/elasticsearch base classes are
-// initialised before the handler pulls `@modules/cqrs` — dodges a load-order
+// initialised before the handler pulls `@modules/cqrs` -- dodges a load-order
 // "Class extends value undefined" cycle.
 import "@modules/bussiness"
 import {
@@ -41,7 +41,7 @@ const POSTGRESQL_PRIMARY = "primary"
 /** Default page size from envConfig().services.api.pagination.page.limit. */
 const DEFAULT_PAGE_LIMIT = 20
 
-/** Minimal user stand-in — only the id is read by the handler. */
+/** Minimal user stand-in -- only the id is read by the handler. */
 const fakeUser = (
     id: string,
 ): UserEntity => ({
@@ -126,7 +126,7 @@ describe("UserChallengeSubmissionAttemptsHandler",
                     data: [],
                     count: 0,
                 })
-                // no submission row → never paginate the attempts
+                // no submission row -> never paginate the attempts
                 expect(findAndCount).not.toHaveBeenCalled()
             })
 

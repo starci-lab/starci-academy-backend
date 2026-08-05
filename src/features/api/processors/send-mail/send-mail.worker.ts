@@ -48,7 +48,7 @@ import {
     },
 )
 /**
- * Send mail: `send-mail` → `complete`.
+ * Send mail: `send-mail` -> `complete`.
  */
 export class SendMailWorker extends WorkerHost {
     constructor(
