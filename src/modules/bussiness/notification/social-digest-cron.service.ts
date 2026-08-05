@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     Cron,
@@ -23,6 +22,10 @@ import {
 import {
     SocialDigestFailedException,
 } from "@modules/exceptions"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EnqueueSendMailJobService,
 } from "../jobs"
@@ -51,13 +54,11 @@ const DIGEST_WINDOW_MS = 24 * 60 * 60 * 1000
  * sweep. Idempotent enough in practice: it runs once a day on a fixed window.
  */
 export class SocialDigestCronService {
-    /** Logger scoped to this service for easy grep of digest runs. */
-    private readonly logger = new Logger(SocialDigestCronService.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -150,13 +151,22 @@ export class SocialDigestCronService {
                     // this user's enqueue failed — log and move on to the next
                     // recipient rather than aborting the whole sweep
                     const cause = error instanceof Error ? error : new Error(String(error))
-                    this.logger.warn(
-                        `Failed to enqueue activity digest for user ${userId}: ${cause.message}`,
-                        cause.stack,
-                    )
+                    this.winstonService.log(WinstonLog.BestEffortOperationFailed,
+                        {
+                            op: "cron.social-digest.enqueue-failed",
+                            userId,
+                            error: cause.message,
+                        })
                 }
             }
-            this.logger.log(`Activity digest queued for ${sentCount}/${perUser.size} user(s)`)
+            this.winstonService.log(WinstonLog.CronTickCompleted,
+                {
+                    op: "cron.social-digest.completed",
+                    count: sentCount,
+                    meta: {
+                        totalUsers: perUser.size,
+                    },
+                })
         } catch (error) {
             // normalize, wrap in a typed exception so the failure is groupable
             // and observable, then log (message + stack) and swallow — a bad
@@ -166,8 +176,11 @@ export class SocialDigestCronService {
             const exception = new SocialDigestFailedException({
                 originalError: cause,
             })
-            this.logger.error(exception.message,
-                cause.stack)
+            this.winstonService.log(WinstonLog.CronTickFailed,
+                {
+                    op: "cron.social-digest.failed",
+                    error: exception.message,
+                })
         }
     }
 }

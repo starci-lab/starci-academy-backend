@@ -197,5 +197,59 @@ export enum WinstonLog {
     /** A user tripped the per-user content-access rate limit (suspected scraping). */
     ContentScrapeDetected = "ContentScrapeDetected",
     /** Best-effort in-app notification create failed (swallowed — must not fail the caller). */
-    NotificationCreateFailed = "NotificationCreateFailed"
-    }
+    NotificationCreateFailed = "NotificationCreateFailed",
+    /** Inbound payment/IPN webhook accepted for signature verification. */
+    PaymentWebhookReceived = "PaymentWebhookReceived",
+    /** Webhook dropped (probe, wrong status, or no matching pending tx). */
+    PaymentWebhookIgnored = "PaymentWebhookIgnored",
+    /** MinIO object-created webhook accepted. */
+    MinioWebhookReceived = "MinioWebhookReceived",
+    /** MinIO webhook ignored (manual-trigger CV upload path). */
+    MinioWebhookIgnored = "MinioWebhookIgnored",
+    /** Admin enqueued a video-processing BullMQ job. */
+    VideoProcessingEnqueued = "VideoProcessingEnqueued",
+    /** Best-effort check/side-effect failed; caller continues without it. */
+    BestEffortOperationFailed = "BestEffortOperationFailed",
+    /** Query/handler logged an exception and is about to rethrow. */
+    RequestHandlingFailed = "RequestHandlingFailed",
+    /** Socket/stream failed; the client already receives an error payload. */
+    RealtimeStreamFailed = "RealtimeStreamFailed",
+    /** Realtime debug breadcrumb (chosen model/provider, etc.). */
+    RealtimeDebug = "RealtimeDebug",
+    /** Operator-tools artifact written to the local store. */
+    ToolsArtifactBuilt = "ToolsArtifactBuilt",
+    /** Operator-tools snapshot/sync/store step succeeded. */
+    ToolsOperationCompleted = "ToolsOperationCompleted",
+    /** Operator-tools snapshot/sync step failed. */
+    ToolsOperationFailed = "ToolsOperationFailed",
+    /** Scheduled cron tick finished its batch. */
+    CronTickCompleted = "CronTickCompleted",
+    /** Scheduled cron tick threw; the next tick retries. */
+    CronTickFailed = "CronTickFailed",
+    /** Kafka CDC listener subscribed to its topics. */
+    CdcListenerSubscribed = "CdcListenerSubscribed",
+    /** Kafka CDC listener disabled because the broker is unreachable. */
+    CdcListenerDisabled = "CdcListenerDisabled",
+    /** Init/boot phase finished (asset mirror, RAG index, …). */
+    InitPhaseCompleted = "InitPhaseCompleted",
+    /** Init/boot phase failed non-fatally; boot continues. */
+    InitPhaseFailed = "InitPhaseFailed",
+    /** FFmpeg/GPU/Judge0/Kafka integration call succeeded. */
+    IntegrationCallSucceeded = "IntegrationCallSucceeded",
+    /** FFmpeg/GPU/Judge0/Kafka integration call failed. */
+    IntegrationCallFailed = "IntegrationCallFailed",
+    /** RAG index scan/embed progress or unchanged skip. */
+    RagIndexProgress = "RagIndexProgress",
+    /** RAG retrieval failed; caller falls back ungrounded. */
+    RagRetrievalFailed = "RagRetrievalFailed",
+    /** Public RAG playground idle-session cleanup finished a pass. */
+    RagCleanupCompleted = "RagCleanupCompleted",
+    /** Mail or Scylla sync event accepted onto the bus. */
+    AsyncEventQueued = "AsyncEventQueued",
+    /** HTTP exception filter recorded a domain exception. */
+    HttpExceptionLogged = "HttpExceptionLogged",
+    /** Health or Prometheus probe returned an unexpected failure. */
+    HealthProbeFailed = "HealthProbeFailed",
+    /** Per-model latency probe cycle or snapshot emit failed. */
+    AiModelLatencyFailed = "AiModelLatencyFailed",
+}

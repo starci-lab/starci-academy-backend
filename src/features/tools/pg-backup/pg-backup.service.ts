@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     mkdtemp,
@@ -16,6 +15,10 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ExecaService,
 } from "@modules/execa"
@@ -50,12 +53,11 @@ import type {
  * be re-synced later. Encryption is mandatory (`BACKUP_ENCRYPT_PASSWORD`).
  */
 export class PgBackupService {
-    private readonly logger = new Logger(PgBackupService.name)
-
     constructor(
         private readonly execaService: ExecaService,
         private readonly toolsStoreService: ToolsStoreService,
         private readonly syncService: SyncService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -183,7 +185,14 @@ export class PgBackupService {
             },
         })
 
-        this.logger.log(`Built backup artifact ${artifact.id} at ${encFile}`)
+        this.winstonService.log(WinstonLog.ToolsArtifactBuilt,
+            {
+                op: "tools.pg-backup.built",
+                meta: {
+                    artifactId: artifact.id,
+                    encFile,
+                },
+            })
 
         // sync to cloud only when at least one target was provided
         const synced = targetIds.length > 0

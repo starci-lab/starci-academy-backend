@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import ffmpeg from "fluent-ffmpeg"
 import {
@@ -12,6 +11,10 @@ import type {
 import {
     GpuVendor,
 } from "./enums"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     GpuService,
 } from "./gpu.service"
@@ -30,10 +33,9 @@ ffmpeg.setFfmpegPath(
  * with software (libx264) fallback.
  */
 export class FfmpegService {
-    private readonly logger = new Logger(FfmpegService.name)
-
     constructor(
         private readonly gpuService: GpuService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -175,9 +177,15 @@ export class FfmpegService {
         const { vendor, hwEncoder, name } = this.gpuService.gpuInfo
         const codec = hwEncoder ?? "libx264"
 
-        this.logger.log(
-            `Encoding with ${codec} (GPU: ${name}, vendor: ${vendor})`,
-        )
+        this.winstonService.log(WinstonLog.IntegrationCallSucceeded,
+            {
+                op: "integration.ffmpeg.encode",
+                meta: {
+                    codec,
+                    gpu: name,
+                    vendor,
+                },
+            })
 
         const inputPath = join(taskDir,
             filename)

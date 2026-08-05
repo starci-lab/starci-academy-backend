@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     GetObjectCommand,
@@ -27,6 +26,10 @@ import {
     envConfig,
 } from "@modules/env"
 import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
     ArtifactType,
     ToolsStoreService,
 } from "../store"
@@ -47,10 +50,9 @@ import type {
  * up to another bucket by hand.
  */
 export class S3SnapshotService {
-    private readonly logger = new Logger(S3SnapshotService.name)
-
     constructor(
         private readonly toolsStoreService: ToolsStoreService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -122,9 +124,14 @@ export class S3SnapshotService {
                 } catch (error) {
                     // record the failed key and keep going — one bad object
                     // must not abort a multi-thousand-object snapshot
-                    this.logger.error(
-                        `Failed to download "${object.Key}": ${error instanceof Error ? error.message : String(error)}`,
-                    )
+                    this.winstonService.log(WinstonLog.ToolsOperationFailed,
+                        {
+                            op: "tools.s3-snapshot.object-failed",
+                            error: error instanceof Error ? error.message : String(error),
+                            meta: {
+                                key: object.Key,
+                            },
+                        })
                     failed.push(object.Key)
                 }
             }
@@ -147,9 +154,18 @@ export class S3SnapshotService {
             },
         })
 
-        this.logger.log(
-            `Snapshotted bucket "${bucket}" → ${directory} (${downloaded} objects, ${totalBytes} bytes, ${failed.length} failed)`,
-        )
+        this.winstonService.log(WinstonLog.ToolsOperationCompleted,
+            {
+                op: "tools.s3-snapshot.completed",
+                count: downloaded,
+                meta: {
+                    artifactId: artifact.id,
+                    bucket,
+                    directory,
+                    totalBytes,
+                    failedCount: failed.length,
+                },
+            })
 
         return {
             artifactId: artifact.id,

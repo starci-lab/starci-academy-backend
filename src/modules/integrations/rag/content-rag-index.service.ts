@@ -3,7 +3,6 @@ import {
 } from "crypto"
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import type {
     EntityManager,
@@ -123,9 +122,6 @@ export interface BuildContentRagIndexResult {
  * flag needed.
  */
 export class ContentRagIndexService {
-    /** Scoped logger for the non-fatal index build. */
-    private readonly logger = new Logger(ContentRagIndexService.name)
-
     constructor(
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
@@ -371,25 +367,39 @@ export class ContentRagIndexService {
                 }
                 docs.push(...itemDocs)
             } catch (error) {
-                this.logger.warn(
-                    `Content RAG: skipped item ${item.id}: ${error instanceof Error ? error.message : String(error)}`,
-                )
+                this.winstonService.log(WinstonLog.RagIndexProgress,
+                    {
+                        op: "rag.content.item-skipped",
+                        referenceId: item.id,
+                        error: error instanceof Error ? error.message : String(error),
+                    })
             }
             // progress heartbeat — this loop reads MinIO per item; without it a
             // large corpus looks indistinguishable from "hung" for many minutes
             if ((index + 1) % 50 === 0 || index === items.length - 1) {
-                this.logger.log(
-                    `Content RAG: scanned ${index + 1}/${items.length} item(s), ${dirtyContentIds.length} changed so far`,
-                )
+                this.winstonService.log(WinstonLog.RagIndexProgress,
+                    {
+                        op: "rag.content.scan-progress",
+                        count: index + 1,
+                        meta: {
+                            total: items.length,
+                            changedSoFar: dirtyContentIds.length,
+                        },
+                    })
             }
         }
 
         // nothing changed and nothing was removed → the collection is already
         // up to date, skip the (expensive) embed+upsert step entirely
         if (docs.length === 0 && removedContentIds.length === 0) {
-            this.logger.log(
-                `Content RAG: no content changed — skipped all ${items.length} item(s)`,
-            )
+            this.winstonService.log(WinstonLog.RagIndexProgress,
+                {
+                    op: "rag.content.unchanged",
+                    count: items.length,
+                    meta: {
+                        unchanged: unchangedCount,
+                    },
+                })
             this.winstonService.log(
                 WinstonLog.ProcessStepExecuted,
                 {
@@ -422,10 +432,16 @@ export class ContentRagIndexService {
             dirtyPreviouslyIndexedIds)
 
         const chunks = docs.length > 0 ? await splitter.splitDocuments(docs) : []
-        this.logger.log(
-            `Content RAG: embedding + upserting ${chunks.length} chunk(s) for ${dirtyContentIds.length} changed content(s) `
-            + `(${unchangedCount} unchanged, ${removedContentIds.length} removed) in batches of ${CONTENT_RAG_EMBED_BATCH_SIZE}`,
-        )
+        this.winstonService.log(WinstonLog.RagIndexProgress,
+            {
+                op: "rag.content.embedding",
+                count: chunks.length,
+                meta: {
+                    changed: dirtyContentIds.length,
+                    unchanged: unchangedCount,
+                    removed: removedContentIds.length,
+                },
+            })
 
         // `QdrantVectorStore.fromDocuments` never wipes an existing collection —
         // it only creates one when missing (`ensureCollection`) then upserts —
@@ -447,17 +463,27 @@ export class ContentRagIndexService {
                     collectionName,
                 },
             )
-            this.logger.log(
-                `Content RAG: embedded ${firstBatch.length}/${chunks.length} chunk(s)`,
-            )
+            this.winstonService.log(WinstonLog.RagIndexProgress,
+                {
+                    op: "rag.content.batch-embedded",
+                    count: firstBatch.length,
+                    meta: {
+                        totalChunks: chunks.length,
+                    },
+                })
             for (let start = CONTENT_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += CONTENT_RAG_EMBED_BATCH_SIZE) {
                 const batch = chunks.slice(start,
                     start + CONTENT_RAG_EMBED_BATCH_SIZE)
                 await vectorStore.addDocuments(batch)
-                this.logger.log(
-                    `Content RAG: embedded ${Math.min(start + batch.length,
-                        chunks.length)}/${chunks.length} chunk(s)`,
-                )
+                this.winstonService.log(WinstonLog.RagIndexProgress,
+                    {
+                        op: "rag.content.batch-embedded",
+                        count: Math.min(start + batch.length,
+                            chunks.length),
+                        meta: {
+                            totalChunks: chunks.length,
+                        },
+                    })
             }
         }
 

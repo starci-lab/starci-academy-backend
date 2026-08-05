@@ -3,8 +3,11 @@ import {
 } from "@modules/cqrs"
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     CommandHandler,
     ICommandHandler,
@@ -22,9 +25,9 @@ import {
 export class MinioWebhookHandler
     extends ICQRSHandler<MinioWebhookCommand, void>
     implements ICommandHandler<MinioWebhookCommand, void> {
-    private readonly logger = new Logger(MinioWebhookHandler.name)
-
-    constructor() {
+    constructor(
+        private readonly winstonService: WinstonService,
+    ) {
         super()
     }
 
@@ -32,7 +35,13 @@ export class MinioWebhookHandler
         command: MinioWebhookCommand,
     ): Promise<void> {
         const body = command.params
-        this.logger.log(`Received MinIO webhook with ${body.Records?.length || 0} records.`)
+        this.winstonService.log(
+            WinstonLog.MinioWebhookReceived,
+            {
+                op: "minio.webhook.received",
+                count: body.Records?.length || 0,
+            },
+        )
 
         for (const record of body.Records || []) {
             const key = record.s3?.object?.key
@@ -42,7 +51,16 @@ export class MinioWebhookHandler
 
             // CV submissions are now triggered manually from the frontend.
             if (key.startsWith("cv-submissions/")) {
-                this.logger.log(`Ignoring CV upload webhook for manual-trigger flow: ${key}`)
+                this.winstonService.log(
+                    WinstonLog.MinioWebhookIgnored,
+                    {
+                        op: "minio.webhook.ignored",
+                        meta: {
+                            key,
+                            reason: "cv-submissions manual-trigger flow",
+                        },
+                    },
+                )
                 continue
             }
         }

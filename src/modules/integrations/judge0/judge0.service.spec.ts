@@ -10,6 +10,9 @@ import {
     Judge0Service,
 } from "./judge0.service"
 import {
+    WinstonService,
+} from "@modules/winston"
+import {
     Judge0StatusId,
 } from "./enums"
 import type {
@@ -70,6 +73,12 @@ describe("Judge0Service",
             module = await Test.createTestingModule({
                 providers: [
                     Judge0Service,
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
+                    },
                 ],
             }).compile()
 

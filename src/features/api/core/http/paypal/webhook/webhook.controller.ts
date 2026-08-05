@@ -2,10 +2,13 @@ import {
     Body,
     Controller,
     Headers,
-    Logger,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ApiResponse,
     ApiOperation,
@@ -33,10 +36,9 @@ import {
  * PayPal webhook HTTP route.
  */
 export class PaypalWebhookController {
-    private readonly logger = new Logger(PaypalWebhookController.name)
-
     constructor(
         private readonly paypalWebhookService: PaypalWebhookService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     @UseInterceptors(
@@ -69,8 +71,16 @@ export class PaypalWebhookController {
         @Headers("paypal-transmission-time")
             transmissionTime: string,
     ) {
-        this.logger.log(
-            `🔔 [PayPal] webhook received @ ${new Date().toISOString()} :: event=${String(body?.event_type)} sig=${transmissionSig ? "present" : "MISSING"}`,
+        this.winstonService.log(
+            WinstonLog.PaymentWebhookReceived,
+            {
+                op: "paypal.webhook.received",
+                meta: {
+                    eventType: body?.event_type,
+                    signaturePresent: Boolean(transmissionSig),
+                    receivedAt: new Date().toISOString(),
+                },
+            },
         )
         // forward the body + signature headers to the service for verify + grant
         return this.paypalWebhookService.execute({

@@ -1,7 +1,10 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     IQueryHandler,
     QueryBus,
@@ -72,15 +75,13 @@ import type {
 export class MyCourseOutlineHandler
     extends ICQRSHandler<MyCourseOutlineQuery, MyCourseOutlineData>
     implements IQueryHandler<MyCourseOutlineQuery, MyCourseOutlineData> {
-    /** Logger scoped to this handler for typed-exception error reporting. */
-    private readonly logger = new Logger(MyCourseOutlineHandler.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly queryBus: QueryBus,
         private readonly challengeProgressService: ChallengeProgressService,
         private readonly personalProjectProgressService: PersonalProjectProgressService,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -150,7 +151,17 @@ export class MyCourseOutlineHandler
                 userId: user.id,
                 courseId,
             })
-            this.logger.warn(exception.message)
+            this.winstonService.log(
+                WinstonLog.RequestHandlingFailed,
+                {
+                    op: "my-course-outline.resolve",
+                    userId: user.id,
+                    error: exception.message,
+                    meta: {
+                        courseId,
+                    },
+                },
+            )
             throw exception
         }
 

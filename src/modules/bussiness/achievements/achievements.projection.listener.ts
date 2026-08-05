@@ -8,6 +8,9 @@ import {
     KafkaService,
 } from "@modules/kafka"
 import {
+    WinstonService,
+} from "@modules/winston"
+import {
     AbstractProjectionListener,
     type ProjectionCdcMessage,
 } from "@modules/projection"
@@ -52,10 +55,12 @@ export class AchievementProjectionListener extends AbstractProjectionListener<st
 
     constructor(
         kafkaService: KafkaService,
+        winstonService: WinstonService,
         private readonly achievementsService: AchievementsService,
     ) {
         // base owns the Kafka wiring
-        super(kafkaService)
+        super(kafkaService,
+            winstonService)
     }
 
     /**

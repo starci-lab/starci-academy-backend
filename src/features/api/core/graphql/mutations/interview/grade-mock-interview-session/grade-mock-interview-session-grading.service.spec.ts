@@ -21,6 +21,7 @@ describe("MockInterviewGradingService — scoring from covered checkpoints",
         undefined as never,
         undefined as never,
         undefined as never,
+        undefined as never,
         )
 
         const score = (

@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     mkdir,
@@ -12,6 +11,10 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ExecaService,
 } from "@modules/execa"
@@ -40,11 +43,10 @@ import type {
  * operator can inspect or restore them by hand.
  */
 export class PgSnapshotService {
-    private readonly logger = new Logger(PgSnapshotService.name)
-
     constructor(
         private readonly execaService: ExecaService,
         private readonly toolsStoreService: ToolsStoreService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -138,9 +140,16 @@ export class PgSnapshotService {
                 },
             })
 
-            this.logger.log(
-                `Snapshotted "${target.name}" → ${file} (${size} bytes)`,
-            )
+            this.winstonService.log(WinstonLog.ToolsOperationCompleted,
+                {
+                    op: "tools.pg-snapshot.completed",
+                    count: size,
+                    meta: {
+                        targetName: target.name,
+                        file,
+                        artifactId: artifact.id,
+                    },
+                })
 
             return {
                 name: target.name,
@@ -152,9 +161,14 @@ export class PgSnapshotService {
         } catch (error) {
             // capture the failure for this target and continue with the rest
             const message = error instanceof Error ? error.message : String(error)
-            this.logger.error(
-                `Snapshot failed for "${target.name}": ${message}`,
-            )
+            this.winstonService.log(WinstonLog.ToolsOperationFailed,
+                {
+                    op: "tools.pg-snapshot.failed",
+                    error: message,
+                    meta: {
+                        targetName: target.name,
+                    },
+                })
             return {
                 name: target.name,
                 ok: false,

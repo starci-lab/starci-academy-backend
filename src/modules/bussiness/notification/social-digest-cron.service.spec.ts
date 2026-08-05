@@ -1,7 +1,4 @@
 import {
-    Logger,
-} from "@nestjs/common"
-import {
     Test,
     TestingModule,
 } from "@nestjs/testing"
@@ -26,6 +23,10 @@ import {
 import type {
     EntityManagerMock,
 } from "@modules/tests"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EnqueueSendMailJobService,
 } from "../jobs"
@@ -108,9 +109,7 @@ describe("SocialDigestCronService",
         let enqueueSendMailJobService: {
             enqueue: jest.Mock
         }
-        let loggerWarnSpy: jest.SpyInstance
-        let loggerErrorSpy: jest.SpyInstance
-        let loggerLogSpy: jest.SpyInstance
+        let winstonLogSpy: jest.Mock
 
         beforeEach(async () => {
             jest.clearAllMocks()
@@ -132,13 +131,7 @@ describe("SocialDigestCronService",
             // happy-path default: every enqueue succeeds unless a test overrides it
             mockEnqueueLearnerEmail.mockResolvedValue(undefined)
 
-            // silence + spy on the cron's internal Logger instance
-            loggerWarnSpy = jest.spyOn(Logger.prototype,
-                "warn").mockImplementation(() => undefined)
-            loggerErrorSpy = jest.spyOn(Logger.prototype,
-                "error").mockImplementation(() => undefined)
-            loggerLogSpy = jest.spyOn(Logger.prototype,
-                "log").mockImplementation(() => undefined)
+            winstonLogSpy = jest.fn()
 
             module = await Test.createTestingModule({
                 providers: [
@@ -150,6 +143,12 @@ describe("SocialDigestCronService",
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: winstonLogSpy,
+                        },
                     },
                 ],
             }).compile()
@@ -216,8 +215,12 @@ describe("SocialDigestCronService",
                                 }),
                             }),
                         )
-                        expect(loggerLogSpy).toHaveBeenCalledWith(
-                            expect.stringContaining("2/2"),
+                        expect(winstonLogSpy).toHaveBeenCalledWith(
+                            WinstonLog.CronTickCompleted,
+                            expect.objectContaining({
+                                op: "cron.social-digest.completed",
+                                count: 2,
+                            }),
                         )
                     })
 
@@ -279,13 +282,19 @@ describe("SocialDigestCronService",
                             }),
                         )
                         // the failure is logged per-user, not thrown
-                        expect(loggerWarnSpy).toHaveBeenCalledWith(
-                            expect.stringContaining("user-fail"),
-                            enqueueFailure.stack,
+                        expect(winstonLogSpy).toHaveBeenCalledWith(
+                            WinstonLog.BestEffortOperationFailed,
+                            expect.objectContaining({
+                                op: "cron.social-digest.enqueue-failed",
+                                userId: "user-fail",
+                            }),
                         )
-                        // only the surviving recipient counts toward the sent tally
-                        expect(loggerLogSpy).toHaveBeenCalledWith(
-                            expect.stringContaining("1/2"),
+                        expect(winstonLogSpy).toHaveBeenCalledWith(
+                            WinstonLog.CronTickCompleted,
+                            expect.objectContaining({
+                                op: "cron.social-digest.completed",
+                                count: 1,
+                            }),
                         )
                     })
 
@@ -300,9 +309,11 @@ describe("SocialDigestCronService",
                         // no per-user email work happens once the aggregation itself failed
                         expect(mockEnqueueLearnerEmail).not.toHaveBeenCalled()
                         // the raw DB error is wrapped in the typed, groupable exception before logging
-                        expect(loggerErrorSpy).toHaveBeenCalledWith(
-                            "Daily activity-digest sweep failed",
-                            aggregationFailure.stack,
+                        expect(winstonLogSpy).toHaveBeenCalledWith(
+                            WinstonLog.CronTickFailed,
+                            expect.objectContaining({
+                                op: "cron.social-digest.failed",
+                            }),
                         )
                     })
             })

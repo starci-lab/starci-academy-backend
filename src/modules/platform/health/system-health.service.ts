@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     Socket,
@@ -17,6 +16,10 @@ import {
 import {
     AiBalancerService,
 } from "@modules/ai"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     PrometheusMetricsService,
 } from "./prometheus-metrics.service"
@@ -56,11 +59,10 @@ import type {
  * const components = await systemHealthService.probeAll()
  */
 export class SystemHealthService {
-    private readonly logger = new Logger(SystemHealthService.name)
-
     constructor(
         private readonly aiBalancerService: AiBalancerService,
         private readonly prometheusMetricsService: PrometheusMetricsService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /** Last computed sweep, reused until {@link cachedAt} ages past the TTL. */
@@ -150,7 +152,13 @@ export class SystemHealthService {
             // defensive: the descriptor at this index carries its own name
             const { name } = descriptors[index]
             // log loudly because a thrown probe means a probe helper regressed
-            this.logger.warn(`Health probe "${name}" rejected unexpectedly`)
+            this.winstonService.log(WinstonLog.HealthProbeFailed,
+                {
+                    op: "health.probe.rejected",
+                    meta: {
+                        name,
+                    },
+                })
             return this.downHealth({
                 name,
                 message: "probe failed unexpectedly",

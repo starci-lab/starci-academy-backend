@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     EnqueueSendMailJobService,
@@ -9,6 +8,10 @@ import {
     EventsHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ICQRSHandler,
 } from "../../icqrs-handler"
@@ -30,18 +33,22 @@ import {
 export class SendMailEventHandler
     extends ICQRSHandler<SendMailEvent, void>
     implements ICommandHandler<SendMailEvent, void> {
-    private readonly logger = new Logger(SendMailEventHandler.name)
 
     constructor(
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
 
     protected override async process(event: SendMailEvent): Promise<void> {
         await this.enqueueSendMailJobService.enqueue(event.payload)
-        this.logger.log(
-            `Queued send-mail event for ${event.payload.to.map((r) => r.address).join(", ")}`,
-        )
+        this.winstonService.log(WinstonLog.AsyncEventQueued,
+            {
+                op: "async.send-mail.queued",
+                meta: {
+                    recipients: event.payload.to.map((r) => r.address),
+                },
+            })
     }
 }

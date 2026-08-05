@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     CdnSynchronizerService,
@@ -47,8 +46,6 @@ import {
  */
 export class SynchronizersService {
 
-    private readonly logger = new Logger(SynchronizersService.name)
-
     constructor(
         private readonly dayjsService: DayjsService,
         private readonly winstonService: WinstonService,
@@ -91,9 +88,11 @@ export class SynchronizersService {
         try {
             await this.esSyncUserService.reindexAll()
         } catch (error) {
-            this.logger.error(
-                `User ES reindex failed (non-fatal, CDC will heal): ${error instanceof Error ? error.message : String(error)}`,
-            )
+            this.winstonService.log(WinstonLog.RequestHandlingFailed,
+                {
+                    op: "init.synchronizers.user-es-reindex-failed",
+                    error: error instanceof Error ? error.message : String(error),
+                })
         }
         await this.indexerSynchronizerService.sync(cdnScope)
         await this.bloomFilterSynchronizerService.sync()

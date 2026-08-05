@@ -3,7 +3,6 @@ import {
 } from "crypto"
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     QdrantVectorStore,
@@ -107,9 +106,6 @@ export interface BuildCvRagIndexResult {
  * "everything is new".
  */
 export class CvRagIndexService {
-    /** Scoped logger for the non-fatal index build. */
-    private readonly logger = new Logger(CvRagIndexService.name)
-
     constructor(
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
@@ -169,16 +165,24 @@ export class CvRagIndexService {
                 dirtyEntryIds.push(entry.entryId)
                 docs.push(...entryDocs)
             } catch (error) {
-                this.logger.warn(
-                    `CV RAG: skipped entry ${entry.entryId}: ${error instanceof Error ? error.message : String(error)}`,
-                )
+                this.winstonService.log(WinstonLog.RagIndexProgress,
+                    {
+                        op: "rag.cv.item-skipped",
+                        referenceId: entry.entryId,
+                        error: error instanceof Error ? error.message : String(error),
+                    })
             }
         }
 
         if (docs.length === 0 && removedEntryIds.length === 0) {
-            this.logger.log(
-                `CV RAG: no entry changed — skipped all ${entries.length} entr${entries.length === 1 ? "y" : "ies"}`,
-            )
+            this.winstonService.log(WinstonLog.RagIndexProgress,
+                {
+                    op: "rag.cv.unchanged",
+                    count: entries.length,
+                    meta: {
+                        unchanged: unchangedCount,
+                    },
+                })
             this.winstonService.log(
                 WinstonLog.ProcessStepExecuted,
                 {
@@ -203,10 +207,16 @@ export class CvRagIndexService {
         }
 
         const chunks = docs.length > 0 ? await splitter.splitDocuments(docs) : []
-        this.logger.log(
-            `CV RAG: embedding + upserting ${chunks.length} chunk(s) for ${dirtyEntryIds.length} changed entr${dirtyEntryIds.length === 1 ? "y" : "ies"} `
-            + `(${unchangedCount} unchanged, ${removedEntryIds.length} removed)`,
-        )
+        this.winstonService.log(WinstonLog.RagIndexProgress,
+            {
+                op: "rag.cv.embedding",
+                count: chunks.length,
+                meta: {
+                    changed: dirtyEntryIds.length,
+                    unchanged: unchangedCount,
+                    removed: removedEntryIds.length,
+                },
+            })
 
         if (chunks.length > 0) {
             const firstBatch = chunks.slice(0,

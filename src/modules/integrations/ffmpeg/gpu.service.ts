@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
     OnModuleInit,
 } from "@nestjs/common"
 import {
@@ -9,6 +8,10 @@ import {
 import {
     platform,
 } from "os"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     GpuVendor,
 } from "./enums"
@@ -22,12 +25,15 @@ import type {
  * Runs detection once at module init and caches the result.
  */
 export class GpuService implements OnModuleInit {
-    private readonly logger = new Logger(GpuService.name)
     private _gpuInfo: GpuInfo = {
         vendor: GpuVendor.None,
         name: "Unknown",
         hwEncoder: null,
     }
+
+    constructor(
+        private readonly winstonService: WinstonService,
+    ) {}
 
     /**
      * Get the detected GPU info.
@@ -38,9 +44,15 @@ export class GpuService implements OnModuleInit {
 
     onModuleInit(): void {
         this._gpuInfo = this.detectGpu()
-        this.logger.log(
-            `Detected GPU: ${this._gpuInfo.name} (vendor=${this._gpuInfo.vendor}, encoder=${this._gpuInfo.hwEncoder ?? "software"})`,
-        )
+        this.winstonService.log(WinstonLog.IntegrationCallSucceeded,
+            {
+                op: "integration.gpu.detected",
+                meta: {
+                    name: this._gpuInfo.name,
+                    vendor: this._gpuInfo.vendor,
+                    encoder: this._gpuInfo.hwEncoder ?? "software",
+                },
+            })
     }
 
     /**
@@ -95,7 +107,11 @@ export class GpuService implements OnModuleInit {
             const dedicatedGpu = this.pickDedicatedGpu(gpuNames)
             return dedicatedGpu
         } catch (error) {
-            this.logger.warn(`GPU detection failed: ${error.message}`)
+            this.winstonService.log(WinstonLog.IntegrationCallFailed,
+                {
+                    op: "integration.gpu.detection-failed",
+                    error: error instanceof Error ? error.message : String(error),
+                })
             return {
                 vendor: GpuVendor.None,
                 name: "Detection failed",

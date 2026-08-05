@@ -1,7 +1,10 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EntityManager,
     In,
@@ -139,9 +142,6 @@ const MIN_SUBSTANTIVE_ANSWER_LENGTH = 100
  * against a single model-answer rubric.
  */
 export class MockInterviewGradingService {
-    /** Logger scoped to this service for the session-lookup-miss warning (see {@link resolveTrustedPromptIdentity}). */
-    private readonly logger = new Logger(MockInterviewGradingService.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -151,6 +151,7 @@ export class MockInterviewGradingService {
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly contentRagRetrievalService: CourseRagRetrievalService,
         private readonly userService: UserService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -467,8 +468,18 @@ export class MockInterviewGradingService {
         )
 
         if (!session) {
-            this.logger.warn(
-                `No mock_interview_sessions row found for sessionId=${sessionId} enrollmentId=${enrollment.id} — falling back to client-sent prompt identity (mode="design").`,
+            this.winstonService.log(
+                WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "mock-interview.resolve-session",
+                    userId,
+                    sessionId,
+                    error: "No mock_interview_sessions row found — falling back to client-sent prompt identity",
+                    meta: {
+                        enrollmentId: enrollment.id,
+                        clientPromptId,
+                    },
+                },
             )
             return {
                 promptId: clientPromptId,

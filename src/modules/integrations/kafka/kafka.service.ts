@@ -1,7 +1,6 @@
 import {
     Inject,
     Injectable,
-    Logger,
     type OnModuleDestroy,
 } from "@nestjs/common"
 import {
@@ -13,6 +12,10 @@ import {
     KafkaConsumerDisconnectException,
     KafkaEnsureTopicsException,
 } from "@modules/exceptions"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     KAFKA,
 } from "./constants"
@@ -36,15 +39,13 @@ import type {
  * await consumer.run({ eachMessage })
  */
 export class KafkaService implements OnModuleDestroy {
-    /** Scoped logger so broker wiring issues are easy to grep. */
-    private readonly logger = new Logger(KafkaService.name)
-
     /** Every consumer handed out, retained so they can be disconnected on shutdown. */
     private readonly consumers: Array<Consumer> = []
 
     constructor(
         @Inject(KAFKA)
         private readonly kafka: Kafka,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -140,8 +141,14 @@ export class KafkaService implements OnModuleDestroy {
                 topics,
                 originalError: error instanceof Error ? error : undefined,
             })
-            this.logger.error(exception.message,
-                exception.stack)
+            this.winstonService.log(WinstonLog.RequestHandlingFailed,
+                {
+                    op: "integration.kafka.ensure-topics-failed",
+                    error: exception.message,
+                    meta: {
+                        topics,
+                    },
+                })
         } finally {
             // always release the admin socket so it does not leak
             await admin.disconnect().catch(() => {
@@ -167,8 +174,11 @@ export class KafkaService implements OnModuleDestroy {
                 const exception = new KafkaConsumerDisconnectException({
                     originalError: error instanceof Error ? error : undefined,
                 })
-                this.logger.error(exception.message,
-                    exception.stack)
+                this.winstonService.log(WinstonLog.RequestHandlingFailed,
+                    {
+                        op: "integration.kafka.consumer-disconnect-failed",
+                        error: exception.message,
+                    })
             }
         }
     }

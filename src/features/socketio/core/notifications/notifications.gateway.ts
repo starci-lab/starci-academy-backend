@@ -1,7 +1,10 @@
 import {
-    Logger,
     OnModuleInit,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ConnectedSocket,
     SubscribeMessage,
@@ -58,14 +61,12 @@ export class NotificationsGateway implements OnModuleInit {
         private readonly notificationRoomService: NotificationRoomService,
         private readonly wsResponseService: WsResponseService,
         private readonly eventEmitterService: EventEmitterService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /** The namespace server instance used to emit to per-user rooms. */
     @WebSocketServer()
     private readonly server: Namespace
-
-    /** Logger for subscribe-time failures that cannot reach the client cleanly. */
-    private readonly logger = new Logger(NotificationsGateway.name)
 
     /**
      * After the namespace is initialized, gate every socket behind Keycloak auth
@@ -107,10 +108,15 @@ export class NotificationsGateway implements OnModuleInit {
         } catch (error) {
             // resolution failed (no user row / lookup error) → surface a ws error
             // and log, but never crash the namespace for one bad socket
-            this.logger.error(
-                `failed to subscribe socket to notifications: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
+            this.winstonService.log(
+                WinstonLog.RealtimeStreamFailed,
+                {
+                    op: "notifications.subscribe",
+                    error: error instanceof Error ? error.message : String(error),
+                    meta: {
+                        socketId: client.id,
+                    },
+                },
             )
             this.wsResponseService.error({
                 client,

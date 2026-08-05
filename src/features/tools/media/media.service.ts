@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     randomUUID,
@@ -20,6 +19,10 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     FfmpegService,
 } from "@modules/ffmpeg"
@@ -48,12 +51,11 @@ import type {
  * re-synced later without re-encoding.
  */
 export class MediaService {
-    private readonly logger = new Logger(MediaService.name)
-
     constructor(
         private readonly ffmpegService: FfmpegService,
         private readonly toolsStoreService: ToolsStoreService,
         private readonly syncService: SyncService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -131,7 +133,14 @@ export class MediaService {
             },
         })
 
-        this.logger.log(`Built media artifact ${artifact.id} at ${workDir}`)
+        this.winstonService.log(WinstonLog.ToolsArtifactBuilt,
+            {
+                op: "tools.media.built",
+                meta: {
+                    artifactId: artifact.id,
+                    workDir,
+                },
+            })
 
         // sync to cloud only when at least one target was provided
         const synced = targetIds.length > 0

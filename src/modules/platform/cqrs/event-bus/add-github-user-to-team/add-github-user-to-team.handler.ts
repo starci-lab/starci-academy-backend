@@ -1,7 +1,4 @@
 import {
-    Logger,
-} from "@nestjs/common"
-import {
     EnqueueResolveGithubJobService,
 } from "@modules/bussiness"
 import {
@@ -28,7 +25,6 @@ import {
 export class AddGithubUserToTeamHandler
     extends ICQRSHandler<AddGithubUserToTeamEvent, void>
     implements ICommandHandler<AddGithubUserToTeamEvent, void> {
-    private readonly logger = new Logger(AddGithubUserToTeamHandler.name)
 
     constructor(
         private readonly enqueueResolveGithubJobService: EnqueueResolveGithubJobService,

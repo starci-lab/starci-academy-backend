@@ -14,6 +14,9 @@ import {
     KafkaService,
 } from "@modules/kafka"
 import {
+    WinstonService,
+} from "@modules/winston"
+import {
     AbstractProjectionListener,
     type ProjectionCdcMessage,
 } from "@modules/projection"
@@ -62,9 +65,11 @@ export class ProgressProjectionListener extends AbstractProjectionListener<Deriv
         private readonly entityManager: EntityManager,
         private readonly progressProjectionService: ProgressProjectionService,
         kafkaService: KafkaService,
+        winstonService: WinstonService,
     ) {
         // base owns the Kafka wiring (subscribe, boot, per-message loop)
-        super(kafkaService)
+        super(kafkaService,
+            winstonService)
     }
 
     /**

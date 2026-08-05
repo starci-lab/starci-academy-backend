@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     EntityManager,
@@ -15,6 +14,10 @@ import {
 import {
     CodingProblemNotFoundException,
 } from "@modules/exceptions"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EnqueueJudgeCodingSubmissionJobService,
 } from "../jobs"
@@ -43,14 +46,12 @@ const DEFAULT_PAGE_SIZE = 20
  * user's submission history for a problem.
  */
 export class CodingSubmissionService {
-    /** Logger scoped to this service for easy grep of best-effort failures. */
-    private readonly logger = new Logger(CodingSubmissionService.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly enqueueJudgeCodingSubmissionJobService: EnqueueJudgeCodingSubmissionJobService,
         private readonly deviceService: DeviceService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -115,10 +116,13 @@ export class CodingSubmissionService {
             })
         } catch (error) {
             const cause = error instanceof Error ? error : new Error(String(error))
-            this.logger.warn(
-                `Failed to record device for submission ${submission.id}: ${cause.message}`,
-                cause.stack,
-            )
+            this.winstonService.log(WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "coding.device-record.failed",
+                    userId,
+                    referenceId: submission.id,
+                    error: cause.message,
+                })
         }
         // enqueue the async judging job; the returned job id is what the client subscribes to
         const job = await this.enqueueJudgeCodingSubmissionJobService.enqueue({

@@ -1,6 +1,7 @@
 import {
-    Logger,
-} from "@nestjs/common"
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ConnectedSocket,
     MessageBody,
@@ -66,6 +67,7 @@ export class ContentAiGateway {
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly wsResponseService: WsResponseService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /** The namespace server — used to attach the auth middleware. */
@@ -81,11 +83,7 @@ export class ContentAiGateway {
         this.server.use(socketIoKeycloakAuthMiddleware)
     }
 
-    /** Logger for stream failures. */
-    private readonly logger = new Logger(ContentAiGateway.name)
-
-    /**
-     * In-flight stream abort controllers keyed by `{socketId}:{streamId}`. An
+    /** In-flight stream abort controllers keyed by `{socketId}:{streamId}`. An
      * entry exists only while a question is actively streaming; the
      * `abort-content-ai` handler fires the matching controller to cancel the
      * upstream model request.
@@ -242,10 +240,17 @@ export class ContentAiGateway {
                         answer,
                     })
                 } catch (saveError) {
-                    this.logger.error(
-                        `content-ai saveTurn ${streamId} failed: ${
-                            saveError instanceof Error ? saveError.message : String(saveError)
-                        }`,
+                    this.winstonService.log(
+                        WinstonLog.BestEffortOperationFailed,
+                        {
+                            op: "content-ai.save-turn",
+                            userId,
+                            sessionId,
+                            error: saveError instanceof Error ? saveError.message : String(saveError),
+                            meta: {
+                                streamId,
+                            },
+                        },
                     )
                 }
             }
@@ -264,8 +269,17 @@ export class ContentAiGateway {
             const message = error instanceof Error
                 ? error.message
                 : String(error)
-            this.logger.error(
-                `content-ai stream ${streamId} failed: ${message}`,
+            this.winstonService.log(
+                WinstonLog.RealtimeStreamFailed,
+                {
+                    op: "content-ai.stream",
+                    userId,
+                    sessionId,
+                    error: message,
+                    meta: {
+                        streamId,
+                    },
+                },
             )
             this.emitChunk({
                 client,

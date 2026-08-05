@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     randomUUID,
@@ -19,6 +18,10 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ArtifactType,
     ToolsStoreService,
@@ -42,11 +45,10 @@ import type {
  * from the operator's browser.
  */
 export class UploadService {
-    private readonly logger = new Logger(UploadService.name)
-
     constructor(
         private readonly toolsStoreService: ToolsStoreService,
         private readonly syncService: SyncService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -115,7 +117,15 @@ export class UploadService {
                 },
             })
 
-            this.logger.log(`Stored upload "${filename}" → ${filePath}`)
+            this.winstonService.log(WinstonLog.ToolsArtifactBuilt,
+                {
+                    op: "tools.upload.stored",
+                    meta: {
+                        filename,
+                        artifactId: artifact.id,
+                        filePath,
+                    },
+                })
 
             // sync to every target when at least one was chosen
             const synced = targetIds.length > 0

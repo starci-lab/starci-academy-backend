@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
     type OnModuleInit,
 } from "@nestjs/common"
 import {
@@ -13,6 +12,10 @@ import {
 import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import type {
     ReindexUserParams,
     ReindexAllUsersResult,
@@ -42,13 +45,11 @@ const REINDEX_PAGE_SIZE = 500
  * not to a Postgres read-model table.
  */
 export class EsSyncUserService implements OnModuleInit {
-    /** Scoped logger so sync issues are easy to grep. */
-    private readonly logger = new Logger(EsSyncUserService.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly elasticsearchService: ElasticsearchService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -66,10 +67,11 @@ export class EsSyncUserService implements OnModuleInit {
             // ES being unreachable at boot must not block the app — log + continue;
             // a later reindexAll / CDC event recreates the index on demand
             const cause = error instanceof Error ? error : new Error(String(error))
-            this.logger.error(
-                "Failed to ensure the `users` Elasticsearch index on boot",
-                cause.stack,
-            )
+            this.winstonService.log(WinstonLog.RequestHandlingFailed,
+                {
+                    op: "es-sync-user.ensure-index.failed",
+                    error: cause.message,
+                })
         }
     }
 

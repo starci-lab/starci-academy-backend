@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
     type OnModuleInit,
 } from "@nestjs/common"
 import {
@@ -15,6 +14,10 @@ import {
 import {
     KafkaService,
 } from "@modules/kafka"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EsSyncUserService,
 } from "./es-sync-user.service"
@@ -47,12 +50,10 @@ const ES_SYNC_USER_GROUP_ID = "es-sync-user"
  * at-least-once, so duplicate re-indexes are harmless (the upsert is idempotent).
  */
 export class EsSyncUserListener implements OnModuleInit {
-    /** Scoped logger so CDC issues are easy to grep in aggregated logs. */
-    private readonly logger = new Logger(EsSyncUserListener.name)
-
     constructor(
         private readonly esSyncUserService: EsSyncUserService,
         private readonly kafkaService: KafkaService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -88,16 +89,21 @@ export class EsSyncUserListener implements OnModuleInit {
                 eachMessage: (payload) => this.handleMessage(payload),
             })
             // confirm wiring so ops can see the sync is live
-            this.logger.log(
-                `es-sync-user CDC listener subscribed to: ${topic}`,
-            )
+            this.winstonService.log(WinstonLog.CdcListenerSubscribed,
+                {
+                    op: "es-sync-user.cdc.subscribed",
+                    meta: {
+                        topic,
+                    },
+                })
         } catch (error) {
             // Kafka unreachable is non-fatal — log Error-style and let the app boot
             const cause = error instanceof Error ? error : new Error(String(error))
-            this.logger.error(
-                "es-sync-user CDC listener disabled (Kafka unavailable)",
-                cause.stack,
-            )
+            this.winstonService.log(WinstonLog.CdcListenerDisabled,
+                {
+                    op: "es-sync-user.cdc.disabled",
+                    error: cause.message,
+                })
         }
     }
 
@@ -139,8 +145,14 @@ export class EsSyncUserListener implements OnModuleInit {
                 topic,
                 originalError: error instanceof Error ? error : undefined,
             })
-            this.logger.error(exception.message,
-                exception.stack)
+            this.winstonService.log(WinstonLog.RequestHandlingFailed,
+                {
+                    op: "es-sync-user.cdc.message-failed",
+                    error: exception.message,
+                    meta: {
+                        topic,
+                    },
+                })
         }
     }
 }

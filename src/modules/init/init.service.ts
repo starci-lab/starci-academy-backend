@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
     OnModuleInit,
 } from "@nestjs/common"
 import {
@@ -75,9 +74,6 @@ import {
  * reseed so the database is never under-seeded.
  */
 export class InitService implements OnModuleInit {
-
-    /** Scoped logger for the non-fatal post-seed asset mirror. */
-    private readonly logger = new Logger(InitService.name)
 
     constructor(
         private readonly dataGitBootstrapService: DataGitBootstrapService,
@@ -176,9 +172,11 @@ export class InitService implements OnModuleInit {
                 try {
                     await this.synchronizersService.init()
                 } catch (error) {
-                    this.logger.error(
-                        `Synchronizers init failed (non-fatal, boot continues): ${error instanceof Error ? error.message : String(error)}`,
-                    )
+                    this.winstonService.log(WinstonLog.InitPhaseFailed,
+                        {
+                            op: "init.synchronizers.failed",
+                            error: error instanceof Error ? error.message : String(error),
+                        })
                 }
             }
             // phase 2b: mirror the snapshot's STATIC ASSETS (badges, course covers, …)
@@ -191,11 +189,17 @@ export class InitService implements OnModuleInit {
             if (snapshotRoot) {
                 try {
                     const { assets } = await this.assetsService.sync()
-                    this.logger.log(`Mirrored ${assets.length} snapshot asset(s) to MinIO`)
+                    this.winstonService.log(WinstonLog.InitPhaseCompleted,
+                        {
+                            op: "init.assets.mirrored",
+                            count: assets.length,
+                        })
                 } catch (error) {
-                    this.logger.error(
-                        `Snapshot asset mirror failed: ${error instanceof Error ? error.message : String(error)}`,
-                    )
+                    this.winstonService.log(WinstonLog.InitPhaseFailed,
+                        {
+                            op: "init.assets.failed",
+                            error: error instanceof Error ? error.message : String(error),
+                        })
                 }
             }
             // phase 2c: build the per-lesson RAG index in Qdrant from the lesson
@@ -209,11 +213,17 @@ export class InitService implements OnModuleInit {
             if (snapshotRoot && envConfig().services.contentRag.enabled) {
                 try {
                     const { indexed } = await this.contentRagIndexService.build()
-                    this.logger.log(`Indexed ${indexed} lesson RAG chunk(s) into Qdrant`)
+                    this.winstonService.log(WinstonLog.InitPhaseCompleted,
+                        {
+                            op: "init.content-rag.completed",
+                            count: indexed,
+                        })
                 } catch (error) {
-                    this.logger.error(
-                        `Content RAG index build failed: ${error instanceof Error ? error.message : String(error)}`,
-                    )
+                    this.winstonService.log(WinstonLog.InitPhaseFailed,
+                        {
+                            op: "init.content-rag.failed",
+                            error: error instanceof Error ? error.message : String(error),
+                        })
                 }
             }
             // phase 2d: build the CV-authoring reference RAG index (rubrics +
@@ -228,11 +238,17 @@ export class InitService implements OnModuleInit {
             if (snapshotRoot && envConfig().services.contentRag.enabled) {
                 try {
                     const { indexed } = await this.cvRagIndexService.build()
-                    this.logger.log(`Indexed ${indexed} CV RAG chunk(s) into Qdrant`)
+                    this.winstonService.log(WinstonLog.InitPhaseCompleted,
+                        {
+                            op: "init.cv-rag.completed",
+                            count: indexed,
+                        })
                 } catch (error) {
-                    this.logger.error(
-                        `CV RAG index build failed: ${error instanceof Error ? error.message : String(error)}`,
-                    )
+                    this.winstonService.log(WinstonLog.InitPhaseFailed,
+                        {
+                            op: "init.cv-rag.failed",
+                            error: error instanceof Error ? error.message : String(error),
+                        })
                 }
             }
             // success → record the snapshot in the manifest + prune the oldest

@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     envConfig,
@@ -8,6 +7,10 @@ import {
 import {
     getJudge0AuthToken,
 } from "@modules/filesystem"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     Judge0RequestFailedException,
     Judge0TimedOutException,
@@ -41,11 +44,12 @@ import type {
  * const { results } = await judge0Service.judgeBatch({ submissions })
  */
 export class Judge0Service {
-    /** Logger scoped to the Judge0 client. */
-    private readonly logger = new Logger(Judge0Service.name)
-
     /** Cached `X-Auth-Token`; read lazily once from the mount file. */
     private cachedAuthToken: string | null = null
+
+    constructor(
+        private readonly winstonService: WinstonService,
+    ) {}
 
     /**
      * Submit a batch of runs to Judge0 and return their tokens (no waiting).
@@ -223,7 +227,14 @@ export class Judge0Service {
             }
             // normalize transport/timeout/parse errors at this boundary
             const normalized = error instanceof Error ? error : new Error(String(error))
-            this.logger.error(`Judge0 request to ${path} failed: ${normalized.message}`)
+            this.winstonService.log(WinstonLog.IntegrationCallFailed,
+                {
+                    op: "integration.judge0.request-failed",
+                    error: normalized.message,
+                    meta: {
+                        path,
+                    },
+                })
             throw new Judge0RequestFailedException({
                 endpoint: path,
                 originalError: normalized,

@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import type {
     EntityManager,
@@ -35,6 +34,10 @@ import {
     RagPlaygroundSampleNotFoundException,
     RagPlaygroundSessionNotFoundException,
 } from "@modules/exceptions"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     GithubRepoImportService,
 } from "./github-repo-import.service"
@@ -224,9 +227,6 @@ volumes:
  * cleanup cron can drop idle sessions — no Q&A content is persisted anywhere.
  */
 export class PublicRagPlaygroundService {
-    /** Scoped logger for retrieval degradation (never thrown, always logged). */
-    private readonly logger = new Logger(PublicRagPlaygroundService.name)
-
     constructor(
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
@@ -234,6 +234,7 @@ export class PublicRagPlaygroundService {
         private readonly entityManager: EntityManager,
         private readonly embeddingModelService: EmbeddingModelService,
         private readonly githubRepoImportService: GithubRepoImportService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -368,11 +369,12 @@ export class PublicRagPlaygroundService {
                 chunks: hits.map((hit) => this.toSourceChunk(hit)),
             }
         } catch (error) {
-            this.logger.warn(
-                `RAG Playground retrieval failed for session ${sessionId} (answering ungrounded): ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            )
+            this.winstonService.log(WinstonLog.RagRetrievalFailed,
+                {
+                    op: "rag.playground.retrieval-failed",
+                    sessionId,
+                    error: error instanceof Error ? error.message : String(error),
+                })
             return {
                 chunks: [],
             }

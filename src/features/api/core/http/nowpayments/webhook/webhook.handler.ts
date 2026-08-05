@@ -45,8 +45,11 @@ import {
 } from "@modules/common"
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     CommandHandler,
     ICommandHandler,
@@ -67,8 +70,6 @@ import {
 export class NowPaymentsWebhookHandler
     extends ICQRSHandler<NowPaymentsWebhookCommand, void>
     implements ICommandHandler<NowPaymentsWebhookCommand, void> {
-    private readonly logger = new Logger(NowPaymentsWebhookHandler.name)
-
     constructor(
         private readonly nowPaymentsClient: NowPaymentsClient,
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
@@ -79,6 +80,7 @@ export class NowPaymentsWebhookHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -110,7 +112,17 @@ export class NowPaymentsWebhookHandler
             && body.payment_status !== "confirmed"
         ) {
             // ignore intermediate statuses (waiting / confirming / partially_paid)
-            this.logger.log(`Ignoring NOWPayments status: ${String(body.payment_status)}`)
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "nowpayments.webhook.ignored",
+                    referenceId: body.order_id,
+                    meta: {
+                        paymentStatus: body.payment_status,
+                        reason: "intermediate payment status",
+                    },
+                },
+            )
             return
         }
 
@@ -124,8 +136,17 @@ export class NowPaymentsWebhookHandler
             && Number.isFinite(actuallyPaid)
             && actuallyPaid < payAmount
         ) {
-            this.logger.log(
-                `Ignoring NOWPayments underpaid order ${String(body.order_id)}: ${actuallyPaid} < ${payAmount}`,
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "nowpayments.webhook.ignored",
+                    referenceId: body.order_id,
+                    meta: {
+                        actuallyPaid,
+                        payAmount,
+                        reason: "underpaid order",
+                    },
+                },
             )
             return
         }
@@ -202,8 +223,13 @@ export class NowPaymentsWebhookHandler
                 } catch (error) {
                     // best-effort: a notification failure must never fail a webhook
                     // that already granted a paid tier
-                    this.logger.error(
-                        `Failed to create subscription-granted notification for user ${transaction.userId}: ${String(error)}`,
+                    this.winstonService.log(
+                        WinstonLog.NotificationCreateFailed,
+                        {
+                            jobId: transaction.id,
+                            step: "notification.create",
+                            error: error instanceof Error ? error.message : String(error),
+                        },
                     )
                 }
             }

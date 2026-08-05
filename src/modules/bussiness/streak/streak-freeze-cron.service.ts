@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     Cron,
@@ -15,6 +14,10 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"
@@ -36,13 +39,11 @@ import type {
  * lookup is a single set-based query and each protection is its own short txn.
  */
 export class StreakFreezeCronService {
-    /** Logger scoped to this service for easy grep of auto-protect runs. */
-    private readonly logger = new Logger(StreakFreezeCronService.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userStatsProjectionService: UserStatsProjectionService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -69,12 +70,19 @@ export class StreakFreezeCronService {
                 await this.protectUser(candidate.user_id)
             }
             // confirm completion so ops can see the sweep ran
-            this.logger.log(`Streak-freeze auto-protect processed ${candidates.length} user(s)`)
+            this.winstonService.log(WinstonLog.CronTickCompleted,
+                {
+                    op: "cron.streak-freeze.completed",
+                    count: candidates.length,
+                })
         } catch (error) {
             // normalize + log (Error-style: message + stack) and swallow — next day self-heals
             const cause = error instanceof Error ? error : new Error(String(error))
-            this.logger.error(cause.message,
-                cause.stack)
+            this.winstonService.log(WinstonLog.CronTickFailed,
+                {
+                    op: "cron.streak-freeze.failed",
+                    error: cause.message,
+                })
         }
     }
 

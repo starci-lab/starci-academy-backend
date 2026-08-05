@@ -1,7 +1,10 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     CommandHandler,
     ICommandHandler,
@@ -50,9 +53,6 @@ import {
 export class ProcessVideoHandler
     extends ICQRSHandler<ProcessVideoCommand, ProcessVideoResult>
     implements ICommandHandler<ProcessVideoCommand, ProcessVideoResult> {
-
-    private readonly logger = new Logger(ProcessVideoHandler.name)
-
     constructor(
         private readonly jobActionService: JobActionService,
         @InjectPrimaryPostgreSQLEntityManager()
@@ -61,6 +61,7 @@ export class ProcessVideoHandler
         private readonly superJson: SuperJSON,
         @InjectQueue(bullData[BullQueueName.ProcessVideo].name)
         private readonly processVideoQueue: Queue<string>,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -111,8 +112,15 @@ export class ProcessVideoHandler
             },
         )
 
-        this.logger.log(
-            `Video processing job enqueued: ${job.id} for URL: ${url}`,
+        this.winstonService.log(
+            WinstonLog.VideoProcessingEnqueued,
+            {
+                op: "admin.process-video.enqueue",
+                jobId: job.id,
+                meta: {
+                    url,
+                },
+            },
         )
 
         return {

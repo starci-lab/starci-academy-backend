@@ -1,6 +1,7 @@
 import {
-    Logger,
-} from "@nestjs/common"
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     Ack,
     ConnectedSocket,
@@ -92,14 +93,12 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
         // rate limit holds cluster-wide (unlike an in-memory per-instance counter).
         @InjectIoRedis(IoRedisInstanceKey.Cache)
         private readonly redis: Redis,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /** The namespace server instance used to emit to per-session rooms. */
     @WebSocketServer()
     private readonly server: Namespace
-
-    /** Logger for best-effort verify failures (never fatal to the relay). */
-    private readonly logger = new Logger(PlaygroundByomGateway.name)
 
     /** sessionId → the currently-bound agent socket id. Enforces ONE live agent per
      * session: a 2nd concurrent `agent:pair` with the same code (while the first
@@ -126,10 +125,15 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
             }
             return count <= PAIR_RATE_LIMIT
         } catch (error) {
-            this.logger.warn(
-                `pair rate-limit check failed (allowing): ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
+            this.winstonService.log(
+                WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "playground-byom.pair-rate-limit",
+                    error: error instanceof Error ? error.message : String(error),
+                    meta: {
+                        ip,
+                    },
+                },
             )
             return true
         }
@@ -365,8 +369,16 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
         if (client.data.ownedSessionId !== payload.sessionId) {
             // not the verified owner browser (an agent, or an unauthorized socket) —
             // never relay a command it could run on the learner's machine.
-            this.logger.warn(
-                `command:run rejected — socket ${client.id} is not the owner of session ${payload.sessionId}`,
+            this.winstonService.log(
+                WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "playground-byom.command-run.not-owner",
+                    sessionId: payload.sessionId,
+                    error: "command:run rejected — socket is not the session owner",
+                    meta: {
+                        socketId: client.id,
+                    },
+                },
             )
             return
         }
@@ -509,10 +521,13 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
             })
         } catch (error) {
             // best-effort: a verify failure must never break the live relay
-            this.logger.error(
-                `resources:report verify failed for session ${sessionId}: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
+            this.winstonService.log(
+                WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "playground-byom.verify-current-step",
+                    sessionId,
+                    error: error instanceof Error ? error.message : String(error),
+                },
             )
         }
     }

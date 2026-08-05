@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     Cron,
@@ -35,6 +34,10 @@ import {
     envConfig,
 } from "@modules/env"
 import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
     InstallmentPlanService,
 } from "./installment-plan.service"
 
@@ -58,15 +61,13 @@ import {
  * clears both timestamps whenever a cycle is paid off.
  */
 export class InstallmentPlanEnforcementCronService {
-    /** Logger scoped to this service for easy grep of enforcement runs. */
-    private readonly logger = new Logger(InstallmentPlanEnforcementCronService.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
         private readonly installmentPlanService: InstallmentPlanService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -99,13 +100,18 @@ export class InstallmentPlanEnforcementCronService {
             for (const plan of duePlans) {
                 await this.enforceOne(plan)
             }
-            this.logger.log(`Installment-plan enforcement processed ${duePlans.length} plan(s)`)
+            this.winstonService.log(WinstonLog.CronTickCompleted,
+                {
+                    op: "cron.installment-plan.completed",
+                    count: duePlans.length,
+                })
         } catch (error) {
             const cause = error instanceof Error ? error : new Error(String(error))
-            this.logger.error(
-                cause.message,
-                cause.stack,
-            )
+            this.winstonService.log(WinstonLog.CronTickFailed,
+                {
+                    op: "cron.installment-plan.failed",
+                    error: cause.message,
+                })
         }
     }
 

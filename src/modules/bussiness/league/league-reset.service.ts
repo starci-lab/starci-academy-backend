@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     Cron,
@@ -11,6 +10,10 @@ import {
 import {
     LeagueWeeklyResetException,
 } from "@modules/exceptions"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     LeagueService,
 } from "./league.service"
@@ -25,11 +28,9 @@ import {
  * the next trigger.
  */
 export class LeagueResetService {
-    /** Logger scoped to this service for easy grep of reset issues. */
-    private readonly logger = new Logger(LeagueResetService.name)
-
     constructor(
         private readonly leagueService: LeagueService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -48,7 +49,10 @@ export class LeagueResetService {
             // delegate the whole settle + re-bucket to the service (one txn)
             await this.leagueService.runWeeklyReset()
             // confirm completion so ops can see the reset ran
-            this.logger.log("Weekly league reset completed")
+            this.winstonService.log(WinstonLog.CronTickCompleted,
+                {
+                    op: "cron.league-reset.completed",
+                })
         } catch (error) {
             // normalize the caught value to an Error at the boundary
             const cause = error instanceof Error ? error : new Error(String(error))
@@ -58,8 +62,11 @@ export class LeagueResetService {
                 originalError: cause,
             })
             // log Error-style (message + stack) and swallow — next week self-heals
-            this.logger.error(exception.message,
-                cause.stack)
+            this.winstonService.log(WinstonLog.CronTickFailed,
+                {
+                    op: "cron.league-reset.failed",
+                    error: exception.message,
+                })
         }
     }
 }

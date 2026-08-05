@@ -1,5 +1,4 @@
 import {
-    Logger,
     type OnModuleInit,
 } from "@nestjs/common"
 import {
@@ -11,6 +10,10 @@ import {
 import {
     KafkaService,
 } from "@modules/kafka"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import type {
     ProjectionCdcEnvelope,
     ProjectionCdcMessage,
@@ -30,11 +33,9 @@ import type {
  *   wrapper, or a `{ userId, courseId }`).
  */
 export abstract class AbstractProjectionListener<TTarget> implements OnModuleInit {
-    /** Logger scoped to the concrete subclass so issues are easy to grep. */
-    protected readonly logger = new Logger(this.constructor.name)
-
     protected constructor(
         private readonly projectionKafkaService: KafkaService,
+        protected readonly winstonService: WinstonService,
     ) {}
 
     /** Stable consumer group id (restarts resume from the committed offset). */
@@ -67,34 +68,37 @@ export abstract class AbstractProjectionListener<TTarget> implements OnModuleIni
      */
     async onModuleInit(): Promise<void> {
         try {
-            // ensure topics exist so subscribe never trips on a cold broker
             await this.projectionKafkaService.ensureTopics({
                 topics: this.topics,
             })
-            // KafkaService connects the consumer + tracks it for shutdown
             const { consumer } = await this.projectionKafkaService.createConsumer({
                 groupId: this.groupId,
             })
-            // only new changes (offsets are committed per group)
             await consumer.subscribe({
                 topics: this.topics,
                 fromBeginning: false,
             })
-            // per-message loop is failure-isolated inside handleMessage
             await consumer.run({
                 eachMessage: (payload) => this.handleMessage(payload),
             })
-            // confirm wiring so ops can see CDC is live
-            this.logger.log(
-                `${this.groupId} CDC listener subscribed to: ${this.topics.join(", ")}`,
-            )
+            this.winstonService.log(WinstonLog.CdcListenerSubscribed,
+                {
+                    op: "projection.cdc.subscribed",
+                    meta: {
+                        groupId: this.groupId,
+                        topics: this.topics,
+                    },
+                })
         } catch (error) {
-            // Kafka unreachable is non-fatal — log Error-style + let the app boot
             const cause = error instanceof Error ? error : new Error(String(error))
-            this.logger.error(
-                `${this.groupId} CDC listener disabled (Kafka unavailable)`,
-                cause.stack,
-            )
+            this.winstonService.log(WinstonLog.CdcListenerDisabled,
+                {
+                    op: "projection.cdc.disabled",
+                    error: cause.message,
+                    meta: {
+                        groupId: this.groupId,
+                    },
+                })
         }
     }
 
@@ -111,30 +115,32 @@ export abstract class AbstractProjectionListener<TTarget> implements OnModuleIni
         }: EachMessagePayload,
     ): Promise<void> {
         try {
-            // tombstone/null-value records carry no row image → nothing to derive
             if (!message.value) {
                 return
             }
-            // unwrap the Debezium envelope (row may be nested or top-level)
             const envelope = JSON.parse(message.value.toString()) as ProjectionCdcEnvelope
             const row = envelope.payload ?? envelope
-            // resolve which projection target(s) this change touches
             const targets = await this.deriveTargets({
                 topic,
                 row,
             })
-            // recompute each affected target (idempotent UPSERT)
             for (const target of targets) {
                 await this.recomputeTarget(target)
             }
         } catch (error) {
-            // at-least-once delivery → swallow + log; a later message recovers
             const exception = new KafkaCdcMessageException({
                 topic,
                 originalError: error instanceof Error ? error : undefined,
             })
-            this.logger.error(exception.message,
-                exception.stack)
+            this.winstonService.log(WinstonLog.RequestHandlingFailed,
+                {
+                    op: "projection.cdc.message-failed",
+                    error: exception.message,
+                    meta: {
+                        groupId: this.groupId,
+                        topic,
+                    },
+                })
         }
     }
 }

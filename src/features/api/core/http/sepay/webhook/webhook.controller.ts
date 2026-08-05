@@ -1,10 +1,13 @@
 import {
     Body,
     Controller,
-    Logger,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ApiResponse,
     ApiOperation,
@@ -32,10 +35,9 @@ import {
  * SePay webhook HTTP route.
  */
 export class SepayWebhookController {
-    private readonly logger = new Logger(SepayWebhookController.name)
-
     constructor(
         private readonly sepayWebhookService: SepayWebhookService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     @UseInterceptors(
@@ -58,9 +60,15 @@ export class SepayWebhookController {
         @Body()
             body: SepayWebhookRequest,
     ) {
-        // loud entry log so a real CK (bank transfer) IPN is visible the instant it lands
-        this.logger.log(
-            `🔔 [SePay] webhook received @ ${new Date().toISOString()} :: ${JSON.stringify(body)}`,
+        this.winstonService.log(
+            WinstonLog.PaymentWebhookReceived,
+            {
+                op: "sepay.webhook.received",
+                referenceId: body.order?.order_invoice_number ?? body.order_invoice_number,
+                meta: {
+                    receivedAt: new Date().toISOString(),
+                },
+            },
         )
         return this.sepayWebhookService.execute(body)
     }

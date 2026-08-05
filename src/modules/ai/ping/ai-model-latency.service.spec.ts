@@ -23,6 +23,9 @@ import {
 import {
     AiModelLatencyService,
 } from "./ai-model-latency.service"
+import {
+    WinstonService,
+} from "@modules/winston"
 import type {
     AiModelEntity,
 } from "@modules/databases"
@@ -133,6 +136,12 @@ describe("AiModelLatencyService",
                     {
                         provide: EventEmitterService,
                         useValue: eventEmitterService,
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
                     },
                 ],
             }).compile()

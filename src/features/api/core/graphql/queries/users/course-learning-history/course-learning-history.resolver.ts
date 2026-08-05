@@ -4,10 +4,13 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
-    Logger,
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import type {
     EntityManager,
 } from "typeorm"
@@ -64,12 +67,10 @@ const MAX_LIMIT = 50
  * pagination, mirroring `userFeed`.
  */
 export class CourseLearningHistoryResolver {
-    /** Logger for history-build failures (wrapped + rethrown as a typed exception). */
-    private readonly logger = new Logger(CourseLearningHistoryResolver.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly winstonService: WinstonService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -99,8 +100,14 @@ export class CourseLearningHistoryResolver {
             const exception = new CourseLearningHistoryFailedException({
                 reason: "malformed course global id",
             })
-            this.logger.error(exception.message,
-                exception.stack)
+            this.winstonService.log(
+                WinstonLog.RequestHandlingFailed,
+                {
+                    op: "course-learning-history.malformed-course-id",
+                    userId: user.id,
+                    error: exception.message,
+                },
+            )
             throw exception
         }
         const courseId = decoded.id
@@ -177,8 +184,17 @@ export class CourseLearningHistoryResolver {
                 reason: "learning-history query failed",
                 originalError: error as Error,
             })
-            this.logger.error(exception.message,
-                exception.stack)
+            this.winstonService.log(
+                WinstonLog.RequestHandlingFailed,
+                {
+                    op: "course-learning-history.query",
+                    userId: user.id,
+                    error: exception.message,
+                    meta: {
+                        courseId,
+                    },
+                },
+            )
             throw exception
         }
 

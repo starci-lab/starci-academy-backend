@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     Cron,
@@ -19,6 +18,10 @@ import {
     InjectQdrantClient,
     RagPlaygroundSessionEntity,
 } from "@modules/databases"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 
 /** A session idle past this window is dropped (its Qdrant collection + DB row). */
 const IDLE_TTL_MS = 2 * 60 * 60_000
@@ -33,13 +36,12 @@ const IDLE_TTL_MS = 2 * 60 * 60_000
  * prior run simply won't be found again.
  */
 export class PublicRagPlaygroundCleanupService {
-    private readonly logger = new Logger(PublicRagPlaygroundCleanupService.name)
-
     constructor(
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -66,9 +68,11 @@ export class PublicRagPlaygroundCleanupService {
             await this.dropSession(session)
         }
         if (idleSessions.length > 0) {
-            this.logger.log(
-                `RAG Playground cleanup dropped ${idleSessions.length} idle session(s)`,
-            )
+            this.winstonService.log(WinstonLog.RagCleanupCompleted,
+                {
+                    op: "rag.playground.cleanup-completed",
+                    count: idleSessions.length,
+                })
         }
     }
 
@@ -84,12 +88,12 @@ export class PublicRagPlaygroundCleanupService {
                 `playground-${session.sessionId}`,
             )
         } catch (error) {
-            // collection may already be gone (race / manual cleanup) — log and continue
-            this.logger.warn(
-                `Failed to drop Qdrant collection for idle session ${session.sessionId}: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            )
+            this.winstonService.log(WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "rag.playground.collection-drop-failed",
+                    sessionId: session.sessionId,
+                    error: error instanceof Error ? error.message : String(error),
+                })
         }
         try {
             await this.entityManager.delete(
@@ -99,11 +103,12 @@ export class PublicRagPlaygroundCleanupService {
                 },
             )
         } catch (error) {
-            this.logger.warn(
-                `Failed to delete idle session row ${session.sessionId}: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            )
+            this.winstonService.log(WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "rag.playground.session-row-delete-failed",
+                    sessionId: session.sessionId,
+                    error: error instanceof Error ? error.message : String(error),
+                })
         }
     }
 }

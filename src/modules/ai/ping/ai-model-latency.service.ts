@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
     OnModuleDestroy,
     OnModuleInit,
 } from "@nestjs/common"
@@ -21,6 +20,10 @@ import type {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     AiModelCatalogService,
     UseApiService,
@@ -52,14 +55,12 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
     /** Whether a cycle is currently scheduling or awaiting stagger callbacks. */
     private cycleInProgress = false
 
-    /** Logger for probe-cycle failures (swallowed so the scheduler never dies). */
-    private readonly logger = new Logger(AiModelLatencyService.name)
-
     constructor(
         private readonly useApiService: UseApiService,
         private readonly aiModelCatalogService: AiModelCatalogService,
         private readonly aiModelLatencyCacheService: AiModelLatencyCacheService,
         private readonly eventEmitterService: EventEmitterService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -147,9 +148,11 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
         } catch (error) {
             // listing models failed (DB blip) → log + release the lock so the next
             // tick can retry; never let it bubble out of the scheduler
-            this.logger.error(
-                `ai model latency cycle failed to start: ${this.toMessage(error)}`,
-            )
+            this.winstonService.log(WinstonLog.AiModelLatencyFailed,
+                {
+                    op: "ai.latency.cycle-start-failed",
+                    error: this.toMessage(error),
+                })
             this.cycleInProgress = false
         }
     }
@@ -189,16 +192,25 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
             // surface WHY a model is down — the probe reason is otherwise only in the
             // cache/tooltip, never logged. Warn = visible; 60s cadence = low noise.
             if (!result.ok) {
-                this.logger.warn(
-                    `model probe DOWN [${model.provider}] ${model.name}: ${result.errorMessage ?? "unknown error"}`,
-                )
+                this.winstonService.log(WinstonLog.AiModelLatencyFailed,
+                    {
+                        op: "ai.latency.probe-down",
+                        error: result.errorMessage ?? "unknown error",
+                        meta: {
+                            provider: model.provider,
+                            model: model.name,
+                        },
+                    })
             }
         } catch (error) {
-            // a single probe blew up → log + record it down so the snapshot still
-            // reflects this model (never abort the rest of the cycle)
-            this.logger.error(
-                `ai model latency probe failed for ${model.name}: ${this.toMessage(error)}`,
-            )
+            this.winstonService.log(WinstonLog.AiModelLatencyFailed,
+                {
+                    op: "ai.latency.probe-failed",
+                    error: this.toMessage(error),
+                    meta: {
+                        model: model.name,
+                    },
+                })
             await this.safeRecordDown(model)
         } finally {
             // the last model of the cycle closes it and broadcasts the snapshot
@@ -256,9 +268,11 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
         } catch (error) {
             // emitting/reading the snapshot failed → log only; the cache still holds
             // the fresh data for the next query/poll
-            this.logger.error(
-                `ai model latency snapshot emit failed: ${this.toMessage(error)}`,
-            )
+            this.winstonService.log(WinstonLog.AiModelLatencyFailed,
+                {
+                    op: "ai.latency.snapshot-emit-failed",
+                    error: this.toMessage(error),
+                })
         }
     }
 
@@ -300,9 +314,14 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
             })
         } catch (error) {
             // even the cache write failed → log only; nothing else we can do here
-            this.logger.error(
-                `ai model latency down-record failed for ${model.name}: ${this.toMessage(error)}`,
-            )
+            this.winstonService.log(WinstonLog.AiModelLatencyFailed,
+                {
+                    op: "ai.latency.down-record-failed",
+                    error: this.toMessage(error),
+                    meta: {
+                        model: model.name,
+                    },
+                })
         }
     }
 

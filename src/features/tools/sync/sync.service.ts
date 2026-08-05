@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     CreateBucketCommand,
@@ -26,6 +25,10 @@ import {
     relative,
     sep,
 } from "path"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ArtifactStatus,
     ToolsStoreService,
@@ -53,10 +56,9 @@ import type {
  * overwrites the object.
  */
 export class SyncService {
-    private readonly logger = new Logger(SyncService.name)
-
     constructor(
         private readonly toolsStoreService: ToolsStoreService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -175,12 +177,27 @@ export class SyncService {
                     files: result.files,
                     bytes: result.bytes,
                 })
-                this.logger.log(
-                    `Synced artifact ${artifactId} → ${target.name} (${result.files} files, ${result.bytes} bytes)`,
-                )
+                this.winstonService.log(WinstonLog.ToolsOperationCompleted,
+                    {
+                        op: "tools.sync.completed",
+                        count: result.files,
+                        meta: {
+                            artifactId,
+                            targetName: target.name,
+                            bytes: result.bytes,
+                        },
+                    })
             } catch (error) {
                 const message = error instanceof Error ? error.message : String(error)
-                this.logger.error(`Sync to ${target.name} failed: ${message}`)
+                this.winstonService.log(WinstonLog.ToolsOperationFailed,
+                    {
+                        op: "tools.sync.failed",
+                        error: message,
+                        meta: {
+                            artifactId,
+                            targetName: target.name,
+                        },
+                    })
                 targets.push({
                     targetId,
                     targetName: target.name,
@@ -229,7 +246,13 @@ export class SyncService {
                 await client.send(new CreateBucketCommand({
                     Bucket: bucket,
                 }))
-                this.logger.log(`Created bucket "${bucket}" on target`)
+                this.winstonService.log(WinstonLog.ToolsOperationCompleted,
+                    {
+                        op: "tools.sync.bucket-created",
+                        meta: {
+                            bucket,
+                        },
+                    })
             } catch (error) {
                 const name = error instanceof Error ? error.name : ""
                 if (name !== "BucketAlreadyOwnedByYou" && name !== "BucketAlreadyExists") {

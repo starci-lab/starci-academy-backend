@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     EventsHandler,
@@ -13,6 +12,10 @@ import {
     SyncScyllaDBEvent,
 } from "./sync-scylladb.event"
 import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
     EnqueueSyncScyllaDBJobService,
 } from "@modules/bussiness"
 
@@ -24,10 +27,10 @@ import {
 export class SyncScyllaDBEventHandler
     extends ICQRSHandler<SyncScyllaDBEvent, void>
     implements ICommandHandler<SyncScyllaDBEvent, void> {
-    private readonly logger = new Logger(SyncScyllaDBEventHandler.name)
 
     constructor(
         private readonly enqueueSyncScyllaDBJobService: EnqueueSyncScyllaDBJobService,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -40,6 +43,13 @@ export class SyncScyllaDBEventHandler
                 id,
             },
         )
-        this.logger.log(`Queued sync-scylladb for ${entityType}(${id}) via CQRS event`)
+        this.winstonService.log(WinstonLog.AsyncEventQueued,
+            {
+                op: "async.sync-scylladb.queued",
+                meta: {
+                    entityType,
+                    id,
+                },
+            })
     }
 }

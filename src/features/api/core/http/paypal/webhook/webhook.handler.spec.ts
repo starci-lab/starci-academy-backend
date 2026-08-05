@@ -6,6 +6,9 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
+    WinstonService,
+} from "@modules/winston"
+import {
     EnqueueEnrollJobService,
     EnqueueSendMailJobService,
     NotificationService,
@@ -176,6 +179,12 @@ describe("PaypalWebhookHandler",
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
                     },
                 ],
             }).compile()

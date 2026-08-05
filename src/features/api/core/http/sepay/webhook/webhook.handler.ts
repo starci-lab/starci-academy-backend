@@ -46,8 +46,11 @@ import {
 } from "sepay-pg-node"
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     CommandHandler,
     ICommandHandler,
@@ -68,8 +71,6 @@ import {
 export class SepayWebhookHandler
     extends ICQRSHandler<SepayWebhookCommand, void>
     implements ICommandHandler<SepayWebhookCommand, void> {
-    private readonly logger = new Logger(SepayWebhookHandler.name)
-
     constructor(
         @InjectSepay()
         private readonly sepay: SePayPgClient,
@@ -81,6 +82,7 @@ export class SepayWebhookHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -90,13 +92,18 @@ export class SepayWebhookHandler
     ): Promise<void> {
         const body = command.params
 
-        // log the raw IPN so the exact field names can be finalised from a real
-        // SePay PG notification (payload shape is not documented yet)
-        this.logger.log(`SePay PG IPN received: ${JSON.stringify(body)}`)
-
         // the real SePay IPN nests the invoice under `order`; fall back to the
         // legacy top-level field for safety
         const invoice = body.order?.order_invoice_number ?? body.order_invoice_number
+
+        this.winstonService.log(
+            WinstonLog.PaymentWebhookReceived,
+            {
+                op: "sepay.webhook.ipn-received",
+                referenceId: invoice,
+            },
+        )
+
         if (!invoice) {
             throw new TransactionNotFoundException({
                 referenceId: "missing order_invoice_number",
@@ -123,8 +130,15 @@ export class SepayWebhookHandler
         // merchant:secret). A non-2xx response throws → the IPN is rejected.
         // We trust this server-to-server call, not the inbound IPN body.
         const orderDetail = await this.sepay.order.retrieve(invoice)
-        this.logger.log(
-            `SePay PG order detail (${invoice}): ${JSON.stringify(orderDetail.data)}`,
+        this.winstonService.log(
+            WinstonLog.PaymentWebhookReceived,
+            {
+                op: "sepay.webhook.order-detail",
+                referenceId: invoice,
+                meta: {
+                    orderDetail: orderDetail.data,
+                },
+            },
         )
 
         // CRITICAL: the order merely EXISTING is not proof of payment — read the
@@ -218,8 +232,13 @@ export class SepayWebhookHandler
                 } catch (error) {
                     // best-effort: a notification failure must never fail a webhook
                     // that already granted a paid tier
-                    this.logger.error(
-                        `Failed to create subscription-granted notification for user ${transaction.userId}: ${String(error)}`,
+                    this.winstonService.log(
+                        WinstonLog.NotificationCreateFailed,
+                        {
+                            jobId: transaction.id,
+                            step: "notification.create",
+                            error: error instanceof Error ? error.message : String(error),
+                        },
                     )
                 }
             }

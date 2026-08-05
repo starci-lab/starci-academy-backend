@@ -41,8 +41,11 @@ import {
 } from "@modules/payos"
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     CommandHandler,
     ICommandHandler,
@@ -69,8 +72,6 @@ import {
 export class PayosWebhookHandler
     extends ICQRSHandler<PayosWebhookCommand, void>
     implements ICommandHandler<PayosWebhookCommand, void> {
-    private readonly logger = new Logger(PayosWebhookHandler.name)
-
     constructor(
         @InjectPayOS()
         private readonly payos: PayOS,
@@ -82,6 +83,7 @@ export class PayosWebhookHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -97,8 +99,19 @@ export class PayosWebhookHandler
         // authoritative success signal is `code === "00"` (the top-level `success`
         // boolean is not always present in the raw payload — e.g. the URL probe).
         if (body.code !== "00" || body.success === false) {
-            this.logger.log(
-                `Ignoring PayOS webhook for ${String(body.data?.orderCode)}: code=${String(body.code)} success=${String(body.success)}`,
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "payos.webhook.ignored",
+                    referenceId: body.data?.orderCode != null
+                        ? String(body.data.orderCode)
+                        : undefined,
+                    meta: {
+                        code: body.code,
+                        success: body.success,
+                        reason: "code not success",
+                    },
+                },
             )
             return
         }
@@ -109,7 +122,15 @@ export class PayosWebhookHandler
         // "inactive" and make real callbacks retry. Grant only on a real match.
         const orderCode = body.data?.orderCode
         if (orderCode == null) {
-            this.logger.log("Ignoring PayOS webhook with no orderCode (URL probe?)")
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "payos.webhook.ignored",
+                    meta: {
+                        reason: "missing orderCode (URL probe?)",
+                    },
+                },
+            )
             return
         }
         const transaction = await this.entityManager.findOne(
@@ -122,8 +143,15 @@ export class PayosWebhookHandler
             },
         )
         if (!transaction) {
-            this.logger.log(
-                `Ignoring PayOS webhook for ${orderCode}: no matching pending transaction (probe/stray)`,
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "payos.webhook.ignored",
+                    referenceId: orderCode.toString(),
+                    meta: {
+                        reason: "no matching pending transaction (probe/stray)",
+                    },
+                },
             )
             return
         }
@@ -185,8 +213,13 @@ export class PayosWebhookHandler
                 } catch (error) {
                     // best-effort: a notification failure must never fail a webhook
                     // that already granted a paid tier
-                    this.logger.error(
-                        `Failed to create subscription-granted notification for user ${transaction.userId}: ${String(error)}`,
+                    this.winstonService.log(
+                        WinstonLog.NotificationCreateFailed,
+                        {
+                            jobId: transaction.id,
+                            step: "notification.create",
+                            error: error instanceof Error ? error.message : String(error),
+                        },
                     )
                 }
             }

@@ -44,8 +44,11 @@ import {
 } from "@modules/stripe"
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     CommandHandler,
     ICommandHandler,
@@ -67,8 +70,6 @@ import {
 export class StripeWebhookHandler
     extends ICQRSHandler<StripeWebhookCommand, void>
     implements ICommandHandler<StripeWebhookCommand, void> {
-    private readonly logger = new Logger(StripeWebhookHandler.name)
-
     constructor(
         @InjectStripe()
         private readonly stripe: Stripe,
@@ -80,6 +81,7 @@ export class StripeWebhookHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -106,7 +108,16 @@ export class StripeWebhookHandler
         // only a completed Checkout Session means the payment succeeded
         if (event.type !== "checkout.session.completed") {
             // ignore other event types (refunds, disputes, etc. handled elsewhere)
-            this.logger.log(`Ignoring Stripe event type: ${event.type}`)
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "stripe.webhook.ignored",
+                    meta: {
+                        eventType: event.type,
+                        reason: "unsupported event type",
+                    },
+                },
+            )
             return
         }
 
@@ -116,8 +127,16 @@ export class StripeWebhookHandler
         // `checkout.session.completed` can fire for an async payment method whose
         // funds have NOT cleared yet — only a `paid` session means money is in
         if (session.payment_status !== "paid") {
-            this.logger.log(
-                `Ignoring Stripe session ${session.id}: payment_status=${session.payment_status}`,
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "stripe.webhook.ignored",
+                    referenceId: session.id,
+                    meta: {
+                        paymentStatus: session.payment_status,
+                        reason: "payment not paid",
+                    },
+                },
             )
             return
         }
@@ -193,8 +212,13 @@ export class StripeWebhookHandler
                 } catch (error) {
                     // best-effort: a notification failure must never fail a webhook
                     // that already granted a paid tier
-                    this.logger.error(
-                        `Failed to create subscription-granted notification for user ${transaction.userId}: ${String(error)}`,
+                    this.winstonService.log(
+                        WinstonLog.NotificationCreateFailed,
+                        {
+                            jobId: transaction.id,
+                            step: "notification.create",
+                            error: error instanceof Error ? error.message : String(error),
+                        },
                     )
                 }
             }

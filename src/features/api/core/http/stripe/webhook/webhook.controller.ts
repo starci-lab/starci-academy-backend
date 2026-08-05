@@ -1,12 +1,15 @@
 import {
     Controller,
     Headers,
-    Logger,
     Post,
     RawBodyRequest,
     Req,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import type {
     Request,
 } from "express"
@@ -35,10 +38,9 @@ import {
  * `rawBody: true` bootstrap) so the signature can be verified.
  */
 export class StripeWebhookController {
-    private readonly logger = new Logger(StripeWebhookController.name)
-
     constructor(
         private readonly stripeWebhookService: StripeWebhookService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     @UseInterceptors(
@@ -63,8 +65,16 @@ export class StripeWebhookController {
         @Headers("stripe-signature")
             signature: string,
     ) {
-        this.logger.log(
-            `🔔 [Stripe] webhook received @ ${new Date().toISOString()} :: rawBody=${request.rawBody?.length ?? 0}B sig=${signature ? "present" : "MISSING"}`,
+        this.winstonService.log(
+            WinstonLog.PaymentWebhookReceived,
+            {
+                op: "stripe.webhook.received",
+                meta: {
+                    rawBodyBytes: request.rawBody?.length ?? 0,
+                    signaturePresent: Boolean(signature),
+                    receivedAt: new Date().toISOString(),
+                },
+            },
         )
         // hand the raw body + signature to the service for verification + grant
         return this.stripeWebhookService.execute({

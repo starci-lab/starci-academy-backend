@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     QdrantVectorStore,
@@ -14,6 +13,10 @@ import type {
 import {
     InjectQdrantClient,
 } from "@modules/databases"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EmbeddingModelService,
 } from "@modules/langchain"
@@ -71,13 +74,11 @@ export const CV_RAG_COLLECTION = "cv_rag"
  * retrieval never blocks CV generation.
  */
 export class CvRagRetrievalService {
-    /** Scoped logger for (non-fatal) retrieval failures. */
-    private readonly logger = new Logger(CvRagRetrievalService.name)
-
     constructor(
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
         private readonly embeddingModelService: EmbeddingModelService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -136,11 +137,14 @@ export class CvRagRetrievalService {
             }
         } catch (error) {
             // index missing / Qdrant or embedder down → empty excerpt (advisory RAG)
-            this.logger.warn(
-                `CV RAG retrieval failed for kinds [${kinds.join(", ")}] (continuing without context): ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            )
+            this.winstonService.log(WinstonLog.RagRetrievalFailed,
+                {
+                    op: "rag.cv.retrieval-failed",
+                    error: error instanceof Error ? error.message : String(error),
+                    meta: {
+                        kinds,
+                    },
+                })
             return {
                 excerpt: "",
                 retrievedChunks: 0,

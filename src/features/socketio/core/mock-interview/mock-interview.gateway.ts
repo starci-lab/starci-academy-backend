@@ -1,6 +1,7 @@
 import {
-    Logger,
-} from "@nestjs/common"
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ConnectedSocket,
     MessageBody,
@@ -84,6 +85,7 @@ export class MockInterviewGateway {
         private readonly wsResponseService: WsResponseService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /** The namespace server — used to attach the auth middleware. */
@@ -99,11 +101,7 @@ export class MockInterviewGateway {
         this.server.use(socketIoKeycloakAuthMiddleware)
     }
 
-    /** Logger for stream failures. */
-    private readonly logger = new Logger(MockInterviewGateway.name)
-
-    /**
-     * In-flight stream abort controllers keyed by `{socketId}:{streamId}`. An
+    /** In-flight stream abort controllers keyed by `{socketId}:{streamId}`. An
      * entry exists only while a turn is actively streaming; the
      * `abort-mock-interview-turn` handler fires the matching controller to
      * cancel the upstream model request.
@@ -325,8 +323,17 @@ export class MockInterviewGateway {
             const message = error instanceof Error
                 ? error.message
                 : String(error)
-            this.logger.error(
-                `mock-interview stream ${streamId} failed: ${message}`,
+            this.winstonService.log(
+                WinstonLog.RealtimeStreamFailed,
+                {
+                    op: "mock-interview.stream",
+                    userId,
+                    sessionId,
+                    error: message,
+                    meta: {
+                        streamId,
+                    },
+                },
             )
             this.emitChunk({
                 client,

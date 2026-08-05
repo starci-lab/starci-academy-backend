@@ -14,6 +14,9 @@ import {
     KafkaService,
 } from "@modules/kafka"
 import {
+    WinstonService,
+} from "@modules/winston"
+import {
     AbstractProjectionListener,
     type ProjectionCdcMessage,
 } from "@modules/projection"
@@ -43,12 +46,14 @@ export class UserCapstoneProjectionListener extends AbstractProjectionListener<s
 
     constructor(
         kafkaService: KafkaService,
+        winstonService: WinstonService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userCapstoneProjectionService: UserCapstoneProjectionService,
     ) {
         // base owns the Kafka wiring
-        super(kafkaService)
+        super(kafkaService,
+            winstonService)
     }
 
     /**

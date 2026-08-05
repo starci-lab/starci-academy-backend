@@ -108,7 +108,7 @@ export default defineConfig([
             "starci-be/require-exception-object-arg": "error", // error-handling §1 · nợ=0 → error
             "starci-be/throw-abstract-exception": "error", // error-handling §1 · nợ=0 → error
             "starci-be/no-inline-param-type": "error", // type-safety §4 · nợ=0 → error
-            "starci-be/no-nest-logger": "warn", // observability
+            "starci-be/no-nest-logger": "error", // observability · nợ=0 → error
             "starci-be/no-deep-module-import": "error", // naming-and-structure §3 · nợ=0 → error
             "starci-be/require-export-jsdoc": "error", // comments §3 · nợ=0 → error
             "starci-be/require-enum-member-jsdoc": "error", // type-safety §3 · nợ=0 → error

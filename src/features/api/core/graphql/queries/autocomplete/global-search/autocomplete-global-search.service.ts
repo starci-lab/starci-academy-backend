@@ -1,7 +1,10 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EntityManager,
     In,
@@ -82,8 +85,6 @@ const EMPTY_RESULT: AutocompleteGlobalSearchExecuteResult = {
  * best-effort — search must still return if enrichment fails.
  */
 export class AutocompleteGlobalSearchService {
-    private readonly logger = new Logger(AutocompleteGlobalSearchService.name)
-
     constructor(
         private readonly courseSearch: CourseGlobalSearchService,
         private readonly moduleSearch: ModuleGlobalSearchService,
@@ -96,6 +97,7 @@ export class AutocompleteGlobalSearchService {
         private readonly cacheService: CacheService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly winstonService: WinstonService,
     ) {}
 
     async execute(
@@ -314,9 +316,13 @@ export class AutocompleteGlobalSearchService {
             }
         } catch (error) {
             // enrichment is best-effort; never let it break the search response
-            this.logger.error(
-                "Failed to attach global-search state flags; returning buckets unenriched",
-                error instanceof Error ? error.stack : String(error),
+            this.winstonService.log(
+                WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "global-search.attach-state-flags",
+                    userId: user?.id,
+                    error: error instanceof Error ? error.message : String(error),
+                },
             )
             return {
                 courses,

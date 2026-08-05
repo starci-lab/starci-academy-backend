@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     join,
@@ -50,7 +49,6 @@ function exe(name: string): string {
  * Uses binaries from .exe/Bento4/bin/ directory.
  */
 export class Bento4Service {
-    private readonly logger = new Logger(Bento4Service.name)
 
     /**
      * Check if video has fragments.

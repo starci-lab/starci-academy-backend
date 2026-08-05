@@ -71,6 +71,9 @@ describe("CourseRagRetrievalService",
             service = new CourseRagRetrievalService(
                 qdrantClient as never,
                 embeddingModelService as never,
+                {
+                    log: jest.fn(),
+                } as never,
             )
             fromExistingCollection.mockReset()
         })

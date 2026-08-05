@@ -4,10 +4,13 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
-    Logger,
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EntityManager,
 } from "typeorm"
@@ -58,14 +61,12 @@ import {
  * lesson ad. Auth is optional — anonymous viewers always see ads.
  */
 export class ActiveAdvertisementResolver {
-    /** Logger for soft-filter (exemption) failures that must not break ad serving. */
-    private readonly logger = new Logger(ActiveAdvertisementResolver.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly membershipService: MembershipService,
         private readonly userService: UserService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -118,10 +119,16 @@ export class ActiveAdvertisementResolver {
                     return null
                 }
             } catch (error) {
-                this.logger.warn(
-                    `ad exemption check failed, serving ad anyway: ${
-                        error instanceof Error ? error.message : String(error)
-                    }`,
+                this.winstonService.log(
+                    WinstonLog.BestEffortOperationFailed,
+                    {
+                        op: "active-advertisement.exemption-check",
+                        userId: user.id,
+                        error: error instanceof Error ? error.message : String(error),
+                        meta: {
+                            courseId,
+                        },
+                    },
                 )
             }
         }

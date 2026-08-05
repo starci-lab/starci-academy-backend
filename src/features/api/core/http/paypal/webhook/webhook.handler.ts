@@ -49,8 +49,11 @@ import type {
 } from "@modules/paypal"
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     CommandHandler,
     ICommandHandler,
@@ -71,8 +74,6 @@ import {
 export class PaypalWebhookHandler
     extends ICQRSHandler<PaypalWebhookCommand, void>
     implements ICommandHandler<PaypalWebhookCommand, void> {
-    private readonly logger = new Logger(PaypalWebhookHandler.name)
-
     constructor(
         private readonly paypalClient: PaypalClient,
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
@@ -83,6 +84,7 @@ export class PaypalWebhookHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -123,7 +125,16 @@ export class PaypalWebhookHandler
         const isCaptured = body.event_type === "PAYMENT.CAPTURE.COMPLETED"
         if (!isApproved && !isCaptured) {
             // ignore unrelated event types
-            this.logger.log(`Ignoring PayPal event type: ${String(body.event_type)}`)
+            this.winstonService.log(
+                WinstonLog.PaymentWebhookIgnored,
+                {
+                    op: "paypal.webhook.ignored",
+                    meta: {
+                        eventType: body.event_type,
+                        reason: "unsupported event type",
+                    },
+                },
+            )
             return
         }
 
@@ -223,8 +234,13 @@ export class PaypalWebhookHandler
                 } catch (error) {
                     // best-effort: a notification failure must never fail a webhook
                     // that already granted a paid tier
-                    this.logger.error(
-                        `Failed to create subscription-granted notification for user ${transaction.userId}: ${String(error)}`,
+                    this.winstonService.log(
+                        WinstonLog.NotificationCreateFailed,
+                        {
+                            jobId: transaction.id,
+                            step: "notification.create",
+                            error: error instanceof Error ? error.message : String(error),
+                        },
                     )
                 }
             }

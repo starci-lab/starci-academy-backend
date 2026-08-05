@@ -4,10 +4,13 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
-    Logger,
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     EntityManager,
 } from "typeorm"
@@ -51,13 +54,11 @@ const PREVIEW_CHARS = 600
  * they always read in full (SEO).
  */
 export class BlogPostResolver {
-    /** Logger for membership lookup failures (fail closed → treat as locked). */
-    private readonly logger = new Logger(BlogPostResolver.name)
-
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly membershipService: MembershipService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -149,10 +150,13 @@ export class BlogPostResolver {
             return await this.membershipService.isActive(user.id)
         } catch (error) {
             // fail closed: on lookup failure treat as not a member (do not leak)
-            this.logger.warn(
-                `membership check failed, locking premium body: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
+            this.winstonService.log(
+                WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "blog-post.membership-check",
+                    userId: user.id,
+                    error: error instanceof Error ? error.message : String(error),
+                },
             )
             return false
         }

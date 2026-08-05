@@ -1,7 +1,4 @@
 import {
-    Logger,
-} from "@nestjs/common"
-import {
     Test,
     TestingModule,
 } from "@nestjs/testing"
@@ -14,6 +11,10 @@ import {
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     makeEntityManagerMock,
 } from "@modules/tests"
@@ -31,9 +32,12 @@ describe("StreakFreezeCronService",
         let entityManager: EntityManagerMock
         let userStatsProjectionService: jest.Mocked<UserStatsProjectionService>
 
+        let winstonLogSpy: jest.Mock
+
         const userId = "user-1"
 
         beforeEach(async () => {
+            winstonLogSpy = jest.fn()
             entityManager = makeEntityManagerMock()
             userStatsProjectionService = {
                 recompute: jest.fn(),
@@ -49,6 +53,12 @@ describe("StreakFreezeCronService",
                     {
                         provide: UserStatsProjectionService,
                         useValue: userStatsProjectionService,
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: winstonLogSpy,
+                        },
                     },
                 ],
             }).compile()
@@ -168,8 +178,6 @@ describe("StreakFreezeCronService",
 
                 it("swallows a failure and logs it rather than throwing (next day self-heals)",
                     async () => {
-                        const errorSpy = jest.spyOn(Logger.prototype,
-                            "error").mockImplementation(() => undefined)
                         const failure = new Error("connection terminated")
                         entityManager.query.mockRejectedValueOnce(failure)
 
@@ -177,10 +185,13 @@ describe("StreakFreezeCronService",
                             service.consumeStreakFreezeForMisses(),
                         ).resolves.toBeUndefined()
 
-                        expect(errorSpy).toHaveBeenCalledWith(failure.message,
-                            failure.stack)
-
-                        errorSpy.mockRestore()
+                        expect(winstonLogSpy).toHaveBeenCalledWith(
+                            WinstonLog.CronTickFailed,
+                            expect.objectContaining({
+                                op: "cron.streak-freeze.failed",
+                                error: failure.message,
+                            }),
+                        )
                     })
             })
     })

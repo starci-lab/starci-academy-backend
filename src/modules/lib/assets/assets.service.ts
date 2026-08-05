@@ -10,7 +10,6 @@ import {
 } from "path"
 import {
     Injectable,
-    Logger,
     OnModuleInit,
 } from "@nestjs/common"
 import {
@@ -26,6 +25,10 @@ import {
     S3UploadService,
     S3_ASSETS_PREFIX,
 } from "@modules/s3"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ASSET_CONTENT_TYPE_BY_EXTENSION,
     ASSET_DEFAULT_CONTENT_TYPE,
@@ -51,9 +54,6 @@ import type {
  * const { assets } = await assetsService.sync()
  */
 export class AssetsService implements OnModuleInit {
-    /** Scoped logger for boot-time asset sync diagnostics. */
-    private readonly logger = new Logger(AssetsService.name)
-
     /**
      * Constructor.
      * @param s3UploadService - Uploads object buffers to the configured S3 providers.
@@ -64,6 +64,7 @@ export class AssetsService implements OnModuleInit {
         private readonly s3UploadService: S3UploadService,
         private readonly s3BuildService: S3BuildService,
         private readonly s3BucketService: S3BucketService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -72,15 +73,18 @@ export class AssetsService implements OnModuleInit {
      */
     async onModuleInit(): Promise<void> {
         try {
-            // push every local asset to the bucket once at startup
             const { assets } = await this.sync()
-            // surface a concise summary so ops can confirm the public URLs are live
-            this.logger.log(`Synced ${assets.length} asset(s) to MinIO under "${S3_ASSETS_PREFIX}/"`)
+            this.winstonService.log(WinstonLog.InitPhaseCompleted,
+                {
+                    op: "init.assets.synced",
+                    count: assets.length,
+                })
         } catch (error) {
-            // never crash the app over a non-critical static-asset sync
-            this.logger.error(
-                `Asset sync failed: ${error instanceof Error ? error.message : String(error)}`,
-            )
+            this.winstonService.log(WinstonLog.InitPhaseFailed,
+                {
+                    op: "init.assets.sync-failed",
+                    error: error instanceof Error ? error.message : String(error),
+                })
         }
     }
 
@@ -91,40 +95,33 @@ export class AssetsService implements OnModuleInit {
      * @returns The list of synced assets with their final keys + public URLs.
      */
     async sync(): Promise<SyncAssetsResult> {
-        // target bucket lives on MinIO (the public-read provider in this stack)
         const bucket = envConfig().s3.minio.bucket
 
-        // source the assets from the git-shipped data root first (so a deploy
-        // ships its assets with the content repo), else the local on-disk folder
         const dir = await this.resolveAssetsDir()
         if (!dir) {
-            this.logger.warn("No assets directory found — skipping asset sync")
+            this.winstonService.log(WinstonLog.InitPhaseFailed,
+                {
+                    op: "init.assets.dir-missing",
+                })
             return {
                 assets: [],
             }
         }
 
-        // make sure the public prefixes (incl. assets/*) are anonymously readable before uploading
         await this.s3BucketService.ensurePublicReadPrefixes(bucket)
 
-        // walk the tree, preserving each file's path relative to the assets root so
-        // nested folders (e.g. badges/achievements/*) keep their structure in the key
         const files = await this.collectFiles(dir,
             dir)
         const assets = Array<SyncedAsset>()
 
         for (const file of files) {
-            // derive the content type from the extension so browsers render inline
             const extension = extname(file.relPath).toLowerCase()
             const contentType = ASSET_CONTENT_TYPE_BY_EXTENSION[extension] ?? ASSET_DEFAULT_CONTENT_TYPE
 
-            // read the raw bytes to upload as an object body
             const buffer = await fs.readFile(file.absPath)
 
-            // forward-slash object key under the public assets prefix, preserving sub-paths
             const key = `${S3_ASSETS_PREFIX}/${file.relPath.split(sep).join("/")}`
 
-            // upload to MinIO (overwrites if present — sync is idempotent for small static files)
             await this.s3UploadService.buffer({
                 name: key,
                 buffer,
@@ -133,19 +130,24 @@ export class AssetsService implements OnModuleInit {
                 contentType,
             })
 
-            // compute the stable public URL the frontend / seed link can reference
             const url = this.s3BuildService.buildPublicObjectUrl({
                 key,
                 provider: S3Provider.Minio,
             })
 
-            // record the synced asset and log its public URL for ops visibility
             assets.push({
                 fileName: file.relPath,
                 key,
                 url,
             })
-            this.logger.log(`Synced asset "${file.relPath}" -> ${url}`)
+            this.winstonService.log(WinstonLog.InitPhaseCompleted,
+                {
+                    op: "init.assets.file-synced",
+                    meta: {
+                        relPath: file.relPath,
+                        url,
+                    },
+                })
         }
 
         return {
@@ -197,7 +199,6 @@ export class AssetsService implements OnModuleInit {
             const absPath = join(dir,
                 entry.name)
             if (entry.isDirectory()) {
-                // recurse into sub-folders (badges/, etc.)
                 out.push(...await this.collectFiles(absPath,
                     root))
             } else if (entry.isFile()) {
@@ -218,11 +219,9 @@ export class AssetsService implements OnModuleInit {
      */
     private async directoryExists(dir: string): Promise<boolean> {
         try {
-            // stat throws (ENOENT) when the path is missing — caught below as "not a directory"
             const stats = await fs.stat(dir)
             return stats.isDirectory()
         } catch {
-            // any stat failure means the directory is unusable for syncing
             return false
         }
     }

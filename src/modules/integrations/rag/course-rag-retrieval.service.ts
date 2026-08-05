@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     QdrantVectorStore,
@@ -17,6 +16,10 @@ import {
 import {
     EmbeddingModelService,
 } from "@modules/langchain"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     envConfig,
 } from "@modules/env"
@@ -128,13 +131,11 @@ export interface SearchCourseResult {
  * never allowed to blackhole the chat.
  */
 export class CourseRagRetrievalService {
-    /** Scoped logger for the (non-fatal) retrieval failures. */
-    private readonly logger = new Logger(CourseRagRetrievalService.name)
-
     constructor(
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
         private readonly embeddingModelService: EmbeddingModelService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -195,9 +196,12 @@ export class CourseRagRetrievalService {
         } catch (error) {
             // index missing / Qdrant or embedder down → empty excerpt, caller falls
             // back to whole-body stuffing (retrieval never blocks the chat)
-            this.logger.warn(
-                `Content RAG retrieval failed for content ${contentId} (falling back to whole body): ${error instanceof Error ? error.message : String(error)}`,
-            )
+            this.winstonService.log(WinstonLog.RagRetrievalFailed,
+                {
+                    op: "rag.content.retrieval-failed",
+                    referenceId: contentId,
+                    error: error instanceof Error ? error.message : String(error),
+                })
             return {
                 excerpt: "",
                 retrievedChunks: 0,
@@ -289,9 +293,12 @@ export class CourseRagRetrievalService {
         } catch (error) {
             // index missing / Qdrant or embedder down → empty excerpt, caller falls
             // back gracefully (interviewer/grader still run, just un-grounded)
-            this.logger.warn(
-                `Content RAG course retrieval failed for course ${courseId} (falling back ungrounded): ${error instanceof Error ? error.message : String(error)}`,
-            )
+            this.winstonService.log(WinstonLog.RagRetrievalFailed,
+                {
+                    op: "rag.course.retrieval-failed",
+                    referenceId: courseId,
+                    error: error instanceof Error ? error.message : String(error),
+                })
             return {
                 excerpt: "",
                 retrievedChunks: 0,
@@ -406,9 +413,12 @@ export class CourseRagRetrievalService {
                         k),
             }
         } catch (error) {
-            this.logger.warn(
-                `Content RAG course search failed for course ${courseId} (returning no results): ${error instanceof Error ? error.message : String(error)}`,
-            )
+            this.winstonService.log(WinstonLog.RagRetrievalFailed,
+                {
+                    op: "rag.course.search-failed",
+                    referenceId: courseId,
+                    error: error instanceof Error ? error.message : String(error),
+                })
             return {
                 hits: [],
             }

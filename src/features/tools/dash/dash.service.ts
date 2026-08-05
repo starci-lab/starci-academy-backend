@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     randomUUID,
@@ -19,6 +18,10 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     FfmpegService,
 } from "@modules/ffmpeg"
@@ -48,13 +51,12 @@ import type {
  * stays on disk so it can be re-synced later without re-encoding.
  */
 export class DashService {
-    private readonly logger = new Logger(DashService.name)
-
     constructor(
         private readonly ffmpegService: FfmpegService,
         private readonly bento4Service: Bento4Service,
         private readonly toolsStoreService: ToolsStoreService,
         private readonly syncService: SyncService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -136,7 +138,14 @@ export class DashService {
             },
         })
 
-        this.logger.log(`Built DASH artifact ${artifact.id} at ${workDir}`)
+        this.winstonService.log(WinstonLog.ToolsArtifactBuilt,
+            {
+                op: "tools.dash.built",
+                meta: {
+                    artifactId: artifact.id,
+                    workDir,
+                },
+            })
 
         // sync to cloud only when at least one target was provided
         const synced = targetIds.length > 0

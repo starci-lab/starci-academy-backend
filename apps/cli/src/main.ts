@@ -5,7 +5,9 @@ import {
     AppModule 
 } from "./app.module"
 import {
-    Logger 
+    // CommandFactory's console adapter is constructed before the Nest injector exists.
+    // eslint-disable-next-line starci-be/no-nest-logger -- pre-DI CLI bootstrap
+    Logger,
 } from "@nestjs/common"
 
 /**
@@ -14,7 +16,8 @@ import {
 const bootstrap = async () => {
     await CommandFactory.run(
         AppModule,
-        new Logger()
+        // eslint-disable-next-line starci-be/no-nest-logger -- pre-DI CLI bootstrap
+        new Logger(),
     )
 }
 bootstrap()

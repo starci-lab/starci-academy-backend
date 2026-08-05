@@ -1,10 +1,13 @@
 import {
     Injectable,
-    Logger,
 } from "@nestjs/common"
 import {
     envConfig,
 } from "@modules/env"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     CONTAINER_METRICS_CACHE_TTL_MS,
     CONTAINER_NAME_PREFIX,
@@ -43,13 +46,15 @@ interface PrometheusInstantQueryResponse {
  * metrics.get("postgres")?.cpuPercent
  */
 export class PrometheusMetricsService {
-    private readonly logger = new Logger(PrometheusMetricsService.name)
-
     /** Last computed metrics sweep, reused until {@link cachedAt} ages past the TTL. */
     private cached: Map<string, ContainerMetrics> | null = null
 
     /** Epoch ms the cached sweep was produced (drives TTL expiry). */
     private cachedAt = 0
+
+    constructor(
+        private readonly winstonService: WinstonService,
+    ) {}
 
     /**
      * Returns live resource usage for every StarCi-owned container Prometheus
@@ -159,10 +164,11 @@ export class PrometheusMetricsService {
             }
         } catch (error) {
             // Prometheus unreachable/timed out — log once at debug, degrade silently
-            this.logger.debug(
-                `Prometheus query failed (metrics will read as null): ${
-                    error instanceof Error ? error.message : String(error)}`,
-            )
+            this.winstonService.log(WinstonLog.HealthProbeFailed,
+                {
+                    op: "health.prometheus.query-failed",
+                    error: error instanceof Error ? error.message : String(error),
+                })
         }
         return result
     }

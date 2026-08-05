@@ -2,6 +2,7 @@ import {
     NestFactory,
 } from "@nestjs/core"
 import {
+    // eslint-disable-next-line starci-be/no-nest-logger -- pre-DI tools bootstrap
     Logger,
     ValidationPipe,
     VersioningType,
@@ -29,6 +30,7 @@ import {
  * are additionally guarded by {@link LocalOnlyGuard} for defense in depth.
  */
 const bootstrap = async () => {
+    // eslint-disable-next-line starci-be/no-nest-logger -- pre-DI tools bootstrap
     const logger = new Logger("ToolsBootstrap")
     const app = await NestFactory.create<NestExpressApplication>(AppModule)
 

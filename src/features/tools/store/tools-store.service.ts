@@ -1,6 +1,5 @@
 import {
     Injectable,
-    Logger,
     OnModuleInit,
 } from "@nestjs/common"
 import {
@@ -18,6 +17,10 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ArtifactStatus,
 } from "./enums"
@@ -41,8 +44,11 @@ import type {
  * target, so it can be listed and pushed again without recomputing.
  */
 export class ToolsStoreService implements OnModuleInit {
-    private readonly logger = new Logger(ToolsStoreService.name)
     private db!: DatabaseSync
+
+    constructor(
+        private readonly winstonService: WinstonService,
+    ) {}
 
     /**
      * Open the database file and create the schema on first boot.
@@ -89,7 +95,13 @@ export class ToolsStoreService implements OnModuleInit {
         } catch {
             // column already present — nothing to do
         }
-        this.logger.log(`Tools store ready at ${path}`)
+        this.winstonService.log(WinstonLog.ToolsOperationCompleted,
+            {
+                op: "tools.store.ready",
+                meta: {
+                    path,
+                },
+            })
     }
 
     /**

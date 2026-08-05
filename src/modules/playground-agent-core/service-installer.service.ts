@@ -1,5 +1,9 @@
+/* eslint-disable starci-be/no-nest-logger --
+ * Standalone playground agent CLI installer: Nest Logger is the operator-facing
+ * console (install/uninstall). This process does not mount WinstonModule.
+ */
 import {
-    Inject, Injectable, Logger 
+    Inject, Injectable, Logger,
 } from "@nestjs/common"
 import {
     spawnSync 

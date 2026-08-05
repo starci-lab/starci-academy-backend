@@ -15,6 +15,9 @@ import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import {
+    WinstonService,
+} from "@modules/winston"
+import {
     makeEntityManagerMock,
 } from "@modules/tests"
 import type {
@@ -90,6 +93,12 @@ describe("EsSyncUserService",
                     {
                         provide: ElasticsearchService,
                         useValue: elasticsearchService,
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
                     },
                 ],
             }).compile()

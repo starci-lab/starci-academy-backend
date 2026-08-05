@@ -90,7 +90,8 @@ import type {
     DataGitDiffScopedMessage,
     ReconcileOrphansSkippedMessage,
     ReconcileOrphansDoneMessage,
-    ContentScrapeDetectedMessage
+    ContentScrapeDetectedMessage,
+    OpsLogMessage,
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -902,5 +903,221 @@ export const configMap = {
         console: true,
         messageType: {
         } as ContentScrapeDetectedMessage
-    }
+    },
+    [WinstonLog.PaymentWebhookReceived]: {
+        name: WinstonLog.PaymentWebhookReceived,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.PaymentWebhookIgnored]: {
+        name: WinstonLog.PaymentWebhookIgnored,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.MinioWebhookReceived]: {
+        name: WinstonLog.MinioWebhookReceived,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.MinioWebhookIgnored]: {
+        name: WinstonLog.MinioWebhookIgnored,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.VideoProcessingEnqueued]: {
+        name: WinstonLog.VideoProcessingEnqueued,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.BestEffortOperationFailed]: {
+        name: WinstonLog.BestEffortOperationFailed,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.RequestHandlingFailed]: {
+        name: WinstonLog.RequestHandlingFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.RealtimeStreamFailed]: {
+        name: WinstonLog.RealtimeStreamFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.RealtimeDebug]: {
+        name: WinstonLog.RealtimeDebug,
+        level: WinstonLevel.Debug,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.ToolsArtifactBuilt]: {
+        name: WinstonLog.ToolsArtifactBuilt,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.ToolsOperationCompleted]: {
+        name: WinstonLog.ToolsOperationCompleted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.ToolsOperationFailed]: {
+        name: WinstonLog.ToolsOperationFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.CronTickCompleted]: {
+        name: WinstonLog.CronTickCompleted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.CronTickFailed]: {
+        name: WinstonLog.CronTickFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.CdcListenerSubscribed]: {
+        name: WinstonLog.CdcListenerSubscribed,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.CdcListenerDisabled]: {
+        name: WinstonLog.CdcListenerDisabled,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.InitPhaseCompleted]: {
+        name: WinstonLog.InitPhaseCompleted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.InitPhaseFailed]: {
+        name: WinstonLog.InitPhaseFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.IntegrationCallSucceeded]: {
+        name: WinstonLog.IntegrationCallSucceeded,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.IntegrationCallFailed]: {
+        name: WinstonLog.IntegrationCallFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.RagIndexProgress]: {
+        name: WinstonLog.RagIndexProgress,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.RagRetrievalFailed]: {
+        name: WinstonLog.RagRetrievalFailed,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.RagCleanupCompleted]: {
+        name: WinstonLog.RagCleanupCompleted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.AsyncEventQueued]: {
+        name: WinstonLog.AsyncEventQueued,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.HttpExceptionLogged]: {
+        name: WinstonLog.HttpExceptionLogged,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.HealthProbeFailed]: {
+        name: WinstonLog.HealthProbeFailed,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
+    [WinstonLog.AiModelLatencyFailed]: {
+        name: WinstonLog.AiModelLatencyFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as OpsLogMessage
+    },
 }

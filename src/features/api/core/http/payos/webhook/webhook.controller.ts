@@ -1,10 +1,13 @@
 import {
     Body,
     Controller,
-    Logger,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ApiResponse,
     ApiOperation,
@@ -32,10 +35,9 @@ import {
  * payOS webhook HTTP route.
  */
 export class PayosWebhookController {
-    private readonly logger = new Logger(PayosWebhookController.name)
-
     constructor(
         private readonly payosWebhookService: PayosWebhookService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     @UseInterceptors(
@@ -58,8 +60,19 @@ export class PayosWebhookController {
         @Body()
             body: PayosWebhookRequest,
     ) {
-        this.logger.log(
-            `🔔 [PayOS] webhook received @ ${new Date().toISOString()} :: ${JSON.stringify(body)}`,
+        this.winstonService.log(
+            WinstonLog.PaymentWebhookReceived,
+            {
+                op: "payos.webhook.received",
+                referenceId: body.data?.orderCode != null
+                    ? String(body.data.orderCode)
+                    : undefined,
+                meta: {
+                    code: body.code,
+                    success: body.success,
+                    receivedAt: new Date().toISOString(),
+                },
+            },
         )
         return this.payosWebhookService.execute(body)
     }

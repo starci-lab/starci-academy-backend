@@ -2,10 +2,13 @@ import {
     Body,
     Controller,
     Headers,
-    Logger,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ApiResponse,
     ApiOperation,
@@ -33,10 +36,9 @@ import {
  * NOWPayments IPN HTTP route.
  */
 export class NowPaymentsWebhookController {
-    private readonly logger = new Logger(NowPaymentsWebhookController.name)
-
     constructor(
         private readonly nowPaymentsWebhookService: NowPaymentsWebhookService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     @UseInterceptors(
@@ -61,8 +63,18 @@ export class NowPaymentsWebhookController {
         @Headers("x-nowpayments-sig")
             signature: string,
     ) {
-        this.logger.log(
-            `🔔 [NOWPayments] IPN received @ ${new Date().toISOString()} :: ${JSON.stringify(body)} sig=${signature ? "present" : "MISSING"}`,
+        this.winstonService.log(
+            WinstonLog.PaymentWebhookReceived,
+            {
+                op: "nowpayments.webhook.received",
+                referenceId: body.order_id,
+                meta: {
+                    paymentId: body.payment_id != null ? String(body.payment_id) : undefined,
+                    paymentStatus: body.payment_status,
+                    signaturePresent: Boolean(signature),
+                    receivedAt: new Date().toISOString(),
+                },
+            },
         )
         // forward the IPN body + signature header to the service for verify + grant
         return this.nowPaymentsWebhookService.execute({

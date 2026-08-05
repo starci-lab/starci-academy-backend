@@ -1,6 +1,7 @@
 import {
-    Logger,
-} from "@nestjs/common"
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
     ConnectedSocket,
     MessageBody,
@@ -58,14 +59,12 @@ export class RagPlaygroundGateway {
         private readonly ragPlaygroundRunRegistryService: RagPlaygroundRunRegistryService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly wsResponseService: WsResponseService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /** The namespace server instance used to emit to per-run rooms. */
     @WebSocketServer()
     private readonly server: Namespace
-
-    /** Logger for stream failures (nothing to persist here — best-effort only). */
-    private readonly logger = new Logger(RagPlaygroundGateway.name)
 
     /** In-flight abort controllers keyed by run id, mirrors the AI Lab gateway. */
     private readonly inFlight = new Map<string, AbortController>()
@@ -139,15 +138,28 @@ export class RagPlaygroundGateway {
                 },
             })
             // best-effort observability only — no cost, no user to bill
-            this.logger.debug(
-                `RAG Playground run ${runId} served by ${result.provider}/${result.model}`,
+            this.winstonService.log(
+                WinstonLog.RealtimeDebug,
+                {
+                    op: "rag-playground.stream.served",
+                    sessionId: runId,
+                    meta: {
+                        provider: result.provider,
+                        model: result.model,
+                    },
+                },
             )
         } catch (error) {
             const message = error instanceof Error
                 ? error.message
                 : String(error)
-            this.logger.warn(
-                `RAG Playground run ${runId} failed: ${message}`,
+            this.winstonService.log(
+                WinstonLog.RealtimeStreamFailed,
+                {
+                    op: "rag-playground.stream",
+                    sessionId: runId,
+                    error: message,
+                },
             )
             this.emitChunk({
                 room,
