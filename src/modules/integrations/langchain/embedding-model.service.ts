@@ -138,16 +138,16 @@ export class EmbeddingModelService {
      * @returns A promise of the resolved {@link Embeddings} client (local-first).
      */
     async getViaBalancer(
-        category: AiModelCategory.EmbeddingBulk | AiModelCategory.EmbeddingDoc
-        = AiModelCategory.EmbeddingDoc,
+        category: AiModelCategory.EmbeddingLocal | AiModelCategory.EmbeddingCloud
+        = AiModelCategory.EmbeddingCloud,
     ): Promise<Embeddings> {
         const { result } = await this.useApiService.useApi<Embeddings>({
             lane: "chain",
             task: AiModelTask.Embedding,
-            // Two embedding tiers on separate axes: `embedding_bulk` (self-hosted
-            // 8B, cost 0) for indexing a whole corpus, `embedding_doc` (cloud,
-            // low latency) for a single document / learner code on demand. The
-            // caller picks which; within the tier the cheapest model wins.
+            // Two embedding lanes on the same axis: `embedding_local` (self-hosted
+            // 8B, cost 0) for the platform's own corpus, `embedding_cloud` (billed
+            // API) for a customer-uploaded document / learner code on demand. The
+            // caller picks which; within the lane the cheapest model wins.
             categories: [
                 category,
             ],

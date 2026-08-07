@@ -20,7 +20,23 @@ import {
  * the two middle rungs were never populated, and a capability name reads truer
  * than a price label. The DB `ai_model_category` enum is migrated value-by-value
  * (add -> UPDATE rows -> recreate the type) rather than through synchronize, which
- * cannot rename an enum value -- see the migration in `.artifacts/states/ai/`.
+ * cannot rename an enum value -- see the migration in
+ * `.claude/context/starci/states/ai/migration-category-low-medium-high.sql`.
+ *
+ * Low/Medium/High are a SEPARATE axis from the two embedding members below --
+ * they are the business tiers a customer is entitled to, and the embedding
+ * pair is never inserted into that ladder or compared against it.
+ *
+ * THE EMBEDDING AXIS: `EmbeddingLocal` and `EmbeddingCloud` name where the
+ * vectorizing work runs and whose documents it touches, not how it is batched.
+ * Both lanes MUST serve the same model at the same width -- Qwen3-Embedding-8B
+ * at 4096 dimensions, whether reached on the owner's self-hosted GPU box or
+ * over the OpenRouter API -- because Qdrant accepts any vector of the right
+ * width with no error and no log line: an index built by one lane and queried
+ * by the other returns confidently wrong results with nothing to say when it
+ * started. Renamed from `EmbeddingBulk` / `EmbeddingDoc` (embedding_bulk /
+ * embedding_doc), which named the batching shape instead of the axis; see the
+ * rename migration `RenameEmbeddingAiModelCategories1726500000000`.
  */
 export enum AiModelCategory {
     /** Cheap, fast; the chatbot rung. */
@@ -30,18 +46,21 @@ export enum AiModelCategory {
     /** Strongest models; reached only by an explicit pin. */
     High = "high",
     /**
-     * BULK embedding -- vectorizing a large corpus (indexing the whole source).
-     * Runs on the self-hosted 8B model: cost 0, throughput over latency, so a big
-     * one-off index never spends cloud tokens. A separate axis, never on a
-     * grading/chat ladder.
+     * Self-hosted embedding lane (Qwen3-Embedding-8B @ 4096, on the owner's own
+     * GPU box). Cost 0. Vectorizes documents the PLATFORM OWNS -- material that
+     * never needs to leave the owner's infrastructure and can afford to wait if
+     * the box is briefly down. Using this for a customer's just-uploaded
+     * document stalls their request on a machine that may be switched off.
      */
-    EmbeddingBulk = "embedding_bulk",
+    EmbeddingLocal = "embedding_local",
     /**
-     * DOCUMENT embedding -- vectorizing a single document or a learner's code on
-     * demand (per-request, latency-sensitive). Runs on a cloud model. Also a
-     * separate axis, selected by the embedding task, cheapest-first within it.
+     * Cloud embedding lane (the same Qwen3-Embedding-8B @ 4096, served over the
+     * OpenRouter API). Billed per token. Vectorizes documents A CUSTOMER
+     * UPLOADED -- work a person may be waiting on, so it must not stall because
+     * the owner's GPU box is offline. Using this for bulk platform-corpus
+     * indexing spends cloud tokens on work that could have run for free.
      */
-    EmbeddingDoc = "embedding_doc",
+    EmbeddingCloud = "embedding_cloud",
 }
 
 export const GraphQLTypeAiModelCategory = createEnumType(AiModelCategory)
@@ -61,11 +80,11 @@ registerEnumType(
             [AiModelCategory.High]: {
                 description: "Strongest models, reached only by an explicit pin.",
             },
-            [AiModelCategory.EmbeddingBulk]: {
-                description: "Bulk vectorizing of a large corpus; self-hosted, cost 0.",
+            [AiModelCategory.EmbeddingLocal]: {
+                description: "Self-hosted embedding lane for the platform's own documents; cost 0.",
             },
-            [AiModelCategory.EmbeddingDoc]: {
-                description: "On-demand vectorizing of one document or learner code; cloud.",
+            [AiModelCategory.EmbeddingCloud]: {
+                description: "Cloud embedding lane for a customer-uploaded document; billed per token.",
             },
         },
     },

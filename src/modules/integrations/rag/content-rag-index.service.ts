@@ -172,10 +172,11 @@ export class ContentRagIndexService {
     async build(): Promise<BuildContentRagIndexResult> {
         const collectionName = envConfig().services.contentRag.collection
 
-        // indexing a whole corpus is BULK work -> the single self-hosted 8B model
-        // (cost 0, throughput over latency); no cloud fallback on this tier
+        // indexing the platform's own content corpus stays on the LOCAL lane ->
+        // the self-hosted 8B model (cost 0, throughput over latency); no cloud
+        // fallback on this lane
         const embeddingModel = await this.embeddingModelService.getViaBalancer(
-            AiModelCategory.EmbeddingBulk,
+            AiModelCategory.EmbeddingLocal,
         )
         const splitter = new RecursiveCharacterTextSplitter({
             chunkSize: envConfig().services.contentRag.chunkSize,
