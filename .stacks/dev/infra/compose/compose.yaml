@@ -1,0 +1,42 @@
+# StarCi Academy — the whole local infrastructure, in one file.
+#
+#   npm run compose            bring everything up
+#   npm run compose -- down    stop, keep the data
+#   npm run compose -- down -v stop and WIPE every volume
+#   npm run compose -- ps      what is running
+#
+# Do not call `docker compose` directly. Every published port here is an
+# interpolation (`${STARCI_PORT_POSTGRES}`) whose value comes from
+# metadata.json (hostPort = basePort + portOffset), and `scripts/compose.mjs`
+# is what renders it into `.env.generated`. Calling docker by hand leaves the
+# variables unset and compose then publishes on a port nobody can reach.
+#
+# This file defines NO services of its own. Each backing service is one file
+# beside it, and `include` composes them into a single project so they share a
+# network and can be brought up or torn down together.
+#
+# Two escape hatches exist for running this stack BESIDE the old
+# `.containers/compose.yaml` stack during the migration, and neither changes
+# the steady-state names:
+#
+#   docker compose -p <other-project>          different project => different volumes
+#   STARCI_CONTAINER_PREFIX=starci-verify-     different container names
+#
+# The prefix has to stay `starci-` in steady state: PrometheusMetricsService
+# queries cAdvisor with `name=~"starci-.+"` and then strips exactly that prefix
+# (`CONTAINER_NAME_PREFIX` in src/modules/platform/health/constants/probe.ts)
+# to land on the component key the health page shows.
+
+name: starci-academy-backend
+
+include:
+  - postgres.yaml
+  - redis.yaml
+  - elasticsearch.yaml
+  - qdrant.yaml
+  - kafka.yaml
+  - minio.yaml
+  - nats.yaml
+  - keycloak.yaml
+  - cadvisor.yaml
+  - prometheus.yaml

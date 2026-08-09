@@ -16,7 +16,7 @@ const SEP = "<!-- @starci/seperator -->"
 
 /** Root of the SSOT content mount every harness grounds real cases in. */
 const VOLUME_DATA = join(process.cwd(),
-    ".volume",
+    ".mount",
     "data")
 
 /** A parsed `.volume/data` doc -- its fields plus convenience `title`/`body`. */

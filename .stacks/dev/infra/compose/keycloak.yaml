@@ -1,0 +1,28 @@
+# Keycloak — the auth server, dev mode against its own embedded database.
+#
+# The named volume is DELIBERATE and is the one behavioural change from
+# `.containers/compose.yaml`. Without it, dev mode keeps the realm in an
+# in-container H2 file, so every `compose down` wiped the realm and the app
+# then failed with "Client not found" until someone re-provisioned it by hand.
+#
+# The cost of keeping it: `KEYCLOAK_ADMIN_PASSWORD` is a BOOTSTRAP variable —
+# the image applies it only when the database is empty. Re-minting that secret
+# with `secret:gen --force` therefore changes the file the app reads without
+# changing the password Keycloak enforces. Rotating it for real means wiping
+# the volume (`npm run compose -- down -v`) or changing it in the admin console.
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: ${STARCI_CONTAINER_PREFIX:-starci-}keycloak
+    command: ["start-dev", "--http-port=8080"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USERNAME:-REPLACE_ME}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-REPLACE_ME}
+    ports:
+      - "${STARCI_PORT_KEYCLOAK}:8080"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+    restart: unless-stopped
+
+volumes:
+  keycloak-data:

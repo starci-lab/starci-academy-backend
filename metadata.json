@@ -1,0 +1,54 @@
+{
+    "project": "starci-academy-backend",
+    "description": "StarCi Academy backend — port offset registry + stack metadata. Host port = basePorts.<name> + portOffset. starci is the ROOT project so portOffset is 0 and it keeps the standard ports; sibling projects offset away from it (miamia = 69).<name> + portOffset. This file is the ONLY source of truth for ports: compose fragments interpolate them and scripts/sync.mjs writes them into the generated env bridge. NOTE: this is NOT .mount/config/metadata.json, which is i18n content read by the app.",
+    "portOffset": 0,
+    "ports": {
+        "core": 3001,
+        "postgres": 5432,
+        "redis": 6379,
+        "elasticsearch": 9200,
+        "qdrant": 6333,
+        "qdrantGrpc": 6334,
+        "kafka": 9092,
+        "minio": 9000,
+        "minioConsole": 9001,
+        "nats": 4222,
+        "natsMonitor": 8222,
+        "keycloak": 8080,
+        "cadvisor": 8081,
+        "prometheus": 9090
+    },
+    "basePorts": {
+        "core": 3001,
+        "postgres": 5432,
+        "redis": 6379,
+        "elasticsearch": 9200,
+        "qdrant": 6333,
+        "qdrantGrpc": 6334,
+        "kafka": 9092,
+        "minio": 9000,
+        "minioConsole": 9001,
+        "nats": 4222,
+        "natsMonitor": 8222,
+        "keycloak": 8080,
+        "cadvisor": 8081,
+        "prometheus": 9090
+    },
+    "secrets": {
+        "masterKey": "~/.starci/master.identity",
+        "encryption": "sops+age",
+        "stacksDir": ".stacks",
+        "stacks": [
+            "dev",
+            "vps",
+            "k8s"
+        ]
+    },
+    "gitmounts": {
+        "data": {
+            "repo": "https://github.com/starci-lab/data.git",
+            "path": ".gitmounts/data",
+            "description": "Private seed-content repo (courses, coding problems, achievements, changelog, advertisements, mock-interview-eq). Replaces .mount/data. No \"ref\" on purpose: clone the repo default branch."
+        }
+    }
+}

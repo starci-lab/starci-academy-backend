@@ -108,3 +108,45 @@ claude-legacy/
 # untracked build/temp (2026-08-04)
 scratch/
 .exe/
+
+# local mount tree — config, seeded data and terraform keys; never committed
+.mount
+
+# ── .stacks — the sops+age stack tree (docs/secrets-architecture.md) ─────────
+# Ignore everything under .stacks, then re-include only what is SAFE to commit:
+# ciphertext (*.enc), the key rosters, the compose fragments, and .gitkeep.
+# ORDER MATTERS. The directory re-include has to come before the value bans or
+# git never descends into the folder and every negation below is dead.
+.stacks/**
+!.stacks/**/
+!.stacks/**/.gitkeep
+!.stacks/**/KEYS.md
+!.stacks/**/*.enc
+!.stacks/*/infra/compose/**
+# ...but never the env file compose.mjs renders (ports + datastore passwords)
+.stacks/**/.env.generated
+# Decrypted plaintext twins. These are what the ignore above exists for: every
+# one of them is a real credential sitting beside its committed .enc.
+.stacks/*/runtime/**/*.env
+.stacks/*/runtime/**/*.key
+.stacks/*/runtime/**/*.json
+.stacks/*/runtime/**/*.yaml
+.stacks/*/runtime/**/*.yml
+# Belt and braces: the ciphertext twin is always committable, whatever the
+# plaintext ban above happens to match. LAST rule wins, so these come last.
+!.stacks/**/*.env.enc
+!.stacks/**/*.key.enc
+!.stacks/**/*.json.enc
+!.stacks/**/*.yaml.enc
+!.stacks/**/*.yml.enc
+
+# external repo clones declared under "gitmounts" in metadata.json — each is its
+# own git checkout and must never become a gitlink in this one
+.gitmounts/
+
+# generated env bridges. scripts/sync.mjs writes real credential VALUES into
+# these (config.ts has no *_FILE indirection), so none of them may be tracked.
+.env.generated
+.env.override
+.env.override.generated
+.env.override.bak

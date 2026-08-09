@@ -161,7 +161,7 @@ const SEP = "<!-- @starci/seperator -->"
 
 /** Root of the SSOT content mount (mirrors `volume.ts`'s `VOLUME_DATA`). */
 const volumeDataPath = (relDir: string): string => join(process.cwd(),
-    ".volume",
+    ".mount",
     "data",
     relDir,
     "en.md")

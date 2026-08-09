@@ -1,0 +1,24 @@
+# Redis — one server, four logical lanes: cache, bullmq, throttler, socket adapter.
+#
+# One `requirepass` serves all four. Minting four passwords would mean four
+# chances to drift out of step with the single value the server actually
+# enforces, and the failure mode of a drifted lane is a NOAUTH error thrown
+# deep inside a queue worker rather than at boot.
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: ${STARCI_CONTAINER_PREFIX:-starci-}redis
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-REPLACE_ME}"]
+    ports:
+      - "${STARCI_PORT_REDIS}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-REPLACE_ME}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  redis-data:

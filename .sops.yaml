@@ -1,0 +1,54 @@
+# SOPS rules for starci-academy-backend.
+#
+# Only VALUES are encrypted; key names stay readable, so `git diff` on an
+# encrypted file shows which key changed instead of one opaque blob.
+#
+# The recipient below is the PUBLIC half of the shared master key. It is not a
+# secret — it only lets you encrypt. Decrypting needs the private half, which
+# lives outside this repo and never enters CI:
+#
+#   Windows  %USERPROFILE%\.starci\master.identity
+#   POSIX    ~/.starci/master.identity
+#
+# One master key covers every project of this owner, so a machine set up once
+# unlocks every repo. This is the SAME recipient miamia-be uses, deliberately.
+#
+#   encrypt:  sops -e .stacks/dev/runtime/env/database.env > .stacks/dev/runtime/env/database.env.enc
+#   decrypt:  sops -d .stacks/dev/runtime/env/database.env.enc > .stacks/dev/runtime/env/database.env
+#
+# `npm run sync` and the pre-commit guard both drive sops for you; the commands
+# above are the manual fallback.
+
+# NOTE the [\\/] in every path_regex. sops matches against the path exactly as
+# the caller spelled it, and on Windows that arrives with backslashes, so a rule
+# written with forward slashes silently matches nothing and sops fails with
+# "no matching creation rules found". Keep both separators in every rule.
+#
+# Order matters: narrow rules first, the binary catch-all last. sops takes the
+# FIRST rule that matches, so a catch-all placed early would swallow the typed
+# ones and turn readable key names into an opaque blob.
+
+creation_rules:
+  # --- KEY=VALUE files, anywhere under .stacks -------------------------------
+  - path_regex: \.stacks[\\/].*\.env(\.enc)?$
+    input_type: dotenv
+    age: age1myd77xz5lhsluc4ejzztsck32pfq3vfpzrva8cegzydk2guhxqesgm3z4j
+
+  # --- structured credentials (service accounts, admin configs) --------------
+  - path_regex: \.stacks[\\/].*\.(json|ya?ml)(\.enc)?$
+    age: age1myd77xz5lhsluc4ejzztsck32pfq3vfpzrva8cegzydk2guhxqesgm3z4j
+
+  # --- everything else under .stacks: opaque blobs ---------------------------
+  # Minted infra passwords, third-party api keys, oauth tokens and terraform
+  # keys — several of which carry no extension at all. binary is required here:
+  # sops would otherwise try to parse a PEM header as JSON and fail.
+  - path_regex: \.stacks[\\/]
+    input_type: binary
+    age: age1myd77xz5lhsluc4ejzztsck32pfq3vfpzrva8cegzydk2guhxqesgm3z4j
+
+  # --- .dat/ : datastore snapshots -------------------------------------------
+  # One archive per stack holding every docker volume. Always binary; the whole
+  # point is that database contents never sit in the repo in the clear.
+  - path_regex: \.dat[\\/]
+    input_type: binary
+    age: age1myd77xz5lhsluc4ejzztsck32pfq3vfpzrva8cegzydk2guhxqesgm3z4j

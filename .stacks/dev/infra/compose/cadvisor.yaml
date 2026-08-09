@@ -1,0 +1,25 @@
+# cAdvisor — per-container CPU / memory / network metrics, scraped by
+# Prometheus next door and surfaced as the LIVE numbers on the public
+# architecture page (`systemHealthStatus`, via PrometheusMetricsService).
+#
+# It listens on 8080 inside the container, exactly like Keycloak does, so the
+# two need DIFFERENT base ports in metadata.json — otherwise both resolve to
+# the same host port and the second one to start simply fails to bind.
+#
+# `privileged` plus the four read-only host mounts are what cAdvisor needs to
+# see the cgroup and docker state of its siblings. This is a local-development
+# convenience; it is not a shape to copy into a deployed stack.
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: ${STARCI_CONTAINER_PREFIX:-starci-}cadvisor
+    privileged: true
+    ports:
+      - "${STARCI_PORT_CADVISOR}:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    restart: unless-stopped

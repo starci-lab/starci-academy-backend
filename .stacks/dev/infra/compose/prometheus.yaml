@@ -1,0 +1,24 @@
+# Prometheus — scrapes cAdvisor every 15s. PrometheusMetricsService queries it
+# over HTTP from the HOST, so the published port has to be reachable at
+# `PROMETHEUS_URL` (the env file `npm run sync` writes points it at the offset
+# port, not at 9090).
+#
+# The scrape config is mounted from `./prometheus/prometheus.yml`, relative to
+# THIS file — compose resolves a relative bind mount against the directory of
+# the compose file that declares it, which for an `include:`d fragment is this
+# directory, not the repo root.
+services:
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: ${STARCI_CONTAINER_PREFIX:-starci-}prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "${STARCI_PORT_PROMETHEUS}:9090"
+    depends_on:
+      - cadvisor
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:

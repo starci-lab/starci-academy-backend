@@ -1,0 +1,20 @@
+# Scrapes cAdvisor for per-container CPU/memory/network metrics. Feeds the
+# public "Hệ thống StarCi, đang sống" architecture page (systemHealthStatus
+# GraphQL query, via PrometheusMetricsService) — real numbers, not a demo.
+#
+# The target is the compose SERVICE name, `cadvisor`, which is the alias every
+# service in the project gets on the shared network. It deliberately does not
+# follow `container_name`: that carries the `STARCI_CONTAINER_PREFIX` escape
+# hatch used to run this stack beside the old one, and a target written against
+# the prefixed name would stop resolving the moment the prefix changed.
+#
+# The port is the CONTAINER port (8080), not the published one — this scrape
+# happens inside the docker network and never crosses the host.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cadvisor:8080"]

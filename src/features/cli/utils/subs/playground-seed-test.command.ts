@@ -87,7 +87,7 @@ export class PlaygroundSeedTestCommand extends CommandRunner {
         setRuntimeContextRoot(
             path.resolve(
                 process.cwd(),
-                ".volume",
+                ".mount",
                 "data",
             ),
         )

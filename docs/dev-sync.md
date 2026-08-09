@@ -1,0 +1,240 @@
+# Đồng bộ máy dev + chạy BE
+
+Mục tiêu: một máy mới `git clone` xong là chạy được backend local, không phải xin từng cái
+secret bằng tay.
+
+Ba thứ giữ cho việc đó chạy được:
+
+- **một khoá master duy nhất** ở `~/.starci/master.identity` (dùng chung cho **mọi** dự án),
+- **`.stacks/`** — config tách theo *stack triển khai* (`dev` / `vps` / `k8s`), mã hoá bằng
+  **sops + age**,
+- **`metadata.json`** ở gốc repo — nguồn sự thật duy nhất về port.
+
+Một lệnh duy nhất để kéo mọi thứ về: **`npm run sync`**.
+
+Vì sao lại có hình dạng này thì đọc [`secrets-architecture.md`](./secrets-architecture.md);
+file này chỉ nói **làm thế nào**.
+
+## Cái gì sống ở đâu
+
+| Thành phần | Sync bằng | Ghi chú |
+|---|---|---|
+| Code BE | git — repo này | |
+| `.gitmounts/data/` — nội dung seed (course, coding problem, achievement, changelog, …) | `npm run sync` clone repo private | thay cho `.mount/data`; **chỉ dữ liệu**, không một khoá nào |
+| `.stacks/` — secrets theo stack | git (bản `.enc`) + `npm run sync` giải mã | **chỉ `dev` có file giá trị trên đĩa**; `vps` và `k8s` mới có `KEYS.md` |
+| Infra local (postgres / redis / elasticsearch / qdrant / kafka / minio / nats / keycloak / cadvisor / prometheus) | `npm run compose` | port theo `metadata.json` |
+| `.stacks/dev/runtime/config/seed.yaml` | **không sync** — theo máy | tạo từ `config/seed.example.yaml` khi thiếu |
+
+`KEYS.md` là **danh sách tên biến** stack đó cần, không phải giá trị. Nó luôn đọc được, kể
+cả khi không có khoá — nhờ vậy người mới biết cần khai những gì.
+
+## Khoá master — `~/.starci/master.identity`
+
+Chỉ còn **MỘT** khoá, dùng chung cho **tất cả** dự án của owner:
+
+```
+Windows:  %USERPROFILE%\.starci\master.identity
+POSIX:    ~/.starci/master.identity
+```
+
+Đây là khoá **age**. `npm run sync` dùng nó (qua sops) để giải `*.enc` trong `.stacks/dev/`.
+
+⚠️ **Khoá này là "chìa" duy nhất:**
+
+- **KHÔNG BAO GIỜ** nằm trong git — không repo nào.
+- **KHÔNG BAO GIỜ** lên CI. CI dùng GitHub Actions secrets, không dùng khoá này.
+- Sang máy mới thì **copy out-of-band** (USB / password manager / scp), không gửi qua chat,
+  không dán vào issue.
+- **Back up nó.** Mất khoá = mất khả năng giải mã của mọi dự án. Không có đường khôi phục.
+
+## Port — `metadata.json` là nguồn sự thật
+
+Owner chạy nhiều dự án trên **cùng một máy**. Dự án nào cũng bind Postgres vào `5432`, Redis
+vào `6379` thì stack thứ hai bật lên là đụng port. Nên mỗi dự án được cấp **một `portOffset`
+riêng**, và mọi port host suy ra bằng công thức:
+
+```
+port host = base port + portOffset
+```
+
+Dự án này có `"portOffset": 83`. Bảng đã tính sẵn:
+
+| Service | Base | Host (base + 83) | Ghi chú |
+|---|---|---|---|
+| core (Nest app) | 3000 | **3083** | chạy trên HOST, compose không publish |
+| postgres | 5432 | 5515 | |
+| redis | 6379 | 6462 | một server, bốn lane |
+| elasticsearch | 9200 | 9283 | |
+| qdrant | 6333 | 6416 | REST |
+| qdrant gRPC | 6334 | 6417 | |
+| kafka | 9092 | 9175 | host 9175 → listener EXTERNAL 29092 trong container |
+| minio | 9000 | 9083 | S3 API |
+| minio console | 9001 | 9084 | UI |
+| nats | 4222 | 4305 | |
+| nats monitor | 8222 | 8305 | |
+| keycloak | 8080 | 8163 | |
+| cadvisor | 8081 | 8164 | base **khác** keycloak dù trong container cùng là 8080 |
+| prometheus | 9090 | 9173 | |
+
+⚠️ **Bảng trên là bản chép cho dễ đọc — nguồn sự thật là `metadata.json`.** Đổi port thì sửa
+`metadata.json`, đừng sửa doc rồi tưởng xong. Compose và mọi script đọc `metadata.json`,
+không đọc file này.
+
+Cũng vì vậy mà mặc định trong `src/modules/platform/env/config.ts` (`CORE_PORT` 3001,
+postgres 5432, redis 6379, …) **không** khớp với port compose công bố — chênh lệch đó do
+`.env.override` mà `npm run sync` sinh ra bắc cầu. Không có bước sync thì app quay số port
+chuẩn và ăn `ECONNREFUSED` trong khi `docker ps` trông hoàn toàn khoẻ mạnh.
+
+## Onboard máy mới — từng bước
+
+1. **Đặt khoá master** vào `%USERPROFILE%\.starci\master.identity` (copy out-of-band).
+
+2. **Cài `sops` và `age`** — `npm run sync` kiểm tra và báo tên công cụ còn thiếu.
+
+3. ```bash
+   git clone <repo> && cd starci-academy-backend
+   npm run sync        # clone .gitmounts/data + giải mã .stacks/dev + sinh .env.override
+   npm run compose     # dựng 10 service hạ tầng
+   npm ci
+   npm run start:dev
+   ```
+
+   API lên ở `http://localhost:3083` (`ports.core` trong `metadata.json`).
+
+`npm run sync` là **entry point duy nhất**. Nó lo cả `.gitmounts/data` lẫn `.stacks/`, và
+chạy lại được nhiều lần (idempotent) — cứ `git pull` xong là chạy lại.
+
+Muốn xem `sync` sẽ viết gì mà chưa muốn đụng vào `.env.override` đang chạy:
+
+```bash
+npm run sync -- --out .tmp/env.preview
+```
+
+## `npm run compose` — và vì sao đừng gọi `docker compose` tay
+
+```bash
+npm run compose                     # up -d rồi đợi healthcheck
+npm run compose -- down             # dừng, GIỮ dữ liệu
+npm run compose -- down -v          # dừng và XOÁ sạch volume
+npm run compose -- ps               # đang chạy gì
+npm run compose -- logs -f postgres # theo dõi log
+npm run compose -- --render-only    # chỉ ghi .env.generated rồi dừng
+npm run compose -- --stack vps      # dùng .stacks/vps/infra/compose
+```
+
+Mọi port trong file compose là **interpolation** (`${STARCI_PORT_POSTGRES}`), không phải
+literal. `scripts/compose.mjs` đọc `metadata.json` + các file credential đã giải mã, ghi ra
+`.stacks/<stack>/infra/compose/.env.generated`, rồi mới gọi `docker compose --env-file`.
+Gọi `docker compose` thẳng thì biến rỗng và compose publish ra một port không ai gọi tới
+được.
+
+Ba chi tiết đáng biết:
+
+- **Nó đợi bằng cách poll, không dùng `up --wait`.** `--wait` coi container `minio-init`
+  (chạy một việc rồi thoát) là *thất bại*, biến một stack khoẻ mạnh thành exit code 1.
+  Script phân biệt: thoát với mã 0 là xong việc; đang chạy mà có healthcheck thì phải
+  `healthy`.
+- **Nó từ chối `up` khi thiếu file credential.** Fragment nào cũng có default kiểu
+  `${POSTGRES_PASSWORD:-REPLACE_ME}` để `docker compose config` còn render được, nhưng một
+  volume postgres khởi tạo bằng `REPLACE_ME` sẽ **giữ** giá trị đó cho tới khi xoá volume.
+  Hỏng nhanh thì tốt hơn hỏng chậm — chạy `npm run secret:gen -- dev` trước.
+- **`.env.generated` là file sinh ra, gitignore.** Nó chứa port và password datastore; đừng
+  sửa tay, lần chạy sau ghi đè.
+
+### Bật stack mới song song với stack cũ
+
+Chỉ cần trong lúc migration, để đối chiếu trước khi bỏ `.containers/compose.yaml`:
+
+```bash
+STARCI_CONTAINER_PREFIX=starci-verify- npm run compose -- -p starci-verify up -d
+```
+
+`-p` cho project khác (nên volume khác), biến prefix cho tên container khác. Port vốn đã
+lệch sẵn nhờ offset nên không đụng.
+
+⚠️ Xong việc thì **bỏ cả hai**. Ở trạng thái ổn định tên container phải là `starci-<service>`,
+vì `PrometheusMetricsService` cắt đúng tiền tố đó để ra key thành phần cho trang kiến trúc
+public.
+
+## Đổi một secret
+
+### Stack `dev`
+
+```bash
+npm run secret:list                          # xem có những gì (chỉ TÊN)
+npm run secret:set -- dev/runtime/files/<tên> # nhập giá trị, không qua shell history
+git add -A && git commit -m "chore(stacks): update dev runtime"
+```
+
+Husky hook lo phần mã hoá: lúc commit nó chạy sops, sinh bản `.enc` và **stage luôn**. Bản
+thô không bao giờ vào git. Máy khác nhận thay đổi bằng `git pull` rồi `npm run sync`.
+
+Sinh **mới** một password hạ tầng:
+
+```bash
+npm run secret:gen -- dev            # chỉ sinh cái còn thiếu
+npm run secret:gen -- dev --force    # sinh lại TẤT CẢ
+```
+
+⚠️ `--force` chỉ an toàn khi xoá volume cùng lúc (`npm run compose -- down -v`). Ba credential
+là **bootstrap-only** — datastore chỉ đọc chúng ở lần khởi tạo đầu tiên, sau đó giá trị nằm
+trong volume:
+
+| Credential | Đọc lúc nào | Đổi kiểu gì |
+|---|---|---|
+| `postgres-password.txt` | lần đầu tạo cluster | `down -v` rồi lên lại |
+| `elasticsearch-password.txt` | lần đầu bootstrap user `elastic` | `down -v` rồi lên lại |
+| `keycloak-admin-password.txt` | lần đầu tạo DB nhúng | `down -v`, hoặc đổi trong admin console |
+
+Đổi file mà không xoá volume = file nói một đằng, datastore hiểu một nẻo, và triệu chứng là
+`401`/`authentication failed` chứ không phải một lỗi nói rõ nguyên nhân.
+
+### Khoá bên thứ ba
+
+Stripe, PayPal, PayOS, SePay, Brevo, GitHub token, GCP service account, `encryption-key`,
+các pool AI — **không bao giờ** sinh bằng `secret:gen`. Chúng do bên khác cấp và mất là mất
+thật. Đổi thì lấy giá trị mới từ nhà cung cấp rồi `npm run secret:set`.
+
+### Stack `vps`
+
+Giá trị nằm trong GitHub Actions secrets, không có file trên đĩa:
+
+```bash
+gh secret set <TÊN_BIẾN> --repo <owner>/<repo>
+```
+
+Tên biến lấy trong `.stacks/vps/runtime/env/KEYS.md`. Thêm biến mới thì **nhớ ghi tên nó vào
+`KEYS.md`** — đó là chỗ duy nhất người sau biết stack cần gì.
+
+### Stack `k8s`
+
+Giá trị sẽ nằm trong secret manager của cloud. Chưa nối; hiện mới có `KEYS.md` làm khung.
+
+## Deploy
+
+Không cần khoá master trên máy — deploy chạy qua GitHub Actions với secrets của repo. `.stacks/`
+đi theo git dưới dạng ciphertext và CI **không** giải mã được, đúng như thiết kế: giá trị cho
+server được đẩy riêng từ máy có khoá.
+
+## Sự cố hay gặp
+
+| Triệu chứng | Nguyên nhân thường gặp |
+|---|---|
+| `ECONNREFUSED` tới postgres/redis dù `docker ps` xanh | chưa chạy `npm run sync`; app đang quay số port mặc định chứ không phải port offset |
+| `compose` báo thiếu file credential | chưa `npm run secret:gen -- dev`, hoặc chưa `npm run sync` để giải mã |
+| Giải mã hỏng trên máy mới clone | thiếu `*.enc -text` trong `.gitattributes` → git đã đổi ciphertext sang CRLF |
+| NATS "Authorization Violation" | token trong file lệch với token server đang chạy — `down` rồi lên lại |
+| Kafka nối được rồi treo | `KAFKA_ADVERTISED_LISTENERS` phải advertise **port host**, không phải port container |
+| Trang kiến trúc public rỗng số liệu | tên container không còn bắt đầu bằng `starci-` (xem `STARCI_CONTAINER_PREFIX`) |
+| Keycloak "Client not found" sau `down -v` | realm nằm trong volume `keycloak-data`; `-v` xoá nó, phải provision lại |
+
+## Script trong `package.json`
+
+| Lệnh | Làm gì |
+|---|---|
+| `npm run sync` | entry point: giải mã `.stacks/dev`, clone gitmount, sinh `.env.override` |
+| `npm run compose` | render `.env.generated` rồi gọi `docker compose` |
+| `npm run secret:gen` | sinh password hạ tầng còn thiếu cho một stack |
+| `npm run secret:set` | đặt một secret, không qua shell history |
+| `npm run secret:list` | liệt kê **tên** secret của một stack |
+| `npm run secret:show` | in một secret ra màn hình (dùng dè) |

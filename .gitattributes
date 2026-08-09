@@ -1,0 +1,2 @@
+# sops ciphertext must survive checkout byte-for-byte; CRLF translation corrupts it.
+*.enc -text

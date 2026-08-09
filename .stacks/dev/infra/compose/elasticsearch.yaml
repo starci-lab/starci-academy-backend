@@ -1,0 +1,42 @@
+# Elasticsearch — the read source for content, course, module and challenge
+# search (see the ELASTICSEARCH_SYNCHRONIZER_* intervals in config.ts).
+#
+# Security is ON with TLS off, which is the shape the app expects: it connects
+# over plain HTTP as the built-in `elastic` user. Turning security off entirely
+# would work locally and then diverge from every deployed stack, so the cheap
+# divergence (no TLS) is taken and the expensive one (no auth) is not.
+#
+# `ELASTIC_PASSWORD` is the image's bootstrap variable for the `elastic` user;
+# the app reads the same value as `ELASTICSEARCH_PASSWORD`.
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: ${STARCI_CONTAINER_PREFIX:-starci-}elasticsearch
+    environment:
+      discovery.type: single-node
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-REPLACE_ME}
+      xpack.security.enabled: "true"
+      xpack.security.http.ssl.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      bootstrap.memory_lock: "true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "${STARCI_PORT_ELASTICSEARCH}:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    healthcheck:
+      # `curl -s | grep` rather than `curl -f`: the cluster answers 200 while
+      # still red, so the status string is the only honest readiness signal.
+      test:
+        - CMD-SHELL
+        - curl -s -u elastic:${ELASTIC_PASSWORD:-REPLACE_ME} http://localhost:9200/_cluster/health | grep -qE 'green|yellow'
+      interval: 10s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  es-data:
