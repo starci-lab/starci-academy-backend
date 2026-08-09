@@ -94,6 +94,8 @@ import type {
 import type {
     ElasticsearchIndexResetStartedMessage,
     ElasticsearchIndexResetDoneMessage,
+    ElasticsearchIndexMappingDriftedMessage,
+    ElasticsearchIndexMappingRepairedMessage,
 } from "./types/messages/elasticsearch-index-reset"
 import type {
     EsSynchronizerSyncStartedMessage,
@@ -429,6 +431,22 @@ export const configMap = {
         console: true,
         messageType: {
         } as ElasticsearchIndexResetDoneMessage
+    },
+    [WinstonLog.ElasticsearchIndexMappingDrifted]: {
+        name: WinstonLog.ElasticsearchIndexMappingDrifted,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as ElasticsearchIndexMappingDriftedMessage
+    },
+    [WinstonLog.ElasticsearchIndexMappingRepaired]: {
+        name: WinstonLog.ElasticsearchIndexMappingRepaired,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as ElasticsearchIndexMappingRepairedMessage
     },
     [WinstonLog.EsSynchronizerSyncStarted]: {
         name: WinstonLog.EsSynchronizerSyncStarted,

@@ -26,6 +26,9 @@ import {
     HeadhuntingCompanyEntity,
 } from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
 import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
     MilestoneTaskEntity,
 } from "@modules/databases/postgresql/primary/entities/milestone-task.entity"
 import {
@@ -91,6 +94,12 @@ export interface ConfigMapData {
    * fields live in the same record/index. Omitted -> the index is reset with dynamic mapping.
    */
   mapping?: ElasticsearchIndexMapping;
+  /**
+   * Whether documents are fanned out into per-locale indices (`<base>-<locale>`). Defaults to
+   * `true` -- every content entity is localized. `users` is the one non-localized index, so it must
+   * NOT get `users-en` / `users-vi` variants created for it.
+   */
+  localized?: boolean;
 }
 
 /**
@@ -150,10 +159,35 @@ export const configMap: ConfigMap = {
         mapping: codingProblemsIndexMapping,
     },
     // non-localized user index (search + "who to follow") -- written by es-sync,
-    // NOT by the per-locale content synchronizer, so it stays out of the
-    // ElasticsearchService auto-create `indices` list
+    // NOT by the per-locale content synchronizer, so it never gets locale variants
     [UserEntity.name]: {
         indices: "users",
         mapping: userIndexMapping,
+        localized: false,
     },
+}
+
+/**
+ * Resolve every concrete index variant an entity owns: the base index plus, for localized
+ * entities, one index per {@link Locale}.
+ *
+ * Boot-time index creation and index resets both walk this list, so a new locale (or a new entity)
+ * can never end up with an index that was auto-created by its first document instead of being
+ * created from its declared mapping.
+ *
+ * @param entity - Entity class name (key into {@link configMap}).
+ * @returns Locales selecting each concrete index; `undefined` selects the base index.
+ *
+ * @example
+ * resolveIndexLocales(CourseEntity.name) // [undefined, Locale.En, Locale.Vi]
+ */
+export function resolveIndexLocales(
+    entity: string,
+): Array<Locale | undefined> {
+    // a non-localized entity owns exactly one index: the base one
+    if (configMap[entity]?.localized === false) {
+        return [undefined]
+    }
+    return [undefined,
+        ...Object.values(Locale)]
 }

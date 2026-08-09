@@ -27,9 +27,17 @@ export const coursesIndexMapping: ElasticsearchIndexMapping = {
             slug: {
                 type: "keyword",
             },
-            // full-text title used for normal search/highlight
+            // full-text title used for normal search/highlight. The `keyword` sub-field carries
+            // the whole untokenised title: the courses list sorts alphabetically by title BY
+            // DEFAULT, and a bare `text` field holds no per-document value to sort on.
             title: {
                 type: "text",
+                fields: {
+                    keyword: {
+                        type: "keyword",
+                        ignore_above: 256,
+                    },
+                },
             },
             // full-text short description
             description: {

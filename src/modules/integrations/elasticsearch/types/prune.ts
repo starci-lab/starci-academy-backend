@@ -6,8 +6,8 @@ import type {
 export interface CountDocsParams {
     /** TypeORM entity class name (resolved to a base index via the config map). */
     entity: string
-    /** Locale suffix selecting the concrete `<index>-<locale>` index. */
-    locale: Locale
+    /** Locale suffix selecting the concrete `<index>-<locale>` index; omit for the base index. */
+    locale?: Locale
 }
 
 /** Params for pruning documents whose id is not in the desired set. */

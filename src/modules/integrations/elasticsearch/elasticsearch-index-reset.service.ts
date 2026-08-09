@@ -1,10 +1,7 @@
-import type {
-    Client,
-} from "@elastic/elasticsearch"
 import {
     Injectable,
 } from "@nestjs/common"
-import {
+import type {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
@@ -18,6 +15,7 @@ import {
 } from "@modules/platform/winston/winston.service"
 import {
     configMap,
+    resolveIndexLocales,
 } from "./config"
 import {
     ElasticsearchService,
@@ -61,13 +59,9 @@ export class ElasticsearchIndexResetService {
         if (known.length === 0) {
             return
         }
-        // reset base + every locale variant of each requested entity in parallel
-        const locales: Array<Locale | undefined> = [
-            undefined,
-            ...Object.values(Locale),
-        ]
+        // reset every concrete index each entity owns (base + its locale variants) in parallel
         const tasks = known.flatMap((entity) =>
-            locales.map((locale) => ({
+            resolveIndexLocales(entity).map((locale) => ({
                 entity,
                 locale,
             })),
@@ -110,15 +104,11 @@ export class ElasticsearchIndexResetService {
         })
         // drop first (no-op when the index does not exist)
         await this.elasticsearchService.deleteIndex(index)
-        // re-create with the explicit V1+V2 mapping from config, or plain when none is set
-        const mapping = configMap[entity]?.mapping
-        await this.elasticsearchService.client.indices.create({
-            index,
-            ...((mapping ?? {
-            }) as Omit<
-                Parameters<Client["indices"]["create"]>[0],
-                "index"
-            >),
+        // re-create through the shared ensure path so the declared mapping is applied and any
+        // failure to apply it throws instead of leaving an index to be auto-created dynamically
+        await this.elasticsearchService.ensureIndexForEntity({
+            entity,
+            locale,
         })
     }
 }

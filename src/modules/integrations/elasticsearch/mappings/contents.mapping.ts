@@ -32,8 +32,16 @@ export const contentsIndexMapping: ElasticsearchIndexMapping = {
             displayId: {
                 type: "keyword",
             },
+            // `keyword` sub-field carries the untokenised title so the contents list can sort
+            // alphabetically -- a bare `text` field has no per-document value to sort on
             title: {
                 type: "text",
+                fields: {
+                    keyword: {
+                        type: "keyword",
+                        ignore_above: 256,
+                    },
+                },
             },
             description: {
                 type: "text",

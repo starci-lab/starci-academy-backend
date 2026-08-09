@@ -20,6 +20,9 @@ import {
     ElasticsearchQueryBuilder,
 } from "@modules/integrations/elasticsearch/utils/query-builder"
 import {
+    resolveSortField,
+} from "@modules/integrations/elasticsearch/utils/sort"
+import {
     envConfig,
 } from "@modules/platform/env/config"
 import {
@@ -76,8 +79,10 @@ export class ContentsHandler
             user,
         } = query.params
 
+        // `title` is analysed `text` -- sort on its `keyword` sub-field or ES rejects the
+        // search with `Fielddata is disabled on [title]`.
         const sort = sorts.map((sortItem) => ({
-            [sortItem.by]: {
+            [resolveSortField(sortItem.by)]: {
                 order: sortItem.order.toLowerCase() as estypes.SortOrder,
             } as estypes.FieldSort,
         })) as Array<estypes.SortCombinations>

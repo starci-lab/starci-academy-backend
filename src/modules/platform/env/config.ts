@@ -1922,15 +1922,11 @@ export const envConfig = () => ({
             key: "ELASTICSEARCH_PASSWORD",
             defaultValue: "123456",
         }),
-        /**
-         * When true, indices listed in `src/modules/elasticsearch/mappings` are (re)created with their
-         * explicit mapping instead of Elasticsearch's dynamic mapping -- required for SCHEMA V2
-         * challenges whose large jsonb blobs otherwise break dynamic indexing.
-         */
-        applyIndexMappings: parseEnvBoolean({
-            key: "ELASTICSEARCH_APPLY_INDEX_MAPPINGS",
-            defaultValue: false,
-        }),
+        // NOTE: there is deliberately no `applyIndexMappings` switch. It defaulted to false, so the
+        // mappings under `src/modules/integrations/elasticsearch/mappings` were never applied and
+        // every per-locale index was auto-created by its first document with Elasticsearch dynamic
+        // defaults (`completion` -> object, `keyword` -> text, `integer` -> long). Applying a
+        // declared mapping is a correctness invariant, not a deployment option.
     },
     /** NATS configuration. */
     nats: {

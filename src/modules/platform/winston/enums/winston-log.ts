@@ -70,6 +70,10 @@ export enum WinstonLog {
     ElasticsearchIndexResetStarted = "ElasticsearchIndexResetStarted",
     /** Elasticsearch index reset: finished -- indices empty and awaiting sync. */
     ElasticsearchIndexResetDone = "ElasticsearchIndexResetDone",
+    /** Elasticsearch index mapping: live index disagrees with the declared mapping. */
+    ElasticsearchIndexMappingDrifted = "ElasticsearchIndexMappingDrifted",
+    /** Elasticsearch index mapping: drifted index recreated from its declared mapping. */
+    ElasticsearchIndexMappingRepaired = "ElasticsearchIndexMappingRepaired",
     /** Elasticsearch synchronizer: sync cycle started. */
     EsSynchronizerSyncStarted = "EsSynchronizerSyncStarted",
     /** Elasticsearch synchronizer: old deprecated cron sync log. */

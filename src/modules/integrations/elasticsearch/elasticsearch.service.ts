@@ -9,44 +9,8 @@ import {
     InjectElasticsearch
 } from "./elasticsearch.decorators"
 import {
-    ChallengeEntity,
-} from "@modules/databases/postgresql/primary/entities/challenge.entity"
-import {
-    CodingProblemEntity,
-} from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
-import {
-    ConsultantEntity,
-} from "@modules/databases/postgresql/primary/entities/consultant.entity"
-import {
-    ContentEntity,
-} from "@modules/databases/postgresql/primary/entities/content.entity"
-import {
-    CourseEntity,
-} from "@modules/databases/postgresql/primary/entities/course.entity"
-import {
-    FlashcardDeckEntity,
-} from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
-import {
-    FoundationCategoryEntity,
-} from "@modules/databases/postgresql/primary/entities/foundation-category.entity"
-import {
-    FoundationEntity,
-} from "@modules/databases/postgresql/primary/entities/foundation.entity"
-import {
-    HeadhuntingCompanyEntity,
-} from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
-import {
-    ModuleEntity,
-} from "@modules/databases/postgresql/primary/entities/module.entity"
-import {
-    Locale,
-} from "@modules/databases/postgresql/primary/enums/locale"
-import {
     ObjectLiteral
 } from "typeorm"
-import {
-    AsyncService,
-} from "@modules/lib/mixin/async.service"
 import {
     ReadinessWatcherFactoryService,
 } from "@modules/lib/mixin/readiness-watcher-factory.service"
@@ -57,14 +21,31 @@ import {
     ElasticsearchIndexConfigMissingException,
 } from "@modules/platform/exceptions/errors/elasticsearch/elasticsearch-index-config-missing"
 import {
-    configMap
+    ElasticsearchIndexMappingNotAppliedException,
+} from "@modules/platform/exceptions/errors/elasticsearch/elasticsearch-index-mapping-not-applied"
+import {
+    WinstonLog,
+} from "@modules/platform/winston/enums/winston-log"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
+    configMap,
+    resolveIndexLocales,
 } from "./config"
 import {
     resolveElasticsearchIndexMapping
 } from "./mappings"
 import {
-    envConfig,
-} from "@modules/platform/env/config"
+    diffIndexMapping,
+} from "./utils/mapping-drift"
+import type {
+    IndexMappingDrift,
+} from "./utils/mapping-drift"
+import type {
+    CreateIndexParams,
+    DetectMappingDriftParams,
+} from "./types/ensure-index"
 import type {
     DeleteEntityParams,
     DeleteEntityResult,
@@ -91,26 +72,18 @@ import type {
  */
 export class ElasticsearchService implements OnModuleInit {
     /**
-     * The indices to create.
+     * Entities whose indices are created at boot.
+     *
+     * Derived from {@link configMap} rather than hand-listed: a hand-maintained list silently
+     * skipped `milestones` / `milestone-tasks`, and every index it skips is auto-created by its
+     * first document with Elasticsearch dynamic defaults instead of its declared mapping.
      */
-    private readonly indices: Array<string> = [
-        CourseEntity.name,
-
-        ChallengeEntity.name,
-        ContentEntity.name,
-        ModuleEntity.name,
-        FoundationEntity.name,
-        FoundationCategoryEntity.name,
-        HeadhuntingCompanyEntity.name,
-        ConsultantEntity.name,
-        FlashcardDeckEntity.name,
-        CodingProblemEntity.name,
-    ]
+    private readonly indices: Array<string> = Object.keys(configMap)
     constructor(
         @InjectElasticsearch()
         public readonly client: Client,
-        private readonly asyncService: AsyncService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -135,38 +108,46 @@ export class ElasticsearchService implements OnModuleInit {
     }
 
     /**
-     * On application bootstrap, ensure the indices exist. For entities that have an explicit index
-     * mapping (and when `ELASTICSEARCH_APPLY_INDEX_MAPPINGS` is on) the per-locale indices are
-     * pre-created with that mapping so documents land in a correctly-typed index.
+     * On application bootstrap, ensure every index declared in {@link configMap} exists WITH its
+     * declared mapping -- base index plus one per locale for localized entities.
+     *
+     * This must run before anything indexes a document: writing to a missing index makes
+     * Elasticsearch auto-create it from its dynamic defaults, which turns `keyword` into
+     * `text` + `.keyword`, `integer` into `long`, and a `completion` field into a plain object
+     * (dead autocomplete). Applying the mapping is NOT optional and is no longer gated by an env
+     * flag -- an unmapped index is a broken index.
      */
     async onModuleInit() {
         this.readinessWatcherFactoryService.createWatcher(
             ElasticsearchService.name
         )
-        const applyMappings = envConfig().elasticsearch.applyIndexMappings
-        // ensure the indices exist
-        await this.asyncService.allMustDone(
-            this.indices.flatMap(index => {
-                // mapped entities also pre-create their per-locale indices with the mapping
-                const hasMapping = applyMappings && Boolean(resolveElasticsearchIndexMapping(index))
-                const locales: Array<Locale | undefined> = hasMapping
-                    ? [undefined,
-                        ...Object.values(Locale)]
-                    : [undefined]
-                return locales.map((locale) =>
-                    this.ensureIndexForEntity({
-                        entity: index,
-                        locale
-                    }),
-                )
-            }),
-        )
+        // ensure every declared index (entity x locale) exists with its declared mapping.
+        // Sequential on purpose: this is boot-time bookkeeping over ~30 indices, and firing every
+        // exists/getMapping/create at once only buries the cluster under connections it does not
+        // need to hold while the rest of the application is still starting.
+        for (const entity of this.indices) {
+            for (const locale of resolveIndexLocales(entity)) {
+                await this.ensureIndexForEntity({
+                    entity,
+                    locale,
+                })
+            }
+        }
     }
 
     /**
-     * Ensure the index for an entity (and optional locale) exists, applying its explicit index
-     * mapping when `ELASTICSEARCH_APPLY_INDEX_MAPPINGS` is on and a mapping is registered for the
-     * entity. Falls back to Elasticsearch's dynamic mapping when no mapping applies.
+     * Ensure the index for an entity (and optional locale) exists and carries its declared mapping.
+     *
+     * A missing index is created from the mapping registered for the entity (dynamic mapping only
+     * when the entity has none). An index that already exists is compared against the declaration:
+     *
+     * - no drift -> nothing to do;
+     * - drift on an EMPTY index -> dropped and recreated from the declaration (nothing to lose);
+     * - drift on a POPULATED index -> reported at error level and left alone. Elasticsearch cannot
+     *   retype a field that already exists, so the only honest repair is drop + repopulate from
+     *   Postgres, which is what {@link ElasticsearchIndexResetService} does when `seed.yaml`
+     *   `sync.reindex` names the index. Boot refuses to make that call on its own, because it
+     *   would silently destroy documents the operator never asked to lose.
      *
      * @param params - Entity name and optional locale.
      */
@@ -182,38 +163,61 @@ export class ElasticsearchService implements OnModuleInit {
                 locale
             },
         )
-        const mapping = envConfig().elasticsearch.applyIndexMappings
-            ? resolveElasticsearchIndexMapping(entity)
-            : undefined
-        const existsResult = await this.client.indices.exists({
-            index
-        })
-        const exists =
-            typeof existsResult === "boolean"
-                ? existsResult
-                : (existsResult as { body: boolean }).body
+        const mapping = resolveElasticsearchIndexMapping(entity)
         // missing index -> create with the full mapping (settings + mappings) or plain when none
-        if (!exists) {
-            await this.client.indices.create({
+        if (!(await this.indexExists(index))) {
+            await this.createIndex({
                 index,
-                ...((mapping ?? {
-                }) as Omit<Parameters<Client["indices"]["create"]>[0], "index">)
+                entity,
+                mapping,
             })
             return
         }
-        // existing index -> ADDITIVELY apply the mapping (new fields only) instead of dropping
-        // it, so out-of-scope documents are preserved. A type conflict on a pre-existing
-        // dynamically-mapped field is ignored so the sync keeps going.
-        if (mapping?.mappings) {
-            try {
-                await this.client.indices.putMapping({
-                    index,
-                    ...(mapping.mappings as Omit<Parameters<Client["indices"]["putMapping"]>[0], "index">)
-                })
-            } catch {
-                // ignore mapping conflicts on pre-existing fields
-            }
+        // nothing declared -> nothing to compare against, dynamic mapping is the contract
+        if (!mapping?.mappings) {
+            return
         }
+        const drifts = await this.detectMappingDrift({
+            index,
+            mapping: mapping.mappings,
+        })
+        if (drifts.length === 0) {
+            return
+        }
+        const documentCount = await this.countDocs({
+            entity,
+            locale,
+        })
+        // loud, never swallowed: this is the failure that silently disables autocomplete and
+        // makes every sort/aggregation on a declared keyword field blow up at query time
+        this.winstonService.log(
+            WinstonLog.ElasticsearchIndexMappingDrifted,
+            {
+                index,
+                documentCount,
+                drifts: drifts.map(
+                    (drift) => `${drift.field}: ${drift.declared} -> ${drift.live}`,
+                ),
+            },
+        )
+        // documents at risk -> leave the index alone; the operator drives the reindex
+        if (documentCount > 0) {
+            return
+        }
+        // empty index -> nothing to lose, rebuild it from the declaration right now
+        await this.deleteIndex(index)
+        await this.createIndex({
+            index,
+            entity,
+            mapping,
+        })
+        this.winstonService.log(
+            WinstonLog.ElasticsearchIndexMappingRepaired,
+            {
+                index,
+                documentCount,
+            },
+        )
     }
 
     /**
@@ -223,24 +227,95 @@ export class ElasticsearchService implements OnModuleInit {
         index: string,
         create?: Omit<Parameters<Client["indices"]["create"]>[0], "index">,
     ): Promise<void> {
-        const existsResult = await this.client.indices.exists({
-            index
-        })
-        const exists =
-            typeof existsResult === "boolean"
-                ? existsResult
-                : (
-                    existsResult as {
-                        body: boolean;
-                    }
-                ).body
-
-        if (exists) return
+        if (await this.indexExists(index)) return
 
         await this.client.indices.create({
             index,
             ...(create ?? {
             })
+        })
+    }
+
+    /**
+     * Check whether an index exists, normalising the boolean/`{ body }` shapes the client returns
+     * across transport versions.
+     *
+     * @param index - Concrete index name.
+     * @returns True when the index exists.
+     */
+    private async indexExists(
+        index: string,
+    ): Promise<boolean> {
+        const existsResult = await this.client.indices.exists({
+            index
+        })
+        return typeof existsResult === "boolean"
+            ? existsResult
+            : (
+                existsResult as {
+                    body: boolean;
+                }
+            ).body
+    }
+
+    /**
+     * Create an index from its declared mapping, failing loudly when the mapping cannot be applied.
+     *
+     * A swallowed create is exactly how an index ends up fully dynamic: the create fails, the first
+     * indexed document auto-creates the index instead, and every declared type is lost.
+     *
+     * @param params - Index name, owning entity, and the mapping to apply.
+     */
+    private async createIndex(
+        {
+            index,
+            entity,
+            mapping,
+        }: CreateIndexParams,
+    ): Promise<void> {
+        try {
+            await this.client.indices.create({
+                index,
+                ...((mapping ?? {
+                }) as Omit<Parameters<Client["indices"]["create"]>[0], "index">)
+            })
+        } catch (error) {
+            // another boot worker won the race and created the same index -> the index exists
+            // with the same declared mapping, which is the desired end state
+            if (
+                error?.meta?.body?.error?.type === "resource_already_exists_exception" ||
+                error?.message?.includes("resource_already_exists_exception")
+            ) {
+                return
+            }
+            throw new ElasticsearchIndexMappingNotAppliedException({
+                index,
+                entity,
+                originalError: error instanceof Error ? error : undefined,
+            })
+        }
+    }
+
+    /**
+     * Compare a live index mapping against the mapping the code declares for it.
+     *
+     * @param params - Index name and the declared `mappings` block.
+     * @returns One entry per declared field whose live definition differs.
+     */
+    private async detectMappingDrift(
+        {
+            index,
+            mapping,
+        }: DetectMappingDriftParams,
+    ): Promise<Array<IndexMappingDrift>> {
+        const response = await this.client.indices.getMapping({
+            index,
+        })
+        // the response is keyed by concrete index name; an alias would resolve to one entry
+        const live = response[index]?.mappings as Record<string, unknown> | undefined
+        return diffIndexMapping({
+            declared: mapping,
+            live,
         })
     }
 
