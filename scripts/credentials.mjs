@@ -23,11 +23,12 @@
  *                      values, so two readers of the same credential cannot
  *                      disagree.
  *
- * WHY starci differs from miamia here: this app reads a third-party credential
- * by PATH, not by value. config.ts declares a `*_MOUNT_PATH` key per file and
- * `mount-secrets.ts` reads that path with `readFileSync`. So an APP_CREDENTIALS
- * row's `env` is the key that carries a PATH, while a CREDENTIALS row's `env` is
- * the key that carries a VALUE. sync emits them differently for that reason.
+ * EVERY ROW'S `env` IS THE KEY THAT CARRIES A VALUE -- infra password and
+ * third-party key alike. config.ts reads each of them through `parseEnvSecret`,
+ * which honours the `<KEY>_FILE` pointer convention, so sync emits one shape for
+ * the whole table: `<env>_FILE=<path to this row's file>`. Nothing downstream
+ * opens a path config.ts handed it; the two kinds used to be emitted differently
+ * and no longer are.
  */
 
 /**
@@ -191,7 +192,7 @@ export const REDIS_LANE_ALIASES = [
 export const DERIVED_CREDENTIALS = [
     {
         file: "keycloak-admin.json",
-        env: "TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH",
+        env: "KEYCLOAK_ADMIN",
         format: "json",
         fields: {
             username: "keycloak-admin-user.txt",
@@ -204,9 +205,9 @@ export const DERIVED_CREDENTIALS = [
  * Third-party credentials -- issued elsewhere, IRREPLACEABLE here.
  *
  * They need a table for two reasons. The file name and the env key rarely match
- * (`brevo-smtp-api-key.key` feeds TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH), and
- * two of the AI pools are on disk under a name config.ts does not look for, so
- * the move has to rename them.
+ * (`brevo-smtp-api-key.key` feeds BREVO_SMTP_PASSWORD), and two of the AI pools
+ * are on disk under a name config.ts does not look for, so the move has to
+ * rename them.
  *
  * Fields
  *   source  path under .mount/ the one-shot import reads, or null when the file
@@ -214,67 +215,67 @@ export const DERIVED_CREDENTIALS = [
  *           recorded
  *   file    basename inside .stacks/<stack>/runtime/files/ -- the name config.ts
  *           expects, which is not always the name it has today
- *   env     the `*_MOUNT_PATH` key that carries the PATH to this file
+ *   env     the key that carries this credential's VALUE. sync emits the pointer
+ *           twin, `<env>_FILE`; nothing sets the bare key in a deployed stack
  *   format  sops input/output type: "binary" for opaque keys, "json" for json
  *   note    why a row is not the obvious one-to-one
  *
- * The authority for `env` is config.ts's `mountPath.terraform` / `mountPath.aiKeys`
- * block. Keep them in step.
+ * The authority for `env` is config.ts's `secrets` block. Keep them in step.
  */
 export const APP_CREDENTIALS = [
     // ── payments ──────────────────────────────────────────────────────────
     {
         source: "terraform/payos-api-key.key",
         file: "payos-api-key.key",
-        env: "TERRAFORM_PAYOS_API_KEY_MOUNT_PATH",
+        env: "PAYOS_API_KEY",
         format: "binary",
     },
     {
         source: "terraform/sepay-api-key.key",
         file: "sepay-api-key.key",
-        env: "TERRAFORM_SEPAY_API_KEY_MOUNT_PATH",
+        env: "SEPAY_API_KEY",
         format: "binary",
     },
     {
         source: "terraform/stripe-secret-key.key",
         file: "stripe-secret-key.key",
-        env: "TERRAFORM_STRIPE_SECRET_KEY_MOUNT_PATH",
+        env: "STRIPE_SECRET_KEY",
         format: "binary",
     },
     {
         source: "terraform/stripe-webhook-secret.key",
         file: "stripe-webhook-secret.key",
-        env: "TERRAFORM_STRIPE_WEBHOOK_SECRET_MOUNT_PATH",
+        env: "STRIPE_WEBHOOK_SECRET",
         format: "binary",
     },
     {
         source: "terraform/paypal-client-id.key",
         file: "paypal-client-id.key",
-        env: "TERRAFORM_PAYPAL_CLIENT_ID_MOUNT_PATH",
+        env: "PAYPAL_CLIENT_ID",
         format: "binary",
     },
     {
         source: "terraform/paypal-client-secret.key",
         file: "paypal-client-secret.key",
-        env: "TERRAFORM_PAYPAL_CLIENT_SECRET_MOUNT_PATH",
+        env: "PAYPAL_CLIENT_SECRET",
         format: "binary",
     },
     {
         source: "terraform/paypal-webhook-id.key",
         file: "paypal-webhook-id.key",
-        env: "TERRAFORM_PAYPAL_WEBHOOK_ID_MOUNT_PATH",
+        env: "PAYPAL_WEBHOOK_ID",
         format: "binary",
     },
     {
         source: "terraform/nowpayments-api-key.key",
         file: "nowpayments-api-key.key",
-        env: "TERRAFORM_NOWPAYMENTS_API_KEY_MOUNT_PATH",
+        env: "NOWPAYMENTS_API_KEY",
         format: "binary",
     },
     {
         source: "terraform/nowpayments-ipn-secret.key",
         file: "nowpayments-ipn-secret.key",
-        env: "TERRAFORM_NOWPAYMENTS_IPN_SECRET_MOUNT_PATH",
+        env: "NOWPAYMENTS_IPN_SECRET",
         format: "binary",
     },
 
@@ -282,13 +283,13 @@ export const APP_CREDENTIALS = [
     {
         source: "terraform/github-access-token.key",
         file: "github-access-token.key",
-        env: "TERRAFORM_GITHUB_ACCESS_TOKEN_MOUNT_PATH",
+        env: "GITHUB_ACCESS_TOKEN",
         format: "binary",
     },
     {
         source: "terraform/github-secret-key.key",
         file: "github-secret-key.key",
-        env: "TERRAFORM_GITHUB_SECRET_KEY_MOUNT_PATH",
+        env: "GITHUB_SECRET_KEY",
         format: "binary",
     },
     {
@@ -299,7 +300,7 @@ export const APP_CREDENTIALS = [
          */
         source: "terraform/data-git-token.key",
         file: "data-git-token.key",
-        env: "TERRAFORM_DATA_GIT_TOKEN_MOUNT_PATH",
+        env: "DATA_GIT_TOKEN",
         format: "binary",
     },
 
@@ -307,7 +308,7 @@ export const APP_CREDENTIALS = [
     {
         source: "terraform/keycloak-client-secret.key",
         file: "keycloak-client-secret.key",
-        env: "TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH",
+        env: "KEYCLOAK_CLIENT_SECRET",
         format: "binary",
     },
     {
@@ -317,13 +318,13 @@ export const APP_CREDENTIALS = [
          */
         source: "terraform/s3-secret-access-key.key",
         file: "s3-secret-access-key.key",
-        env: "TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH",
+        env: "S3_SECRET_ACCESS_KEY",
         format: "binary",
     },
     {
         source: "terraform/brevo-smtp-api-key.key",
         file: "brevo-smtp-api-key.key",
-        env: "TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH",
+        env: "BREVO_SMTP_PASSWORD",
         format: "binary",
         note: "file name and env key disagree on purpose -- Brevo's API key IS the SMTP password",
     },
@@ -335,13 +336,13 @@ export const APP_CREDENTIALS = [
          */
         source: "terraform/encryption-key.key",
         file: "encryption-key.key",
-        env: "TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH",
+        env: "ENCRYPTION_KEY",
         format: "binary",
     },
     {
         source: "terraform/judge0-auth-token.key",
         file: "judge0-auth-token.key",
-        env: "TERRAFORM_JUDGE0_AUTH_TOKEN_MOUNT_PATH",
+        env: "JUDGE0_AUTH_TOKEN",
         format: "binary",
         note: "optional -- an absent file means Judge0 auth is off, not an error",
     },
@@ -355,14 +356,14 @@ export const APP_CREDENTIALS = [
          */
         source: "terraform/admin-api-key.key",
         file: "admin-api-key.key",
-        env: "TERRAFORM_ADMIN_API_KEY_MOUNT_PATH",
+        env: "ADMIN_API_KEY",
         format: "binary",
         note: "reader is hard-coded today -- mount-secrets.ts:getAdminApiKey() must learn this key",
     },
     {
         source: "terraform/gcp-service-account.json",
         file: "gcp-service-account.json",
-        env: "TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH",
+        env: "GCP_SERVICE_ACCOUNT_JSON",
         format: "json",
     },
 
@@ -373,40 +374,40 @@ export const APP_CREDENTIALS = [
     {
         source: "terraform/keys/open-api-keys.key",
         file: "openai-api-keys.key",
-        env: "AI_KEYS_OPENAI_MOUNT_PATH",
+        env: "OPENAI_API_KEYS",
         format: "binary",
         note: "RENAME: on disk as open-api-keys.key; config.ts and the model catalog both say openai-api-keys.key",
     },
     {
         source: "terraform/keys/gemini-api-keys.key",
         file: "gemini-api-keys.key",
-        env: "AI_KEYS_GEMINI_MOUNT_PATH",
+        env: "GEMINI_API_KEYS",
         format: "binary",
     },
     {
         source: "terraform/keys/openrouter-api-keys.key",
         file: "openrouter-api-keys.key",
-        env: "AI_KEYS_OPENROUTER_MOUNT_PATH",
+        env: "OPENROUTER_API_KEYS",
         format: "binary",
     },
     {
         source: "terraform/keys/claude-api-keys.key",
         file: "anthropic-api-keys.key",
-        env: "AI_KEYS_ANTHROPIC_MOUNT_PATH",
+        env: "ANTHROPIC_API_KEYS",
         format: "binary",
         note: "RENAME: on disk as claude-api-keys.key; config.ts says anthropic-api-keys.key",
     },
     {
         /**
          * Nothing to import: no file exists under either name. config.ts points
-         * AI_KEYS_LOCAL_MOUNT_PATH at `qwen7b.key` while the model catalog asks
+         * LOCAL_API_KEYS at `qwen7b.key` while the model catalog asks
          * for `qwen-local-embedding.key`, and neither is on disk -- the local
          * provider falls back to a placeholder, which is correct for a gateless
          * Ollama. Recorded so the drift is visible rather than discovered.
          */
         source: null,
         file: "qwen7b.key",
-        env: "AI_KEYS_LOCAL_MOUNT_PATH",
+        env: "LOCAL_API_KEYS",
         format: "binary",
         note: "absent on disk; catalog asks for qwen-local-embedding.key, config.ts for qwen7b.key",
     },

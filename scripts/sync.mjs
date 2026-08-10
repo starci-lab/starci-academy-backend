@@ -45,9 +45,10 @@
  *                                           .env.override.bak, then writes the real one
  *   5. boot, verify, then delete the .bak (it still holds plaintext credentials)
  *
- * Unlike miamia, this app has no `parseEnvSecret` helper: config.ts reads plain
- * strings, so generated infra credentials are written as VALUES into the (always
- * gitignored) env bridge rather than as `<KEY>_FILE` pointers.
+ * Every credential -- infra password and third-party key alike -- is written as
+ * a `<KEY>_FILE` pointer, never as a value: config.ts reads each of them through
+ * `parseEnvSecret`, which opens the file itself. The env bridge therefore holds
+ * paths and ports, and no secret survives in it.
  *
  * This script NEVER prints a secret value. It prints key NAMES and ports only.
  */
@@ -379,12 +380,13 @@ const formatEnvValue = (value) => {
  * Loads the credential table if it exists. It is a sibling script, not a
  * dependency: sync still runs (and still writes every port) on a checkout where
  * the table has not landed yet, it just cannot fill in generated passwords.
- * @returns `{ CREDENTIALS, REDIS_LANE_ALIASES, APP_CREDENTIALS }`, all defaulted.
+ * @returns `{ CREDENTIALS, REDIS_LANE_ALIASES, DERIVED_CREDENTIALS, APP_CREDENTIALS }`, all defaulted.
  */
 const loadCredentialTable = async () => {
     const empty = {
         CREDENTIALS: [],
         REDIS_LANE_ALIASES: [],
+        DERIVED_CREDENTIALS: [],
         APP_CREDENTIALS: [],
     }
     if (!existsSync(PATHS.credentials)) {
@@ -399,6 +401,9 @@ const loadCredentialTable = async () => {
             REDIS_LANE_ALIASES: Array.isArray(module.REDIS_LANE_ALIASES)
                 ? module.REDIS_LANE_ALIASES
                 : [],
+            DERIVED_CREDENTIALS: Array.isArray(module.DERIVED_CREDENTIALS)
+                ? module.DERIVED_CREDENTIALS
+                : [],
             APP_CREDENTIALS: Array.isArray(module.APP_CREDENTIALS)
                 ? module.APP_CREDENTIALS
                 : [],
@@ -410,15 +415,21 @@ const loadCredentialTable = async () => {
 }
 
 /**
- * Reads every generated credential value off disk, keyed by the env var it
- * feeds. Values are held in memory only; nothing here is ever printed.
+ * Resolves every credential to the FILE it lives in, keyed by the env var it
+ * feeds. No value ever leaves this function: config.ts reads secrets through
+ * `parseEnvSecret`, so the bridge carries `<KEY>_FILE` pointers and the app
+ * opens the file itself. The file is still read here, but only to prove it
+ * exists and is non-empty -- a pointer to an empty file fails the boot.
  * @param table - the loaded credential table.
- * @returns `{ values: Map<string,string>, missing: string[] }` -- names only.
+ * @returns `{ pointers: Map<string,string>, missing: string[] }` -- names and paths only.
  */
 const readCredentialValues = (table) => {
-    const values = new Map()
+    const pointers = new Map()
     const missing = []
-    for (const credential of table.CREDENTIALS) {
+    const rows = [...table.CREDENTIALS,
+        ...table.DERIVED_CREDENTIALS,
+        ...table.APP_CREDENTIALS]
+    for (const credential of rows) {
         if (!credential
             || typeof credential.env !== "string"
             || typeof credential.file !== "string") {
@@ -436,18 +447,20 @@ const readCredentialValues = (table) => {
             missing.push(credential.env)
             continue
         }
-        values.set(credential.env,
-            raw)
-        // one redis server, four logical lanes -- they share the one password
+        // repo-relative POSIX path: the app resolves it against process.cwd()
+        const pointer = `${RUNTIME_FILES_PREFIX}/${credential.file}`
+        pointers.set(credential.env,
+            pointer)
+        // one redis server, four logical lanes -- they share the one password file
         if (credential.env.startsWith("REDIS_")) {
             for (const alias of table.REDIS_LANE_ALIASES) {
-                values.set(alias,
-                    raw)
+                pointers.set(alias,
+                    pointer)
             }
         }
     }
     return {
-        values, missing
+        pointers, missing
     }
 }
 
@@ -1061,7 +1074,7 @@ const resolveTarget = (explicitOut, forceOverride) => {
  * credentials that now live under `.stacks/dev/runtime`.
  * @param ports - resolved port map.
  * @param decryptedEnvFiles - plaintext `.env` paths produced by step 4.
- * @param credentials - `{ values, missing }` from readCredentialValues.
+ * @param credentials - `{ pointers, missing }` from readCredentialValues.
  * @param dataMountPath - repo-relative POSIX path of the `data` gitmount.
  * @param target - `{ path, mode }` from resolveTarget.
  * @returns `{ emitted: string[] }` -- names only, never values.
@@ -1122,15 +1135,16 @@ const writeEnvBridge = (
                 skipped.push(key)
                 continue
             }
-            // `null` marks a generated credential: its value only ever comes off
-            // disk. Never fall back to the config.ts default here -- that default
-            // is the OLD password and would authenticate against nothing.
+            // `null` marks a generated credential: it only ever comes off disk,
+            // and it goes over as a `<KEY>_FILE` pointer rather than a value.
+            // Never fall back to the config.ts default here -- that default is
+            // the OLD password and would authenticate against nothing.
             if (derivedValue === null) {
-                if (!credentials.values.has(key)) {
+                if (!credentials.pointers.has(key)) {
                     unfilled.push(key)
                     continue
                 }
-                sectionLines.push(`${key}=${formatEnvValue(credentials.values.get(key))}`)
+                sectionLines.push(`${key}_FILE=${formatEnvValue(credentials.pointers.get(key))}`)
                 emitted.push(key)
                 continue
             }
@@ -1149,6 +1163,26 @@ const writeEnvBridge = (
                 ...sectionLines,
                 "")
         }
+    }
+
+    // ---- secrets: every credential the sections did not already place, as a
+    // `<KEY>_FILE` pointer. This is the whole third-party half of the table --
+    // stripe, paypal, github, the AI pools -- which config.ts now reads through
+    // `parseEnvSecret` by VALUE key, so the bridge names the file and the app
+    // opens it.
+    const secretLines = []
+    for (const [key, pointer] of [...credentials.pointers.entries()].sort()) {
+        if (emitted.includes(key) || !isKnownKey(key)) {
+            continue
+        }
+        secretLines.push(`${key}_FILE=${formatEnvValue(pointer)}`)
+        emitted.push(key)
+    }
+    if (secretLines.length > 0) {
+        lines.push("# Secrets -- `<KEY>_FILE` pointers, never values. The app reads the",
+            "# file itself in parseEnvSecret (src/modules/platform/env/utils/parse-env.ts).",
+            ...secretLines,
+            "")
     }
 
     // ---- mount paths: point the app at .stacks / .gitmounts instead of .mount

@@ -67,19 +67,19 @@ services:
       # Seed/sync scope is configured in .mount/config/seed.yaml (not env).
 
       # Terraform secret file paths (inside container; volume: /root/academy/.mount → /usr/src/app/.mount)
-      TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH: ${TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH:-/usr/src/app/.mount/terraform/keycloak-admin.json}
-      TERRAFORM_GITHUB_ACCESS_TOKEN_MOUNT_PATH: ${TERRAFORM_GITHUB_ACCESS_TOKEN_MOUNT_PATH:-/usr/src/app/.mount/terraform/github-access-token.key}
-      TERRAFORM_GITHUB_SECRET_KEY_MOUNT_PATH: ${TERRAFORM_GITHUB_SECRET_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/github-secret-key.key}
-      TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH: ${TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/s3-secret-access-key.key}
-      TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH: ${TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH:-/usr/src/app/.mount/terraform/keycloak-client-secret.key}
-      TERRAFORM_PAYOS_API_KEY_MOUNT_PATH: ${TERRAFORM_PAYOS_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/payos-api-key.key}
-      TERRAFORM_SEPAY_API_KEY_MOUNT_PATH: ${TERRAFORM_SEPAY_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/sepay-api-key.key}
+      KEYCLOAK_ADMIN_FILE: ${KEYCLOAK_ADMIN_FILE:-/usr/src/app/.mount/terraform/keycloak-admin.json}
+      GITHUB_ACCESS_TOKEN_FILE: ${GITHUB_ACCESS_TOKEN_FILE:-/usr/src/app/.mount/terraform/github-access-token.key}
+      GITHUB_SECRET_KEY_FILE: ${GITHUB_SECRET_KEY_FILE:-/usr/src/app/.mount/terraform/github-secret-key.key}
+      S3_SECRET_ACCESS_KEY_FILE: ${S3_SECRET_ACCESS_KEY_FILE:-/usr/src/app/.mount/terraform/s3-secret-access-key.key}
+      KEYCLOAK_CLIENT_SECRET_FILE: ${KEYCLOAK_CLIENT_SECRET_FILE:-/usr/src/app/.mount/terraform/keycloak-client-secret.key}
+      PAYOS_API_KEY_FILE: ${PAYOS_API_KEY_FILE:-/usr/src/app/.mount/terraform/payos-api-key.key}
+      SEPAY_API_KEY_FILE: ${SEPAY_API_KEY_FILE:-/usr/src/app/.mount/terraform/sepay-api-key.key}
       # SePay PG env + merchant (secret key comes from the mount path above)
       API_SEPAY_ENV: ${API_SEPAY_ENV:-sandbox}
       API_SEPAY_MERCHANT_ID: ${API_SEPAY_MERCHANT_ID:-SP-TEST-CNA92625}
-      TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH: ${TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH:-/usr/src/app/.mount/terraform/brevo-smtp-api-key.key}
-      TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH: ${TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/encryption-key.key}
-      TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH: ${TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH:-/usr/src/app/.mount/terraform/gcp-service-account.json}
+      BREVO_SMTP_PASSWORD_FILE: ${BREVO_SMTP_PASSWORD_FILE:-/usr/src/app/.mount/terraform/brevo-smtp-api-key.key}
+      ENCRYPTION_KEY_FILE: ${ENCRYPTION_KEY_FILE:-/usr/src/app/.mount/terraform/encryption-key.key}
+      GCP_SERVICE_ACCOUNT_JSON_FILE: ${GCP_SERVICE_ACCOUNT_JSON_FILE:-/usr/src/app/.mount/terraform/gcp-service-account.json}
 
       SYNCHRONIZER_ENABLE: ${SYNCHRONIZER_ENABLE:-false}
 
