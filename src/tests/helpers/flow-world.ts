@@ -57,6 +57,9 @@ import {
  * and answers differently every time, so the stub is the DEFAULT rather than something each flow
  * author remembers -- a rule that must be remembered is one distracted afternoon from being broken.
  * See `testing.md` TESTING-9.
+ *
+ * HOW A FLOW OVERRIDES A DEFAULT: name the same token in `options.providers`. Those are appended
+ * AFTER the defaults, and Nest resolves a duplicated token to the last one registered.
  */
 
 /** The canned model answer a flow gets unless it says otherwise. */
@@ -146,8 +149,6 @@ export const bootFlowWorld = async (
         ],
         controllers: options.controllers ?? [],
         providers: [
-            // a flow's own providers come FIRST, so naming one of these overrides the default
-            ...(options.providers ?? []),
             {
                 provide: AiInvokeService,
                 useValue: model,
@@ -196,6 +197,17 @@ export const bootFlowWorld = async (
                     ) => produce()),
                 },
             },
+            /*
+             * A FLOW'S OWN PROVIDERS COME LAST, AND THE ORDER IS THE WHOLE MECHANISM.
+             *
+             * Nest resolves a duplicated token to the provider registered LAST, so a flow that
+             * needs a richer MountFilesystemService (say, one whose appConfig carries the
+             * membership product) only gets it if its own entry comes after the default. This
+             * file originally listed them first with a comment claiming the opposite, and the
+             * symptom was a stub that silently lost every time -- the default answered, the
+             * override never ran, and the failure surfaced far away as a missing config field.
+             */
+            ...(options.providers ?? []),
         ],
     }).compile()
 
