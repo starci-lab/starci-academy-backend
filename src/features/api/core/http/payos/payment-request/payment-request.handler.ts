@@ -37,9 +37,18 @@ export class PaymentRequestHandler
         super()
     }
 
+    /**
+     * Processes the payment-status query.
+     * @param query - The query carrying the PayOS payment id.
+     * @returns The payment as PayOS currently reports it.
+     */
     protected override async process(
         query: PaymentRequestQuery,
     ): Promise<PaymentRequestResponseData> {
-        return await this.payos.paymentRequests.get(query.id)
+        const {
+            request,
+        } = query.params
+
+        return await this.payos.paymentRequests.get(request.id)
     }
 }

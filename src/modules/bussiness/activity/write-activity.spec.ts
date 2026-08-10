@@ -19,6 +19,11 @@ import type {
  * `writeActivity` is a plain function (no DI) -- the caller's transaction
  * manager IS the dependency, so the mock is passed straight in rather than
  * wired through a `Test.createTestingModule`.
+ *
+ * THE ASSERTIONS READ THE ROW, NOT THE CALL. This function returns nothing, so the row it hands
+ * the manager is the only outcome there is -- but asserting the whole call signature restates the
+ * source, and goes red for a reordered argument while staying green for a wrong `type`. Capturing
+ * the row and asserting its fields tests what gets written instead of how it was passed.
  */
 describe("writeActivity",
     () => {
@@ -26,6 +31,24 @@ describe("writeActivity",
 
         const userId = "user-1"
         const idempotencyKey = "lesson-42"
+
+        /** The dedup lookup the function ran, as `{ type, idempotencyKey }`. */
+        const dedupLookup = () => {
+            const [entity, options] = entityManager.findOne.mock.calls[0] ?? []
+            return {
+                entity,
+                where: (options as { where?: unknown } | undefined)?.where,
+            }
+        }
+
+        /** The row the function handed the manager to persist. */
+        const savedRow = () => {
+            const [entity, row] = entityManager.save.mock.calls[0] ?? []
+            return {
+                entity,
+                row: row as Partial<ActivityEntity> & { payload?: unknown },
+            }
+        }
 
         beforeEach(() => {
             entityManager = makeEntityManagerMock()
@@ -51,36 +74,25 @@ describe("writeActivity",
                     },
                 })
 
-                // the dedup gate reads the (type, idempotencyKey) unique key first
-                expect(entityManager.findOne).toHaveBeenCalledWith(
-                    ActivityEntity,
-                    {
-                        where: {
-                            type: ActivityType.LessonRead,
-                            idempotencyKey,
-                        },
-                        select: {
-                            id: true,
-                        },
+                const {
+                    entity,
+                    row,
+                } = savedRow()
+                expect(entity).toBe(ActivityEntity)
+                // the row is keyed by relation id, and the metadata is snapshotted under `payload`
+                expect(row).toEqual({
+                    user: {
+                        id: userId,
                     },
-                )
-                // then appends the row via relation id, snapshot under `payload`
-                expect(entityManager.save).toHaveBeenCalledWith(
-                    ActivityEntity,
-                    {
-                        user: {
-                            id: userId,
-                        },
-                        type: ActivityType.LessonRead,
-                        idempotencyKey,
-                        payload: {
-                            target,
-                        },
+                    type: ActivityType.LessonRead,
+                    idempotencyKey,
+                    payload: {
+                        target,
                     },
-                )
+                })
             })
 
-        it("defaults metadata to null when omitted",
+        it("defaults the payload to null when no metadata is given",
             async () => {
                 entityManager.findOne.mockResolvedValueOnce(null)
 
@@ -91,12 +103,9 @@ describe("writeActivity",
                     idempotencyKey,
                 })
 
-                expect(entityManager.save).toHaveBeenCalledWith(
-                    ActivityEntity,
-                    expect.objectContaining({
-                        payload: null,
-                    }),
-                )
+                // null rather than undefined: the column is written explicitly, so a later read
+                // cannot tell "no metadata" apart from "column missing"
+                expect(savedRow().row.payload).toBeNull()
             })
 
         it("is an idempotent no-op when a row for the (type, idempotencyKey) pair already exists",
@@ -120,11 +129,12 @@ describe("writeActivity",
                     },
                 })
 
-                // NOTHING is written -- no duplicate feed row, ever
-                expect(entityManager.save).not.toHaveBeenCalled()
+                // NOTHING is written -- no duplicate feed row, ever. Absence is the outcome here,
+                // so the call count IS the assertion.
+                expect(entityManager.save.mock.calls).toHaveLength(0)
             })
 
-        it("scopes the dedup lookup by BOTH type and idempotencyKey (same key, different type, is a distinct event)",
+        it("scopes the dedup lookup by BOTH type and idempotencyKey, so one key under two types is two events",
             async () => {
                 entityManager.findOne.mockResolvedValueOnce(null)
 
@@ -135,14 +145,14 @@ describe("writeActivity",
                     idempotencyKey,
                 })
 
-                expect(entityManager.findOne).toHaveBeenCalledWith(
-                    ActivityEntity,
-                    expect.objectContaining({
-                        where: {
-                            type: ActivityType.CodingSolved,
-                            idempotencyKey,
-                        },
-                    }),
-                )
+                const {
+                    entity,
+                    where,
+                } = dedupLookup()
+                expect(entity).toBe(ActivityEntity)
+                expect(where).toEqual({
+                    type: ActivityType.CodingSolved,
+                    idempotencyKey,
+                })
             })
     })

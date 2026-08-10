@@ -1,9 +1,16 @@
+import {
+    ExecuteParams,
+} from "../../../types/execute"
+import type {
+    PaymentRequestRequest,
+} from "./dtos/request"
+
 /**
- * CQRS query keyed by PayOS payment id -- a query (not command) because polling must be
- * side-effect free.
+ * CQRS query carrying the request context for the payment-status read -- a query rather than a
+ * command because polling must be side-effect free.
  */
 export class PaymentRequestQuery {
     constructor(
-        readonly id: string,
+        readonly params: ExecuteParams<PaymentRequestRequest>,
     ) {}
 }

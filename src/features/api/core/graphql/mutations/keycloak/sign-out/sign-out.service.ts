@@ -5,22 +5,33 @@ import {
     CommandBus,
 } from "@nestjs/cqrs"
 import {
+    ExecuteParams,
+} from "../../../../types/execute"
+import {
     SignOutCommand,
 } from "./sign-out.command"
+import type {
+    SignOutRequest,
+} from "./graphql-types/request"
 
 @Injectable()
-/**
- * Service for signing out a user from Keycloak.
- */
+/** Thin service that forwards the signOut request to the CQRS command bus. */
 export class SignOutService {
     constructor(
         private readonly commandBus: CommandBus,
     ) {}
 
-    async execute(refreshToken: string): Promise<undefined> {
+    /**
+     * Dispatches the signOut command.
+     *
+     * @param params - Request/user/locale context for the mutation.
+     */
+    async execute(
+        params: ExecuteParams<SignOutRequest>,
+    ): Promise<undefined> {
+        // hand off to the command handler which revokes the token at Keycloak
         return this.commandBus.execute(
-            new SignOutCommand(refreshToken),
+            new SignOutCommand(params),
         )
     }
 }
-

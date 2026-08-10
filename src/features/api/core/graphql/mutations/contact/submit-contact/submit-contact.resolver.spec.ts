@@ -9,10 +9,10 @@ import {
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
     SubmitContactResolver,
-} from "@features/api/core/graphql/mutations/contact/submit-contact/submit-contact.resolver"
+} from "./submit-contact.resolver"
 import type {
     SubmitContactRequest,
-} from "@features/api/core/graphql/mutations/contact/submit-contact/graphql-types/request"
+} from "./graphql-types/request"
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
@@ -21,26 +21,23 @@ import {
 const CONTACT_INBOX = "cuongnvtse160875@gmail.com"
 
 /**
- * e2e for the public `submitContact` mutation -- `.claude/canon/be/enforce/
- * authoring/testing.md` §2 names every write flow as required e2e coverage;
- * this flow writes NO database row (it is anonymous, mail-only), so its
- * "commit" is the outbound `EnqueueSendMailJobService.enqueue` call. Runs the
- * real `SubmitContactResolver` (category -> label mapping, HTML-escaping, the
- * anonymous/no-auth-guard wiring) end to end; only the mail queue itself is
- * stubbed -- no Postgres/Testcontainers boot is needed for this spec, since
- * `SubmitContactResolver` has no database dependency at all.
+ * Unit spec for `SubmitContactResolver`.
  *
- * MOCKED (genuinely external to the process, matches the pattern
- * `createE2eApp` uses for the same class):
- *  - `EnqueueSendMailJobService` -- real class enqueues onto a live BullMQ
- *    queue via `JobActionService` (itself a DB write + broker round trip);
- *    stubbed so this spec asserts the resolver's OWN logic (label mapping,
- *    escaping, envelope shape) without needing Redis/BullMQ infra.
+ * IT USED TO CARRY AN `e2e-spec` SUFFIX AND IT WAS NEVER AN E2E. An e2e is one business flow driven
+ * end to end the way production drives it; this file calls `resolver.execute(...)` directly, over
+ * no transport, and what it actually asserts are DECISIONS the resolver makes on its own - the
+ * category-to-label mapping, the HTML escaping, the shape of the mail envelope. Those are unit
+ * cases, so it lives beside the resolver and runs in the fast lane, where it needs no container.
  *
- * REAL: `SubmitContactResolver` (the mutation under test) -- anonymous, no
- * `@UseGuards`, matching its "anyone can reach out" contract.
+ * The contact flow writes no database row: it is anonymous and mail-only, so its whole outcome is
+ * the outbound envelope. That is why the assertions read the envelope the queue was handed - here
+ * the enqueue IS the observable effect, not a stand-in for one.
+ *
+ * STUBBED: `EnqueueSendMailJobService`, whose real implementation enqueues onto a live BullMQ queue
+ * via a database write and a broker round trip. Everything else is the real resolver, anonymous and
+ * unguarded, matching its "anyone can reach out" contract.
  */
-describe("Public contact-form submission (e2e)",
+describe("SubmitContactResolver",
     () => {
         let app: INestApplication
         let resolver: SubmitContactResolver

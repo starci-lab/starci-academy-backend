@@ -3,6 +3,9 @@ import {
     QueryHandler,
 } from "@nestjs/cqrs"
 import {
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
     ChallengeSubmissionProgressQuery,
 } from "./challenge-submission-progress.query"
 import {
@@ -31,19 +34,27 @@ import {
  * {@link ChallengeProgressService} for the cached/recomputed progress.
  */
 export class ChallengeSubmissionProgressHandler
-implements IQueryHandler<ChallengeSubmissionProgressQuery, ChallengeSubmissionProgressResponseData>
+    extends ICQRSHandler<ChallengeSubmissionProgressQuery, ChallengeSubmissionProgressResponseData>
+    implements IQueryHandler<ChallengeSubmissionProgressQuery, ChallengeSubmissionProgressResponseData>
 {
+    /**
+     * Constructor.
+     * @param entityManager - The primary PostgreSQL entity manager.
+     * @param challengeProgressService - Cached/recomputed challenge progress.
+     */
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly challengeProgressService: ChallengeProgressService,
-    ) {}
+    ) {
+        super()
+    }
 
     /**
      * @param query - Carries the request (courseId) and the authenticated user.
      * @returns Empty completion tasks when the user has no enrollment in the course.
      */
-    async execute(
+    protected override async process(
         query: ChallengeSubmissionProgressQuery,
     ): Promise<ChallengeSubmissionProgressResponseData> {
         const { request, user } = query.params

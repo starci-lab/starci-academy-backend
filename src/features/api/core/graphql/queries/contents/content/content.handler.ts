@@ -348,7 +348,7 @@ export class ContentHandler
                     ? slice.slice(0,
                         slice.lastIndexOf("```"))
                     : slice
-            const testingHeading = /^#{1,6}[ \t].*(Kiểm thử|Verification|Testing)\b.*$/im
+            const testingHeading = /^#{1,6}[ \t].*(Kiểm thử|Verification|Testing)\b.*$/im // vn-ok: matches the vi-locale heading authored in real lesson bodies
             const match = testingHeading.exec(text)
             if (match?.index != null && match.index > 0) {
                 return dropDanglingFence(text.slice(0,

@@ -3,6 +3,9 @@ import {
     QueryHandler,
 } from "@nestjs/cqrs"
 import {
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
     MilestoneTaskProgressQuery,
 } from "./milestone-task-progress.query"
 import {
@@ -34,21 +37,30 @@ import {
  * {@link PersonalProjectProgressService} for the cached/recomputed progress.
  */
 export class MilestoneTaskProgressHandler
-implements IQueryHandler<MilestoneTaskProgressQuery, MilestoneTaskProgressResponseData>
+    extends ICQRSHandler<MilestoneTaskProgressQuery, MilestoneTaskProgressResponseData>
+    implements IQueryHandler<MilestoneTaskProgressQuery, MilestoneTaskProgressResponseData>
 {
+    /**
+     * Constructor.
+     * @param entityManager - The primary PostgreSQL entity manager.
+     * @param userService - Resolves the viewer.
+     * @param personalProjectProgressService - Cached/recomputed milestone progress.
+     */
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userService: UserService,
         private readonly personalProjectProgressService: PersonalProjectProgressService,
-    ) {}
+    ) {
+        super()
+    }
 
     /**
      * @param query - Carries the request (courseId) and the authenticated user.
      * @returns Empty completion tasks (and a null current task) when the user
      * has no enrollment in the course.
      */
-    async execute(
+    protected override async process(
         query: MilestoneTaskProgressQuery,
     ): Promise<MilestoneTaskProgressResponseData> {
         const { request, user } = query.params

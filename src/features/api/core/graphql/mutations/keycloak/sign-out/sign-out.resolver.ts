@@ -84,7 +84,11 @@ export class SignOutResolver {
                 res: Response
             },
     ): Promise<undefined> {
-        await this.signOutService.execute(refreshToken)
+        await this.signOutService.execute({
+            request: {
+                refreshToken,
+            },
+        })
         this.cookieService.clearCookie(
             {
                 res: ctx.res,

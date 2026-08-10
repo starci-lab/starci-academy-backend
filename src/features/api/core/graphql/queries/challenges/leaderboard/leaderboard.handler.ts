@@ -3,6 +3,9 @@ import {
     QueryHandler,
 } from "@nestjs/cqrs"
 import {
+    ICQRSHandler,
+} from "@modules/platform/cqrs/icqrs-handler"
+import {
     LeaderboardQuery,
 } from "./leaderboard.query"
 import {
@@ -23,15 +26,27 @@ import {
  * the viewer is inside it, otherwise a direct rank lookup.
  */
 export class LeaderboardHandler
-implements IQueryHandler<LeaderboardQuery, LeaderboardResponseData>
+    extends ICQRSHandler<LeaderboardQuery, LeaderboardResponseData>
+    implements IQueryHandler<LeaderboardQuery, LeaderboardResponseData>
 {
+    /**
+     * Constructor.
+     * @param progressProjectionService - Reads the flat CQRS progress projection.
+     */
     constructor(
         // reads the flat CQRS projection (kept fresh by inline recompute + CDC);
         // same getLeaderboard/getMyRank shapes the old LeaderboardService exposed
         private readonly progressProjectionService: ProgressProjectionService,
-    ) {}
+    ) {
+        super()
+    }
 
-    async execute(query: LeaderboardQuery): Promise<LeaderboardResponseData> {
+    /**
+     * Processes the leaderboard query.
+     * @param query - The query carrying request + viewer.
+     * @returns The clamped board window, and the viewer's rank when there is a viewer.
+     */
+    protected override async process(query: LeaderboardQuery): Promise<LeaderboardResponseData> {
         const { request, user } = query.params
         const { courseId } = request
 

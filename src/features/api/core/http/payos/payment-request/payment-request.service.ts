@@ -5,11 +5,17 @@ import {
     QueryBus,
 } from "@nestjs/cqrs"
 import {
+    ExecuteParams,
+} from "../../../types/execute"
+import {
     PaymentRequestResponseData,
 } from "./dtos/response"
 import {
     PaymentRequestQuery,
 } from "./payment-request.query"
+import type {
+    PaymentRequestRequest,
+} from "./dtos/request"
 
 @Injectable()
 /**
@@ -20,11 +26,17 @@ export class PaymentRequestService {
         private readonly queryBus: QueryBus,
     ) {}
 
+    /**
+     * Dispatches the payment-status query.
+     *
+     * @param params - Request context carrying the PayOS payment id.
+     * @returns The payment as PayOS currently reports it.
+     */
     async execute(
-        id: string,
+        params: ExecuteParams<PaymentRequestRequest>,
     ): Promise<PaymentRequestResponseData> {
         return this.queryBus.execute(
-            new PaymentRequestQuery(id),
+            new PaymentRequestQuery(params),
         )
     }
 }

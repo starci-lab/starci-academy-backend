@@ -31,9 +31,17 @@ export class SignOutHandler
         super()
     }
 
+    /**
+     * Processes the signOut command.
+     * @param command - The command carrying the refresh token to revoke.
+     */
     protected override async process(command: SignOutCommand): Promise<undefined> {
+        const {
+            request,
+        } = command.params
+
         await this.keycloakTokenService.revokeRefreshToken({
-            refreshToken: command.refreshToken,
+            refreshToken: request.refreshToken,
         })
         return undefined
     }
