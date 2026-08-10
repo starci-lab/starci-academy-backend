@@ -6,7 +6,9 @@ are the rules the code already follows.
 
 `.claudev2/` is the canon being rebuilt in the shape described in
 [`.claudev2/HOW-TO-WRITE.md`](.claudev2/HOW-TO-WRITE.md) — one file per concept, each shaped
-`Definition → Rules → Ban → Example`, filed on an axis. It is built BESIDE the old tree rather than
+`Definition → Rules → Forbidden → Examples`, filed on an axis. A law that a machine holds ships
+WITH the thing that holds it: the rule module, its twin test, or the closed type, under
+[`.claudev2/sources/`](.claudev2/sources/), named for the law file that governs it. It is built BESIDE the old tree rather than
 converted in place, so no rule is ever half-migrated. `.claude/` still holds the skills, the
 scripts, the gates and everything not yet moved.
 
@@ -39,8 +41,8 @@ undo later than it would have cost to read the rule first. Canon is cheaper than
 
 | Role | Folder | Branch | What it is |
 |---|---|---|---|
-| **front end — live work** | `starci-academy-fe` | `main` | the rebuild: a contracts registry, no `className` escape hatch, `leaf / branch / block` |
-| front end — legacy | `starci-academy` | `mtp` | the shipped product. Read it as the source of truth for WHAT a screen contains; do not build here |
+| **front end — live work** | `starci-academy-fe` | `main` | the rebuild: a contract table, no `className` escape hatch, the seven-layer spine |
+| front end — legacy | `starci-academy` | `main` | the shipped product, and what is actually deployed. Read it as the source of truth for WHAT a screen contains; do not build here. Its `mtp` runs far ahead of `main` with in-flight restructuring, which is not the acceptance target |
 | back end | this repo | `mtp` | |
 
 Resolve both paths with `node .claude/scripts/workspace/read-workspace-context.mjs` rather than from
@@ -53,24 +55,34 @@ product — the acceptance test for a ported screen is the legacy screen, never 
 
 ## The front-end layers
 
-Three, and each is decided by ONE question. The full rule for each lives in its own file under
+Seven, and each is decided by ONE question. The full rule for each lives in its own file under
 [`.claudev2/fe/canon/uxui/layers/`](.claudev2/fe/canon/uxui/layers/); what follows is only enough to
 know which file to open.
 
-| Layer | The question that decides it |
-|---|---|
-| **leaf** | Does it place two pieces of content relative to each other? A leaf wraps ONE vendor primitive and renders it through. How complex the VENDOR's own component is does not matter — a date picker drawing a month grid is still a leaf, because none of that arranging is ours. |
-| **branch** | Does it assemble? Then every class on it comes from the registry, and it owns none of its own. |
-| **block** | Does it know the domain — the words, the data, the state? Then it is a block, and it never says how many pixels. |
+Two questions place anything, and both are answered by a type signature rather than by taste:
+
+| | takes only `props` | takes `children` |
+|---|---|---|
+| **knows no domain** | composite | branch |
+| **knows the domain** | block | layout · overlay |
+
+A **leaf** sits below the table — it wraps ONE vendor primitive, arranges nothing, and is the only
+layer permitted to import the component library. How complex the VENDOR's own component is does not
+matter: a date picker drawing a month grid is still a leaf, because none of that arranging is ours.
+A **page** sits above it — one screen, composed of blocks, in a folder holding exactly two files.
+Layout and overlay share a cell and differ in one thing: a layout SURVIVES navigation, an overlay is
+summoned and dismissed.
 
 **Settled: a leaf may keep the classes that hold ONE line together** — glyph-to-baseline glue
 (`inline-flex`, `items-center`, the single gap between an icon and its own words) and filling the
 width it was given. It may not own `flex-col`, a gap between two separate contents,
 `justify-between`, `grid`, padding on a wrapper, or any positioning. Arranging two contents is a
-node, and nodes come from the registry.
+node, and nodes come from the contract table.
 
-Do not use the words *atom*, *frame* or *composite* for the new front end. They belong to the
-legacy repo's tier system, which is documented separately and has different rules.
+Do not use the words *atom* or *frame* for the new front end. They belong to the legacy repo's tier
+system, which is documented separately and has different rules. **`composite` is NOT one of them** —
+it is a real layer here, with its own file and its own props type, and the tier exists because
+without it every closed arrangement gets filed among the leaves to escape the contract rules.
 
 ## Standing constraints
 
@@ -120,8 +132,10 @@ What does NOT change with the roster:
 - **Adding a rule: measure the debt first.** Debt above zero means the rule lands at `warn` with the
   count in its trailing comment, gets burned down, and is flipped to `error` only at zero. Shipping
   at `error` while debt exists blocks every commit that touches an offending file.
-- **Where it bites**: `.husky/pre-commit` runs `lint-staged`, which runs `eslint --fix` on the
-  staged files only. Untouched history never blocks you; the file you touch must be clean.
+- **Where it bites differs per repository, so check rather than assume.** The back end has a
+  `.husky/pre-commit` running `lint-staged` over the staged `*.ts` only, so untouched history never
+  blocks you. The front-end rebuild has no husky at all: its gate is `npm run verify`
+  (`typecheck && lint && test && test:rules`), which is the whole tree at once.
 - **The sanctioned exits are stated where they apply.** On the back end: the `*spec.ts` family and
   `src/tests/**` may use `as unknown as` and may read `process.env` to stand up Testcontainers, and
   may `throw new Error`, which there is a test-runner assertion rather than a domain failure.
@@ -133,10 +147,14 @@ What does NOT change with the roster:
 
 ## What is not settled yet
 
-Canon is mid-restructure. The three front-end layer files are written in the new shape; every other
-shelf still lives under `.claude/canon/` in the old one. **Where the two disagree about the
-front-end rebuild, `.claudev2/` wins** — and say so when you notice the conflict rather than picking
-one silently.
+Canon is mid-restructure. The seven front-end layer files are written in the new shape, and the
+`patterns/` shelf beside them has begun — `contract`, `file-layout` and `naming`, each shipping the
+artifact that holds it. Everything else still lives under `.claude/canon/` in the old shape.
+**Where the two disagree about the front-end rebuild, `.claudev2/` wins** — and say so when you
+notice the conflict rather than picking one silently.
+
+The `patterns/` laws still owed: props-and-slots, css-doors, tokens, loading, the-split,
+translation, type-safety, comments, accessibility.
 
 Two things in particular are NOT decided, and inventing an answer to either is the expensive kind of
 mistake:
