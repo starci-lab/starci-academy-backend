@@ -1,6 +1,6 @@
 {
     "project": "starci-academy-backend",
-    "description": "StarCi Academy backend — port offset registry + stack metadata. Host port = basePorts.<name> + portOffset. starci is the ROOT project so portOffset is 0 and it keeps the standard ports; sibling projects offset away from it (miamia = 69).<name> + portOffset. This file is the ONLY source of truth for ports: compose fragments interpolate them and scripts/sync.mjs writes them into the generated env bridge. NOTE: this is NOT .mount/config/metadata.json, which is i18n content read by the app.",
+    "description": "StarCi Academy backend — port offset registry + stack metadata. Host port = basePorts.<name> + portOffset. starci is the ROOT project so portOffset is 0 and it keeps the standard ports; sibling projects offset away from it (miamia = 69).<name> + portOffset. This file is the ONLY source of truth for ports: compose fragments interpolate them and scripts/sync.mjs writes them into the generated env bridge. NOTE: this is NOT .mount/config/metadata.json, which is i18n content read by the app. keycloak (8089) and cadvisor (8085) sit off their vendor defaults (8080, 8081) on purpose: those two are the most contended ports on a developer box -- any kind cluster, ingress or second Keycloak takes 8080 first -- and a stack that cannot bring its auth server up is a stack that cannot boot. The old .docker stack already used these two numbers; they are recorded here rather than rediscovered.",
     "portOffset": 0,
     "ports": {
         "core": 3001,
@@ -14,8 +14,8 @@
         "minioConsole": 9001,
         "nats": 4222,
         "natsMonitor": 8222,
-        "keycloak": 8080,
-        "cadvisor": 8081,
+        "keycloak": 8089,
+        "cadvisor": 8085,
         "prometheus": 9090
     },
     "basePorts": {
@@ -30,8 +30,8 @@
         "minioConsole": 9001,
         "nats": 4222,
         "natsMonitor": 8222,
-        "keycloak": 8080,
-        "cadvisor": 8081,
+        "keycloak": 8089,
+        "cadvisor": 8085,
         "prometheus": 9090
     },
     "secrets": {
