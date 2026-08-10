@@ -841,11 +841,19 @@ const collectMountPathDefaults = () => {
  *   .mount/config/app.yaml           -> .stacks/dev/runtime/files/app.yaml
  *   .mount/config/seed.yaml          -> .stacks/dev/runtime/config/seed.yaml
  *   .mount/data/<rest...>            -> <gitmount path>/<rest...>
+ *   .mount/assets                    -> <gitmount path>/assets
+ *
+ * The assets rule is not a guess. `.mount/assets` used to hold ten foundation
+ * logos while the data repo carried the same ten under `assets/foundation`
+ * alongside the achievement badges and course covers -- and AssetsService
+ * uploads its whole root under the `assets/` object-key prefix, which is where
+ * `assets/badges/achievements/*.png` has to come from. The mount was the cut-down
+ * copy; the gitmount is the real root.
  *
  * Everything else is left alone on purpose:
- *   - `.mount/config/metadata.json` is i18n CONTENT, not a secret, and the plan
- *     does not relocate it;
- *   - `.mount/assets` stays a plain mount;
+ *   - `.mount/config/metadata.json` is i18n CONTENT rather than a secret. Note
+ *     that nothing reads it: `CONFIG_METADATA_MOUNT_PATH` is declared in
+ *     config.ts and consumed nowhere, so relocating it would move a dead file;
  *   - defaults that do not start at `.mount` (e.g. `.contexts`) are not ours.
  * @param segments - the literal path segments of the config.ts default.
  * @param dataMountPath - repo-relative POSIX path of the `data` gitmount.
@@ -874,6 +882,10 @@ const relocateMountPath = (segments, dataMountPath) => {
     if (rest[0] === "data") {
         return [dataMountPath,
             ...rest.slice(1)].join("/")
+    }
+    if (rest[0] === "assets") {
+        return [dataMountPath,
+            ...rest].join("/")
     }
     return null
 }
