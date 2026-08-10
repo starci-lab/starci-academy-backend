@@ -45,7 +45,7 @@ import {
 
 const COURSES_MOUNT_ROOT = path.join(
     process.cwd(),
-    ".volume/data/courses",
+    ".gitmounts/data/courses",
 )
 
 /** Relative path to the M0 `project-foundation` milestone mount folder. */

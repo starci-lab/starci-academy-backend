@@ -21,11 +21,6 @@ export interface ParseChallengeParams {
     challengeIndex: number
 }
 
-/** {@link ChallengeParserService.isV2} input. */
-export interface IsChallengeV2Params {
-    /** Challenge folder relative path under `courses/`. */
-    relativePath: string
-}
 
 /** Ordinals locating `modules/{module}/contents/{contentIndex}-{slug}/challenges/` on the course mount. */
 export interface ParseChallengeManyParams {
@@ -137,7 +132,7 @@ export interface ParseSubmissionCriteriaParams {
  * Inputs for mapping one SCHEMA V2 lang-bucket section (`# requirements`, `# steps`, ...) into
  * normalized `*V2` child rows.
  */
-export interface MapChallengeLangSectionV2Params {
+export interface MapChallengeLangSectionParams {
     /** Per-locale challenge extracts keyed by locale. */
     jsonMap: Map<Locale, Record<string, unknown>>
     /** Mount section key. */

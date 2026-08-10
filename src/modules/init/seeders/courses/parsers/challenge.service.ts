@@ -143,7 +143,7 @@ import {
 @Injectable()
 /**
  * Challenge parser for mounted course files (`en.md`, `vi.md`).
- * Routes V2 vs legacy via {@link isV2} (`# verified`); V2 scalars merge via {@link MergeJsonService}.
+ * Scalars merge via {@link MergeJsonService}. There is one schema; the V1 parser is gone.
  */
 export class ChallengeParserService {
     constructor(
@@ -740,7 +740,7 @@ export class ChallengeParserService {
     }
 
     /**
-     * Parses many challenges from the mount. V2 when {@link isV2}; otherwise legacy parser.
+     * Parses many challenges from the mount.
      *
      * @param params - Content folder path + course/module/content ordinals.
      * @returns Entity-shaped graphs for the challenge upsert service.

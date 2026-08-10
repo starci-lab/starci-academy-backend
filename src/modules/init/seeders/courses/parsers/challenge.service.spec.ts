@@ -81,7 +81,7 @@ import {
 
 const COURSES_MOUNT_ROOT = path.join(
     process.cwd(),
-    ".volume/data/courses",
+    ".gitmounts/data/courses",
 )
 
 /** Relative path to both SCHEMA V2 challenges under frameworks-in-backend. */
@@ -91,7 +91,7 @@ const FRAMEWORKS_CHALLENGES_RELATIVE_PATH =
 /**
  * Lists indexed mount folders (`{orderIndex}-{slug}`) under a courses-relative directory.
  *
- * @param relativeDir - Path under `.volume/data/courses/`.
+ * @param relativeDir - Path under `.gitmounts/data/courses/`.
  * @returns Resolved paths sorted by `orderIndex`.
  */
 async function listIndexedMountDirs(

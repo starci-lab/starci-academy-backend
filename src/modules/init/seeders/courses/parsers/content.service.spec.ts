@@ -61,15 +61,12 @@ import {
     ContentPathService,
 } from "../path/content.service"
 import {
-    ContentLegacyParserService,
-} from "./content-legacy.service"
-import {
     ContentParserService,
 } from "./content.service"
 
 const COURSES_MOUNT_ROOT = path.join(
     process.cwd(),
-    ".volume/data/courses",
+    ".gitmounts/data/courses",
 )
 
 /** Mount folder for the NestJS "frameworks in backend" lesson (SCHEMA V2 sample). */
@@ -85,7 +82,7 @@ const FRAMEWORKS_IN_BACKEND_RELATIVE_PATH =
 /**
  * Lists indexed mount folders (`{orderIndex}-{slug}`) under a courses-relative directory.
  *
- * @param relativeDir - Path under `.volume/data/courses/`.
+ * @param relativeDir - Path under `.gitmounts/data/courses/`.
  * @returns Resolved paths sorted by `orderIndex`.
  */
 async function listIndexedMountDirs(
@@ -223,12 +220,6 @@ describe("ContentParserService",
                             log: jest.fn(),
                             error: jest.fn(),
                             warn: jest.fn(),
-                        },
-                    },
-                    {
-                        provide: ContentLegacyParserService,
-                        useValue: {
-                            parse: jest.fn(),
                         },
                     },
                     {

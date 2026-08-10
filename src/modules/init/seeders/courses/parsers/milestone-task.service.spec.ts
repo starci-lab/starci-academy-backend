@@ -72,7 +72,7 @@ import {
 
 const COURSES_MOUNT_ROOT = path.join(
     process.cwd(),
-    ".volume/data/courses",
+    ".gitmounts/data/courses",
 )
 
 /**

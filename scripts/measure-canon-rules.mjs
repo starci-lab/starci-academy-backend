@@ -38,6 +38,7 @@ import {
 import { noConstEnum, noDoubleCast, noInlineParamType } from "../.claude/sources/be/type-safety.mjs"
 import { noNonAsciiSource, requireEnumMemberJsdoc, requireExportJsdoc } from "../.claude/sources/be/comments.mjs"
 import { mustDeepModuleImport, noSelfModuleAlias } from "../.claude/sources/be/module-layering.mjs"
+import { noBareVerbExport, noVersionInName } from "../.claude/sources/be/naming.mjs"
 
 const ROOT = join(process.cwd(), "src").replace(/\\/g, "/")
 
@@ -134,5 +135,7 @@ debt += run(requireEnumMemberJsdoc, "require-enum-member-jsdoc", everything)
 debt += run(noNonAsciiSource, "no-non-ascii-source", everything)
 debt += run(mustDeepModuleImport, "must-deep-module-import", everything)
 debt += run(noSelfModuleAlias, "no-self-module-alias", everything)
+debt += run(noVersionInName, "no-version-in-name", everything)
+debt += run(noBareVerbExport, "no-bare-verb-export", everything)
 
 console.log(`\nTOTAL DEBT: ${debt}`)

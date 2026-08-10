@@ -1,6 +1,5 @@
 import type {
     BuildOutcomesParams,
-    IsContentV2Params,
     ParseContentBodiesParams,
     ParseContentManyParams,
     ParseContentParams,
@@ -8,9 +7,6 @@ import type {
 import type {
     ContentsFromDatabaseParams,
 } from "./types/from-database"
-import {
-    ContentLegacyParserService,
-} from "./content-legacy.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -90,12 +86,15 @@ import {
 
 @Injectable()
 /**
- * Content parser for mounted course files (`en.md`, `vi.md`).
- * Routes V2 vs legacy via {@link isV2} (`# verified`); V2 bodies live under `bodies/`.
+ * Content parser for mounted course files (`en.md`, `vi.md`). Bodies live under `bodies/`.
+ *
+ * THERE IS ONE SCHEMA NOW. This used to route between two parsers on a `# verified` marker, and
+ * the fork is gone with the V1 parser: everything mounted is read here. A content folder that was
+ * relying on the old path because it never gained the marker now reads its `bodies/` folder like
+ * every other one.
  */
 export class ContentParserService {
     constructor(
-        private readonly contentLegacyParserService: ContentLegacyParserService,
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
@@ -110,48 +109,6 @@ export class ContentParserService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) { }
-
-    /**
-     * True when the mount carries a parseable `# verified` day (SCHEMA V2 marker).
-     *
-     * @param params - Content folder relative path.
-     * @returns `true` for V2 content; `false` -> use {@link ContentLegacyParserService}.
-     */
-    async isV2(
-        params: IsContentV2Params,
-    ): Promise<boolean> {
-        const {
-            relativePath,
-        } = params
-        const jsonMap = new Map<Locale, Record<string, unknown>>()
-        for (const locale of Object.values(Locale)) {
-            try {
-                jsonMap.set(
-                    locale,
-                    this.extractJsonFromMdService.extract(
-                        await this.contextLoaderService.load(
-                            "courses",
-                            `${relativePath}/${locale}.md`,
-                        ),
-                    ),
-                )
-            } catch {
-                continue
-            }
-        }
-        if (jsonMap.size === 0) {
-            return false
-        }
-        const merged = this.mergeJsonService.merge({
-            jsons: Object.values(Locale).map((locale) => ({
-                locale,
-                json: jsonMap.get(locale) ?? {
-                },
-            })),
-            translateFields: [],
-        }) as Record<string, unknown>
-        return this.coerceMdScalarService.toNullableDate(merged.verified) !== null
-    }
 
     /**
      * Loads SCHEMA V2 per-language lesson bodies from `<content>/bodies/<N>-<lang>/`.
@@ -582,7 +539,7 @@ export class ContentParserService {
     }
 
     /**
-     * Parses many contents from the mount. V2 when {@link isV2}; otherwise legacy parser.
+     * Parses many contents from the mount.
      *
      * @param params - Module path + course/module ordinals.
      * @returns Entity-shaped graphs for the content upsert service.
@@ -608,11 +565,8 @@ export class ContentParserService {
                     moduleIndex,
                     contentIndex: path.orderIndex,
                 }
-                const content = await this.isV2({
-                    relativePath: path.relativePath,
-                })
-                    ? await this.parse(parseParams)
-                    : await this.contentLegacyParserService.parse(parseParams)
+                // all mounted contents are SCHEMA V2 (legacy parser removed)
+                const content = await this.parse(parseParams)
                 data.push({
                     data: content,
                     index: path.orderIndex,

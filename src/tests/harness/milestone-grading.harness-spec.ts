@@ -313,8 +313,8 @@ const shortText = (body: string): string => {
         80)).trim()
 }
 
-/** Params for the local `buildV2TaskFixture` helper. */
-interface BuildV2TaskFixtureParams {
+/** Params for the local `buildVerifiedTaskFixture` helper. */
+interface BuildVerifiedTaskFixtureParams {
     id: string
     relDir: string
     lang: string
@@ -326,12 +326,12 @@ interface BuildV2TaskFixtureParams {
  * the SUT takes the outcome/approach rubric path), and `outcomeCriteria`/`approachCriteria`
  * carry the REAL per-criterion body/score/critical read by {@link readRealTaskCriteria}.
  */
-const buildV2TaskFixture = (
+const buildVerifiedTaskFixture = (
     {
         id,
         relDir,
         lang,
-    }: BuildV2TaskFixtureParams,
+    }: BuildVerifiedTaskFixtureParams,
 ) => {
     const doc = readGitMountDoc(relDir)
     const real = readRealTaskCriteria(relDir,
@@ -789,7 +789,7 @@ interface SchemaCase {
 const TASK_B_SCHEMA_CASES: Array<SchemaCase> = [
     {
         name: "SCHEMA V2 (real, verified) task parses via the outcome/approach rubric and grades sensibly",
-        buildFixture: () => buildV2TaskFixture({
+        buildFixture: () => buildVerifiedTaskFixture({
             id: "task-jwt-auth-v2",
             relDir: TASK_B_DIR,
             lang: LANG,
@@ -1005,7 +1005,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         files,
                         rubric,
                     }) => {
-                        const taskFixture = buildV2TaskFixture({
+                        const taskFixture = buildVerifiedTaskFixture({
                             id: "task-health-endpoint",
                             relDir: TASK_A_DIR,
                             lang: LANG,
@@ -1039,7 +1039,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                 // ── discrimination: same REAL task, meets-submission must outrank a misses-submission ──
                 it("ranks the MEETS submission strictly above the MISSES submission for the SAME real task",
                     async () => {
-                        const taskFixture = buildV2TaskFixture({
+                        const taskFixture = buildVerifiedTaskFixture({
                             id: "task-health-endpoint",
                             relDir: TASK_A_DIR,
                             lang: LANG,

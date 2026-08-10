@@ -117,9 +117,6 @@ import {
     ChallengeParserService,
 } from "./courses/parsers/challenge.service"
 import {
-    ContentLegacyParserService,
-} from "./courses/parsers/content-legacy.service"
-import {
     ContentParserService,
 } from "./courses/parsers/content.service"
 import {
@@ -434,7 +431,6 @@ export class SeedersModule extends ConfigurableModuleClass {
             CourseParserService,
             ModuleParserService,
             ContentParserService,
-            ContentLegacyParserService,
             ChallengeParserService,
             FlashcardDeckParserService,
             PlaygroundParserService,

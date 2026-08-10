@@ -12,11 +12,6 @@ export type ExtractContentBlockBothParams = ExtractChallengeBlockBothParams
 /** English and Vietnamese bodies for one content markdown section. */
 export type ExtractContentBlockBothResult = ExtractChallengeBlockBothResult
 
-/** {@link ContentParserService.isV2} input. */
-export interface IsContentV2Params {
-    /** Content folder relative path under `courses/`. */
-    relativePath: string
-}
 
 /** Ordinals locating `modules/{module}/contents/{contentIndex}-{slug}/` on the course mount. */
 export interface ParseContentParams {
