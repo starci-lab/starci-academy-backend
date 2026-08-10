@@ -102,20 +102,20 @@ import {
     JudgeService,
 } from "@tests/helpers/judge.service"
 import {
-    generate,
+    askModel,
 } from "@tests/helpers/models"
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
 import {
-    VolumeService,
-} from "@tests/helpers/volume.service"
+    GitMountService,
+} from "@tests/helpers/git-mount.service"
 import {
-    volumeExists,
-} from "@tests/helpers/volume"
+    describeWithGitMount,
+} from "@tests/helpers/git-mount"
 import type {
-    HarnessTierName,
-} from "@tests/helpers/models"
+    HarnessModel,
+} from "@tests/helpers/harness-invoke"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -124,10 +124,10 @@ const POSTGRESQL_PRIMARY = "primary"
 const PASS_SCORE = 60
 
 /**
- * REAL lesson bodies from the `.volume` SSOT mount, grounding every judged
+ * REAL lesson bodies from the `.gitmounts` SSOT mount, grounding every judged
  * case in actual course material instead of a hand-written fixture -- mirrors
  * `cv-scoring.harness-spec.ts`. Paths are `bodies/<language-variant>` dirs so
- * `readVolumeDoc` reads the SAME markdown the app itself stuffs into
+ * `readGitMountDoc` reads the SAME markdown the app itself stuffs into
  * `content.body` for a snapshot-backed lesson (see
  * `ContentAiService.resolveBodyText`).
  */
@@ -136,20 +136,26 @@ const INDEXING_LESSON_DIR = "courses/1-system-design-mastery/modules/1-database-
 /** A REAL isPremium:true lesson -- grounds the premium-gate case in an actual locked lesson. */
 const PREMIUM_LESSON_DIR = "courses/0-fullstack-mastery/modules/10-email-sms-otp/contents/0-sending-emails-with-nodemailer/bodies/0-typescript"
 
-/** Skip the whole suite (with a clear message) when the SSOT mount is absent. */
-const HAVE_VOLUME = volumeExists(FRAMEWORK_LESSON_DIR)
-    && volumeExists(INDEXING_LESSON_DIR)
-    && volumeExists(PREMIUM_LESSON_DIR)
-const describeOrSkip = HAVE_VOLUME
-    ? describe
-    : describe.skip
+/** The mounted content this suite grounds its cases in. A missing path FAILS, never skips. */
+const MOUNT_DIRS = [
+    FRAMEWORK_LESSON_DIR,
+    INDEXING_LESSON_DIR,
+    PREMIUM_LESSON_DIR,
+]
+
+const describeOrSkip = describeWithGitMount(MOUNT_DIRS)
 
 /**
- * The tier the injected {@link AiInvokeService} routes THIS request's model
- * call to. Mutated by each `it` before it POSTs -- the analogue of `currentUser`
- * -- so a single adapter serves every case at its declared tier.
+ * The model this harness answers with, named here rather than resolved from a tier table.
+ *
+ * A layer that CHOOSES the model between the harness and the provider can make this lane green
+ * about a model nobody ships, so the choice is stated in the file that depends on it. This is the
+ * tutor answering a lesson question -- the product's chat path -- so it runs the balanced model.
  */
-let currentTier: HarnessTierName = "mid"
+const ANSWER_MODEL: HarnessModel = {
+    model: "claude-sonnet-5",
+    effort: "low",
+}
 
 /**
  * When set, {@link harnessInvokeAdapter} throws instead of calling the model --
@@ -185,20 +191,26 @@ const harnessInvokeAdapter: Pick<AiInvokeService, "run"> = {
             prompt,
         } = messagesToPrompt(messages)
 
-        const text = await generate(currentTier,
-            {
-                prompt,
-                ...(system
-                    ? {
-                        system,
-                    }
-                    : {
-                    }),
-            })
+        const text = await askModel({
+            model: ANSWER_MODEL.model,
+            ...(ANSWER_MODEL.effort
+                ? {
+                    effort: ANSWER_MODEL.effort,
+                }
+                : {
+                }),
+            prompt,
+            ...(system
+                ? {
+                    system,
+                }
+                : {
+                }),
+        })
 
         return {
             text,
-            model: `harness:${currentTier}`,
+            model: ANSWER_MODEL.model,
             provider: ModelProvider.Anthropic,
             attempts: 1,
             cost: 0,
@@ -227,11 +239,9 @@ const FRAMEWORK_LESSON_QUOTE = "hand-rolling `new` hard-wires the consumer to a 
 interface JudgedCase {
     /** Human-readable label for the jest row title. */
     name: string
-    /** Tier the injected invoker routes this case's model call to. */
-    tier: HarnessTierName
     /** `true` = content scope (the shared fixture lesson); `false` = anchorless global scope. */
     anchored: boolean
-    /** `.volume` dir to ground on (ignored when `anchored` is `false`). */
+    /** mounted-content dir to ground on (ignored when `anchored` is `false`). */
     dir: string | null
     /** Which locale file to read the real body from. */
     docLocale: "en" | "vi"
@@ -246,7 +256,6 @@ interface JudgedCase {
 const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
     {
         name: "content scope — indexing lesson trade-off (grounded, real .volume body)",
-        tier: "mid",
         anchored: true,
         dir: INDEXING_LESSON_DIR,
         docLocale: "en",
@@ -261,7 +270,6 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
     },
     {
         name: "content scope — frameworks/DI lesson (grounded, real .volume body)",
-        tier: "low",
         anchored: true,
         dir: FRAMEWORK_LESSON_DIR,
         docLocale: "en",
@@ -276,7 +284,6 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
     },
     {
         name: "content scope — quoted passage (<display>/<context> wrap, frameworks/DI lesson)",
-        tier: "high",
         anchored: true,
         dir: FRAMEWORK_LESSON_DIR,
         docLocale: "en",
@@ -292,7 +299,6 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
     },
     {
         name: "content scope — Vietnamese locale (frameworks/DI lesson, real .volume vi body)",
-        tier: "mid",
         anchored: true,
         dir: FRAMEWORK_LESSON_DIR,
         docLocale: "vi",
@@ -307,7 +313,6 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
     },
     {
         name: "global scope — anchorless app-wide chat (additive base path, no lesson)",
-        tier: "low",
         anchored: false,
         dir: null,
         docLocale: "en",
@@ -323,7 +328,7 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
 ]
 
 /**
- * FULL e2e harness for the content-AI query flow, grounded in REAL `.volume`
+ * FULL e2e harness for the content-AI query flow, grounded in REAL `.gitmounts`
  * lesson material and graded by tiered AI judges.
  *
  * Drives the REAL `askContentAi` GraphQL mutation over HTTP against REAL
@@ -348,7 +353,7 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
  *  - a forced model failure surfacing as `success: false`, not a false success.
  *
  * MOCKED (no external infra in this lane, mirrors `content-ai-session.e2e-spec.ts`):
- *  - `S3ReadService` -- hands back the per-case REAL lesson body (from `.volume`)
+ *  - `S3ReadService` -- hands back the per-case REAL lesson body (from `.gitmounts`)
  *    instead of MinIO.
  *  - `CourseRagRetrievalService` -- Qdrant; every real body here exceeds the
  *    stuff-whole threshold, so grounding falls back through the (mocked-empty)
@@ -363,7 +368,7 @@ const CONTENT_SCOPE_CASES: Array<JudgedCase> = [
  * the additive base layer), `UserService`, and the model answer (a real Claude
  * call at the per-case tier) under judgement.
  *
- * Requires Docker (shared stack), the `.volume` SSOT mount, AND a Claude Code
+ * Requires Docker (shared stack), the `.gitmounts` SSOT mount, AND a Claude Code
  * OAuth token (`.secrets/claude-code-token.txt` or `CLAUDE_CODE_OAUTH_TOKEN`)
  * for live model + judge calls.
  */
@@ -372,7 +377,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
         let app: INestApplication
         let entityManager: EntityManager
         let judgeService: JudgeService
-        let volumeService: VolumeService
+        let gitMountService: GitMountService
 
         /** The "logged in" user the overridden Keycloak guard stamps onto the request. */
         let currentUser: UserEntity | null = null
@@ -519,7 +524,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
             )
             contentAiService = app.get(ContentAiService)
             judgeService = app.get(JudgeService)
-            volumeService = app.get(VolumeService)
+            gitMountService = app.get(GitMountService)
 
             course = await entityManager.save(
                 entityManager.create(CourseEntity,
@@ -576,7 +581,6 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 "TRUNCATE TABLE \"content_ai_messages\", \"content_ai_sessions\", \"enrollments\", \"users\" RESTART IDENTITY CASCADE",
             )
             currentUser = null
-            currentTier = "mid"
             forceModelError = false
             jest.clearAllMocks()
             cacheServiceMock.get.mockResolvedValue(undefined)
@@ -629,7 +633,6 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
         it.each(CONTENT_SCOPE_CASES)(
             "$name -> real askContentAi answer judged pass (tier=$tier)",
             async ({
-                tier,
                 anchored,
                 dir,
                 docLocale,
@@ -637,18 +640,17 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 question,
                 rubric,
             }) => {
-                const learner = await seedUser(`kc-content-ai-harness-${tier}-${Math.random().toString(36).slice(2,
+                const learner = await seedUser(`kc-content-ai-harness-${Math.random().toString(36).slice(2,
                     10)}`)
                 currentUser = learner
-                currentTier = tier
 
                 if (anchored) {
                     // content scope needs a real enrollment row (trial counts) for
                     // createSession's resolveEnrollmentId, regardless of premium status
                     await seedEnrollment(learner)
 
-                    // ground on the REAL lesson body pulled from the .volume SSOT mount
-                    const doc = volumeService.readVolumeDoc(dir as string,
+                    // ground on the REAL lesson body pulled from the .gitmounts SSOT mount
+                    const doc = gitMountService.readGitMountDoc(dir as string,
                         docLocale)
                     expect(doc.body.trim().length).toBeGreaterThan(0)
                     s3ReadServiceMock.json.mockResolvedValue({
@@ -729,7 +731,7 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 currentUser = learner
                 // deliberately NOT enrolled -- no seedEnrollment call
 
-                const premiumBody = volumeService.readVolumeDoc(PREMIUM_LESSON_DIR,
+                const premiumBody = gitMountService.readGitMountDoc(PREMIUM_LESSON_DIR,
                     "en")
                 expect(premiumBody.body.trim().length).toBeGreaterThan(0)
                 s3ReadServiceMock.json.mockResolvedValue({
@@ -760,9 +762,8 @@ describeOrSkip("Content-AI query — full e2e flow grounded in real .volume less
                 const learner = await seedUser("kc-content-ai-harness-model-error")
                 await seedEnrollment(learner)
                 currentUser = learner
-                currentTier = "mid"
 
-                const doc = volumeService.readVolumeDoc(INDEXING_LESSON_DIR,
+                const doc = gitMountService.readGitMountDoc(INDEXING_LESSON_DIR,
                     "en")
                 s3ReadServiceMock.json.mockResolvedValue({
                     id: content.id,

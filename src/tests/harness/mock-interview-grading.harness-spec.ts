@@ -55,31 +55,41 @@ import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
 import {
-    VolumeService,
-} from "@tests/helpers/volume.service"
+    GitMountService,
+} from "@tests/helpers/git-mount.service"
 import {
-    listVolumeDir,
-    readVolumeDoc,
-    volumeExists,
-} from "@tests/helpers/volume"
+    listGitMountDir,
+    readGitMountDoc,
+    gitMountExists,
+    describeWithGitMount,
+} from "@tests/helpers/git-mount"
 import type {
-    HarnessTierName,
-} from "@tests/helpers/models"
+    HarnessModel,
+} from "@tests/helpers/harness-invoke"
 
 /** Minimum judge score a produced grade must reach to count as passing. */
 const PASS_SCORE = 60
 
-/** The tier the harness routes THIS case's grading model call to. */
-let currentTier: HarnessTierName = "high"
+/**
+ * The model this harness grades with, named here rather than resolved from a tier table.
+ *
+ * A layer that CHOOSES the model between the harness and the provider can make this lane green
+ * about a model nobody ships. Grading is the highest-stakes AI call the product makes -- a wrong
+ * verdict is shown to a learner as a fact -- so it runs on the strongest model.
+ */
+const GRADING_MODEL: HarnessModel = {
+    model: "claude-opus-5",
+    effort: "low",
+}
 
 /** Connection name used by the primary PostgreSQL data source (mirrors other unit specs, e.g. `user.service.spec.ts`). */
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * The REAL `.volume` SSOT topic this harness grounds `mode="design"` grading
+ * The REAL `.gitmounts` SSOT topic this harness grounds `mode="design"` grading
  * in -- System Design Mastery's own "fundamentals" mock-interview bank
- * (`.volume/data/courses/1-system-design-mastery/mock-interview/0-fundamentals-of-system-design`).
- * Chosen over the EQ banks (`.volume/data/mock-interview-eq/<behavioral|situational|culture>`)
+ * (`.gitmounts/data/courses/1-system-design-mastery/mock-interview/0-fundamentals-of-system-design`).
+ * Chosen over the EQ banks (`.gitmounts/data/mock-interview-eq/<behavioral|situational|culture>`)
  * because `mode="design"` grades a FIXED 5-phase system-design rubric
  * (requirements/estimation/highLevel/deepDive/tradeoffs -- see
  * {@link MockInterviewPhase}) that the EQ banks' single-prompt STAR-story
@@ -122,20 +132,19 @@ const QUESTION_DIR_BY_PHASE: Record<MockInterviewPhase, string> = {
     [MockInterviewPhase.Tradeoffs]: `${TOPIC_DIR}/questions/6-question`,
 }
 
-/** Skip the whole suite (with a clear message) when the SSOT mount is absent. */
-const HAVE_VOLUME = volumeExists(QUESTION_DIR_BY_PHASE[MockInterviewPhase.Tradeoffs])
-    && listVolumeDir(`${TOPIC_DIR}/questions`).length >= PHASE_ORDER.length
-const describeOrSkip = HAVE_VOLUME
-    ? describe
-    : describe.skip
+/** The mounted content this suite grounds its cases in. A missing path FAILS, never skips. */
+const MOUNT_DIRS = [
+]
+
+const describeOrSkip = describeWithGitMount(MOUNT_DIRS)
 
 /**
  * Build the interviewer's fixed 5-phase question set from the REAL
- * `.volume` bank -- each phase's `content` is the actual authored `prompt`
+ * `.gitmounts` bank -- each phase's `content` is the actual authored `prompt`
  * field of {@link QUESTION_DIR_BY_PHASE}'s question for that phase, read live
  * (never cached at module scope, so a missing mount degrades to
  * `describe.skip` instead of a hard failure at import time -- see
- * {@link readVolumeDoc}'s own doc).
+ * {@link readGitMountDoc}'s own doc).
  *
  * @param locale - which localized bank to read the prompts from.
  * @returns the 5 interviewer turns, index-aligned with {@link PHASE_ORDER}.
@@ -144,7 +153,7 @@ const buildInterviewerTurns = (
     locale: "en" | "vi",
 ): Record<number, MockInterviewTurnRecord> => Object.fromEntries(
     PHASE_ORDER.map((phase, index) => {
-        const doc = readVolumeDoc(QUESTION_DIR_BY_PHASE[phase],
+        const doc = readGitMountDoc(QUESTION_DIR_BY_PHASE[phase],
             locale)
         const turn: MockInterviewTurnRecord = {
             role: "interviewer",
@@ -160,8 +169,8 @@ const buildInterviewerTurns = (
  * Interleave the REAL {@link buildInterviewerTurns} output with one candidate
  * answer per phase, in phase order -- mirrors the shape
  * `syncMockInterviewSessionTurns` actually persists. The interviewer side is
- * grounded in `.volume`; only the CANDIDATE side is hand-controlled (real
- * candidate transcripts aren't in `.volume` -- see the module task doc).
+ * grounded in `.gitmounts`; only the CANDIDATE side is hand-controlled (real
+ * candidate transcripts aren't in `.gitmounts` -- see the module task doc).
  */
 const buildTranscript = (
     interviewerTurns: Record<number, MockInterviewTurnRecord>,
@@ -259,18 +268,28 @@ const VI_ANSWERS: Record<number, string> = {
 interface GradeCase {
     /** jest row label. */
     name: string
-    /** tier the grading model runs at. */
-    tier: HarnessTierName
     /** the candidate's answers, index-aligned with {@link PHASE_ORDER}. */
     candidateAnswers: Record<number, string>
     /** what a good grade for this transcript must satisfy. */
     rubric: string
 }
 
+/**
+ * TWO CASES, AND THEY ARE THE TWO POLES.
+ *
+ * This lane is billed per call and each case costs two -- one to grade, one to judge -- so a matrix
+ * is not thoroughness here, it is the reason people stop running the harness. Strong and weak are
+ * kept because together they assert the thing a regression actually breaks: that the grader still
+ * DISCRIMINATES. A grader drifting toward the middle fails one of them immediately.
+ *
+ * The borderline case was retired with the tier table. Its rubric had been widened until it read
+ * "or, failing that, at least NOT the extreme opposite" -- a rubric written that loosely to stop
+ * flaking is one that has stopped being able to fail, and a case that cannot fail is two calls
+ * spent on nothing.
+ */
 const CASES: Array<GradeCase> = [
     {
-        name: "strong candidate on the real system-design-fundamentals bank → verdict trends pass, plausibly-high score, concrete strengths",
-        tier: "high",
+        name: "strong candidate on the real system-design-fundamentals bank -> verdict trends pass, plausibly-high score, concrete strengths",
         candidateAnswers: STRONG_ANSWERS,
         rubric: [
             "The output is a grade of a STRONG mock-interview session on system-design fundamentals — real",
@@ -286,8 +305,7 @@ const CASES: Array<GradeCase> = [
         ].join(" "),
     },
     {
-        name: "weak candidate on the real system-design-fundamentals bank → verdict trends fail, plausibly-low score, concrete gaps",
-        tier: "mid",
+        name: "weak candidate on the real system-design-fundamentals bank -> verdict trends fail, plausibly-low score, concrete gaps",
         candidateAnswers: WEAK_ANSWERS,
         rubric: [
             "The output is a grade of a WEAK, vague mock-interview session on system-design fundamentals — the",
@@ -298,24 +316,6 @@ const CASES: Array<GradeCase> = [
             "(e.g. no percentile distinction, no peak-QPS reasoning, no named scaling walls, no store contract, no",
             "quorum rule) rather than vague platitudes. Pass if the score is plausibly-low, the verdict is not a clean",
             "pass, and the gaps are concrete.",
-        ].join(" "),
-    },
-    {
-        name: "borderline candidate on the real system-design-fundamentals bank → verdict borderline, mixed strengths and gaps",
-        tier: "low",
-        candidateAnswers: BORDERLINE_ANSWERS,
-        rubric: [
-            "The output is a grade of a BORDERLINE mock-interview session on system-design fundamentals — the",
-            "candidate correctly NAMED the right concept in every answer (latency vs throughput are different,",
-            "scale should be estimated before picking tech, horizontal scaling with a load balancer avoids a single",
-            "point of failure, sessions should move to a shared store, CAP/PACELC/quorum govern the",
-            "consistency-availability trade-off) but stayed shallow and repeatedly admitted not remembering the",
-            "specific mechanism (the exact percentile, the peak-QPS threshold, the store's own operations, the",
-            "W + R > N rule). A good grade reflects that mix: verdict \"borderline\" (not a clean \"pass\" and not a",
-            "clean \"fail\"), and BOTH non-empty strengths (crediting the concepts correctly named) AND non-empty gaps",
-            "(naming the missing depth/specifics). Pass if the verdict is borderline (or, failing that, at least NOT",
-            "the extreme opposite of what a shallow-but-not-wrong answer deserves) and both strengths and gaps are",
-            "populated and specific rather than boilerplate.",
         ].join(" "),
     },
 ]
@@ -355,7 +355,7 @@ const userServiceMock = {
 
 /**
  * LLM-eval harness for mock-interview session grading, grounded in the REAL
- * `.volume` System Design Mastery mock-interview bank ({@link TOPIC_DIR}).
+ * `.gitmounts` System Design Mastery mock-interview bank ({@link TOPIC_DIR}).
  * Boots the REAL {@link MockInterviewGradingService} + REAL
  * {@link MockInterviewGradePromptService}, swaps only {@link AiInvokeService}
  * for the tiered harness model ({@link createHarnessInvoke}, `.secrets`
@@ -381,7 +381,7 @@ const userServiceMock = {
  * gates every other grading-flow harness mocks; they gate CHARGE/QUOTA plumbing, not the
  * grading business logic under test here.
  *
- * Requires the `.volume` mount + a Claude Code OAuth token
+ * Requires the `.gitmounts` mount + a Claude Code OAuth token
  * (`.secrets/claude-code-token.txt` or `CLAUDE_CODE_OAUTH_TOKEN`) + live API for the model +
  * judge calls.
  */
@@ -407,7 +407,7 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
                         provide: AiInvokeService,
                         useFactory: (
                             harnessInvoke: HarnessInvokeService,
-                        ) => harnessInvoke.create(() => currentTier),
+                        ) => harnessInvoke.create(() => GRADING_MODEL),
                         inject: [
                             HarnessInvokeService,
                         ],
@@ -437,14 +437,13 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
 
             service = moduleRef.get(MockInterviewGradingService)
             judgeService = moduleRef.get(JudgeService)
-            const volumeService = moduleRef.get(VolumeService)
-            promptTitleEn = volumeService.readVolumeDoc(TOPIC_DIR).title
-            promptTitleVi = volumeService.readVolumeDoc(TOPIC_DIR,
+            const gitMountService = moduleRef.get(GitMountService)
+            promptTitleEn = gitMountService.readGitMountDoc(TOPIC_DIR).title
+            promptTitleVi = gitMountService.readGitMountDoc(TOPIC_DIR,
                 "vi").title
         })
 
         afterEach(() => {
-            currentTier = "high"
             jest.clearAllMocks()
             gradingLaneValidationServiceMock.validate.mockResolvedValue({
             })
@@ -463,15 +462,13 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
             entityManager.findOne.mockResolvedValue(null)
         })
 
-        // ── strong / weak / borderline grading on the SAME real bank ──
+        // -- the two poles, graded on the SAME real bank --
         it.each(CASES)(
-            "$name (tier=$tier)",
+            "$name",
             async ({
-                tier,
                 candidateAnswers,
                 rubric,
             }) => {
-                currentTier = tier
                 const turns = buildTranscript(
                     buildInterviewerTurns("en"),
                     candidateAnswers,
@@ -512,7 +509,6 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
         // ── discrimination: the grader must rank the STRONG candidate above the WEAK one on the SAME real prompt ──
         it("ranks the STRONG candidate strictly above the WEAK candidate on the SAME real prompt",
             async () => {
-                currentTier = "high"
                 const interviewerTurns = buildInterviewerTurns("en")
 
                 const strongResult = await service.grade({
@@ -558,7 +554,6 @@ describeOrSkip("Mock-interview grading — real grade flow judged (harness)",
         // ── locale: a Vietnamese run, grounded in the bank's own vi.md companions, grades in Vietnamese ──
         it("grades a real Vietnamese transcript (vi.md bank) in Vietnamese",
             async () => {
-                currentTier = "mid"
                 const turns = buildTranscript(
                     buildInterviewerTurns("vi"),
                     VI_ANSWERS,

@@ -5,18 +5,26 @@ import {
     JudgeService,
 } from "@tests/helpers/judge.service"
 import {
-    ModelsService,
-} from "@tests/helpers/models.service"
-import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
-import type {
-    HarnessTierName,
+import {
+    askModel,
 } from "@tests/helpers/models"
 
 /**
- * Shared tutor persona every query case generates under -- the StarCi Academy
- * AI answers learner questions concisely and correctly.
+ * The model this harness answers with, named here rather than resolved from a tier table.
+ *
+ * A layer that CHOOSES the model between the harness and the provider can make this lane green
+ * about a model nobody ships, so the choice is stated in the file that depends on it.
+ */
+const TUTOR_MODEL = "claude-sonnet-5"
+
+/** Reasoning effort for the tutor answer -- the balanced setting the product uses for chat. */
+const TUTOR_EFFORT = "low" as const
+
+/**
+ * Shared tutor persona every query case generates under -- the StarCi Academy AI answers learner
+ * questions concisely and correctly.
  */
 const TUTOR_SYSTEM = [
     "You are a concise, accurate tutor for the StarCi Academy learning platform.",
@@ -26,38 +34,38 @@ const TUTOR_SYSTEM = [
 /** Minimum judge score a query answer must reach to count as passing. */
 const PASS_SCORE = 60
 
-/**
- * One eval case: a learner query generated at a given {@link HarnessTierName}
- * and graded by {@link judge} against a rubric. The five cases deliberately
- * vary in content -- definitional, debugging, conceptual/trade-off, non-English
- * (Vietnamese), and step-by-step math -- and rotate across all three tiers, so
- * the harness proves the model/auth wiring works under any scenario.
- */
+/** One eval case: a learner query, and the rubric its answer is graded against. */
 interface QueryCase {
     /** Human-readable label for the jest row title. */
     name: string
-    /** Tier to dispatch generation to (rotated to cover low/mid/high). */
-    tier: HarnessTierName
     /** The learner's question. */
     prompt: string
     /** Grading criteria the answer must satisfy. */
     rubric: string
 }
 
+/**
+ * TWO CASES, AND THEY ARE CHOSEN RATHER THAN SAMPLED.
+ *
+ * This lane is billed per call and every case costs two -- one to answer, one to judge. A matrix
+ * is therefore not thoroughness here, it is a reason people stop running the harness, and a stale
+ * green is worse than no green at all.
+ *
+ * So each case earns its place by being one a REGRESSION would show up in. Both have a single
+ * unambiguous right answer, which is what lets the judge be strict:
+ *
+ *   - the ASI bug has exactly one correct diagnosis, and a weaker model reaches for the wrong one
+ *     (a missing operator, a scoping mistake) instead of automatic semicolon insertion;
+ *   - the Vietnamese request fails VISIBLY when instruction-following degrades, because the answer
+ *     comes back in English.
+ *
+ * Retired with the tier table: a closure definition and a two-step equation, which every model
+ * passes and which therefore measured nothing; and an open "SQL vs NoSQL" trade-off, whose answer
+ * is a matter of degree and so gave the judge nothing firm to fail.
+ */
 const QUERY_CASES: Array<QueryCase> = [
     {
-        name: "factual definition — JS closure",
-        tier: "low",
-        prompt: "What is a closure in JavaScript? Give a one-sentence definition and a tiny example.",
-        rubric: [
-            "The answer correctly defines a JavaScript closure as a function that keeps access to",
-            "variables from its enclosing (lexical) scope after that scope has returned, and includes a",
-            "small code example. Pass if the definition is correct and an example is present.",
-        ].join(" "),
-    },
-    {
-        name: "debugging — return-value bug",
-        tier: "mid",
+        name: "debugging - a bare return, and the bug is automatic semicolon insertion",
         prompt: [
             "This JavaScript prints `undefined` instead of 5. Why, and how do I fix it?",
             "",
@@ -72,22 +80,12 @@ const QUERY_CASES: Array<QueryCase> = [
         rubric: [
             "The answer identifies automatic semicolon insertion after `return` (the bare `return` on its",
             "own line returns undefined before `a + b` is reached) as the cause, and proposes putting the",
-            "returned expression on the same line as `return`. Pass if both the cause and a correct fix are stated.",
+            "returned expression on the same line as `return`. Pass ONLY if both the cause and a correct",
+            "fix are stated.",
         ].join(" "),
     },
     {
-        name: "conceptual trade-off — SQL vs NoSQL",
-        tier: "high",
-        prompt: "When should I choose a relational (SQL) database over a document (NoSQL) database for a new web app? Give 2-3 concrete factors.",
-        rubric: [
-            "The answer gives at least two accurate, concrete factors favoring a relational database",
-            "(e.g. ACID transactions / strong consistency, complex joins and relationships, a well-defined",
-            "schema) and contains no factual errors. Pass if it is balanced and correct.",
-        ].join(" "),
-    },
-    {
-        name: "non-English — Vietnamese explanation",
-        tier: "mid",
+        name: "instruction-following - answers wholly in Vietnamese when asked to",
         prompt: "Giai thich ngan gon 'closure' trong JavaScript la gi, tra loi hoan toan bang tieng Viet.",
         rubric: [
             "The answer is written in Vietnamese and correctly explains that a closure is a function that",
@@ -95,32 +93,20 @@ const QUERY_CASES: Array<QueryCase> = [
             "AND the explanation is correct.",
         ].join(" "),
     },
-    {
-        name: "step-by-step math",
-        tier: "high",
-        prompt: "Solve for x and show your steps: 3x + 7 = 22.",
-        rubric: [
-            "The answer shows the algebra (subtract 7 to get 3x = 15, divide by 3 to get x = 5) and states",
-            "the final answer x = 5. Pass ONLY if the final answer is x = 5 and at least one intermediate",
-            "step is shown.",
-        ].join(" "),
-    },
 ]
 
 /**
- * LLM-eval harness: run five content-varied learner queries through the model
- * tiers and grade each answer with the independent Opus judge. This proves the
- * end-to-end wiring -- OAuth-token auth ({@link client}), the low/mid/high tier
- * remap, and structured judging -- holds across factual, debugging, conceptual,
- * multilingual, and math scenarios.
+ * LLM-eval harness for the tutor answer.
+ *
+ * It REALLY CALLS the provider: a faked call here would measure nothing, because what the model
+ * actually said is the entire subject of this lane. The answer is then graded by an independent
+ * judge, so the verdict does not come from the same model that produced the text.
  *
  * Requires a Claude Code OAuth token (`.secrets/claude-code-token.txt` or the
- * `CLAUDE_CODE_OAUTH_TOKEN` env var) and live API access; the harness lane's
- * `setup.ts` also boots the shared Testcontainers stack for flows that need it.
+ * `CLAUDE_CODE_OAUTH_TOKEN` env var) and live API access.
  */
-describe("AI tutor — content-varied query eval across tiers (harness)",
+describe("AI tutor answer quality (harness)",
     () => {
-        let modelsService: ModelsService
         let judgeService: JudgeService
 
         beforeAll(async () => {
@@ -129,22 +115,21 @@ describe("AI tutor — content-varied query eval across tiers (harness)",
                     TestHelpersModule,
                 ],
             }).compile()
-            modelsService = moduleRef.get(ModelsService)
             judgeService = moduleRef.get(JudgeService)
         })
 
         it.each(QUERY_CASES)(
-            "$name -> judged pass (tier=$tier)",
+            "$name",
             async ({
-                tier,
                 prompt,
                 rubric,
             }) => {
-                const output = await modelsService.generate(tier,
-                    {
-                        system: TUTOR_SYSTEM,
-                        prompt,
-                    })
+                const output = await askModel({
+                    model: TUTOR_MODEL,
+                    effort: TUTOR_EFFORT,
+                    system: TUTOR_SYSTEM,
+                    prompt,
+                })
 
                 expect(output.trim().length).toBeGreaterThan(0)
 

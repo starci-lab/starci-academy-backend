@@ -23,87 +23,70 @@ import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
 import {
-    VolumeService,
-} from "@tests/helpers/volume.service"
+    GitMountService,
+} from "@tests/helpers/git-mount.service"
 import {
-    volumeExists,
-} from "@tests/helpers/volume"
+    describeWithGitMount,
+} from "@tests/helpers/git-mount"
 import type {
-    HarnessTierName,
-} from "@tests/helpers/models"
+    HarnessModel,
+} from "@tests/helpers/harness-invoke"
 
 /** Minimum judge score a produced grade must reach to count as passing. */
 const PASS_SCORE = 60
 
-/** The tier the harness routes THIS case's grading model call to. */
-let currentTier: HarnessTierName = "high"
-
 /**
- * REAL CV samples from the `.volume` SSOT mount, labelled by seniority. These
- * are the gold-standard exemplars the app itself ships -- grading them (rather
- * than hand-written fixtures) tests the grader against the actual material and
- * lets us assert it DISCRIMINATES real seniority (senior scores above junior).
- */
-const SAMPLES = [
-    {
-        name: "junior backend (node)",
-        dir: "cv/samples/01-junior-backend-nodejs",
-        level: "junior",
-        tier: "mid" as HarnessTierName,
-        rubric: [
-            "This is a JUNIOR engineer's CV. A good grade gives it a plausibly modest-to-mid score and",
-            "feedback that is specific and constructive — naming concrete growth areas (impact metrics, depth,",
-            "ownership) rather than generic praise. Pass if the score is plausible for a junior CV and the",
-            "feedback is specific.",
-        ].join(" "),
-    },
-    {
-        name: "mid fullstack",
-        dir: "cv/samples/04-mid-fullstack",
-        level: "mid",
-        tier: "mid" as HarnessTierName,
-        rubric: [
-            "This is a MID-level engineer's CV. A good grade gives it a plausibly mid-to-good score and",
-            "specific, actionable feedback that references the actual experience. Pass if the score is plausible",
-            "for a mid CV and the feedback is specific rather than boilerplate.",
-        ].join(" "),
-    },
-    {
-        name: "senior backend / system design",
-        dir: "cv/samples/06-senior-backend-systemdesign",
-        level: "senior",
-        tier: "high" as HarnessTierName,
-        rubric: [
-            "This is a strong SENIOR engineer's CV (system-design ownership, org-level scope, mentoring,",
-            "quantified impact). A good grade gives it a plausibly HIGH score and feedback that acknowledges its",
-            "real strengths while offering refined, specific suggestions. Pass if the score is plausibly high",
-            "and the feedback is specific and credible.",
-        ].join(" "),
-    },
-] as const
-
-/** Skip the whole suite (with a clear message) when the SSOT mount is absent. */
-const HAVE_VOLUME = volumeExists(SAMPLES[SAMPLES.length - 1].dir)
-const describeOrSkip = HAVE_VOLUME
-    ? describe
-    : describe.skip
-
-/**
- * LLM-eval harness for CV scoring, grounded in REAL `.volume` CV samples.
- * Boots the REAL {@link CvScoringService} + real STRICT-JSON parser, swaps only
- * {@link AiInvokeService} for the tiered harness model ({@link createHarnessInvoke},
- * `.secrets` auth), and grades the produced `{ score, feedback }` with the AI
- * {@link judge}. Covers: per-level grading, cross-level DISCRIMINATION (senior >
- * junior), the empty-input guard, and non-English (Vietnamese) feedback.
+ * The model this harness grades with, named here rather than resolved from a tier table.
  *
- * Requires the `.volume` mount + a Claude Code OAuth token
- * (`.secrets/claude-code-token.txt` / `CLAUDE_CODE_OAUTH_TOKEN`) + live API.
+ * A layer that CHOOSES the model between the harness and the provider can make this lane green
+ * about a model nobody ships, so the choice is stated in the file that depends on it. Grading is
+ * the highest-stakes AI call the product makes -- a wrong grade is shown to a learner as a fact --
+ * so it runs on the strongest model rather than the cheapest.
  */
-describeOrSkip("CV scoring — real .volume samples, judged (harness)",
+const GRADING_MODEL: HarnessModel = {
+    model: "claude-opus-5",
+    effort: "low",
+}
+
+/** Real CV samples from the `.gitmounts` SSOT mount -- the exemplars the app itself ships. */
+const JUNIOR_SAMPLE = "cv/samples/01-junior-backend-nodejs"
+const MID_SAMPLE = "cv/samples/04-mid-fullstack"
+const SENIOR_SAMPLE = "cv/samples/06-senior-backend-systemdesign"
+
+/** The mounted content this suite grounds its cases in. A missing path FAILS, never skips. */
+const MOUNT_DIRS = [
+    SENIOR_SAMPLE,
+]
+
+const describeOrSkip = describeWithGitMount(MOUNT_DIRS)
+
+/**
+ * LLM-eval harness for CV scoring, grounded in REAL `.gitmounts` samples.
+ *
+ * Boots the REAL {@link CvScoringService} and its real STRICT-JSON parser, swapping only
+ * {@link AiInvokeService} for a direct provider call. It REALLY CALLS: a faked model here would
+ * measure nothing, because what the grader actually produced is the whole subject of this lane.
+ *
+ * THREE CASES, DOWN FROM SIX, AND THE CUT IS DELIBERATE. This lane is billed per call, so a matrix
+ * is not thoroughness here -- it is the reason people stop running the harness, and a stale green
+ * is worse than no green. What survived is what a regression shows up in:
+ *
+ *   - DISCRIMINATION replaced three per-level "is this score plausible?" cases outright. Those were
+ *     judged against a fuzzy rubric, so a grader drifting ten points passed all three; ranking a
+ *     real senior CV above a real junior one is a relative claim that needs no judge at all, and it
+ *     exercises grading twice while asserting something a drift would actually break.
+ *   - the LOCALE case fails visibly when instruction-following degrades: the feedback comes back in
+ *     English.
+ *   - the GUARD case costs nothing -- it must throw BEFORE any model call, so it is free to keep.
+ *
+ * Requires the `.gitmounts` mount and a Claude Code OAuth token
+ * (`.secrets/claude-code-token.txt` / `CLAUDE_CODE_OAUTH_TOKEN`) with live API access.
+ */
+describeOrSkip("CV scoring - real .gitmounts samples, judged (harness)",
     () => {
         let service: CvScoringService
         let judgeService: JudgeService
-        let volumeService: VolumeService
+        let gitMountService: GitMountService
 
         const cvRagRetrievalServiceMock = {
             retrieveCvContext: jest.fn().mockResolvedValue({
@@ -138,7 +121,7 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
                         provide: AiInvokeService,
                         useFactory: (
                             harnessInvoke: HarnessInvokeService,
-                        ) => harnessInvoke.create(() => currentTier),
+                        ) => harnessInvoke.create(() => GRADING_MODEL),
                         inject: [
                             HarnessInvokeService,
                         ],
@@ -152,11 +135,10 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
 
             service = moduleRef.get(CvScoringService)
             judgeService = moduleRef.get(JudgeService)
-            volumeService = moduleRef.get(VolumeService)
+            gitMountService = moduleRef.get(GitMountService)
         })
 
         afterEach(() => {
-            currentTier = "high"
             jest.clearAllMocks()
             cvRagRetrievalServiceMock.retrieveCvContext.mockResolvedValue({
                 excerpt: "",
@@ -164,49 +146,28 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
             })
         })
 
-        // ── per-level grading: each real CV produces a sensible, specific grade ──
-        it.each(SAMPLES)(
-            "grades the real $name sample sensibly (tier=$tier)",
-            async ({
-                dir,
-                tier,
-                rubric,
-            }) => {
-                currentTier = tier
-                const cv = volumeService.readVolumeDoc(dir)
-                expect(cv.body.trim().length).toBeGreaterThan(0)
-
-                const result = await score(cv.body)
-
-                expect(typeof result.score).toBe("number")
-                expect(result.score).toBeGreaterThanOrEqual(0)
-                expect(result.score).toBeLessThanOrEqual(100)
-                expect(String(result.feedback.shortFeedback).trim().length).toBeGreaterThan(0)
-
-                const verdict = await judgeService.judge(rubric,
-                    JSON.stringify({
-                        score: result.score,
-                        feedback: result.feedback,
-                    }))
-                expect(verdict.pass).toBe(true)
-                expect(verdict.score).toBeGreaterThanOrEqual(PASS_SCORE)
-            },
-        )
-
-        // ── discrimination: the grader must rank a real senior CV above a junior one ──
+        // -- discrimination: the grader must rank a real senior CV above a real junior one --
         it("ranks the real SENIOR sample strictly above the real JUNIOR sample",
             async () => {
-                currentTier = "high"
-                const junior = volumeService.readVolumeDoc("cv/samples/01-junior-backend-nodejs")
-                const senior = volumeService.readVolumeDoc("cv/samples/06-senior-backend-systemdesign")
+                const junior = gitMountService.readGitMountDoc(JUNIOR_SAMPLE)
+                const senior = gitMountService.readGitMountDoc(SENIOR_SAMPLE)
+                expect(junior.body.trim().length).toBeGreaterThan(0)
+                expect(senior.body.trim().length).toBeGreaterThan(0)
 
                 const juniorGrade = await score(junior.body)
                 const seniorGrade = await score(senior.body)
 
+                // the shape of a grade is asserted here rather than in a case of its own: a result
+                // that is not a number in range would fail this comparison for the wrong reason
+                expect(typeof seniorGrade.score).toBe("number")
+                expect(seniorGrade.score).toBeGreaterThanOrEqual(0)
+                expect(seniorGrade.score).toBeLessThanOrEqual(100)
+                expect(String(seniorGrade.feedback.shortFeedback).trim().length).toBeGreaterThan(0)
+
                 expect(seniorGrade.score).toBeGreaterThan(juniorGrade.score)
             })
 
-        // ── guard: no CV content -> throws before any model call ──
+        // -- guard: no CV content -> throws before any model call, so this case is free --
         it("throws when neither structuredData nor cvText is provided",
             async () => {
                 await expect(
@@ -216,11 +177,10 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
                 ).rejects.toThrow()
             })
 
-        // ── locale: a Vietnamese request grades in Vietnamese ──
+        // -- locale: a Vietnamese request grades in Vietnamese --
         it("grades a real sample in Vietnamese when locale = vi",
             async () => {
-                currentTier = "mid"
-                const cvVi = volumeService.readVolumeDoc("cv/samples/04-mid-fullstack",
+                const cvVi = gitMountService.readGitMountDoc(MID_SAMPLE,
                     "vi")
 
                 const result = await score(cvVi.body,
@@ -234,5 +194,6 @@ describeOrSkip("CV scoring — real .volume samples, judged (harness)",
                         feedback: result.feedback,
                     }))
                 expect(verdict.pass).toBe(true)
+                expect(verdict.score).toBeGreaterThanOrEqual(PASS_SCORE)
             })
     })

@@ -8,14 +8,11 @@ import {
     JudgeService,
 } from "./judge.service"
 import {
-    ModelsService,
-} from "./models.service"
-import {
     PingResolver,
 } from "./ping-resolver"
 import {
-    VolumeService,
-} from "./volume.service"
+    GitMountService,
+} from "./git-mount.service"
 import {
     winstonServiceMock,
 } from "./create-e2e-app"
@@ -25,18 +22,16 @@ import {
 
 @Module({
     providers: [
-        ModelsService,
         JudgeService,
-        VolumeService,
+        GitMountService,
         HarnessInvokeService,
         PingResolver,
         E2eDbResetService,
         winstonServiceMock,
     ],
     exports: [
-        ModelsService,
         JudgeService,
-        VolumeService,
+        GitMountService,
         HarnessInvokeService,
         PingResolver,
         E2eDbResetService,

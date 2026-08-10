@@ -270,66 +270,50 @@ export const client = buildClient()
 /** Reasoning-effort levels accepted by `output_config.effort`. */
 export type Effort = "low" | "medium" | "high" | "xhigh" | "max"
 
-/** One cost/quality tier: a model id plus an optional reasoning effort. */
-export interface Tier {
+/** What one harness call asks for. The MODEL is named here, by the caller, every time. */
+export interface AskModelInput {
+    /** The model id to call. Named at the call site so the spec states what it is testing. */
     model: string
+    /** The user prompt. */
+    prompt: string
+    /** Optional system prompt. */
+    system?: string
+    /** Optional reasoning effort; omitted for models that take no effort knob. */
     effort?: Effort
+    /** Output ceiling. Defaults to 2048. */
+    maxTokens?: number
 }
 
-/**
- * Named cost/quality tiers a harness flow dispatches generation to:
- *
- * - `low`  -- Haiku 4.5 (cheapest, high-volume/low-stakes; Haiku takes no
- *   effort knob, so none is set).
- * - `mid`  -- Sonnet 5 at low effort (balanced default for most generation).
- * - `high` -- Opus 5 at low effort (highest-fidelity model, hard cases).
- *
- * Grading is a separate concern -- see {@link judge} in `./judge`, which is
- * pinned to Sonnet 5 at `high` effort regardless of which tier produced the
- * output under test, so grading rigor never varies with the SUT's cost tier.
- */
-export const HARNESS_TIER = {
-    low: {
-        model: "claude-haiku-4-5",
-    },
-    mid: {
-        model: "claude-sonnet-5",
-        effort: "low",
-    },
-    high: {
-        model: "claude-opus-5",
-        effort: "low",
-    },
-} satisfies Record<string, Tier>
-
-/** Name of a {@link HARNESS_TIER} entry (`low` | `mid` | `high`). */
-export type HarnessTierName = keyof typeof HARNESS_TIER
+/** The text blocks of a message, joined. */
+export const textOf = (message: Anthropic.Message): string =>
+    message.content
+        .filter((block): block is Anthropic.TextBlock => block.type === "text")
+        .map((block) => block.text)
+        .join("")
 
 /**
- * Run one generation through a named {@link HARNESS_TIER} and return its
- * concatenated text output. `system` is optional; `output_config.effort` is
- * applied only for tiers that set an effort.
+ * Run ONE call against the provider and return its text.
  *
- * @param tier - which cost/quality tier to dispatch to
- * @param input - the user `prompt` and an optional `system` prompt
+ * THIS SELECTS NOTHING. It resolves credentials once, absorbs a throttle, and joins the text
+ * blocks -- that is the whole of it. There is deliberately no tier, no routing table and no house
+ * default model, because every layer that CHOOSES a model between a harness and the provider is a
+ * layer that can make the harness green about a model nobody ships. A spec that wants Sonnet says
+ * Sonnet, in the file, where a reader can see it.
+ *
+ * It also really calls. A harness whose provider is faked has measured nothing at all: the whole
+ * subject of this lane is what the model actually said.
+ *
+ * @param input - {@link AskModelInput}
  * @returns the model's text response, blocks joined
  */
-export const generate = async (
-    tier: HarnessTierName,
-    input: {
-        prompt: string
-        system?: string
-    },
-): Promise<string> => {
-    const config: Tier = HARNESS_TIER[tier]
-
-    const res = await withRateLimitRetry(() => client.messages.create({
-        model: config.model,
-        max_tokens: 2048,
-        ...(config.effort
+export const askModel = async (input: AskModelInput): Promise<string> => {
+    const message = await withRateLimitRetry(() => client.messages.create({
+        model: input.model,
+        max_tokens: input.maxTokens ?? 2048,
+        ...(input.effort
             ? {
                 output_config: {
-                    effort: config.effort,
+                    effort: input.effort,
                 },
             }
             : {
@@ -348,8 +332,5 @@ export const generate = async (
         ],
     }))
 
-    return res.content
-        .filter((block): block is Anthropic.TextBlock => block.type === "text")
-        .map((block) => block.text)
-        .join("")
+    return textOf(message)
 }

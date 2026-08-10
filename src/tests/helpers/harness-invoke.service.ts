@@ -12,8 +12,8 @@ import {
     messagesToPrompt,
 } from "./harness-invoke"
 import type {
-    HarnessTierName,
-} from "./models"
+    HarnessModel,
+} from "./harness-invoke"
 
 @Injectable()
 /**
@@ -42,15 +42,14 @@ export class HarnessInvokeService {
     }
 
     /**
-     * Build a harness-backed {@link AiInvokeService} stand-in for the current
-     * tier closure.
+     * Build a harness-backed {@link AiInvokeService} stand-in for the current model closure.
      *
-     * @param getTier - resolves the tier for the current `run` call
+     * @param getModel - resolves the model for the current `run` call
      * @returns an object with the one `run` method every flow uses
      */
     public create(
-        getTier: () => HarnessTierName,
+        getModel: () => HarnessModel,
     ): Pick<AiInvokeService, "run"> {
-        return createHarnessInvoke(getTier)
+        return createHarnessInvoke(getModel)
     }
 }

@@ -12,10 +12,10 @@ import type {
     AiRunResult,
 } from "@modules/ai/types/ai-invoke"
 import {
-    generate,
+    askModel,
 } from "./models"
 import type {
-    HarnessTierName,
+    Effort,
 } from "./models"
 
 /**
@@ -55,50 +55,67 @@ export const messagesToPrompt = (
     }
 }
 
+/** Which model a harness run answers with. Named by the spec, resolved per call. */
+export interface HarnessModel {
+    /** The provider's model id. */
+    model: string
+    /** Optional reasoning effort; omitted for models that take no effort knob. */
+    effort?: Effort
+}
+
 /**
- * Build a harness-backed {@link AiInvokeService} stand-in: it keeps the app's
- * real `run(...)` CONTRACT (every AI flow injects `AiInvokeService` and calls
- * `.run`) but swaps the balancer/key-pool transport for the harness's tiered
- * Anthropic client (authenticated from `.secrets`). So the prompt the real
- * grade/chat service built is answered by a REAL Claude model at `getTier()`,
- * and the artifact under judgement (`result.text`, which each flow then parses)
- * is a real model answer, not a canned fixture.
+ * Build a harness-backed {@link AiInvokeService} stand-in: it keeps the app's real `run(...)`
+ * CONTRACT (every AI flow injects `AiInvokeService` and calls `.run`) but swaps the balancer and
+ * key pool for a direct provider call. So the prompt the real grade/chat service built is answered
+ * by a REAL model, and the artifact under judgement (`result.text`, which each flow then parses) is
+ * a real answer rather than a canned fixture.
+ *
+ * THE SPEC NAMES THE MODEL. This used to take a tier name and look the model up in a house table,
+ * which is one layer of choosing between the harness and the provider -- and a layer that chooses
+ * can make the harness green about a model nobody ships. `getModel` returns the id itself, so the
+ * file states what it is testing.
  *
  * Provide it in a test module as
- * `{ provide: AiInvokeService, useValue: createHarnessInvoke(() => tier) }`.
+ * `{ provide: AiInvokeService, useValue: createHarnessInvoke(() => ({ model: "..." })) }`.
  *
- * @param getTier - resolves the tier for the CURRENT call (read per-`run` so a
- *   single instance can serve rotating tiers across `it` cases).
+ * @param getModel - resolves the model for the CURRENT call, read per `run` so one instance can
+ *   serve different models across cases.
  * @returns an object with the one `run` method every flow uses.
  */
 export const createHarnessInvoke = (
-    getTier: () => HarnessTierName,
+    getModel: () => HarnessModel,
 ): Pick<AiInvokeService, "run"> => ({
     run: async (
         {
             messages,
         }: AiRunParams,
     ): Promise<AiRunResult> => {
-        const tier = getTier()
+        const target = getModel()
         const {
             system,
             prompt,
         } = messagesToPrompt(messages)
 
-        const text = await generate(tier,
-            {
-                prompt,
-                ...(system
-                    ? {
-                        system,
-                    }
-                    : {
-                    }),
-            })
+        const text = await askModel({
+            model: target.model,
+            prompt,
+            ...(target.effort
+                ? {
+                    effort: target.effort,
+                }
+                : {
+                }),
+            ...(system
+                ? {
+                    system,
+                }
+                : {
+                }),
+        })
 
         return {
             text,
-            model: `harness:${tier}`,
+            model: target.model,
             provider: ModelProvider.Anthropic,
             attempts: 1,
             cost: 0,

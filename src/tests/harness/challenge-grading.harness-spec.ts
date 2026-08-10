@@ -47,35 +47,45 @@ import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
 import {
-    readVolumeDoc,
-    volumeExists,
-} from "@tests/helpers/volume"
+    readGitMountDoc,
+    gitMountExists,
+    describeWithGitMount,
+} from "@tests/helpers/git-mount"
 import type {
-    HarnessTierName,
-} from "@tests/helpers/models"
+    HarnessModel,
+} from "@tests/helpers/harness-invoke"
 
 /** Minimum judge score a produced evaluation must reach to count as passing. */
 const PASS_SCORE = 60
 
-/** The tier the harness routes THIS case's grading model call to. */
-let currentTier: HarnessTierName = "high"
+/**
+ * The model this harness grades with, named here rather than resolved from a tier table.
+ *
+ * A layer that CHOOSES the model between the harness and the provider can make this lane green
+ * about a model nobody ships. Grading is the highest-stakes AI call the product makes -- a wrong
+ * evaluation is shown to a learner as a fact -- so it runs on the strongest model.
+ */
+const GRADING_MODEL: HarnessModel = {
+    model: "claude-opus-5",
+    effort: "low",
+}
 let harnessInvokeService: HarnessInvokeService
 let judgeService: JudgeService
 
 /**
- * REAL challenge material from the `.volume` SSOT mount (course
+ * REAL challenge material from the `.gitmounts` SSOT mount (course
  * `0-fullstack-mastery`, module `0-nestjs-core-and-request-lifecycle`, lesson
  * `0-frameworks-in-backend`) -- the actual DI-teaching challenge pair the app
  * ships, EASY then its MEDIUM escalation. Grounding in these (rather than a
  * hand-written brief) tests the grading BIZ against the app's real rubric prose.
  *
- * `readVolumeDoc` parses a doc's flat `# field <sep> value` sequence -- that
+ * `readGitMountDoc` parses a doc's flat `# field <sep> value` sequence -- that
  * covers `title`/`description` cleanly here, but a challenge doc's
  * `requirements`/`steps` sections are a NESTED tree (`## 0 / ### langs / #### 0
  * / ##### lang / ##### body`, repeated per requirement x per language), which
  * the flat parser can't reach: it strips only the outermost `#`, so nested
  * keys collide across requirements/languages and the LAST one silently wins.
- * So `title` below comes straight from `readVolumeDoc`; the graded
+ * So `title` below comes straight from `readGitMountDoc`; the graded
  * outcome/approach criteria are transcribed VERBATIM from the same source
  * files (the "typescript" language rows) into the shape
  * `collectSubmissionCriteria` actually reads.
@@ -83,17 +93,22 @@ let judgeService: JudgeService
 const CHALLENGE_1_DIR = "courses/0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/challenges/0-order-inventory-cross-module-di-easy"
 const CHALLENGE_2_DIR = "courses/0-fullstack-mastery/modules/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/challenges/1-custom-provider-dynamic-module-medium"
 
-/** Skip the whole suite (with a clear message) when the SSOT mount is absent. */
-const HAVE_VOLUME = volumeExists(CHALLENGE_1_DIR) && volumeExists(CHALLENGE_2_DIR)
-const describeOrSkip = HAVE_VOLUME
-    ? describe
-    : describe.skip
+/** The mounted content this suite grounds its cases in. A missing path FAILS, never skips. */
+const MOUNT_DIRS = [
+    CHALLENGE_1_DIR,
+    CHALLENGE_2_DIR,
+]
 
-const challenge1Doc = HAVE_VOLUME
-    ? readVolumeDoc(CHALLENGE_1_DIR)
+const describeOrSkip = describeWithGitMount(MOUNT_DIRS)
+
+/** Whether every mounted path is present, for the module-scope doc reads below. */
+const HAVE_MOUNT = MOUNT_DIRS.every((relDir) => gitMountExists(relDir))
+
+const challenge1Doc = HAVE_MOUNT
+    ? readGitMountDoc(CHALLENGE_1_DIR)
     : undefined
-const challenge2Doc = HAVE_VOLUME
-    ? readVolumeDoc(CHALLENGE_2_DIR)
+const challenge2Doc = HAVE_MOUNT
+    ? readGitMountDoc(CHALLENGE_2_DIR)
     : undefined
 
 /** REAL title, `challenges/0-order-inventory-cross-module-di-easy/en.md` (`# title`). */
@@ -113,8 +128,6 @@ const CHALLENGE_2_TITLE = challenge2Doc?.title
 interface GradeCase {
     /** jest row label. */
     name: string
-    /** tier the grading model runs at. */
-    tier: HarnessTierName
     /** what a good evaluation for this submission must satisfy. */
     rubric: string
 }
@@ -122,7 +135,7 @@ interface GradeCase {
 /**
  * REAL outcome (functional) + approach (code-quality) criteria for CHALLENGE 1, transcribed
  * verbatim from `challenges/0-order-inventory-cross-module-di-easy/en.md`'s TypeScript
- * `requirements`/`steps` bodies (see file header for why `readVolumeDoc` can't reach these).
+ * `requirements`/`steps` bodies (see file header for why `readGitMountDoc` can't reach these).
  */
 const CHALLENGE_1 = {
     id: "challenge-1-di-easy",
@@ -527,7 +540,7 @@ const GDOCS_PARTIAL_TEXT = [
 /**
  * LLM-eval harness for CHALLENGE grading -- the two AI-graded submission flows
  * (GitHub repo, Google Docs write-up), grounded in TWO REAL StarCi Academy
- * challenges from the `.volume` SSOT mount (`0-order-inventory-cross-module-di-easy`
+ * challenges from the `.gitmounts` SSOT mount (`0-order-inventory-cross-module-di-easy`
  * for the git flow, `1-custom-provider-dynamic-module-medium` for the Google Docs
  * flow -- see file header for how the criteria were sourced). Boots the REAL
  * grade-step service + REAL {@link ChallengeEvaluationParseService}, swaps only
@@ -541,7 +554,7 @@ const GDOCS_PARTIAL_TEXT = [
  * strictly outscores failing on the SAME real challenge), and -- git only -- a
  * missing/placeholder repo grading to a low/failing result rather than crashing.
  *
- * Requires the `.volume` mount + a Claude Code OAuth token
+ * Requires the `.gitmounts` mount + a Claude Code OAuth token
  * (`.secrets/claude-code-token.txt` / `CLAUDE_CODE_OAUTH_TOKEN`) + live API.
  */
 describeOrSkip("Challenge grading — real grade flow judged (harness)",
@@ -557,7 +570,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
         })
 
         afterEach(() => {
-            currentTier = "high"
             jest.clearAllMocks()
         })
 
@@ -602,7 +614,7 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                         log: jest.fn(),
                     } as never,
                     mountStorageService as never,
-                    harnessInvokeService.create(() => currentTier) as never,
+                    harnessInvokeService.create(() => GRADING_MODEL) as never,
                     aiEntitlementService as never,
                     new ChallengeEvaluationParseService(),
                     gradingRetrievalService as never,
@@ -656,7 +668,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                 const GIT_CASES: Array<GradeCase & { files: Array<{ path: string; content: string }> }> = [
                     {
                         name: "correct, well-structured submission (real challenge 0-order-inventory-cross-module-di-easy) → plausibly-high score, evidence-based feedback",
-                        tier: "high",
                         files: GIT_PASS_FILES,
                         rubric: [
                             `The output is a JSON ChallengeEvaluation for a submission of the REAL StarCi Academy challenge "${CHALLENGE_1_TITLE}".`,
@@ -673,7 +684,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                     },
                     {
                         name: "broken/empty submission (real challenge 0-order-inventory-cross-module-di-easy) → plausibly-low score, concrete named failures",
-                        tier: "mid",
                         files: GIT_FAIL_FILES,
                         rubric: [
                             `The output is a JSON ChallengeEvaluation for a submission of the REAL StarCi Academy challenge "${CHALLENGE_1_TITLE}"`,
@@ -687,7 +697,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                     },
                     {
                         name: "partial submission — critical DI/contract met, module boundary + README missed (real challenge 0-order-inventory-cross-module-di-easy) → mid score, feedback distinguishes",
-                        tier: "low",
                         files: GIT_PARTIAL_FILES,
                         rubric: [
                             `The output is a JSON ChallengeEvaluation for a submission of the REAL StarCi Academy challenge "${CHALLENGE_1_TITLE}"`,
@@ -707,13 +716,11 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                 ]
 
                 it.each(GIT_CASES)(
-                    "$name (tier=$tier)",
+                    "$name",
                     async ({
-                        tier,
                         files,
                         rubric,
                     }) => {
-                        currentTier = tier
                         const result = await runGrade(files)
                         await assertAndJudge(result.evaluation,
                             rubric)
@@ -723,7 +730,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                 // ── discrimination: a real passing submission must strictly outscore a real failing one ──
                 it("ranks the PASSING submission strictly above the FAILING one for the SAME real challenge",
                     async () => {
-                        currentTier = "high"
                         const passing = await runGrade(GIT_PASS_FILES)
                         const failing = await runGrade(GIT_FAIL_FILES)
 
@@ -735,7 +741,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                 // ── missing/placeholder repo: the loader returns nothing -> low/failing grade, not a crash ──
                 it("grades an EMPTY/placeholder repo to a low, failing result instead of crashing",
                     async () => {
-                        currentTier = "mid"
                         const result = await runGrade([],
                             "")
 
@@ -790,7 +795,7 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                         log: jest.fn(),
                     } as never,
                     mountStorageService as never,
-                    harnessInvokeService.create(() => currentTier) as never,
+                    harnessInvokeService.create(() => GRADING_MODEL) as never,
                     aiEntitlementService as never,
                     googleDriverApiService as never,
                     new ChallengeEvaluationParseService(),
@@ -835,7 +840,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                 const GDOCS_CASES: Array<GradeCase & { docText: string }> = [
                     {
                         name: "thorough design write-up (real challenge 1-custom-provider-dynamic-module-medium) → plausibly-high score, content-based feedback",
-                        tier: "high",
                         docText: GDOCS_PASS_TEXT,
                         rubric: [
                             `The output is a JSON ChallengeEvaluation for a write-up of the REAL StarCi Academy challenge "${CHALLENGE_2_TITLE}".`,
@@ -852,7 +856,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                     },
                     {
                         name: "vague, contentless write-up (real challenge 1-custom-provider-dynamic-module-medium) → plausibly-low score, concrete named gaps",
-                        tier: "mid",
                         docText: GDOCS_FAIL_TEXT,
                         rubric: [
                             `The output is a JSON ChallengeEvaluation for a write-up of the REAL StarCi Academy challenge "${CHALLENGE_2_TITLE}"`,
@@ -866,7 +869,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                     },
                     {
                         name: "partial write-up — token/factory + rough contract described, options wired via env not DI, no README mention (real challenge 1-custom-provider-dynamic-module-medium) → mid score, feedback distinguishes",
-                        tier: "low",
                         docText: GDOCS_PARTIAL_TEXT,
                         rubric: [
                             `The output is a JSON ChallengeEvaluation for a write-up of the REAL StarCi Academy challenge "${CHALLENGE_2_TITLE}"`,
@@ -885,13 +887,11 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                 ]
 
                 it.each(GDOCS_CASES)(
-                    "$name (tier=$tier)",
+                    "$name",
                     async ({
-                        tier,
                         docText,
                         rubric,
                     }) => {
-                        currentTier = tier
                         const result = await runGrade(docText)
                         await assertAndJudge(result.evaluation,
                             rubric)
@@ -901,7 +901,6 @@ describeOrSkip("Challenge grading — real grade flow judged (harness)",
                 // ── discrimination: a real passing write-up must strictly outscore a real failing one ──
                 it("ranks the PASSING write-up strictly above the FAILING one for the SAME real challenge",
                     async () => {
-                        currentTier = "high"
                         const passing = await runGrade(GDOCS_PASS_TEXT)
                         const failing = await runGrade(GDOCS_FAIL_TEXT)
 

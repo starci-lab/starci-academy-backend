@@ -71,12 +71,25 @@ import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
 import {
-    readVolumeDoc,
-    volumeExists,
-} from "@tests/helpers/volume"
+    readGitMountDoc,
+    gitMountExists,
+    describeWithGitMount,
+} from "@tests/helpers/git-mount"
 import type {
-    HarnessTierName,
-} from "@tests/helpers/models"
+    HarnessModel,
+} from "@tests/helpers/harness-invoke"
+
+/**
+ * The model this harness grades with, named here rather than resolved from a tier table.
+ *
+ * A layer that CHOOSES the model between the harness and the provider can make this lane green
+ * about a model nobody ships. Grading is the highest-stakes AI call the product makes -- a wrong
+ * evaluation is shown to a learner as a fact -- so it runs on the strongest model.
+ */
+const GRADING_MODEL: HarnessModel = {
+    model: "claude-opus-5",
+    effort: "low",
+}
 
 /** Params for the `GradingRetrievalService.retrieveGradingExcerpt` mock. */
 interface RetrieveGradingExcerptParams {
@@ -132,9 +145,6 @@ const PASS_SCORE = 60
 /** Connection name the SUT's `@InjectPrimaryPostgreSQLEntityManager()` resolves to. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** The tier the harness routes THIS case's grading model call to. */
-let currentTier: HarnessTierName = "high"
-
 /** The `MilestoneTaskEntity`-shaped fixture the CURRENT case's `findOneOrFail` resolves. */
 let currentTaskFixture: unknown
 
@@ -142,15 +152,15 @@ const ENROLLMENT_ID = "harness-enrollment"
 const USER_ID = "harness-user"
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Grounding: read REAL capstone tasks straight out of the `.volume` SSOT mount.
+// Grounding: read REAL capstone tasks straight out of the `.gitmounts` SSOT mount.
 //
-// A task mount doc (`.volume/data/courses/<course>/milestones/<milestone>/tasks/<task>/en.md`)
-// is one flat `readVolumeDoc`-parseable file for its TOP-LEVEL scalar fields (title,
-// description, verified, maxScore, ...) -- `readVolumeDoc` handles those directly. But its
+// A task mount doc (`.gitmounts/data/courses/<course>/milestones/<milestone>/tasks/<task>/en.md`)
+// is one flat `readGitMountDoc`-parseable file for its TOP-LEVEL scalar fields (title,
+// description, verified, maxScore, ...) -- `readGitMountDoc` handles those directly. But its
 // `# criterias` field is itself a NESTED markdown tree (`## <langIndex>` -> `### lang` /
 // `### outcome` / `### approach` -> `#### <criterionIndex>` -> `##### body` / `##### score` /
 // `##### critical`), which the app's real ingestion (`MilestoneTaskParserService`, via
-// `ExtractJsonFromMdService`) parses with a full heading-tree extractor. `readVolumeDoc`'s
+// `ExtractJsonFromMdService`) parses with a full heading-tree extractor. `readGitMountDoc`'s
 // flat SEP-splitter can't recover that structure, so this harness carries its own tiny
 // SEP-anchored extractor (below) -- reading the SAME raw file, the SAME `SEP` marker, no
 // fabricated text -- to pull out the real outcome/approach criteria for one language.
@@ -312,7 +322,7 @@ interface BuildV2TaskFixtureParams {
 
 /**
  * Build a SCHEMA V2 `MilestoneTaskEntity`-shaped fixture from a REAL task mount: `title` +
- * `maxScore` come straight off `readVolumeDoc`'s flat fields, `verified` is the REAL date (so
+ * `maxScore` come straight off `readGitMountDoc`'s flat fields, `verified` is the REAL date (so
  * the SUT takes the outcome/approach rubric path), and `outcomeCriteria`/`approachCriteria`
  * carry the REAL per-criterion body/score/critical read by {@link readRealTaskCriteria}.
  */
@@ -323,7 +333,7 @@ const buildV2TaskFixture = (
         lang,
     }: BuildV2TaskFixtureParams,
 ) => {
-    const doc = readVolumeDoc(relDir)
+    const doc = readGitMountDoc(relDir)
     const real = readRealTaskCriteria(relDir,
         lang)
     return {
@@ -367,7 +377,7 @@ interface BuildLegacyTaskFixtureParams {
 /**
  * Build a LEGACY (`verified: null`) `MilestoneTaskEntity`-shaped fixture from the SAME real
  * task mount, reshaping its real outcome+approach criteria into the legacy `criterias`
- * (`text`/`promptText`/`score`) schema. No task in `.volume` is actually legacy -- every mount
+ * (`text`/`promptText`/`score`) schema. No task in `.gitmounts` is actually legacy -- every mount
  * doc under `courses/*\/milestones/*\/tasks/*` carries `# verified` (confirmed by grepping all
  * 300 fullstack/system-design/devops task docs) -- so this is how the SCHEMA V1 (legacy) path
  * gets exercised against real rubric prose instead of a fabricated one: same real criteria
@@ -380,7 +390,7 @@ const buildLegacyTaskFixture = (
         lang,
     }: BuildLegacyTaskFixtureParams,
 ) => {
-    const doc = readVolumeDoc(relDir)
+    const doc = readGitMountDoc(relDir)
     const real = readRealTaskCriteria(relDir,
         lang)
     const flattened = [
@@ -409,11 +419,13 @@ const TASK_A_DIR = "courses/0-fullstack-mastery/milestones/0-project-foundation/
 const TASK_B_DIR = "courses/0-fullstack-mastery/milestones/2-authentication-and-authorization/tasks/1-jwt-register-and-login"
 const LANG = "typescript"
 
-/** Skip the whole suite (with a clear message) when the SSOT mount is absent. */
-const HAVE_VOLUME = volumeExists(TASK_A_DIR) && volumeExists(TASK_B_DIR)
-const describeOrSkip = HAVE_VOLUME
-    ? describe
-    : describe.skip
+/** The mounted content this suite grounds its cases in. A missing path FAILS, never skips. */
+const MOUNT_DIRS = [
+    TASK_A_DIR,
+    TASK_B_DIR,
+]
+
+const describeOrSkip = describeWithGitMount(MOUNT_DIRS)
 
 /** Render `{ path, content }` submission files into the `Document` shape `GithubRepoLoader` "loads". */
 const toDocuments = (
@@ -571,8 +583,6 @@ const TASK_A_MISSES_FILES = [
 interface GradeCase {
     /** jest row label. */
     name: string
-    /** tier the grading model runs at. */
-    tier: HarnessTierName
     /** the "loaded" GitHub repo files for this submission. */
     files: Array<{ path: string; content: string }>
     /** what a good grade for this submission must satisfy. */
@@ -582,7 +592,6 @@ interface GradeCase {
 const TASK_A_CASES: Array<GradeCase> = [
     {
         name: "submission MEETS the real brief → plausibly-high score, grounded feedback, passed trends true",
-        tier: "high",
         files: TASK_A_MEETS_FILES,
         rubric: [
             "The output is a grading evaluation of a submission that correctly implements the REAL",
@@ -600,7 +609,6 @@ const TASK_A_CASES: Array<GradeCase> = [
     },
     {
         name: "submission MISSES the real brief → plausibly-low score, feedback names concrete gaps",
-        tier: "mid",
         files: TASK_A_MISSES_FILES,
         rubric: [
             "The output is a grading evaluation of a submission that does NOT meet the REAL capstone",
@@ -616,7 +624,6 @@ const TASK_A_CASES: Array<GradeCase> = [
     },
     {
         name: "submission PARTIALLY meets the real brief (criticals pass, 3 non-criticals fail) → mid score, feedback distinguishes pass vs fail",
-        tier: "mid",
         files: TASK_A_PARTIAL_FILES,
         rubric: [
             "The output is a grading evaluation of a submission that MEETS the two CRITICAL criteria",
@@ -773,8 +780,6 @@ const TASK_B_SUBMISSION_RUBRIC = [
 interface SchemaCase {
     /** jest row label. */
     name: string
-    /** tier the grading model runs at. */
-    tier: HarnessTierName
     /** builds the `verified` (V2) or `verified: null` (legacy) fixture for this row. */
     buildFixture: () => unknown
     /** what a good grade for the shared submission must satisfy under THIS schema path. */
@@ -784,7 +789,6 @@ interface SchemaCase {
 const TASK_B_SCHEMA_CASES: Array<SchemaCase> = [
     {
         name: "SCHEMA V2 (real, verified) task parses via the outcome/approach rubric and grades sensibly",
-        tier: "high",
         buildFixture: () => buildV2TaskFixture({
             id: "task-jwt-auth-v2",
             relDir: TASK_B_DIR,
@@ -794,7 +798,6 @@ const TASK_B_SCHEMA_CASES: Array<SchemaCase> = [
     },
     {
         name: "LEGACY (verified: null, same real criteria reshaped) task parses via the criterias rubric and grades sensibly",
-        tier: "mid",
         buildFixture: () => buildLegacyTaskFixture({
             id: "task-jwt-auth-legacy",
             relDir: TASK_B_DIR,
@@ -824,20 +827,20 @@ const makeContext = () => ({
 }) as never
 
 /**
- * LLM-eval harness for milestone / capstone-task review grading, grounded in REAL `.volume`
+ * LLM-eval harness for milestone / capstone-task review grading, grounded in REAL `.gitmounts`
  * capstone tasks. Boots the REAL {@link ReviewMilestoneTaskGradeStepService} (V2 outcome/approach
  * rubric prompt, or the legacy `criterias` rubric) + {@link ProjectEvaluationParseService}
  * (STRICT-JSON parser), swaps only {@link AiInvokeService} for the tiered harness model
  * ({@link createHarnessInvoke}, `.secrets` auth), and judges the produced {@link ProjectEvaluation}.
  *
- * Grounds two REAL capstone tasks read straight from `.volume/data/courses/0-fullstack-mastery/`:
+ * Grounds two REAL capstone tasks read straight from `.gitmounts/data/courses/0-fullstack-mastery/`:
  * - `milestones/0-project-foundation/tasks/0-clean-architecture-and-health` ("Scaffold StarCi
  *   Shop Backend + Health Endpoint") -- MEETS / MISSES / PARTIAL / DISCRIMINATION cases, all
  *   SCHEMA V2 (real `verified` date).
  * - `milestones/2-authentication-and-authorization/tasks/1-jwt-register-and-login` ("Let
  *   Shoppers Sign Up & Sign In (JWT)") -- the SAME real criteria text graded once via the REAL
  *   SCHEMA V2 path and once via a LEGACY (`verified: null`) reshaping of that same text (no
- *   `.volume` task is actually legacy -- every mount doc sets `# verified` -- so this is how the
+ *   `.gitmounts` task is actually legacy -- every mount doc sets `# verified` -- so this is how the
  *   older schema path gets exercised against real rubric prose).
  *
  * The step SAVES its result via `JobActionService.saveExecutionResult` rather than
@@ -858,7 +861,7 @@ const makeContext = () => ({
  * REAL: the SUT, `ProjectEvaluationParseService`, `DayjsService` (no deps), and the model
  * answer (a real Claude call at the per-case tier) under judgement.
  *
- * Requires the `.volume` mount + a Claude Code OAuth token
+ * Requires the `.gitmounts` mount + a Claude Code OAuth token
  * (`.secrets/claude-code-token.txt` / `CLAUDE_CODE_OAUTH_TOKEN`) + live API.
  */
 describeOrSkip("Milestone task grading — real grade flow judged (harness)",
@@ -914,7 +917,7 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         provide: AiInvokeService,
                         useFactory: (
                             harnessInvoke: HarnessInvokeService,
-                        ) => harnessInvoke.create(() => currentTier),
+                        ) => harnessInvoke.create(() => GRADING_MODEL),
                         inject: [
                             HarnessInvokeService,
                         ],
@@ -952,7 +955,6 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
 
         beforeEach(() => {
             jest.clearAllMocks()
-            currentTier = "high"
 
             entityManager.findOne.mockResolvedValue(null)
             entityManager.findOneOrFail.mockImplementation(
@@ -981,10 +983,8 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
         /** Run one grading pass and return the captured `{ evaluation, passed }`. */
         const runGrade = async (
             taskFixture: unknown,
-            tier: HarnessTierName,
             files: Array<{ path: string; content: string }>,
         ): Promise<ReviewMilestoneTaskGradeResult> => {
-            currentTier = tier
             currentTaskFixture = taskFixture
             loaderLoadMock.mockResolvedValue(toDocuments(files))
 
@@ -1000,9 +1000,8 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
         describe("task: Scaffold StarCi Shop Backend + Health Endpoint (real .volume SCHEMA V2 task)",
             () => {
                 it.each(TASK_A_CASES)(
-                    "$name (tier=$tier)",
+                    "$name",
                     async ({
-                        tier,
                         files,
                         rubric,
                     }) => {
@@ -1014,7 +1013,6 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         const {
                             evaluation, passed,
                         } = await runGrade(taskFixture,
-                            tier,
                             files)
 
                         // the parser produced a valid, non-empty evaluation
@@ -1048,7 +1046,6 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         })
 
                         const meets = await runGrade(taskFixture,
-                            "high",
                             TASK_A_MEETS_FILES)
                         jest.clearAllMocks()
                         aiEntitlementServiceMock.assertNotOverQuota.mockResolvedValue(undefined)
@@ -1074,7 +1071,6 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         )
 
                         const misses = await runGrade(taskFixture,
-                            "mid",
                             TASK_A_MISSES_FILES)
 
                         expect(meets.evaluation.score).toBeGreaterThan(misses.evaluation.score)
@@ -1084,9 +1080,8 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
         describe("task: Let Shoppers Sign Up & Sign In (JWT) — SCHEMA V2 vs LEGACY (real .volume task)",
             () => {
                 it.each(TASK_B_SCHEMA_CASES)(
-                    "$name (tier=$tier)",
+                    "$name",
                     async ({
-                        tier,
                         buildFixture,
                         rubric,
                     }) => {
@@ -1094,7 +1089,6 @@ describeOrSkip("Milestone task grading — real grade flow judged (harness)",
                         const {
                             evaluation, passed,
                         } = await runGrade(taskFixture,
-                            tier,
                             TASK_B_FILES)
 
                         // both schema paths PARSE into a valid, non-empty evaluation
