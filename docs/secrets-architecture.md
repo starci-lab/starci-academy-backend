@@ -41,7 +41,7 @@ chép nội dung đi đâu khác.
 ```
 POSTGRESQL_PRIMARY_HOST=localhost                                   ← lộ cũng không mất gì
 POSTGRESQL_PRIMARY_PORT=5515                                        ← lộ cũng không mất gì
-TERRAFORM_STRIPE_SECRET_KEY_MOUNT_PATH=.stacks/dev/runtime/files/…  ← chỉ là đường dẫn
+STRIPE_SECRET_KEY=.stacks/dev/runtime/files/…  ← chỉ là đường dẫn
 ```
 
 Lý do **không** phải "package npm đọc được `process.env`" — một package độc hại cũng
@@ -53,12 +53,16 @@ Lý do **không** phải "package npm đọc được `process.env`" — một p
 
 File không đi theo ba đường đó.
 
-**Chỗ starci khác miamia, và phải nói thẳng:** starci đã theo luật này sẵn cho khoá bên thứ
-ba — `config.ts` khai một key `*_MOUNT_PATH` cho từng file và `mount-secrets.ts` đọc bằng
-`readFileSync`. Nhưng starci **không có** `parseEnvSecret`, nên password hạ tầng
-(`POSTGRESQL_PRIMARY_PASSWORD`, `REDIS_*_PASSWORD`, …) vẫn tới app dưới dạng **giá trị**
-trong env. Đó là nợ, được ghi nhận chứ không giấu: đổi được nó nghĩa là thêm một tầng đọc
-`*_FILE` vào `parse-env.ts`, và đó là một thay đổi khác, không phải thay đổi này.
+**Nợ này đã trả (2026-08-10).** Trước đây starci chỉ theo luật cho khoá bên thứ ba, qua một
+key `*_MOUNT_PATH` cho từng file mà `mount-secrets.ts` tự `readFileSync`, còn password hạ
+tầng (`POSTGRESQL_PRIMARY_PASSWORD`, `REDIS_*_PASSWORD`, …) vẫn tới app dưới dạng **giá
+trị** trong env. Giờ `parse-env.ts` có `parseEnvSecret`, và **mọi** credential — hạ tầng lẫn
+bên thứ ba — đi chung một đường: KEY gọi tên **giá trị** (`STRIPE_SECRET_KEY`, không phải một
+path), con trỏ sinh đôi `<KEY>_FILE` gọi tên file, và `parseEnvSecret` tự mở file lúc dựng
+cây config. Đặt cả hai thì bị **từ chối** (`EnvFileConflictException`); đặt con trỏ mà file
+rỗng/không đọc được thì **chết lúc boot** (`EnvFileUnreadableException`) chứ không âm thầm
+rơi về default. `mountPath.*` chỉ còn giữ path **nội dung/cấu hình** (`DATA_*`, `CONFIG_*`)
+và thư mục key pool — những thứ đúng nghĩa là vị trí, không phải bí mật.
 
 Với **container hạ tầng** thì giá trị trong env là đúng, không phải nhân nhượng: mỗi
 container chạy đúng một binary của nhà phát hành, và phần lớn image (postgres, redis, minio,
