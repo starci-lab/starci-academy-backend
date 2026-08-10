@@ -3,6 +3,7 @@ import {
 } from "path"
 import {
     parseEnvString,
+    parseEnvSecret,
     parseEnvInt,
     parseEnvBoolean,
     parseEnvFloat,
@@ -578,7 +579,7 @@ export const envConfig = () => ({
                 key: "BREVO_SMTP_SECURE",
                 defaultValue: false,
             }),
-            username: parseEnvString({
+            username: parseEnvSecret({
                 key: "BREVO_SMTP_USERNAME",
                 defaultValue: "aca71c001@smtp-brevo.com",
             }),
@@ -831,8 +832,8 @@ export const envConfig = () => ({
     },
     /**
      * Judge0 (self-hosted code-execution sandbox) configuration.
-     * The X-Auth-Token secret is NOT an env var -- it lives in a mount-terraform
-     * file read via {@link MountFilesystemService} (see `mountPath.terraform.judge0AuthToken`).
+     * The X-Auth-Token secret is not set here -- it is a credential, so it lives
+     * under `secrets.judge0AuthToken` behind the `JUDGE0_AUTH_TOKEN_FILE` pointer.
      */
     judge0: {
         /** Base URL of the Judge0 REST API (the self-hosted compose stack). */
@@ -892,12 +893,12 @@ export const envConfig = () => ({
             defaultValue: false,
         }),
         /** The username to use to authenticate to the Loki instance. */
-        username: parseEnvString({
+        username: parseEnvSecret({
             key: "LOKI_USERNAME",
             defaultValue: "admin",
         }),
         /** The password to use to authenticate to the Loki instance. */
-        password: parseEnvString({
+        password: parseEnvSecret({
             key: "LOKI_PASSWORD",
             defaultValue: "admin",
         }),
@@ -914,7 +915,7 @@ export const envConfig = () => ({
                 key: "REDIS_BULLMQ_PORT",
                 defaultValue: 6379,
             }),
-            password: parseEnvString({
+            password: parseEnvSecret({
                 key: "REDIS_BULLMQ_PASSWORD",
                 defaultValue: "Cuong123_A",
             }),
@@ -933,7 +934,7 @@ export const envConfig = () => ({
                 key: "REDIS_THROTTLER_PORT",
                 defaultValue: 6379,
             }),
-            password: parseEnvString({
+            password: parseEnvSecret({
                 key: "REDIS_THROTTLER_PASSWORD",
                 defaultValue: "Cuong123_A",
             }),
@@ -952,7 +953,7 @@ export const envConfig = () => ({
                 key: "REDIS_ADAPTER_PORT",
                 defaultValue: 6379,
             }),
-            password: parseEnvString({
+            password: parseEnvSecret({
                 key: "REDIS_ADAPTER_PASSWORD",
                 defaultValue: "Cuong123_A",
             }),
@@ -971,7 +972,7 @@ export const envConfig = () => ({
                 key: "REDIS_CACHE_PORT",
                 defaultValue: 6379,
             }),
-            password: parseEnvString({
+            password: parseEnvSecret({
                 key: "REDIS_CACHE_PASSWORD",
                 defaultValue: "Cuong123_A",
             }),
@@ -1125,155 +1126,14 @@ export const envConfig = () => ({
                     "seed.yaml"),
             }),
         },
-        /** File paths: terraform secrets. */
-        terraform: {
-            keycloakAdmin: parseEnvString({
-                key: "TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keycloak-admin.json"
-                ),
-            }),
-            githubAccessToken: parseEnvString({
-                key: "TERRAFORM_GITHUB_ACCESS_TOKEN_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "github-access-token.key"),
-            }),
-            dataGitToken: parseEnvString({
-                key: "TERRAFORM_DATA_GIT_TOKEN_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "data-git-token.key"),
-            }),
-            githubSecretKey: parseEnvString({
-                key: "TERRAFORM_GITHUB_SECRET_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "github-secret-key.key"),
-            }),
-            s3SecretAccessKey: parseEnvString({
-                key: "TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "s3-secret-access-key.key"),
-            }),
-            keycloakClientSecret: parseEnvString({
-                key: "TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keycloak-client-secret.key"),
-            }),
-            payosApiKey: parseEnvString({
-                key: "TERRAFORM_PAYOS_API_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "payos-api-key.key"),
-            }),
-            sepayApiKey: parseEnvString({
-                key: "TERRAFORM_SEPAY_API_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "sepay-api-key.key"),
-            }),
-            stripeSecretKey: parseEnvString({
-                key: "TERRAFORM_STRIPE_SECRET_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "stripe-secret-key.key"),
-            }),
-            stripeWebhookSecret: parseEnvString({
-                key: "TERRAFORM_STRIPE_WEBHOOK_SECRET_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "stripe-webhook-secret.key"),
-            }),
-            paypalClientId: parseEnvString({
-                key: "TERRAFORM_PAYPAL_CLIENT_ID_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "paypal-client-id.key"),
-            }),
-            paypalClientSecret: parseEnvString({
-                key: "TERRAFORM_PAYPAL_CLIENT_SECRET_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "paypal-client-secret.key"),
-            }),
-            paypalWebhookId: parseEnvString({
-                key: "TERRAFORM_PAYPAL_WEBHOOK_ID_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "paypal-webhook-id.key"),
-            }),
-            nowpaymentsApiKey: parseEnvString({
-                key: "TERRAFORM_NOWPAYMENTS_API_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "nowpayments-api-key.key"),
-            }),
-            nowpaymentsIpnSecret: parseEnvString({
-                key: "TERRAFORM_NOWPAYMENTS_IPN_SECRET_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "nowpayments-ipn-secret.key"),
-            }),
-            brevoSmtpPassword: parseEnvString({
-                key: "TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "brevo-smtp-api-key.key"),
-            }),
-            encryptionKey: parseEnvString({
-                key: "TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "encryption-key.key"),
-            }),
-            judge0AuthToken: parseEnvString({
-                key: "TERRAFORM_JUDGE0_AUTH_TOKEN_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "judge0-auth-token.key"),
-            }),
-            gcpServiceAccountJson: parseEnvString({
-                key: "TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "gcp-service-account.json"),
-            }),
-        },
         /**
-         * File paths: rotating API-key pools consumed by the AI Balancer feature.
-         * Each file is newline-separated -- one key per line; blank lines and
-         * `#`-comment lines are stripped (see `parseApiKeysFile`).
+         * Directory holding the per-provider AI key pool files. This is a
+         * DIRECTORY, not a credential: a model's catalog `keysFilePath` may be
+         * a BARE filename (e.g. `openai-api-keys.key`), understood to live
+         * here, while a value containing a path separator is used verbatim.
          */
         aiKeys: {
-            /**
-             * Directory holding the per-provider key pool files. A model's
-             * `keysFilePath` may be a BARE filename (e.g. `openai-api-keys.key`),
-             * understood to live here; a value containing a path separator is
-             * used verbatim instead.
-             */
+            /** Directory the bare `keysFilePath` filenames resolve against. */
             dir: parseEnvString({
                 key: "AI_KEYS_DIR_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
@@ -1281,59 +1141,170 @@ export const envConfig = () => ({
                     "terraform",
                     "keys"),
             }),
-            openai: parseEnvString({
-                key: "AI_KEYS_OPENAI_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keys",
-                    "openai-api-keys.key"),
+        },
+    },
+    /**
+     * Credentials. Every leaf here holds the resolved VALUE, never a path.
+     *
+     * Each goes through `parseEnvSecret`, which honours the `<KEY>_FILE`
+     * pointer convention: set `STRIPE_SECRET_KEY_FILE=/run/secrets/...` and the
+     * value is read out of that file at the point this tree is built; set the
+     * plain `STRIPE_SECRET_KEY` and it is taken inline; set both and boot is
+     * refused. Nothing downstream opens a file for these any more --
+     * `mount-secrets.ts` only exposes what is already resolved here.
+     *
+     * The defaults are deliberately unusable placeholders. A default that
+     * happened to work would hide a credential that never arrived.
+     */
+    secrets: {
+        /** Keycloak admin credentials, as the raw JSON document. */
+        keycloakAdmin: parseEnvSecret({
+            key: "KEYCLOAK_ADMIN",
+            defaultValue: JSON.stringify({
+                username: "admin",
+                password: "admin",
             }),
-            gemini: parseEnvString({
-                key: "AI_KEYS_GEMINI_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keys",
-                    "gemini-api-keys.key"),
+        }),
+        /** GitHub access token used for org/team and repository calls. */
+        githubAccessToken: parseEnvSecret({
+            key: "GITHUB_ACCESS_TOKEN",
+            defaultValue: "",
+        }),
+        /**
+         * Dedicated read-only token for pulling the private content repo.
+         * Optional: empty falls back to {@link githubAccessToken}.
+         */
+        dataGitToken: parseEnvSecret({
+            key: "DATA_GIT_TOKEN",
+            defaultValue: "",
+        }),
+        /** GitHub app/webhook secret key. */
+        githubSecretKey: parseEnvSecret({
+            key: "GITHUB_SECRET_KEY",
+            defaultValue: "",
+        }),
+        /** S3 (DigitalOcean Spaces) secret access key. */
+        s3SecretAccessKey: parseEnvSecret({
+            key: "S3_SECRET_ACCESS_KEY",
+            defaultValue: "",
+        }),
+        /** Keycloak confidential-client secret. */
+        keycloakClientSecret: parseEnvSecret({
+            key: "KEYCLOAK_CLIENT_SECRET",
+            defaultValue: "",
+        }),
+        /** PayOS API key. */
+        payosApiKey: parseEnvSecret({
+            key: "PAYOS_API_KEY",
+            defaultValue: "",
+        }),
+        /** SePay API key. */
+        sepayApiKey: parseEnvSecret({
+            key: "SEPAY_API_KEY",
+            defaultValue: "",
+        }),
+        /** Stripe secret API key. */
+        stripeSecretKey: parseEnvSecret({
+            key: "STRIPE_SECRET_KEY",
+            defaultValue: "",
+        }),
+        /** Stripe webhook signing secret. */
+        stripeWebhookSecret: parseEnvSecret({
+            key: "STRIPE_WEBHOOK_SECRET",
+            defaultValue: "",
+        }),
+        /** PayPal REST app client id. */
+        paypalClientId: parseEnvSecret({
+            key: "PAYPAL_CLIENT_ID",
+            defaultValue: "",
+        }),
+        /** PayPal REST app client secret. */
+        paypalClientSecret: parseEnvSecret({
+            key: "PAYPAL_CLIENT_SECRET",
+            defaultValue: "",
+        }),
+        /** PayPal webhook id used by the verify-webhook-signature API. */
+        paypalWebhookId: parseEnvSecret({
+            key: "PAYPAL_WEBHOOK_ID",
+            defaultValue: "",
+        }),
+        /** NOWPayments REST API key. */
+        nowpaymentsApiKey: parseEnvSecret({
+            key: "NOWPAYMENTS_API_KEY",
+            defaultValue: "",
+        }),
+        /** NOWPayments IPN secret verifying HMAC-SHA512 callback signatures. */
+        nowpaymentsIpnSecret: parseEnvSecret({
+            key: "NOWPAYMENTS_IPN_SECRET",
+            defaultValue: "",
+        }),
+        /** Brevo SMTP password / API key. */
+        brevoSmtpPassword: parseEnvSecret({
+            key: "BREVO_SMTP_PASSWORD",
+            defaultValue: "",
+        }),
+        /** AES-256-GCM master key protecting every at-rest 2FA shared secret. */
+        encryptionKey: parseEnvSecret({
+            key: "ENCRYPTION_KEY",
+            defaultValue: "",
+        }),
+        /**
+         * Judge0 `X-Auth-Token`. Optional -- Judge0 can run unauthenticated, so
+         * empty means "no token" and the client omits the header.
+         */
+        judge0AuthToken: parseEnvSecret({
+            key: "JUDGE0_AUTH_TOKEN",
+            defaultValue: "",
+        }),
+        /**
+         * Google service-account credentials, as the raw JSON document.
+         * Optional -- empty falls through to ADC.
+         */
+        gcpServiceAccountJson: parseEnvSecret({
+            key: "GCP_SERVICE_ACCOUNT_JSON",
+            defaultValue: "",
+        }),
+        /** Admin API key gating the operator-only REST surface. */
+        adminApiKey: parseEnvSecret({
+            key: "ADMIN_API_KEY",
+            defaultValue: "",
+        }),
+        /**
+         * Rotating API-key POOLS consumed by the AI Balancer feature. Each is
+         * newline-separated -- one key per line, blank lines and `#`-comment
+         * lines stripped by `parseApiKeys`. Empty means "no key for this
+         * provider", which the balancer treats as an unavailable provider
+         * rather than a boot failure.
+         */
+        aiKeys: {
+            /** OpenAI key pool. */
+            openai: parseEnvSecret({
+                key: "OPENAI_API_KEYS",
+                defaultValue: "",
+            }),
+            /** Gemini key pool. */
+            gemini: parseEnvSecret({
+                key: "GEMINI_API_KEYS",
+                defaultValue: "",
             }),
             /**
-             * Bearer token sent (as `Authorization: Bearer ...`) to the self-hosted
-             * `local` provider behind its Caddy gate. File missing/empty -> the
-             * key-store falls back to a placeholder, fine for a direct local
-             * Ollama with no auth gate.
+             * Bearer token sent to the self-hosted `local` provider behind its
+             * Caddy gate. Empty -> the key store falls back to a placeholder,
+             * which is fine for a direct local Ollama with no auth gate.
              */
-            local: parseEnvString({
-                key: "AI_KEYS_LOCAL_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keys",
-                    "qwen7b.key"),
+            local: parseEnvSecret({
+                key: "LOCAL_API_KEYS",
+                defaultValue: "",
             }),
-            /**
-             * API-key pool sent to OpenRouter (`Authorization: Bearer ...`).
-             * One key per line; missing/empty -> empty pool (no crash).
-             */
-            openrouter: parseEnvString({
-                key: "AI_KEYS_OPENROUTER_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keys",
-                    "openrouter-api-keys.key"),
+            /** OpenRouter key pool. */
+            openrouter: parseEnvSecret({
+                key: "OPENROUTER_API_KEYS",
+                defaultValue: "",
             }),
-            /**
-             * Native Anthropic API-key pool (frontier tier -- Claude Opus).
-             * One key per line; missing/empty -> empty pool (no crash).
-             */
-            anthropic: parseEnvString({
-                key: "AI_KEYS_ANTHROPIC_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keys",
-                    "anthropic-api-keys.key"),
+            /** Native Anthropic key pool (frontier tier -- Claude Opus). */
+            anthropic: parseEnvSecret({
+                key: "ANTHROPIC_API_KEYS",
+                defaultValue: "",
             }),
         },
     },
@@ -1367,7 +1338,7 @@ export const envConfig = () => ({
     /** CSRF protection configuration (double-submit token signing). */
     csrf: {
         /** HMAC secret used to sign CSRF tokens. MUST be overridden in production. */
-        secret: parseEnvString(
+        secret: parseEnvSecret(
             {
                 key: "CSRF_SECRET",
                 defaultValue: "dev-insecure-csrf-secret-change-me"
@@ -1404,7 +1375,7 @@ export const envConfig = () => ({
             }
         ),
         /** Cloudflare Turnstile secret key used for server-side siteverify. */
-        turnstileSecret: parseEnvString(
+        turnstileSecret: parseEnvSecret(
             {
                 key: "TURNSTILE_SECRET",
                 defaultValue: ""
@@ -1472,11 +1443,11 @@ export const envConfig = () => ({
                 key: "SCYLLADB_LOCAL_DATACENTER",
                 defaultValue: "datacenter1",
             }),
-            username: parseEnvString({
+            username: parseEnvSecret({
                 key: "SCYLLADB_USERNAME",
                 defaultValue: "scylla",
             }),
-            password: parseEnvString({
+            password: parseEnvSecret({
                 key: "SCYLLADB_PASSWORD",
                 defaultValue: "Cuong123_A",
             }),
@@ -1487,7 +1458,7 @@ export const envConfig = () => ({
                 key: "QDRANT_URL",
                 defaultValue: "http://localhost:6333",
             }),
-            apiKey: parseEnvString({
+            apiKey: parseEnvSecret({
                 key: "QDRANT_API_KEY",
                 defaultValue: "Cuong123_A",
             }),
@@ -1516,11 +1487,11 @@ export const envConfig = () => ({
                     key: "POSTGRESQL_PRIMARY_PORT",
                     defaultValue: 5432,
                 }),
-                username: parseEnvString({
+                username: parseEnvSecret({
                     key: "POSTGRESQL_PRIMARY_USERNAME",
                     defaultValue: "postgres",
                 }),
-                password: parseEnvString({
+                password: parseEnvSecret({
                     key: "POSTGRESQL_PRIMARY_PASSWORD",
                     defaultValue: "Cuong123_A",
                 }),
@@ -1548,11 +1519,11 @@ export const envConfig = () => ({
                     key: "POSTGRESQL_KEYCLOAK_PORT",
                     defaultValue: 5432,
                 }),
-                username: parseEnvString({
+                username: parseEnvSecret({
                     key: "POSTGRESQL_KEYCLOAK_USERNAME",
                     defaultValue: "postgres",
                 }),
-                password: parseEnvString({
+                password: parseEnvSecret({
                     key: "POSTGRESQL_KEYCLOAK_PASSWORD",
                     defaultValue: "Cuong123_A",
                 }),
@@ -1584,7 +1555,7 @@ export const envConfig = () => ({
              * Password used to encrypt backup artifacts (e.g. openssl enc).
              * Prefer providing via environment variable in production.
              */
-            password: parseEnvString({
+            password: parseEnvSecret({
                 key: "BACKUP_ENCRYPT_PASSWORD",
                 defaultValue: "",
             }),
@@ -1631,7 +1602,7 @@ export const envConfig = () => ({
                 key: "S3_REGION",
                 defaultValue: "sfo3",
             }),
-            accessKeyId: parseEnvString({
+            accessKeyId: parseEnvSecret({
                 key: "S3_ACCESS_KEY_ID",
                 defaultValue: "",
             }),
@@ -1664,11 +1635,11 @@ export const envConfig = () => ({
                 key: "S3_MINIO_REGION",
                 defaultValue: "us-east-1",
             }),
-            accessKeyId: parseEnvString({
+            accessKeyId: parseEnvSecret({
                 key: "S3_MINIO_ACCESS_KEY_ID",
                 defaultValue: "minioadmin",
             }),
-            secretAccessKey: parseEnvString({
+            secretAccessKey: parseEnvSecret({
                 key: "S3_MINIO_SECRET_ACCESS_KEY",
                 defaultValue: "minioadmin123",
             }),
@@ -1729,11 +1700,11 @@ export const envConfig = () => ({
                 key: "KEYCLOAK_ADMIN_CLIENT_ID",
                 defaultValue: "admin-cli",
             }),
-            username: parseEnvString({
+            username: parseEnvSecret({
                 key: "KEYCLOAK_ADMIN_USERNAME",
                 defaultValue: "admin",
             }),
-            password: parseEnvString({
+            password: parseEnvSecret({
                 key: "KEYCLOAK_ADMIN_PASSWORD",
                 defaultValue: "bitnami123",
             }),
@@ -1914,11 +1885,11 @@ export const envConfig = () => ({
             key: "ELASTICSEARCH_NODE",
             defaultValue: "http://localhost:9200",
         }),
-        username: parseEnvString({
+        username: parseEnvSecret({
             key: "ELASTICSEARCH_USERNAME",
             defaultValue: "elastic",
         }),
-        password: parseEnvString({
+        password: parseEnvSecret({
             key: "ELASTICSEARCH_PASSWORD",
             defaultValue: "123456",
         }),
@@ -1977,7 +1948,7 @@ export const envConfig = () => ({
             enabled: parseEnvBoolean({
                 key: "NATS_AUTH_ENABLED", defaultValue: true
             }),
-            token: parseEnvString({
+            token: parseEnvSecret({
                 key: "NATS_AUTH_TOKEN", defaultValue: "starci@2026"
             }),
         }

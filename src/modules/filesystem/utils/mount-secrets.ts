@@ -52,29 +52,38 @@ export const getAppConfig = (appConfig?: AppConfig): AppConfig => {
     return loadYaml(raw) as AppConfig
 }
 
+/*
+ * EVERY READER BELOW IS NOW A LOOKUP, NOT A FILE READ.
+ *
+ * These used to each open a `*_MOUNT_PATH` file with `readFileSync` on every
+ * call. The `<KEY>_FILE` pointer convention moved that I/O into
+ * `parseEnvSecret` (`src/modules/platform/env/utils/parse-env.ts`), which
+ * resolves the value once while `envConfig()` is being built and fails the boot
+ * outright when a declared pointer cannot be read. The functions are kept --
+ * with the same names and the same return shapes -- because they are the stable
+ * surface a hundred call sites already ask for a credential through, and
+ * because several of them still carry real fallback logic that belongs here
+ * rather than in the config tree.
+ */
+
 /**
- * Get S3 secret access key (from mount path or provided value).
+ * Get S3 secret access key.
  */
 export const getS3SecretAccessKey = (): string => {
-    return readFileSync(envConfig().mountPath.terraform.s3SecretAccessKey,
-        "utf8")
+    return envConfig().secrets.s3SecretAccessKey
 }
 
 /**
- * Get PayOS API key (from terraform mount path).
+ * Get PayOS API key.
  */
 export const getPayosApiKey = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.payosApiKey,
-        "utf8",
-    )
+    return envConfig().secrets.payosApiKey
 }
 
-
 /**
- * Parse a mount key file into an array of trimmed, non-empty keys.
+ * Split a newline-separated key pool into trimmed, non-empty keys.
  *
- * File format (one key per line):
+ * Pool format (one key per line):
  * ```
  * # Comment lines starting with `#` are skipped (use them to note key owner / expiry).
  * sk-aaa
@@ -84,11 +93,30 @@ export const getPayosApiKey = (): string => {
  * sk-ccc
  * ```
  *
- * Used by the AI Balancer feature to load rotating-key pools per provider.
- * Missing or unreadable file returns an empty array -- caller treats that
- * as "no key for this provider" without crashing boot.
+ * Used by the AI Balancer feature to load rotating-key pools per provider. An
+ * empty pool returns an empty array -- the caller treats that as "no key for
+ * this provider" without crashing boot.
  *
- * @param path - absolute path to the mount key list file
+ * @param raw - the pool contents, newline-separated
+ * @returns Array of API keys; empty when the pool is empty or all comments
+ */
+export const parseApiKeys = (raw: string): Array<string> => {
+    // split on any line break, trim, drop blanks and `#`-comments
+    return raw
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0 && !line.startsWith("#"))
+}
+
+/**
+ * Parse a key pool FILE into an array of trimmed, non-empty keys.
+ *
+ * Still a file read, and deliberately so: this path serves the model catalog's
+ * `keysFilePath`, which names a pool per model at RUNTIME. Those names are data
+ * in `app.yaml`, not keys known to `config.ts`, so they cannot go through the
+ * `<KEY>_FILE` convention. Missing or unreadable file returns an empty array.
+ *
+ * @param path - absolute path to the key list file
  * @returns Array of API keys; empty when file missing / empty / unreadable
  */
 export const parseApiKeysFile = (path: string): Array<string> => {
@@ -96,15 +124,10 @@ export const parseApiKeysFile = (path: string): Array<string> => {
         return []
     }
     try {
-        const raw = readFileSync(
+        return parseApiKeys(readFileSync(
             path,
             "utf8",
-        )
-        // split on any line break, trim, drop blanks and `#`-comments
-        return raw
-            .split(/\r?\n/)
-            .map((line) => line.trim())
-            .filter((line) => line.length > 0 && !line.startsWith("#"))
+        ))
     } catch {
         return []
     }
@@ -130,261 +153,201 @@ export const readAiKeysFile = (fileNameOrPath: string): Array<string> => {
 }
 
 /**
- * Get the OpenAI API-key pool from the mount keys file (newline-separated).
- * Empty array when the file is missing or empty.
+ * Get the OpenAI API-key pool (newline-separated).
+ * Empty array when the pool is unset.
  */
 export const getOpenAiApiKeys = (): Array<string> => {
-    return parseApiKeysFile(envConfig().mountPath.aiKeys.openai)
+    return parseApiKeys(envConfig().secrets.aiKeys.openai)
 }
 
 /**
- * Get the Gemini API-key pool from the mount keys file (newline-separated).
- * Empty array when the file is missing or empty.
+ * Get the Gemini API-key pool (newline-separated).
+ * Empty array when the pool is unset.
  */
 export const getGeminiApiKeys = (): Array<string> => {
-    return parseApiKeysFile(envConfig().mountPath.aiKeys.gemini)
+    return parseApiKeys(envConfig().secrets.aiKeys.gemini)
 }
 
 /**
  * Get the Local (self-hosted) provider key -- the bearer token validated by the
  * Caddy gate in front of Ollama. Falls back to a single placeholder ("ollama")
- * when the file is missing/empty, so a direct, gate-less local Ollama still
- * resolves an eligible key (the endpoint ignores the value).
+ * when the pool is empty, so a direct, gate-less local Ollama still resolves an
+ * eligible key (the endpoint ignores the value).
  */
 export const getLocalApiKeys = (): Array<string> => {
-    const keys = parseApiKeysFile(envConfig().mountPath.aiKeys.local)
+    const keys = parseApiKeys(envConfig().secrets.aiKeys.local)
     return keys.length > 0 ? keys : ["ollama"]
 }
 
 /**
- * Get the OpenRouter API-key pool from the mount keys file (newline-separated).
- * Empty array when the file is missing or empty.
+ * Get the OpenRouter API-key pool (newline-separated).
+ * Empty array when the pool is unset.
  */
 export const getOpenRouterApiKeys = (): Array<string> => {
-    return parseApiKeysFile(envConfig().mountPath.aiKeys.openrouter)
+    return parseApiKeys(envConfig().secrets.aiKeys.openrouter)
 }
 
 /**
- * Get the native Anthropic API-key pool from the mount keys file.
- * Empty array when the file is missing or empty.
+ * Get the native Anthropic API-key pool.
+ * Empty array when the pool is unset.
  */
 export const getAnthropicApiKeys = (): Array<string> => {
-    return parseApiKeysFile(envConfig().mountPath.aiKeys.anthropic)
+    return parseApiKeys(envConfig().secrets.aiKeys.anthropic)
 }
 
 /**
- * Get keycloak client secret (from terraform mount path).
+ * Get keycloak client secret.
  */
 export const getKeycloakClientSecret = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.keycloakClientSecret,
-        "utf8",
-    )
+    return envConfig().secrets.keycloakClientSecret
 }
 
 /**
- * Get AES encryption key (from terraform mount path).
+ * Get AES encryption key.
  */
 export const getEncryptionKey = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.encryptionKey,
-        "utf8",
-    )
+    return envConfig().secrets.encryptionKey
 }
 
 /**
- * Get github access token (from terraform mount path).
+ * Get github access token.
  */
 export const getGithubAccessToken = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.githubAccessToken,
-        "utf8",
-    )
+    return envConfig().secrets.githubAccessToken
 }
 
 /**
  * Get the data-git token used to pull the private content repo.
  *
- * Optional dedicated read-only token: when its mount file is absent, fall back
- * to the shared github access token so existing deployments keep working.
+ * Optional dedicated read-only token: when it is unset, fall back to the shared
+ * github access token so existing deployments keep working.
  */
 export const getDataGitToken = (): string => {
-    const path = envConfig().mountPath.terraform.dataGitToken
-    // no dedicated token mounted -> reuse the shared github access token
-    if (!existsSync(path)) {
+    const token = envConfig().secrets.dataGitToken
+    // no dedicated token supplied -> reuse the shared github access token
+    if (token === "") {
         return getGithubAccessToken().trim()
     }
-    // trim trailing newline so the token is usable as an HTTP credential
-    return readFileSync(path,
-        "utf8").trim()
+    return token.trim()
 }
 
 /**
- * Get github secret key (from terraform mount path).
+ * Get github secret key.
  */
 export const getGithubSecretKey = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.githubSecretKey,
-        "utf8",
-    )
+    return envConfig().secrets.githubSecretKey
 }
 
 /**
- * Get Sepay API key (from terraform mount path).
+ * Get Sepay API key.
  */
 export const getSepayApiKey = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.sepayApiKey,
-        "utf8",
-    )
+    return envConfig().secrets.sepayApiKey
 }
 
 /**
- * Get the Judge0 `X-Auth-Token` (from terraform mount path).
+ * Get the Judge0 `X-Auth-Token`.
  *
- * Optional: Judge0 can run without authentication, so a missing file is not an
+ * Optional: Judge0 can run without authentication, so an unset token is not an
  * error -- an empty string means "no token", and the client simply omits the
- * header. Trimmed to drop any trailing newline added by editors.
+ * header.
  *
- * @returns The Judge0 auth token, or `""` when the mount file is absent.
+ * @returns The Judge0 auth token, or `""` when none is supplied.
  */
 export const getJudge0AuthToken = (): string => {
-    // resolve the configured mount path for the token file
-    const path = envConfig().mountPath.terraform.judge0AuthToken
-    // treat an absent file as "auth disabled" rather than throwing on boot
-    if (!existsSync(path)) {
-        return ""
-    }
-    // read + trim so a trailing newline does not corrupt the header value
-    return readFileSync(path,
-        "utf8").trim()
+    return envConfig().secrets.judge0AuthToken.trim()
 }
 
 /**
- * Get Stripe secret API key (from terraform mount path).
+ * Get Stripe secret API key.
  */
 export const getStripeSecretKey = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.stripeSecretKey,
-        "utf8",
-    )
+    return envConfig().secrets.stripeSecretKey
 }
 
 /**
- * Get Stripe webhook signing secret (from terraform mount path).
+ * Get Stripe webhook signing secret.
  */
 export const getStripeWebhookSecret = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.stripeWebhookSecret,
-        "utf8",
-    )
+    return envConfig().secrets.stripeWebhookSecret
 }
 
 /**
- * Get PayPal REST app client id (from terraform mount path).
+ * Get PayPal REST app client id.
  */
 export const getPaypalClientId = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.paypalClientId,
-        "utf8",
-    )
+    return envConfig().secrets.paypalClientId
 }
 
 /**
- * Get PayPal REST app client secret (from terraform mount path).
+ * Get PayPal REST app client secret.
  */
 export const getPaypalClientSecret = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.paypalClientSecret,
-        "utf8",
-    )
+    return envConfig().secrets.paypalClientSecret
 }
 
 /**
- * Get PayPal webhook id used by the verify-webhook-signature API
- * (from terraform mount path).
+ * Get PayPal webhook id used by the verify-webhook-signature API.
  */
 export const getPaypalWebhookId = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.paypalWebhookId,
-        "utf8",
-    )
+    return envConfig().secrets.paypalWebhookId
 }
 
 /**
- * Get NOWPayments REST API key (from terraform mount path).
+ * Get NOWPayments REST API key.
  */
 export const getNowpaymentsApiKey = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.nowpaymentsApiKey,
-        "utf8",
-    )
+    return envConfig().secrets.nowpaymentsApiKey
 }
 
 /**
- * Get NOWPayments IPN secret used to verify HMAC-SHA512 callback signatures
- * (from terraform mount path).
+ * Get NOWPayments IPN secret used to verify HMAC-SHA512 callback signatures.
  */
 export const getNowpaymentsIpnSecret = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.nowpaymentsIpnSecret,
-        "utf8",
-    )
+    return envConfig().secrets.nowpaymentsIpnSecret
 }
 
 /**
- * Get Brevo SMTP password/API key (from terraform mount path).
+ * Get Brevo SMTP password/API key.
  */
 export const getBrevoSmtpPassword = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.brevoSmtpPassword,
-        "utf8",
-    )
+    return envConfig().secrets.brevoSmtpPassword
 }
 
 /**
- * Get admin API key (from terraform mount path).
+ * Get admin API key.
+ *
+ * This used to open a HARD-CODED `.mount/terraform/admin-api-key.key` -- the
+ * one credential in this file that no env key could re-point. It now has one
+ * (`ADMIN_API_KEY` / `ADMIN_API_KEY_FILE`) like every other.
  */
 export const getAdminApiKey = (): string => {
-    return readFileSync(
-        join(
-            process.cwd(),
-            ".mount",
-            "terraform",
-            "admin-api-key.key",
-        ),
-        "utf8",
-    )
+    return envConfig().secrets.adminApiKey
 }
 
 /**
  * Service account credentials for Google APIs (google-auth-library / googleapis).
- * Precedence: {@link envConfig.googleapis.serviceAccountJson} (full JSON string) then mount file
- * {@link envConfig.mountPath.terraform.gcpServiceAccountJson}. If neither is usable, returns undefined (ADC / GOOGLE_APPLICATION_CREDENTIALS).
+ * Precedence: {@link envConfig.googleapis.serviceAccountJson} (full JSON string)
+ * then {@link envConfig.secrets.gcpServiceAccountJson}. If neither is usable,
+ * returns undefined (ADC / GOOGLE_APPLICATION_CREDENTIALS).
  */
 export const getGcpServiceAccountCredentials = ():
     | Record<string, unknown>
     | undefined => {
-    const path = envConfig().mountPath.terraform.gcpServiceAccountJson
-    if (!existsSync(path)) {
+    const raw = envConfig().secrets.gcpServiceAccountJson
+    if (raw === "") {
         return undefined
     }
     try {
-        return JSON.parse(readFileSync(path,
-            "utf8")) as Record<string, unknown>
+        return JSON.parse(raw) as Record<string, unknown>
     } catch {
         return undefined
     }
 }
 
 /**
- * Get keycloak admin credentials from mount path.
+ * Get keycloak admin credentials.
  */
 export const getKeycloakAdmin = (): SecretKeycloakAdmin => {
-    return JSON.parse(
-        readFileSync(
-            envConfig().mountPath.terraform.keycloakAdmin,
-            "utf8"
-        ),
-    ) as SecretKeycloakAdmin
+    return JSON.parse(envConfig().secrets.keycloakAdmin) as SecretKeycloakAdmin
 }

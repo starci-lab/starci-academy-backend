@@ -103,16 +103,17 @@ describe("Stripe webhook (e2e)",
         let entityManager: EntityManager
 
         beforeAll(async () => {
-            // the handler reads the webhook signing secret from a mount file via
-            // getStripeWebhookSecret() -- point that path at a throwaway temp file
-            // so the read succeeds (its value is irrelevant: constructEvent is mocked)
+            // the handler reads the webhook signing secret through
+            // getStripeWebhookSecret() -- point the `<KEY>_FILE` pointer at a
+            // throwaway temp file so parseEnvSecret resolves it (the value is
+            // irrelevant: constructEvent is mocked)
             const dir = mkdtempSync(join(tmpdir(),
                 "stripe-e2e-"))
             const secretPath = join(dir,
                 "stripe-webhook-secret.key")
             writeFileSync(secretPath,
                 "whsec_test_secret")
-            process.env.TERRAFORM_STRIPE_WEBHOOK_SECRET_MOUNT_PATH = secretPath
+            process.env.STRIPE_WEBHOOK_SECRET_FILE = secretPath
 
             e2e = await createE2eApp()
             entityManager = e2e.app.get<EntityManager>(
