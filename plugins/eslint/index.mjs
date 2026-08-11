@@ -13,6 +13,9 @@
 import path from "node:path"
 import fs from "node:fs"
 import { e2eRules } from "./rules/e2e.mjs"
+import { cqrsRules } from "./rules/cqrs.mjs"
+import { cdcRules } from "./rules/cdc.mjs"
+import { eventDeliveryRules } from "./rules/event-delivery.mjs"
 
 const EXCEPTION_NAME = /Exception$/
 const NEST_BUILTIN_EXCEPTIONS = new Set([
@@ -1315,6 +1318,9 @@ export default {
     meta: { name: "eslint-plugin-starci-be", version: "0.1.0" },
     rules: {
         ...e2eRules,
+        ...cqrsRules,
+        ...cdcRules,
+        ...eventDeliveryRules,
         "exception-extends-abstract": exceptionExtendsAbstract,
         "exception-in-errors-folder": exceptionInErrorsFolder,
         "must-inject-entity-manager": mustInjectEntityManager,

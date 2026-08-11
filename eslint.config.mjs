@@ -135,6 +135,10 @@ export default defineConfig([
             "starci-be/no-model-call-in-e2e": "error", // testing §9 · provider quality belongs in harness
             "starci-be/no-sleep-in-flow": "error", // e2e-flow §3 · poll for state, never duration
             "starci-be/no-branch-in-flow-step": "error", // e2e-flow §7 · one step proves one outcome
+            "starci-be/handler-overrides-process": "error", // cqrs §3 · handlers stay inside ICQRSHandler's template
+            "starci-be/message-carries-params-only": "error", // cqrs §2 · messages are inert request-context envelopes
+            "starci-be/projection-listener-contract": "error", // cdc · Kafka lifecycle belongs to AbstractProjectionListener
+            "starci-be/nats-bridge-delivery-contract": "error", // event delivery · reject self-echo and duplicate local emit
         },
     },
     {
