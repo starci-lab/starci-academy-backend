@@ -69,6 +69,9 @@ import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
 import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
     createSuperJsonServiceProvider,
 } from "@modules/lib/mixin/superjson.providers"
 import {
@@ -86,6 +89,9 @@ import {
 import {
     EnqueueGenerateCvJobService,
 } from "@features/api/processors/ai/generate-cv/enqueue-generate-cv.service"
+import {
+    GenerateCvCompleteStepService,
+} from "@features/api/processors/ai/generate-cv/steps/generate-cv-complete-step.service"
 import {
     EnqueueScoreUploadedCvJobService,
 } from "@features/api/processors/ai/score-uploaded-cv/enqueue-score-uploaded-cv.service"
@@ -166,7 +172,7 @@ const POSTGRESQL_PRIMARY = "primary"
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
-describe("CV generation runs — generate/upload/revise (e2e)",
+describe("a learner builds a CV and the generated artifact is persisted",
     () => {
         let app: INestApplication
         let entityManager: EntityManager
@@ -305,6 +311,7 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                     // row are genuinely written, not just "the mock was called"
                     EnqueueGenerateCvJobService,
                     EnqueueScoreUploadedCvJobService,
+                    GenerateCvCompleteStepService,
                     JobActionService,
                     DayjsService,
                     createSuperJsonServiceProvider(),
@@ -315,6 +322,12 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                     {
                         provide: EventEmitterService,
                         useValue: eventEmitterServiceMock,
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
                     },
                     {
                         provide: getQueueToken("generate-cv"),
@@ -460,6 +473,74 @@ describe("CV generation runs — generate/upload/revise (e2e)",
                         expect(job.actionType).toBe(ActionType.ProcessCvSubmission)
                         // gather -> compose -> render -> score -> complete
                         expect(job.maxSteps).toBe(5)
+
+                        const jobActionService = app.get(JobActionService)
+                        const composed = {
+                            fullName: "Flow Learner",
+                            headline: "Backend Engineer",
+                            summary: "Builds reliable distributed services.",
+                            skillGroups: [
+                                {
+                                    category: "Backend",
+                                    items: [
+                                        "TypeScript",
+                                        "PostgreSQL",
+                                    ],
+                                },
+                            ],
+                            experiences: [
+                                {
+                                    title: "Platform Engineer",
+                                    org: "Flow Systems",
+                                    location: "Remote",
+                                    dateRange: "2024-2026",
+                                    bullets: [
+                                        "Built idempotent payment workers.",
+                                    ],
+                                },
+                            ],
+                            education: [],
+                        }
+                        await jobActionService.saveExecutionResult({
+                            job,
+                            key: "compose",
+                            executionResult: composed,
+                        })
+                        await jobActionService.saveExecutionResult({
+                            job,
+                            key: "render",
+                            executionResult: {
+                                latexCdnKey: `cv-generations/${currentUser.id}/${generation.id}.tex`,
+                                pdfCdnKey: `cv-generations/${currentUser.id}/${generation.id}.pdf`,
+                            },
+                        })
+                        await app.get(GenerateCvCompleteStepService).process({
+                            payload: {
+                                jobId: job.id,
+                                cvGenerationId: generation.id,
+                                userId: currentUser.id,
+                                mode: CvGenerationMode.Generate,
+                            },
+                            job,
+                            queueName: "generate-cv",
+                            extended: {
+                                cvGeneration: generation,
+                            },
+                        })
+
+                        const completed = await entityManager.findOneOrFail(
+                            UserCvGenerationEntity,
+                            {
+                                where: {
+                                    id: generation.id,
+                                },
+                            },
+                        )
+                        expect(completed.status).toBe(CvGenerationStatus.Done)
+                        expect(completed.structuredData).toEqual(composed)
+                        expect(completed.latexCdnKey).toContain(generation.id)
+                        expect(completed.generatedPdfCdnKey).toContain(generation.id)
+                        expect(completed.processedAt).toBeInstanceOf(Date)
                     })
             })
 

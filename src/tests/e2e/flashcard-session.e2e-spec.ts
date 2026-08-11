@@ -110,7 +110,7 @@ const FLASHCARD_QUIZ_SESSION_POINTS = 5
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
-describe("Flashcard quiz session — start/sync/complete + XP grant (e2e)",
+describe("a learner completes a flashcard session and the schedule and XP move",
     () => {
         let app: INestApplication
         let entityManager: EntityManager

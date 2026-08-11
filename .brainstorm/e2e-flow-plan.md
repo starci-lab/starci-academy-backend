@@ -1,10 +1,10 @@
 # The e2e flow inventory, and what the unit lane owes
 
-Derived from the 153 CQRS operations in `src/features/api/core`, not from the 48 existing e2e
+Derived from the 153 CQRS operations in `src/features/api/core`, not from the existing e2e
 filenames. The existing files are the INPUT to this table, not its shape: 14 of them are named for a
 resolver group rather than a flow, and those names are what this replaces.
 
-Governing law: `.claudev2/be/canon/patterns/testing.md`.
+Governing law: `.claude/be/canon/patterns/testing.md`.
 
 ## The rule this table applies
 
@@ -65,7 +65,8 @@ The model is overridden with Jest in every row here; nothing in this lane calls 
 
 ## What this changes
 
-Twenty-five flows replacing forty-eight files. Every `*-queries` name disappears, because a query
+Twenty-six flows define the canonical business inventory. Every `*-queries` name eventually
+disappears, because a query
 group is not a flow; the queries that mattered are asserted INSIDE the flow that produces the data
 they read, which is also the only way to know the query answers correctly after a write.
 
@@ -75,6 +76,12 @@ exists, `password-reset` and `session-lifecycle` are access paths with no covera
 
 Two flows must open a real socket. Today exactly one file does, while `chat`, `notifications`,
 `community` and `discussion` all test the HTTP half of a realtime flow and stop.
+
+## Completion gate
+
+All 26 canonical filenames are machine-checked by
+`scripts/check-e2e-flow-inventory.mjs`. The complete lane remains larger while legacy decision and
+query-group suites are migrated into unit specs or folded into their owning business flow.
 
 ## What the unit lane owes
 

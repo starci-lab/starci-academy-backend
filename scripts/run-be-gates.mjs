@@ -18,21 +18,34 @@ const commands = [
         args: ["run", "lint:check"],
     },
     {
-        name: "build",
+        name: "typecheck",
         command: process.platform === "win32" ? "npm.cmd" : "npm",
-        args: ["run", "build"],
+        args: ["run", "typecheck"],
+    },
+    {
+        name: "e2e:inventory",
+        command: process.execPath,
+        args: ["scripts/check-e2e-flow-inventory.mjs"],
     },
 ];
 
 for (const step of commands) {
     console.log(`\n[gate] ${step.name}`);
-    const command = process.platform === "win32" ? (process.env.ComSpec ?? "cmd.exe") : step.command;
-    const args = process.platform === "win32"
+    const windowsCommandShim = process.platform === "win32"
+        && /\.(?:cmd|bat)$/i.test(step.command);
+    const command = windowsCommandShim
+        ? (process.env.ComSpec ?? "cmd.exe")
+        : step.command;
+    const args = windowsCommandShim
         ? ["/d", "/s", "/c", [step.command, ...step.args].join(" ")]
         : step.args;
     const result = spawnSync(command, args, {
         stdio: "inherit",
         shell: false,
+        env: {
+            ...process.env,
+            NODE_OPTIONS: process.env.NODE_OPTIONS ?? "--max-old-space-size=4096",
+        },
     });
     if (result.error) {
         console.error(`[gate] ${step.name} could not start: ${result.error.message}`);

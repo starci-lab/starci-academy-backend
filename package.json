@@ -22,6 +22,7 @@
         "start:mock:dev": "nest start mock --watch",
         "lint": "eslint \"{src,apps,libs,test,tests}/**/*.ts\" --fix",
         "lint:check": "eslint \"{src,apps,libs,test,tests}/**/*.ts\"",
+        "typecheck": "tsc --noEmit --pretty false",
         "gate:backend": "node scripts/run-be-gates.mjs",
         "lint:fullstack-module4-auth-demos": "eslint \".repo/fullstack-mastery-module-4-authentication-authorization-jwt-rbac/*/src/**/*.ts\" --fix",
         "test": "jest --selectProjects unit",
