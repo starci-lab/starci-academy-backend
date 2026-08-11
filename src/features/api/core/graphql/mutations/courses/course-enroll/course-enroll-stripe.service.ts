@@ -62,6 +62,9 @@ import type {
     CourseEnrollResponseData,
 } from "./graphql-types/response"
 import {
+    withCheckoutAdvisoryLock,
+} from "./checkout-advisory-lock"
+import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
@@ -107,7 +110,22 @@ export class CourseEnrollStripeService {
      * @param param - Course context, user, and redirect URLs (reused as Stripe URLs)
      * @returns Checkout payload (redirect URL) and preflight id
      */
-    async execute({
+    async execute(params: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
+        if (!params.user) {
+            throw new UserNotFoundException({
+            })
+        }
+        return withCheckoutAdvisoryLock(
+            this.entityManager,
+            params.request.voucherCode
+                ? `checkout:voucher:${params.user.id}:${params.request.voucherCode}`
+                : `checkout:course:${params.user.id}:${params.request.courseId}:${PaymentType.Stripe}`,
+            async (manager) => this.executeLocked(params,
+                manager),
+        )
+    }
+
+    private async executeLocked({
         request: {
             courseId,
             payosReturnUrl,
@@ -115,14 +133,14 @@ export class CourseEnrollStripeService {
             voucherCode,
         },
         user,
-    }: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
+    }: ExecuteParams<CourseEnrollRequest>, manager: EntityManager): Promise<CourseEnrollResponseData> {
         // a logged-in user is required to attach the transaction to
         if (!user) {
             throw new UserNotFoundException({
             })
         }
         // resolve the course + its pricing phases
-        const course = await this.entityManager.findOne(
+        const course = await manager.findOne(
             CourseEntity,
             {
                 where: {
@@ -178,7 +196,7 @@ export class CourseEnrollStripeService {
             : priceUsd
 
         // reuse a still-fresh pending Stripe transaction instead of re-creating
-        const existing = await this.entityManager.findOne(
+        const existing = await manager.findOne(
             TransactionEntity,
             {
                 where: {
@@ -241,8 +259,8 @@ export class CourseEnrollStripeService {
         // persist the pending transaction + (if given) RESERVE the voucher in the
         // SAME db transaction, so a concurrent second checkout can never also
         // claim the same code
-        const transaction = await this.entityManager.transaction(async (manager) => {
-            const created = manager.create(
+        const transaction = await manager.transaction(async (transactionManager) => {
+            const created = transactionManager.create(
                 TransactionEntity,
                 {
                     user,
@@ -261,12 +279,12 @@ export class CourseEnrollStripeService {
                     actionType: ActionType.Enroll,
                 },
             )
-            const saved = await manager.save(created)
+            const saved = await transactionManager.save(created)
             if (voucherCode) {
                 // re-validate + reserve UNDER LOCK -- the earlier previewDiscount() was
                 // advisory only (no lock held), so a race since then is still caught here
                 await this.voucherService.reserve({
-                    entityManager: manager,
+                    entityManager: transactionManager,
                     userId: user.id,
                     code: voucherCode,
                     courseId: course.id,

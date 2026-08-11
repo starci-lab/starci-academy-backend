@@ -6,6 +6,9 @@ import {
     AiModelTask,
 } from "@modules/databases/postgresql/primary/enums/ai-model-task"
 import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
@@ -23,6 +26,13 @@ interface UseApiMockParams {
     action: (ctx: unknown) => Promise<unknown>
 }
 
+const mockOpenAiEmbedDocuments = jest.fn()
+const mockOpenAiEmbedQuery = jest.fn()
+const mockGeminiEmbedDocuments = jest.fn()
+const mockGeminiEmbedQuery = jest.fn()
+const mockOllamaEmbedDocuments = jest.fn()
+const mockOllamaEmbedQuery = jest.fn()
+
 /**
  * Mock the heavy LangChain embedding clients with tagged stubs so the test can
  * assert WHICH class was built + with WHAT options, without importing real
@@ -36,6 +46,8 @@ jest.mock("@langchain/openai",
         ) {
             this.__kind = "openai"
             this.opts = opts
+            this.embedDocuments = mockOpenAiEmbedDocuments
+            this.embedQuery = mockOpenAiEmbedQuery
         }),
     }))
 jest.mock("@langchain/google-genai",
@@ -46,6 +58,8 @@ jest.mock("@langchain/google-genai",
         ) {
             this.__kind = "gemini"
             this.opts = opts
+            this.embedDocuments = mockGeminiEmbedDocuments
+            this.embedQuery = mockGeminiEmbedQuery
         }),
     }))
 jest.mock("@langchain/community/embeddings/ollama",
@@ -56,6 +70,8 @@ jest.mock("@langchain/community/embeddings/ollama",
         ) {
             this.__kind = "ollama"
             this.opts = opts
+            this.embedDocuments = mockOllamaEmbedDocuments
+            this.embedQuery = mockOllamaEmbedQuery
         }),
     }))
 
@@ -202,80 +218,82 @@ describe("EmbeddingModelService",
                     )
                 }
 
-                it("routes through the Auto lane with the Embedding task",
+                it("does not select a provider until an embedding request is made",
                     async () => {
-                        wireUseApi({
-                            provider: ModelProvider.Local,
-                            model: "nomic-embed-text",
-                        })
+                        const embedder = await service.getViaBalancer()
 
-                        await service.getViaBalancer()
-
-                        expect(useApiService.useApi).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                lane: "chain",
-                                task: AiModelTask.Embedding,
-                            }),
-                        )
+                        expect(embedder).toBeDefined()
+                        expect(useApiService.useApi).not.toHaveBeenCalled()
                     })
 
-                it("builds a Local Ollama embedder (local-first) from the resolved context",
+                it("runs embedDocuments inside the Auto fallback action",
                     async () => {
+                        mockOllamaEmbedDocuments.mockResolvedValueOnce([
+                            [0.1,
+                                0.2],
+                        ])
                         wireUseApi({
                             provider: ModelProvider.Local,
                             model: "nomic-embed-text",
                             key: "resolved-local-token",
                         })
 
-                        const embedder = await service.getViaBalancer() as unknown as Record<string, unknown>
+                        const embedder = await service.getViaBalancer()
+                        const vectors = await embedder.embedDocuments(["document"])
 
-                        expect(embedder.__kind).toBe("ollama")
-                        expect(embedder.opts).toEqual({
-                            model: "nomic-embed-text",
-                            baseUrl: LOCAL_BASE_URL_ROOT,
-                            maxConcurrency: 8,
-                            // uses the balancer-ACQUIRED key (not the mount pool directly)
-                            headers: {
-                                Authorization: "Bearer resolved-local-token",
-                            },
-                        })
+                        expect(vectors).toEqual([
+                            [0.1,
+                                0.2],
+                        ])
+                        expect(mockOllamaEmbedDocuments).toHaveBeenCalledWith(["document"])
+                        expect(useApiService.useApi).toHaveBeenCalledWith(expect.objectContaining({
+                            lane: "chain",
+                            task: AiModelTask.Embedding,
+                            categories: [
+                                AiModelCategory.EmbeddingLocal,
+                                AiModelCategory.EmbeddingCloud,
+                            ],
+                        }))
                     })
 
-                it("builds an OpenAI embedder with the balancer-rotated key when local is down",
+                it("runs embedQuery inside the balancer action with the rotated cloud key",
                     async () => {
+                        mockOpenAiEmbedQuery.mockResolvedValueOnce([0.3,
+                            0.4])
                         wireUseApi({
                             provider: ModelProvider.OpenAI,
                             model: "text-embedding-3-small",
                             key: "sk-rotated",
                         })
 
-                        const embedder = await service.getViaBalancer() as unknown as Record<string, unknown>
+                        const embedder = await service.getViaBalancer()
+                        const vector = await embedder.embedQuery("question")
 
-                        expect(embedder.__kind).toBe("openai")
-                        expect(embedder.opts).toEqual({
-                            model: "text-embedding-3-small",
-                            apiKey: "sk-rotated",
-                        })
+                        expect(vector).toEqual([0.3,
+                            0.4])
+                        expect(mockOpenAiEmbedQuery).toHaveBeenCalledWith("question")
                     })
 
-                it("builds a Gemini embedder from the resolved context",
+                it("keeps platform-owned indexing on the local-only lane",
                     async () => {
+                        mockOllamaEmbedDocuments.mockResolvedValueOnce([
+                            [1],
+                        ])
                         wireUseApi({
-                            provider: ModelProvider.Gemini,
-                            model: "text-embedding-004",
-                            key: "sk-g-rotated",
+                            provider: ModelProvider.Local,
+                            model: "nomic-embed-text",
+                            key: "local-token",
                         })
 
-                        const embedder = await service.getViaBalancer() as unknown as Record<string, unknown>
+                        const embedder = await service.getViaBalancer(AiModelCategory.EmbeddingLocal)
+                        await embedder.embedDocuments(["owned corpus"])
 
-                        expect(embedder.__kind).toBe("gemini")
-                        expect(embedder.opts).toEqual({
-                            model: "text-embedding-004",
-                            apiKey: "sk-g-rotated",
-                        })
+                        expect(useApiService.useApi).toHaveBeenCalledWith(expect.objectContaining({
+                            categories: [AiModelCategory.EmbeddingLocal],
+                        }))
                     })
 
-                it("throws for a provider with no embeddings endpoint (e.g. OpenRouter)",
+                it("surfaces unsupported providers only when the SDK action executes",
                     async () => {
                         wireUseApi({
                             provider: ModelProvider.OpenRouter,
@@ -283,7 +301,9 @@ describe("EmbeddingModelService",
                             key: "sk-or",
                         })
 
-                        await expect(service.getViaBalancer())
+                        const embedder = await service.getViaBalancer()
+
+                        await expect(embedder.embedQuery("question"))
                             .rejects.toThrow(/Unsupported embedding provider/)
                     })
             })

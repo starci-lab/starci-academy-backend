@@ -158,78 +158,77 @@ export class PurchaseMembershipHandler
         // international gateways (Stripe / PayPal / Crypto) charge this USD dollar price
         const priceUsd = membershipConfig.priceUsd
 
-        // reuse a still-fresh pending transaction for the same provider
-        const existing = await this.entityManager.findOne(
-            TransactionEntity,
-            {
-                where: {
-                    user: {
-                        id: user.id,
+        const committed = await this.entityManager.transaction(async (manager) => {
+            await manager.query(
+                "SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
+                [`checkout:membership:${user.id}:${paymentType}`],
+            )
+            const existing = await manager.findOne(TransactionEntity,
+                {
+                    where: {
+                        user: {
+                            id: user.id
+                        },
+                        actionType: ActionType.MembershipPurchase,
+                        paymentType,
+                        status: TransactionStatus.Pending,
                     },
-                    actionType: ActionType.MembershipPurchase,
-                    paymentType,
-                    status: TransactionStatus.Pending,
-                },
-            },
-        )
-        if (existing && this.isReusable(existing)) {
-            // SePay PG needs the signed form fields regenerated (pure, no side effect)
-            const reuseFields = existing.paymentType === PaymentType.Sepay
-                ? this.buildSepayCheckout({
-                    orderCode: Number(existing.referenceId),
-                    amount: existing.amount,
-                }).checkoutFields
-                : undefined
-            return {
-                checkoutUrl: existing.checkoutUrl,
-                referenceId: existing.referenceId,
-                transactionId: existing.id,
-                amount: existing.amount,
-                checkoutFields: reuseFields,
+                    order: {
+                        createdAt: "DESC"
+                    },
+                })
+            if (existing && this.isReusable(existing)) {
+                const checkoutFields = existing.paymentType === PaymentType.Sepay
+                    ? this.buildSepayCheckout({
+                        orderCode: Number(existing.referenceId),
+                        amount: existing.amount,
+                    }).checkoutFields
+                    : undefined
+                return {
+                    transaction: existing, checkoutFields
+                }
             }
-        }
 
-        // create the provider checkout link
-        const orderCode = this.generateOrderCode()
-        const checkout = await this.resolveCheckout({
-            paymentType,
-            amount,
-            priceUsd,
-            orderCode,
-            payosReturnUrl,
-            payosCancelUrl,
-        })
-
-        // persist the pending transaction (course + aiSubTier are null for membership)
-        const transaction = this.entityManager.create(
-            TransactionEntity,
-            {
-                user,
-                course: null,
-                referenceId: String(orderCode),
-                amount: checkout.amount,
-                pricingPhase: PricingPhase.Regular,
+            const orderCode = this.generateOrderCode()
+            const checkout = await this.resolveCheckout({
                 paymentType,
-                checkoutUrl: checkout.checkoutUrl,
-                // native gateway id for reconciliation polling (null for PayOS/Sepay)
-                providerPaymentId: checkout.providerPaymentId ?? null,
-                status: TransactionStatus.Pending,
-                actionType: ActionType.MembershipPurchase,
-                aiSubTier: null,
-            },
-        )
-        await this.entityManager.save(transaction)
+                amount,
+                priceUsd,
+                orderCode,
+                payosReturnUrl,
+                payosCancelUrl,
+            })
+            const transaction = manager.create(TransactionEntity,
+                {
+                    user,
+                    course: null,
+                    referenceId: String(orderCode),
+                    amount: checkout.amount,
+                    pricingPhase: PricingPhase.Regular,
+                    paymentType,
+                    checkoutUrl: checkout.checkoutUrl,
+                    providerPaymentId: checkout.providerPaymentId ?? null,
+                    status: TransactionStatus.Pending,
+                    actionType: ActionType.MembershipPurchase,
+                    aiSubTier: null,
+                })
+            return {
+                transaction: await manager.save(transaction),
+                checkoutFields: checkout.checkoutFields,
+            }
+        })
+        const transaction = committed.transaction
         // schedule the delayed reconcile poll (fires if no webhook arrives)
         await this.enqueueReconcileTransactionJobService.enqueue({
             transactionId: transaction.id,
         })
 
         return {
-            checkoutUrl: checkout.checkoutUrl,
-            referenceId: String(orderCode),
+            checkoutUrl: transaction.checkoutUrl,
+            referenceId: transaction.referenceId,
             transactionId: transaction.id,
-            amount: checkout.amount,
-            checkoutFields: checkout.checkoutFields,
+            amount: transaction.amount,
+            checkoutFields: committed.checkoutFields,
         }
     }
 

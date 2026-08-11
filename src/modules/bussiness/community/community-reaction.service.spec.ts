@@ -135,11 +135,9 @@ describe("CommunityReactionService",
                         expect(eventEmitterService.emit).not.toHaveBeenCalled()
                     })
 
-                it("inserts a new reaction when the user has none, then emits the change event",
+                it("atomically sets the reaction slot, then emits the change event",
                     async () => {
                         entityManager.count.mockResolvedValueOnce(1)
-                        // no existing reaction; the post-mutation summary's "mine" lookup also empty
-                        entityManager.findOne.mockResolvedValueOnce(null)
 
                         await service.reactToPost({
                             postId,
@@ -147,8 +145,22 @@ describe("CommunityReactionService",
                             type: ReactionType.Like,
                         })
 
-                        expect(entityManager.create).toHaveBeenCalled()
-                        expect(entityManager.save).toHaveBeenCalled()
+                        expect(entityManager.upsert).toHaveBeenCalledWith(
+                            expect.any(Function),
+                            {
+                                type: ReactionType.Like,
+                                post: {
+                                    id: postId,
+                                },
+                                user: {
+                                    id: user.id,
+                                },
+                            },
+                            [
+                                "post",
+                                "user",
+                            ],
+                        )
                         expect(eventEmitterService.emit).toHaveBeenCalledWith({
                             event: EventName.CommunityPostReactionChanged,
                             payload: {
@@ -160,7 +172,6 @@ describe("CommunityReactionService",
                 it("allows a self-reaction (liking one's own post)",
                     async () => {
                         entityManager.count.mockResolvedValueOnce(1)
-                        entityManager.findOne.mockResolvedValueOnce(null)
 
                         // unlike feed activities, community reactions do not block self-targets
                         await expect(
@@ -174,16 +185,9 @@ describe("CommunityReactionService",
                         ).resolves.toBeDefined()
                     })
 
-                it("switches the emotion in place when a reaction already exists",
+                it("uses the same atomic write when switching emotion",
                     async () => {
                         entityManager.count.mockResolvedValueOnce(1)
-                        const existing = {
-                            type: ReactionType.Like,
-                        }
-                        entityManager.findOne
-                            .mockResolvedValueOnce(existing)
-                            // "mine" lookup for the summarizer picks up the switched row
-                            .mockResolvedValueOnce(null)
 
                         await service.reactToPost({
                             postId,
@@ -191,20 +195,21 @@ describe("CommunityReactionService",
                             type: ReactionType.Love,
                         })
 
-                        expect(existing.type).toBe(ReactionType.Love)
-                        expect(entityManager.create).not.toHaveBeenCalled()
-                        expect(entityManager.save).toHaveBeenCalledWith(existing)
+                        expect(entityManager.upsert).toHaveBeenCalledWith(
+                            expect.any(Function),
+                            expect.objectContaining({
+                                type: ReactionType.Love,
+                            }),
+                            [
+                                "post",
+                                "user",
+                            ],
+                        )
                     })
 
-                it("removes the reaction when type is null and one exists",
+                it("removes the reaction slot atomically when type is null",
                     async () => {
                         entityManager.count.mockResolvedValueOnce(1)
-                        const existing = {
-                            type: ReactionType.Like,
-                        }
-                        entityManager.findOne
-                            .mockResolvedValueOnce(existing)
-                            .mockResolvedValueOnce(null)
 
                         await service.reactToPost({
                             postId,
@@ -212,14 +217,23 @@ describe("CommunityReactionService",
                             type: null,
                         })
 
-                        expect(entityManager.remove).toHaveBeenCalledWith(existing)
-                        expect(entityManager.save).not.toHaveBeenCalled()
+                        expect(entityManager.delete).toHaveBeenCalledWith(
+                            expect.any(Function),
+                            {
+                                post: {
+                                    id: postId,
+                                },
+                                user: {
+                                    id: user.id,
+                                },
+                            },
+                        )
+                        expect(entityManager.upsert).not.toHaveBeenCalled()
                     })
 
-                it("removing when no reaction exists is a no-op (no remove call)",
+                it("removing an absent reaction stays idempotent",
                     async () => {
                         entityManager.count.mockResolvedValueOnce(1)
-                        entityManager.findOne.mockResolvedValueOnce(null)
 
                         await service.reactToPost({
                             postId,
@@ -227,8 +241,8 @@ describe("CommunityReactionService",
                             type: null,
                         })
 
-                        expect(entityManager.remove).not.toHaveBeenCalled()
-                        expect(entityManager.save).not.toHaveBeenCalled()
+                        expect(entityManager.delete).toHaveBeenCalled()
+                        expect(entityManager.upsert).not.toHaveBeenCalled()
                         // the event still fans out -- totals may have changed for other viewers
                         expect(eventEmitterService.emit).toHaveBeenCalled()
                     })
@@ -258,10 +272,6 @@ describe("CommunityReactionService",
                                 id: commentId,
                                 postId,
                             })
-                            // existing-reaction lookup
-                            .mockResolvedValueOnce(null)
-                            // "mine" lookup for the summarizer
-                            .mockResolvedValueOnce(null)
 
                         await service.reactToComment({
                             commentId,
@@ -269,6 +279,16 @@ describe("CommunityReactionService",
                             type: ReactionType.Like,
                         })
 
+                        expect(entityManager.upsert).toHaveBeenCalledWith(
+                            expect.any(Function),
+                            expect.objectContaining({
+                                type: ReactionType.Like,
+                            }),
+                            [
+                                "comment",
+                                "user",
+                            ],
+                        )
                         expect(eventEmitterService.emit).toHaveBeenCalledWith({
                             event: EventName.CommunityCommentReactionChanged,
                             payload: {

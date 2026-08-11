@@ -75,8 +75,9 @@ import type {
  * then drives the LangChain `.stream()` through {@link AiInvokeService} on the
  * System engine (floor=free -> climb to the tier ceiling, billed by served model
  * like grading -- free models = 0),
- * emitting each token delta straight back to the requesting socket as a
- * {@link SubscriptionEvent.ContentAiChunk} event. An
+ * buffering the winning attempt until its charge and completed-turn write
+ * succeed, then flushing its deltas to the requesting socket as
+ * {@link SubscriptionEvent.ContentAiChunk} events. An
  * {@link PublicationEvent.AbortContentAi} message cancels the in-flight stream.
  */
 export class ContentAiGateway {
@@ -109,9 +110,8 @@ export class ContentAiGateway {
     private readonly inFlight = new Map<string, AbortController>()
 
     /**
-     * Answer a content-AI question, streaming the response token-by-token back
-     * to the caller. The full answer is never persisted (the conversation is
-     * ephemeral, client-side memory).
+     * Answer a content-AI question and flush the winning response after its
+     * charge and completed-turn persistence succeed.
      *
      * @param client - The asking socket (auth user id on `client.data.userId`).
      * @param payload - The question, content id, recent turns, and stream id.
@@ -190,11 +190,16 @@ export class ContentAiGateway {
                 locale: payload.locale,
             })
 
-            // accumulate the full answer so the completed turn can be persisted
-            let answer = ""
+            // Hold the winning attempt at this business boundary too. AiInvoke
+            // already prevents cross-provider partial concatenation; the gateway
+            // additionally waits for the entitlement debit (and completed-turn
+            // persistence) before exposing the answer, so a successful answer
+            // can never escape without its one matching charge.
+            const answerDeltas: Array<string> = []
             // ONE shared entry -- stream on the free floor, climbing to the tier
             // ceiling (local Qwen -> OpenRouter free -> economy+ only if all free fail)
             const {
+                text: answer,
                 model,
                 provider,
                 cost,
@@ -215,15 +220,7 @@ export class ContentAiGateway {
                 temperature: 0.3,
                 signal: controller.signal,
                 onChunk: (delta) => {
-                    answer += delta
-                    this.emitChunk({
-                        client,
-                        data: {
-                            streamId,
-                            delta,
-                            done: false,
-                        },
-                    })
+                    answerDeltas.push(delta)
                 },
             })
 
@@ -271,6 +268,19 @@ export class ContentAiGateway {
                         },
                     )
                 }
+            }
+
+            // Only a fully served, charged turn crosses the socket boundary.
+            // Preserve the provider's successful chunk boundaries when flushing.
+            for (const delta of answerDeltas) {
+                this.emitChunk({
+                    client,
+                    data: {
+                        streamId,
+                        delta,
+                        done: false,
+                    },
+                })
             }
 
             // terminal chunk: no new text, just the done flag

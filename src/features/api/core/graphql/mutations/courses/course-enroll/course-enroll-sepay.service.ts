@@ -32,6 +32,9 @@ import type {
     CourseEnrollResponseData,
 } from "./graphql-types/response"
 import {
+    withCheckoutAdvisoryLock,
+} from "./checkout-advisory-lock"
+import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
 import {
@@ -98,7 +101,22 @@ export class CourseEnrollSepayService {
      * @param param - Course context, user, and request
      * @returns Checkout payload (form action URL + signed fields) and preflight id
      */
-    async execute({
+    async execute(params: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
+        if (!params.user) {
+            throw new UserNotFoundException({
+            })
+        }
+        return withCheckoutAdvisoryLock(
+            this.entityManager,
+            params.request.voucherCode
+                ? `checkout:voucher:${params.user.id}:${params.request.voucherCode}`
+                : `checkout:course:${params.user.id}:${params.request.courseId}:${PaymentType.Sepay}`,
+            async (manager) => this.executeLocked(params,
+                manager),
+        )
+    }
+
+    private async executeLocked({
         request: {
             courseId,
             payosReturnUrl,
@@ -107,13 +125,13 @@ export class CourseEnrollSepayService {
             installmentMonths,
         },
         user,
-    }: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
+    }: ExecuteParams<CourseEnrollRequest>, manager: EntityManager): Promise<CourseEnrollResponseData> {
         if (!user) {
             throw new UserNotFoundException({
             })
         }
         // find the course
-        const course = await this.entityManager.findOne(
+        const course = await manager.findOne(
             CourseEntity,
             {
                 where: {
@@ -143,7 +161,7 @@ export class CourseEnrollSepayService {
         // reuse a still-fresh pending transaction (regenerate signed fields) -- a
         // voucher on a reused transaction is NOT re-evaluated (it was already
         // reserved/priced when that transaction was first created)
-        const existing = await this.entityManager.findOne(
+        const existing = await manager.findOne(
             TransactionEntity,
             {
                 where: {
@@ -205,8 +223,8 @@ export class CourseEnrollSepayService {
             successUrl: payosReturnUrl,
             cancelUrl: payosCancelUrl,
         })
-        const transaction = await this.entityManager.transaction(async (manager) => {
-            const created = manager.create(
+        const transaction = await manager.transaction(async (transactionManager) => {
+            const created = transactionManager.create(
                 TransactionEntity,
                 {
                     user,
@@ -225,12 +243,12 @@ export class CourseEnrollSepayService {
                     installmentTotalVnd: installment ? installment.totalAmountVnd : null,
                 },
             )
-            const saved = await manager.save(created)
+            const saved = await transactionManager.save(created)
             if (voucherCode) {
                 // re-validate + reserve UNDER LOCK -- the earlier previewDiscount() was
                 // advisory only (no lock held), so a race since then is still caught here
                 await this.voucherService.reserve({
-                    entityManager: manager,
+                    entityManager: transactionManager,
                     userId: user.id,
                     code: voucherCode,
                     courseId: course.id,

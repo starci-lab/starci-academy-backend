@@ -174,6 +174,9 @@ import {
     SessionModule,
 } from "@modules/platform/session/session.module"
 import {
+    OAuthStateModule,
+} from "@modules/platform/oauth-state/oauth-state.module"
+import {
     CaptchaModule,
 } from "@modules/integrations/captcha/captcha.module"
 import {
@@ -261,6 +264,8 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** Atomic, one-time OAuth state storage shared by login/link flows. */
+            OAuthStateModule,
             /** Captcha (Cloudflare Turnstile) module. */
             CaptchaModule.register(
                 {
@@ -506,6 +511,10 @@ import {
                     nats: {
                         subjects: [
                             EventName.JobStatusUpdated,
+                            // Chat sockets are process-local; every instance
+                            // subscribes so a message written on another pod is
+                            // bridged into this pod's conversation rooms.
+                            EventName.ChatMessageCreated,
                         ],
                     },
                 }

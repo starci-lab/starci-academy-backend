@@ -38,6 +38,11 @@ import {
 import {
     GithubApiOrgService,
 } from "@modules/integrations/github/org.service"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+
+const DISPATCH_CHECKPOINT = "revoke-github-dispatch-claimed"
 
 @Injectable()
 /**
@@ -69,23 +74,9 @@ export class ProcessRevokeGithubRemoveStepService extends AbstractStepService<
     async process(
         context: JobExtendedContext<EnqueueRevokeGithubPayload, EmptyObject>,
     ): Promise<void> {
-        try {
-            const executionResult = await this.execute(
-                context,
-            )
-            await this.finalize(
-                executionResult,
-                context,
-            )
-        } catch (error) {
-            await this.jobActionService.failJob(
-                {
-                    job: context.job,
-                    error: (error as Error).message,
-                },
-            )
-            throw error
-        }
+        const executionResult = await this.execute(context)
+        await this.finalize(executionResult,
+            context)
     }
 
     /**
@@ -96,15 +87,69 @@ export class ProcessRevokeGithubRemoveStepService extends AbstractStepService<
     private async execute(
         context: JobExtendedContext<EnqueueRevokeGithubPayload, EmptyObject>,
     ): Promise<EmptyObject> {
+        const shouldDispatch = await this.claimDispatch(context)
+        if (!shouldDispatch) {
+            return {
+            }
+        }
         const { payload } = context
-        await this.githubApiOrgService.removeUserFromTeamInOrg(
-            {
+        try {
+            await this.githubApiOrgService.removeUserFromTeamInOrg({
                 teamSlug: payload.teamSlug,
                 githubUsername: payload.githubUsername,
-            },
-        )
+            })
+        } catch (error) {
+            await this.releaseDispatch(context)
+            throw error
+        }
         return {
         }
+    }
+
+    /** Claim the GitHub state transition so a post-call persistence retry does not dispatch twice. */
+    private async claimDispatch(
+        context: JobExtendedContext<EnqueueRevokeGithubPayload, EmptyObject>,
+    ): Promise<boolean> {
+        return this.entityManager.transaction(async (entityManager) => {
+            const job = await entityManager.findOneOrFail(
+                JobEntity,
+                {
+                    where: {
+                        id: context.job.id,
+                    },
+                    lock: {
+                        mode: "pessimistic_write",
+                    },
+                },
+            )
+            const claimed = await this.jobActionService.loadExecutionResult<boolean>({
+                job,
+                key: DISPATCH_CHECKPOINT,
+            })
+            if (claimed) {
+                context.job.executionResults = job.executionResults
+                return false
+            }
+            await this.jobActionService.saveExecutionResult({
+                job,
+                key: DISPATCH_CHECKPOINT,
+                executionResult: true,
+                entityManager,
+            })
+            context.job.executionResults = job.executionResults
+            return true
+        })
+    }
+
+    /** Release the claim when GitHub explicitly failed, allowing BullMQ to retry the call. */
+    private async releaseDispatch(
+        context: JobExtendedContext<EnqueueRevokeGithubPayload, EmptyObject>,
+    ): Promise<void> {
+        await this.jobActionService.saveExecutionResult({
+            job: context.job,
+            key: DISPATCH_CHECKPOINT,
+            executionResult: false,
+        })
     }
 
     /**

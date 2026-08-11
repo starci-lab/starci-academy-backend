@@ -117,9 +117,243 @@ import {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import {
+    mkdtempSync,
+    rmSync,
+    writeFileSync,
+} from "fs"
+import {
+    tmpdir,
+} from "os"
+import {
+    join,
+} from "path"
+import {
+    EventEmitterModule,
+} from "@nestjs/event-emitter"
+import {
+    BullModule as NestBullModule,
+    getQueueToken,
+} from "@nestjs/bullmq"
+import {
+    ChatOpenAI,
+} from "@langchain/openai"
+import {
+    QdrantVectorStore,
+} from "@langchain/qdrant"
+import type {
+    Cache,
+} from "cache-manager"
+import type {
+    Queue,
+} from "bullmq"
+import type {
+    Redis as IoRedis,
+} from "ioredis"
+import {
+    AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
+    AiInvokeService,
+} from "@modules/ai/ai-invoke.service"
+import {
+    AiBalancerService,
+} from "@modules/ai/balancer/ai-balancer.service"
+import {
+    AiModelCatalogService,
+} from "@modules/ai/balancer/ai-model-catalog.service"
+import {
+    KeyRotatorService,
+} from "@modules/ai/balancer/key-rotator.service"
+import {
+    KeyStoreService,
+} from "@modules/ai/balancer/key-store.service"
+import {
+    UseApiService,
+} from "@modules/ai/balancer/use-api.service"
+import {
+    JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
+    JobStalledService,
+} from "@modules/bussiness/jobs/atomic/job-stalled.service"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
+    NotificationService,
+} from "@modules/bussiness/notification/notification.service"
+import {
+    ProgressProjectionService,
+} from "@modules/bussiness/projections/progress/progress-projection.service"
+import {
+    UserStatsProjectionService,
+} from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
+import {
+    POSTGRESQL_PRIMARY as PRIMARY_CONNECTION,
+} from "@modules/databases/postgresql/primary/constants/connection"
+import {
+    AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import {
+    AiSubscriptionEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+import {
+    CreditUsageHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/credit-usage-history.entity"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+import {
+    MilestoneTaskCriteriaEntity,
+} from "@modules/databases/postgresql/primary/entities/milestone-task-criteria.entity"
+import {
+    UserMilestoneTaskAttemptEntity,
+} from "@modules/databases/postgresql/primary/entities/user-milestone-task-attempt.entity"
+import {
+    XpHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/xp-history.entity"
+import {
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
+import {
+    AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
+import {
+    JobStatus,
+} from "@modules/databases/postgresql/primary/enums/job-status"
+import {
+    MilestoneSeverity,
+} from "@modules/databases/postgresql/primary/enums/milestone-severity"
+import {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    XpSource,
+} from "@modules/databases/postgresql/primary/enums/xp-source"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
+import {
+    AiAutoQuotaConfigService,
+} from "@modules/filesystem/ai-auto-quota-config.service"
+import {
+    MountFilesystemService,
+} from "@modules/filesystem/mount.service"
+import {
+    MountStorageService,
+} from "@modules/filesystem/mount-storage.service"
+import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    AiModelLatencyCacheService,
+} from "@modules/integrations/cache/ai-model-latency-cache.service"
+import {
+    AiPingCacheService,
+} from "@modules/integrations/cache/ai-ping-cache.service"
+import {
+    EmbeddingModelService,
+} from "@modules/integrations/langchain/embedding-model.service"
+import {
+    GradingRetrievalService,
+} from "@modules/integrations/rag/grading-rag-retrieval.service"
+import {
+    QDRANT_CLIENT,
+} from "@modules/databases/qdrant/constants/client"
+import {
+    createIoRedisKey,
+} from "@modules/lib/native/ioredis/constants"
+import {
+    IoRedisInstanceKey,
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    createSuperJsonServiceProvider,
+} from "@modules/lib/mixin/superjson.providers"
+import {
+    EventEmitterService,
+} from "@modules/platform/event/event-emitter.service"
+import {
+    NatsMessageFactoryService,
+} from "@modules/platform/event/nats/nats-message-factory.service"
+import {
+    NatsProducerService,
+} from "@modules/platform/event/nats/producer.service"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
+    ReviewMilestoneTaskWorker,
+} from "@features/api/processors/ai/review-milestone-task/review-milestone-task.worker"
+import {
+    ReviewMilestoneTaskStepMappingService,
+} from "@features/api/processors/ai/review-milestone-task/step-mapping.service"
+import {
+    ReviewMilestoneTaskCompleteStepService,
+} from "@features/api/processors/ai/review-milestone-task/steps/review-milestone-task-complete-step.service"
+import {
+    ReviewMilestoneTaskGradeStepService,
+} from "@features/api/processors/ai/review-milestone-task/steps/review-milestone-task-grade-step.service"
+import {
+    ReviewMilestoneTaskCreditService,
+} from "@features/api/processors/ai/review-milestone-task/review-milestone-task-credit.service"
+import {
+    ProjectEvaluationParseService,
+} from "@features/api/processors/ai/shared/project-evaluation/project-evaluation-parse.service"
+import {
+    aiE2eRedisCacheManagerToken,
+    AiProviderInvokeScript,
+    createAiE2eRedisProviders,
+} from "@tests/helpers/ai-provider-invoke-script"
+import {
+    until,
+} from "@tests/helpers/flow-wait"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
+
+const reviewQueueData = bullData[BullQueueName.ReviewPersonalProjectTask]
+const reviewSendMailQueueData = bullData[BullQueueName.SendMail]
+const REVIEW_MODEL = "e2e-personal-project-grader"
+const REVIEW_MODEL_CREDIT = 3
+const REVIEW_FEEDBACK = "The implementation satisfies the task contract."
+
+const reviewGithubLoadMock = jest.fn()
+jest.mock(
+    "@langchain/community/document_loaders/web/github",
+    () => ({
+        GithubRepoLoader: jest.fn().mockImplementation(() => ({
+            load: reviewGithubLoadMock,
+        })),
+    }),
+)
+
+const reviewEvaluation = (
+    score: number,
+): string => JSON.stringify({
+    shortFeedback: score >= 70
+        ? "The personal project satisfies the milestone."
+        : "The personal project needs another iteration.",
+    score,
+    details: [
+        {
+            feedbacks: [
+                {
+                    severity: MilestoneSeverity.Low,
+                    message: REVIEW_FEEDBACK,
+                    location: "src/project.ts:8",
+                    suggestion: score >= 70 ? null : "Complete the missing branch.",
+                },
+            ],
+        },
+    ],
+})
 
 /** Params for the `EncryptionService.encrypt` mock. */
 interface EncryptionServiceEncryptParams {
@@ -892,5 +1126,575 @@ describe("a learner submits a personal project and receives a durable review",
                         expect(body.error).toBe("NO_PERSONAL_PROJECT_TASKS_FOUND_EXCEPTION")
                         expect(enqueueReviewJobMock.enqueue).not.toHaveBeenCalled()
                     })
+            })
+    })
+
+/**
+ * Operational half of the flow: GraphQL persists the durable job, Redis/BullMQ
+ * delivers it, and the production two-step worker grades and completes it. Jest
+ * replaces only GitHub, vector retrieval and the concrete model network result.
+ */
+describe("a learner's personal project is reviewed by the durable worker",
+    () => {
+        let app: INestApplication
+        let entityManager: EntityManager
+        let currentUser: UserEntity
+        let course: CourseEntity
+        let task: MilestoneTaskEntity
+        let redis: IoRedis
+        let redisCache: Cache
+        let reviewQueue: Queue<string>
+        let keysDirectory: string
+        let modelKeysPath: string
+
+        const providerScript = new AiProviderInvokeScript()
+        const invokeSpy = jest.spyOn(ChatOpenAI.prototype,
+            "invoke")
+            .mockImplementation(() => providerScript.next() as never)
+        const qdrantStoreSpy = jest.spyOn(QdrantVectorStore,
+            "fromDocuments")
+            .mockResolvedValue({
+                similaritySearch: jest.fn().mockResolvedValue([
+                    {
+                        pageContent: "export const project = { complete: true }",
+                        metadata: {
+                            source: "src/project.ts",
+                        },
+                    },
+                ]),
+            } as never)
+
+        const authGuard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                    .req.user = currentUser
+                return true
+            },
+        }
+
+        const saveLearner = async (
+            key: string,
+        ): Promise<UserEntity> => {
+            const user = await entityManager.save(entityManager.create(UserEntity,
+                {
+                    keycloakId: key,
+                    email: `${key}@example.test`,
+                    username: key,
+                }))
+            await entityManager.save(entityManager.create(EnrollmentEntity,
+                {
+                    user,
+                    course,
+                    pricingPhase: PricingPhase.Regular,
+                    isEnrolled: true,
+                    personalProjectGithubUrl: "https://github.com/starci/project",
+                    personalProjectGithubBranch: "main",
+                }))
+            return user
+        }
+
+        const submitReview = async (
+            user: UserEntity,
+        ): Promise<string> => {
+            currentUser = user
+            const response = await request(app.getHttpServer())
+                .post("/graphql")
+                .set("x-course-id",
+                    course.id)
+                .send({
+                    query: `
+                        mutation Review($request: ReviewPersonalProjectTaskRequest!) {
+                            reviewPersonalProjectTask(request: $request) {
+                                data { jobId }
+                            }
+                        }
+                    `,
+                    variables: {
+                        request: {
+                            courseId: course.id,
+                            taskId: task.id,
+                            lang: "typescript",
+                        },
+                    },
+                })
+                .expect(200)
+            expect(response.body.errors).toBeUndefined()
+            return response.body.data.reviewPersonalProjectTask.data.jobId as string
+        }
+
+        const waitForJob = async (
+            jobId: string,
+            status: JobStatus,
+        ): Promise<JobEntity> => {
+            await until(async () => (await entityManager.findOneBy(JobEntity,
+                {
+                    id: jobId,
+                }))?.status === status,
+            {
+                timeout: 15_000,
+                describe: `personal-project job ${jobId} to become ${status}`,
+            })
+            return entityManager.findOneByOrFail(JobEntity,
+                {
+                    id: jobId,
+                })
+        }
+
+        const consequencesFor = async (
+            user: UserEntity,
+            jobId: string,
+        ) => {
+            const attempts = await entityManager.find(UserMilestoneTaskAttemptEntity,
+                {
+                    where: {
+                        idempotencyKey: jobId,
+                    },
+                    relations: {
+                        feedbacks: true,
+                    },
+                })
+            const ledger = await entityManager.find(CreditUsageHistoryEntity,
+                {
+                    where: {
+                        user: {
+                            id: user.id,
+                        },
+                    },
+                })
+            const xp = await entityManager.find(XpHistoryEntity,
+                {
+                    where: {
+                        user: {
+                            id: user.id,
+                        },
+                        source: XpSource.Milestone,
+                    },
+                })
+            const reloadedUser = await entityManager.findOneByOrFail(UserEntity,
+                {
+                    id: user.id,
+                })
+            return {
+                attempts,
+                ledger,
+                xp,
+                reloadedUser,
+            }
+        }
+
+        beforeAll(async () => {
+            process.env.BULLMQ_ENQUEUE_UX_DELAY = "0ms"
+            keysDirectory = mkdtempSync(join(tmpdir(),
+                "starci-personal-project-e2e-"))
+            modelKeysPath = join(keysDirectory,
+                "openai.key")
+            writeFileSync(modelKeysPath,
+                "e2e-personal-project-key")
+
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true,
+                        withHydration: false,
+                        withResolvers: false,
+                    }),
+                    EventEmitterModule.forRoot(),
+                    CqrsModule,
+                    NestBullModule.forRoot({
+                        connection: {
+                            host: process.env.REDIS_BULLMQ_HOST,
+                            port: Number(process.env.REDIS_BULLMQ_PORT),
+                            password: process.env.REDIS_BULLMQ_PASSWORD,
+                        },
+                    }),
+                    NestBullModule.registerQueue(
+                        {
+                            name: reviewQueueData.name,
+                            prefix: reviewQueueData.prefix,
+                            defaultJobOptions: {
+                                attempts: 2,
+                                backoff: {
+                                    type: "fixed",
+                                    delay: 10,
+                                },
+                                removeOnComplete: false,
+                                removeOnFail: false,
+                            },
+                        },
+                        {
+                            name: reviewSendMailQueueData.name,
+                            prefix: reviewSendMailQueueData.prefix,
+                        },
+                    ),
+                ],
+                providers: [
+                    ...createAiE2eRedisProviders(),
+                    createSuperJsonServiceProvider(),
+                    ReviewPersonalProjectTaskResolver,
+                    ReviewPersonalProjectTaskService,
+                    ReviewPersonalProjectTaskHandler,
+                    GraphQLMustEnrolledGuard,
+                    UserService,
+                    UrlValidatorService,
+                    JobActionService,
+                    JobStalledService,
+                    EnqueueReviewPersonalProjectTaskJobService,
+                    EnqueueSendMailJobService,
+                    PostgreSqlAdvisoryLockService,
+                    ReviewMilestoneTaskWorker,
+                    ReviewMilestoneTaskStepMappingService,
+                    ReviewMilestoneTaskGradeStepService,
+                    ReviewMilestoneTaskCompleteStepService,
+                    ReviewMilestoneTaskCreditService,
+                    ProjectEvaluationParseService,
+                    GradingRetrievalService,
+                    AiInvokeService,
+                    AiEntitlementService,
+                    GradingLaneValidationService,
+                    AiModelCatalogService,
+                    KeyStoreService,
+                    KeyRotatorService,
+                    AiBalancerService,
+                    UseApiService,
+                    AiPingCacheService,
+                    AiModelLatencyCacheService,
+                    CacheService,
+                    DayjsService,
+                    ProgressProjectionService,
+                    UserStatsProjectionService,
+                    NotificationService,
+                    EventEmitterService,
+                    MountFilesystemService,
+                    EncryptionService,
+                    {
+                        provide: MountStorageService,
+                        useValue: {
+                            githubAccessToken: "e2e-github-token",
+                            encryptionKey: "e2e-encryption-key",
+                            appConfig: {
+                                systemConfig: {
+                                    task: {
+                                        passThreshold: 0.7,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    {
+                        provide: AiAutoQuotaConfigService,
+                        useValue: {
+                            getAutoQuota: () => ({
+                                creditsPer5h: 10,
+                                creditsPerWeek: 20,
+                            }),
+                        },
+                    },
+                    {
+                        provide: EmbeddingModelService,
+                        useValue: {
+                            get: () => ({
+                                embedDocuments: jest.fn(),
+                                embedQuery: jest.fn(),
+                            }),
+                        },
+                    },
+                    {
+                        provide: QDRANT_CLIENT,
+                        useValue: {
+                            deleteCollection: jest.fn().mockResolvedValue(undefined),
+                        },
+                    },
+                    {
+                        provide: NatsProducerService,
+                        useValue: {
+                            publish: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: NatsMessageFactoryService,
+                        useValue: {
+                            create: jest.fn().mockReturnValue("{}"),
+                        },
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                        },
+                    },
+                ],
+            })
+                .overrideGuard(KeycloakAuthGraphQLGuard)
+                .useValue(authGuard)
+                .compile()
+
+            app = moduleRef.createNestApplication()
+            await app.init()
+            entityManager = app.get<EntityManager>(
+                getEntityManagerToken(PRIMARY_CONNECTION),
+            )
+            redis = app.get<IoRedis>(
+                createIoRedisKey(IoRedisInstanceKey.Cache),
+            )
+            redisCache = app.get<Cache>(aiE2eRedisCacheManagerToken)
+            reviewQueue = app.get<Queue<string>>(getQueueToken(reviewQueueData.name))
+
+            await entityManager.query(
+                "TRUNCATE TABLE ai_models, courses, users, jobs RESTART IDENTITY CASCADE",
+            )
+            await redis.flushdb()
+            await reviewQueue.drain(true)
+            await entityManager.save(entityManager.create(AiModelEntity,
+                {
+                    name: REVIEW_MODEL,
+                    provider: ModelProvider.OpenAI,
+                    category: AiModelCategory.Medium,
+                    keysFilePath: modelKeysPath,
+                    priority: 100,
+                    weight: 10,
+                    credit: REVIEW_MODEL_CREDIT,
+                    priceInUsdPerMTok: 0,
+                    priceOutUsdPerMTok: 0,
+                    priceCacheReadUsdPerMTok: null,
+                    creditPerMTokIn: 0,
+                    creditPerMTokOut: 0,
+                    creditPerMTokCached: null,
+                    contextWindowTokens: 128_000,
+                    enabled: true,
+                    complimentary: false,
+                    supportedTasks: [
+                        AiModelTask.TaskGrading,
+                    ],
+                    defaultLocale: Locale.En,
+                }))
+            await app.get(AiModelCatalogService).invalidate()
+            await app.get(KeyStoreService).reloadAll()
+
+            course = await entityManager.save(entityManager.create(CourseEntity,
+                {
+                    title: "Operational Personal Project",
+                    displayId: "personal-project-worker-course",
+                    description: "Personal-project worker fixture",
+                    originalPrice: 999_000,
+                    defaultLocale: Locale.En,
+                }))
+            const milestone = await entityManager.save(entityManager.create(MilestoneEntity,
+                {
+                    defaultLocale: Locale.En,
+                    course,
+                }))
+            task = await entityManager.save(entityManager.create(MilestoneTaskEntity,
+                {
+                    title: "Build the production project",
+                    displayId: "personal-project-worker-task",
+                    description: "Ship a complete implementation",
+                    maxScore: 100,
+                    sortIndex: 0,
+                    milestone,
+                    defaultLocale: Locale.En,
+                }))
+            await entityManager.save(entityManager.create(MilestoneTaskCriteriaEntity,
+                {
+                    text: "The implementation satisfies the contract.",
+                    promptText: "Verify the production behavior and failure path.",
+                    score: 100,
+                    orderIndex: 0,
+                    milestoneTask: task,
+                    defaultLocale: Locale.En,
+                }))
+            reviewGithubLoadMock.mockResolvedValue([
+                {
+                    pageContent: "export const project = { complete: true }",
+                    metadata: {
+                        source: "src/project.ts",
+                    },
+                    id: "src/project.ts",
+                },
+            ])
+            currentUser = await saveLearner("personal-project-happy")
+        })
+
+        afterAll(async () => {
+            invokeSpy.mockRestore()
+            qdrantStoreSpy.mockRestore()
+            await app?.close().catch(() => undefined)
+            await redisCache?.disconnect()
+            redis?.disconnect()
+            rmSync(keysDirectory,
+                {
+                    recursive: true,
+                    force: true,
+                })
+        })
+
+        it("persists a passed attempt, feedback, attribution, one debit and one reward",
+            async () => {
+                providerScript.set([
+                    {
+                        text: reviewEvaluation(90),
+                        promptTokens: 120,
+                        completionTokens: 30,
+                    },
+                ])
+
+                const jobId = await submitReview(currentUser)
+                const job = await waitForJob(jobId,
+                    JobStatus.Completed)
+                const consequences = await consequencesFor(currentUser,
+                    jobId)
+
+                expect(job).toMatchObject({
+                    status: JobStatus.Completed,
+                    currentStep: 2,
+                })
+                expect(consequences.attempts).toHaveLength(1)
+                expect(consequences.attempts[0]).toMatchObject({
+                    score: 90,
+                    passed: true,
+                    servedModel: REVIEW_MODEL,
+                    servedProvider: ModelProvider.OpenAI,
+                    promptTokens: 120,
+                    completionTokens: 30,
+                })
+                expect(consequences.attempts[0].feedbacks).toEqual([
+                    expect.objectContaining({
+                        message: REVIEW_FEEDBACK,
+                        severity: MilestoneSeverity.Low,
+                    }),
+                ])
+                expect(consequences.ledger).toEqual([
+                    expect.objectContaining({
+                        credits: REVIEW_MODEL_CREDIT,
+                        model: REVIEW_MODEL,
+                        provider: ModelProvider.OpenAI,
+                        attempts: 1,
+                    }),
+                ])
+                expect(consequences.xp).toEqual([
+                    expect.objectContaining({
+                        amount: 10,
+                        points: 30,
+                    }),
+                ])
+                expect(consequences.reloadedUser.coinBalance).toBe(30)
+            })
+
+        it("persists a failed review and charge without granting a reward",
+            async () => {
+                const learner = await saveLearner("personal-project-failed")
+                providerScript.set([
+                    {
+                        text: reviewEvaluation(40),
+                        promptTokens: 90,
+                        completionTokens: 20,
+                    },
+                ])
+
+                const jobId = await submitReview(learner)
+                await waitForJob(jobId,
+                    JobStatus.Completed)
+                const consequences = await consequencesFor(learner,
+                    jobId)
+
+                expect(consequences.attempts).toHaveLength(1)
+                expect(consequences.attempts[0]).toMatchObject({
+                    score: 40,
+                    passed: false,
+                    servedModel: REVIEW_MODEL,
+                    servedProvider: ModelProvider.OpenAI,
+                })
+                expect(consequences.ledger).toHaveLength(1)
+                expect(consequences.ledger[0].credits).toBe(REVIEW_MODEL_CREDIT)
+                expect(consequences.xp).toHaveLength(0)
+                expect(consequences.reloadedUser.coinBalance).toBe(0)
+            })
+
+        it("rolls back an attempt when debit fails, then retries with one charge and reward",
+            async () => {
+                const learner = await saveLearner("personal-project-debit-retry")
+                providerScript.set([
+                    {
+                        text: reviewEvaluation(90),
+                        promptTokens: 110,
+                        completionTokens: 25,
+                    },
+                ])
+                const creditService = app.get(ReviewMilestoneTaskCreditService)
+                const consumeSpy = jest.spyOn(creditService,
+                    "consume")
+                    .mockRejectedValueOnce(new Error("injected debit failure after attempt write"))
+                const modelCallsBefore = invokeSpy.mock.calls.length
+
+                const jobId = await submitReview(learner)
+                await waitForJob(jobId,
+                    JobStatus.Completed)
+                const consequences = await consequencesFor(learner,
+                    jobId)
+                const brokerJob = await reviewQueue.getJob(jobId)
+
+                expect(modelCallsBefore + 1).toBe(invokeSpy.mock.calls.length)
+                expect(consumeSpy).toHaveBeenCalledTimes(2)
+                expect(brokerJob?.attemptsMade).toBeGreaterThanOrEqual(1)
+                expect(consequences.attempts).toHaveLength(1)
+                expect(consequences.ledger).toHaveLength(1)
+                expect(consequences.ledger[0].credits).toBe(REVIEW_MODEL_CREDIT)
+                expect(consequences.xp).toHaveLength(1)
+                expect(consequences.reloadedUser.coinBalance).toBe(30)
+                consumeSpy.mockRestore()
+            })
+
+        it("stops an exhausted learner before model execution and leaves no consequence",
+            async () => {
+                const learner = await saveLearner("personal-project-exhausted")
+                const now = new Date()
+                await entityManager.save(entityManager.create(AiSubscriptionEntity,
+                    {
+                        user: learner,
+                        credit5hUsed: 1_000_000,
+                        creditWeekUsed: 1_000_000,
+                        window5hResetAt: new Date(now.getTime() + 60_000),
+                        windowWeekResetAt: new Date(now.getTime() + 60_000),
+                    }))
+                const modelCallsBefore = invokeSpy.mock.calls.length
+
+                const jobId = await submitReview(learner)
+                await until(async () => {
+                    const brokerJob = await reviewQueue.getJob(jobId)
+                    return brokerJob?.attemptsMade === 2
+                        && await brokerJob.getState() === "failed"
+                },
+                {
+                    timeout: 15_000,
+                    describe: `personal-project job ${jobId} to exhaust quota retries`,
+                })
+                const consequences = await consequencesFor(learner,
+                    jobId)
+
+                expect(invokeSpy.mock.calls.length).toBe(modelCallsBefore)
+                expect(consequences.attempts).toHaveLength(0)
+                expect(consequences.ledger).toHaveLength(0)
+                expect(consequences.xp).toHaveLength(0)
+                expect(consequences.reloadedUser.coinBalance).toBe(0)
             })
     })

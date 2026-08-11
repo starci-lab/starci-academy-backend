@@ -62,6 +62,9 @@ import {
 import {
     SepayWebhookHandler,
 } from "./webhook.handler"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -139,6 +142,12 @@ describe("SepayWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     SepayWebhookHandler,
+                    {
+                        provide: InstallmentPlanService,
+                        useValue: {
+                            applyPaymentForTransaction: jest.fn(),
+                        },
+                    },
                     // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {

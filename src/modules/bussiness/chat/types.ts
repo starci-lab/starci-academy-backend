@@ -51,3 +51,11 @@ export interface AssertChatAccessParams {
     /** The user attempting to read/send. */
     user: UserEntity
 }
+
+/** Params to authorize a Socket.IO conversation-room subscription. */
+export interface AssertChatSubscriptionParams {
+    /** Conversation room requested by the socket. */
+    conversationId: string
+    /** Keycloak subject stamped onto the authenticated socket handshake. */
+    keycloakId: string
+}

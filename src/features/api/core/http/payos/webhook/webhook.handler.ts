@@ -8,6 +8,9 @@ import {
     EnqueueSendMailJobService,
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
+import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
 import {
@@ -100,6 +103,7 @@ export class PayosWebhookHandler
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly membershipService: MembershipService,
+        private readonly installmentPlanService: InstallmentPlanService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly notificationService: NotificationService,
         @InjectPrimaryPostgreSQLEntityManager()
@@ -278,6 +282,22 @@ export class PayosWebhookHandler
                     id: transaction.id,
                 })
             }
+            return
+        }
+        // a later installment cycle is already attached to its plan; applying
+        // the signed payment atomically claims Pending -> Succeeded and advances
+        // that plan exactly once, including webhook/reconcile races.
+        case ActionType.InstallmentPayment: {
+            if (!transaction.installmentPlanId) {
+                throw new UnsupportedTransactionActionException({
+                    actionType: `${transaction.actionType}:missing-plan`,
+                })
+            }
+            await this.installmentPlanService.applyPaymentForTransaction({
+                transactionId: transaction.id,
+                planId: transaction.installmentPlanId,
+                paidAmountVnd: transaction.amount,
+            })
             return
         }
         default:

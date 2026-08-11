@@ -32,6 +32,9 @@ import {
 import {
     EnqueueSendMailJobService,
 } from "../jobs/enqueue/send-mail.service"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -131,13 +134,19 @@ describe("SocialDigestCronService",
             } as unknown as ReturnType<typeof envConfig>)
 
             // happy-path default: every enqueue succeeds unless a test overrides it
-            mockEnqueueLearnerEmail.mockResolvedValue(undefined)
+            mockEnqueueLearnerEmail.mockResolvedValue(true)
 
             winstonLogSpy = jest.fn()
 
             module = await Test.createTestingModule({
                 providers: [
                     SocialDigestCronService,
+                    {
+                        provide: PostgreSqlAdvisoryLockService,
+                        useValue: {
+                            acquireXactLockByKey: jest.fn().mockResolvedValue(undefined),
+                        },
+                    },
                     {
                         provide: EnqueueSendMailJobService,
                         useValue: enqueueSendMailJobService,
@@ -172,16 +181,22 @@ describe("SocialDigestCronService",
                                 userId: "user-1",
                                 type: NotificationType.NewFollower,
                                 count: "2",
+                                notificationIds: ["notification-1",
+                                    "notification-2"],
                             },
                             {
                                 userId: "user-1",
                                 type: NotificationType.CommentReply,
                                 count: "1",
+                                notificationIds: ["notification-3"],
                             },
                             {
                                 userId: "user-2",
                                 type: NotificationType.CommunityReply,
                                 count: "3",
+                                notificationIds: ["notification-4",
+                                    "notification-5",
+                                    "notification-6"],
                             },
                         ])
 
@@ -233,11 +248,13 @@ describe("SocialDigestCronService",
                                 userId: "user-1",
                                 type: NotificationType.NewFollower,
                                 count: "0",
+                                notificationIds: ["notification-1"],
                             },
                             {
                                 userId: "user-2",
                                 type: NotificationType.NewFollower,
                                 count: "not-a-number",
+                                notificationIds: ["notification-2"],
                             },
                         ])
 
@@ -254,18 +271,20 @@ describe("SocialDigestCronService",
                                 userId: "user-fail",
                                 type: NotificationType.NewFollower,
                                 count: "1",
+                                notificationIds: ["notification-fail"],
                             },
                             {
                                 userId: "user-ok",
                                 type: NotificationType.NewFollower,
                                 count: "1",
+                                notificationIds: ["notification-ok"],
                             },
                         ])
-                        const enqueueFailure = new Error("mail queue unreachable")
                         mockEnqueueLearnerEmail.mockImplementation(async (params) => {
                             if (params.userId === "user-fail") {
-                                throw enqueueFailure
+                                return false
                             }
+                            return true
                         })
 
                         // the sweep itself must not reject -- a bad user must never abort it

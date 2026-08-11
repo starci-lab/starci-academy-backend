@@ -202,6 +202,7 @@ export class AiInvokeService {
                 ),
                 promptTokens: result.promptTokens,
                 completionTokens: result.completionTokens,
+                cachedTokens: result.cachedTokens,
             }
         }
 
@@ -225,6 +226,7 @@ export class AiInvokeService {
             ),
             promptTokens: result.promptTokens,
             completionTokens: result.completionTokens,
+            cachedTokens: result.cachedTokens,
         }
     }
 
@@ -347,17 +349,22 @@ export class AiInvokeService {
             attempts,
             promptTokens: result.promptTokens,
             completionTokens: result.completionTokens,
+            cachedTokens: result.cachedTokens,
         }
     }
 
     /**
-     * Stream the given messages against the resolved lane, invoking `onChunk`
-     * for every token delta as it arrives.
+     * Stream the given messages against the resolved lane. Each provider
+     * attempt is buffered until it completes, then only the winning attempt's
+     * deltas are passed to `onChunk`.
      *
      * Mirrors {@link invoke} lane-for-lane (Premium / Auto) but builds a
      * streaming client and consumes `chatModel.stream(...)` instead of a single
-     * `invoke`. The accumulated text + observed token usage are returned once
-     * the stream finishes; an aborted `signal` surfaces as a thrown error.
+     * `invoke`. Buffering is the production fallback policy: a provider that
+     * fails after partial output must not leak that partial answer before the
+     * balancer retries another provider. The accumulated text + observed token
+     * usage are returned once the stream finishes; an aborted `signal` surfaces
+     * as a thrown error without fallback.
      *
      * @param params - Messages, lane options, the chunk callback, and abort signal.
      * @returns The full text, the model/provider that served it, and token usage.
@@ -391,8 +398,12 @@ export class AiInvokeService {
                     cacheSessionId,
                 },
             )
-            // accumulate the full text + token usage across every streamed chunk
+            // Buffer this attempt in full. Nothing reaches the caller until the
+            // balancer has accepted this attempt as the winner; otherwise a
+            // mid-stream failure followed by fallback would concatenate model A's
+            // partial answer with model B's complete answer on the wire.
             let text = ""
+            const deltas: Array<string> = []
             let promptTokens = 0
             let completionTokens = 0
             let cachedTokens = 0
@@ -401,6 +412,7 @@ export class AiInvokeService {
             // error -> Transient -> next model; a USER abort stays AbortError -> stop.
             const controller = new AbortController()
             let timedOut = false
+            const abortFromCaller = () => controller.abort()
             const timer = setTimeout(
                 () => {
                     timedOut = true
@@ -414,7 +426,7 @@ export class AiInvokeService {
                 } else {
                     signal.addEventListener(
                         "abort",
-                        () => controller.abort(),
+                        abortFromCaller,
                         {
                             once: true,
                         },
@@ -436,9 +448,10 @@ export class AiInvokeService {
                         ? chunk.content
                         : String(chunk.content)
                     if (delta.length > 0) {
-                        // grow the accumulated answer and notify the caller of the delta
+                        // Preserve provider chunk boundaries for a post-success
+                        // flush, but do not expose this attempt yet.
                         text += delta
-                        onChunk(delta)
+                        deltas.push(delta)
                     }
                     // some providers attach running usage on the final chunk(s) -- keep the
                     // last reported counts so completion totals reflect the whole stream
@@ -456,6 +469,7 @@ export class AiInvokeService {
                 }
                 return {
                     text,
+                    deltas,
                     promptTokens,
                     completionTokens,
                     cachedTokens,
@@ -466,9 +480,20 @@ export class AiInvokeService {
                         timeoutMs: this.invokeTimeoutMs,
                     })
                 }
+                // Provider SDKs do not consistently preserve AbortError when
+                // their HTTP request is cancelled. Normalize a caller-owned
+                // abort here so the balancer always classifies it NonKey and
+                // stops instead of retrying another key/model.
+                if (signal?.aborted) {
+                    const abortError = new Error("AI stream aborted by caller")
+                    abortError.name = "AbortError"
+                    throw abortError
+                }
                 throw error
             } finally {
                 clearTimeout(timer)
+                signal?.removeEventListener("abort",
+                    abortFromCaller)
             }
         }
 
@@ -502,6 +527,21 @@ export class AiInvokeService {
                     action: streamAction,
                 },
             )
+
+        // A user abort is authoritative even if it races the provider's final
+        // chunk. Check it after the winning attempt completes and before any
+        // buffered text crosses the socket boundary, so abort means zero partial
+        // output and therefore zero downstream charge/persistence.
+        if (signal?.aborted) {
+            const abortError = new Error("AI stream aborted by caller")
+            abortError.name = "AbortError"
+            throw abortError
+        }
+        for (const delta of result.deltas ?? [result.text]) {
+            if (delta.length > 0) {
+                onChunk(delta)
+            }
+        }
         return {
             text: result.text,
             model: usedModel,
@@ -509,6 +549,7 @@ export class AiInvokeService {
             attempts,
             promptTokens: result.promptTokens,
             completionTokens: result.completionTokens,
+            cachedTokens: result.cachedTokens,
         }
     }
 

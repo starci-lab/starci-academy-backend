@@ -19,12 +19,16 @@ import {
 import {
     ReviewMilestoneTaskStepMappingService,
 } from "./step-mapping.service"
+import {
+    ReviewMilestoneTaskCreditService,
+} from "./review-milestone-task-credit.service"
 
 @Module({
     providers: [
         ReviewMilestoneTaskGradeStepService,
         ReviewMilestoneTaskCompleteStepService,
         ReviewMilestoneTaskStepMappingService,
+        ReviewMilestoneTaskCreditService,
         ReviewMilestoneTaskWorker,
         ProjectEvaluationParseService,
     ],

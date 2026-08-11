@@ -17,6 +17,9 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
+import {
     envConfig,
 } from "@modules/platform/env/config"
 import {
@@ -54,6 +57,7 @@ export class LeagueService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly advisoryLockService: PostgreSqlAdvisoryLockService,
         private readonly leagueCohortPointsProjectionService: LeagueCohortPointsProjectionService,
     ) {}
 
@@ -201,6 +205,13 @@ export class LeagueService {
         // run the whole reset in one transaction so a partial promote/demote can
         // never leave half the league on the old tiers
         await this.entityManager.transaction(async (manager) => {
+            // Every application replica registers this cron. Serialize the
+            // weekly settlement in PostgreSQL so two ticks cannot both pass
+            // the "new cohort does not exist" guard and create duplicates.
+            await this.advisoryLockService.acquireXactLockByKey(
+                manager,
+                `scheduler:league-weekly-reset:${newWeekStart.toISOString()}`,
+            )
             // (a) settle the week that just ended: promote/demote every member
             await this.settleEndingCohorts({
                 manager,

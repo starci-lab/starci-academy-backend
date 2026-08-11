@@ -34,6 +34,8 @@ export enum SubscriptionEvent {
     CommunityCommentReactionChanged = "community_feed.comment_reaction_changed.subscription",
     /** New chat message -> client appends it to the conversation (refetch-on-event). */
     ChatMessageCreated = "community_chat.message_created.subscription",
+    /** Conversation-room subscription accepted or rejected after membership authorization. */
+    CommunityChatSubscription = "community_chat.subscribe.subscription",
     /** Content-AI token delta -> client appends to the streaming answer. */
     ContentAiChunk = "content_ai.chunk.subscription",
     /** AI model latency snapshot -> public status page refreshes up / down / latency without polling. */

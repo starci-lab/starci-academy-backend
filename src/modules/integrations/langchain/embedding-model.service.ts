@@ -41,6 +41,32 @@ import {
     UnsupportedEmbeddingProviderException,
 } from "@modules/platform/exceptions/errors/ai/unsupported-embedding-provider"
 
+type EmbeddingCategory = AiModelCategory.EmbeddingLocal | AiModelCategory.EmbeddingCloud
+
+/**
+ * LangChain-facing adapter whose SDK work is deliberately deferred until
+ * `embedDocuments` / `embedQuery`. Qdrant receives this stable object, while
+ * every actual provider request still runs inside the production balancer
+ * action and can therefore rotate keys or fall through to another model.
+ */
+class BalancerEmbeddings extends Embeddings {
+    constructor(
+        private readonly embedDocumentsAction: (documents: Array<string>) => Promise<Array<Array<number>>>,
+        private readonly embedQueryAction: (document: string) => Promise<Array<number>>,
+    ) {
+        super({
+        })
+    }
+
+    embedDocuments(documents: Array<string>): Promise<Array<Array<number>>> {
+        return this.embedDocumentsAction(documents)
+    }
+
+    embedQuery(document: string): Promise<Array<number>> {
+        return this.embedQueryAction(document)
+    }
+}
+
 /**
  * `OllamaEmbeddings` hardcodes `maxConcurrency: 1` internally (fully
  * sequential embed calls) unless overridden. For any bulk embed job (e.g. the
@@ -128,8 +154,9 @@ export class EmbeddingModelService {
      * so the balancer's health/latency ordering picks the model: a healthy
      * self-hosted (Local) embedding model first (free, on our GPU), then climbing
      * to a cloud embedding model when the local host is down. The `action` builds
-     * the per-provider {@link Embeddings} client from the discriminated context
-     * the balancer hands back and returns it as the result.
+     * a lazy {@link Embeddings} adapter. The adapter runs the actual SDK
+     * `embedDocuments` / `embedQuery` request inside the balancer action; merely
+     * constructing a provider client cannot prove that provider is reachable.
      *
      * Use this for RAG indexing/retrieval that should follow the same local-first
      * fallback as the rest of the AI stack. Grading call sites that pin an exact
@@ -138,25 +165,65 @@ export class EmbeddingModelService {
      * @returns A promise of the resolved {@link Embeddings} client (local-first).
      */
     async getViaBalancer(
-        category: AiModelCategory.EmbeddingLocal | AiModelCategory.EmbeddingCloud
+        category: EmbeddingCategory
         = AiModelCategory.EmbeddingCloud,
     ): Promise<Embeddings> {
-        const { result } = await this.useApiService.useApi<Embeddings>({
+        return Promise.resolve(new BalancerEmbeddings(
+            (documents) => this.embedDocumentsViaBalancer(
+                documents,
+                category,
+            ),
+            (document) => this.embedQueryViaBalancer(
+                document,
+                category,
+            ),
+        ))
+    }
+
+    /** Run one document batch inside the fallback action. */
+    private async embedDocumentsViaBalancer(
+        documents: Array<string>,
+        category: EmbeddingCategory,
+    ): Promise<Array<Array<number>>> {
+        const { result } = await this.useApiService.useApi<Array<Array<number>>>({
             lane: "chain",
             task: AiModelTask.Embedding,
             // Two embedding lanes on the same axis: `embedding_local` (self-hosted
             // 8B, cost 0) for the platform's own corpus, `embedding_cloud` (billed
             // API) for a customer-uploaded document / learner code on demand. The
             // caller picks which; within the lane the cheapest model wins.
-            categories: [
-                category,
-            ],
-            // build (not invoke): hand back the embeddings client the resolved
-            // provider/key/model selects. Per-call key rotation is sacrificed for
-            // a long-lived client the vector store can reuse.
-            action: (context) => Promise.resolve(this.buildEmbeddings(context)),
+            categories: this.fallbackCategories(category),
+            action: (context) => this.buildEmbeddings(context).embedDocuments(documents),
         })
         return result
+    }
+
+    /** Run one query embedding inside the fallback action. */
+    private async embedQueryViaBalancer(
+        document: string,
+        category: EmbeddingCategory,
+    ): Promise<Array<number>> {
+        const { result } = await this.useApiService.useApi<Array<number>>({
+            lane: "chain",
+            task: AiModelTask.Embedding,
+            categories: this.fallbackCategories(category),
+            action: (context) => this.buildEmbeddings(context).embedQuery(document),
+        })
+        return result
+    }
+
+    /**
+     * Interactive/customer RAG may try the zero-cost local model first and then
+     * the width-compatible cloud model. Platform-owned bulk indexing explicitly
+     * requests `EmbeddingLocal` and must never leak its corpus to cloud.
+     */
+    private fallbackCategories(category: EmbeddingCategory): Array<EmbeddingCategory> {
+        return category === AiModelCategory.EmbeddingLocal
+            ? [AiModelCategory.EmbeddingLocal]
+            : [
+                AiModelCategory.EmbeddingLocal,
+                AiModelCategory.EmbeddingCloud,
+            ]
     }
 
     /**

@@ -182,7 +182,9 @@ export const configMap = {
     },
     /** Event name: a chat message was created in a conversation. */
     [EventName.ChatMessageCreated]: {
-        useNats: false,
+        // Every pod owns different Socket.IO clients. Publish through NATS as
+        // well as locally so a write on pod A reaches a room connected to pod B.
+        useNats: true,
         useLocal: true,
         eventPayload: {
         } as ChatMessageChangedEventPayload,

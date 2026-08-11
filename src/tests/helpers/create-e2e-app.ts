@@ -33,6 +33,9 @@ import {
     EnqueueSendMailJobService,
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
+import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
 import {
@@ -164,6 +167,7 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             StripeWebhookHandler,
             // real services so grantTier mutates the real DB
             AiEntitlementService,
+            InstallmentPlanService,
             DayjsService,
             // every handler logs through WinstonService; stubbed so no test
             // opens the Loki transport

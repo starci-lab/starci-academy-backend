@@ -35,6 +35,9 @@ import {
 import {
     tmpdir,
 } from "os"
+import {
+    promises as fsPromise,
+} from "fs"
 
 @Injectable()
 /**
@@ -61,6 +64,8 @@ export class ProcessVideoPackageStepService extends AbstractStepService<Filename
         const { payload: { assetId }, job } = context
         const taskDir = join(tmpdir(),
             `video-encoder-${assetId}`)
+        const manifestPath = join(taskDir,
+            "manifest.mpd")
 
         this.winstonService.log(WinstonLog.ProcessStepExecuted,
             {
@@ -72,29 +77,37 @@ export class ProcessVideoPackageStepService extends AbstractStepService<Filename
                 },
             })
 
-        // Fragment each encoded video
-        const videoNames = this.ffmpegService.videoNames
-        const fragmentPromises: Array<Promise<void>> = []
-        for (const videoName of videoNames) {
-            const promise = async () => {
-                const fragmentationRequired = await this.bento4Service.checkFragments(
-                    taskDir,
-                    videoName,
-                )
-                if (fragmentationRequired) {
-                    await this.bento4Service.fragmentVideo(taskDir,
-                        videoName)
+        // A worker may lose its BullMQ acknowledgement after packaging completed.
+        // Treat the durable manifest as the step's idempotency marker so retrying
+        // does not invoke Bento4 over already-packaged files or duplicate output.
+        const packageAlreadyExists = await fsPromise.access(manifestPath)
+            .then(() => true)
+            .catch(() => false)
+        if (!packageAlreadyExists) {
+            // Fragment each encoded video
+            const videoNames = this.ffmpegService.videoNames
+            const fragmentPromises: Array<Promise<void>> = []
+            for (const videoName of videoNames) {
+                const promise = async () => {
+                    const fragmentationRequired = await this.bento4Service.checkFragments(
+                        taskDir,
+                        videoName,
+                    )
+                    if (fragmentationRequired) {
+                        await this.bento4Service.fragmentVideo(taskDir,
+                            videoName)
+                    }
                 }
+                fragmentPromises.push(promise())
             }
-            fragmentPromises.push(promise())
-        }
-        await Promise.all(fragmentPromises)
+            await Promise.all(fragmentPromises)
 
-        // Generate MPEG-DASH manifest
-        await this.bento4Service.generateMpegDashManifestFromFragments(
-            taskDir,
-            videoNames,
-        )
+            // Generate MPEG-DASH manifest
+            await this.bento4Service.generateMpegDashManifestFromFragments(
+                taskDir,
+                videoNames,
+            )
+        }
 
         this.winstonService.log(WinstonLog.ProcessStepExecuted,
             {

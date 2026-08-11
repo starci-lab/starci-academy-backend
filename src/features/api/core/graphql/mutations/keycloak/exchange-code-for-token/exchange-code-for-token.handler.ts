@@ -81,7 +81,7 @@ export class ExchangeCodeForTokenHandler
             provider,
             state,
         } = command.params.request
-        const pkce = await this.keycloakOidcRedirectService.loadPkceBundle(
+        const pkce = await this.keycloakOidcRedirectService.consumePkceBundle(
             provider,
             state,
         )
@@ -90,10 +90,6 @@ export class ExchangeCodeForTokenHandler
             redirectUri: pkce.redirectUri,
             codeVerifier: pkce.codeVerifier,
         })
-        await this.keycloakOidcRedirectService.clearPkceBundle(
-            provider,
-            state,
-        )
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(token.access_token)
         if (!decoded || typeof decoded === "string" || !decoded.sub) {
             throw new InvalidJwtPayloadException(

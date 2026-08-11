@@ -144,6 +144,27 @@ describe("StreakFreezeCronService",
                         expect(userStatsProjectionService.recompute).not.toHaveBeenCalled()
                     })
 
+                it("removes a provisional protected day when freeze stock vanished after the scan",
+                    async () => {
+                        entityManager.query
+                            .mockResolvedValueOnce([{
+                                user_id: userId,
+                            }])
+                            .mockResolvedValueOnce([{
+                                id: "protected-day-1",
+                            }])
+                            .mockResolvedValueOnce([])
+                            .mockResolvedValueOnce([])
+
+                        await service.consumeStreakFreezeForMisses()
+
+                        expect(entityManager.query).toHaveBeenLastCalledWith(
+                            "DELETE FROM streak_protected_days WHERE id = $1",
+                            ["protected-day-1"],
+                        )
+                        expect(userStatsProjectionService.recompute).not.toHaveBeenCalled()
+                    })
+
                 it("protects every candidate returned by the scan (loop over the set)",
                     async () => {
                         entityManager.query

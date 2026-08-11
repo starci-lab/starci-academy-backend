@@ -29,6 +29,11 @@ import {
 import {
     MailerService 
 } from "@nestjs-modules/mailer"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+
+const DISPATCH_CHECKPOINT = "send-mail-dispatch-claimed"
 
 @Injectable()
 /**
@@ -56,24 +61,9 @@ export class ProcessSendMailStepService extends AbstractStepService<
     async process(
         context: JobExtendedContext<SendMailPayload, EmptyObject>,
     ): Promise<void> {
-        try {
-            const executionResult = await this.execute(
-                context,
-            )
-            await this.finalize(
-                executionResult,
-                context,
-            )
-        } catch (error) {
-            await this.jobActionService.failJob(
-                {
-                    job: context.job,
-                    error: error.message,
-                    emitChangeEvent: false,
-                },
-            )
-            throw error
-        }
+        const executionResult = await this.execute(context)
+        await this.finalize(executionResult,
+            context)
     }
     
     /**
@@ -84,19 +74,96 @@ export class ProcessSendMailStepService extends AbstractStepService<
     private async execute(
         context: JobExtendedContext<SendMailPayload, EmptyObject>,
     ): Promise<EmptyObject> {
+        const shouldDispatch = await this.claimDispatch(context)
+        if (!shouldDispatch) {
+            return {
+            }
+        }
         const { payload } = context
-        await this.mailerService.sendMail(
-            {
+        try {
+            await this.mailerService.sendMail({
+                messageId: context.job.id,
                 to: payload.to.map((recipient) => recipient.address),
                 cc: payload.cc?.map((recipient) => recipient.address),
                 bcc: payload.bcc?.map((recipient) => recipient.address),
+                replyTo: payload.replyTo?.address,
+                from: payload.from?.address,
                 subject: payload.subject,
                 context: payload.context,
                 template: payload.template,
-            }
-        )
+                html: payload.html,
+                text: payload.text,
+                attachments: payload.attachments?.map((attachment) => ({
+                    filename: attachment.filename,
+                    content: attachment.contentBase64 === undefined
+                        ? undefined
+                        : Buffer.from(attachment.contentBase64,
+                            "base64"),
+                    path: attachment.path,
+                    href: attachment.href,
+                    contentType: attachment.contentType,
+                    cid: attachment.cid,
+                })),
+                headers: payload.headers,
+            })
+        } catch (error) {
+            await this.releaseDispatch(context)
+            throw error
+        }
         return {
         }
+    }
+
+    /**
+     * Durably claims SMTP dispatch before crossing the non-transactional boundary.
+     *
+     * A retry that observes the claim treats an interrupted dispatch as already sent. SMTP has
+     * no portable idempotency API, so this deliberately chooses at-most-once delivery over sending
+     * the same transactional message twice after a post-send database failure.
+     */
+    private async claimDispatch(
+        context: JobExtendedContext<SendMailPayload, EmptyObject>,
+    ): Promise<boolean> {
+        return this.entityManager.transaction(async (entityManager) => {
+            const job = await entityManager.findOneOrFail(
+                JobEntity,
+                {
+                    where: {
+                        id: context.job.id,
+                    },
+                    lock: {
+                        mode: "pessimistic_write",
+                    },
+                },
+            )
+            const claimed = await this.jobActionService.loadExecutionResult<boolean>({
+                job,
+                key: DISPATCH_CHECKPOINT,
+            })
+            if (claimed) {
+                context.job.executionResults = job.executionResults
+                return false
+            }
+            await this.jobActionService.saveExecutionResult({
+                job,
+                key: DISPATCH_CHECKPOINT,
+                executionResult: true,
+                entityManager,
+            })
+            context.job.executionResults = job.executionResults
+            return true
+        })
+    }
+
+    /** Release a claim only when SMTP explicitly rejected the request, making a retry safe. */
+    private async releaseDispatch(
+        context: JobExtendedContext<SendMailPayload, EmptyObject>,
+    ): Promise<void> {
+        await this.jobActionService.saveExecutionResult({
+            job: context.job,
+            key: DISPATCH_CHECKPOINT,
+            executionResult: false,
+        })
     }
     
     /** Finalize the step. */

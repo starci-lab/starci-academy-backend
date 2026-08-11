@@ -221,8 +221,11 @@ export class NatsBridgeService implements OnModuleInit {
                         // parse message value
                         const value = new TextDecoder().decode(data) || "{}"
                         const parsed = this.natsMessageFactoryService.parse(value)
-                        // skip messages from same instance to prevent loops
-                        if (subject === this.instanceService.getId()) {
+                        // `subject` identifies the event; producer identity lives
+                        // in the serialized envelope. Comparing the subject to an
+                        // instance id never matched and caused the publishing pod
+                        // to re-emit its own local event a second time.
+                        if (parsed.id === this.instanceService.getId()) {
                             continue
                         }
                         // if subject is ping, skip it

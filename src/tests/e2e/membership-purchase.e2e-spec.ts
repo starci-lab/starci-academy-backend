@@ -106,6 +106,9 @@ import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
 import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
+import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
@@ -277,6 +280,7 @@ describe("a learner buys membership, and buying again extends rather than restar
                     PurchaseMembershipHandler,
                     // REAL: the grant is the subject of this flow
                     MembershipService,
+                    InstallmentPlanService,
                     DayjsService,
                     RetryService,
                     {

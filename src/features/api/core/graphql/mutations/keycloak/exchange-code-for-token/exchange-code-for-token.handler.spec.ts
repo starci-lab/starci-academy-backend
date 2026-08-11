@@ -51,7 +51,7 @@ describe("ExchangeCodeForTokenHandler",
         let jwtService: jest.Mocked<Pick<JwtService, "decode">>
         let keycloakTokenService: jest.Mocked<Pick<KeycloakTokenService, "exchangeCodeForToken">>
         let keycloakOidcRedirectService: jest.Mocked<
-            Pick<KeycloakOidcRedirectService, "loadPkceBundle" | "clearPkceBundle">
+            Pick<KeycloakOidcRedirectService, "consumePkceBundle">
         >
         let emailBloomFilterService: jest.Mocked<Pick<EmailBloomFilterService, "add">>
 
@@ -72,15 +72,14 @@ describe("ExchangeCodeForTokenHandler",
                 }),
             } as unknown as jest.Mocked<Pick<KeycloakTokenService, "exchangeCodeForToken">>
 
-            // loads + clears the server-side PKCE bundle keyed by provider/state
+            // atomically consumes the server-side PKCE bundle keyed by provider/state
             keycloakOidcRedirectService = {
-                loadPkceBundle: jest.fn().mockResolvedValue({
+                consumePkceBundle: jest.fn().mockResolvedValue({
                     redirectUri: "https://app/callback",
                     codeVerifier: "verifier",
                 }),
-                clearPkceBundle: jest.fn(),
             } as unknown as jest.Mocked<
-                Pick<KeycloakOidcRedirectService, "loadPkceBundle" | "clearPkceBundle">
+                Pick<KeycloakOidcRedirectService, "consumePkceBundle">
             >
 
             // records a new user's email in the existence bloom filter
@@ -148,8 +147,7 @@ describe("ExchangeCodeForTokenHandler",
                     redirectUri: "https://app/callback",
                     codeVerifier: "verifier",
                 })
-                // the consumed PKCE bundle is cleared
-                expect(keycloakOidcRedirectService.clearPkceBundle).toHaveBeenCalledWith(
+                expect(keycloakOidcRedirectService.consumePkceBundle).toHaveBeenCalledWith(
                     KeycloakIdentityProvider.Google,
                     "state-1",
                 )

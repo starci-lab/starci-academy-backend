@@ -45,6 +45,13 @@ test("E2E action enters through a production transport", () => {
                         { messageId: "direct" },
                     ],
                 },
+                {
+                    filename: E2E,
+                    code: "await reconcileWorker.finalize(transaction)",
+                    errors: [
+                        { messageId: "internalActor" },
+                    ],
+                },
             ],
         })
 })

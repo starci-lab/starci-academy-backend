@@ -129,14 +129,6 @@ export class ProcessVideoInitStepService extends AbstractStepService<FilenamePro
                 queryAtStart[1])
         }
 
-        // Create a temp directory for this task using OS temp dir
-        const taskDir = join(tmpdir(),
-            `video-encoder-${assetId}`)
-        await fsPromise.mkdir(taskDir,
-            {
-                recursive: true 
-            })
-
         // Download the video via authenticated S3 client
         const { provider, key } = this.parseS3Url(url)
         const buffer = await this.s3ReadService.buffer({
@@ -149,6 +141,15 @@ export class ProcessVideoInitStepService extends AbstractStepService<FilenamePro
                 key,
             })
         }
+
+        // Do not allocate a task directory until the source is known to exist;
+        // terminal missing-object jobs otherwise leak one empty directory each.
+        const taskDir = join(tmpdir(),
+            `video-encoder-${assetId}`)
+        await fsPromise.mkdir(taskDir,
+            {
+                recursive: true
+            })
 
         const filePath = join(taskDir,
             filename)

@@ -59,6 +59,9 @@ import {
 import {
     PayosWebhookHandler,
 } from "./webhook.handler"
+import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
 import type {
     PayosWebhookRequest,
 } from "./dtos/request"
@@ -140,6 +143,12 @@ describe("PayosWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     PayosWebhookHandler,
+                    {
+                        provide: InstallmentPlanService,
+                        useValue: {
+                            applyPaymentForTransaction: jest.fn(),
+                        },
+                    },
                     // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {

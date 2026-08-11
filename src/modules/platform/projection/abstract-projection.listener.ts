@@ -120,8 +120,17 @@ export abstract class AbstractProjectionListener<TTarget> implements OnModuleIni
             if (!message.value) {
                 return
             }
-            const envelope = JSON.parse(message.value.toString()) as ProjectionCdcEnvelope
-            const row = envelope.payload ?? envelope
+            const envelope = JSON.parse(message.value.toString()) as ProjectionCdcEnvelope | null
+            const payload = envelope?.payload ?? envelope
+            // Kafka Connect may deliver either the standard Debezium change
+            // envelope (`payload.after`) or the flat value produced by
+            // ExtractNewRecordState. Supporting both keeps projection delivery
+            // independent of a connector-side SMT toggle. A delete/tombstone has
+            // no `after` image and therefore has no current row to recompute.
+            const row = this.unwrapRow(payload)
+            if (row === null) {
+                return
+            }
             const targets = await this.deriveTargets({
                 topic,
                 row,
@@ -144,5 +153,16 @@ export abstract class AbstractProjectionListener<TTarget> implements OnModuleIni
                     },
                 })
         }
+    }
+
+    /** Resolve a standard Debezium after-image or preserve an already-flat row. */
+    private unwrapRow(payload: unknown): unknown | null {
+        if (!payload || typeof payload !== "object") {
+            return payload
+        }
+        if (!("after" in payload)) {
+            return payload
+        }
+        return (payload as { after?: unknown }).after ?? null
     }
 }

@@ -134,13 +134,22 @@ export class SendMailWorker extends WorkerHost {
                 }
             )
         } catch (error) {
+            const message = error instanceof Error ? error.message : String(error)
+            const configuredAttempts = bullmqJob.opts.attempts ?? 1
+            if (job && bullmqJob.attemptsMade + 1 >= configuredAttempts) {
+                await this.jobActionService.failJob({
+                    job,
+                    error: message,
+                    emitChangeEvent: false,
+                })
+            }
             this.winstonService.log(
                 WinstonLog.JobExecutedFailed,
                 {
                     jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
-                    error: error.message,
+                    error: message,
                     durationMs: this.dayjsService.now().diff(
                         this.dayjsService.from(
                             startedAt

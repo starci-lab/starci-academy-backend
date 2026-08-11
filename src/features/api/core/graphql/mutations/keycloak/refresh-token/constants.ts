@@ -26,7 +26,8 @@ export const REFRESH_RESULT_TTL_MS = 30_000
 
 /**
  * Maximum time (ms) a coalesced caller waits for the lock holder's result
- * before falling back to its own Keycloak exchange.
+ * before failing closed. A waiter never bypasses the Redis election because
+ * rotating the same refresh token twice would invalidate one of the callers.
  */
 export const REFRESH_WAIT_TIMEOUT_MS = 5_000
 

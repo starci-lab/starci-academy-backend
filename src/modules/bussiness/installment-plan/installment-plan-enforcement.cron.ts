@@ -7,7 +7,8 @@ import {
 } from "@nestjs/schedule"
 import {
     In,
-    LessThan,
+    IsNull,
+    LessThanOrEqual,
 } from "typeorm"
 import type {
     EntityManager,
@@ -86,6 +87,7 @@ export class InstallmentPlanEnforcementCronService {
         {
             name: "installment-plan-enforcement",
             timeZone: "Asia/Ho_Chi_Minh",
+            waitForCompletion: true,
         },
     )
     async enforceOverduePlans(): Promise<void> {
@@ -99,7 +101,7 @@ export class InstallmentPlanEnforcementCronService {
                             InstallmentPlanStatus.Active,
                             InstallmentPlanStatus.Overdue,
                         ]),
-                        nextDueAt: LessThan(now),
+                        nextDueAt: LessThanOrEqual(now),
                     },
                 },
             )
@@ -148,15 +150,22 @@ export class InstallmentPlanEnforcementCronService {
             if (plan.status === InstallmentPlanStatus.Defaulted) {
                 return
             }
-            await this.entityManager.update(
+            const claim = await this.entityManager.update(
                 InstallmentPlanEntity,
                 {
                     id: plan.id,
+                    status: In([
+                        InstallmentPlanStatus.Active,
+                        InstallmentPlanStatus.Overdue,
+                    ]),
                 },
                 {
                     status: InstallmentPlanStatus.Defaulted,
                 },
             )
+            if (!claim.affected) {
+                return
+            }
             await this.installmentPlanService.lockGatedEnrollments(plan)
             await enqueueInstallmentDefaultedEmail({
                 entityManager: this.entityManager,
@@ -171,47 +180,61 @@ export class InstallmentPlanEnforcementCronService {
         // stage 2 -- past the second-reminder threshold: final warning (once per cycle)
         if (daysPastDue >= plan.secondReminderAfterDays) {
             if (!plan.secondRemindedAt) {
-                await enqueueInstallmentFinalWarningEmail({
-                    entityManager: this.entityManager,
-                    enqueueSendMailJobService: this.enqueueSendMailJobService,
-                    userId: plan.userId,
-                    webBaseUrl,
-                    minPaymentVnd,
-                    daysUntilLockout: plan.lockoutAfterDays - daysPastDue,
-                })
-                await this.entityManager.update(
+                const claim = await this.entityManager.update(
                     InstallmentPlanEntity,
                     {
                         id: plan.id,
+                        secondRemindedAt: IsNull(),
+                        status: In([
+                            InstallmentPlanStatus.Active,
+                            InstallmentPlanStatus.Overdue,
+                        ]),
                     },
                     {
                         status: InstallmentPlanStatus.Overdue,
                         secondRemindedAt: this.dayjsService.now().toDate(),
                     },
                 )
+                if (claim.affected) {
+                    await enqueueInstallmentFinalWarningEmail({
+                        entityManager: this.entityManager,
+                        enqueueSendMailJobService: this.enqueueSendMailJobService,
+                        userId: plan.userId,
+                        webBaseUrl,
+                        minPaymentVnd,
+                        daysUntilLockout: plan.lockoutAfterDays - daysPastDue,
+                    })
+                }
             }
             return
         }
 
         // stage 1 -- day 0..secondReminderAfterDays: first "it's due" reminder (once per cycle)
         if (!plan.dueRemindedAt) {
-            await enqueueInstallmentDueEmail({
-                entityManager: this.entityManager,
-                enqueueSendMailJobService: this.enqueueSendMailJobService,
-                userId: plan.userId,
-                webBaseUrl,
-                minPaymentVnd,
-            })
-            await this.entityManager.update(
+            const claim = await this.entityManager.update(
                 InstallmentPlanEntity,
                 {
                     id: plan.id,
+                    dueRemindedAt: IsNull(),
+                    status: In([
+                        InstallmentPlanStatus.Active,
+                        InstallmentPlanStatus.Overdue,
+                    ]),
                 },
                 {
                     status: InstallmentPlanStatus.Overdue,
                     dueRemindedAt: this.dayjsService.now().toDate(),
                 },
             )
+            if (claim.affected) {
+                await enqueueInstallmentDueEmail({
+                    entityManager: this.entityManager,
+                    enqueueSendMailJobService: this.enqueueSendMailJobService,
+                    userId: plan.userId,
+                    webBaseUrl,
+                    minPaymentVnd,
+                })
+            }
         }
     }
 }

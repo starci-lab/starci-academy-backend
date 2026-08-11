@@ -77,6 +77,9 @@ import {
     parseFlashcardAnswerKeywords,
 } from "./mock-interview-seed-grounding.util"
 import {
+    withMockInterviewGradeAdvisoryLock,
+} from "./mock-interview-grade-advisory-lock"
+import {
     MockInterviewVerdict,
     type GradeMockInterviewSessionParams,
     type MockInterviewAttributeScore,
@@ -191,6 +194,20 @@ export class MockInterviewGradingService {
      * @throws ParsingCriteriaResultsFromModelTextException when the model output is not parseable JSON.
      */
     async grade(
+        params: GradeMockInterviewSessionParams,
+    ): Promise<MockInterviewGradeSessionResult> {
+        return withMockInterviewGradeAdvisoryLock(
+            this.entityManager,
+            `mock-interview-grade:${params.sessionId}`,
+            async () => {
+                const completed = await this.findCompletedGrade(params)
+                return completed ?? this.gradeOnce(params)
+            },
+        )
+    }
+
+    /** Execute the model-backed grading path after replay has been ruled out under the session lock. */
+    private async gradeOnce(
         params: GradeMockInterviewSessionParams,
     ): Promise<MockInterviewGradeSessionResult> {
         const {
@@ -401,8 +418,9 @@ export class MockInterviewGradingService {
             matchedContentIds,
             questionReviews,
         }
-        // persist the graded session for cross-session interview history (best-effort --
-        // a history write must never fail the grade the user is waiting on)
+        // The persisted attempt is the replay result and the session lifecycle
+        // transition is part of the same business consequence. A response must
+        // never claim grading succeeded while either half is missing.
         await this.persistAttempt({
             userId,
             courseId,
@@ -416,6 +434,57 @@ export class MockInterviewGradingService {
             name,
         })
         return result
+    }
+
+    /** Return the durable result for a completed request without invoking or charging AI again. */
+    private async findCompletedGrade(
+        params: GradeMockInterviewSessionParams,
+    ): Promise<MockInterviewGradeSessionResult | null> {
+        const attempt = await this.entityManager.findOne(
+            MockInterviewAttemptEntity,
+            {
+                where: {
+                    sessionId: params.sessionId,
+                    enrollment: {
+                        user: {
+                            id: params.userId,
+                        },
+                        course: {
+                            id: params.courseId,
+                        },
+                    },
+                },
+            },
+        )
+        if (!attempt) {
+            return null
+        }
+        return {
+            overallScore: attempt.overallScore,
+            verdict: this.normalizeVerdict(attempt.verdict,
+                attempt.overallScore),
+            phaseScores: this.normalizePhaseScores(attempt.phaseScores),
+            attributeScores: this.normalizeAttributeScores(attempt.attributeScores),
+            strengths: this.normalizeStringArray(attempt.strengths),
+            gaps: this.normalizeStringArray(attempt.gaps),
+            followUpQuestion: attempt.followUpQuestion,
+            matchedContentIds: this.normalizeStringArray(attempt.matchedContentIds),
+            questionReviews: attempt.questionReviews.map((review) => ({
+                questionIndex: Number(review.questionIndex),
+                kind: String(review.kind ?? ""),
+                question: String(review.question ?? ""),
+                candidateAnswer: String(review.candidateAnswer ?? ""),
+                modelAnswer: typeof review.modelAnswer === "string"
+                    ? review.modelAnswer
+                    : null,
+                feedback: String(review.feedback ?? ""),
+                score: Number(review.score),
+                max: Number(review.max),
+                matchedContentId: typeof review.matchedContentId === "string"
+                    ? review.matchedContentId
+                    : null,
+            })),
+        }
     }
 
     /**
@@ -711,10 +780,9 @@ export class MockInterviewGradingService {
     }
 
     /**
-     * Persist a {@link MockInterviewAttemptEntity} row for one graded session so
-     * the learner's mock-interview history can be computed later. Best-effort: a
-     * failure here is swallowed so it can never sink the grade result the user
-     * is waiting on.
+     * Persist a {@link MockInterviewAttemptEntity} row and close its source
+     * session atomically. This durable pair is the idempotency record replayed
+     * by subsequent grade requests.
      *
      * @param params - Identity of the session + its already-normalized grade result.
      */
@@ -744,16 +812,12 @@ export class MockInterviewGradingService {
             countsToReadiness,
             name,
         } = params
-        try {
-            // resolve (or lazily create) the trial enrollment (user x course) so the
-            // attempt can be keyed by enrollment -- the anchor for per-course history,
-            // consistent with the enrollment-centric re-key already applied to
-            // InterviewAttemptEntity. Mirrors InterviewGradingService.recordAttempt.
-            const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
-                userId,
-                courseId,
-            )
-            await this.entityManager.save(
+        const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
+            userId,
+            courseId,
+        )
+        await this.entityManager.transaction(async (manager) => {
+            await manager.save(
                 MockInterviewAttemptEntity,
                 {
                     enrollment,
@@ -786,7 +850,7 @@ export class MockInterviewGradingService {
             // so myInProgressMockInterviewSession stops offering it back, and a
             // late/stale syncMockInterviewSessionTurns call for the same session
             // no-ops instead of clobbering the now-finished transcript.
-            await this.entityManager.update(
+            await manager.update(
                 MockInterviewSessionEntity,
                 {
                     id: sessionId,
@@ -798,9 +862,7 @@ export class MockInterviewGradingService {
                     status: "completed",
                 },
             )
-        } catch {
-            // history is non-critical -- never fail the grade over a persistence write
-        }
+        })
     }
 
     /**

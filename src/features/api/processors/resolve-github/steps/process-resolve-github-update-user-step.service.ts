@@ -61,23 +61,9 @@ export class ProcessResolveGithubUpdateUserStepService extends AbstractStepServi
     async process(
         context: JobExtendedContext<EnqueueResolveGithubPayload, EmptyObject>,
     ): Promise<void> {
-        try {
-            const executionResult = await this.execute(
-                context,
-            )
-            await this.finalize(
-                executionResult,
-                context,
-            )
-        } catch (error) {
-            await this.jobActionService.failJob(
-                {
-                    job: context.job,
-                    error: (error as Error).message,
-                },
-            )
-            throw error
-        }
+        const executionResult = await this.execute(context)
+        await this.finalize(executionResult,
+            context)
     }
 
     /**

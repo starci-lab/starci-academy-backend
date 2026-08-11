@@ -21,6 +21,9 @@ import {
     LeagueCohortPointsProjectionService,
 } from "../projections/league-cohort-points/league-cohort-points-projection.service"
 import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
+import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import type {
@@ -50,6 +53,12 @@ describe("LeagueService",
             module = await Test.createTestingModule({
                 providers: [
                     LeagueService,
+                    {
+                        provide: PostgreSqlAdvisoryLockService,
+                        useValue: {
+                            acquireXactLockByKey: jest.fn().mockResolvedValue(undefined),
+                        },
+                    },
                     {
                         provide: LeagueCohortPointsProjectionService,
                         useValue: leagueCohortPointsProjectionService,

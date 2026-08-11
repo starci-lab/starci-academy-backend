@@ -112,6 +112,9 @@ import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
 import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
+import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
 import {
@@ -284,6 +287,7 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                     PurchaseAiSubscriptionHandler,
                     // REAL: the entitlement is what was bought
                     AiEntitlementService,
+                    InstallmentPlanService,
                     DayjsService,
                     RetryService,
                     {

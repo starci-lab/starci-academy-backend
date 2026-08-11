@@ -84,30 +84,23 @@ export class CommunityReactionService {
                 postId,
             })
         }
-        // find the user's existing reaction on this post (at most one by unique)
-        const existing = await this.entityManager.findOne(CommunityPostReactionEntity,
-            {
-                where: {
+        // The post/user pair is one logical reaction slot. A read-then-insert
+        // races when two tabs set the first reaction together, so mutate that
+        // slot with one database statement instead of deciding in application code.
+        if (type === null) {
+            await this.entityManager.delete(CommunityPostReactionEntity,
+                {
                     post: {
                         id: postId,
                     },
                     user: {
                         id: user.id,
                     },
-                },
-            })
-        // null type means "remove my reaction" -- delete only if one exists
-        if (type === null) {
-            if (existing) {
-                await this.entityManager.remove(existing)
-            }
-        } else if (existing) {
-            // already reacted -> just switch the emotion in place
-            existing.type = type
-            await this.entityManager.save(existing)
+                })
         } else {
-            // first-time reaction -> insert a new row via relation ids
-            await this.entityManager.save(this.entityManager.create(CommunityPostReactionEntity,
+            // ON CONFLICT makes simultaneous first reactions idempotent and also
+            // handles an ordinary emotion change without a separate lookup.
+            await this.entityManager.upsert(CommunityPostReactionEntity,
                 {
                     type,
                     post: {
@@ -116,7 +109,11 @@ export class CommunityReactionService {
                     user: {
                         id: user.id,
                     },
-                }))
+                },
+                [
+                    "post",
+                    "user",
+                ])
         }
         // tell the post room the reaction totals moved
         await this.eventEmitterService.emit({
@@ -157,10 +154,22 @@ export class CommunityReactionService {
                 commentId,
             })
         }
-        // find the user's existing reaction on this comment (at most one by unique)
-        const existing = await this.entityManager.findOne(CommunityPostCommentReactionEntity,
-            {
-                where: {
+        // Keep the comment/user slot atomic for the same reason as a post
+        // reaction: concurrent first writes must converge, never leak a unique error.
+        if (type === null) {
+            await this.entityManager.delete(CommunityPostCommentReactionEntity,
+                {
+                    comment: {
+                        id: commentId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
+                })
+        } else {
+            await this.entityManager.upsert(CommunityPostCommentReactionEntity,
+                {
+                    type,
                     comment: {
                         id: commentId,
                     },
@@ -168,29 +177,10 @@ export class CommunityReactionService {
                         id: user.id,
                     },
                 },
-            })
-        // null type means "remove my reaction"
-        if (type === null) {
-            if (existing) {
-                await this.entityManager.remove(existing)
-            }
-        } else if (existing) {
-            // switch emotion in place
-            existing.type = type
-            await this.entityManager.save(existing)
-        } else {
-            // first-time reaction on this comment
-            await this.entityManager.save(
-                this.entityManager.create(CommunityPostCommentReactionEntity,
-                    {
-                        type,
-                        comment: {
-                            id: commentId,
-                        },
-                        user: {
-                            id: user.id,
-                        },
-                    }))
+                [
+                    "comment",
+                    "user",
+                ])
         }
         // notify the post room (scoped to the comment's post) of the change
         await this.eventEmitterService.emit({

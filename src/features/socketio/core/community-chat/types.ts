@@ -20,3 +20,9 @@ export interface ChatMessageCreatedSocketIoMessage {
     /** Author of the message. */
     authorId: string
 }
+
+/** Successful authorization and join result for a conversation room. */
+export interface CommunityChatSubscriptionSocketIoMessage {
+    /** Conversation whose authorized room was joined. */
+    conversationId: string
+}

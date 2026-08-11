@@ -11,6 +11,9 @@ import {
     ChatMessageEntity,
 } from "@modules/databases/postgresql/primary/entities/chat-message.entity"
 import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
     ChatConversationType,
 } from "@modules/databases/postgresql/primary/enums/chat-conversation-type"
 import {
@@ -35,6 +38,7 @@ import {
 } from "@modules/membership/membership.service"
 import type {
     AssertChatAccessParams,
+    AssertChatSubscriptionParams,
     GetOrCreateFounderDmParams,
     ListChatMessagesParams,
     ListChatMessagesResult,
@@ -131,6 +135,35 @@ export class ChatService {
             })
         }
         return conversation
+    }
+
+    /**
+     * Authorizes a realtime room subscription using the identity established by
+     * the Socket.IO handshake. Keeping this in the domain service makes socket
+     * reads obey the same membership and founder-DM policy as GraphQL reads and
+     * writes; a room join must never be a policy bypass.
+     */
+    async assertCanSubscribe({
+        conversationId,
+        keycloakId,
+    }: AssertChatSubscriptionParams): Promise<void> {
+        const user = await this.entityManager.findOne(UserEntity,
+            {
+                where: {
+                    keycloakId,
+                },
+            })
+        if (!user) {
+            throw new ChatForbiddenException({
+                conversationId,
+                userId: keycloakId,
+            })
+        }
+        const conversation = await this.getConversationOrThrow(conversationId)
+        await this.assertCanAccess({
+            conversation,
+            user,
+        })
     }
 
     /**

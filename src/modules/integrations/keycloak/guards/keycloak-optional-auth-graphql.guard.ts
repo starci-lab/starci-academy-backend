@@ -20,6 +20,15 @@ import {
 import {
     KeycloakJwksService,
 } from "../jwks.service"
+import {
+    SessionService,
+} from "@modules/platform/session/session.service"
+import {
+    CookieService,
+} from "@modules/platform/cookie/cookie.service"
+import {
+    CookieName,
+} from "@modules/platform/cookie/enums"
 import type {
     KeycloakAuthGuardRequest,
 } from "../types/guard"
@@ -33,6 +42,8 @@ export class KeycloakOptionalAuthGraphQLGuard {
     constructor(
         private readonly keycloakJwksService: KeycloakJwksService,
         private readonly userService: UserService,
+        private readonly sessionService: SessionService,
+        private readonly cookieService: CookieService,
     ) {}
 
     /**
@@ -72,6 +83,14 @@ export class KeycloakOptionalAuthGraphQLGuard {
             })
         }
         const keycloakId = verified.sub
+        const sessionId = this.cookieService.getCookie(
+            request,
+            CookieName.SessionId,
+        )
+        await this.sessionService.assertCurrent({
+            userId: keycloakId,
+            sessionId,
+        })
         const user = await this.userService.getUserByKeycloakId(keycloakId)
         request.user = user
         return true

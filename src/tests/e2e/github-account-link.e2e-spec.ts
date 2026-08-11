@@ -36,8 +36,14 @@ import {
     GithubOauthRedirectService
 } from "@modules/integrations/github/oauth-redirect.service"
 import {
-    CacheService
-} from "@modules/integrations/cache/cache.service"
+    IoRedisModule,
+} from "@modules/lib/native/ioredis/ioredis.module"
+import {
+    IoRedisInstanceKey,
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
+    OAuthStateService,
+} from "@modules/platform/oauth-state/oauth-state.service"
 import {
     KeycloakTokenService
 } from "@modules/integrations/keycloak/token.service"
@@ -47,6 +53,9 @@ import {
 import {
     UserService
 } from "@modules/bussiness/user/user.service"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     GithubOauthRedirectController
 } from "@features/api/core/http/github/oauth/redirect/redirect.controller"
@@ -68,6 +77,12 @@ import {
 import {
     TestHelpersModule
 } from "@tests/helpers/test-helpers.module"
+import {
+    AbstractExceptionHttpFilter,
+} from "@modules/platform/exceptions/filters/abstract-exception-http.filter"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 
 jest.mock("octokit",
     () => ({
@@ -84,6 +99,14 @@ describe("a learner links GitHub and sees the linked identity persisted",
         let entityManager: EntityManager
         let learner: UserEntity
         let oauthState: string
+        const exchangeOAuthCodeForAccessToken = jest.fn().mockResolvedValue({
+            accessToken: "github-user-access-token"
+        })
+        const getAuthenticatedUser = jest.fn().mockResolvedValue({
+            user: {
+                login: GITHUB_LOGIN
+            }
+        })
 
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
@@ -91,6 +114,10 @@ describe("a learner links GitHub and sees the linked identity persisted",
                     TestHelpersModule,
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true, withHydration: false, withResolvers: false
+                    }),
+                    IoRedisModule.register({
+                        instanceKeys: [IoRedisInstanceKey.Cache],
+                        isGlobal: true,
                     }),
                     CqrsModule,
                 ],
@@ -104,16 +131,18 @@ describe("a learner links GitHub and sees the linked identity persisted",
                     GithubOauthRedirectCommandHandler,
                     GithubOauthCallbackService,
                     GithubOauthCallbackHandler,
+                    OAuthStateService,
                     {
-                        provide: MountStorageService, useValue: {
-                            encryptionKey: "github-flow-encryption-key"
-                        }
-                    },
-                    {
-                        provide: CacheService, useValue: {
+                        provide: CacheService,
+                        useValue: {
                             get: jest.fn().mockResolvedValue(undefined),
                             set: jest.fn().mockResolvedValue(undefined),
                             del: jest.fn().mockResolvedValue(undefined),
+                        },
+                    },
+                    {
+                        provide: MountStorageService, useValue: {
+                            encryptionKey: "github-flow-encryption-key"
                         }
                     },
                     {
@@ -130,19 +159,16 @@ describe("a learner links GitHub and sees the linked identity persisted",
                     },
                     {
                         provide: GithubApiAuthService, useValue: {
-                            exchangeOAuthCodeForAccessToken: jest.fn().mockResolvedValue({
-                                accessToken: "github-user-access-token"
-                            }),
-                            getAuthenticatedUser: jest.fn().mockResolvedValue({
-                                user: {
-                                    login: GITHUB_LOGIN
-                                }
-                            }),
+                            exchangeOAuthCodeForAccessToken,
+                            getAuthenticatedUser,
                         }
                     },
                 ],
             }).compile()
             app = moduleRef.createNestApplication()
+            app.useGlobalFilters(new AbstractExceptionHttpFilter(
+                app.get(WinstonService),
+            ))
             app.enableVersioning({
                 type: VersioningType.URI
             })
@@ -197,5 +223,23 @@ describe("a learner links GitHub and sees the linked identity persisted",
                         id: learner.id
                     })
                 expect(learner.githubUsername).toBe(GITHUB_LOGIN)
+            })
+
+        it("rejects callback replay before a second GitHub exchange or identity write",
+            async () => {
+                await request(app.getHttpServer())
+                    .get("/v1/github/oauth/callback")
+                    .query({
+                        code: "replayed-github-code", state: oauthState
+                    })
+                    .expect(400)
+
+                expect(exchangeOAuthCodeForAccessToken).toHaveBeenCalledTimes(1)
+                expect(getAuthenticatedUser).toHaveBeenCalledTimes(1)
+                const persisted = await entityManager.findOneByOrFail(UserEntity,
+                    {
+                        id: learner.id
+                    })
+                expect(persisted.githubUsername).toBe(GITHUB_LOGIN)
             })
     })

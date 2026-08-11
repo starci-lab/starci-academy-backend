@@ -21,6 +21,13 @@ import {
     [
         "enrollmentId",
     ])
+@Index("uq_mock_interview_attempts_session_id",
+    [
+        "sessionId",
+    ],
+    {
+        unique: true,
+    })
 /**
  * One graded mock-interview SESSION (not one question -- the whole 5-phase
  * interview is graded once, at the end). Mirrors {@link import("./interview-attempt.entity").InterviewAttemptEntity}'s
@@ -59,10 +66,9 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         enrollmentId: string
 
     /**
-     * Client-generated id for this interview run. Plain string (not a FK) so a
-     * retried/duplicate grade call is idempotent-detectable by the caller; not
-     * unique-constrained here because Pha 1 does not yet dedupe (the FE only
-     * calls grade once per session).
+     * Client-generated id for this interview run. It is globally unique so one
+     * completed session can own exactly one persisted grade even when requests
+     * are retried or arrive concurrently on different application replicas.
      */
     @Column({
         name: "session_id",

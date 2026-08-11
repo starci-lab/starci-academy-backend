@@ -45,8 +45,15 @@ import {
 import {
     GithubOauthCallbackCommand,
     type GithubOauthCallbackResult,
+    type GithubOauthCallbackBoundState,
     type GithubOauthCallbackStatePayload,
 } from "./callback.command"
+import {
+    OAuthStateService,
+} from "@modules/platform/oauth-state/oauth-state.service"
+import {
+    OAuthStatePurpose,
+} from "@modules/platform/oauth-state/types"
 
 
 @CommandHandler(GithubOauthCallbackCommand)
@@ -65,6 +72,7 @@ export class GithubOauthCallbackHandler
         private readonly githubApiAuthService: GithubApiAuthService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly oauthStateService: OAuthStateService,
     ) {
         super()
     }
@@ -110,19 +118,30 @@ export class GithubOauthCallbackHandler
         })
 
         // Parse decrypted state payload.
-        const { redirectUri, userId } = this.superJson.parse(decrypted) as GithubOauthCallbackStatePayload
+        const { nonce } = this.superJson.parse(decrypted) as GithubOauthCallbackStatePayload
 
         // Validate decrypted state payload.
-        if (!redirectUri || typeof redirectUri !== "string") {
+        if (!nonce || typeof nonce !== "string") {
             throw new OAuthStateFieldMissingException({
-                field: "redirectUri",
+                field: "nonce",
             })
         }
-        if (!userId || typeof userId !== "string") {
-            throw new OAuthStateFieldMissingException({
-                field: "userId",
+
+        // Claim the state before any GitHub call. Exactly one concurrent callback
+        // can cross this point, so replay cannot relink an account or repeat the
+        // external code exchange.
+        const boundState = await this.oauthStateService.consume<GithubOauthCallbackBoundState>({
+            purpose: OAuthStatePurpose.GithubAccountLink,
+            state: nonce,
+        })
+        if (!boundState) {
+            throw new InvalidOAuthStatePayloadException({
             })
         }
+        const {
+            redirectUri,
+            userId,
+        } = boundState
 
         // Exchange OAuth `code` for access token.
         const {

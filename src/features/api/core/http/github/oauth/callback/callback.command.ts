@@ -10,6 +10,11 @@ export interface GithubOauthCallbackCommandParams {
  * Decrypted state payload encoded by `github/oauth/redirect`.
  */
 export interface GithubOauthCallbackStatePayload {
+    nonce: string
+}
+
+/** Server-side account and return target bound to a one-time GitHub state. */
+export interface GithubOauthCallbackBoundState {
     redirectUri: string
     userId: string
 }

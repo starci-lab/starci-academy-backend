@@ -84,6 +84,17 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
             })
         }
         request.keycloakToken = verified
+        // A verified access token is not enough once this account has managed
+        // sessions. Reject an evicted/revoked device before any lazy local-user
+        // provisioning, otherwise a denied security context can still mutate DB.
+        const sessionId = this.cookieService.getCookie(
+            request,
+            CookieName.SessionId,
+        )
+        await this.sessionService.assertCurrent({
+            userId: verified.sub,
+            sessionId,
+        })
         let user = await this.entityManager.findOne(
             UserEntity,
             {
@@ -111,17 +122,6 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
             await this.entityManager.save(user)
         }
         request.user = user
-        // enforce single account-wide session: the request must carry the
-        // session id that matches the user's current active session
-        const sessionId = this.cookieService.getCookie(
-            request,
-            CookieName.SessionId,
-        )
-        // throws 401 when a newer login elsewhere has superseded this device
-        await this.sessionService.assertCurrent({
-            userId: verified.sub,
-            sessionId,
-        })
         return true
     }
 }

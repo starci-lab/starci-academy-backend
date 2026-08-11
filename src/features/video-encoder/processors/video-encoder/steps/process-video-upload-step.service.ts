@@ -82,7 +82,7 @@ export class ProcessVideoUploadStepService extends AbstractStepService<FilenameP
     }
 
     async process(context: JobExtendedContext<FilenameProcessData, undefined>): Promise<void> {
-        const { payload: { assetId }, job } = context
+        const { payload: { assetId, filename }, job } = context
         const taskDir = join(tmpdir(),
             `video-encoder-${assetId}`)
 
@@ -102,12 +102,17 @@ export class ProcessVideoUploadStepService extends AbstractStepService<FilenameP
         // Filter to only DASH output files (manifest.mpd, video/audio segments)
         const dashFiles = allFiles.filter((f) => {
             const name = f.toLowerCase()
-            return name.endsWith(".mpd") ||
+            const relativePath = relative(taskDir,
+                f).replace(/\\/g,
+                "/")
+            return relativePath !== filename && (
+                name.endsWith(".mpd") ||
                 name.endsWith(".m4s") ||
                 name.endsWith(".m4f") ||
                 name.endsWith(".mp4") ||
                 name.includes("video") ||
                 name.includes("audio")
+            )
         })
 
         const s3BasePath = `videos/${assetId}`

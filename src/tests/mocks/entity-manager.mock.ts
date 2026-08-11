@@ -107,6 +107,8 @@ export interface EntityManagerMock {
     remove: jest.Mock
     /** Persists and echoes the passed entity back. */
     save: jest.Mock
+    /** Atomic insert-or-update; resolves an empty generated-map result. */
+    upsert: jest.Mock
     /** Builds an unsaved entity by echoing the passed plain object. */
     create: jest.Mock
     /** Partial update; resolves `{ affected: 1 }`. */
@@ -240,6 +242,12 @@ export const makeEntityManagerMock = (): EntityManagerMock => {
         remove: jest.fn(async (entity: unknown) => entity),
         // default: persistence is a no-op that echoes the entity back
         save: jest.fn(async (entity: unknown) => entity),
+        // default: atomic insert-or-update succeeds without generated columns
+        upsert: jest.fn().mockResolvedValue({
+            identifiers: [],
+            generatedMaps: [],
+            raw: [],
+        }),
         // default: `create` just returns the plain object it was handed
         create: jest.fn((_entity: unknown, data: unknown) => data),
         // default: one row affected

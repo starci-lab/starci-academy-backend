@@ -5,6 +5,9 @@ import {
     EnqueueSendMailJobService,
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
 import {
+    InstallmentPlanService,
+} from "@modules/bussiness/installment-plan/installment-plan.service"
+import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
 import {
@@ -103,6 +106,7 @@ export class SepayWebhookHandler
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly membershipService: MembershipService,
+        private readonly installmentPlanService: InstallmentPlanService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly notificationService: NotificationService,
         @InjectPrimaryPostgreSQLEntityManager()
@@ -309,6 +313,21 @@ export class SepayWebhookHandler
                     id: transaction.id,
                 })
             }
+            return
+        }
+        // keep webhook settlement identical to reconciliation: this guarded
+        // plan operation owns both the transaction claim and ledger mutation.
+        case ActionType.InstallmentPayment: {
+            if (!transaction.installmentPlanId) {
+                throw new UnsupportedTransactionActionException({
+                    actionType: `${transaction.actionType}:missing-plan`,
+                })
+            }
+            await this.installmentPlanService.applyPaymentForTransaction({
+                transactionId: transaction.id,
+                planId: transaction.installmentPlanId,
+                paidAmountVnd: transaction.amount,
+            })
             return
         }
         default:

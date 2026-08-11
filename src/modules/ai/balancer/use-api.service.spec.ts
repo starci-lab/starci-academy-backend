@@ -209,12 +209,28 @@ describe("UseApiService",
                         )
                     })
 
-                it("retries on the next eligible key after one acquire returns null",
+                it("propagates key-acquisition infrastructure failures",
                     async () => {
-                        // first acquire yields no key (treated as a failed attempt),
-                        // the second acquire succeeds -> result served on attempt 2
+                        const redisFailure = new Error("Redis unavailable")
+                        aiBalancerService.acquire.mockRejectedValueOnce(redisFailure)
+
+                        await expect(
+                            service.useApi<string>({
+                                lane: "chain",
+                                action: async () => "ok",
+                            }),
+                        ).rejects.toBe(redisFailure)
+                    })
+
+                it("normalizes only the typed no-active-key race and retries the sweep",
+                    async () => {
                         aiBalancerService.acquire
-                            .mockRejectedValueOnce(new Error("transient"))
+                            .mockRejectedValueOnce(
+                                new NoActiveBalancerKeyException({
+                                    provider: ModelProvider.OpenAI,
+                                    totalKeysCount: 1,
+                                }),
+                            )
                             .mockResolvedValueOnce({
                                 value: "sk-aaaa",
                                 handle: {
@@ -222,23 +238,16 @@ describe("UseApiService",
                                     keySuffix: "aaaa",
                                 },
                             })
-                        // two eligible keys so the inner loop has a second pass
-                        keyStoreService.getPool.mockReturnValue([
-                            {
-                                value: "sk-aaaa",
-                            },
-                            {
-                                value: "sk-bbbb",
-                            },
-                        ] as never)
 
                         const result = await service.useApi<string>({
                             lane: "chain",
                             action: async () => "ok",
                         })
 
-                        expect(result.result).toBe("ok")
-                        expect(aiBalancerService.acquire).toHaveBeenCalledTimes(2)
+                        expect(result).toMatchObject({
+                            result: "ok",
+                            attempts: 2,
+                        })
                     })
 
                 it("throws AllModelsExhausted without acquiring when every key is unhealthy",

@@ -41,6 +41,18 @@ import type {
 import type {
     AiJobSelection,
 } from "@modules/ai/types/ai-job-selection"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    UserCvGenerationEntity,
+} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
+import {
+    CvGenerationStatus,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
+import type {
+    EntityManager,
+} from "typeorm"
 
 /** Parameters for {@link EnqueueScoreUploadedCvJobService.enqueue}. */
 export interface EnqueueScoreUploadedCvJobParams {
@@ -70,6 +82,8 @@ export interface EnqueueScoreUploadedCvJobParams {
  */
 export class EnqueueScoreUploadedCvJobService {
     constructor(
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
@@ -136,10 +150,24 @@ export class EnqueueScoreUploadedCvJobService {
                 },
             ),
         ).catch(async (error) => {
+            const message = `Failed to enqueue job to broker: ${error?.message ?? "unknown error"}`
             await this.jobActionService.failJob({
                 job,
-                error: `Failed to enqueue job to broker: ${error?.message ?? "unknown error"}`,
+                error: message,
             })
+            // The mutation has already persisted this row. Leaving it Pending
+            // after a broker rejection makes the UI poll forever even though no
+            // worker can ever own the run, so close both durable state machines.
+            await this.entityManager.update(
+                UserCvGenerationEntity,
+                {
+                    id: cvGenerationId,
+                },
+                {
+                    status: CvGenerationStatus.Failed,
+                    errorMessage: message,
+                },
+            )
         })
 
         return {

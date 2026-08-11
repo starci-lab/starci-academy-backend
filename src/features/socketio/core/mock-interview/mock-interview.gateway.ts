@@ -99,7 +99,8 @@ import type {
  * RAG-grounded interviewer prompt via {@link MockInterviewTurnService}, then
  * drives the LangChain `.stream()` through {@link AiInvokeService} on the
  * `Interview` surface (floor=Economy, per the AI-tier grading-floor policy),
- * emitting each token delta straight back to the requesting socket as a
+ * buffering the winning turn until its entitlement debit succeeds, then
+ * flushing its deltas to the requesting socket as a
  * {@link SubscriptionEvent.MockInterviewChunk} event. An
  * {@link PublicationEvent.AbortMockInterviewTurn} message cancels the in-flight
  * stream. Mirrors {@link import("../content-ai/content-ai.gateway").ContentAiGateway}
@@ -139,8 +140,8 @@ export class MockInterviewGateway {
     private readonly inFlight = new Map<string, AbortController>()
 
     /**
-     * Ask the interviewer for its next turn, streaming the question
-     * token-by-token back to the caller. The turn itself is never persisted
+     * Ask the interviewer for its next turn, exposing it only after its charge
+     * commits. The turn itself is never persisted
      * here -- only the end-of-session grade (built by a separate flow) is
      * durable; this gateway only ever produces ephemeral interviewer text.
      *
@@ -295,6 +296,11 @@ export class MockInterviewGateway {
                 level,
             })
 
+            // Hold the winning turn until its entitlement debit succeeds. The
+            // invoke layer already buffers each provider attempt independently;
+            // this second boundary makes one visible interview turn correspond
+            // to exactly one durable charge.
+            const turnDeltas: Array<string> = []
             // ONE shared entry -- stream on the Economy floor (mock-interview
             // grading floor policy), climbing to the tier ceiling for the
             // Interview surface
@@ -315,14 +321,7 @@ export class MockInterviewGateway {
                 temperature: 0.4,
                 signal: controller.signal,
                 onChunk: (delta) => {
-                    this.emitChunk({
-                        client,
-                        data: {
-                            streamId,
-                            delta,
-                            done: false,
-                        },
-                    })
+                    turnDeltas.push(delta)
                 },
             })
 
@@ -338,6 +337,19 @@ export class MockInterviewGateway {
                 completionTokens,
                 attempts,
             })
+
+            // Flush only after the debit commits; a billing failure therefore
+            // produces one terminal error and zero interviewer text.
+            for (const delta of turnDeltas) {
+                this.emitChunk({
+                    client,
+                    data: {
+                        streamId,
+                        delta,
+                        done: false,
+                    },
+                })
+            }
 
             // terminal chunk: no new text, just the done flag
             this.emitChunk({

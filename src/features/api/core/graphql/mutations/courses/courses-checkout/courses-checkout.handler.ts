@@ -87,6 +87,9 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
+    IsNull,
+} from "typeorm"
+import {
     CoursesCheckoutPricingService,
 } from "./courses-checkout-pricing.service"
 import {
@@ -197,62 +200,116 @@ export class CoursesCheckoutHandler
             : null
         const chargedVnd = installment ? installment.monthlyAmountVnd : priced.totalChargedVnd
 
-        // one order code identifies the whole order across the gateway + webhook
-        const orderCode = this.generateOrderCode()
-        // create the single gateway checkout for the charged amount (monthly cycle
-        // for installments, else the summed total)
-        const checkout = await this.resolveCheckout({
-            paymentType,
-            amount: chargedVnd,
-            priceUsd: priced.totalChargedUsd,
-            orderCode,
-            itemCount: priced.itemCount,
-            returnUrl,
-            cancelUrl,
-        })
+        const requestedCourseIds = priced.lines.map((line) => line.course.id).sort()
+        const committed = await this.entityManager.transaction(async (manager) => {
+            // The lock is deliberately held across the provider call. Without it, two
+            // concurrent clicks can both observe "no pending order" and create two
+            // independently chargeable gateway checkouts before either persists.
+            await manager.query(
+                "SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
+                [`checkout:cart:${user.id}:${paymentType}:${requestedCourseIds.join(",")}:${installmentMonths ?? 0}`],
+            )
 
-        // persist the ORDER (transaction). `course` is null -- the per-course rows
-        // live in `transaction_items`. pricingPhase is the first line's phase as a
-        // record only; the enroll step re-reads each course's phase at grant time.
-        const transaction = this.entityManager.create(
-            TransactionEntity,
-            {
-                user,
-                course: null,
-                referenceId: String(orderCode),
-                amount: checkout.amount,
-                // discount is tracked per line; the order-level column stays 0
-                discountPercent: 0,
-                pricingPhase: priced.lines[0].pricingPhase,
+            const pending = await manager.find(
+                TransactionEntity,
+                {
+                    where: {
+                        user: {
+                            id: user.id
+                        },
+                        course: IsNull(),
+                        paymentType,
+                        actionType: ActionType.Enroll,
+                        status: TransactionStatus.Pending,
+                    },
+                    order: {
+                        createdAt: "DESC"
+                    },
+                },
+            )
+            for (const candidate of pending) {
+                const ageMs = Date.now() - candidate.createdAt.getTime()
+                if (ageMs >= envConfig().services.api.transaction.timeSinceCreationMs) {
+                    continue
+                }
+                const items = await manager.find(TransactionItemEntity,
+                    {
+                        where: {
+                            transaction: {
+                                id: candidate.id
+                            }
+                        },
+                        relations: {
+                            course: true
+                        },
+                    })
+                const candidateCourseIds = items.map((item) => item.course.id).sort()
+                if (candidateCourseIds.join(",") !== requestedCourseIds.join(",")) {
+                    continue
+                }
+                const checkoutFields = candidate.paymentType === PaymentType.Sepay
+                    ? this.buildSepayCheckout({
+                        orderCode: Number(candidate.referenceId),
+                        amount: candidate.amount,
+                        itemCount: items.length,
+                        successUrl: returnUrl,
+                        cancelUrl,
+                    }).checkoutFields
+                    : undefined
+                return {
+                    transaction: candidate,
+                    itemCount: items.length,
+                    checkoutFields,
+                }
+            }
+
+            const orderCode = this.generateOrderCode()
+            const checkout = await this.resolveCheckout({
                 paymentType,
-                checkoutUrl: checkout.checkoutUrl,
-                // native gateway id for reconciliation polling (null for PayOS/Sepay)
-                providerPaymentId: checkout.providerPaymentId ?? null,
-                status: TransactionStatus.Pending,
-                actionType: ActionType.Enroll,
-                aiSubTier: null,
-                installmentMonths: installment ? installment.months : null,
-                installmentMarkupPercent: installment ? installment.markupPercent : null,
-                installmentTotalVnd: installment ? installment.totalAmountVnd : null,
-            },
-        )
-        await this.entityManager.save(transaction)
-
-        // persist one line per course with its own charged breakdown -- the payment
-        // success fan-out reads these rows to enqueue one enroll job per course
-        const transactionItems = priced.lines.map(
-            (line) => this.entityManager.create(
+                amount: chargedVnd,
+                priceUsd: priced.totalChargedUsd,
+                orderCode,
+                itemCount: priced.itemCount,
+                returnUrl,
+                cancelUrl,
+            })
+            const transaction = manager.create(TransactionEntity,
+                {
+                    user,
+                    course: null,
+                    referenceId: String(orderCode),
+                    amount: checkout.amount,
+                    discountPercent: 0,
+                    pricingPhase: priced.lines[0].pricingPhase,
+                    paymentType,
+                    checkoutUrl: checkout.checkoutUrl,
+                    providerPaymentId: checkout.providerPaymentId ?? null,
+                    status: TransactionStatus.Pending,
+                    actionType: ActionType.Enroll,
+                    aiSubTier: null,
+                    installmentMonths: installment ? installment.months : null,
+                    installmentMarkupPercent: installment ? installment.markupPercent : null,
+                    installmentTotalVnd: installment ? installment.totalAmountVnd : null,
+                })
+            const saved = await manager.save(transaction)
+            const transactionItems = priced.lines.map((line) => manager.create(
                 TransactionItemEntity,
                 {
-                    transaction,
+                    transaction: saved,
                     course: line.course,
                     amount: line.chargedVnd,
                     discountPercent: line.discountPercent,
                     pricingPhase: line.pricingPhase,
                 },
-            ),
-        )
-        await this.entityManager.save(transactionItems)
+            ))
+            await manager.save(transactionItems)
+            return {
+                transaction: saved,
+                itemCount: priced.itemCount,
+                checkoutFields: checkout.checkoutFields,
+            }
+        })
+        const transaction = committed.transaction
 
         // schedule the delayed reconcile poll (fires if no webhook arrives)
         await this.enqueueReconcileTransactionJobService.enqueue({
@@ -261,12 +318,12 @@ export class CoursesCheckoutHandler
 
         // return the redirect info + how many courses the order will enroll
         return {
-            checkoutUrl: checkout.checkoutUrl,
-            referenceId: String(orderCode),
+            checkoutUrl: transaction.checkoutUrl,
+            referenceId: transaction.referenceId,
             transactionId: transaction.id,
-            amount: checkout.amount,
-            itemCount: priced.itemCount,
-            checkoutFields: checkout.checkoutFields,
+            amount: transaction.amount,
+            itemCount: committed.itemCount,
+            checkoutFields: committed.checkoutFields,
         }
     }
 

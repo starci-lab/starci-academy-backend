@@ -13,7 +13,8 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const flows = [
+/** User-visible business promises. One suite may contain several named steps. */
+const businessFlows = [
     "course-purchase",
     "course-refund",
     "course-trial",
@@ -21,8 +22,6 @@ const flows = [
     "installment-default",
     "membership-purchase",
     "ai-subscription-purchase",
-    "payment-idempotency",
-    "payment-reconciliation",
     "signup-and-signin",
     "password-reset",
     "two-factor-lifecycle",
@@ -63,6 +62,52 @@ const flows = [
     "talent-discovery",
 ];
 
+/**
+ * Cross-component failure/concurrency promises.
+ *
+ * WHY this is a separate executable inventory: a happy-path business suite can
+ * stay green while a retry charges twice, a fallback attributes the wrong model,
+ * a socket leaks another room, or two pods drop an event. Those are not endpoint
+ * variants; they are production topology promises and must not disappear during
+ * a "test cleanup" merely because the corresponding happy path still exists.
+ */
+const operationalFlows = [
+    "ai-entitlement-resilience",
+    "ai-fallback-chain",
+    "ai-stream-resilience",
+    "auth-security-resilience",
+    "background-worker-resilience",
+    "dependency-health-resilience",
+    "embedding-fallback-resilience",
+    "payment-idempotency",
+    "payment-reconciliation",
+    "installment-webhook-resilience",
+    "payos-webhook",
+    "sepay-webhook",
+    "stripe-webhook",
+    "paypal-webhook",
+    "nowpayments-webhook",
+    "checkout-resilience",
+    "refund-resilience",
+    "otp-challenge-resilience",
+    "refresh-token-concurrency",
+    "community-chat-room-authorization",
+    "community-concurrency",
+    "cross-instance-event-routing",
+    "mock-interview-grading-resilience",
+    "payment-to-enrollment",
+    "scheduler-resilience",
+    "search-sync-resilience",
+    "storage-video-resilience",
+    "projection-cdc-routing",
+    "xp-history-idempotency",
+];
+
+const flows = [
+    ...businessFlows,
+    ...operationalFlows,
+];
+
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)),
     "..");
 const missing = flows.filter((flow) => !existsSync(resolve(
@@ -76,4 +121,4 @@ const missing = flows.filter((flow) => !existsSync(resolve(
 assert.deepEqual(missing,
     [],
     `Missing canonical E2E flows: ${missing.join(", ")}`);
-console.log(`e2e flow inventory: OK (${flows.length}/${flows.length})`);
+console.log(`e2e flow inventory: OK (${businessFlows.length} business + ${operationalFlows.length} operational = ${flows.length})`);

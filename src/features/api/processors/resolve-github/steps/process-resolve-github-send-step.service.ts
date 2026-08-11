@@ -29,6 +29,11 @@ import {
 import {
     GithubApiOrgService,
 } from "@modules/integrations/github/org.service"
+import {
+    JobEntity,
+} from "@modules/databases/postgresql/primary/entities/job.entity"
+
+const DISPATCH_CHECKPOINT = "resolve-github-dispatch-claimed"
 
 @Injectable()
 /**
@@ -59,23 +64,9 @@ export class ProcessResolveGithubSendStepService extends AbstractStepService<
     async process(
         context: JobExtendedContext<EnqueueResolveGithubPayload, EmptyObject>,
     ): Promise<void> {
-        try {
-            const executionResult = await this.execute(
-                context,
-            )
-            await this.finalize(
-                executionResult,
-                context,
-            )
-        } catch (error) {
-            await this.jobActionService.failJob(
-                {
-                    job: context.job,
-                    error: (error as Error).message,
-                },
-            )
-            throw error
-        }
+        const executionResult = await this.execute(context)
+        await this.finalize(executionResult,
+            context)
     }
 
     /**
@@ -86,16 +77,70 @@ export class ProcessResolveGithubSendStepService extends AbstractStepService<
     private async execute(
         context: JobExtendedContext<EnqueueResolveGithubPayload, EmptyObject>,
     ): Promise<EmptyObject> {
+        const shouldDispatch = await this.claimDispatch(context)
+        if (!shouldDispatch) {
+            return {
+            }
+        }
         const { payload } = context
-        await this.githubApiOrgService.addUserToTeamInOrg(
-            {
+        try {
+            await this.githubApiOrgService.addUserToTeamInOrg({
                 teamSlug: payload.teamSlug,
                 githubUsername: payload.githubUsername,
                 role: "member",
-            },
-        )
+            })
+        } catch (error) {
+            await this.releaseDispatch(context)
+            throw error
+        }
         return {
         }
+    }
+
+    /** Claim the GitHub state transition so a post-call persistence retry does not dispatch twice. */
+    private async claimDispatch(
+        context: JobExtendedContext<EnqueueResolveGithubPayload, EmptyObject>,
+    ): Promise<boolean> {
+        return this.entityManager.transaction(async (entityManager) => {
+            const job = await entityManager.findOneOrFail(
+                JobEntity,
+                {
+                    where: {
+                        id: context.job.id,
+                    },
+                    lock: {
+                        mode: "pessimistic_write",
+                    },
+                },
+            )
+            const claimed = await this.jobActionService.loadExecutionResult<boolean>({
+                job,
+                key: DISPATCH_CHECKPOINT,
+            })
+            if (claimed) {
+                context.job.executionResults = job.executionResults
+                return false
+            }
+            await this.jobActionService.saveExecutionResult({
+                job,
+                key: DISPATCH_CHECKPOINT,
+                executionResult: true,
+                entityManager,
+            })
+            context.job.executionResults = job.executionResults
+            return true
+        })
+    }
+
+    /** Release the claim when GitHub explicitly failed, allowing BullMQ to retry the call. */
+    private async releaseDispatch(
+        context: JobExtendedContext<EnqueueResolveGithubPayload, EmptyObject>,
+    ): Promise<void> {
+        await this.jobActionService.saveExecutionResult({
+            job: context.job,
+            key: DISPATCH_CHECKPOINT,
+            executionResult: false,
+        })
     }
 
     /**

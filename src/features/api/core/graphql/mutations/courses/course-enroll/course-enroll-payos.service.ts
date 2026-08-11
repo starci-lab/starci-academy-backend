@@ -59,6 +59,9 @@ import {
     CourseEnrollRequest,
 } from "./graphql-types/request"
 import {
+    withCheckoutAdvisoryLock,
+} from "./checkout-advisory-lock"
+import {
     InstallmentPlanService,
 } from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
@@ -101,7 +104,22 @@ export class CourseEnrollPayOsService {
      * @param param - Course context, user, resolved amount, and PayOS redirect URLs
      * @returns Checkout payload and preflight id
      */
-    async execute(
+    async execute(params: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
+        if (!params.user) {
+            throw new UserNotFoundException({
+            })
+        }
+        return withCheckoutAdvisoryLock(
+            this.entityManager,
+            params.request.voucherCode
+                ? `checkout:voucher:${params.user.id}:${params.request.voucherCode}`
+                : `checkout:course:${params.user.id}:${params.request.courseId}:${PaymentType.PayOS}`,
+            async (manager) => this.executeLocked(params,
+                manager),
+        )
+    }
+
+    private async executeLocked(
         {
             request: {
                 courseId,
@@ -112,6 +130,7 @@ export class CourseEnrollPayOsService {
             },
             user,
         }: ExecuteParams<CourseEnrollRequest>,
+        manager: EntityManager,
     ): Promise<CourseEnrollResponseData> {
         if (!user) {
             throw new UserNotFoundException(
@@ -120,7 +139,7 @@ export class CourseEnrollPayOsService {
             )
         }
         // find the course
-        const course = await this.entityManager.findOne(
+        const course = await manager.findOne(
             CourseEntity,
             {
                 where: {
@@ -140,7 +159,7 @@ export class CourseEnrollPayOsService {
             )
         }
         // find the transaction for the user and course
-        let transaction = await this.entityManager.findOne(
+        let transaction = await manager.findOne(
             TransactionEntity,
             {
                 where: {
@@ -234,8 +253,8 @@ export class CourseEnrollPayOsService {
         // create the pending transaction + (if given) RESERVE the voucher in the
         // SAME db transaction, so a concurrent second checkout can never also
         // claim the same code
-        transaction = await this.entityManager.transaction(async (manager) => {
-            const created = manager.create(
+        transaction = await manager.transaction(async (transactionManager) => {
+            const created = transactionManager.create(
                 TransactionEntity,
                 {
                     user,
@@ -254,12 +273,12 @@ export class CourseEnrollPayOsService {
                     installmentTotalVnd: installment ? installment.totalAmountVnd : null,
                 },
             )
-            const saved = await manager.save(created)
+            const saved = await transactionManager.save(created)
             if (voucherCode) {
                 // re-validate + reserve UNDER LOCK -- the earlier previewDiscount() was
                 // advisory only (no lock held), so a race since then is still caught here
                 await this.voucherService.reserve({
-                    entityManager: manager,
+                    entityManager: transactionManager,
                     userId: user.id,
                     code: voucherCode,
                     courseId: course.id,

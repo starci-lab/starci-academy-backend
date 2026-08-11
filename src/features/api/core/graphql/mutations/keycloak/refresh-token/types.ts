@@ -33,4 +33,6 @@ export interface ExchangeAndPublishParams {
      * Redis key of the exchange lock to release once the exchange completes.
      */
     lockKey: string
+    /** Unique owner value used for compare-and-delete lock release. */
+    lockOwner: string
 }

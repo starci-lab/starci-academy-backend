@@ -183,6 +183,50 @@ describe("ChatService",
                     })
             })
 
+        describe("assertCanSubscribe",
+            () => {
+                it("applies the same member policy to a socket identity",
+                    async () => {
+                        entityManager.findOne
+                            .mockResolvedValueOnce(member)
+                            .mockResolvedValueOnce({
+                                id: conversationId,
+                                type: ChatConversationType.Community,
+                            })
+
+                        await expect(service.assertCanSubscribe({
+                            conversationId,
+                            keycloakId: "kc-member-1",
+                        })).resolves.toBeUndefined()
+                        expect(membershipService.isActive).toHaveBeenCalledWith(member.id)
+                    })
+
+                it("does not authorize a Keycloak subject without a local user",
+                    async () => {
+                        await expect(service.assertCanSubscribe({
+                            conversationId,
+                            keycloakId: "kc-missing",
+                        })).rejects.toBeInstanceOf(ChatForbiddenException)
+                        expect(membershipService.isActive).not.toHaveBeenCalled()
+                    })
+
+                it("does not authorize an active member for another member's DM",
+                    async () => {
+                        entityManager.findOne
+                            .mockResolvedValueOnce(otherMember)
+                            .mockResolvedValueOnce({
+                                id: conversationId,
+                                type: ChatConversationType.FounderDm,
+                                memberId: member.id,
+                            })
+
+                        await expect(service.assertCanSubscribe({
+                            conversationId,
+                            keycloakId: "kc-member-2",
+                        })).rejects.toBeInstanceOf(ChatForbiddenException)
+                    })
+            })
+
         describe("access checks (via listMessages / sendMessage)",
             () => {
                 describe("membership gate",

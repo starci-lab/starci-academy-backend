@@ -6,6 +6,7 @@ import {
 } from "ioredis"
 import {
     createHash,
+    randomUUID,
 } from "crypto"
 import {
     IoRedisInstanceKey,
@@ -29,6 +30,9 @@ import type {
     ExchangeRefreshTokenParams,
     ExchangeRefreshTokenResult,
 } from "./types"
+import {
+    RefreshTokenExchangeTimeoutException,
+} from "@modules/platform/exceptions/errors/keycloak/refresh-token-exchange-timeout"
 
 @Injectable()
 /**
@@ -46,6 +50,14 @@ import type {
  * const tokens = await coalescer.exchange({ refreshToken })
  */
 export class RefreshTokenCoalescerService {
+    /** Never let an expired leader delete a lock acquired by its successor. */
+    private readonly releaseLockScript = `
+if redis.call("GET", KEYS[1]) == ARGV[1] then
+    return redis.call("DEL", KEYS[1])
+end
+return 0
+`
+
     constructor(
         @InjectIoRedis(IoRedisInstanceKey.Cache)
         private readonly redis: Redis,
@@ -79,32 +91,39 @@ export class RefreshTokenCoalescerService {
             return cached
         }
 
-        // try to become the single caller that performs the Keycloak round-trip
-        const acquired = await this.redis.set(
-            lockKey,
-            "1",
-            "PX",
-            REFRESH_LOCK_TTL_MS,
-            "NX",
-        )
-        if (acquired) {
-            return this.exchangeAndPublish({
-                refreshToken,
+        const deadline = Date.now() + REFRESH_WAIT_TIMEOUT_MS
+        while (Date.now() < deadline) {
+            const lockOwner = randomUUID()
+            const acquired = await this.redis.set(
+                lockKey,
+                lockOwner,
+                "PX",
+                REFRESH_LOCK_TTL_MS,
+                "NX",
+            )
+            if (acquired) {
+                return this.exchangeAndPublish({
+                    refreshToken,
+                    resultKey,
+                    lockKey,
+                    lockOwner,
+                })
+            }
+
+            // A failed leader releases its lock without publishing. Waiters then
+            // re-enter election; they must never bypass the lock and rotate the
+            // same refresh token in parallel.
+            const coalesced = await this.awaitResultOrUnlock(
                 resultKey,
                 lockKey,
-            })
+                deadline,
+            )
+            if (coalesced) {
+                return coalesced
+            }
         }
 
-        // another caller holds the lock -- wait for its result to be published
-        const coalesced = await this.awaitResult(resultKey)
-        if (coalesced) {
-            return coalesced
-        }
-
-        // last resort: the holder crashed or exceeded the wait budget -- exchange
-        // directly so the request still completes (correctness over dedup)
-        return this.keycloakTokenService.exchangeRefreshTokenForToken({
-            refreshToken,
+        throw new RefreshTokenExchangeTimeoutException({
         })
     }
 
@@ -120,6 +139,7 @@ export class RefreshTokenCoalescerService {
             refreshToken,
             resultKey,
             lockKey,
+            lockOwner,
         }: ExchangeAndPublishParams,
     ): Promise<ExchangeRefreshTokenResult> {
         try {
@@ -137,7 +157,12 @@ export class RefreshTokenCoalescerService {
         } finally {
             // release early so a later, legitimate refresh of a NEW token (whose
             // fingerprint differs) is never blocked by this lock's full TTL
-            await this.redis.del(lockKey)
+            await this.redis.eval(
+                this.releaseLockScript,
+                1,
+                lockKey,
+                lockOwner,
+            )
         }
     }
 
@@ -164,15 +189,19 @@ export class RefreshTokenCoalescerService {
      * @param resultKey - The Redis key the holder publishes its result to.
      * @returns The token set once available, or undefined on timeout.
      */
-    private async awaitResult(
+    private async awaitResultOrUnlock(
         resultKey: string,
+        lockKey: string,
+        deadline: number,
     ): Promise<ExchangeRefreshTokenResult | undefined> {
-        const deadline = Date.now() + REFRESH_WAIT_TIMEOUT_MS
         while (Date.now() < deadline) {
             await this.sleep(REFRESH_POLL_INTERVAL_MS)
             const result = await this.readResult(resultKey)
             if (result) {
                 return result
+            }
+            if (await this.redis.exists(lockKey) === 0) {
+                return undefined
             }
         }
         return undefined

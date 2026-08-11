@@ -44,6 +44,7 @@ export class LeagueResetService {
         {
             name: "league-weekly-reset",
             timeZone: "Asia/Ho_Chi_Minh",
+            waitForCompletion: true,
         },
     )
     async handleWeeklyReset(): Promise<void> {

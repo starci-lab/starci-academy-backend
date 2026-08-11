@@ -122,4 +122,16 @@ export class NotificationEntity extends UuidAbstractEntity {
         nullable: true,
     })
         readAt: Date | null
+
+    /**
+     * When this row was claimed by the daily social digest. Unlike `readAt`,
+     * this is an operational delivery cursor: a repeated cron tick or another
+     * application replica must not summarize the same notification twice.
+     */
+    @Column({
+        name: "digest_sent_at",
+        type: "timestamptz",
+        nullable: true,
+    })
+        digestSentAt: Date | null
 }

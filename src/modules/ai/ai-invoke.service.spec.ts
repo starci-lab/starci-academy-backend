@@ -3,8 +3,12 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
+    AIMessageChunk,
     HumanMessage,
 } from "@langchain/core/messages"
+import {
+    ChatOpenAI,
+} from "@langchain/openai"
 import {
     AiModelCategory,
 } from "@modules/databases/postgresql/primary/enums/ai-model-category"
@@ -75,8 +79,9 @@ describe("AiInvokeService",
                 useApi: jest.fn(async () => ({
                     result: {
                         text: "graded",
-                        promptTokens: 0,
-                        completionTokens: 0,
+                        promptTokens: 100,
+                        completionTokens: 20,
+                        cachedTokens: 75,
                     },
                     model: "gpt-4o",
                     provider: ModelProvider.OpenAI,
@@ -134,8 +139,9 @@ describe("AiInvokeService",
                             model: "gpt-4o",
                             provider: ModelProvider.OpenAI,
                             attempts: 2,
-                            promptTokens: 0,
-                            completionTokens: 0,
+                            promptTokens: 100,
+                            completionTokens: 20,
+                            cachedTokens: 75,
                         })
                     })
 
@@ -189,6 +195,111 @@ describe("AiInvokeService",
                         )
                     })
 
+                it("withholds a failed attempt's partial output and flushes only the successful fallback",
+                    async () => {
+                        const streamSpy = jest.spyOn(ChatOpenAI.prototype,
+                            "stream")
+                        const failedAttempt = async function* () {
+                            yield new AIMessageChunk("partial from model A")
+                            throw Object.assign(new Error("provider unavailable"),
+                                {
+                                    status: 503,
+                                })
+                        }
+                        const successfulAttempt = async function* () {
+                            yield new AIMessageChunk("answer from ")
+                            yield new AIMessageChunk({
+                                content: "model B",
+                                usage_metadata: {
+                                    input_tokens: 12,
+                                    output_tokens: 3,
+                                    total_tokens: 15,
+                                },
+                            })
+                        }
+                        streamSpy
+                            .mockImplementationOnce(async () => failedAttempt() as never)
+                            .mockImplementationOnce(async () => successfulAttempt() as never)
+                        const emitted: Array<string> = []
+                        useApiService.useApi.mockImplementationOnce(
+                            async (params: UseApiParams<unknown>) => {
+                                await expect(params.action({
+                                    provider: ModelProvider.Local,
+                                    key: "local-a",
+                                    model: "model-a",
+                                } as UseApiActionContext)).rejects.toThrow("provider unavailable")
+                                expect(emitted).toEqual([])
+                                return {
+                                    result: await params.action({
+                                        provider: ModelProvider.Local,
+                                        key: "local-b",
+                                        model: "model-b",
+                                    } as UseApiActionContext),
+                                    model: "model-b",
+                                    provider: ModelProvider.Local,
+                                    attempts: 2,
+                                }
+                            },
+                        )
+
+                        try {
+                            const result = await service.stream({
+                                messages,
+                                onChunk: (delta) => emitted.push(delta),
+                            })
+
+                            expect(emitted).toEqual([
+                                "answer from ",
+                                "model B",
+                            ])
+                            expect(result).toMatchObject({
+                                text: "answer from model B",
+                                model: "model-b",
+                                attempts: 2,
+                                promptTokens: 12,
+                                completionTokens: 3,
+                            })
+                        } finally {
+                            streamSpy.mockRestore()
+                        }
+                    })
+
+                it("normalizes caller abort before emission so no fallback output escapes",
+                    async () => {
+                        const streamSpy = jest.spyOn(ChatOpenAI.prototype,
+                            "stream")
+                            .mockRejectedValue(new Error("provider-specific cancellation"))
+                        const controller = new AbortController()
+                        controller.abort()
+                        useApiService.useApi.mockImplementationOnce(
+                            async (params: UseApiParams<unknown>) => ({
+                                result: await params.action({
+                                    provider: ModelProvider.Local,
+                                    key: "local-a",
+                                    model: "model-a",
+                                } as UseApiActionContext),
+                                model: "model-a",
+                                provider: ModelProvider.Local,
+                                attempts: 1,
+                            }),
+                        )
+
+                        try {
+                            const onAbortedChunk = jest.fn()
+                            await expect(service.stream({
+                                messages,
+                                onChunk: onAbortedChunk,
+                                signal: controller.signal,
+                            })).rejects.toMatchObject({
+                                name: "AbortError",
+                            })
+                            expect(onAbortedChunk).not.toHaveBeenCalled()
+                            expect(streamSpy).toHaveBeenCalledTimes(1)
+                        } finally {
+                            streamSpy.mockRestore()
+                        }
+                    })
+
                 it("propagates UnsupportedAiProviderException from an unrecognized provider",
                     async () => {
                         // this time let useApi actually run the caller-supplied action
@@ -235,8 +346,9 @@ describe("AiInvokeService",
                             model: "gpt-4o",
                             provider: ModelProvider.OpenAI,
                             attempts: 2,
-                            promptTokens: 0,
-                            completionTokens: 0,
+                            promptTokens: 100,
+                            completionTokens: 20,
+                            cachedTokens: 75,
                         })
                     })
 
@@ -320,6 +432,9 @@ describe("AiInvokeService",
                                 provider: ModelProvider.OpenAI,
                                 attempts: 2,
                                 cost: 0,
+                                promptTokens: 100,
+                                completionTokens: 20,
+                                cachedTokens: 75,
                             }),
                         )
                     })

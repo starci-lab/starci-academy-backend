@@ -58,6 +58,7 @@ export class PublicRagPlaygroundCleanupService {
         "*/30 * * * *",
         {
             name: "rag-playground-cleanup",
+            waitForCompletion: true,
         },
     )
     async handleIdleCleanup(): Promise<void> {
@@ -90,6 +91,28 @@ export class PublicRagPlaygroundCleanupService {
         session: RagPlaygroundSessionEntity,
     ): Promise<void> {
         try {
+            // Claim by deleting the durable row first. Every replica may have
+            // selected the same idle session, but only one DELETE can win and
+            // therefore only one replica is allowed to touch Qdrant.
+            const claimed = await this.entityManager.delete(
+                RagPlaygroundSessionEntity,
+                {
+                    id: session.id,
+                },
+            )
+            if (!claimed.affected) {
+                return
+            }
+        } catch (error) {
+            this.winstonService.log(WinstonLog.BestEffortOperationFailed,
+                {
+                    op: "rag.playground.session-row-delete-failed",
+                    sessionId: session.sessionId,
+                    error: error instanceof Error ? error.message : String(error),
+                })
+            return
+        }
+        try {
             await this.qdrantClient.deleteCollection(
                 `playground-${session.sessionId}`,
             )
@@ -97,21 +120,6 @@ export class PublicRagPlaygroundCleanupService {
             this.winstonService.log(WinstonLog.BestEffortOperationFailed,
                 {
                     op: "rag.playground.collection-drop-failed",
-                    sessionId: session.sessionId,
-                    error: error instanceof Error ? error.message : String(error),
-                })
-        }
-        try {
-            await this.entityManager.delete(
-                RagPlaygroundSessionEntity,
-                {
-                    id: session.id,
-                },
-            )
-        } catch (error) {
-            this.winstonService.log(WinstonLog.BestEffortOperationFailed,
-                {
-                    op: "rag.playground.session-row-delete-failed",
                     sessionId: session.sessionId,
                     error: error instanceof Error ? error.message : String(error),
                 })

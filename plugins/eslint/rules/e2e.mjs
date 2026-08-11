@@ -12,6 +12,7 @@ export const e2eUsesProductionTransport = {
         messages: {
             busImport: "`{{name}}` is an application dispatcher, not a production transport. Enter through GraphQL, HTTP, a real socket, broker or scheduler boundary.",
             direct: "Direct `.{{method}}()` starts inside the application and skips production routing, guards, validation and serialization. Use the production transport or move this test out of the E2E lane.",
+            internalActor: "Direct calls on `{{name}}` bypass the broker/CQRS transport that owns this worker or handler. Register it in the Nest graph and trigger it through production transport.",
         },
     },
     create(context) {
@@ -31,8 +32,29 @@ export const e2eUsesProductionTransport = {
                 const callee = node.callee
                 if (callee.type !== "MemberExpression" || callee.computed) return
                 const method = callee.property.name
-                if (method !== "execute" && method !== "process") return
-                context.report({ node: callee.property, messageId: "direct", data: { method } })
+                if (method === "execute" || method === "process") {
+                    context.report({ node: callee.property, messageId: "direct", data: { method } })
+                    return
+                }
+
+                // Importing/registering a production handler or worker is required for a
+                // focused Nest test graph. Calling the resolved instance is not: that skips
+                // queue/CQRS serialization, retry policy, guards and acknowledgement semantics.
+                // Variable naming is intentionally the seam here because ESLint runs without
+                // type information in this repository's fast gate.
+                let receiver = callee.object
+                while (receiver && (
+                    receiver.type === "TSAsExpression"
+                    || receiver.type === "TSTypeAssertion"
+                    || receiver.type === "ChainExpression"
+                )) receiver = receiver.expression
+                if (receiver?.type !== "Identifier") return
+                if (!/(?:Worker|Handler)$/.test(receiver.name)) return
+                context.report({
+                    node: callee.property,
+                    messageId: "internalActor",
+                    data: { name: receiver.name },
+                })
             },
         }
     },

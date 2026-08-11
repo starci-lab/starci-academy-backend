@@ -59,6 +59,7 @@ export class StreakFreezeCronService {
         {
             name: "streak-freeze-auto-protect",
             timeZone: APP_TIMEZONE,
+            waitForCompletion: true,
         },
     )
     async consumeStreakFreezeForMisses(): Promise<void> {
@@ -118,9 +119,9 @@ export class StreakFreezeCronService {
                 return
             }
             // only the txn that actually inserted the protected day may spend a
-            // freeze for it (race-safe); 0 rows affected means the freeze was
-            // spent elsewhere, so the day stays protected without a spend
-            await manager.query<Array<StreakFreezeProtectIdRow>>(
+            // freeze for it (race-safe); 0 rows means stock changed after the
+            // candidate scan, so the provisional protected day is removed
+            const spent = await manager.query<Array<StreakFreezeProtectIdRow>>(
                 `UPDATE users
                  SET streak_freezes = streak_freezes - 1
                  WHERE id = $1 AND streak_freezes > 0
@@ -129,6 +130,15 @@ export class StreakFreezeCronService {
                     userId,
                 ],
             )
+            if (spent.length === 0) {
+                // Stock changed after the candidate scan. Undo this txn's
+                // provisional protection instead of granting a free freeze.
+                await manager.query(
+                    "DELETE FROM streak_protected_days WHERE id = $1",
+                    [insertResult[0].id],
+                )
+                return
+            }
             // recompute the user's stats in the same txn so the streak reflects the
             // freshly-protected day immediately
             await this.userStatsProjectionService.recompute({

@@ -152,9 +152,21 @@ export class AiEntitlementService {
         await this.entityManager.transaction(
             async (entityManager) => {
                 if (cost > 0) {
-                    // lock the subscription row FOR UPDATE -- concurrent debits serialize
-                    // here, so a read-modify-write race can never drop a debit (over-spend)
-                    const subscription = await entityManager
+                    // The subscription row does not exist before a user's first paid
+                    // AI run, so it cannot itself be the serialization anchor. Lock the
+                    // owning user first: every debit now queues behind one row that is
+                    // guaranteed to exist, including concurrent first-use requests.
+                    await entityManager.query(
+                        "SELECT id FROM users WHERE id = $1 FOR UPDATE",
+                        [
+                            userId,
+                        ],
+                    )
+
+                    // Re-read under the user lock. An existing subscription receives
+                    // its own explicit lock; an absent one is safely created while no
+                    // competing transaction for this user can pass the anchor above.
+                    const lockedSubscription = await entityManager
                         .createQueryBuilder(
                             AiSubscriptionEntity,
                             "subscription",
@@ -167,14 +179,42 @@ export class AiEntitlementService {
                             },
                         )
                         .getOne()
-                    if (subscription) {
-                        // roll any due windows forward so the debit hits the live window
-                        this.applyWindowResets(subscription)
-                        // debit BOTH sliding windows by the grading cost under the held lock
-                        subscription.credit5hUsed += cost
-                        subscription.creditWeekUsed += cost
-                        await entityManager.save(subscription)
+                    const subscription = lockedSubscription
+                        ?? await this.loadOrCreate(userId,
+                            entityManager)
+
+                    // Reset and allowance validation belong inside the same critical
+                    // section as the debit. A pre-flight snapshot is advisory only:
+                    // another request may spend the final credits before this one locks.
+                    this.applyWindowResets(subscription)
+                    const tier = this.isPremiumActive(subscription)
+                        ? subscription.tier
+                        : null
+                    const {
+                        limit5h,
+                        limitWeek,
+                    } = this.creditAllowance(tier)
+                    const effectiveLimit5h = limit5h
+                        + subscription.bonusCredit5h
+                    const effectiveLimitWeek = limitWeek
+                        + subscription.bonusCreditWeek
+
+                    if (subscription.credit5hUsed + cost > effectiveLimit5h) {
+                        throw new AiQuotaExhaustedException({
+                            window: "5h",
+                        })
                     }
+                    if (subscription.creditWeekUsed + cost > effectiveLimitWeek) {
+                        throw new AiQuotaExhaustedException({
+                            window: "week",
+                        })
+                    }
+
+                    // Debit both windows and append the ledger below in this same
+                    // transaction; either both consequences commit or neither does.
+                    subscription.credit5hUsed += cost
+                    subscription.creditWeekUsed += cost
+                    await entityManager.save(subscription)
                 }
                 // history row is written REGARDLESS of cost (even a free balancer pick
                 // is worth an audit entry) -- same transaction as the debit above

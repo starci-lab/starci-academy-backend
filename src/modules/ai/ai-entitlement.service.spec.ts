@@ -27,6 +27,9 @@ import {
     TransactionStatus,
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
+    AiQuotaExhaustedException,
+} from "@modules/platform/exceptions/errors/ai/ai-quota-exhausted"
+import {
     AiAutoQuotaConfigService,
 } from "@modules/filesystem/ai-auto-quota-config.service"
 import {
@@ -260,7 +263,7 @@ describe("AiEntitlementService",
                         )
                     })
 
-                it("still records a history row when the locked row is missing (no debit, no crash)",
+                it("creates and debits the subscription on the first paid AI use",
                     async () => {
                         const queryBuilder = entityManager
                             .createQueryBuilder() as unknown as QueryBuilderMock
@@ -272,14 +275,51 @@ describe("AiEntitlementService",
                             surface: AiCeilSurface.Grading,
                         })
 
-                        // no subscription to debit, but the audit row is still written
-                        expect(entityManager.save).toHaveBeenCalledTimes(1)
+                        expect(entityManager.query).toHaveBeenCalledWith(
+                            "SELECT id FROM users WHERE id = $1 FOR UPDATE",
+                            [
+                                userId,
+                            ],
+                        )
+                        expect(entityManager.create).toHaveBeenCalledWith(
+                            AiSubscriptionEntity,
+                            expect.objectContaining({
+                                user: {
+                                    id: userId,
+                                },
+                            }),
+                        )
+                        expect(entityManager.save).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                credit5hUsed: 5,
+                                creditWeekUsed: 5,
+                            }),
+                        )
                         expect(entityManager.save).toHaveBeenCalledWith(
                             CreditUsageHistoryEntity,
                             expect.objectContaining({
                                 credits: 5,
                             }),
                         )
+                    })
+
+                it("rejects a debit that would exceed the locked 5h allowance without writing history",
+                    async () => {
+                        const subscription = buildSubscription({
+                            credit5hUsed: BASE_CREDITS_5H - 1,
+                        })
+                        const queryBuilder = entityManager
+                            .createQueryBuilder() as unknown as QueryBuilderMock
+                        queryBuilder.getOne.mockResolvedValueOnce(subscription)
+
+                        await expect(service.consume({
+                            userId,
+                            cost: 2,
+                            surface: AiCeilSurface.Grading,
+                        })).rejects.toBeInstanceOf(AiQuotaExhaustedException)
+
+                        expect(subscription.credit5hUsed).toBe(BASE_CREDITS_5H - 1)
+                        expect(entityManager.save).not.toHaveBeenCalled()
                     })
             })
 

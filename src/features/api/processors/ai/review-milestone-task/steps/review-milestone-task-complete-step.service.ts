@@ -17,9 +17,6 @@ import {
     ProgressProjectionService,
 } from "@modules/bussiness/projections/progress/progress-projection.service"
 import {
-    AiEntitlementService,
-} from "@modules/ai/ai-entitlement.service"
-import {
     AiModelCatalogService,
 } from "@modules/ai/balancer/ai-model-catalog.service"
 import {
@@ -113,6 +110,9 @@ import {
 import {
     enqueueLearnerEmail,
 } from "@modules/integrations/transactional-email/enqueue-learner-email"
+import {
+    ReviewMilestoneTaskCreditService,
+} from "../review-milestone-task-credit.service"
 
 /** Postgres unique-violation SQLSTATE -- a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
@@ -140,7 +140,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
         private readonly dayjsService: DayjsService,
         private readonly progressProjectionService: ProgressProjectionService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
-        private readonly aiEntitlementService: AiEntitlementService,
+        private readonly creditService: ReviewMilestoneTaskCreditService,
         private readonly aiModelCatalogService: AiModelCatalogService,
         private readonly notificationService: NotificationService,
     ) {
@@ -178,6 +178,16 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 grade,
             })
         }
+
+        const creditCost = grade.aiUsage?.model
+            ? await this.aiModelCatalogService.creditForRun({
+                name: grade.aiUsage.model,
+                promptTokens: grade.aiUsage.promptTokens,
+                completionTokens: grade.aiUsage.completionTokens,
+                cachedTokens: grade.aiUsage.cachedTokens,
+                fallback: DEFAULT_MODEL_CREDIT,
+            })
+            : 0
 
         let createdNewAttempt = false
         try {
@@ -282,6 +292,34 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                         }
                     )
                     createdNewAttempt = true
+                    /**
+                     * Debit AFTER the attempt write to preserve the natural domain order, but
+                     * on this SAME transaction. If debit throws, the attempt and every reward
+                     * below roll back; a BullMQ retry sees no attempt and can safely try once.
+                     */
+                    const chargedEnrollment = await entityManager.findOneOrFail(
+                        EnrollmentEntity,
+                        {
+                            where: {
+                                id: payload.enrollmentId,
+                            },
+                        },
+                    )
+                    await this.creditService.consume(
+                        entityManager,
+                        {
+                            userId: chargedEnrollment.userId,
+                            cost: creditCost,
+                            surface: AiCeilSurface.Grading,
+                            task: AiModelTask.TaskGrading,
+                            model: grade.aiUsage?.model ?? null,
+                            provider: grade.aiUsage?.provider ?? null,
+                            recommendation: null,
+                            promptTokens: grade.aiUsage?.promptTokens ?? null,
+                            completionTokens: grade.aiUsage?.completionTokens ?? null,
+                            attempts: grade.aiUsage?.attempts ?? null,
+                        },
+                    )
                     /**
                      * Grant XP + reward points once when the task is passed. refId is the
                      * user-milestone-task id, so re-passing the same task never re-credits
@@ -427,29 +465,6 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                         },
                     },
                 )
-                // bill the capstone review like a challenge: charge the served
-                // model's catalog credit from the pool (idempotent via the
-                // attempt's `idempotencyKey` = job id -> createdNewAttempt gate)
-                await this.aiEntitlementService.consume({
-                    userId: enrollment.userId,
-                    cost: grade.aiUsage?.model
-                        ? await this.aiModelCatalogService.creditForRun({
-                            name: grade.aiUsage.model,
-                            promptTokens: grade.aiUsage.promptTokens,
-                            completionTokens: grade.aiUsage.completionTokens,
-                            cachedTokens: grade.aiUsage.cachedTokens,
-                            fallback: DEFAULT_MODEL_CREDIT,
-                        })
-                        : 0,
-                    surface: AiCeilSurface.Grading,
-                    task: AiModelTask.TaskGrading,
-                    model: grade.aiUsage?.model ?? null,
-                    provider: grade.aiUsage?.provider ?? null,
-                    recommendation: null,
-                    promptTokens: grade.aiUsage?.promptTokens ?? null,
-                    completionTokens: grade.aiUsage?.completionTokens ?? null,
-                    attempts: grade.aiUsage?.attempts ?? null,
-                })
                 await enqueueLearnerEmail({
                     entityManager: this.entityManager,
                     enqueueSendMailJobService: this.enqueueSendMailJobService,

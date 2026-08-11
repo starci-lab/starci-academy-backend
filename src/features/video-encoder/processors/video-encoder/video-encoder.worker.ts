@@ -29,6 +29,9 @@ import {
     JobEntity,
 } from "@modules/databases/postgresql/primary/entities/job.entity"
 import {
+    StepNotFoundException,
+} from "@modules/platform/exceptions/errors/job/not-found"
+import {
     Processor as Worker, WorkerHost
 } from "@nestjs/bullmq"
 import {
@@ -64,13 +67,16 @@ export class VideoEncoderWorker extends WorkerHost {
         super()
     }
 
-    async process(bullmqJob: Job<string>) {
+    async process(bullmqJob: Job<string>): Promise<void> {
         const startedAt = this.dayjsService.now()
         let payload: FilenameProcessData | undefined
         let job: JobEntity | undefined
         try {
             job = await this.jobActionService.getJob({
                 id: bullmqJob.id ?? ""
+            })
+            await this.jobActionService.processingJob({
+                job,
             })
             payload = this.superJson.parse<FilenameProcessData>(bullmqJob.data)
 
@@ -81,19 +87,35 @@ export class VideoEncoderWorker extends WorkerHost {
                 payload,
             }
 
-            while (job.currentStep < job.maxSteps) {
+            while (true) {
                 const syncedJob = await this.jobActionService.getJob({
                     id: job.id
                 })
+                job = syncedJob
                 context.job = syncedJob
 
-                await stepMap.get(syncedJob.currentStep)?.process({
+                if (syncedJob.currentStep >= syncedJob.maxSteps) {
+                    break
+                }
+
+                const step = stepMap.get(syncedJob.currentStep)
+                if (!step) {
+                    throw new StepNotFoundException({
+                        stepIndex: syncedJob.currentStep,
+                    })
+                }
+
+                await step.process({
                     job: syncedJob,
                     queueName: bullmqJob.queueName,
                     payload,
                     extended: undefined
                 })
             }
+
+            await this.jobActionService.completeJob({
+                job,
+            })
 
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,
@@ -105,13 +127,24 @@ export class VideoEncoderWorker extends WorkerHost {
                 },
             )
         } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : String(error)
+            const maxAttempts = bullmqJob.opts.attempts ?? 1
+            const isTerminalAttempt = bullmqJob.attemptsMade + 1 >= maxAttempts
+            if (job && isTerminalAttempt) {
+                await this.jobActionService.failJob({
+                    job,
+                    error: errorMessage,
+                })
+            }
             this.winstonService.log(
                 WinstonLog.JobExecutedFailed,
                 {
                     jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
-                    error: error.message,
+                    error: errorMessage,
                     durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
                 },
             )

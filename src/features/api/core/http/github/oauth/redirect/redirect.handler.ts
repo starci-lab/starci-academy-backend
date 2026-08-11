@@ -34,6 +34,12 @@ import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
 import {
+    OAuthStateService,
+} from "@modules/platform/oauth-state/oauth-state.service"
+import {
+    OAuthStatePurpose,
+} from "@modules/platform/oauth-state/types"
+import {
     GithubOauthRedirectCommand,
     type GithubOauthRedirectCommandResult,
 } from "./redirect.command"
@@ -54,6 +60,7 @@ export class GithubOauthRedirectCommandHandler
         private readonly encryptionService: EncryptionService,
         @InjectSuperJson()
         private readonly superjson: SuperJson,
+        private readonly oauthStateService: OAuthStateService,
     ) {
         super()
     }
@@ -95,13 +102,20 @@ export class GithubOauthRedirectCommandHandler
             })
         }
 
-        // Encode state for the frontend: { redirectUri, userId } encrypted then wrapped as superjson.
+        // Keep account ownership server-side. The browser receives only an encrypted
+        // opaque nonce, while Redis binds that nonce to this learner and return URL.
+        const nonce = await this.oauthStateService.issue({
+            purpose: OAuthStatePurpose.GithubAccountLink,
+            payload: {
+                redirectUri,
+                userId: user.id,
+            },
+        })
         const encryptedState = this.encryptionService.encrypt(
             {
                 plainText: this.superjson.stringify(
                     {
-                        redirectUri,
-                        userId: user.id,
+                        nonce,
                     }
                 ),
             }

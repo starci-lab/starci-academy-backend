@@ -16,7 +16,6 @@ import {
 import {
     createHash,
     randomInt,
-    timingSafeEqual,
 } from "crypto"
 import {
     v4 as uuidv4,
@@ -41,6 +40,50 @@ export class OtpChallengeService {
     private readonly keyPrefix = "auth:login_otp:challenge"
     /** Maximum number of attempts for an OTP challenge. */
     private readonly maxAttempts = 5
+
+    /**
+     * Redis owns the read/compare/mutate boundary. Keeping the whole decision
+     * in one script prevents two app instances from consuming the same OTP or
+     * overwriting each other's attempt counter.
+     */
+    private readonly verifyScript = `
+local raw = redis.call("GET", KEYS[1])
+if not raw then
+    return {"not_found", "0"}
+end
+
+local envelope = cjson.decode(raw)
+local record = envelope["json"] or envelope
+if record["otpHash"] ~= ARGV[1] then
+    local attempts = tonumber(record["attempts"] or 0) + 1
+    record["attempts"] = attempts
+    local attemptsLeft = math.max(0, tonumber(ARGV[2]) - attempts)
+    if attempts >= tonumber(ARGV[2]) then
+        redis.call("DEL", KEYS[1])
+    else
+        redis.call("SET", KEYS[1], cjson.encode(envelope), "KEEPTTL")
+    end
+    return {"mismatch", tostring(attemptsLeft)}
+end
+
+redis.call("DEL", KEYS[1])
+return {"verified", raw}
+`
+
+    /** Rotate the code and reset attempts without reviving an expired key. */
+    private readonly refreshScript = `
+local raw = redis.call("GET", KEYS[1])
+if not raw then
+    return {"not_found"}
+end
+
+local envelope = cjson.decode(raw)
+local record = envelope["json"] or envelope
+record["otpHash"] = ARGV[1]
+record["attempts"] = 0
+redis.call("SET", KEYS[1], cjson.encode(envelope), "PX", ARGV[2])
+return {"refreshed", tostring(record["email"])}
+`
 
     constructor(
         @InjectIoRedis(IoRedisInstanceKey.Cache)
@@ -96,28 +139,6 @@ export class OtpChallengeService {
         return createHash("sha256").update(`${challengeId}:${otp}`).digest("hex")
     }
 
-    /** Compare two hexadecimal strings safely. */
-    private safeEqualsHex(
-        a: string, 
-        b: string
-    ): boolean {
-        const abuf = Buffer.from(
-            a,
-            "hex")
-        const bbuf = Buffer.from(
-            b,
-            "hex")
-        /** If the lengths of the buffers are not equal, return false. */
-        if (abuf.length !== bbuf.length) {
-            return false
-        }
-        /** Compare the buffers safely. */
-        return timingSafeEqual(
-            abuf,
-            bbuf
-        )
-    }
-
     /**
      * Create an OTP challenge that stores arbitrary payload until verification.
      */
@@ -168,29 +189,24 @@ export class OtpChallengeService {
     ): Promise<RefreshActionChallengeOtpResult | null> {
         const ttlMs = this.getTtlMs()
         const key = this.buildKey(challengeId)
-        const data = await this.redis.get(key)
-        if (!data) {
+        const otp = this.generateOtp()
+        const result = await this.redis.eval(
+            this.refreshScript,
+            1,
+            key,
+            this.hashOtp(
+                challengeId,
+                otp,
+            ),
+            ttlMs,
+        ) as Array<string>
+        if (result[0] !== "refreshed") {
             return null
         }
 
-        const record = this.superJson.parse<OtpActionPayloadRecord<unknown>>(data)
-        const otp = this.generateOtp()
-        record.otpHash = this.hashOtp(
-            challengeId,
-            otp,
-        )
-        record.attempts = 0
-
-        await this.redis.set(
-            key,
-            this.superJson.stringify(record),
-            "PX",
-            ttlMs,
-        )
-
         return {
             otp,
-            email: record.email,
+            email: result[1],
             expiresInSeconds: Math.max(
                 1,
                 Math.floor(ttlMs / 1000)
@@ -210,8 +226,18 @@ export class OtpChallengeService {
         const key = this.buildKey(
             challengeId
         )
-        const data = await this.redis.get(key)
-        if (!data) {
+        const result = await this.redis.eval(
+            this.verifyScript,
+            1,
+            key,
+            this.hashOtp(
+                challengeId,
+                otp,
+            ),
+            this.maxAttempts,
+        ) as Array<string>
+        const status = result[0]
+        if (status === "not_found") {
             return {
                 mismatch: false,
                 attemptsLeft: 0,
@@ -219,41 +245,15 @@ export class OtpChallengeService {
             }
         }
 
-        const record = this.superJson.parse<OtpActionPayloadRecord<TPayload>>(data)
-        const expectedHash = record.otpHash
-        const actualHash = this.hashOtp(
-            challengeId,
-            otp
-        )
-        const matches = this.safeEqualsHex(
-            expectedHash,
-            actualHash
-        )
-
-        if (!matches) {
-            const attempts = (record.attempts ?? 0) + 1
-            record.attempts = attempts
-            await this.redis.set(
-                key,
-                this.superJson.stringify(record),
-                "KEEPTTL"
-            )
-            const attemptsLeft = Math.max(
-                0,
-                this.maxAttempts - attempts
-            )
-            if (attempts >= this.maxAttempts) {
-                await this.redis.del(key)
-            }
-
+        if (status === "mismatch") {
             return {
                 mismatch: true,
-                attemptsLeft,
+                attemptsLeft: Number(result[1]),
                 notFound: false,
             }
         }
 
-        await this.redis.del(key)
+        const record = this.superJson.parse<OtpActionPayloadRecord<TPayload>>(result[1])
 
         return {
             email: record.email,

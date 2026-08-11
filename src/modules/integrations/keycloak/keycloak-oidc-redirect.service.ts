@@ -1,7 +1,6 @@
 import {
     createHash,
     randomBytes,
-    randomUUID,
 } from "crypto"
 import {
     Injectable,
@@ -9,12 +8,6 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
-import {
-    CacheService,
-} from "@modules/integrations/cache/cache.service"
-import {
-    CacheKey,
-} from "@modules/integrations/cache/enums/cache-key"
 import {
     KeycloakIdentityProvider,
 } from "./types/tokens"
@@ -24,6 +17,12 @@ import {
 import type {
     KeycloakOidcPkceCacheResult,
 } from "@modules/integrations/cache/types/cache-results/keycloak-oidc-pkce"
+import {
+    OAuthStateService,
+} from "@modules/platform/oauth-state/oauth-state.service"
+import {
+    OAuthStatePurpose,
+} from "@modules/platform/oauth-state/types"
 @Injectable()
 /**
  * Starts Keycloak broker OAuth from the backend: caches PKCE + client redirect URI, returns authorization URL.
@@ -39,7 +38,7 @@ export class KeycloakOidcRedirectService {
      * @param cacheService - The cache service.
      */
     constructor(
-        private readonly cacheService: CacheService,
+        private readonly oauthStateService: OAuthStateService,
     ) {}
 
     /**
@@ -91,24 +90,18 @@ export class KeycloakOidcRedirectService {
         provider: KeycloakIdentityProvider,
         redirectUri: string,
     ): Promise<string> {
-        const state = randomUUID()
         const codeVerifier = this.generateCodeVerifier()
         const codeChallenge = this.createCodeChallengeS256(
             codeVerifier
         )
-        await this.cacheService.set(
-            {
-                key: CacheKey.KeycloakOidcPkce,
-                args: [
-                    provider,
-                    state,
-                ],
-                cacheResult: {
-                    codeVerifier,
-                    redirectUri,
-                },
-            }
-        )
+        const state = await this.oauthStateService.issue({
+            purpose: OAuthStatePurpose.KeycloakBroker,
+            payload: {
+                provider,
+                codeVerifier,
+                redirectUri,
+            },
+        })
         const {
             realm,
             clientId,
@@ -141,39 +134,25 @@ export class KeycloakOidcRedirectService {
     }
 
     /**
-     * Loads PKCE + redirect URI written during {@link buildAuthorizeRedirectUrl} (does not delete).
+     * Atomically consumes PKCE + redirect URI written during the redirect.
      */
-    async loadPkceBundle(
+    async consumePkceBundle(
         provider: KeycloakIdentityProvider,
         state: string,
     ): Promise<KeycloakOidcPkceCacheResult> {
-        const cached = await this.cacheService.get({
-            key: CacheKey.KeycloakOidcPkce,
-            args: [
-                provider,
-                state,
-            ],
+        const cached = await this.oauthStateService.consume<
+            KeycloakOidcPkceCacheResult & { provider: KeycloakIdentityProvider }
+        >({
+            purpose: OAuthStatePurpose.KeycloakBroker,
+            state,
         })
-        if (!cached) {
+        if (!cached || cached.provider !== provider) {
             throw new OidcStateExpiredException({
             })
         }
-        return cached
-    }
-
-    /**
-     * Clears PKCE cache after a successful token exchange.
-     */
-    async clearPkceBundle(
-        provider: KeycloakIdentityProvider,
-        state: string,
-    ): Promise<void> {
-        await this.cacheService.del({
-            key: CacheKey.KeycloakOidcPkce,
-            args: [
-                provider,
-                state,
-            ],
-        })
+        return {
+            codeVerifier: cached.codeVerifier,
+            redirectUri: cached.redirectUri,
+        }
     }
 }

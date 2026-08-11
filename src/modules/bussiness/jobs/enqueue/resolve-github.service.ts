@@ -134,7 +134,7 @@ export class EnqueueResolveGithubJobService {
             id: uuidv4(),
             userId,
             actionType: ActionType.ResolveGithub,
-            maxSteps: 1,
+            maxSteps: 3,
             payload: this.superJson.stringify(payload),
         })
 

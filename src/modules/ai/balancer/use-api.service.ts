@@ -889,7 +889,10 @@ export class UseApiService {
     }
 
     /**
-     * Wrap {@link AiBalancerService.acquire} -- returns null when no eligible key remains.
+     * Acquire one eligible key. The balancer's typed no-active-key outcome is
+     * normalized to `null`; infrastructure failures deliberately propagate.
+     * Turning a Redis/cache outage into `null` makes production report exhausted
+     * credentials and hides the dependency that actually failed.
      */
     private async tryAcquire(
         provider: ModelProvider,
@@ -898,8 +901,11 @@ export class UseApiService {
             return await this.aiBalancerService.acquire({
                 provider,
             })
-        } catch {
-            return null
+        } catch (error) {
+            if (error instanceof NoActiveBalancerKeyException) {
+                return null
+            }
+            throw error
         }
     }
 }

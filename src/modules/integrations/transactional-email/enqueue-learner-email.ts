@@ -46,7 +46,9 @@ export interface EnqueueLearnerEmailParams {
  * already-finished work. Skips silently when the user has no email on file.
  *
  * The template always receives `{ name, dashboardUrl, locale }` plus any
- * `extraContext`. `name` falls back username -> localized "you".
+ * `extraContext`. `name` falls back username -> localized "you". Returns whether
+ * a durable mail job was created so schedulers can advance delivery cursors only
+ * after enqueue succeeds.
  *
  * This helper is a pure function (no DI): the caller injects and passes its own
  * {@link EnqueueSendMailJobService}, which keeps this module dependency-light
@@ -54,7 +56,7 @@ export interface EnqueueLearnerEmailParams {
  */
 export const enqueueLearnerEmail = async (
     params: EnqueueLearnerEmailParams,
-): Promise<void> => {
+): Promise<boolean> => {
     const {
         entityManager,
         enqueueSendMailJobService,
@@ -81,7 +83,7 @@ export const enqueueLearnerEmail = async (
             },
         )
         if (!user?.email) {
-            return
+            return false
         }
         await enqueueSendMailJobService.enqueue({
             to: [
@@ -106,7 +108,9 @@ export const enqueueLearnerEmail = async (
                 ...extraContext,
             },
         })
+        return true
     } catch {
         // best-effort notification -- swallow any failure
+        return false
     }
 }

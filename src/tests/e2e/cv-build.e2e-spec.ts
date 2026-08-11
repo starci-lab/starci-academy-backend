@@ -1,12 +1,19 @@
-import "@modules/bussiness/bussiness.module"
-import request from "supertest"
 import {
-    Test,
-} from "@nestjs/testing"
+    mkdtempSync,
+    rmSync,
+    writeFileSync,
+} from "fs"
+import {
+    tmpdir,
+} from "os"
+import {
+    join,
+} from "path"
+import request from "supertest"
 import type {
-    INestApplication,
     CanActivate,
     ExecutionContext,
+    INestApplication,
 } from "@nestjs/common"
 import {
     CqrsModule,
@@ -15,20 +22,84 @@ import {
     GqlExecutionContext,
 } from "@nestjs/graphql"
 import {
+    EventEmitterModule,
+} from "@nestjs/event-emitter"
+import {
+    BullModule,
+    getQueueToken,
+} from "@nestjs/bullmq"
+import {
+    Test,
+} from "@nestjs/testing"
+import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    getQueueToken,
-} from "@nestjs/bullmq"
+    ChatOpenAI,
+} from "@langchain/openai"
+import {
+    QdrantVectorStore,
+} from "@langchain/qdrant"
+import type {
+    Cache,
+} from "cache-manager"
+import type {
+    Queue,
+} from "bullmq"
+import type {
+    Redis as IoRedis,
+} from "ioredis"
 import type {
     EntityManager,
 } from "typeorm"
+import {
+    AiInvokeService,
+} from "@modules/ai/ai-invoke.service"
+import {
+    AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
+    AiBalancerService,
+} from "@modules/ai/balancer/ai-balancer.service"
+import {
+    AiModelCatalogService,
+} from "@modules/ai/balancer/ai-model-catalog.service"
+import {
+    KeyRotatorService,
+} from "@modules/ai/balancer/key-rotator.service"
+import {
+    KeyStoreService,
+} from "@modules/ai/balancer/key-store.service"
+import {
+    UseApiService,
+} from "@modules/ai/balancer/use-api.service"
+import {
+    GradingLaneValidationService,
+} from "@modules/ai/grading-lane-validation.service"
 import {
     ApolloServerModule,
 } from "@modules/api/apollo/server/apollo-server.module"
 import {
     ApolloServerType,
 } from "@modules/api/apollo/server/enums/server"
+import {
+    JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
+    JobStalledService,
+} from "@modules/bussiness/jobs/atomic/job-stalled.service"
+import {
+    POSTGRESQL_PRIMARY,
+} from "@modules/databases/postgresql/primary/constants/connection"
+import {
+    AiModelEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-model.entity"
+import {
+    AiSubscriptionEntity,
+} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+import {
+    CreditUsageHistoryEntity,
+} from "@modules/databases/postgresql/primary/entities/credit-usage-history.entity"
 import {
     JobEntity,
 } from "@modules/databases/postgresql/primary/entities/job.entity"
@@ -39,44 +110,41 @@ import {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
-    ActionType,
-} from "@modules/databases/postgresql/primary/enums/action-type"
+    AiModelCategory,
+} from "@modules/databases/postgresql/primary/enums/ai-model-category"
 import {
-    CvGenerationMode,
-} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+    AiModelTask,
+} from "@modules/databases/postgresql/primary/enums/ai-model-task"
 import {
     CvGenerationStatus,
 } from "@modules/databases/postgresql/primary/enums/cv-generation-status"
 import {
+    CvGenerationMode,
+} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
+import {
     CvSource,
 } from "@modules/databases/postgresql/primary/enums/cv-source"
-import {
-    JobCategory,
-} from "@modules/databases/postgresql/primary/enums/job-category"
 import {
     JobStatus,
 } from "@modules/databases/postgresql/primary/enums/job-status"
 import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    ModelProvider,
+} from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
     PrimaryPostgreSQLModule,
 } from "@modules/databases/postgresql/primary/primary.module"
 import {
-    KeycloakAuthGraphQLGuard,
-} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+    AiAutoQuotaConfigService,
+} from "@modules/filesystem/ai-auto-quota-config.service"
 import {
-    JobActionService,
-} from "@modules/bussiness/jobs/atomic/job-action.service"
+    MountFilesystemService,
+} from "@modules/filesystem/mount.service"
 import {
-    DayjsService,
-} from "@modules/lib/mixin/dayjs.service"
-import {
-    WinstonService,
-} from "@modules/platform/winston/winston.service"
-import {
-    createSuperJsonServiceProvider,
-} from "@modules/lib/mixin/superjson.providers"
-import {
-    EventEmitterService,
-} from "@modules/platform/event/event-emitter.service"
+    MountStorageService,
+} from "@modules/filesystem/mount-storage.service"
 import {
     bullData,
 } from "@modules/integrations/bullmq/constants/queue"
@@ -84,23 +152,56 @@ import {
     BullQueueName,
 } from "@modules/integrations/bullmq/enums/queue-name"
 import {
-    GradingLaneValidationService,
-} from "@modules/ai/grading-lane-validation.service"
+    AiModelLatencyCacheService,
+} from "@modules/integrations/cache/ai-model-latency-cache.service"
 import {
-    EnqueueGenerateCvJobService,
-} from "@features/api/processors/ai/generate-cv/enqueue-generate-cv.service"
+    AiPingCacheService,
+} from "@modules/integrations/cache/ai-ping-cache.service"
 import {
-    EnqueueScoreUploadedCvJobService,
-} from "@features/api/processors/ai/score-uploaded-cv/enqueue-score-uploaded-cv.service"
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
-    UploadCvHandler,
-} from "@features/api/core/graphql/mutations/cv-submissions/upload-cv/upload-cv.handler"
+    EmbeddingModelService,
+} from "@modules/integrations/langchain/embedding-model.service"
 import {
-    UploadCvResolver,
-} from "@features/api/core/graphql/mutations/cv-submissions/upload-cv/upload-cv.resolver"
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
-    UploadCvService,
-} from "@features/api/core/graphql/mutations/cv-submissions/upload-cv/upload-cv.service"
+    createIoRedisKey,
+} from "@modules/lib/native/ioredis/constants"
+import {
+    IoRedisInstanceKey,
+} from "@modules/lib/native/ioredis/enums/instance-key"
+import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    createSuperJsonServiceProvider,
+} from "@modules/lib/mixin/superjson.providers"
+import {
+    QDRANT_CLIENT,
+} from "@modules/databases/qdrant/constants/client"
+import {
+    CvRagRetrievalService,
+} from "@modules/integrations/rag/cv-rag-retrieval.service"
+import {
+    S3ReadService,
+} from "@modules/integrations/s3/s3-read.service"
+import {
+    S3UploadService,
+} from "@modules/integrations/s3/s3-upload.service"
+import {
+    EventEmitterService,
+} from "@modules/platform/event/event-emitter.service"
+import {
+    NatsMessageFactoryService,
+} from "@modules/platform/event/nats/nats-message-factory.service"
+import {
+    NatsProducerService,
+} from "@modules/platform/event/nats/producer.service"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     GenerateCvHandler,
 } from "@features/api/core/graphql/mutations/cv-submissions/generate-cv/generate-cv.handler"
@@ -111,6 +212,15 @@ import {
     GenerateCvService,
 } from "@features/api/core/graphql/mutations/cv-submissions/generate-cv/generate-cv.service"
 import {
+    UploadCvHandler,
+} from "@features/api/core/graphql/mutations/cv-submissions/upload-cv/upload-cv.handler"
+import {
+    UploadCvResolver,
+} from "@features/api/core/graphql/mutations/cv-submissions/upload-cv/upload-cv.resolver"
+import {
+    UploadCvService,
+} from "@features/api/core/graphql/mutations/cv-submissions/upload-cv/upload-cv.service"
+import {
     ReviseCvHandler,
 } from "@features/api/core/graphql/mutations/cv-submissions/revise-cv/revise-cv.handler"
 import {
@@ -120,169 +230,257 @@ import {
     ReviseCvService,
 } from "@features/api/core/graphql/mutations/cv-submissions/revise-cv/revise-cv.service"
 import {
-    TestHelpersModule,
-} from "@tests/helpers/test-helpers.module"
+    EnqueueGenerateCvJobService,
+} from "@features/api/processors/ai/generate-cv/enqueue-generate-cv.service"
+import {
+    GenerateCvWorker,
+} from "@features/api/processors/ai/generate-cv/generate-cv.worker"
+import {
+    GenerateCvStepMappingService,
+} from "@features/api/processors/ai/generate-cv/step-mapping.service"
+import {
+    GenerateCvCompleteStepService,
+} from "@features/api/processors/ai/generate-cv/steps/generate-cv-complete-step.service"
+import {
+    GenerateCvComposeStepService,
+} from "@features/api/processors/ai/generate-cv/steps/generate-cv-compose-step.service"
+import {
+    GenerateCvGatherStepService,
+} from "@features/api/processors/ai/generate-cv/steps/generate-cv-gather-step.service"
+import {
+    GenerateCvRenderStepService,
+} from "@features/api/processors/ai/generate-cv/steps/generate-cv-render-step.service"
+import {
+    GenerateCvScoreStepService,
+} from "@features/api/processors/ai/generate-cv/steps/generate-cv-score-step.service"
+import {
+    EnqueueScoreUploadedCvJobService,
+} from "@features/api/processors/ai/score-uploaded-cv/enqueue-score-uploaded-cv.service"
+import {
+    ScoreUploadedCvWorker,
+} from "@features/api/processors/ai/score-uploaded-cv/score-uploaded-cv.worker"
+import {
+    CvScoringService,
+} from "@features/api/processors/ai/shared/cv-scoring/cv-scoring.service"
+import {
+    ScoreUploadedCvService,
+} from "@features/api/processors/ai/shared/cv-scoring/score-uploaded-cv.service"
+import {
+    compileCvPdf,
+} from "@features/api/processors/ai/generate-cv/steps/compile-cv-pdf"
+import {
+    extractCvText,
+} from "@features/api/processors/ai/generate-cv/steps/extract-cv-text"
+import {
+    aiE2eRedisCacheManagerToken,
+    AiProviderInvokeScript,
+    createAiE2eRedisProviders,
+} from "@tests/helpers/ai-provider-invoke-script"
 import {
     until,
 } from "@tests/helpers/flow-wait"
+import {
+    TestHelpersModule,
+} from "@tests/helpers/test-helpers.module"
 
-/** Connection name used by the primary PostgreSQL data source. */
-const POSTGRESQL_PRIMARY = "primary"
+jest.mock("@features/api/processors/ai/generate-cv/steps/compile-cv-pdf",
+    () => ({
+        compileCvPdf: jest.fn(),
+    }))
+jest.mock("@features/api/processors/ai/generate-cv/steps/extract-cv-text",
+    () => ({
+        extractCvText: jest.fn(),
+    }))
+
+const generateQueueName = "generate-cv"
+const scoreQueueData = bullData[BullQueueName.ScoreUploadedCv]
+const modelName = "e2e-cv-model"
+const composedCv = JSON.stringify({
+    fullName: "Ada Learner",
+    headline: "Backend Engineer",
+    summary: "Builds reliable distributed systems.",
+    skillGroups: [
+        {
+            category: "Backend",
+            items: [
+                "TypeScript",
+                "PostgreSQL",
+            ],
+        },
+    ],
+    experiences: [
+        {
+            title: "Engineer",
+            org: "StarCI",
+            location: "Remote",
+            dateRange: "2024-present",
+            bullets: ["Reduced queue failures by 40%."],
+        },
+    ],
+    education: [
+        {
+            school: "Academy",
+            degree: "Software Engineering",
+            dateRange: "2023-2024",
+        },
+    ],
+})
+const scoredCv = JSON.stringify({
+    shortFeedback: "Strong evidence and a clear structure.",
+    score: 88,
+    items: [
+        {
+            severity: "low",
+            section: "impact",
+            message: "Impact is quantified.",
+            suggestion: null,
+        },
+    ],
+})
 
 /**
- * e2e for the CV-generation row lifecycle -- `generateCv` / `uploadCv` /
- * `reviseCv`, the "submitted" half of the CV-submission state machine
- * (`cv_blocks` "draft" documents are covered separately in
- * `cv-submission-blocks.e2e-spec.ts`).
+ * CV operational proof: GraphQL creates durable state, real Redis/BullMQ dispatches
+ * it, and production workers own every state transition. Only provider I/O, S3,
+ * document extraction and PDF compilation are deterministic Jest boundaries.
  *
- * CV generation itself is LLM-driven and runs OUT OF PROCESS: these three
- * mutations only create the `Pending` `cv_generations` row + the tracked
- * `jobs` row and hand off to a BullMQ worker (`generate-cv.worker.ts` /
- * `score-uploaded-cv.worker.ts`) that never runs in this focused test module.
- * So this spec proves the row/state UP TO that hand-off -- the actual
- * generation (Pending -> Done, `structuredData`/`score` filled by a real model
- * call) is out of scope here and belongs to a `*.harness-spec.ts` instead
- * (`.claude/canon/be/enforce/authoring/testing.md` §3).
- *
- * REAL: Postgres (Testcontainers), the full GraphQL/Apollo wiring, every
- * resolver/service/handler in the upload/generate/revise chain, AND -- unlike
- * a unit-level unit spec (`generate-cv.handler.spec.ts` etc., which mock the
- * enqueue services wholesale) -- the REAL `EnqueueGenerateCvJobService` /
- * `EnqueueScoreUploadedCvJobService` / `JobActionService` / `DayjsService` /
- * `SuperJSON` provider, so the `cv_generations` row AND the `jobs` row are
- * both genuinely written to Postgres, exercising the exact same DB-write path
- * production takes.
- *
- * MOCKED (genuinely external to this process):
- *  - The two BullMQ `Queue` tokens (`generate-cv` / `score-uploaded-cv`) --
- *    no Redis broker in this harness; the enqueue services already fire the
- *    `Queue.add` call fire-and-forget (`void sleep().then(...)`, never
- *    awaited) specifically so a broker miss cannot block the caller, so this
- *    spec asserts on the awaited DB writes instead of the queue call.
- *  - `EventEmitterService` -- real class fans out through a NATS producer that
- *    needs a live broker connection (matches `notifications.e2e-spec.ts` /
- *    `follows.e2e-spec.ts`'s rationale for the same class); `JobActionService`
- *    needs it to construct but `createJob` itself never calls `emit`.
- *  - `GradingLaneValidationService` -- real class validates a model/provider
- *    pick against the AI entitlement + model catalog; every test here omits
- *    the pick (the common "let the balancer choose" case), so it is stubbed
- *    to the same empty-lane shortcut the real class already takes in that
- *    case, avoiding the need to also wire `AiEntitlementService`/
- *    `AiModelCatalogService` for a path this spec never exercises.
- *
- * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
+ * CV AI is intentionally unbilled in the current product contract: both compose
+ * and score route through AiInvokeService but neither calls entitlement.consume.
+ * Every successful case therefore asserts that no quota or ledger row is created.
  */
-describe("a learner builds a CV and the generated artifact is persisted",
+describe("a learner builds a CV through the durable worker pipeline",
     () => {
         let app: INestApplication
         let entityManager: EntityManager
+        let redis: IoRedis
+        let redisCache: Cache
+        let generateQueue: Queue<string>
+        let scoreQueue: Queue<string>
+        let currentUser: UserEntity
+        let keysDirectory: string
 
-        /** The "logged in" user the overridden Keycloak guard stamps onto the request. */
-        let currentUser: UserEntity | null = null
+        const providerScript = new AiProviderInvokeScript()
+        const invokeSpy = jest.spyOn(ChatOpenAI.prototype,
+            "invoke")
+            .mockImplementation(() => providerScript.next() as never)
+        const qdrantSpy = jest.spyOn(QdrantVectorStore,
+            "fromExistingCollection")
+            .mockResolvedValue({
+                similaritySearch: jest.fn().mockResolvedValue([]),
+            } as never)
+        const compileMock = jest.mocked(compileCvPdf)
+        const extractMock = jest.mocked(extractCvText)
+        const s3ReadMock = {
+            buffer: jest.fn().mockResolvedValue(Buffer.from("uploaded pdf")),
+        }
+        const s3UploadMock = {
+            buffer: jest.fn().mockResolvedValue(undefined),
+        }
 
-        const fakeAuthGuard: CanActivate = {
+        const authGuard: CanActivate = {
             canActivate: (context: ExecutionContext): boolean => {
-                if (!currentUser) {
-                    return false
-                }
-                const gqlContext = GqlExecutionContext.create(context)
+                GqlExecutionContext.create(context)
                     .getContext<{ req: { user?: UserEntity } }>()
-                gqlContext.req.user = currentUser
+                    .req.user = currentUser
                 return true
             },
         }
 
-        const gradingLaneValidationServiceMock = {
-            validate: jest.fn().mockResolvedValue({
-            }),
-        }
-        const eventEmitterServiceMock = {
-            emit: jest.fn().mockResolvedValue(undefined),
-            on: jest.fn(),
-            off: jest.fn(),
-        }
-        // no live Redis in this harness -- both enqueue services fire-and-forget
-        // `Queue.add`, so a stub is enough for the awaited DB-write path
-        const generateCvQueueMock = {
-            add: jest.fn().mockResolvedValue(undefined),
-        }
-        const scoreUploadedCvQueueMock = {
-            add: jest.fn().mockResolvedValue(undefined),
-        }
-
-        const GRAPHQL_ENDPOINT = "/graphql"
-
-        const UPLOAD_CV_MUTATION = `
-            mutation UploadCv($request: UploadCvRequest!) {
-                uploadCv(request: $request) {
-                    success
-                    message
-                    error
-                    data {
-                        jobId
-                        cvGenerationId
-                    }
-                }
-            }
-        `
-        const GENERATE_CV_MUTATION = `
-            mutation GenerateCv($request: GenerateCvRequest!) {
-                generateCv(request: $request) {
-                    success
-                    message
-                    error
-                    data {
-                        jobId
-                        cvGenerationId
-                    }
-                }
-            }
-        `
-        const REVISE_CV_MUTATION = `
-            mutation ReviseCv($request: ReviseCvRequest!) {
-                reviseCv(request: $request) {
-                    success
-                    message
-                    error
-                    data {
-                        jobId
-                        cvGenerationId
-                    }
-                }
-            }
-        `
-
-        const uploadCv = (input: Record<string, unknown>) =>
-            request(app.getHttpServer())
-                .post(GRAPHQL_ENDPOINT)
+        const invokeMutation = async (
+            name: "generateCv" | "uploadCv",
+            input: Record<string, unknown>,
+        ): Promise<{ jobId: string, cvGenerationId: string }> => {
+            const response = await request(app.getHttpServer())
+                .post("/graphql")
                 .send({
-                    query: UPLOAD_CV_MUTATION,
+                    query: `
+                        mutation Run($request: ${name === "generateCv"
+        ? "GenerateCvRequest"
+        : "UploadCvRequest"}!) {
+                            ${name}(request: $request) {
+                                success
+                                error
+                                data { jobId cvGenerationId }
+                            }
+                        }
+                    `,
                     variables: {
                         request: input,
                     },
                 })
+                .expect(200)
+            expect(response.body.errors).toBeUndefined()
+            expect(response.body.data[name].success).toBe(true)
+            return response.body.data[name].data
+        }
 
-        const generateCv = (input: Record<string, unknown>) =>
-            request(app.getHttpServer())
-                .post(GRAPHQL_ENDPOINT)
+        const reviseCv = async (
+            sourceId: string,
+        ): Promise<{ jobId: string, cvGenerationId: string }> => {
+            const response = await request(app.getHttpServer())
+                .post("/graphql")
                 .send({
-                    query: GENERATE_CV_MUTATION,
+                    query: `
+                        mutation Revise($request: ReviseCvRequest!) {
+                            reviseCv(request: $request) {
+                                success
+                                error
+                                data { jobId cvGenerationId }
+                            }
+                        }
+                    `,
                     variables: {
-                        request: input,
+                        request: {
+                            cvSubmissionId: sourceId,
+                            extraPrompts: "Preserve facts and improve impact.",
+                        },
                     },
                 })
+                .expect(200)
+            expect(response.body.errors).toBeUndefined()
+            expect(response.body.data.reviseCv.success).toBe(true)
+            return response.body.data.reviseCv.data
+        }
 
-        const reviseCv = (input: Record<string, unknown>) =>
-            request(app.getHttpServer())
-                .post(GRAPHQL_ENDPOINT)
-                .send({
-                    query: REVISE_CV_MUTATION,
-                    variables: {
-                        request: input,
-                    },
+        const waitFor = async (
+            jobId: string,
+            cvGenerationId: string,
+            status: JobStatus,
+        ): Promise<{ job: JobEntity, cv: UserCvGenerationEntity }> => {
+            await until(async () => (await entityManager.findOneBy(JobEntity,
+                {
+                    id: jobId,
+                }))?.status === status,
+            {
+                timeout: 20_000,
+                describe: `CV job ${jobId} to become ${status}`,
+            })
+            const job = await entityManager.findOneByOrFail(JobEntity,
+                {
+                    id: jobId,
                 })
+            return {
+                job,
+                cv: await entityManager.findOneByOrFail(UserCvGenerationEntity,
+                    {
+                        id: cvGenerationId,
+                    }),
+            }
+        }
+
+        const expectUnbilled = async (): Promise<void> => {
+            expect(await entityManager.count(CreditUsageHistoryEntity)).toBe(0)
+            expect(await entityManager.count(AiSubscriptionEntity)).toBe(0)
+        }
 
         beforeAll(async () => {
+            process.env.BULLMQ_ENQUEUE_UX_DELAY = "0ms"
+            keysDirectory = mkdtempSync(join(tmpdir(),
+                "starci-cv-e2e-"))
+            const keysPath = join(keysDirectory,
+                "openai.key")
+            writeFileSync(keysPath,
+                "e2e-cv-key")
+
             const moduleRef = await Test.createTestingModule({
                 imports: [
                     TestHelpersModule,
@@ -295,32 +493,135 @@ describe("a learner builds a CV and the generated artifact is persisted",
                         withHydration: false,
                         withResolvers: false,
                     }),
+                    EventEmitterModule.forRoot(),
                     CqrsModule,
+                    BullModule.forRoot({
+                        connection: {
+                            host: process.env.REDIS_BULLMQ_HOST,
+                            port: Number(process.env.REDIS_BULLMQ_PORT),
+                            password: process.env.REDIS_BULLMQ_PASSWORD,
+                        },
+                    }),
+                    BullModule.registerQueue(
+                        {
+                            name: generateQueueName,
+                            defaultJobOptions: {
+                                attempts: 2,
+                                backoff: {
+                                    type: "fixed",
+                                    delay: 10,
+                                },
+                                removeOnComplete: false,
+                                removeOnFail: false,
+                            },
+                        },
+                        {
+                            name: scoreQueueData.name,
+                            prefix: scoreQueueData.prefix,
+                            defaultJobOptions: {
+                                attempts: 2,
+                                backoff: {
+                                    type: "fixed",
+                                    delay: 10,
+                                },
+                                removeOnComplete: false,
+                                removeOnFail: false,
+                            },
+                        },
+                    ),
                 ],
                 providers: [
-                    UploadCvResolver,
-                    UploadCvService,
-                    UploadCvHandler,
+                    ...createAiE2eRedisProviders(),
+                    createSuperJsonServiceProvider(),
                     GenerateCvResolver,
                     GenerateCvService,
                     GenerateCvHandler,
+                    UploadCvResolver,
+                    UploadCvService,
+                    UploadCvHandler,
                     ReviseCvResolver,
                     ReviseCvService,
                     ReviseCvHandler,
-                    // REAL -- proves the Pending cv_generations row + the tracked jobs
-                    // row are genuinely written, not just "the mock was called"
                     EnqueueGenerateCvJobService,
                     EnqueueScoreUploadedCvJobService,
+                    GenerateCvWorker,
+                    ScoreUploadedCvWorker,
+                    GenerateCvStepMappingService,
+                    GenerateCvGatherStepService,
+                    GenerateCvComposeStepService,
+                    GenerateCvRenderStepService,
+                    GenerateCvScoreStepService,
+                    GenerateCvCompleteStepService,
+                    CvScoringService,
+                    ScoreUploadedCvService,
+                    CvRagRetrievalService,
                     JobActionService,
+                    JobStalledService,
+                    AiInvokeService,
+                    AiEntitlementService,
+                    GradingLaneValidationService,
+                    AiModelCatalogService,
+                    KeyStoreService,
+                    KeyRotatorService,
+                    AiBalancerService,
+                    UseApiService,
+                    AiPingCacheService,
+                    AiModelLatencyCacheService,
+                    CacheService,
                     DayjsService,
-                    createSuperJsonServiceProvider(),
+                    MountFilesystemService,
                     {
-                        provide: GradingLaneValidationService,
-                        useValue: gradingLaneValidationServiceMock,
+                        provide: MountStorageService,
+                        useValue: {
+                            appConfig: {
+                                systemConfig: {
+                                },
+                            },
+                        },
                     },
                     {
-                        provide: EventEmitterService,
-                        useValue: eventEmitterServiceMock,
+                        provide: AiAutoQuotaConfigService,
+                        useValue: {
+                            getAutoQuota: () => ({
+                                creditsPer5h: 100,
+                                creditsPerWeek: 200,
+                            }),
+                        },
+                    },
+                    {
+                        provide: EmbeddingModelService,
+                        useValue: {
+                            getViaBalancer: jest.fn().mockResolvedValue({
+                                embedDocuments: jest.fn(),
+                                embedQuery: jest.fn(),
+                            }),
+                        },
+                    },
+                    {
+                        provide: QDRANT_CLIENT,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: S3ReadService,
+                        useValue: s3ReadMock,
+                    },
+                    {
+                        provide: S3UploadService,
+                        useValue: s3UploadMock,
+                    },
+                    EventEmitterService,
+                    {
+                        provide: NatsProducerService,
+                        useValue: {
+                            publish: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: NatsMessageFactoryService,
+                        useValue: {
+                            create: jest.fn().mockReturnValue("{}"),
+                        },
                     },
                     {
                         provide: WinstonService,
@@ -328,256 +629,271 @@ describe("a learner builds a CV and the generated artifact is persisted",
                             log: jest.fn(),
                         },
                     },
-                    {
-                        provide: getQueueToken("generate-cv"),
-                        useValue: generateCvQueueMock,
-                    },
-                    {
-                        provide: getQueueToken(bullData[BullQueueName.ScoreUploadedCv].name),
-                        useValue: scoreUploadedCvQueueMock,
-                    },
                 ],
             })
                 .overrideGuard(KeycloakAuthGraphQLGuard)
-                .useValue(fakeAuthGuard)
+                .useValue(authGuard)
                 .compile()
 
             app = moduleRef.createNestApplication()
             await app.init()
-
             entityManager = app.get<EntityManager>(
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
+            redis = app.get<IoRedis>(createIoRedisKey(IoRedisInstanceKey.Cache))
+            redisCache = app.get<Cache>(aiE2eRedisCacheManagerToken)
+            generateQueue = app.get<Queue<string>>(getQueueToken(generateQueueName))
+            scoreQueue = app.get<Queue<string>>(getQueueToken(scoreQueueData.name))
+
+            await entityManager.save(entityManager.create(AiModelEntity,
+                {
+                    name: modelName,
+                    provider: ModelProvider.OpenAI,
+                    category: AiModelCategory.Medium,
+                    keysFilePath: keysPath,
+                    priority: 100,
+                    weight: 10,
+                    credit: 5,
+                    priceInUsdPerMTok: 0,
+                    priceOutUsdPerMTok: 0,
+                    priceCacheReadUsdPerMTok: null,
+                    creditPerMTokIn: 0,
+                    creditPerMTokOut: 0,
+                    creditPerMTokCached: null,
+                    contextWindowTokens: 128_000,
+                    enabled: true,
+                    complimentary: false,
+                    supportedTasks: [AiModelTask.CVGenerating],
+                    defaultLocale: Locale.En,
+                }))
+            await app.get(AiModelCatalogService).invalidate()
+            await app.get(KeyStoreService).reloadAll()
+        })
+
+        beforeEach(async () => {
+            await entityManager.query(
+                "TRUNCATE TABLE cv_generations, credit_usage_histories, ai_subscriptions, jobs, users RESTART IDENTITY CASCADE",
+            )
+            await redis.flushdb()
+            await generateQueue.drain(true)
+            await scoreQueue.drain(true)
+            providerScript.set([])
+            invokeSpy.mockClear()
+            qdrantSpy.mockClear()
+            compileMock.mockReset().mockResolvedValue(Buffer.from("pdf"))
+            extractMock.mockReset().mockResolvedValue("Ada builds reliable APIs.")
+            s3ReadMock.buffer.mockClear().mockResolvedValue(Buffer.from("uploaded pdf"))
+            s3UploadMock.buffer.mockClear().mockResolvedValue(undefined)
+            currentUser = await entityManager.save(entityManager.create(UserEntity,
+                {
+                    keycloakId: `cv-${crypto.randomUUID()}`,
+                    email: "ada@example.test",
+                    username: `ada-${crypto.randomUUID()}`,
+                    displayName: "Ada Learner",
+                }))
         })
 
         afterAll(async () => {
+            invokeSpy.mockRestore()
+            qdrantSpy.mockRestore()
+            await redisCache.disconnect().catch(() => undefined)
+            redis.disconnect()
             await app.close().catch(() => undefined)
+            rmSync(keysDirectory,
+                {
+                    recursive: true,
+                    force: true,
+                })
         })
 
-        afterEach(async () => {
-            await entityManager.query(
-                "TRUNCATE TABLE \"cv_generations\", \"jobs\", \"users\" RESTART IDENTITY CASCADE",
-            )
-            currentUser = null
-            jest.clearAllMocks()
-            gradingLaneValidationServiceMock.validate.mockResolvedValue({
-            })
-        })
-
-        /** Seed a bare user (only keycloakId is required). */
-        const seedUser = async (keycloakId: string): Promise<UserEntity> =>
-            entityManager.save(
-                entityManager.create(UserEntity,
+        it("moves a generated CV from Pending to Done with structured data and artifacts",
+            async () => {
+                providerScript.set([
                     {
-                        keycloakId,
-                    }),
-            )
-
-        describe("uploadCv",
-            () => {
-                it("creates a Pending, source=uploaded cv_generations row scoped to the caller + a tracked jobs row",
-                    async () => {
-                        currentUser = await seedUser("kc-cv-upload-owner")
-                        const cdnKey = `users/cv-submissions/${currentUser.id}/resume.pdf`
-
-                        const response = await uploadCv({
-                            cdnKey,
-                            label: "My uploaded CV",
-                            targetRole: "Backend Engineer",
-                        })
-
-                        expect(response.status).toBe(200)
-                        const body = response.body.data.uploadCv
-                        expect(body.success).toBe(true)
-                        expect(body.data.cvGenerationId).toBeDefined()
-                        expect(body.data.jobId).toBeDefined()
-
-                        // the unified cv_generations row is REAL -- source=uploaded,
-                        // status=Pending (the worker that flips it to Done never runs here)
-                        const generation = await entityManager.findOneOrFail(
-                            UserCvGenerationEntity,
-                            {
-                                where: {
-                                    id: body.data.cvGenerationId,
-                                },
-                            },
-                        )
-                        expect(generation.userId).toBe(currentUser.id)
-                        expect(generation.status).toBe(CvGenerationStatus.Pending)
-                        expect(generation.source).toBe(CvSource.Uploaded)
-                        expect(generation.mode).toBe(CvGenerationMode.Generate)
-                        expect(generation.uploadedCdnKey).toBe(cdnKey)
-                        expect(generation.label).toBe("My uploaded CV")
-                        expect(generation.targetRole).toBe("Backend Engineer")
-
-                        // the tracked jobs row is REAL -- proves EnqueueScoreUploadedCvJobService
-                        // actually ran its DB write, not just that it was called
-                        const job = await entityManager.findOneOrFail(JobEntity,
-                            {
-                                where: {
-                                    id: body.data.jobId,
-                                },
-                            })
-                        expect(job.userId).toBe(currentUser.id)
-                        expect(job.status).toBe(JobStatus.Queued)
-                        expect(job.actionType).toBe(ActionType.ProcessCvSubmission)
-                        expect(job.category).toBe(JobCategory.ReviewCv)
-                        // single-step: score only (not the 5-step generate pipeline)
-                        expect(job.maxSteps).toBe(1)
+                        text: composedCv,
+                    },
+                    {
+                        text: scoredCv,
+                    },
+                ])
+                const started = await invokeMutation("generateCv",
+                    {
+                        extraPrompts: "Emphasize backend reliability.",
                     })
+                const { job, cv } = await waitFor(started.jobId,
+                    started.cvGenerationId,
+                    JobStatus.Completed)
+
+                expect(cv.status).toBe(CvGenerationStatus.Done)
+                expect(cv.structuredData).toMatchObject({
+                    fullName: "Ada Learner",
+                })
+                expect(cv.score).toBe(88)
+                expect(cv.latexCdnKey).toContain(started.jobId)
+                expect(cv.generatedPdfCdnKey).toContain(started.jobId)
+                expect(job.currentStep).toBe(job.maxSteps)
+                expect(s3UploadMock.buffer).toHaveBeenCalledTimes(2)
+                await expectUnbilled()
             })
 
-        describe("generateCv",
-            () => {
-                it("creates a Pending, source=generated cv_generations row scoped to the caller + a tracked jobs row (5-step pipeline)",
-                    async () => {
-                        currentUser = await seedUser("kc-cv-generate-owner")
-
-                        const response = await generateCv({
-                            extraPrompts: "I built project A and project B, know Golang/TypeScript",
-                            label: "AI-built CV",
-                        })
-
-                        expect(response.status).toBe(200)
-                        const body = response.body.data.generateCv
-                        expect(body.success).toBe(true)
-                        expect(body.data.cvGenerationId).toBeDefined()
-                        expect(body.data.jobId).toBeDefined()
-
-                        const generation = await entityManager.findOneOrFail(
-                            UserCvGenerationEntity,
-                            {
-                                where: {
-                                    id: body.data.cvGenerationId,
-                                },
-                            },
-                        )
-                        expect(generation.userId).toBe(currentUser.id)
-                        expect(generation.status).toBe(CvGenerationStatus.Pending)
-                        expect(generation.source).toBe(CvSource.Generated)
-                        expect(generation.mode).toBe(CvGenerationMode.Generate)
-                        expect(generation.sourceCvSubmissionId).toBeNull()
-                        expect(generation.extraPrompts).toBe(
-                            "I built project A and project B, know Golang/TypeScript",
-                        )
-
-                        const job = await entityManager.findOneOrFail(JobEntity,
-                            {
-                                where: {
-                                    id: body.data.jobId,
-                                },
-                            })
-                        expect(job.userId).toBe(currentUser.id)
-                        expect(job.status).toBe(JobStatus.Queued)
-                        expect(job.actionType).toBe(ActionType.ProcessCvSubmission)
-                        // gather -> compose -> render -> score -> complete
-                        expect(job.maxSteps).toBe(5)
-
-                        await until(() => generateCvQueueMock.add.mock.calls.length > 0,
-                            {
-                                timeout: 2_000,
-                                describe: "the generated CV job to reach BullMQ",
-                            })
-                        expect(generateCvQueueMock.add).toHaveBeenCalledWith(job.id,
-                            job.payload,
-                            {
-                                jobId: job.id,
-                            })
+        it("scores an uploaded CV through its real single-step worker",
+            async () => {
+                providerScript.set([
+                    {
+                        text: scoredCv,
+                    },
+                ])
+                const started = await invokeMutation("uploadCv",
+                    {
+                        cdnKey: `users/${currentUser.id}/resume.pdf`,
+                        label: "Uploaded CV",
                     })
+                const { cv } = await waitFor(started.jobId,
+                    started.cvGenerationId,
+                    JobStatus.Completed)
+
+                expect(cv.status).toBe(CvGenerationStatus.Done)
+                expect(cv.score).toBe(88)
+                expect(cv.feedback).toMatchObject({
+                    shortFeedback: "Strong evidence and a clear structure.",
+                })
+                expect(extractMock).toHaveBeenCalledTimes(1)
+                await expectUnbilled()
             })
 
-        describe("reviseCv",
-            () => {
-                /** Seed an existing (already-Done) generation row owned by `owner`. */
-                const seedSourceGeneration = async (
-                    owner: UserEntity,
-                ): Promise<UserCvGenerationEntity> =>
-                    entityManager.save(
-                        entityManager.create(UserCvGenerationEntity,
-                            {
-                                user: {
-                                    id: owner.id,
-                                },
-                                mode: CvGenerationMode.Generate,
-                                source: CvSource.Generated,
-                                status: CvGenerationStatus.Done,
-                                structuredData: {
-                                    summary: "Existing CV",
-                                },
-                            }),
-                    )
+        it("revises an owned uploaded CV through the same durable five-step pipeline",
+            async () => {
+                const source = await entityManager.save(entityManager.create(
+                    UserCvGenerationEntity,
+                    {
+                        user: {
+                            id: currentUser.id,
+                        },
+                        mode: CvGenerationMode.Generate,
+                        source: CvSource.Uploaded,
+                        status: CvGenerationStatus.Done,
+                        uploadedCdnKey: `users/${currentUser.id}/source.pdf`,
+                    },
+                ))
+                providerScript.set([
+                    {
+                        text: composedCv,
+                    },
+                    {
+                        text: scoredCv,
+                    },
+                ])
+                const started = await reviseCv(source.id)
+                const { cv } = await waitFor(started.jobId,
+                    started.cvGenerationId,
+                    JobStatus.Completed)
 
-                it("owner can revise: a NEW Pending row is created with mode=Revise pointing at the source",
-                    async () => {
-                        currentUser = await seedUser("kc-cv-revise-owner")
-                        const source = await seedSourceGeneration(currentUser)
+                expect(cv.status).toBe(CvGenerationStatus.Done)
+                expect(cv.mode).toBe(CvGenerationMode.Revise)
+                expect(cv.sourceCvSubmissionId).toBe(source.id)
+                expect(await entityManager.count(UserCvGenerationEntity)).toBe(2)
+                expect(extractMock).toHaveBeenCalledTimes(1)
+                await expectUnbilled()
+            })
 
-                        const response = await reviseCv({
-                            cvSubmissionId: source.id,
-                            extraPrompts: "Make it punchier",
-                        })
-
-                        expect(response.status).toBe(200)
-                        const body = response.body.data.reviseCv
-                        expect(body.success).toBe(true)
-                        expect(body.data.cvGenerationId).not.toBe(source.id)
-
-                        const revision = await entityManager.findOneOrFail(
-                            UserCvGenerationEntity,
-                            {
-                                where: {
-                                    id: body.data.cvGenerationId,
-                                },
-                            },
-                        )
-                        expect(revision.userId).toBe(currentUser.id)
-                        expect(revision.status).toBe(CvGenerationStatus.Pending)
-                        expect(revision.mode).toBe(CvGenerationMode.Revise)
-                        expect(revision.sourceCvSubmissionId).toBe(source.id)
-                        expect(revision.extraPrompts).toBe("Make it punchier")
-
-                        // exactly the source + the one fresh revision row exist
-                        const count = await entityManager.count(UserCvGenerationEntity)
-                        expect(count).toBe(2)
+        it("marks compose exhaustion Failed without publishing partial artifacts",
+            async () => {
+                providerScript.set([
+                    new Error("compose provider unavailable"),
+                    new Error("compose provider unavailable"),
+                ])
+                const started = await invokeMutation("generateCv",
+                    {
+                        extraPrompts: "Generate a concise CV.",
                     })
+                const { cv } = await waitFor(started.jobId,
+                    started.cvGenerationId,
+                    JobStatus.Failed)
 
-                it("ownership: reviewing another user's generation 404s as CV_GENERATION_NOT_FOUND_EXCEPTION — no row is created",
-                    async () => {
-                        const owner = await seedUser("kc-cv-revise-target-owner")
-                        const source = await seedSourceGeneration(owner)
-                        // a DIFFERENT user is logged in and tries to revise it
-                        currentUser = await seedUser("kc-cv-revise-outsider")
+                expect(cv.status).toBe(CvGenerationStatus.Failed)
+                expect(cv.structuredData).toBeNull()
+                expect(cv.latexCdnKey).toBeNull()
+                expect(cv.generatedPdfCdnKey).toBeNull()
+                expect(s3UploadMock.buffer).not.toHaveBeenCalled()
+                await expectUnbilled()
+            })
 
-                        const response = await reviseCv({
-                            cvSubmissionId: source.id,
-                        })
-
-                        expect(response.status).toBe(200)
-                        const body = response.body.data.reviseCv
-                        expect(body.success).toBe(false)
-                        expect(body.error).toBe("CV_GENERATION_NOT_FOUND_EXCEPTION")
-                        expect(body.data).toBeNull()
-
-                        // only the seeded source row exists -- the enqueue path never ran
-                        const count = await entityManager.count(UserCvGenerationEntity)
-                        expect(count).toBe(1)
-                        expect(generateCvQueueMock.add).not.toHaveBeenCalled()
+        it("keeps the generated artifact Done when advisory scoring fails",
+            async () => {
+                providerScript.set([
+                    {
+                        text: composedCv,
+                    },
+                    new SyntaxError("invalid score JSON"),
+                ])
+                const started = await invokeMutation("generateCv",
+                    {
+                        extraPrompts: "Generate then score.",
                     })
+                const { cv } = await waitFor(started.jobId,
+                    started.cvGenerationId,
+                    JobStatus.Completed)
 
-                it("a non-existent source id 404s the same way as a foreign one (ownership is never leaked)",
-                    async () => {
-                        currentUser = await seedUser("kc-cv-revise-nothing-to-revise")
+                expect(cv.status).toBe(CvGenerationStatus.Done)
+                expect(cv.structuredData).not.toBeNull()
+                expect(cv.latexCdnKey).not.toBeNull()
+                expect(cv.score).toBeNull()
+                expect(cv.feedback).toBeNull()
+                await expectUnbilled()
+            })
 
-                        const response = await reviseCv({
-                            cvSubmissionId: "11111111-1111-4111-8111-111111111111",
-                        })
-
-                        const body = response.body.data.reviseCv
-                        expect(body.success).toBe(false)
-                        expect(body.error).toBe("CV_GENERATION_NOT_FOUND_EXCEPTION")
-
-                        const count = await entityManager.count(UserCvGenerationEntity)
-                        expect(count).toBe(0)
+        it("resumes a failed compose step on BullMQ retry without duplicating the row or artifacts",
+            async () => {
+                providerScript.set([
+                    {
+                        text: "not-json",
+                    },
+                    {
+                        text: composedCv,
+                    },
+                    {
+                        text: scoredCv,
+                    },
+                ])
+                const started = await invokeMutation("generateCv",
+                    {
+                        extraPrompts: "Retry safely.",
                     })
+                const { cv } = await waitFor(started.jobId,
+                    started.cvGenerationId,
+                    JobStatus.Completed)
+
+                expect(cv.status).toBe(CvGenerationStatus.Done)
+                expect(await entityManager.count(UserCvGenerationEntity)).toBe(1)
+                expect(s3UploadMock.buffer).toHaveBeenCalledTimes(2)
+                expect(invokeSpy).toHaveBeenCalledTimes(3)
+                await expectUnbilled()
+            })
+
+        it("closes jobs and generations when either real queue client rejects enqueue",
+            async () => {
+                await generateQueue.close()
+                const generated = await invokeMutation("generateCv",
+                    {
+                        extraPrompts: "Broker failure.",
+                    })
+                const { cv: generatedCv } = await waitFor(generated.jobId,
+                    generated.cvGenerationId,
+                    JobStatus.Failed)
+                await scoreQueue.close()
+                const uploaded = await invokeMutation("uploadCv",
+                    {
+                        cdnKey: `users/${currentUser.id}/unreachable.pdf`,
+                    })
+                const { cv: uploadedCv } = await waitFor(uploaded.jobId,
+                    uploaded.cvGenerationId,
+                    JobStatus.Failed)
+
+                expect(generatedCv.status).toBe(CvGenerationStatus.Failed)
+                expect(generatedCv.errorMessage).toContain("Failed to enqueue job to broker")
+                expect(uploadedCv.status).toBe(CvGenerationStatus.Failed)
+                expect(uploadedCv.errorMessage).toContain("Failed to enqueue job to broker")
+                expect(invokeSpy).not.toHaveBeenCalled()
+                await expectUnbilled()
             })
     })

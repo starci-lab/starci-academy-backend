@@ -66,7 +66,7 @@ export class EnqueueSendMailJobService {
         const job = await this.jobActionService.createJob({
             id: uuidv4(),
             actionType: ActionType.SendMail,
-            maxSteps: 1,
+            maxSteps: 2,
             payload: this.superJson.stringify(params satisfies SendMailPayload),
         })
 

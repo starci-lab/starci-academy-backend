@@ -69,6 +69,9 @@ import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
+    KeycloakTokenService,
+} from "@modules/integrations/keycloak/token.service"
+import {
     MembershipService,
 } from "@modules/membership/membership.service"
 import {
@@ -162,6 +165,13 @@ describe("a community member sends a message and the room receives it",
                         provide: EventEmitterService, useValue: events
                     },
                     {
+                        provide: KeycloakTokenService, useValue: {
+                            verifyAccessToken: jest.fn(async (token: string) => ({
+                                active: true, sub: token
+                            }))
+                        }
+                    },
+                    {
                         provide: SUPERJSON, useValue: {
                             stringify: JSON.stringify, parse: JSON.parse
                         }
@@ -169,6 +179,7 @@ describe("a community member sends a message and the room receives it",
                 ],
             }).overrideGuard(KeycloakAuthGraphQLGuard).useValue(guard).compile()
             app = moduleRef.createNestApplication()
+            globalThis.__APP__ = app
             await app.listen(0)
             entityManager = app.get(getEntityManagerToken("primary"))
 
@@ -183,7 +194,9 @@ describe("a community member sends a message and the room receives it",
                 }))
             socket = io(`${await app.getUrl()}/community_chat`,
                 {
-                    transports: ["websocket"], forceNew: true
+                    transports: ["websocket"], auth: {
+                        token: member.keycloakId
+                    }, forceNew: true
                 })
             await new Promise<void>((resolve, reject) => {
                 socket.once("connect",

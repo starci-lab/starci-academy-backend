@@ -137,6 +137,13 @@ export interface AiStreamParams {
 export interface StreamActionResult {
     /** The full concatenated response text. */
     text: string
+    /**
+     * Provider chunk boundaries captured for the successful attempt. They are
+     * deliberately not emitted from inside the balancer action: an attempt may
+     * fail after yielding text, and exposing that text would make a later
+     * fallback concatenate two different model answers at the client.
+     */
+    deltas?: Array<string>
     /** Prompt tokens reported by the model (0 when unreported). */
     promptTokens: number
     /** Completion tokens reported by the model (0 when unreported). */
@@ -245,7 +252,7 @@ export interface AiStreamResult {
     model: string
     /** The provider matching {@link AiStreamResult.model}. */
     provider: ModelProvider
-    /** Number of (model, key) attempts before the stream started. */
+    /** Number of (model, key) attempts before one stream completed successfully. */
     attempts: number
     /** Prompt tokens consumed (0 when the model did not report usage). */
     promptTokens: number

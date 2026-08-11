@@ -7,6 +7,8 @@ import {
 } from "@nestjs/schedule"
 import {
     EntityManager,
+    In,
+    IsNull,
 } from "typeorm"
 import {
     NotificationEntity,
@@ -17,6 +19,9 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "@modules/databases/postgresql/primary/lock/postgresql-advisory-lock.service"
 import {
     envConfig,
 } from "@modules/platform/env/config"
@@ -41,6 +46,7 @@ interface DigestCountRow {
     userId: string
     type: NotificationType
     count: string
+    notificationIds: Array<string>
 }
 
 /** Window the digest looks back over (last 24 hours). */
@@ -57,12 +63,14 @@ const DIGEST_WINDOW_MS = 24 * 60 * 60 * 1000
  * rows are already keyed to the recipient `user`, so it never mis-attributes an
  * actor's feed item. Best-effort: any failure is logged and swallowed so a bad
  * run can never crash the scheduler, and per-user mail failures never abort the
- * sweep. Idempotent enough in practice: it runs once a day on a fixed window.
+ * sweep. A PostgreSQL advisory lock serializes replicas, while each included
+ * notification receives a durable digest cursor so retries remain idempotent.
  */
 export class SocialDigestCronService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly advisoryLockService: PostgreSqlAdvisoryLockService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly winstonService: WinstonService,
     ) {}
@@ -76,66 +84,80 @@ export class SocialDigestCronService {
         {
             name: "social-activity-digest",
             timeZone: "Asia/Ho_Chi_Minh",
+            waitForCompletion: true,
         },
     )
     async sendDailyDigests(): Promise<void> {
         try {
-            const since = new Date(Date.now() - DIGEST_WINDOW_MS)
-            // one grouped query: notifications in the window for opted-in recipients
-            const rows = await this.entityManager
-                .createQueryBuilder(NotificationEntity,
-                    "n")
-                .innerJoin("n.user",
-                    "u")
-                .select("n.user_id",
-                    "userId")
-                .addSelect("n.type",
-                    "type")
-                .addSelect("COUNT(*)",
-                    "count")
-                .where("n.created_at >= :since",
-                    {
-                        since,
-                    })
-                .andWhere("u.email_digest_enabled = true")
-                .andWhere("u.is_deleted = false")
-                .groupBy("n.user_id")
-                .addGroupBy("n.type")
-                .getRawMany<DigestCountRow>()
+            await this.entityManager.transaction(async (manager) => {
+                // A database-scoped lock serializes every app replica. The
+                // persisted `digestSentAt` cursor below handles later re-runs.
+                await this.advisoryLockService.acquireXactLockByKey(
+                    manager,
+                    "scheduler:social-activity-digest",
+                )
+                const runAt = new Date(Date.now())
+                const since = new Date(runAt.getTime() - DIGEST_WINDOW_MS)
+                // Capture the exact row ids summarized. Marking by ids avoids
+                // swallowing notifications inserted while this run is active.
+                const rows = await manager
+                    .createQueryBuilder(NotificationEntity,
+                        "n")
+                    .innerJoin("n.user",
+                        "u")
+                    .select("n.user_id",
+                        "userId")
+                    .addSelect("n.type",
+                        "type")
+                    .addSelect("COUNT(*)",
+                        "count")
+                    .addSelect("ARRAY_AGG(n.id)",
+                        "notificationIds")
+                    .where("n.created_at >= :since",
+                        {
+                            since,
+                        })
+                    .andWhere("n.digest_sent_at IS NULL")
+                    .andWhere("u.email_digest_enabled = true")
+                    .andWhere("u.is_deleted = false")
+                    .groupBy("n.user_id")
+                    .addGroupBy("n.type")
+                    .getRawMany<DigestCountRow>()
 
-            // fold the (user, type) rows into one summary per user
-            const perUser = new Map<string, { total: number; byType: Map<NotificationType, number> }>()
-            for (const row of rows) {
-                const count = Number.parseInt(row.count,
-                    10)
-                if (!Number.isFinite(count) || count <= 0) {
-                    continue
+                // fold the (user, type) rows into one summary per user
+                const perUser = new Map<string, {
+                    total: number
+                    byType: Map<NotificationType, number>
+                    notificationIds: Array<string>
+                }>()
+                for (const row of rows) {
+                    const count = Number.parseInt(row.count,
+                        10)
+                    if (!Number.isFinite(count) || count <= 0) {
+                        continue
+                    }
+                    const entry = perUser.get(row.userId) ?? {
+                        total: 0,
+                        byType: new Map<NotificationType, number>(),
+                        notificationIds: [],
+                    }
+                    entry.total += count
+                    entry.byType.set(row.type,
+                        (entry.byType.get(row.type) ?? 0) + count)
+                    entry.notificationIds.push(...row.notificationIds)
+                    perUser.set(row.userId,
+                        entry)
                 }
-                const entry = perUser.get(row.userId) ?? {
-                    total: 0,
-                    byType: new Map<NotificationType, number>(),
-                }
-                entry.total += count
-                entry.byType.set(row.type,
-                    (entry.byType.get(row.type) ?? 0) + count)
-                perUser.set(row.userId,
-                    entry)
-            }
 
-            // one best-effort email per user with activity -- a single
-            // enqueue failure must never abort the sweep for the OTHER
-            // recipients still waiting in the loop (mirrors
-            // PublicRagPlaygroundCleanupService.dropSession's per-item isolation)
-            let sentCount = 0
-            for (const [userId,
-                summary] of perUser) {
-                const followers = summary.byType.get(NotificationType.NewFollower) ?? 0
-                const replies =
-                    (summary.byType.get(NotificationType.CommentReply) ?? 0) +
-                    (summary.byType.get(NotificationType.CommunityReply) ?? 0)
-                try {
-                    await enqueueLearnerEmail({
-                        entityManager: this.entityManager,
+                let sentCount = 0
+                for (const [userId,
+                    summary] of perUser) {
+                    const followers = summary.byType.get(NotificationType.NewFollower) ?? 0
+                    const replies =
+                        (summary.byType.get(NotificationType.CommentReply) ?? 0) +
+                        (summary.byType.get(NotificationType.CommunityReply) ?? 0)
+                    const enqueued = await enqueueLearnerEmail({
+                        entityManager: manager,
                         enqueueSendMailJobService: this.enqueueSendMailJobService,
                         userId,
                         template: "activity-digest",
@@ -152,27 +174,35 @@ export class SocialDigestCronService {
                             settingsUrl: `${envConfig().web.baseUrl}/profile/settings`,
                         },
                     })
-                    sentCount += 1
-                } catch (error) {
-                    // this user's enqueue failed -- log and move on to the next
-                    // recipient rather than aborting the whole sweep
-                    const cause = error instanceof Error ? error : new Error(String(error))
-                    this.winstonService.log(WinstonLog.BestEffortOperationFailed,
+                    if (!enqueued) {
+                        this.winstonService.log(WinstonLog.BestEffortOperationFailed,
+                            {
+                                op: "cron.social-digest.enqueue-failed",
+                                userId,
+                            })
+                        continue
+                    }
+                    await manager.update(
+                        NotificationEntity,
                         {
-                            op: "cron.social-digest.enqueue-failed",
-                            userId,
-                            error: cause.message,
-                        })
+                            id: In(summary.notificationIds),
+                            digestSentAt: IsNull(),
+                        },
+                        {
+                            digestSentAt: runAt,
+                        },
+                    )
+                    sentCount += 1
                 }
-            }
-            this.winstonService.log(WinstonLog.CronTickCompleted,
-                {
-                    op: "cron.social-digest.completed",
-                    count: sentCount,
-                    meta: {
-                        totalUsers: perUser.size,
-                    },
-                })
+                this.winstonService.log(WinstonLog.CronTickCompleted,
+                    {
+                        op: "cron.social-digest.completed",
+                        count: sentCount,
+                        meta: {
+                            totalUsers: perUser.size,
+                        },
+                    })
+            })
         } catch (error) {
             // normalize, wrap in a typed exception so the failure is groupable
             // and observable, then log (message + stack) and swallow -- a bad
