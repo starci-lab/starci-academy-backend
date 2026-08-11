@@ -6,9 +6,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -26,24 +23,18 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases/postgresql/primary/primary.decorators"
-import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     KeycloakGraphQLUser,
 } from "@modules/integrations/keycloak/keycloak.decorators"
 import {
-    EncryptionService,
-} from "@modules/crypto/encryption.service"
-import {
-    TotpService,
-} from "@modules/integrations/totp/totp.service"
-import {
     SetupTwoFactorData,
     SetupTwoFactorResponse,
 } from "./graphql-types/response"
+import {
+    SetupTwoFactorService,
+} from "./setup-two-factor.service"
 
 @Resolver()
 /**
@@ -57,10 +48,7 @@ import {
  */
 export class SetupTwoFactorResolver {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly totpService: TotpService,
-        private readonly encryptionService: EncryptionService,
+        private readonly setupTwoFactorService: SetupTwoFactorService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Strict)
@@ -81,38 +69,9 @@ export class SetupTwoFactorResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<SetupTwoFactorData> {
-        // fresh random secret for this enrollment attempt
-        const secret = this.totpService.generateSecret()
-
-        // encrypt the secret at rest; store the JSON payload in the user row
-        const encrypted = this.encryptionService.encrypt({
-            plainText: secret,
+        return this.setupTwoFactorService.execute({
+            request: undefined,
+            user,
         })
-
-        // persist as the pending secret and force the flag off until confirmed --
-        // keeps `twoFactorEnabled` consistent with a secret the user has proven
-        await this.entityManager.update(
-            UserEntity,
-            {
-                id: user.id,
-            },
-            {
-                twoFactorSecret: JSON.stringify(encrypted),
-                twoFactorEnabled: false,
-            },
-        )
-
-        // label the authenticator entry with a human-friendly account name
-        const accountName = user.email ?? user.username ?? user.id
-        const otpauthUrl = this.totpService.generateKeyUri({
-            secret,
-            accountName,
-        })
-
-        // return the secret only here, at enrollment time -- never via a query
-        return {
-            secret,
-            otpauthUrl,
-        }
     }
 }

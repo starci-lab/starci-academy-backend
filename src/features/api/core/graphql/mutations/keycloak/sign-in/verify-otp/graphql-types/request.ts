@@ -33,5 +33,6 @@ export class SignInVerifyOtpRequest {
             message: "OTP must be 6 digits",
         })
         otp: string
+
 }
 

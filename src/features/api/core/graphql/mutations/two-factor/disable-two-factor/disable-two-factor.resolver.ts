@@ -7,9 +7,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -27,29 +24,20 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases/postgresql/primary/primary.decorators"
-import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     KeycloakGraphQLUser,
 } from "@modules/integrations/keycloak/keycloak.decorators"
 import {
-    EncryptionService,
-} from "@modules/crypto/encryption.service"
-import {
-    TotpService,
-} from "@modules/integrations/totp/totp.service"
-import {
-    TwoFactorInvalidCodeException,
-} from "@modules/platform/exceptions/errors/api/two-factor-invalid-code"
-import {
     DisableTwoFactorRequest,
 } from "./graphql-types/request"
 import {
     DisableTwoFactorResponse,
 } from "./graphql-types/response"
+import {
+    DisableTwoFactorService,
+} from "./disable-two-factor.service"
 
 @Resolver()
 /**
@@ -61,10 +49,7 @@ import {
  */
 export class DisableTwoFactorResolver {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly totpService: TotpService,
-        private readonly encryptionService: EncryptionService,
+        private readonly disableTwoFactorService: DisableTwoFactorService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Strict)
@@ -86,45 +71,10 @@ export class DisableTwoFactorResolver {
             request: DisableTwoFactorRequest,
         @KeycloakGraphQLUser()
             user: UserEntity,
-    ): Promise<DisableTwoFactorResponse> {
-        // reload to read the authoritative enabled flag + stored secret
-        const current = await this.entityManager.findOneByOrFail(
-            UserEntity,
-            {
-                id: user.id,
-            },
-        )
-
-        // while enabled, require a valid code so a hijacked session can't silently
-        // strip the second factor
-        if (current.twoFactorEnabled && current.twoFactorSecret) {
-            const secret = this.encryptionService.decrypt({
-                payload: JSON.parse(current.twoFactorSecret),
-            })
-            const valid = this.totpService.verify({
-                secret,
-                token: request.code,
-            })
-            if (!valid) {
-                throw new TwoFactorInvalidCodeException({
-                    userId: user.id,
-                })
-            }
-        }
-
-        // clear both the flag and the secret (also drops any pending enrollment)
-        await this.entityManager.update(
-            UserEntity,
-            {
-                id: user.id,
-            },
-            {
-                twoFactorEnabled: false,
-                twoFactorSecret: null,
-            },
-        )
-
-        return {
-        } as DisableTwoFactorResponse
+    ): Promise<undefined> {
+        return this.disableTwoFactorService.execute({
+            request,
+            user,
+        })
     }
 }

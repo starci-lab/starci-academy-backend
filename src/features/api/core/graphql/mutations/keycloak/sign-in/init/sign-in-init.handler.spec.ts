@@ -21,6 +21,26 @@ import {
 import {
     SignInInitHandler,
 } from "./sign-in-init.handler"
+import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
+    EncryptionService,
+} from "@modules/crypto/encryption.service"
+import {
+    TotpService,
+} from "@modules/integrations/totp/totp.service"
+import {
+    TwoFactorInvalidCodeException,
+} from "@modules/platform/exceptions/errors/api/two-factor-invalid-code"
+import {
+    makeEntityManagerMock,
+} from "@tests/mocks/entity-manager.mock"
+import type {
+    EntityManagerMock,
+} from "@tests/mocks/entity-manager.mock"
+
+const POSTGRESQL_PRIMARY = "primary"
 
 describe("SignInInitHandler",
     () => {
@@ -29,6 +49,9 @@ describe("SignInInitHandler",
         let otpChallengeService: jest.Mocked<Pick<OtpChallengeService, "createActionChallenge">>
         let enqueueSendMailJobService: jest.Mocked<Pick<EnqueueSendMailJobService, "enqueue">>
         let keycloakTokenService: jest.Mocked<Pick<KeycloakTokenService, "exchangePasswordForToken">>
+        let entityManager: EntityManagerMock
+        let encryptionService: jest.Mocked<Pick<EncryptionService, "decrypt">>
+        let totpService: jest.Mocked<Pick<TotpService, "verify">>
 
         beforeEach(async () => {
             // OTP challenge issuer -- returns the new challenge handle + otp code
@@ -45,6 +68,14 @@ describe("SignInInitHandler",
             keycloakTokenService = {
                 exchangePasswordForToken: jest.fn(),
             } as unknown as jest.Mocked<Pick<KeycloakTokenService, "exchangePasswordForToken">>
+            entityManager = makeEntityManagerMock()
+            entityManager.findOne.mockResolvedValue(null)
+            encryptionService = {
+                decrypt: jest.fn().mockReturnValue("totp-secret"),
+            }
+            totpService = {
+                verify: jest.fn().mockReturnValue(true),
+            }
 
             module = await Test.createTestingModule({
                 providers: [
@@ -60,6 +91,18 @@ describe("SignInInitHandler",
                     {
                         provide: KeycloakTokenService,
                         useValue: keycloakTokenService,
+                    },
+                    {
+                        provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
+                        useValue: entityManager,
+                    },
+                    {
+                        provide: EncryptionService,
+                        useValue: encryptionService,
+                    },
+                    {
+                        provide: TotpService,
+                        useValue: totpService,
                     },
                 ],
             }).compile()
@@ -178,5 +221,67 @@ describe("SignInInitHandler",
                 // no challenge + no email when the password is wrong
                 expect(otpChallengeService.createActionChallenge).not.toHaveBeenCalled()
                 expect(enqueueSendMailJobService.enqueue).not.toHaveBeenCalled()
+            })
+
+        it("does not create an email challenge when enrolled TOTP proof is missing",
+            async () => {
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-1",
+                    refresh_token: "refresh-1",
+                } as never)
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "user-1",
+                    twoFactorEnabled: true,
+                    twoFactorSecret: JSON.stringify({
+                        ciphertext: "encrypted",
+                    }),
+                })
+
+                await expect(handler.execute(
+                    new SignInInitCommand({
+                        request: {
+                            email: "user@example.com",
+                            password: "secret",
+                        },
+                    }),
+                )).rejects.toBeInstanceOf(TwoFactorInvalidCodeException)
+                expect(otpChallengeService.createActionChallenge).not.toHaveBeenCalled()
+            })
+
+        it("creates the email challenge after enrolled TOTP proof succeeds",
+            async () => {
+                keycloakTokenService.exchangePasswordForToken.mockResolvedValueOnce({
+                    access_token: "access-1",
+                    refresh_token: "refresh-1",
+                } as never)
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "user-1",
+                    twoFactorEnabled: true,
+                    twoFactorSecret: JSON.stringify({
+                        ciphertext: "encrypted",
+                    }),
+                })
+                otpChallengeService.createActionChallenge.mockResolvedValueOnce({
+                    challengeId: "chal-1",
+                    otp: "123456",
+                    expiresInSeconds: 300,
+                } as never)
+
+                await handler.execute(
+                    new SignInInitCommand({
+                        request: {
+                            email: "user@example.com",
+                            password: "secret",
+                            twoFactorCode: "654321",
+                        },
+                    }),
+                )
+
+                expect(encryptionService.decrypt).toHaveBeenCalled()
+                expect(totpService.verify).toHaveBeenCalledWith({
+                    secret: "totp-secret",
+                    token: "654321",
+                })
+                expect(otpChallengeService.createActionChallenge).toHaveBeenCalled()
             })
     })

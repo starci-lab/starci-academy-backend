@@ -1261,9 +1261,21 @@ const requireEntityTableName = {
                 const expr = node.expression
                 if (expr.type !== "CallExpression") return
                 if (expr.callee.type !== "Identifier" || expr.callee.name !== "Entity") return
-                const named = expr.arguments.some((arg) =>
+                // `@Entity("t")` and `@Entity({ name: "t" })` both name the table.
+                // The options form is not a stylistic variant to be discouraged: it is
+                // the ONLY form that can also carry `schema`, so rejecting it pushes an
+                // author to delete the schema qualifier to satisfy the rule -- a worse
+                // outcome than the inferred name this rule exists to prevent.
+                const isTableName = (arg) =>
                     (arg.type === "Literal" && typeof arg.value === "string")
-                    || arg.type === "TemplateLiteral")
+                    || arg.type === "TemplateLiteral"
+                const named = expr.arguments.some((arg) =>
+                    isTableName(arg)
+                    || (arg.type === "ObjectExpression" && arg.properties.some((property) =>
+                        property.type === "Property"
+                        && !property.computed
+                        && (property.key.name === "name" || property.key.value === "name")
+                        && isTableName(property.value))))
                 if (named) return
                 context.report({ node, messageId: "inferred" })
             },

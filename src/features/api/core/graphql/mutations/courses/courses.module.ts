@@ -22,6 +22,9 @@ import {
 import {
     ClearCartSingleMutationModule,
 } from "./clear-cart/clear-cart.module"
+import {
+    RefundCoursePurchaseSingleMutationModule,
+} from "./refund-course-purchase/refund-course-purchase.module"
 
 @Module({
     imports: [
@@ -41,6 +44,9 @@ import {
             isGlobal: true,
         }),
         ClearCartSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        RefundCoursePurchaseSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

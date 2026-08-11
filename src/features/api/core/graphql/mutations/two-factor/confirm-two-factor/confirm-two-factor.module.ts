@@ -7,10 +7,18 @@ import {
 import {
     ConfirmTwoFactorResolver,
 } from "./confirm-two-factor.resolver"
+import {
+    ConfirmTwoFactorService,
+} from "./confirm-two-factor.service"
+import {
+    ConfirmTwoFactorHandler,
+} from "./confirm-two-factor.handler"
 
 @Module({
     providers: [
         ConfirmTwoFactorResolver,
+        ConfirmTwoFactorService,
+        ConfirmTwoFactorHandler,
     ],
 })
 /**

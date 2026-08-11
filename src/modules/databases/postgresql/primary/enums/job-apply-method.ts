@@ -11,6 +11,8 @@ import {
  * how `FoundationKind` discriminates a foundation resource's payload shape.
  */
 export enum JobApplyMethod {
+    /** Candidate applies inside StarCi; the employer reads the persisted application. */
+    Internal = "internal",
     /** Candidate applies by visiting `applyUrl` (external ATS, form, etc.). */
     ExternalUrl = "external_url",
     /** Candidate applies by emailing `applyEmail`. */
@@ -27,6 +29,9 @@ registerEnumType(
         name: "JobApplyMethod",
         description: "How a candidate applies to a job posting.",
         valuesMap: {
+            [JobApplyMethod.Internal]: {
+                description: "Apply inside StarCi Academy.",
+            },
             [JobApplyMethod.ExternalUrl]: {
                 description: "Apply via an external URL.",
             },

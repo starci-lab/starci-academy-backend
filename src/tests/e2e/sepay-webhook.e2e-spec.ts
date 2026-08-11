@@ -194,13 +194,14 @@ describe("SePay webhook (e2e)",
                     })
                     .expect(201)
 
-                // second delivery finds no pending transaction -> rejected
-                const replay = await request(e2e.app.getHttpServer())
+                // the provider retries until it sees a successful acknowledgement;
+                // a known settled invoice is accepted as a no-op
+                await request(e2e.app.getHttpServer())
                     .post(WEBHOOK_URL)
                     .send({
                         order_invoice_number: "INV-DUP",
                     })
-                expect(replay.status).toBeGreaterThanOrEqual(400)
+                    .expect(201)
 
                 // exactly one entitlement row exists (no double grant)
                 const count = await entityManager.count(AiSubscriptionEntity)

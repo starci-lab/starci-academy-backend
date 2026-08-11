@@ -27,6 +27,8 @@ export enum TransactionStatus {
     Failed = "failed",
     /** Stayed `Pending` past the reconcile window and was never paid -> terminal, nothing granted. */
     Unpaid = "unpaid",
+    /** Provider returned the captured money and every entitlement from this order was reversed. */
+    Refunded = "refunded",
 }
 
 /**
@@ -57,6 +59,9 @@ registerEnumType(
             },
             [TransactionStatus.Unpaid]: {
                 description: "The transaction stayed pending past the reconcile window and was never paid.",
+            },
+            [TransactionStatus.Refunded]: {
+                description: "The captured payment was refunded and its entitlements were reversed.",
             },
         },
     },

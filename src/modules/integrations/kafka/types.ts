@@ -33,6 +33,39 @@ export interface CreateConsumerResult {
 }
 
 /**
+ * The slice of KafkaJS's internal `RequestQueue` that
+ * {@link import("./request-queue-throttle-patch").applyKafkaRequestQueueThrottlePatch}
+ * reads and writes. Declared structurally so the replacement scheduler can be
+ * typed without depending on the (untyped) internal class itself.
+ */
+export interface KafkaRequestQueueInternals {
+    /** Requests waiting on in-flight capacity or on a throttle window to close. */
+    pending: Array<unknown>
+    /**
+     * ms-since-epoch when broker-side throttling ends, or the sentinel `-1`
+     * while the queue has never been throttled.
+     */
+    throttledUntil: number
+    /** Handle of the armed pending-request check; null when none is armed. */
+    throttleCheckTimeoutId: NodeJS.Timeout | null
+    /** Drains what capacity allows, then re-arms the pending-request check. */
+    checkPendingRequests(): void
+}
+
+/**
+ * What {@link import("./request-queue-throttle-patch").applyKafkaRequestQueueThrottlePatch}
+ * did:
+ * - `applied` -- the guard replaced KafkaJS's scheduler.
+ * - `already-applied` -- a previous call had already installed it (idempotent).
+ * - `skipped` -- the expected KafkaJS internals were not found, so the library
+ *   was left untouched rather than patched blind.
+ */
+export type KafkaRequestQueueThrottlePatchOutcome =
+    | "applied"
+    | "already-applied"
+    | "skipped"
+
+/**
  * Parameters for {@link import("../kafka.service").KafkaService.ensureTopics}.
  * Best-effort topic creation so a consumer never trips over "unknown topic"
  * when it boots before the producer/Debezium has created the topic.

@@ -7,10 +7,16 @@ import {
 import {
     SubmitJobPostingSingleMutationModule,
 } from "./submit-job-posting/submit-job-posting.module"
+import {
+    ApplyToJobSingleMutationModule,
+} from "./apply-to-job/apply-to-job.module"
 
 @Module({
     imports: [
         SubmitJobPostingSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        ApplyToJobSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

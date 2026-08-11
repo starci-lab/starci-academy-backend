@@ -34,7 +34,10 @@ describe("writeActivity",
 
         /** The dedup lookup the function ran, as `{ type, idempotencyKey }`. */
         const dedupLookup = () => {
-            const [entity, options] = entityManager.findOne.mock.calls[0] ?? []
+            const [
+                entity,
+                options,
+            ] = entityManager.findOne.mock.calls[0] ?? []
             return {
                 entity,
                 where: (options as { where?: unknown } | undefined)?.where,
@@ -43,7 +46,10 @@ describe("writeActivity",
 
         /** The row the function handed the manager to persist. */
         const savedRow = () => {
-            const [entity, row] = entityManager.save.mock.calls[0] ?? []
+            const [
+                entity,
+                row,
+            ] = entityManager.save.mock.calls[0] ?? []
             return {
                 entity,
                 row: row as Partial<ActivityEntity> & { payload?: unknown },

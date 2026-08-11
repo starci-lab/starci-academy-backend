@@ -5,6 +5,8 @@ import {
 import {
     IsEmail,
     IsString,
+    IsOptional,
+    Matches,
     MaxLength,
     MinLength,
 } from "class-validator"
@@ -32,5 +34,18 @@ export class SignInInitRequest {
     @MinLength(6)
     @MaxLength(256)
         password: string
+
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "6-digit authenticator code when TOTP is enabled.",
+        })
+    @IsOptional()
+    @IsString()
+    @Matches(/^\d{6}$/,
+        {
+            message: "Two-factor code must be 6 digits",
+        })
+        twoFactorCode?: string
 }
 

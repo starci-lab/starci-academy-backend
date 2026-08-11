@@ -141,7 +141,6 @@ export class SepayWebhookHandler
             {
                 where: {
                     referenceId: invoice,
-                    status: TransactionStatus.Pending,
                 },
             },
         )
@@ -150,6 +149,15 @@ export class SepayWebhookHandler
             throw new TransactionNotFoundException({
                 referenceId: invoice,
             })
+        }
+
+        // Providers retry until they receive a successful acknowledgement. A
+        // known terminal transaction means an earlier delivery already won;
+        // acknowledge it without re-verifying or repeating any grant. Unknown
+        // references still throw above, so this does not turn forged invoices
+        // into accepted payments.
+        if (transaction.status !== TransactionStatus.Pending) {
+            return
         }
 
         // authoritative verification: query the order-detail API (Basic auth

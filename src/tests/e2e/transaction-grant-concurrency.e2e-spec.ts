@@ -447,16 +447,14 @@ describe("Transaction grant concurrency — webhook vs reconcile race (e2e)",
                     })
                     .expect(201)
 
-                // second delivery is fully AWAITED after the first already committed
-                // -- the row is no longer Pending, so the webhook's own findOne guard
-                // rejects it before grantTier is even reached (this is the scenario
-                // sepay-webhook.e2e-spec.ts's "idempotent" test already covers)
-                const replay = await request(app.getHttpServer())
+                // second delivery is fully awaited after the first committed;
+                // the known settled invoice is acknowledged without another grant
+                await request(app.getHttpServer())
                     .post(WEBHOOK_URL)
                     .send({
                         order_invoice_number: "INV-SEQ",
                     })
-                expect(replay.status).toBeGreaterThanOrEqual(400)
+                    .expect(201)
 
                 // the reconcile worker's finalize(), called directly with the now-
                 // stale in-memory transaction object (as if a late poll fired after

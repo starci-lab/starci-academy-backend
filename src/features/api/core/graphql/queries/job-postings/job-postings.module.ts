@@ -10,6 +10,9 @@ import {
 import {
     JobPostingSingleQueryModule,
 } from "./job-posting/job-posting.module"
+import {
+    JobApplicationsSingleQueryModule,
+} from "./job-applications/job-applications.module"
 
 @Module({
     imports: [
@@ -17,6 +20,9 @@ import {
             isGlobal: true,
         }),
         JobPostingSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        JobApplicationsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

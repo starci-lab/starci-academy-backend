@@ -300,6 +300,9 @@ import {
     JobPostingEntity,
 } from "./entities/job-posting.entity"
 import {
+    JobApplicationEntity,
+} from "./entities/job-application.entity"
+import {
     JobEntity,
 } from "./entities/job.entity"
 import {
@@ -801,6 +804,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     NotificationEntity,
                                     UserPinnedProjectEntity,
                                     JobPostingEntity,
+                                    JobApplicationEntity,
                                     CartItemEntity,
                                     TransactionItemEntity,
                                     PlaygroundEntity,
@@ -1016,6 +1020,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         ChatMessageEntity,
                         UserPinnedProjectEntity,
                         JobPostingEntity,
+                        JobApplicationEntity,
                         CartItemEntity,
                         TransactionItemEntity,
                         PlaygroundEntity,

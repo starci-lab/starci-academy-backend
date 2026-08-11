@@ -7,10 +7,18 @@ import {
 import {
     SetupTwoFactorResolver,
 } from "./setup-two-factor.resolver"
+import {
+    SetupTwoFactorService,
+} from "./setup-two-factor.service"
+import {
+    SetupTwoFactorHandler,
+} from "./setup-two-factor.handler"
 
 @Module({
     providers: [
         SetupTwoFactorResolver,
+        SetupTwoFactorService,
+        SetupTwoFactorHandler,
     ],
 })
 /**

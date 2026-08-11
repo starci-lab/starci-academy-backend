@@ -7,9 +7,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -27,29 +24,20 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases/postgresql/primary/primary.decorators"
-import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     KeycloakGraphQLUser,
 } from "@modules/integrations/keycloak/keycloak.decorators"
 import {
-    EncryptionService,
-} from "@modules/crypto/encryption.service"
-import {
-    TotpService,
-} from "@modules/integrations/totp/totp.service"
-import {
-    TwoFactorInvalidCodeException,
-} from "@modules/platform/exceptions/errors/api/two-factor-invalid-code"
-import {
     ConfirmTwoFactorRequest,
 } from "./graphql-types/request"
 import {
     ConfirmTwoFactorResponse,
 } from "./graphql-types/response"
+import {
+    ConfirmTwoFactorService,
+} from "./confirm-two-factor.service"
 
 @Resolver()
 /**
@@ -59,10 +47,7 @@ import {
  */
 export class ConfirmTwoFactorResolver {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly totpService: TotpService,
-        private readonly encryptionService: EncryptionService,
+        private readonly confirmTwoFactorService: ConfirmTwoFactorService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Strict)
@@ -84,49 +69,10 @@ export class ConfirmTwoFactorResolver {
             request: ConfirmTwoFactorRequest,
         @KeycloakGraphQLUser()
             user: UserEntity,
-    ): Promise<ConfirmTwoFactorResponse> {
-        // reload the row to read the pending encrypted secret (the guard snapshot
-        // may predate setupTwoFactor within the same session)
-        const current = await this.entityManager.findOneByOrFail(
-            UserEntity,
-            {
-                id: user.id,
-            },
-        )
-
-        // nothing to confirm -> caller skipped setupTwoFactor
-        if (!current.twoFactorSecret) {
-            throw new TwoFactorInvalidCodeException({
-                userId: user.id,
-            })
-        }
-
-        // decrypt the stored secret and verify the supplied code against it
-        const secret = this.encryptionService.decrypt({
-            payload: JSON.parse(current.twoFactorSecret),
+    ): Promise<undefined> {
+        return this.confirmTwoFactorService.execute({
+            request,
+            user,
         })
-        const valid = this.totpService.verify({
-            secret,
-            token: request.code,
-        })
-        if (!valid) {
-            throw new TwoFactorInvalidCodeException({
-                userId: user.id,
-            })
-        }
-
-        // code matched -> promote the pending secret to active
-        await this.entityManager.update(
-            UserEntity,
-            {
-                id: user.id,
-            },
-            {
-                twoFactorEnabled: true,
-            },
-        )
-
-        return {
-        } as ConfirmTwoFactorResponse
     }
 }

@@ -26,6 +26,24 @@ import {
 import type {
     SignInActionPayload,
 } from "../types/action"
+import {
+    EncryptionService,
+} from "@modules/crypto/encryption.service"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    TotpService,
+} from "@modules/integrations/totp/totp.service"
+import {
+    TwoFactorInvalidCodeException,
+} from "@modules/platform/exceptions/errors/api/two-factor-invalid-code"
+import type {
+    EntityManager,
+} from "typeorm"
 
 @CommandHandler(SignInInitCommand)
 @Injectable()
@@ -41,6 +59,10 @@ export class SignInInitHandler
         private readonly otpChallengeService: OtpChallengeService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly keycloakTokenService: KeycloakTokenService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
+        private readonly encryptionService: EncryptionService,
+        private readonly totpService: TotpService,
     ) {
         super()
     }
@@ -57,6 +79,7 @@ export class SignInInitHandler
             request: {
                 email,
                 password,
+                twoFactorCode,
             },
         } = command.params
 
@@ -66,6 +89,36 @@ export class SignInInitHandler
                 password,
             }
         )
+
+        // Password proof runs first to avoid disclosing whether an email has 2FA.
+        // For an enrolled local user, authenticator proof is required before an
+        // email challenge is created, so a failed TOTP never consumes a good OTP.
+        const user = await this.entityManager.findOne(
+            UserEntity,
+            {
+                where: {
+                    email,
+                },
+            },
+        )
+        if (user?.twoFactorEnabled) {
+            if (!user.twoFactorSecret || !twoFactorCode) {
+                throw new TwoFactorInvalidCodeException({
+                    userId: user.id,
+                })
+            }
+            const secret = this.encryptionService.decrypt({
+                payload: JSON.parse(user.twoFactorSecret),
+            })
+            if (!this.totpService.verify({
+                secret,
+                token: twoFactorCode,
+            })) {
+                throw new TwoFactorInvalidCodeException({
+                    userId: user.id,
+                })
+            }
+        }
         const challenge = await this.otpChallengeService.createActionChallenge<SignInActionPayload>(
             {
                 email,

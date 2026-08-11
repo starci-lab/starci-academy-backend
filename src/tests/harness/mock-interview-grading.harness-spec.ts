@@ -58,9 +58,7 @@ import {
     GitMountService,
 } from "@tests/helpers/git-mount.service"
 import {
-    listGitMountDir,
     readGitMountDoc,
-    gitMountExists,
     describeWithGitMount,
 } from "@tests/helpers/git-mount"
 import type {
@@ -212,21 +210,6 @@ const WEAK_ANSWERS: Record<number, string> = {
     2: "Bigger machine probably works okay for a while, not sure what the actual limit is, and horizontal scaling sounds harder so I'm not sure it's worth it.",
     3: "I guess you could just save the session somewhere else maybe, not totally sure where, database or something, should probably work fine either way.",
     4: "CAP theorem stuff is kind of confusing, I don't really remember the quorum formula, I think more replicas is just generally safer somehow.",
-}
-
-/**
- * A BORDERLINE candidate: gets the rough shape of each answer right (names
- * the correct concepts) but stays shallow and hedges on the specifics the
- * REAL rubric actually credits (the exact percentile, the peak-QPS decision
- * threshold, the two named walls, the store's operations, the `W + R > N`
- * rule) -- a mix of partial credit rather than a clean pass or fail.
- */
-const BORDERLINE_ANSWERS: Record<number, string> = {
-    0: "Latency is how long one request takes, and throughput is requests per second, so they're different. Batching probably affects them somehow, and I guess a system can still feel slow to one user even with high throughput, though I'm not 100% sure why.",
-    1: "You need to think about scale before picking technology, so I would ask about expected traffic. I don't remember the exact formula but a bigger number probably means you need something more like a distributed store instead of just one database.",
-    2: "One big machine will run into limits eventually, and I know horizontal scaling with a load balancer helps with that and also avoids having just one server that can fail, though I'm fuzzy on how much complexity it actually adds to the app.",
-    3: "You'd want to move the session out of local memory into something shared, like Redis maybe, so any server can handle the request. I'm not sure exactly what operations that store needs to expose though.",
-    4: "There's some trade-off between consistency and availability, and I think CAP plus something else called PACELC covers it. Quorum has to do with how many nodes agree, but I don't remember the exact rule for when reads see the latest write.",
 }
 
 /**

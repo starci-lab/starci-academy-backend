@@ -221,4 +221,5 @@ describe("SignInVerifyOtpHandler",
                     ),
                 ).rejects.toBeInstanceOf(UserNotFoundException)
             })
+
     })

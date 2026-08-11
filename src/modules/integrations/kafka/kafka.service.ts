@@ -25,6 +25,9 @@ import {
 import {
     KAFKA,
 } from "./constants"
+import {
+    applyKafkaRequestQueueThrottlePatch,
+} from "./request-queue-throttle-patch"
 import type {
     CreateConsumerParams,
     CreateConsumerResult,
@@ -52,7 +55,22 @@ export class KafkaService implements OnModuleDestroy {
         @Inject(KAFKA)
         private readonly kafka: Kafka,
         private readonly winstonService: WinstonService,
-    ) {}
+    ) {
+        // Every broker socket in the process is opened through this service, so
+        // this is the last point that is still "before any connection exists" --
+        // and unlike the client provider, it can report a skip. Without the
+        // guard, KafkaJS 2.2.4 arms a negative (clamped to 1ms) timer per
+        // connection that re-arms itself forever; see the patch's own docs.
+        if (applyKafkaRequestQueueThrottlePatch() === "skipped") {
+            // non-fatal: Kafka still works, it just burns a core on timers.
+            // Loud because it means kafkajs moved and the guard needs revisiting.
+            this.winstonService.log(WinstonLog.RequestHandlingFailed,
+                {
+                    op: "integration.kafka.request-queue-throttle-patch-skipped",
+                    error: "kafkajs RequestQueue internals not recognised; the negative-timeout guard was not applied",
+                })
+        }
+    }
 
     /**
      * Create + connect a consumer for the given group and register it for

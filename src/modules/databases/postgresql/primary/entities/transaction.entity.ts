@@ -1,6 +1,7 @@
 import {
     Column,
     Entity,
+    Index,
     JoinColumn,
     ManyToOne,
     RelationId,
@@ -261,6 +262,59 @@ export class TransactionEntity extends UuidAbstractEntity {
         enum: TransactionStatus,
     })
         status: TransactionStatus
+
+    /** Gateway/bank evidence that the money was returned; also the refund idempotency key. */
+    @Index(
+        "UQ_transactions_refund_reference",
+        {
+            unique: true,
+            where: "\"refund_reference\" IS NOT NULL",
+        },
+    )
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Provider or bank reference proving that this payment was refunded.",
+        },
+    )
+    @Column({
+        name: "refund_reference",
+        type: "varchar",
+        length: 128,
+        nullable: true,
+    })
+        refundReference: string | null
+
+    /** Operator-readable reason retained with the financial audit row. */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Reason the captured payment was refunded.",
+        },
+    )
+    @Column({
+        name: "refund_reason",
+        type: "text",
+        nullable: true,
+    })
+        refundReason: string | null
+
+    /** Time at which the refund was committed locally after provider confirmation. */
+    @Field(
+        () => Date,
+        {
+            nullable: true,
+            description: "Time at which the confirmed refund was committed.",
+        },
+    )
+    @Column({
+        name: "refunded_at",
+        type: "timestamptz",
+        nullable: true,
+    })
+        refundedAt: Date | null
 
     /**
      * The payment provider type of the preflight transaction.

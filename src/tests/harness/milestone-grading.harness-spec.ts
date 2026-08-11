@@ -72,7 +72,6 @@ import {
 } from "@tests/helpers/test-helpers.module"
 import {
     readGitMountDoc,
-    gitMountExists,
     describeWithGitMount,
 } from "@tests/helpers/git-mount"
 import type {

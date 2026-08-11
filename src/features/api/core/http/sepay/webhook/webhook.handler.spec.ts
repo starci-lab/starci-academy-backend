@@ -254,7 +254,7 @@ describe("SepayWebhookHandler",
                 expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
-        it("throws when no pending transaction matches the invoice",
+        it("throws when no transaction matches the invoice",
             async () => {
                 // findOne default resolves null -> no pending row
                 await expect(
@@ -266,6 +266,27 @@ describe("SepayWebhookHandler",
                 ).rejects.toBeInstanceOf(TransactionNotFoundException)
 
                 // no side effects when the reference is unknown
+                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
+            })
+
+        it("acknowledges a replay for a settled transaction without repeating the grant",
+            async () => {
+                entityManager.findOne.mockResolvedValueOnce(
+                    buildTransaction({
+                        status: TransactionStatus.Succeeded,
+                        actionType: ActionType.AiSubscriptionPurchase,
+                        aiSubTier: AiSubTier.Plus,
+                    }),
+                )
+
+                await expect(handler.execute(
+                    new SepayWebhookCommand({
+                        order_invoice_number: INVOICE,
+                    }),
+                )).resolves.toBeUndefined()
+
+                expect(sepay.order.retrieve).not.toHaveBeenCalled()
                 expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
                 expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
