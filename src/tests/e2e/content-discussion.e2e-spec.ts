@@ -152,7 +152,7 @@ const POSTGRESQL_PRIMARY = "primary"
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
-describe("Discussion UGC — comments + reactions (content/comment/activity) (e2e)",
+describe("a learner discusses course content and the conversation persists",
     () => {
         let app: INestApplication
         let entityManager: EntityManager

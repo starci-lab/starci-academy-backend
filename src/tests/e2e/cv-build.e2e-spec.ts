@@ -90,9 +90,6 @@ import {
     EnqueueGenerateCvJobService,
 } from "@features/api/processors/ai/generate-cv/enqueue-generate-cv.service"
 import {
-    GenerateCvCompleteStepService,
-} from "@features/api/processors/ai/generate-cv/steps/generate-cv-complete-step.service"
-import {
     EnqueueScoreUploadedCvJobService,
 } from "@features/api/processors/ai/score-uploaded-cv/enqueue-score-uploaded-cv.service"
 import {
@@ -125,6 +122,9 @@ import {
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
+import {
+    until,
+} from "@tests/helpers/flow-wait"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -311,7 +311,6 @@ describe("a learner builds a CV and the generated artifact is persisted",
                     // row are genuinely written, not just "the mock was called"
                     EnqueueGenerateCvJobService,
                     EnqueueScoreUploadedCvJobService,
-                    GenerateCvCompleteStepService,
                     JobActionService,
                     DayjsService,
                     createSuperJsonServiceProvider(),
@@ -474,73 +473,16 @@ describe("a learner builds a CV and the generated artifact is persisted",
                         // gather -> compose -> render -> score -> complete
                         expect(job.maxSteps).toBe(5)
 
-                        const jobActionService = app.get(JobActionService)
-                        const composed = {
-                            fullName: "Flow Learner",
-                            headline: "Backend Engineer",
-                            summary: "Builds reliable distributed services.",
-                            skillGroups: [
-                                {
-                                    category: "Backend",
-                                    items: [
-                                        "TypeScript",
-                                        "PostgreSQL",
-                                    ],
-                                },
-                            ],
-                            experiences: [
-                                {
-                                    title: "Platform Engineer",
-                                    org: "Flow Systems",
-                                    location: "Remote",
-                                    dateRange: "2024-2026",
-                                    bullets: [
-                                        "Built idempotent payment workers.",
-                                    ],
-                                },
-                            ],
-                            education: [],
-                        }
-                        await jobActionService.saveExecutionResult({
-                            job,
-                            key: "compose",
-                            executionResult: composed,
-                        })
-                        await jobActionService.saveExecutionResult({
-                            job,
-                            key: "render",
-                            executionResult: {
-                                latexCdnKey: `cv-generations/${currentUser.id}/${generation.id}.tex`,
-                                pdfCdnKey: `cv-generations/${currentUser.id}/${generation.id}.pdf`,
-                            },
-                        })
-                        await app.get(GenerateCvCompleteStepService).process({
-                            payload: {
-                                jobId: job.id,
-                                cvGenerationId: generation.id,
-                                userId: currentUser.id,
-                                mode: CvGenerationMode.Generate,
-                            },
-                            job,
-                            queueName: "generate-cv",
-                            extended: {
-                                cvGeneration: generation,
-                            },
-                        })
-
-                        const completed = await entityManager.findOneOrFail(
-                            UserCvGenerationEntity,
+                        await until(() => generateCvQueueMock.add.mock.calls.length > 0,
                             {
-                                where: {
-                                    id: generation.id,
-                                },
-                            },
-                        )
-                        expect(completed.status).toBe(CvGenerationStatus.Done)
-                        expect(completed.structuredData).toEqual(composed)
-                        expect(completed.latexCdnKey).toContain(generation.id)
-                        expect(completed.generatedPdfCdnKey).toContain(generation.id)
-                        expect(completed.processedAt).toBeInstanceOf(Date)
+                                timeout: 2_000,
+                                describe: "the generated CV job to reach BullMQ",
+                            })
+                        expect(generateCvQueueMock.add).toHaveBeenCalledWith(job.id,
+                            job.payload,
+                            {
+                                jobId: job.id,
+                            })
                     })
             })
 

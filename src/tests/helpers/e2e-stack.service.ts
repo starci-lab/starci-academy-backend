@@ -24,6 +24,8 @@ import type {
 export class E2eStackService {
     /** The started Postgres container, once {@link up} has run. */
     public postgresContainer?: StartedPostgreSqlContainer
+    /** The shared Redis broker/cache container used by transport-level flows. */
+    public redisContainer?: StartedTestContainer
 
     /**
      * Every container this instance has started, in start order, so
@@ -54,10 +56,16 @@ export class E2eStackService {
         // let TypeORM create every table/enum on connect -- no migrations in tests
         process.env.POSTGRESQL_PRIMARY_SYNCHRONIZE = "true"
 
-        // TODO: no flow needs Redis/NATS yet. When one does, call
-        // `startGenericContainer("redis:7-alpine", [6379])` (or the NATS
-        // image) from here and read the mapped port off the returned handle --
-        // do NOT hand-roll a second container lifecycle helper.
+        this.redisContainer = await this.startGenericContainer(
+            "redis:7-alpine",
+            [
+                6379,
+            ],
+        )
+        process.env.REDIS_BULLMQ_HOST = this.redisContainer.getHost()
+        process.env.REDIS_BULLMQ_PORT = String(this.redisContainer.getMappedPort(6379))
+        process.env.REDIS_BULLMQ_USE_CLUSTER = "false"
+        delete process.env.REDIS_BULLMQ_PASSWORD
     }
 
     /**

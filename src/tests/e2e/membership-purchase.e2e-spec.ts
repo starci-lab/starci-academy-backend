@@ -1,6 +1,28 @@
+import request from "supertest"
+import type {
+    ExecutionContext,
+} from "@nestjs/common"
 import {
-    CommandBus,
-} from "@nestjs/cqrs"
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    KeycloakJwksService
+} from "@modules/integrations/keycloak/jwks.service"
+import {
+    SessionService
+} from "@modules/platform/session/session.service"
+import {
+    CookieService
+} from "@modules/platform/cookie/cookie.service"
 import dayjs from "dayjs"
 import {
     TransactionEntity,
@@ -60,8 +82,35 @@ import {
     PurchaseMembershipHandler,
 } from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.handler"
 import {
-    PurchaseMembershipCommand,
-} from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.command"
+    PurchaseMembershipResolver,
+} from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.resolver"
+import {
+    PurchaseMembershipService,
+} from "@features/api/core/graphql/mutations/membership/purchase-membership/purchase-membership.service"
+import {
+    SepayWebhookController,
+} from "@features/api/core/http/sepay/webhook/webhook.controller"
+import {
+    SepayWebhookService,
+} from "@features/api/core/http/sepay/webhook/webhook.service"
+import {
+    SepayWebhookHandler,
+} from "@features/api/core/http/sepay/webhook/webhook.handler"
+import {
+    EnqueueEnrollJobService,
+} from "@modules/bussiness/jobs/enqueue/enroll.service"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
+    NotificationService,
+} from "@modules/bussiness/notification/notification.service"
+import {
+    AiEntitlementService,
+} from "@modules/ai/ai-entitlement.service"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
@@ -77,10 +126,7 @@ import type {
  * flow that only checked `status === "active"` would pass on a system that silently threw away a
  * renewal, which is the mistake this file exists to catch. See `e2e-flow.md` FLOW-2.
  *
- * THE GRANT IS RUN DIRECTLY, NOT THROUGH A WEBHOOK. `MembershipService.grantMembership` is the
- * single finalize path both the gateway webhook and the reconcile poll call -- proved in
- * `course-payment-abandoned` -- so driving it here tests the grant itself rather than re-testing
- * the transport a sibling flow already covers.
+ * Checkout enters through GraphQL HTTP and settlement enters through the provider HTTP webhook.
  *
  * Requires Docker -- the lane's globalSetup boots the real Postgres this writes to.
  */
@@ -96,9 +142,17 @@ describe("a learner buys membership, and buying again extends rather than restar
         const PERIOD_MONTHS = 1
 
         let world: FlowWorld
-        let commandBus: CommandBus
-        let membershipService: MembershipService
         let membershipEnabled: boolean
+        let currentUser: UserEntity | null = null
+        let sepayClient: {
+            checkout: {
+                initCheckoutUrl: jest.Mock
+                initOneTimePaymentFields: jest.Mock
+            }
+            order: {
+                retrieve: jest.Mock
+            }
+        }
 
         // carried between steps: this is the flow's own state, and the reason it is one file
         let learnerId: string
@@ -132,30 +186,94 @@ describe("a learner buys membership, and buying again extends rather than restar
                     },
                 })
 
-        /** Buy membership once and return the pending order's id. */
+        const fakeAuthGuard = {
+            canActivate: async (context: ExecutionContext): Promise<boolean> => {
+                if (!currentUser) return false
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = currentUser
+                return Promise.resolve(true)
+            },
+        }
+
+        const PURCHASE_MUTATION = `
+            mutation Purchase($request: PurchaseMembershipRequest!) {
+                purchaseMembership(request: $request) {
+                    success
+                    error
+                    data { transactionId referenceId checkoutUrl amount }
+                }
+            }
+        `
+
+        /** Buy membership once through GraphQL and return the pending order's id. */
         const purchase = async (): Promise<string> => {
-            const learner = await world.entityManager.findOneOrFail(UserEntity,
-                {
-                    where: {
-                        id: learnerId,
+            const response = await request(world.app.getHttpServer())
+                .post("/graphql")
+                .send({
+                    query: PURCHASE_MUTATION,
+                    variables: {
+                        request: {
+                            paymentType: PaymentType.Sepay
+                        }
                     },
                 })
-            const result = await commandBus.execute(
-                new PurchaseMembershipCommand({
-                    request: {
-                        paymentType: PaymentType.Sepay,
-                    },
-                    user: learner,
-                }),
-            )
-            return (result as { transactionId: string }).transactionId
+            const payload = response.body.data.purchaseMembership
+            expect(response.status).toBe(200)
+            expect(payload.success).toBe(true)
+            expect(payload.error).toBeNull()
+            return payload.data.transactionId
+        }
+
+        const settle = async (transactionId: string): Promise<void> => {
+            const transaction = await world.entityManager.findOneByOrFail(TransactionEntity,
+                {
+                    id: transactionId,
+                })
+            sepayClient.order.retrieve.mockResolvedValue({
+                data: {
+                    data: {
+                        order_invoice_number: transaction.referenceId,
+                        order_amount: String(transaction.amount),
+                        order_status: "CAPTURED",
+                    }
+                },
+            })
+            const response = await request(world.app.getHttpServer())
+                .post("/sepay/webhook")
+                .send({
+                    order: {
+                        order_invoice_number: transaction.referenceId,
+                        order_amount: String(transaction.amount),
+                        order_status: "CAPTURED",
+                    }
+                })
+            expect(response.status).toBe(201)
         }
 
         beforeAll(async () => {
+            jest.spyOn(KeycloakAuthGraphQLGuard.prototype,
+                "canActivate").mockImplementation(fakeAuthGuard.canActivate)
             membershipEnabled = true
+            sepayClient = {
+                checkout: {
+                    initCheckoutUrl: jest.fn(() => "https://sepay.test/checkout"),
+                    initOneTimePaymentFields: jest.fn((fields: unknown) => fields),
+                },
+                order: {
+                    retrieve: jest.fn()
+                },
+            }
 
             world = await bootFlowWorld({
+                imports: [ApolloServerModule.register({
+                    type: ApolloServerType.Monolithic,
+                    useServices: false,
+                })],
+                controllers: [SepayWebhookController],
                 providers: [
+                    PurchaseMembershipResolver,
+                    PurchaseMembershipService,
                     PurchaseMembershipHandler,
                     // REAL: the grant is the subject of this flow
                     MembershipService,
@@ -167,15 +285,7 @@ describe("a learner buys membership, and buying again extends rather than restar
                     },
                     {
                         provide: SEPAY,
-                        useValue: {
-                            checkout: {
-                                initCheckoutUrl: jest.fn(() => "https://sepay.test/checkout"),
-                                initOneTimePaymentFields: jest.fn((fields: unknown) => fields),
-                            },
-                            order: {
-                                retrieve: jest.fn(),
-                            },
-                        },
+                        useValue: sepayClient,
                     },
                     // the handler injects every gateway; the unused ones are stubbed so they can
                     // never reach the network
@@ -215,10 +325,46 @@ describe("a learner buys membership, and buying again extends rather than restar
                             enqueue: jest.fn(),
                         },
                     },
+                    SepayWebhookService,
+                    SepayWebhookHandler,
+                    AiEntitlementService,
+                    {
+                        provide: EnqueueEnrollJobService, useValue: {
+                            enqueueForTransaction: jest.fn()
+                        }
+                    },
+                    {
+                        provide: EnqueueSendMailJobService, useValue: {
+                            enqueue: jest.fn()
+                        }
+                    },
+                    {
+                        provide: NotificationService, useValue: {
+                            createNotification: jest.fn()
+                        }
+                    },
+                    {
+                        provide: KeycloakAuthGraphQLGuard, useValue: fakeAuthGuard
+                    },
+                    {
+                        provide: KeycloakJwksService, useValue: {
+                        }
+                    },
+                    {
+                        provide: SessionService, useValue: {
+                        }
+                    },
+                    {
+                        provide: CookieService, useValue: {
+                        }
+                    },
+                    {
+                        provide: WinstonService, useValue: {
+                            log: jest.fn()
+                        }
+                    },
                 ],
             })
-            commandBus = world.app.get(CommandBus)
-            membershipService = world.app.get(MembershipService)
 
             await world.truncate(
                 "memberships",
@@ -229,6 +375,7 @@ describe("a learner buys membership, and buying again extends rather than restar
 
             const learner = await world.mintLearner("membership-purchase")
             learnerId = learner.id
+            currentUser = learner
         })
 
         afterAll(async () => {
@@ -257,11 +404,7 @@ describe("a learner buys membership, and buying again extends rather than restar
 
         it("opens the period when the payment settles",
             async () => {
-                const granted = await membershipService.grantMembership({
-                    userId: learnerId,
-                    transactionId: firstTransactionId,
-                })
-                expect(granted).toBe(true)
+                await settle(firstTransactionId)
 
                 const membership = await readMembership()
                 expect(membership?.status).toBe(MembershipStatus.Active)
@@ -294,11 +437,7 @@ describe("a learner buys membership, and buying again extends rather than restar
                  * so a second call must return false AND leave the date alone. Asserting only the
                  * boolean would pass on an implementation that returns false after extending.
                  */
-                const grantedAgain = await membershipService.grantMembership({
-                    userId: learnerId,
-                    transactionId: firstTransactionId,
-                })
-                expect(grantedAgain).toBe(false)
+                await settle(firstTransactionId)
 
                 const membership = await readMembership()
                 expect(membership?.currentPeriodEnd).toEqual(firstPeriodEnd)
@@ -307,11 +446,7 @@ describe("a learner buys membership, and buying again extends rather than restar
         it("stacks the next payment on the time still left, rather than restarting it",
             async () => {
                 const secondTransactionId = await purchase()
-                const granted = await membershipService.grantMembership({
-                    userId: learnerId,
-                    transactionId: secondTransactionId,
-                })
-                expect(granted).toBe(true)
+                await settle(secondTransactionId)
 
                 const membership = await readMembership()
                 const end = membership?.currentPeriodEnd as Date

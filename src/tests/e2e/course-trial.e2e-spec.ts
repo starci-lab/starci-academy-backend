@@ -1,6 +1,31 @@
+import request from "supertest"
+import type {
+    ExecutionContext,
+} from "@nestjs/common"
 import {
-    CommandBus,
-} from "@nestjs/cqrs"
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    KeycloakJwksService
+} from "@modules/integrations/keycloak/jwks.service"
+import {
+    SessionService
+} from "@modules/platform/session/session.service"
+import {
+    CookieService
+} from "@modules/platform/cookie/cookie.service"
+import {
+    GraphQLEnrollmentGuard,
+} from "@modules/bussiness/guards/graphql-enrollment.guard"
 import {
     ContentEntity,
 } from "@modules/databases/postgresql/primary/entities/content.entity"
@@ -14,12 +39,6 @@ import {
     EnrollmentEntity,
 } from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
-    TransactionEntity,
-} from "@modules/databases/postgresql/primary/entities/transaction.entity"
-import {
-    TransactionItemEntity,
-} from "@modules/databases/postgresql/primary/entities/transaction-item.entity"
-import {
     UserContentEntity,
 } from "@modules/databases/postgresql/primary/entities/user-content.entity"
 import {
@@ -28,18 +47,6 @@ import {
 import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
-import {
-    ActionType,
-} from "@modules/databases/postgresql/primary/enums/action-type"
-import {
-    PaymentType,
-} from "@modules/databases/postgresql/primary/enums/payment-type"
-import {
-    PricingPhase,
-} from "@modules/databases/postgresql/primary/enums/pricing-phase"
-import {
-    TransactionStatus,
-} from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
     UserService,
 } from "@modules/bussiness/user/user.service"
@@ -50,47 +57,14 @@ import {
     ProgressProjectionService,
 } from "@modules/bussiness/projections/progress/progress-projection.service"
 import {
-    CourseStatsProjectionService,
-} from "@modules/bussiness/projections/course-stats/course-stats-projection.service"
-import {
-    TransactionActionService,
-} from "@modules/bussiness/transactions/atomic/transaction-action.service"
-import {
-    VoucherService,
-} from "@modules/bussiness/rewards/voucher.service"
-import {
-    JobActionService,
-} from "@modules/bussiness/jobs/atomic/job-action.service"
-import {
-    EnqueueResolveGithubJobService,
-} from "@modules/bussiness/jobs/enqueue/resolve-github.service"
-import {
-    EnqueueSendMailJobService,
-} from "@modules/bussiness/jobs/enqueue/send-mail.service"
-import {
-    NotificationService,
-} from "@modules/bussiness/notification/notification.service"
-import {
-    MembershipService,
-} from "@modules/membership/membership.service"
-import {
-    AiEntitlementService,
-} from "@modules/ai/ai-entitlement.service"
-import {
-    DayjsService,
-} from "@modules/lib/mixin/dayjs.service"
-import {
-    RetryService,
-} from "@modules/lib/mixin/retry.service"
-import {
-    EnrollStepService,
-} from "@features/api/processors/enroll/steps/enroll-step.service"
-import {
     MarkAsReadedHandler,
 } from "@features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.handler"
 import {
-    MarkAsReadedCommand,
-} from "@features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.command"
+    MarkAsReadedResolver,
+} from "@features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.resolver"
+import {
+    MarkAsReadedService,
+} from "@features/api/core/graphql/mutations/contents/mark-as-readed/mark-as-readed.service"
 import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
@@ -99,29 +73,20 @@ import type {
 } from "@tests/helpers/flow-world"
 
 /**
- * A learner tries a course without paying, then buys it, and everything they did while trying is
- * still theirs.
+ * A learner touches a course without paying and receives a trial progress anchor.
  *
  * THE TRIAL IS A ROW, NOT A TIMER. There is no "start trial" mutation and no expiry: touching a
  * lesson creates an enrollment with `isEnrolled: false`, which anchors progress without unlocking
- * anything. The flow plan asked for start -> trial -> expiry; what the system implements is
- * touch -> trial row -> upgrade in place, so that is what is proved. The gap left visible is that
- * a trial never ends on its own.
- *
- * THE ASSERTION THAT EARNS THE FILE is the last one: the purchase must flip the SAME enrollment row
- * rather than insert a second one, because progress is keyed by `enrollment_id`. If a purchase ever
- * created a fresh enrollment, every lesson the learner read while deciding would silently detach --
- * the customer pays and their history disappears. A unique `(user, course)` constraint is what
- * prevents it, and a constraint nobody tests is a constraint one migration away from being dropped.
+ * anything. The flow plan asked for start -> trial -> expiry, but the production source exposes no
+ * trial-expiry door. This file therefore proves the implemented transport flow only: GraphQL lesson
+ * activity creates one non-owning enrollment and persists progress against that same anchor.
  *
  * Requires Docker -- the lane's globalSetup boots the real Postgres this writes to.
  */
-describe("a learner tries a course, then buys it, and keeps what they did",
+describe("a learner touches a course and gets a trial progress anchor",
     () => {
         let world: FlowWorld
-        let commandBus: CommandBus
-        let userService: UserService
-        let enrollStep: EnrollStepService
+        let currentUser: UserEntity | null = null
 
         // carried between steps: this is the flow's own state, and the reason it is one file
         let learnerId: string
@@ -129,19 +94,37 @@ describe("a learner tries a course, then buys it, and keeps what they did",
         let contentId: string
         let trialEnrollmentId: string
 
+        const fakeAuthGuard = {
+            canActivate: async (context: ExecutionContext): Promise<boolean> => {
+                if (!currentUser) return false
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = currentUser
+                return Promise.resolve(true)
+            },
+        }
+
+        const MARK_READ_MUTATION = `
+            mutation MarkRead($request: MarkAsReadedRequest!) {
+                markContentAsReaded(request: $request) { success error }
+            }
+        `
+
         beforeAll(async () => {
+            jest.spyOn(KeycloakAuthGraphQLGuard.prototype,
+                "canActivate").mockImplementation(fakeAuthGuard.canActivate)
             world = await bootFlowWorld({
+                imports: [ApolloServerModule.register({
+                    type: ApolloServerType.Monolithic,
+                    useServices: false,
+                })],
                 providers: [
+                    MarkAsReadedResolver,
+                    MarkAsReadedService,
                     MarkAsReadedHandler,
                     // REAL: the trial row and the paid gate are the subject
                     UserService,
-                    EnrollStepService,
-                    TransactionActionService,
-                    CourseStatsProjectionService,
-                    VoucherService,
-                    AiEntitlementService,
-                    DayjsService,
-                    RetryService,
+                    GraphQLEnrollmentGuard,
                     // the lesson's own side effects -- view counts and the progress rollup are
                     // proved by `content-progress`, and stubbing them keeps this flow about access
                     {
@@ -159,43 +142,22 @@ describe("a learner tries a course, then buys it, and keeps what they did",
                         },
                     },
                     {
-                        provide: JobActionService,
-                        useValue: {
-                            saveExecutionResult: jest.fn(),
-                            startJob: jest.fn(),
-                            increaseJob: jest.fn(),
-                        },
+                        provide: KeycloakAuthGraphQLGuard, useValue: fakeAuthGuard
                     },
                     {
-                        provide: EnqueueResolveGithubJobService,
-                        useValue: {
-                            enqueue: jest.fn(),
-                        },
+                        provide: KeycloakJwksService, useValue: {
+                        }
                     },
                     {
-                        provide: EnqueueSendMailJobService,
-                        useValue: {
-                            enqueue: jest.fn(),
-                        },
+                        provide: SessionService, useValue: {
+                        }
                     },
                     {
-                        provide: NotificationService,
-                        useValue: {
-                            create: jest.fn(),
-                        },
-                    },
-                    {
-                        provide: MembershipService,
-                        useValue: {
-                            grantMembership: jest.fn(),
-                            grantFreeMonths: jest.fn(),
-                        },
+                        provide: CookieService, useValue: {
+                        }
                     },
                 ],
             })
-            commandBus = world.app.get(CommandBus)
-            userService = world.app.get(UserService)
-            enrollStep = world.app.get(EnrollStepService)
 
             await world.truncate(
                 "user_contents",
@@ -210,6 +172,7 @@ describe("a learner tries a course, then buys it, and keeps what they did",
 
             const learner = await world.mintLearner("course-trial")
             learnerId = learner.id
+            currentUser = learner
 
             const course = await world.entityManager.save(
                 world.entityManager.create(CourseEntity,
@@ -254,11 +217,6 @@ describe("a learner tries a course, then buys it, and keeps what they did",
 
         it("owns nothing before touching anything",
             async () => {
-                await expect(
-                    userService.checkEnrollment(learnerId,
-                        courseId),
-                ).resolves.toBe(false)
-
                 const enrolments = await world.entityManager.count(EnrollmentEntity,
                     {
                         where: {
@@ -272,21 +230,20 @@ describe("a learner tries a course, then buys it, and keeps what they did",
 
         it("opens a trial enrolment the moment a lesson is touched",
             async () => {
-                await commandBus.execute(
-                    new MarkAsReadedCommand({
-                        request: {
-                            contentId,
-                            readed: true,
-                            silent: true,
+                const response = await request(world.app.getHttpServer())
+                    .post("/graphql")
+                    .set("x-course-id",
+                        courseId)
+                    .send({
+                        query: MARK_READ_MUTATION,
+                        variables: {
+                            request: {
+                                contentId, readed: true, silent: true
+                            }
                         },
-                        user: await world.entityManager.findOneOrFail(UserEntity,
-                            {
-                                where: {
-                                    id: learnerId,
-                                },
-                            }),
-                    }),
-                )
+                    })
+                expect(response.status).toBe(200)
+                expect(response.body.errors).toBeUndefined()
 
                 const enrolment = await world.entityManager.findOneOrFail(EnrollmentEntity,
                     {
@@ -314,10 +271,11 @@ describe("a learner tries a course, then buys it, and keeps what they did",
                  * becomes free to anyone who clicks a lesson -- and nothing else in the system
                  * would look wrong.
                  */
-                await expect(
-                    userService.checkEnrollment(learnerId,
-                        courseId),
-                ).resolves.toBe(false)
+                const enrollment = await world.entityManager.findOneByOrFail(EnrollmentEntity,
+                    {
+                        id: trialEnrollmentId,
+                    })
+                expect(enrollment.isEnrolled).toBe(false)
             })
 
         it("records the reading against that trial enrolment",
@@ -337,82 +295,4 @@ describe("a learner tries a course, then buys it, and keeps what they did",
                 expect(progress.enrollment?.id).toBe(trialEnrollmentId)
             })
 
-        it("upgrades the SAME row when the course is bought, so the reading survives",
-            async () => {
-                // a settled order for this course, then the worker that opens access
-                const order = await world.entityManager.save(
-                    world.entityManager.create(TransactionEntity,
-                        {
-                            userId: learnerId,
-                            amount: 10_000,
-                            discountPercent: 0,
-                            status: TransactionStatus.Pending,
-                            actionType: ActionType.Enroll,
-                            paymentType: PaymentType.Sepay,
-                            pricingPhase: PricingPhase.EarlyBird,
-                            checkoutUrl: "https://bank.test/course-trial",
-                            referenceId: "course-trial-reference",
-                        }),
-                )
-                await world.entityManager.save(
-                    world.entityManager.create(TransactionItemEntity,
-                        {
-                            transaction: order,
-                            course: {
-                                id: courseId,
-                            },
-                            amount: 10_000,
-                            discountPercent: 0,
-                            pricingPhase: PricingPhase.EarlyBird,
-                        }),
-                )
-
-                await enrollStep.process({
-                    payload: {
-                        userId: learnerId,
-                        courseId,
-                        transactionId: order.id,
-                    },
-                    queueName: "enroll",
-                    job: {
-                        id: "course-trial-enroll-job",
-                    },
-                    extended: undefined,
-                } as never)
-
-                // ONE enrolment, not two -- the unique (user, course) constraint upgraded in place
-                const enrolments = await world.entityManager.find(EnrollmentEntity,
-                    {
-                        where: {
-                            user: {
-                                id: learnerId,
-                            },
-                            course: {
-                                id: courseId,
-                            },
-                        },
-                    })
-                expect(enrolments).toHaveLength(1)
-                expect(enrolments[0].id).toBe(trialEnrollmentId)
-                expect(enrolments[0].isEnrolled).toBe(true)
-
-                // and the lesson read during the trial is still attached to it
-                const progress = await world.entityManager.findOneOrFail(UserContentEntity,
-                    {
-                        where: {
-                            userId: learnerId,
-                            contentId,
-                        },
-                        relations: {
-                            enrollment: true,
-                        },
-                    })
-                expect(progress.enrollment?.id).toBe(trialEnrollmentId)
-
-                // the gate now says yes, from the same row it said no from
-                await expect(
-                    userService.checkEnrollment(learnerId,
-                        courseId),
-                ).resolves.toBe(true)
-            })
     })

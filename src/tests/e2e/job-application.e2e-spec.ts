@@ -1,19 +1,44 @@
+import request from "supertest"
+import type {
+    CanActivate,
+    ExecutionContext,
+} from "@nestjs/common"
 import {
-    CommandBus,
-    QueryBus,
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
+    Test,
+} from "@nestjs/testing"
+import type {
+    INestApplication,
+} from "@nestjs/common"
+import {
+    CqrsModule,
 } from "@nestjs/cqrs"
 import {
-    ApplyToJobCommand,
-} from "@features/api/core/graphql/mutations/job-postings/apply-to-job/apply-to-job.command"
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
 import {
     ApplyToJobHandler,
 } from "@features/api/core/graphql/mutations/job-postings/apply-to-job/apply-to-job.handler"
 import {
+    ApplyToJobResolver,
+} from "@features/api/core/graphql/mutations/job-postings/apply-to-job/apply-to-job.resolver"
+import {
+    ApplyToJobService,
+} from "@features/api/core/graphql/mutations/job-postings/apply-to-job/apply-to-job.service"
+import {
     JobApplicationsHandler,
 } from "@features/api/core/graphql/queries/job-postings/job-applications/job-applications.handler"
 import {
-    JobApplicationsQuery,
-} from "@features/api/core/graphql/queries/job-postings/job-applications/job-applications.query"
+    JobApplicationsResolver,
+} from "@features/api/core/graphql/queries/job-postings/job-applications/job-applications.resolver"
+import {
+    JobApplicationsService,
+} from "@features/api/core/graphql/queries/job-postings/job-applications/job-applications.service"
 import {
     HeadhuntingCompanyEntity,
 } from "@modules/databases/postgresql/primary/entities/headhunting-company.entity"
@@ -23,7 +48,7 @@ import {
 import {
     JobPostingEntity,
 } from "@modules/databases/postgresql/primary/entities/job-posting.entity"
-import type {
+import {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
@@ -36,61 +61,125 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    JobApplicationsForbiddenException,
-} from "@modules/platform/exceptions/errors/job-postings/job-application"
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
-    bootFlowWorld,
-} from "@tests/helpers/flow-world"
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
 import type {
-    FlowWorld,
-} from "@tests/helpers/flow-world"
+    EntityManager,
+} from "typeorm"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    TestHelpersModule,
+} from "@tests/helpers/test-helpers.module"
 
-/** A learner applies internally and only the posting submitter sees the application. */
+interface JobApplicationGraphQLBody extends Record<string, unknown> {
+    data?: {
+        applyToJob?: {
+            data?: {
+                id?: string
+            }
+        }
+    }
+}
+
+/** A learner applies through GraphQL and only the posting submitter sees the application. */
 describe("an internal job application reaches its posting owner",
     () => {
-        let world: FlowWorld
-        let commandBus: CommandBus
-        let queryBus: QueryBus
+        let app: INestApplication
+        let entityManager: EntityManager
+        let currentUser: UserEntity | null = null
         let owner: UserEntity
         let applicant: UserEntity
         let stranger: UserEntity
         let posting: JobPostingEntity
 
+        const authGuard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                if (!currentUser) {
+                    return false
+                }
+                GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                    .req.user = currentUser
+                return true
+            },
+        }
+
+        const graphql = async (query: string): Promise<JobApplicationGraphQLBody> => {
+            const response = await request(app.getHttpServer())
+                .post("/graphql")
+                .send({
+                    query
+                })
+            return response.body as JobApplicationGraphQLBody
+        }
+
+        const apply = async (): Promise<JobApplicationGraphQLBody> => graphql(`
+            mutation {
+                applyToJob(request: {
+                    jobPostingId: "${posting.id}"
+                    coverLetter: "I have operated distributed systems."
+                }) { success error data { id } }
+            }
+        `)
+
         beforeAll(async () => {
-            world = await bootFlowWorld({
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                    CqrsModule,
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true,
+                        withHydration: false,
+                        withResolvers: false,
+                    }),
+                ],
                 providers: [
                     ApplyToJobHandler,
+                    ApplyToJobService,
+                    ApplyToJobResolver,
                     JobApplicationsHandler,
+                    JobApplicationsService,
+                    JobApplicationsResolver,
                 ],
             })
-            commandBus = world.app.get(CommandBus)
-            queryBus = world.app.get(QueryBus)
+                .overrideGuard(KeycloakAuthGraphQLGuard)
+                .useValue(authGuard)
+                .compile()
+            app = moduleRef.createNestApplication()
+            await app.init()
+            entityManager = app.get(getEntityManagerToken("primary"))
         })
 
-        afterAll(async () => {
-            await world.close()
-        })
+        afterAll(async () => app?.close().catch(() => undefined))
 
         beforeEach(async () => {
-            await world.truncate(
-                "job_applications",
-                "job_postings",
-                "headhunting_companies",
-                "users",
+            await entityManager.query("TRUNCATE TABLE \"job_applications\", \"job_postings\", \"headhunting_companies\", \"users\" RESTART IDENTITY CASCADE")
+            currentUser = null
+            const mint = (name: string): Promise<UserEntity> => entityManager.save(
+                entityManager.create(UserEntity,
+                    {
+                        keycloakId: `kc-${name}-${Date.now()}`,
+                    }),
             )
-            owner = await world.mintLearner("posting-owner")
-            applicant = await world.mintLearner("job-applicant")
-            stranger = await world.mintLearner("application-stranger")
-            const company = await world.entityManager.save(
-                HeadhuntingCompanyEntity,
+            owner = await mint("posting-owner")
+            applicant = await mint("job-applicant")
+            stranger = await mint("application-stranger")
+            const company = await entityManager.save(HeadhuntingCompanyEntity,
                 {
                     title: "Flow Systems",
                     displayId: `flow-systems-${Date.now()}`,
                     defaultLocale: Locale.En,
-                },
-            )
-            posting = await world.entityManager.save(
-                JobPostingEntity,
+                })
+            posting = await entityManager.save(JobPostingEntity,
                 {
                     title: "Platform Engineer",
                     displayId: `platform-engineer-${Date.now()}`,
@@ -98,50 +187,34 @@ describe("an internal job application reaches its posting owner",
                     postedByUser: owner,
                     applyMethod: JobApplyMethod.Internal,
                     source: JobPostingSource.Submitted,
-                },
-            )
+                })
         })
 
-        it("persists one application when a learner retries the command",
+        it("persists one application when a learner retries the mutation",
             async () => {
-                const params = {
-                    request: {
-                        jobPostingId: posting.id,
-                        coverLetter: "I have operated distributed systems.",
-                    },
-                    user: applicant,
-                }
+                currentUser = applicant
+                const first = await apply()
+                const retried = await apply()
 
-                const first = await commandBus.execute(new ApplyToJobCommand(params))
-                const retried = await commandBus.execute(new ApplyToJobCommand(params))
-
-                expect(retried.id).toBe(first.id)
-                expect(await world.entityManager.count(JobApplicationEntity)).toBe(1)
+                expect(first).toHaveProperty("data.applyToJob.data.id")
+                expect(retried).toHaveProperty("data.applyToJob.data.id",
+                    first.data?.applyToJob?.data?.id)
+                expect(await entityManager.count(JobApplicationEntity)).toBe(1)
             })
 
         it("lets the posting submitter read the applicant but denies a stranger",
             async () => {
-                await commandBus.execute(new ApplyToJobCommand({
-                    request: {
-                        jobPostingId: posting.id,
-                    },
-                    user: applicant,
-                }))
+                currentUser = applicant
+                await apply()
 
-                const applications = await queryBus.execute(new JobApplicationsQuery({
-                    request: {
-                        jobPostingId: posting.id,
-                    },
-                    user: owner,
-                }))
+                currentUser = owner
+                const allowed = await graphql(`query { jobApplications(jobPostingId: "${posting.id}") { success error data { id applicant { id } } } }`)
+                expect(allowed).toHaveProperty("data.jobApplications.data.0.applicant.id",
+                    applicant.id)
 
-                expect(applications).toHaveLength(1)
-                expect(applications[0].applicant.id).toBe(applicant.id)
-                await expect(queryBus.execute(new JobApplicationsQuery({
-                    request: {
-                        jobPostingId: posting.id,
-                    },
-                    user: stranger,
-                }))).rejects.toBeInstanceOf(JobApplicationsForbiddenException)
+                currentUser = stranger
+                const denied = await graphql(`query { jobApplications(jobPostingId: "${posting.id}") { success error data { id } } }`)
+                expect(denied).toHaveProperty("data.jobApplications.success",
+                    false)
             })
     })

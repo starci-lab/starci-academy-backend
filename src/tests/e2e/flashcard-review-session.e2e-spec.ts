@@ -1,9 +1,18 @@
+import request from "supertest"
 import {
     Test,
 } from "@nestjs/testing"
 import type {
+    CanActivate,
+    ExecutionContext,
     INestApplication,
 } from "@nestjs/common"
+import {
+    CqrsModule,
+} from "@nestjs/cqrs"
+import {
+    GqlExecutionContext,
+} from "@nestjs/graphql"
 import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
@@ -11,11 +20,26 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
+import {
+    FlashcardReviewSessionService,
+} from "@modules/bussiness/flashcard/flashcard-review-session.service"
+import {
+    FlashcardReviewService,
+} from "@modules/bussiness/flashcard/flashcard-review.service"
+import {
+    GraphQLEnrollmentGuard,
+} from "@modules/bussiness/guards/graphql-enrollment.guard"
+import {
+    UserService,
+} from "@modules/bussiness/user/user.service"
+import {
     CourseEntity,
 } from "@modules/databases/postgresql/primary/entities/course.entity"
-import {
-    EnrollmentEntity,
-} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     FlashcardCardEntity,
 } from "@modules/databases/postgresql/primary/entities/flashcard-card.entity"
@@ -38,786 +62,305 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    PricingPhase,
-} from "@modules/databases/postgresql/primary/enums/pricing-phase"
-import {
     PrimaryPostgreSQLModule,
 } from "@modules/databases/postgresql/primary/primary.module"
 import {
-    FlashcardDeckNotFoundException,
-} from "@modules/platform/exceptions/errors/flashcard/flashcard-deck-not-found"
+    FlashcardDeckResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-deck-resolver.service"
+import {
+    FlashcardCardResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/flashcard-card-resolver.service"
+import {
+    TranslationResolverService,
+} from "@modules/databases/postgresql/primary/resolvers/translation.service"
 import {
     CacheService,
 } from "@modules/integrations/cache/cache.service"
 import {
-    FlashcardReviewSessionService,
-} from "@modules/bussiness/flashcard/flashcard-review-session.service"
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
-    UserService,
-} from "@modules/bussiness/user/user.service"
+    KeycloakJwksService,
+} from "@modules/integrations/keycloak/jwks.service"
+import {
+    CookieService,
+} from "@modules/platform/cookie/cookie.service"
+import {
+    SessionService,
+} from "@modules/platform/session/session.service"
+import {
+    CompleteFlashcardReviewSessionResolver,
+} from "@features/api/core/graphql/mutations/flashcard/complete-flashcard-review-session/complete-flashcard-review-session.resolver"
+import {
+    ReviewFlashcardResolver,
+} from "@features/api/core/graphql/mutations/flashcard/review-flashcard/review-flashcard.resolver"
+import {
+    StartFlashcardReviewSessionHandler,
+} from "@features/api/core/graphql/mutations/flashcard/start-flashcard-review-session/start-flashcard-review-session.handler"
+import {
+    StartFlashcardReviewSessionResolver,
+} from "@features/api/core/graphql/mutations/flashcard/start-flashcard-review-session/start-flashcard-review-session.resolver"
+import {
+    StartFlashcardReviewSessionService,
+} from "@features/api/core/graphql/mutations/flashcard/start-flashcard-review-session/start-flashcard-review-session.service"
+import {
+    SyncFlashcardReviewSessionProgressHandler,
+} from "@features/api/core/graphql/mutations/flashcard/sync-flashcard-review-session-progress/sync-flashcard-review-session-progress.handler"
+import {
+    SyncFlashcardReviewSessionProgressResolver,
+} from "@features/api/core/graphql/mutations/flashcard/sync-flashcard-review-session-progress/sync-flashcard-review-session-progress.resolver"
+import {
+    SyncFlashcardReviewSessionProgressService,
+} from "@features/api/core/graphql/mutations/flashcard/sync-flashcard-review-session-progress/sync-flashcard-review-session-progress.service"
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
 
-/** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/**
- * e2e for the resumable flashcard REVIEW session bookkeeping
- * wrapper -- `.claude/canon/be/enforce/authoring/testing.md` §2 names "a
- * flashcard review" as a write flow that must carry `*.e2e-spec.ts` coverage;
- * this is that coverage for {@link FlashcardReviewSessionService}'s
- * start -> sync -> complete lifecycle (per-deck resumable draw), run against
- * REAL Postgres (Testcontainers) -- the actual SM-2 grading is covered
- * separately by `flashcard-review.e2e-spec.ts`, this file only proves the
- * session-row bookkeeping around it: the "abandon prior in_progress draw"
- * race-guard, the `Not("completed")` completion guard (the documented
- * 2026-07-12 stuck-session fix), and the "due" mode's dueAt-based card filter.
- *
- * MOCKED (no external infra available in this harness):
- *  - `CacheService` -- real class talks to Redis; stubbed to always miss so
- *    `UserService.resolveOrCreateTrialEnrollment` hits real Postgres every
- *    time, never a stale cross-test cache entry.
- *
- * REAL: Postgres (Testcontainers), `FlashcardReviewSessionService` (the
- * service under test), `UserService` (`resolveOrCreateTrialEnrollment` runs
- * real SQL against real `enrollments` rows).
- *
- * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
- */
-describe("Flashcard review session — start/sync/complete lifecycle (e2e)",
+/** A learner starts, resumes, and completes one deck-scoped review session. */
+describe("a learner completes a resumable flashcard review session",
     () => {
         let app: INestApplication
         let entityManager: EntityManager
-        let sessionService: FlashcardReviewSessionService
-
-        /** Read-only fixtures seeded ONCE -- only per-test user/session state is reset. */
-        let course: CourseEntity
+        let learner: UserEntity
         let deck: FlashcardDeckEntity
-        let cardA: FlashcardCardEntity
-        let cardB: FlashcardCardEntity
+        let cards: Array<FlashcardCardEntity>
+        let sessionId: string
 
-        const cacheServiceMock = {
-            get: jest.fn().mockResolvedValue(undefined),
-            set: jest.fn().mockResolvedValue(undefined),
-            del: jest.fn().mockResolvedValue(undefined),
+        const authGuard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>().req.user = learner
+                return true
+            },
+        }
+        const gql = async <T>(query: string, input: Record<string, unknown>): Promise<T> => {
+            const response = await request(app.getHttpServer())
+                .post("/graphql")
+                .send({
+                    query,
+                    variables: {
+                        request: input,
+                    },
+                })
+                .expect(200)
+            expect(response.body.errors).toBeUndefined()
+            return response.body.data as T
         }
 
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
                 imports: [
                     TestHelpersModule,
-                    // real Postgres against the Testcontainers DB -- no hydration/
-                    // resolvers-module/seeders, this focused app doesn't need them
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
                         withHydration: false,
                         withResolvers: false,
                     }),
+                    CqrsModule,
                 ],
                 providers: [
-                    // REAL -- the session start/sync/complete/find logic under test
+                    StartFlashcardReviewSessionResolver,
+                    StartFlashcardReviewSessionService,
+                    StartFlashcardReviewSessionHandler,
+                    SyncFlashcardReviewSessionProgressResolver,
+                    SyncFlashcardReviewSessionProgressService,
+                    SyncFlashcardReviewSessionProgressHandler,
+                    CompleteFlashcardReviewSessionResolver,
                     FlashcardReviewSessionService,
-                    // REAL -- resolveOrCreateTrialEnrollment runs real SQL against
-                    // real `enrollments` rows
+                    ReviewFlashcardResolver,
+                    FlashcardReviewService,
+                    FlashcardDeckResolverService,
+                    FlashcardCardResolverService,
+                    TranslationResolverService,
+                    GraphQLEnrollmentGuard,
                     UserService,
                     {
                         provide: CacheService,
-                        useValue: cacheServiceMock,
+                        useValue: {
+                            get: jest.fn().mockResolvedValue(undefined),
+                            set: jest.fn().mockResolvedValue(undefined),
+                            del: jest.fn().mockResolvedValue(undefined),
+                        },
+                    },
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                        },
                     },
                 ],
-            }).compile()
-
+            })
+                .overrideGuard(KeycloakAuthGraphQLGuard)
+                .useValue(authGuard)
+                .compile()
             app = moduleRef.createNestApplication()
             await app.init()
-
             entityManager = app.get<EntityManager>(
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
-            sessionService = app.get(FlashcardReviewSessionService)
-
-            // seed the read-only course/deck/card fixtures ONCE -- only
-            // users/enrollments/session/review state are reset between tests
-            course = await entityManager.save(
-                entityManager.create(CourseEntity,
-                    {
-                        title: "Fullstack Mastery",
-                        displayId: "fullstack-mastery-review-session-e2e",
-                        description: "e2e fixture course",
-                        originalPrice: 999_000,
-                        defaultLocale: Locale.En,
-                    }),
+            await entityManager.query(
+                "TRUNCATE TABLE \"flashcard_decks\", \"users\", \"courses\" RESTART IDENTITY CASCADE",
             )
-            deck = await entityManager.save(
-                entityManager.create(FlashcardDeckEntity,
-                    {
-                        title: "NestJS Fundamentals",
-                        displayId: "nestjs-fundamentals-review-session-e2e",
-                        description: "e2e fixture deck",
-                        difficulty: ChallengeDifficulty.Medium,
-                        defaultLocale: Locale.En,
-                        course,
-                    }),
-            )
-            cardA = await entityManager.save(
+            learner = await entityManager.save(entityManager.create(UserEntity,
+                {
+                    keycloakId: "kc-flashcard-review-flow",
+                }))
+            const course = await entityManager.save(entityManager.create(CourseEntity,
+                {
+                    title: "Fullstack Mastery",
+                    displayId: "flashcard-review-flow-course",
+                    description: "Review flow fixture",
+                    originalPrice: 999_000,
+                    defaultLocale: Locale.En,
+                }))
+            deck = await entityManager.save(entityManager.create(FlashcardDeckEntity,
+                {
+                    title: "NestJS",
+                    displayId: "flashcard-review-flow-deck",
+                    description: "Review flow deck",
+                    difficulty: ChallengeDifficulty.Medium,
+                    defaultLocale: Locale.En,
+                    course,
+                }))
+            cards = await entityManager.save([
                 entityManager.create(FlashcardCardEntity,
                     {
-                        question: "What is dependency injection?",
-                        answer: "ANSWER_A",
+                        question: "What is DI?",
+                        answer: "Dependency injection",
                         isPremium: false,
                         defaultLocale: Locale.En,
                         deck,
                     }),
-            )
-            cardB = await entityManager.save(
                 entityManager.create(FlashcardCardEntity,
                     {
-                        question: "Explain the NestJS request lifecycle.",
-                        answer: "ANSWER_B",
+                        question: "What is a provider?",
+                        answer: "A managed dependency",
                         isPremium: false,
                         defaultLocale: Locale.En,
                         deck,
                     }),
-            )
+            ])
         })
 
         afterAll(async () => {
-            // the deck/card fixtures are read-only WITHIN this suite, but the
-            // Testcontainers Postgres is shared across the whole e2e run (see
-            // e2e/setup.ts) -- leaving them behind pollutes any OTHER file's
-            // courseId-less "global" flashcard query with cards this suite has no
-            // control over (e.g. flashcard-stats-queries.e2e-spec.ts's
-            // myDueFlashcards). CASCADE also clears flashcard_cards (+ their
-            // translations).
-            await entityManager.query(
-                "TRUNCATE TABLE \"flashcard_decks\" RESTART IDENTITY CASCADE",
-            ).catch(() => undefined)
-            await app.close().catch(() => undefined)
+            await app?.close().catch(() => undefined)
         })
 
-        afterEach(async () => {
-            // reset per-test user/enrollment/session/review state; course/deck/card
-            // fixtures (seeded in beforeAll) are read-only across the whole suite
-            await entityManager.query(
-                "TRUNCATE TABLE \"users\", \"enrollments\", \"flashcard_review_sessions\", \"user_flashcard_reviews\" RESTART IDENTITY CASCADE",
-            )
-            jest.clearAllMocks()
-            cacheServiceMock.get.mockResolvedValue(undefined)
-            cacheServiceMock.set.mockResolvedValue(undefined)
-            cacheServiceMock.del.mockResolvedValue(undefined)
-        })
-
-        /** Seed a bare user (only keycloakId is required). */
-        const seedUser = async (keycloakId: string): Promise<UserEntity> =>
-            entityManager.save(
-                entityManager.create(UserEntity,
-                    {
-                        keycloakId,
-                    }),
-            )
-
-        describe("start — persists a resumable draw anchored to a trial enrollment",
-            () => {
-                it("persists a fresh in_progress session with the full cardIds set, currentIndex 0, anchored to a trial (is_enrolled=false) enrollment",
-                    async () => {
-                        const user = await seedUser("kc-start-fresh")
-
-                        const result = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                        })
-
-                        const session = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: result.sessionId,
-                                },
-                            },
-                        )
-                        expect(session.status).toBe("in_progress")
-                        expect(session.cardIds).toEqual([
-                            cardA.id,
-                            cardB.id,
-                        ])
-                        expect(session.currentIndex).toBe(0)
-                        expect(session.reviewedCount).toBe(0)
-                        expect(session.gradedIndexes).toEqual([])
-                        expect(session.xpEarned).toBe(0)
-
-                        const enrollment = await entityManager.findOneOrFail(
-                            EnrollmentEntity,
-                            {
-                                where: {
-                                    user: {
-                                        id: user.id,
-                                    },
-                                    course: {
-                                        id: course.id,
-                                    },
-                                },
-                            },
-                        )
-                        expect(enrollment.isEnrolled).toBe(false)
-                        expect(session.enrollmentId).toBe(enrollment.id)
-                    })
-
-                it("mode='due' narrows cardIds to only never-reviewed or overdue cards",
-                    async () => {
-                        const user = await seedUser("kc-start-due-narrow")
-                        const enrollment = await entityManager.save(
-                            entityManager.create(EnrollmentEntity,
-                                {
-                                    user,
-                                    course,
-                                    pricingPhase: PricingPhase.Regular,
-                                    isEnrolled: true,
-                                }),
-                        )
-                        // cardA is scheduled far in the future (NOT due); cardB has no
-                        // review row at all (never reviewed -> always due)
-                        await entityManager.save(
-                            entityManager.create(UserFlashcardReviewEntity,
-                                {
-                                    userId: user.id,
-                                    enrollment,
-                                    flashcardCard: cardA,
-                                    ease: 2.5,
-                                    intervalDays: 30,
-                                    repetitions: 3,
-                                    dueAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                                }),
-                        )
-
-                        const result = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                            mode: "due",
-                        })
-
-                        const session = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: result.sessionId,
-                                },
-                            },
-                        )
-                        expect(session.cardIds).toEqual([
-                            cardB.id,
-                        ])
-                    })
-
-                it("mode='due' falls back to the FULL set rather than persisting an empty draw when nothing is due",
-                    async () => {
-                        const user = await seedUser("kc-start-due-empty-fallback")
-                        const enrollment = await entityManager.save(
-                            entityManager.create(EnrollmentEntity,
-                                {
-                                    user,
-                                    course,
-                                    pricingPhase: PricingPhase.Regular,
-                                    isEnrolled: true,
-                                }),
-                        )
-                        // BOTH cards scheduled far in the future -- nothing is due
-                        for (const card of [
-                            cardA,
-                            cardB,
-                        ]) {
-                            await entityManager.save(
-                                entityManager.create(UserFlashcardReviewEntity,
-                                    {
-                                        userId: user.id,
-                                        enrollment,
-                                        flashcardCard: card,
-                                        ease: 2.5,
-                                        intervalDays: 30,
-                                        repetitions: 3,
-                                        dueAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                                    }),
-                            )
+        it("starts the server-owned draw through GraphQL",
+            async () => {
+                const result = await gql<{
+                    startFlashcardReviewSession: { data: { sessionId: string } }
+                }>(`
+                    mutation Start($request: StartFlashcardReviewSessionRequest!) {
+                        startFlashcardReviewSession(request: $request) {
+                            data { sessionId }
                         }
-
-                        const result = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                            mode: "due",
-                        })
-
-                        const session = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: result.sessionId,
-                                },
-                            },
-                        )
-                        expect(session.cardIds).toEqual([
-                            cardA.id,
-                            cardB.id,
-                        ])
+                    }
+                `,
+                {
+                    deckId: deck.id,
+                    cardIds: cards.map((card) => card.id),
+                    mode: "full",
+                })
+                sessionId = result.startFlashcardReviewSession.data.sessionId
+                const row = await entityManager.findOneByOrFail(FlashcardReviewSessionEntity,
+                    {
+                        id: sessionId,
                     })
-
-                it("starting a SECOND draw for the same (enrollment, deck) abandons the prior in_progress row — never two resumable drafts at once",
-                    async () => {
-                        const user = await seedUser("kc-start-retire-prior")
-
-                        const first = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                            ],
-                        })
-                        const second = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                        })
-
-                        const firstRow = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: first.sessionId,
-                                },
-                            },
-                        )
-                        expect(firstRow.status).toBe("abandoned")
-
-                        const secondRow = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: second.sessionId,
-                                },
-                            },
-                        )
-                        expect(secondRow.status).toBe("in_progress")
-
-                        const inProgressCount = await entityManager.count(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    status: "in_progress",
-                                },
-                            },
-                        )
-                        expect(inProgressCount).toBe(1)
-                    })
-
-                it("throws FlashcardDeckNotFoundException for a non-existent deck and writes NOTHING",
-                    async () => {
-                        const user = await seedUser("kc-start-missing-deck")
-
-                        await expect(
-                            sessionService.start({
-                                userId: user.id,
-                                deckId: "11111111-1111-4111-8111-111111111111",
-                                cardIds: [
-                                    cardA.id,
-                                ],
-                            }),
-                        ).rejects.toBeInstanceOf(FlashcardDeckNotFoundException)
-
-                        const count = await entityManager.count(FlashcardReviewSessionEntity)
-                        expect(count).toBe(0)
-                    })
+                expect(row.status).toBe("in_progress")
+                expect(row.cardIds).toEqual(cards.map((card) => card.id))
             })
 
-        describe("sync — ownership-scoped, silent no-op instead of throwing",
-            () => {
-                it("applies currentIndex/reviewedCount/gradedIndexes/xpEarned to an owned in_progress session",
-                    async () => {
-                        const user = await seedUser("kc-sync-applies")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                        })
-
-                        const result = await sessionService.sync({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            currentIndex: 1,
-                            reviewedCount: 1,
-                            gradedIndexes: [
-                                0,
-                            ],
-                            xpEarned: 0,
-                        })
-
-                        expect(result.success).toBe(true)
-                        const session = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: started.sessionId,
-                                },
+        it("syncs the resumable position through GraphQL",
+            async () => {
+                const review = await gql<{
+                    reviewFlashcard: { data: { xpEarned: number } }
+                }>(`
+                    mutation Review($request: ReviewFlashcardRequest!) {
+                        reviewFlashcard(request: $request) {
+                            data { dueAt xpEarned }
+                        }
+                    }
+                `,
+                {
+                    cardId: cards[0].id,
+                    grade: 2,
+                    sessionId,
+                })
+                expect(review.reviewFlashcard.data.xpEarned).toBe(2)
+                await gql(`
+                    mutation Sync($request: SyncFlashcardReviewSessionProgressRequest!) {
+                        syncFlashcardReviewSessionProgress(request: $request) {
+                            data { success }
+                        }
+                    }
+                `,
+                {
+                    sessionId,
+                    currentIndex: 1,
+                    reviewedCount: 1,
+                    gradedIndexes: [
+                        0,
+                    ],
+                    xpEarned: 0,
+                })
+                const row = await entityManager.findOneByOrFail(FlashcardReviewSessionEntity,
+                    {
+                        id: sessionId,
+                    })
+                expect(row.currentIndex).toBe(1)
+                expect(row.reviewedCount).toBe(1)
+                expect(row.gradedIndexes).toEqual([
+                    0,
+                ])
+                const schedule = await entityManager.findOneOrFail(UserFlashcardReviewEntity,
+                    {
+                        where: {
+                            user: {
+                                id: learner.id,
                             },
-                        )
-                        expect(session.currentIndex).toBe(1)
-                        expect(session.reviewedCount).toBe(1)
-                        expect(session.gradedIndexes).toEqual([
-                            0,
-                        ])
-                    })
-
-                it("omitting gradedIndexes leaves the previously-synced set UNTOUCHED",
-                    async () => {
-                        const user = await seedUser("kc-sync-omit-graded")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                        })
-                        await sessionService.sync({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            currentIndex: 1,
-                            reviewedCount: 1,
-                            gradedIndexes: [
-                                0,
-                            ],
-                            xpEarned: 0,
-                        })
-
-                        await sessionService.sync({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            currentIndex: 2,
-                            reviewedCount: 2,
-                            xpEarned: 0,
-                        })
-
-                        const session = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: started.sessionId,
-                                },
+                            flashcardCard: {
+                                id: cards[0].id,
                             },
-                        )
-                        expect(session.currentIndex).toBe(2)
-                        // gradedIndexes column untouched by the omitting call
-                        expect(session.gradedIndexes).toEqual([
-                            0,
-                        ])
+                        },
                     })
-
-                it("no-ops (returns success: false, mutates nothing) for a session owned by a DIFFERENT user",
-                    async () => {
-                        const owner = await seedUser("kc-sync-owner")
-                        const intruder = await seedUser("kc-sync-intruder")
-                        const started = await sessionService.start({
-                            userId: owner.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                            ],
-                        })
-
-                        const result = await sessionService.sync({
-                            userId: intruder.id,
-                            sessionId: started.sessionId,
-                            currentIndex: 5,
-                            reviewedCount: 5,
-                            xpEarned: 99,
-                        })
-
-                        expect(result.success).toBe(false)
-                        const session = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: started.sessionId,
-                                },
-                            },
-                        )
-                        expect(session.currentIndex).toBe(0)
-                        expect(session.xpEarned).toBe(0)
-                    })
-
-                it("no-ops for a session that is no longer in_progress (already completed)",
-                    async () => {
-                        const user = await seedUser("kc-sync-completed")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                            ],
-                        })
-                        await sessionService.complete({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            reviewedCount: 1,
-                            xpEarned: 0,
-                        })
-
-                        const result = await sessionService.sync({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            currentIndex: 1,
-                            reviewedCount: 1,
-                            xpEarned: 0,
-                        })
-
-                        expect(result.success).toBe(false)
-                    })
+                expect(schedule.repetitions).toBe(1)
             })
 
-        describe("complete — snapshot + replay-safe, tolerant of a raced 'abandoned' status",
-            () => {
-                it("flips status to completed and snapshots reviewedCount/xpEarned",
-                    async () => {
-                        const user = await seedUser("kc-complete-basic")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                        })
-
-                        const result = await sessionService.complete({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            reviewedCount: 2,
-                            xpEarned: 0,
-                        })
-
-                        expect(result).toEqual({
-                            reviewedCount: 2,
-                            xpEarned: 0,
-                        })
-                        const session = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: started.sessionId,
-                                },
-                            },
-                        )
-                        expect(session.status).toBe("completed")
-                        expect(session.reviewedCount).toBe(2)
+        it("completes the same durable session through GraphQL",
+            async () => {
+                await gql(`
+                    mutation Complete($request: CompleteFlashcardReviewSessionRequest!) {
+                        completeFlashcardReviewSession(request: $request) {
+                            data { reviewedCount xpEarned }
+                        }
+                    }
+                `,
+                {
+                    sessionId,
+                    reviewedCount: 2,
+                    xpEarned: 0,
+                })
+                const row = await entityManager.findOneByOrFail(FlashcardReviewSessionEntity,
+                    {
+                        id: sessionId,
                     })
-
-                it("completes a row that got RACED to 'abandoned' by a concurrent start() — the 2026-07-12 stuck-session regression",
-                    async () => {
-                        const user = await seedUser("kc-complete-raced-abandon")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                            ],
-                        })
-
-                        // a concurrent start() on the SAME (enrollment, deck) races the
-                        // row to "abandoned" before this call's complete() lands
-                        await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                        })
-                        const racedRow = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: started.sessionId,
-                                },
-                            },
-                        )
-                        expect(racedRow.status).toBe("abandoned")
-
-                        await sessionService.complete({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            reviewedCount: 1,
-                            xpEarned: 0,
-                        })
-
-                        const completedRow = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: started.sessionId,
-                                },
-                            },
-                        )
-                        // the learner genuinely finished -- their completion wins over the race
-                        expect(completedRow.status).toBe("completed")
-                        expect(completedRow.reviewedCount).toBe(1)
-                    })
-
-                it("refuses to re-flip an ALREADY-completed row — a replay never overwrites the first snapshot",
-                    async () => {
-                        const user = await seedUser("kc-complete-replay-safe")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                            ],
-                        })
-                        await sessionService.complete({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            reviewedCount: 1,
-                            xpEarned: 0,
-                        })
-
-                        // a replay sends DIFFERENT numbers -- must not overwrite the first snapshot
-                        await sessionService.complete({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            reviewedCount: 999,
-                            xpEarned: 999,
-                        })
-
-                        const session = await entityManager.findOneOrFail(
-                            FlashcardReviewSessionEntity,
-                            {
-                                where: {
-                                    id: started.sessionId,
-                                },
-                            },
-                        )
-                        expect(session.reviewedCount).toBe(1)
-                        expect(session.xpEarned).toBe(0)
-                    })
-            })
-
-        describe("findInProgress / findById — resumable lookups",
-            () => {
-                it("findInProgress returns the resumable draw scoped to the deck",
-                    async () => {
-                        const user = await seedUser("kc-find-in-progress")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                                cardB.id,
-                            ],
-                        })
-                        await sessionService.sync({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            currentIndex: 1,
-                            reviewedCount: 1,
-                            gradedIndexes: [
-                                0,
-                            ],
-                            xpEarned: 0,
-                        })
-
-                        const found = await sessionService.findInProgress({
-                            userId: user.id,
-                            deckId: deck.id,
-                        })
-
-                        expect(found?.sessionId).toBe(started.sessionId)
-                        expect(found?.currentIndex).toBe(1)
-                        expect(found?.gradedIndexes).toEqual([
-                            0,
-                        ])
-                    })
-
-                it("findInProgress returns null once the session is completed",
-                    async () => {
-                        const user = await seedUser("kc-find-null-after-complete")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                            ],
-                        })
-                        await sessionService.complete({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            reviewedCount: 1,
-                            xpEarned: 0,
-                        })
-
-                        const found = await sessionService.findInProgress({
-                            userId: user.id,
-                            deckId: deck.id,
-                        })
-                        expect(found).toBeNull()
-                    })
-
-                it("findById resolves a session's deck identity regardless of status (a stale link still resolves)",
-                    async () => {
-                        const user = await seedUser("kc-find-by-id")
-                        const started = await sessionService.start({
-                            userId: user.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                            ],
-                        })
-                        await sessionService.complete({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                            reviewedCount: 1,
-                            xpEarned: 0,
-                        })
-
-                        const found = await sessionService.findById({
-                            userId: user.id,
-                            sessionId: started.sessionId,
-                        })
-
-                        expect(found?.deckId).toBe(deck.id)
-                        expect(found?.deckTitle).toBe(deck.title)
-                    })
-
-                it("findById returns null when the session is not owned by the caller",
-                    async () => {
-                        const owner = await seedUser("kc-find-owner")
-                        const intruder = await seedUser("kc-find-intruder")
-                        const started = await sessionService.start({
-                            userId: owner.id,
-                            deckId: deck.id,
-                            cardIds: [
-                                cardA.id,
-                            ],
-                        })
-
-                        const found = await sessionService.findById({
-                            userId: intruder.id,
-                            sessionId: started.sessionId,
-                        })
-                        expect(found).toBeNull()
-                    })
+                expect(row.status).toBe("completed")
+                expect(row.reviewedCount).toBe(2)
             })
     })

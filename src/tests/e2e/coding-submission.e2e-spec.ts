@@ -1,33 +1,54 @@
+import request from "supertest"
 import {
     Test,
 } from "@nestjs/testing"
 import type {
+    CanActivate,
+    ExecutionContext,
     INestApplication,
 } from "@nestjs/common"
 import {
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     getQueueToken,
 } from "@nestjs/bullmq"
 import type {
+    EntityManager,
+} from "typeorm"
+import type {
     Queue,
 } from "bullmq"
 import {
-    bullData,
-} from "@modules/integrations/bullmq/constants/queue"
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
 import {
-    BullQueueName,
-} from "@modules/integrations/bullmq/enums/queue-name"
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
 import {
-    CodingProblemSolutionEntity,
-} from "@modules/databases/postgresql/primary/entities/coding-problem-solution.entity"
+    CodingSubmissionService,
+} from "@modules/bussiness/coding/coding-submission.service"
+import {
+    DeviceService,
+} from "@modules/bussiness/device/device.service"
+import {
+    JobActionService,
+} from "@modules/bussiness/jobs/atomic/job-action.service"
+import {
+    JobStalledService,
+} from "@modules/bussiness/jobs/atomic/job-stalled.service"
+import {
+    EnqueueJudgeCodingSubmissionJobService,
+} from "@modules/bussiness/jobs/enqueue/judge-coding-submission.service"
 import {
     CodingProblemEntity,
 } from "@modules/databases/postgresql/primary/entities/coding-problem.entity"
+import {
+    CodingProblemSolutionEntity,
+} from "@modules/databases/postgresql/primary/entities/coding-problem-solution.entity"
 import {
     CodingSolutionRevealEntity,
 } from "@modules/databases/postgresql/primary/entities/coding-solution-reveal.entity"
@@ -56,136 +77,104 @@ import {
     CodingVerdict,
 } from "@modules/databases/postgresql/primary/enums/coding-verdict"
 import {
-    JobCategory,
-} from "@modules/databases/postgresql/primary/enums/job-category"
-import {
     JobStatus,
 } from "@modules/databases/postgresql/primary/enums/job-status"
 import {
     PrimaryPostgreSQLModule,
 } from "@modules/databases/postgresql/primary/primary.module"
 import {
-    CodingProblemNotFoundException,
-} from "@modules/platform/exceptions/errors/coding/coding-problem-not-found"
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
 import {
-    DayjsService,
-} from "@modules/lib/mixin/dayjs.service"
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    KeycloakJwksService,
+} from "@modules/integrations/keycloak/jwks.service"
 import {
     createSuperJsonServiceProvider,
 } from "@modules/lib/mixin/superjson.providers"
 import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    CookieService,
+} from "@modules/platform/cookie/cookie.service"
+import {
     EventEmitterService,
 } from "@modules/platform/event/event-emitter.service"
 import {
-    CodingSubmissionService,
-} from "@modules/bussiness/coding/coding-submission.service"
+    SessionService,
+} from "@modules/platform/session/session.service"
 import {
-    DeviceService,
-} from "@modules/bussiness/device/device.service"
+    RevealCodingSolutionResolver,
+} from "@features/api/core/graphql/mutations/coding/reveal-coding-solution/reveal-coding-solution.resolver"
 import {
-    JobActionService,
-} from "@modules/bussiness/jobs/atomic/job-action.service"
+    SubmitCodingSolutionResolver,
+} from "@features/api/core/graphql/mutations/coding/submit-coding-solution/submit-coding-solution.resolver"
 import {
-    JobStalledService,
-} from "@modules/bussiness/jobs/atomic/job-stalled.service"
-import {
-    EnqueueJudgeCodingSubmissionJobService,
-} from "@modules/bussiness/jobs/enqueue/judge-coding-submission.service"
+    until,
+} from "@tests/helpers/flow-wait"
 import {
     TestHelpersModule,
 } from "@tests/helpers/test-helpers.module"
 
-/** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
-
-/** Queue name `EnqueueJudgeCodingSubmissionJobService` injects via `@InjectQueue`. */
-const JUDGE_CODING_SUBMISSION_QUEUE_NAME =
-    bullData[BullQueueName.JudgeCodingSubmission].name
-
-// collapse the enqueue services' UX delay (`sleepEnqueueUxDelay`, default
-// 100ms) to next-to-nothing so `waitForQueueAdd` below doesn't have to sleep long
+const JUDGE_QUEUE = bullData[BullQueueName.JudgeCodingSubmission].name
 process.env.BULLMQ_ENQUEUE_UX_DELAY = "1ms"
 
-/**
- * Poll until `predicate()` is true or `timeoutMs` elapses -- used to observe the
- * fire-and-forget `queue.add` call `EnqueueJudgeCodingSubmissionJobService`
- * schedules via `void sleepEnqueueUxDelay().then(() => queue.add(...))` rather
- * than awaiting it.
- */
-const waitFor = async (
-    predicate: () => boolean,
-    timeoutMs = 2_000,
-): Promise<void> => {
-    const start = Date.now()
-    while (!predicate()) {
-        if (Date.now() - start > timeoutMs) {
-            throw new Error("waitFor: condition not met within timeout")
-        }
-        await new Promise((resolve) => setTimeout(resolve,
-            20))
-    }
-}
-
-/**
- * e2e for the coding-practice submission flows -- `CodingSubmissionService.submit`
- * (backs the `submitCodingSolution` mutation) and `.recordSolutionReveal`
- * (backs `revealCodingSolution`) -- run against REAL Postgres (Testcontainers),
- * not the mocked-`EntityManager` unit level.
- *
- * This is also the regression guard for `.artifacts/states/device/findings.md`
- * #1 (the round-1 device fix): `DeviceService.recordDevice` used to query
- * `where: { userId, fingerprint }` -- `userId` is a `@RelationId` VIRTUAL
- * column, not a real queryable column, so TypeORM threw
- * `EntityPropertyNotFoundError` against the real schema on every real-client
- * submit (a mocked-`EntityManager` unit test could never catch this -- the mock
- * has no schema to be wrong against). The fix is `where: { user: { id: userId
- * }, fingerprint }`. Because `CodingSubmissionService.submit` already saves the
- * `Pending` submission row BEFORE calling `recordDevice`, and wraps that call
- * in try/catch, a regression would NOT surface as a thrown error here -- it
- * would silently swallow the device write and leave the submission's device
- * trail empty while everything else looks fine. So the regression guard is a
- * POSITIVE assertion: a real `DeviceEntity` row must exist after submit, not
- * just "submit didn't throw".
- *
- * MOCKED (no external infra available in this harness, and the true system
- * boundary the enqueue path stops at):
- *  - the BullMQ `Queue` client for `judge-coding-submission` -- no Redis in
- *    this harness; `JobActionService.createJob` still writes the real tracked
- *    `jobs` row, only the broker hand-off (`queue.add`) is stubbed. The actual
- *    judging (Judge0) and any LLM-assisted step are outside this spec's scope
- *    entirely -- an e2e only proves the job WAS queued.
- *  - `EventEmitterService` -- real class fans out to NATS; stubbed (only
- *    `JobActionService.completeJob`/`failJob` call it, neither of which this
- *    spec's paths reach).
- *
- * REAL: Postgres (Testcontainers), `CodingSubmissionService` (the logic under
- * test), `DeviceService` (the round-1 fix -- runs the real query against the
- * real schema), `JobActionService`/`JobStalledService` (the tracked `jobs` row
- * really gets written).
- *
- * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
- */
-describe("Coding-practice submission flows — submit + reveal (e2e)",
+/** A learner submits code for judging and later reveals the reference solution. */
+describe("a learner submits a coding solution and the judging work is durable",
     () => {
         let app: INestApplication
         let entityManager: EntityManager
-        let codingSubmissionService: CodingSubmissionService
-        let judgeCodingSubmissionQueue: jest.Mocked<Pick<Queue<string>, "add">>
-
-        /** Read-only fixtures seeded ONCE -- only per-test user/submission/job state is reset. */
+        let learner: UserEntity
         let problem: CodingProblemEntity
-        let disabledProblem: CodingProblemEntity
+        let submissionId: string
+        let jobId: string
+        let judgeQueue: jest.Mocked<Pick<Queue<string>, "add">>
+
+        const fakeAuthGuard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = learner
+                return true
+            },
+        }
+
+        const gql = async <T>(query: string, input: Record<string, unknown>): Promise<T> => {
+            const response = await request(app.getHttpServer())
+                .post("/graphql")
+                .set("x-device-fingerprint",
+                    "coding-flow-device")
+                .set("user-agent",
+                    "starci-e2e")
+                .send({
+                    query,
+                    variables: {
+                        request: input,
+                    },
+                })
+                .expect(200)
+            expect(response.body.errors).toBeUndefined()
+            return response.body.data as T
+        }
 
         beforeAll(async () => {
-            judgeCodingSubmissionQueue = {
+            judgeQueue = {
                 add: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<Queue<string>, "add">>
-
             const moduleRef = await Test.createTestingModule({
                 imports: [
                     TestHelpersModule,
-                    // real Postgres against the Testcontainers DB -- no hydration/
-                    // resolvers/seeders, this focused app doesn't need them
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
                     PrimaryPostgreSQLModule.register({
                         isGlobal: true,
                         withHydration: false,
@@ -193,414 +182,157 @@ describe("Coding-practice submission flows — submit + reveal (e2e)",
                     }),
                 ],
                 providers: [
-                    // REAL -- the submit/reveal logic under test
+                    SubmitCodingSolutionResolver,
+                    RevealCodingSolutionResolver,
                     CodingSubmissionService,
-                    // REAL -- the round-1 device-record fix; runs the real query
-                    // against the real schema
                     DeviceService,
-                    // REAL -- writes the real tracked `jobs` row; only the BullMQ
-                    // queue client underneath is stubbed
                     EnqueueJudgeCodingSubmissionJobService,
                     JobActionService,
                     JobStalledService,
                     DayjsService,
-                    // REAL superjson instance -- the enqueue service serializes the
-                    // job payload with it
                     createSuperJsonServiceProvider(),
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                        },
+                    },
                     {
                         provide: EventEmitterService,
                         useValue: {
                             emit: jest.fn().mockResolvedValue(undefined),
                         },
                     },
-                    // the true system boundary: no Redis in this harness, so the
-                    // BullMQ broker hand-off itself is stubbed
                     {
-                        provide: getQueueToken(JUDGE_CODING_SUBMISSION_QUEUE_NAME),
-                        useValue: judgeCodingSubmissionQueue,
+                        provide: getQueueToken(JUDGE_QUEUE),
+                        useValue: judgeQueue,
                     },
                 ],
-            }).compile()
-
+            })
+                .overrideGuard(KeycloakAuthGraphQLGuard)
+                .useValue(fakeAuthGuard)
+                .compile()
             app = moduleRef.createNestApplication()
             await app.init()
-
             entityManager = app.get<EntityManager>(
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
-            codingSubmissionService = app.get(CodingSubmissionService)
-
-            // seed the read-only problem fixtures ONCE -- only users/submissions/
-            // reveals/jobs/devices are reset between tests (see afterEach)
-            problem = await entityManager.save(
-                entityManager.create(CodingProblemEntity,
-                    {
-                        slug: "two-sum",
-                        difficulty: CodingDifficulty.Easy,
-                        title: "Two Sum",
-                        statement: "Given an array of integers, return indices of the two numbers that add up to target.",
-                        enabled: true,
-                    }),
+            await entityManager.query(
+                "TRUNCATE TABLE \"coding_problems\", \"users\", \"jobs\", \"devices\" RESTART IDENTITY CASCADE",
             )
-            await entityManager.save(
-                entityManager.create(CodingProblemSolutionEntity,
-                    {
-                        problem,
-                        language: CodingLanguage.Python,
-                        code: "def two_sum(nums, target): ...",
-                    }),
-            )
-            await entityManager.save(
-                entityManager.create(CodingProblemSolutionEntity,
-                    {
-                        problem,
-                        language: CodingLanguage.JavaScript,
-                        code: "function twoSum(nums, target) { ... }",
-                    }),
-            )
-            disabledProblem = await entityManager.save(
-                entityManager.create(CodingProblemEntity,
-                    {
-                        slug: "retired-problem",
-                        difficulty: CodingDifficulty.Medium,
-                        title: "Retired problem",
-                        statement: "No longer offered.",
-                        enabled: false,
-                    }),
-            )
+            learner = await entityManager.save(entityManager.create(UserEntity,
+                {
+                    keycloakId: "kc-coding-submission-flow",
+                }))
+            problem = await entityManager.save(entityManager.create(CodingProblemEntity,
+                {
+                    slug: "two-sum-flow",
+                    difficulty: CodingDifficulty.Easy,
+                    title: "Two Sum",
+                    statement: "Return indices that add up to the target.",
+                    enabled: true,
+                }))
+            await entityManager.save(entityManager.create(CodingProblemSolutionEntity,
+                {
+                    problem,
+                    language: CodingLanguage.JavaScript,
+                    code: "function twoSum(nums, target) { return [0, 1] }",
+                }))
         })
 
         afterAll(async () => {
-            // the "two-sum" / "retired-problem" fixtures are read-only WITHIN this
-            // suite, but the Testcontainers Postgres is shared across the whole e2e
-            // run (see e2e/setup.ts) -- leaving them behind collides with
-            // coding-queries.e2e-spec.ts's own same-slug "two-sum" fixture
-            // (duplicate-key on the unique slug) whenever that file runs after this
-            // one. CASCADE also clears coding_problem_solutions.
-            await entityManager.query(
-                "TRUNCATE TABLE \"coding_problems\" RESTART IDENTITY CASCADE",
-            ).catch(() => undefined)
-            await app.close().catch(() => undefined)
+            await app?.close().catch(() => undefined)
         })
 
-        afterEach(async () => {
-            // reset per-test user/submission/reveal/job/device state; the problem
-            // fixtures (seeded in beforeAll) are read-only across the whole suite
-            await entityManager.query(
-                "TRUNCATE TABLE \"users\", \"coding_submissions\", \"coding_solution_reveals\", \"jobs\", \"devices\" RESTART IDENTITY CASCADE",
-            )
-            jest.clearAllMocks()
-        })
+        it("submits through GraphQL and persists the pending submission and device",
+            async () => {
+                const result = await gql<{
+                    submitCodingSolution: { data: { submissionId: string; jobId: string } }
+                }>(`
+                    mutation Submit($request: SubmitCodingSolutionRequest!) {
+                        submitCodingSolution(request: $request) {
+                            data { submissionId jobId }
+                        }
+                    }
+                `,
+                {
+                    slug: problem.slug,
+                    language: CodingLanguage.JavaScript,
+                    sourceCode: "function twoSum(nums, target) { return [0, 1] }",
+                })
+                submissionId = result.submitCodingSolution.data.submissionId
+                jobId = result.submitCodingSolution.data.jobId
 
-        /** Seed a bare user (only keycloakId is required). */
-        const seedUser = async (keycloakId: string): Promise<UserEntity> =>
-            entityManager.save(
-                entityManager.create(UserEntity,
+                const submission = await entityManager.findOneByOrFail(CodingSubmissionEntity,
                     {
-                        keycloakId,
-                    }),
-            )
-
-        describe("submit",
-            () => {
-                it("creates a Pending CodingSubmissionEntity row and enqueues a Queued JudgeCodingSubmission job on the stubbed queue, recording the device (round-1 fix) without stranding the submission",
-                    async () => {
-                        const user = await seedUser("kc-coding-submit-first")
-
-                        const result = await codingSubmissionService.submit({
-                            userId: user.id,
-                            slug: problem.slug,
-                            language: CodingLanguage.Python,
-                            sourceCode: "def two_sum(nums, target): return []",
-                            ipAddress: "203.0.113.10",
-                            userAgent: "Mozilla/5.0 e2e",
-                            fingerprint: "fingerprint-abc",
-                        })
-
-                        expect(result.submissionId).toBeDefined()
-                        expect(result.jobId).toBeDefined()
-
-                        const submission = await entityManager.findOneOrFail(
-                            CodingSubmissionEntity,
-                            {
-                                where: {
-                                    id: result.submissionId,
-                                },
-                            },
-                        )
-                        expect(submission.verdict).toBe(CodingVerdict.Pending)
-                        expect(submission.userId).toBe(user.id)
-                        expect(submission.codingProblemId).toBe(problem.id)
-                        expect(submission.language).toBe(CodingLanguage.Python)
-                        expect(submission.deviceFingerprint).toBe("fingerprint-abc")
-
-                        // ROUND-1 DEVICE FIX regression guard: the real (user, fingerprint)
-                        // query must actually find/create a row against the real schema --
-                        // a regressed `where: { userId, fingerprint }` would throw inside
-                        // DeviceService, get swallowed by CodingSubmissionService's
-                        // try/catch, and silently leave this row absent
-                        const device = await entityManager.findOneOrFail(
-                            DeviceEntity,
-                            {
-                                where: {
-                                    user: {
-                                        id: user.id,
-                                    },
-                                    fingerprint: "fingerprint-abc",
-                                },
-                            },
-                        )
-                        expect(device.ipAddress).toBe("203.0.113.10")
-                        expect(device.userAgent).toBe("Mozilla/5.0 e2e")
-
-                        // the submission is NOT stranded: the tracked `jobs` row is
-                        // real and Queued regardless of the device-record outcome
-                        const job = await entityManager.findOneOrFail(
-                            JobEntity,
-                            {
-                                where: {
-                                    id: result.jobId,
-                                },
-                            },
-                        )
-                        expect(job.status).toBe(JobStatus.Queued)
-                        expect(job.actionType).toBe(ActionType.JudgeCodingSubmission)
-                        expect(job.category).toBe(JobCategory.JudgeCoding)
-                        expect(job.userId).toBe(user.id)
-
-                        // the enqueue service fires `queue.add` on a detached, delayed
-                        // promise chain -- wait for it, then assert the SAME job row
-                        // was actually handed to the (stubbed) BullMQ broker
-                        await waitFor(() => judgeCodingSubmissionQueue.add.mock.calls.length > 0)
-                        expect(judgeCodingSubmissionQueue.add).toHaveBeenCalledWith(
-                            job.id,
-                            job.payload,
-                            {
-                                jobId: job.id,
-                            },
-                        )
+                        id: submissionId,
                     })
-
-                it("no fingerprint supplied → no device row is written, but the submission still processes normally",
-                    async () => {
-                        const user = await seedUser("kc-coding-submit-no-fingerprint")
-
-                        const result = await codingSubmissionService.submit({
-                            userId: user.id,
-                            slug: problem.slug,
-                            language: CodingLanguage.JavaScript,
-                            sourceCode: "function twoSum(nums, target) { return [] }",
-                        })
-
-                        const submission = await entityManager.findOneOrFail(
-                            CodingSubmissionEntity,
-                            {
-                                where: {
-                                    id: result.submissionId,
-                                },
+                expect(submission.verdict).toBe(CodingVerdict.Pending)
+                expect(await entityManager.count(DeviceEntity,
+                    {
+                        where: {
+                            user: {
+                                id: learner.id,
                             },
-                        )
-                        expect(submission.verdict).toBe(CodingVerdict.Pending)
-                        expect(submission.deviceFingerprint).toBeNull()
+                            fingerprint: "coding-flow-device",
+                        },
+                    })).toBe(1)
+            })
 
-                        const deviceCount = await entityManager.count(DeviceEntity)
-                        expect(deviceCount).toBe(0)
-
-                        // still not stranded -- the job is queued regardless
-                        const jobCount = await entityManager.count(JobEntity)
-                        expect(jobCount).toBe(1)
+        it("persists and hands the tracked judging job to BullMQ",
+            async () => {
+                const job = await entityManager.findOneByOrFail(JobEntity,
+                    {
+                        id: jobId,
                     })
-
-                it("submitting twice from the SAME device (fingerprint) upserts one DeviceEntity row (bumps last-seen, no duplicate)",
-                    async () => {
-                        const user = await seedUser("kc-coding-submit-same-device")
-
-                        await codingSubmissionService.submit({
-                            userId: user.id,
-                            slug: problem.slug,
-                            language: CodingLanguage.Python,
-                            sourceCode: "attempt 1",
-                            fingerprint: "fingerprint-repeat",
-                            ipAddress: "203.0.113.1",
-                        })
-                        await codingSubmissionService.submit({
-                            userId: user.id,
-                            slug: problem.slug,
-                            language: CodingLanguage.Python,
-                            sourceCode: "attempt 2",
-                            fingerprint: "fingerprint-repeat",
-                            ipAddress: "203.0.113.2",
-                        })
-
-                        const deviceCount = await entityManager.count(DeviceEntity,
-                            {
-                                where: {
-                                    user: {
-                                        id: user.id,
-                                    },
-                                    fingerprint: "fingerprint-repeat",
-                                },
-                            })
-                        expect(deviceCount).toBe(1)
-
-                        const device = await entityManager.findOneOrFail(
-                            DeviceEntity,
-                            {
-                                where: {
-                                    user: {
-                                        id: user.id,
-                                    },
-                                    fingerprint: "fingerprint-repeat",
-                                },
-                            },
-                        )
-                        // refreshed to the SECOND submit's IP, not the first
-                        expect(device.ipAddress).toBe("203.0.113.2")
-
-                        // two independent submission rows though -- history is append-only
-                        const submissionCount = await entityManager.count(CodingSubmissionEntity)
-                        expect(submissionCount).toBe(2)
+                expect(job.status).toBe(JobStatus.Queued)
+                expect(job.actionType).toBe(ActionType.JudgeCodingSubmission)
+                await until(() => judgeQueue.add.mock.calls.length > 0,
+                    {
+                        timeout: 2_000,
+                        describe: "the coding job to reach BullMQ",
                     })
-
-                it("an unknown/disabled problem slug throws CodingProblemNotFoundException and writes no submission row",
-                    async () => {
-                        const user = await seedUser("kc-coding-submit-missing")
-
-                        await expect(
-                            codingSubmissionService.submit({
-                                userId: user.id,
-                                slug: "does-not-exist",
-                                language: CodingLanguage.Python,
-                                sourceCode: "print(1)",
-                            }),
-                        ).rejects.toBeInstanceOf(CodingProblemNotFoundException)
-
-                        await expect(
-                            codingSubmissionService.submit({
-                                userId: user.id,
-                                slug: disabledProblem.slug,
-                                language: CodingLanguage.Python,
-                                sourceCode: "print(1)",
-                            }),
-                        ).rejects.toBeInstanceOf(CodingProblemNotFoundException)
-
-                        const count = await entityManager.count(CodingSubmissionEntity)
-                        expect(count).toBe(0)
-                        const jobCount = await entityManager.count(JobEntity)
-                        expect(jobCount).toBe(0)
+                expect(judgeQueue.add).toHaveBeenCalledWith(job.id,
+                    job.payload,
+                    {
+                        jobId: job.id,
                     })
             })
 
-        describe("recordSolutionReveal",
-            () => {
-                it("first reveal returns revealed:true + the reference solutions, and persists ONE forfeit-marker row",
-                    async () => {
-                        const user = await seedUser("kc-reveal-first")
-
-                        const result = await codingSubmissionService.recordSolutionReveal({
-                            userId: user.id,
-                            slug: problem.slug,
-                        })
-
-                        expect(result.revealed).toBe(true)
-                        expect(result.solutions).toHaveLength(2)
-                        expect(result.solutions.map((s) => s.language).sort()).toEqual(
-                            [
-                                CodingLanguage.JavaScript,
-                                CodingLanguage.Python,
-                            ].sort(),
-                        )
-
-                        const reveal = await entityManager.findOneOrFail(
-                            CodingSolutionRevealEntity,
-                            {
-                                where: {
-                                    user: {
-                                        id: user.id,
-                                    },
-                                    problem: {
-                                        id: problem.id,
-                                    },
-                                },
+        it("reveals the reference solution through GraphQL and persists the forfeit",
+            async () => {
+                const result = await gql<{
+                    revealCodingSolution: { data: { revealed: boolean } }
+                }>(`
+                    mutation Reveal($request: RevealCodingSolutionRequest!) {
+                        revealCodingSolution(request: $request) {
+                            data { revealed solutions { language code } }
+                        }
+                    }
+                `,
+                {
+                    slug: problem.slug,
+                })
+                expect(result.revealCodingSolution.data.revealed).toBe(true)
+                expect(await entityManager.count(CodingSolutionRevealEntity,
+                    {
+                        where: {
+                            user: {
+                                id: learner.id,
                             },
-                        )
-                        expect(reveal.userId).toBe(user.id)
-                    })
-
-                it("a second reveal of the SAME problem is idempotent — revealed:false, still serves the solutions, no duplicate row",
-                    async () => {
-                        const user = await seedUser("kc-reveal-repeat")
-
-                        const first = await codingSubmissionService.recordSolutionReveal({
-                            userId: user.id,
-                            slug: problem.slug,
-                        })
-                        const second = await codingSubmissionService.recordSolutionReveal({
-                            userId: user.id,
-                            slug: problem.slug,
-                        })
-
-                        expect(first.revealed).toBe(true)
-                        expect(second.revealed).toBe(false)
-                        expect(second.solutions).toHaveLength(2)
-
-                        const count = await entityManager.count(
-                            CodingSolutionRevealEntity,
-                            {
-                                where: {
-                                    user: {
-                                        id: user.id,
-                                    },
-                                    problem: {
-                                        id: problem.id,
-                                    },
-                                },
+                            problem: {
+                                id: problem.id,
                             },
-                        )
-                        expect(count).toBe(1)
-                    })
-
-                it("the forfeit gate is per (user, problem) — a SECOND user revealing the SAME problem gets its own row",
-                    async () => {
-                        const userA = await seedUser("kc-reveal-user-a")
-                        const userB = await seedUser("kc-reveal-user-b")
-
-                        await codingSubmissionService.recordSolutionReveal({
-                            userId: userA.id,
-                            slug: problem.slug,
-                        })
-                        const resultB = await codingSubmissionService.recordSolutionReveal({
-                            userId: userB.id,
-                            slug: problem.slug,
-                        })
-
-                        expect(resultB.revealed).toBe(true)
-                        const count = await entityManager.count(
-                            CodingSolutionRevealEntity,
-                            {
-                                where: {
-                                    problem: {
-                                        id: problem.id,
-                                    },
-                                },
-                            },
-                        )
-                        expect(count).toBe(2)
-                    })
-
-                it("an unknown/disabled problem slug throws CodingProblemNotFoundException and writes no reveal row",
-                    async () => {
-                        const user = await seedUser("kc-reveal-missing")
-
-                        await expect(
-                            codingSubmissionService.recordSolutionReveal({
-                                userId: user.id,
-                                slug: "does-not-exist",
-                            }),
-                        ).rejects.toBeInstanceOf(CodingProblemNotFoundException)
-
-                        const count = await entityManager.count(CodingSolutionRevealEntity)
-                        expect(count).toBe(0)
-                    })
+                        },
+                    })).toBe(1)
             })
     })

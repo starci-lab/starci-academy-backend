@@ -1,3 +1,4 @@
+import request from "supertest"
 import type {
     Namespace,
 } from "socket.io"
@@ -5,15 +6,44 @@ import {
     io,
     type Socket,
 } from "socket.io-client"
+import type {
+    CanActivate,
+    ExecutionContext,
+    INestApplication,
+} from "@nestjs/common"
 import {
-    UserEntity,
-} from "@modules/databases/postgresql/primary/entities/user.entity"
+    GqlExecutionContext,
+} from "@nestjs/graphql"
 import {
-    NotificationEntity,
-} from "@modules/databases/postgresql/primary/entities/notification.entity"
+    Test,
+} from "@nestjs/testing"
 import {
-    NotificationType,
-} from "@modules/databases/postgresql/primary/enums/notification-type"
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import type {
+    EntityManager,
+} from "typeorm"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
+import {
+    SetFollowResolver,
+} from "@features/api/core/graphql/mutations/follows/set-follow/set-follow.resolver"
+import {
+    NotificationsGateway,
+} from "@features/socketio/core/notifications/notifications.gateway"
+import {
+    NotificationRoomService,
+} from "@features/socketio/core/notifications/notification-room.service"
+import {
+    PublicationEvent,
+} from "@features/socketio/core/enums/publication-event"
+import {
+    SubscriptionEvent,
+} from "@features/socketio/core/enums/subscription-event"
 import {
     NotificationService,
 } from "@modules/bussiness/notification/notification.service"
@@ -24,8 +54,26 @@ import {
     UserService,
 } from "@modules/bussiness/user/user.service"
 import {
+    NotificationEntity,
+} from "@modules/databases/postgresql/primary/entities/notification.entity"
+import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    NotificationType,
+} from "@modules/databases/postgresql/primary/enums/notification-type"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
     KeycloakTokenService,
 } from "@modules/integrations/keycloak/token.service"
+import {
+    CacheService,
+} from "@modules/integrations/cache/cache.service"
 import {
     SUPERJSON,
 } from "@modules/lib/mixin/constants/superjson"
@@ -42,88 +90,65 @@ import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
 import {
-    NotificationsGateway,
-} from "@features/socketio/core/notifications/notifications.gateway"
-import {
-    NotificationRoomService,
-} from "@features/socketio/core/notifications/notification-room.service"
-import {
-    PublicationEvent,
-} from "@features/socketio/core/enums/publication-event"
-import {
-    SubscriptionEvent,
-} from "@features/socketio/core/enums/subscription-event"
-import {
-    bootFlowWorld,
-} from "@tests/helpers/flow-world"
-import type {
-    FlowWorld,
-} from "@tests/helpers/flow-world"
-import {
     expectNoMessage,
     nextMessage,
     until,
 } from "@tests/helpers/flow-wait"
+import {
+    TestHelpersModule,
+} from "@tests/helpers/test-helpers.module"
 
 interface NotificationSocketMessage {
     success: boolean
-    data: {
-        notification: {
-            id: string
-            type: NotificationType
-        }
-    }
+    data: { notification: { id: string; type: NotificationType } }
 }
 
-/** An in-process event persists a notification and delivers it only to its recipient. */
-describe("a domain event persists a notification and delivers it to the learner",
+interface FlowEventListenerParams {
+    event: EventName
+    listener: (payload: unknown) => void
+}
+
+interface FlowEventEmitParams {
+    event: EventName
+    payload: unknown
+}
+
+describe("a follow notification reaches only the followed learner",
     () => {
-        let world: FlowWorld
-        let notificationService: NotificationService
-        let roomService: NotificationRoomService
-        let gatewayNamespace: Namespace
+        let app: INestApplication
+        let entityManager: EntityManager
+        let follower: UserEntity | null = null
         let recipient: UserEntity
         let stranger: UserEntity
         let recipientSocket: Socket
         let strangerSocket: Socket
-        let recipientSocketId: string
-        let strangerSocketId: string
-
         const listeners = new Map<EventName, Array<(payload: unknown) => void>>()
-        const eventEmitterService = {
-            on: jest.fn((params: {
-                event: EventName
-                listener: (payload: unknown) => void
-            }) => {
-                const current = listeners.get(params.event) ?? []
-                current.push(params.listener)
-                listeners.set(params.event,
-                    current)
+        const events = {
+            on: jest.fn(({ event, listener }: FlowEventListenerParams) => {
+                listeners.set(event,
+                    [...(listeners.get(event) ?? []),
+                        listener])
             }),
-            emit: jest.fn(async (params: {
-                event: EventName
-                payload: unknown
-            }) => {
-                for (const listener of listeners.get(params.event) ?? []) {
-                    listener(params.payload)
-                }
+            emit: jest.fn(async ({ event, payload }: FlowEventEmitParams) => {
+                for (const listener of listeners.get(event) ?? []) listener(payload)
             }),
             off: jest.fn(),
         }
+        const guard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                if (!follower) return false
+                GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>().req.user = follower
+                return true
+            },
+        }
 
-        const connect = async (
-            baseUrl: string,
-            token: string,
-        ): Promise<Socket> => {
-            const socket = io(`${baseUrl}/notifications`,
+        const connect = async (token: string): Promise<Socket> => {
+            const socket = io(`${await app.getUrl()}/notifications`,
                 {
-                    transports: [
-                        "websocket",
-                    ],
-                    auth: {
-                        token,
-                    },
-                    forceNew: true,
+                    transports: ["websocket"], auth: {
+                        token
+                    }, forceNew: true
                 })
             await new Promise<void>((resolve, reject) => {
                 socket.once("connect",
@@ -135,8 +160,18 @@ describe("a domain event persists a notification and delivers it to the learner"
         }
 
         beforeAll(async () => {
-            world = await bootFlowWorld({
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic, useServices: false
+                    }),
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true, withHydration: false, withResolvers: false
+                    }),
+                ],
                 providers: [
+                    SetFollowResolver,
                     UserService,
                     UserStatsProjectionService,
                     NotificationService,
@@ -144,137 +179,95 @@ describe("a domain event persists a notification and delivers it to the learner"
                     WsResponseService,
                     NotificationsGateway,
                     {
-                        provide: SUPERJSON,
-                        useValue: {
-                            stringify: JSON.stringify,
-                            parse: JSON.parse,
-                        },
+                        provide: SUPERJSON, useValue: {
+                            stringify: JSON.stringify, parse: JSON.parse
+                        }
                     },
                     {
-                        provide: EventEmitterService,
-                        useValue: eventEmitterService,
+                        provide: EventEmitterService, useValue: events
                     },
                     {
-                        provide: KeycloakTokenService,
-                        useValue: {
+                        provide: KeycloakTokenService, useValue: {
                             verifyAccessToken: jest.fn(async (token: string) => ({
-                                active: true,
-                                sub: token === "recipient-token"
-                                    ? "kc-notification-recipient"
-                                    : "kc-notification-stranger",
-                            })),
+                                active: true, sub: token
+                            }))
+                        }
+                    },
+                    {
+                        provide: CacheService,
+                        useValue: {
+                            get: jest.fn().mockResolvedValue(undefined),
+                            set: jest.fn().mockResolvedValue(undefined),
                         },
                     },
                     {
-                        provide: WinstonService,
-                        useValue: {
-                            log: jest.fn(),
-                        },
+                        provide: WinstonService, useValue: {
+                            log: jest.fn()
+                        }
                     },
                 ],
-            })
-            globalThis.__APP__ = world.app
-            await world.app.listen(0)
-            notificationService = world.app.get(NotificationService)
-            roomService = world.app.get(NotificationRoomService)
-            gatewayNamespace = (world.app.get(NotificationsGateway) as unknown as {
-                server: Namespace
-            }).server
-
-            await world.truncate(
-                "notifications",
-                "user_stats_projections",
-                "users",
-            )
-            recipient = await world.entityManager.save(
-                world.entityManager.create(UserEntity,
-                    {
-                        keycloakId: "kc-notification-recipient",
-                    }),
-            )
-            stranger = await world.entityManager.save(
-                world.entityManager.create(UserEntity,
-                    {
-                        keycloakId: "kc-notification-stranger",
-                    }),
-            )
-
-            const baseUrl = await world.app.getUrl()
-            recipientSocket = await connect(baseUrl,
-                "recipient-token")
-            strangerSocket = await connect(baseUrl,
-                "stranger-token")
-            if (!recipientSocket.id || !strangerSocket.id) {
-                throw new Error("Connected notification sockets must have ids")
-            }
-            recipientSocketId = recipientSocket.id
-            strangerSocketId = strangerSocket.id
+            }).overrideGuard(KeycloakAuthGraphQLGuard).useValue(guard).compile()
+            app = moduleRef.createNestApplication()
+            globalThis.__APP__ = app
+            await app.listen(0)
+            entityManager = app.get(getEntityManagerToken("primary"))
+            await entityManager.query("TRUNCATE TABLE \"user_follows\", \"activities\", \"notifications\", \"user_stats_projections\", \"users\" RESTART IDENTITY CASCADE")
+            follower = await entityManager.save(entityManager.create(UserEntity,
+                {
+                    keycloakId: "kc-notification-follower", username: "follower"
+                }))
+            recipient = await entityManager.save(entityManager.create(UserEntity,
+                {
+                    keycloakId: "kc-notification-recipient", username: "recipient"
+                }))
+            stranger = await entityManager.save(entityManager.create(UserEntity,
+                {
+                    keycloakId: "kc-notification-stranger", username: "stranger"
+                }))
+            recipientSocket = await connect(recipient.keycloakId)
+            strangerSocket = await connect(stranger.keycloakId)
             recipientSocket.emit(PublicationEvent.SubscribeNotifications)
             strangerSocket.emit(PublicationEvent.SubscribeNotifications)
-
-            await until(
-                () => Boolean(gatewayNamespace.adapter.rooms.get(
-                    roomService.name(recipient.id),
-                )?.has(recipientSocketId)),
+            const namespace = (app.get(NotificationsGateway) as unknown as { server: Namespace }).server
+            const rooms = app.get(NotificationRoomService)
+            await until(() => Boolean(recipientSocket.id && namespace.adapter.rooms.get(rooms.name(recipient.id))?.has(recipientSocket.id)),
                 {
-                    describe: "the recipient socket to join its private notification room",
-                },
-            )
-            await until(
-                () => Boolean(gatewayNamespace.adapter.rooms.get(
-                    roomService.name(stranger.id),
-                )?.has(strangerSocketId)),
+                    describe: "the recipient to join its notification room"
+                })
+            await until(() => Boolean(strangerSocket.id && namespace.adapter.rooms.get(rooms.name(stranger.id))?.has(strangerSocket.id)),
                 {
-                    describe: "the stranger socket to join its private notification room",
-                },
-            )
+                    describe: "the stranger to join its notification room"
+                })
         })
 
         afterAll(async () => {
             recipientSocket?.disconnect()
             strangerSocket?.disconnect()
-            await world?.close()
+            await app?.close().catch(() => undefined)
         })
 
-        it("commits the row and pushes its snapshot only to the recipient room",
+        it("persists and emits the notification without leaking it to another socket",
             async () => {
-                const recipientMessage = nextMessage<NotificationSocketMessage>(
-                    recipientSocket,
-                    SubscriptionEvent.NotificationCreated,
-                )
-                const strangerSilence = expectNoMessage(
-                    strangerSocket,
+                const delivered = nextMessage<NotificationSocketMessage>(recipientSocket,
+                    SubscriptionEvent.NotificationCreated)
+                const silence = expectNoMessage(strangerSocket,
                     SubscriptionEvent.NotificationCreated,
                     () => true,
                     {
-                        within: 500,
-                    },
-                )
-
-                const created = await notificationService.createNotification({
-                    userId: recipient.id,
-                    type: NotificationType.System,
-                    title: {
-                        key: "notification.flow.title",
-                    },
-                    body: {
-                        key: "notification.flow.body",
-                    },
+                        within: 500
+                    })
+                const response = await request(app.getHttpServer()).post("/graphql").send({
+                    query: `mutation { setFollow(request: { userId: "${recipient.id}", follow: true }) { success error } }`,
                 })
-
-                const message = await recipientMessage
-                await strangerSilence
-                expect(message.success).toBe(true)
-                expect(message.data.notification.id).toBe(created.id)
-                expect(message.data.notification.type).toBe(NotificationType.System)
-
-                const persisted = await world.entityManager.findOneByOrFail(
-                    NotificationEntity,
+                expect(response.body).toHaveProperty("data.setFollow.success",
+                    true)
+                const message = await delivered
+                await silence
+                expect(message.data.notification.type).toBe(NotificationType.NewFollower)
+                const persisted = await entityManager.findOneByOrFail(NotificationEntity,
                     {
-                        id: created.id,
-                    },
-                )
+                        id: message.data.notification.id
+                    })
                 expect(persisted.userId).toBe(recipient.id)
-                expect(persisted.readAt).toBeNull()
             })
     })

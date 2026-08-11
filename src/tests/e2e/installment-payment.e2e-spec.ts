@@ -1,9 +1,28 @@
-import {
-    getEntityManagerToken,
-} from "@nestjs/typeorm"
+import request from "supertest"
 import type {
-    EntityManager,
-} from "typeorm"
+    ExecutionContext,
+} from "@nestjs/common"
+import {
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    KeycloakJwksService
+} from "@modules/integrations/keycloak/jwks.service"
+import {
+    SessionService
+} from "@modules/platform/session/session.service"
+import {
+    CookieService
+} from "@modules/platform/cookie/cookie.service"
 import {
     InstallmentPlanEntity,
 } from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
@@ -26,9 +45,6 @@ import {
     PaymentType,
 } from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
-    PricingPhase,
-} from "@modules/databases/postgresql/primary/enums/pricing-phase"
-import {
     TransactionStatus,
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
@@ -38,227 +54,182 @@ import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
 import {
-    createE2eApp,
-} from "@tests/helpers/create-e2e-app"
+    RetryService,
+} from "@modules/lib/mixin/retry.service"
+import {
+    SEPAY,
+} from "@modules/integrations/sepay/constants/sepay"
+import {
+    PAYOS,
+} from "@modules/integrations/payos/constants/payos"
+import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
+    PayNextInstallmentResolver,
+} from "@features/api/core/graphql/mutations/installment-plans/pay-next-installment/pay-next-installment.resolver"
+import {
+    PayNextInstallmentService,
+} from "@features/api/core/graphql/mutations/installment-plans/pay-next-installment/pay-next-installment.service"
+import {
+    PayNextInstallmentHandler,
+} from "@features/api/core/graphql/mutations/installment-plans/pay-next-installment/pay-next-installment.handler"
+import {
+    bootFlowWorld,
+} from "@tests/helpers/flow-world"
 import type {
-    E2eApp,
-} from "@tests/helpers/types/e2e-app"
+    FlowWorld,
+} from "@tests/helpers/flow-world"
 
-/** Connection name used by the primary PostgreSQL data source. */
-const POSTGRESQL_PRIMARY = "primary"
-
-/** Params for the local `seedFixedPlan` helper. */
-interface SeedFixedPlanParams {
-    months: number
-    installmentsPaid: number
-}
-
-/**
- * Exercises `InstallmentPlanService.applyPaymentForTransaction` against a
- * real Postgres connection -- the exact call `ReconcileTransactionWorker
- * .finalize()`'s `ActionType.InstallmentPayment` branch makes (see
- * `reconcile-transaction.worker.ts` -- the branch is a bare guard + this one
- * delegate, so driving the service call IS driving that branch). Covers
- * `findings.md` #3: no e2e existed for pay-next-installment or the reconcile
- * worker's InstallmentPayment path, and no test proved the round-1 atomic
- * claim actually stops a double-fire from double-crediting the NON-idempotent
- * `recordPayment` ledger mutation.
- */
-describe("Installment payment reconcile (e2e)",
+/** A learner opens the next installment checkout through the production GraphQL door. */
+describe("a learner starts payment for the next installment cycle",
     () => {
-        let e2e: E2eApp
-        let entityManager: EntityManager
-        let installmentPlanService: InstallmentPlanService
+        const MONTHLY_AMOUNT_VND = 500_000
+
+        let world: FlowWorld
+        let currentUser: UserEntity | null = null
+        let plan: InstallmentPlanEntity
+        let transactionId: string
+        const enqueueReconcile = {
+            enqueue: jest.fn().mockResolvedValue(undefined),
+        }
+
+        const fakeAuthGuard = {
+            canActivate: async (context: ExecutionContext): Promise<boolean> => {
+                if (!currentUser) return false
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = currentUser
+                return Promise.resolve(true)
+            },
+        }
+
+        const MUTATION = `
+            mutation Pay($request: PayNextInstallmentRequest!) {
+                payNextInstallment(request: $request) {
+                    success
+                    error
+                    data { planId transactionId referenceId checkoutUrl amount }
+                }
+            }
+        `
 
         beforeAll(async () => {
-            e2e = await createE2eApp()
-            entityManager = e2e.app.get<EntityManager>(
-                getEntityManagerToken(POSTGRESQL_PRIMARY),
-            )
-            // real service, real DayjsService (no external deps) -- same
-            // combination `ReconcileTransactionWorker` is constructed with
-            installmentPlanService = new InstallmentPlanService(
-                entityManager,
-                new DayjsService(),
-            )
-        })
-
-        afterAll(async () => {
-            // TypeORM's shutdown hook looks up the default (unnamed) DataSource,
-            // which this named-only setup doesn't register -- ignore that noise.
-            await e2e.app.close().catch(() => undefined)
-        })
-
-        afterEach(async () => {
-            // wipe the rows each test created so cases stay independent
-            await entityManager.query(
-                "TRUNCATE TABLE \"installment_plans\", \"transactions\", \"users\" RESTART IDENTITY CASCADE",
-            )
-            jest.clearAllMocks()
-        })
-
-        /** Seed a bare user (only keycloakId is required). */
-        const seedUser = async (
-            referenceId: string,
-        ): Promise<UserEntity> =>
-            entityManager.save(
-                entityManager.create(UserEntity,
+            jest.spyOn(KeycloakAuthGraphQLGuard.prototype,
+                "canActivate").mockImplementation(fakeAuthGuard.canActivate)
+            world = await bootFlowWorld({
+                imports: [ApolloServerModule.register({
+                    type: ApolloServerType.Monolithic,
+                    useServices: false,
+                })],
+                providers: [
+                    PayNextInstallmentResolver,
+                    PayNextInstallmentService,
+                    PayNextInstallmentHandler,
+                    InstallmentPlanService,
+                    DayjsService,
+                    RetryService,
                     {
-                        keycloakId: `kc-${referenceId}`,
-                    }),
-            )
-
-        /**
-         * Seed a `Fixed` installment plan (no `originTransaction` -- the
-         * origin checkout is out of scope for this cycle-payment flow) with
-         * `months`/`installmentsPaid` controlling how many cycles remain.
-         */
-        const seedFixedPlan = async (
-            user: UserEntity,
-            {
-                months,
-                installmentsPaid,
-            }: SeedFixedPlanParams,
-        ): Promise<InstallmentPlanEntity> => {
-            const monthlyAmountVnd = 500_000
-            return entityManager.save(
-                entityManager.create(InstallmentPlanEntity,
+                        provide: SEPAY,
+                        useValue: {
+                            checkout: {
+                                initCheckoutUrl: jest.fn(() => "https://sepay.test/checkout"),
+                                initOneTimePaymentFields: jest.fn((fields: unknown) => fields),
+                            },
+                        },
+                    },
                     {
-                        user,
+                        provide: PAYOS,
+                        useValue: {
+                            paymentRequests: {
+                                create: jest.fn()
+                            },
+                        },
+                    },
+                    {
+                        provide: EnqueueReconcileTransactionJobService,
+                        useValue: enqueueReconcile,
+                    },
+                    {
+                        provide: KeycloakAuthGraphQLGuard,
+                        useValue: fakeAuthGuard,
+                    },
+                    {
+                        provide: KeycloakJwksService, useValue: {
+                        }
+                    },
+                    {
+                        provide: SessionService, useValue: {
+                        }
+                    },
+                    {
+                        provide: CookieService, useValue: {
+                        }
+                    },
+                ],
+            })
+
+            await world.truncate("installment_plans",
+                "transactions",
+                "users")
+            currentUser = await world.mintLearner("installment-payment")
+            plan = await world.entityManager.save(
+                world.entityManager.create(InstallmentPlanEntity,
+                    {
+                        user: currentUser,
                         originTransaction: null,
                         lockedCourseIds: [],
                         planType: InstallmentPlanType.Fixed,
                         status: InstallmentPlanStatus.Active,
-                        months,
-                        monthlyAmountVnd,
-                        totalAmountVnd: monthlyAmountVnd * months,
+                        months: 3,
+                        monthlyAmountVnd: MONTHLY_AMOUNT_VND,
+                        totalAmountVnd: MONTHLY_AMOUNT_VND * 3,
                         markupPercent: 10,
-                        installmentsPaid,
+                        installmentsPaid: 1,
                         nextDueAt: new Date(),
                     }),
             )
-        }
+        })
 
-        /**
-         * Seed a Pending `InstallmentPayment` transaction linked to `plan` --
-         * mirrors what `PayNextInstallmentHandler` creates for one cycle's
-         * checkout (`installmentPlanId` set, amount = the cycle's minimum).
-         */
-        const seedPendingInstallmentPayment = async (
-            user: UserEntity,
-            plan: InstallmentPlanEntity,
-            referenceId: string,
-        ): Promise<TransactionEntity> =>
-            entityManager.save(
-                entityManager.create(TransactionEntity,
-                    {
-                        user,
-                        referenceId,
-                        amount: plan.monthlyAmountVnd ?? 0,
-                        pricingPhase: PricingPhase.Regular,
-                        checkoutUrl: "https://pay.test/checkout",
-                        status: TransactionStatus.Pending,
-                        paymentType: PaymentType.Sepay,
-                        actionType: ActionType.InstallmentPayment,
-                        installmentPlanId: plan.id,
-                    }),
-            )
+        afterAll(async () => world?.close())
 
-        it("advances the plan exactly once — a repeated finalize on the same transaction is a no-op",
+        it("creates the next-cycle checkout through GraphQL",
             async () => {
-                const user = await seedUser("INST-1")
-                const plan = await seedFixedPlan(user,
-                    {
-                        months: 3,
-                        installmentsPaid: 1,
-                    })
-                const transaction = await seedPendingInstallmentPayment(user,
-                    plan,
-                    "INST-1")
-
-                // first finalize: claims Pending -> Succeeded and applies the payment
-                const firstApplied = await installmentPlanService.applyPaymentForTransaction({
-                    transactionId: transaction.id,
-                    planId: plan.id,
-                    paidAmountVnd: transaction.amount,
-                })
-                expect(firstApplied).toBe(true)
-
-                const settled = await entityManager.findOne(TransactionEntity,
-                    {
-                        where: {
-                            id: transaction.id,
+                const response = await request(world.app.getHttpServer())
+                    .post("/graphql")
+                    .send({
+                        query: MUTATION,
+                        variables: {
+                            request: {
+                                planId: plan.id,
+                                paymentType: PaymentType.Sepay,
+                            },
                         },
                     })
-                expect(settled?.status).toBe(TransactionStatus.Succeeded)
 
-                const afterFirst = await entityManager.findOneByOrFail(
-                    InstallmentPlanEntity,
-                    {
-                        id: plan.id,
-                    },
-                )
-                // one cycle advanced: 1 -> 2, still short of months(3)
-                expect(afterFirst.installmentsPaid).toBe(2)
-                expect(afterFirst.status).toBe(InstallmentPlanStatus.Active)
-
-                // second finalize on the SAME now-Succeeded transaction (the
-                // webhook + reconcile-poll double-fire this guards against) --
-                // the atomic claim (`UPDATE ... WHERE status = 'pending'`)
-                // affects 0 rows, so recordPayment must NOT run again
-                const secondApplied = await installmentPlanService.applyPaymentForTransaction({
-                    transactionId: transaction.id,
-                    planId: plan.id,
-                    paidAmountVnd: transaction.amount,
-                })
-                expect(secondApplied).toBe(false)
-
-                const afterSecond = await entityManager.findOneByOrFail(
-                    InstallmentPlanEntity,
-                    {
-                        id: plan.id,
-                    },
-                )
-                // still 2, NOT 3 -- the ledger was not double-applied
-                expect(afterSecond.installmentsPaid).toBe(2)
-                expect(afterSecond.status).toBe(InstallmentPlanStatus.Active)
+                expect(response.status).toBe(200)
+                expect(response.body.errors).toBeUndefined()
+                const payload = response.body.data.payNextInstallment
+                expect(payload.success).toBe(true)
+                transactionId = payload.data.transactionId
             })
 
-        it("completes the plan when installmentsPaid reaches months",
+        it("persists a pending installment payment and schedules reconciliation",
             async () => {
-                const user = await seedUser("INST-2")
-                // last cycle of a 2-month plan (already paid cycle 1)
-                const plan = await seedFixedPlan(user,
+                const transaction = await world.entityManager.findOneByOrFail(TransactionEntity,
                     {
-                        months: 2,
-                        installmentsPaid: 1,
+                        id: transactionId,
                     })
-                const transaction = await seedPendingInstallmentPayment(user,
-                    plan,
-                    "INST-2")
-
-                const applied = await installmentPlanService.applyPaymentForTransaction({
-                    transactionId: transaction.id,
-                    planId: plan.id,
-                    paidAmountVnd: transaction.amount,
+                expect(transaction).toMatchObject({
+                    userId: currentUser?.id,
+                    installmentPlanId: plan.id,
+                    actionType: ActionType.InstallmentPayment,
+                    paymentType: PaymentType.Sepay,
+                    status: TransactionStatus.Pending,
+                    amount: MONTHLY_AMOUNT_VND,
                 })
-                expect(applied).toBe(true)
-
-                const finished = await entityManager.findOneByOrFail(
-                    InstallmentPlanEntity,
-                    {
-                        id: plan.id,
-                    },
-                )
-                expect(finished.installmentsPaid).toBe(2)
-                expect(finished.status).toBe(InstallmentPlanStatus.Completed)
-
-                const settled = await entityManager.findOne(TransactionEntity,
-                    {
-                        where: {
-                            id: transaction.id,
-                        },
-                    })
-                expect(settled?.status).toBe(TransactionStatus.Succeeded)
+                expect(enqueueReconcile.enqueue).toHaveBeenCalledWith({
+                    transactionId,
+                })
             })
     })

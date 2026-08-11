@@ -332,7 +332,7 @@ describe("a learner pays a course off over time",
                     {
                         title: "Installment mastery",
                         displayId: "installment-plan-flow",
-                        description: "e2e fixture course",
+                        description: "integration fixture course",
                         originalPrice: RAW_PRICE_VND,
                         defaultLocale: Locale.En,
                     }),

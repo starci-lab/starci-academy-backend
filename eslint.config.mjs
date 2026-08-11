@@ -130,6 +130,11 @@ export default defineConfig([
             "starci-be/no-default-export": "error", // naming-and-structure · nợ=0 (Jest lifecycle entries carved out in the rule)
             "starci-be/require-export-jsdoc": "error", // comments §3 · nợ=0 → error
             "starci-be/require-enum-member-jsdoc": "error", // type-safety §3 · nợ=0 → error
+            "starci-be/e2e-uses-production-transport": "error", // testing §3 · include the production boundary in the proof
+            "starci-be/e2e-asserts-persisted-state": "error", // testing §2 · an envelope is not a consequence
+            "starci-be/no-model-call-in-e2e": "error", // testing §9 · provider quality belongs in harness
+            "starci-be/no-sleep-in-flow": "error", // e2e-flow §3 · poll for state, never duration
+            "starci-be/no-branch-in-flow-step": "error", // e2e-flow §7 · one step proves one outcome
         },
     },
     {

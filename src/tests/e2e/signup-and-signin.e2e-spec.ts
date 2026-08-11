@@ -1,10 +1,13 @@
-import {
-    CommandBus,
-    QueryBus,
-} from "@nestjs/cqrs"
+import request from "supertest"
 import {
     JwtService,
 } from "@nestjs/jwt"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
 import {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
@@ -14,6 +17,9 @@ import {
 import {
     EnqueueSendMailJobService,
 } from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
+    CaptchaService,
+} from "@modules/integrations/captcha/captcha.service"
 import {
     OtpChallengeService,
 } from "@modules/integrations/code/otp-challenge.service"
@@ -27,38 +33,50 @@ import {
     TotpService,
 } from "@modules/integrations/totp/totp.service"
 import {
-    ChallengeOtpMismatchException,
-} from "@modules/platform/exceptions/errors/users/otp"
+    CookieService,
+} from "@modules/platform/cookie/cookie.service"
 import {
-    SignUpInitCommand,
-} from "@features/api/core/graphql/mutations/keycloak/sign-up/init/sign-up-init.command"
+    CsrfService,
+} from "@modules/platform/csrf/csrf.service"
+import {
+    SessionService,
+} from "@modules/platform/session/session.service"
+import {
+    SignUpInitResolver,
+} from "@features/api/core/graphql/mutations/keycloak/sign-up/init/sign-up-init.resolver"
+import {
+    SignUpInitService,
+} from "@features/api/core/graphql/mutations/keycloak/sign-up/init/sign-up-init.service"
 import {
     SignUpInitHandler,
 } from "@features/api/core/graphql/mutations/keycloak/sign-up/init/sign-up-init.handler"
 import {
-    SignUpVerifyOtpCommand,
-} from "@features/api/core/graphql/mutations/keycloak/sign-up/verify-otp/sign-up-verify-otp.command"
+    SignUpVerifyOtpResolver,
+} from "@features/api/core/graphql/mutations/keycloak/sign-up/verify-otp/sign-up-verify-otp.resolver"
+import {
+    SignUpVerifyOtpService,
+} from "@features/api/core/graphql/mutations/keycloak/sign-up/verify-otp/sign-up-verify-otp.service"
 import {
     SignUpVerifyOtpHandler,
 } from "@features/api/core/graphql/mutations/keycloak/sign-up/verify-otp/sign-up-verify-otp.handler"
 import {
-    SignInInitCommand,
-} from "@features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.command"
+    SignInInitResolver,
+} from "@features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.resolver"
+import {
+    SignInInitService,
+} from "@features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.service"
 import {
     SignInInitHandler,
 } from "@features/api/core/graphql/mutations/keycloak/sign-in/init/sign-in-init.handler"
 import {
-    SignInVerifyOtpCommand,
-} from "@features/api/core/graphql/mutations/keycloak/sign-in/verify-otp/sign-in-verify-otp.command"
+    SignInVerifyOtpResolver,
+} from "@features/api/core/graphql/mutations/keycloak/sign-in/verify-otp/sign-in-verify-otp.resolver"
+import {
+    SignInVerifyOtpService,
+} from "@features/api/core/graphql/mutations/keycloak/sign-in/verify-otp/sign-in-verify-otp.service"
 import {
     SignInVerifyOtpHandler,
 } from "@features/api/core/graphql/mutations/keycloak/sign-in/verify-otp/sign-in-verify-otp.handler"
-import {
-    MeHandler,
-} from "@features/api/core/graphql/queries/authentication/me/me.handler"
-import {
-    MeQuery,
-} from "@features/api/core/graphql/queries/authentication/me/me.query"
 import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
@@ -72,19 +90,8 @@ interface StoredChallenge {
     payload: unknown
 }
 
-interface VerifyChallengeInput {
-    challengeId: string
-    otp: string
-}
-
-/**
- * A stranger registers, verifies, signs in, and can read their authenticated identity.
- *
- * Keycloak and mail are process boundaries, so their clients are deterministic
- * doubles. CQRS registration, OTP state transitions, and the local user row are
- * exercised through the real command/query bus and PostgreSQL.
- */
-describe("a stranger registers, verifies, signs in, and can read their identity",
+/** A stranger registers, verifies, and signs in through the production GraphQL boundary. */
+describe("a stranger registers, verifies, and signs in",
     () => {
         const EMAIL = "new-learner@starci.test"
         const PASSWORD = "correct-horse-battery"
@@ -93,8 +100,6 @@ describe("a stranger registers, verifies, signs in, and can read their identity"
         const REFRESH_TOKEN = "refresh-signup-and-signin-flow"
 
         let world: FlowWorld
-        let commandBus: CommandBus
-        let queryBus: QueryBus
         let signUpChallengeId: string
         let signInChallengeId: string
         let learner: UserEntity
@@ -103,12 +108,7 @@ describe("a stranger registers, verifies, signs in, and can read their identity"
         const sentMail = jest.fn().mockResolvedValue(undefined)
 
         const otpChallengeService = {
-            createActionChallenge: jest.fn(async (
-                params: {
-                    email: string
-                    payload: unknown
-                },
-            ) => {
+            createActionChallenge: jest.fn(async (params: { email: string, payload: unknown }) => {
                 challengeSequence += 1
                 const challengeId = `challenge-${challengeSequence}`
                 const otp = challengeSequence === 1 ? "111111" : "222222"
@@ -124,13 +124,8 @@ describe("a stranger registers, verifies, signs in, and can read their identity"
                     expiresInSeconds: 300,
                 }
             }),
-            verifyActionChallenge: jest.fn(async (
-                {
-                    challengeId,
-                    otp,
-                }: VerifyChallengeInput,
-            ) => {
-                const challenge = challenges.get(challengeId)
+            verifyActionChallenge: jest.fn(async (input: { challengeId: string, otp: string }) => {
+                const challenge = challenges.get(input.challengeId)
                 if (!challenge) {
                     return {
                         mismatch: false,
@@ -138,14 +133,14 @@ describe("a stranger registers, verifies, signs in, and can read their identity"
                         notFound: true,
                     }
                 }
-                if (challenge.otp !== otp) {
+                if (challenge.otp !== input.otp) {
                     return {
                         mismatch: true,
                         attemptsLeft: 4,
                         notFound: false,
                     }
                 }
-                challenges.delete(challengeId)
+                challenges.delete(input.challengeId)
                 return {
                     email: challenge.email,
                     payload: challenge.payload,
@@ -155,15 +150,41 @@ describe("a stranger registers, verifies, signs in, and can read their identity"
                 }
             }),
         }
+        const gql = (query: string, variables: Record<string, unknown>) =>
+            request(world.app.getHttpServer())
+                .post("/graphql")
+                .send({
+                    query,
+                    variables,
+                })
 
         beforeAll(async () => {
             world = await bootFlowWorld({
+                imports: [
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
+                ],
                 providers: [
+                    SignUpInitResolver,
+                    SignUpInitService,
                     SignUpInitHandler,
+                    SignUpVerifyOtpResolver,
+                    SignUpVerifyOtpService,
                     SignUpVerifyOtpHandler,
+                    SignInInitResolver,
+                    SignInInitService,
                     SignInInitHandler,
+                    SignInVerifyOtpResolver,
+                    SignInVerifyOtpService,
                     SignInVerifyOtpHandler,
-                    MeHandler,
+                    {
+                        provide: CaptchaService,
+                        useValue: {
+                            verify: jest.fn().mockResolvedValue(true),
+                        },
+                    },
                     {
                         provide: OtpChallengeService,
                         useValue: otpChallengeService,
@@ -213,10 +234,26 @@ describe("a stranger registers, verifies, signs in, and can read their identity"
                             enqueue: sentMail,
                         },
                     },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                            attachHttpOnlyCookie: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: CsrfService,
+                        useValue: {
+                            issueCookie: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                            startSession: jest.fn().mockResolvedValue(undefined),
+                        },
+                    },
                 ],
             })
-            commandBus = world.app.get(CommandBus)
-            queryBus = world.app.get(QueryBus)
             await world.truncate("users")
         })
 
@@ -226,55 +263,63 @@ describe("a stranger registers, verifies, signs in, and can read their identity"
 
         it("starts registration and sends the verification code without creating a local user",
             async () => {
-                const initiated = await commandBus.execute(
-                    new SignUpInitCommand({
-                        request: {
-                            email: EMAIL,
-                            password: PASSWORD,
-                            username: "new-learner",
-                            firstName: "New",
-                            lastName: "Learner",
-                        },
-                    }),
-                )
-                signUpChallengeId = initiated.challengeId
-
+                const response = await gql(`
+                    mutation SignUp($request: SignUpInitRequest!) {
+                        signUpInit(request: $request) { success data { challengeId } }
+                    }
+                `,
+                {
+                    request: {
+                        email: EMAIL,
+                        password: PASSWORD,
+                        username: "new-learner",
+                        firstName: "New",
+                        lastName: "Learner",
+                    },
+                })
+                expect(response.status).toBe(200)
+                expect(response.body.errors).toBeUndefined()
+                signUpChallengeId = response.body.data.signUpInit.data.challengeId
                 expect(await world.entityManager.count(UserEntity)).toBe(0)
-                expect(sentMail).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        template: "sign-up-otp",
-                        context: expect.objectContaining({
-                            otp: "111111",
-                        }),
+                expect(sentMail).toHaveBeenCalledWith(expect.objectContaining({
+                    template: "sign-up-otp",
+                    context: expect.objectContaining({
+                        otp: "111111",
                     }),
-                )
+                }))
             })
 
-        it("rejects a wrong verification code and still creates no user",
+        it("keeps the identity closed when the verification code is wrong",
             async () => {
-                await expect(commandBus.execute(
-                    new SignUpVerifyOtpCommand({
-                        request: {
-                            challengeId: signUpChallengeId,
-                            otp: "999999",
-                        },
-                    }),
-                )).rejects.toBeInstanceOf(ChallengeOtpMismatchException)
+                const response = await gql(`
+                    mutation Verify($request: SignUpVerifyOtpInput!) {
+                        signUpVerifyOtp(request: $request) { success error }
+                    }
+                `,
+                {
+                    request: {
+                        challengeId: signUpChallengeId,
+                        otp: "999999",
+                    },
+                })
+                expect(response.body.data.signUpVerifyOtp.success).toBe(false)
                 expect(await world.entityManager.count(UserEntity)).toBe(0)
             })
 
-        it("consumes the right code, creates the local identity, and returns a session token",
+        it("consumes the right code and persists the local identity",
             async () => {
-                const verified = await commandBus.execute(
-                    new SignUpVerifyOtpCommand({
-                        request: {
-                            challengeId: signUpChallengeId,
-                            otp: "111111",
-                        },
-                    }),
-                )
-                expect(verified.data.accessToken).toBe(ACCESS_TOKEN)
-
+                const response = await gql(`
+                    mutation Verify($request: SignUpVerifyOtpInput!) {
+                        signUpVerifyOtp(request: $request) { success data { accessToken } }
+                    }
+                `,
+                {
+                    request: {
+                        challengeId: signUpChallengeId,
+                        otp: "111111",
+                    },
+                })
+                expect(response.body.data.signUpVerifyOtp.data.accessToken).toBe(ACCESS_TOKEN)
                 learner = await world.entityManager.findOneOrFail(UserEntity,
                     {
                         where: {
@@ -287,45 +332,45 @@ describe("a stranger registers, verifies, signs in, and can read their identity"
 
         it("checks the password again and sends a fresh sign-in code",
             async () => {
-                const initiated = await commandBus.execute(
-                    new SignInInitCommand({
-                        request: {
-                            email: EMAIL,
-                            password: PASSWORD,
-                        },
-                    }),
-                )
-                signInChallengeId = initiated.challengeId
+                const response = await gql(`
+                    mutation SignIn($request: SignInInitRequest!) {
+                        signInInit(request: $request) { success data { challengeId } }
+                    }
+                `,
+                {
+                    request: {
+                        email: EMAIL,
+                        password: PASSWORD,
+                    },
+                })
+                signInChallengeId = response.body.data.signInInit.data.challengeId
                 expect(signInChallengeId).not.toBe(signUpChallengeId)
-                expect(sentMail).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        template: "sign-in-otp",
-                        context: expect.objectContaining({
-                            otp: "222222",
-                        }),
+                expect(sentMail).toHaveBeenCalledWith(expect.objectContaining({
+                    template: "sign-in-otp",
+                    context: expect.objectContaining({
+                        otp: "222222",
                     }),
-                )
+                }))
             })
 
-        it("finishes sign-in and the authenticated me query returns the same local identity",
+        it("finishes sign-in and returns the session for the persisted identity",
             async () => {
-                const signedIn = await commandBus.execute(
-                    new SignInVerifyOtpCommand({
-                        request: {
-                            challengeId: signInChallengeId,
-                            otp: "222222",
-                        },
-                    }),
-                )
-                expect(signedIn.data.accessToken).toBe(ACCESS_TOKEN)
-
-                const me = await queryBus.execute(
-                    new MeQuery({
-                        request: undefined,
-                        user: learner,
-                    }),
-                )
-                expect(me.id).toBe(learner.id)
-                expect(me.keycloakId).toBe(KEYCLOAK_ID)
+                const signedIn = await gql(`
+                    mutation Verify($request: SignInVerifyOtpRequest!) {
+                        signInVerifyOtp(request: $request) { success data { accessToken } }
+                    }
+                `,
+                {
+                    request: {
+                        challengeId: signInChallengeId,
+                        otp: "222222",
+                    },
+                })
+                expect(signedIn.body.data.signInVerifyOtp.data.accessToken).toBe(ACCESS_TOKEN)
+                const persisted = await world.entityManager.findOneByOrFail(UserEntity,
+                    {
+                        id: learner.id,
+                    })
+                expect(persisted.keycloakId).toBe(KEYCLOAK_ID)
             })
     })

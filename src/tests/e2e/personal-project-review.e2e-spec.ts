@@ -160,7 +160,7 @@ interface EncryptionServiceEncryptParams {
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
-describe("Personal-project mutations (e2e)",
+describe("a learner submits a personal project and receives a durable review",
     () => {
         let app: INestApplication
         let entityManager: EntityManager

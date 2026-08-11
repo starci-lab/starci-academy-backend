@@ -1,6 +1,17 @@
+import request from "supertest"
+import type {
+    CanActivate,
+    ExecutionContext,
+} from "@nestjs/common"
 import {
-    CommandBus,
-} from "@nestjs/cqrs"
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -14,6 +25,21 @@ import {
     UserService,
 } from "@modules/bussiness/user/user.service"
 import {
+    GraphQLMustEnrolledGuard,
+} from "@modules/bussiness/guards/graphql-must-enrolled.guard"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    KeycloakJwksService,
+} from "@modules/integrations/keycloak/jwks.service"
+import {
+    SessionService,
+} from "@modules/platform/session/session.service"
+import {
+    CookieService,
+} from "@modules/platform/cookie/cookie.service"
+import {
     FlashcardDeckReadService,
 } from "@modules/bussiness/flashcard/flashcard-deck.service"
 import {
@@ -22,6 +48,9 @@ import {
 import {
     MockInterviewAttemptEntity,
 } from "@modules/databases/postgresql/primary/entities/mock-interview-attempt.entity"
+import {
+    EnrollmentEntity,
+} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     MockInterviewSessionEntity,
 } from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
@@ -32,6 +61,9 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
+    PricingPhase,
+} from "@modules/databases/postgresql/primary/enums/pricing-phase"
+import {
     MockInterviewPhase,
 } from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
 import {
@@ -41,26 +73,35 @@ import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
 import {
-    StartMockInterviewSessionCommand,
-} from "@features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session.command"
-import {
     StartMockInterviewSessionHandler,
 } from "@features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session.handler"
+import {
+    StartMockInterviewSessionResolver,
+} from "@features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session.resolver"
+import {
+    StartMockInterviewSessionService,
+} from "@features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session.service"
 import {
     MockInterviewSessionDrawService,
 } from "@features/api/core/graphql/mutations/interview/start-mock-interview-session/start-mock-interview-session-draw.service"
 import {
-    SyncMockInterviewSessionTurnsCommand,
-} from "@features/api/core/graphql/mutations/interview/sync-mock-interview-session-turns/sync-mock-interview-session-turns.command"
-import {
     SyncMockInterviewSessionTurnsHandler,
 } from "@features/api/core/graphql/mutations/interview/sync-mock-interview-session-turns/sync-mock-interview-session-turns.handler"
 import {
-    GradeMockInterviewSessionCommand,
-} from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session.command"
+    SyncMockInterviewSessionTurnsResolver,
+} from "@features/api/core/graphql/mutations/interview/sync-mock-interview-session-turns/sync-mock-interview-session-turns.resolver"
+import {
+    SyncMockInterviewSessionTurnsService,
+} from "@features/api/core/graphql/mutations/interview/sync-mock-interview-session-turns/sync-mock-interview-session-turns.service"
 import {
     GradeMockInterviewSessionHandler,
 } from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session.handler"
+import {
+    GradeMockInterviewSessionResolver,
+} from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session.resolver"
+import {
+    GradeMockInterviewSessionService,
+} from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session.service"
 import {
     MockInterviewGradingService,
 } from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session-grading.service"
@@ -78,12 +119,38 @@ import type {
 describe("a learner runs a mock interview and receives a grade",
     () => {
         let world: FlowWorld
-        let commandBus: CommandBus
         let learner: UserEntity
         let course: CourseEntity
         let sessionId: string
         let promptId: string
         let promptTitle: string
+
+        const fakeAuthGuard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = learner
+                return true
+            },
+        }
+
+        const gql = async <T>(query: string, input: Record<string, unknown>): Promise<T> => {
+            const response = await request(world.app.getHttpServer())
+                .post("/graphql")
+                .set("authorization",
+                    "Bearer mock-interview-flow-token")
+                .set("x-course-id",
+                    course.id)
+                .send({
+                    query,
+                    variables: {
+                        request: input,
+                    },
+                })
+                .expect(200)
+            expect(response.body.errors).toBeUndefined()
+            return response.body.data as T
+        }
 
         const turns = [
             {
@@ -105,6 +172,12 @@ describe("a learner runs a mock interview and receives a grade",
 
         beforeAll(async () => {
             world = await bootFlowWorld({
+                imports: [
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
+                ],
                 modelAnswer: {
                     text: JSON.stringify({
                         overallScore: 84,
@@ -143,11 +216,48 @@ describe("a learner runs a mock interview and receives a grade",
                 providers: [
                     UserService,
                     MockInterviewSessionDrawService,
+                    StartMockInterviewSessionResolver,
+                    StartMockInterviewSessionService,
                     StartMockInterviewSessionHandler,
+                    SyncMockInterviewSessionTurnsResolver,
+                    SyncMockInterviewSessionTurnsService,
                     SyncMockInterviewSessionTurnsHandler,
                     MockInterviewGradePromptService,
                     MockInterviewGradingService,
+                    GradeMockInterviewSessionResolver,
+                    GradeMockInterviewSessionService,
                     GradeMockInterviewSessionHandler,
+                    {
+                        provide: KeycloakAuthGraphQLGuard,
+                        useValue: fakeAuthGuard,
+                    },
+                    {
+                        provide: KeycloakJwksService,
+                        useValue: {
+                            verifyAccessToken: jest.fn().mockResolvedValue({
+                                active: true,
+                                sub: "kc-mock-interview-flow",
+                            }),
+                        },
+                    },
+                    {
+                        provide: SessionService,
+                        useValue: {
+                            assertCurrent: jest.fn().mockResolvedValue(undefined),
+                        },
+                    },
+                    {
+                        provide: CookieService,
+                        useValue: {
+                            getCookie: jest.fn(() => "mock-session"),
+                        },
+                    },
+                    {
+                        provide: GraphQLMustEnrolledGuard,
+                        useValue: {
+                            canActivate: () => true,
+                        },
+                    },
                     {
                         provide: PersonalProjectProgressService,
                         useValue: {
@@ -194,7 +304,6 @@ describe("a learner runs a mock interview and receives a grade",
                     },
                 ],
             })
-            commandBus = world.app.get(CommandBus)
             await world.truncate(
                 "mock_interview_attempts",
                 "mock_interview_sessions",
@@ -220,6 +329,13 @@ describe("a learner runs a mock interview and receives a grade",
                         defaultLocale: Locale.En,
                     }),
             )
+            await world.entityManager.save(world.entityManager.create(EnrollmentEntity,
+                {
+                    user: learner,
+                    course,
+                    isEnrolled: true,
+                    pricingPhase: PricingPhase.Regular,
+                }))
         })
 
         afterAll(async () => {
@@ -228,18 +344,26 @@ describe("a learner runs a mock interview and receives a grade",
 
         it("draws and persists a server-owned interview session",
             async () => {
-                const started = await commandBus.execute(
-                    new StartMockInterviewSessionCommand({
-                        request: {
-                            courseId: course.id,
-                            level: "middle",
-                            mode: "design",
-                            name: "Architecture round",
-                        },
-                        user: learner,
-                        locale: Locale.En,
-                    }),
-                )
+                const result = await gql<{
+                    startMockInterviewSession: { data: {
+                        sessionId: string
+                        promptId: string
+                        promptTitle: string
+                    } }
+                }>(`
+                    mutation Start($request: StartMockInterviewSessionRequest!) {
+                        startMockInterviewSession(request: $request) {
+                            data { sessionId promptId promptTitle }
+                        }
+                    }
+                `,
+                {
+                    courseId: course.id,
+                    level: "middle",
+                    mode: "design",
+                    name: "Architecture round",
+                })
+                const started = result.startMockInterviewSession.data
                 sessionId = started.sessionId
                 promptId = started.promptId
                 promptTitle = started.promptTitle
@@ -257,17 +381,22 @@ describe("a learner runs a mock interview and receives a grade",
 
         it("syncs the transcript and resume position",
             async () => {
-                const synced = await commandBus.execute(
-                    new SyncMockInterviewSessionTurnsCommand({
-                        request: {
-                            sessionId,
-                            turns,
-                            questionIndex: 0,
-                            phaseIndex: 2,
-                        },
-                        user: learner,
-                    }),
-                )
+                const result = await gql<{
+                    syncMockInterviewSessionTurns: { data: { success: boolean } }
+                }>(`
+                    mutation Sync($request: SyncMockInterviewSessionTurnsRequest!) {
+                        syncMockInterviewSessionTurns(request: $request) {
+                            data { success }
+                        }
+                    }
+                `,
+                {
+                    sessionId,
+                    turns,
+                    questionIndex: 0,
+                    phaseIndex: 2,
+                })
+                const synced = result.syncMockInterviewSessionTurns.data
                 expect(synced.success).toBe(true)
 
                 const session = await world.entityManager.findOneByOrFail(
@@ -282,20 +411,27 @@ describe("a learner runs a mock interview and receives a grade",
 
         it("grades the trusted session, persists an attempt, and closes resume",
             async () => {
-                const grade = await commandBus.execute(
-                    new GradeMockInterviewSessionCommand({
-                        request: {
-                            courseId: course.id,
-                            promptId: "client-cannot-replace-server-prompt",
-                            promptTitle: "Client supplied title",
-                            level: "junior",
-                            turns,
-                            sessionId,
-                        },
-                        user: learner,
-                        locale: Locale.En,
-                    }),
-                )
+                const result = await gql<{
+                    gradeMockInterviewSession: { data: {
+                        overallScore: number
+                        verdict: string
+                    } }
+                }>(`
+                    mutation Grade($request: GradeMockInterviewSessionRequest!) {
+                        gradeMockInterviewSession(request: $request) {
+                            data { overallScore verdict }
+                        }
+                    }
+                `,
+                {
+                    courseId: course.id,
+                    promptId: "client-cannot-replace-server-prompt",
+                    promptTitle: "Client supplied title",
+                    level: "junior",
+                    turns,
+                    sessionId,
+                })
+                const grade = result.gradeMockInterviewSession.data
                 expect(grade.overallScore).toBe(84)
                 expect(grade.verdict).toBe("pass")
 

@@ -141,7 +141,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for every `courses/course-enroll` gateway path -- `.artifacts/states/transactions/`
+ * Integration coverage for every `courses/course-enroll` gateway branch.
  * findings: none of the 5 per-provider services (PayOS/Sepay/Stripe/PayPal/Crypto) nor the
  * handler's cross-cutting guards (already-enrolled, installment/voucher capability) had
  * coverage against a REAL Postgres -- only the handler's routing was unit-tested against a
@@ -164,7 +164,7 @@ const POSTGRESQL_PRIMARY = "primary"
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
-describe("Course enroll — all gateways (e2e)",
+describe("Course enroll — all gateways (integration)",
     () => {
         let app: INestApplication
         let entityManager: EntityManager
@@ -342,7 +342,7 @@ describe("Course enroll — all gateways (e2e)",
                     {
                         title: "Fullstack Mastery",
                         displayId,
-                        description: "e2e fixture course",
+                        description: "integration fixture course",
                         // Regular-tier list price -- unused by these tests (EarlyBird is charged)
                         originalPrice: 999_000,
                         defaultLocale: Locale.En,

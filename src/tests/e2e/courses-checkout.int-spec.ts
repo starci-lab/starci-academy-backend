@@ -108,7 +108,7 @@ import {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * e2e for the multi-course cart checkout (`courses/courses-checkout`) -- no e2e
+ * Integration coverage for the multi-course cart checkout (`courses/courses-checkout`).
  * previously exercised `CoursesCheckoutHandler` against a real Postgres: the ONE
  * `transactions` order row (`course: null`) + one `TransactionItemEntity` per
  * course, the progressive-loyalty + bundle-bonus pricing
@@ -127,7 +127,7 @@ const POSTGRESQL_PRIMARY = "primary"
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
-describe("Courses checkout — multi-course cart (e2e)",
+describe("Courses checkout — multi-course cart (integration)",
     () => {
         let app: INestApplication
         let entityManager: EntityManager
@@ -283,7 +283,7 @@ describe("Courses checkout — multi-course cart (e2e)",
                     {
                         title: "Fullstack Mastery",
                         displayId,
-                        description: "e2e fixture course",
+                        description: "integration fixture course",
                         originalPrice: 999_000,
                         defaultLocale: Locale.En,
                     }),

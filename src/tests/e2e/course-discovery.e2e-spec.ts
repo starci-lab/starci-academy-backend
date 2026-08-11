@@ -9,6 +9,12 @@ import {
     CqrsModule,
 } from "@nestjs/cqrs"
 import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import type {
+    EntityManager,
+} from "typeorm"
+import {
     ApolloServerModule,
 } from "@modules/api/apollo/server/apollo-server.module"
 import {
@@ -70,13 +76,15 @@ import {
 } from "@tests/helpers/test-helpers.module"
 
 /** A visitor searches the catalogue, accepts a suggestion, and opens its course. */
-describe("a visitor finds a course and opens its public catalogue entry",
+describe("a visitor discovers a course and opens its public catalogue entry",
     () => {
         const course = {
             id: "10000000-0000-4000-8000-000000000001",
             title: "System Design Mastery",
             displayId: "system-design-mastery",
             description: "Design reliable distributed systems.",
+            originalPrice: 999_000,
+            defaultLocale: Locale.En,
         } as CourseEntity
         const elasticsearch = {
             indicateName: jest.fn(() => "courses-en"),
@@ -117,6 +125,7 @@ describe("a visitor finds a course and opens its public catalogue entry",
             json: jest.fn().mockResolvedValue(course),
         }
         let app: INestApplication
+        let entityManager: EntityManager
 
         beforeAll(async () => {
             const moduleRef = await Test.createTestingModule({
@@ -169,9 +178,16 @@ describe("a visitor finds a course and opens its public catalogue entry",
                 .compile()
             app = moduleRef.createNestApplication()
             await app.init()
+            entityManager = app.get<EntityManager>(
+                getEntityManagerToken("primary"),
+            )
+            await entityManager.save(CourseEntity,
+                course)
         })
 
         afterAll(async () => {
+            await entityManager?.delete(CourseEntity,
+                course.id).catch(() => undefined)
             await app.close().catch(() => undefined)
         })
 
@@ -250,6 +266,13 @@ describe("a visitor finds a course and opens its public catalogue entry",
                     id: course.id,
                     title: course.title,
                     displayId: course.displayId,
+                })
+                expect(await entityManager.findOneByOrFail(CourseEntity,
+                    {
+                        id: course.id,
+                    })).toMatchObject({
+                    displayId: course.displayId,
+                    title: course.title,
                 })
                 expect(elasticsearch.indicateName).toHaveBeenCalledWith({
                     entity: CourseEntity.name,

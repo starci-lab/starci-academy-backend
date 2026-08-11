@@ -335,7 +335,7 @@ describe("a learner checks out, the gateway never captures, and nothing is grant
                     {
                         title: "Fullstack Mastery",
                         displayId: "course-payment-abandoned-flow",
-                        description: "e2e fixture course",
+                        description: "integration fixture course",
                         originalPrice: 999_000,
                         defaultLocale: Locale.En,
                     }),

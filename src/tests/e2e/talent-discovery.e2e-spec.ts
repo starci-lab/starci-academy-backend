@@ -290,7 +290,7 @@ describe("Headhuntings + job-readiness query reads (e2e)",
                         withHydration: false,
                         withResolvers: false,
                     }),
-                    // QueryBus + @QueryHandler discovery for the ES-backed handlers
+                    // CQRS handler discovery for the ES-backed production queries
                     CqrsModule,
                 ],
                 providers: [

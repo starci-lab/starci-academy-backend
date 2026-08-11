@@ -1,6 +1,7 @@
 import {
     Test,
 } from "@nestjs/testing"
+import request from "supertest"
 import type {
     INestApplication,
     ModuleMetadata,
@@ -42,6 +43,10 @@ import {
 import {
     TestHelpersModule,
 } from "./test-helpers.module"
+import type {
+    FlowGraphqlRequest,
+    FlowGraphqlResponse,
+} from "./types/flow-transport"
 
 /**
  * One place that stands the world up for a flow test.
@@ -90,6 +95,8 @@ export interface FlowWorld {
     app: INestApplication
     /** The primary entity manager, for reading the consequence back. */
     entityManager: EntityManager
+    /** Send an operation through the real GraphQL HTTP pipeline. */
+    graphql: <TData>(operation: FlowGraphqlRequest) => Promise<FlowGraphqlResponse<TData>>
     /** The stubbed model, so a flow can reprogram it per step and assert it was reached. */
     model: {
         run: jest.Mock
@@ -221,6 +228,25 @@ export const bootFlowWorld = async (
     return {
         app,
         entityManager,
+        graphql: async <TData>(operation: FlowGraphqlRequest): Promise<FlowGraphqlResponse<TData>> => {
+            let transport = request(app.getHttpServer())
+                .post("/graphql")
+                .send({
+                    query: operation.query,
+                    variables: operation.variables ?? {
+                    },
+                })
+            for (const [
+                name,
+                value,
+            ] of Object.entries(operation.headers ?? {
+                })) {
+                transport = transport.set(name,
+                    value)
+            }
+            const response = await transport
+            return response.body as FlowGraphqlResponse<TData>
+        },
         model,
         mintLearner: async (
             name: string,

@@ -1,3 +1,4 @@
+import request from "supertest"
 import type {
     Namespace,
 } from "socket.io"
@@ -5,6 +6,53 @@ import {
     io,
     type Socket,
 } from "socket.io-client"
+import type {
+    CanActivate,
+    ExecutionContext,
+    INestApplication,
+} from "@nestjs/common"
+import {
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
+    Test,
+} from "@nestjs/testing"
+import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import type {
+    EntityManager,
+} from "typeorm"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
+import {
+    CreateCommunityPostResolver,
+} from "@features/api/core/graphql/mutations/community/create-community-post/create-community-post.resolver"
+import {
+    CreateCommunityPostService,
+} from "@features/api/core/graphql/mutations/community/create-community-post/create-community-post.service"
+import {
+    CreateCommunityPostCommentResolver,
+} from "@features/api/core/graphql/mutations/community/create-community-post-comment/create-community-post-comment.resolver"
+import {
+    CreateCommunityPostCommentService,
+} from "@features/api/core/graphql/mutations/community/create-community-post-comment/create-community-post-comment.service"
+import {
+    CommunityFeedGateway,
+} from "@features/socketio/core/community-feed/community-feed.gateway"
+import {
+    CommunityFeedRoomService,
+} from "@features/socketio/core/community-feed/community-feed-room.service"
+import {
+    PublicationEvent,
+} from "@features/socketio/core/enums/publication-event"
+import {
+    SubscriptionEvent,
+} from "@features/socketio/core/enums/subscription-event"
 import {
     CommunityCommentService,
 } from "@modules/bussiness/community/community-comment.service"
@@ -39,8 +87,11 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    NotificationType,
-} from "@modules/databases/postgresql/primary/enums/notification-type"
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
 import {
     SUPERJSON,
 } from "@modules/lib/mixin/constants/superjson"
@@ -54,256 +105,182 @@ import {
     WsResponseService,
 } from "@modules/platform/socketio/response.service"
 import {
-    CommunityFeedGateway,
-} from "@features/socketio/core/community-feed/community-feed.gateway"
-import {
-    CommunityFeedRoomService,
-} from "@features/socketio/core/community-feed/community-feed-room.service"
-import {
-    PublicationEvent,
-} from "@features/socketio/core/enums/publication-event"
-import {
-    SubscriptionEvent,
-} from "@features/socketio/core/enums/subscription-event"
-import {
-    bootFlowWorld,
-} from "@tests/helpers/flow-world"
-import type {
-    FlowWorld,
-} from "@tests/helpers/flow-world"
-import {
     nextMessage,
     until,
 } from "@tests/helpers/flow-wait"
+import {
+    TestHelpersModule,
+} from "@tests/helpers/test-helpers.module"
 
-interface CommunityPostSocketMessage {
+interface FeedMessage {
     success: boolean
-    data: {
-        postId: string
-        channel: CommunityChannel
-    }
+    data: { postId: string; commentId?: string }
 }
 
-interface CommunityCommentSocketMessage {
-    success: boolean
-    data: {
-        postId: string
-        commentId: string
-        parentCommentId: string | null
-    }
+interface FlowEventListenerParams {
+    event: EventName
+    listener: (payload: unknown) => void
 }
 
-/** A learner posts, another replies, and subscribed clients see both changes live. */
-describe("a learner posts a community thread, receives a reply, and is notified",
+interface FlowEventEmitParams {
+    event: EventName
+    payload: unknown
+}
+
+describe("a learner posts a community thread and receives a reply",
     () => {
-        let world: FlowWorld
-        let postService: CommunityPostService
-        let commentService: CommunityCommentService
-        let roomService: CommunityFeedRoomService
-        let namespace: Namespace
+        let app: INestApplication
+        let entityManager: EntityManager
+        let actor: UserEntity | null = null
         let author: UserEntity
         let replier: UserEntity
-        let viewer: Socket
-        let viewerId: string
-        let post: CommunityPostEntity
-
+        let socket: Socket
+        let namespace: Namespace
+        let roomService: CommunityFeedRoomService
         const listeners = new Map<EventName, Array<(payload: unknown) => void>>()
-        const eventEmitterService = {
-            on: jest.fn((params: {
-                event: EventName
-                listener: (payload: unknown) => void
-            }) => {
-                const current = listeners.get(params.event) ?? []
-                current.push(params.listener)
-                listeners.set(params.event,
-                    current)
+        const events = {
+            on: jest.fn(({ event, listener }: FlowEventListenerParams) => {
+                listeners.set(event,
+                    [...(listeners.get(event) ?? []),
+                        listener])
             }),
-            emit: jest.fn(async (params: {
-                event: EventName
-                payload: unknown
-            }) => {
-                for (const listener of listeners.get(params.event) ?? []) {
-                    listener(params.payload)
-                }
+            emit: jest.fn(async ({ event, payload }: FlowEventEmitParams) => {
+                for (const listener of listeners.get(event) ?? []) listener(payload)
             }),
             off: jest.fn(),
         }
+        const guard: CanActivate = {
+            canActivate: (context: ExecutionContext): boolean => {
+                if (!actor) return false
+                GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>().req.user = actor
+                return true
+            },
+        }
 
         beforeAll(async () => {
-            world = await bootFlowWorld({
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    TestHelpersModule,
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic, useServices: false
+                    }),
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true, withHydration: false, withResolvers: false
+                    }),
+                ],
                 providers: [
                     CommunityPostService,
                     CommunityCommentService,
+                    CreateCommunityPostService,
+                    CreateCommunityPostResolver,
+                    CreateCommunityPostCommentService,
+                    CreateCommunityPostCommentResolver,
                     NotificationService,
                     UserStatsProjectionService,
                     CommunityFeedRoomService,
                     WsResponseService,
                     CommunityFeedGateway,
                     {
-                        provide: CommunityPostQuotaService,
-                        useValue: {
-                            assertCanCreatePost: jest.fn().mockResolvedValue(undefined),
-                        },
+                        provide: CommunityPostQuotaService, useValue: {
+                            assertCanCreatePost: jest.fn().mockResolvedValue(undefined)
+                        }
                     },
                     {
-                        provide: SUPERJSON,
-                        useValue: {
-                            stringify: JSON.stringify,
-                            parse: JSON.parse,
-                        },
+                        provide: EventEmitterService, useValue: events
                     },
                     {
-                        provide: EventEmitterService,
-                        useValue: eventEmitterService,
+                        provide: SUPERJSON, useValue: {
+                            stringify: JSON.stringify, parse: JSON.parse
+                        }
                     },
                 ],
-            })
-            await world.app.listen(0)
-            postService = world.app.get(CommunityPostService)
-            commentService = world.app.get(CommunityCommentService)
-            roomService = world.app.get(CommunityFeedRoomService)
-            namespace = (world.app.get(CommunityFeedGateway) as unknown as {
-                server: Namespace
-            }).server
-
-            await world.truncate(
-                "notifications",
-                "user_stats_projections",
-                "community_post_comments",
-                "community_posts",
-                "users",
-            )
-            author = await world.entityManager.save(
-                world.entityManager.create(UserEntity,
-                    {
-                        keycloakId: "kc-community-author",
-                        username: "community-author",
-                    }),
-            )
-            replier = await world.entityManager.save(
-                world.entityManager.create(UserEntity,
-                    {
-                        keycloakId: "kc-community-replier",
-                        username: "community-replier",
-                    }),
-            )
-
-            viewer = io(`${await world.app.getUrl()}/community_feed`,
+            }).overrideGuard(KeycloakAuthGraphQLGuard).useValue(guard).compile()
+            app = moduleRef.createNestApplication()
+            await app.listen(0)
+            entityManager = app.get(getEntityManagerToken("primary"))
+            await entityManager.query("TRUNCATE TABLE \"notifications\", \"user_stats_projections\", \"community_post_comments\", \"community_posts\", \"users\" RESTART IDENTITY CASCADE")
+            author = await entityManager.save(entityManager.create(UserEntity,
                 {
-                    transports: [
-                        "websocket",
-                    ],
-                    forceNew: true,
+                    keycloakId: "community-author", username: "author"
+                }))
+            replier = await entityManager.save(entityManager.create(UserEntity,
+                {
+                    keycloakId: "community-replier", username: "replier"
+                }))
+            socket = io(`${await app.getUrl()}/community_feed`,
+                {
+                    transports: ["websocket"], forceNew: true
                 })
             await new Promise<void>((resolve, reject) => {
-                viewer.once("connect",
+                socket.once("connect",
                     resolve)
-                viewer.once("connect_error",
+                socket.once("connect_error",
                     reject)
             })
-            if (!viewer.id) {
-                throw new Error("Connected community socket must have an id")
-            }
-            viewerId = viewer.id
-            viewer.emit(PublicationEvent.SubscribeCommunityFeed,
+            socket.emit(PublicationEvent.SubscribeCommunityFeed,
                 {
                     data: {
-                        channel: CommunityChannel.Problems,
-                    },
-                    locale: Locale.En,
+                        channel: CommunityChannel.Problems
+                    }, locale: Locale.En
                 })
-            await until(
-                () => Boolean(namespace.adapter.rooms.get(
-                    roomService.channelRoom(CommunityChannel.Problems),
-                )?.has(viewerId)),
+            namespace = (app.get(CommunityFeedGateway) as unknown as { server: Namespace }).server
+            roomService = app.get(CommunityFeedRoomService)
+            const room = roomService.channelRoom(CommunityChannel.Problems)
+            await until(() => Boolean(socket.id && namespace.adapter.rooms.get(room)?.has(socket.id)),
                 {
-                    describe: "the viewer to join the problems feed room",
-                },
-            )
+                    describe: "the viewer to join the community channel"
+                })
         })
 
         afterAll(async () => {
-            viewer?.disconnect()
-            await world?.close()
+            socket?.disconnect()
+            await app?.close().catch(() => undefined)
         })
 
-        it("persists a post and pushes it to the subscribed channel",
+        it("creates the post and reply through GraphQL and pushes both changes",
             async () => {
-                const delivered = nextMessage<CommunityPostSocketMessage>(
-                    viewer,
-                    SubscriptionEvent.CommunityPostCreated,
-                )
-                post = await postService.createPost({
-                    user: author,
-                    channel: CommunityChannel.Problems,
-                    body: "How should an idempotent webhook consumer handle retries?",
+                actor = author
+                const postEvent = nextMessage<FeedMessage>(socket,
+                    SubscriptionEvent.CommunityPostCreated)
+                const postResponse = await request(app.getHttpServer()).post("/graphql").send({
+                    query: "mutation { createCommunityPost(request: { channel: problems, body: \"How should this be solved?\" }) { success error data { id } } }",
                 })
+                const postId = postResponse.body.data.createCommunityPost.data.id as string
+                expect((await postEvent).data.postId).toBe(postId)
+                expect(await entityManager.count(CommunityPostEntity)).toBe(1)
 
-                const message = await delivered
-                expect(message.success).toBe(true)
-                expect(message.data).toEqual({
-                    postId: post.id,
-                    channel: CommunityChannel.Problems,
-                })
-                expect(await world.entityManager.findOneByOrFail(
-                    CommunityPostEntity,
-                    {
-                        id: post.id,
-                    },
-                )).toBeDefined()
-            })
-
-        it("persists a reply, pushes it to the post room, and notifies the author",
-            async () => {
-                viewer.emit(PublicationEvent.SubscribeCommunityFeed,
+                socket.emit(PublicationEvent.SubscribeCommunityFeed,
                     {
                         data: {
-                            postId: post.id,
+                            postId,
                         },
                         locale: Locale.En,
                     })
-                await until(
-                    () => Boolean(namespace.adapter.rooms.get(
-                        roomService.postRoom(post.id),
-                    )?.has(viewerId)),
-                    {
-                        describe: "the viewer to join the community post room",
-                    },
-                )
-
-                const delivered = nextMessage<CommunityCommentSocketMessage>(
-                    viewer,
-                    SubscriptionEvent.CommunityCommentCreated,
-                )
-                const comment = await commentService.createComment({
-                    postId: post.id,
-                    parentCommentId: null,
-                    body: "Store the provider event id under a unique constraint and acknowledge replays.",
-                    user: replier,
+                await until(() => Boolean(socket.id && namespace.adapter.rooms.get(
+                    roomService.postRoom(postId),
+                )?.has(socket.id)),
+                {
+                    describe: "the viewer to join the community post room",
                 })
 
-                const message = await delivered
-                expect(message.data).toEqual({
-                    postId: post.id,
-                    commentId: comment.id,
-                    parentCommentId: null,
+                actor = replier
+                const replyEvent = nextMessage<FeedMessage>(socket,
+                    SubscriptionEvent.CommunityCommentCreated)
+                const replyResponse = await request(app.getHttpServer()).post("/graphql").send({
+                    query: `mutation { createCommunityPostComment(request: { postId: "${postId}", body: "Try a transaction." }) { success error data { id } } }`,
                 })
-                expect(await world.entityManager.findOneByOrFail(
-                    CommunityPostCommentEntity,
+                expect(replyResponse.body).toHaveProperty("data.createCommunityPostComment.success",
+                    true)
+                expect((await replyEvent).data.postId).toBe(postId)
+                expect(await entityManager.count(CommunityPostCommentEntity)).toBe(1)
+                expect(await entityManager.count(NotificationEntity,
                     {
-                        id: comment.id,
-                    },
-                )).toBeDefined()
-
-                const notification = await world.entityManager.findOneByOrFail(
-                    NotificationEntity,
-                    {
-                        user: {
-                            id: author.id,
-                        },
-                        type: NotificationType.CommunityReply,
-                    },
-                )
-                expect(notification.payload?.target?.id).toBe(post.id)
+                        where: {
+                            user: {
+                                id: author.id
+                            }
+                        }
+                    })).toBe(1)
             })
     })

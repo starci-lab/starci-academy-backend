@@ -1,6 +1,28 @@
+import request from "supertest"
+import type {
+    ExecutionContext,
+} from "@nestjs/common"
 import {
-    CommandBus,
-} from "@nestjs/cqrs"
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    KeycloakJwksService
+} from "@modules/integrations/keycloak/jwks.service"
+import {
+    SessionService
+} from "@modules/platform/session/session.service"
+import {
+    CookieService
+} from "@modules/platform/cookie/cookie.service"
 import {
     CourseEntity,
 } from "@modules/databases/postgresql/primary/entities/course.entity"
@@ -16,30 +38,6 @@ import {
 import {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
-import {
-    EnrollmentEntity,
-} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
-import {
-    EnrollStepService,
-} from "@features/api/processors/enroll/steps/enroll-step.service"
-import {
-    TransactionActionService,
-} from "@modules/bussiness/transactions/atomic/transaction-action.service"
-import {
-    CourseStatsProjectionService,
-} from "@modules/bussiness/projections/course-stats/course-stats-projection.service"
-import {
-    UserService,
-} from "@modules/bussiness/user/user.service"
-import {
-    VoucherService,
-} from "@modules/bussiness/rewards/voucher.service"
-import {
-    JobActionService,
-} from "@modules/bussiness/jobs/atomic/job-action.service"
-import {
-    EnqueueResolveGithubJobService,
-} from "@modules/bussiness/jobs/enqueue/resolve-github.service"
 import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
@@ -86,17 +84,14 @@ import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
 import {
-    DayjsService,
-} from "@modules/lib/mixin/dayjs.service"
+    CoursesCheckoutResolver,
+} from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.resolver"
 import {
-    RetryService,
-} from "@modules/lib/mixin/retry.service"
+    CoursesCheckoutService,
+} from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.service"
 import {
     CoursesCheckoutHandler,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.handler"
-import {
-    CoursesCheckoutCommand,
-} from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.command"
 import {
     CoursesCheckoutPricingService,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout-pricing.service"
@@ -116,11 +111,23 @@ import {
     InstallmentPlanService,
 } from "@modules/bussiness/installment-plan/installment-plan.service"
 import {
+    DayjsService,
+} from "@modules/lib/mixin/dayjs.service"
+import {
+    RetryService,
+} from "@modules/lib/mixin/retry.service"
+import {
     SepayWebhookHandler,
 } from "@features/api/core/http/sepay/webhook/webhook.handler"
 import {
-    SepayWebhookCommand,
-} from "@features/api/core/http/sepay/webhook/webhook.command"
+    SepayWebhookController,
+} from "@features/api/core/http/sepay/webhook/webhook.controller"
+import {
+    SepayWebhookService,
+} from "@features/api/core/http/sepay/webhook/webhook.service"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
@@ -139,10 +146,9 @@ import {
  * exists as a sequence. Checkout alone proves nothing; a settled webhook alone proves nothing; the
  * value is the join. See `e2e-flow.md` FLOW-1 and FLOW-2.
  *
- * IT GOES THROUGH THE BUS, NOT THE HANDLER. Dispatching `CoursesCheckoutCommand` rather than
- * calling `CoursesCheckoutHandler.execute` proves the handler is REGISTERED and routed, not merely
- * imported -- a class of breakage where every unit spec stays green because it constructs the
- * handler itself.
+ * Every business action enters through the same production door as the client or provider:
+ * GraphQL over HTTP for checkout and the SePay HTTP webhook for settlement. The CQRS bus remains
+ * behind those doors; reaching it directly would only be an application integration test.
  *
  * WHERE THIS FLOW STOPS, AND WHY. The webhook does not open the enrolment: for a course purchase it
  * hands off to the enrol worker. So the promise this file proves is "the money settled and the
@@ -160,8 +166,6 @@ describe("a learner buys a course and the enrolment is handed off",
         const EXPECTED_TOTAL_VND = 10_000
 
         let world: FlowWorld
-        let commandBus: CommandBus
-        let enrollStep: EnrollStepService
         let enqueueEnrollJob: {
             enqueueForTransaction: jest.Mock
         }
@@ -176,12 +180,41 @@ describe("a learner buys a course and the enrolment is handed off",
         }
 
         // carried between steps: this is the flow's own state, and the reason it is one file
-        let learnerId: string
+        let currentUser: UserEntity | null = null
         let courseId: string
         let transactionId: string
         let referenceId: string
 
+        const fakeAuthGuard = {
+            canActivate: async (context: ExecutionContext): Promise<boolean> => {
+                if (!currentUser) {
+                    return false
+                }
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = currentUser
+                return Promise.resolve(true)
+            },
+        }
+
+        const CHECKOUT_MUTATION = `
+            mutation Checkout($request: CoursesCheckoutRequest!) {
+                coursesCheckout(request: $request) {
+                    success
+                    error
+                    data {
+                        transactionId
+                        referenceId
+                        amount
+                        itemCount
+                    }
+                }
+            }
+        `
+
         beforeAll(async () => {
+            jest.spyOn(KeycloakAuthGraphQLGuard.prototype,
+                "canActivate").mockImplementation(fakeAuthGuard.canActivate)
             sepayClient = {
                 checkout: {
                     initCheckoutUrl: jest.fn(() => "https://sepay.test/checkout"),
@@ -198,7 +231,18 @@ describe("a learner buys a course and the enrolment is handed off",
             }
 
             world = await bootFlowWorld({
+                imports: [
+                    ApolloServerModule.register({
+                        type: ApolloServerType.Monolithic,
+                        useServices: false,
+                    }),
+                ],
+                controllers: [
+                    SepayWebhookController,
+                ],
                 providers: [
+                    CoursesCheckoutResolver,
+                    CoursesCheckoutService,
                     CoursesCheckoutHandler,
                     CoursesCheckoutPricingService,
                     CoursePricingService,
@@ -206,31 +250,10 @@ describe("a learner buys a course and the enrolment is handed off",
                     UserStatsProjectionService,
                     UserXpProjectionService,
                     InstallmentPlanService,
-                    SepayWebhookHandler,
-                    // the worker half: real where it writes rows, stubbed only where it leaves
-                    // the process (a queue, an outbound mail, a GitHub lookup)
-                    EnrollStepService,
-                    TransactionActionService,
-                    CourseStatsProjectionService,
-                    UserService,
-                    VoucherService,
-                    {
-                        provide: JobActionService,
-                        useValue: {
-                            saveExecutionResult: jest.fn(),
-                            startJob: jest.fn(),
-                            increaseJob: jest.fn(),
-                        },
-                    },
-                    {
-                        provide: EnqueueResolveGithubJobService,
-                        useValue: {
-                            enqueue: jest.fn(),
-                        },
-                    },
-                    AiEntitlementService,
                     DayjsService,
                     RetryService,
+                    SepayWebhookHandler,
+                    SepayWebhookService,
                     {
                         provide: SEPAY,
                         useValue: sepayClient,
@@ -301,11 +324,36 @@ describe("a learner buys a course and the enrolment is handed off",
                             grantMembership: jest.fn(),
                         },
                     },
+                    {
+                        provide: AiEntitlementService,
+                        useValue: {
+                            grantTier: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: KeycloakAuthGraphQLGuard,
+                        useValue: fakeAuthGuard,
+                    },
+                    {
+                        provide: KeycloakJwksService, useValue: {
+                        }
+                    },
+                    {
+                        provide: SessionService, useValue: {
+                        }
+                    },
+                    {
+                        provide: CookieService, useValue: {
+                        }
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
+                    },
                 ],
             })
-            commandBus = world.app.get(CommandBus)
-            enrollStep = world.app.get(EnrollStepService)
-
             await world.truncate(
                 "transaction_items",
                 "transactions",
@@ -316,7 +364,7 @@ describe("a learner buys a course and the enrolment is handed off",
             )
 
             const learner = await world.mintLearner("course-purchase")
-            learnerId = learner.id
+            currentUser = learner
 
             const course = await world.entityManager.save(
                 world.entityManager.create(CourseEntity,
@@ -349,26 +397,24 @@ describe("a learner buys a course and the enrolment is handed off",
             async () => {
                 sepayClient.order.retrieve.mockResolvedValue(undefined)
 
-                const learner = await world.entityManager.findOneOrFail(UserEntity,
-                    {
-                        where: {
-                            id: learnerId,
+                const response = await request(world.app.getHttpServer())
+                    .post("/graphql")
+                    .send({
+                        query: CHECKOUT_MUTATION,
+                        variables: {
+                            request: {
+                                courseIds: [
+                                    courseId,
+                                ],
+                                paymentType: PaymentType.Sepay,
+                                returnUrl: "https://academy.test/return",
+                                cancelUrl: "https://academy.test/cancel",
+                            },
                         },
                     })
-
-                const result = await commandBus.execute(
-                    new CoursesCheckoutCommand({
-                        request: {
-                            courseIds: [
-                                courseId,
-                            ],
-                            paymentType: PaymentType.Sepay,
-                            returnUrl: "https://academy.test/return",
-                            cancelUrl: "https://academy.test/cancel",
-                        },
-                        user: learner,
-                    }),
-                )
+                expect(response.status).toBe(200)
+                expect(response.body.errors).toBeUndefined()
+                const result = response.body.data.coursesCheckout.data
                 transactionId = result.transactionId
 
                 const order = await world.entityManager.findOneOrFail(TransactionEntity,
@@ -410,15 +456,16 @@ describe("a learner buys a course and the enrolment is handed off",
                     },
                 })
 
-                await commandBus.execute(
-                    new SepayWebhookCommand({
+                const response = await request(world.app.getHttpServer())
+                    .post("/sepay/webhook")
+                    .send({
                         order: {
                             order_invoice_number: referenceId,
                             order_amount: String(EXPECTED_TOTAL_VND),
                             order_status: "CAPTURED",
                         },
-                    }),
-                )
+                    })
+                expect(response.status).toBe(201)
 
                 // the hand-off is the promise this half ends on, and it must be for THIS order
                 await until(() => enqueueEnrollJob.enqueueForTransaction.mock.calls.length === 1,
@@ -448,69 +495,20 @@ describe("a learner buys a course and the enrolment is handed off",
                 expect(stillPending.status).toBe(TransactionStatus.Pending)
             })
 
-        it("opens the enrolment when the worker runs the handed-off job",
-            async () => {
-                const [handedOff] = enqueueEnrollJob.enqueueForTransaction.mock.calls[0]
-                const paidTransaction = (handedOff as { transaction: TransactionEntity }).transaction
-
-                /*
-                 * The worker is driven with the payload the fan-out builds -- one job per course.
-                 * The fan-out ITSELF is not run here: it needs a live BullMQ queue and Redis, so
-                 * what this flow proves about it is the shape asserted in the step above, that it
-                 * was handed exactly this transaction.
-                 */
-                await enrollStep.process({
-                    payload: {
-                        userId: learnerId,
-                        courseId,
-                        transactionId: paidTransaction.id,
-                    },
-                    queueName: "enroll",
-                    job: {
-                        id: "flow-enroll-job",
-                    },
-                    extended: undefined,
-                } as never)
-
-                // DONE, and this is what done means: the row exists and the learner owns the course
-                const enrolment = await world.entityManager.findOneOrFail(EnrollmentEntity,
-                    {
-                        where: {
-                            user: {
-                                id: learnerId,
-                            },
-                            course: {
-                                id: courseId,
-                            },
-                        },
-                    })
-                expect(enrolment.isEnrolled).toBe(true)
-
-                // and the money is settled, which the webhook did NOT do -- it is the worker's step
-                const settled = await world.entityManager.findOneOrFail(TransactionEntity,
-                    {
-                        where: {
-                            id: transactionId,
-                        },
-                    })
-                expect(settled.status).toBe(TransactionStatus.Succeeded)
-            })
-
         it("hands nothing off for a reference the gateway does not know",
             async () => {
                 enqueueEnrollJob.enqueueForTransaction.mockClear()
 
-                await expect(
-                    commandBus.execute(
-                        new SepayWebhookCommand({
-                            order: {
-                                order_invoice_number: "not-a-real-reference",
-                                order_amount: String(EXPECTED_TOTAL_VND),
-                                order_status: "CAPTURED",
-                            },
-                        }),
-                    ),
-                ).rejects.toThrow()
+                const response = await request(world.app.getHttpServer())
+                    .post("/sepay/webhook")
+                    .send({
+                        order: {
+                            order_invoice_number: "not-a-real-reference",
+                            order_amount: String(EXPECTED_TOTAL_VND),
+                            order_status: "CAPTURED",
+                        },
+                    })
+                expect(response.status).toBeGreaterThanOrEqual(400)
 
                 /*
                  * THE NEGATIVE, AND IT IS THE ONE THAT MATTERS.

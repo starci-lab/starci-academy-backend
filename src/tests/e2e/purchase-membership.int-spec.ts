@@ -86,8 +86,8 @@ const MEMBERSHIP_PRICE_VND = 99_000
 const MEMBERSHIP_PRICE_USD = 4.99
 
 /**
- * e2e for `membership/purchase-membership` -- `.artifacts/states/transactions/`
- * findings: the single-product membership checkout had zero e2e coverage -- only
+ * Integration coverage for `membership/purchase-membership` gateway branches.
+ * The single-product membership checkout previously had only
  * the `enabled` kill-switch and gateway routing were reachable via a mocked
  * `MountFilesystemService`/entity manager in a unit spec, never a real Postgres
  * `Pending` `TransactionEntity` row.
@@ -102,7 +102,7 @@ const MEMBERSHIP_PRICE_USD = 4.99
  *
  * Requires Docker (Testcontainers spins up a real Postgres in `beforeAll`).
  */
-describe("Purchase membership (e2e)",
+describe("Purchase membership (integration)",
     () => {
         let app: INestApplication
         let entityManager: EntityManager

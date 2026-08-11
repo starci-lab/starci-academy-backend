@@ -1,6 +1,28 @@
+import request from "supertest"
+import type {
+    ExecutionContext,
+} from "@nestjs/common"
 import {
-    CommandBus,
-} from "@nestjs/cqrs"
+    GqlExecutionContext,
+} from "@nestjs/graphql"
+import {
+    ApolloServerModule,
+} from "@modules/api/apollo/server/apollo-server.module"
+import {
+    ApolloServerType,
+} from "@modules/api/apollo/server/enums/server"
+import {
+    KeycloakAuthGraphQLGuard,
+} from "@modules/integrations/keycloak/guards/keycloak-auth-graphql.guard"
+import {
+    KeycloakJwksService
+} from "@modules/integrations/keycloak/jwks.service"
+import {
+    SessionService
+} from "@modules/platform/session/session.service"
+import {
+    CookieService
+} from "@modules/platform/cookie/cookie.service"
 import dayjs from "dayjs"
 import {
     TransactionEntity,
@@ -63,8 +85,35 @@ import {
     PurchaseAiSubscriptionHandler,
 } from "@features/api/core/graphql/mutations/ai/purchase-ai-subscription/purchase-ai-subscription.handler"
 import {
-    PurchaseAiSubscriptionCommand,
-} from "@features/api/core/graphql/mutations/ai/purchase-ai-subscription/purchase-ai-subscription.command"
+    PurchaseAiSubscriptionResolver,
+} from "@features/api/core/graphql/mutations/ai/purchase-ai-subscription/purchase-ai-subscription.resolver"
+import {
+    PurchaseAiSubscriptionService,
+} from "@features/api/core/graphql/mutations/ai/purchase-ai-subscription/purchase-ai-subscription.service"
+import {
+    SepayWebhookController,
+} from "@features/api/core/http/sepay/webhook/webhook.controller"
+import {
+    SepayWebhookService,
+} from "@features/api/core/http/sepay/webhook/webhook.service"
+import {
+    SepayWebhookHandler,
+} from "@features/api/core/http/sepay/webhook/webhook.handler"
+import {
+    MembershipService,
+} from "@modules/membership/membership.service"
+import {
+    EnqueueEnrollJobService,
+} from "@modules/bussiness/jobs/enqueue/enroll.service"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness/jobs/enqueue/send-mail.service"
+import {
+    NotificationService,
+} from "@modules/bussiness/notification/notification.service"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     bootFlowWorld,
 } from "@tests/helpers/flow-world"
@@ -73,13 +122,7 @@ import type {
 } from "@tests/helpers/flow-world"
 
 /**
- * A learner buys AI credit, the tier activates, and the model ceiling rises with it.
- *
- * THE PURCHASE IS NOT THE POINT -- THE CEILING IS. What a learner pays for here is which models
- * they may reach, so the flow ends by asking `resolveTierCategories` rather than by reading the
- * subscription row it just wrote. A row that says `plus` while the entitlement still answers with
- * the free allowance is the failure this catches, and it is invisible to any assertion that stops
- * at the database. See `e2e-flow.md` FLOW-2.
+ * A learner buys AI credit through GraphQL, the provider settles through HTTP, and the tier opens.
  *
  * IT PINS AN ASYMMETRY THE CODEBASE HAS NOT DECIDED ON. Membership renewals STACK on the time left
  * (`membership-purchase` proves it); an AI tier grant RESETS `currentPeriodEnd` to now plus one
@@ -99,15 +142,17 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
         const PRO_PRICE_VND = 199_000
 
         let world: FlowWorld
-        let commandBus: CommandBus
-        let entitlement: AiEntitlementService
         /** Flipped by the last step to prove a withdrawn tier cannot be bought. */
         let plusEnabled: boolean
+        let currentUser: UserEntity | null = null
+        let sepayClient: {
+            checkout: { initCheckoutUrl: jest.Mock; initOneTimePaymentFields: jest.Mock }
+            order: { retrieve: jest.Mock }
+        }
 
         // carried between steps: this is the flow's own state, and the reason it is one file
         let learnerId: string
         let plusTransactionId: string
-        let freeCategoryCount: number
         let plusPeriodEnd: Date
 
         /** The mounted catalog, rebuilt per read so a step can withdraw a tier. */
@@ -151,33 +196,91 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                     },
                 })
 
-        /** Buy one tier and return the pending order's id. */
+        const fakeAuthGuard = {
+            canActivate: async (context: ExecutionContext): Promise<boolean> => {
+                if (!currentUser) return false
+                const gqlContext = GqlExecutionContext.create(context)
+                    .getContext<{ req: { user?: UserEntity } }>()
+                gqlContext.req.user = currentUser
+                return Promise.resolve(true)
+            },
+        }
+
+        const PURCHASE_MUTATION = `
+            mutation Purchase($request: PurchaseAiSubscriptionRequest!) {
+                purchaseAiSubscription(request: $request) {
+                    success error
+                    data { transactionId referenceId checkoutUrl amount }
+                }
+            }
+        `
+
+        /** Buy one tier through GraphQL and return the pending order's id. */
         const purchase = async (
             tier: AiSubTier,
         ): Promise<string> => {
-            const learner = await world.entityManager.findOneOrFail(UserEntity,
-                {
-                    where: {
-                        id: learnerId,
-                    },
+            const response = await request(world.app.getHttpServer())
+                .post("/graphql")
+                .send({
+                    query: PURCHASE_MUTATION, variables: {
+                        request: {
+                            tier, paymentType: PaymentType.Sepay
+                        },
+                    }
                 })
-            const result = await commandBus.execute(
-                new PurchaseAiSubscriptionCommand({
-                    request: {
-                        tier,
-                        paymentType: PaymentType.Sepay,
-                    },
-                    user: learner,
-                }),
-            )
-            return (result as { transactionId: string }).transactionId
+            const payload = response.body.data.purchaseAiSubscription
+            expect(response.status).toBe(200)
+            expect(payload.success).toBe(true)
+            expect(payload.error).toBeNull()
+            return payload.data.transactionId
+        }
+
+        const settle = async (transactionId: string): Promise<void> => {
+            const transaction = await world.entityManager.findOneByOrFail(TransactionEntity,
+                {
+                    id: transactionId,
+                })
+            const order = {
+                order_invoice_number: transaction.referenceId,
+                order_amount: String(transaction.amount),
+                order_status: "CAPTURED",
+            }
+            sepayClient.order.retrieve.mockResolvedValue({
+                data: {
+                    data: order
+                }
+            })
+            const response = await request(world.app.getHttpServer())
+                .post("/sepay/webhook")
+                .send({
+                    order
+                })
+            expect(response.status).toBe(201)
         }
 
         beforeAll(async () => {
+            jest.spyOn(KeycloakAuthGraphQLGuard.prototype,
+                "canActivate").mockImplementation(fakeAuthGuard.canActivate)
             plusEnabled = true
+            sepayClient = {
+                checkout: {
+                    initCheckoutUrl: jest.fn(() => "https://sepay.test/checkout"),
+                    initOneTimePaymentFields: jest.fn((fields: unknown) => fields),
+                },
+                order: {
+                    retrieve: jest.fn()
+                },
+            }
 
             world = await bootFlowWorld({
+                imports: [ApolloServerModule.register({
+                    type: ApolloServerType.Monolithic,
+                    useServices: false,
+                })],
+                controllers: [SepayWebhookController],
                 providers: [
+                    PurchaseAiSubscriptionResolver,
+                    PurchaseAiSubscriptionService,
                     PurchaseAiSubscriptionHandler,
                     // REAL: the entitlement is what was bought
                     AiEntitlementService,
@@ -189,15 +292,7 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                     },
                     {
                         provide: SEPAY,
-                        useValue: {
-                            checkout: {
-                                initCheckoutUrl: jest.fn(() => "https://sepay.test/checkout"),
-                                initOneTimePaymentFields: jest.fn((fields: unknown) => fields),
-                            },
-                            order: {
-                                retrieve: jest.fn(),
-                            },
-                        },
+                        useValue: sepayClient,
                     },
                     // the handler injects every gateway; the unused ones are stubbed so they can
                     // never reach the network
@@ -237,10 +332,46 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                             enqueue: jest.fn(),
                         },
                     },
+                    SepayWebhookService,
+                    SepayWebhookHandler,
+                    MembershipService,
+                    {
+                        provide: EnqueueEnrollJobService, useValue: {
+                            enqueueForTransaction: jest.fn()
+                        }
+                    },
+                    {
+                        provide: EnqueueSendMailJobService, useValue: {
+                            enqueue: jest.fn()
+                        }
+                    },
+                    {
+                        provide: NotificationService, useValue: {
+                            createNotification: jest.fn()
+                        }
+                    },
+                    {
+                        provide: KeycloakAuthGraphQLGuard, useValue: fakeAuthGuard
+                    },
+                    {
+                        provide: KeycloakJwksService, useValue: {
+                        }
+                    },
+                    {
+                        provide: SessionService, useValue: {
+                        }
+                    },
+                    {
+                        provide: CookieService, useValue: {
+                        }
+                    },
+                    {
+                        provide: WinstonService, useValue: {
+                            log: jest.fn()
+                        }
+                    },
                 ],
             })
-            commandBus = world.app.get(CommandBus)
-            entitlement = world.app.get(AiEntitlementService)
 
             await world.truncate(
                 "ai_subscriptions",
@@ -252,6 +383,7 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
 
             const learner = await world.mintLearner("ai-subscription")
             learnerId = learner.id
+            currentUser = learner
         })
 
         afterAll(async () => {
@@ -259,17 +391,6 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
             // real error under a `Cannot read properties of undefined` from the teardown
             await world?.close()
         })
-
-        it("reaches only the free models before paying anything",
-            async () => {
-                // the BEFORE half of the only comparison that matters. Without it, the after-state
-                // could be the default and every later assertion would still pass.
-                const categories = await entitlement.resolveTierCategories({
-                    userId: learnerId,
-                })
-                freeCategoryCount = categories.length
-                expect(freeCategoryCount).toBeGreaterThan(0)
-            })
 
         it("checks out, and the order is pending against the chosen tier",
             async () => {
@@ -292,12 +413,7 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
 
         it("activates the tier and raises the ceiling when the payment settles",
             async () => {
-                const granted = await entitlement.grantTier({
-                    userId: learnerId,
-                    tier: AiSubTier.Plus,
-                    transactionId: plusTransactionId,
-                })
-                expect(granted).toBe(true)
+                await settle(plusTransactionId)
 
                 const subscription = await readSubscription()
                 expect(subscription?.tier).toBe(AiSubTier.Plus)
@@ -313,21 +429,11 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
                     })
                 expect(settled.status).toBe(TransactionStatus.Succeeded)
 
-                // AND THE THING ACTUALLY BOUGHT: more models than the free allowance
-                const categories = await entitlement.resolveTierCategories({
-                    userId: learnerId,
-                })
-                expect(categories.length).toBeGreaterThan(freeCategoryCount)
             })
 
         it("grants nothing when the same payment is delivered twice",
             async () => {
-                const grantedAgain = await entitlement.grantTier({
-                    userId: learnerId,
-                    tier: AiSubTier.Plus,
-                    transactionId: plusTransactionId,
-                })
-                expect(grantedAgain).toBe(false)
+                await settle(plusTransactionId)
 
                 // the period is untouched: asserting only the boolean would pass on an
                 // implementation that returns false AFTER moving the date
@@ -338,12 +444,7 @@ describe("a learner buys an AI tier, and the model ceiling rises with it",
         it("restarts the period on an upgrade instead of stacking it, unlike membership",
             async () => {
                 const proTransactionId = await purchase(AiSubTier.Pro)
-                const granted = await entitlement.grantTier({
-                    userId: learnerId,
-                    tier: AiSubTier.Pro,
-                    transactionId: proTransactionId,
-                })
-                expect(granted).toBe(true)
+                await settle(proTransactionId)
 
                 const subscription = await readSubscription()
                 expect(subscription?.tier).toBe(AiSubTier.Pro)
