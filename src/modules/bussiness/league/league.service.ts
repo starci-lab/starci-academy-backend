@@ -146,13 +146,23 @@ export class LeagueService {
         // top N users by spendable Coin (tie-broken by id for a stable order)
         const topRows = await this.entityManager.query(
             `
-            SELECT id, username, avatar, coin_balance AS points
-            FROM users
-            ORDER BY coin_balance DESC, id ASC
+            SELECT
+                u.id,
+                u.username,
+                u.avatar,
+                u.coin_balance AS points,
+                EXISTS (
+                    SELECT 1
+                    FROM user_follows uf
+                    WHERE uf.follower_id = $2 AND uf.following_id = u.id
+                ) AS is_following
+            FROM users u
+            ORDER BY u.coin_balance DESC, u.id ASC
             LIMIT $1
             `,
             [
                 limit,
+                userId,
             ],
         ) as Array<GlobalLeaderboardRow>
         // map to the ranked wire shape (1-based rank = list position)
@@ -162,6 +172,7 @@ export class LeagueService {
             avatar: row.avatar,
             points: Number(row.points) || 0,
             rank: index + 1,
+            isFollowing: row.id === userId ? false : row.is_following === true,
         }))
         // the viewer's own Coin balance + rank (count of users strictly ahead, + 1)
         const myRankRows = await this.entityManager.query(

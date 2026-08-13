@@ -28,6 +28,12 @@ import {
     InvalidJwtPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
+    UserEntity,
+} from "@modules/databases/postgresql/primary/entities/user.entity"
+import {
+    AuthenticationType,
+} from "@modules/databases/postgresql/primary/enums/authentication-type"
+import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import type {
@@ -153,6 +159,13 @@ describe("ExchangeCodeForTokenHandler",
                 )
                 // the new user is persisted and its email recorded in the bloom filter
                 expect(entityManager.save).toHaveBeenCalled()
+                expect(entityManager.create).toHaveBeenCalledWith(
+                    UserEntity,
+                    expect.objectContaining({
+                        avatar: undefined,
+                        authenticationType: AuthenticationType.Google,
+                    }),
+                )
                 expect(emailBloomFilterService.add).toHaveBeenCalledWith("new@example.com")
                 // the exchanged tokens are returned
                 expect(result).toEqual({

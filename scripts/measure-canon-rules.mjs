@@ -1,5 +1,5 @@
 /**
- * Measure every `.claudev2` backend rule against this repository.
+ * Measure every canonical `.claude/sources/be` rule against this repository.
  *
  *   node scripts/measure-canon-rules.mjs
  *

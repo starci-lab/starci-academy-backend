@@ -125,7 +125,7 @@ export class ExchangeCodeForTokenHandler
                         email: decoded.email,
                         fallback: decoded.preferred_username,
                     }),
-                    avatarUrl: decoded.picture,
+                    avatar: typeof decoded.picture === "string" ? decoded.picture : undefined,
                     keycloakId: decoded.sub,
                     authenticationType: typeToProvider[provider],
                 }

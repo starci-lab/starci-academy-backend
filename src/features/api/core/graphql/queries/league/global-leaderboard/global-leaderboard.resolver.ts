@@ -83,6 +83,7 @@ export class GlobalLeaderboardResolver {
             avatar: entry.avatar,
             points: entry.points,
             rank: entry.rank,
+            isFollowing: entry.isFollowing,
         }))
         return {
             entries,

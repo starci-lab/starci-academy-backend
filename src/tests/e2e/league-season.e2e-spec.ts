@@ -104,6 +104,7 @@ describe("Weekly league reads (e2e)",
                             username
                             weekPoints
                             rank
+                            isFollowing
                         }
                     }
                 }

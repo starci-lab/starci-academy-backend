@@ -120,6 +120,10 @@ export class SuggestedUsersResolver {
                 "follower.following_id = user.id")
             // exclude soft-deleted users
             .where("user.is_deleted = false")
+            // GraphQL exposes username as non-null. Legacy rows without an identity
+            // must not null the entire suggestion list for otherwise valid users.
+            .andWhere("user.username IS NOT NULL")
+            .andWhere("BTRIM(user.username) != ''")
             // never suggest the viewer themselves
             .andWhere("user.id != :viewerId")
             // exclude everyone the viewer already follows

@@ -30,8 +30,14 @@ import {
     InvalidJwtPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
-    UserNotFoundException,
-} from "@modules/platform/exceptions/errors/users/user"
+    AuthenticationType,
+} from "@modules/databases/postgresql/primary/enums/authentication-type"
+import {
+    deriveUsername,
+} from "@modules/integrations/keycloak/utils/derive-username"
+import {
+    EmailBloomFilterService,
+} from "@modules/bussiness/bloom-filters/email.service"
 import {
     OtpChallengeService,
 } from "@modules/integrations/code/otp-challenge.service"
@@ -63,6 +69,7 @@ export class SignInVerifyOtpHandler
         private readonly otpChallengeService: OtpChallengeService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly emailBloomFilterService: EmailBloomFilterService,
     ) {
         super()
     }
@@ -130,7 +137,7 @@ export class SignInVerifyOtpHandler
             )
         }
 
-        const user = await this.entityManager.findOne(
+        let user = await this.entityManager.findOne(
             UserEntity,
             {
                 where: {
@@ -139,11 +146,20 @@ export class SignInVerifyOtpHandler
             }
         )
         if (!user) {
-            throw new UserNotFoundException(
+            user = this.entityManager.create(
+                UserEntity,
                 {
                     keycloakId: decoded.sub,
-                }
+                    email: decoded.email ?? result.email,
+                    username: deriveUsername({
+                        email: decoded.email ?? result.email,
+                        fallback: decoded.preferred_username,
+                    }),
+                    authenticationType: AuthenticationType.Credentials,
+                },
             )
+            await this.entityManager.save(user)
+            await this.emailBloomFilterService.add(user.email ?? "")
         }
 
         return {

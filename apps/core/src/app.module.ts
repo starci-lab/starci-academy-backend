@@ -265,7 +265,9 @@ import {
                 }
             ),
             /** Atomic, one-time OAuth state storage shared by login/link flows. */
-            OAuthStateModule,
+            OAuthStateModule.register({
+                isGlobal: true,
+            }),
             /** Captcha (Cloudflare Turnstile) module. */
             CaptchaModule.register(
                 {

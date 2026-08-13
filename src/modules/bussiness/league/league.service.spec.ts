@@ -77,6 +77,35 @@ describe("LeagueService",
             await module.close()
         })
 
+        describe("getGlobalLeaderboard",
+            () => {
+                it("returns viewer-relative follow truth in the top-list query without N+1 reads",
+                    async () => {
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: "leader", username: "leader", avatar: null, points: "50", is_following: true
+                                },
+                                {
+                                    id: userId, username: "viewer", avatar: null, points: "10", is_following: true
+                                },
+                            ])
+                            .mockResolvedValueOnce([{
+                                my_points: "10", my_rank: 2
+                            }])
+
+                        const result = await service.getGlobalLeaderboard(userId,
+                            50)
+
+                        expect(result.entries[0].isFollowing).toBe(true)
+                        expect(result.entries[1].isFollowing).toBe(false)
+                        expect(entityManager.query).toHaveBeenCalledTimes(2)
+                        expect(entityManager.query.mock.calls[0][0]).toContain("user_follows")
+                        expect(entityManager.query.mock.calls[0][1]).toEqual([50,
+                            userId])
+                    })
+            })
+
         describe("placeUserLazily (via getMyStanding)",
             () => {
                 it("places a never-seen user into Bronze + a freshly-created open cohort",

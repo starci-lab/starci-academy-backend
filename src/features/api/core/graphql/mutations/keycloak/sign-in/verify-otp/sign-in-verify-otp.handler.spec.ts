@@ -23,8 +23,8 @@ import {
     ChallengeOtpNotFoundException,
 } from "@modules/platform/exceptions/errors/users/otp"
 import {
-    UserNotFoundException,
-} from "@modules/platform/exceptions/errors/users/user"
+    EmailBloomFilterService,
+} from "@modules/bussiness/bloom-filters/email.service"
 import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
@@ -48,6 +48,7 @@ describe("SignInVerifyOtpHandler",
         let entityManager: EntityManagerMock
         let jwtService: jest.Mocked<Pick<JwtService, "decode">>
         let otpChallengeService: jest.Mocked<Pick<OtpChallengeService, "verifyActionChallenge">>
+        let emailBloomFilterService: jest.Mocked<Pick<EmailBloomFilterService, "add">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
@@ -62,6 +63,9 @@ describe("SignInVerifyOtpHandler",
             otpChallengeService = {
                 verifyActionChallenge: jest.fn(),
             } as unknown as jest.Mocked<Pick<OtpChallengeService, "verifyActionChallenge">>
+            emailBloomFilterService = {
+                add: jest.fn(),
+            }
 
             module = await Test.createTestingModule({
                 providers: [
@@ -77,6 +81,10 @@ describe("SignInVerifyOtpHandler",
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: EmailBloomFilterService,
+                        useValue: emailBloomFilterService,
                     },
                 ],
             }).compile()
@@ -193,7 +201,7 @@ describe("SignInVerifyOtpHandler",
                 ).rejects.toBeInstanceOf(InvalidJwtPayloadException)
             })
 
-        it("throws when no local user matches the decoded subject",
+        it("provisions the local credential user when the Keycloak subject signs in first",
             async () => {
                 // OTP valid, token decodes, but the local user row is missing
                 otpChallengeService.verifyActionChallenge.mockResolvedValueOnce({
@@ -207,19 +215,35 @@ describe("SignInVerifyOtpHandler",
                 } as never)
                 jwtService.decode.mockReturnValueOnce({
                     sub: "kc-1",
+                    email: "user@example.com",
+                    preferred_username: "user@example.com",
                 } as never)
                 entityManager.findOne.mockResolvedValueOnce(null)
 
-                await expect(
-                    handler.execute(
-                        new SignInVerifyOtpCommand({
-                            request: {
-                                challengeId: "chal-1",
-                                otp: "123456",
-                            },
-                        }),
-                    ),
-                ).rejects.toBeInstanceOf(UserNotFoundException)
+                await expect(handler.execute(
+                    new SignInVerifyOtpCommand({
+                        request: {
+                            challengeId: "chal-1",
+                            otp: "123456",
+                        },
+                    }),
+                )).resolves.toEqual({
+                    data: {
+                        accessToken: "access-1" 
+                    },
+                    refreshToken: "refresh-1",
+                })
+                expect(entityManager.create).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
+                        keycloakId: "kc-1",
+                        email: "user@example.com",
+                        username: "user",
+                        authenticationType: "credentials",
+                    }),
+                )
+                expect(entityManager.save).toHaveBeenCalled()
+                expect(emailBloomFilterService.add).toHaveBeenCalledWith("user@example.com")
             })
 
     })

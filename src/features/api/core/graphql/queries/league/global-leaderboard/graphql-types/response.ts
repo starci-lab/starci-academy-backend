@@ -60,6 +60,14 @@ export class GlobalLeaderboardEntryData {
         },
     )
         rank: number
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether the asking viewer currently follows this user.",
+        },
+    )
+        isFollowing: boolean
 }
 
 @ObjectType({

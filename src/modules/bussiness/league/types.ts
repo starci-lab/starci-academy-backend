@@ -148,6 +148,8 @@ export interface GlobalLeaderboardMember {
     points: number
     /** 1-based rank across all users, descending by points then user id. */
     rank: number
+    /** Whether the asking viewer currently follows this member. */
+    isFollowing: boolean
 }
 
 /**
@@ -176,4 +178,6 @@ export interface GlobalLeaderboardRow {
     avatar: string | null
     /** The user's spendable Coin balance. */
     points: string | number
+    /** Batched viewer-relative follow truth returned by the leaderboard query. */
+    is_following: boolean
 }
