@@ -222,6 +222,12 @@ import {
     CourseStatsProjectionEntity,
 } from "./entities/course-stats-projection.entity"
 import {
+    CourseReviewStatsProjectionEntity,
+} from "./entities/course-review-stats-projection.entity"
+import {
+    CourseReviewEntity,
+} from "./entities/course-review.entity"
+import {
     CourseTranslationEntity,
 } from "./entities/course-translation.entity"
 import {
@@ -719,6 +725,10 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     UserStatsProjectionEntity,
                                     UserStatsProjectionTranslationEntity,
                                     CourseStatsProjectionEntity,
+
+                                    CourseReviewEntity,
+
+                                    CourseReviewStatsProjectionEntity,
                                     CourseStatsProjectionTranslationEntity,
                                     AdvertisementEntity,
                                     ChangelogEntryEntity,
@@ -936,6 +946,10 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         UserStatsProjectionEntity,
                         UserStatsProjectionTranslationEntity,
                         CourseStatsProjectionEntity,
+
+                        CourseReviewEntity,
+
+                        CourseReviewStatsProjectionEntity,
                         CourseStatsProjectionTranslationEntity,
                         AdvertisementEntity,
                         ChangelogEntryEntity,

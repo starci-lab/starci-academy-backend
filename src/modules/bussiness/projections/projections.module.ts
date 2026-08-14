@@ -19,6 +19,9 @@ import {
     CourseStatsProjectionModule,
 } from "./course-stats/course-stats-projection.module"
 import {
+    CourseReviewStatsProjectionModule,
+} from "./course-review-stats/course-review-stats-projection.module"
+import {
     ContributionProjectionModule,
 } from "./contribution/contribution-projection.module"
 import {
@@ -82,6 +85,7 @@ export class ProjectionsModule extends ConfigurableModuleClass {
             ContentEngagementProjectionModule.register(options),
             UserStatsProjectionModule.register(options),
             CourseStatsProjectionModule.register(options),
+            CourseReviewStatsProjectionModule.register(options),
             ContributionProjectionModule.register(options),
             UserCodingProjectionModule.register(options),
             UserXpProjectionModule.register(options),

@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "task": "coding-domain-enablers",
+  "phase": "apply",
+  "status": "confirmed",
+  "trustRoot": "D:\\Repositories\\starci-academy-backend\\.claude",
+  "skill": {
+    "name": "starci-be-feature-plan",
+    "path": "D:\\Repositories\\starci-academy-backend\\.claude\\skills\\starci-be-feature-plan\\SKILL.md"
+  },
+  "targets": [
+    {
+      "role": "implementation-target",
+      "repo": "starci-academy-backend",
+      "gitRoot": "D:\\Repositories\\starci-academy-backend",
+      "branch": "mtp",
+      "worktree": "D:\\Repositories\\starci-academy-backend",
+      "head": "b75ba232",
+      "remote": "https://github.com/starci-lab/starci-academy-backend",
+      "app": "core",
+      "database": "postgresql/primary + elasticsearch catalog index"
+    }
+  ],
+  "references": [
+    {
+      "role": "requesting-case",
+      "repo": "starci-academy-fe",
+      "path": ".artifacts/design-plan/coding-practice/plan-record.json",
+      "purpose": "approved enabler proposals for direction-path-first"
+    }
+  ],
+  "artifactRoot": "D:\\Repositories\\starci-academy-backend\\.artifacts\be-feature\\coding-domain-enablers",
+  "writeBoundary": [
+    "src/features/api/core/graphql/queries/coding/coding-domain-summary/**",
+    "src/features/api/core/graphql/queries/coding/coding.module.ts",
+    "src/features/api/core/graphql/queries/coding/coding-problems/graphql-types/request.ts",
+    "src/features/api/core/graphql/queries/coding/coding-problems/coding-problems.resolver.ts",
+    "src/features/api/core/graphql/queries/coding/my-coding-progress/my-coding-progress.resolver.ts",
+    "src/features/api/core/graphql/queries/coding/my-coding-progress/my-coding-progress.module.ts",
+    "src/features/api/core/graphql/queries/coding/my-coding-progress/graphql-types/response.ts",
+    "src/modules/bussiness/coding/types.ts",
+    "src/modules/bussiness/coding/coding-problem.service.ts",
+    "src/modules/bussiness/coding/coding-problem.service.spec.ts"
+  ],
+  "readOnlyBoundary": [
+    "src/**",
+    "apps/**",
+    "the trust tree",
+    "starci-academy-fe"
+  ],
+  "runtime": {
+    "kind": "none",
+    "note": "API unreachable at localhost:3001; operations enumerated from the folder tree instead of the live schema"
+  },
+  "evidence": [
+    "nest-cli.json names six projects; coding lives only under features/api/core",
+    "coding_problems and coding_submissions are postgresql/primary entities",
+    "the catalog list reads a per-locale Elasticsearch index"
+  ],
+  "inheritedFrom": "context-lock.plan.json",
+  "detectedAt": "2026-08-14",
+  "confirmation": {
+    "kind": "explicit",
+    "evidence": "vay ghi di",
+    "confirms": "repo starci-academy-backend, branch mtp, exactly the 17 paths listed in the architecture record",
+    "at": "2026-08-14"
+  },
+  "driftCheck": {
+    "result": "none",
+    "compared": [
+      "trustRoot",
+      "targetRoot",
+      "branch",
+      "head",
+      "remote",
+      "app",
+      "databaseConnection",
+      "artifactRoot"
+    ],
+    "note": "Another session has uncommitted work in src/ (course-review feature). Checked path by path: no overlap with this write boundary."
+  }
+}
