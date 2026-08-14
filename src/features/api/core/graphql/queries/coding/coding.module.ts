@@ -25,6 +25,9 @@ import {
 import {
     MyCodingProgressSingleQueryModule,
 } from "./my-coding-progress/my-coding-progress.module"
+import {
+    CodingDomainSummarySingleQueryModule,
+} from "./coding-domain-summary/coding-domain-summary.module"
 
 @Module({
     imports: [
@@ -49,10 +52,14 @@ import {
         CodingLeaderboardSingleQueryModule.register({
             isGlobal: true,
         }),
+        CodingDomainSummarySingleQueryModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 /**
  * Coding-practice query group: problem list/detail, per-user progress/status,
- * submission history, the solved-count leaderboard, and problem-title typeahead.
+ * submission history, the solved-count leaderboard, per-domain catalog sizes, and
+ * problem-title typeahead.
  */
 export class CodingQueriesModule extends ConfigurableModuleClass {}

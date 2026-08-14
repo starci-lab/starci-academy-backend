@@ -15,6 +15,9 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
+    CodingDomain,
+} from "@modules/databases/postgresql/primary/enums/coding-domain"
+import {
     CodingProblemNotFoundException,
 } from "@modules/platform/exceptions/errors/coding/coding-problem-not-found"
 import {
@@ -159,6 +162,106 @@ describe("CodingProblemService",
                                 tags: "array",
                             },
                         })
+                    })
+
+
+                /*
+                 * THE DOMAIN FILTER, enumerated before it was written:
+                 *   1. absent                    -> no domain term at all
+                 *   2. present                   -> exactly one, and `enabled` survives
+                 *   3. with difficulty and tag   -> four clauses, none dropped
+                 *   4. a domain with no problems -> an empty page, not an error
+                 *
+                 * `domain` is the closed enum the entity documents as the field the list is grouped
+                 * by; `tags` beside it is free text. Filtering by the wrong one returns a
+                 * different, overlapping set and nothing fails, which is why case 3 asserts both
+                 * survive together.
+                 */
+                it("sends no domain term when no domain is asked for",
+                    async () => {
+                        programSearch([],
+                            0)
+
+                        await service.list({
+                        })
+
+                        const body = elasticsearchClient.search.mock.calls[0][0]
+                        const filter = body.query.bool.filter as Array<Record<string, unknown>>
+                        expect(filter).toEqual([
+                            {
+                                term: {
+                                    enabled: true,
+                                },
+                            },
+                        ])
+                    })
+
+                it("narrows to one domain, keeping the enabled gate",
+                    async () => {
+                        programSearch([],
+                            0)
+
+                        await service.list({
+                            domain: CodingDomain.SlidingWindow,
+                        })
+
+                        const body = elasticsearchClient.search.mock.calls[0][0]
+                        const filter = body.query.bool.filter as Array<Record<string, unknown>>
+                        expect(filter).toHaveLength(2)
+                        expect(filter).toContainEqual({
+                            term: {
+                                enabled: true,
+                            },
+                        })
+                        expect(filter).toContainEqual({
+                            term: {
+                                domain: CodingDomain.SlidingWindow,
+                            },
+                        })
+                    })
+
+                it("keeps domain, difficulty and tag together without dropping any",
+                    async () => {
+                        programSearch([],
+                            0)
+
+                        await service.list({
+                            domain: CodingDomain.Graph,
+                            difficulty: "hard" as never,
+                            tag: "bfs",
+                        })
+
+                        const body = elasticsearchClient.search.mock.calls[0][0]
+                        const filter = body.query.bool.filter as Array<Record<string, unknown>>
+                        expect(filter).toHaveLength(4)
+                        expect(filter).toContainEqual({
+                            term: {
+                                domain: CodingDomain.Graph,
+                            },
+                        })
+                        expect(filter).toContainEqual({
+                            term: {
+                                difficulty: "hard",
+                            },
+                        })
+                        expect(filter).toContainEqual({
+                            term: {
+                                tags: "bfs",
+                            },
+                        })
+                    })
+
+                it("returns an empty page for a domain that holds nothing",
+                    async () => {
+                        programSearch([],
+                            0)
+
+                        const result = await service.list({
+                            domain: CodingDomain.Matrix,
+                        })
+
+                        expect(result.problems).toEqual([])
+                        expect(result.total).toBe(0)
                     })
 
                 it("paginates with the right from/size",

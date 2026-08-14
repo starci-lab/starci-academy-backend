@@ -49,7 +49,7 @@ export class CodingProblemService {
 
     /**
      * List enabled problems (the shared catalog) from the per-locale Elasticsearch
-     * index with optional difficulty/tag filters + pagination. Per-user state
+     * index with optional difficulty/domain/tag filters + pagination. Per-user state
      * (solved/points) is served separately by {@link CodingProgressService} -- the
      * catalog here carries no user-specific data. Documents are pre-localized
      * (title) and only catalog fields are returned (never testcases/solutions).
@@ -59,6 +59,7 @@ export class CodingProblemService {
      */
     async list({
         difficulty,
+        domain,
         tag,
         page = 1,
         limit = DEFAULT_PAGE_SIZE,
@@ -81,6 +82,15 @@ export class CodingProblemService {
             filter.push({
                 term: {
                     difficulty,
+                },
+            })
+        }
+        // the closed topic enum, not the free-text tag facet beside it -- filtering by tag would
+        // return a different, overlapping set
+        if (domain) {
+            filter.push({
+                term: {
+                    domain,
                 },
             })
         }

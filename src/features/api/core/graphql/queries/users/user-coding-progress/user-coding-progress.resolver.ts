@@ -28,6 +28,12 @@ import {
     CodingProgressService,
 } from "@modules/bussiness/coding/coding-progress.service"
 import {
+    UserCodingProjectionService,
+} from "@modules/bussiness/projections/user-coding/user-coding-projection.service"
+import {
+    CodingDomain,
+} from "@modules/databases/postgresql/primary/enums/coding-domain"
+import {
     GraphQLProfileVisibilityGuard,
 } from "@modules/bussiness/guards/graphql-profile-visibility.guard"
 import type {
@@ -48,6 +54,7 @@ import {
 export class UserCodingProgressResolver {
     constructor(
         private readonly codingProgressService: CodingProgressService,
+        private readonly userCodingProjectionService: UserCodingProjectionService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -75,9 +82,29 @@ export class UserCodingProgressResolver {
         )
             userId: string,
     ): Promise<MyCodingProgressResponseData> {
-        // cached per-user progress (computed on miss, invalidated on submit)
-        return this.codingProgressService.getProgress({
-            userId,
-        })
+        /*
+         * The same composition `myCodingProgress` makes, for the same reason: the ids and points
+         * come from the progress cache, the per-domain rollup from the coding projection that
+         * already runs that GROUP BY. The two operations share one response type deliberately, so
+         * they must fill the same fields.
+         *
+         * Nothing new is disclosed here: `userCodingSkills` already returns this user's `byDomain`
+         * publicly, behind the same profile-visibility guard.
+         */
+        const [progress,
+            skills] = await Promise.all([
+            this.codingProgressService.getProgress({
+                userId,
+            }),
+            this.userCodingProjectionService.getSkills(userId),
+        ])
+
+        return {
+            ...progress,
+            byDomain: skills.byDomain.map((bucket) => ({
+                domain: bucket.key as CodingDomain,
+                solved: bucket.solved,
+            })),
+        }
     }
 }

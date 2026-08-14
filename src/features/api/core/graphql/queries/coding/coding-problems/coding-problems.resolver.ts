@@ -76,6 +76,7 @@ export class CodingProblemsResolver {
         // catalog only -- per-user solved/points come from the myCodingProgress query
         return this.codingProblemService.list({
             difficulty: request.difficulty,
+            domain: request.domain,
             tag: request.tag,
             page: request.page,
             limit: request.limit,

@@ -10,6 +10,34 @@ import {
 import {
     IAbstractGraphQLResponse,
 } from "@modules/api/apollo/server/types/graphql-response"
+import {
+    CodingDomain,
+    GraphQLTypeCodingDomain,
+} from "@modules/databases/postgresql/primary/enums/coding-domain"
+
+@ObjectType({
+    description: "Distinct problems the viewer has solved in one interview topic domain.",
+})
+/** One domain and how many of its problems the viewer has solved. */
+export class MyCodingDomainSolvedObject {
+    /** The domain. */
+    @Field(
+        () => GraphQLTypeCodingDomain,
+        {
+            description: "The interview topic domain.",
+        },
+    )
+        domain: CodingDomain
+
+    /** Distinct problems solved in it. */
+    @Field(
+        () => Int,
+        {
+            description: "Number of distinct problems the viewer has solved in this domain.",
+        },
+    )
+        solved: number
+}
 
 @ObjectType({
     description: "Per-user coding progress: solved/attempted/revealed ids + total points.",
@@ -51,6 +79,25 @@ export class MyCodingProgressResponseData {
         },
     )
         totalPoints: number
+
+    /**
+     * Distinct problems solved, grouped by domain.
+     *
+     * A domain the viewer has never solved in is ABSENT rather than present with zero -- this is a
+     * GROUP BY, and a group with no rows produces no bucket. The twenty-member enum is public, so a
+     * caller that wants all twenty composes them against this list.
+     *
+     * It is read from the coding projection rather than recomputed here. That projection already
+     * runs exactly this rollup for the public profile, and running it a second time would put the
+     * same GROUP BY in two files and stack two staleness policies over one number.
+     */
+    @Field(
+        () => [MyCodingDomainSolvedObject],
+        {
+            description: "Distinct problems solved, grouped by domain. A domain with no solves is absent rather than zero.",
+        },
+    )
+        byDomain: Array<MyCodingDomainSolvedObject>
 }
 
 @ObjectType({

@@ -10,6 +10,9 @@ import type {
 import type {
     CodingDifficulty,
 } from "@modules/databases/postgresql/primary/enums/coding-difficulty"
+import {
+    CodingDomain,
+} from "@modules/databases/postgresql/primary/enums/coding-domain"
 import type {
     CodingLanguage,
 } from "@modules/databases/postgresql/primary/enums/coding-language"
@@ -42,6 +45,13 @@ export interface CodingClientTelemetry {
 export interface ListCodingProblemsParams {
     /** Filter by difficulty tier. */
     difficulty?: CodingDifficulty
+    /**
+     * Filter to one interview topic domain.
+     *
+     * Distinct from {@link ListCodingProblemsParams.tag}: tags are free text on the problem, the
+     * domain is the closed enum the entity documents as the field the list is grouped by.
+     */
+    domain?: CodingDomain
     /** Filter to problems carrying this tag. */
     tag?: string
     /** 1-based page number. */
