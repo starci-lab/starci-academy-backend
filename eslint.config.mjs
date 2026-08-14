@@ -1,3 +1,21 @@
+// >>> sync-be-lint.mjs -- canon rule wiring, do not edit by hand >>>
+/*
+ * The rules are authored in the trust tree and MIRRORED here by sync-be-lint.mjs. Do not edit
+ * anything under plugins/eslint-canon/ and do not add a rule to it: the next run overwrites the
+ * folder, and a rule that exists only here is a second answer to a question canon already answers.
+ *
+ * What this repository does own is the config below - which globs the rules apply to, and which of
+ * them are switched on today. Register the plugin under the name canon publishes:
+ *
+ *   plugins: { "starci-be": starciBeCanon },
+ *   rules: { ...starciBeCanonRecommended, ... },
+ */
+import starciBeCanon, {
+    recommended as starciBeCanonRecommended,
+} from "./plugins/eslint-canon/index.mjs"
+// <<< sync-be-lint.mjs -- canon rule wiring <<<
+
+
 import js from "@eslint/js"
 import globals from "globals"
 import tseslint from "typescript-eslint"
@@ -103,9 +121,33 @@ export default defineConfig([
         // without the front end actually returning.
         files: ["src/**/*.ts", "apps/**/*.ts"],
         plugins: {
-            "starci-be": starciBe,
+            // One namespace, two sources, and the order is the transition: canon first, the local
+            // plugin last, so while both exist the repository's own copy still decides every name
+            // they share and canon supplies only the rules there is no local copy of. Flipping the
+            // order is the adoption step, and it is a decision with findings attached — canon's
+            // `no-inline-param-type` and `no-framework-logger` are stricter than the copies here.
+            //
+            // `plugins/eslint-canon/` is written by <trust-root>/scripts/sync-be-lint.mjs and is
+            // never edited in place. Run that script to see drift; a rule added only to the mirror
+            // is erased by the next run.
+            "starci-be": {
+                meta: {
+                    name: "eslint-plugin-starci-be",
+                },
+                rules: {
+                    ...starciBeCanon.rules,
+                    ...starciBe.rules,
+                },
+            },
         },
         rules: {
+            // The three identity rules canon added, all three at `error` since their ledger entry
+            // closed (nợ=0, 2026-08-14). The level is READ from canon rather than written here, so
+            // a rule whose ledger line moves in the trust tree flips on the next sync instead of
+            // waiting for somebody to remember this file.
+            "starci-be/exception-metadata-type-named-for-class": starciBeCanonRecommended["starci-be/exception-metadata-type-named-for-class"],
+            "starci-be/exception-code-matches-class-name": starciBeCanonRecommended["starci-be/exception-code-matches-class-name"],
+            "starci-be/exception-name-ends-in-exception": starciBeCanonRecommended["starci-be/exception-name-ends-in-exception"],
             "starci-be/no-ai-symbol": "error", // nợ=0 -> error · comments stay ASCII (auto-fixable)
             "starci-be/no-emoji": "error", // nợ=0 → error · emoji carry tone, not information
             "starci-be/no-vietnamese": "error", // comments.md · nợ=0 → error

@@ -42,11 +42,17 @@ reuse evidence, and a named legacy render owns migration parity.
 ## Working boundary
 
 - There is one trust tree: `.claude/` in this repository.
-- **The FE lint rules are authored here and nowhere else.** A consuming repository carries a
-  GENERATED mirror of `.claude/sources/fe/`, written and re-verified by
-  [`.claude/scripts/sync-fe-lint.mjs`](.claude/scripts/sync-fe-lint.mjs). The mirror is never edited
+- **The lint rules, front end and back end, are authored here and nowhere else.** A consuming
+  repository carries a GENERATED mirror — of `.claude/sources/fe/`, written and re-verified by
+  [`.claude/scripts/sync-fe-lint.mjs`](.claude/scripts/sync-fe-lint.mjs), or of
+  `.claude/sources/be/`, written by
+  [`.claude/scripts/sync-be-lint.mjs`](.claude/scripts/sync-be-lint.mjs). The mirror is never edited
   in place, never hand-merged, and never grows a rule of its own; drift from this tree is a gate
   failure, not a local decision.
+
+  The back-end script will not remove a repository's hand-written plugin while that plugin still
+  publishes a rule canon does not. The front-end removal cost seven live rules that are still owed
+  back, and an adoption that subtracts enforcement is not adoption.
 
   A mirror rather than a cross-repository import, because an import that climbs out of the
   repository root is only correct while both checkouts sit side by side — a repository cloned alone,
