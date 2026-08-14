@@ -25,6 +25,15 @@ import {
 import {
     RefundCoursePurchaseSingleMutationModule,
 } from "./refund-course-purchase/refund-course-purchase.module"
+import {
+    SubmitCourseReviewSingleMutationModule,
+} from "./submit-course-review/submit-course-review.module"
+import {
+    UpdateCourseReviewSingleMutationModule,
+} from "./update-course-review/update-course-review.module"
+import {
+    DeleteCourseReviewSingleMutationModule,
+} from "./delete-course-review/delete-course-review.module"
 
 @Module({
     imports: [
@@ -44,6 +53,15 @@ import {
             isGlobal: true,
         }),
         ClearCartSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        SubmitCourseReviewSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        UpdateCourseReviewSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        DeleteCourseReviewSingleMutationModule.register({
             isGlobal: true,
         }),
         RefundCoursePurchaseSingleMutationModule.register({

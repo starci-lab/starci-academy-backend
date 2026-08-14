@@ -13,7 +13,7 @@ import {
     PaymentType,
 } from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
-    CourseAlreadyEnrolledError,
+    CourseAlreadyEnrolledException,
 } from "@modules/platform/exceptions/errors/courses/course-already-enrolled"
 import {
     UnsupportedPaymentTypeException,
@@ -201,7 +201,7 @@ describe("CourseEnrollHandler",
                             user: fakeUser("user-1"),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(CourseAlreadyEnrolledError)
+                ).rejects.toBeInstanceOf(CourseAlreadyEnrolledException)
 
                 // no provider service is invoked for a duplicate enrollment
                 expect(payos.execute).not.toHaveBeenCalled()

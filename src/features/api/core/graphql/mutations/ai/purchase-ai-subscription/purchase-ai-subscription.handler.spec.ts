@@ -22,7 +22,7 @@ import {
     AiSubscriptionTierNotAvailableException,
 } from "@modules/platform/exceptions/errors/ai/ai-subscription-tier-not-available"
 import {
-    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException,
 } from "@modules/platform/exceptions/errors/courses/payos-return-url-and-payos-cancel-url-must-be-required"
 import {
     UserNotFoundException,
@@ -334,7 +334,7 @@ describe("PurchaseAiSubscriptionHandler",
                             user: fakeUser("user-1"),
                         }),
                     ),
-                ).rejects.toBeInstanceOf(PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError)
+                ).rejects.toBeInstanceOf(PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException)
 
                 // no payment link is created when a redirect URL is missing
                 expect(payos.paymentRequests.create).not.toHaveBeenCalled()

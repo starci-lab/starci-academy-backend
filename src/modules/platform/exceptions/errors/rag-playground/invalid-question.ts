@@ -5,6 +5,9 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Metadata for an empty RAG Playground question. */
+export type RagPlaygroundInvalidQuestionExceptionMetadata = AbstractExceptionMetadata
+
 /**
  * The RAG Playground question is empty (after trimming) -- nothing to ask.
  */
@@ -15,7 +18,7 @@ export class RagPlaygroundInvalidQuestionException extends AbstractException {
     constructor(
         {
             originalError,
-        }: AbstractExceptionMetadata = {
+        }: RagPlaygroundInvalidQuestionExceptionMetadata = {
         },
     ) {
         super(

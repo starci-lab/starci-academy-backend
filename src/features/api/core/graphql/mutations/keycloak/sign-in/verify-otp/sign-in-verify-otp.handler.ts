@@ -27,7 +27,7 @@ import {
     ChallengeOtpMismatchException,
 } from "@modules/platform/exceptions/errors/users/otp"
 import {
-    InvalidJwtPayloadException,
+    KeycloakJwtInvalidPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     AuthenticationType,
@@ -130,7 +130,7 @@ export class SignInVerifyOtpHandler
 
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(accessToken)
         if (!decoded || typeof decoded === "string" || !decoded.sub) {
-            throw new InvalidJwtPayloadException(
+            throw new KeycloakJwtInvalidPayloadException(
                 {
                     payload: decoded,
                 }

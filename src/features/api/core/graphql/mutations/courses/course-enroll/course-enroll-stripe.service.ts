@@ -20,7 +20,7 @@ import {
     CourseNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/course-not-found"
 import {
-    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException,
 } from "@modules/platform/exceptions/errors/courses/payos-return-url-and-payos-cancel-url-must-be-required"
 import {
     MissingUsdPriceException,
@@ -222,7 +222,7 @@ export class CourseEnrollStripeService {
 
         // Stripe needs explicit success/cancel redirect URLs
         if (!payosReturnUrl || !payosCancelUrl) {
-            throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+            throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException({
                 hasPayOsReturnUrl: Boolean(payosReturnUrl),
                 hasPayOsCancelUrl: Boolean(payosCancelUrl),
             })

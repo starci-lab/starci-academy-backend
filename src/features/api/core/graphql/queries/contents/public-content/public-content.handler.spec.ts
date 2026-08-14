@@ -16,7 +16,7 @@ import {
     PublicContentQuery,
 } from "./public-content.query"
 import {
-    ContentContextNotFound,
+    ContentContextNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/content-context-not-found"
 import {
     ContentNotFoundException,
@@ -103,7 +103,7 @@ describe("PublicContentHandler",
                             },
                         }),
                     ),
-                ).rejects.toBeInstanceOf(ContentContextNotFound)
+                ).rejects.toBeInstanceOf(ContentContextNotFoundException)
 
                 expect(s3ReadService.json).not.toHaveBeenCalled()
             })

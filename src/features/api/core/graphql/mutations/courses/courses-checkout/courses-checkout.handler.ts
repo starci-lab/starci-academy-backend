@@ -20,7 +20,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException,
 } from "@modules/platform/exceptions/errors/courses/payos-return-url-and-payos-cancel-url-must-be-required"
 import {
     CoursesCheckoutEmptyException,
@@ -335,7 +335,7 @@ export class CoursesCheckoutHandler
      *
      * @param params - Payment type, summed totals, order code, and redirect URLs.
      * @returns The gateway checkout URL, charged VND amount, and native payment id.
-     * @throws PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError when redirect URLs are missing.
+     * @throws PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException when redirect URLs are missing.
      * @throws MissingUsdPriceException when an international gateway has no USD total.
      */
     private async resolveCheckout({
@@ -351,7 +351,7 @@ export class CoursesCheckoutHandler
         case PaymentType.PayOS: {
             // PayOS needs explicit redirect URLs
             if (!returnUrl || !cancelUrl) {
-                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException({
                     hasPayOsReturnUrl: Boolean(returnUrl),
                     hasPayOsCancelUrl: Boolean(cancelUrl),
                 })
@@ -384,7 +384,7 @@ export class CoursesCheckoutHandler
         case PaymentType.Stripe: {
             // Stripe (redirect): needs explicit success/cancel URLs
             if (!returnUrl || !cancelUrl) {
-                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException({
                     hasPayOsReturnUrl: Boolean(returnUrl),
                     hasPayOsCancelUrl: Boolean(cancelUrl),
                 })
@@ -434,7 +434,7 @@ export class CoursesCheckoutHandler
         case PaymentType.Paypal: {
             // PayPal (redirect): needs explicit return/cancel URLs
             if (!returnUrl || !cancelUrl) {
-                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException({
                     hasPayOsReturnUrl: Boolean(returnUrl),
                     hasPayOsCancelUrl: Boolean(cancelUrl),
                 })
@@ -467,7 +467,7 @@ export class CoursesCheckoutHandler
         case PaymentType.Crypto: {
             // NOWPayments (redirect): needs explicit success/cancel URLs
             if (!returnUrl || !cancelUrl) {
-                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException({
                     hasPayOsReturnUrl: Boolean(returnUrl),
                     hasPayOsCancelUrl: Boolean(cancelUrl),
                 })

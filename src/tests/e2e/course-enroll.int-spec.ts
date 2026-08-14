@@ -56,7 +56,7 @@ import {
     PrimaryPostgreSQLModule,
 } from "@modules/databases/postgresql/primary/primary.module"
 import {
-    CourseAlreadyEnrolledError,
+    CourseAlreadyEnrolledException,
 } from "@modules/platform/exceptions/errors/courses/course-already-enrolled"
 import {
     InstallmentCurrencyNotSupportedException,
@@ -707,7 +707,7 @@ describe("Course enroll — all gateways (integration)",
                                     user,
                                 }),
                             ),
-                        ).rejects.toThrow(CourseAlreadyEnrolledError)
+                        ).rejects.toThrow(CourseAlreadyEnrolledException)
 
                         expect(payosClient.paymentRequests.create).not.toHaveBeenCalled()
                         const count = await entityManager.count(TransactionEntity)

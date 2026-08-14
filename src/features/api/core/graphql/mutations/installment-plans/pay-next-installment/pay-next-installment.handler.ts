@@ -29,7 +29,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+    PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException,
 } from "@modules/platform/exceptions/errors/courses/payos-return-url-and-payos-cancel-url-must-be-required"
 import {
     InstallmentAmountBelowMinimumException,
@@ -303,7 +303,7 @@ export class PayNextInstallmentHandler
      * MVP is VND-only, see the class doc comment).
      *
      * @param params - Payment type, the cycle's charged amount, order code, and redirect URLs.
-     * @throws PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError when PayOS redirect URLs are missing.
+     * @throws PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException when PayOS redirect URLs are missing.
      * @throws InstallmentCurrencyNotSupportedException when the payment type is not PayOS or Sepay.
      */
     private async resolveCheckout({
@@ -316,7 +316,7 @@ export class PayNextInstallmentHandler
         switch (paymentType) {
         case PaymentType.PayOS: {
             if (!returnUrl || !cancelUrl) {
-                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredException({
                     hasPayOsReturnUrl: Boolean(returnUrl),
                     hasPayOsCancelUrl: Boolean(cancelUrl),
                 })

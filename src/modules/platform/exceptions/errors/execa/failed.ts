@@ -32,7 +32,7 @@ export class ExecaExecutionFailedException extends AbstractException {
     ) {
         super(
             "Execution failed",
-            "EXECUTION_FAILED_EXCEPTION",
+            "EXECA_EXECUTION_FAILED_EXCEPTION",
             {
                 command,
                 args,

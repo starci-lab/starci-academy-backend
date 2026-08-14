@@ -45,7 +45,7 @@ import {
     JwtService,
 } from "@nestjs/jwt"
 import {
-    InvalidJwtPayloadException,
+    KeycloakJwtInvalidPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     EmailBloomFilterService,
@@ -92,7 +92,7 @@ export class ExchangeCodeForTokenHandler
         })
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(token.access_token)
         if (!decoded || typeof decoded === "string" || !decoded.sub) {
-            throw new InvalidJwtPayloadException(
+            throw new KeycloakJwtInvalidPayloadException(
                 {
                     payload: decoded,
                 }

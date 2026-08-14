@@ -6,21 +6,21 @@ import {
 } from "../abstract"
 
 /** Metadata when the user already has an enrollment for the course. */
-export interface CourseAlreadyEnrolledErrorMetadata extends AbstractExceptionMetadata {
+export interface CourseAlreadyEnrolledExceptionMetadata extends AbstractExceptionMetadata {
     courseId: string
     userId: string
 }
 
 /** Thrown when the user attempts checkout for a course they are already enrolled in. */
-export class CourseAlreadyEnrolledError extends AbstractException {
+export class CourseAlreadyEnrolledException extends AbstractException {
     constructor({
         courseId,
         userId,
         originalError,
-    }: CourseAlreadyEnrolledErrorMetadata) {
+    }: CourseAlreadyEnrolledExceptionMetadata) {
         super(
             "User is already enrolled in this course.",
-            "COURSE_ALREADY_ENROLLED_ERROR",
+            "COURSE_ALREADY_ENROLLED_EXCEPTION",
             {
                 courseId,
                 userId,

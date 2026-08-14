@@ -121,7 +121,10 @@ export class ChallengeOtpNotFoundException extends AbstractException {
     ) {
         super(
             "Challenge not found",
-            "CHALLENGE_NOT_FOUND_EXCEPTION",
+            // Was `CHALLENGE_NOT_FOUND_EXCEPTION`, which `ChallengeNotFoundException` in
+            // errors/courses/ already owned: a missing OTP challenge and a missing course
+            // challenge reached the client as one failure.
+            "CHALLENGE_OTP_NOT_FOUND_EXCEPTION",
             {
                 challengeId,
                 originalError,

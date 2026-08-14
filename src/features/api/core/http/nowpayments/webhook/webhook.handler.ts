@@ -51,7 +51,7 @@ import {
     TransactionCourseNotFoundException,
 } from "@modules/platform/exceptions/errors/transaction/transaction-course-not-found"
 import {
-    TransactionExpiredError,
+    TransactionExpiredException,
 } from "@modules/platform/exceptions/errors/transaction/transaction-expired"
 import {
     TransactionNotFoundException,
@@ -206,7 +206,7 @@ export class NowPaymentsWebhookHandler
             "milliseconds",
         )
         if (timeSinceCreationMs > envConfig().services.api.transaction.timeSinceCreationMs) {
-            throw new TransactionExpiredError({
+            throw new TransactionExpiredException({
                 id: transaction.id,
             })
         }

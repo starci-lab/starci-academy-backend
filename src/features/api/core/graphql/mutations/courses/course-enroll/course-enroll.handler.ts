@@ -14,7 +14,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    CourseAlreadyEnrolledError,
+    CourseAlreadyEnrolledException,
 } from "@modules/platform/exceptions/errors/courses/course-already-enrolled"
 import {
     InstallmentCurrencyNotSupportedException,
@@ -162,7 +162,7 @@ export class CourseEnrollHandler
             },
         )
         if (alreadyEnrolled) {
-            throw new CourseAlreadyEnrolledError({
+            throw new CourseAlreadyEnrolledException({
                 courseId,
                 userId: user.id,
             })

@@ -6,21 +6,21 @@ import {
 } from "../abstract"
 
 /** Metadata when `jwt.verify` yields a non-object payload. */
-export interface InvalidJwtPayloadExceptionMetadata extends AbstractExceptionMetadata {
+export interface KeycloakJwtInvalidPayloadExceptionMetadata extends AbstractExceptionMetadata {
     payload?: unknown
 }
 
 /** Thrown when the decoded JWT body is missing or not a claims object. */
-export class InvalidJwtPayloadException extends AbstractException {
+export class KeycloakJwtInvalidPayloadException extends AbstractException {
     constructor({
         payload,
         originalError,
-    }: InvalidJwtPayloadExceptionMetadata = {
+    }: KeycloakJwtInvalidPayloadExceptionMetadata = {
 
     }) {
         super(
             "JWT payload is invalid or not a claim set",
-            "KEYCLOAK_JWT_INVALID_PAYLOAD",
+            "KEYCLOAK_JWT_INVALID_PAYLOAD_EXCEPTION",
             {
                 payload,
                 originalError,

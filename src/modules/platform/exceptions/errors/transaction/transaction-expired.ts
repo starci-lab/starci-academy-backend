@@ -8,7 +8,7 @@ import {
 /**
  * Metadata when a transaction is already expired.
  */
-export interface TransactionExpiredErrorMetadata
+export interface TransactionExpiredExceptionMetadata
     extends AbstractExceptionMetadata {
     /** The ID of the expired transaction. */
     id: string
@@ -21,16 +21,16 @@ export interface TransactionExpiredErrorMetadata
 /**
  * Thrown when a transaction is outside the allowed time window.
  */
-export class TransactionExpiredError extends AbstractException {
+export class TransactionExpiredException extends AbstractException {
     constructor({
         id,
         timeSinceCreationMs,
         allowedTimeSinceCreationMs,
         originalError,
-    }: TransactionExpiredErrorMetadata) {
+    }: TransactionExpiredExceptionMetadata) {
         super(
             "Transaction expired",
-            "TRANSACTION_EXPIRED_ERROR",
+            "TRANSACTION_EXPIRED_EXCEPTION",
             {
                 id,
                 timeSinceCreationMs,

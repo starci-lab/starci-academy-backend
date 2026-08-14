@@ -74,7 +74,7 @@ describe("CourseHandler",
             await module.close()
         })
 
-        it("resolves the object key by displayId + locale and returns the read course",
+        it("prefers displayId over id when both arrive, so a shared link and a card serve the same object",
             async () => {
                 // program the S3 read to hand back a course document
                 s3ReadService.json.mockResolvedValueOnce(fakeCourse("course-1"))
@@ -97,19 +97,42 @@ describe("CourseHandler",
                 expect(result.id).toBe("course-1")
             })
 
-        it("throws when the request has no displayId (cannot resolve a key)",
+        it("resolves the object key by id when no displayId is given",
+            async () => {
+                // The synchronizer writes `courses/<id>/<locale>.json` for every entity as well as
+                // the display-id key, so a primary key addresses a real object. This used to throw:
+                // the handler assumed a key could not be built from an id, and the course catalog
+                // links by primary key, so every card reached the not-found notice.
+                s3ReadService.json.mockResolvedValueOnce(fakeCourse("course-1"))
+
+                const result = await handler.execute(
+                    new CourseQuery({
+                        request: {
+                            id: "course-1",
+                        },
+                        locale: Locale.En,
+                    }),
+                )
+
+                expect(s3NameResolverService.course).toHaveBeenCalledWith(
+                    "course-1",
+                    Locale.En,
+                )
+                expect(result.id).toBe("course-1")
+            })
+
+        it("throws when the request carries neither identifier",
             async () => {
                 await expect(
                     handler.execute(
                         new CourseQuery({
                             request: {
-                                id: "course-1",
                             },
                         }),
                     ),
                 ).rejects.toBeInstanceOf(CourseNotFoundException)
 
-                // never reaches the S3 read when the key cannot be resolved
+                // never reaches the S3 read when there is nothing to build a key from
                 expect(s3ReadService.json).not.toHaveBeenCalled()
             })
 

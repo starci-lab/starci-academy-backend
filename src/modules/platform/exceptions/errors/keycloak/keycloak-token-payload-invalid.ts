@@ -14,7 +14,7 @@ export type KeycloakTokenPayloadInvalidExceptionMetadata = AbstractExceptionMeta
 /**
  * Thrown when a decoded Keycloak access token's payload is missing or not a
  * valid claims object -- used by the register/login HTTP handlers (distinct
- * from {@link InvalidJwtPayloadException}, which guards the lower-level
+ * from {@link KeycloakJwtInvalidPayloadException}, which guards the lower-level
  * `jwt.verify` step).
  */
 export class KeycloakTokenPayloadInvalidException extends AbstractException {

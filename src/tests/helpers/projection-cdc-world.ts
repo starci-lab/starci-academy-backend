@@ -23,6 +23,9 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
+    CourseReviewStatsProjectionModule,
+} from "@modules/bussiness/projections/course-review-stats/course-review-stats-projection.module"
+import {
     ProgressProjectionModule,
 } from "@modules/bussiness/projections/progress/progress-projection.module"
 import {
@@ -107,6 +110,7 @@ export const createProjectionCdcWorld = async (): Promise<ProjectionCdcWorld> =>
         `${kafkaConfig.cdcTopicPrefix}user_challenge_submission_attempts`,
         `${kafkaConfig.cdcTopicPrefix}user_milestone_task_attempts`,
         `${kafkaConfig.cdcTopicPrefix}enrollments`,
+        `${kafkaConfig.cdcTopicPrefix}course_reviews`,
         `${kafkaConfig.cdcTopicPrefix}xp_histories`,
         `${kafkaConfig.cdcTopicPrefix}users`,
     ]
@@ -135,6 +139,9 @@ export const createProjectionCdcWorld = async (): Promise<ProjectionCdcWorld> =>
                 isGlobal: false,
             }),
             UserXpProjectionModule.register({
+                isGlobal: false,
+            }),
+            CourseReviewStatsProjectionModule.register({
                 isGlobal: false,
             }),
         ],

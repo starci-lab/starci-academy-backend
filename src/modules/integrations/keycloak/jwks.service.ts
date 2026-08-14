@@ -2,13 +2,13 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    HeaderKidNotFoundException,
+    KeycloakJwtHeaderKidNotFoundException,
 } from "@modules/platform/exceptions/errors/keycloak/header-kid-not-found"
 import {
-    InvalidJwtPayloadException,
+    KeycloakJwtInvalidPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
-    JwksSigningKeyNotFoundException,
+    KeycloakJwksSigningKeyNotFoundException,
 } from "@modules/platform/exceptions/errors/keycloak/jwks-signing-key-not-found"
 import {
     envConfig,
@@ -56,7 +56,7 @@ export class KeycloakJwksService {
     ) => {
         if (!header.kid) {
             callback(
-                new HeaderKidNotFoundException({
+                new KeycloakJwtHeaderKidNotFoundException({
                     alg: header.alg,
                     typ: header.typ,
                 }),
@@ -72,7 +72,7 @@ export class KeycloakJwksService {
                 }
                 if (!key) {
                     callback(
-                        new JwksSigningKeyNotFoundException({
+                        new KeycloakJwksSigningKeyNotFoundException({
                         }),
                     )
                     return
@@ -117,7 +117,7 @@ export class KeycloakJwksService {
                             }
                             if (!payload || typeof payload === "string") {
                                 reject(
-                                    new InvalidJwtPayloadException({
+                                    new KeycloakJwtInvalidPayloadException({
                                         payload,
                                     }),
                                 )

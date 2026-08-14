@@ -11,7 +11,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    ContentContextNotFound,
+    ContentContextNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/content-context-not-found"
 import {
     ContentNotFoundException,
@@ -112,7 +112,7 @@ export class ContentHandler
             user?.email,
         )
         if (!request.id && !request.displayId) {
-            throw new ContentContextNotFound(
+            throw new ContentContextNotFoundException(
                 {
                     displayId: request.displayId,
                     id: request.id,

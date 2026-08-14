@@ -22,7 +22,7 @@ export class CoursePathNameNotFoundException extends AbstractException {
     ) {
         super(
             `Course dir: no mount directory for index ${courseIndex}`,
-            "COURSE_DIR_NAME_NOT_FOUND_EXCEPTION",
+            "COURSE_PATH_NAME_NOT_FOUND_EXCEPTION",
             {
                 courseIndex,
                 originalError,

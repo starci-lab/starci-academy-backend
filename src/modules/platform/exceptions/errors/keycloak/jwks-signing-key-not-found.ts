@@ -6,16 +6,16 @@ import {
 } from "../abstract"
 
 /** Metadata when JWKS returns no key for `kid`. */
-export type JwksSigningKeyNotFoundExceptionMetadata = AbstractExceptionMetadata
+export type KeycloakJwksSigningKeyNotFoundExceptionMetadata = AbstractExceptionMetadata
 
 /** Thrown when the realm JWKS document has no matching key for the token `kid`. */
-export class JwksSigningKeyNotFoundException extends AbstractException {
+export class KeycloakJwksSigningKeyNotFoundException extends AbstractException {
     constructor({
         originalError,
-    }: JwksSigningKeyNotFoundExceptionMetadata) {
+    }: KeycloakJwksSigningKeyNotFoundExceptionMetadata) {
         super(
             "JWKS signing key not found for kid",
-            "KEYCLOAK_JWKS_SIGNING_KEY_NOT_FOUND",
+            "KEYCLOAK_JWKS_SIGNING_KEY_NOT_FOUND_EXCEPTION",
             {
                 originalError,
             },

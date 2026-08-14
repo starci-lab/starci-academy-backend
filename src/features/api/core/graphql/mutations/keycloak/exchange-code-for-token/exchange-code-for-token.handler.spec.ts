@@ -25,7 +25,7 @@ import {
     KeycloakIdentityProvider,
 } from "@modules/integrations/keycloak/types/tokens"
 import {
-    InvalidJwtPayloadException,
+    KeycloakJwtInvalidPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     UserEntity,
@@ -218,7 +218,7 @@ describe("ExchangeCodeForTokenHandler",
                             },
                         }),
                     ),
-                ).rejects.toBeInstanceOf(InvalidJwtPayloadException)
+                ).rejects.toBeInstanceOf(KeycloakJwtInvalidPayloadException)
 
                 // no user is loaded or created on an invalid token
                 expect(entityManager.findOne).not.toHaveBeenCalled()

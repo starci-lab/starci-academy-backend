@@ -27,7 +27,7 @@ import type {
     ForgotPasswordVerifyOtpCommandResult,
 } from "./graphql-types/response"
 import {
-    InvalidJwtPayloadException,
+    KeycloakJwtInvalidPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     ChallengeTokensNotFoundException,
@@ -136,7 +136,7 @@ export class ForgotPasswordVerifyOtpHandler
 
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(tokenResponse.access_token)
         if (!decoded || typeof decoded === "string" || !decoded.sub) {
-            throw new InvalidJwtPayloadException({
+            throw new KeycloakJwtInvalidPayloadException({
                 payload: decoded,
             })
         }

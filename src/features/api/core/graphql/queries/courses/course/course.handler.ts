@@ -30,8 +30,8 @@ import {
 @QueryHandler(CourseQuery)
 @Injectable()
 /**
- * Loads a single localized course JSON blob from MinIO by display id; throws
- * when the object is missing so the client gets a typed not-found.
+ * Loads a single localized course JSON blob from MinIO by display id OR primary key; throws
+ * when neither is supplied or the object is missing, so the client gets a typed not-found.
  */
 export class CourseHandler
     extends ICQRSHandler<CourseQuery, CourseEntity>
@@ -49,13 +49,30 @@ export class CourseHandler
             locale,
         } = query.params
 
-        if (!request.displayId) {
+        /*
+         * EITHER IDENTIFIER ADDRESSES THE SAME OBJECT, because the synchronizer writes both.
+         * `MaterializeAndUploadService` uploads `courses/<entity.id>/<locale>.json` for every
+         * entity and `courses/<entity.displayId>/<locale>.json` whenever a display id exists, so a
+         * primary key resolves to a real object without a database round trip - which is the whole
+         * reason this handler can be a blob read.
+         *
+         * It used to refuse anything but a display id, on the reading that a key could not be
+         * resolved from an id. That reading was wrong about the bucket, and the cost landed on the
+         * frontend: the course catalog links by primary key, so every card led to the not-found
+         * notice while the object it wanted sat in the bucket under the id it had just been given.
+         *
+         * DISPLAY ID WINS WHEN BOTH ARRIVE. The two objects are byte-identical today, so the order
+         * is about the failure rather than the success: a caller sending both has told us the slug,
+         * and reading that one keeps the served object the same as the one a shared link serves.
+         */
+        const objectId = request.displayId ?? request.id
+        if (!objectId) {
             throw new CourseNotFoundException({
                 id: request.id,
             })
         }
         const objectKey = this.s3NameResolverService.course(
-            request.displayId,
+            objectId,
             locale
         )
         const course = await this.s3ReadService.json<CourseEntity>({

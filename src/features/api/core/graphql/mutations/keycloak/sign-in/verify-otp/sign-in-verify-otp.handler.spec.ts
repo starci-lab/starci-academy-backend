@@ -16,7 +16,7 @@ import {
     OtpChallengeService,
 } from "@modules/integrations/code/otp-challenge.service"
 import {
-    InvalidJwtPayloadException,
+    KeycloakJwtInvalidPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     ChallengeOtpMismatchException,
@@ -198,7 +198,7 @@ describe("SignInVerifyOtpHandler",
                             },
                         }),
                     ),
-                ).rejects.toBeInstanceOf(InvalidJwtPayloadException)
+                ).rejects.toBeInstanceOf(KeycloakJwtInvalidPayloadException)
             })
 
         it("provisions the local credential user when the Keycloak subject signs in first",

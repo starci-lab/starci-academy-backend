@@ -42,7 +42,7 @@ export class StreamConnectionClosedException extends AbstractException {
     constructor(
         {
             originalError,
-        }: AbstractExceptionMetadata = {
+        }: StreamConnectionClosedExceptionMetadata = {
         }
     ) {
         super(

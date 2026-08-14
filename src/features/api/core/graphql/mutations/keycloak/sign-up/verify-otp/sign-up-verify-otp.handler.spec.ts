@@ -28,7 +28,7 @@ import {
     KeycloakUserService,
 } from "@modules/integrations/keycloak/user.service"
 import {
-    InvalidJwtPayloadException,
+    KeycloakJwtInvalidPayloadException,
 } from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
 import {
     ChallengeOtpMismatchException,
@@ -260,6 +260,6 @@ describe("SignUpVerifyOtpHandler",
                             },
                         }),
                     ),
-                ).rejects.toBeInstanceOf(InvalidJwtPayloadException)
+                ).rejects.toBeInstanceOf(KeycloakJwtInvalidPayloadException)
             })
     })

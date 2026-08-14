@@ -31,7 +31,7 @@ export class TransactionNotFoundException extends AbstractException {
     }: TransactionNotFoundExceptionMetadata) {
         super(
             "Transaction not found",
-            "PREFLIGHT_TRANSACTION_NOT_FOUND_EXCEPTION",
+            "TRANSACTION_NOT_FOUND_EXCEPTION",
             {
                 referenceId,
                 id,

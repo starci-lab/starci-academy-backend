@@ -26,7 +26,7 @@ export class LoginSessionNotFoundException extends AbstractException {
     }) {
         super(
             "Login session not found or already revoked",
-            "LOGIN_SESSION_NOT_FOUND",
+            "LOGIN_SESSION_NOT_FOUND_EXCEPTION",
             {
                 keycloakId,
                 sessionId,

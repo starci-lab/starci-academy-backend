@@ -9,7 +9,7 @@ import {
 })
 /**
  * Args for `content` -- lookup by primary id or displayId (exactly one required
- * or the handler throws ContentContextNotFound).
+ * or the handler throws ContentContextNotFoundException).
  */
 export class ContentRequest {
     @Field(

@@ -5,6 +5,9 @@ import {
     AbstractException,
 } from "../abstract"
 
+/** Metadata for a reward claim the user has already made this week. */
+export type WeeklyChallengeRewardAlreadyClaimedExceptionMetadata = AbstractExceptionMetadata
+
 /**
  * The user already claimed the weekly-challenge reward for the current ISO
  * week.
@@ -13,7 +16,7 @@ export class WeeklyChallengeRewardAlreadyClaimedException extends AbstractExcept
     constructor(
         {
             originalError,
-        }: AbstractExceptionMetadata,
+        }: WeeklyChallengeRewardAlreadyClaimedExceptionMetadata,
     ) {
         super(
             "Weekly-challenge reward already claimed this week",
