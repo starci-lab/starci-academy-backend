@@ -1,4 +1,10 @@
 import {
+    Field,
+    ID,
+    Int,
+    ObjectType,
+} from "@nestjs/graphql"
+import {
     Column,
     Entity,
     Index,
@@ -15,6 +21,12 @@ import {
     UserEntity,
 } from "./user.entity"
 
+@ObjectType(
+    "CourseReview",
+    {
+        description: "One review a learner wrote about a course.",
+    },
+)
 @Entity("course_reviews")
 @Index(
     "idx_course_reviews_course_created",
@@ -34,6 +46,16 @@ import {
  * The row records the author and the course as relations rather than as loose ids so that deleting
  * either takes its reviews with it -- an orphaned review would keep contributing to an average for
  * a course that no longer exists.
+ *
+ * IT IS A GRAPHQL OUTPUT TYPE because `submitCourseReview` and `updateCourseReview` both return it
+ * as their `data`. Without `@ObjectType` the schema cannot be built at all -- Nest refuses with
+ * "Cannot determine a GraphQL output type for the data" and the whole API fails to boot, which is
+ * how this was found.
+ *
+ * ONLY THE SCALARS ARE EXPOSED. The `course` and `user` relations stay out of the schema: a client
+ * that just wrote a review already knows both, and admitting them here would pull `CourseEntity`
+ * and `UserEntity` into this type's graph for a field that resolves to null unless somebody
+ * remembers to join it.
  */
 export class CourseReviewEntity extends UuidAbstractEntity {
     /** The course being reviewed. */
@@ -58,6 +80,12 @@ export class CourseReviewEntity extends UuidAbstractEntity {
      * listener can read the projection target off the changed row without loading the relation --
      * a Debezium payload is columns, and a relation it cannot join is a target it cannot derive.
      */
+    @Field(
+        () => ID,
+        {
+            description: "Id of the course this review is about.",
+        },
+    )
     @Column({
         name: "course_id",
         type: "uuid",
@@ -80,6 +108,12 @@ export class CourseReviewEntity extends UuidAbstractEntity {
         user: UserEntity
 
     /** Denormalised author id, for the same reason the course id is carried. */
+    @Field(
+        () => ID,
+        {
+            description: "Id of the learner who wrote it.",
+        },
+    )
     @Column({
         name: "user_id",
         type: "uuid",
@@ -94,6 +128,12 @@ export class CourseReviewEntity extends UuidAbstractEntity {
      * reader ever chose. The bound is enforced by the handler, which is the only place that can say
      * so with an exception a client can act on.
      */
+    @Field(
+        () => Int,
+        {
+            description: "The star score, one to five inclusive.",
+        },
+    )
     @Column({
         name: "score",
         type: "smallint",
@@ -106,6 +146,13 @@ export class CourseReviewEntity extends UuidAbstractEntity {
      * Optional because a score alone is a complete review: forcing prose out of somebody who only
      * wanted to rate the course produces one-word bodies that make the list worse, not better.
      */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "What the learner wrote, absent when they only scored the course.",
+        },
+    )
     @Column({
         name: "body",
         type: "text",

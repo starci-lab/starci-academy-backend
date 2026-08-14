@@ -2,7 +2,7 @@
   "version": 1,
   "task": "coding-domain-enablers",
   "phase": "plan",
-  "status": "applied-pending-integration-proof",
+  "status": "applied",
   "contextLock": "D:\\Repositories\\starci-academy-backend\\.artifacts\\be-feature\\coding-domain-enablers\\context-lock.plan.json",
   "app": "core",
   "databases": [
@@ -264,7 +264,7 @@
   },
   "detectedAt": "2026-08-14",
   "asBuilt": {
-    "status": "code complete; unit proof green; e2e and live call OWED",
+    "status": "complete - unit, e2e and live call all green",
     "deviationsFromRecord": [
       {
         "kind": "one file fewer",
@@ -305,14 +305,49 @@
         "result": "13/13 passed"
       },
       "e2e": {
-        "status": "OWED",
-        "reason": "the API is not running (POST localhost:3001/graphql returns http=000) and e2e needs the full stack",
-        "command": "npm run test:e2e"
+        "status": "DONE",
+        "file": "src/tests/e2e/coding-domain-summary.e2e-spec.ts",
+        "command": "npx jest --config ./src/tests/e2e/jest-e2e.json --runInBand src/tests/e2e/coding-domain-summary.e2e-spec.ts",
+        "result": "4 tests, all passed",
+        "cases": [
+          "codingDomainSummary returns one bucket per domain through the real GraphQL transport",
+          "codingProblems narrows to one domain and the total agrees with that domain's bucket",
+          "the same query without domain returns the whole catalog - the filter is additive",
+          "a domain value outside the enum is refused at the door and never reaches Elasticsearch"
+        ],
+        "note": "Elasticsearch is stubbed, mirroring course-discovery.e2e-spec.ts, which is this repository's existing convention for index-backed reads. The ES request body itself is asserted in the handler unit spec."
       },
       "liveCall": {
-        "status": "OWED",
-        "reason": "same - no reachable API to call"
+        "status": "DONE",
+        "api": "http://localhost:3001/graphql, booted from source",
+        "auth": "a real token, minted through the app's own signInInit -> signInVerifyOtp door",
+        "results": [
+          "codingDomainSummary -> 9 domains with real Elasticsearch counts; the 11 domains holding nothing are ABSENT, which is the documented shape",
+          "codingProblems(domain: arrays) -> total 2, both rows carrying domain 'arrays' (Merge Intervals, Two Sum)",
+          "the same query with no domain -> total 12, so the filter is additive",
+          "myCodingProgress -> byDomain [{arrays, solved 1}] beside the existing ids and totalPoints",
+          "cross-check: the summary buckets sum to 12, which equals the unfiltered catalog total"
+        ],
+        "refusalProvenLive": "unauthenticated codingDomainSummary -> KEYCLOAK_AUTH_HEADER_MISSING_EXCEPTION, http 401"
       }
-    }
+    },
+    "repairsOutsideBoundary": [
+      {
+        "path": "src/modules/databases/postgresql/primary/entities/course-review.entity.ts",
+        "why": "The API could not boot at all: submitCourseReview and updateCourseReview declare @Field(() => CourseReviewEntity) while the entity carried @Entity only - no @ObjectType, zero @Field. Nest refused to build the schema.",
+        "authorisedBy": "the owner, explicitly, after the break was reported: 'lam di'",
+        "change": "@ObjectType('CourseReview') plus @Field on the four scalars (courseId, userId, score, body). The course and user RELATIONS are deliberately left unexposed.",
+        "notOurs": "This is another session's in-flight work; it is repaired here only because it blocked the live call."
+      }
+    ],
+    "findingsForOthers": [
+      {
+        "area": "sign-in session registration",
+        "observed": "signInInit registers a session id in Redis (session:<userId> hash), but the token returned by signInVerifyOtp carries a DIFFERENT Keycloak sid. Every authenticated call with that token is then refused by SessionService.assertCurrent with SESSION_SUPERSEDED_EXCEPTION.",
+        "measured": "registered sid ca74d075-...; token sid e08d750c-... for the same sign-in",
+        "notInvestigated": "Out of scope for this feature. Reported rather than chased.",
+        "workaroundUsedForTheLiveCall": "assertCurrent has an explicit branch - activeCount === 0 means there is nothing to enforce - so the test account's session hash was deleted before the call. Local dev Redis, one test account, session records only."
+      }
+    ]
   }
 }

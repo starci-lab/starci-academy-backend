@@ -6,8 +6,9 @@ repeat its laws.
 
 ## Read first
 
-1. Read [`.claude/CONTEXT-LOCK.md`](.claude/CONTEXT-LOCK.md), detect the task context and print its
-   Context Lock table before running a skill or taking a task action.
+1. Read [`.claude/skill-shape.md`](.claude/skill-shape.md) before running any skill: print the SCOPE
+   table first, run until genuinely stuck, and end in one of two output shapes. One task is one file
+   at `.claude/workflows/<id>.md`.
 2. Read [`.claude/INDEX.md`](.claude/INDEX.md) to identify the governing axis and concept.
 3. Read [`.claude/HOW-TO-WRITE.md`](.claude/HOW-TO-WRITE.md) before changing trust itself.
 4. Read every governing file completely before proposing, reviewing or editing code.
@@ -19,13 +20,14 @@ repeat its laws.
 | Frontend visual judgement | [`.claude/fe/design/`](.claude/fe/design/) |
 | Frontend page or flow invention | [`.claude/fe/creativity/INDEX.md`](.claude/fe/creativity/INDEX.md) |
 | What one named StarCi screen already promises, when a request says preserve, fork, port or match | [`.claude/fe/baselines/`](.claude/fe/baselines/) |
-| Net-new UI or UI that still needs a choice: show 2-4 visibly directional HTML options, prove their StarCi implementation feasibility and stop for selection | [`.claude/skills/starci-fe-design-plan/`](.claude/skills/starci-fe-design-plan/) |
-| Rebuild the winner as an executable StarCi candidate, render locked states from that code and hash-seal one approved revision | [`.claude/skills/starci-fe-design-preview/`](.claude/skills/starci-fe-design-preview/) |
-| Materialize only the sealed candidate, without screenshot reinterpretation, then prove same-state parity | [`.claude/skills/starci-fe-design-apply/`](.claude/skills/starci-fe-design-apply/) |
+| Net-new UI or UI that still needs a choice: draw 2-4 real screens and stop for the user to pick | [`.claude/skills/starci-fe-design-plan/`](.claude/skills/starci-fe-design-plan/) |
+| Build the chosen screen from real components and contracts, render every owner state, propose any backend update | [`.claude/skills/starci-fe-design-preview/`](.claude/skills/starci-fe-design-preview/) |
+| Land the backend update then the frontend, and open the real page | [`.claude/skills/starci-fe-design-apply/`](.claude/skills/starci-fe-design-apply/) |
 | Repair a bounded known-reference FE fidelity, interaction or runtime defect without inventing choices | [`.claude/skills/starci-fe-fidelity-fix/`](.claude/skills/starci-fe-fidelity-fix/) |
 | Survey a scope for near-duplicate owners, freeze their call sites and settle each cluster: merge, one variant prop, extract the shared shape, or keep apart | [`.claude/skills/starci-fe-consolidate-plan/`](.claude/skills/starci-fe-consolidate-plan/) |
 | Carry out approved consolidation verdicts, one cluster per diff, proving every measured call site still renders the same | [`.claude/skills/starci-fe-consolidate-apply/`](.claude/skills/starci-fe-consolidate-apply/) |
 | Enforceable canon artifacts | [`.claude/sources/`](.claude/sources/) |
+| Check whether an old task still matches the source | [`.claude/skills/starci-workflow-drift/`](.claude/skills/starci-workflow-drift/) |
 | Task-specific operating procedures | [`.claude/skills/`](.claude/skills/) |
 
 ## Authority
@@ -67,18 +69,18 @@ reuse evidence, and a named legacy render owns migration parity.
 
   What legitimately differs per repository is the CONFIG, not the rules: which globs a monorepo
   lints against versus a single app. Rules are the law; globs are where it applies.
-- Project identity is discovered, shown and inherited according to `.claude/CONTEXT-LOCK.md`; the
-  repository containing trust is not automatically the repository being changed.
+- The repository being changed is named in the SCOPE table, and it is not automatically the
+  repository containing trust. Confirm it out loud before the first production write.
 - Do not create `.claudev2`, `.claude-legacy`, `CLAUDE_V2.md`, a second frontend canon, or a
   `plugins/eslint/` folder in a consuming repository.
 - A root `CLAUDE.md` is only an entry router.
 - In migration work, reproduce the named reference before proposing redesign.
 - In creative work, keep canon fixed while exploring hierarchy, sequencing, disclosure and CTA.
-- Net-new or undecided UI always moves through Plan -> Preview revisions -> Apply; a settled bounded
-  defect uses Fidelity Fix and returns to Plan if a product decision appears.
-- Plan HTML is visibly directional and never an implementation baseline. Preview is the executable
-  specification; Apply ports its exact tree, contracts, props, tokens and fixtures. Any target drift
-  or desired substitution returns to Preview instead of being improvised during Apply.
+- Net-new or undecided UI moves through Plan -> Preview -> Apply; a settled bounded defect uses
+  Fidelity Fix and goes back to Plan if a product decision appears.
+- Plan HTML is visibly directional and never an implementation baseline. Preview builds the real
+  thing; Apply writes what Preview named. Target drift or a wanted substitution goes back to Preview
+  rather than being improvised during Apply.
 - Visual comparison is valid only under the same route, viewport, locale, theme, auth persona,
   fixture/backend seed and owner state.
 - A frontend target is not adopted until the canonical effective-config audit proves the complete
