@@ -185,6 +185,9 @@ import {
     MockInterviewGradePromptService,
 } from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session-prompt.service"
 import {
+    GradeMockInterviewSessionParseService,
+} from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session-parse.service"
+import {
     GradeMockInterviewSessionResolver,
 } from "@features/api/core/graphql/mutations/interview/grade-mock-interview-session/grade-mock-interview-session.resolver"
 import {
@@ -486,6 +489,7 @@ describe("mock-interview grading replay preserves one durable grade",
                     GradeMockInterviewSessionHandler,
                     MockInterviewGradingService,
                     MockInterviewGradePromptService,
+                    GradeMockInterviewSessionParseService,
                     UserService,
                     AiInvokeService,
                     AiEntitlementService,

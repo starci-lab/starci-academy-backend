@@ -45,16 +45,11 @@ import {
     envConfig,
 } from "@modules/platform/env/config"
 import {
-    HumanMessage,
-    SystemMessage,
-} from "@langchain/core/messages"
-import {
     Document,
 } from "@langchain/core/documents"
 import {
     MountStorageService,
 } from "@modules/filesystem/mount-storage.service"
-import template from "./template.json"
 import {
     AiEntitlementService,
 } from "@modules/ai/ai-entitlement.service"
@@ -67,6 +62,9 @@ import {
 import {
     ChallengeEvaluationParseService,
 } from "../../shared/challenge-evaluation/challenge-evaluation-parse.service"
+import {
+    ChallengeEvaluationPromptService,
+} from "../../shared/challenge-evaluation/challenge-evaluation-prompt.service"
 import type {
     ProcessGoogleDocsSubmissionGradeStepExecuteResult,
 } from "../types/execute"
@@ -76,9 +74,6 @@ import type {
 import {
     collectSubmissionCriteria,
 } from "../../shared/challenge-submission/utils/collect-submission-criteria"
-import {
-    renderCriteriaPromptSections,
-} from "../../shared/challenge-submission/utils/render-criteria-prompt-sections"
 import {
     GradingRetrievalService,
 } from "@modules/integrations/rag/grading-rag-retrieval.service"
@@ -104,6 +99,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly googleDriverApiService: GoogleDriverAPIService,
         private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
+        private readonly challengeEvaluationPromptService: ChallengeEvaluationPromptService,
         private readonly gradingRetrievalService: GradingRetrievalService,
     ) {
         super()
@@ -200,65 +196,17 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 jobId: context.job.id ?? "",
             },
         )
-        /** Build criteria prompt sections */
-        const criteriaPromptSections = renderCriteriaPromptSections(criteria)
-        const maxScore = criteria.reduce((sum, criterion) => sum + criterion.score,
-            0)
-
-        // CACHE INVARIANT -- do NOT interpolate anything submission-specific here.
-        // The provider caches this prompt by its exact prefix and re-prices repeat
-        // reads at a fraction (see creditForRun's cachedTokens path). Every value
-        // below is challenge-level (title, maxScore, language), so all submissions
-        // of one challenge share the cached prefix. Splicing in the learner's name,
-        // an id, or a timestamp would make every call a unique prefix and kill the
-        // discount silently -- no error, just a bigger bill. Submission content
-        // belongs in the HumanMessage, which follows this.
-        const systemText = [
-            `You are a strict, experienced reviewer grading a learner's submitted document for the challenge: "${challengeTitle}".`,
-            "",
-            "## Task",
-            "Grade the submitted document against EVERY yes/no criterion listed below.",
-            "Each criterion is binary: it is either MET (award its full score) or NOT MET (award 0).",
-            "Do NOT award partial credit for a single criterion.",
-            "",
-            "## Critical criteria",
-            "Some criteria are marked **CRITICAL**. If ANY critical criterion is NOT MET, the TOTAL score is 0 for the whole submission, regardless of the other criteria.",
-            "",
-            "## IMPORTANT: Language Requirement",
-            `All feedback text MUST be written in **${targetLanguage}**.`,
-            `JSON keys must remain in English, but all human-readable values (shortFeedback, message, suggestion) must be in ${targetLanguage}.`,
-            "",
-            "## Criteria",
-            criteriaPromptSections || "(no criteria provided)",
-            "",
-            `## Scoring (max total: ${maxScore})`,
-            "- total score = sum of the scores of every MET criterion.",
-            "- If any CRITICAL criterion is NOT MET, set the total score to 0.",
-            "",
-            "## Output Format",
-            "Respond with a single JSON object matching this template exactly (replace placeholder values):",
-            "",
-            JSON.stringify(template,
-                null,
-                2),
-            "## JSON Formatting",
-            "- Output STRICT JSON only — no markdown fences, no comments, no trailing commas.",
-            "- Use double quotes for all keys and string values.",
-            "- Escape newlines as \\\\n and double quotes as \\\\\" inside string values.",
-            "",
-            "## Grading Philosophy",
-            "- Focus on content completeness and accuracy, NOT formatting or style.",
-            "- For each criterion, add a feedback item stating whether it was met and the evidence.",
-            "- Before deciding, ACTUALLY READ the submitted document content, not just headings/summaries.",
-            "- A criterion is MET when the document content shows it — cite the concrete evidence (section/quote).",
-            "- Only mark NOT MET when, after inspecting the relevant content, the evidence is genuinely absent. Do NOT mark NOT MET merely because you skimmed headings.",
-        ].filter(Boolean).join("\n")
-
-        const humanText = [
-            "Below is the content loaded from the submitted document (may be truncated):",
-            "",
-            sourceExcerpt || "(empty document content)",
-        ].join("\n")
+        // CACHE INVARIANT: the builder keeps submission-specific source in the HumanMessage.
+        const {
+            messages,
+            maxScore,
+        } = this.challengeEvaluationPromptService.build({
+            source: "document",
+            challengeTitle,
+            targetLanguage,
+            criteria,
+            sourceExcerpt,
+        })
 
         /** Resolve + debit the submitter's AI quota once for this grading job. */
         const enrollment = await this.entityManager.findOneOrFail(
@@ -281,10 +229,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             text: raw, model, provider, attempts, cost, promptTokens, completionTokens, cachedTokens,
         } = await this.aiInvokeService.run({
             userId: enrollment.userId,
-            messages: [
-                new SystemMessage(systemText),
-                new HumanMessage(humanText),
-            ],
+            messages,
             selection: payload.ai,
             floor: AiModelCategory.Low,
             surface: AiCeilSurface.Grading,

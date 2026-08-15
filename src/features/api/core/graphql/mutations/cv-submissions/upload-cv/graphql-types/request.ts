@@ -7,6 +7,18 @@ import {
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    CvTargetLevel,
+    GraphQLTypeCvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    IsEnum,
+    IsIn,
+    IsOptional,
+    IsString,
+    IsUUID,
+    MaxLength,
+} from "class-validator"
 
 @InputType({
     description: "Register an uploaded CV into the unified table + enqueue scoring.",
@@ -22,6 +34,8 @@ import {
  * `cdnKey` so the server can find + score the uploaded file.
  */
 export class UploadCvRequest {
+    @IsString()
+    @MaxLength(2048)
     /** The object key of the already-uploaded file (from the presign response). */
     @Field(
         () => String,
@@ -32,6 +46,9 @@ export class UploadCvRequest {
         cdnKey: string
 
     /** Concrete model the user picked in the CV-scoring model picker (e.g. "gpt-4o"). */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -42,6 +59,8 @@ export class UploadCvRequest {
         selectedModel?: string
 
     /** Provider serving {@link selectedModel}. */
+    @IsOptional()
+    @IsEnum(ModelProvider)
     @Field(
         () => GraphQLTypeModelProvider,
         {
@@ -52,6 +71,8 @@ export class UploadCvRequest {
         selectedModelProvider?: ModelProvider
 
     /** Optional course/track to tie this CV to (`courses.id`). */
+    @IsOptional()
+    @IsUUID()
     @Field(
         () => ID,
         {
@@ -62,6 +83,9 @@ export class UploadCvRequest {
         courseId?: string
 
     /** Optional user-facing name for this CV. */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -72,6 +96,9 @@ export class UploadCvRequest {
         label?: string
 
     /** Optional target role this CV is aimed at (free-text). */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -82,6 +109,9 @@ export class UploadCvRequest {
         targetRole?: string
 
     /** Optional language/locale for this CV (free-text, e.g. "en" / "vi"). */
+    @IsOptional()
+    @IsIn(["en",
+        "vi"])
     @Field(
         () => String,
         {
@@ -90,4 +120,11 @@ export class UploadCvRequest {
         },
     )
         language?: string
+
+    @Field(() => GraphQLTypeCvTargetLevel,
+        {
+            description: "Explicit seniority bar used to score this uploaded CV.",
+        })
+    @IsEnum(CvTargetLevel)
+        targetLevel: CvTargetLevel
 }

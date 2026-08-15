@@ -11,7 +11,7 @@ import type {
     SignInInitRequest,
 } from "./graphql-types/request"
 import type {
-    SignInInitData,
+    SignInInitCommandResult,
 } from "./graphql-types/response"
 import {
     ExecuteParams,
@@ -31,7 +31,7 @@ export class SignInInitService {
      */
     async execute(
         params: ExecuteParams<SignInInitRequest>,
-    ): Promise<SignInInitData> {
+    ): Promise<SignInInitCommandResult> {
         return this.commandBus.execute(
             new SignInInitCommand(params),
         )

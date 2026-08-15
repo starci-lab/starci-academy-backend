@@ -106,6 +106,11 @@ describe("a stranger registers, verifies, and signs in",
         let challengeSequence = 0
         const challenges = new Map<string, StoredChallenge>()
         const sentMail = jest.fn().mockResolvedValue(undefined)
+        const attachHttpOnlyCookie = jest.fn()
+        const issueCsrfCookie = jest.fn()
+        const startSession = jest.fn().mockResolvedValue(undefined)
+        const originalBypassEnabled = process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED
+        const originalTestEmail = process.env.DEV_TEST_ACCOUNT_EMAIL
 
         const otpChallengeService = {
             createActionChallenge: jest.fn(async (params: { email: string, payload: unknown }) => {
@@ -237,19 +242,19 @@ describe("a stranger registers, verifies, and signs in",
                     {
                         provide: CookieService,
                         useValue: {
-                            attachHttpOnlyCookie: jest.fn(),
+                            attachHttpOnlyCookie,
                         },
                     },
                     {
                         provide: CsrfService,
                         useValue: {
-                            issueCookie: jest.fn(),
+                            issueCookie: issueCsrfCookie,
                         },
                     },
                     {
                         provide: SessionService,
                         useValue: {
-                            startSession: jest.fn().mockResolvedValue(undefined),
+                            startSession,
                         },
                     },
                 ],
@@ -258,6 +263,10 @@ describe("a stranger registers, verifies, and signs in",
         })
 
         afterAll(async () => {
+            if (originalBypassEnabled === undefined) delete process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED
+            else process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED = originalBypassEnabled
+            if (originalTestEmail === undefined) delete process.env.DEV_TEST_ACCOUNT_EMAIL
+            else process.env.DEV_TEST_ACCOUNT_EMAIL = originalTestEmail
             await world?.close()
         })
 
@@ -372,5 +381,46 @@ describe("a stranger registers, verifies, and signs in",
                         id: learner.id,
                     })
                 expect(persisted.keycloakId).toBe(KEYCLOAK_ID)
+            })
+
+        it("completes the explicitly enabled local test sign-in at the init boundary",
+            async () => {
+                process.env.LOCAL_TEST_AUTH_BYPASS_ENABLED = "true"
+                process.env.DEV_TEST_ACCOUNT_EMAIL = EMAIL
+                const challengeCount = challenges.size
+                const mailCount = sentMail.mock.calls.length
+
+                const response = await gql(`
+                    mutation LocalTestSignIn($request: SignInInitRequest!) {
+                        signInInit(request: $request) {
+                            success
+                            data { challengeId expiresInSeconds accessToken }
+                        }
+                    }
+                `,
+                {
+                    request: {
+                        email: EMAIL,
+                        password: PASSWORD,
+                    },
+                })
+
+                expect(response.body.errors).toBeUndefined()
+                expect(response.body.data.signInInit.data).toEqual({
+                    challengeId: null,
+                    expiresInSeconds: null,
+                    accessToken: ACCESS_TOKEN,
+                })
+                expect(challenges.size).toBe(challengeCount)
+                expect(sentMail).toHaveBeenCalledTimes(mailCount)
+                expect(attachHttpOnlyCookie).toHaveBeenCalled()
+                expect(issueCsrfCookie).toHaveBeenCalled()
+                expect(startSession).toHaveBeenCalledWith(expect.objectContaining({
+                    accessToken: ACCESS_TOKEN,
+                }))
+                expect(await world.entityManager.findOneByOrFail(UserEntity,
+                    {
+                        id: learner.id,
+                    })).toBeDefined()
             })
     })

@@ -18,6 +18,9 @@ services:
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USERNAME:-REPLACE_ME}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-REPLACE_ME}
+      # The dev stack has one Keycloak process. Disabling H2 AUTO_SERVER avoids its TCP lock
+      # resolving an ephemeral Docker hostname after this container is recreated.
+      KC_DB_URL_PROPERTIES: ";AUTO_SERVER=FALSE"
     ports:
       - "${STARCI_PORT_KEYCLOAK}:8080"
     volumes:

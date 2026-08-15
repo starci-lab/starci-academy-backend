@@ -175,6 +175,7 @@ export default defineConfig([
             "starci-be/e2e-uses-production-transport": "error", // testing §3 · include the production boundary in the proof
             "starci-be/e2e-asserts-persisted-state": "error", // testing §2 · an envelope is not a consequence
             "starci-be/no-model-call-in-e2e": "error", // testing §9 · provider quality belongs in harness
+            "starci-be/harness-calls-provider-directly": "error", // testing §10 · harness owns the live provider call
             "starci-be/no-sleep-in-flow": "error", // e2e-flow §3 · poll for state, never duration
             "starci-be/no-branch-in-flow-step": "error", // e2e-flow §7 · one step proves one outcome
             "starci-be/handler-overrides-process": "error", // cqrs §3 · handlers stay inside ICQRSHandler's template

@@ -1,4 +1,5 @@
 import {
+    ChecksumAlgorithm,
     DeleteObjectsCommand,
     S3Client,
 } from "@aws-sdk/client-s3"
@@ -86,6 +87,10 @@ export class S3DeleteService {
             await s3Client.send(
                 new DeleteObjectsCommand({
                     Bucket: bucket,
+                    // MinIO requires Content-MD5 for the multi-delete XML body.
+                    // Asking the AWS SDK for MD5 lets its checksum middleware
+                    // calculate the header from the exact serialized payload.
+                    ChecksumAlgorithm: ChecksumAlgorithm.MD5,
                     Delete: {
                         Objects: batch.map((key) => ({
                             Key: key,

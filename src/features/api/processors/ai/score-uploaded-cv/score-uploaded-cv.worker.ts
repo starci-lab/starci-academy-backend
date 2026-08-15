@@ -109,10 +109,8 @@ export class ScoreUploadedCvWorker extends WorkerHost {
             await this.scoreUploadedCvService.scoreUploadedCv({
                 cvGenerationId: payload.cvGenerationId,
                 userId: payload.userId,
-                ...(payload.locale !== undefined ? {
-                    locale: payload.locale,
-                } : {
-                }),
+                targetLevel: payload.targetLevel,
+                language: payload.language,
                 ...(payload.ai !== undefined ? {
                     selection: payload.ai,
                 } : {

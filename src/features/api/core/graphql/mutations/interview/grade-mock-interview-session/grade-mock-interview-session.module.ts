@@ -20,6 +20,9 @@ import {
     MockInterviewGradePromptService,
 } from "./grade-mock-interview-session-prompt.service"
 import {
+    GradeMockInterviewSessionParseService,
+} from "./grade-mock-interview-session-parse.service"
+import {
     ConfigurableModuleClass,
 } from "./grade-mock-interview-session.module-definition"
 
@@ -33,6 +36,7 @@ import {
         GradeMockInterviewSessionHandler,
         MockInterviewGradingService,
         MockInterviewGradePromptService,
+        GradeMockInterviewSessionParseService,
     ],
     exports: [
         GradeMockInterviewSessionService,

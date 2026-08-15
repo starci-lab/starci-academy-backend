@@ -4,6 +4,9 @@ import type {
 import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
 
 /**
  * BullMQ job body for the UPLOAD-scoring pipeline (WF-07): grade a user-UPLOADED
@@ -23,7 +26,9 @@ export interface ScoreUploadedCvPayload {
     /** `users.id` -- owner of the uploaded CV (drives AI entitlement / lane routing). */
     userId: string
     /** Locale hint so the AI feedback is written in the learner's language. */
-    locale?: Locale
+    language: Locale
+    /** Explicit seniority bar used by the shared scorer. */
+    targetLevel: CvTargetLevel
     /** Validated AI lane + model pick (Auto / Premium / BYOK) for the scoring call. */
     ai?: AiJobSelection
 }

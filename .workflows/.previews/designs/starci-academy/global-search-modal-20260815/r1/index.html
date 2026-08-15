@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StarCi · Global Search directions</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --pink:#f74da0; --pink-soft:#fde5f1; --ink:#17151a; --muted:#756f79;
+      --line:#e8e4e8; --surface:#fff; --ground:#f7f5f6; --chip:#f1eef0;
+      --green:#0b8a67; --green-soft:#dcf7ed; --gold:#8b6611; --gold-soft:#fff2c8;
+      --radius:24px; --shadow:0 18px 50px rgba(36,24,32,.16),0 2px 8px rgba(36,24,32,.08);
+    }
+    *{box-sizing:border-box} body{margin:0;background:#211b23;color:var(--ink);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    button,input{font:inherit} button{color:inherit}.proposal-bar{min-height:78px;display:flex;align-items:center;gap:24px;padding:14px 28px;color:#fff;border-bottom:1px solid #4a3d49;background:#251f27}
+    .proposal-title{min-width:260px}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#cbbfca}.proposal-title strong{display:block;margin-top:3px;font-size:16px}
+    .tabs{display:flex;gap:8px;flex:1}.tab{border:1px solid #514651;background:#302832;color:#d9d0d8;padding:10px 14px;border-radius:14px;cursor:pointer;text-align:left}.tab strong{display:block;font-size:13px}.tab span{display:block;font-size:11px;color:#a99da8}.tab.active{border-color:#ff76b7;background:#fff;color:#211b23}.tab.active span{color:#746b73}
+    .state-switch{display:flex;gap:5px;background:#302832;padding:4px;border-radius:12px}.state{border:0;background:transparent;color:#cfc4cd;padding:7px 9px;border-radius:9px;cursor:pointer;font-size:12px}.state.active{background:#fff;color:#211b23}
+    .app{min-height:calc(100vh - 78px);position:relative;background:var(--ground);overflow:hidden}.shell{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 4vw;gap:32px}.brand{font-size:18px;font-weight:750}.brand b{color:var(--pink);font-size:26px;margin-right:8px}.nav{display:flex;gap:26px}.nav span:nth-child(2){background:var(--pink-soft);color:#bd3d7a;padding:9px 15px;border-radius:18px}.shell-tools{margin-left:auto;display:flex;gap:10px}.ghost{height:38px;width:180px;border-radius:12px;background:#f1eef0}.circle{width:38px;height:38px;border-radius:50%;background:#f1eef0}
+    .page-ghost{padding:44px 8vw;opacity:.55}.page-ghost h1{font-size:28px}.ghost-line{height:15px;background:#ded9dd;border-radius:8px;margin:14px 0;max-width:760px}.ghost-card{height:190px;background:#fff;border:1px solid var(--line);border-radius:24px;margin-top:30px;max-width:900px}
+    .veil{position:absolute;inset:76px 0 0;background:rgba(30,25,29,.50);backdrop-filter:blur(2px);display:flex;align-items:flex-start;justify-content:center;padding:5vh 18px 7vh}
+    .direction{display:none;width:min(960px,100%)}.direction[data-direction-panel="c"]{width:min(1180px,100%)}.direction.active{display:block}.modal{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;max-height:82vh;display:flex;flex-direction:column}.modal.wide{width:100%}
+    .search-head{padding:18px;border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:2}.searchbox{display:flex;align-items:center;gap:12px;height:48px;border:1px solid #d8d3d7;background:#f7f5f6;border-radius:15px;padding:0 14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}.searchbox:focus-within{border-color:var(--pink);box-shadow:0 0 0 3px var(--pink-soft)}.glass{font-size:22px}.searchbox input{border:0;outline:0;background:transparent;flex:1;min-width:0;font-size:16px}.key{font-size:11px;color:var(--muted);background:#ebe7ea;border-radius:7px;padding:4px 7px}.close{border:0;background:#ebe7ea;border-radius:50%;width:30px;height:30px;cursor:pointer}
+    .body{overflow:auto;padding:18px}.section+.section{margin-top:20px}.section-title{display:flex;justify-content:space-between;align-items:center;margin:0 2px 8px;font-size:12px;color:var(--muted);font-weight:650}.joined{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}.row{width:100%;border:0;background:#fff;display:flex;align-items:center;gap:12px;padding:13px 14px;text-align:left;cursor:pointer}.row+.row{border-top:1px solid var(--line)}.row:hover,.row.active{background:#fff3f8}.kind-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:#f1eef0;font-size:17px;flex:none}.row-copy{min-width:0;flex:1}.row-title{display:block;font-size:14px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.row-meta{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.row-meta em{font-style:normal;background:#ffe1ef;color:#9e2f66}.badge{font-size:11px;border-radius:999px;padding:4px 8px;background:var(--chip);color:var(--muted);white-space:nowrap}.badge.free{background:var(--green-soft);color:var(--green)}.badge.lock{background:var(--gold-soft);color:var(--gold)}.arrow{color:#ae9da7}.footer{border-top:1px solid var(--line);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px;background:#fcfbfc}.hints{display:flex;gap:14px}.result-count{font-weight:650;color:#514952}
+    .scope-bar{display:flex;gap:7px;overflow:auto;padding:12px 18px 0}.scope{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;white-space:nowrap;cursor:pointer;font-size:12px}.scope.active{background:var(--ink);color:#fff;border-color:var(--ink)}.scope .count{opacity:.65;margin-left:4px}.answer-strip{margin:15px 18px 0;padding:12px 14px;border-radius:15px;background:linear-gradient(100deg,#fff0f7,#f7f3ff);display:flex;gap:12px;align-items:center}.answer-strip strong{font-size:13px}.answer-strip span{font-size:12px;color:var(--muted)}
+    .two-pane{display:grid;grid-template-columns:240px 1fr;min-height:540px;overflow:hidden}.rail{border-right:1px solid var(--line);padding:14px;background:#faf9fa}.rail-label{font-size:11px;color:var(--muted);padding:4px 10px 9px;text-transform:uppercase;letter-spacing:.08em}.rail button{width:100%;border:0;background:transparent;border-radius:12px;padding:10px;display:flex;justify-content:space-between;cursor:pointer;text-align:left}.rail button.active{background:var(--pink-soft);color:#a92f68;font-weight:650}.rail small{color:var(--muted)}.rail-help{margin-top:18px;padding:14px 10px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}.rail-help strong{display:block;color:var(--ink);font-size:12px;margin-bottom:5px}.navigator{display:grid;grid-template-columns:minmax(0,1fr) 300px;min-width:0}.results{padding:18px;overflow:auto}.preview{border-left:1px solid var(--line);padding:22px;background:#fcfbfc}.preview .preview-icon{width:44px;height:44px;border-radius:14px;background:var(--pink-soft);display:grid;place-items:center;font-size:20px}.preview h3{font-size:15px;margin:13px 0 5px}.preview p{font-size:12px;color:var(--muted)}.path{display:flex;flex-wrap:wrap;gap:4px;margin:15px 0}.path span{font-size:11px;background:#eee9ed;padding:5px 7px;border-radius:7px}.primary{border:0;border-radius:12px;background:var(--pink);color:#fff;font-weight:700;padding:10px 13px;width:100%;cursor:pointer}
+    .state-panel{display:none;min-height:300px;place-items:center;padding:40px}.state-panel.active{display:grid}.empty{text-align:center;max-width:390px}.empty-icon{width:52px;height:52px;display:grid;place-items:center;margin:auto;border-radius:16px;background:#f1eef0;font-size:22px}.empty h3{font-size:15px;margin:14px 0 5px}.empty p{font-size:13px;color:var(--muted);margin:0}.popular{margin-top:18px;text-align:left}.popular .row{border:1px solid var(--line);border-radius:14px;margin-top:7px}.error .empty-icon{background:#fff0ed;color:#b04435}
+    .idle-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.idle-card{border:1px solid var(--line);border-radius:16px;padding:13px;text-align:left;background:#fff}.idle-card strong{display:block;font-size:13px}.idle-card span{font-size:12px;color:var(--muted)}
+    .note{margin-top:10px;color:#eadfe8;font-size:11px;text-align:center}.note b{color:#fff}
+    @media(max-width:780px){.proposal-bar{align-items:flex-start;flex-direction:column;padding:12px}.proposal-title{min-width:0}.tabs{width:100%;overflow:auto}.tab{min-width:170px}.state-switch{width:100%;overflow:auto}.shell{padding:0 16px}.nav,.ghost{display:none}.veil{inset:76px 0 0;padding:0}.direction,.modal{width:100%;height:calc(100vh - 76px);max-height:none;border-radius:0}.two-pane{grid-template-columns:1fr;display:flex;flex-direction:column}.rail{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--line);padding:8px}.rail-label{display:none}.rail button{width:auto;min-width:max-content;gap:8px}.navigator{grid-template-columns:1fr}.preview{display:none}.idle-grid{grid-template-columns:1fr}.footer{padding-bottom:calc(11px + env(safe-area-inset-bottom))}.badge{display:none}}
+  </style>
+</head>
+<body>
+  <header class="proposal-bar">
+    <div class="proposal-title"><span class="eyebrow">Global search · r1</span><strong>Chọn concept trải nghiệm</strong></div>
+    <nav class="tabs" aria-label="Design directions">
+      <button class="tab" data-direction="a"><strong>A · Legacy tinh gọn</strong><span>Grouped, parity-first</span></button>
+      <button class="tab" data-direction="b"><strong>B · Scope-first</strong><span>Lọc ý định trước</span></button>
+      <button class="tab active" data-direction="c"><strong>C · Search workspace ✓</strong><span>Sidebar · list · context</span></button>
+    </nav>
+    <div class="state-switch" aria-label="Preview state">
+      <button class="state active" data-state="results">Kết quả</button><button class="state" data-state="idle">Idle</button><button class="state" data-state="empty">Trống</button><button class="state" data-state="error">Lỗi</button>
+    </div>
+  </header>
+  <main class="app">
+    <div class="shell"><div class="brand"><b>◌</b>StarCi</div><div class="nav"><span>Trang chủ</span><span>Khóa học</span><span>Liên hệ</span></div><div class="shell-tools"><div class="ghost"></div><div class="circle"></div><div class="circle"></div></div></div>
+    <div class="page-ghost"><h1>Fullstack Mastery</h1><div class="ghost-line"></div><div class="ghost-line" style="max-width:560px"></div><div class="ghost-card"></div></div>
+    <div class="veil">
+      <section class="direction" data-direction-panel="a">
+        <div class="modal">
+          <div class="search-head"><div class="searchbox"><span class="glass">⌕</span><input aria-label="Tìm kiếm toàn bộ StarCi" value="cache"/><span class="key">Ctrl K</span><button class="close" aria-label="Đóng">×</button></div></div>
+          <div class="content-state active" data-content="results"><div class="body">
+            <div class="section"><div class="section-title"><span>Khóa học</span><span>2 kết quả</span></div><div class="joined">
+              <button class="row active"><span class="kind-icon">🎓</span><span class="row-copy"><span class="row-title">Fullstack Mastery</span><span class="row-meta">Làm chủ <em>cache</em>, database và backend production</span></span><span class="badge free">Đã đăng ký</span><span class="arrow">↗</span></button>
+              <button class="row"><span class="kind-icon">🎓</span><span class="row-copy"><span class="row-title">System Design Mastery</span><span class="row-meta">Distributed <em>cache</em> và consistency</span></span><span class="arrow">↗</span></button>
+            </div></div>
+            <div class="section"><div class="section-title"><span>Nội dung</span><span>3 kết quả</span></div><div class="joined">
+              <button class="row"><span class="kind-icon">▤</span><span class="row-copy"><span class="row-title">Tích hợp Database &amp; Caching</span><span class="row-meta">Fullstack Mastery › Module 6</span></span><span class="badge free">Miễn phí</span><span class="arrow">›</span></button>
+              <button class="row"><span class="kind-icon">▤</span><span class="row-copy"><span class="row-title">Redis cache-aside trong production</span><span class="row-meta">System Design › Caching patterns</span></span><span class="badge lock">Premium</span><span class="arrow">›</span></button>
+              <button class="row"><span class="kind-icon">▧</span><span class="row-copy"><span class="row-title">Cache invalidation challenge</span><span class="row-meta">Thực hành · 200 XP</span></span><span class="arrow">›</span></button>
+            </div></div>
+          </div></div>
+          <div class="content-state" data-content="idle"></div><div class="content-state" data-content="empty"></div><div class="content-state" data-content="error"></div>
+          <div class="footer"><span class="result-count">5 kết quả · 2 nhóm</span><span class="hints"><span>↑↓ Di chuyển</span><span>↵ Mở</span><span>Esc Đóng</span></span></div>
+        </div><p class="note"><b>A:</b> giữ reading order legacy; sửa autofocus, roving focus và trạng thái.</p>
+      </section>
+
+      <section class="direction" data-direction-panel="b">
+        <div class="modal">
+          <div class="search-head"><div class="searchbox"><span class="glass">⌕</span><input aria-label="Tìm kiếm toàn bộ StarCi" value="cache"/><span class="key">Ctrl K</span><button class="close">×</button></div></div>
+          <div class="scope-bar"><button class="scope active">Tất cả <span class="count">5</span></button><button class="scope">Khóa học <span class="count">2</span></button><button class="scope">Bài học <span class="count">2</span></button><button class="scope">Thực hành <span class="count">1</span></button><button class="scope">Nền tảng</button></div>
+          <div class="content-state active" data-content="results"><div class="answer-strip"><span class="kind-icon">⌁</span><div><strong>5 kết quả cho “cache”</strong><br><span>Đang xem tất cả loại nội dung theo thứ tự học trước, thực hành sau.</span></div></div><div class="body"><div class="joined">
+            <button class="row active"><span class="kind-icon">🎓</span><span class="row-copy"><span class="row-title">Fullstack Mastery</span><span class="row-meta">Khóa học · Đã đăng ký · 23 module</span></span><span class="arrow">↗</span></button>
+            <button class="row"><span class="kind-icon">▤</span><span class="row-copy"><span class="row-title">Tích hợp Database &amp; Caching</span><span class="row-meta">Module · Fullstack Mastery</span></span><span class="arrow">›</span></button>
+            <button class="row"><span class="kind-icon">▤</span><span class="row-copy"><span class="row-title">Redis cache-aside trong production</span><span class="row-meta">Nội dung · System Design Mastery</span></span><span class="badge lock">Premium</span><span class="arrow">›</span></button>
+            <button class="row"><span class="kind-icon">▧</span><span class="row-copy"><span class="row-title">Cache invalidation challenge</span><span class="row-meta">Challenge · 200 XP</span></span><span class="arrow">›</span></button>
+            <button class="row"><span class="kind-icon">💡</span><span class="row-copy"><span class="row-title">Caching foundations</span><span class="row-meta">Nền tảng · 8 tài nguyên</span></span><span class="arrow">›</span></button>
+          </div></div></div>
+          <div class="content-state" data-content="idle"></div><div class="content-state" data-content="empty"></div><div class="content-state" data-content="error"></div>
+          <div class="footer"><span class="result-count">Tab đổi scope · không gọi contract mới</span><span class="hints"><span>←→ Đổi scope</span><span>↑↓ Chọn</span><span>↵ Mở</span></span></div>
+        </div><p class="note"><b>B:</b> giảm nhiễu bằng scope; mobile vẫn là một list dọc.</p>
+      </section>
+
+      <section class="direction active" data-direction-panel="c">
+        <div class="modal wide">
+          <div class="search-head"><div class="searchbox"><span class="glass">⌕</span><input aria-label="Tìm kiếm toàn bộ StarCi" value="cache"/><span class="key">Ctrl K</span><button class="close">×</button></div></div>
+          <div class="content-state active" data-content="results"><div class="two-pane">
+            <aside class="rail"><div class="rail-label">Tìm trong</div><button class="active"><span>Tất cả kết quả</span><small>5</small></button><button><span>Khóa học</span><small>2</small></button><button><span>Module &amp; bài học</span><small>2</small></button><button><span>Thực hành</span><small>1</small></button><button><span>Nền tảng</span><small>1</small></button><div class="rail-help"><strong>Thao tác nhanh</strong>←→ đổi nhóm<br>↑↓ chọn kết quả<br>Enter mở · Esc đóng</div></aside>
+            <div class="navigator"><div class="results"><div class="section-title"><span>Kết quả cho “cache”</span><span>5 mục</span></div><div class="joined">
+              <button class="row active"><span class="kind-icon">🎓</span><span class="row-copy"><span class="row-title">Fullstack Mastery</span><span class="row-meta">Khóa học · Đã đăng ký</span></span><span class="arrow">›</span></button>
+              <button class="row"><span class="kind-icon">▤</span><span class="row-copy"><span class="row-title">Tích hợp Database &amp; Caching</span><span class="row-meta">Module · Fullstack Mastery</span></span><span class="arrow">›</span></button>
+              <button class="row"><span class="kind-icon">▤</span><span class="row-copy"><span class="row-title">Redis cache-aside trong production</span><span class="row-meta">Nội dung · System Design Mastery</span></span><span class="arrow">›</span></button>
+              <button class="row"><span class="kind-icon">▧</span><span class="row-copy"><span class="row-title">Cache invalidation challenge</span><span class="row-meta">Challenge · 200 XP</span></span><span class="arrow">›</span></button>
+            </div></div><aside class="preview"><div class="preview-icon">🎓</div><h3>Fullstack Mastery</h3><p>Lộ trình end-to-end từ frontend đến backend production.</p><div class="path"><span>Khóa học</span><span>Đã đăng ký</span><span>23 module</span></div><p><strong>Đường dẫn</strong><br>Khóa học › Fullstack Mastery</p><button class="primary">Mở kết quả ↗</button></aside></div>
+          </div></div>
+          <div class="content-state" data-content="idle"></div><div class="content-state" data-content="empty"></div><div class="content-state" data-content="error"></div>
+          <div class="footer"><span class="result-count">Rail dùng chính 8 bucket backend</span><span class="hints"><span>←→ Đổi nhóm</span><span>↑↓ Chọn</span><span>↵ Mở</span></span></div>
+        </div><p class="note"><b>C:</b> tối ưu truy vấn dày và ngữ cảnh đường dẫn; mobile ẩn preview pane.</p>
+      </section>
+    </div>
+  </main>
+  <template id="idle-template"><div class="state-panel active"><div class="empty"><div class="empty-icon">⌕</div><h3>Tìm mọi thứ trong StarCi</h3><p>Nhập tên khóa học, module, bài học, challenge hoặc nền tảng.</p><div class="idle-grid"><button class="idle-card"><strong>Fullstack Mastery</strong><span>Khóa học phổ biến</span></button><button class="idle-card"><strong>System Design Mastery</strong><span>Khóa học phổ biến</span></button></div></div></div></template>
+  <template id="empty-template"><div class="state-panel active"><div class="empty"><div class="empty-icon">∅</div><h3>Không tìm thấy “zz-cache”</h3><p>Thử tên ngắn hơn, bỏ dấu hoặc tìm theo khóa học.</p><div class="popular"><button class="row"><span class="kind-icon">🔥</span><span class="row-copy"><span class="row-title">Fullstack Mastery</span><span class="row-meta">Khóa học phổ biến</span></span><span class="arrow">›</span></button></div></div></div></template>
+  <template id="error-template"><div class="state-panel active"><div class="empty error"><div class="empty-icon">!</div><h3>Chưa tải được kết quả</h3><p>Từ khóa vẫn được giữ. Thử lại mà không cần nhập lại.</p><div style="margin-top:16px"><button class="primary">Thử lại</button></div></div></div></template>
+  <script>
+    const tabs=[...document.querySelectorAll('.tab')], panels=[...document.querySelectorAll('[data-direction-panel]')], states=[...document.querySelectorAll('.state')];
+    let activeDirection='c', activeState='results';
+    function draw(){tabs.forEach(x=>x.classList.toggle('active',x.dataset.direction===activeDirection));panels.forEach(x=>x.classList.toggle('active',x.dataset.directionPanel===activeDirection));states.forEach(x=>x.classList.toggle('active',x.dataset.state===activeState));document.querySelectorAll('.content-state').forEach(node=>{const name=node.dataset.content;node.classList.toggle('active',name===activeState);if(name!=='results'){node.innerHTML='';if(name===activeState){node.append(document.getElementById(name+'-template').content.cloneNode(true));}}});}
+    tabs.forEach(x=>x.addEventListener('click',()=>{activeDirection=x.dataset.direction;draw()}));states.forEach(x=>x.addEventListener('click',()=>{activeState=x.dataset.state;draw()}));
+    document.querySelectorAll('.scope,.rail button').forEach(x=>x.addEventListener('click',()=>{x.parentElement.querySelectorAll('button').forEach(y=>y.classList.remove('active'));x.classList.add('active')}));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelector('.veil').style.opacity='.35';if(e.key==='ArrowDown'||e.key==='ArrowUp'){const rows=[...document.querySelector('.direction.active').querySelectorAll('.content-state.active .row')];if(!rows.length)return;e.preventDefault();let i=rows.findIndex(r=>r.classList.contains('active'));rows.forEach(r=>r.classList.remove('active'));i=e.key==='ArrowDown'?(i+1)%rows.length:(i-1+rows.length)%rows.length;rows[i].classList.add('active');rows[i].scrollIntoView({block:'nearest'});}});
+    draw();
+  </script>
+</body>
+</html>

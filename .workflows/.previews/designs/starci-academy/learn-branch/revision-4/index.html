@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StarCi Academy · /learn Plan revision 4</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: #0d1a2b;
+      --panel-2: #12243a;
+      --line: #263a53;
+      --muted: #91a4bb;
+      --text: #f3f7fb;
+      --cyan: #45d7d0;
+      --violet: #8e7dff;
+      --amber: #f1bd5b;
+      --green: #69dc9c;
+      --danger: #ff8b8b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(69, 215, 208, .13), transparent 28rem),
+        radial-gradient(circle at 88% 8%, rgba(142, 125, 255, .14), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .wrap { width: min(1500px, 100%); margin: 0 auto; padding: 28px; }
+    .eyebrow { color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { max-width: 920px; margin: 10px 0 8px; font-size: clamp(30px, 4vw, 58px); line-height: 1.02; letter-spacing: -.045em; }
+    .lead { max-width: 980px; margin: 0; color: var(--muted); font-size: 16px; }
+    .truth {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 24px 0;
+    }
+    .truth > div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(13, 26, 43, .78); }
+    .truth b { display: block; margin-bottom: 3px; font-size: 12px; }
+    .truth span { color: var(--muted); font-size: 12px; }
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 6px; border: 1px solid var(--line); border-radius: 16px; background: rgba(6, 14, 26, .86); }
+    .tab {
+      flex: 1 0 230px;
+      border: 0;
+      border-radius: 11px;
+      padding: 12px 15px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      text-align: left;
+    }
+    .tab strong { display: block; color: inherit; }
+    .tab small { display: block; margin-top: 2px; opacity: .75; }
+    .tab[aria-selected="true"] { background: var(--panel-2); color: var(--text); box-shadow: inset 0 0 0 1px #38506d; }
+    .direction { display: none; }
+    .direction.active { display: block; }
+    .decision {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .decision-copy, .facts { border: 1px solid var(--line); border-radius: 18px; background: rgba(13, 26, 43, .82); }
+    .decision-copy { padding: 20px; }
+    .decision-copy h2 { margin: 0 0 6px; font-size: 25px; letter-spacing: -.025em; }
+    .decision-copy p { max-width: 850px; margin: 0; color: var(--muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+    .chip { padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; color: #bfd0e2; font-size: 11px; }
+    .chip.recommended { border-color: rgba(105, 220, 156, .55); color: var(--green); background: rgba(105, 220, 156, .08); }
+    .facts { padding: 15px; }
+    .facts h3 { margin: 0 0 9px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .facts ul { margin: 0; padding-left: 18px; color: var(--muted); }
+    .facts li + li { margin-top: 5px; }
+    .compare-title { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin: 24px 0 10px; }
+    .compare-title h3 { margin: 0; font-size: 15px; }
+    .compare-title span { color: var(--muted); font-size: 12px; }
+    .previews { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; align-items: start; }
+    .device { overflow: hidden; border: 1px solid #334b69; border-radius: 20px; background: #eaf0f5; color: #162131; box-shadow: 0 24px 70px rgba(0,0,0,.25); }
+    .browser { display: flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; background: #18283c; color: #9db0c7; font-size: 10px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #50647b; }
+    .address { margin-left: 5px; padding: 3px 9px; border-radius: 6px; background: #0c1929; }
+    .appbar { display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 18px; border-bottom: 1px solid #d2dce5; background: #fff; }
+    .brand { font-weight: 900; letter-spacing: -.03em; }
+    .avatar { width: 25px; height: 25px; border-radius: 50%; background: linear-gradient(135deg, #45d7d0, #6b57ef); }
+    .desktop-shell { display: grid; grid-template-columns: 190px minmax(0, 1fr); min-height: 530px; }
+    .course-nav { padding: 14px 11px; border-right: 1px solid #d5dfe8; background: #f7fafc; }
+    .course-nav h4 { margin: 4px 8px 10px; color: #63758a; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+    .navrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 0; padding: 7px 8px; border-radius: 8px; color: #4e6177; font-size: 10px; }
+    .navrow.active { background: #dff7f4; color: #0b756f; font-weight: 800; }
+    .badge { min-width: 18px; padding: 1px 5px; border-radius: 999px; background: #e6ecf2; color: #667b92; text-align: center; font-size: 8px; }
+    .screen { min-width: 0; padding: 18px; background: #edf2f6; }
+    .resume { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px 14px; border-radius: 12px; background: #13263e; color: white; }
+    .resume small { display: block; color: #aebed0; }
+    .button { align-self: center; padding: 7px 11px; border-radius: 8px; background: #2e9f98; color: white; font-size: 9px; font-weight: 800; }
+    .reader { display: grid; grid-template-columns: 150px minmax(0, 1fr) 140px; gap: 12px; align-items: start; }
+    .rail, .paper, .surface { border: 1px solid #d2dde6; border-radius: 12px; background: #fff; }
+    .rail { padding: 10px; font-size: 9px; }
+    .rail strong { display: block; margin-bottom: 7px; }
+    .progress { height: 5px; margin: 8px 0 12px; border-radius: 9px; background: #e7edf2; }
+    .progress::after { content: ""; display: block; width: 62%; height: 100%; border-radius: inherit; background: #2e9f98; }
+    .module { margin: 5px 0; padding: 6px; border-radius: 6px; background: #f3f6f9; }
+    .module.open { outline: 1px solid #96dcd6; }
+    .paper { padding: 18px; min-height: 335px; }
+    .crumb { color: #718399; font-size: 8px; }
+    .paper h5 { margin: 7px 0 12px; font-size: 18px; }
+    .face-tabs { display: flex; gap: 12px; margin-bottom: 14px; border-bottom: 1px solid #d8e0e8; color: #6c7d91; font-size: 9px; }
+    .face-tabs b { padding-bottom: 6px; border-bottom: 2px solid #2e9f98; color: #117a74; }
+    .line { height: 6px; margin: 8px 0; border-radius: 5px; background: #dce5ed; }
+    .line.short { width: 62%; }
+    .callout { margin: 14px 0; padding: 9px; border-left: 3px solid #6b57ef; background: #f1efff; font-size: 9px; }
+    .footer-stack { display: grid; gap: 7px; margin-top: 15px; }
+    .footer-stack > div { padding: 8px; border-radius: 8px; background: #f4f7f9; font-size: 8px; }
+    .outline { margin: 6px 0; padding-left: 7px; border-left: 2px solid #d7e1e9; color: #6c7d91; }
+    .outline.active { border-color: #2e9f98; color: #117a74; font-weight: 700; }
+    .mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 14px; }
+    .mode { min-height: 70px; padding: 10px; border: 1px solid #d3dde6; border-radius: 10px; background: #fff; }
+    .mode b { display: block; font-size: 10px; }
+    .mode span { color: #728499; font-size: 8px; }
+    .mode.live { border-color: #f0bd5a; background: #fff9e9; }
+    .cluster-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .cluster-tabs span { padding: 6px 10px; border-radius: 999px; background: #dde6ee; font-size: 9px; }
+    .cluster-tabs span.active { background: #182b43; color: #fff; }
+    .mobile { width: 100%; max-width: 340px; margin: 0 auto; }
+    .mobile .browser { height: 28px; }
+    .mobile .appbar { height: 44px; }
+    .mobile-screen { position: relative; min-height: 530px; padding: 15px 12px 62px; background: #edf2f6; }
+    .mobile .paper { min-height: 300px; padding: 14px; }
+    .mobile .resume { display: block; }
+    .mobile .resume .button { display: inline-block; margin-top: 9px; }
+    .bottom-nav { position: absolute; right: 0; bottom: 0; left: 0; display: grid; grid-template-columns: repeat(3, 1fr); padding: 7px; border-top: 1px solid #ccd8e2; background: #fff; }
+    .bottom-nav span { padding: 6px 3px; border-radius: 7px; color: #6d7d90; text-align: center; font-size: 8px; }
+    .bottom-nav span.active { background: #dff7f4; color: #0b756f; font-weight: 800; }
+    .mobile .mode-grid { grid-template-columns: 1fr 1fr; }
+    .state-matrix { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin-top: 18px; }
+    .state { padding: 9px; border: 1px solid var(--line); border-radius: 11px; background: rgba(13,26,43,.72); }
+    .state b { display: block; color: var(--text); font-size: 10px; }
+    .state span { color: var(--muted); font-size: 9px; }
+    .state .status { margin-top: 7px; color: var(--amber); }
+    .state .status.ready { color: var(--green); }
+    .state .status.gap { color: var(--danger); }
+    .legend { margin-top: 12px; color: var(--muted); font-size: 11px; }
+    @media (max-width: 1050px) {
+      .truth { grid-template-columns: 1fr 1fr; }
+      .previews { grid-template-columns: 1fr; }
+      .mobile { max-width: 420px; }
+      .state-matrix { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 760px) {
+      .wrap { padding: 18px 12px; }
+      .truth, .decision { grid-template-columns: 1fr; }
+      .desktop-device { display: none; }
+      .previews { display: block; }
+      .state-matrix { grid-template-columns: 1fr 1fr; }
+      .tab { flex-basis: 210px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="eyebrow">Design Plan · revision 4 · evidence only</div>
+    <h1>Toàn bộ <code>/learn</code>: chọn cách tổ chức sản phẩm trước khi Review khóa source boundary.</h1>
+    <p class="lead">Ba hướng dưới đây cùng dùng route và capability thật. Khác biệt nằm ở reading order, CTA ưu tiên, mức disclosure và cách các A1–A6 cùng sống trong course shell.</p>
+
+    <section class="truth" aria-label="Sự thật đã khóa">
+      <div><b>Current FE</b><span>Typecheck xanh; targeted strict lint còn 384 lỗi trên dirty shells.</span></div>
+      <div><b>Legacy binding</b><span>Ba nhóm nav, content rails và full-bleed live sessions là evidence bắt buộc.</span></div>
+      <div><b>Live backend</b><span>PostgreSQL GraphQL + Redis leaderboard + Socket.IO mock interview/playground.</span></div>
+      <div><b>Plan boundary</b><span>Không sửa production source; preview này không phải Apply baseline.</span></div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="Direction proposals">
+      <button class="tab" role="tab" id="tab-a" aria-controls="panel-a" aria-selected="true" data-panel="panel-a"><strong>A · Legacy parity</strong><small>Route-specific hierarchy, CTA và rails</small></button>
+      <button class="tab" role="tab" id="tab-b" aria-controls="panel-b" aria-selected="false" data-panel="panel-b"><strong>B · Guided resume</strong><small>Một next-best action xuyên toàn nhánh</small></button>
+      <button class="tab" role="tab" id="tab-c" aria-controls="panel-c" aria-selected="false" data-panel="panel-c"><strong>C · Workspace clusters</strong><small>Learn / Practice / Track thành top-level modes</small></button>
+    </div>
+
+    <section class="direction active" id="panel-a" role="tabpanel" aria-labelledby="tab-a">
+      <div class="decision">
+        <div class="decision-copy">
+          <h2>A · Legacy parity, canonical ownership</h2>
+          <p>Giữ nguyên route identity và anatomy legacy cho từng surface. Course spine giữ ba nhóm; content có map–paper–outline; CTA phụ thuộc đúng trạng thái từng route. Chỉ live session mới full-bleed. Việc chuyển route-local shells ra page/block owners và contract tree không được làm thay đổi sản phẩm.</p>
+          <div class="chips"><span class="chip recommended">Parity-first · khuyến nghị</span><span class="chip">CTA theo route</span><span class="chip">Disclosure theo legacy</span><span class="chip">3-column content</span><span class="chip">Full-bleed live only</span></div>
+        </div>
+        <aside class="facts"><h3>Quyết định nhìn thấy được</h3><ul><li>Content: map trái, reading paper giữa, outline phải.</li><li>Flashcards: Study/Quiz; session/result giữ route riêng.</li><li>Mock interview: setup → live socket → grading → result.</li><li>QA giữ owner thật; redirect chỉ là compatibility tạm.</li></ul></aside>
+      </div>
+      <div class="compare-title"><h3>Desktop và mobile acceptance state</h3><span>Mobile chuyển Contents / Lesson / On this page tại chỗ</span></div>
+      <div class="previews">
+        <div class="device desktop-device">
+          <div class="browser"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="address">/vi/courses/fullstack-mastery/learn/content/modules/nestjs/contents/providers</span></div>
+          <div class="appbar"><span class="brand">StarCi Academy</span><span class="avatar"></span></div>
+          <div class="desktop-shell">
+            <nav class="course-nav"><h4>Lộ trình</h4><div class="navrow active"><span>Nội dung</span><span>›</span></div><div class="navrow"><span>Dự án cá nhân</span><span>🔒</span></div><h4>Luyện tập</h4><div class="navrow"><span>Flashcards</span><span class="badge">12</span></div><div class="navrow"><span>Phỏng vấn thử</span><span>›</span></div><div class="navrow"><span>Foundations</span><span>›</span></div><div class="navrow"><span>Playground</span><span>⌄</span></div><h4>Theo dõi</h4><div class="navrow"><span>Mind-map</span><span>›</span></div><div class="navrow"><span>Bảng xếp hạng</span><span class="badge">8</span></div><div class="navrow"><span>Hỏi đáp</span><span>›</span></div></nav>
+            <div class="screen"><div class="reader"><aside class="rail"><strong>64% khóa học</strong><div class="progress"></div><div class="module">01 · Nền tảng</div><div class="module open">02 · NestJS<br><small>● Providers</small></div><div class="module">03 · Data layer</div></aside><article class="paper"><div class="crumb">Khóa học / NestJS core</div><h5>Custom providers &amp; dynamic modules</h5><div class="face-tabs"><b>Bài đọc</b><span>Thử thách</span><span>StarCi AI</span></div><div class="line"></div><div class="line"></div><div class="line short"></div><div class="callout">Provider token phải ổn định qua module boundary.</div><div class="line"></div><div class="line short"></div><div class="footer-stack"><div>🙂 Phản ứng · 28 learners</div><div>Tiếp theo · Custom provider challenge →</div><div>Thảo luận · 14 bình luận</div></div></article><aside class="rail"><strong>Trong trang này</strong><div class="outline active">Provider token</div><div class="outline">Factory provider</div><div class="outline">Dynamic module</div><div class="outline">Tổng kết</div></aside></div></div>
+          </div>
+        </div>
+        <div class="device mobile"><div class="browser"><i class="dot"></i><i class="dot"></i><span class="address">/learn/content/…</span></div><div class="appbar"><span class="brand">StarCi</span><span class="avatar"></span></div><div class="mobile-screen"><article class="paper"><div class="crumb">NestJS core / Lesson 4</div><h5>Custom providers</h5><div class="face-tabs"><b>Bài đọc</b><span>Thử thách</span><span>AI</span></div><div class="line"></div><div class="line"></div><div class="line short"></div><div class="callout">Một content, một reading order.</div><div class="footer-stack"><div>🙂 Phản ứng</div><div>Tiếp theo →</div><div>Thảo luận</div></div></article><div class="bottom-nav"><span>Nội dung</span><span class="active">Bài học</span><span>Trong trang</span></div></div></div>
+      </div>
+    </section>
+
+    <section class="direction" id="panel-b" role="tabpanel" aria-labelledby="tab-b">
+      <div class="decision">
+        <div class="decision-copy">
+          <h2>B · Guided resume</h2>
+          <p>Mọi route thường bắt đầu bằng một next-best action do progress/resume data quyết định. Rails và lịch sử được thu gọn sau CTA; learner đọc “tiếp tục gì” trước “có những gì”. Route compatibility vẫn giữ, nhưng reading order và CTA priority khác legacy rõ ràng.</p>
+          <div class="chips"><span class="chip">Global resume CTA</span><span class="chip">Progressive disclosure</span><span class="chip">Compact course spine</span><span class="chip">Backend-gated recommendations</span></div>
+        </div>
+        <aside class="facts"><h3>Trade-off</h3><ul><li>Tốt cho người quay lại và flow dài A2/A3/A4.</li><li>Content map không còn là điểm vào đầu tiên.</li><li>Cần quy tắc xếp hạng next task giữa nhiều capability.</li><li>Lệch legacy ở CTA priority và disclosure mặc định.</li></ul></aside>
+      </div>
+      <div class="compare-title"><h3>Desktop và mobile acceptance state</h3><span>Next-best action đứng trước inventory của route</span></div>
+      <div class="previews">
+        <div class="device desktop-device"><div class="browser"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="address">/vi/courses/fullstack-mastery/learn/content</span></div><div class="appbar"><span class="brand">StarCi Academy</span><span class="avatar"></span></div><div class="desktop-shell"><nav class="course-nav"><h4>Course</h4><div class="navrow active"><span>Hôm nay</span><span>●</span></div><div class="navrow"><span>Nội dung</span><span>64%</span></div><div class="navrow"><span>Dự án</span><span>2/6</span></div><div class="navrow"><span>Luyện tập</span><span class="badge">12</span></div><div class="navrow"><span>Theo dõi</span><span>›</span></div></nav><div class="screen"><div class="resume"><div><small>Tiếp tục gần nhất · NestJS core</small><b>Custom providers &amp; dynamic modules</b><small>Đọc 8 phút · còn 2 mục</small></div><span class="button">Tiếp tục học →</span></div><div class="surface" style="padding:14px"><b>Việc tiếp theo của bạn</b><div class="mode-grid"><div class="mode"><b>12 flashcards đến hạn</b><span>Review · 9 phút</span></div><div class="mode"><b>Project milestone 2</b><span>Task đang mở</span></div><div class="mode live"><b>Mock interview</b><span>Có session để tiếp tục</span></div></div></div><div class="surface" style="padding:14px;margin-top:12px"><b>Khám phá khóa học</b><div class="line"></div><div class="line"></div><div class="line short"></div></div></div></div></div>
+        <div class="device mobile"><div class="browser"><i class="dot"></i><i class="dot"></i><span class="address">/learn/content</span></div><div class="appbar"><span class="brand">StarCi</span><span class="avatar"></span></div><div class="mobile-screen"><div class="resume"><div><small>Tiếp tục gần nhất</small><b>Custom providers</b><small>Đọc 8 phút</small></div><span class="button">Tiếp tục →</span></div><div class="surface" style="padding:12px"><b>Hôm nay</b><div class="mode-grid"><div class="mode"><b>12 flashcards</b><span>Review</span></div><div class="mode live"><b>Interview</b><span>Resume</span></div></div></div><div class="bottom-nav"><span class="active">Hôm nay</span><span>Khóa học</span><span>Tiến độ</span></div></div></div>
+      </div>
+    </section>
+
+    <section class="direction" id="panel-c" role="tabpanel" aria-labelledby="tab-c">
+      <div class="decision">
+        <div class="decision-copy">
+          <h2>C · Workspace clusters</h2>
+          <p>Ba nhóm legacy trở thành top-level mode switch: Learn, Practice, Track. Mỗi cluster gom các route A1–A6 thành một composition chung; live capability mở workspace riêng. Route cũ vẫn resolve nhưng navigation hierarchy, density và disclosure đổi nhiều nhất.</p>
+          <div class="chips"><span class="chip">Top-level cluster switch</span><span class="chip">Higher density</span><span class="chip">Capability cards</span><span class="chip">Workspace handoff</span></div>
+        </div>
+        <aside class="facts"><h3>Trade-off</h3><ul><li>Giảm rail dài khi số mode tiếp tục tăng.</li><li>Surface discovery rõ theo intent.</li><li>Route identity bị hạ xuống cấp hai.</li><li>Lệch legacy lớn nhất; migration và analytics phức tạp hơn.</li></ul></aside>
+      </div>
+      <div class="compare-title"><h3>Desktop và mobile acceptance state</h3><span>Composition theo intent thay cho danh sách route tuần tự</span></div>
+      <div class="previews">
+        <div class="device desktop-device"><div class="browser"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="address">/vi/courses/fullstack-mastery/learn/flashcards/review</span></div><div class="appbar"><span class="brand">StarCi Academy</span><div class="cluster-tabs"><span>Learn</span><span class="active">Practice</span><span>Track</span></div><span class="avatar"></span></div><div class="screen" style="min-height:530px"><div class="resume"><div><small>Practice workspace</small><b>Ôn tập, thử sức, luyện phỏng vấn</b><small>Live sessions rời course chrome khi bắt đầu</small></div><span class="button">Review 12 cards</span></div><div class="mode-grid"><div class="mode live"><b>Flashcards</b><span>Study · Quiz · History<br>12 due today</span></div><div class="mode"><b>Mock interview</b><span>Setup · Resume · Results</span></div><div class="mode"><b>Foundations</b><span>Browse · Category · Resource</span></div><div class="mode"><b>Playground</b><span>Docker · Kubernetes · RAG</span></div><div class="mode"><b>Personal project</b><span>Milestones · Tasks · Results</span></div><div class="mode"><b>Challenge</b><span>Brief · Submit · AI feedback</span></div></div><div class="surface" style="padding:14px;margin-top:12px"><b>Flashcards · Study overview</b><div class="line"></div><div class="line"></div><div class="line short"></div></div></div></div>
+        <div class="device mobile"><div class="browser"><i class="dot"></i><i class="dot"></i><span class="address">/learn/flashcards/review</span></div><div class="appbar"><span class="brand">StarCi</span><span class="avatar"></span></div><div class="mobile-screen"><div class="cluster-tabs"><span>Learn</span><span class="active">Practice</span><span>Track</span></div><div class="resume"><div><small>Practice workspace</small><b>12 cards đến hạn</b></div><span class="button">Review ngay</span></div><div class="mode-grid"><div class="mode live"><b>Flashcards</b><span>Study · Quiz</span></div><div class="mode"><b>Interview</b><span>Resume</span></div><div class="mode"><b>Foundations</b><span>Browse</span></div><div class="mode"><b>Playground</b><span>3 labs</span></div></div><div class="bottom-nav"><span>Learn</span><span class="active">Practice</span><span>Track</span></div></div></div>
+      </div>
+    </section>
+
+    <section class="state-matrix" aria-label="Phạm vi A1 đến A6">
+      <div class="state"><b>A1 · Content</b><span>Home, module, reader, challenge/result, AI/discussion/rails</span><div class="status gap">Gap thật còn mở</div></div>
+      <div class="state"><b>A2 · Personal project</b><span>Dashboard, task, submission, attempt feedback/result</span><div class="status">Shell có, owner chưa chuẩn</div></div>
+      <div class="state"><b>A3 · Flashcards</b><span>Overview, review/quiz session, resume, sync, result/history</span><div class="status gap">Thiếu session routes</div></div>
+      <div class="state"><b>A4 · Mock interview</b><span>Setup, start/resume, socket turns, sync, grade, result</span><div class="status gap">Chưa nối live</div></div>
+      <div class="state"><b>A5 · Labs &amp; map</b><span>Foundation data, playground sessions, mind-map workspace</span><div class="status">Shell tĩnh, cần live owners</div></div>
+      <div class="state"><b>A6 · Rank &amp; QA</b><span>Course leaderboard, QA owner, legacy redirects/routes</span><div class="status gap">QA đang redirect</div></div>
+    </section>
+    <p class="legend">Preview này chỉ biểu diễn product decisions. REUSE/EXTEND/NEW contract inventory và exact backend capability matrix được ghi trong workflow Plan revision 4.</p>
+  </main>
+  <script>
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+    function selectTab(tab) {
+      tabs.forEach((item) => item.setAttribute('aria-selected', String(item === tab)));
+      panels.forEach((panel) => panel.classList.toggle('active', panel.id === tab.dataset.panel));
+      tab.focus();
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectTab(tab));
+      tab.addEventListener('keydown', (event) => {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        event.preventDefault();
+        const delta = event.key === 'ArrowRight' ? 1 : -1;
+        selectTab(tabs[(index + delta + tabs.length) % tabs.length]);
+      });
+    });
+  </script>
+</body>
+</html>

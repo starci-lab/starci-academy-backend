@@ -12,7 +12,14 @@ import assert from "node:assert/strict"
 import test from "node:test"
 import { RuleTester } from "eslint"
 import tsParser from "@typescript-eslint/parser"
-import { e2eAssertsPersistedState, e2eUsesProductionTransport, noCallOnlySpec, noModelCallInE2e, rules } from "./testing.mjs"
+import {
+  e2eAssertsPersistedState,
+  e2eUsesProductionTransport,
+  harnessCallsProviderDirectly,
+  noCallOnlySpec,
+  noModelCallInE2e,
+  rules,
+} from "./testing.mjs"
 
 const tester = new RuleTester({
   languageOptions: {
@@ -124,6 +131,48 @@ test("TESTING-9: an e2e overrides the model with Jest; only the harness reaches 
         filename: E2E,
         code: "import { ModelsService } from '../helpers/models.service'",
         errors: [{ messageId: "provider" }],
+      },
+    ],
+  })
+})
+
+test("TESTING-10: a harness owns and calls its provider SDK client directly", () => {
+  tester.run("harness-calls-provider-directly", harnessCallsProviderDirectly, {
+    valid: [
+      {
+        filename: HARNESS,
+        code: "import OpenAI from 'openai'; const client = new OpenAI({ apiKey: key, baseURL }); await client.chat.completions.create({ model, messages })",
+      },
+      {
+        filename: HARNESS,
+        code: "import Anthropic from '@anthropic-ai/sdk'; const client = new Anthropic({ apiKey: key }); await client.messages.create({ model, messages, max_tokens: 10 })",
+      },
+      {
+        filename: HARNESS,
+        code: "import OpenAI from 'openai'; let client: OpenAI; beforeAll(() => { client = new OpenAI({ apiKey: key, baseURL }) }); await client.chat.completions.create({ model, messages })",
+      },
+      { filename: UNIT, code: "import { AiInvokeService } from './ai-invoke.service'; void AiInvokeService" },
+    ],
+    invalid: [
+      {
+        filename: HARNESS,
+        code: "import { createHarnessInvoke } from '../helpers/harness-invoke'; await createHarnessInvoke().run(messages)",
+        errors: 5,
+      },
+      {
+        filename: HARNESS,
+        code: "import OpenAI from 'openai'; const answer = await askModel(messages)",
+        errors: [{ messageId: "noProviderClient" }, { messageId: "noProviderCall" }],
+      },
+      {
+        filename: HARNESS,
+        code: "import OpenAI from 'openai'; const client = new OpenAI({ apiKey: key }); void client",
+        errors: [{ messageId: "noProviderCall" }],
+      },
+      {
+        filename: HARNESS,
+        code: "import OpenAI from 'openai'; import { AiInvokeService } from './ai-invoke.service'; const client = new OpenAI({ apiKey: key }); await client.chat.completions.create({ model, messages }); void AiInvokeService",
+        errors: [{ messageId: "indirect" }],
       },
     ],
   })

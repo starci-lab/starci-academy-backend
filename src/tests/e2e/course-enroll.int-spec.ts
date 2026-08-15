@@ -128,8 +128,11 @@ import {
     CourseEnrollCryptoService,
 } from "@features/api/core/graphql/mutations/courses/course-enroll/course-enroll-crypto.service"
 import {
-    CoursePricingService,
-} from "@features/api/core/graphql/mutations/courses/course-enroll/course-pricing.service"
+    CoursePriceCalculatorService,
+} from "@modules/bussiness/course-pricing/course-price-calculator.service"
+import {
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
 import type {
     CourseEnrollRequest,
 } from "@features/api/core/graphql/mutations/courses/course-enroll/graphql-types/request"
@@ -256,7 +259,8 @@ describe("Course enroll — all gateways (integration)",
                     CourseEnrollCryptoService,
                     // REAL -- the whole pricing/loyalty/voucher/installment stack, so the
                     // amounts asserted are exactly what production computes, not a stub echo
-                    CoursePricingService,
+                    CoursePriceCalculatorService,
+                    CoursePriceQuoteService,
                     LoyaltyDiscountService,
                     UserStatsProjectionService,
                     UserXpProjectionService,

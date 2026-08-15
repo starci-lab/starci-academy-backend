@@ -1,6 +1,9 @@
 import {
     EmptyObject,
 } from "@modules/lib/common/types/atomic"
+import type {
+    CvEvidenceSnapshot,
+} from "@modules/databases/postgresql/primary/types/cv-evidence-snapshot"
 
 /** Params for {@link import("../steps/extract-cv-text").extractCvText}. */
 export interface ExtractCvTextParams {
@@ -12,10 +15,8 @@ export interface ExtractCvTextParams {
 
 /** Params for {@link import("../steps/generate-cv-compose-step.service").GenerateCvComposeStepService.buildRagContext}. */
 export interface BuildRagContextParams {
-    /** Rough seniority signal, steers the rubric/sample queries. */
-    inferredLevel: string
-    /** Inferred target role, steers the sample-phrasing query. */
-    inferredRole: string
+    targetLevel: string
+    targetRole: string
     /** Tech-stack hint, steers the skill-catalog query. */
     techStack: Array<string>
 }
@@ -29,35 +30,11 @@ export interface BuildSystemPromptParams {
     /** Concatenated RAG excerpts (rubric / catalog / sample), or "" when retrieval failed. */
     ragContext: string
     /** Rough seniority signal from {@link BuildRagContextParams.inferredLevel}. */
-    inferredLevel: string
+    targetLevel: string
     /** Inferred target role from {@link BuildRagContextParams.inferredRole}. */
-    inferredRole: string
+    targetRole: string
     /** Whether this run is revising an uploaded CV rather than generating from scratch. */
     isRevise: boolean
-}
-
-/** One PASSED milestone/capstone task attempt, flattened for the CV prompt. */
-export interface GatheredMilestoneTaskAttempt {
-    taskTitle: string
-    milestoneTitle: string
-    courseTitle: string
-    score: number
-}
-
-/** One graded challenge submission attempt (score > 0), flattened for the CV prompt. */
-export interface GatheredChallengeSubmission {
-    challengeTitle: string
-    courseTitle: string
-    score: number
-    submissionUrl: string | null
-    selectedLang: string | null
-}
-
-/** One accepted coding-practice submission, flattened for the CV prompt. */
-export interface GatheredCodingSolve {
-    problemTitle: string
-    difficulty: string
-    domain: string
 }
 
 /** Verified profile fields pulled from `users` for the CV header/contact block. */
@@ -73,14 +50,6 @@ export interface GatheredUserProfile {
     openToWork: boolean
 }
 
-/** Per-source XP totals -- a signal for which skill categories to emphasize. */
-export interface GatheredXpBreakdown {
-    challengeXp: number
-    milestoneXp: number
-    codingXp: number
-    lessonXp: number
-}
-
 /**
  * Result of the gather step: all VERIFIED achievements + profile the learner has
  * earned, plus (for `Revise`) the extracted text of the uploaded source CV.
@@ -88,10 +57,7 @@ export interface GatheredXpBreakdown {
  */
 export interface GenerateCvGatherStepExecuteResult {
     profile: GatheredUserProfile
-    milestoneTaskAttempts: Array<GatheredMilestoneTaskAttempt>
-    challengeSubmissions: Array<GatheredChallengeSubmission>
-    codingSolves: Array<GatheredCodingSolve>
-    xp: GatheredXpBreakdown
+    selectedEvidence: CvEvidenceSnapshot
     /** Extracted plain text of the uploaded source CV (Revise mode only). */
     sourceCvText: string | null
 }

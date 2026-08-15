@@ -23,6 +23,12 @@ import {
 import {
     GenerateCvScoreStepService,
 } from "./generate-cv-score-step.service"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -49,6 +55,9 @@ const makeContext = (payloadOverrides: Record<string, unknown> = {
         cvGenerationId: "cv-gen-1",
         userId: "user-1",
         mode: "generate",
+        targetLevel: CvTargetLevel.Mid,
+        language: Locale.En,
+        selectedEvidence: [],
         ...payloadOverrides,
     },
     extended: {
@@ -83,10 +92,9 @@ describe("GenerateCvScoreStepService",
             )
 
             jobActionService = {
-                // compose result is present by default; gather absent (fallback level = "mid")
+                // compose result is present by default
                 loadExecutionResult: jest.fn()
-                    .mockResolvedValueOnce(COMPOSED_CV)
-                    .mockResolvedValueOnce(null),
+                    .mockResolvedValueOnce(COMPOSED_CV),
                 saveExecutionResult: jest.fn(),
                 increaseJob: jest.fn(),
                 failJob: jest.fn(),
@@ -147,7 +155,8 @@ describe("GenerateCvScoreStepService",
                             expect.objectContaining({
                                 userId: "user-1",
                                 structuredData: COMPOSED_CV,
-                                templateLevel: "mid",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                             }),
                         )
                         // the returned score/feedback were written onto the row by id
@@ -226,38 +235,15 @@ describe("GenerateCvScoreStepService",
                         expect(result).toBeUndefined()
                     })
 
-                it("infers a higher rubric level from the gather step's verified XP / capstone volume",
+                it("passes the explicit target level without XP or capstone-count inference",
                     async () => {
-                        jobActionService.loadExecutionResult
-                            .mockReset()
-                            // compose result
-                            .mockResolvedValueOnce(COMPOSED_CV)
-                            // gather result -- high XP + capstone volume -> senior band
-                            .mockResolvedValueOnce({
-                                profile: {
-                                },
-                                milestoneTaskAttempts: new Array(10).fill({
-                                    taskTitle: "t",
-                                    milestoneTitle: "m",
-                                    courseTitle: "c",
-                                    score: 90,
-                                }),
-                                challengeSubmissions: [],
-                                codingSolves: [],
-                                xp: {
-                                    challengeXp: 0,
-                                    milestoneXp: 0,
-                                    codingXp: 0,
-                                    lessonXp: 0,
-                                },
-                                sourceCvText: null,
-                            })
-
-                        await service.process(makeContext())
+                        await service.process(makeContext({
+                            targetLevel: CvTargetLevel.Senior,
+                        }))
 
                         expect(cvScoringService.score).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                templateLevel: "senior",
+                                targetLevel: CvTargetLevel.Senior,
                             }),
                         )
                     })

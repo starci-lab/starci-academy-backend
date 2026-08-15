@@ -104,8 +104,11 @@ import {
     STRIPE,
 } from "@modules/integrations/stripe/constants/stripe"
 import {
-    CoursePricingService,
-} from "@features/api/core/graphql/mutations/courses/course-enroll/course-pricing.service"
+    CoursePriceCalculatorService,
+} from "@modules/bussiness/course-pricing/course-price-calculator.service"
+import {
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
 import {
     CoursesCheckoutCommand,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout.command"
@@ -196,7 +199,8 @@ describe("a learner pays a course off over time",
                 providers: [
                     CoursesCheckoutHandler,
                     CoursesCheckoutPricingService,
-                    CoursePricingService,
+                    CoursePriceCalculatorService,
+                    CoursePriceQuoteService,
                     LoyaltyDiscountService,
                     UserStatsProjectionService,
                     UserXpProjectionService,

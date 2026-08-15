@@ -1,28 +1,18 @@
+import OpenAI from "openai"
 import {
-    jsonSchemaOutputFormat 
-} from "@anthropic-ai/sdk/helpers/json-schema"
+    readHarnessOpenRouterJudgeApiKey,
+} from "./harness-credentials"
 
-import {
-    client,
-    withRateLimitRetry,
-} from "./models"
+const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+const JUDGE_MODEL = "openai/gpt-5.6-luna"
 
-/**
- * Structured grading result returned by {@link judge} for one rubric+output pair.
- */
+/** Structured grading result returned by {@link judge}. */
 export interface Verdict {
-    /** Whether the output satisfies the rubric overall. */
     pass: boolean
-    /** Integer quality score the judge assigned (0-100). */
     score: number
-    /** The judge's stated reasons for the verdict. */
     reasons: Array<string>
 }
 
-/**
- * JSON schema constraining {@link judge}'s structured output via
- * `output_config.format` -- see the Claude API structured-outputs feature.
- */
 const VERDICT_SCHEMA = {
     type: "object",
     properties: {
@@ -31,6 +21,8 @@ const VERDICT_SCHEMA = {
         },
         score: {
             type: "integer",
+            minimum: 0,
+            maximum: 100,
         },
         reasons: {
             type: "array",
@@ -47,38 +39,60 @@ const VERDICT_SCHEMA = {
     additionalProperties: false,
 } as const
 
-/**
- * Grade one harness output against a rubric using Sonnet 5 as an independent
- * judge, pinned at `effort: "high"` regardless of which tier produced the
- * output under test -- grading rigor must not vary with the SUT's cost tier.
- *
- * The effort, not the model, is what carries the rigor here: the judge reads a
- * rubric and a candidate answer, which is a bounded comparison rather than an
- * open-ended generation. Opus at high effort did the same job and made the lane
- * take over an hour, since every call is serialised.
- *
- * @param rubric - the grading criteria the output must satisfy
- * @param output - the text under evaluation
- * @returns the structured {@link Verdict} parsed straight from the model
- */
+const parseVerdict = (content: string | null): Verdict => {
+    if (!content) {
+        throw new Error("OpenRouter judge returned no verdict")
+    }
+
+    const parsed = JSON.parse(content) as Partial<Verdict>
+    if (typeof parsed.pass !== "boolean"
+        || !Number.isInteger(parsed.score)
+        || (parsed.score as number) < 0
+        || (parsed.score as number) > 100
+        || !Array.isArray(parsed.reasons)
+        || !parsed.reasons.every((reason) => typeof reason === "string")) {
+        throw new Error("OpenRouter judge returned an invalid verdict")
+    }
+
+    return parsed as Verdict
+}
+
+/** Grade one free-form answer with an independently keyed Luna call. */
 export const judge = async (
     rubric: string,
     output: string,
 ): Promise<Verdict> => {
-    const res = await withRateLimitRetry(() => client.messages.parse({
-        model: "claude-sonnet-5",
-        max_tokens: 2048,
-        output_config: {
-            effort: "high",
-            format: jsonSchemaOutputFormat(VERDICT_SCHEMA),
-        },
+    const client = new OpenAI({
+        apiKey: readHarnessOpenRouterJudgeApiKey(),
+        baseURL: OPENROUTER_BASE_URL,
+    })
+    const response = await client.chat.completions.create({
+        model: JUDGE_MODEL,
+        temperature: 0,
         messages: [
+            {
+                role: "system",
+                content: [
+                    "Evaluate the candidate answer strictly against the supplied rubric.",
+                    "Score overall rubric compliance from 0 to 100.",
+                    "Set pass to true if and only if score is at least 60; pass and score must agree.",
+                    "Return only the requested JSON verdict.",
+                ].join(" "),
+            },
             {
                 role: "user",
                 content: `RUBRIC:\n${rubric}\n\nOUTPUT:\n${output}`,
             },
         ],
-    }))
+        response_format: {
+            type: "json_schema",
+            json_schema: {
+                name: "harness_verdict",
+                strict: true,
+                schema: VERDICT_SCHEMA,
+            },
+        },
+    })
 
-    return res.parsed_output as Verdict
+    return parseVerdict(response.choices[0]?.message.content ?? null)
 }

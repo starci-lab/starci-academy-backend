@@ -19,6 +19,9 @@ import {
 import {
     ChallengeEvaluationParseService,
 } from "../shared/challenge-evaluation/challenge-evaluation-parse.service"
+import {
+    ChallengeEvaluationPromptService,
+} from "../shared/challenge-evaluation/challenge-evaluation-prompt.service"
 
 @Module({
     providers: [
@@ -27,6 +30,7 @@ import {
         ProcessGoogleDocsSubmissionGradeStepService,
         ProcessGoogleDocsSubmissionCompleteStepService,
         ChallengeEvaluationParseService,
+        ChallengeEvaluationPromptService,
     ],
 })
 /**

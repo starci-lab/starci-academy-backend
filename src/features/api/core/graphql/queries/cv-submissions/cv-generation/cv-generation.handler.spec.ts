@@ -43,6 +43,12 @@ import type {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
+import {
+    CvEvidenceLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-evidence-level"
+import {
     CvGenerationHandler,
 } from "./cv-generation.handler"
 import {
@@ -101,6 +107,7 @@ describe("CvGenerationHandler",
         let entityManager: EntityManagerMock
         let s3ReadService: jest.Mocked<Pick<S3ReadService, "text">>
         let s3BuildService: jest.Mocked<Pick<S3BuildService, "buildSignedGetObjectUrl">>
+        let cvEvidenceService: jest.Mocked<Pick<CvEvidenceService, "parseSnapshot" | "evidenceLevel">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager -- only `findOne` (ownership lookup) is
@@ -119,6 +126,11 @@ describe("CvGenerationHandler",
                 buildSignedGetObjectUrl: jest.fn().mockResolvedValue("https://minio.local/signed"),
             } as unknown as jest.Mocked<Pick<S3BuildService, "buildSignedGetObjectUrl">>
 
+            cvEvidenceService = {
+                parseSnapshot: jest.fn().mockReturnValue([]),
+                evidenceLevel: jest.fn().mockReturnValue(CvEvidenceLevel.SelfReported),
+            }
+
             module = await Test.createTestingModule({
                 providers: [
                     CvGenerationHandler,
@@ -133,6 +145,10 @@ describe("CvGenerationHandler",
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: CvEvidenceService,
+                        useValue: cvEvidenceService,
                     },
                 ],
             }).compile()

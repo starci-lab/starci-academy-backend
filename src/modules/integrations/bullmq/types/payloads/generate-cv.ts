@@ -7,6 +7,12 @@ import {
 import type {
     AiJobSelection,
 } from "@modules/ai/types/ai-job-selection"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import type {
+    CvEvidenceSnapshot,
+} from "@modules/databases/postgresql/primary/types/cv-evidence-snapshot"
 
 /**
  * BullMQ job body for the CV generation pipeline (gather -> compose -> render -> complete).
@@ -30,8 +36,14 @@ export interface GenerateCvPayload {
     sourceCvSubmissionId?: string
     /** User's free-text input describing projects, skills, and desired emphasis. */
     extraPrompts?: string
-    /** Locale hint for prompting the LLM (e.g. "en", "vi"). */
-    locale?: Locale
+    /** Effective output locale, resolved before enqueue and stable across retries. */
+    language: Locale
+    /** Explicit seniority bar for compose and score. */
+    targetLevel: CvTargetLevel
+    /** Optional target role; absent means the documented generic role fallback. */
+    targetRole?: string
+    /** Immutable caller-selected passed-capstone snapshot. */
+    selectedEvidence: CvEvidenceSnapshot
     /** AI lane + model pick (validated against entitlement at compose time). */
     ai?: AiJobSelection
 }

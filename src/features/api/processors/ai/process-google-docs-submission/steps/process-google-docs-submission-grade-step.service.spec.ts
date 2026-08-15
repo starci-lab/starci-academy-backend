@@ -66,6 +66,7 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
         let aiEntitlementService: { consume: jest.Mock; resolve: jest.Mock; assertNotOverQuota: jest.Mock }
         let googleDriverApiService: { fetchGoogleDocsText: jest.Mock }
         let challengeEvaluationParseService: { parse: jest.Mock }
+        let challengeEvaluationPromptService: { build: jest.Mock }
         let gradingRetrievalService: { retrieveGradingExcerpt: jest.Mock }
         let service: ProcessGoogleDocsSubmissionGradeStepService
 
@@ -123,6 +124,19 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
             challengeEvaluationParseService = {
                 parse: jest.fn().mockReturnValue(parsedEvaluation),
             }
+            challengeEvaluationPromptService = {
+                build: jest.fn().mockReturnValue({
+                    messages: [
+                        {
+                            content: "SYSTEM",
+                        },
+                        {
+                            content: "most relevant excerpt",
+                        },
+                    ],
+                    maxScore: 0,
+                }),
+            }
             gradingRetrievalService = {
                 retrieveGradingExcerpt: jest.fn().mockResolvedValue({
                     excerpt: "most relevant excerpt",
@@ -138,6 +152,7 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                 aiEntitlementService as never,
                 googleDriverApiService as never,
                 challengeEvaluationParseService as never,
+                challengeEvaluationPromptService as never,
                 gradingRetrievalService as never,
             )
         })
@@ -169,6 +184,14 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                 expect(aiInvokeService.run).toHaveBeenCalledWith(
                     expect.objectContaining({
                         userId: "user-1",
+                    }),
+                )
+                expect(challengeEvaluationPromptService.build).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        source: "document",
+                        challengeTitle: "Design a URL shortener",
+                        targetLanguage: "English",
+                        sourceExcerpt: "most relevant excerpt",
                     }),
                 )
                 // 4. parsed the raw LLM output

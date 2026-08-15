@@ -39,6 +39,12 @@ import {
 import {
     ScoreUploadedCvWorker,
 } from "./score-uploaded-cv.worker"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -51,6 +57,8 @@ const PAYLOAD: ScoreUploadedCvPayload = {
     jobId: "job-1",
     cvGenerationId: "cv-gen-upload-1",
     userId: "user-1",
+    targetLevel: CvTargetLevel.Mid,
+    language: Locale.En,
 }
 
 /** The tracked job row the JobActionService loads by id. */

@@ -16,14 +16,13 @@ import {
 } from "node:net"
 
 /**
- * The Testcontainers-backed infra stack both test lanes boot: the e2e lane
- * (`src/tests/e2e`) and the harness lane (`src/tests/harness`).
+ * The Testcontainers-backed infra stack used by the parent E2E runner, the
+ * root integration project and the harness lane (`src/tests/harness`).
  *
  * Deliberately a plain class rather than an `@Injectable()` provider. It is
- * constructed inside Jest's `globalSetup`, which runs in a DIFFERENT process
- * from the specs -- so a spec that injected it would get a second, empty
- * instance rather than the stack that is actually running. The handoff to
- * `globalTeardown` goes through `globalThis` for exactly that reason.
+ * constructed by lifecycle owners outside the specs. The integration project
+ * hands its instance from `globalSetup` to `globalTeardown` through
+ * `globalThis`; the E2E parent runner owns its instance directly.
  */
 export class E2eStackService {
     /** The started Postgres container, once {@link up} has run. */

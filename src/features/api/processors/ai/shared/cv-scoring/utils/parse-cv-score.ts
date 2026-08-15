@@ -17,9 +17,11 @@ import {
 import type {
     CvScoreFeedback,
     CvScoreFeedbackItem,
-    CvTemplateLevel,
     ScoreCvResult,
 } from "../types"
+import type {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
 
 /** Coerce an unknown value to a trimmed string (empty string when not a string). */
 const asString = (value: unknown): string =>
@@ -44,7 +46,7 @@ const asNullableString = (value: unknown): string | null => {
  */
 export const parseCvScore = (
     text: string,
-    templateLevel: CvTemplateLevel,
+    templateLevel: CvTargetLevel,
 ): ScoreCvResult => {
     let parsed: Record<string, unknown>
     try {

@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MiaMia · Proposal Thi thử r1</title>
+  <style>
+    :root {
+      --ink: #201824;
+      --muted: #6f6572;
+      --cream: #fff7ee;
+      --surface: #fff;
+      --blush: #fff0f7;
+      --pink: #ff3e9a;
+      --pink-dark: #d92578;
+      --mint: #a4ecd3;
+      --yellow: #ffd84d;
+      --blue: #b9ddff;
+      --line: #e9deda;
+      --danger: #c83c50;
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 3px 3px 0 var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button { font: inherit; color: inherit; }
+    button:focus-visible { outline: 3px solid #1877d2; outline-offset: 3px; }
+    .proposal-bar {
+      position: sticky; top: 0; z-index: 20;
+      border-bottom: 2px solid var(--ink);
+      background: color-mix(in srgb, var(--cream) 94%, transparent);
+      backdrop-filter: blur(14px);
+    }
+    .proposal-inner { max-width: 1240px; margin: 0 auto; padding: 14px 18px; }
+    .proposal-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark {
+      display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 auto;
+      border: 2px solid var(--ink); border-radius: 13px; background: var(--pink); color: white;
+      box-shadow: 2px 2px 0 var(--ink); font-weight: 900;
+    }
+    .brand-copy { min-width: 0; }
+    .eyebrow { margin: 0; color: var(--pink-dark); font-size: 11px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+    h1 { margin: 2px 0 0; font-size: clamp(18px, 2vw, 26px); line-height: 1.1; }
+    .direction-tabs, .state-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tab {
+      border: 2px solid var(--ink); border-radius: 999px; background: white;
+      padding: 8px 13px; cursor: pointer; font-size: 13px; font-weight: 800;
+    }
+    .tab:hover { transform: translateY(-1px); }
+    .tab[aria-selected="true"] { background: var(--ink); color: white; box-shadow: 2px 2px 0 var(--pink); }
+    .state-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+    .state-label { color: var(--muted); font-size: 12px; font-weight: 700; }
+    main { max-width: 1240px; margin: 0 auto; padding: 26px 18px 60px; }
+    .concept-head { display: grid; grid-template-columns: 1.25fr .75fr; gap: 18px; align-items: start; margin-bottom: 18px; }
+    .concept-copy h2 { margin: 0 0 7px; font-size: clamp(25px, 4vw, 43px); line-height: 1; letter-spacing: -.04em; }
+    .concept-copy p { margin: 0; max-width: 760px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+    .hypothesis {
+      border: 2px solid var(--ink); border-radius: 22px; padding: 14px;
+      background: var(--yellow); box-shadow: var(--shadow-sm); font-size: 13px; line-height: 1.5;
+    }
+    .hypothesis strong { display: block; margin-bottom: 3px; }
+    .evidence-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 20px; }
+    .fact { border: 1.5px solid var(--ink); border-radius: 999px; padding: 6px 10px; background: white; font-size: 11px; font-weight: 800; }
+    .fact.gap { border-style: dashed; background: #fff8cf; }
+    .mock-shell { overflow: hidden; border: 2px solid var(--ink); border-radius: 28px; background: var(--surface); box-shadow: 7px 7px 0 var(--ink); }
+    .app-nav {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      min-height: 64px; padding: 12px 18px; border-bottom: 2px solid var(--ink); background: var(--cream);
+    }
+    .app-brand { display: flex; align-items: center; gap: 8px; font-weight: 950; letter-spacing: -.03em; }
+    .app-dot { width: 26px; height: 26px; border: 2px solid var(--ink); border-radius: 9px; background: var(--pink); box-shadow: 2px 2px 0 var(--ink); }
+    .app-links { display: flex; gap: 6px; }
+    .app-link { border-radius: 999px; padding: 7px 10px; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .app-link.active { background: var(--ink); color: white; }
+    .avatar { display: grid; place-items: center; width: 34px; height: 34px; border: 2px solid var(--ink); border-radius: 50%; background: var(--mint); font-size: 12px; font-weight: 900; }
+    .screen { min-height: 640px; padding: 22px; background: var(--cream); }
+    .screen-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    .screen-head h3 { margin: 0; font-size: 26px; letter-spacing: -.03em; }
+    .screen-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      min-height: 41px; border: 2px solid var(--ink); border-radius: 14px; padding: 8px 13px;
+      background: white; box-shadow: var(--shadow-sm); cursor: pointer; font-size: 13px; font-weight: 900;
+    }
+    .btn.primary { background: var(--pink); color: white; }
+    .btn.secondary { background: var(--yellow); }
+    .btn.ghost { min-height: auto; border: 0; padding: 7px; background: transparent; box-shadow: none; color: var(--muted); }
+    .btn[disabled] { cursor: not-allowed; opacity: .48; }
+    .program-tabs, .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .pill { border: 1.5px solid var(--ink); border-radius: 999px; padding: 6px 10px; background: white; font-size: 11px; font-weight: 850; }
+    .pill.active { background: var(--ink); color: white; }
+    .pill.demo { background: var(--mint); }
+    .pill.pro { background: var(--yellow); }
+    .paper-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .paper-card {
+      position: relative; min-width: 0; border: 2px solid var(--ink); border-radius: 20px; padding: 14px;
+      background: white; box-shadow: var(--shadow-sm);
+    }
+    .paper-card.featured { background: var(--blush); }
+    .paper-card.locked { background: #f5efeb; }
+    .paper-card h4 { margin: 10px 0 7px; font-size: 16px; line-height: 1.25; }
+    .paper-card p { min-height: 36px; margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .meta { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 12px; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .card-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .lock { font-size: 20px; }
+    .resume-banner {
+      display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+      margin-bottom: 16px; border: 2px solid var(--ink); border-radius: 22px; padding: 15px;
+      background: var(--mint); box-shadow: var(--shadow-sm);
+    }
+    .resume-banner h4, .start-card h4 { margin: 0 0 3px; font-size: 19px; }
+    .resume-banner p, .start-card p { margin: 0; color: #394e47; font-size: 12px; }
+    .start-card {
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px;
+      margin-bottom: 18px; border: 2px solid var(--ink); border-radius: 24px; padding: 19px;
+      background: var(--pink); color: white; box-shadow: 6px 6px 0 var(--ink);
+    }
+    .start-card p { color: #fff0f7; }
+    .start-card .btn { background: white; color: var(--ink); }
+    .paper-list { display: grid; gap: 9px; }
+    .paper-row {
+      display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px;
+      border: 2px solid var(--ink); border-radius: 16px; padding: 12px 13px; background: white;
+    }
+    .paper-row strong { display: block; font-size: 14px; }
+    .paper-row span { color: var(--muted); font-size: 11px; }
+    .program-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .program-card { border: 2px solid var(--ink); border-radius: 24px; padding: 18px; background: white; box-shadow: var(--shadow-sm); }
+    .program-card.live { grid-column: span 2; background: var(--blue); }
+    .program-card.soon { border-style: dashed; box-shadow: none; opacity: .68; }
+    .program-card .big { margin: 14px 0 6px; font-size: 27px; font-weight: 950; letter-spacing: -.04em; }
+    .program-card p { min-height: 40px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .runner-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 14px; align-items: start; }
+    .runner-main { min-width: 0; }
+    .sticky-card { position: sticky; top: 12px; border: 2px solid var(--ink); border-radius: 20px; padding: 13px; background: white; box-shadow: var(--shadow-sm); }
+    .sticky-card h4 { margin: 0 0 4px; }
+    .sticky-card p { margin: 0 0 12px; color: var(--muted); font-size: 11px; }
+    .question-map { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .qdot { display: grid; place-items: center; aspect-ratio: 1; border: 1.5px solid var(--ink); border-radius: 9px; background: white; font-size: 10px; font-weight: 850; }
+    .qdot.done { background: var(--mint); }
+    .qdot.active { background: var(--pink); color: white; }
+    .qdot.flag { background: var(--yellow); }
+    .question-card { margin-bottom: 13px; border: 2px solid var(--ink); border-radius: 22px; padding: 17px; background: white; box-shadow: var(--shadow-sm); }
+    .question-card h4 { margin: 0 0 12px; font-size: 16px; line-height: 1.5; }
+    .question-no { display: inline-flex; margin-bottom: 8px; border-radius: 999px; padding: 4px 8px; background: var(--blush); font-size: 10px; font-weight: 900; }
+    .option { display: flex; align-items: flex-start; gap: 9px; margin-top: 8px; border: 1.5px solid var(--line); border-radius: 13px; padding: 10px; font-size: 12px; }
+    .option.selected { border: 2px solid var(--ink); background: var(--blush); }
+    .option.correct { border-color: #21805f; background: #e4fff5; }
+    .option.wrong { border-color: var(--danger); background: #fff0f2; }
+    .radio { display: grid; place-items: center; width: 22px; height: 22px; flex: 0 0 auto; border: 1.5px solid var(--ink); border-radius: 50%; font-size: 10px; font-weight: 900; }
+    .runner-footer {
+      position: sticky; bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 14px; border: 2px solid var(--ink); border-radius: 18px; padding: 11px;
+      background: color-mix(in srgb, white 94%, transparent); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px);
+    }
+    .runner-footer p { margin: 0; color: var(--muted); font-size: 11px; }
+    .focus-runner { max-width: 760px; margin: 0 auto; }
+    .focus-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .progress-track { height: 9px; flex: 1; overflow: hidden; border: 1.5px solid var(--ink); border-radius: 999px; background: white; }
+    .progress-fill { width: 35%; height: 100%; background: var(--pink); }
+    .passage-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; align-items: start; }
+    .passage { border: 2px solid var(--ink); border-radius: 22px; padding: 17px; background: #eff8ff; box-shadow: var(--shadow-sm); font-size: 13px; line-height: 1.75; }
+    .passage h4 { margin: 0 0 8px; }
+    mark { background: var(--yellow); padding: 1px 2px; }
+    .gap-note { margin-top: 10px; border: 1.5px dashed var(--ink); border-radius: 12px; padding: 8px; background: #fff8cf; font-size: 10px; line-height: 1.45; }
+    .result-hero { display: grid; grid-template-columns: 180px 1fr; gap: 18px; align-items: center; margin-bottom: 16px; }
+    .score {
+      display: grid; place-items: center; aspect-ratio: 1; border: 2px solid var(--ink); border-radius: 50%;
+      background: var(--mint); box-shadow: 6px 6px 0 var(--ink); text-align: center;
+    }
+    .score strong { display: block; font-size: 41px; line-height: 1; letter-spacing: -.06em; }
+    .score span { display: block; margin-top: 5px; color: #3c574e; font-size: 11px; font-weight: 850; }
+    .result-copy h3 { margin: 0 0 6px; font-size: 30px; letter-spacing: -.04em; }
+    .result-copy p { margin: 0 0 13px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .result-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin-bottom: 16px; }
+    .stat { border: 2px solid var(--ink); border-radius: 18px; padding: 13px; background: white; box-shadow: var(--shadow-sm); }
+    .stat span { display: block; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .stat strong { display: block; margin-top: 5px; font-size: 22px; }
+    .review-list { display: grid; gap: 10px; }
+    .review-row { border: 2px solid var(--ink); border-radius: 18px; padding: 13px; background: white; }
+    .review-row-head { display: flex; justify-content: space-between; gap: 12px; }
+    .review-row h4 { margin: 0; font-size: 14px; }
+    .review-row p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .skill-list { display: grid; gap: 10px; }
+    .skill-row { display: grid; grid-template-columns: 130px 1fr 42px; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; }
+    .skill-track { height: 13px; overflow: hidden; border: 1.5px solid var(--ink); border-radius: 999px; background: white; }
+    .skill-fill { height: 100%; background: var(--pink); }
+    .annotations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin-top: 20px; }
+    .annotation { border-top: 2px solid var(--ink); padding-top: 10px; }
+    .annotation strong { display: block; margin-bottom: 3px; font-size: 12px; }
+    .annotation span { color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .fixture { margin: 10px 0 0; color: var(--muted); font-size: 10px; }
+    [hidden] { display: none !important; }
+    @media (max-width: 900px) {
+      .proposal-head, .state-row { align-items: flex-start; flex-direction: column; }
+      .concept-head { grid-template-columns: 1fr; }
+      .paper-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .program-grid { grid-template-columns: 1fr 1fr; }
+      .program-card.live { grid-column: span 2; }
+    }
+    @media (max-width: 680px) {
+      .proposal-inner, main { padding-left: 12px; padding-right: 12px; }
+      .direction-tabs { display: grid; width: 100%; grid-template-columns: 1fr; }
+      .state-tabs { display: grid; width: 100%; grid-template-columns: repeat(3, 1fr); }
+      .tab { padding-inline: 8px; }
+      .app-links { display: none; }
+      .screen { min-height: 680px; padding: 14px; }
+      .screen-head { flex-direction: column; }
+      .paper-grid, .program-grid, .passage-layout, .stat-grid, .annotations, .result-hero { grid-template-columns: 1fr; }
+      .program-card.live { grid-column: auto; }
+      .paper-grid .paper-card:nth-child(n+4) { display: none; }
+      .resume-banner, .start-card { grid-template-columns: 1fr; }
+      .paper-row { grid-template-columns: 1fr auto; }
+      .paper-row .pill { display: none; }
+      .runner-layout { grid-template-columns: 1fr; }
+      .sticky-card { position: static; }
+      .question-map { grid-template-columns: repeat(10, 1fr); }
+      .runner-footer { align-items: stretch; flex-direction: column; }
+      .runner-footer .btn { width: 100%; }
+      .result-hero { text-align: center; }
+      .score { width: 160px; margin: 0 auto; }
+      .result-actions { justify-content: center; }
+      .skill-row { grid-template-columns: 95px 1fr 35px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="proposal-bar">
+    <div class="proposal-inner">
+      <div class="proposal-head">
+        <div class="brand">
+          <div class="brand-mark">M</div>
+          <div class="brand-copy">
+            <p class="eyebrow">Design Plan · r1</p>
+            <h1>MiaMia · Thi thử</h1>
+          </div>
+        </div>
+        <div class="direction-tabs" role="tablist" aria-label="Chọn hướng thiết kế">
+          <button class="tab direction-tab" role="tab" aria-selected="true" data-direction="a">A · Kho đề rõ ràng</button>
+          <button class="tab direction-tab" role="tab" aria-selected="false" data-direction="b">B · Bắt đầu nhanh</button>
+          <button class="tab direction-tab" role="tab" aria-selected="false" data-direction="c">C · Theo chương trình</button>
+        </div>
+      </div>
+      <div class="state-row">
+        <span class="state-label">Xem cùng một hướng qua ba state:</span>
+        <div class="state-tabs" role="tablist" aria-label="Chọn state để xem">
+          <button class="tab state-tab" role="tab" aria-selected="true" data-view="catalogue">Danh mục</button>
+          <button class="tab state-tab" role="tab" aria-selected="false" data-view="runner">Đang làm</button>
+          <button class="tab state-tab" role="tab" aria-selected="false" data-view="result">Kết quả</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="proposal-root" aria-live="polite"></main>
+
+  <script>
+    const directions = {
+      a: {
+        title: "A · Kho đề rõ ràng",
+        summary: "Giữ mô hình catalogue + drawer hiện tại, nhưng đưa chương trình, Demo/Pro và trạng thái khóa thành dữ liệu đọc được ngay. Runner tiếp tục dạng cuộn để người học nhìn toàn cảnh đề.",
+        hypothesis: "Vì người luyện thi thường đã biết mình muốn chọn đề nào, hướng này làm toàn bộ kho đề dẫn đầu để họ so sánh nhanh trước khi bắt đầu.",
+        first: "Chương trình → trạng thái mở khóa → tên đề → số câu.",
+        cta: "Mở đề / Xem quyền Pro tại đúng card hoặc drawer.",
+        tradeoff: "Ít thay đổi, dễ scan; nhưng 36 đề vẫn tạo tải lựa chọn lớn.",
+      },
+      b: {
+        title: "B · Bắt đầu nhanh",
+        summary: "Đưa một đề Demo đang mở lên thành lối vào chính; lịch sử và kho đầy đủ lùi xuống dưới. Runner chỉ hiển thị một câu mỗi lần để giảm tải nhận thức trên mobile.",
+        hypothesis: "Vì Free hiện chỉ mở được 2/36 đề, hướng này bỏ qua việc bắt học sinh đọc 34 khóa và đưa họ thẳng vào một trải nghiệm có giá trị.",
+        first: "Đề miễn phí có thể làm ngay → lịch sử gần nhất → thư viện.",
+        cta: "Bắt đầu đề miễn phí.",
+        tradeoff: "Activation rõ nhất; nhưng người học có chủ đích phải cuộn thêm để chọn đề cụ thể.",
+      },
+      c: {
+        title: "C · Theo chương trình",
+        summary: "Tổ chức sản phẩm từ cấp chương trình thi trước, rồi mới vào kho đề. Runner ưu tiên passage + câu hỏi cạnh nhau để xử lý nhóm đọc hiểu như một workspace.",
+        hypothesis: "Vì backend đã có ExamProgram và roadmap còn Cambridge/IELTS, hướng này làm chương trình thi thành mental model bền vững khi catalogue mở rộng.",
+        first: "Chương trình thi → quy mô kho → đề bên trong.",
+        cta: "Mở chương trình THPTQG.",
+        tradeoff: "Scale tốt nhất; hiện chỉ có một program live và nameVi còn rỗng nên thêm một bước chưa đem lại nhiều giá trị.",
+      },
+    };
+
+    const paperCard = (title, state, extra = "40 câu · B2") => `
+      <article class="paper-card ${state === "featured" ? "featured" : ""} ${state === "locked" ? "locked" : ""}">
+        <span class="pill ${state === "locked" ? "pro" : "demo"}">${state === "locked" ? "PRO" : "DEMO"}</span>
+        <h4>${title}</h4>
+        <p>Đề luyện theo cấu trúc tốt nghiệp THPT; đáp án chỉ xuất hiện sau khi nộp.</p>
+        <div class="meta"><span>${extra}</span><span>Không đếm ngược</span></div>
+        <div class="card-actions">
+          <button class="btn ${state === "locked" ? "secondary" : "primary"}">${state === "locked" ? "Xem quyền Pro" : "Mở đề"}</button>
+          ${state === "locked" ? '<span class="lock" aria-label="Đã khóa">🔒</span>' : '<span class="pill">Có thể tạm dừng*</span>'}
+        </div>
+      </article>`;
+
+    const question = (number, selected = "b", verdict = "") => `
+      <article class="question-card">
+        <span class="question-no">CÂU ${number}</span>
+        <h4>Choose the option that best completes the sentence: “If she had prepared earlier, she ___ more confident.”</h4>
+        ${["would feel", "would have felt", "will feel", "felt"].map((label, index) => {
+          const id = ["a", "b", "c", "d"][index];
+          const status = verdict && id === "b" ? "correct" : verdict && id === selected ? "wrong" : selected === id ? "selected" : "";
+          return `<div class="option ${status}"><span class="radio">${id.toUpperCase()}</span><span>${label}</span></div>`;
+        }).join("")}
+        ${verdict ? '<div class="gap-note"><strong>Giải thích:</strong> Đây là câu điều kiện loại 3. “Had prepared” đi với “would have felt”.</div>' : ''}
+      </article>`;
+
+    function catalogueA() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Chọn một đề để bắt đầu</h3><p>Toàn bộ kho được xem công khai; nội dung đề chỉ mở khi tài khoản có quyền.</p></div><button class="btn ghost">Lịch sử làm bài</button></div>
+        <div class="program-tabs"><span class="pill active">THPTQG · 36 đề</span></div>
+        <div class="filters"><span class="pill active">Tất cả</span><span class="pill">Demo mở được</span><span class="pill">Đề đã làm</span><span class="pill">30–40 câu</span></div>
+        <div class="paper-grid">
+          ${paperCard("Đề sở An Giang — lần 2", "featured")}
+          ${paperCard("Đề sở Cần Thơ", "featured")}
+          ${paperCard("Đề thi thử Hà Nội — lần 1", "locked", "38 câu · B2")}
+          ${paperCard("Đề sở Nghệ An — lần 3", "locked")}
+          ${paperCard("Đề sở Đồng Nai — lần 2", "locked")}
+          ${paperCard("Đề sở Hải Phòng — lần 2", "locked")}
+        </div>
+        <p class="fixture">* “Tạm dừng” là mục tiêu biz; contract lưu attempt dở chưa tồn tại. Tên hiển thị là fixture đã biên tập từ live catalogue.</p>
+      </section>`;
+    }
+
+    function catalogueB() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Làm một đề thật, biết mình yếu ở đâu</h3><p>Không đếm ngược. Đáp án chỉ hiện sau khi nộp.</p></div><button class="btn ghost">Lịch sử</button></div>
+        <div class="start-card"><div><span class="pill demo">MỞ MIỄN PHÍ</span><h4>Đề sở An Giang — lần 2</h4><p>40 câu · B2 · có thể dừng khi cần*</p></div><button class="btn">Bắt đầu đề này →</button></div>
+        <h4>Hoặc chọn trong thư viện</h4>
+        <div class="paper-list">
+          <div class="paper-row"><div><strong>Đề sở Cần Thơ</strong><span>40 câu · Demo thứ 2</span></div><span class="pill demo">DEMO</span><button class="btn">Mở</button></div>
+          <div class="paper-row"><div><strong>Đề thi thử Hà Nội — lần 1</strong><span>38 câu · Nội dung Pro</span></div><span class="pill pro">PRO</span><button class="btn secondary">Xem Pro</button></div>
+          <div class="paper-row"><div><strong>Đề sở Nghệ An — lần 3</strong><span>40 câu · Nội dung Pro</span></div><span class="pill pro">PRO</span><button class="btn secondary">Xem Pro</button></div>
+          <div class="paper-row"><div><strong>Đề sở Đồng Nai — lần 2</strong><span>40 câu · Nội dung Pro</span></div><span class="pill pro">PRO</span><button class="btn secondary">Xem Pro</button></div>
+        </div>
+        <p class="fixture">Hướng này dùng quy tắc có thể chứng minh: đưa paper Demo đầu tiên đang unlocked lên trước; không gọi nó là “đề được AI đề xuất”.</p>
+      </section>`;
+    }
+
+    function catalogueC() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Bạn đang luyện cho kỳ thi nào?</h3><p>Mỗi chương trình gom các bộ đề theo một cấu trúc và lộ trình riêng.</p></div><button class="btn ghost">Lịch sử</button></div>
+        <div class="program-grid">
+          <article class="program-card live"><span class="pill">LIVE · 30 bộ đề</span><div class="big">THPTQG</div><p>36 đề đã xuất bản, gồm đề Demo và toàn bộ thư viện dành cho Pro.</p><button class="btn primary">Mở chương trình →</button></article>
+          <article class="program-card soon"><span class="pill">FIXTURE ROADMAP</span><div class="big">Cambridge</div><p>Chưa có program live. Không mở CTA trong production cho tới khi backend có dữ liệu.</p><button class="btn" disabled>Sắp có</button></article>
+          <article class="program-card soon"><span class="pill">FIXTURE ROADMAP</span><div class="big">IELTS</div><p>Ý định trong biz.md, chưa phải capability đang phục vụ.</p><button class="btn" disabled>Sắp có</button></article>
+        </div>
+        <div class="gap-note"><strong>Data warning:</strong> <code>examPrograms[thptqg].nameVi</code> và <code>descriptionVi</code> đang rỗng; UI production cần content fix hoặc fallback được Review chốt.</div>
+      </section>`;
+    }
+
+    function runnerA() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Đề sở An Giang — lần 2</h3><p>14/40 câu đã trả lời · không có đồng hồ đếm ngược</p></div><button class="btn">Lưu & thoát <small>BE gap</small></button></div>
+        <div class="runner-layout"><aside class="sticky-card"><h4>Tiến độ</h4><p>Chọn số câu để di chuyển.</p><div class="question-map">${Array.from({length: 20}, (_,i) => `<span class="qdot ${i < 6 ? "done" : i === 6 ? "active" : i === 11 ? "flag" : ""}">${i+1}</span>`).join("")}</div><div class="gap-note">Không hiển thị countdown. Vàng = cần xem lại.</div></aside><div class="runner-main">${question(7, "b")}${question(8, "")}${question(9, "a")}<div class="runner-footer"><p>Còn 26 câu chưa trả lời. Nộp bài luôn vẫn được.</p><button class="btn primary">Nộp bài →</button></div></div></div>
+      </section>`;
+    }
+
+    function runnerB() {
+      return `<section class="screen">
+        <div class="focus-runner"><div class="focus-top"><button class="btn ghost">← Thoát</button><div class="progress-track"><div class="progress-fill"></div></div><strong>14/40</strong></div>
+        ${question(14, "b")}
+        <div class="runner-footer"><button class="btn">← Câu trước</button><p>Bôi đen một cụm để hỏi từ vựng/ngữ pháp.</p><button class="btn primary">Câu tiếp →</button></div>
+        <div class="question-map" style="margin-top:16px">${Array.from({length: 20}, (_,i) => `<span class="qdot ${i < 7 ? "done" : i === 7 ? "active" : ""}">${i+1}</span>`).join("")}</div>
+        <div class="gap-note"><strong>Điểm đổi chính:</strong> một câu mỗi state; CTA “Nộp bài” chỉ xuất hiện ở câu cuối hoặc trong navigator, không cạnh tranh với “Câu tiếp”.</div></div>
+      </section>`;
+    }
+
+    function runnerC() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Đọc hiểu · câu 21–25</h3><p>Passage và câu hỏi giữ cạnh nhau trên desktop; xếp dọc trên mobile.</p></div><button class="btn">Lưu & thoát <small>BE gap</small></button></div>
+        <div class="passage-layout"><article class="passage"><h4>A different way to learn</h4><p>Students often remember more when they connect new language to a real situation. A short daily practice can be more effective than a long session once a week.</p><p>They may also <mark>retain unfamiliar phrases</mark> by meeting them again in another context.</p><div class="gap-note">Khi bôi đen: RAG hiện có thể gợi ý. “Thêm vào ôn tập” vẫn cần mutation riêng.</div></article><div>${question(23, "b")}<div class="runner-footer"><button class="btn">← Trước</button><button class="btn primary">Tiếp →</button></div></div></div>
+      </section>`;
+    }
+
+    function resultA() {
+      return `<section class="screen"><div class="result-hero"><div class="score"><div><strong>28/40</strong><span>70% chính xác</span></div></div><div class="result-copy"><h3>Bạn đã hoàn thành đề</h3><p>Xem lại 12 câu sai; đáp án và giải thích giờ mới được mở.</p><div class="result-actions"><button class="btn primary">Xem 12 câu sai →</button><button class="btn">Về kho đề</button></div></div></div><div class="stat-grid"><div class="stat"><span>ĐÃ TRẢ LỜI</span><strong>38/40</strong></div><div class="stat"><span>ĐÚNG</span><strong>28</strong></div><div class="stat"><span>BỎ QUA</span><strong>2</strong></div></div>${question(7, "a", "graded")}</section>`;
+    }
+
+    function resultB() {
+      return `<section class="screen"><div class="screen-head"><div><h3>Ba câu đáng ôn nhất</h3><p>Kết quả dẫn thẳng vào lỗi sai cụ thể thay vì dừng ở điểm số.</p></div><span class="pill demo">28/40</span></div><div class="review-list"><article class="review-row"><div class="review-row-head"><h4>Câu 7 · Câu điều kiện loại 3</h4><span class="pill pro">SAI</span></div><p>Bạn chọn A; đáp án đúng là B. Giải thích có sẵn từ gradePaper.</p></article><article class="review-row"><div class="review-row-head"><h4>Câu 18 · Giới từ</h4><span class="pill pro">SAI</span></div><p>Bạn đổi đáp án hai lần trước khi nộp.</p></article><article class="review-row"><div class="review-row-head"><h4>Câu 31 · Đọc hiểu</h4><span class="pill">BỎ QUA</span></div><p>Chưa có lựa chọn khi nộp bài.</p></article></div><div class="runner-footer"><p>Primary tiếp tục core loop; làm lại toàn đề là secondary.</p><button class="btn primary">Ôn 3 câu này →</button></div><div class="gap-note">CTA “Ôn 3 câu này” cần một review-session contract; gradePaper hiện chỉ trả outcome và explanation.</div></section>`;
+    }
+
+    function resultC() {
+      return `<section class="screen"><div class="result-hero"><div class="score"><div><strong>70%</strong><span>28/40 câu đúng</span></div></div><div class="result-copy"><h3>Bức tranh kỹ năng</h3><p>Điểm số dẫn vào nhóm kỹ năng cần học tiếp. Đây là surface Pro trong business brief.</p><div class="result-actions"><button class="btn primary">Ôn câu điều kiện →</button><button class="btn">Xem từng câu</button></div></div></div><div class="skill-list"><div class="skill-row"><span>Từ vựng</span><div class="skill-track"><div class="skill-fill" style="width:82%"></div></div><span>82%</span></div><div class="skill-row"><span>Đọc hiểu</span><div class="skill-track"><div class="skill-fill" style="width:68%"></div></div><span>68%</span></div><div class="skill-row"><span>Câu điều kiện</span><div class="skill-track"><div class="skill-fill" style="width:42%"></div></div><span>42%</span></div><div class="skill-row"><span>Giới từ</span><div class="skill-track"><div class="skill-fill" style="width:51%"></div></div><span>51%</span></div></div><div class="gap-note"><strong>Contract gap:</strong> backend có event/rollup nền nhưng chưa expose GraphQL weak-point report; số phần trăm ở đây là fixture để chốt hierarchy, không phải live data.</div></section>`;
+    }
+
+    const screens = {
+      a: { catalogue: catalogueA, runner: runnerA, result: resultA },
+      b: { catalogue: catalogueB, runner: runnerB, result: resultB },
+      c: { catalogue: catalogueC, runner: runnerC, result: resultC },
+    };
+
+    let activeDirection = "a";
+    let activeView = "catalogue";
+
+    function render() {
+      const d = directions[activeDirection];
+      document.querySelectorAll(".direction-tab").forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.direction === activeDirection)));
+      document.querySelectorAll(".state-tab").forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.view === activeView)));
+      document.getElementById("proposal-root").innerHTML = `
+        <section class="concept-head">
+          <div class="concept-copy"><p class="eyebrow">Hướng ${activeDirection.toUpperCase()}</p><h2>${d.title}</h2><p>${d.summary}</p></div>
+          <aside class="hypothesis"><strong>Giả thuyết sản phẩm</strong>${d.hypothesis}</aside>
+        </section>
+        <div class="evidence-strip"><span class="fact">Live: 1 program</span><span class="fact">Live: 36 papers</span><span class="fact">Free: 2 unlocked</span><span class="fact">34 locked</span><span class="fact">Không timer</span><span class="fact gap">* Có contract gap</span></div>
+        <section class="mock-shell">
+          <nav class="app-nav"><div class="app-brand"><span class="app-dot"></span>MiaMia</div><div class="app-links"><span class="app-link">Học</span><span class="app-link active">Thi thử</span><span class="app-link">Chơi</span><span class="app-link">Tiến trình</span></div><span class="avatar">MN</span></nav>
+          ${screens[activeDirection][activeView]()}
+        </section>
+        <section class="annotations"><div class="annotation"><strong>Đọc trước</strong><span>${d.first}</span></div><div class="annotation"><strong>Primary CTA</strong><span>${d.cta}</span></div><div class="annotation"><strong>Đánh đổi</strong><span>${d.tradeoff}</span></div></section>`;
+    }
+
+    document.querySelectorAll(".direction-tab").forEach((tab) => tab.addEventListener("click", () => { activeDirection = tab.dataset.direction; render(); }));
+    document.querySelectorAll(".state-tab").forEach((tab) => tab.addEventListener("click", () => { activeView = tab.dataset.view; render(); }));
+    document.querySelectorAll('[role="tablist"]').forEach((list) => list.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      const tabs = [...list.querySelectorAll('[role="tab"]')];
+      const current = tabs.indexOf(document.activeElement);
+      if (current < 0) return;
+      event.preventDefault();
+      const next = event.key === "ArrowRight" ? (current + 1) % tabs.length : (current - 1 + tabs.length) % tabs.length;
+      tabs[next].focus(); tabs[next].click();
+    }));
+    render();
+  </script>
+</body>
+</html>

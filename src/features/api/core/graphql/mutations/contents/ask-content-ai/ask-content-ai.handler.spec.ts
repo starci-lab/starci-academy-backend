@@ -225,6 +225,16 @@ describe("AskContentAiHandler",
                 )
             })
 
+        it("propagates provider rejection without consuming credits or returning a false answer",
+            async () => {
+                const providerError = new Error("provider unavailable")
+                aiInvokeService.run.mockRejectedValueOnce(providerError)
+
+                await expect(handler.execute(buildCommand()))
+                    .rejects.toBe(providerError)
+                expect(aiEntitlementService.consume).not.toHaveBeenCalled()
+            })
+
         it("throws UserNotFoundException and never grounds/runs when no user is present",
             async () => {
                 await expect(

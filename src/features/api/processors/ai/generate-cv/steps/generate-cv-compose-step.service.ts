@@ -78,8 +78,7 @@ const RAG_TOP_K = 4
  * Step 1 -- compose. Builds the CV system prompt from the VERIFIED gathered data
  * + the user's free-text `extraPrompts` + three RAG contexts (rubric / catalog /
  * sample), plus (Revise) the extracted original CV text, invokes the LLM via
- * {@link AiInvokeService} (task `Grading`, floor Balanced -- the app's grading
- * lane already targets Balanced-plus), and parses the STRICT JSON reply into the
+ * {@link AiInvokeService} (task `CVGenerating`, floor Medium), and parses the STRICT JSON reply into the
  * structured CV. Persisted as this step's execution result for the render step.
  */
 export class GenerateCvComposeStepService extends AbstractStepService<
@@ -135,8 +134,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
         >,
     ): Promise<GenerateCvComposeStepExecuteResult> {
         const { payload } = context
-        const locale = payload.locale ?? Locale.En
-        const targetLanguage = locale === Locale.Vi
+        const targetLanguage = payload.language === Locale.Vi
             ? "Vietnamese (Tiếng Việt)"
             : "English"
 
@@ -154,17 +152,15 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             })
         }
 
-        // infer a rough seniority level + tech stack from the verified signals to
-        // steer the three RAG queries
-        const inferredLevel = this.inferLevel(gathered)
-        const inferredRole = gathered.profile.roleTitle?.trim() || "Software Engineer"
+        const targetLevel = payload.targetLevel
+        const targetRole = payload.targetRole?.trim() || "Software Engineer"
         const techStack = this.inferTechStack(gathered)
 
         // three RAG contexts, concatenated: rubric (by level), catalog (by stack),
         // sample (by role/level). Best-effort -- RAG failure degrades to no context.
         const ragContext = await this.buildRagContext({
-            inferredLevel,
-            inferredRole,
+            targetLevel,
+            targetRole,
             techStack,
         })
 
@@ -172,8 +168,8 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             targetLanguage,
             extraPrompts: payload.extraPrompts ?? "",
             ragContext,
-            inferredLevel,
-            inferredRole,
+            targetLevel,
+            targetRole,
             isRevise: payload.mode === CvGenerationMode.Revise,
         })
 
@@ -203,8 +199,8 @@ export class GenerateCvComposeStepService extends AbstractStepService<
      */
     private async buildRagContext(
         {
-            inferredLevel,
-            inferredRole,
+            targetLevel,
+            targetRole,
             techStack,
         }: BuildRagContextParams,
     ): Promise<string> {
@@ -215,7 +211,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
                 sample,
             ] = await Promise.all([
                 this.cvRagRetrievalService.retrieveCvContext({
-                    query: `CV quality rubric and expectations for a ${inferredLevel} engineer`,
+                    query: `CV quality rubric and expectations for a ${targetLevel} engineer`,
                     kinds: ["rubric"],
                     topK: RAG_TOP_K,
                 }),
@@ -225,7 +221,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
                     topK: RAG_TOP_K,
                 }),
                 this.cvRagRetrievalService.retrieveCvContext({
-                    query: `Sample CV phrasing for a ${inferredLevel} ${inferredRole}`,
+                    query: `Sample CV phrasing for a ${targetLevel} ${targetRole}`,
                     kinds: ["sample"],
                     topK: RAG_TOP_K,
                 }),
@@ -243,7 +239,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
     }
 
     /**
-     * Build the system prompt: verified achievements + free-text prompts + RAG
+     * Build the system prompt: selected evidence + free-text prompts + RAG
      * context + (Revise) original CV + STRICT JSON output contract.
      */
     private buildSystemPrompt(
@@ -251,8 +247,8 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             targetLanguage,
             extraPrompts,
             ragContext,
-            inferredLevel,
-            inferredRole,
+            targetLevel,
+            targetRole,
             isRevise,
         }: BuildSystemPromptParams,
     ): string {
@@ -284,12 +280,12 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             ],
         }
         return [
-            `You are an expert technical resume writer building a CV for a ${inferredLevel} ${inferredRole}.`,
+            `You are an expert technical resume writer building a CV for a ${targetLevel} ${targetRole}.`,
             "",
             "## Goal",
             "Produce a concise, achievement-focused CV grounded ONLY in the VERIFIED data and the user's notes below.",
             "Do NOT invent employers, dates, degrees, or metrics that are not supported by the input.",
-            "Turn the verified achievements (passed capstone tasks, graded challenges, accepted coding problems) into strong, quantified bullets where possible.",
+            "Only the explicitly selected passed capstones are StarCi-verified. Do not use other learning activity as a CV claim.",
             "",
             "## IMPORTANT: Language",
             `Write ALL human-readable values (headline, summary, bullets, category names) in **${targetLanguage}**. JSON keys stay in English.`,
@@ -333,7 +329,6 @@ export class GenerateCvComposeStepService extends AbstractStepService<
     ): string {
         const profileLines = [
             `Display name: ${gathered.profile.displayName ?? "(unknown)"}`,
-            `Role title: ${gathered.profile.roleTitle ?? "(none)"}`,
             `Location: ${gathered.profile.location ?? "(none)"}`,
             `Bio: ${gathered.profile.bio ?? "(none)"}`,
             `GitHub: ${gathered.profile.githubUsername ?? "(none)"}`,
@@ -343,49 +338,19 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             `Open to work: ${gathered.profile.openToWork ? "yes" : "no"}`,
         ].join("\n")
 
-        const milestoneLines = gathered.milestoneTaskAttempts.length > 0
-            ? gathered.milestoneTaskAttempts
+        const milestoneLines = gathered.selectedEvidence.length > 0
+            ? gathered.selectedEvidence
                 .map((attempt) =>
                     `- [${attempt.courseTitle} / ${attempt.milestoneTitle}] ${attempt.taskTitle} (score ${attempt.score})`)
                 .join("\n")
             : "(none)"
 
-        const challengeLines = gathered.challengeSubmissions.length > 0
-            ? gathered.challengeSubmissions
-                .map((submission) =>
-                    `- [${submission.courseTitle}] ${submission.challengeTitle} (score ${submission.score}${submission.selectedLang ? `, ${submission.selectedLang}` : ""})`)
-                .join("\n")
-            : "(none)"
-
-        const codingLines = gathered.codingSolves.length > 0
-            ? gathered.codingSolves
-                .map((solve) =>
-                    `- ${solve.problemTitle} (${solve.difficulty}, ${solve.domain})`)
-                .join("\n")
-            : "(none)"
-
-        const xpLines = [
-            `Challenge XP: ${gathered.xp.challengeXp}`,
-            `Milestone/capstone XP: ${gathered.xp.milestoneXp}`,
-            `Coding XP: ${gathered.xp.codingXp}`,
-            `Lesson XP: ${gathered.xp.lessonXp}`,
-        ].join("\n")
-
         return [
             "## Verified profile",
             profileLines,
             "",
-            "## Passed capstone / milestone tasks",
+            "## Explicitly selected passed capstones",
             milestoneLines,
-            "",
-            "## Graded challenge submissions (score > 0)",
-            challengeLines,
-            "",
-            "## Accepted coding-practice problems",
-            codingLines,
-            "",
-            "## XP breakdown (emphasis signal)",
-            xpLines,
             ...(gathered.sourceCvText
                 ? [
                     "",
@@ -456,42 +421,15 @@ export class GenerateCvComposeStepService extends AbstractStepService<
     }
 
     /**
-     * Rough seniority signal from the verified achievement volume.
-     */
-    private inferLevel(
-        gathered: GenerateCvGatherStepExecuteResult,
-    ): string {
-        const totalXp = gathered.xp.challengeXp
-            + gathered.xp.milestoneXp
-            + gathered.xp.codingXp
-            + gathered.xp.lessonXp
-        const capstones = gathered.milestoneTaskAttempts.length
-        if (capstones >= 10 || totalXp >= 5000) {
-            return "senior"
-        }
-        if (capstones >= 3 || totalXp >= 1500) {
-            return "mid-level"
-        }
-        return "junior"
-    }
-
-    /**
-     * Derive a tech-stack hint from the languages used in graded challenge
-     * submissions + coding-problem domains (drives the catalog RAG query).
+     * Derive a catalog-search hint only from the frozen selected evidence.
      */
     private inferTechStack(
         gathered: GenerateCvGatherStepExecuteResult,
     ): Array<string> {
         const stack = new Set<string>()
-        for (const submission of gathered.challengeSubmissions) {
-            if (submission.selectedLang) {
-                stack.add(submission.selectedLang)
-            }
-        }
-        for (const solve of gathered.codingSolves) {
-            if (solve.domain) {
-                stack.add(solve.domain)
-            }
+        for (const evidence of gathered.selectedEvidence) {
+            stack.add(evidence.taskTitle)
+            stack.add(evidence.courseTitle)
         }
         return Array.from(stack)
     }

@@ -44,6 +44,9 @@ import {
 import {
     ScoreUploadedCvService,
 } from "../shared/cv-scoring/score-uploaded-cv.service"
+import {
+    CvScoringPromptService,
+} from "../shared/cv-scoring/cv-scoring-prompt.service"
 
 @Module({
     providers: [
@@ -56,6 +59,7 @@ import {
         GenerateCvCompleteStepService,
         // SOURCE-AGNOSTIC scoring service (shared with the upload path).
         CvScoringService,
+        CvScoringPromptService,
         // WF-07 upload-scoring path: buffers `uploadedCdnKey` -> extracts text ->
         // scores via the shared CvScoringService (`cvText` branch) -> persists.
         ScoreUploadedCvService,

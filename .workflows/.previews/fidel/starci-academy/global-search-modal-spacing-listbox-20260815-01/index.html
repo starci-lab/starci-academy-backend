@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StarCi · Global Search fidelity preview</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #211a20;
+      --muted: #7d757b;
+      --line: #eee8ec;
+      --soft: #f7f4f6;
+      --pink: #ed4d9a;
+      --pink-soft: #fff0f7;
+      --pink-soft-foreground: #b42d70;
+      --shadow: 0 24px 80px rgba(30, 20, 27, .18);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f0edef;
+      color: var(--ink);
+      font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input { font: inherit; }
+    .preview-bar {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 750; }
+    .brand-mark {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--ink);
+      color: white;
+      font-weight: 800;
+    }
+    .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 12px; background: var(--soft); }
+    .tab {
+      border: 0;
+      border-radius: 9px;
+      padding: 8px 12px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] { background: white; color: var(--ink); box-shadow: 0 1px 5px rgba(36,25,33,.10); }
+    .note { color: var(--muted); font-size: 12px; }
+    .stage {
+      min-height: calc(100vh - 63px);
+      padding: 32px;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(237,77,154,.09), transparent 28%),
+        linear-gradient(135deg, #ebe7e9, #f5f2f4);
+    }
+    .app-shell {
+      position: relative;
+      min-height: 720px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 24px;
+      background: white;
+      box-shadow: 0 12px 40px rgba(45,33,41,.10);
+    }
+    .fake-nav {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      height: 72px;
+      padding: 0 28px;
+      font-weight: 650;
+    }
+    .fake-nav .search-pill { margin-left: auto; width: 280px; height: 40px; border-radius: 12px; background: var(--soft); }
+    .backdrop { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(27,23,26,.53); }
+    .dialog {
+      width: min(1180px, 100%);
+      height: min(650px, calc(100vh - 150px));
+      min-height: 560px;
+      padding: 16px;
+      overflow: hidden;
+      border-radius: 22px;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+    .workspace { display: flex; min-width: 0; height: 100%; flex-direction: column; gap: 16px; }
+    .command {
+      display: flex;
+      flex: none;
+      align-items: center;
+      gap: 12px;
+      height: 48px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--soft);
+      box-shadow: inset 0 -2px 0 var(--pink);
+    }
+    .search-icon { width: 18px; height: 18px; border: 2px solid #8b8389; border-radius: 50%; position: relative; flex: none; }
+    .search-icon::after { content: ""; position: absolute; width: 7px; height: 2px; right: -5px; bottom: -2px; rotate: 45deg; background: #8b8389; }
+    .command input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); }
+    kbd { color: var(--muted); font-weight: 650; }
+    .body { display: flex; min-width: 0; flex: 1; align-items: flex-start; gap: 32px; overflow: auto; }
+    .listbox { width: 288px; flex: 0 0 288px; margin: 0; padding: 0; list-style: none; }
+    .listbox li {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: default;
+    }
+    .listbox li + li { margin-top: 4px; }
+    .listbox li:hover { background: var(--soft); }
+    [data-variant="scopes"] li.is-active { background: var(--pink-soft); color: var(--pink-soft-foreground); }
+    [data-variant="scopes"] li:hover .count { color: var(--pink-soft); }
+    .scope-icon { display: inline-grid; width: 20px; height: 20px; flex: none; place-items: center; font-size: 18px; line-height: 1; }
+    .label { min-width: 0; flex: 1; font-weight: 650; }
+    .kind {
+      display: inline-grid;
+      min-width: 26px;
+      height: 26px;
+      place-items: center;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .count { flex: none; color: var(--muted); font-size: 12px; }
+    .check { width: 16px; color: var(--ink); font-weight: 850; }
+    .center { min-width: 0; flex: 1; }
+    .empty { display: grid; min-height: 240px; place-items: center; text-align: center; }
+    .empty-inner { max-width: 510px; }
+    .empty-icon { display: grid; width: 46px; height: 46px; margin: 0 auto 16px; place-items: center; border-radius: 14px; background: var(--soft); }
+    .empty-message { margin: 0 0 8px; color: var(--muted); font-weight: 650; }
+    p { margin: 0; color: var(--muted); }
+    .cta { margin-top: 18px; border: 0; border-radius: 999px; padding: 9px 15px; background: var(--soft); color: #bb3c79; font-weight: 750; }
+    .results { width: 100%; }
+    #results-state .results { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; box-shadow: none; }
+    .result-item { align-items: flex-start !important; padding-block: 11px !important; }
+    .result-copy { min-width: 0; flex: 1; }
+    .result-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-desc { margin-top: 2px; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .context { width: 288px; flex: 0 0 288px; padding: 16px; }
+    .context .kind { margin: 8px 0 12px; background: white; }
+    .context .cta { width: 100%; margin-top: 16px; background: var(--pink); color: white; }
+    .mobile-frame { width: 390px; min-height: 760px; margin: 0 auto; }
+    .mobile-frame .fake-nav { display: none; }
+    .mobile-frame .backdrop { padding: 16px; align-items: stretch; }
+    .mobile-frame .dialog { width: 100%; height: 100%; min-height: 0; border-radius: 20px; }
+    .mobile-frame .body { flex-direction: column; gap: 16px; }
+    .mobile-frame .listbox { width: 100%; flex-basis: auto; }
+    .mobile-frame .empty { min-height: 220px; }
+    .mobile-frame .context { display: none; }
+    [hidden] { display: none !important; }
+    @media (max-width: 720px) {
+      .preview-bar { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .tabs { max-width: 100%; overflow-x: auto; }
+      .note { display: none; }
+      .stage { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="preview-bar">
+    <div class="brand"><span class="brand-mark">S</span><span>Global Search · fidelity preview</span></div>
+    <nav class="tabs" aria-label="Trạng thái preview">
+      <button class="tab" data-view="empty" aria-selected="true">Desktop · Rỗng</button>
+      <button class="tab" data-view="results" aria-selected="false">Desktop · Kết quả</button>
+      <button class="tab" data-view="mobile" aria-selected="false">Mobile</button>
+    </nav>
+    <span class="note">Reuse: SelectionList · nested SurfaceListCard · EmptyNotice · detail render</span>
+  </header>
+
+  <main class="stage">
+    <section class="app-shell" id="preview-shell">
+      <div class="fake-nav"><strong>StarCi</strong><span>Trang chủ</span><span>Khóa học</span><span>Liên hệ</span><span class="search-pill"></span></div>
+      <div class="backdrop">
+        <div class="dialog">
+          <div class="workspace">
+            <label class="command"><span class="search-icon"></span><input id="query" aria-label="Tìm kiếm" placeholder="Tìm khóa học, bài học, luyện tập và dự án..." /><kbd>CtrlK</kbd></label>
+            <div class="body">
+              <ul class="listbox" data-component="SelectionList" data-variant="scopes" aria-label="Phạm vi tìm kiếm">
+                <li class="is-active"><span class="scope-icon" aria-hidden="true">▦</span><span class="label">Tất cả</span><span class="count" data-count="all">0</span></li>
+                <li><span class="scope-icon" aria-hidden="true">⌑</span><span class="label">Khóa học</span><span class="count" data-count="course">0</span></li>
+                <li><span class="scope-icon" aria-hidden="true">☑</span><span class="label">Học tập</span><span class="count" data-count="learn">0</span></li>
+                <li><span class="scope-icon" aria-hidden="true">‹/›</span><span class="label">Luyện tập</span><span class="count" data-count="practice">0</span></li>
+                <li><span class="scope-icon" aria-hidden="true">▱</span><span class="label">Dự án</span><span class="count" data-count="project">0</span></li>
+                <li><span class="scope-icon" aria-hidden="true">✦</span><span class="label">Nền tảng</span><span class="count" data-count="platform">0</span></li>
+              </ul>
+
+              <div class="center empty" id="empty-state" data-node="global-search-result-region">
+                <div class="empty-inner" data-component="EmptyNotice"><div class="empty-icon"><span class="search-icon"></span></div><div class="empty-message">Tìm trong toàn bộ học viện</div><p>Tìm khóa học, quay lại một bài học hoặc mở phần luyện tập mà không rời trang hiện tại.</p><button class="cta">↻&nbsp; Xem khóa học</button></div>
+              </div>
+
+              <div class="center" id="results-state" data-node="global-search-result-region" hidden>
+                <ul class="listbox results" data-component="SurfaceListCard" data-surface-context="nested" aria-label="Kết quả tìm kiếm">
+                  <li class="result-item"><span class="result-copy"><div class="result-title">System Design Mastery</div></span><span class="kind">Khóa học</span><span class="check">✓</span></li>
+                  <li class="result-item"><span class="result-copy"><div class="result-title">Nền tảng System Design</div></span><span class="kind">Mô-đun</span></li>
+                  <li class="result-item"><span class="result-copy"><div class="result-title">High-Throughput Notification System</div></span><span class="kind">Mô-đun</span></li>
+                  <li class="result-item"><span class="result-copy"><div class="result-title">Shared File Systems — EFS & FSx</div></span><span class="kind">Bài học</span></li>
+                  <li class="result-item"><span class="result-copy"><div class="result-title">Processes & Services — systemd</div></span><span class="kind">Bài học</span></li>
+                </ul>
+              </div>
+
+              <aside class="context" id="context-card" data-node="global-search-context-card" hidden><strong id="detail-title">Đang tải chi tiết...</strong><div><span class="kind">Khóa học</span></div><p id="detail-description"></p><button class="cta" id="detail-action" hidden>Mở kết quả&nbsp; →</button></aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const shell = document.querySelector('#preview-shell');
+    const query = document.querySelector('#query');
+    const empty = document.querySelector('#empty-state');
+    const results = document.querySelector('#results-state');
+    const context = document.querySelector('#context-card');
+    const detailTitle = document.querySelector('#detail-title');
+    const detailDescription = document.querySelector('#detail-description');
+    const detailAction = document.querySelector('#detail-action');
+    const counts = {all: 21, course: 1, learn: 9, practice: 6, project: 4, platform: 1};
+
+    function show(view) {
+      document.querySelectorAll('.tab').forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.view === view)));
+      shell.classList.toggle('mobile-frame', view === 'mobile');
+      const populated = view === 'results';
+      empty.hidden = populated;
+      results.hidden = !populated;
+      context.hidden = true;
+      query.value = populated ? 'system' : '';
+      document.querySelectorAll('[data-count]').forEach(node => node.textContent = populated ? counts[node.dataset.count] : 0);
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => show(tab.dataset.view)));
+    document.querySelectorAll('[data-variant="scopes"] li').forEach(row => row.addEventListener('click', () => {
+      document.querySelectorAll('[data-variant="scopes"] li').forEach(item => item.classList.remove('is-active'));
+      row.classList.add('is-active');
+    }));
+    document.querySelectorAll('.result-item').forEach(row => row.addEventListener('click', () => {
+      context.hidden = false;
+      detailTitle.textContent = 'Đang tải chi tiết...';
+      detailDescription.textContent = '';
+      detailAction.hidden = true;
+      window.setTimeout(() => {
+        detailTitle.textContent = row.querySelector('.result-title').textContent;
+        detailDescription.textContent = 'Nội dung này được trả về từ API detail, không dùng snippet autocomplete.';
+        detailAction.hidden = false;
+      }, 450);
+    }));
+    query.addEventListener('input', () => show(query.value.trim() ? 'results' : shell.classList.contains('mobile-frame') ? 'mobile' : 'empty'));
+  </script>
+</body>
+</html>

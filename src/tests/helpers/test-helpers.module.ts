@@ -2,12 +2,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    HarnessInvokeService,
-} from "./harness-invoke.service"
-import {
-    JudgeService,
-} from "./judge.service"
-import {
     PingResolver,
 } from "./ping-resolver"
 import {
@@ -22,17 +16,13 @@ import {
 
 @Module({
     providers: [
-        JudgeService,
         GitMountService,
-        HarnessInvokeService,
         PingResolver,
         E2eDbResetService,
         winstonServiceMock,
     ],
     exports: [
-        JudgeService,
         GitMountService,
-        HarnessInvokeService,
         PingResolver,
         E2eDbResetService,
         winstonServiceMock.provide,
@@ -48,11 +38,8 @@ import {
  * that imports this module never has to know that, and never opens a network
  * transport just to assert on a row.
  *
- * Deliberately omitted:
- * - {@link E2eStackService} -- constructed inside Jest `globalSetup`, which
- *   runs in a different process from the specs. An injected copy would be a
- *   second, empty instance.
- * - {@link createE2eApp} -- the factory that *calls* `createTestingModule`; it
+ * Deliberately omitted: {@link createE2eApp}, the factory that *calls*
+ * `createTestingModule`; it
  *   cannot be a provider inside the module it builds.
  */
 export class TestHelpersModule {}

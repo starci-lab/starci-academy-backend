@@ -32,6 +32,9 @@ import {
 import {
     GenerateCvData,
 } from "./graphql-types/response"
+import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
 
 @CommandHandler(GenerateCvCommand)
 @Injectable()
@@ -45,6 +48,7 @@ export class GenerateCvHandler
     constructor(
         private readonly enqueueGenerateCvJobService: EnqueueGenerateCvJobService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
+        private readonly cvEvidenceService: CvEvidenceService,
     ) {
         super()
     }
@@ -61,6 +65,8 @@ export class GenerateCvHandler
                 label,
                 targetRole,
                 language,
+                targetLevel,
+                milestoneTaskAttemptIds,
             },
             user,
             locale,
@@ -81,18 +87,24 @@ export class GenerateCvHandler
             provider: selectedModelProvider,
         })
         const selection = validatedLaneToAiJobSelection(validatedLane)
+        const evidence = await this.cvEvidenceService.resolveSelected({
+            userId: user.id,
+            milestoneTaskAttemptIds,
+        })
+        const effectiveLanguage = (language as Locale | undefined) ?? locale ?? Locale.En
 
         // create the Pending cv_generations row + enqueue the build job.
         const { cvGeneration, jobId } = await this.enqueueGenerateCvJobService.enqueue({
             userId: user.id,
             mode: CvGenerationMode.Generate,
             extraPrompts: extraPrompts ?? undefined,
-            locale: locale ?? Locale.En,
+            language: effectiveLanguage,
             ai: selection,
             courseId: courseId ?? undefined,
             label: label ?? undefined,
             targetRole: targetRole ?? undefined,
-            language: language ?? undefined,
+            targetLevel,
+            selectedEvidence: evidence.snapshot,
         })
 
         return {

@@ -84,6 +84,12 @@ import {
 import {
     HeadhuntingsBussinessModule,
 } from "./headhuntings/headhuntings.module"
+import {
+    CvEvidenceModule,
+} from "./cv-evidence/cv-evidence.module"
+import {
+    CoursePricingModule,
+} from "./course-pricing/course-pricing.module"
 
 @Module({
 })
@@ -144,6 +150,9 @@ export class BussinessModule extends ConfigurableModuleClass {
             ContentAiModule.register(options),
             // import the headhuntings module (CV-score gate on consultant contact details)
             HeadhuntingsBussinessModule.register(options),
+            // import the CV evidence module (passed-capstone selection + immutable snapshots)
+            CvEvidenceModule.register(options),
+            CoursePricingModule.register(options),
         ]
         return {
             ...dynamicModule,

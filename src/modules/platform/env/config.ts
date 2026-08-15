@@ -1695,6 +1695,22 @@ export const envConfig = () => ({
             key: "KEYCLOAK_CLIENT_ID",
             defaultValue: "academy-web",
         }),
+        /** Explicit local-only shortcut for the deterministic test account's email OTP. */
+        localTestAuth: {
+            enabled: !(
+                parseEnvString({
+                    key: "NODE_ENV",
+                    defaultValue: "development",
+                }) === "production"
+            ) && parseEnvBoolean({
+                key: "LOCAL_TEST_AUTH_BYPASS_ENABLED",
+                defaultValue: false,
+            }),
+            email: parseEnvString({
+                key: "DEV_TEST_ACCOUNT_EMAIL",
+                defaultValue: "test@starci.local",
+            }),
+        },
         admin: {
             clientId: parseEnvString({
                 key: "KEYCLOAK_ADMIN_CLIENT_ID",

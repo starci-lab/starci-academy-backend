@@ -27,6 +27,17 @@ import {
 import {
     IAbstractGraphQLResponse,
 } from "@modules/api/apollo/server/types/graphql-response"
+import {
+    CvTargetLevel,
+    GraphQLTypeCvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    CvEvidenceLevel,
+    GraphQLTypeCvEvidenceLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-evidence-level"
+import {
+    CvSelectedEvidence,
+} from "../../graphql-types/cv-evidence"
 
 @ObjectType({
     description: "One CV scoring observation (a strength or a gap), with an optional fix suggestion.",
@@ -201,6 +212,25 @@ export class CvGenerationPayload {
         },
     )
         language: string | null
+
+    @Field(() => GraphQLTypeCvTargetLevel,
+        {
+            nullable: true,
+            description: "Explicit seniority bar; null only for historical rows.",
+        })
+        targetLevel: CvTargetLevel | null
+
+    @Field(() => [CvSelectedEvidence],
+        {
+            description: "Immutable passed-capstone facts selected into this run.",
+        })
+        selectedEvidence: Array<CvSelectedEvidence>
+
+    @Field(() => GraphQLTypeCvEvidenceLevel,
+        {
+            description: "Per-run evidence strength, separate from AI CV quality score.",
+        })
+        evidenceLevel: CvEvidenceLevel
 
     @Field(
         () => Int,

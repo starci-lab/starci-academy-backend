@@ -4,14 +4,13 @@ import type {
 import type {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
-
-/**
- * Seniority rubric level the CV is graded against. Kept as a string union
- * (`junior` | `mid` | `senior`) rather than an enum so a caller can pass a value
- * inferred from any signal (target role, verified achievement volume) without a
- * hard dependency on a shared enum. Defaults to `mid` when omitted.
- */
-export type CvTemplateLevel = "junior" | "mid" | "senior"
+import type {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import type {
+    HumanMessage,
+    SystemMessage,
+} from "@langchain/core/messages"
 
 /**
  * Input to {@link CvScoringService.score} -- SOURCE-AGNOSTIC. The caller supplies
@@ -34,16 +33,16 @@ export interface ScoreCvParams {
      * for a generated CV, may accompany `structuredData` as extra context.
      */
     cvText?: string | null
-    /** Seniority rubric level to grade against (defaults to `mid`). */
-    templateLevel?: CvTemplateLevel
-    /** Locale hint so feedback is written in the learner's language. */
-    locale?: Locale
+    /** Explicit seniority rubric level to grade against. */
+    targetLevel: CvTargetLevel
+    /** Effective output language, resolved before enqueue. */
+    language: Locale
     /** The user's validated AI lane + model pick (Auto / Premium / BYOK). */
     selection?: AiJobSelection
 }
 
-/** Params for {@link CvScoringService.buildCvContent}. */
-export interface BuildCvContentParams {
+/** Params for {@link CvScoringPromptService.build}. */
+export interface BuildCvScoringPromptParams {
     /**
      * The composed CV JSON (header / summary / skills / experience / education).
      * Preferred grading input; used by the generate pipeline. Omit for a
@@ -55,16 +54,17 @@ export interface BuildCvContentParams {
      * for a generated CV, may accompany `structuredData` as extra context.
      */
     cvText?: string | null
-}
-
-/** Params for {@link CvScoringService.buildSystemPrompt}. */
-export interface BuildSystemPromptParams {
     /** Seniority rubric level to grade against. */
-    level: CvTemplateLevel
+    level: CvTargetLevel
     /** Advisory rubric excerpt from `cv_rag`, or "" when retrieval failed. */
     rubricContext: string
     /** Human-readable output language for the LLM's feedback. */
     targetLanguage: string
+}
+
+/** Ordered production messages consumed by both scoring and its live harness. */
+export interface BuildCvScoringPromptResult {
+    messages: [SystemMessage, HumanMessage]
 }
 
 /** One structured feedback item on a CV (a strength or a gap). */
@@ -88,7 +88,7 @@ export interface CvScoreFeedback {
     /** One-line summary of the CV's overall quality. */
     shortFeedback: string
     /** The rubric level the CV was graded against. */
-    templateLevel: CvTemplateLevel
+    templateLevel: CvTargetLevel
     /** Per-observation feedback items (strengths + gaps). */
     items: Array<CvScoreFeedbackItem>
 }
@@ -120,10 +120,10 @@ export interface ScoreUploadedCvParams {
      * shared scoring service.
      */
     userId: string
-    /** Seniority rubric level to grade against (defaults to `mid` when omitted). */
-    templateLevel?: CvTemplateLevel
-    /** Locale hint so feedback is written in the learner's language. */
-    locale?: Locale
+    /** Explicit seniority rubric level to grade against. */
+    targetLevel: CvTargetLevel
+    /** Effective output language. */
+    language: Locale
     /** The user's validated AI lane + model pick (Auto / Premium / BYOK). */
     selection?: AiJobSelection
 }

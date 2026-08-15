@@ -89,6 +89,9 @@ import {
     JobStalledService,
 } from "@modules/bussiness/jobs/atomic/job-stalled.service"
 import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
+import {
     POSTGRESQL_PRIMARY,
 } from "@modules/databases/postgresql/primary/constants/connection"
 import {
@@ -124,6 +127,9 @@ import {
 import {
     CvSource,
 } from "@modules/databases/postgresql/primary/enums/cv-source"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
 import {
     JobStatus,
 } from "@modules/databases/postgresql/primary/enums/job-status"
@@ -230,6 +236,24 @@ import {
     ReviseCvService,
 } from "@features/api/core/graphql/mutations/cv-submissions/revise-cv/revise-cv.service"
 import {
+    MyCvGenerationsHandler,
+} from "@features/api/core/graphql/queries/cv-submissions/my-cv-generations/my-cv-generations.handler"
+import {
+    MyCvGenerationsResolver,
+} from "@features/api/core/graphql/queries/cv-submissions/my-cv-generations/my-cv-generations.resolver"
+import {
+    MyCvGenerationsService,
+} from "@features/api/core/graphql/queries/cv-submissions/my-cv-generations/my-cv-generations.service"
+import {
+    MyPickableCvAchievementsHandler,
+} from "@features/api/core/graphql/queries/cv-submissions/my-pickable-cv-achievements/my-pickable-cv-achievements.handler"
+import {
+    MyPickableCvAchievementsResolver,
+} from "@features/api/core/graphql/queries/cv-submissions/my-pickable-cv-achievements/my-pickable-cv-achievements.resolver"
+import {
+    MyPickableCvAchievementsService,
+} from "@features/api/core/graphql/queries/cv-submissions/my-pickable-cv-achievements/my-pickable-cv-achievements.service"
+import {
     EnqueueGenerateCvJobService,
 } from "@features/api/processors/ai/generate-cv/enqueue-generate-cv.service"
 import {
@@ -262,6 +286,9 @@ import {
 import {
     CvScoringService,
 } from "@features/api/processors/ai/shared/cv-scoring/cv-scoring.service"
+import {
+    CvScoringPromptService,
+} from "@features/api/processors/ai/shared/cv-scoring/cv-scoring-prompt.service"
 import {
     ScoreUploadedCvService,
 } from "@features/api/processors/ai/shared/cv-scoring/score-uploaded-cv.service"
@@ -404,7 +431,14 @@ describe("a learner builds a CV through the durable worker pipeline",
                         }
                     `,
                     variables: {
-                        request: input,
+                        request: {
+                            targetLevel: CvTargetLevel.Mid,
+                            ...(name === "generateCv" ? {
+                                milestoneTaskAttemptIds: [],
+                            } : {
+                            }),
+                            ...input,
+                        },
                     },
                 })
                 .expect(200)
@@ -542,6 +576,13 @@ describe("a learner builds a CV through the durable worker pipeline",
                     ReviseCvResolver,
                     ReviseCvService,
                     ReviseCvHandler,
+                    MyCvGenerationsResolver,
+                    MyCvGenerationsService,
+                    MyCvGenerationsHandler,
+                    MyPickableCvAchievementsResolver,
+                    MyPickableCvAchievementsService,
+                    MyPickableCvAchievementsHandler,
+                    CvEvidenceService,
                     EnqueueGenerateCvJobService,
                     EnqueueScoreUploadedCvJobService,
                     GenerateCvWorker,
@@ -553,6 +594,7 @@ describe("a learner builds a CV through the durable worker pipeline",
                     GenerateCvScoreStepService,
                     GenerateCvCompleteStepService,
                     CvScoringService,
+                    CvScoringPromptService,
                     ScoreUploadedCvService,
                     CvRagRetrievalService,
                     JobActionService,
@@ -729,10 +771,50 @@ describe("a learner builds a CV through the durable worker pipeline",
                     fullName: "Ada Learner",
                 })
                 expect(cv.score).toBe(88)
+                expect(cv.targetLevel).toBe(CvTargetLevel.Mid)
+                expect(cv.selectedEvidence).toEqual([])
                 expect(cv.latexCdnKey).toContain(started.jobId)
                 expect(cv.generatedPdfCdnKey).toContain(started.jobId)
                 expect(job.currentStep).toBe(job.maxSteps)
                 expect(s3UploadMock.buffer).toHaveBeenCalledTimes(2)
+
+                const history = await request(app.getHttpServer())
+                    .post("/graphql")
+                    .send({
+                        query: `
+                            query History {
+                                myCvGenerations {
+                                    success
+                                    data { id targetLevel selectedEvidenceCount evidenceLevel score }
+                                }
+                            }
+                        `,
+                    })
+                    .expect(200)
+                expect(history.body.errors).toBeUndefined()
+                expect(history.body.data.myCvGenerations.data[0]).toEqual(expect.objectContaining({
+                    id: started.cvGenerationId,
+                    targetLevel: CvTargetLevel.Mid,
+                    selectedEvidenceCount: 0,
+                    evidenceLevel: "self_reported",
+                    score: 88,
+                }))
+
+                const picker = await request(app.getHttpServer())
+                    .post("/graphql")
+                    .send({
+                        query: `
+                            query Picker {
+                                myPickableCvAchievements {
+                                    success
+                                    data { milestoneTaskAttempts { id courseId taskTitle } }
+                                }
+                            }
+                        `,
+                    })
+                    .expect(200)
+                expect(picker.body.errors).toBeUndefined()
+                expect(picker.body.data.myPickableCvAchievements.data.milestoneTaskAttempts).toEqual([])
                 await expectUnbilled()
             })
 
@@ -773,6 +855,9 @@ describe("a learner builds a CV through the durable worker pipeline",
                         source: CvSource.Uploaded,
                         status: CvGenerationStatus.Done,
                         uploadedCdnKey: `users/${currentUser.id}/source.pdf`,
+                        language: Locale.En,
+                        targetLevel: CvTargetLevel.Senior,
+                        selectedEvidence: [],
                     },
                 ))
                 providerScript.set([
@@ -791,6 +876,8 @@ describe("a learner builds a CV through the durable worker pipeline",
                 expect(cv.status).toBe(CvGenerationStatus.Done)
                 expect(cv.mode).toBe(CvGenerationMode.Revise)
                 expect(cv.sourceCvSubmissionId).toBe(source.id)
+                expect(cv.targetLevel).toBe(CvTargetLevel.Senior)
+                expect(cv.selectedEvidence).toEqual([])
                 expect(await entityManager.count(UserCvGenerationEntity)).toBe(2)
                 expect(extractMock).toHaveBeenCalledTimes(1)
                 await expectUnbilled()

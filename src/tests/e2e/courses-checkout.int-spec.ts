@@ -95,8 +95,14 @@ import {
     CoursesCheckoutPricingService,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout-pricing.service"
 import {
-    CoursePricingService,
-} from "@features/api/core/graphql/mutations/courses/course-enroll/course-pricing.service"
+    CoursePriceCalculatorService,
+} from "@modules/bussiness/course-pricing/course-price-calculator.service"
+import {
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
+import {
+    VoucherService,
+} from "@modules/bussiness/rewards/voucher.service"
 import type {
     CoursesCheckoutRequest,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/graphql-types/request"
@@ -205,11 +211,13 @@ describe("Courses checkout — multi-course cart (integration)",
                 providers: [
                     CoursesCheckoutHandler,
                     CoursesCheckoutPricingService,
-                    CoursePricingService,
+                    CoursePriceCalculatorService,
+                    CoursePriceQuoteService,
                     LoyaltyDiscountService,
                     UserStatsProjectionService,
                     UserXpProjectionService,
                     InstallmentPlanService,
+                    VoucherService,
                     DayjsService,
                     RetryService,
                     {

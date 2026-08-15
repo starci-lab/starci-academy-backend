@@ -66,8 +66,9 @@ export const createLokiTransport = (
                 winston.format.json(),
             ),
             labels: {
-                environment: envConfig().isProduction,
-                application: appName,
+                project: "starci-academy",
+                environment: envConfig().nodeEnv,
+                service_name: appName,
             },
             basicAuth: envConfig().loki.requireAuth
                 ? `${envConfig().loki.username}:${envConfig().loki.password}`

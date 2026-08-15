@@ -20,6 +20,9 @@ import {
 import {
     UpdateCourseReviewResolver,
 } from "./mutations/courses/update-course-review/update-course-review.resolver"
+import {
+    CoursePriceQuotesResolver,
+} from "./queries/courses/course-price-quotes/course-price-quotes.resolver"
 
 /**
  * THE GUARD THAT WAS MISSING.
@@ -64,23 +67,34 @@ describe("the GraphQL schema builds",
                 UpdateCourseReviewResolver,
                 DeleteCourseReviewResolver,
                 CourseReviewsResolver,
+                CoursePriceQuotesResolver,
             ])
         })
 
-        it("builds every course review operation into the schema", () => {
+        it("builds every course review operation into the schema",
+            () => {
             // building it was the assertion - create() throws on an undeterminable output type.
             // These four names are what proves the build covered the operations rather than
             // succeeding over an empty set.
-            expect(schema.getMutationType()?.getFields()).toHaveProperty("submitCourseReview")
-            expect(schema.getMutationType()?.getFields()).toHaveProperty("updateCourseReview")
-            expect(schema.getMutationType()?.getFields()).toHaveProperty("deleteCourseReview")
-            expect(schema.getQueryType()?.getFields()).toHaveProperty("courseReviews")
-        })
+                expect(schema.getMutationType()?.getFields()).toHaveProperty("submitCourseReview")
+                expect(schema.getMutationType()?.getFields()).toHaveProperty("updateCourseReview")
+                expect(schema.getMutationType()?.getFields()).toHaveProperty("deleteCourseReview")
+                expect(schema.getQueryType()?.getFields()).toHaveProperty("courseReviews")
+            })
 
-        it("exposes the review row as a real output type rather than as an opaque blob", () => {
+        it("exposes the review row as a real output type rather than as an opaque blob",
+            () => {
             // the specific regression: the row was returned as `data` while carrying no
             // @ObjectType, so Nest could not determine an output type and the whole API failed to
             // boot. A named type in the schema is what says it is exposed rather than merely present.
-            expect(schema.getType("CourseReview")).toBeDefined()
-        })
+                expect(schema.getType("CourseReview")).toBeDefined()
+            })
+
+        it("exposes one array quote operation with explicit discount semantics",
+            () => {
+                expect(schema.getQueryType()?.getFields()).toHaveProperty("coursePriceQuotes")
+                expect(schema.getType("CoursePriceQuoteIntent")).toBeDefined()
+                const line = schema.getType("CoursePriceQuoteLineData")
+                expect(line?.toString()).toBe("CoursePriceQuoteLineData")
+            })
     })

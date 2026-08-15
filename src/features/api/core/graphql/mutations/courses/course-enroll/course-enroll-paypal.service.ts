@@ -46,9 +46,9 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
-import {
-    CoursePricingService,
-} from "./course-pricing.service"
+import type {
+    CoursePriceQuoteResult,
+} from "@modules/bussiness/course-pricing/types"
 import {
     ExecuteParams,
 } from "../../../../types/execute"
@@ -64,9 +64,6 @@ import {
 import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
-import {
-    LoyaltyDiscountService,
-} from "@modules/bussiness/loyalty/loyalty-discount.service"
 import {
     VoucherService,
 } from "@modules/bussiness/rewards/voucher.service"
@@ -92,10 +89,8 @@ export class CourseEnrollPaypalService {
         private readonly entityManager: EntityManager,
         private readonly paypalClient: PaypalClient,
         private readonly dayjsService: DayjsService,
-        private readonly coursePricingService: CoursePricingService,
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
-        private readonly loyaltyDiscountService: LoyaltyDiscountService,
         private readonly voucherService: VoucherService,
     ) {}
 
@@ -105,7 +100,10 @@ export class CourseEnrollPaypalService {
      * @param param - Course context, user, and redirect URLs (reused as PayPal URLs)
      * @returns Checkout payload (approval URL) and preflight id
      */
-    async execute(params: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
+    async execute(
+        params: ExecuteParams<CourseEnrollRequest>,
+        quote: CoursePriceQuoteResult,
+    ): Promise<CourseEnrollResponseData> {
         if (!params.user) {
             throw new UserNotFoundException({
             })
@@ -116,6 +114,7 @@ export class CourseEnrollPaypalService {
                 ? `checkout:voucher:${params.user.id}:${params.request.voucherCode}`
                 : `checkout:course:${params.user.id}:${params.request.courseId}:${PaymentType.Paypal}`,
             async (manager) => this.executeLocked(params,
+                quote,
                 manager),
         )
     }
@@ -128,7 +127,8 @@ export class CourseEnrollPaypalService {
             voucherCode,
         },
         user,
-    }: ExecuteParams<CourseEnrollRequest>, manager: EntityManager): Promise<CourseEnrollResponseData> {
+    }: ExecuteParams<CourseEnrollRequest>, quote: CoursePriceQuoteResult,
+    manager: EntityManager): Promise<CourseEnrollResponseData> {
         // a logged-in user is required to attach the transaction to
         if (!user) {
             throw new UserNotFoundException({
@@ -152,21 +152,10 @@ export class CourseEnrollPaypalService {
             })
         }
         // loyalty discount applied at checkout (so charged === shown)
-        const {
-            percent: discountPercent,
-        } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
-            userId: user.id,
-        })
-        // VND amount is kept on the transaction as a stable reference value
-        const amount = this.coursePricingService.resolveAmountVnd({
-            course,
-            discountPercent,
-        })
-        // international gateway charges the explicit USD price (no runtime FX)
-        const priceUsd = this.coursePricingService.resolveAmountUsd({
-            course,
-            discountPercent,
-        })
+        const line = quote.lines[0]
+        const discountPercent = line.displayDiscountPercent
+        const amount = quote.totalChargedVnd
+        const priceUsd = quote.totalChargedUsd
         // never charge VND as USD -- reject when no USD price is configured
         if (!priceUsd || priceUsd <= 0) {
             throw new MissingUsdPriceException({
@@ -179,16 +168,7 @@ export class CourseEnrollPaypalService {
         // is created) -- a valid Percent voucher further discounts the USD price.
         // A Flat voucher never reaches here (rejected before dispatch in
         // course-enroll.handler.ts -- Flat is VND-only per PAYMENT_MODIFIER_CAPABILITY).
-        const discountedPriceUsd = voucherCode
-            ? this.voucherService.applyToAmount(
-                priceUsd,
-                await this.voucherService.previewDiscount({
-                    userId: user.id,
-                    code: voucherCode,
-                    courseId: course.id,
-                }),
-            )
-            : priceUsd
+        const discountedPriceUsd = priceUsd
 
         // reuse a still-fresh pending PayPal transaction instead of re-creating
         const existing = await manager.findOne(
@@ -224,7 +204,7 @@ export class CourseEnrollPaypalService {
         }
         // our internal reference id is echoed back via the order's custom_id
         const orderCode = this.generateOrderCode()
-        const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
+        const currentPhase = line.pricingPhase
         // create the PayPal order (retried on transient network/5xx errors)
         const order = await this.retryService.retry({
             action: async () => this.paypalClient.createOrder({

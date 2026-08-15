@@ -287,6 +287,9 @@ import {
     ChallengeEvaluationParseService,
 } from "@features/api/processors/ai/shared/challenge-evaluation/challenge-evaluation-parse.service"
 import {
+    ChallengeEvaluationPromptService,
+} from "@features/api/processors/ai/shared/challenge-evaluation/challenge-evaluation-prompt.service"
+import {
     aiE2eRedisCacheManagerToken,
     AiProviderInvokeScript,
     createAiE2eRedisProviders,
@@ -503,6 +506,7 @@ describe("a learner's challenge submission is graded by the durable worker",
                     ProcessGitSubmissionGradeStepService,
                     ProcessGitSubmissionCompleteStepService,
                     ChallengeEvaluationParseService,
+                    ChallengeEvaluationPromptService,
                     GradingRetrievalService,
                     AiInvokeService,
                     AiEntitlementService,

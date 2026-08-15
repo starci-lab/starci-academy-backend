@@ -84,7 +84,6 @@ import {
 import {
     EncryptionService,
 } from "@modules/crypto/encryption.service"
-import template from "./template.json"
 import {
     Document,
 } from "@langchain/core/documents"
@@ -98,11 +97,11 @@ import {
     ProjectEvaluationParseService,
 } from "../../shared/project-evaluation/project-evaluation-parse.service"
 import {
+    ProjectEvaluationPromptService,
+} from "../../shared/project-evaluation/project-evaluation-prompt.service"
+import {
     collectMilestoneTaskCriteria,
 } from "../../shared/milestone-task/utils/collect-task-criteria"
-import {
-    renderCriteriaPromptSections,
-} from "../../shared/challenge-submission/utils/render-criteria-prompt-sections"
 
 @Injectable()
 /**
@@ -123,6 +122,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly dayjsService: DayjsService,
+        private readonly projectEvaluationPromptService: ProjectEvaluationPromptService,
         private readonly projectEvaluationParseService: ProjectEvaluationParseService,
         private readonly encryptionService: EncryptionService,
     ) {
@@ -335,107 +335,26 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 0)
             : milestoneTask.maxScore
 
-        /** Build criteria prompt + system instruction (V2 yes/no+critical vs legacy rubric). */
-        let systemText: string
-        if (isV2Task) {
-            const criteriaPromptSections = renderCriteriaPromptSections(v2Criteria)
-            systemText = [
-                `You are a strict, experienced code reviewer grading a learner's personal project for task: "${taskTitle}".`,
-                "",
-                "## Task",
-                "Grade the submitted source code against EVERY yes/no criterion listed below.",
-                "Each criterion is binary: it is either MET (award its full score) or NOT MET (award 0).",
-                "Do NOT award partial credit for a single criterion.",
-                "",
-                "## Critical criteria",
-                "Some criteria are marked **CRITICAL**. If ANY critical criterion is NOT MET, the TOTAL score is 0 for the whole task, regardless of the other criteria.",
-                "",
-                "## IMPORTANT: Language Requirement",
-                `All feedback text MUST be written in **${targetLanguage}**.`,
-                `JSON keys must remain in English, but all human-readable values (shortFeedback, message, suggestion) must be in ${targetLanguage}.`,
-                "",
-                "## Criteria",
-                criteriaPromptSections || "(no criteria provided)",
-                "",
-                `## Scoring (max total: ${gradeMaxScore})`,
-                "- total score = sum of the scores of every MET criterion.",
-                "- If any CRITICAL criterion is NOT MET, set the total score to 0.",
-                "",
-                "## Output Format",
-                "Respond with a single JSON object matching this template exactly (replace placeholder values):",
-                "",
-                JSON.stringify(
-                    template,
-                    null,
-                    2
-                ),
-                "## JSON Formatting",
-                "- Output STRICT JSON only — no markdown fences, no comments, no trailing commas.",
-                "- Use double quotes for all keys and string values.",
-                "- Escape newlines as \\\\n and double quotes as \\\\\" inside string values.",
-                "",
-                "## Grading Philosophy",
-                "- Focus on implementation correctness and the evidence each criterion describes, NOT code style.",
-                "- Before deciding, ACTUALLY READ the source files (e.g. *.ts/*.java/*.cs/*.go), not just the README.",
-                "- Add a feedback item per criterion stating whether it was met and the concrete `file:line` evidence.",
-                "- Only mark NOT MET when, after inspecting the relevant code, the evidence is genuinely absent.",
-            ].filter(Boolean).join("\n")
-        } else {
-            const criteriaPromptSections = criteria
-                .sort((prev, next) => prev.orderIndex - next.orderIndex)
-                .map(
-                    (criterion, index) => {
-                        const text = criterion.text
-                        const promptText = criterion.promptText
-                        const lines = [
-                            `### Criteria ${index} (id: "${criterion.id}", maxScore: ${criterion.score})`,
-                            `**Display text:** ${text}`,
-                        ]
-                        if (promptText) lines.push(`**Grading Rubric:**\n${promptText}`)
-                        return lines.join("\n")
-                    },
-                )
-                .join("\n\n")
-            systemText = [
-                `You are a strict, experienced code reviewer grading a learner's personal project for task: "${taskTitle}".`,
-                "",
-                "## Task",
-                "Review the submitted source code against EVERY criteria listed below.",
-                "For each criteria, evaluate whether the code satisfies it, provide concise feedback, and assign a score based on the rubric.",
-                "",
-                "## IMPORTANT: Language Requirement",
-                `All feedback text MUST be written in **${targetLanguage}**.`,
-                `JSON keys must remain in English, but all human-readable values (shortFeedback, feedback, suggestion) must be in ${targetLanguage}.`,
-                "",
-                "## Criteria",
-                criteriaPromptSections || "(no criteria provided)",
-                "",
-                "## Output Format",
-                "Respond with a single JSON object matching this template exactly (replace placeholder values):",
-                "",
-                JSON.stringify(
-                    template,
-                    null,
-                    2
-                ),
-                "## JSON Formatting",
-                "- Output STRICT JSON only — no markdown fences, no comments, no trailing commas.",
-                "- Use double quotes for all keys and string values.",
-                "- Escape newlines as \\\\n and double quotes as \\\\\" inside string values.",
-                "",
-                "## Grading Philosophy",
-                "- Focus on implementation correctness and completeness, NOT code style or formatting.",
-                "- If a criteria has forbidden patterns, actively search the code for violations.",
-                "- A criteria can have multiple feedback items (one per sub-rubric if the grading rubric lists multiple items).",
-                "- Criteria with maxScore: 0 still need feedback but contribute 0 to the total.",
-            ].filter(Boolean).join("\n")
-        }
-
-        const humanText = [
-            "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
-            "",
-            sourceExcerpt || "(empty repository excerpt)",
-        ].join("\n")
+        /** Delegate prompt formatting while retaining RAG, quota, invocation and parsing here. */
+        const {
+            systemText,
+            humanText,
+        } = isV2Task
+            ? this.projectEvaluationPromptService.build({
+                kind: "v2",
+                taskTitle,
+                targetLanguage,
+                sourceExcerpt,
+                criteria: v2Criteria,
+                gradeMaxScore,
+            })
+            : this.projectEvaluationPromptService.build({
+                kind: "legacy",
+                taskTitle,
+                targetLanguage,
+                sourceExcerpt,
+                criteria,
+            })
 
         /** Resolve + debit the submitter's AI quota once for this grading job. */
         const enrollment = await this.entityManager.findOneOrFail(
@@ -528,5 +447,3 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         )
     }
 }
-
-

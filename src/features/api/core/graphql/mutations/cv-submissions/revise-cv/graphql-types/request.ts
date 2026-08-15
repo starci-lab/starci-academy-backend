@@ -7,6 +7,20 @@ import {
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    CvTargetLevel,
+    GraphQLTypeCvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    ArrayMaxSize,
+    ArrayUnique,
+    IsEnum,
+    IsIn,
+    IsOptional,
+    IsString,
+    IsUUID,
+    MaxLength,
+} from "class-validator"
 
 @InputType({
     description: "Revise an existing CV using the user's free-text prompts.",
@@ -19,6 +33,7 @@ import {
  * the job (mode = Revise).
  */
 export class ReviseCvRequest {
+    @IsUUID()
     @Field(
         () => ID,
         {
@@ -27,6 +42,9 @@ export class ReviseCvRequest {
     )
         cvSubmissionId: string
 
+    @IsOptional()
+    @IsString()
+    @MaxLength(10_000)
     @Field(
         () => String,
         {
@@ -37,6 +55,9 @@ export class ReviseCvRequest {
         extraPrompts?: string
 
     /** Concrete model the user picked in the CV-generation model picker (e.g. "gpt-4o"). */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -47,6 +68,8 @@ export class ReviseCvRequest {
         selectedModel?: string
 
     /** Provider serving {@link selectedModel}. */
+    @IsOptional()
+    @IsEnum(ModelProvider)
     @Field(
         () => GraphQLTypeModelProvider,
         {
@@ -57,6 +80,8 @@ export class ReviseCvRequest {
         selectedModelProvider?: ModelProvider
 
     /** Optional course/track to tie this CV to (`courses.id`). */
+    @IsOptional()
+    @IsUUID()
     @Field(
         () => ID,
         {
@@ -67,6 +92,9 @@ export class ReviseCvRequest {
         courseId?: string
 
     /** Optional user-facing name for this CV. */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -77,6 +105,9 @@ export class ReviseCvRequest {
         label?: string
 
     /** Optional target role this CV is aimed at (free-text). */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -87,6 +118,9 @@ export class ReviseCvRequest {
         targetRole?: string
 
     /** Optional language/locale for this CV (free-text, e.g. "en" / "vi"). */
+    @IsOptional()
+    @IsIn(["en",
+        "vi"])
     @Field(
         () => String,
         {
@@ -95,4 +129,27 @@ export class ReviseCvRequest {
         },
     )
         language?: string
+
+    @Field(() => GraphQLTypeCvTargetLevel,
+        {
+            nullable: true,
+            description: "Replacement target bar; omitted inherits the source run.",
+        })
+    @IsOptional()
+    @IsEnum(CvTargetLevel)
+        targetLevel?: CvTargetLevel
+
+    @Field(() => [ID],
+        {
+            nullable: true,
+            description: "Replacement capstone IDs; omitted inherits, explicit empty clears.",
+        })
+    @IsOptional()
+    @ArrayMaxSize(5)
+    @ArrayUnique()
+    @IsUUID(undefined,
+        {
+            each: true,
+        })
+        milestoneTaskAttemptIds?: Array<string>
 }

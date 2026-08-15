@@ -78,6 +78,19 @@ const makeService = (entityManager: EntityManagerMock) => {
             details: [],
         }),
     }
+    const challengeEvaluationPromptService = {
+        build: jest.fn().mockReturnValue({
+            messages: [
+                {
+                    content: "SYSTEM",
+                },
+                {
+                    content: "EXCERPT-SOURCE",
+                },
+            ],
+            maxScore: 100,
+        }),
+    }
     const gradingRetrievalService = {
         retrieveGradingExcerpt: jest.fn().mockResolvedValue({
             excerpt: "EXCERPT-SOURCE",
@@ -98,6 +111,7 @@ const makeService = (entityManager: EntityManagerMock) => {
         aiInvokeService as never,
         aiEntitlementService as never,
         challengeEvaluationParseService as never,
+        challengeEvaluationPromptService as never,
         gradingRetrievalService as never,
         encryptionService as never,
     )
@@ -108,6 +122,7 @@ const makeService = (entityManager: EntityManagerMock) => {
         aiInvokeService,
         aiEntitlementService,
         challengeEvaluationParseService,
+        challengeEvaluationPromptService,
         gradingRetrievalService,
     }
 }
@@ -192,6 +207,7 @@ describe("ProcessGitSubmissionGradeStepService",
                     gradingRetrievalService,
                     aiInvokeService,
                     challengeEvaluationParseService,
+                    challengeEvaluationPromptService,
                     jobActionService,
                 } = makeService(entityManager)
 
@@ -227,6 +243,14 @@ describe("ProcessGitSubmissionGradeStepService",
                 expect(aiInvokeService.run).toHaveBeenCalledTimes(1)
                 const runArg = aiInvokeService.run.mock.calls[0][0]
                 expect(String(runArg.messages[1].content)).toContain("EXCERPT-SOURCE")
+                expect(challengeEvaluationPromptService.build).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        source: "code",
+                        challengeTitle: "Build the API",
+                        targetLanguage: "English",
+                        sourceExcerpt: "EXCERPT-SOURCE",
+                    }),
+                )
 
                 // parse called on the raw model text
                 expect(challengeEvaluationParseService.parse).toHaveBeenCalledWith("{\"score\":80}")

@@ -5,11 +5,11 @@ import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
 import {
-    InstallmentPlanService,
-} from "@modules/bussiness/installment-plan/installment-plan.service"
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
 import {
-    CoursesCheckoutPricingService,
-} from "../../../mutations/courses/courses-checkout/courses-checkout-pricing.service"
+    CoursePriceQuoteIntent,
+} from "@modules/bussiness/course-pricing/types"
 import {
     ExecuteParams,
 } from "../../../../types/execute"
@@ -28,8 +28,7 @@ import type {
  */
 export class CoursesCheckoutPreviewService {
     constructor(
-        private readonly coursesCheckoutPricingService: CoursesCheckoutPricingService,
-        private readonly installmentPlanService: InstallmentPlanService,
+        private readonly coursePriceQuoteService: CoursePriceQuoteService,
     ) {}
 
     /**
@@ -52,9 +51,10 @@ export class CoursesCheckoutPreviewService {
             })
         }
         // price the cart exactly as the checkout would (shared service = single source)
-        const priced = await this.coursesCheckoutPricingService.priceCart({
+        const priced = await this.coursePriceQuoteService.quote({
             userId: user.id,
             courseIds,
+            intent: CoursePriceQuoteIntent.Checkout,
         })
         // map internal priced lines -> the GraphQL shape (course id + per-line prices)
         const lines = priced.lines.map((line) => ({
@@ -63,7 +63,7 @@ export class CoursesCheckoutPreviewService {
             chargedVnd: line.chargedVnd,
             listUsd: line.listUsd,
             chargedUsd: line.chargedUsd,
-            discountPercent: line.discountPercent,
+            discountPercent: line.displayDiscountPercent,
         }))
         return {
             lines,
@@ -76,12 +76,12 @@ export class CoursesCheckoutPreviewService {
             ),
             totalListUsd: priced.totalListUsd,
             totalChargedUsd: priced.totalChargedUsd,
-            bundleBonusPercent: priced.bundleBonusPercent,
+            bundleBonusPercent: priced.bundleDiscountPercent,
             itemCount: priced.itemCount,
             // installment terms priced off the WHOLE order's charged VND total
             // (after per-line loyalty + order bundle bonus) -- never per-line,
             // per §2.3 of the design doc
-            installmentOptions: this.installmentPlanService.computeInstallmentOptions(priced.totalChargedVnd),
+            installmentOptions: priced.installmentOptions,
         }
     }
 }

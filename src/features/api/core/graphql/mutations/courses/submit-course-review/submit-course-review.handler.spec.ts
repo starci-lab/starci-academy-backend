@@ -53,6 +53,16 @@ const USER_ID = "11111111-1111-1111-1111-111111111111"
 /** The course being reviewed. */
 const COURSE_ID = "22222222-2222-2222-2222-222222222222"
 
+interface SubmitCourseReviewCommandOverrides {
+    body?: string
+    courseId?: string
+    score?: number
+    // null rather than undefined on purpose: a destructuring default fires on `undefined`, so
+    // passing that would silently hand the handler a real user and the identity case would prove
+    // nothing while staying green
+    user?: UserEntity | null
+}
+
 /**
  * Build a minimal user stand-in carrying only the id the handler reads.
  *
@@ -76,15 +86,7 @@ const command = ({
     courseId = COURSE_ID,
     score = 5,
     user = fakeUser(USER_ID),
-}: {
-    body?: string
-    courseId?: string
-    score?: number
-    // null rather than undefined on purpose: a destructuring default fires on `undefined`, so
-    // passing that would silently hand the handler a real user and the identity case would prove
-    // nothing while staying green
-    user?: UserEntity | null
-}): SubmitCourseReviewCommand =>
+}: SubmitCourseReviewCommandOverrides): SubmitCourseReviewCommand =>
     new SubmitCourseReviewCommand({
         locale: Locale.En,
         request: {
@@ -130,111 +132,129 @@ describe("SubmitCourseReviewHandler",
             await module.close()
         })
 
-        it("refuses a caller with no identity", async () => {
-            await expect(handler.execute(command({
-                user: null,
-            }))).rejects.toBeInstanceOf(UserNotFoundException)
-        })
+        it("refuses a caller with no identity",
+            async () => {
+                await expect(handler.execute(command({
+                    user: null,
+                }))).rejects.toBeInstanceOf(UserNotFoundException)
+            })
 
-        it("refuses a course that does not exist", async () => {
+        it("refuses a course that does not exist",
+            async () => {
             // first `exists` call is the course lookup
-            entityManager.exists = jest.fn().mockResolvedValueOnce(false)
+                entityManager.exists = jest.fn().mockResolvedValueOnce(false)
 
-            await expect(handler.execute(command({
-            }))).rejects.toBeInstanceOf(CourseNotFoundException)
-        })
+                await expect(handler.execute(command({
+                }))).rejects.toBeInstanceOf(CourseNotFoundException)
+            })
 
-        it("refuses a learner with no enrollment at all", async () => {
-            entityManager.exists = jest.fn()
-                .mockResolvedValueOnce(true)
-                .mockResolvedValueOnce(false)
+        it("refuses a learner with no enrollment at all",
+            async () => {
+                entityManager.exists = jest.fn()
+                    .mockResolvedValueOnce(true)
+                    .mockResolvedValueOnce(false)
 
-            await expect(handler.execute(command({
-            }))).rejects.toBeInstanceOf(CourseReviewRequiresEnrollmentException)
-        })
+                await expect(handler.execute(command({
+                }))).rejects.toBeInstanceOf(CourseReviewRequiresEnrollmentException)
+            })
 
-        it("refuses a TRIAL enrollment, because a row is not an entitlement", async () => {
+        it("refuses a TRIAL enrollment, because a row is not an entitlement",
+            async () => {
             // the gate asks for `isEnrolled: true`, so a trial row simply does not match and the
             // second `exists` answers false. This is the case that would pass if the field were
             // dropped from the query, and nothing else in the suite would notice.
-            entityManager.exists = jest.fn()
-                .mockResolvedValueOnce(true)
-                .mockResolvedValueOnce(false)
+                entityManager.exists = jest.fn()
+                    .mockResolvedValueOnce(true)
+                    .mockResolvedValueOnce(false)
 
-            await expect(handler.execute(command({
-            }))).rejects.toBeInstanceOf(CourseReviewRequiresEnrollmentException)
+                await expect(handler.execute(command({
+                }))).rejects.toBeInstanceOf(CourseReviewRequiresEnrollmentException)
 
-            const enrollmentQuery = entityManager.exists.mock.calls[1][1]
-            expect(enrollmentQuery.where.isEnrolled).toBe(true)
-        })
-
-        it.each([
-            ["below the scale", 0],
-            ["above the scale", 6],
-            ["far below", -3],
-            ["not a whole star", 4.5],
-        ])("refuses a score %s", async (_name, score) => {
-            await expect(handler.execute(command({
-                score,
-            }))).rejects.toBeInstanceOf(CourseReviewScoreOutOfRangeException)
-        })
+                const enrollmentQuery = entityManager.exists.mock.calls[1][1]
+                expect(enrollmentQuery.where.isEnrolled).toBe(true)
+            })
 
         it.each([
-            ["the lower boundary", 1],
-            ["the upper boundary", 5],
-            ["the middle", 3],
-        ])("accepts a score at %s", async (_name, score) => {
-            const review = await handler.execute(command({
-                score,
-            }))
+            ["below the scale",
+                0],
+            ["above the scale",
+                6],
+            ["far below",
+                -3],
+            ["not a whole star",
+                4.5],
+        ])("refuses a score %s",
+            async (_name, score) => {
+                await expect(handler.execute(command({
+                    score,
+                }))).rejects.toBeInstanceOf(CourseReviewScoreOutOfRangeException)
+            })
 
-            expect(review.score).toBe(score)
-        })
+        it.each([
+            ["the lower boundary",
+                1],
+            ["the upper boundary",
+                5],
+            ["the middle",
+                3],
+        ])("accepts a score at %s",
+            async (_name, score) => {
+                const review = await handler.execute(command({
+                    score,
+                }))
 
-        it("refuses a malformed score before it costs a database round trip", async () => {
-            await expect(handler.execute(command({
-                score: 9,
-            }))).rejects.toBeInstanceOf(CourseReviewScoreOutOfRangeException)
+                expect(review.score).toBe(score)
+            })
 
-            expect(entityManager.exists).not.toHaveBeenCalled()
-        })
+        it("refuses a malformed score before it costs a database round trip",
+            async () => {
+                await expect(handler.execute(command({
+                    score: 9,
+                }))).rejects.toBeInstanceOf(CourseReviewScoreOutOfRangeException)
 
-        it("stores an absent body as null rather than as an empty string", async () => {
-            const review = await handler.execute(command({
-            }))
+                expect(entityManager.exists).not.toHaveBeenCalled()
+            })
 
-            expect(review.body).toBeNull()
-        })
+        it("stores an absent body as null rather than as an empty string",
+            async () => {
+                const review = await handler.execute(command({
+                }))
 
-        it("stores the body the learner wrote", async () => {
-            const review = await handler.execute(command({
-                body: "The module on caching earned the price on its own.",
-            }))
+                expect(review.body).toBeNull()
+            })
 
-            expect(review.body).toBe("The module on caching earned the price on its own.")
-        })
+        it("stores the body the learner wrote",
+            async () => {
+                const review = await handler.execute(command({
+                    body: "The module on caching earned the price on its own.",
+                }))
 
-        it("writes the review against the caller and the course", async () => {
-            const review = await handler.execute(command({
-            }))
+                expect(review.body).toBe("The module on caching earned the price on its own.")
+            })
 
-            expect(review.userId).toBe(USER_ID)
-            expect(review.courseId).toBe(COURSE_ID)
-        })
+        it("writes the review against the caller and the course",
+            async () => {
+                const review = await handler.execute(command({
+                }))
 
-        it("accepts a SECOND review of the same course by the same learner", async () => {
+                expect(review.userId).toBe(USER_ID)
+                expect(review.courseId).toBe(COURSE_ID)
+            })
+
+        it("accepts a SECOND review of the same course by the same learner",
+            async () => {
             // the feature, not a duplicate: an opinion formed at module two is a different
             // statement from one formed at module ten, and a handler that swallowed the second
             // would discard the one the learner just took the trouble to write
-            const first = await handler.execute(command({
-                score: 3,
-            }))
-            const second = await handler.execute(command({
-                score: 5,
-            }))
+                const first = await handler.execute(command({
+                    score: 3,
+                }))
+                const second = await handler.execute(command({
+                    score: 5,
+                }))
 
-            expect(first.score).toBe(3)
-            expect(second.score).toBe(5)
-            expect(entityManager.save).toHaveBeenCalledTimes(2)
-        })
+                expect(first.score).toBe(3)
+                expect(second.score).toBe(5)
+                expect(entityManager.save).toHaveBeenCalledTimes(2)
+            })
     })

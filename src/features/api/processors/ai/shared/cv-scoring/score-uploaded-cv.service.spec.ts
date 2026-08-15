@@ -33,6 +33,12 @@ import {
 import {
     ScoreUploadedCvService,
 } from "./score-uploaded-cv.service"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
 
 // mock the text-extraction module so the spec never touches pdf-parse / mammoth
 jest.mock("../../generate-cv/steps/extract-cv-text",
@@ -130,7 +136,8 @@ describe("ScoreUploadedCvService",
                         const result = await service.scoreUploadedCv({
                             cvGenerationId: "cv-gen-upload-1",
                             userId: "user-1",
-                            templateLevel: "mid",
+                            targetLevel: CvTargetLevel.Mid,
+                            language: Locale.En,
                         })
 
                         // buffered the uploaded key from MinIO
@@ -150,7 +157,8 @@ describe("ScoreUploadedCvService",
                             expect.objectContaining({
                                 userId: "user-1",
                                 cvText: "Extracted CV text content.",
-                                templateLevel: "mid",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                             }),
                         )
                         expect(cvScoringService.score).toHaveBeenCalledWith(
@@ -183,6 +191,8 @@ describe("ScoreUploadedCvService",
                             service.scoreUploadedCv({
                                 cvGenerationId: "missing",
                                 userId: "user-1",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                             }),
                         ).rejects.toBeInstanceOf(CvGenerationNotFoundException)
 
@@ -203,6 +213,8 @@ describe("ScoreUploadedCvService",
                             service.scoreUploadedCv({
                                 cvGenerationId: "cv-gen-upload-1",
                                 userId: "user-1",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                             }),
                         ).rejects.toBeInstanceOf(CvGenerationNotFoundException)
 
@@ -217,6 +229,8 @@ describe("ScoreUploadedCvService",
                             service.scoreUploadedCv({
                                 cvGenerationId: "cv-gen-upload-1",
                                 userId: "user-1",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                             }),
                         ).rejects.toBeInstanceOf(CvSubmissionExtractS3BufferEmptyException)
 
@@ -233,6 +247,8 @@ describe("ScoreUploadedCvService",
                             service.scoreUploadedCv({
                                 cvGenerationId: "cv-gen-upload-1",
                                 userId: "user-1",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                             }),
                         ).rejects.toBeInstanceOf(CvSubmissionExtractEmptyTextException)
 
@@ -248,6 +264,8 @@ describe("ScoreUploadedCvService",
                             service.scoreUploadedCv({
                                 cvGenerationId: "cv-gen-upload-1",
                                 userId: "user-1",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                             }),
                         ).rejects.toThrow("model exploded")
 

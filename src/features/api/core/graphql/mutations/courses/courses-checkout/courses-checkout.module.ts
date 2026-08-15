@@ -5,9 +5,6 @@ import {
     ConfigurableModuleClass,
 } from "./courses-checkout.module-definition"
 import {
-    CoursePricingService,
-} from "../course-enroll/course-pricing.service"
-import {
     CoursesCheckoutPricingService,
 } from "./courses-checkout-pricing.service"
 import {
@@ -23,7 +20,6 @@ import {
 @Module({
     providers: [
         // stateless pricing helpers (re-provided; also provided by CourseEnroll module)
-        CoursePricingService,
         CoursesCheckoutPricingService,
         CoursesCheckoutService,
         CoursesCheckoutResolver,

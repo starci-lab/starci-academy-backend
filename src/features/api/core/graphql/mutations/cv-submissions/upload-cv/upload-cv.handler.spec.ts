@@ -7,26 +7,8 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken,
-} from "@nestjs/typeorm"
-import type {
-    EntityManager,
-} from "typeorm"
-import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
-import {
-    UserCvGenerationEntity,
-} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
-import {
-    CvGenerationMode,
-} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
-import {
-    CvGenerationStatus,
-} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
-import {
-    CvSource,
-} from "@modules/databases/postgresql/primary/enums/cv-source"
 import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
@@ -45,9 +27,9 @@ import {
 import {
     UploadCvHandler,
 } from "./upload-cv.handler"
-
-/** Connection name used by the primary PostgreSQL data source. */
-const POSTGRESQL_PRIMARY = "primary"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
 
 /**
  * Build a minimal user stand-in carrying only the id the handler reads.
@@ -65,23 +47,16 @@ describe("UploadCvHandler",
     () => {
         let module: TestingModule
         let handler: UploadCvHandler
-        let entityManager: jest.Mocked<Pick<EntityManager, "create" | "save">>
         let enqueueScoreUploadedCvJobService: jest.Mocked<Pick<EnqueueScoreUploadedCvJobService, "enqueue">>
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
         beforeEach(async () => {
-            // entity manager mock -- `create` echoes its payload, `save` stamps an id
-            entityManager = {
-                create: jest.fn().mockImplementation((_entity, data) => data),
-                save: jest.fn().mockImplementation(async (_entity, data) => ({
-                    id: "cv-gen-upload-1",
-                    ...data,
-                })),
-            } as unknown as jest.Mocked<Pick<EntityManager, "create" | "save">>
-
             // enqueue service is mocked wholesale -- reports back a tracked jobId
             enqueueScoreUploadedCvJobService = {
                 enqueue: jest.fn().mockResolvedValue({
+                    cvGeneration: {
+                        id: "cv-gen-upload-1",
+                    },
                     jobId: "job-1",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueScoreUploadedCvJobService, "enqueue">>
@@ -97,10 +72,6 @@ describe("UploadCvHandler",
             module = await Test.createTestingModule({
                 providers: [
                     UploadCvHandler,
-                    {
-                        provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
-                        useValue: entityManager,
-                    },
                     {
                         provide: EnqueueScoreUploadedCvJobService,
                         useValue: enqueueScoreUploadedCvJobService,
@@ -128,13 +99,13 @@ describe("UploadCvHandler",
                                 new UploadCvCommand({
                                     request: {
                                         cdnKey: "users/cv-submissions/user-1/resume.pdf",
+                                        targetLevel: CvTargetLevel.Junior,
                                     },
                                     user: undefined,
                                 }),
                             ),
                         ).rejects.toBeInstanceOf(UserNotFoundException)
 
-                        expect(entityManager.save).not.toHaveBeenCalled()
                         expect(gradingLaneValidationService.validate).not.toHaveBeenCalled()
                         expect(enqueueScoreUploadedCvJobService.enqueue).not.toHaveBeenCalled()
                     })
@@ -157,6 +128,7 @@ describe("UploadCvHandler",
                                     label: "My uploaded CV",
                                     targetRole: "Staff Engineer",
                                     language: "en",
+                                    targetLevel: CvTargetLevel.Senior,
                                 },
                                 user: fakeUser("user-1"),
                             }),
@@ -170,31 +142,16 @@ describe("UploadCvHandler",
                                 provider: ModelProvider.OpenAI,
                             }),
                         )
-                        // the created row is the UNIFIED uploaded shape: source=uploaded,
-                        // Pending, carrying the cdnKey + customization + course relation
-                        expect(entityManager.save).toHaveBeenCalledWith(
-                            UserCvGenerationEntity,
-                            expect.objectContaining({
-                                user: {
-                                    id: "user-1",
-                                },
-                                mode: CvGenerationMode.Generate,
-                                source: CvSource.Uploaded,
-                                status: CvGenerationStatus.Pending,
-                                uploadedCdnKey: "users/cv-submissions/user-1/resume.pdf",
-                                course: {
-                                    id: "course-1",
-                                },
-                                label: "My uploaded CV",
-                                targetRole: "Staff Engineer",
-                                language: "en",
-                            }),
-                        )
                         // scoring is enqueued for the freshly-created row + resolved lane
                         expect(enqueueScoreUploadedCvJobService.enqueue).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                cvGenerationId: "cv-gen-upload-1",
                                 userId: "user-1",
+                                cdnKey: "users/cv-submissions/user-1/resume.pdf",
+                                courseId: "course-1",
+                                label: "My uploaded CV",
+                                targetRole: "Staff Engineer",
+                                language: "en",
+                                targetLevel: CvTargetLevel.Senior,
                                 ai: expect.objectContaining({
                                     model: "gpt-4o",
                                     provider: ModelProvider.OpenAI,
@@ -214,21 +171,20 @@ describe("UploadCvHandler",
                             new UploadCvCommand({
                                 request: {
                                     cdnKey: "users/cv-submissions/user-2/cv.pdf",
+                                    targetLevel: CvTargetLevel.Mid,
                                 },
                                 user: fakeUser("user-2"),
                             }),
                         )
 
-                        // absent fields collapse to null (not undefined / dropped) on the row,
-                        // and no course relation is attached
-                        expect(entityManager.save).toHaveBeenCalledWith(
-                            UserCvGenerationEntity,
+                        expect(enqueueScoreUploadedCvJobService.enqueue).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                uploadedCdnKey: "users/cv-submissions/user-2/cv.pdf",
-                                course: null,
-                                label: null,
-                                targetRole: null,
-                                language: null,
+                                cdnKey: "users/cv-submissions/user-2/cv.pdf",
+                                courseId: undefined,
+                                label: undefined,
+                                targetRole: undefined,
+                                language: "en",
+                                targetLevel: CvTargetLevel.Mid,
                             }),
                         )
                     })

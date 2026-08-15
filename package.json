@@ -6,7 +6,7 @@
     "private": true,
     "license": "UNLICENSED",
     "scripts": {
-        "build": "nest build",
+        "build": "nest build core",
         "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
         "sync": "node scripts/sync.mjs",
         "compose": "node scripts/compose.mjs",
@@ -33,7 +33,7 @@
         "test:cov": "jest --selectProjects unit --coverage",
         "test:ci": "jest --selectProjects unit --ci --passWithNoTests",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./src/tests/e2e/jest-e2e.json --runInBand",
+        "test:e2e": "node -r ts-node/register/transpile-only src/tests/helpers/e2e-runner.ts",
         "harness": "jest --config ./src/tests/harness/jest-harness.json --runInBand",
         "seed:dashboard-test-data": "node --env-file-if-exists=.env.override scripts/seed-dashboard-test-data.mjs",
         "seed:profile-test-data": "node --env-file-if-exists=.env.override scripts/seed-profile-test-data.mjs",
@@ -128,6 +128,7 @@
         "nodemailer": "^8.0.5",
         "normalize-newline": "^5.0.0",
         "octokit": "^5.0.5",
+        "openai": "^4.104.0",
         "p-defer": "^4.0.1",
         "p-retry": "^7.1.1",
         "pdf-parse": "^1.1.1",
@@ -153,7 +154,6 @@
         "winston-loki": "^6.1.4"
     },
     "devDependencies": {
-        "@anthropic-ai/sdk": "^0.112.4",
         "@eslint/eslintrc": "^3.2.0",
         "@eslint/js": "^9.18.0",
         "@nestjs/cli": "^11.0.0",

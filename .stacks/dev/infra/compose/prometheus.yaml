@@ -13,6 +13,7 @@ services:
     container_name: ${STARCI_CONTAINER_PREFIX:-starci-}prometheus
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../runtime/files/grafana-cloud-write-token.key:/run/secrets/grafana-cloud-write-token:ro
       - prometheus-data:/prometheus
     ports:
       - "${STARCI_PORT_PROMETHEUS}:9090"

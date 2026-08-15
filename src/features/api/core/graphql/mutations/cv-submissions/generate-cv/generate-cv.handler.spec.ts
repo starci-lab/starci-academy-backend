@@ -27,6 +27,12 @@ import {
 import {
     GenerateCvHandler,
 } from "./generate-cv.handler"
+import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
 
 /**
  * Build a minimal user stand-in carrying only the id the handler reads.
@@ -46,6 +52,7 @@ describe("GenerateCvHandler",
         let handler: GenerateCvHandler
         let enqueueGenerateCvJobService: jest.Mocked<Pick<EnqueueGenerateCvJobService, "enqueue">>
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
+        let cvEvidenceService: jest.Mocked<Pick<CvEvidenceService, "resolveSelected">>
 
         beforeEach(async () => {
             // enqueue service is mocked wholesale -- this handler only calls `enqueue`
@@ -66,6 +73,11 @@ describe("GenerateCvHandler",
                     gradingProvider: null,
                 }),
             } as unknown as jest.Mocked<Pick<GradingLaneValidationService, "validate">>
+            cvEvidenceService = {
+                resolveSelected: jest.fn().mockResolvedValue({
+                    snapshot: [],
+                }),
+            }
 
             module = await Test.createTestingModule({
                 providers: [
@@ -77,6 +89,10 @@ describe("GenerateCvHandler",
                     {
                         provide: GradingLaneValidationService,
                         useValue: gradingLaneValidationService,
+                    },
+                    {
+                        provide: CvEvidenceService,
+                        useValue: cvEvidenceService,
                     },
                 ],
             }).compile()
@@ -97,6 +113,8 @@ describe("GenerateCvHandler",
                                 new GenerateCvCommand({
                                     request: {
                                         extraPrompts: "Backend focus.",
+                                        targetLevel: CvTargetLevel.Junior,
+                                        milestoneTaskAttemptIds: [],
                                     },
                                     user: undefined,
                                 }),
@@ -127,6 +145,8 @@ describe("GenerateCvHandler",
                                     label: "My senior CV",
                                     targetRole: "Staff Engineer",
                                     language: "en",
+                                    targetLevel: CvTargetLevel.Senior,
+                                    milestoneTaskAttemptIds: [],
                                 },
                                 user: fakeUser("user-1"),
                             }),
@@ -150,6 +170,8 @@ describe("GenerateCvHandler",
                                 label: "My senior CV",
                                 targetRole: "Staff Engineer",
                                 language: "en",
+                                targetLevel: CvTargetLevel.Senior,
+                                selectedEvidence: [],
                                 ai: expect.objectContaining({
                                     model: "gpt-4o",
                                     provider: ModelProvider.OpenAI,
@@ -163,6 +185,8 @@ describe("GenerateCvHandler",
                         await handler.execute(
                             new GenerateCvCommand({
                                 request: {
+                                    targetLevel: CvTargetLevel.Mid,
+                                    milestoneTaskAttemptIds: [],
                                 },
                                 user: fakeUser("user-2"),
                             }),
@@ -177,7 +201,9 @@ describe("GenerateCvHandler",
                                 courseId: undefined,
                                 label: undefined,
                                 targetRole: undefined,
-                                language: undefined,
+                                language: "en",
+                                targetLevel: CvTargetLevel.Mid,
+                                selectedEvidence: [],
                             }),
                         )
                     })
@@ -187,6 +213,8 @@ describe("GenerateCvHandler",
                         const result = await handler.execute(
                             new GenerateCvCommand({
                                 request: {
+                                    targetLevel: CvTargetLevel.Mid,
+                                    milestoneTaskAttemptIds: [],
                                 },
                                 user: fakeUser("user-3"),
                             }),

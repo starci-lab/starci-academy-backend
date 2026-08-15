@@ -1,6 +1,6 @@
 import type {
-    CvTemplateLevel,
-} from "./types"
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
 
 /** Lowest possible CV score. */
 export const CV_SCORE_MIN = 0
@@ -8,15 +8,12 @@ export const CV_SCORE_MIN = 0
 /** Highest possible CV score. */
 export const CV_SCORE_MAX = 100
 
-/** Default rubric level when a caller does not supply one. */
-export const DEFAULT_CV_TEMPLATE_LEVEL: CvTemplateLevel = "mid"
-
 /**
  * Human-readable expectation blurb per rubric level, folded into the scoring
  * prompt so the model grades against the right seniority bar. (One rubric,
  * parameterized by level -- matches WF-03b's "default 1 rubric, expand later".)
  */
-export const CV_LEVEL_EXPECTATIONS: Record<CvTemplateLevel, string> = {
+export const CV_LEVEL_EXPECTATIONS: Record<CvTargetLevel, string> = {
     junior: "Entry-level engineer: clear fundamentals, real projects, and evidence of learning velocity. Bullets should show what was built and the technologies used.",
     mid: "Mid-level engineer: consistent delivery, ownership of features, and quantified impact. Bullets should show scope, technical decisions, and measurable outcomes.",
     senior: "Senior engineer: system-level ownership, cross-cutting impact, mentorship/leadership, and strong quantified business outcomes. Bullets should show scale and influence.",

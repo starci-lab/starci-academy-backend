@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     Mutation,
     Resolver,
 } from "@nestjs/graphql"
@@ -33,6 +34,22 @@ import {
 import {
     CaptchaGuard,
 } from "@modules/integrations/captcha/guards/captcha.guard"
+import type {
+    Request,
+    Response,
+} from "express"
+import {
+    CookieService,
+} from "@modules/platform/cookie/cookie.service"
+import {
+    CookieName,
+} from "@modules/platform/cookie/enums"
+import {
+    CsrfService,
+} from "@modules/platform/csrf/csrf.service"
+import {
+    SessionService,
+} from "@modules/platform/session/session.service"
 
 @Resolver()
 /**
@@ -42,6 +59,9 @@ import {
 export class SignInInitResolver {
     constructor(
         private readonly signInInitService: SignInInitService,
+        private readonly cookieService: CookieService,
+        private readonly csrfService: CsrfService,
+        private readonly sessionService: SessionService,
     ) {}
 
     /**
@@ -52,15 +72,15 @@ export class SignInInitResolver {
     @UseGuards(CaptchaGuard)
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
-        [Locale.En]: "OTP sent successfully",
-        [Locale.Vi]: "Gửi mã OTP thành công", // vn-ok: vi-locale string emitted to clients
+        [Locale.En]: "Sign-in started successfully",
+        [Locale.Vi]: "Bắt đầu đăng nhập thành công", // vn-ok: vi-locale string emitted to clients
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
         () => SignInResponse,
         {
             name: "signInInit",
-            description: "Verifies username/password with Keycloak, then sends OTP to email (tokens returned only after OTP).",
+            description: "Verifies credentials, then opens an OTP challenge or completes an explicitly enabled local test session.",
         },
     )
     async execute(
@@ -71,12 +91,31 @@ export class SignInInitResolver {
             },
         )
             request: SignInInitRequest,
+        @Context()
+            ctx: {
+                req: Request
+                res: Response
+            },
     ): Promise<SignInInitData> {
-        return this.signInInitService.execute(
-            {
-                request,
-            }
-        )
+        const result = await this.signInInitService.execute({
+            request,
+        })
+        if (result.kind === "challenge") return result.data
+
+        this.cookieService.attachHttpOnlyCookie({
+            res: ctx.res,
+            name: CookieName.KeycloakRefreshToken,
+            value: result.refreshToken,
+        })
+        this.csrfService.issueCookie({
+            res: ctx.res,
+        })
+        await this.sessionService.startSession({
+            res: ctx.res,
+            req: ctx.req,
+            accessToken: result.data.accessToken,
+        })
+        return result.data
     }
 }
 

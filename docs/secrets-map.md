@@ -42,6 +42,19 @@
   (default base URL + keys dir đã đúng). Catalog: `.mount/data/ai-models/` (6 = qwen-14b · 7-9 = free ·
   10 = Opus 4.8 anthropic · 11 = gpt-5 · 12 = gemini-3-pro).
 
+## Local model-quality harness (process-only, không thuộc key pool)
+
+| Biến env | Phạm vi | Mục đích |
+|---|---|---|
+| `HARNESS_OPENROUTER_API_KEY` | Chỉ process chạy `npm run harness` | Gọi trực tiếp model SUT đã khóa trong từng harness suite. |
+| `HARNESS_OPENROUTER_JUDGE_API_KEY` | Chỉ process chạy `npm run harness` | Gọi trực tiếp Luna judge cho các câu trả lời free-form. |
+
+- Không ghi value vào repository, `.env`, `.mount`, GitHub Actions hoặc production AI key pool.
+- SUT và judge là hai authority bắt buộc, độc lập; code không được suy ra hoặc fallback từ biến này sang biến kia.
+- Người vận hành có thể chủ động map cùng một OpenRouter server key đã được cấp quyền vào cả hai biến của
+  process local, nhưng phải khai báo cả hai biến một cách tường minh.
+- Harness gọi provider có tính phí và không chạy trong CI mặc định.
+
 ## Các secret khác (tham chiếu — không ghi value)
 
 Toàn bộ key khác (AI keys, payment SePay/PayOS/PayPal/Stripe, Keycloak, Judge0, Brevo SMTP, GCP, Qdrant,

@@ -38,8 +38,11 @@ import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
 import {
-    InstallmentPlanService,
-} from "@modules/bussiness/installment-plan/installment-plan.service"
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
+import {
+    CoursePriceQuoteIntent,
+} from "@modules/bussiness/course-pricing/types"
 import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
@@ -90,9 +93,6 @@ import {
     IsNull,
 } from "typeorm"
 import {
-    CoursesCheckoutPricingService,
-} from "./courses-checkout-pricing.service"
-import {
     CoursesCheckoutCommand,
 } from "./courses-checkout.command"
 import {
@@ -127,10 +127,9 @@ export class CoursesCheckoutHandler
         private readonly stripe: Stripe,
         private readonly paypalClient: PaypalClient,
         private readonly nowPaymentsClient: NowPaymentsClient,
-        private readonly coursesCheckoutPricingService: CoursesCheckoutPricingService,
+        private readonly coursePriceQuoteService: CoursePriceQuoteService,
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
-        private readonly installmentPlanService: InstallmentPlanService,
     ) {
         super()
     }
@@ -178,9 +177,11 @@ export class CoursesCheckoutHandler
         // preview query uses, so the charged price always equals the shown price):
         // de-dupes ids, drops already-owned courses, applies progressive loyalty +
         // the order bundle bonus, and sums the VND/USD order totals.
-        const priced = await this.coursesCheckoutPricingService.priceCart({
+        const priced = await this.coursePriceQuoteService.quote({
             userId: user.id,
             courseIds,
+            intent: CoursePriceQuoteIntent.Checkout,
+            installmentMonths,
         })
         // nothing purchasable (empty request, or every course already owned) -> refuse
         // to open a zero-total checkout; the client should refresh the cart
@@ -194,10 +195,7 @@ export class CoursesCheckoutHandler
         // gateway collects only the FIRST cycle now (monthly), the intent is snapshotted
         // onto the order transaction so the enroll fan-out creates the Fixed plan once
         // on payment success (§2.2/§2.3). One-shot order charges the full VND total.
-        const installment = installmentMonths
-            ? this.installmentPlanService.computeInstallmentTotal(priced.totalChargedVnd,
-                installmentMonths)
-            : null
+        const installment = priced.selectedInstallment
         const chargedVnd = installment ? installment.monthlyAmountVnd : priced.totalChargedVnd
 
         const requestedCourseIds = priced.lines.map((line) => line.course.id).sort()
@@ -298,7 +296,7 @@ export class CoursesCheckoutHandler
                     transaction: saved,
                     course: line.course,
                     amount: line.chargedVnd,
-                    discountPercent: line.discountPercent,
+                    discountPercent: line.displayDiscountPercent,
                     pricingPhase: line.pricingPhase,
                 },
             ))

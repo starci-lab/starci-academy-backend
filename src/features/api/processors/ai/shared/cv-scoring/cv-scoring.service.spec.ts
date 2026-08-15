@@ -15,6 +15,9 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
@@ -26,6 +29,9 @@ import {
 import {
     CvScoringService,
 } from "./cv-scoring.service"
+import {
+    CvScoringPromptService,
+} from "./cv-scoring-prompt.service"
 
 /** A valid STRICT-JSON scoring reply the AI mock returns by default. */
 const VALID_SCORE_REPLY = JSON.stringify({
@@ -71,6 +77,7 @@ describe("CvScoringService",
             module = await Test.createTestingModule({
                 providers: [
                     CvScoringService,
+                    CvScoringPromptService,
                     {
                         provide: AiInvokeService,
                         useValue: aiInvokeService,
@@ -95,6 +102,8 @@ describe("CvScoringService",
                     async () => {
                         const result = await service.score({
                             userId: "user-1",
+                            targetLevel: CvTargetLevel.Mid,
+                            language: Locale.En,
                             structuredData: {
                                 fullName: "Jane Doe",
                             },
@@ -121,6 +130,8 @@ describe("CvScoringService",
                     async () => {
                         await service.score({
                             userId: "user-1",
+                            targetLevel: CvTargetLevel.Mid,
+                            language: Locale.En,
                             structuredData: {
                                 fullName: "Jane Doe",
                             },
@@ -153,6 +164,8 @@ describe("CvScoringService",
 
                         const result = await service.score({
                             userId: "user-1",
+                            targetLevel: CvTargetLevel.Mid,
+                            language: Locale.En,
                             structuredData: {
                                 fullName: "Jane Doe",
                             },
@@ -177,6 +190,8 @@ describe("CvScoringService",
 
                         const result = await service.score({
                             userId: "user-1",
+                            targetLevel: CvTargetLevel.Mid,
+                            language: Locale.En,
                             structuredData: {
                                 fullName: "Jane Doe",
                             },
@@ -189,6 +204,8 @@ describe("CvScoringService",
                     async () => {
                         const result = await service.score({
                             userId: "user-1",
+                            targetLevel: CvTargetLevel.Mid,
+                            language: Locale.En,
                             structuredData: {
                                 fullName: "Jane Doe",
                                 skillGroups: [],
@@ -207,6 +224,8 @@ describe("CvScoringService",
                     async () => {
                         const result = await service.score({
                             userId: "user-1",
+                            targetLevel: CvTargetLevel.Mid,
+                            language: Locale.En,
                             cvText: "Jane Doe — Senior Engineer with 8 years of experience.",
                         })
 
@@ -222,6 +241,8 @@ describe("CvScoringService",
                         await expect(
                             service.score({
                                 userId: "user-1",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                             }),
                         ).rejects.toThrow(
                             "CV scoring requires either structuredData or cvText.",
@@ -239,6 +260,8 @@ describe("CvScoringService",
 
                         const result = await service.score({
                             userId: "user-1",
+                            targetLevel: CvTargetLevel.Mid,
+                            language: Locale.En,
                             structuredData: {
                                 fullName: "Jane Doe",
                             },
@@ -261,6 +284,8 @@ describe("CvScoringService",
                         await expect(
                             service.score({
                                 userId: "user-1",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                                 structuredData: {
                                     fullName: "Jane Doe",
                                 },
@@ -281,6 +306,8 @@ describe("CvScoringService",
                         await expect(
                             service.score({
                                 userId: "user-1",
+                                targetLevel: CvTargetLevel.Mid,
+                                language: Locale.En,
                                 structuredData: {
                                     fullName: "Jane Doe",
                                 },
@@ -292,10 +319,11 @@ describe("CvScoringService",
                     async () => {
                         await service.score({
                             userId: "user-1",
+                            targetLevel: CvTargetLevel.Mid,
                             structuredData: {
                                 fullName: "Jane Doe",
                             },
-                            locale: Locale.Vi,
+                            language: Locale.Vi,
                         })
 
                         const systemContent = String(

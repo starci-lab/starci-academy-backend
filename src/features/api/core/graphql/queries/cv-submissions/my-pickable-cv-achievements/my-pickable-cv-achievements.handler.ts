@@ -2,34 +2,21 @@ import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases/postgresql/primary/primary.decorators"
-import {
     Injectable,
 } from "@nestjs/common"
 import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import type {
-    EntityManager,
-} from "typeorm"
+import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
 import {
     MyPickableCvAchievementsQuery,
 } from "./my-pickable-cv-achievements.query"
 import {
     MyPickableCvAchievementsViewData,
-    PickableMilestoneAchievement,
 } from "./graphql-types/response"
-
-/** Row shape returned by the PASSED milestone-task-attempts SQL. */
-interface MilestoneTaskAttemptRow {
-    id: string
-    task_title: string
-    milestone_title: string
-    course_title: string
-    score: number
-}
 
 @QueryHandler(MyPickableCvAchievementsQuery)
 @Injectable()
@@ -49,8 +36,7 @@ export class MyPickableCvAchievementsHandler
     extends ICQRSHandler<MyPickableCvAchievementsQuery, MyPickableCvAchievementsViewData>
     implements IQueryHandler<MyPickableCvAchievementsQuery, MyPickableCvAchievementsViewData> {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly cvEvidenceService: CvEvidenceService,
     ) {
         super()
     }
@@ -75,43 +61,19 @@ export class MyPickableCvAchievementsHandler
             }
         }
 
-        const milestoneTaskAttempts = await this.loadMilestoneTaskAttempts(user.id)
+        const snapshot = await this.cvEvidenceService.listPickable({
+            userId: user.id,
+        })
 
         return {
-            milestoneTaskAttempts,
+            milestoneTaskAttempts: snapshot.map((item) => ({
+                id: item.milestoneTaskAttemptId,
+                courseId: item.courseId,
+                taskTitle: item.taskTitle,
+                milestoneTitle: item.milestoneTitle,
+                courseTitle: item.courseTitle,
+                score: item.score,
+            })),
         }
-    }
-
-    /**
-     * PASSED milestone/capstone task attempts for the user, most recent first.
-     * @param userId - The user id.
-     * @returns The pickable milestone achievements.
-     */
-    private async loadMilestoneTaskAttempts(userId: string): Promise<Array<PickableMilestoneAchievement>> {
-        const rows = await this.entityManager.query(
-            `
-            SELECT mta.id AS id, mt.title AS task_title, m.title AS milestone_title,
-                   c.title AS course_title, mta.score AS score
-            FROM user_milestone_task_attempts mta
-            JOIN user_milestone_tasks umt ON umt.id = mta.user_milestone_task_id
-            JOIN milestone_tasks mt ON mt.id = umt.milestone_task_id
-            JOIN milestones m ON m.id = mt.milestone_id
-            JOIN enrollments e ON e.id = umt.enrollment_id
-            JOIN courses c ON c.id = e.course_id
-            WHERE e.user_id = $1 AND mta.passed = true
-            ORDER BY mta.created_at DESC
-            `,
-            [
-                userId,
-            ],
-        ) as Array<MilestoneTaskAttemptRow>
-
-        return rows.map((row) => ({
-            id: row.id,
-            taskTitle: row.task_title,
-            milestoneTitle: row.milestone_title,
-            courseTitle: row.course_title,
-            score: Number(row.score ?? 0),
-        }))
     }
 }

@@ -105,8 +105,11 @@ import {
     CoursesCheckoutPricingService,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout/courses-checkout-pricing.service"
 import {
-    CoursePricingService,
-} from "@features/api/core/graphql/mutations/courses/course-enroll/course-pricing.service"
+    CoursePriceCalculatorService,
+} from "@modules/bussiness/course-pricing/course-price-calculator.service"
+import {
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
 import {
     ReconcileTransactionWorker,
 } from "@features/api/processors/reconcile-transaction/reconcile-transaction.worker"
@@ -218,7 +221,8 @@ describe("a learner checks out, the gateway never captures, and nothing is grant
                 providers: [
                     CoursesCheckoutHandler,
                     CoursesCheckoutPricingService,
-                    CoursePricingService,
+                    CoursePriceCalculatorService,
+                    CoursePriceQuoteService,
                     LoyaltyDiscountService,
                     UserStatsProjectionService,
                     UserXpProjectionService,

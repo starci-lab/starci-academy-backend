@@ -26,6 +26,9 @@ import {
 import {
     CvGenerationListItem,
 } from "./graphql-types/response"
+import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
 
 @QueryHandler(MyCvGenerationsQuery)
 @Injectable()
@@ -40,6 +43,7 @@ export class MyCvGenerationsHandler
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly cvEvidenceService: CvEvidenceService,
     ) {
         super()
     }
@@ -93,8 +97,9 @@ export class MyCvGenerationsHandler
             },
         )
 
-        return generations.map(
-            (generation): CvGenerationListItem => ({
+        return generations.map((generation): CvGenerationListItem => {
+            const selectedEvidence = this.cvEvidenceService.parseSnapshot(generation.selectedEvidence)
+            return {
                 id: generation.id,
                 mode: generation.mode,
                 status: generation.status,
@@ -104,11 +109,14 @@ export class MyCvGenerationsHandler
                 label: generation.label,
                 targetRole: generation.targetRole,
                 language: generation.language,
+                targetLevel: generation.targetLevel,
+                selectedEvidenceCount: selectedEvidence.length,
+                evidenceLevel: this.cvEvidenceService.evidenceLevel(selectedEvidence),
                 score: generation.score,
                 errorMessage: generation.errorMessage,
                 processedAt: generation.processedAt,
                 createdAt: generation.createdAt,
-            }),
-        )
+            }
+        })
     }
 }

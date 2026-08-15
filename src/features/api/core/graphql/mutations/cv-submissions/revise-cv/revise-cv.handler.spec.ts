@@ -39,6 +39,12 @@ import {
 import {
     ReviseCvHandler,
 } from "./revise-cv.handler"
+import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
+import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -62,6 +68,7 @@ describe("ReviseCvHandler",
         let entityManager: EntityManagerMock
         let enqueueGenerateCvJobService: jest.Mocked<Pick<EnqueueGenerateCvJobService, "enqueue">>
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
+        let cvEvidenceService: jest.Mocked<Pick<CvEvidenceService, "parseSnapshot" | "resolveSelected">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager -- only `findOne` (ownership check) is
@@ -86,6 +93,12 @@ describe("ReviseCvHandler",
                     gradingProvider: null,
                 }),
             } as unknown as jest.Mocked<Pick<GradingLaneValidationService, "validate">>
+            cvEvidenceService = {
+                parseSnapshot: jest.fn().mockReturnValue([]),
+                resolveSelected: jest.fn().mockResolvedValue({
+                    snapshot: [],
+                }),
+            }
 
             module = await Test.createTestingModule({
                 providers: [
@@ -101,6 +114,10 @@ describe("ReviseCvHandler",
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: CvEvidenceService,
+                        useValue: cvEvidenceService,
                     },
                 ],
             }).compile()
@@ -159,6 +176,10 @@ describe("ReviseCvHandler",
                         // ownership check passes
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "sub-1",
+                            targetLevel: CvTargetLevel.Mid,
+                            selectedEvidence: [],
+                            language: "vi",
+                            targetRole: null,
                         })
                         // an explicit model pick -- proves selectedModel/selectedModelProvider
                         // flow through gradingLaneValidationService.validate(...)
@@ -178,6 +199,8 @@ describe("ReviseCvHandler",
                                     label: "My revised CV",
                                     targetRole: "Staff Engineer",
                                     language: "en",
+                                    targetLevel: CvTargetLevel.Senior,
+                                    milestoneTaskAttemptIds: [],
                                 },
                                 user: fakeUser("user-1"),
                             }),
@@ -214,6 +237,8 @@ describe("ReviseCvHandler",
                                 label: "My revised CV",
                                 targetRole: "Staff Engineer",
                                 language: "en",
+                                targetLevel: CvTargetLevel.Senior,
+                                selectedEvidence: [],
                                 ai: expect.objectContaining({
                                     model: "gpt-4o",
                                     provider: ModelProvider.OpenAI,
@@ -226,6 +251,10 @@ describe("ReviseCvHandler",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "sub-2",
+                            targetLevel: CvTargetLevel.Mid,
+                            selectedEvidence: [],
+                            language: "vi",
+                            targetRole: "Backend Engineer",
                         })
 
                         await handler.execute(
@@ -246,8 +275,10 @@ describe("ReviseCvHandler",
                                 extraPrompts: undefined,
                                 courseId: undefined,
                                 label: undefined,
-                                targetRole: undefined,
-                                language: undefined,
+                                targetRole: "Backend Engineer",
+                                language: "vi",
+                                targetLevel: CvTargetLevel.Mid,
+                                selectedEvidence: [],
                             }),
                         )
                     })
@@ -256,6 +287,10 @@ describe("ReviseCvHandler",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce({
                             id: "sub-3",
+                            targetLevel: CvTargetLevel.Junior,
+                            selectedEvidence: [],
+                            language: "en",
+                            targetRole: null,
                         })
 
                         const result = await handler.execute(

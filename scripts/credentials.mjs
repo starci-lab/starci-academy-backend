@@ -366,6 +366,13 @@ export const APP_CREDENTIALS = [
         env: "GCP_SERVICE_ACCOUNT_JSON",
         format: "json",
     },
+    {
+        source: null,
+        file: "grafana-cloud-write-token.key",
+        env: "LOKI_PASSWORD",
+        format: "binary",
+        note: "Grafana Cloud stack-scoped token with metrics:write + logs:write; Prometheus mounts the same file read-only",
+    },
 
     // ── AI key pools ──────────────────────────────────────────────────────
     // Newline-separated pools. `readAiKeysFile()` resolves a BARE filename from

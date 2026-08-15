@@ -1,6 +1,18 @@
 import {
     MockInterviewGradingService,
 } from "./grade-mock-interview-session-grading.service"
+import {
+    Locale,
+} from "@modules/databases/postgresql/primary/enums/locale"
+import {
+    MockInterviewPhase,
+} from "@modules/databases/postgresql/primary/enums/mock-interview-phase"
+import {
+    MockInterviewSessionTooShortException,
+} from "@modules/platform/exceptions/errors/ai/mock-interview-session-too-short"
+import type {
+    GradeMockInterviewSessionParams,
+} from "./types/mock-interview-grade"
 
 /**
  * Guards how a question's score is derived from the checkpoints the grader reported as
@@ -14,6 +26,7 @@ import {
 describe("MockInterviewGradingService — scoring from covered checkpoints",
     () => {
         const service = new MockInterviewGradingService(
+        undefined as never,
         undefined as never,
         undefined as never,
         undefined as never,
@@ -130,5 +143,79 @@ describe("MockInterviewGradingService — scoring from covered checkpoints",
                         0,
                         7,
                         -1])).toBe(40)
+            })
+    })
+
+describe("MockInterviewGradingService — substantive-answer guard",
+    () => {
+        const entityManager = {
+            findOne: jest.fn().mockResolvedValue(null),
+        }
+        const aiInvokeService = {
+            run: jest.fn(),
+        }
+        const aiEntitlementService = {
+            assertNotOverQuota: jest.fn(),
+            consume: jest.fn(),
+        }
+        const gradingLaneValidationService = {
+            validate: jest.fn(),
+        }
+        const contentRagRetrievalService = {
+            retrieveCourseExcerpt: jest.fn(),
+        }
+        const userService = {
+            resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue({
+                id: "enrollment-1",
+            }),
+        }
+        const winstonService = {
+            log: jest.fn(),
+        }
+        const service = new MockInterviewGradingService(
+            entityManager as never,
+            undefined as never,
+            undefined as never,
+            aiInvokeService as never,
+            gradingLaneValidationService as never,
+            aiEntitlementService as never,
+            contentRagRetrievalService as never,
+            userService as never,
+            winstonService as never,
+        )
+
+        it("rejects a too-short transcript before quota, model invocation, charge, or RAG",
+            async () => {
+                const params: GradeMockInterviewSessionParams = {
+                    userId: "user-1",
+                    courseId: "course-1",
+                    promptId: "prompt-1",
+                    promptTitle: "Design a queue",
+                    level: "middle",
+                    sessionId: "session-1",
+                    locale: Locale.En,
+                    turns: [
+                        {
+                            role: "interviewer",
+                            phase: MockInterviewPhase.Requirements,
+                            content: "What would you clarify?",
+                        },
+                        {
+                            role: "candidate",
+                            phase: MockInterviewPhase.Requirements,
+                            content: "Not sure.",
+                        },
+                    ],
+                }
+
+                await expect((service as unknown as {
+                    gradeOnce: (input: GradeMockInterviewSessionParams) => Promise<unknown>
+                }).gradeOnce(params)).rejects.toThrow(MockInterviewSessionTooShortException)
+
+                expect(aiEntitlementService.assertNotOverQuota).not.toHaveBeenCalled()
+                expect(gradingLaneValidationService.validate).not.toHaveBeenCalled()
+                expect(contentRagRetrievalService.retrieveCourseExcerpt).not.toHaveBeenCalled()
+                expect(aiInvokeService.run).not.toHaveBeenCalled()
+                expect(aiEntitlementService.consume).not.toHaveBeenCalled()
             })
     })

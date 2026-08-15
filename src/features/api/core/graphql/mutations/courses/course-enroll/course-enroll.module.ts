@@ -26,15 +26,11 @@ import {
     CourseEnrollService,
 } from "./course-enroll.service"
 import {
-    CoursePricingService,
-} from "./course-pricing.service"
-import {
     CourseEnrollHandler,
 } from "./course-enroll.handler"
 
 @Module({
     providers: [
-        CoursePricingService,
         CourseEnrollPayOsService,
         CourseEnrollSepayService,
         CourseEnrollStripeService,

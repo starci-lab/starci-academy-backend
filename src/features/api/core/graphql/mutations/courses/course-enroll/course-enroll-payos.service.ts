@@ -49,9 +49,9 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
-import {
-    CoursePricingService 
-} from "./course-pricing.service"
+import type {
+    CoursePriceQuoteResult,
+} from "@modules/bussiness/course-pricing/types"
 import {
     ExecuteParams,
 } from "../../../../types/execute"
@@ -62,14 +62,8 @@ import {
     withCheckoutAdvisoryLock,
 } from "./checkout-advisory-lock"
 import {
-    InstallmentPlanService,
-} from "@modules/bussiness/installment-plan/installment-plan.service"
-import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
-import {
-    LoyaltyDiscountService,
-} from "@modules/bussiness/loyalty/loyalty-discount.service"
 import {
     VoucherService,
 } from "@modules/bussiness/rewards/voucher.service"
@@ -90,12 +84,9 @@ export class CourseEnrollPayOsService {
         @InjectPayOS()
         private readonly payos: PayOS,
         private readonly dayjsService: DayjsService,
-        private readonly coursePricingService: CoursePricingService,
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
-        private readonly loyaltyDiscountService: LoyaltyDiscountService,
         private readonly voucherService: VoucherService,
-        private readonly installmentPlanService: InstallmentPlanService,
     ) {}
 
     /**
@@ -104,7 +95,10 @@ export class CourseEnrollPayOsService {
      * @param param - Course context, user, resolved amount, and PayOS redirect URLs
      * @returns Checkout payload and preflight id
      */
-    async execute(params: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
+    async execute(
+        params: ExecuteParams<CourseEnrollRequest>,
+        quote: CoursePriceQuoteResult,
+    ): Promise<CourseEnrollResponseData> {
         if (!params.user) {
             throw new UserNotFoundException({
             })
@@ -115,6 +109,7 @@ export class CourseEnrollPayOsService {
                 ? `checkout:voucher:${params.user.id}:${params.request.voucherCode}`
                 : `checkout:course:${params.user.id}:${params.request.courseId}:${PaymentType.PayOS}`,
             async (manager) => this.executeLocked(params,
+                quote,
                 manager),
         )
     }
@@ -126,10 +121,10 @@ export class CourseEnrollPayOsService {
                 payosReturnUrl,
                 payosCancelUrl,
                 voucherCode,
-                installmentMonths,
             },
             user,
         }: ExecuteParams<CourseEnrollRequest>,
+        quote: CoursePriceQuoteResult,
         manager: EntityManager,
     ): Promise<CourseEnrollResponseData> {
         if (!user) {
@@ -201,39 +196,11 @@ export class CourseEnrollPayOsService {
         // generate order code
         const orderCode = this.generatePayOsOrderCode()
 
-        // get current pricing phase
-        const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
-        // loyalty discount applied at checkout (so charged === shown)
-        const {
-            percent: discountPercent,
-        } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
-            userId: user.id,
-        })
-        const loyaltyAmount = this.coursePricingService.resolveAmountVnd({
-            course,
-            discountPercent,
-        })
-        // an invalid code throws HERE (before the PayOS link is created) -- a
-        // valid one further discounts the loyalty-discounted amount
-        const discountedAmount = voucherCode
-            ? this.voucherService.applyToAmount(
-                loyaltyAmount,
-                await this.voucherService.previewDiscount({
-                    userId: user.id,
-                    code: voucherCode,
-                    courseId: course.id,
-                }),
-            )
-            : loyaltyAmount
-        // installment : charge only the FIRST cycle now (monthly), snapshot
-        // the whole-schedule intent (months/markup/total) onto the Enroll transaction
-        // so the enroll worker creates the Fixed plan on payment success (§2.2). A
-        // one-shot purchase (no installmentMonths) charges the full discounted amount.
-        const installment = installmentMonths
-            ? this.installmentPlanService.computeInstallmentTotal(discountedAmount,
-                installmentMonths)
-            : null
-        const amount = installment ? installment.monthlyAmountVnd : discountedAmount
+        const line = quote.lines[0]
+        const currentPhase = line.pricingPhase
+        const discountPercent = line.displayDiscountPercent
+        const installment = quote.selectedInstallment
+        const amount = installment ? installment.monthlyAmountVnd : quote.totalChargedVnd
         // create payment link
         const paymentLink = await this.retryService.retry(
             {

@@ -44,6 +44,12 @@ import {
 import {
     ReviseCvData,
 } from "./graphql-types/response"
+import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
+import {
+    CvTargetLevelRequiredException,
+} from "@modules/platform/exceptions/errors/cv/cv-target-level-required"
 
 @CommandHandler(ReviseCvCommand)
 @Injectable()
@@ -59,6 +65,7 @@ export class ReviseCvHandler
         private readonly entityManager: EntityManager,
         private readonly enqueueGenerateCvJobService: EnqueueGenerateCvJobService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
+        private readonly cvEvidenceService: CvEvidenceService,
     ) {
         super()
     }
@@ -76,6 +83,8 @@ export class ReviseCvHandler
                 label,
                 targetRole,
                 language,
+                targetLevel,
+                milestoneTaskAttemptIds,
             },
             user,
             locale,
@@ -119,6 +128,25 @@ export class ReviseCvHandler
             provider: selectedModelProvider,
         })
         const selection = validatedLaneToAiJobSelection(validatedLane)
+        const effectiveTargetLevel = targetLevel ?? sourceGeneration.targetLevel
+        if (!effectiveTargetLevel) {
+            throw new CvTargetLevelRequiredException({
+                cvGenerationId: sourceGeneration.id,
+            })
+        }
+        const selectedEvidence = milestoneTaskAttemptIds === undefined
+            ? this.cvEvidenceService.parseSnapshot(sourceGeneration.selectedEvidence)
+            : (await this.cvEvidenceService.resolveSelected({
+                userId: user.id,
+                milestoneTaskAttemptIds,
+            })).snapshot
+        const sourceLanguage = Object.values(Locale).includes(sourceGeneration.language as Locale)
+            ? sourceGeneration.language as Locale
+            : undefined
+        const effectiveLanguage = (language as Locale | undefined)
+            ?? sourceLanguage
+            ?? locale
+            ?? Locale.En
 
         // create the Pending cv_generations row + enqueue the revise job.
         const { cvGeneration, jobId } = await this.enqueueGenerateCvJobService.enqueue({
@@ -126,12 +154,13 @@ export class ReviseCvHandler
             mode: CvGenerationMode.Revise,
             sourceCvSubmissionId: cvSubmissionId,
             extraPrompts: extraPrompts ?? undefined,
-            locale: locale ?? Locale.En,
+            language: effectiveLanguage,
             ai: selection,
             courseId: courseId ?? undefined,
             label: label ?? undefined,
-            targetRole: targetRole ?? undefined,
-            language: language ?? undefined,
+            targetRole: targetRole ?? sourceGeneration.targetRole ?? undefined,
+            targetLevel: effectiveTargetLevel,
+            selectedEvidence,
         })
 
         return {

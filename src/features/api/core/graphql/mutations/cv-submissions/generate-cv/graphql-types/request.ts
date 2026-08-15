@@ -7,6 +7,20 @@ import {
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
+import {
+    CvTargetLevel,
+    GraphQLTypeCvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    ArrayMaxSize,
+    ArrayUnique,
+    IsEnum,
+    IsIn,
+    IsOptional,
+    IsString,
+    IsUUID,
+    MaxLength,
+} from "class-validator"
 
 @InputType({
     description: "Generate a brand-new CV from the user's free-text prompts.",
@@ -17,6 +31,9 @@ import {
  * generation run and enqueues the background job (mode = Generate).
  */
 export class GenerateCvRequest {
+    @IsOptional()
+    @IsString()
+    @MaxLength(10_000)
     @Field(
         () => String,
         {
@@ -27,6 +44,9 @@ export class GenerateCvRequest {
         extraPrompts?: string
 
     /** Concrete model the user picked in the CV-generation model picker (e.g. "gpt-4o"). */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -37,6 +57,8 @@ export class GenerateCvRequest {
         selectedModel?: string
 
     /** Provider serving {@link selectedModel}. */
+    @IsOptional()
+    @IsEnum(ModelProvider)
     @Field(
         () => GraphQLTypeModelProvider,
         {
@@ -47,6 +69,8 @@ export class GenerateCvRequest {
         selectedModelProvider?: ModelProvider
 
     /** Optional course/track to tie this CV to (`courses.id`). */
+    @IsOptional()
+    @IsUUID()
     @Field(
         () => ID,
         {
@@ -57,6 +81,9 @@ export class GenerateCvRequest {
         courseId?: string
 
     /** Optional user-facing name for this CV. */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -67,6 +94,9 @@ export class GenerateCvRequest {
         label?: string
 
     /** Optional target role this CV is aimed at (free-text). */
+    @IsOptional()
+    @IsString()
+    @MaxLength(255)
     @Field(
         () => String,
         {
@@ -77,6 +107,9 @@ export class GenerateCvRequest {
         targetRole?: string
 
     /** Optional language/locale for this CV (free-text, e.g. "en" / "vi"). */
+    @IsOptional()
+    @IsIn(["en",
+        "vi"])
     @Field(
         () => String,
         {
@@ -85,4 +118,23 @@ export class GenerateCvRequest {
         },
     )
         language?: string
+
+    @Field(() => GraphQLTypeCvTargetLevel,
+        {
+            description: "Explicit seniority bar used to compose and score this CV.",
+        })
+    @IsEnum(CvTargetLevel)
+        targetLevel: CvTargetLevel
+
+    @Field(() => [ID],
+        {
+            description: "Caller-owned passed capstone attempt IDs selected into this CV; may be empty.",
+        })
+    @ArrayMaxSize(5)
+    @ArrayUnique()
+    @IsUUID(undefined,
+        {
+            each: true,
+        })
+        milestoneTaskAttemptIds: Array<string>
 }

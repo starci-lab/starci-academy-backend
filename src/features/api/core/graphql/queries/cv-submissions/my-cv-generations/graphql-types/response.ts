@@ -22,6 +22,14 @@ import {
 import {
     IAbstractGraphQLResponse,
 } from "@modules/api/apollo/server/types/graphql-response"
+import {
+    CvTargetLevel,
+    GraphQLTypeCvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    CvEvidenceLevel,
+    GraphQLTypeCvEvidenceLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-evidence-level"
 
 @ObjectType({
     description: "One row of the caller's CV generation history (lightweight — no resolved file content).",
@@ -109,6 +117,25 @@ export class CvGenerationListItem {
         },
     )
         language: string | null
+
+    @Field(() => GraphQLTypeCvTargetLevel,
+        {
+            nullable: true,
+            description: "Explicit seniority bar; null only for historical rows.",
+        })
+        targetLevel: CvTargetLevel | null
+
+    @Field(() => Int,
+        {
+            description: "Number of defensively valid selected capstones in this run.",
+        })
+        selectedEvidenceCount: number
+
+    @Field(() => GraphQLTypeCvEvidenceLevel,
+        {
+            description: "Per-run evidence strength, separate from AI CV quality score.",
+        })
+        evidenceLevel: CvEvidenceLevel
 
     @Field(
         () => Int,

@@ -112,12 +112,14 @@ export class CourseStatsProjectionService {
     private buildUpsertSql(): string {
         return `
             INSERT INTO course_stats_projections (course_id, value)
-            SELECT $1::uuid, jsonb_build_object(
+            SELECT courses.id, jsonb_build_object(
                 -- enrollments in the course
                 'enrollmentCount', COALESCE((
                     SELECT COUNT(*) FROM enrollments WHERE course_id = $1
                 ), 0)
             )
+            FROM courses
+            WHERE courses.id = $1::uuid
             ON CONFLICT (course_id) DO UPDATE SET
                 value      = EXCLUDED.value,
                 updated_at = now()

@@ -10,13 +10,9 @@ import {
 import {
     CoursePricePreviewService,
 } from "./course-price-preview.service"
-import {
-    CoursePricingService,
-} from "../../../mutations/courses/course-enroll/course-pricing.service"
 
 @Module({
     providers: [
-        CoursePricingService,
         CoursePricePreviewService,
         CoursePricePreviewResolver,
     ],

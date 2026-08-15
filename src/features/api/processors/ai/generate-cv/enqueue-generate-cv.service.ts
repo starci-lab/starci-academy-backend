@@ -50,6 +50,12 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import type {
+    CvEvidenceSnapshot,
+} from "@modules/databases/postgresql/primary/types/cv-evidence-snapshot"
+import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
@@ -81,8 +87,8 @@ export interface EnqueueGenerateCvJobParams {
     sourceCvSubmissionId?: string
     /** User's free-text emphasis / target-role notes. */
     extraPrompts?: string
-    /** Locale hint for prompting (e.g. "en", "vi"). */
-    locale?: Locale
+    /** Effective output language, resolved before enqueue. */
+    language: Locale
     /** Validated AI lane + model pick (Auto / Premium / BYOK). */
     ai?: AiJobSelection
     /** Optional course/track to tie the created CV row to (`courses.id`). */
@@ -91,8 +97,10 @@ export interface EnqueueGenerateCvJobParams {
     label?: string
     /** Optional target role the CV is aimed at (free-text). */
     targetRole?: string
-    /** Optional language/locale for the CV (free-text, e.g. "en" / "vi"). */
-    language?: string
+    /** Explicit seniority bar for compose and score. */
+    targetLevel: CvTargetLevel
+    /** Immutable selected-capstone snapshot. */
+    selectedEvidence: CvEvidenceSnapshot
 }
 
 @Injectable()
@@ -131,73 +139,79 @@ export class EnqueueGenerateCvJobService {
             mode,
             sourceCvSubmissionId,
             extraPrompts,
-            locale,
+            language,
             ai,
             courseId,
             label,
             targetRole,
-            language,
+            targetLevel,
+            selectedEvidence,
         }: EnqueueGenerateCvJobParams,
     ): Promise<{ cvGeneration: UserCvGenerationEntity, jobId: string }> {
-        // 1) create the Pending generation row FIRST -- the worker/steps update it.
-        // Both generate + revise flow through here, so this row is always
-        // `source = Generated`; the uploaded source is written by its own path.
-        const cvGeneration = await this.entityManager.save(
-            UserCvGenerationEntity,
-            this.entityManager.create(
-                UserCvGenerationEntity,
-                {
-                    user: {
-                        id: userId,
-                    },
-                    mode,
-                    source: CvSource.Generated,
-                    status: CvGenerationStatus.Pending,
-                    sourceCvSubmissionId: sourceCvSubmissionId ?? null,
-                    extraPrompts: extraPrompts ?? null,
-                    course: courseId ? {
-                        id: courseId,
-                    } : null,
-                    label: label ?? null,
-                    targetRole: targetRole ?? null,
-                    language: language ?? null,
-                },
-            ),
-        )
-
-        // 2) build the payload + create the tracked jobs row.
         const jobId = uuidv4()
-        const payloadBody: GenerateCvPayload = {
-            jobId,
-            cvGenerationId: cvGeneration.id,
-            userId,
-            mode,
-            ...(sourceCvSubmissionId !== undefined ? {
-                sourceCvSubmissionId,
-            } : {
-            }),
-            ...(extraPrompts !== undefined ? {
-                extraPrompts,
-            } : {
-            }),
-            ...(locale !== undefined ? {
-                locale,
-            } : {
-            }),
-            ...(ai !== undefined ? {
-                ai,
-            } : {
-            }),
-        }
-        const job = await this.jobActionService.createJob({
-            id: jobId,
-            userId,
-            actionType: ActionType.ProcessCvSubmission,
-            category: JobCategory.ReviewCv,
-            // CV job config: gather -> compose -> render -> score -> complete (default 5).
-            maxSteps: envConfig().job.processCvSubmission.maxSteps,
-            payload: this.superJson.stringify(payloadBody),
+        const committed = await this.entityManager.transaction(async (manager) => {
+            const cvGeneration = await manager.save(
+                UserCvGenerationEntity,
+                manager.create(UserCvGenerationEntity,
+                    {
+                        user: {
+                            id: userId,
+                        },
+                        mode,
+                        source: CvSource.Generated,
+                        status: CvGenerationStatus.Pending,
+                        sourceCvSubmissionId: sourceCvSubmissionId ?? null,
+                        extraPrompts: extraPrompts ?? null,
+                        course: courseId ? {
+                            id: courseId,
+                        } : null,
+                        label: label ?? null,
+                        targetRole: targetRole ?? null,
+                        language,
+                        targetLevel,
+                        selectedEvidence,
+                    }),
+            )
+            const payloadBody: GenerateCvPayload = {
+                jobId,
+                cvGenerationId: cvGeneration.id,
+                userId,
+                mode,
+                language,
+                targetLevel,
+                selectedEvidence,
+                ...(targetRole !== undefined ? {
+                    targetRole,
+                } : {
+                }),
+                ...(sourceCvSubmissionId !== undefined ? {
+                    sourceCvSubmissionId,
+                } : {
+                }),
+                ...(extraPrompts !== undefined ? {
+                    extraPrompts,
+                } : {
+                }),
+                ...(ai !== undefined ? {
+                    ai,
+                } : {
+                }),
+            }
+            const job = await this.jobActionService.createJob({
+                id: jobId,
+                userId,
+                actionType: ActionType.ProcessCvSubmission,
+                category: JobCategory.ReviewCv,
+                maxSteps: envConfig().job.processCvSubmission.maxSteps,
+                payload: this.superJson.stringify(payloadBody),
+                entityManager: manager,
+            })
+            return {
+                cvGeneration,
+                job,
+            }
         })
+        const { cvGeneration, job } = committed
 
         // 3) enqueue after the standard UX delay; on broker failure, fail the job
         // AND mark the generation row Failed so the FE stops polling.

@@ -39,11 +39,7 @@ import {
     CvScoringService,
 } from "../../shared/cv-scoring/cv-scoring.service"
 import type {
-    CvTemplateLevel,
-} from "../../shared/cv-scoring/types"
-import type {
     GenerateCvComposeStepExecuteResult,
-    GenerateCvGatherStepExecuteResult,
     GenerateCvScoreStepExecuteResult,
 } from "../types/execute"
 import type {
@@ -124,17 +120,6 @@ export class GenerateCvScoreStepService extends AbstractStepService<
                 stage: "score",
             })
         }
-        // gather result is advisory here (level inference only) -- its absence must
-        // not fail scoring, so `mid` is the fallback rubric level.
-        const gathered = await this.jobActionService.loadExecutionResult<
-            GenerateCvGatherStepExecuteResult
-        >({
-            job,
-            key: "gather",
-        })
-
-        const templateLevel = this.inferTemplateLevel(gathered)
-
         let result: GenerateCvScoreStepExecuteResult
         try {
             // SOURCE-AGNOSTIC call: feed the composed CV JSON as `structuredData`.
@@ -147,11 +132,8 @@ export class GenerateCvScoreStepService extends AbstractStepService<
             const scored = await this.cvScoringService.score({
                 userId: payload.userId,
                 structuredData: toUnknownRecord(composed),
-                templateLevel,
-                ...(payload.locale !== undefined ? {
-                    locale: payload.locale,
-                } : {
-                }),
+                targetLevel: payload.targetLevel,
+                language: payload.language,
                 ...(payload.ai !== undefined ? {
                     selection: payload.ai,
                 } : {
@@ -194,31 +176,6 @@ export class GenerateCvScoreStepService extends AbstractStepService<
         )
 
         return result
-    }
-
-    /**
-     * Infer the rubric seniority level from the verified achievement volume
-     * (mirrors the compose step's `inferLevel` bands). Missing gather data ->
-     * `mid` (the default rubric bar).
-     */
-    private inferTemplateLevel(
-        gathered: GenerateCvGatherStepExecuteResult | null,
-    ): CvTemplateLevel {
-        if (!gathered) {
-            return "mid"
-        }
-        const totalXp = gathered.xp.challengeXp
-            + gathered.xp.milestoneXp
-            + gathered.xp.codingXp
-            + gathered.xp.lessonXp
-        const capstones = gathered.milestoneTaskAttempts.length
-        if (capstones >= 10 || totalXp >= 5000) {
-            return "senior"
-        }
-        if (capstones >= 3 || totalXp >= 1500) {
-            return "mid"
-        }
-        return "junior"
     }
 
     /**

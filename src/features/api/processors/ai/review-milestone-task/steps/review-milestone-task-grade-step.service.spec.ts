@@ -76,6 +76,12 @@ const makeService = (entityManager: EntityManagerMock) => {
             details: [],
         }),
     }
+    const projectEvaluationPromptService = {
+        build: jest.fn().mockImplementation((input: { sourceExcerpt: string }) => ({
+            systemText: "SYSTEM-PROMPT",
+            humanText: `HUMAN-PROMPT\n${input.sourceExcerpt}`,
+        })),
+    }
     const aiEntitlementService = {
         assertNotOverQuota: jest.fn().mockResolvedValue(undefined),
     }
@@ -109,6 +115,7 @@ const makeService = (entityManager: EntityManagerMock) => {
         aiInvokeService as never,
         aiEntitlementService as never,
         new DayjsService(),
+        projectEvaluationPromptService as never,
         projectEvaluationParseService as never,
         encryptionService as never,
     )
@@ -117,6 +124,7 @@ const makeService = (entityManager: EntityManagerMock) => {
         service,
         gradingRetrievalService,
         aiInvokeService,
+        projectEvaluationPromptService,
         projectEvaluationParseService,
         jobActionService,
     }
@@ -223,7 +231,7 @@ describe("ReviewMilestoneTaskGradeStepService",
                     ],
                 })
 
-                const { service, gradingRetrievalService, aiInvokeService } =
+                const { service, gradingRetrievalService, aiInvokeService, projectEvaluationPromptService } =
                     makeService(entityManager)
 
                 await service.process(makeContext())
@@ -255,6 +263,14 @@ describe("ReviewMilestoneTaskGradeStepService",
                 const runArg = aiInvokeService.run.mock.calls[0][0]
                 const humanMessage = runArg.messages[1]
                 expect(String(humanMessage.content)).toContain("EXCERPT-SOURCE")
+                expect(String(runArg.messages[0].content)).toBe("SYSTEM-PROMPT")
+                expect(projectEvaluationPromptService.build).toHaveBeenCalledWith(expect.objectContaining({
+                    kind: "v2",
+                    taskTitle: "Build the API",
+                    targetLanguage: "English",
+                    sourceExcerpt: "EXCERPT-SOURCE",
+                    gradeMaxScore: 50,
+                }))
             })
 
         it("legacy task: maps criterias (sorted by orderIndex) → [{ body: `text\\npromptText` }]",
@@ -285,7 +301,7 @@ describe("ReviewMilestoneTaskGradeStepService",
                     ],
                 })
 
-                const { service, gradingRetrievalService } = makeService(entityManager)
+                const { service, gradingRetrievalService, projectEvaluationPromptService } = makeService(entityManager)
 
                 await service.process(makeContext({
                     lang: undefined,
@@ -301,6 +317,12 @@ describe("ReviewMilestoneTaskGradeStepService",
                         body: "TEXT-B\nPROMPT-B",
                     },
                 ])
+                expect(projectEvaluationPromptService.build).toHaveBeenCalledWith(expect.objectContaining({
+                    kind: "legacy",
+                    taskTitle: "Legacy task",
+                    targetLanguage: "English",
+                    sourceExcerpt: "EXCERPT-SOURCE",
+                }))
             })
 
         it("does NOT use QdrantVectorStore directly — retrieval is delegated to GradingRetrievalService",

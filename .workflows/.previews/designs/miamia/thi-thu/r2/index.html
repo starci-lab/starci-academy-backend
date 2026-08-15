@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MiaMia · Proposal Thi thử r2</title>
+  <style>
+    :root {
+      --ink: #201824;
+      --muted: #6f6572;
+      --cream: #fff7ee;
+      --surface: #fff;
+      --blush: #fff0f7;
+      --pink: #ff3e9a;
+      --pink-dark: #d92578;
+      --mint: #a4ecd3;
+      --yellow: #ffd84d;
+      --blue: #b9ddff;
+      --line: #e9deda;
+      --danger: #c83c50;
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 3px 3px 0 var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button { font: inherit; color: inherit; }
+    button:focus-visible { outline: 3px solid #1877d2; outline-offset: 3px; }
+    .proposal-bar {
+      position: sticky; top: 0; z-index: 20;
+      border-bottom: 2px solid var(--ink);
+      background: color-mix(in srgb, var(--cream) 94%, transparent);
+      backdrop-filter: blur(14px);
+    }
+    .proposal-inner { max-width: 1240px; margin: 0 auto; padding: 14px 18px; }
+    .proposal-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark {
+      display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 auto;
+      border: 2px solid var(--ink); border-radius: 13px; background: var(--pink); color: white;
+      box-shadow: 2px 2px 0 var(--ink); font-weight: 900;
+    }
+    .brand-copy { min-width: 0; }
+    .eyebrow { margin: 0; color: var(--pink-dark); font-size: 11px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+    h1 { margin: 2px 0 0; font-size: clamp(18px, 2vw, 26px); line-height: 1.1; }
+    .direction-tabs, .state-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tab {
+      border: 2px solid var(--ink); border-radius: 999px; background: white;
+      padding: 8px 13px; cursor: pointer; font-size: 13px; font-weight: 800;
+    }
+    .tab:hover { transform: translateY(-1px); }
+    .tab[aria-selected="true"] { background: var(--ink); color: white; box-shadow: 2px 2px 0 var(--pink); }
+    .state-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+    .state-label { color: var(--muted); font-size: 12px; font-weight: 700; }
+    main { max-width: 1240px; margin: 0 auto; padding: 26px 18px 60px; }
+    .concept-head { display: grid; grid-template-columns: 1.25fr .75fr; gap: 18px; align-items: start; margin-bottom: 18px; }
+    .concept-copy h2 { margin: 0 0 7px; font-size: clamp(25px, 4vw, 43px); line-height: 1; letter-spacing: -.04em; }
+    .concept-copy p { margin: 0; max-width: 760px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+    .hypothesis {
+      border: 2px solid var(--ink); border-radius: 22px; padding: 14px;
+      background: var(--yellow); box-shadow: var(--shadow-sm); font-size: 13px; line-height: 1.5;
+    }
+    .hypothesis strong { display: block; margin-bottom: 3px; }
+    .evidence-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 20px; }
+    .fact { border: 1.5px solid var(--ink); border-radius: 999px; padding: 6px 10px; background: white; font-size: 11px; font-weight: 800; }
+    .fact.gap { border-style: dashed; background: #fff8cf; }
+    .mock-shell { overflow: hidden; border: 2px solid var(--ink); border-radius: 28px; background: var(--surface); box-shadow: 7px 7px 0 var(--ink); }
+    .app-frame { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 680px; }
+    .app-sidebar {
+      display: flex; min-width: 0; flex-direction: column; border-right: 2px solid var(--ink);
+      background: var(--surface); padding: 16px 12px;
+    }
+    .app-brand { display: flex; align-items: center; gap: 8px; font-weight: 950; letter-spacing: -.03em; }
+    .app-dot { width: 26px; height: 26px; border: 2px solid var(--ink); border-radius: 9px; background: var(--pink); box-shadow: 2px 2px 0 var(--ink); }
+    .sidebar-collapse { margin-left: auto; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+    .side-group { margin-top: 18px; }
+    .side-group + .side-group { border-top: 1.5px solid var(--line); padding-top: 14px; }
+    .side-label { display: block; margin: 0 8px 7px; color: var(--muted); font-size: 9px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+    .side-nav { display: grid; gap: 5px; }
+    .side-item {
+      display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+      border: 0; border-radius: 13px; padding: 9px 8px; background: transparent; text-align: left;
+      cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 850;
+    }
+    .side-item:hover { background: var(--blush); color: var(--ink); }
+    .side-item.active { border: 1.5px solid var(--ink); background: var(--pink); color: white; box-shadow: 2px 2px 0 var(--ink); }
+    .side-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: color-mix(in srgb, currentColor 10%, transparent); font-size: 11px; font-weight: 950; }
+    .side-badge { border: 1px solid currentColor; border-radius: 999px; padding: 2px 5px; font-size: 8px; }
+    .side-footer { margin-top: auto; border-top: 1.5px solid var(--line); padding-top: 12px; }
+    .app-stage { min-width: 0; background: var(--cream); }
+    .app-topbar { display: flex; min-height: 52px; align-items: center; justify-content: flex-end; gap: 8px; border-bottom: 1.5px solid var(--line); padding: 8px 14px; background: var(--cream); }
+    .top-icon { display: grid; place-items: center; width: 34px; height: 34px; border: 1.5px solid var(--ink); border-radius: 50%; background: white; font-size: 11px; font-weight: 900; }
+    .avatar { display: grid; place-items: center; width: 34px; height: 34px; border: 2px solid var(--ink); border-radius: 50%; background: var(--mint); font-size: 12px; font-weight: 900; }
+    .screen { min-height: 640px; padding: 22px; background: var(--cream); }
+    .screen-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    .screen-head h3 { margin: 0; font-size: 26px; letter-spacing: -.03em; }
+    .screen-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      min-height: 41px; border: 2px solid var(--ink); border-radius: 14px; padding: 8px 13px;
+      background: white; box-shadow: var(--shadow-sm); cursor: pointer; font-size: 13px; font-weight: 900;
+    }
+    .btn.primary { background: var(--pink); color: white; }
+    .btn.secondary { background: var(--yellow); }
+    .btn.ghost { min-height: auto; border: 0; padding: 7px; background: transparent; box-shadow: none; color: var(--muted); }
+    .btn[disabled] { cursor: not-allowed; opacity: .48; }
+    .program-tabs, .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .pill { border: 1.5px solid var(--ink); border-radius: 999px; padding: 6px 10px; background: white; font-size: 11px; font-weight: 850; }
+    .pill.active { background: var(--ink); color: white; }
+    .pill.demo { background: var(--mint); }
+    .pill.pro { background: var(--yellow); }
+    .paper-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .paper-card {
+      position: relative; min-width: 0; border: 2px solid var(--ink); border-radius: 20px; padding: 14px;
+      background: white; box-shadow: var(--shadow-sm);
+    }
+    .paper-card.featured { background: var(--blush); }
+    .paper-card.locked { background: #f5efeb; }
+    .paper-card h4 { margin: 10px 0 7px; font-size: 16px; line-height: 1.25; }
+    .paper-card p { min-height: 36px; margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .meta { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 12px; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .card-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .lock { font-size: 20px; }
+    .resume-banner {
+      display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+      margin-bottom: 16px; border: 2px solid var(--ink); border-radius: 22px; padding: 15px;
+      background: var(--mint); box-shadow: var(--shadow-sm);
+    }
+    .resume-banner h4, .start-card h4 { margin: 0 0 3px; font-size: 19px; }
+    .resume-banner p, .start-card p { margin: 0; color: #394e47; font-size: 12px; }
+    .start-card {
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px;
+      margin-bottom: 18px; border: 2px solid var(--ink); border-radius: 24px; padding: 19px;
+      background: var(--pink); color: white; box-shadow: 6px 6px 0 var(--ink);
+    }
+    .start-card p { color: #fff0f7; }
+    .start-card .btn { background: white; color: var(--ink); }
+    .paper-list { display: grid; gap: 9px; }
+    .paper-row {
+      display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px;
+      border: 2px solid var(--ink); border-radius: 16px; padding: 12px 13px; background: white;
+    }
+    .paper-row strong { display: block; font-size: 14px; }
+    .paper-row span { color: var(--muted); font-size: 11px; }
+    .program-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .program-card { border: 2px solid var(--ink); border-radius: 24px; padding: 18px; background: white; box-shadow: var(--shadow-sm); }
+    .program-card.live { grid-column: span 2; background: var(--blue); }
+    .program-card.soon { border-style: dashed; box-shadow: none; opacity: .68; }
+    .program-card .big { margin: 14px 0 6px; font-size: 27px; font-weight: 950; letter-spacing: -.04em; }
+    .program-card p { min-height: 40px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .catalogue-hero { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 18px; margin-bottom: 16px; border-bottom: 2px solid var(--ink); padding-bottom: 18px; }
+    .catalogue-hero h3 { margin: 0 0 6px; font-size: clamp(25px, 4vw, 39px); line-height: 1; letter-spacing: -.04em; }
+    .catalogue-hero p { max-width: 650px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .hero-number { min-width: 118px; border: 2px solid var(--ink); border-radius: 22px; padding: 12px; background: var(--yellow); box-shadow: var(--shadow-sm); text-align: center; }
+    .hero-number strong { display: block; font-size: 35px; line-height: 1; }
+    .hero-number span { font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .catalogue-layout { display: grid; grid-template-columns: 195px minmax(0, 1fr); gap: 14px; align-items: start; }
+    .filter-panel { border-right: 1.5px solid var(--line); padding-right: 14px; }
+    .filter-panel h4 { margin: 0 0 9px; font-size: 12px; }
+    .filter-set { margin-bottom: 16px; }
+    .filter-set strong { display: block; margin-bottom: 6px; color: var(--muted); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+    .filter-option { display: flex; align-items: center; gap: 7px; margin: 5px 0; font-size: 11px; }
+    .filter-check { width: 15px; height: 15px; border: 1.5px solid var(--ink); border-radius: 5px; background: white; }
+    .filter-option.active .filter-check { background: var(--pink); box-shadow: inset 0 0 0 3px white; }
+    .search-box { display: flex; align-items: center; gap: 8px; width: 100%; border: 2px solid var(--ink); border-radius: 14px; padding: 10px 12px; background: white; font-size: 11px; color: var(--muted); }
+    .catalogue-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .catalogue-toolbar strong { font-size: 12px; }
+    .catalogue-list { display: grid; gap: 8px; }
+    .catalogue-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; border-bottom: 1.5px solid var(--line); padding: 10px 4px; }
+    .catalogue-row:last-child { border-bottom: 0; }
+    .catalogue-row h4 { margin: 0 0 3px; font-size: 13px; }
+    .catalogue-row p { margin: 0; color: var(--muted); font-size: 10px; }
+    .premium-banner { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; margin: 17px 0; border: 2px solid var(--ink); border-radius: 22px; padding: 16px; background: var(--yellow); box-shadow: var(--shadow-sm); }
+    .premium-banner h4 { margin: 0 0 4px; font-size: 20px; }
+    .premium-banner p { margin: 0; color: #5b4f21; font-size: 11px; line-height: 1.5; }
+    .premium-banner .btn { background: var(--pink); color: white; }
+    .collection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+    .collection-card { border: 2px solid var(--ink); border-radius: 19px; padding: 14px; background: white; box-shadow: var(--shadow-sm); }
+    .collection-card h4 { margin: 9px 0 4px; font-size: 15px; }
+    .collection-card p { min-height: 31px; margin: 0 0 10px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .runner-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 14px; align-items: start; }
+    .runner-main { min-width: 0; }
+    .sticky-card { position: sticky; top: 12px; border: 2px solid var(--ink); border-radius: 20px; padding: 13px; background: white; box-shadow: var(--shadow-sm); }
+    .sticky-card h4 { margin: 0 0 4px; }
+    .sticky-card p { margin: 0 0 12px; color: var(--muted); font-size: 11px; }
+    .question-map { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .qdot { display: grid; place-items: center; aspect-ratio: 1; border: 1.5px solid var(--ink); border-radius: 9px; background: white; font-size: 10px; font-weight: 850; }
+    .qdot.done { background: var(--mint); }
+    .qdot.active { background: var(--pink); color: white; }
+    .qdot.flag { background: var(--yellow); }
+    .question-card { margin-bottom: 13px; border: 2px solid var(--ink); border-radius: 22px; padding: 17px; background: white; box-shadow: var(--shadow-sm); }
+    .question-card h4 { margin: 0 0 12px; font-size: 16px; line-height: 1.5; }
+    .question-no { display: inline-flex; margin-bottom: 8px; border-radius: 999px; padding: 4px 8px; background: var(--blush); font-size: 10px; font-weight: 900; }
+    .option { display: flex; align-items: flex-start; gap: 9px; margin-top: 8px; border: 1.5px solid var(--line); border-radius: 13px; padding: 10px; font-size: 12px; }
+    .option.selected { border: 2px solid var(--ink); background: var(--blush); }
+    .option.correct { border-color: #21805f; background: #e4fff5; }
+    .option.wrong { border-color: var(--danger); background: #fff0f2; }
+    .radio { display: grid; place-items: center; width: 22px; height: 22px; flex: 0 0 auto; border: 1.5px solid var(--ink); border-radius: 50%; font-size: 10px; font-weight: 900; }
+    .runner-footer {
+      position: sticky; bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 14px; border: 2px solid var(--ink); border-radius: 18px; padding: 11px;
+      background: color-mix(in srgb, white 94%, transparent); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px);
+    }
+    .runner-footer p { margin: 0; color: var(--muted); font-size: 11px; }
+    .focus-runner { max-width: 760px; margin: 0 auto; }
+    .focus-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .progress-track { height: 9px; flex: 1; overflow: hidden; border: 1.5px solid var(--ink); border-radius: 999px; background: white; }
+    .progress-fill { width: 35%; height: 100%; background: var(--pink); }
+    .passage-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; align-items: start; }
+    .passage { border: 2px solid var(--ink); border-radius: 22px; padding: 17px; background: #eff8ff; box-shadow: var(--shadow-sm); font-size: 13px; line-height: 1.75; }
+    .passage h4 { margin: 0 0 8px; }
+    mark { background: var(--yellow); padding: 1px 2px; }
+    .gap-note { margin-top: 10px; border: 1.5px dashed var(--ink); border-radius: 12px; padding: 8px; background: #fff8cf; font-size: 10px; line-height: 1.45; }
+    .result-hero { display: grid; grid-template-columns: 180px 1fr; gap: 18px; align-items: center; margin-bottom: 16px; }
+    .score {
+      display: grid; place-items: center; aspect-ratio: 1; border: 2px solid var(--ink); border-radius: 50%;
+      background: var(--mint); box-shadow: 6px 6px 0 var(--ink); text-align: center;
+    }
+    .score strong { display: block; font-size: 41px; line-height: 1; letter-spacing: -.06em; }
+    .score span { display: block; margin-top: 5px; color: #3c574e; font-size: 11px; font-weight: 850; }
+    .result-copy h3 { margin: 0 0 6px; font-size: 30px; letter-spacing: -.04em; }
+    .result-copy p { margin: 0 0 13px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .result-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin-bottom: 16px; }
+    .stat { border: 2px solid var(--ink); border-radius: 18px; padding: 13px; background: white; box-shadow: var(--shadow-sm); }
+    .stat span { display: block; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .stat strong { display: block; margin-top: 5px; font-size: 22px; }
+    .review-list { display: grid; gap: 10px; }
+    .review-row { border: 2px solid var(--ink); border-radius: 18px; padding: 13px; background: white; }
+    .review-row-head { display: flex; justify-content: space-between; gap: 12px; }
+    .review-row h4 { margin: 0; font-size: 14px; }
+    .review-row p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .skill-list { display: grid; gap: 10px; }
+    .skill-row { display: grid; grid-template-columns: 130px 1fr 42px; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; }
+    .skill-track { height: 13px; overflow: hidden; border: 1.5px solid var(--ink); border-radius: 999px; background: white; }
+    .skill-fill { height: 100%; background: var(--pink); }
+    .kit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+    .kit-section { min-width: 0; }
+    .kit-section > h4 { margin: 0 0 4px; font-size: 15px; }
+    .kit-section > p { margin: 0 0 11px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .kit-stack { display: grid; gap: 10px; }
+    .surface-sample { border: 2px solid var(--ink); border-radius: 20px; padding: 13px; background: white; box-shadow: var(--shadow-sm); }
+    .surface-sample.pressable { cursor: pointer; transition: transform .06s, box-shadow .06s; }
+    .surface-sample.pressable:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink); }
+    .surface-sample.pressable:active { transform: translate(3px,3px); box-shadow: none; }
+    .surface-sample.flat { border-width: 1.5px; box-shadow: none; background: var(--blush); }
+    .surface-sample h5 { margin: 0 0 4px; font-size: 13px; }
+    .surface-sample p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .button-row, .chip-row { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+    .btn.outline { background: white; color: var(--ink); }
+    .btn.danger { background: #ff6d7e; color: white; }
+    .field-demo label { display: block; margin-bottom: 5px; font-size: 10px; font-weight: 850; }
+    .field-box { display: flex; align-items: center; min-height: 42px; border: 2px solid var(--ink); border-radius: 14px; padding: 9px 11px; background: white; color: var(--muted); font-size: 11px; }
+    .notice { border-left: 5px solid var(--pink); border-radius: 0 14px 14px 0; padding: 11px; background: var(--blush); font-size: 10px; line-height: 1.45; }
+    .notice.warning { border-color: #d89b00; background: #fff8cf; }
+    .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+    .swatch { display: grid; place-items: end center; min-height: 64px; border: 1.5px solid var(--ink); border-radius: 13px; padding: 5px; font-size: 8px; font-weight: 900; }
+    .rule-list { margin: 0; padding-left: 18px; color: var(--muted); font-size: 10px; line-height: 1.65; }
+    .annotations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin-top: 20px; }
+    .annotation { border-top: 2px solid var(--ink); padding-top: 10px; }
+    .annotation strong { display: block; margin-bottom: 3px; font-size: 12px; }
+    .annotation span { color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .fixture { margin: 10px 0 0; color: var(--muted); font-size: 10px; }
+    [hidden] { display: none !important; }
+    @media (max-width: 900px) {
+      .proposal-head, .state-row { align-items: flex-start; flex-direction: column; }
+      .concept-head { grid-template-columns: 1fr; }
+      .paper-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .program-grid { grid-template-columns: 1fr 1fr; }
+      .program-card.live { grid-column: span 2; }
+    }
+    @media (max-width: 680px) {
+      .proposal-inner, main { padding-left: 12px; padding-right: 12px; }
+      .direction-tabs { display: grid; width: 100%; grid-template-columns: 1fr; }
+      .state-tabs { display: grid; width: 100%; grid-template-columns: repeat(4, 1fr); }
+      .tab { padding-inline: 8px; }
+      .app-frame { display: block; min-height: 680px; }
+      .app-stage { padding-bottom: 74px; }
+      .app-sidebar {
+        position: fixed; right: 0; bottom: 0; left: 0; z-index: 40;
+        display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+        border-top: 2px solid var(--ink); border-right: 0; padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+        box-shadow: 0 -3px 0 var(--ink);
+      }
+      .app-brand, .sidebar-collapse, .side-label, .side-badge, .side-footer, .side-group.community { display: none; }
+      .side-group, .side-group + .side-group { display: contents; margin: 0; border: 0; padding: 0; }
+      .app-sidebar .side-group.community { display: none; }
+      .side-nav { display: contents; }
+      .side-item { display: flex; min-width: 0; flex-direction: column; place-items: center; justify-content: center; gap: 2px; border: 0; padding: 4px 2px; font-size: 9px; text-align: center; }
+      .side-item > span:not(.side-icon) { display: block; overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; }
+      .side-icon { width: 30px; height: 30px; }
+      .screen { min-height: 680px; padding: 14px; }
+      .screen-head { flex-direction: column; }
+      .paper-grid, .program-grid, .passage-layout, .stat-grid, .annotations, .result-hero, .kit-grid, .collection-grid, .catalogue-layout { grid-template-columns: 1fr; }
+      .program-card.live { grid-column: auto; }
+      .paper-grid .paper-card:nth-child(n+4) { display: none; }
+      .filter-panel { border-right: 0; border-bottom: 1.5px solid var(--line); padding: 0 0 10px; }
+      .filter-set { display: none; }
+      .catalogue-hero, .premium-banner { grid-template-columns: 1fr; }
+      .hero-number { width: fit-content; }
+      .catalogue-row { grid-template-columns: 1fr auto; }
+      .catalogue-row .pill { display: none; }
+      .resume-banner, .start-card { grid-template-columns: 1fr; }
+      .paper-row { grid-template-columns: 1fr auto; }
+      .paper-row .pill { display: none; }
+      .runner-layout { grid-template-columns: 1fr; }
+      .sticky-card { position: static; }
+      .question-map { grid-template-columns: repeat(10, 1fr); }
+      .runner-footer { align-items: stretch; flex-direction: column; }
+      .runner-footer .btn { width: 100%; }
+      .result-hero { text-align: center; }
+      .score { width: 160px; margin: 0 auto; }
+      .result-actions { justify-content: center; }
+      .skill-row { grid-template-columns: 95px 1fr 35px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="proposal-bar">
+    <div class="proposal-inner">
+      <div class="proposal-head">
+        <div class="brand">
+          <div class="brand-mark">M</div>
+          <div class="brand-copy">
+            <p class="eyebrow">Design Plan · r2</p>
+            <h1>MiaMia · Thi thử</h1>
+          </div>
+        </div>
+        <div class="direction-tabs" role="tablist" aria-label="Chọn hướng thiết kế">
+          <button class="tab direction-tab" role="tab" aria-selected="true" data-direction="a">A · Tìm đúng đề</button>
+          <button class="tab direction-tab" role="tab" aria-selected="false" data-direction="b">B · Free → Premium</button>
+          <button class="tab direction-tab" role="tab" aria-selected="false" data-direction="c">C · Theo bộ sưu tập</button>
+        </div>
+      </div>
+      <div class="state-row">
+        <span class="state-label">Xem cùng một hướng qua bốn state:</span>
+        <div class="state-tabs" role="tablist" aria-label="Chọn state để xem">
+          <button class="tab state-tab" role="tab" aria-selected="true" data-view="catalogue">Danh mục</button>
+          <button class="tab state-tab" role="tab" aria-selected="false" data-view="runner">Đang làm</button>
+          <button class="tab state-tab" role="tab" aria-selected="false" data-view="result">Kết quả</button>
+          <button class="tab state-tab" role="tab" aria-selected="false" data-view="ui">Bộ UI</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="proposal-root" aria-live="polite"></main>
+
+  <script>
+    const directions = {
+      a: {
+        title: "A · Tìm đúng đề",
+        summary: "Kho 100 đề là một công cụ tìm kiếm: search, bộ lọc tỉnh/năm/trạng thái và danh sách dày thay cho grid 100 card. Runner tiếp tục dạng cuộn để người học nhìn toàn cảnh đề.",
+        hypothesis: "Vì người luyện thi có chủ đích thường biết tỉnh, năm hoặc loại đề cần tìm, hướng này giảm thời gian từ ý định tới đúng paper.",
+        first: "Ô tìm kiếm → bộ lọc → kết quả phù hợp → trạng thái quyền.",
+        cta: "Mở đúng đề trong row; CTA Premium nằm sau khi giá trị kho đã được thấy.",
+        tradeoff: "Hiệu quả nhất cho power user; người mới phải hiểu bộ lọc trước khi bắt đầu.",
+      },
+      b: {
+        title: "B · Free → Premium",
+        summary: "Hai đề Free tạo giá trị trước; quy mô kho 100 đề Premium và phân tích điểm yếu được reveal ngay sau đó. Runner từng câu giảm tải nhận thức trên mobile.",
+        hypothesis: "Vì học sinh cần nếm trải nghiệm thật trước khi trả tiền, hướng này giữ “Làm đề miễn phí” là CTA đầu và chỉ đưa “Mở khóa 100 đề” lên sau khi lợi ích đã rõ.",
+        first: "Đề Free làm ngay → bằng chứng kho 100 đề → lợi ích Pro → thư viện preview.",
+        cta: "Làm đề miễn phí trước; sau đó Mở khóa 100 đề + phân tích điểm yếu.",
+        tradeoff: "Funnel và CTA rõ nhất; người đã là Pro cần bỏ qua hero để vào thư viện nhanh.",
+      },
+      c: {
+        title: "C · Theo bộ sưu tập",
+        summary: "Kho 100 đề được chia thành collection có nghĩa: năm 2026, theo tỉnh, đề 40 câu, luyện điểm yếu. Runner ưu tiên passage + câu hỏi cạnh nhau.",
+        hypothesis: "Vì catalogue lớn cần mental model hơn là một danh sách dài, hướng này để collection giải thích người học nên vào nhánh nào.",
+        first: "Chương trình → bộ sưu tập → quy mô → đề bên trong.",
+        cta: "Mở bộ đề 2026 hoặc bộ sưu tập phù hợp.",
+        tradeoff: "Scale tốt và dễ kể giá trị; cần metadata/curation ổn định để collection không thành fixture thủ công.",
+      },
+    };
+
+    const paperCard = (title, state, extra = "40 câu · B2") => `
+      <article class="paper-card ${state === "featured" ? "featured" : ""} ${state === "locked" ? "locked" : ""}">
+        <span class="pill ${state === "locked" ? "pro" : "demo"}">${state === "locked" ? "PRO" : "DEMO"}</span>
+        <h4>${title}</h4>
+        <p>Đề luyện theo cấu trúc tốt nghiệp THPT; đáp án chỉ xuất hiện sau khi nộp.</p>
+        <div class="meta"><span>${extra}</span><span>Không đếm ngược</span></div>
+        <div class="card-actions">
+          <button class="btn ${state === "locked" ? "secondary" : "primary"}">${state === "locked" ? "Xem quyền Pro" : "Mở đề"}</button>
+          ${state === "locked" ? '<span class="lock" aria-label="Đã khóa">🔒</span>' : '<span class="pill">Có thể tạm dừng*</span>'}
+        </div>
+      </article>`;
+
+    const question = (number, selected = "b", verdict = "") => `
+      <article class="question-card">
+        <span class="question-no">CÂU ${number}</span>
+        <h4>Choose the option that best completes the sentence: “If she had prepared earlier, she ___ more confident.”</h4>
+        ${["would feel", "would have felt", "will feel", "felt"].map((label, index) => {
+          const id = ["a", "b", "c", "d"][index];
+          const status = verdict && id === "b" ? "correct" : verdict && id === selected ? "wrong" : selected === id ? "selected" : "";
+          return `<div class="option ${status}"><span class="radio">${id.toUpperCase()}</span><span>${label}</span></div>`;
+        }).join("")}
+        ${verdict ? '<div class="gap-note"><strong>Giải thích:</strong> Đây là câu điều kiện loại 3. “Had prepared” đi với “would have felt”.</div>' : ''}
+      </article>`;
+
+    function catalogueA() {
+      return `<section class="screen">
+        <div class="catalogue-hero"><div><h3>Tìm đúng đề trong kho 100+</h3><p>Tìm theo tỉnh, năm hoặc cấu trúc. Danh mục được xem công khai; server vẫn khóa nội dung Premium.</p></div><div class="hero-number"><strong>100+</strong><span>đề Premium</span></div></div>
+        <div class="catalogue-layout">
+          <aside class="filter-panel"><div class="filter-set"><strong>Chương trình</strong><label class="filter-option active"><span class="filter-check"></span>THPTQG</label><label class="filter-option"><span class="filter-check"></span>Cambridge</label></div><div class="filter-set"><strong>Năm</strong><label class="filter-option active"><span class="filter-check"></span>2026</label><label class="filter-option"><span class="filter-check"></span>2025</label></div><div class="filter-set"><strong>Trạng thái</strong><label class="filter-option"><span class="filter-check"></span>Đề Free</label><label class="filter-option"><span class="filter-check"></span>Đã làm</label></div><button class="btn ghost">Xóa bộ lọc</button></aside>
+          <div><div class="search-box">⌕&nbsp;&nbsp; Tìm “Hà Nội”, “đọc hiểu”, “40 câu”…</div><div class="catalogue-toolbar"><strong>24 đề phù hợp</strong><span class="pill">Mới nhất ▾</span></div><div class="catalogue-list">
+            <article class="catalogue-row"><div><h4>Đề thi thử Hà Nội — lần 1</h4><p>2026 · 38 câu · B2 · THPTQG</p></div><span class="pill pro">PREMIUM</span><button class="btn primary">Mở đề</button></article>
+            <article class="catalogue-row"><div><h4>Đề sở An Giang — lần 2</h4><p>2026 · 40 câu · B2 · Demo</p></div><span class="pill demo">FREE</span><button class="btn">Mở đề</button></article>
+            <article class="catalogue-row"><div><h4>Đề sở Nghệ An — lần 3</h4><p>2026 · 40 câu · B2 · THPTQG</p></div><span class="pill pro">PREMIUM</span><button class="btn">Xem</button></article>
+            <article class="catalogue-row"><div><h4>Đề sở Đồng Nai — lần 2</h4><p>2026 · 40 câu · B2 · THPTQG</p></div><span class="pill pro">PREMIUM</span><button class="btn">Xem</button></article>
+          </div><div class="premium-banner"><div><h4>Mở toàn bộ 100 đề</h4><p>Kèm phân tích điểm yếu sau mỗi lần làm — lợi ích chính của MiaMia Premium.</p></div><button class="btn">Xem MiaMia Premium →</button></div></div>
+        </div>
+        <p class="fixture">100 đề là giả định scale tương lai do người dùng nêu; live hiện có 36 papers. Production cần pagination hoặc virtualization, không mount 100 rows cùng lúc.</p>
+      </section>`;
+    }
+
+    function catalogueB() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Làm thử trước. Mở cả kho khi thấy giá trị.</h3><p>Không đếm ngược; đáp án chỉ hiện sau khi nộp. Hai đề Free là trải nghiệm thật, không phải bản rút gọn.</p></div><button class="btn ghost">Lịch sử</button></div>
+        <div class="start-card"><div><span class="pill demo">ĐỀ FREE 1/2</span><h4>Đề sở An Giang — lần 2</h4><p>40 câu · B2 · chấm và giải thích đầy đủ</p></div><button class="btn">Làm đề miễn phí →</button></div>
+        <div class="premium-banner"><div><span class="pill pro">MIAMIA PREMIUM</span><h4>100 đề. Một bản đồ điểm yếu.</h4><p>Mở toàn bộ đề THPTQG và biết kỹ năng nào cần ôn sau mỗi lượt làm.</p></div><button class="btn">Mở khóa 100 đề →</button></div>
+        <div class="catalogue-toolbar"><strong>Xem trước thư viện Premium</strong><button class="btn ghost">Xem tất cả</button></div>
+        <div class="paper-list"><div class="paper-row"><div><strong>Đề sở Cần Thơ</strong><span>40 câu · Demo thứ 2</span></div><span class="pill demo">FREE</span><button class="btn">Mở</button></div><div class="paper-row"><div><strong>Đề thi thử Hà Nội — lần 1</strong><span>38 câu · Premium</span></div><span class="pill pro">PRO</span><button class="btn secondary">Xem quyền</button></div><div class="paper-row"><div><strong>Đề sở Nghệ An — lần 3</strong><span>40 câu · Premium</span></div><span class="pill pro">PRO</span><button class="btn secondary">Xem quyền</button></div></div>
+        <p class="fixture">CTA Premium xuất hiện sau CTA học thật. Với user Pro, hero Free/Premium được thay bằng “Tiếp tục đề đang làm” và bộ lọc thư viện.</p>
+      </section>`;
+    }
+
+    function catalogueC() {
+      return `<section class="screen">
+        <div class="catalogue-hero"><div><h3>Kho đề có đường đi, không phải một bức tường card</h3><p>Chọn một bộ sưu tập có ý nghĩa rồi mới xem các đề bên trong.</p></div><div class="hero-number"><strong>100+</strong><span>đề đã tuyển chọn</span></div></div>
+        <div class="collection-grid"><article class="collection-card"><span class="pill demo">BẮT ĐẦU Ở ĐÂY</span><h4>Đề Free</h4><p>Hai đề đầy đủ để thử luồng làm, chấm và giải thích.</p><button class="btn primary">Làm đề Free →</button></article><article class="collection-card"><span class="pill pro">48 ĐỀ</span><h4>Thi thử 2026</h4><p>Các đề mới nhất theo cấu trúc tốt nghiệp hiện hành.</p><button class="btn">Mở bộ 2026</button></article><article class="collection-card"><span class="pill pro">34 ĐỀ</span><h4>Theo tỉnh/thành</h4><p>Hà Nội, Nghệ An, Đồng Nai, Hải Phòng và nhiều tỉnh khác.</p><button class="btn">Chọn tỉnh</button></article><article class="collection-card"><span class="pill pro">18 ĐỀ</span><h4>Luyện điểm yếu</h4><p>Nhóm đề theo đọc hiểu, từ vựng và ngữ pháp.</p><button class="btn">Xem chuyên đề</button></article></div>
+        <div class="premium-banner"><div><h4>Mở tất cả bộ sưu tập</h4><p>100 đề Premium + phân tích điểm yếu; không cần chọn mua từng khóa.</p></div><button class="btn">Khám phá MiaMia Premium →</button></div>
+        <div class="gap-note"><strong>Metadata warning:</strong> live backend có program và paper metadata nhưng chưa có collection curated. Nếu chọn C, collection ownership cần Backend Plan hoặc được FE derive bằng rule đã Review khóa.</div>
+      </section>`;
+    }
+
+    function runnerA() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Đề sở An Giang — lần 2</h3><p>14/40 câu đã trả lời · không có đồng hồ đếm ngược</p></div><button class="btn">Lưu & thoát <small>BE gap</small></button></div>
+        <div class="runner-layout"><aside class="sticky-card"><h4>Tiến độ</h4><p>Chọn số câu để di chuyển.</p><div class="question-map">${Array.from({length: 20}, (_,i) => `<span class="qdot ${i < 6 ? "done" : i === 6 ? "active" : i === 11 ? "flag" : ""}">${i+1}</span>`).join("")}</div><div class="gap-note">Không hiển thị countdown. Vàng = cần xem lại.</div></aside><div class="runner-main">${question(7, "b")}${question(8, "")}${question(9, "a")}<div class="runner-footer"><p>Còn 26 câu chưa trả lời. Nộp bài luôn vẫn được.</p><button class="btn primary">Nộp bài →</button></div></div></div>
+      </section>`;
+    }
+
+    function runnerB() {
+      return `<section class="screen">
+        <div class="focus-runner"><div class="focus-top"><button class="btn ghost">← Thoát</button><div class="progress-track"><div class="progress-fill"></div></div><strong>14/40</strong></div>
+        ${question(14, "b")}
+        <div class="runner-footer"><button class="btn">← Câu trước</button><p>Bôi đen một cụm để hỏi từ vựng/ngữ pháp.</p><button class="btn primary">Câu tiếp →</button></div>
+        <div class="question-map" style="margin-top:16px">${Array.from({length: 20}, (_,i) => `<span class="qdot ${i < 7 ? "done" : i === 7 ? "active" : ""}">${i+1}</span>`).join("")}</div>
+        <div class="gap-note"><strong>Điểm đổi chính:</strong> một câu mỗi state; CTA “Nộp bài” chỉ xuất hiện ở câu cuối hoặc trong navigator, không cạnh tranh với “Câu tiếp”.</div></div>
+      </section>`;
+    }
+
+    function runnerC() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Đọc hiểu · câu 21–25</h3><p>Passage và câu hỏi giữ cạnh nhau trên desktop; xếp dọc trên mobile.</p></div><button class="btn">Lưu & thoát <small>BE gap</small></button></div>
+        <div class="passage-layout"><article class="passage"><h4>A different way to learn</h4><p>Students often remember more when they connect new language to a real situation. A short daily practice can be more effective than a long session once a week.</p><p>They may also <mark>retain unfamiliar phrases</mark> by meeting them again in another context.</p><div class="gap-note">Khi bôi đen: RAG hiện có thể gợi ý. “Thêm vào ôn tập” vẫn cần mutation riêng.</div></article><div>${question(23, "b")}<div class="runner-footer"><button class="btn">← Trước</button><button class="btn primary">Tiếp →</button></div></div></div>
+      </section>`;
+    }
+
+    function resultA() {
+      return `<section class="screen"><div class="result-hero"><div class="score"><div><strong>28/40</strong><span>70% chính xác</span></div></div><div class="result-copy"><h3>Bạn đã hoàn thành đề</h3><p>Xem lại 12 câu sai; đáp án và giải thích giờ mới được mở.</p><div class="result-actions"><button class="btn primary">Xem 12 câu sai →</button><button class="btn">Về kho đề</button></div></div></div><div class="stat-grid"><div class="stat"><span>ĐÃ TRẢ LỜI</span><strong>38/40</strong></div><div class="stat"><span>ĐÚNG</span><strong>28</strong></div><div class="stat"><span>BỎ QUA</span><strong>2</strong></div></div>${question(7, "a", "graded")}</section>`;
+    }
+
+    function resultB() {
+      return `<section class="screen"><div class="screen-head"><div><h3>Ba câu đáng ôn nhất</h3><p>Kết quả dẫn thẳng vào lỗi sai cụ thể thay vì dừng ở điểm số.</p></div><span class="pill demo">28/40</span></div><div class="review-list"><article class="review-row"><div class="review-row-head"><h4>Câu 7 · Câu điều kiện loại 3</h4><span class="pill pro">SAI</span></div><p>Bạn chọn A; đáp án đúng là B. Giải thích có sẵn từ gradePaper.</p></article><article class="review-row"><div class="review-row-head"><h4>Câu 18 · Giới từ</h4><span class="pill pro">SAI</span></div><p>Bạn đổi đáp án hai lần trước khi nộp.</p></article><article class="review-row"><div class="review-row-head"><h4>Câu 31 · Đọc hiểu</h4><span class="pill">BỎ QUA</span></div><p>Chưa có lựa chọn khi nộp bài.</p></article></div><div class="runner-footer"><p>Primary tiếp tục core loop; làm lại toàn đề là secondary.</p><button class="btn primary">Ôn 3 câu này →</button></div><div class="gap-note">CTA “Ôn 3 câu này” cần một review-session contract; gradePaper hiện chỉ trả outcome và explanation.</div></section>`;
+    }
+
+    function resultC() {
+      return `<section class="screen"><div class="result-hero"><div class="score"><div><strong>70%</strong><span>28/40 câu đúng</span></div></div><div class="result-copy"><h3>Bức tranh kỹ năng</h3><p>Điểm số dẫn vào nhóm kỹ năng cần học tiếp. Đây là surface Pro trong business brief.</p><div class="result-actions"><button class="btn primary">Ôn câu điều kiện →</button><button class="btn">Xem từng câu</button></div></div></div><div class="skill-list"><div class="skill-row"><span>Từ vựng</span><div class="skill-track"><div class="skill-fill" style="width:82%"></div></div><span>82%</span></div><div class="skill-row"><span>Đọc hiểu</span><div class="skill-track"><div class="skill-fill" style="width:68%"></div></div><span>68%</span></div><div class="skill-row"><span>Câu điều kiện</span><div class="skill-track"><div class="skill-fill" style="width:42%"></div></div><span>42%</span></div><div class="skill-row"><span>Giới từ</span><div class="skill-track"><div class="skill-fill" style="width:51%"></div></div><span>51%</span></div></div><div class="gap-note"><strong>Contract gap:</strong> backend có event/rollup nền nhưng chưa expose GraphQL weak-point report; số phần trăm ở đây là fixture để chốt hierarchy, không phải live data.</div></section>`;
+    }
+
+    function uiKit() {
+      return `<section class="screen">
+        <div class="screen-head"><div><h3>Sticker Study UI</h3><p>Vui, chắc tay và rõ hành động. Neo-brutalism dùng để tạo nhịp học, không phải để đóng khung mọi thứ.</p></div><span class="pill active">UI KIT · R2</span></div>
+        <div class="kit-grid">
+          <section class="kit-section"><h4>1 · Màu có vai trò</h4><p>Ink giữ cấu trúc; pink dành cho primary/active; yellow nói Premium hoặc cảnh báo; mint nói thành công/Free.</p><div class="swatches"><span class="swatch" style="background:#201824;color:white">INK</span><span class="swatch" style="background:#fff7ee">CANVAS</span><span class="swatch" style="background:#ff3e9a;color:white">ACTION</span><span class="swatch" style="background:#ffd84d">PREMIUM</span><span class="swatch" style="background:#a4ecd3">SUCCESS</span></div></section>
+          <section class="kit-section"><h4>2 · Surface có cấp bậc</h4><p>Shadow chỉ dành cho surface đứng độc lập. Surface nằm trong surface phải phẳng, một viền mảnh và không shadow.</p><div class="kit-stack"><article class="surface-sample"><h5>Surface độc lập</h5><p>2px ink border · radius 20–24 · hard shadow 3–4px.</p></article><article class="surface-sample flat"><h5>Inset / joined list</h5><p>1.5px border · tinted ground · không shadow.</p></article><article class="surface-sample pressable" tabindex="0"><h5>Pressable card →</h5><p>Hover nhấc nhẹ; press trượt vào shadow. Cả vùng phải có keyboard semantics.</p></article></div></section>
+          <section class="kit-section"><h4>3 · Button theo độ ưu tiên</h4><p>Một primary trên mỗi surface. Size do vị trí quyết định; variant không được làm control nhỏ bất thường.</p><div class="button-row"><button class="btn primary">Primary →</button><button class="btn secondary">Premium</button><button class="btn outline">Secondary</button><button class="btn ghost">Tertiary</button><button class="btn danger">Destructive</button><button class="btn" disabled>Disabled</button></div></section>
+          <section class="kit-section"><h4>4 · Chip chỉ nói trạng thái</h4><p>Chip không thay button. Demo, Premium, active filter và neutral metadata cần đọc được cả khi bỏ màu.</p><div class="chip-row"><span class="pill demo">FREE</span><span class="pill pro">PREMIUM</span><span class="pill active">ĐANG CHỌN</span><span class="pill">40 CÂU</span><span class="pill">B2</span></div></section>
+          <section class="kit-section"><h4>5 · Field nằm trên ground</h4><p>Field trên canvas dùng trắng + viền ink; bên trong card/overlay dùng secondary ground, không tạo thêm một card.</p><div class="kit-stack"><div class="field-demo"><label>Tìm đề</label><div class="field-box">⌕ &nbsp; Tỉnh, năm hoặc kỹ năng…</div></div><div class="field-demo"><label>Mã ưu đãi</label><div class="field-box" style="background:var(--blush)">MIAMIA100</div></div></div></section>
+          <section class="kit-section"><h4>6 · Navigation là một hệ thống</h4><p>Sidebar desktop 16rem, có thể thu gọn. Dưới 680px, cùng navigation model chuyển thành footbar năm mục để Học/Thi/Game luôn một chạm.</p><div class="kit-stack"><div class="side-item active"><span class="side-icon">✓</span><span>Thi thử</span><span class="side-badge">100</span></div><div class="side-item"><span class="side-icon">◆</span><span>Chơi cùng nhau</span><span></span></div><div class="side-item"><span class="side-icon">★</span><span>Xếp hạng</span><span></span></div></div></section>
+          <section class="kit-section"><h4>7 · Feedback không thành card</h4><p>Thông báo nằm trong flow bằng band/ground. Chỉ dùng modal khi cần chặn hoặc xác nhận.</p><div class="kit-stack"><div class="notice"><strong>Đã lưu lựa chọn</strong><br>Tiến độ trên thiết bị đã được cập nhật.</div><div class="notice warning"><strong>Cần MiaMia Premium</strong><br>Nội dung đề này chưa mở cho tài khoản hiện tại.</div></div></section>
+          <section class="kit-section"><h4>8 · Luật restraint</h4><p>Đây là phần giữ neo-brutalism không biến thành “mọi thứ đều đập vào mắt”.</p><ul class="rule-list"><li>Mỗi surface chỉ một CTA primary.</li><li>Không card lồng card; section title nằm ngoài surface.</li><li>Không dùng màu để nói hierarchy một mình.</li><li>Icon cùng family, stroke và size; không emoji production.</li><li>Loading giữ nguyên geometry của final state.</li><li>Danh sách 100 đề dùng pagination/virtualization, không render 100 cards.</li></ul></section>
+        </div>
+      </section>`;
+    }
+
+    const screens = {
+      a: { catalogue: catalogueA, runner: runnerA, result: resultA, ui: uiKit },
+      b: { catalogue: catalogueB, runner: runnerB, result: resultB, ui: uiKit },
+      c: { catalogue: catalogueC, runner: runnerC, result: resultC, ui: uiKit },
+    };
+
+    let activeDirection = "a";
+    let activeView = "catalogue";
+
+    function render() {
+      const d = directions[activeDirection];
+      document.querySelectorAll(".direction-tab").forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.direction === activeDirection)));
+      document.querySelectorAll(".state-tab").forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.view === activeView)));
+      document.getElementById("proposal-root").innerHTML = `
+        <section class="concept-head">
+          <div class="concept-copy"><p class="eyebrow">Hướng ${activeDirection.toUpperCase()}</p><h2>${d.title}</h2><p>${d.summary}</p></div>
+          <aside class="hypothesis"><strong>Giả thuyết sản phẩm</strong>${d.hypothesis}</aside>
+        </section>
+        <div class="evidence-strip"><span class="fact">Future: 100+ papers</span><span class="fact">Live: 36 papers</span><span class="fact">Free: 2 unlocked</span><span class="fact">Sidebar chung</span><span class="fact">Không timer</span><span class="fact gap">* Có contract gap</span></div>
+        <section class="mock-shell">
+          <div class="app-frame">
+            <aside class="app-sidebar"><div class="app-brand"><span class="app-dot"></span><strong>MiaMia</strong><button class="sidebar-collapse" aria-label="Thu gọn sidebar">«</button></div><div class="side-group"><span class="side-label">Học tập</span><nav class="side-nav"><button class="side-item"><span class="side-icon">⌂</span><span>Trang chủ</span><span></span></button><button class="side-item active"><span class="side-icon">✓</span><span>Thi thử</span><span class="side-badge">100</span></button><button class="side-item"><span class="side-icon">Aa</span><span>Học & ôn tập</span><span></span></button></nav></div><div class="side-group"><span class="side-label">Thi đấu</span><nav class="side-nav"><button class="side-item"><span class="side-icon">◆</span><span>Chơi cùng nhau</span><span></span></button><button class="side-item"><span class="side-icon">★</span><span>Xếp hạng</span><span></span></button></nav></div><div class="side-group community"><span class="side-label">Cộng đồng</span><nav class="side-nav"><button class="side-item"><span class="side-icon">◎</span><span>Bạn bè</span><span></span></button><button class="side-item"><span class="side-icon">···</span><span>Trò chuyện</span><span></span></button></nav></div><div class="side-footer"><button class="side-item"><span class="side-icon">MN</span><span>Hồ sơ của Minh</span><span></span></button></div></aside>
+            <div class="app-stage"><header class="app-topbar"><span class="top-icon">⌕</span><span class="top-icon">◦</span><span class="avatar">MN</span></header>${screens[activeDirection][activeView]()}</div>
+          </div>
+        </section>
+        <section class="annotations"><div class="annotation"><strong>Đọc trước</strong><span>${d.first}</span></div><div class="annotation"><strong>Primary CTA</strong><span>${d.cta}</span></div><div class="annotation"><strong>Đánh đổi</strong><span>${d.tradeoff}</span></div></section>`;
+    }
+
+    document.querySelectorAll(".direction-tab").forEach((tab) => tab.addEventListener("click", () => { activeDirection = tab.dataset.direction; render(); }));
+    document.querySelectorAll(".state-tab").forEach((tab) => tab.addEventListener("click", () => { activeView = tab.dataset.view; render(); }));
+    document.querySelectorAll('[role="tablist"]').forEach((list) => list.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      const tabs = [...list.querySelectorAll('[role="tab"]')];
+      const current = tabs.indexOf(document.activeElement);
+      if (current < 0) return;
+      event.preventDefault();
+      const next = event.key === "ArrowRight" ? (current + 1) % tabs.length : (current - 1 + tabs.length) % tabs.length;
+      tabs[next].focus(); tabs[next].click();
+    }));
+    render();
+  </script>
+</body>
+</html>

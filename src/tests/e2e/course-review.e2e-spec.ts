@@ -56,13 +56,13 @@ describe("a course's rating follows its reviews through CDC",
             // FLOW-9 is the rule, and the reason shows up the first time two flows pick the same
             // magic ordinal and one of them starts failing only when both run
             await world.entityManager.query(
-                `DELETE FROM course_review_stats_projections WHERE course_id = $1`,
+                "DELETE FROM course_review_stats_projections WHERE course_id = $1",
                 [
                     COURSE_ID,
                 ],
             )
             await world.entityManager.query(
-                `DELETE FROM course_reviews WHERE course_id = $1`,
+                "DELETE FROM course_reviews WHERE course_id = $1",
                 [
                     COURSE_ID,
                 ],
@@ -87,136 +87,142 @@ describe("a course's rating follows its reviews through CDC",
                     "Minted by the course-review flow.",
                 ],
             )
-        }, 120_000)
+        },
+        120_000)
 
         afterAll(async () => {
             await world.close()
         })
 
-        it("has no rating before anybody has reviewed", async () => {
+        it("has no rating before anybody has reviewed",
+            async () => {
             // the negative first: a flow that only asserts what SHOULD arrive cannot catch a
             // projection that invents a rating out of an empty table
-            const {
-                reviewCount,
-            } = await readAggregate(world)
+                const {
+                    reviewCount,
+                } = await readAggregate(world)
 
-            expect(reviewCount).toBeNull()
-        })
+                expect(reviewCount).toBeNull()
+            })
 
-        it("rates the course once the first review lands", async () => {
-            await world.entityManager.query(
-                `INSERT INTO course_reviews (id, course_id, user_id, score, body)
+        it("rates the course once the first review lands",
+            async () => {
+                await world.entityManager.query(
+                    `INSERT INTO course_reviews (id, course_id, user_id, score, body)
                  VALUES (gen_random_uuid(), $1, $2, 5, 'the caching module carried it')`,
-                [
-                    COURSE_ID,
-                    LEARNER_ID,
-                ],
-            )
+                    [
+                        COURSE_ID,
+                        LEARNER_ID,
+                    ],
+                )
 
-            // the source write alone changes NOTHING a reader sees. Only the broker delivery does,
-            // which is the whole subject of this lane -- and the trap that makes a seeded database
-            // look like a broken read path
-            await world.publishChange("course_reviews",
-                {
-                    course_id: COURSE_ID,
-                })
+                // the source write alone changes NOTHING a reader sees. Only the broker delivery does,
+                // which is the whole subject of this lane -- and the trap that makes a seeded database
+                // look like a broken read path
+                await world.publishChange("course_reviews",
+                    {
+                        course_id: COURSE_ID,
+                    })
 
-            await until(
-                async () => (await readAggregate(world)).reviewCount === 1,
-                {
-                    timeout: SETTLE_TIMEOUT_MS,
-                    describe: "the review aggregate to rebuild after the first review",
-                },
-            )
+                await until(
+                    async () => (await readAggregate(world)).reviewCount === 1,
+                    {
+                        timeout: SETTLE_TIMEOUT_MS,
+                        describe: "the review aggregate to rebuild after the first review",
+                    },
+                )
 
-            const {
-                averageScore,
-            } = await readAggregate(world)
-            expect(averageScore).toBe(5)
-        })
+                const {
+                    averageScore,
+                } = await readAggregate(world)
+                expect(averageScore).toBe(5)
+            })
 
-        it("averages the second review in rather than replacing the first", async () => {
-            await world.entityManager.query(
-                `INSERT INTO course_reviews (id, course_id, user_id, score, body)
+        it("averages the second review in rather than replacing the first",
+            async () => {
+                await world.entityManager.query(
+                    `INSERT INTO course_reviews (id, course_id, user_id, score, body)
                  VALUES (gen_random_uuid(), $1, $2, 3, 'the last two modules dragged')`,
-                [
-                    COURSE_ID,
-                    LEARNER_ID,
-                ],
-            )
-            await world.publishChange("course_reviews",
-                {
-                    course_id: COURSE_ID,
-                })
+                    [
+                        COURSE_ID,
+                        LEARNER_ID,
+                    ],
+                )
+                await world.publishChange("course_reviews",
+                    {
+                        course_id: COURSE_ID,
+                    })
 
-            await until(
-                async () => (await readAggregate(world)).reviewCount === 2,
-                {
-                    timeout: SETTLE_TIMEOUT_MS,
-                    describe: "the review aggregate to take in the second review",
-                },
-            )
+                await until(
+                    async () => (await readAggregate(world)).reviewCount === 2,
+                    {
+                        timeout: SETTLE_TIMEOUT_MS,
+                        describe: "the review aggregate to take in the second review",
+                    },
+                )
 
-            // both rows by the SAME learner, which is the feature: a second opinion is a second
-            // review, and an aggregate that kept only the latest would answer 3 here
-            const {
-                averageScore,
-            } = await readAggregate(world)
-            expect(averageScore).toBe(4)
-        })
+                // both rows by the SAME learner, which is the feature: a second opinion is a second
+                // review, and an aggregate that kept only the latest would answer 3 here
+                const {
+                    averageScore,
+                } = await readAggregate(world)
+                expect(averageScore).toBe(4)
+            })
 
-        it("survives a duplicate delivery without moving the rating", async () => {
+        it("survives a duplicate delivery without moving the rating",
+            async () => {
             // the case CDC-4 exists for. A projection that incremented by the event's delta would
             // read 3 reviews here, and the average would drift with every redelivery -- silently,
             // because nothing else in the system disagrees with a projection
-            await world.publishChange("course_reviews",
-                {
-                    course_id: COURSE_ID,
-                })
-            await world.publishChange("course_reviews",
-                {
-                    course_id: COURSE_ID,
-                })
+                await world.publishChange("course_reviews",
+                    {
+                        course_id: COURSE_ID,
+                    })
+                await world.publishChange("course_reviews",
+                    {
+                        course_id: COURSE_ID,
+                    })
 
-            await until(
-                async () => (await readAggregate(world)).reviewCount === 2,
-                {
-                    timeout: SETTLE_TIMEOUT_MS,
-                    describe: "the aggregate to stay at two reviews after redelivery",
-                },
-            )
+                await until(
+                    async () => (await readAggregate(world)).reviewCount === 2,
+                    {
+                        timeout: SETTLE_TIMEOUT_MS,
+                        describe: "the aggregate to stay at two reviews after redelivery",
+                    },
+                )
 
-            const {
-                averageScore,
-                reviewCount,
-            } = await readAggregate(world)
-            expect(reviewCount).toBe(2)
-            expect(averageScore).toBe(4)
-        })
+                const {
+                    averageScore,
+                    reviewCount,
+                } = await readAggregate(world)
+                expect(reviewCount).toBe(2)
+                expect(averageScore).toBe(4)
+            })
 
-        it("falls back to the surviving review when one is removed", async () => {
-            await world.entityManager.query(
-                `DELETE FROM course_reviews WHERE course_id = $1 AND score = 3`,
-                [
-                    COURSE_ID,
-                ],
-            )
-            await world.publishChange("course_reviews",
-                {
-                    course_id: COURSE_ID,
-                })
+        it("falls back to the surviving review when one is removed",
+            async () => {
+                await world.entityManager.query(
+                    "DELETE FROM course_reviews WHERE course_id = $1 AND score = 3",
+                    [
+                        COURSE_ID,
+                    ],
+                )
+                await world.publishChange("course_reviews",
+                    {
+                        course_id: COURSE_ID,
+                    })
 
-            await until(
-                async () => (await readAggregate(world)).reviewCount === 1,
-                {
-                    timeout: SETTLE_TIMEOUT_MS,
-                    describe: "the aggregate to drop the removed review",
-                },
-            )
+                await until(
+                    async () => (await readAggregate(world)).reviewCount === 1,
+                    {
+                        timeout: SETTLE_TIMEOUT_MS,
+                        describe: "the aggregate to drop the removed review",
+                    },
+                )
 
-            const {
-                averageScore,
-            } = await readAggregate(world)
-            expect(averageScore).toBe(5)
-        })
+                const {
+                    averageScore,
+                } = await readAggregate(world)
+                expect(averageScore).toBe(5)
+            })
     })

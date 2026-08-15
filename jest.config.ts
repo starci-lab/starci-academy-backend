@@ -72,6 +72,12 @@ const config: Config = {
             testMatch: [
                 "**/*.int-spec.ts",
             ],
+            setupFilesAfterEnv: [
+                "<rootDir>/src/tests/helpers/e2e-db-reset.ts",
+            ],
+            globalSetup: "<rootDir>/src/tests/helpers/e2e-setup.ts",
+            globalTeardown: "<rootDir>/src/tests/helpers/e2e-teardown.ts",
+            testTimeout: 120_000,
         },
     ],
     /** Coverage collected from source + apps when `--coverage` is passed. */

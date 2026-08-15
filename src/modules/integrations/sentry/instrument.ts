@@ -6,12 +6,13 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
+import {
+    buildSentryOptions,
+} from "./sentry.options"
 // config dotenv
 dotenv.config()
 // init sentry
-Sentry.init({
+Sentry.init(buildSentryOptions({
     dsn: getAppConfig().sentryDsn,
     environment: envConfig().nodeEnv,
-    tracesSampleRate: 1.0,
-    sendDefaultPii: true,
-})
+}))

@@ -32,6 +32,12 @@ import {
     VoucherService,
 } from "@modules/bussiness/rewards/voucher.service"
 import {
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
+import {
+    CoursePriceQuoteIntent,
+} from "@modules/bussiness/course-pricing/types"
+import {
     PAYMENT_MODIFIER_CAPABILITY,
 } from "@modules/bussiness/transactions/constants/payment-modifier-capability"
 import {
@@ -84,6 +90,7 @@ export class CourseEnrollHandler
         private readonly courseEnrollPaypalService: CourseEnrollPaypalService,
         private readonly courseEnrollCryptoService: CourseEnrollCryptoService,
         private readonly voucherService: VoucherService,
+        private readonly coursePriceQuoteService: CoursePriceQuoteService,
     ) {
         super()
     }
@@ -168,21 +175,34 @@ export class CourseEnrollHandler
             })
         }
 
+        const quote = await this.coursePriceQuoteService.quote({
+            userId: user.id,
+            courseIds: [courseId],
+            intent: CoursePriceQuoteIntent.Checkout,
+            voucherCode,
+            installmentMonths,
+        })
+
         switch (paymentType) {
         case PaymentType.PayOS: {
-            return this.courseEnrollPayOsService.execute(params)
+            return this.courseEnrollPayOsService.execute(params,
+                quote)
         }
         case PaymentType.Sepay: {
-            return this.courseEnrollSepayService.execute(params)
+            return this.courseEnrollSepayService.execute(params,
+                quote)
         }
         case PaymentType.Stripe: {
-            return this.courseEnrollStripeService.execute(params)
+            return this.courseEnrollStripeService.execute(params,
+                quote)
         }
         case PaymentType.Paypal: {
-            return this.courseEnrollPaypalService.execute(params)
+            return this.courseEnrollPaypalService.execute(params,
+                quote)
         }
         case PaymentType.Crypto: {
-            return this.courseEnrollCryptoService.execute(params)
+            return this.courseEnrollCryptoService.execute(params,
+                quote)
         }
         default:
             throw new UnsupportedPaymentTypeException({

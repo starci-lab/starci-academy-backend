@@ -34,6 +34,9 @@ import {
     VoucherService,
 } from "@modules/bussiness/rewards/voucher.service"
 import {
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
+import {
     CourseEnrollCommand,
 } from "./course-enroll.command"
 import {
@@ -89,6 +92,9 @@ describe("CourseEnrollHandler",
         let voucherService: {
             previewDiscount: jest.Mock
         }
+        let priceQuotes: {
+            quote: jest.Mock
+        }
 
         beforeEach(async () => {
             // fresh jest-backed entity manager; `exists` is not on the shared mock
@@ -126,6 +132,18 @@ describe("CourseEnrollHandler",
             voucherService = {
                 previewDiscount: jest.fn(),
             }
+            priceQuotes = {
+                quote: jest.fn().mockResolvedValue({
+                    lines: [{
+                        course: {
+                            id: "course-1" 
+                        } 
+                    }],
+                    totalChargedVnd: 1250000,
+                    totalChargedUsd: 50,
+                    selectedInstallment: null,
+                }),
+            }
 
             module = await Test.createTestingModule({
                 providers: [
@@ -153,6 +171,10 @@ describe("CourseEnrollHandler",
                     {
                         provide: VoucherService,
                         useValue: voucherService,
+                    },
+                    {
+                        provide: CoursePriceQuoteService,
+                        useValue: priceQuotes,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -221,6 +243,12 @@ describe("CourseEnrollHandler",
 
                 // only the PayOS provider runs for a payos payment type
                 expect(payos.execute).toHaveBeenCalledTimes(1)
+                expect(payos.execute).toHaveBeenCalledWith(
+                    expect.any(Object),
+                    expect.objectContaining({
+                        totalChargedVnd: 1250000 
+                    }),
+                )
                 expect(sepay.execute).not.toHaveBeenCalled()
                 expect(result).toEqual({
                     checkoutUrl: "payos-url",

@@ -3,20 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
-    In,
 } from "typeorm"
-import {
-    CourseEntity,
-} from "@modules/databases/postgresql/primary/entities/course.entity"
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import {
-    CoursePricingService,
-} from "../../../mutations/courses/course-enroll/course-pricing.service"
+    CoursePriceQuoteService,
+} from "@modules/bussiness/course-pricing/course-price-quote.service"
 import {
-    LoyaltyDiscountService,
-} from "@modules/bussiness/loyalty/loyalty-discount.service"
+    CoursePriceQuoteIntent,
+} from "@modules/bussiness/course-pricing/types"
 import type {
     ListRecommendedCoursesParams,
     RecommendedCourseIdRow,
@@ -35,8 +31,7 @@ export class RecommendedCoursesService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        private readonly coursePricingService: CoursePricingService,
-        private readonly loyaltyDiscountService: LoyaltyDiscountService,
+        private readonly coursePriceQuoteService: CoursePriceQuoteService,
     ) {}
 
     /**
@@ -72,69 +67,27 @@ export class RecommendedCoursesService {
             return []
         }
 
-        // load the full course rows with the pricing relations needed to price
-        const courses = await this.entityManager.find(
-            CourseEntity,
-            {
-                where: {
-                    id: In(courseIds),
-                },
-                relations: {
-                    metadata: true,
-                    pricingPhases: true,
-                },
-            },
-        )
-        // preserve the popularity ordering from the id query
-        const byId = new Map(courses.map((course) => [
-            course.id,
-            course,
-        ]))
-
-        // one loyalty computation per viewer -- the same percent prices every course
-        const {
-            percent,
-            reason,
-            enrolledCount,
-        } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
+        const quote = await this.coursePriceQuoteService.quote({
             userId,
+            courseIds,
+            intent: CoursePriceQuoteIntent.Discovery,
         })
 
-        const items: Array<RecommendedCourseItem> = []
-        for (const courseId of courseIds) {
-            const course = byId.get(courseId)
-            if (!course) {
-                continue
-            }
-            // base prices (no discount) then the same prices with the discount
-            const originalPriceVnd = this.coursePricingService.resolveAmountVnd({
-                course,
-            })
-            const discountedPriceVnd = this.coursePricingService.resolveAmountVnd({
-                course,
-                discountPercent: percent,
-            })
-            const originalPriceUsd = this.coursePricingService.resolveAmountUsd({
-                course,
-            })
-            const discountedPriceUsd = this.coursePricingService.resolveAmountUsd({
-                course,
-                discountPercent: percent,
-            })
-            items.push({
+        return quote.lines.map((line): RecommendedCourseItem => {
+            const course = line.course
+            return {
                 displayId: course.displayId,
                 title: course.title,
                 description: course.description,
                 thumbnailUrl: course.coverImageUrl,
-                originalPriceVnd,
-                discountedPriceVnd,
-                discountPercent: percent,
-                originalPriceUsd,
-                discountedPriceUsd,
-                discountReason: reason,
-                enrolledCount,
-            })
-        }
-        return items
+                originalPriceVnd: line.listVnd,
+                discountedPriceVnd: line.chargedVnd,
+                discountPercent: line.displayDiscountPercent,
+                originalPriceUsd: line.listUsd,
+                discountedPriceUsd: line.chargedUsd,
+                discountReason: line.discountReason,
+                enrolledCount: line.enrolledCount,
+            }
+        })
     }
 }

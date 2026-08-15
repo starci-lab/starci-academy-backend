@@ -1,7 +1,5 @@
 import {
     Field,
-    ID,
-    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -10,46 +8,12 @@ import {
 import {
     IAbstractGraphQLResponse,
 } from "@modules/api/apollo/server/types/graphql-response"
+import {
+    CvCapstoneEvidence,
+} from "../../graphql-types/cv-evidence"
 
-@ObjectType({
-    description: "A passed milestone/capstone task attempt, pickable into a CV project block.",
-})
-/**
- * One PASSED milestone/capstone task attempt the learner can pick into a CV
- * "Project" block. Existence of this row (not its score) is the trust signal
- * -- see `CvVerificationService`.
- */
-export class PickableMilestoneAchievement {
-    @Field(
-        () => ID,
-        {
-            description: "user_milestone_task_attempts.id — stable identifier for FE selection.",
-        },
-    )
-        id: string
-
-    @Field({
-        description: "milestone_tasks.title",
-    })
-        taskTitle: string
-
-    @Field({
-        description: "milestones.title",
-    })
-        milestoneTitle: string
-
-    @Field({
-        description: "courses.title — the course this capstone belongs to.",
-    })
-        courseTitle: string
-
-    @Field(
-        () => Int,
-        {
-            description: "user_milestone_task_attempts.score",
-        },
-    )
-        score: number
+export {
+    CvCapstoneEvidence as PickableMilestoneAchievement,
 }
 
 @ObjectType({
@@ -69,12 +33,12 @@ export class PickableMilestoneAchievement {
  */
 export class MyPickableCvAchievementsViewData {
     @Field(
-        () => [PickableMilestoneAchievement],
+        () => [CvCapstoneEvidence],
         {
             description: "Passed capstone/milestone task attempts, most recent first.",
         },
     )
-        milestoneTaskAttempts: Array<PickableMilestoneAchievement>
+        milestoneTaskAttempts: Array<CvCapstoneEvidence>
 }
 
 @ObjectType({

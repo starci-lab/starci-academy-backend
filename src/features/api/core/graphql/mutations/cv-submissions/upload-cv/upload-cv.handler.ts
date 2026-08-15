@@ -2,23 +2,8 @@ import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
 import {
-    UserCvGenerationEntity,
-} from "@modules/databases/postgresql/primary/entities/user-cv-generation.entity"
-import {
-    CvGenerationMode,
-} from "@modules/databases/postgresql/primary/enums/cv-generation-mode"
-import {
-    CvGenerationStatus,
-} from "@modules/databases/postgresql/primary/enums/cv-generation-status"
-import {
-    CvSource,
-} from "@modules/databases/postgresql/primary/enums/cv-source"
-import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
-import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases/postgresql/primary/primary.decorators"
 import {
     UserNotFoundException,
 } from "@modules/platform/exceptions/errors/users/user"
@@ -39,9 +24,6 @@ import {
     ICommandHandler,
 } from "@nestjs/cqrs"
 import {
-    EntityManager,
-} from "typeorm"
-import {
     UploadCvCommand,
 } from "./upload-cv.command"
 import {
@@ -58,8 +40,6 @@ export class UploadCvHandler
     extends ICQRSHandler<UploadCvCommand, UploadCvData>
     implements ICommandHandler<UploadCvCommand, UploadCvData> {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly enqueueScoreUploadedCvJobService: EnqueueScoreUploadedCvJobService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
     ) {
@@ -78,6 +58,7 @@ export class UploadCvHandler
                 label,
                 targetRole,
                 language,
+                targetLevel,
             },
             user,
             locale,
@@ -98,40 +79,15 @@ export class UploadCvHandler
             provider: selectedModelProvider,
         })
         const selection = validatedLaneToAiJobSelection(validatedLane)
-
-        // 1) create the Pending uploaded row in the UNIFIED table: `source =
-        // uploaded`, `uploadedCdnKey` = the already-uploaded object key. `mode` is
-        // required by the column and carries no revise semantics for an upload, so
-        // it mirrors the backfill migration's `mode = generate`. The worker fills
-        // `score` + `feedback` and flips the row to Done.
-        const cvGeneration = await this.entityManager.save(
-            UserCvGenerationEntity,
-            this.entityManager.create(
-                UserCvGenerationEntity,
-                {
-                    user: {
-                        id: user.id,
-                    },
-                    mode: CvGenerationMode.Generate,
-                    source: CvSource.Uploaded,
-                    status: CvGenerationStatus.Pending,
-                    uploadedCdnKey: cdnKey,
-                    course: courseId ? {
-                        id: courseId,
-                    } : null,
-                    label: label ?? null,
-                    targetRole: targetRole ?? null,
-                    language: language ?? null,
-                },
-            ),
-        )
-
-        // 2) enqueue async scoring -- the single-step worker buffers `cdnKey`,
-        // extracts text, scores via the SHARED CvScoringService, and persists.
-        const { jobId } = await this.enqueueScoreUploadedCvJobService.enqueue({
-            cvGenerationId: cvGeneration.id,
+        const effectiveLanguage = (language as Locale | undefined) ?? locale ?? Locale.En
+        const { cvGeneration, jobId } = await this.enqueueScoreUploadedCvJobService.enqueue({
             userId: user.id,
-            locale: locale ?? Locale.En,
+            cdnKey,
+            language: effectiveLanguage,
+            targetLevel,
+            courseId: courseId ?? undefined,
+            label: label ?? undefined,
+            targetRole: targetRole ?? undefined,
             ai: selection,
         })
 

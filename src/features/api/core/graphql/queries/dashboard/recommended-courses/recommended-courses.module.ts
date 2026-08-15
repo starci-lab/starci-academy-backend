@@ -10,13 +10,9 @@ import {
 import {
     RecommendedCoursesService,
 } from "./recommended-courses.service"
-import {
-    CoursePricingService,
-} from "../../../mutations/courses/course-enroll/course-pricing.service"
 
 @Module({
     providers: [
-        CoursePricingService,
         RecommendedCoursesService,
         RecommendedCoursesResolver,
     ],

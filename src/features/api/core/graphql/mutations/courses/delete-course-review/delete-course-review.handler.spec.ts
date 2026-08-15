@@ -54,6 +54,12 @@ const REVIEW_ID = "44444444-4444-4444-4444-444444444444"
 /** The course it belongs to. */
 const COURSE_ID = "22222222-2222-2222-2222-222222222222"
 
+interface DeleteCourseReviewCommandOverrides {
+    reviewId?: string
+    // null rather than undefined, because a destructuring default fires on `undefined`
+    user?: UserEntity | null
+}
+
 /**
  * Build a minimal user stand-in carrying only the id the handler reads.
  *
@@ -91,11 +97,7 @@ const storedReview = (
 const command = ({
     reviewId = REVIEW_ID,
     user = fakeUser(AUTHOR_ID),
-}: {
-    reviewId?: string
-    // null rather than undefined, because a destructuring default fires on `undefined`
-    user?: UserEntity | null
-}): DeleteCourseReviewCommand =>
+}: DeleteCourseReviewCommandOverrides): DeleteCourseReviewCommand =>
     new DeleteCourseReviewCommand({
         locale: Locale.En,
         request: {
@@ -132,49 +134,55 @@ describe("DeleteCourseReviewHandler",
             await module.close()
         })
 
-        it("refuses a caller with no identity", async () => {
-            await expect(handler.execute(command({
-                user: null,
-            }))).rejects.toBeInstanceOf(UserNotFoundException)
-        })
+        it("refuses a caller with no identity",
+            async () => {
+                await expect(handler.execute(command({
+                    user: null,
+                }))).rejects.toBeInstanceOf(UserNotFoundException)
+            })
 
-        it("refuses a review that does not exist", async () => {
-            entityManager.findOne = jest.fn().mockResolvedValue(null)
+        it("refuses a review that does not exist",
+            async () => {
+                entityManager.findOne = jest.fn().mockResolvedValue(null)
 
-            await expect(handler.execute(command({
-            }))).rejects.toBeInstanceOf(CourseReviewNotFoundException)
-        })
+                await expect(handler.execute(command({
+                }))).rejects.toBeInstanceOf(CourseReviewNotFoundException)
+            })
 
-        it("refuses a caller who did not write the review", async () => {
-            await expect(handler.execute(command({
-                user: fakeUser(STRANGER_ID),
-            }))).rejects.toBeInstanceOf(CourseReviewNotOwnedException)
-        })
+        it("refuses a caller who did not write the review",
+            async () => {
+                await expect(handler.execute(command({
+                    user: fakeUser(STRANGER_ID),
+                }))).rejects.toBeInstanceOf(CourseReviewNotOwnedException)
+            })
 
-        it("removes nothing when the caller is refused", async () => {
+        it("removes nothing when the caller is refused",
+            async () => {
             // the assertion that matters more than the exception: a refusal that still deleted the
             // row would pass a test asserting only the throw
-            await expect(handler.execute(command({
-                user: fakeUser(STRANGER_ID),
-            }))).rejects.toBeInstanceOf(CourseReviewNotOwnedException)
+                await expect(handler.execute(command({
+                    user: fakeUser(STRANGER_ID),
+                }))).rejects.toBeInstanceOf(CourseReviewNotOwnedException)
 
-            expect(entityManager.remove).not.toHaveBeenCalled()
-        })
+                expect(entityManager.remove).not.toHaveBeenCalled()
+            })
 
-        it("removes the review its author asked to remove", async () => {
-            await handler.execute(command({
-            }))
+        it("removes the review its author asked to remove",
+            async () => {
+                await handler.execute(command({
+                }))
 
-            expect(entityManager.remove).toHaveBeenCalledTimes(1)
-        })
+                expect(entityManager.remove).toHaveBeenCalledTimes(1)
+            })
 
-        it("answers with the review id and the course whose aggregate this invalidates", async () => {
+        it("answers with the review id and the course whose aggregate this invalidates",
+            async () => {
             // the course id is read off the row BEFORE the delete -- afterwards there is nothing
             // left to ask, and a caller would hold a deletion it cannot attribute to a course
-            const outcome = await handler.execute(command({
-            }))
+                const outcome = await handler.execute(command({
+                }))
 
-            expect(outcome.reviewId).toBe(REVIEW_ID)
-            expect(outcome.courseId).toBe(COURSE_ID)
-        })
+                expect(outcome.reviewId).toBe(REVIEW_ID)
+                expect(outcome.courseId).toBe(COURSE_ID)
+            })
     })

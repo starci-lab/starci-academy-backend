@@ -44,6 +44,9 @@ import {
     EnrollmentEntity,
 } from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
+    CourseEntity,
+} from "@modules/databases/postgresql/primary/entities/course.entity"
+import {
     UserEntity,
 } from "@modules/databases/postgresql/primary/entities/user.entity"
 import {
@@ -102,6 +105,31 @@ export class CoursesResolver {
                 locale,
             },
         )
+
+        const searchCourseIds = response.data.map((course) => course.id)
+        const existingCourses = searchCourseIds.length > 0
+            ? await this.entityManager.find(
+                CourseEntity,
+                {
+                    select: {
+                        id: true,
+                    },
+                    where: {
+                        id: In(searchCourseIds),
+                    },
+                },
+            )
+            : []
+        const existingCourseIds = new Set(existingCourses.map((course) => course.id))
+        const staleCourseCount = response.data.length - existingCourseIds.size
+        response.data = response.data.filter(
+            (course) => existingCourseIds.has(course.id),
+        )
+        response.count = Math.max(
+            0,
+            response.count - staleCourseCount,
+        )
+
         if (!user) {
             return response
         }

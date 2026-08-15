@@ -23,7 +23,8 @@ repeat its laws.
 | Net-new UI or UI that still needs a choice: draw 2-4 real screens and stop for the user to pick | [`.claude/skills/starci-fe-design-plan/`](.claude/skills/starci-fe-design-plan/) |
 | Build the chosen screen from real components and contracts, render every owner state, propose any backend update | [`.claude/skills/starci-fe-design-preview/`](.claude/skills/starci-fe-design-preview/) |
 | Land the backend update then the frontend, and open the real page | [`.claude/skills/starci-fe-design-apply/`](.claude/skills/starci-fe-design-apply/) |
-| Repair a bounded known-reference FE fidelity, interaction or runtime defect without inventing choices | [`.claude/skills/starci-fe-fidelity-fix/`](.claude/skills/starci-fe-fidelity-fix/) |
+| Repair a bounded known-reference FE fidelity, interaction or runtime defect without inventing choices | [`.claude/skills/starci-fe-fidelity-plan/`](.claude/skills/starci-fe-fidelity-plan/), then [`starci-fe-fidelity-apply/`](.claude/skills/starci-fe-fidelity-apply/) |
+| Read what the founder refused across every task record and propose the rule that would have prevented it | [`.claude/skills/starci-fe-upgrade-plan/`](.claude/skills/starci-fe-upgrade-plan/), then [`starci-fe-upgrade-apply/`](.claude/skills/starci-fe-upgrade-apply/) |
 | Survey a scope for near-duplicate owners, freeze their call sites and settle each cluster: merge, one variant prop, extract the shared shape, or keep apart | [`.claude/skills/starci-fe-consolidate-plan/`](.claude/skills/starci-fe-consolidate-plan/) |
 | Carry out approved consolidation verdicts, one cluster per diff, proving every measured call site still renders the same | [`.claude/skills/starci-fe-consolidate-apply/`](.claude/skills/starci-fe-consolidate-apply/) |
 | Enforceable canon artifacts | [`.claude/sources/`](.claude/sources/) |

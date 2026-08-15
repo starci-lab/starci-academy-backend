@@ -25,6 +25,9 @@ const isUnitSpec = (filename) => {
 /** The flow lane. */
 const isE2eSpec = (filename) => /\.e2e-spec\.ts$/.test(normalizePath(filename))
 
+/** The billed model-quality lane. */
+const isHarnessSpec = (filename) => /\.harness-spec\.ts$/.test(normalizePath(filename))
+
 /**
  * Matchers that assert a CALL happened rather than what came out of it.
  *
@@ -165,6 +168,100 @@ export const noModelCallInE2e = {
   },
 }
 
+// -- TESTING-10 ------------------------------------------------------------------------------------
+
+/** House gateways/helpers that hide the harness's real provider call. */
+const HARNESS_INDIRECTION_SOURCES = /helpers\/(?:harness-invoke|models)(?:\.service)?$/
+const HARNESS_INDIRECTION_SYMBOLS = new Set([
+  "AiInvokeService",
+  "HarnessInvokeService",
+  "createHarnessInvoke",
+])
+
+/** Return the root identifier of a member chain such as `client.chat.completions`. */
+const memberRootIdentifier = (node) => {
+  let cursor = node
+  while (cursor && cursor.type === "MemberExpression") cursor = cursor.object
+  return cursor && cursor.type === "Identifier" ? cursor.name : null
+}
+
+/** A harness owns a provider SDK client and calls that client in the suite itself. */
+export const harnessCallsProviderDirectly = {
+  meta: {
+    type: "problem",
+    docs: { description: "A model-quality harness calls its provider SDK directly." },
+    schema: [],
+    messages: {
+      noProviderImport:
+        "This harness does not import a provider SDK. Import the approved provider client in this suite; a house wrapper, tier or production gateway is not the model-quality boundary.",
+      noProviderClient:
+        "This harness does not construct its imported provider client. Own the explicit endpoint, model and harness credential in this suite.",
+      noProviderCall:
+        "This harness never calls its locally constructed provider client. Call the provider SDK directly here; do not delegate the billed SUT call to a helper.",
+      indirect:
+        "`{{name}}` hides or impersonates the provider call from a harness. Reuse only production prompt/parser seams around a direct provider SDK call in this suite.",
+    },
+  },
+  create(context) {
+    if (!isHarnessSpec(context.filename || context.getFilename())) return {}
+
+    const providerConstructors = new Set()
+    const providerClients = new Set()
+    const indirectFindings = new Map()
+    let providerImport = false
+    let providerCall = false
+
+    return {
+      ImportDeclaration(node) {
+        const source = node.source && node.source.value
+        if (typeof source !== "string") return
+
+        if (PROVIDER_PACKAGES.test(source)) {
+          providerImport = true
+          for (const specifier of node.specifiers) providerConstructors.add(specifier.local.name)
+        }
+
+        if (HARNESS_INDIRECTION_SOURCES.test(source)) indirectFindings.set(source, node)
+      },
+      Identifier(node) {
+        if (!HARNESS_INDIRECTION_SYMBOLS.has(node.name)) return
+        if (!indirectFindings.has(node.name)) indirectFindings.set(node.name, node)
+      },
+      VariableDeclarator(node) {
+        if (!node.id || node.id.type !== "Identifier") return
+        const init = node.init
+        if (!init || init.type !== "NewExpression" || init.callee.type !== "Identifier") return
+        if (!providerConstructors.has(init.callee.name)) return
+        providerClients.add(node.id.name)
+      },
+      AssignmentExpression(node) {
+        if (!node.left || node.left.type !== "Identifier") return
+        const right = node.right
+        if (!right || right.type !== "NewExpression" || right.callee.type !== "Identifier") return
+        if (!providerConstructors.has(right.callee.name)) return
+        providerClients.add(node.left.name)
+      },
+      CallExpression(node) {
+        const callee = node.callee
+        if (!callee || callee.type !== "MemberExpression") return
+        const property = callee.property
+        const method = property && (property.name || property.value)
+        if (method !== "create") return
+        const root = memberRootIdentifier(callee.object)
+        if (root && providerClients.has(root)) providerCall = true
+      },
+      "Program:exit"(node) {
+        for (const [name, finding] of indirectFindings) {
+          context.report({ node: finding, messageId: "indirect", data: { name } })
+        }
+        if (!providerImport) context.report({ node, messageId: "noProviderImport" })
+        if (providerClients.size === 0) context.report({ node, messageId: "noProviderClient" })
+        if (!providerCall) context.report({ node, messageId: "noProviderCall" })
+      },
+    }
+  },
+}
+
 // -- TESTING-3 -------------------------------------------------------------------------------------
 
 /** CQRS application buses are internal dispatchers, never production entry points. */
@@ -214,6 +311,7 @@ export const rules = {
   "no-call-only-spec": noCallOnlySpec,
   "e2e-asserts-persisted-state": e2eAssertsPersistedState,
   "no-model-call-in-e2e": noModelCallInE2e,
+  "harness-calls-provider-directly": harnessCallsProviderDirectly,
   "e2e-uses-production-transport": e2eUsesProductionTransport,
 }
 
@@ -235,5 +333,6 @@ export const recommended = {
   "starci-be/no-call-only-spec": "error", // no=0 of 182 - burned down from 1
   "starci-be/e2e-asserts-persisted-state": "error", // no=0 of 47 - burned down from 1
   "starci-be/no-model-call-in-e2e": "error", // no=0 of 47
+  "starci-be/harness-calls-provider-directly": "error", // TESTING-10 · nợ=0 after provider-direct migration
   "starci-be/e2e-uses-production-transport": "error",
 }

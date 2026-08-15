@@ -85,8 +85,8 @@ export class ScoreUploadedCvService {
         {
             cvGenerationId,
             userId,
-            templateLevel,
-            locale,
+            targetLevel,
+            language,
             selection,
         }: ScoreUploadedCvParams,
     ): Promise<ScoreCvResult> {
@@ -141,14 +141,8 @@ export class ScoreUploadedCvService {
         const result = await this.cvScoringService.score({
             userId,
             cvText,
-            ...(templateLevel !== undefined ? {
-                templateLevel,
-            } : {
-            }),
-            ...(locale !== undefined ? {
-                locale,
-            } : {
-            }),
+            targetLevel,
+            language,
             ...(selection !== undefined ? {
                 selection,
             } : {

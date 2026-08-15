@@ -50,17 +50,11 @@ import {
     GradingLaneValidationService,
 } from "@modules/ai/grading-lane-validation.service"
 import {
-    extractJsonBlock,
-} from "@modules/ai/utils/extract-json-block"
-import {
     validatedLaneToAiJobSelection,
 } from "@modules/ai/utils/validated-lane-to-ai-job-selection"
 import {
     MockInterviewSessionTooShortException,
 } from "@modules/platform/exceptions/errors/ai/mock-interview-session-too-short"
-import {
-    ParsingCriteriaResultsFromModelTextException,
-} from "@modules/platform/exceptions/errors/ai/parsing-criteria-results-from-model-text"
 import {
     CourseRagRetrievalService,
 } from "@modules/integrations/rag/course-rag-retrieval.service"
@@ -74,15 +68,17 @@ import {
     MockInterviewGradePromptService,
 } from "./grade-mock-interview-session-prompt.service"
 import {
+    GradeMockInterviewSessionParseService,
+    type MockInterviewQuestionFeedbackItem,
+} from "./grade-mock-interview-session-parse.service"
+import {
     parseFlashcardAnswerKeywords,
 } from "./mock-interview-seed-grounding.util"
 import {
     withMockInterviewGradeAdvisoryLock,
 } from "./mock-interview-grade-advisory-lock"
 import {
-    MockInterviewVerdict,
     type GradeMockInterviewSessionParams,
-    type MockInterviewAttributeScore,
     type MockInterviewGradeSessionResult,
     type MockInterviewPhaseScore,
     type MockInterviewQuestionReview,
@@ -90,49 +86,14 @@ import {
     type MockInterviewTurnRecord,
 } from "./types/mock-interview-grade"
 
-/**
- * One `questionFeedback[]` entry as returned raw by the model (see
- * {@link MockInterviewGradePromptService.buildQna}'s new output field) --
- * intermediate shape between the raw JSON parse and the fully-built
- * {@link MockInterviewQuestionReview} (which also needs the transcript +
- * seed groundings, not available inside {@link MockInterviewGradingService.parse}).
- */
-interface MockInterviewQuestionFeedbackItem {
-    /** 0-based question index this feedback line applies to. */
-    index: number
-    /** One-line what-was-missing summary for this specific question. */
-    feedback: string
-}
-
-/**
- * One `coveredCheckpoints[]` entry as returned raw by the model -- which authored
- * checkpoints the candidate actually established for one question. The SCORE is derived
- * from these in code, so the model reports evidence rather than picking a number.
- */
-interface MockInterviewCoveredCheckpointItem {
-    /** 0-based question index this coverage applies to. */
-    index: number
-    /** 0-based checkpoint numbers this answer established. */
-    covered: Array<number>
-}
-
 /** Ceiling applied when an answer missed a checkpoint marked `critical`. */
 const CRITICAL_MISS_SCORE_CAP = 60
 
 /** Minimum allowed interview score/attribute value. */
 const MIN_SCORE = 0
 
-/** Maximum allowed overall score / attribute value. */
-const MAX_SCORE = 100
-
 /** Default per-phase max when the model omits it. */
 const DEFAULT_PHASE_MAX = 100
-
-/** Score at/above which a missing/garbled verdict falls back to a pass. */
-const PASS_SCORE_THRESHOLD = 75
-
-/** Score at/above which a missing/garbled verdict falls back to borderline (below -> fail). */
-const BORDERLINE_SCORE_THRESHOLD = 50
 
 /**
  * Maximum characters of joined candidate turns fed into the RAG retrieval
@@ -176,6 +137,7 @@ export class MockInterviewGradingService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly mockInterviewGradePromptService: MockInterviewGradePromptService,
+        private readonly gradeMockInterviewSessionParseService: GradeMockInterviewSessionParseService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
         private readonly aiEntitlementService: AiEntitlementService,
@@ -359,7 +321,7 @@ export class MockInterviewGradingService {
             attempts,
         })
 
-        const parsed = this.parse(text)
+        const parsed = this.gradeMockInterviewSessionParseService.parse(text)
 
         // Where a question carries authored checkpoints AND the model reported which of
         // them the answer established, the score becomes the SUM of those bands instead of
@@ -413,7 +375,7 @@ export class MockInterviewGradingService {
             ...parsed,
             overallScore,
             phaseScores,
-            verdict: this.normalizeVerdict(parsed.verdict,
+            verdict: this.gradeMockInterviewSessionParseService.normalizeVerdict(parsed.verdict,
                 overallScore),
             matchedContentIds,
             questionReviews,
@@ -461,14 +423,14 @@ export class MockInterviewGradingService {
         }
         return {
             overallScore: attempt.overallScore,
-            verdict: this.normalizeVerdict(attempt.verdict,
+            verdict: this.gradeMockInterviewSessionParseService.normalizeVerdict(attempt.verdict,
                 attempt.overallScore),
-            phaseScores: this.normalizePhaseScores(attempt.phaseScores),
-            attributeScores: this.normalizeAttributeScores(attempt.attributeScores),
-            strengths: this.normalizeStringArray(attempt.strengths),
-            gaps: this.normalizeStringArray(attempt.gaps),
+            phaseScores: this.gradeMockInterviewSessionParseService.normalizePhaseScores(attempt.phaseScores),
+            attributeScores: this.gradeMockInterviewSessionParseService.normalizeAttributeScores(attempt.attributeScores),
+            strengths: this.gradeMockInterviewSessionParseService.normalizeStringArray(attempt.strengths),
+            gaps: this.gradeMockInterviewSessionParseService.normalizeStringArray(attempt.gaps),
             followUpQuestion: attempt.followUpQuestion,
-            matchedContentIds: this.normalizeStringArray(attempt.matchedContentIds),
+            matchedContentIds: this.gradeMockInterviewSessionParseService.normalizeStringArray(attempt.matchedContentIds),
             questionReviews: attempt.questionReviews.map((review) => ({
                 questionIndex: Number(review.questionIndex),
                 kind: String(review.kind ?? ""),
@@ -866,107 +828,6 @@ export class MockInterviewGradingService {
     }
 
     /**
-     * Parse + normalize the model's strict-JSON response into a
-     * {@link MockInterviewGradeSessionResult} (minus `matchedContentIds` --
-     * comes from RAG retrieval, not the model's response -- and
-     * `questionReviews`, built separately by {@link buildQuestionReviews}
-     * once the transcript/seed groundings are also in scope), clamping scores
-     * and coercing the verdict + phase/attribute breakdowns. Also parses the
-     * new `questionFeedback` array (mode="qna" only; harmlessly ignored by
-     * mode="design", which never asks the model for it).
-     *
-     * @param raw - The raw model response text.
-     * @returns The normalized session grade result (without `matchedContentIds`/`questionReviews`), plus the raw `questionFeedback` for {@link buildQuestionReviews} to consume.
-     * @throws ParsingCriteriaResultsFromModelTextException when JSON parsing fails.
-     */
-    private parse(
-        raw: string,
-    ): Omit<MockInterviewGradeSessionResult, "matchedContentIds" | "questionReviews"> & {
-        questionFeedback: Array<MockInterviewQuestionFeedbackItem>
-        coveredCheckpoints: Array<MockInterviewCoveredCheckpointItem>
-    } {
-        let parsed: Record<string, unknown>
-        try {
-            // strip any fence / prose then parse the JSON object
-            parsed = JSON.parse(extractJsonBlock(raw)) as Record<string, unknown>
-        } catch (error) {
-            throw new ParsingCriteriaResultsFromModelTextException({
-                text: raw,
-                originalError: error instanceof Error
-                    ? error
-                    : undefined,
-            })
-        }
-
-        // overall score is normalized first so the verdict can fall back to it when
-        // the model returns a missing / unrecognized verdict literal
-        const overallScore = this.normalizeScore(parsed.overallScore)
-        return {
-            overallScore,
-            verdict: this.normalizeVerdict(
-                parsed.verdict,
-                overallScore,
-            ),
-            phaseScores: this.normalizePhaseScores(parsed.phaseScores),
-            attributeScores: this.normalizeAttributeScores(parsed.attributeScores),
-            strengths: this.normalizeStringArray(parsed.strengths),
-            gaps: this.normalizeStringArray(parsed.gaps),
-            followUpQuestion: this.normalizeNullableString(parsed.followUpQuestion),
-            questionFeedback: this.normalizeQuestionFeedback(parsed.questionFeedback),
-            coveredCheckpoints: this.normalizeCoveredCheckpoints(parsed.coveredCheckpoints),
-        }
-    }
-
-    /**
-     * Coerce an unknown value to a clean array of
-     * {@link MockInterviewQuestionFeedbackItem}. A malformed or missing array
-     * degrades to empty rather than throwing -- mode="design" never sends this
-     * field at all, and a model that omits/garbles it for mode="qna" must
-     * still let the rest of the grade through (the FE just shows no
-     * per-question feedback line for the affected index).
-     *
-     * @param value - The raw `questionFeedback` value from the parsed JSON.
-     * @returns A clean array of `{ index, feedback }` entries (possibly empty).
-     */
-    /**
-     * Coerce the raw `coveredCheckpoints` value into clean `{ index, covered }` entries.
-     * Missing or malformed degrades to empty, which simply leaves the model's own score in
-     * place -- the same tolerance `questionFeedback` gets.
-     *
-     * @param value - The raw `coveredCheckpoints` value from the parsed JSON.
-     * @returns A clean array (possibly empty).
-     */
-    private normalizeCoveredCheckpoints(
-        value: unknown,
-    ): Array<MockInterviewCoveredCheckpointItem> {
-        if (!Array.isArray(value)) {
-            return []
-        }
-        return value
-            .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
-            .map((item) => {
-                const indexRaw = typeof item.index === "number"
-                    ? item.index
-                    : Number(item.index)
-                const index = Number.isFinite(indexRaw)
-                    ? Math.max(0,
-                        Math.trunc(indexRaw))
-                    : -1
-                const covered = Array.isArray(item.covered)
-                    ? item.covered
-                        .map((entry) => Number(entry))
-                        .filter((entry) => Number.isFinite(entry) && entry >= 0)
-                        .map((entry) => Math.trunc(entry))
-                    : []
-                return {
-                    index,
-                    covered,
-                }
-            })
-            .filter((item) => item.index >= 0)
-    }
-
-    /**
      * Score ONE question as the sum of the score bands it actually covered.
      *
      * Missing a checkpoint marked `critical` caps the result: a candidate who skipped the
@@ -999,33 +860,6 @@ export class MockInterviewGradingService {
         return Math.max(0,
             Math.min(100,
                 Math.round(capped)))
-    }
-
-    private normalizeQuestionFeedback(
-        value: unknown,
-    ): Array<MockInterviewQuestionFeedbackItem> {
-        if (!Array.isArray(value)) {
-            return []
-        }
-        return value
-            .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
-            .map((item) => {
-                const indexRaw = typeof item.index === "number"
-                    ? item.index
-                    : Number(item.index)
-                const index = Number.isFinite(indexRaw)
-                    ? Math.max(0,
-                        Math.trunc(indexRaw))
-                    : -1
-                const feedback = typeof item.feedback === "string"
-                    ? item.feedback.trim()
-                    : ""
-                return {
-                    index,
-                    feedback,
-                }
-            })
-            .filter((item) => item.index >= 0)
     }
 
     /**
@@ -1132,200 +966,4 @@ export class MockInterviewGradingService {
         )
     }
 
-    /**
-     * Coerce an unknown score to an integer clamped to [{@link MIN_SCORE}, {@link MAX_SCORE}].
-     *
-     * @param value - The raw score value from the parsed JSON.
-     * @returns A clamped integer score (defaults to {@link MIN_SCORE} when not numeric).
-     */
-    private normalizeScore(
-        value: unknown,
-    ): number {
-        const numeric = typeof value === "number"
-            ? value
-            : Number(value)
-        if (!Number.isFinite(numeric)) {
-            return MIN_SCORE
-        }
-        return Math.min(
-            MAX_SCORE,
-            Math.max(
-                MIN_SCORE,
-                Math.round(numeric),
-            ),
-        )
-    }
-
-    /**
-     * Coerce an unknown verdict to a valid {@link MockInterviewVerdict}. When the
-     * model returns a missing / unrecognized verdict literal, fall back to one
-     * derived from the score so a strong session is not mislabeled "fail" over
-     * a garbled string.
-     *
-     * @param value - The raw verdict value from the parsed JSON.
-     * @param scoreFallback - The already-normalized overall score to derive a verdict from on a miss.
-     * @returns A valid verdict enum member.
-     */
-    private normalizeVerdict(
-        value: unknown,
-        scoreFallback: number,
-    ): MockInterviewVerdict {
-        const candidate = typeof value === "string"
-            ? value.trim().toLowerCase()
-            : ""
-        const match = Object.values(MockInterviewVerdict).find(
-            (verdict) => verdict === candidate,
-        )
-        return match ?? this.verdictFromScore(scoreFallback)
-    }
-
-    /**
-     * Derive a verdict from a normalized overall score, used only as a
-     * fallback when the model's own verdict literal is missing or unrecognized.
-     *
-     * @param score - The normalized [0, 100] overall score.
-     * @returns Pass at/above {@link PASS_SCORE_THRESHOLD}, Borderline at/above
-     *   {@link BORDERLINE_SCORE_THRESHOLD}, otherwise Fail.
-     */
-    private verdictFromScore(
-        score: number,
-    ): MockInterviewVerdict {
-        if (score >= PASS_SCORE_THRESHOLD) {
-            return MockInterviewVerdict.Pass
-        }
-        if (score >= BORDERLINE_SCORE_THRESHOLD) {
-            return MockInterviewVerdict.Borderline
-        }
-        return MockInterviewVerdict.Fail
-    }
-
-    /**
-     * Coerce an unknown value to a clean array of {@link MockInterviewPhaseScore}.
-     * A malformed or missing array degrades to empty rather than throwing -- a
-     * partial rubric breakdown must never sink the whole grade.
-     *
-     * @param value - The raw `phaseScores` value from the parsed JSON.
-     * @returns A clamped, well-typed array of phase scores (possibly empty).
-     */
-    private normalizePhaseScores(
-        value: unknown,
-    ): Array<MockInterviewPhaseScore> {
-        if (!Array.isArray(value)) {
-            return []
-        }
-        return value
-            .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
-            .map((item) => {
-                // phase is echoed back as-is (string) -- the entity column is a plain
-                // varchar array element, so an unrecognized literal is still stored
-                // rather than silently dropped
-                const phase = typeof item.phase === "string"
-                    ? item.phase
-                    : ""
-                // max defaults to 100 when the model omits it, matching the prompt's
-                // instruction that phase maxes sum to 100 across the breakdown
-                const maxRaw = typeof item.max === "number"
-                    ? item.max
-                    : Number(item.max)
-                const max = Number.isFinite(maxRaw) && maxRaw > 0
-                    ? maxRaw
-                    : DEFAULT_PHASE_MAX
-                // clamp the phase score into [0, max] -- a model that over/under-shoots
-                // its own declared max is still bounded to something renderable
-                const scoreRaw = typeof item.score === "number"
-                    ? item.score
-                    : Number(item.score)
-                const score = Number.isFinite(scoreRaw)
-                    ? Math.min(
-                        max,
-                        Math.max(
-                            MIN_SCORE,
-                            Math.round(scoreRaw),
-                        ),
-                    )
-                    : MIN_SCORE
-                return {
-                    phase,
-                    score,
-                    max,
-                } as MockInterviewPhaseScore
-            })
-            .filter((phaseScore) => phaseScore.phase.length > 0)
-    }
-
-    /**
-     * Coerce an unknown value to a clean array of
-     * {@link MockInterviewAttributeScore}. A malformed or missing array degrades
-     * to empty rather than throwing.
-     *
-     * @param value - The raw `attributeScores` value from the parsed JSON.
-     * @returns A clamped, well-typed array of attribute scores (possibly empty).
-     */
-    private normalizeAttributeScores(
-        value: unknown,
-    ): Array<MockInterviewAttributeScore> {
-        if (!Array.isArray(value)) {
-            return []
-        }
-        return value
-            .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
-            .map((item) => {
-                const key = typeof item.key === "string"
-                    ? item.key
-                    : ""
-                const scoreRaw = typeof item.score === "number"
-                    ? item.score
-                    : Number(item.score)
-                const score = Number.isFinite(scoreRaw)
-                    ? Math.min(
-                        MAX_SCORE,
-                        Math.max(
-                            MIN_SCORE,
-                            Math.round(scoreRaw),
-                        ),
-                    )
-                    : MIN_SCORE
-                return {
-                    key,
-                    score,
-                }
-            })
-            .filter((attributeScore) => attributeScore.key.length > 0)
-    }
-
-    /**
-     * Coerce an unknown value to an array of trimmed non-empty strings.
-     *
-     * @param value - The raw array value from the parsed JSON.
-     * @returns A clean string array (empty when the value is not an array).
-     */
-    private normalizeStringArray(
-        value: unknown,
-    ): Array<string> {
-        if (!Array.isArray(value)) {
-            return []
-        }
-        return value
-            .filter((item): item is string => typeof item === "string")
-            .map((item) => item.trim())
-            .filter((item) => item.length > 0)
-    }
-
-    /**
-     * Coerce an unknown value to a trimmed non-empty string, or null.
-     *
-     * @param value - The raw value from the parsed JSON.
-     * @returns The trimmed string, or null when absent/blank.
-     */
-    private normalizeNullableString(
-        value: unknown,
-    ): string | null {
-        if (typeof value !== "string") {
-            return null
-        }
-        const trimmed = value.trim()
-        return trimmed.length > 0
-            ? trimmed
-            : null
-    }
 }

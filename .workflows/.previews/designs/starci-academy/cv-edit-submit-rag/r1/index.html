@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StarCi · CV edit → submit → RAG</title>
+  <style>
+    :root {
+      --ink: #17131a; --muted: #746d76; --line: #e7e1e6; --soft: #f7f4f6;
+      --accent: #e83e8c; --accent-soft: #fff0f7; --plum: #2b202b; --green: #167a55;
+      --amber: #9a6514; --red: #b4233c; --blue: #285aa8; --paper: #fff;
+      --shadow: 0 16px 38px rgba(43,32,43,.10); --r: 16px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #f2eff1; font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar { height: 64px; display: flex; align-items: center; gap: 28px; padding: 0 28px; background: white; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+    .brand { display: flex; align-items: center; gap: 9px; font-weight: 850; font-size: 18px; }
+    .logo { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: white; background: var(--plum); font-weight: 900; }
+    .nav { display: flex; gap: 24px; color: #867e86; }
+    .nav b { color: var(--ink); }
+    .account { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .credits { border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 700; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #ece7eb; }
+    .plan { width: min(1540px, calc(100% - 32px)); margin: 18px auto 30px; }
+    .plan-head { background: white; border: 1px solid var(--line); border-radius: 18px 18px 0 0; padding: 20px 22px 0; }
+    .eyebrow { color: var(--accent); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 850; }
+    h1 { font-size: clamp(24px, 3vw, 38px); letter-spacing: -.04em; margin: 4px 0 7px; }
+    .lede { margin: 0; max-width: 900px; color: var(--muted); }
+    .truths { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .truth { border: 1px solid var(--line); background: var(--soft); border-radius: 999px; padding: 6px 10px; color: #5c555d; font-size: 12px; }
+    .tabs { display: flex; gap: 6px; margin-top: 18px; overflow: auto; }
+    .tab { border: 0; background: transparent; padding: 12px 15px; border-radius: 12px 12px 0 0; color: var(--muted); font-weight: 750; white-space: nowrap; }
+    .tab.active { background: var(--plum); color: white; }
+    .direction { display: none; background: white; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 18px 18px; overflow: hidden; }
+    .direction.active { display: block; }
+    .direction-intro { display: grid; grid-template-columns: 1fr auto; gap: 18px; padding: 17px 22px; border-bottom: 1px solid var(--line); }
+    .direction-intro h2 { margin: 0 0 3px; font-size: 18px; }
+    .direction-intro p { margin: 0; color: var(--muted); }
+    .verdict { align-self: center; border: 1px solid #f2c4da; color: #a42661; background: var(--accent-soft); border-radius: 999px; padding: 7px 11px; font-size: 12px; font-weight: 800; }
+    .statebar { padding: 10px 18px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; overflow: auto; background: #fbfafb; }
+    .statebtn { border: 1px solid var(--line); background: white; color: #655d65; border-radius: 999px; padding: 7px 11px; white-space: nowrap; }
+    .statebtn.active { border-color: var(--plum); background: var(--plum); color: white; }
+    .app { min-height: 730px; background: white; }
+    .toolbar { min-height: 62px; display: flex; align-items: center; gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--line); }
+    .back { color: var(--muted); font-weight: 750; }
+    .doc-title { border: 0; background: #f4f1f3; border-radius: 9px; padding: 9px 11px; width: 260px; font-weight: 750; }
+    .save { color: var(--green); font-size: 12px; }
+    .toolbar-actions { margin-left: auto; display: flex; gap: 8px; }
+    .btn { border: 1px solid var(--line); background: white; border-radius: 10px; padding: 9px 12px; font-weight: 750; color: var(--ink); }
+    .btn.primary { border-color: var(--plum); background: var(--plum); color: white; }
+    .btn.accent { border-color: var(--accent); background: var(--accent); color: white; }
+    .btn.ghost { background: transparent; }
+    .workspace { display: grid; grid-template-columns: 238px minmax(380px, 1fr) minmax(360px, 44%); min-height: 665px; }
+    .rail, .editor { border-right: 1px solid var(--line); }
+    .rail, .editor, .preview { padding: 16px; min-width: 0; }
+    .rail { background: #fbfafb; }
+    .section-title { margin: 0 0 10px; color: #837b83; font-size: 10px; letter-spacing: .11em; text-transform: uppercase; font-weight: 850; }
+    .field { margin-bottom: 13px; }
+    .field label { display: block; font-size: 12px; font-weight: 750; margin-bottom: 5px; }
+    .control { width: 100%; border: 1px solid var(--line); background: white; border-radius: 9px; padding: 9px 10px; color: #514a51; }
+    .source-card { border: 1px solid #d9e4f8; background: #f5f8ff; border-radius: 12px; padding: 11px; margin-bottom: 14px; }
+    .source-card b { display: block; color: var(--blue); margin-bottom: 2px; }
+    .meta { font-size: 12px; color: var(--muted); }
+    .progress { height: 7px; border-radius: 99px; background: #ece7eb; overflow: hidden; margin: 8px 0 5px; }
+    .progress > i { display: block; height: 100%; width: 82%; background: var(--accent); border-radius: inherit; }
+    .rail-action { width: 100%; text-align: left; margin-top: 7px; }
+    .mode { display: flex; gap: 5px; padding: 4px; background: var(--soft); border-radius: 11px; width: max-content; margin-bottom: 13px; }
+    .mode span { padding: 6px 10px; border-radius: 8px; color: var(--muted); font-weight: 700; }
+    .mode .on { background: white; color: var(--ink); box-shadow: 0 1px 5px rgba(0,0,0,.08); }
+    .block { border: 1px solid var(--line); border-radius: 13px; padding: 14px; margin-bottom: 11px; }
+    .block-head { display: flex; justify-content: space-between; font-weight: 820; margin-bottom: 10px; }
+    .mini-input { height: 34px; background: #f8f6f7; border-radius: 7px; margin: 7px 0; padding: 8px 9px; color: #655d65; }
+    .preview { background: #f0edef; display: flex; flex-direction: column; }
+    .preview-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .paper { width: min(100%, 520px); min-height: 565px; background: white; margin: 0 auto; padding: 34px 38px; box-shadow: var(--shadow); border-radius: 3px; }
+    .paper h3 { margin: 0; font-size: 25px; }
+    .role { color: var(--accent); font-weight: 750; margin-bottom: 21px; }
+    .paper h4 { border-bottom: 1px solid #cfc8ce; padding-bottom: 4px; margin: 18px 0 8px; text-transform: uppercase; letter-spacing: .08em; font-size: 11px; }
+    .paper p, .paper li { font-size: 11px; color: #504950; }
+    .state-note { display: none; margin: 0; padding: 13px 18px; border-bottom: 1px solid var(--line); font-weight: 700; }
+    [data-state="processing"] .state-note.processing, [data-state="done"] .state-note.done, [data-state="failed"] .state-note.failed { display: block; }
+    .state-note.processing { background: #fff8e8; color: var(--amber); }
+    .state-note.done { background: #eaf8f2; color: var(--green); }
+    .state-note.failed { background: #fff0f2; color: var(--red); }
+    .score-panel { display: none; border: 1px solid #e7c8d7; background: #fff8fb; border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+    [data-state="done"] .score-panel { display: block; }
+    .score-row { display: flex; align-items: center; gap: 12px; }
+    .score { width: 58px; height: 58px; display: grid; place-items: center; border: 6px solid #f3c7dc; border-top-color: var(--accent); border-radius: 50%; font-size: 19px; font-weight: 900; }
+    .finding { border-top: 1px solid #efdae4; padding-top: 9px; margin-top: 9px; font-size: 12px; }
+    .rag-caption { margin-top: auto; padding-top: 12px; color: var(--muted); font-size: 11px; }
+    .wizard { padding: 20px; background: #f6f3f5; min-height: 665px; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 920px; margin: 0 auto 18px; }
+    .step { border: 1px solid var(--line); background: white; padding: 11px 13px; border-radius: 11px; color: var(--muted); }
+    .step b { display: block; color: var(--ink); }
+    .step.active { border-color: #efafd0; background: var(--accent-soft); }
+    .wizard-card { max-width: 920px; margin: auto; background: white; border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+    .source-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .source-option { border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-height: 122px; }
+    .source-option.selected { border: 2px solid var(--accent); background: var(--accent-soft); }
+    .source-option strong { display: block; margin: 5px 0; }
+    .wizard-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+    .drop { border: 1.5px dashed #cfc6cd; background: #faf8f9; border-radius: 13px; min-height: 170px; display: grid; place-items: center; text-align: center; padding: 20px; }
+    .review-shell { display: grid; grid-template-columns: 230px minmax(420px, 1fr) 350px; min-height: 665px; }
+    .versions { border-right: 1px solid var(--line); padding: 15px; background: #fbfafb; }
+    .version { padding: 11px; border: 1px solid var(--line); background: white; border-radius: 11px; margin-bottom: 8px; }
+    .version.active { border-color: #edacd0; box-shadow: inset 3px 0 var(--accent); }
+    .review-main { padding: 18px; border-right: 1px solid var(--line); }
+    .review-side { padding: 18px; }
+    .metric { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 10px 0; }
+    .severity { display: inline-block; border-radius: 999px; padding: 3px 7px; font-size: 10px; font-weight: 800; background: #fff0f2; color: var(--red); }
+    .decision { border-top: 1px solid var(--line); background: #fbfafb; padding: 15px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .decision > div { border-right: 1px solid var(--line); padding-right: 12px; }
+    .decision > div:last-child { border: 0; }
+    .decision b { display: block; margin-bottom: 3px; }
+    .decision span { color: var(--muted); font-size: 12px; }
+    .mobile-toggle { display: none; }
+    @media (max-width: 980px) {
+      .nav { display: none; } .plan { width: calc(100% - 16px); margin-top: 8px; }
+      .direction-intro { grid-template-columns: 1fr; } .verdict { justify-self: start; }
+      .workspace { grid-template-columns: 1fr; } .rail { display: none; }
+      .editor { border-right: 0; } .preview { display: none; } .mobile-toggle { display: flex; gap: 6px; }
+      .review-shell { grid-template-columns: 1fr; } .versions { display: none; } .review-main { border: 0; } .review-side { border-top: 1px solid var(--line); }
+      .source-options, .wizard-split, .decision { grid-template-columns: 1fr; }
+      .decision > div { border-right: 0; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    }
+    @media (max-width: 620px) {
+      .topbar { padding: 0 14px; } .credits { display: none; }
+      .plan-head { padding-inline: 14px; } .truths { flex-wrap: nowrap; overflow: auto; }
+      .toolbar { flex-wrap: wrap; } .doc-title { width: 100%; order: 3; }
+      .toolbar-actions { margin-left: 0; width: 100%; } .toolbar-actions .btn { flex: 1; }
+      .steps { display: flex; overflow: auto; } .step { min-width: 170px; }
+      .paper { padding: 25px 22px; } .decision { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo">S</span> StarCi</div>
+    <nav class="nav"><b>Học</b><span>Luyện tập</span><span>Cộng đồng</span></nav>
+    <div class="account"><span class="credits">⚡ 18 AI credits</span><span class="avatar"></span></div>
+  </header>
+  <main class="plan">
+    <section class="plan-head">
+      <div class="eyebrow">Design Plan · CV workflow r1</div>
+      <h1>Chỉnh CV, nộp chấm, rồi sửa có căn cứ</h1>
+      <p class="lede">Ba hướng dưới đây dùng cùng contract thật: autosave tài liệu block, render PDF, tạo run chấm async, theo dõi trạng thái và đọc score/feedback. RAG là nền tham chiếu rubric/catalog/CV mẫu — không phải một chatbot cạnh CV.</p>
+      <div class="truths">
+        <span class="truth">Nguồn: Generated hoặc Uploaded</span><span class="truth">Run: Pending → Processing → Done / Failed</span>
+        <span class="truth">RAG best-effort, không chặn pipeline</span><span class="truth">Score 0–100 + findings có severity</span>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Các hướng thiết kế">
+        <button class="tab active" data-tab="a" role="tab">A · Legacy workbench</button>
+        <button class="tab" data-tab="b" role="tab">B · Guided pipeline</button>
+        <button class="tab" data-tab="c" role="tab">C · Review loop</button>
+      </div>
+    </section>
+
+    <section class="direction active" id="direction-a" data-state="editing">
+      <div class="direction-intro"><div><h2>A · Legacy workbench — parity-first</h2><p>Giữ nhịp legacy: style rail → block/LaTeX editor → live preview. “Nộp để chấm” là CTA mới nhưng không phá editor quen thuộc.</p></div><span class="verdict">Khuyến nghị mặc định</span></div>
+      <div class="statebar"><button class="statebtn active" data-state="editing">Đang chỉnh</button><button class="statebtn" data-state="processing">Đang RAG + chấm</button><button class="statebtn" data-state="done">Đã có kết quả</button><button class="statebtn" data-state="failed">Thất bại</button></div>
+      <p class="state-note processing">⏳ Đã tạo run. StarCi đang đọc CV, đối chiếu rubric phù hợp và chấm — bạn có thể rời trang.</p>
+      <p class="state-note done">✓ Chấm xong · 82/100. Bản CV và kết quả đã được lưu vào lịch sử.</p>
+      <p class="state-note failed">Không thể xử lý bản PDF này. Bản nháp vẫn an toàn; thử render lại hoặc nộp lại.</p>
+      <div class="app">
+        <div class="toolbar"><span class="back">← CV của tôi</span><input class="doc-title" value="Backend Engineer · 2026" aria-label="Tên CV"/><span class="save">● Đã lưu</span><div class="mobile-toggle"><button class="btn">Chỉnh sửa</button><button class="btn ghost">Xem trước</button></div><div class="toolbar-actions"><button class="btn">Tải PDF</button><button class="btn accent">Nộp để chấm</button></div></div>
+        <div class="workspace">
+          <aside class="rail">
+            <p class="section-title">Thông tin bản CV</p>
+            <div class="source-card"><b>✦ Dữ liệu StarCi</b><span class="meta">3 dự án · 12 kỹ năng đã xác minh</span></div>
+            <div class="field"><label>Vai trò mục tiêu</label><input class="control" value="Backend Engineer" /></div>
+            <div class="field"><label>Ngôn ngữ</label><select class="control"><option>Tiếng Việt</option><option>English</option></select></div>
+            <div class="field"><label>Độ hoàn thiện · 82%</label><div class="progress"><i></i></div><span class="meta">Thêm kết quả định lượng cho 1 dự án</span></div>
+            <p class="section-title" style="margin-top:20px">Trợ giúp có mục tiêu</p>
+            <button class="btn rail-action">✦ Tách nội dung thành mục</button><button class="btn rail-action">✦ Điều chỉnh theo JD</button><button class="btn rail-action">▦ Đổi mẫu CV</button>
+          </aside>
+          <section class="editor">
+            <div class="mode"><span class="on">Theo từng mục</span><span>LaTeX</span></div>
+            <div class="block"><div class="block-head"><span>Thông tin cá nhân</span><span>⋮</span></div><div class="mini-input">Nguyễn Văn An · Backend Engineer</div><div class="mini-input">an@example.com · github.com/an</div></div>
+            <div class="block"><div class="block-head"><span>Tóm tắt</span><span>✦ Viết lại</span></div><div class="mini-input" style="height:72px">Backend engineer với 3 năm kinh nghiệm xây dựng hệ thống Node.js và PostgreSQL...</div></div>
+            <div class="block"><div class="block-head"><span>Kinh nghiệm</span><span>+ Thêm</span></div><b>Software Engineer · Fintech Labs</b><div class="mini-input">• Giảm 38% p95 latency bằng caching và tối ưu truy vấn</div><div class="mini-input">• Xây pipeline xử lý 2M events/ngày</div></div>
+          </section>
+          <section class="preview">
+            <div class="preview-head"><b>Bản PDF</b><span class="meta">Cập nhật theo bản nháp</span></div>
+            <div class="score-panel"><div class="score-row"><span class="score">82</span><div><b>Tốt cho cấp Mid</b><div class="meta">Mạnh về impact; cần rõ ownership.</div></div></div><div class="finding"><span class="severity">CAO</span> Kinh nghiệm · Nêu rõ phạm vi hệ thống bạn trực tiếp sở hữu.</div></div>
+            <article class="paper"><h3>NGUYỄN VĂN AN</h3><div class="role">BACKEND ENGINEER</div><p>an@example.com · github.com/an · Hồ Chí Minh</p><h4>Tóm tắt</h4><p>Backend engineer với 3 năm kinh nghiệm xây dựng hệ thống chịu tải cao bằng Node.js, PostgreSQL và Redis.</p><h4>Kinh nghiệm</h4><b>Software Engineer · Fintech Labs</b><ul><li>Giảm 38% p95 latency bằng caching và tối ưu truy vấn.</li><li>Xây pipeline xử lý 2M events mỗi ngày.</li></ul><h4>Kỹ năng</h4><p>TypeScript · Node.js · PostgreSQL · Redis · Docker</p></article>
+            <p class="rag-caption">Khi nộp: PDF đã render → run chấm → rubric RAG theo cấp độ. Khi tạo/revise: thêm catalog kỹ năng và CV mẫu phù hợp.</p>
+          </section>
+        </div>
+      </div>
+      <div class="decision"><div><b>Reading order</b><span>Công cụ → nội dung → bản PDF; kết quả chấm xuất hiện ngay trên preview.</span></div><div><b>CTA priority</b><span>Autosave thụ động; “Nộp để chấm” là primary, tải PDF là secondary.</span></div><div><b>Trade-off</b><span>Mạnh cho người dùng quay lại; desktop dày và cần mobile pane toggle.</span></div></div>
+    </section>
+
+    <section class="direction" id="direction-b" data-state="editing">
+      <div class="direction-intro"><div><h2>B · Guided pipeline — từng bước rõ ràng</h2><p>Đưa người mới qua Nguồn → Chỉnh sửa → Kết quả. Mỗi màn chỉ có một quyết định chính.</p></div><span class="verdict">Dễ học nhất</span></div>
+      <div class="statebar"><button class="statebtn active" data-state="editing">Chọn nguồn</button><button class="statebtn" data-state="processing">Đang xử lý</button><button class="statebtn" data-state="done">Kết quả</button><button class="statebtn" data-state="failed">Lỗi file</button></div>
+      <p class="state-note processing">⏳ CV đã được nộp. Pipeline đang trích xuất, đối chiếu rubric và tạo feedback.</p><p class="state-note done">✓ Kết quả đã sẵn sàng. Tiếp tục sửa từ các gợi ý hoặc lưu bản này.</p><p class="state-note failed">PDF không đọc được. Chọn file khác; các trường mô tả đã nhập vẫn được giữ.</p>
+      <div class="app wizard">
+        <div class="steps"><div class="step active"><b>1 · Chọn nguồn</b>Tạo mới hoặc tải lên</div><div class="step"><b>2 · Chỉnh sửa</b>Kiểm tra nội dung</div><div class="step"><b>3 · Nộp và cải thiện</b>Score + feedback</div></div>
+        <div class="wizard-card">
+          <span class="eyebrow">Bước 1/3</span><h2 style="margin:5px 0">Bạn muốn bắt đầu từ đâu?</h2><p class="meta">Mọi lựa chọn đều tạo CV riêng trong lịch sử của bạn.</p>
+          <div class="source-options" style="margin-top:16px"><div class="source-option selected">✦<strong>Tạo từ StarCi</strong><span class="meta">Dự án, kỹ năng và thành tích đã xác minh.</span></div><div class="source-option">↑<strong>Tải PDF hiện có</strong><span class="meta">PDF tối đa 10 MB, chấm bằng cùng rubric.</span></div><div class="source-option">↻<strong>Sửa một CV cũ</strong><span class="meta">Tạo revision mới, không ghi đè kết quả trước.</span></div></div>
+          <div class="wizard-split"><div><div class="field"><label>Vai trò mục tiêu</label><input class="control" value="Backend Engineer" /></div><div class="field"><label>Điều muốn nhấn mạnh</label><textarea class="control" rows="5">Ưu tiên kinh nghiệm hệ thống phân tán và ownership.</textarea></div></div><div class="drop"><div><b>3 tín hiệu StarCi sẵn sàng</b><p class="meta">Capstone Fullstack · 2 dự án · 12 kỹ năng</p><button class="btn">Xem dữ liệu sẽ dùng</button></div></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn primary">Tiếp tục chỉnh sửa →</button></div>
+        </div>
+      </div>
+      <div class="decision"><div><b>Reading order</b><span>Một funnel tuyến tính; giải thích nguồn trước khi mở editor.</span></div><div><b>CTA priority</b><span>Mỗi bước một CTA; score chỉ xuất hiện sau submit.</span></div><div><b>Trade-off</b><span>Tốt trên mobile/new user nhưng chậm với người sửa CV thường xuyên.</span></div></div>
+    </section>
+
+    <section class="direction" id="direction-c" data-state="done">
+      <div class="direction-intro"><div><h2>C · Review loop — điểm số dẫn đường</h2><p>Đặt lịch sử run và findings cạnh editor để người dùng sửa, nộp lại và so sánh từng version.</p></div><span class="verdict">Mạnh cho retention</span></div>
+      <div class="statebar"><button class="statebtn" data-state="editing">Đang sửa</button><button class="statebtn" data-state="processing">Version mới đang chấm</button><button class="statebtn active" data-state="done">So sánh kết quả</button><button class="statebtn" data-state="failed">Run lỗi</button></div>
+      <p class="state-note processing">⏳ Version 4 đang chấm. Version 3 và toàn bộ feedback cũ vẫn xem được.</p><p class="state-note done">↑ Tăng 8 điểm so với version trước. Hai finding mức cao đã được xử lý.</p><p class="state-note failed">Version 4 thất bại; version 3 vẫn là bản đang dùng và không bị thay thế.</p>
+      <div class="app">
+        <div class="toolbar"><span class="back">← CV của tôi</span><input class="doc-title" value="Backend Engineer"/><span class="save">Version 3 · 82 điểm</span><div class="toolbar-actions"><button class="btn">Xem PDF</button><button class="btn accent">Nộp version mới</button></div></div>
+        <div class="review-shell">
+          <aside class="versions"><p class="section-title">Lịch sử</p><div class="version active"><b>Version 3 · 82</b><div class="meta">15/08 · Đã chấm</div></div><div class="version"><b>Version 2 · 74</b><div class="meta">12/08 · Đã chấm</div></div><div class="version"><b>Bản tải lên · 68</b><div class="meta">10/08 · PDF</div></div><button class="btn rail-action">+ Tạo bản mới</button></aside>
+          <section class="review-main"><div class="mode"><span class="on">Nội dung</span><span>Xem trước</span><span>LaTeX</span></div><div class="block"><div class="block-head"><span>Kinh nghiệm · Fintech Labs</span><span>✦ Sửa theo gợi ý</span></div><div class="mini-input">• Sở hữu API thanh toán phục vụ 180K MAU</div><div class="mini-input">• Giảm 38% p95 latency bằng Redis cache</div></div><div class="block"><div class="block-head"><span>Dự án · Event pipeline</span><span>⋮</span></div><div class="mini-input" style="height:68px">Thiết kế pipeline xử lý 2M events/ngày; thêm retry và dead-letter queue...</div></div><div class="source-card" style="margin-top:14px"><b>Context revision</b><span class="meta">Sửa từ Version 2 · nhấn mạnh ownership và impact. Backend tạo run mới, không mutate run cũ.</span></div></section>
+          <aside class="review-side"><div class="score-row"><span class="score">82</span><div><b>Mid · Sẵn sàng ứng tuyển</b><div class="meta">+8 so với version 2</div></div></div><div class="metric"><span>Impact</span><b>86</b></div><div class="metric"><span>Clarity</span><b>79</b></div><div class="metric"><span>Relevance</span><b>81</b></div><h3>Ưu tiên sửa</h3><div class="block"><span class="severity">CAO</span><p><b>Ownership chưa nhất quán</b></p><p class="meta">Ở dự án Event pipeline, nói rõ quyết định kỹ thuật bạn trực tiếp chịu trách nhiệm.</p><button class="btn rail-action">Áp dụng vào editor</button></div><div class="block"><span class="severity" style="background:#fff8e8;color:#9a6514">VỪA</span><p><b>Thiếu phạm vi vận hành</b></p><p class="meta">Bổ sung traffic, SLA hoặc quy mô đội.</p></div><p class="rag-caption">Feedback lấy từ score/feedback contract; RAG evidence không hiển thị như citation vì backend hiện chỉ trả kết quả tổng hợp.</p></aside>
+        </div>
+      </div>
+      <div class="decision"><div><b>Reading order</b><span>Version → editor → findings; người dùng luôn thấy “sửa gì tiếp”.</span></div><div><b>CTA priority</b><span>“Nộp version mới” là primary; history là first-class.</span></div><div><b>Trade-off</b><span>Khuyến khích iteration nhưng nặng hơn legacy và dễ khiến score lấn át craft.</span></div></div>
+    </section>
+  </main>
+  <script>
+    const directions = [...document.querySelectorAll('.direction')];
+    document.querySelectorAll('.tab').forEach((tab) => tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach((item) => item.classList.toggle('active', item === tab));
+      directions.forEach((section) => section.classList.toggle('active', section.id === `direction-${tab.dataset.tab}`));
+    }));
+    document.querySelectorAll('.direction').forEach((section) => {
+      section.querySelectorAll('.statebtn').forEach((button) => button.addEventListener('click', () => {
+        section.dataset.state = button.dataset.state;
+        section.querySelectorAll('.statebtn').forEach((item) => item.classList.toggle('active', item === button));
+      }));
+    });
+  </script>
+</body>
+</html>

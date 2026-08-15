@@ -46,9 +46,9 @@ import {
 import {
     SePayPgClient,
 } from "sepay-pg-node"
-import {
-    CoursePricingService,
-} from "./course-pricing.service"
+import type {
+    CoursePriceQuoteResult,
+} from "@modules/bussiness/course-pricing/types"
 import {
     ExecuteParams,
 } from "../../../../types/execute"
@@ -59,14 +59,8 @@ import type {
     SignSepayFieldsParams,
 } from "./types/sepay-checkout"
 import {
-    InstallmentPlanService,
-} from "@modules/bussiness/installment-plan/installment-plan.service"
-import {
     EnqueueReconcileTransactionJobService,
 } from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
-import {
-    LoyaltyDiscountService,
-} from "@modules/bussiness/loyalty/loyalty-discount.service"
 import {
     VoucherService,
 } from "@modules/bussiness/rewards/voucher.service"
@@ -90,18 +84,18 @@ export class CourseEnrollSepayService {
         @InjectSepay()
         private readonly sepay: SePayPgClient,
         private readonly dayjsService: DayjsService,
-        private readonly coursePricingService: CoursePricingService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
-        private readonly loyaltyDiscountService: LoyaltyDiscountService,
         private readonly voucherService: VoucherService,
-        private readonly installmentPlanService: InstallmentPlanService,
     ) {}
 
     /**
      * @param param - Course context, user, and request
      * @returns Checkout payload (form action URL + signed fields) and preflight id
      */
-    async execute(params: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
+    async execute(
+        params: ExecuteParams<CourseEnrollRequest>,
+        quote: CoursePriceQuoteResult,
+    ): Promise<CourseEnrollResponseData> {
         if (!params.user) {
             throw new UserNotFoundException({
             })
@@ -112,6 +106,7 @@ export class CourseEnrollSepayService {
                 ? `checkout:voucher:${params.user.id}:${params.request.voucherCode}`
                 : `checkout:course:${params.user.id}:${params.request.courseId}:${PaymentType.Sepay}`,
             async (manager) => this.executeLocked(params,
+                quote,
                 manager),
         )
     }
@@ -122,10 +117,10 @@ export class CourseEnrollSepayService {
             payosReturnUrl,
             payosCancelUrl,
             voucherCode,
-            installmentMonths,
         },
         user,
-    }: ExecuteParams<CourseEnrollRequest>, manager: EntityManager): Promise<CourseEnrollResponseData> {
+    }: ExecuteParams<CourseEnrollRequest>, quote: CoursePriceQuoteResult,
+    manager: EntityManager): Promise<CourseEnrollResponseData> {
         if (!user) {
             throw new UserNotFoundException({
             })
@@ -147,16 +142,8 @@ export class CourseEnrollSepayService {
                 id: courseId,
             })
         }
-        // loyalty discount applied at checkout (so charged === shown)
-        const {
-            percent: discountPercent,
-        } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
-            userId: user.id,
-        })
-        const loyaltyAmount = this.coursePricingService.resolveAmountVnd({
-            course,
-            discountPercent,
-        })
+        const line = quote.lines[0]
+        const discountPercent = line.displayDiscountPercent
 
         // reuse a still-fresh pending transaction (regenerate signed fields) -- a
         // voucher on a reused transaction is NOT re-evaluated (it was already
@@ -191,32 +178,14 @@ export class CourseEnrollSepayService {
             }
         }
 
-        // an invalid code throws HERE (before any row is written) -- a valid one
-        // further discounts the loyalty-discounted amount
-        const discountedAmount = voucherCode
-            ? this.voucherService.applyToAmount(
-                loyaltyAmount,
-                await this.voucherService.previewDiscount({
-                    userId: user.id,
-                    code: voucherCode,
-                    courseId: course.id,
-                }),
-            )
-            : loyaltyAmount
-        // installment : charge only the FIRST cycle now (monthly), snapshot
-        // the whole-schedule intent onto the Enroll transaction so the enroll worker
-        // creates the Fixed plan on payment success (§2.2). One-shot = full amount.
-        const installment = installmentMonths
-            ? this.installmentPlanService.computeInstallmentTotal(discountedAmount,
-                installmentMonths)
-            : null
-        const amount = installment ? installment.monthlyAmountVnd : discountedAmount
+        const installment = quote.selectedInstallment
+        const amount = installment ? installment.monthlyAmountVnd : quote.totalChargedVnd
 
         // sign a fresh order + persist the pending transaction + (if given) RESERVE
         // the voucher in the SAME db transaction, so a concurrent second checkout
         // can never also claim the same code
         const orderCode = this.generateSepayOrderCode()
-        const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
+        const currentPhase = line.pricingPhase
         const checkoutFields = this.signFields({
             orderCode,
             amount,

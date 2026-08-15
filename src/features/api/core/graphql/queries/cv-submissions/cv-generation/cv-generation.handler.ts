@@ -42,6 +42,9 @@ import {
     CvFeedback,
     CvGenerationPayload,
 } from "./graphql-types/response"
+import {
+    CvEvidenceService,
+} from "@modules/bussiness/cv-evidence/cv-evidence.service"
 
 /** Enum members of {@link SubmissionFeedbackSeverity}, for defensive coercion. */
 const VALID_SEVERITIES: ReadonlyArray<string> = Object.values(SubmissionFeedbackSeverity)
@@ -62,6 +65,7 @@ export class CvGenerationHandler
         private readonly entityManager: EntityManager,
         private readonly s3ReadService: S3ReadService,
         private readonly s3BuildService: S3BuildService,
+        private readonly cvEvidenceService: CvEvidenceService,
     ) {
         super()
     }
@@ -130,6 +134,7 @@ export class CvGenerationHandler
             })
             : null
 
+        const selectedEvidence = this.cvEvidenceService.parseSnapshot(generation.selectedEvidence)
         return {
             id: generation.id,
             mode: generation.mode,
@@ -141,6 +146,19 @@ export class CvGenerationHandler
             label: generation.label,
             targetRole: generation.targetRole,
             language: generation.language,
+            targetLevel: generation.targetLevel,
+            selectedEvidence: selectedEvidence.map((item) => ({
+                id: item.milestoneTaskAttemptId,
+                milestoneTaskId: item.milestoneTaskId,
+                milestoneId: item.milestoneId,
+                courseId: item.courseId,
+                taskTitle: item.taskTitle,
+                milestoneTitle: item.milestoneTitle,
+                courseTitle: item.courseTitle,
+                score: item.score,
+                passedAt: new Date(item.passedAt),
+            })),
+            evidenceLevel: this.cvEvidenceService.evidenceLevel(selectedEvidence),
             score: generation.score,
             feedback: this.mapFeedback(generation.feedback),
             extraPrompts: generation.extraPrompts,

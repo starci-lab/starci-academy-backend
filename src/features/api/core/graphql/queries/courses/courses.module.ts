@@ -37,9 +37,15 @@ import {
 import {
     CourseReviewsSingleQueryModule,
 } from "./course-reviews/course-reviews.module"
+import {
+    CoursePriceQuotesSingleQueryModule,
+} from "./course-price-quotes/course-price-quotes.module"
 
 @Module({
     imports: [
+        CoursePriceQuotesSingleQueryModule.register({
+            isGlobal: true,
+        }),
         CourseReviewsSingleQueryModule.register({
             isGlobal: true,
         }),

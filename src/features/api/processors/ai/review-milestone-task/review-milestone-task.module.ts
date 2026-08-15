@@ -11,6 +11,9 @@ import {
     ProjectEvaluationParseService,
 } from "../shared/project-evaluation/project-evaluation-parse.service"
 import {
+    ProjectEvaluationPromptService,
+} from "../shared/project-evaluation/project-evaluation-prompt.service"
+import {
     ReviewMilestoneTaskCompleteStepService,
 } from "./steps/review-milestone-task-complete-step.service"
 import {
@@ -31,6 +34,7 @@ import {
         ReviewMilestoneTaskCreditService,
         ReviewMilestoneTaskWorker,
         ProjectEvaluationParseService,
+        ProjectEvaluationPromptService,
     ],
 })
 /**

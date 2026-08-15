@@ -5,12 +5,6 @@ import {
     ConfigurableModuleClass,
 } from "./courses-checkout-preview.module-definition"
 import {
-    CoursePricingService,
-} from "../../../mutations/courses/course-enroll/course-pricing.service"
-import {
-    CoursesCheckoutPricingService,
-} from "../../../mutations/courses/courses-checkout/courses-checkout-pricing.service"
-import {
     CoursesCheckoutPreviewResolver,
 } from "./courses-checkout-preview.resolver"
 import {
@@ -19,10 +13,6 @@ import {
 
 @Module({
     providers: [
-        // re-provide the stateless pricing helpers this query prices with; the
-        // preview reuses the exact same code path the real checkout charges with
-        CoursePricingService,
-        CoursesCheckoutPricingService,
         CoursesCheckoutPreviewService,
         CoursesCheckoutPreviewResolver,
     ],

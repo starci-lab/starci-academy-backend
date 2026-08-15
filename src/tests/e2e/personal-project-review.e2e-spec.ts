@@ -307,6 +307,9 @@ import {
     ProjectEvaluationParseService,
 } from "@features/api/processors/ai/shared/project-evaluation/project-evaluation-parse.service"
 import {
+    ProjectEvaluationPromptService,
+} from "@features/api/processors/ai/shared/project-evaluation/project-evaluation-prompt.service"
+import {
     aiE2eRedisCacheManagerToken,
     AiProviderInvokeScript,
     createAiE2eRedisProviders,
@@ -1353,6 +1356,7 @@ describe("a learner's personal project is reviewed by the durable worker",
                     ReviewMilestoneTaskCompleteStepService,
                     ReviewMilestoneTaskCreditService,
                     ProjectEvaluationParseService,
+                    ProjectEvaluationPromptService,
                     GradingRetrievalService,
                     AiInvokeService,
                     AiEntitlementService,

@@ -15,7 +15,7 @@ import {
     SignInInitCommand,
 } from "./sign-in-init.command"
 import type {
-    SignInInitData,
+    SignInInitCommandResult,
 } from "./graphql-types/response"
 import {
     OtpChallengeService,
@@ -44,6 +44,27 @@ import {
 import type {
     EntityManager,
 } from "typeorm"
+import {
+    envConfig,
+} from "@modules/platform/env/config"
+import {
+    JwtService,
+} from "@nestjs/jwt"
+import type {
+    KeycloakJwtPayload,
+} from "@modules/integrations/keycloak/types/jwt-jwks"
+import {
+    KeycloakJwtInvalidPayloadException,
+} from "@modules/platform/exceptions/errors/keycloak/invalid-jwt-payload"
+import {
+    AuthenticationType,
+} from "@modules/databases/postgresql/primary/enums/authentication-type"
+import {
+    deriveUsername,
+} from "@modules/integrations/keycloak/utils/derive-username"
+import {
+    EmailBloomFilterService,
+} from "@modules/bussiness/bloom-filters/email.service"
 
 @CommandHandler(SignInInitCommand)
 @Injectable()
@@ -52,10 +73,11 @@ import type {
  * mails the code -- login is incomplete until verify consumes that challenge.
  */
 export class SignInInitHandler
-    extends ICQRSHandler<SignInInitCommand, SignInInitData>
-    implements ICommandHandler<SignInInitCommand, SignInInitData>
+    extends ICQRSHandler<SignInInitCommand, SignInInitCommandResult>
+    implements ICommandHandler<SignInInitCommand, SignInInitCommandResult>
 {
     constructor(
+        private readonly jwtService: JwtService,
         private readonly otpChallengeService: OtpChallengeService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly keycloakTokenService: KeycloakTokenService,
@@ -63,6 +85,7 @@ export class SignInInitHandler
         private readonly entityManager: EntityManager,
         private readonly encryptionService: EncryptionService,
         private readonly totpService: TotpService,
+        private readonly emailBloomFilterService: EmailBloomFilterService,
     ) {
         super()
     }
@@ -74,7 +97,7 @@ export class SignInInitHandler
      */
     protected override async process(
         command: SignInInitCommand,
-    ): Promise<SignInInitData> {
+    ): Promise<SignInInitCommandResult> {
         const {
             request: {
                 email,
@@ -119,6 +142,49 @@ export class SignInInitHandler
                 })
             }
         }
+        const localTestAuth = envConfig().keycloak.localTestAuth
+        if (
+            localTestAuth.enabled
+            && email.trim().toLowerCase() === localTestAuth.email.trim().toLowerCase()
+        ) {
+            const decoded = this.jwtService.decode<KeycloakJwtPayload>(tokenResponse.access_token)
+            if (!decoded || typeof decoded === "string" || !decoded.sub) {
+                throw new KeycloakJwtInvalidPayloadException({
+                    payload: decoded,
+                })
+            }
+            let localUser = await this.entityManager.findOne(
+                UserEntity,
+                {
+                    where: {
+                        keycloakId: decoded.sub,
+                    },
+                },
+            )
+            if (!localUser) {
+                localUser = this.entityManager.create(
+                    UserEntity,
+                    {
+                        keycloakId: decoded.sub,
+                        email: decoded.email ?? email,
+                        username: deriveUsername({
+                            email: decoded.email ?? email,
+                            fallback: decoded.preferred_username,
+                        }),
+                        authenticationType: AuthenticationType.Credentials,
+                    },
+                )
+                await this.entityManager.save(localUser)
+                await this.emailBloomFilterService.add(localUser.email ?? "")
+            }
+            return {
+                kind: "session",
+                data: {
+                    accessToken: tokenResponse.access_token,
+                },
+                refreshToken: tokenResponse.refresh_token,
+            }
+        }
         const challenge = await this.otpChallengeService.createActionChallenge<SignInActionPayload>(
             {
                 email,
@@ -151,8 +217,11 @@ export class SignInInitHandler
             }
         )
         return {
-            challengeId: challenge.challengeId,
-            expiresInSeconds: challenge.expiresInSeconds,
+            kind: "challenge",
+            data: {
+                challengeId: challenge.challengeId,
+                expiresInSeconds: challenge.expiresInSeconds,
+            },
         }
     }
 }

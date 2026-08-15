@@ -2,10 +2,6 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    HumanMessage,
-    SystemMessage,
-} from "@langchain/core/messages"
-import {
     AiInvokeService,
 } from "@modules/ai/ai-invoke.service"
 import {
@@ -27,22 +23,18 @@ import {
     CvScoringInputMissingException,
 } from "@modules/platform/exceptions/errors/cv/cv-scoring-input-missing"
 import {
-    CV_LEVEL_EXPECTATIONS,
-    CV_SCORE_MAX,
-    CV_SCORE_MIN,
-    CV_SCORE_OUTPUT_TEMPLATE,
-    DEFAULT_CV_TEMPLATE_LEVEL,
-} from "./constants"
-import {
     parseCvScore,
 } from "./utils/parse-cv-score"
 import type {
-    BuildCvContentParams,
-    BuildSystemPromptParams,
-    CvTemplateLevel,
     ScoreCvParams,
     ScoreCvResult,
 } from "./types"
+import type {
+    CvTargetLevel,
+} from "@modules/databases/postgresql/primary/enums/cv-target-level"
+import {
+    CvScoringPromptService,
+} from "./cv-scoring-prompt.service"
 
 /** Number of rubric RAG chunks to pull for the scoring prompt. */
 const RUBRIC_RAG_TOP_K = 4
@@ -69,6 +61,7 @@ export class CvScoringService {
     constructor(
         private readonly aiInvokeService: AiInvokeService,
         private readonly cvRagRetrievalService: CvRagRetrievalService,
+        private readonly cvScoringPromptService: CvScoringPromptService,
     ) {}
 
     /**
@@ -84,38 +77,34 @@ export class CvScoringService {
             userId,
             structuredData,
             cvText,
-            templateLevel,
-            locale,
+            targetLevel,
+            language,
             selection,
         }: ScoreCvParams,
     ): Promise<ScoreCvResult> {
-        const level: CvTemplateLevel = templateLevel ?? DEFAULT_CV_TEMPLATE_LEVEL
-        const cvContent = this.buildCvContent({
-            structuredData,
-            cvText,
-        })
-        if (!cvContent) {
+        const hasStructuredData = structuredData
+            ? Object.keys(structuredData).length > 0
+            : false
+        const hasCvText = Boolean(cvText?.trim())
+        if (!hasStructuredData && !hasCvText) {
             throw new CvScoringInputMissingException({
             })
         }
 
-        const targetLanguage = (locale ?? Locale.En) === Locale.Vi
+        const targetLanguage = language === Locale.Vi
             ? "Vietnamese (Tiếng Việt)"
             : "English"
 
         // advisory rubric context (best-effort -- a miss degrades to no context)
-        const rubricContext = await this.buildRubricContext(level)
+        const rubricContext = await this.buildRubricContext(targetLevel)
 
-        const systemText = this.buildSystemPrompt({
-            level,
+        const { messages } = this.cvScoringPromptService.build({
+            structuredData,
+            cvText,
+            level: targetLevel,
             rubricContext,
             targetLanguage,
         })
-        const humanText = [
-            "Below is the CV to grade:",
-            "",
-            cvContent,
-        ].join("\n")
 
         // ONE shared entry -- same lane/policy shape as the CV-generation compose
         // step (task CVGenerating, floor Balanced, Grading surface). The generate
@@ -123,10 +112,7 @@ export class CvScoringService {
         // (no consume here) -- it rides the same lane routing as the other CV tasks.
         const { text: raw } = await this.aiInvokeService.run({
             userId,
-            messages: [
-                new SystemMessage(systemText),
-                new HumanMessage(humanText),
-            ],
+            messages,
             selection,
             floor: AiModelCategory.Medium,
             surface: AiCeilSurface.Grading,
@@ -134,38 +120,7 @@ export class CvScoringService {
         })
 
         return parseCvScore(raw,
-            level)
-    }
-
-    /**
-     * Build the CV content block fed to the model. Prefers the structured JSON
-     * (pretty-printed) as the primary input; appends the extracted text as extra
-     * context when both are present; falls back to the text alone otherwise.
-     * Returns `""` when neither yields content.
-     */
-    private buildCvContent(
-        {
-            structuredData,
-            cvText,
-        }: BuildCvContentParams,
-    ): string {
-        const parts: Array<string> = []
-        if (structuredData && Object.keys(structuredData).length > 0) {
-            parts.push(
-                "## Structured CV (JSON)",
-                JSON.stringify(structuredData,
-                    null,
-                    2),
-            )
-        }
-        const trimmedText = cvText?.trim()
-        if (trimmedText && trimmedText.length > 0) {
-            parts.push(
-                "## CV text",
-                trimmedText,
-            )
-        }
-        return parts.join("\n\n")
+            targetLevel)
     }
 
     /**
@@ -174,7 +129,7 @@ export class CvScoringService {
      * proceeds against the inline rubric alone.
      */
     private async buildRubricContext(
-        level: CvTemplateLevel,
+        level: CvTargetLevel,
     ): Promise<string> {
         try {
             const { excerpt } = await this.cvRagRetrievalService.retrieveCvContext({
@@ -190,54 +145,4 @@ export class CvScoringService {
         }
     }
 
-    /**
-     * Build the grading system prompt: role, the level's expectation bar, the
-     * (advisory) rubric RAG context, the scoring scale, and the STRICT-JSON
-     * output contract.
-     */
-    private buildSystemPrompt(
-        {
-            level,
-            rubricContext,
-            targetLanguage,
-        }: BuildSystemPromptParams,
-    ): string {
-        return [
-            `You are a strict, experienced technical recruiter grading a ${level}-level engineer's CV.`,
-            "",
-            "## Task",
-            "Grade the CV holistically against the rubric below and produce a single 0-100 score plus structured feedback.",
-            "Judge impact (quantified outcomes), clarity, relevant skills, structure, and evidence of real work.",
-            "Do NOT reward fabricated or vague claims; reward concrete, verifiable achievements.",
-            "",
-            `## Level expectations (${level})`,
-            CV_LEVEL_EXPECTATIONS[level],
-            ...(rubricContext.trim().length > 0
-                ? [
-                    "",
-                    "## Reference rubric",
-                    rubricContext,
-                ]
-                : []),
-            "",
-            "## IMPORTANT: Language",
-            `Write ALL human-readable feedback values (shortFeedback, message, suggestion) in **${targetLanguage}**. JSON keys stay in English.`,
-            "",
-            `## Scoring (scale ${CV_SCORE_MIN}-${CV_SCORE_MAX})`,
-            `- ${CV_SCORE_MIN} = unusable; ${CV_SCORE_MAX} = exceptional for the level.`,
-            "- Anchor to the level expectations above — a strong junior CV is not a strong senior CV.",
-            "",
-            "## Output Format",
-            "Respond with a SINGLE JSON object matching this shape exactly (replace the placeholder strings):",
-            "",
-            JSON.stringify(CV_SCORE_OUTPUT_TEMPLATE,
-                null,
-                2),
-            "",
-            "## JSON Formatting",
-            "- Output STRICT JSON only — no markdown fences, no comments, no trailing commas.",
-            "- Use double quotes for all keys and string values.",
-            "- `items` may have any length; use an empty array only when there is genuinely nothing to note.",
-        ].join("\n")
-    }
 }
