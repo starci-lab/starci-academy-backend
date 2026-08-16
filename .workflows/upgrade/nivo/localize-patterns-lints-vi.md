@@ -257,6 +257,8 @@ Revision under review: `localize-patterns-lints-vi-r1`
 
 Revision under review: `localize-patterns-lints-vi-r2`
 
+Approved revision: `localize-patterns-lints-vi-r2`
+
 ### USER CORRECTION
 
 | Người dùng sửa | Nghĩa đã hiểu lại |
@@ -363,3 +365,379 @@ Revision under review: `localize-patterns-lints-vi-r2`
 |---|---|
 | Explicit approval r2 | Người dùng trả lời `Duyệt localize-patterns-lints-vi-r2`. |
 | Apply 289 files | `starci-fe-upgrade-apply` theo sáu batch và toàn bộ proof contract r2. |
+
+## apply
+
+Applied revision: `localize-patterns-lints-vi-r2`
+Baseline commit: `42f640ae`
+Tracked diff: `42f640ae..worktree`
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | nivo |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | nivo |
+| Repo / branch | D:\Repositories\starci-academy-backend @ mtp |
+| Purpose | Biên tập tiếng Việt tự nhiên cho toàn bộ patterns/lints ngoài INDEX, giữ nguyên semantics và machine contract. |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\upgrade\nivo\localize-patterns-lints-vi.md |
+| Language | vi |
+| Phase | apply |
+| Touching | 289 Markdown ngoài `INDEX.*` trong sáu root `.claude/be|fe/{patterns,lints,canon/patterns}`; workflow này để ghi proof. |
+
+### BATCH STATUS
+
+| Batch | Status |
+|---|---|
+| 1 — BE canon patterns, 15 files | In progress |
+| 2 — BE patterns, 60 files | Pending |
+| 3 — BE lints, 60 files | Pending |
+| 4 — FE canon patterns, 18 files | Pending |
+| 5 — FE patterns, 72 files | Pending |
+| 6 — FE lints, 64 files | Pending |
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| Approved revision | Apply r2 đã bắt đầu với baseline commit `42f640ae`. |
+| Write boundary | Đã khóa 289 file ngoài `INDEX.*`; chưa có target source thay đổi tại thời điểm ghi start. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| `.workflows/upgrade/nivo/localize-patterns-lints-vi.md` | modified — ghi Applied revision, baseline, tracked diff, Apply context và batch status. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None | Người dùng đã duyệt `localize-patterns-lints-vi-r2`. |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| Bản dịch 289 file cần nhiều batch để giữ semantic parity. | Chỉ kết luận PASS sau khi đủ sáu batch và full gate. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| None | None | Không có proposal nào bị reject trong Apply r2. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| Sáu batch biên tập và full proof | Diff target, snapshot invariant, `.claude` test và INDEX diff rỗng. |
+
+## review r3
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | nivo |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | nivo |
+| Repo / branch | D:\Repositories\starci-academy-backend @ mtp |
+| Purpose | Mở boundary từ patterns/lints sang toàn bộ patterns, lints và principles trong `.claude`, vẫn loại mọi INDEX.md. |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\upgrade\nivo\localize-patterns-lints-vi.md |
+| Language | vi |
+| Phase | review |
+| Touching | Chỉ workflow này; target source chưa được sửa trong r3. |
+
+Revision under review: `localize-patterns-lints-vi-r3`
+
+### REVISED SCOPE
+
+| Nhóm | Exact roots | File ngoài INDEX.md |
+|---|---|---:|
+| Patterns | `.claude/be/patterns/**`, `.claude/be/canon/patterns/**`, `.claude/fe/patterns/**`, `.claude/fe/canon/patterns/**` | 163 |
+| Lints | `.claude/be/lints/**`, `.claude/fe/lints/**` | 124 |
+| Principles | `.claude/fe/principles/**` | 104 |
+| Tổng | Mọi `.md` có ancestor directory tên `patterns`, `lints` hoặc `principles`, trừ basename chính xác `INDEX.md` | 391 |
+
+### BOUNDARY RULE
+
+| Included | Excluded |
+|---|---|
+| 391 Markdown thuộc ba nhóm patterns/lints/principles | Tất cả `INDEX.md`, kể cả nested INDEX; mọi thư mục `.claude` khác; mọi file không phải Markdown. |
+| Prose tiếng Việt do Claude viết lủng củng | ChatGPT biên tập lại cho rõ, tự nhiên và nhất quán. |
+| Prose tiếng Anh còn sót trong target | ChatGPT dịch sang tiếng Việt, giữ nguyên technical tokens và parser anchors. |
+
+### INVARIANTS R3
+
+| Bất biến | Proof |
+|---|---|
+| Code fence/comment trong code | Byte-for-byte snapshot. |
+| Rule/principle/lint identity | ID, tên rule, tên principle, tên lint, exact message và thứ tự không đổi. |
+| Technical vocabulary | Inline code, API, class/function/type, package, path, URL, command và link target không đổi. |
+| Semantics | Subject, modal, condition, exception, owner, trigger, escape, consequence và evidence không đổi. |
+| Structure | Frontmatter identity, heading level, section order, table shape và row order không đổi. |
+| INDEX | Mọi `INDEX.md` hash trước/sau giống nhau; diff rỗng. |
+
+### BATCH PLAN R3
+
+| Batch | Scope | Count |
+|---|---|---:|
+| 1 | BE patterns + BE canon patterns | 74 |
+| 2 | BE lints | 60 |
+| 3 | FE patterns + FE canon patterns | 90 |
+| 4 | FE lints | 64 |
+| 5 | FE principles: alignment → grid | 44 |
+| 6 | FE principles: margin → typography | 60 |
+| Final | All target proof + `.claude` tests | 391 |
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| Revision r3 | Mở đúng phạm vi theo phản hồi: patterns + lints + principles toàn tree, trừ INDEX.md. |
+| Target | 391 Markdown files được ChatGPT biên tập/dịch prose sang tiếng Việt tự nhiên. |
+| Safety contract | Giữ nguyên semantics, technical tokens, structure, code và mọi INDEX.md. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| `.workflows/upgrade/nivo/localize-patterns-lints-vi.md` | modified — ghi exact inventory 391 file và batch plan r3. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None | Người dùng đã trực tiếp mở rộng scope sang patterns, lints, principles và loại INDEX.md. |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| Scope tăng từ 289 lên 391 file. | Apply phải chạy sáu batch, không thể xem một vài file đại diện là hoàn tất. |
+| Principles có vocabulary thị giác và quy tắc ownership riêng. | Không được dịch thành lời khuyên chung làm mất điều kiện/ngoại lệ của principle. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| Chỉ tập trung `.claude/be|fe/{patterns,lints}` | Bao gồm cả canon patterns và `.claude/fe/principles` | Người dùng yêu cầu toàn bộ patterns, lints, principles. |
+| Dịch INDEX.md | Giữ nguyên mọi INDEX.md | Người dùng loại INDEX.md rõ ràng. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| Apply 391 file theo r3 | Sáu batch, invariant proof, `.claude` tests và INDEX hash proof. |
+
+### APPROVAL
+
+Approved revision: `localize-patterns-lints-vi-r3`
+
+Approval basis: Người dùng đã chốt mở rộng toàn bộ `patterns`, `lints`, `principles`, loại mọi `INDEX.md` và yêu cầu thực hiện ngay.
+
+## review r4
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | nivo |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | nivo |
+| Repo / branch | D:\Repositories\starci-academy-backend @ mtp |
+| Purpose | Viết lại tự nhiên phần prose của 360 file patterns/lints/principles theo boundary r4, không đổi nghĩa. |
+| Phase | review |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Language | vi |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\upgrade\nivo\localize-patterns-lints-vi.md |
+| Touching | Chỉ workflow này; target canon không thuộc revision r4. |
+
+Revision under review: `localize-patterns-lints-vi-r4`
+
+### USER CORRECTION
+
+| Chốt mới | Boundary |
+|---|---|
+| Năm thư mục, 360 file `.md` | `.claude/be/patterns`, `.claude/fe/patterns`, `.claude/be/lints`, `.claude/fe/lints`, `.claude/fe/principles` |
+| Bỏ qua INDEX | Loại mọi file có basename chính xác `INDEX.md`. |
+| Không chạm canon | Mọi `.claude/**/canon/**` nằm ngoài revision r4, dù có tên `patterns`. |
+| Viết lại tự nhiên | Prose tiếng Việt được biên tập lại rõ ràng, tự nhiên; giữ nguyên nghĩa, rule, code, token và cấu trúc. |
+
+### EXACT INVENTORY R4
+
+| Root | Files ngoài INDEX.md |
+|---|---:|
+| `.claude/be/patterns/**` | 60 |
+| `.claude/fe/patterns/**` | 72 |
+| `.claude/be/lints/**` | 60 |
+| `.claude/fe/lints/**` | 64 |
+| `.claude/fe/principles/**` | 104 |
+| Tổng | 360 |
+
+### INVARIANTS R4
+
+| Bất biến | Proof |
+|---|---|
+| Nội dung kỹ thuật | Code fence, code, identifier, rule/lint/principle ID, message, link, path, command và token kỹ thuật giữ nguyên. |
+| Nghĩa | Chủ thể, mức bắt buộc, điều kiện, ngoại lệ, owner, trigger, escape, consequence và evidence không đổi. |
+| Cấu trúc | Frontmatter, heading level, section order, table shape và row order giữ nguyên. |
+| INDEX/canon | Hash `INDEX.md` không đổi; không stage bất kỳ file canon nào. |
+
+### APPROVAL
+
+Approved revision: `localize-patterns-lints-vi-r4`
+
+Approval basis: Người dùng đã chỉ rõ lại boundary 5 thư mục/360 file và yêu cầu xử lý bằng nhiều agent.
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| Revision r4 | Chốt đúng 5 thư mục non-canon, tổng 360 file ngoài INDEX.md. |
+| Target | Biên tập tiếng Việt tự nhiên, giữ nguyên nghĩa và machine contract. |
+| Safety contract | Không stage canon, không sửa INDEX.md, không đổi code/token/structure. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| `.workflows/upgrade/nivo/localize-patterns-lints-vi.md` | modified — ghi correction r4, inventory 360 và proof contract. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None | Người dùng đã chốt boundary r4 và yêu cầu thực hiện. |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| Các file canon từng xuất hiện trong revision trước | R4 loại hoàn toàn canon khỏi write set; chỉ kiểm tra để bảo đảm không stage. |
+| `.claude` bị Git ignore | Apply phải force-add đúng 360 file, không dùng `git add .`. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| 391 file gồm canon patterns | 360 file trong 5 thư mục người dùng chỉ rõ | Người dùng đã thu hẹp boundary. |
+| Dịch hoặc sửa INDEX.md | Giữ nguyên mọi INDEX.md | Người dùng yêu cầu bỏ qua. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| Apply r4 | Full target structural check, INDEX exclusion check, exact force-add và commit. |
+
+## apply r4
+
+Applied revision: `localize-patterns-lints-vi-r4`
+Baseline commit: `42f640ae`
+Tracked diff: `42f640ae..worktree`
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | nivo |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | nivo |
+| Repo / branch | D:\Repositories\starci-academy-backend @ mtp |
+| Purpose | Áp dụng bản biên tập tự nhiên cho đúng 360 file non-canon, giữ nguyên cấu trúc và nghĩa. |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Language | vi |
+| Phase | apply |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\upgrade\nivo\localize-patterns-lints-vi.md |
+| Target | 360 Markdown ngoài INDEX.md trong 5 root r4; canon excluded. |
+| Touching | Chỉ 360 file r4 và workflow; không stage canon hoặc INDEX.md. |
+
+### BATCH STATUS
+
+| Batch | Status |
+|---|---|
+| 1 — BE patterns, 60 files | Complete — agent proof received |
+| 2 — BE lints, 60 files | Complete — agent proof received |
+| 3 — FE patterns, 72 files | Complete — agent proof received |
+| 4 — FE lints, 64 files | Complete — agent proof received |
+| 5 — FE principles, 104 files | Audited — Sol 6 output checked within r4 boundary |
+| Final — structural, exclusion, force-add and commit proof | Complete with unrelated `.claude` test debt recorded below |
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| Apply revision | `localize-patterns-lints-vi-r4` completed against the exact 360-file boundary. |
+| Commit | `.claude` commit `223778d` — 214 changed files; 360-file manifest audited. |
+| Canon | Excluded from write set and commit. |
+| INDEX.md | Excluded from write set and commit. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| `.claude/be/patterns/**` | 60 files assigned/completed. |
+| `.claude/be/lints/**` | 60 files assigned/completed. |
+| `.claude/fe/patterns/**` | 72 files assigned/completed. |
+| `.claude/fe/lints/**` | 64 files assigned/completed. |
+| `.claude/fe/principles/**` | 104 files audited for structural consistency; no INDEX staged. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None | R4 đã được người dùng chốt. |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| `.claude` bị Git ignore | Commit phải stage đúng manifest bằng `git add -f`; không stage canon/INDEX. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| Stage toàn bộ `.claude` | Stage đúng 360 path r4 | Tránh đưa canon/INDEX hoặc file ngoài scope vào commit. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| FE principles và final commit | Structural gates, exact staged manifest and commit `223778d`. |
+
+### LIVE / STRUCTURAL PROOF
+
+| Check | Result |
+|---|---|
+| Exact target inventory | PASS — 360 files: 60 BE patterns, 72 FE patterns, 60 BE lints, 64 FE lints, 104 FE principles. |
+| Per-module shape | PASS — each module has `vi.md`, `example.md`, `audit.md`, `changelog.md`; all `INDEX.md` excluded. |
+| Frontmatter | PASS — 0 malformed target files. |
+| Code fence | PASS — 0 odd-fence target files. |
+| Conflict markers | PASS — 0 target files. |
+| Staged boundary | PASS — 214 changed target files staged; 0 INDEX, 0 canon, 0 outside-scope paths. |
+| `.claude` full test | OWED — existing unrelated failures: duplicate/missing BE rules, dead canon links, incomplete `starci-fe-layer` lifecycle, and missing canon `naming.md`; not caused by staged r4 prose diff. |
