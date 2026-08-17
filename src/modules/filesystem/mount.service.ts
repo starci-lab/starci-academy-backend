@@ -20,6 +20,7 @@ import {
     getDataGitToken,
     getGithubSecretKey,
     getSepayApiKey,
+    getSepayIpnSecret,
     getJudge0AuthToken,
     getStripeSecretKey,
     getStripeWebhookSecret,
@@ -125,6 +126,11 @@ export class MountFilesystemService {
      */
     sepayApiKey(): string {
         return getSepayApiKey()
+    }
+
+    /** Get the dedicated inbound SePay Payment Gateway IPN secret. */
+    sepayIpnSecret(): string {
+        return getSepayIpnSecret()
     }
 
     /**

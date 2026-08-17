@@ -63,6 +63,7 @@ const NOW_ISO = "2026-07-21T00:00:00.000Z"
 /** Stub the reconcile poll block of env config; overrides merge over sane defaults. */
 const setEnv = (overrides: Partial<{
     delayMs: number
+    slowDelayMs: number
     maxAttempts: number
 }> = {
 }): void => {
@@ -73,6 +74,7 @@ const setEnv = (overrides: Partial<{
                     reconcile: {
                         enabled: true,
                         delayMs: 60_000,
+                        slowDelayMs: 900_000,
                         maxAttempts: 5,
                         ...overrides,
                     },
@@ -206,12 +208,22 @@ describe("ReconcileTransactionBootSweepService",
                                 transactionId: "tx-overdue",
                                 attempt: 2,
                                 delayMs: 0,
+                                lane: "fast",
+                                deduplication: {
+                                    id: "reconcile-boot:tx-overdue",
+                                    ttlMs: 30_000,
+                                },
                             })
                         expect(enqueueReconcileTransactionJobService.enqueue).toHaveBeenNthCalledWith(2,
                             {
                                 transactionId: "tx-way-overdue",
                                 attempt: 5,
                                 delayMs: 0,
+                                lane: "slow",
+                                deduplication: {
+                                    id: "reconcile-boot:tx-way-overdue",
+                                    ttlMs: 30_000,
+                                },
                             })
 
                         // one summary line with the total re-enqueued
@@ -282,6 +294,11 @@ describe("ReconcileTransactionBootSweepService",
                             transactionId: "tx-second-page-overdue",
                             attempt: 2,
                             delayMs: 0,
+                            lane: "fast",
+                            deduplication: {
+                                id: "reconcile-boot:tx-second-page-overdue",
+                                ttlMs: 30_000,
+                            },
                         })
                         expect(winstonService.log).toHaveBeenCalledWith(
                             WinstonLog.TransactionReconcileBootSweep,

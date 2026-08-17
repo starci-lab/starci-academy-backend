@@ -225,14 +225,17 @@ describe("a pending payment is reconciled through its real gateway fallback chai
         let sendMailQueue: Queue<string>
         let gateways: GatewayMocks
         let priorDelay: string | undefined
+        let priorSlowDelay: string | undefined
         let priorMaxAttempts: string | undefined
         let priorEnqueueDelay: string | undefined
 
         beforeAll(async () => {
             priorDelay = process.env.API_TRANSACTION_RECONCILE_DELAY_MS
+            priorSlowDelay = process.env.API_TRANSACTION_RECONCILE_SLOW_DELAY_MS
             priorMaxAttempts = process.env.API_TRANSACTION_RECONCILE_MAX_ATTEMPTS
             priorEnqueueDelay = process.env.BULLMQ_ENQUEUE_UX_DELAY
             process.env.API_TRANSACTION_RECONCILE_DELAY_MS = "25ms"
+            process.env.API_TRANSACTION_RECONCILE_SLOW_DELAY_MS = "50ms"
             process.env.API_TRANSACTION_RECONCILE_MAX_ATTEMPTS = "2"
             process.env.BULLMQ_ENQUEUE_UX_DELAY = "0ms"
 
@@ -398,6 +401,7 @@ describe("a pending payment is reconciled through its real gateway fallback chai
         afterAll(async () => {
             await app?.close().catch(() => undefined)
             process.env.API_TRANSACTION_RECONCILE_DELAY_MS = priorDelay
+            process.env.API_TRANSACTION_RECONCILE_SLOW_DELAY_MS = priorSlowDelay
             process.env.API_TRANSACTION_RECONCILE_MAX_ATTEMPTS = priorMaxAttempts
             process.env.BULLMQ_ENQUEUE_UX_DELAY = priorEnqueueDelay
         })
@@ -707,7 +711,7 @@ describe("a pending payment is reconciled through its real gateway fallback chai
                     })).toBe(1)
             })
 
-        it("exhausts repeated unknown responses and marks non-crypto unpaid",
+        it("keeps repeated pending responses pending after the fast budget",
             async () => {
                 const user = await seedUser("payos-exhausted")
                 const transaction = await seedTransaction({
@@ -721,10 +725,18 @@ describe("a pending payment is reconciled through its real gateway fallback chai
                 })
 
                 await publish(transaction.id)
-                await waitForStatus(transaction.id,
-                    TransactionStatus.Unpaid)
-
-                expect(gateways.payos.paymentRequests.get).toHaveBeenCalledTimes(2)
+                await until(async () => gateways.payos.paymentRequests.get.mock.calls.length >= 3,
+                    {
+                        timeout: 20_000,
+                        describe: "pending provider response to enter slow polling",
+                    })
+                const stillPending = await entityManager.findOneByOrFail(
+                    TransactionEntity,
+                    {
+                        id: transaction.id,
+                    },
+                )
+                expect(stillPending.status).toBe(TransactionStatus.Pending)
             })
 
         it("grants exactly once when a PayOS webhook races the reconcile worker",
@@ -754,7 +766,7 @@ describe("a pending payment is reconciled through its real gateway fallback chai
                             },
                             signature: "valid-signature",
                         })
-                        .expect(201),
+                        .expect(200),
                     publish(transaction.id),
                 ])
                 await waitForStatus(transaction.id,

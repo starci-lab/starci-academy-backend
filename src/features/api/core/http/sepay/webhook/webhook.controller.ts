@@ -1,7 +1,10 @@
 import {
     Body,
     Controller,
+    HttpCode,
+    HttpStatus,
     Post,
+    UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -26,6 +29,9 @@ import {
 import {
     SepayWebhookService,
 } from "./webhook.service"
+import {
+    SepayWebhookGuard,
+} from "./webhook.guard"
 
 @Controller(
     {
@@ -51,10 +57,12 @@ export class SepayWebhookController {
     })
     @ApiResponse(
         {
-            status: 201,
-            description: "Webhook processed and job enqueued.",
+            status: 200,
+            description: "Webhook authenticated and acknowledged.",
         },
     )
+    @UseGuards(SepayWebhookGuard)
+    @HttpCode(HttpStatus.OK)
     @Post(
         httpConfig().sepay().webhook().path,
     )

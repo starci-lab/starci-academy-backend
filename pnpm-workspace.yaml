@@ -1,0 +1,12 @@
+allowBuilds:
+  '@apollo/protobufjs': set this to true or false
+  '@scarf/scarf': set this to true or false
+  bufferutil: set this to true or false
+  cpu-features: set this to true or false
+  ffmpeg-static: set this to true or false
+  msgpackr-extract: set this to true or false
+  protobufjs: set this to true or false
+  puppeteer: set this to true or false
+  ssh2: set this to true or false
+  unrs-resolver: set this to true or false
+  utf-8-validate: set this to true or false

@@ -49,9 +49,6 @@ import {
     ActionType,
 } from "@modules/databases/postgresql/primary/enums/action-type"
 import {
-    PaymentType,
-} from "@modules/databases/postgresql/primary/enums/payment-type"
-import {
     TransactionStatus,
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
@@ -93,9 +90,9 @@ import type {
  * Fired on a delay by {@link EnqueueReconcileTransactionJobService}. Each run
  * polls the gateway for the transaction's status:
  * - already finalized (not pending) -> no-op (idempotent; the webhook won).
- * - `paid` -> run the same finalize path as the webhook (grant tier / enqueue enroll).
- * - `unpaid` (gateway terminal non-paid) -> mark the transaction `unpaid`.
- * - `unknown` -> re-enqueue the next attempt; once attempts are exhausted, mark `unpaid`.
+ * - `paid` -> grant through the single action owner below.
+ * - `terminal-unpaid` -> guarded transition to `Unpaid`.
+ * - `pending` / `unavailable` -> fast retry, then slow retry while DB stays `Pending`.
  */
 export class ReconcileTransactionWorker extends WorkerHost {
     constructor(
@@ -123,10 +120,12 @@ export class ReconcileTransactionWorker extends WorkerHost {
      */
     async process(bullmqJob: Job<string>): Promise<void> {
         // parse the poll payload (transaction id + attempt counter)
+        const payload = this.superJson.parse<ReconcileTransactionPayload>(bullmqJob.data)
         const {
             transactionId,
             attempt,
-        } = this.superJson.parse<ReconcileTransactionPayload>(bullmqJob.data)
+        } = payload
+        const lane = payload.lane ?? "fast"
         // load the transaction
         const transaction = await this.entityManager.findOne(
             TransactionEntity,
@@ -141,24 +140,24 @@ export class ReconcileTransactionWorker extends WorkerHost {
             return
         }
         // ask the gateway whether it was paid
-        const status = await this.transactionReconcileQueryService.resolve(transaction)
-        const maxAttempts = envConfig().services.api.transaction.reconcile.maxAttempts
+        const result = await this.transactionReconcileQueryService.resolve(transaction)
+        const {
+            maxAttempts,
+            slowDelayMs,
+        } = envConfig().services.api.transaction.reconcile
         const exhausted = attempt >= maxAttempts
-        // crypto settles slowly and may clear AFTER the poll budget -- never mark it
-        // unpaid from here, or a late IPN (which only matches a PENDING row) could
-        // never grant. Leave it pending and let the webhook finalize it.
-        const isCrypto = transaction.paymentType === PaymentType.Crypto
-        // decide the action: paid -> finalize; gateway-terminal unpaid -> mark unpaid;
-        // still unknown -> retry while attempts remain, else give up (stop for crypto)
-        const decision = status === "paid"
+        const underpaid = result.state === "paid"
+            && result.reportedAmount !== undefined
+            && result.reportedAmount < transaction.amount
+        const decision = result.state === "paid" && !underpaid
             ? "finalize"
-            : status === "unpaid"
+            : result.state === "terminal-unpaid"
                 ? "unpaid"
-                : !exhausted
-                    ? "reenqueue"
-                    : isCrypto
-                        ? "stop"
-                        : "unpaid"
+                : lane === "fast" && !exhausted
+                    ? "fast-retry"
+                    : underpaid
+                        ? "slow-underpaid"
+                        : "slow-retry"
         // observable trace of every poll (gateway status + chosen action)
         this.winstonService.log(
             WinstonLog.TransactionReconcilePolled,
@@ -166,7 +165,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
                 transactionId,
                 attempt,
                 maxAttempts,
-                status,
+                status: result.state,
                 decision,
             },
         )
@@ -175,26 +174,32 @@ export class ReconcileTransactionWorker extends WorkerHost {
             await this.finalize(transaction)
             return
         }
-        if (decision === "reenqueue") {
-            // still pending and attempts remain -> schedule the next poll
+        if (decision === "fast-retry") {
             await this.enqueueReconcileTransactionJobService.enqueue({
                 transactionId,
                 attempt: attempt + 1,
+                lane: "fast",
             })
             return
         }
-        if (decision === "stop") {
-            // crypto budget exhausted with no confirmation -> stop polling but keep
-            // the row pending so a late IPN can still finalize it
+        if (decision === "slow-retry" || decision === "slow-underpaid") {
+            await this.enqueueReconcileTransactionJobService.enqueue({
+                transactionId,
+                attempt: Math.min(attempt,
+                    maxAttempts),
+                lane: "slow",
+                delayMs: slowDelayMs,
+            })
             return
         }
-        // gateway terminal non-paid, or all polls exhausted -> mark unpaid, but ONLY
-        // if still pending so a webhook that just succeeded is never clobbered
-        await this.transactionActionService.updateTransactionStatusIfExpected({
+        const transitioned = await this.transactionActionService.updateTransactionStatusIfExpected({
             id: transactionId,
             status: TransactionStatus.Unpaid,
             expectedStatus: TransactionStatus.Pending,
         })
+        if (!transitioned) {
+            return
+        }
         // give back any voucher this failed checkout reserved (no-op if none)
         await this.voucherService.release({
             entityManager: this.entityManager,

@@ -1,13 +1,28 @@
 import request from "supertest"
 import {
+    Test,
+} from "@nestjs/testing"
+import type {
+    INestApplication,
+} from "@nestjs/common"
+import {
+    VersioningType,
+} from "@nestjs/common"
+import {
+    CqrsModule,
+} from "@nestjs/cqrs"
+import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import type {
     EntityManager,
 } from "typeorm"
 import {
-    AiSubscriptionEntity,
-} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     TransactionEntity,
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
@@ -18,12 +33,6 @@ import {
     ActionType,
 } from "@modules/databases/postgresql/primary/enums/action-type"
 import {
-    AiSubStatus,
-} from "@modules/databases/postgresql/primary/enums/ai-sub-status"
-import {
-    AiSubTier,
-} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
-import {
     PaymentType,
 } from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
@@ -33,60 +42,107 @@ import {
     TransactionStatus,
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
-    createE2eApp,
-} from "@tests/helpers/create-e2e-app"
-import type {
-    E2eApp,
-} from "@tests/helpers/types/e2e-app"
+    MountFilesystemService,
+} from "@modules/filesystem/mount.service"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
+    AbstractExceptionHttpFilter,
+} from "@modules/platform/exceptions/filters/abstract-exception-http.filter"
+import {
+    SepayWebhookController,
+} from "@features/api/core/http/sepay/webhook/webhook.controller"
+import {
+    SepayWebhookGuard,
+} from "@features/api/core/http/sepay/webhook/webhook.guard"
+import {
+    SepayWebhookHandler,
+} from "@features/api/core/http/sepay/webhook/webhook.handler"
+import {
+    SepayWebhookService,
+} from "@features/api/core/http/sepay/webhook/webhook.service"
 
-/** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
-
-/** URI of the SePay webhook (controller path "sepay", version "1", post "webhook"). */
 const WEBHOOK_URL = "/v1/sepay/webhook"
+const IPN_SECRET = "e2e-sepay-secret"
 
-describe("SePay webhook (e2e)",
+describe("SePay webhook authenticated wake-up (e2e)",
     () => {
-        let e2e: E2eApp
+        let app: INestApplication
         let entityManager: EntityManager
+        const enqueue = jest.fn()
 
         beforeAll(async () => {
-            e2e = await createE2eApp()
-            entityManager = e2e.app.get<EntityManager>(
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true,
+                        withHydration: false,
+                        withResolvers: false,
+                    }),
+                    CqrsModule,
+                ],
+                controllers: [
+                    SepayWebhookController,
+                ],
+                providers: [
+                    SepayWebhookService,
+                    SepayWebhookHandler,
+                    SepayWebhookGuard,
+                    {
+                        provide: EnqueueReconcileTransactionJobService,
+                        useValue: {
+                            enqueue,
+                        },
+                    },
+                    {
+                        provide: MountFilesystemService,
+                        useValue: {
+                            sepayIpnSecret: () => IPN_SECRET,
+                        },
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
+                    },
+                ],
+            }).compile()
+
+            app = moduleRef.createNestApplication()
+            app.enableVersioning({
+                type: VersioningType.URI,
+            })
+            app.useGlobalFilters(new AbstractExceptionHttpFilter(
+                moduleRef.get(WinstonService),
+            ))
+            await app.init()
+            entityManager = app.get<EntityManager>(
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
         })
 
         afterAll(async () => {
-            // TypeORM's shutdown hook looks up the default (unnamed) DataSource,
-            // which this named-only setup doesn't register -- ignore that noise.
-            await e2e.app.close().catch(() => undefined)
+            await app.close().catch(() => undefined)
         })
 
         afterEach(async () => {
-            // wipe the rows each test created so cases stay independent
             await entityManager.query(
-                "TRUNCATE TABLE \"ai_subscriptions\", \"transactions\", \"users\" RESTART IDENTITY CASCADE",
+                "TRUNCATE TABLE \"transactions\", \"users\" RESTART IDENTITY CASCADE",
             )
             jest.clearAllMocks()
         })
 
-        /**
-         * Seed a user + a pending AI-subscription-purchase transaction and return
-         * the persisted transaction (its `referenceId` is the webhook invoice).
-         */
-        const seedPendingPurchase = async (
-            referenceId: string,
-        ): Promise<TransactionEntity> => {
-            // only keycloakId is required on the user row
+        const seedPending = async (referenceId: string): Promise<string> => {
             const user = await entityManager.save(
                 entityManager.create(UserEntity,
                     {
                         keycloakId: `kc-${referenceId}`,
                     }),
             )
-            // a pending purchase the webhook will settle into a granted tier
-            return entityManager.save(
+            const transaction = await entityManager.save(
                 entityManager.create(TransactionEntity,
                     {
                         user,
@@ -97,114 +153,81 @@ describe("SePay webhook (e2e)",
                         status: TransactionStatus.Pending,
                         paymentType: PaymentType.Sepay,
                         actionType: ActionType.AiSubscriptionPurchase,
-                        aiSubTier: AiSubTier.Plus,
                     }),
             )
+            return transaction.id
         }
 
-        it("grants the tier and marks the transaction succeeded on a valid IPN",
+        it("rejects missing or wrong transport secret",
             async () => {
-                const transaction = await seedPendingPurchase("INV-OK")
-                // server-to-server verification succeeds (any 2xx-shaped payload)
-                e2e.sepayClient.order.retrieve.mockResolvedValueOnce({
-                    data: {
-                        status: "PAID",
+                await request(app.getHttpServer())
+                    .post(WEBHOOK_URL)
+                    .send({
+                        order_invoice_number: "INV-AUTH",
+                    })
+                    .expect(401)
+                await request(app.getHttpServer())
+                    .post(WEBHOOK_URL)
+                    .set("X-Secret-Key",
+                        "wrong")
+                    .send({
+                        order_invoice_number: "INV-AUTH",
+                    })
+                    .expect(401)
+                expect(enqueue).not.toHaveBeenCalled()
+            })
+
+        it("ACKs 200 and wakes reconciliation for a pending invoice",
+            async () => {
+                const transactionId = await seedPending("INV-PENDING")
+
+                await request(app.getHttpServer())
+                    .post(WEBHOOK_URL)
+                    .set("X-Secret-Key",
+                        IPN_SECRET)
+                    .send({
+                        order_invoice_number: "INV-PENDING",
+                    })
+                    .expect(200)
+
+                expect(enqueue).toHaveBeenCalledWith({
+                    transactionId,
+                    attempt: 1,
+                    delayMs: 0,
+                    lane: "fast",
+                    deduplication: {
+                        id: `sepay-webhook:${transactionId}`,
+                        ttlMs: 30_000,
                     },
                 })
+            })
 
-                await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send({
-                        order_invoice_number: "INV-OK",
-                    })
-                    .expect(201)
-
-                // verification was driven off our referenceId, not the IPN body
-                expect(e2e.sepayClient.order.retrieve)
-                    .toHaveBeenCalledWith("INV-OK")
-
-                // the funding transaction is now settled
-                const settled = await entityManager.findOne(TransactionEntity,
+        it("ACKs missing, unknown and replayed invoices without a wake-up",
+            async () => {
+                const transactionId = await seedPending("INV-REPLAY")
+                await entityManager.update(TransactionEntity,
+                    transactionId,
                     {
-                        where: {
-                            id: transaction.id,
-                        },
+                        status: TransactionStatus.Succeeded,
                     })
-                expect(settled?.status).toBe(TransactionStatus.Succeeded)
 
-                // a Plus entitlement row exists and is active for the buyer
-                const subscription = await entityManager.findOne(
-                    AiSubscriptionEntity,
+                for (const body of [
                     {
-                        where: {
-                            user: {
-                                id: transaction.userId,
-                            },
-                        },
                     },
-                )
-                expect(subscription?.tier).toBe(AiSubTier.Plus)
-                expect(subscription?.status).toBe(AiSubStatus.Active)
-            })
-
-        it("rejects an IPN with no invoice and mutates nothing",
-            async () => {
-                const response = await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send({
-                        status: "PAID",
-                    })
-
-                // missing order_invoice_number -> handler throws, request fails
-                expect(response.status).toBeGreaterThanOrEqual(400)
-                // never reached the verification call
-                expect(e2e.sepayClient.order.retrieve).not.toHaveBeenCalled()
-                // no entitlement was granted
-                const count = await entityManager.count(AiSubscriptionEntity)
-                expect(count).toBe(0)
-            })
-
-        it("rejects an unknown invoice without granting anything",
-            async () => {
-                const response = await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send({
-                        order_invoice_number: "INV-DOES-NOT-EXIST",
-                    })
-
-                expect(response.status).toBeGreaterThanOrEqual(400)
-                const count = await entityManager.count(AiSubscriptionEntity)
-                expect(count).toBe(0)
-            })
-
-        it("is idempotent — a re-delivered IPN cannot grant twice",
-            async () => {
-                await seedPendingPurchase("INV-DUP")
-                e2e.sepayClient.order.retrieve.mockResolvedValue({
-                    data: {
-                        status: "PAID",
+                    {
+                        order_invoice_number: "INV-UNKNOWN",
                     },
-                })
-
-                // first delivery settles the purchase
-                await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send({
-                        order_invoice_number: "INV-DUP",
-                    })
-                    .expect(201)
-
-                // the provider retries until it sees a successful acknowledgement;
-                // a known settled invoice is accepted as a no-op
-                await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send({
-                        order_invoice_number: "INV-DUP",
-                    })
-                    .expect(201)
-
-                // exactly one entitlement row exists (no double grant)
-                const count = await entityManager.count(AiSubscriptionEntity)
-                expect(count).toBe(1)
+                    {
+                        order_invoice_number: "INV-REPLAY",
+                    },
+                ]) {
+                    await request(app.getHttpServer())
+                        .post(WEBHOOK_URL)
+                        .set("X-Secret-Key",
+                            IPN_SECRET)
+                        .send(body)
+                        .expect(200)
+                }
+                expect(enqueue).not.toHaveBeenCalled()
             })
     })

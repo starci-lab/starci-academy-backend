@@ -13,6 +13,9 @@ import {
 import {
     SepayWebhookHandler,
 } from "./webhook.handler"
+import {
+    SepayWebhookGuard,
+} from "./webhook.guard"
 
 @Module({
     controllers: [
@@ -21,6 +24,7 @@ import {
     providers: [
         SepayWebhookService,
         SepayWebhookHandler,
+        SepayWebhookGuard,
     ],
 })
 /**

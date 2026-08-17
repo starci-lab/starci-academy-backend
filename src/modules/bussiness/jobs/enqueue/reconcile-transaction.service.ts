@@ -62,6 +62,8 @@ export class EnqueueReconcileTransactionJobService {
             transactionId,
             attempt = 1,
             delayMs: delayMsOverride,
+            lane = "fast",
+            deduplication,
         }: EnqueueReconcileTransactionJobParams,
     ): Promise<void> {
         // master switch: when reconcile polling is disabled, pending transactions
@@ -81,6 +83,7 @@ export class EnqueueReconcileTransactionJobService {
         const payload: ReconcileTransactionPayload = {
             transactionId,
             attempt,
+            lane,
         }
         // schedule the job to run after the delay (override wins; else the configured delay)
         const delayMs = delayMsOverride ?? envConfig().services.api.transaction.reconcile.delayMs
@@ -88,9 +91,20 @@ export class EnqueueReconcileTransactionJobService {
             `reconcile-transaction:${transactionId}:${attempt}`,
             this.superJson.stringify(payload),
             {
-                // unique per attempt so re-enqueues are not deduplicated by BullMQ
+                // Job ids remain unique so a legitimate later retry is never
+                // blocked by a completed job. Only webhook bursts opt into the
+                // short-lived BullMQ deduplication key below.
                 jobId: uuidv4(),
                 delay: delayMs,
+                ...(deduplication
+                    ? {
+                        deduplication: {
+                            id: deduplication.id,
+                            ttl: deduplication.ttlMs,
+                        },
+                    }
+                    : {
+                    }),
             },
         )
         this.winstonService.log(

@@ -1,13 +1,28 @@
 import request from "supertest"
 import {
+    Test,
+} from "@nestjs/testing"
+import type {
+    INestApplication,
+} from "@nestjs/common"
+import {
+    VersioningType,
+} from "@nestjs/common"
+import {
+    CqrsModule,
+} from "@nestjs/cqrs"
+import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import type {
     EntityManager,
 } from "typeorm"
 import {
-    AiSubscriptionEntity,
-} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     TransactionEntity,
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
@@ -18,12 +33,6 @@ import {
     ActionType,
 } from "@modules/databases/postgresql/primary/enums/action-type"
 import {
-    AiSubStatus,
-} from "@modules/databases/postgresql/primary/enums/ai-sub-status"
-import {
-    AiSubTier,
-} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
-import {
     PaymentType,
 } from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
@@ -33,26 +42,28 @@ import {
     TransactionStatus,
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
-    createE2eApp,
-} from "@tests/helpers/create-e2e-app"
-import type {
-    E2eApp,
-} from "@tests/helpers/types/e2e-app"
+    PAYOS,
+} from "@modules/integrations/payos/constants/payos"
+import {
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
+import {
+    PayosWebhookController,
+} from "@features/api/core/http/payos/webhook/webhook.controller"
+import {
+    PayosWebhookHandler,
+} from "@features/api/core/http/payos/webhook/webhook.handler"
+import {
+    PayosWebhookService,
+} from "@features/api/core/http/payos/webhook/webhook.service"
 
-/** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
-
-/** URI of the payOS webhook (controller path "payos", version "1", post "webhook"). */
 const WEBHOOK_URL = "/v1/payos/webhook"
-
-/**
- * Build a payOS webhook body. The handler matches a transaction off
- * `data.orderCode` (stringified) and verifies the body via the SDK.
- */
-const payosBody = (orderCode: string) => ({
-    code: "00",
-    desc: "success",
-    success: true,
+const payosBody = (orderCode: string,
+    success = true) => ({
+    code: success ? "00" : "01",
+    desc: success ? "success" : "failed",
+    success,
     data: {
         orderCode,
         amount: 99_000,
@@ -62,173 +73,158 @@ const payosBody = (orderCode: string) => ({
         transactionDateTime: "2026-06-11T00:00:00Z",
         currency: "VND",
         paymentLinkId: "plink",
-        code: "00",
-        desc: "success",
+        code: success ? "00" : "01",
+        desc: success ? "success" : "failed",
     },
     signature: "valid-signature",
 })
 
-describe("payOS webhook (e2e)",
+describe("PayOS webhook verified wake-up (e2e)",
     () => {
-        let e2e: E2eApp
+        let app: INestApplication
         let entityManager: EntityManager
+        const enqueue = jest.fn()
+        const verify = jest.fn()
 
         beforeAll(async () => {
-            e2e = await createE2eApp()
-            entityManager = e2e.app.get<EntityManager>(
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true,
+                        withHydration: false,
+                        withResolvers: false,
+                    }),
+                    CqrsModule,
+                ],
+                controllers: [
+                    PayosWebhookController,
+                ],
+                providers: [
+                    PayosWebhookService,
+                    PayosWebhookHandler,
+                    {
+                        provide: PAYOS,
+                        useValue: {
+                            webhooks: {
+                                verify,
+                            },
+                        },
+                    },
+                    {
+                        provide: EnqueueReconcileTransactionJobService,
+                        useValue: {
+                            enqueue,
+                        },
+                    },
+                    {
+                        provide: WinstonService,
+                        useValue: {
+                            log: jest.fn(),
+                        },
+                    },
+                ],
+            }).compile()
+
+            app = moduleRef.createNestApplication()
+            app.enableVersioning({
+                type: VersioningType.URI,
+            })
+            await app.init()
+            entityManager = app.get<EntityManager>(
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
         })
 
         afterAll(async () => {
-            // TypeORM's shutdown hook looks up the default (unnamed) DataSource,
-            // which this named-only setup doesn't register -- ignore that noise.
-            await e2e.app.close().catch(() => undefined)
+            await app.close().catch(() => undefined)
         })
 
         afterEach(async () => {
-            // wipe the rows each test created so cases stay independent
             await entityManager.query(
-                "TRUNCATE TABLE \"ai_subscriptions\", \"transactions\", \"users\" RESTART IDENTITY CASCADE",
+                "TRUNCATE TABLE \"transactions\", \"users\" RESTART IDENTITY CASCADE",
             )
             jest.clearAllMocks()
         })
 
-        /**
-         * Seed a user + a pending AI-subscription-purchase transaction and return
-         * the persisted transaction (its `referenceId` is the payOS orderCode).
-         */
-        const seedPendingPurchase = async (
-            orderCode: string,
-        ): Promise<TransactionEntity> => {
-            // only keycloakId is required on the user row
+        const seedPending = async (referenceId: string): Promise<string> => {
             const user = await entityManager.save(
                 entityManager.create(UserEntity,
                     {
-                        keycloakId: `kc-${orderCode}`,
+                        keycloakId: `kc-${referenceId}`,
                     }),
             )
-            // a pending purchase the webhook will settle into a granted tier
-            return entityManager.save(
+            const transaction = await entityManager.save(
                 entityManager.create(TransactionEntity,
                     {
                         user,
-                        referenceId: orderCode,
+                        referenceId,
                         amount: 99_000,
                         pricingPhase: PricingPhase.Regular,
                         checkoutUrl: "https://pay.test/checkout",
                         status: TransactionStatus.Pending,
                         paymentType: PaymentType.PayOS,
                         actionType: ActionType.AiSubscriptionPurchase,
-                        aiSubTier: AiSubTier.Plus,
                     }),
             )
+            return transaction.id
         }
 
-        it("grants the tier and marks the transaction succeeded on a valid webhook",
+        it("rejects a bad signature and never wakes reconciliation",
             async () => {
-                const transaction = await seedPendingPurchase("700001")
-                // signature verification passes
-                e2e.payosClient.webhooks.verify.mockResolvedValueOnce(undefined)
+                await seedPending("700001")
+                verify.mockRejectedValueOnce(new Error("invalid signature"))
 
-                await request(e2e.app.getHttpServer())
+                await request(app.getHttpServer())
                     .post(WEBHOOK_URL)
                     .send(payosBody("700001"))
-                    .expect(201)
-
-                // the SDK was asked to verify the inbound body
-                expect(e2e.payosClient.webhooks.verify).toHaveBeenCalledTimes(1)
-
-                // the funding transaction is now settled
-                const settled = await entityManager.findOne(TransactionEntity,
-                    {
-                        where: {
-                            id: transaction.id,
-                        },
-                    })
-                expect(settled?.status).toBe(TransactionStatus.Succeeded)
-
-                // a Plus entitlement row exists and is active for the buyer
-                const subscription = await entityManager.findOne(
-                    AiSubscriptionEntity,
-                    {
-                        where: {
-                            user: {
-                                id: transaction.userId,
-                            },
-                        },
-                    },
-                )
-                expect(subscription?.tier).toBe(AiSubTier.Plus)
-                expect(subscription?.status).toBe(AiSubStatus.Active)
+                    .expect(500)
+                expect(enqueue).not.toHaveBeenCalled()
             })
 
-        it("rejects a webhook with a bad signature and mutates nothing",
+        it("ACKs 200 and wakes reconciliation for a verified pending payment",
             async () => {
-                await seedPendingPurchase("700002")
-                // signature verification fails -> handler throws before any grant
-                e2e.payosClient.webhooks.verify.mockRejectedValueOnce(
-                    new Error("invalid signature"),
-                )
+                const transactionId = await seedPending("700002")
+                verify.mockResolvedValueOnce(undefined)
 
-                const response = await request(e2e.app.getHttpServer())
+                await request(app.getHttpServer())
                     .post(WEBHOOK_URL)
                     .send(payosBody("700002"))
+                    .expect(200)
 
-                expect(response.status).toBeGreaterThanOrEqual(400)
-                // the transaction stays pending, no entitlement was granted
-                const count = await entityManager.count(AiSubscriptionEntity)
-                expect(count).toBe(0)
-                const stillPending = await entityManager.count(TransactionEntity,
+                expect(enqueue).toHaveBeenCalledWith({
+                    transactionId,
+                    attempt: 1,
+                    delayMs: 0,
+                    lane: "fast",
+                    deduplication: {
+                        id: `payos-webhook:${transactionId}`,
+                        ttlMs: 30_000,
+                    },
+                })
+            })
+
+        it("ACKs probe, non-success, unknown and replay without a wake-up",
+            async () => {
+                const transactionId = await seedPending("700003")
+                await entityManager.update(TransactionEntity,
+                    transactionId,
                     {
-                        where: {
-                            status: TransactionStatus.Pending,
-                        },
+                        status: TransactionStatus.Succeeded,
                     })
-                expect(stillPending).toBe(1)
-            })
+                verify.mockResolvedValue(undefined)
 
-        it("acks a verified webhook for an unknown order (URL-probe shape) without granting anything",
-            async () => {
-                // valid signature but no matching pending transaction exists.
-                // Unlike SePay/Stripe, the PayOS handler treats an unmatched order
-                // as an unmatched probe/stray callback -- it logs and ACKs (201)
-                // rather than throwing, so PayOS never marks the webhook URL
-                // "inactive" and retries a real callback into a black hole.
-                e2e.payosClient.webhooks.verify.mockResolvedValueOnce(undefined)
-
-                await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send(payosBody("999999"))
-                    .expect(201)
-
-                const count = await entityManager.count(AiSubscriptionEntity)
-                expect(count).toBe(0)
-            })
-
-        it("is idempotent — a re-delivered webhook cannot grant twice",
-            async () => {
-                await seedPendingPurchase("700003")
-                // every delivery passes signature verification
-                e2e.payosClient.webhooks.verify.mockResolvedValue(undefined)
-
-                // first delivery settles the purchase
-                await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send(payosBody("700003"))
-                    .expect(201)
-
-                // second delivery finds no matching PENDING transaction (already
-                // settled) -- same "unmatched order" path as the probe case above,
-                // so the handler ACKs (201) rather than throwing; the entitlement
-                // count staying at 1 is what actually proves no double grant
-                await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send(payosBody("700003"))
-                    .expect(201)
-
-                // exactly one entitlement row exists (no double grant)
-                const count = await entityManager.count(AiSubscriptionEntity)
-                expect(count).toBe(1)
+                for (const body of [
+                    payosBody("0"),
+                    payosBody("700004",
+                        false),
+                    payosBody("700004"),
+                    payosBody("700003"),
+                ]) {
+                    await request(app.getHttpServer())
+                        .post(WEBHOOK_URL)
+                        .send(body)
+                        .expect(200)
+                }
+                expect(enqueue).not.toHaveBeenCalled()
             })
     })

@@ -25,6 +25,9 @@ import type {
 import type {
     SyncScyllaDBPayload,
 } from "@modules/integrations/bullmq/types/payloads/sync-scylladb"
+import type {
+    ReconcileTransactionLane,
+} from "@modules/integrations/bullmq/types/payloads/reconcile-transaction"
 
 /** Params for enqueuing an enroll job. */
 export interface EnqueueEnrollJobParams {
@@ -254,4 +257,13 @@ export interface EnqueueReconcileTransactionJobParams {
     attempt?: number
     /** Override the BullMQ delay in ms (default = configured reconcile delay; boot sweep passes 0 to poll now). */
     delayMs?: number
+    /** Fast checkout polling or slow long-running recovery cadence. */
+    lane?: ReconcileTransactionLane
+    /** Optional short-lived BullMQ deduplication for webhook bursts. */
+    deduplication?: {
+        /** Stable provider + transaction key. */
+        id: string
+        /** Deduplication lifetime in milliseconds. */
+        ttlMs: number
+    }
 }

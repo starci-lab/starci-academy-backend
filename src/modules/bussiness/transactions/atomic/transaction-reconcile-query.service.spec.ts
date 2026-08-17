@@ -3,9 +3,6 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    TransactionReconcileQueryService,
-} from "./transaction-reconcile-query.service"
-import {
     TransactionEntity,
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
@@ -26,489 +23,341 @@ import {
 import {
     NowPaymentsClient,
 } from "@modules/integrations/nowpayments/nowpayments.client"
+import {
+    TransactionReconcileQueryService,
+} from "./transaction-reconcile-query.service"
 
-/**
- * Build a pending transaction for a given gateway with the id columns the
- * reconcile path reads (`referenceId`, `providerPaymentId`).
- *
- * @param overrides - Partial fields to merge over the defaults.
- * @returns A transaction-shaped object accepted by `resolve`.
- */
-const buildTransaction = (
-    overrides: Partial<{
-        paymentType: PaymentType
-        referenceId: string
-        providerPaymentId: string | null
-    }> = {
-    },
+const transaction = (
+    paymentType: PaymentType,
+    providerPaymentId: string | null = "provider-1",
 ): TransactionEntity => ({
-    paymentType: PaymentType.PayOS,
+    paymentType,
     referenceId: "ref-1",
-    providerPaymentId: "provider-1",
-    ...overrides,
-}) as unknown as TransactionEntity
+    providerPaymentId,
+}) as TransactionEntity
 
 describe("TransactionReconcileQueryService",
     () => {
         let module: TestingModule
         let service: TransactionReconcileQueryService
-        let payos: { paymentRequests: { get: jest.Mock } }
-        let stripe: { checkout: { sessions: { retrieve: jest.Mock } } }
-        let sepay: { order: { retrieve: jest.Mock } }
-        let paypalClient: jest.Mocked<Pick<PaypalClient, "retrieveOrder" | "captureOrder">>
-        let nowPaymentsClient: jest.Mocked<Pick<NowPaymentsClient, "getInvoiceStatus">>
+        let payosGet: jest.Mock
+        let stripeGet: jest.Mock
+        let sepayGet: jest.Mock
+        let paypalRetrieve: jest.Mock
+        let paypalCapture: jest.Mock
+        let cryptoGet: jest.Mock
 
         beforeEach(async () => {
-            // PayOS SDK: payment-link lookup by orderCode
-            payos = {
-                paymentRequests: {
-                    get: jest.fn(),
-                },
-            }
-
-            // Stripe SDK: checkout-session retrieve by id
-            stripe = {
-                checkout: {
-                    sessions: {
-                        retrieve: jest.fn(),
-                    },
-                },
-            }
-
-            // Sepay SDK: order-detail retrieve by invoice number
-            sepay = {
-                order: {
-                    retrieve: jest.fn(),
-                },
-            }
-
-            // PayPal client wrapper: order retrieve by id + APPROVED-order capture fallback
-            paypalClient = {
-                retrieveOrder: jest.fn(),
-                captureOrder: jest.fn(),
-            } as unknown as jest.Mocked<Pick<PaypalClient, "retrieveOrder" | "captureOrder">>
-
-            // NOWPayments client wrapper: invoice status by id
-            nowPaymentsClient = {
-                getInvoiceStatus: jest.fn(),
-            } as unknown as jest.Mocked<Pick<NowPaymentsClient, "getInvoiceStatus">>
-
+            payosGet = jest.fn()
+            stripeGet = jest.fn()
+            sepayGet = jest.fn()
+            paypalRetrieve = jest.fn()
+            paypalCapture = jest.fn()
+            cryptoGet = jest.fn()
             module = await Test.createTestingModule({
                 providers: [
                     TransactionReconcileQueryService,
                     {
                         provide: PAYOS,
-                        useValue: payos,
+                        useValue: {
+                            paymentRequests: {
+                                get: payosGet,
+                            },
+                        },
                     },
                     {
                         provide: STRIPE,
-                        useValue: stripe,
+                        useValue: {
+                            checkout: {
+                                sessions: {
+                                    retrieve: stripeGet,
+                                },
+                            },
+                        },
                     },
                     {
                         provide: SEPAY,
-                        useValue: sepay,
+                        useValue: {
+                            order: {
+                                retrieve: sepayGet,
+                            },
+                        },
                     },
                     {
                         provide: PaypalClient,
-                        useValue: paypalClient,
+                        useValue: {
+                            retrieveOrder: paypalRetrieve,
+                            captureOrder: paypalCapture,
+                        },
                     },
                     {
                         provide: NowPaymentsClient,
-                        useValue: nowPaymentsClient,
+                        useValue: {
+                            getInvoiceStatus: cryptoGet,
+                        },
                     },
                 ],
             }).compile()
-
-            service = module.get<TransactionReconcileQueryService>(
-                TransactionReconcileQueryService,
-            )
+            service = module.get(TransactionReconcileQueryService)
         })
 
-        afterEach(async () => {
-            await module.close()
-        })
+        afterEach(async () => module.close())
 
-        describe("resolve — dispatch",
-            () => {
-                it("returns unknown for an unrecognized payment type",
-                    async () => {
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: "mystery" as PaymentType,
-                            }),
-                        )
-
-                        expect(result).toBe("unknown")
+        it("separates an unsupported provider from a provider outage",
+            async () => {
+                await expect(service.resolve(transaction("mystery" as PaymentType)))
+                    .resolves.toEqual({
+                        state: "unavailable",
+                        reason: "unsupported-provider",
                     })
-
-                it("swallows a thrown gateway error into unknown so the poll keeps retrying",
-                    async () => {
-                        // the SDK call blows up; the service must not propagate it
-                        payos.paymentRequests.get.mockRejectedValueOnce(
-                            new Error("network down"),
-                        )
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.PayOS,
-                            }),
-                        )
-
-                        expect(result).toBe("unknown")
+                payosGet.mockRejectedValueOnce(new Error("network down"))
+                await expect(service.resolve(transaction(PaymentType.PayOS)))
+                    .resolves.toEqual({
+                        state: "unavailable",
+                        reason: "provider-error",
                     })
             })
 
-        describe("resolve — PayOS",
+        describe("PayOS",
             () => {
-                it("maps a PAID link to paid",
+                it("returns paid evidence with amount",
                     async () => {
-                        payos.paymentRequests.get.mockResolvedValueOnce({
+                        payosGet.mockResolvedValueOnce({
                             status: "PAID",
+                            amountPaid: 100_000,
                         })
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.PayOS,
-                            }),
-                        )
-
-                        // looked up by the stored orderCode (referenceId)
-                        expect(payos.paymentRequests.get).toHaveBeenCalledWith("ref-1")
-                        expect(result).toBe("paid")
+                        await expect(service.resolve(transaction(PaymentType.PayOS)))
+                            .resolves.toEqual({
+                                state: "paid",
+                                providerStatus: "PAID",
+                                reportedAmount: 100_000,
+                            })
                     })
 
-                it("maps CANCELLED and EXPIRED to unpaid",
-                    async () => {
-                        payos.paymentRequests.get
-                            .mockResolvedValueOnce({
-                                status: "CANCELLED",
+                it.each(["CANCELLED",
+                    "EXPIRED"])("maps %s to terminal-unpaid",
+                    async (status) => {
+                        payosGet.mockResolvedValueOnce({
+                            status,
+                        })
+                        await expect(service.resolve(transaction(PaymentType.PayOS)))
+                            .resolves.toEqual({
+                                state: "terminal-unpaid",
+                                providerStatus: status,
                             })
-                            .mockResolvedValueOnce({
-                                status: "EXPIRED",
-                            })
-
-                        const cancelled = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.PayOS,
-                            }),
-                        )
-                        const expired = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.PayOS,
-                            }),
-                        )
-
-                        expect(cancelled).toBe("unpaid")
-                        expect(expired).toBe("unpaid")
                     })
 
-                it("maps a still-pending link to unknown",
-                    async () => {
-                        payos.paymentRequests.get.mockResolvedValueOnce({
-                            status: "PENDING",
+                it.each(["PENDING",
+                    "PROCESSING"])("maps %s to pending",
+                    async (status) => {
+                        payosGet.mockResolvedValueOnce({
+                            status,
                         })
+                        await expect(service.resolve(transaction(PaymentType.PayOS)))
+                            .resolves.toEqual({
+                                state: "pending",
+                                providerStatus: status,
+                            })
+                    })
 
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.PayOS,
-                            }),
-                        )
-
-                        expect(result).toBe("unknown")
+                it("rejects an unknown provider response",
+                    async () => {
+                        payosGet.mockResolvedValueOnce({
+                            status: "ALIEN",
+                        })
+                        await expect(service.resolve(transaction(PaymentType.PayOS)))
+                            .resolves.toEqual({
+                                state: "unavailable",
+                                reason: "invalid-response",
+                            })
                     })
             })
 
-        describe("resolve — Sepay",
+        describe("SePay",
             () => {
-                it("trusts an explicit paid boolean",
+                it("unwraps nested paid evidence and amount",
                     async () => {
-                        sepay.order.retrieve.mockResolvedValueOnce({
+                        sepayGet.mockResolvedValueOnce({
                             data: {
-                                paid: true,
+                                data: {
+                                    order_status: "CAPTURED",
+                                    order_amount: 249_000,
+                                },
                             },
                         })
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Sepay,
-                            }),
-                        )
-
-                        expect(sepay.order.retrieve).toHaveBeenCalledWith("ref-1")
-                        expect(result).toBe("paid")
+                        await expect(service.resolve(transaction(PaymentType.Sepay)))
+                            .resolves.toEqual({
+                                state: "paid",
+                                providerStatus: "captured",
+                                reportedAmount: 249_000,
+                            })
                     })
 
-                it("maps a settled status string to paid",
-                    async () => {
-                        sepay.order.retrieve.mockResolvedValueOnce({
+                it.each(["cancelled",
+                    "expired",
+                    "failed",
+                    "voided"])("maps %s to terminal-unpaid",
+                    async (status) => {
+                        sepayGet.mockResolvedValueOnce({
                             data: {
-                                status: "Completed",
+                                status,
                             },
                         })
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Sepay,
-                            }),
-                        )
-
-                        expect(result).toBe("paid")
+                        await expect(service.resolve(transaction(PaymentType.Sepay)))
+                            .resolves.toEqual({
+                                state: "terminal-unpaid",
+                                providerStatus: status,
+                            })
                     })
 
-                it("maps a terminal failure status to unpaid",
+                it("distinguishes pending from an invalid response",
                     async () => {
-                        sepay.order.retrieve.mockResolvedValueOnce({
-                            data: {
-                                status: "expired",
-                            },
-                        })
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Sepay,
-                            }),
-                        )
-
-                        expect(result).toBe("unpaid")
-                    })
-
-                it("maps an unrecognized / missing payload to unknown",
-                    async () => {
-                        // no data envelope at all -> defensive read yields unknown
-                        sepay.order.retrieve.mockResolvedValueOnce({
-                        })
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Sepay,
-                            }),
-                        )
-
-                        expect(result).toBe("unknown")
+                        sepayGet
+                            .mockResolvedValueOnce({
+                                data: {
+                                    status: "processing",
+                                },
+                            })
+                            .mockResolvedValueOnce({
+                            })
+                        await expect(service.resolve(transaction(PaymentType.Sepay)))
+                            .resolves.toEqual({
+                                state: "pending",
+                                providerStatus: "processing",
+                            })
+                        await expect(service.resolve(transaction(PaymentType.Sepay)))
+                            .resolves.toEqual({
+                                state: "unavailable",
+                                reason: "invalid-response",
+                            })
                     })
             })
 
-        describe("resolve — Stripe",
+        describe("Stripe",
             () => {
-                it("returns unknown when no session id was stored at checkout",
+                it("requires a stored provider id",
                     async () => {
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Stripe,
-                                providerPaymentId: null,
-                            }),
-                        )
-
-                        // missing id -> never call the SDK
-                        expect(stripe.checkout.sessions.retrieve).not.toHaveBeenCalled()
-                        expect(result).toBe("unknown")
+                        await expect(service.resolve(transaction(PaymentType.Stripe,
+                            null))).resolves.toEqual({
+                            state: "unavailable",
+                            reason: "missing-provider-id",
+                        })
+                        expect(stripeGet).not.toHaveBeenCalled()
                     })
 
-                it("maps a paid payment_status to paid",
-                    async () => {
-                        stripe.checkout.sessions.retrieve.mockResolvedValueOnce({
+                it.each([
+                    [
+                        {
                             payment_status: "paid",
                             status: "complete",
-                        })
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Stripe,
-                            }),
-                        )
-
-                        expect(stripe.checkout.sessions.retrieve).toHaveBeenCalledWith(
-                            "provider-1",
-                        )
-                        expect(result).toBe("paid")
-                    })
-
-                it("maps an expired session to unpaid",
-                    async () => {
-                        stripe.checkout.sessions.retrieve.mockResolvedValueOnce({
+                        },
+                        {
+                            state: "paid",
+                            providerStatus: "complete",
+                        },
+                    ],
+                    [
+                        {
                             payment_status: "unpaid",
                             status: "expired",
-                        })
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Stripe,
-                            }),
-                        )
-
-                        expect(result).toBe("unpaid")
-                    })
-
-                it("maps an open session to unknown",
-                    async () => {
-                        stripe.checkout.sessions.retrieve.mockResolvedValueOnce({
+                        },
+                        {
+                            state: "terminal-unpaid",
+                            providerStatus: "expired",
+                        },
+                    ],
+                    [
+                        {
                             payment_status: "unpaid",
                             status: "open",
-                        })
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Stripe,
-                            }),
-                        )
-
-                        expect(result).toBe("unknown")
+                        },
+                        {
+                            state: "pending",
+                            providerStatus: "open",
+                        },
+                    ],
+                ])("normalizes a Stripe session %#",
+                    async (providerResult, expected) => {
+                        stripeGet.mockResolvedValueOnce(providerResult)
+                        await expect(service.resolve(transaction(PaymentType.Stripe)))
+                            .resolves.toEqual(expected)
                     })
             })
 
-        describe("resolve — PayPal",
+        describe("PayPal",
             () => {
-                it("returns unknown when no order id was stored at checkout",
+                it("requires a stored provider id",
                     async () => {
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Paypal,
-                                providerPaymentId: null,
-                            }),
-                        )
-
-                        expect(paypalClient.retrieveOrder).not.toHaveBeenCalled()
-                        expect(result).toBe("unknown")
-                    })
-
-                it("maps a COMPLETED order to paid without attempting a capture",
-                    async () => {
-                        // funds already taken -> no fallback capture needed
-                        paypalClient.retrieveOrder.mockResolvedValueOnce({
-                            status: "COMPLETED",
-                        } as never)
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Paypal,
-                            }),
-                        )
-
-                        expect(paypalClient.retrieveOrder).toHaveBeenCalledWith({
-                            orderId: "provider-1",
+                        await expect(service.resolve(transaction(PaymentType.Paypal,
+                            null))).resolves.toEqual({
+                            state: "unavailable",
+                            reason: "missing-provider-id",
                         })
-                        expect(paypalClient.captureOrder).not.toHaveBeenCalled()
-                        expect(result).toBe("paid")
                     })
 
-                it("captures an APPROVED order and maps a successful capture to paid",
+                it("maps completed, voided and created",
                     async () => {
-                        // approved-but-not-captured -> the fallback capture must run
-                        paypalClient.retrieveOrder.mockResolvedValueOnce({
+                        paypalRetrieve
+                            .mockResolvedValueOnce({
+                                status: "COMPLETED",
+                            })
+                            .mockResolvedValueOnce({
+                                status: "VOIDED",
+                            })
+                            .mockResolvedValueOnce({
+                                status: "CREATED",
+                            })
+                        await expect(service.resolve(transaction(PaymentType.Paypal)))
+                            .resolves.toMatchObject({
+                                state: "paid",
+                            })
+                        await expect(service.resolve(transaction(PaymentType.Paypal)))
+                            .resolves.toMatchObject({
+                                state: "terminal-unpaid",
+                            })
+                        await expect(service.resolve(transaction(PaymentType.Paypal)))
+                            .resolves.toMatchObject({
+                                state: "pending",
+                            })
+                    })
+
+                it.each([true,
+                    false])("captures APPROVED and reflects capture=%s",
+                    async (captured) => {
+                        paypalRetrieve.mockResolvedValueOnce({
                             status: "APPROVED",
-                        } as never)
-                        paypalClient.captureOrder.mockResolvedValueOnce({
-                            captured: true,
-                        } as never)
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Paypal,
-                            }),
-                        )
-
-                        expect(paypalClient.captureOrder).toHaveBeenCalledWith({
-                            orderId: "provider-1",
                         })
-                        expect(result).toBe("paid")
-                    })
-
-                it("maps an APPROVED order whose capture did not complete to unknown",
-                    async () => {
-                        // capture ran but PayPal did not report the funds as taken
-                        paypalClient.retrieveOrder.mockResolvedValueOnce({
-                            status: "APPROVED",
-                        } as never)
-                        paypalClient.captureOrder.mockResolvedValueOnce({
-                            captured: false,
-                        } as never)
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Paypal,
-                            }),
-                        )
-
-                        expect(result).toBe("unknown")
-                    })
-
-                it("maps a VOIDED order to unpaid",
-                    async () => {
-                        paypalClient.retrieveOrder.mockResolvedValueOnce({
-                            status: "VOIDED",
-                        } as never)
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Paypal,
-                            }),
-                        )
-
-                        expect(result).toBe("unpaid")
-                    })
-
-                it("maps a still-open order to unknown",
-                    async () => {
-                        paypalClient.retrieveOrder.mockResolvedValueOnce({
-                            status: "CREATED",
-                        } as never)
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Paypal,
-                            }),
-                        )
-
-                        expect(result).toBe("unknown")
+                        paypalCapture.mockResolvedValueOnce({
+                            captured,
+                        })
+                        await expect(service.resolve(transaction(PaymentType.Paypal)))
+                            .resolves.toMatchObject({
+                                state: captured ? "paid" : "pending",
+                            })
                     })
             })
 
-        describe("resolve — Crypto (NOWPayments)",
+        describe("NOWPayments",
             () => {
-                it("returns unknown when no invoice id was stored at checkout",
+                it("requires a stored provider id",
                     async () => {
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Crypto,
-                                providerPaymentId: null,
-                            }),
-                        )
-
-                        expect(nowPaymentsClient.getInvoiceStatus).not.toHaveBeenCalled()
-                        expect(result).toBe("unknown")
+                        await expect(service.resolve(transaction(PaymentType.Crypto,
+                            null))).resolves.toEqual({
+                            state: "unavailable",
+                            reason: "missing-provider-id",
+                        })
                     })
 
-                it("maps a paid invoice to paid",
-                    async () => {
-                        nowPaymentsClient.getInvoiceStatus.mockResolvedValueOnce({
-                            paid: true,
-                        } as never)
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Crypto,
-                            }),
-                        )
-
-                        expect(nowPaymentsClient.getInvoiceStatus).toHaveBeenCalledWith(
-                            "provider-1",
-                        )
-                        expect(result).toBe("paid")
-                    })
-
-                it("keeps a not-yet-paid invoice as unknown (never unpaid from here)",
-                    async () => {
-                        nowPaymentsClient.getInvoiceStatus.mockResolvedValueOnce({
-                            paid: false,
-                        } as never)
-
-                        const result = await service.resolve(
-                            buildTransaction({
-                                paymentType: PaymentType.Crypto,
-                            }),
-                        )
-
-                        expect(result).toBe("unknown")
+                it.each([true,
+                    false])("maps paid=%s without inventing a terminal failure",
+                    async (paid) => {
+                        cryptoGet.mockResolvedValueOnce({
+                            paid,
+                        })
+                        await expect(service.resolve(transaction(PaymentType.Crypto)))
+                            .resolves.toMatchObject({
+                                state: paid ? "paid" : "pending",
+                            })
                     })
             })
     })

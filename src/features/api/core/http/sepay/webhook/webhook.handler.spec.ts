@@ -6,50 +6,14 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    WinstonService,
-} from "@modules/platform/winston/winston.service"
-import {
-    EnqueueEnrollJobService,
-} from "@modules/bussiness/jobs/enqueue/enroll.service"
-import {
-    EnqueueSendMailJobService,
-} from "@modules/bussiness/jobs/enqueue/send-mail.service"
-import {
-    NotificationService,
-} from "@modules/bussiness/notification/notification.service"
-import {
-    AiEntitlementService,
-} from "@modules/ai/ai-entitlement.service"
-import {
-    MembershipService,
-} from "@modules/membership/membership.service"
-import {
-    ActionType,
-} from "@modules/databases/postgresql/primary/enums/action-type"
-import {
-    AiSubTier,
-} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness/jobs/enqueue/reconcile-transaction.service"
 import {
     TransactionStatus,
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
 import {
-    AiSubscriptionTierNotAvailableException,
-} from "@modules/platform/exceptions/errors/ai/ai-subscription-tier-not-available"
-import {
-    UnsupportedTransactionActionException,
-} from "@modules/platform/exceptions/errors/payment/unsupported-transaction-action"
-import {
-    TransactionCourseNotFoundException,
-} from "@modules/platform/exceptions/errors/transaction/transaction-course-not-found"
-import {
-    TransactionNotFoundException,
-} from "@modules/platform/exceptions/errors/transaction/transaction-not-found"
-import {
-    DayjsService,
-} from "@modules/lib/mixin/dayjs.service"
-import {
-    SEPAY,
-} from "@modules/integrations/sepay/constants/sepay"
+    WinstonService,
+} from "@modules/platform/winston/winston.service"
 import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
@@ -62,127 +26,37 @@ import {
 import {
     SepayWebhookHandler,
 } from "./webhook.handler"
-import {
-    InstallmentPlanService,
-} from "@modules/bussiness/installment-plan/installment-plan.service"
 
-/** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
-
-/** The invoice number the IPN echoes back as our transaction referenceId. */
 const INVOICE = "inv-123"
-
-/**
- * Build a pending transaction row with safe defaults; pass overrides to model
- * an enrollment / subscription / stale / wrong-action state per test.
- */
-const buildTransaction = (
-    overrides: Record<string, unknown> = {
-    },
-): Record<string, unknown> => ({
+const TRANSACTION = {
     id: "txn-1",
-    userId: "user-1",
     referenceId: INVOICE,
     status: TransactionStatus.Pending,
-    actionType: ActionType.Enroll,
-    courseId: "course-1",
-    aiSubTier: null,
-    // created just now -> never trips the stale-transaction guard
-    createdAt: new Date(),
-    ...overrides,
-})
+}
 
 describe("SepayWebhookHandler",
     () => {
         let module: TestingModule
         let handler: SepayWebhookHandler
         let entityManager: EntityManagerMock
-        let sepay: { order: { retrieve: jest.Mock } }
-        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
-        let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "grantTier">>
-        let membershipService: jest.Mocked<Pick<MembershipService, "grantMembership">>
+        let enqueue: jest.Mock
 
         beforeEach(async () => {
-            // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-
-            // SePay PG client: order.retrieve is the authoritative verification call.
-            // The handler unwraps `data` (falling back to a single nest) to read the
-            // paid flag/status -- resolve a plain "paid" status by default so the
-            // paid-guard added alongside the verification hardening passes.
-            sepay = {
-                order: {
-                    retrieve: jest.fn().mockResolvedValue({
-                        data: {
-                            status: "paid",
-                        },
-                    }),
-                },
-            }
-
-            // enroll worker hand-off -- assert it is enqueued on the Enroll path.
-            // enqueueForTransaction fans a paid order out to one job per course and
-            // reports back how many it enqueued (0 -> the handler rejects the IPN).
-            enqueueEnrollJobService = {
-                enqueueForTransaction: jest.fn().mockResolvedValue({
-                    enqueuedCount: 1,
-                }),
-            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueueForTransaction">>
-
-            // entitlement grant -- assert it fires on the subscription path
-            aiEntitlementService = {
-                grantTier: jest.fn(),
-            } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
-
-            // membership grant -- assert it fires on the MembershipPurchase path
-            membershipService = {
-                grantMembership: jest.fn(),
-            } as unknown as jest.Mocked<Pick<MembershipService, "grantMembership">>
-
+            enqueue = jest.fn().mockResolvedValue(undefined)
             module = await Test.createTestingModule({
                 providers: [
                     SepayWebhookHandler,
                     {
-                        provide: InstallmentPlanService,
-                        useValue: {
-                            applyPaymentForTransaction: jest.fn(),
-                        },
-                    },
-                    // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
-                    DayjsService,
-                    {
-                        provide: SEPAY,
-                        useValue: sepay,
-                    },
-                    {
-                        provide: EnqueueEnrollJobService,
-                        useValue: enqueueEnrollJobService,
-                    },
-                    {
-                        provide: AiEntitlementService,
-                        useValue: aiEntitlementService,
-                    },
-                    {
-                        provide: MembershipService,
-                        useValue: membershipService,
-                    },
-                    // neither path under test grants a subscription/membership, so
-                    // these two are never invoked -- stub them to satisfy DI
-                    {
-                        provide: EnqueueSendMailJobService,
-                        useValue: {
-                            enqueue: jest.fn(),
-                        },
-                    },
-                    {
-                        provide: NotificationService,
-                        useValue: {
-                            createNotification: jest.fn(),
-                        },
-                    },
-                    {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: EnqueueReconcileTransactionJobService,
+                        useValue: {
+                            enqueue,
+                        },
                     },
                     {
                         provide: WinstonService,
@@ -192,184 +66,71 @@ describe("SepayWebhookHandler",
                     },
                 ],
             }).compile()
-
-            handler = module.get<SepayWebhookHandler>(SepayWebhookHandler)
+            handler = module.get(SepayWebhookHandler)
         })
 
-        afterEach(async () => {
-            await module.close()
-        })
+        afterEach(async () => module.close())
 
-        it("enqueues the enroll job for a valid enrollment IPN",
-            async () => {
-                // a matching pending enrollment transaction exists
-                const transaction = buildTransaction()
-                entityManager.findOne.mockResolvedValueOnce(transaction)
+        it.each([
+            {
+                order_invoice_number: INVOICE,
+            },
+            {
+                order: {
+                    order_invoice_number: INVOICE,
+                },
+            },
+        ])("enqueues one deduplicated immediate wake-up for a pending invoice",
+            async (body) => {
+                entityManager.findOne.mockResolvedValueOnce(TRANSACTION)
 
-                await handler.execute(
-                    new SepayWebhookCommand({
-                        order_invoice_number: INVOICE,
-                    }),
-                )
+                await handler.execute(new SepayWebhookCommand(body))
 
-                // authoritative server-to-server verification happened first
-                expect(sepay.order.retrieve).toHaveBeenCalledWith(INVOICE)
-                // enroll worker received the hand-off, fanned out per transaction
-                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
-                    transaction,
-                })
-                // subscription path must not run for an enrollment
-                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-            })
-
-        it("grants the AI tier for a valid subscription IPN",
-            async () => {
-                // a matching pending subscription-purchase transaction exists
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction({
-                        actionType: ActionType.AiSubscriptionPurchase,
-                        aiSubTier: AiSubTier.Plus,
-                        courseId: null,
-                    }),
-                )
-
-                await handler.execute(
-                    new SepayWebhookCommand({
-                        order_invoice_number: INVOICE,
-                    }),
-                )
-
-                // tier granted directly (no worker for subscriptions)
-                expect(aiEntitlementService.grantTier).toHaveBeenCalledWith({
-                    userId: "user-1",
-                    tier: AiSubTier.Plus,
+                expect(enqueue).toHaveBeenCalledWith({
                     transactionId: "txn-1",
+                    attempt: 1,
+                    delayMs: 0,
+                    lane: "fast",
+                    deduplication: {
+                        id: "sepay-webhook:txn-1",
+                        ttlMs: 30_000,
+                    },
                 })
-                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
             })
 
-        it("throws when the invoice number is missing (no mutation)",
+        it("acknowledges a payload without an invoice",
             async () => {
-                await expect(
-                    handler.execute(
-                        new SepayWebhookCommand({
-                        }),
-                    ),
-                ).rejects.toBeInstanceOf(TransactionNotFoundException)
-
-                // never reached the DB or the grant/enqueue path
+                await expect(handler.execute(new SepayWebhookCommand({
+                }))).resolves.toBeUndefined()
                 expect(entityManager.findOne).not.toHaveBeenCalled()
-                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
+                expect(enqueue).not.toHaveBeenCalled()
             })
 
-        it("throws when no transaction matches the invoice",
-            async () => {
-                // findOne default resolves null -> no pending row
-                await expect(
-                    handler.execute(
-                        new SepayWebhookCommand({
-                            order_invoice_number: INVOICE,
-                        }),
-                    ),
-                ).rejects.toBeInstanceOf(TransactionNotFoundException)
-
-                // no side effects when the reference is unknown
-                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
-            })
-
-        it("acknowledges a replay for a settled transaction without repeating the grant",
-            async () => {
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction({
-                        status: TransactionStatus.Succeeded,
-                        actionType: ActionType.AiSubscriptionPurchase,
-                        aiSubTier: AiSubTier.Plus,
-                    }),
-                )
-
-                await expect(handler.execute(
-                    new SepayWebhookCommand({
-                        order_invoice_number: INVOICE,
-                    }),
-                )).resolves.toBeUndefined()
-
-                expect(sepay.order.retrieve).not.toHaveBeenCalled()
-                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
-            })
-
-        it("rejects a subscription IPN that carries no tier",
-            async () => {
-                // subscription-purchase transaction with a null tier
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction({
-                        actionType: ActionType.AiSubscriptionPurchase,
-                        aiSubTier: null,
-                        courseId: null,
-                    }),
-                )
-
-                await expect(
-                    handler.execute(
-                        new SepayWebhookCommand({
-                            order_invoice_number: INVOICE,
-                        }),
-                    ),
-                ).rejects.toBeInstanceOf(AiSubscriptionTierNotAvailableException)
-
-                // no tier granted when the row lacks a tier
-                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-            })
-
-        it("rejects an enrollment IPN that carries no course",
-            async () => {
-                // enrollment transaction missing its courseId -- the real enroll
-                // service fans this out to zero jobs (nothing to enroll into)
-                const transaction = buildTransaction({
-                    courseId: null,
-                })
+        it.each([
+            null,
+            {
+                ...TRANSACTION,
+                status: TransactionStatus.Succeeded,
+            },
+            {
+                ...TRANSACTION,
+                status: TransactionStatus.Unpaid,
+            },
+        ])("acknowledges an unknown, replayed or terminal invoice without enqueueing",
+            async (transaction) => {
                 entityManager.findOne.mockResolvedValueOnce(transaction)
-                enqueueEnrollJobService.enqueueForTransaction.mockResolvedValueOnce({
-                    enqueuedCount: 0,
-                })
-
-                await expect(
-                    handler.execute(
-                        new SepayWebhookCommand({
-                            order_invoice_number: INVOICE,
-                        }),
-                    ),
-                ).rejects.toBeInstanceOf(TransactionCourseNotFoundException)
-
-                // the fan-out was attempted; it just enrolled nobody
-                expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
-                    transaction,
-                })
+                await handler.execute(new SepayWebhookCommand({
+                    order_invoice_number: INVOICE,
+                }))
+                expect(enqueue).not.toHaveBeenCalled()
             })
 
-        it("throws UnsupportedTransactionActionException for an unsupported action type",
+        it("propagates a broker failure so delivery can be retried",
             async () => {
-                // transaction with an action the switch does not handle
-                entityManager.findOne.mockResolvedValueOnce(
-                    buildTransaction({
-                        actionType: "unsupported-action",
-                    }),
-                )
-
-                // the switch's default branch throws the typed AbstractException
-                // directly -- it is not NestJS's BadRequestException
-                await expect(
-                    handler.execute(
-                        new SepayWebhookCommand({
-                            order_invoice_number: INVOICE,
-                        }),
-                    ),
-                ).rejects.toBeInstanceOf(UnsupportedTransactionActionException)
-
-                // neither grant path ran for an unknown action
-                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
+                entityManager.findOne.mockResolvedValueOnce(TRANSACTION)
+                enqueue.mockRejectedValueOnce(new Error("broker unavailable"))
+                await expect(handler.execute(new SepayWebhookCommand({
+                    order_invoice_number: INVOICE,
+                }))).rejects.toThrow("broker unavailable")
             })
     })

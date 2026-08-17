@@ -146,6 +146,7 @@ describe("EnqueueReconcileTransactionJobService",
                         const payload: ReconcileTransactionPayload = {
                             transactionId: "txn-1",
                             attempt: 2,
+                            lane: "fast",
                         }
                         expect(superJson.stringify).toHaveBeenCalledWith(payload)
                         expect(reconcileQueue.add).toHaveBeenCalledWith(
@@ -180,6 +181,7 @@ describe("EnqueueReconcileTransactionJobService",
                         expect(superJson.stringify).toHaveBeenCalledWith({
                             transactionId: "txn-2",
                             attempt: 1,
+                            lane: "fast",
                         })
                     })
 
@@ -207,6 +209,33 @@ describe("EnqueueReconcileTransactionJobService",
                             WinstonLog.TransactionReconcileScheduled,
                             expect.objectContaining({
                                 delayMs: 0,
+                            }),
+                        )
+                    })
+
+                it("adds BullMQ TTL deduplication only for an explicit webhook wake-up",
+                    async () => {
+                        await service.enqueue({
+                            transactionId: "txn-webhook",
+                            attempt: 1,
+                            delayMs: 0,
+                            lane: "fast",
+                            deduplication: {
+                                id: "sepay-webhook:txn-webhook",
+                                ttlMs: 30_000,
+                            },
+                        })
+
+                        expect(reconcileQueue.add).toHaveBeenCalledWith(
+                            "reconcile-transaction:txn-webhook:1",
+                            "serialized-payload",
+                            expect.objectContaining({
+                                delay: 0,
+                                jobId: expect.any(String),
+                                deduplication: {
+                                    id: "sepay-webhook:txn-webhook",
+                                    ttl: 30_000,
+                                },
                             }),
                         )
                     })

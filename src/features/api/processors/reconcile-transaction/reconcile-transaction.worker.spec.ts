@@ -1,6 +1,3 @@
-// Load the bussiness barrel first so its base classes are initialised before the
-// worker pulls its deps -- dodges a load-order "Class extends value undefined"
-// cycle (mirrors the CV-scoring worker specs).
 import "@modules/bussiness/bussiness.module"
 import {
     Test,
@@ -74,9 +71,6 @@ import {
     ReconcileTransactionWorker,
 } from "./reconcile-transaction.worker"
 
-// the worker calls these three free functions directly (not through DI) -- stub
-// the whole module so a "finalize"/"unpaid" branch never touches the real
-// mailer plumbing (which needs its own deep dependency chain).
 jest.mock("@modules/integrations/transactional-email/grant-emails",
     () => ({
         enqueueSubscriptionActiveEmail: jest.fn(),
@@ -84,36 +78,25 @@ jest.mock("@modules/integrations/transactional-email/grant-emails",
         enqueuePaymentFailedEmail: jest.fn(),
     }))
 
-/** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
-
-/** SuperJSON injection token (see `@modules/mixin` superjson provider). */
 const SUPERJSON = "SUPERJSON"
-
-/** The transaction id every fixture uses. */
 const TRANSACTION_ID = "txn-1"
-
-/** The buyer id every fixture uses. */
 const USER_ID = "user-1"
+const maxAttempts = envConfig().services.api.transaction.reconcile.maxAttempts
+const slowDelayMs = envConfig().services.api.transaction.reconcile.slowDelayMs
 
-/**
- * Build a minimal BullMQ job stand-in carrying only the fields the worker reads.
- * `data` is real JSON (not SuperJSON's wire format) -- the SuperJSON stub below
- * just runs it through `JSON.parse`, so the wrapper format is irrelevant here.
- *
- * @param payload - The `{ transactionId, attempt }` poll payload.
- * @returns a Job-typed stub with id / data / queueName populated.
- */
-const fakeBullJob = (
-    payload: { transactionId: string, attempt: number },
+const job = (
+    attempt = 1,
+    lane: "fast" | "slow" = "fast",
 ): Job<string> => ({
-    id: "job-1",
-    data: JSON.stringify(payload),
-    queueName: "reconcile-transaction",
-}) as unknown as Job<string>
+    data: JSON.stringify({
+        transactionId: TRANSACTION_ID,
+        attempt,
+        lane,
+    }),
+}) as Job<string>
 
-/** Build a pending-transaction fixture; override per test (status/paymentType/actionType/...). */
-const buildTransaction = (
+const transaction = (
     overrides: Partial<TransactionEntity> = {
     },
 ): TransactionEntity => ({
@@ -124,74 +107,48 @@ const buildTransaction = (
     actionType: ActionType.Enroll,
     aiSubTier: null,
     installmentPlanId: null,
-    amount: 100000,
+    amount: 100_000,
     ...overrides,
-} as TransactionEntity)
+}) as TransactionEntity
 
 describe("ReconcileTransactionWorker",
     () => {
-        // 1-based; the worker's own "exhausted" guard is `attempt >= maxAttempts`
-        const maxAttempts = envConfig().services.api.transaction.reconcile.maxAttempts
-
         let module: TestingModule
         let worker: ReconcileTransactionWorker
         let entityManager: EntityManagerMock
-        let transactionReconcileQueryService: { resolve: jest.Mock }
-        let transactionActionService: { updateTransactionStatusIfExpected: jest.Mock }
-        let enqueueEnrollJobService: { enqueueForTransaction: jest.Mock }
-        let enqueueReconcileTransactionJobService: { enqueue: jest.Mock }
-        let aiEntitlementService: { grantTier: jest.Mock }
-        let membershipService: { grantMembership: jest.Mock }
-        let winstonService: { log: jest.Mock }
-        let voucherService: { release: jest.Mock }
-        let installmentPlanService: { applyPaymentForTransaction: jest.Mock }
+        let resolve: jest.Mock
+        let updateStatus: jest.Mock
+        let enqueueEnroll: jest.Mock
+        let enqueueReconcile: jest.Mock
+        let grantTier: jest.Mock
+        let grantMembership: jest.Mock
+        let releaseVoucher: jest.Mock
+        let applyInstallment: jest.Mock
+        let log: jest.Mock
 
         beforeEach(async () => {
-            // clears call history on the module-level `@modules/transactional-email` mocks too
             jest.clearAllMocks()
-
             entityManager = makeEntityManagerMock()
-            // superJson.parse just round-trips the plain-JSON fixture payload
-            const superJson = {
-                parse: jest.fn((data: string) => JSON.parse(data)),
-                stringify: jest.fn(),
-            }
-            transactionReconcileQueryService = {
-                resolve: jest.fn(),
-            }
-            transactionActionService = {
-                updateTransactionStatusIfExpected: jest.fn().mockResolvedValue(true),
-            }
-            enqueueEnrollJobService = {
-                enqueueForTransaction: jest.fn().mockResolvedValue({
-                    enqueuedCount: 1,
-                }),
-            }
-            enqueueReconcileTransactionJobService = {
-                enqueue: jest.fn().mockResolvedValue(undefined),
-            }
-            aiEntitlementService = {
-                grantTier: jest.fn().mockResolvedValue(true),
-            }
-            membershipService = {
-                grantMembership: jest.fn().mockResolvedValue(true),
-            }
-            winstonService = {
-                log: jest.fn(),
-            }
-            voucherService = {
-                release: jest.fn().mockResolvedValue(undefined),
-            }
-            installmentPlanService = {
-                applyPaymentForTransaction: jest.fn().mockResolvedValue(true),
-            }
+            resolve = jest.fn()
+            updateStatus = jest.fn().mockResolvedValue(true)
+            enqueueEnroll = jest.fn().mockResolvedValue({
+                enqueuedCount: 1,
+            })
+            enqueueReconcile = jest.fn().mockResolvedValue(undefined)
+            grantTier = jest.fn().mockResolvedValue(true)
+            grantMembership = jest.fn().mockResolvedValue(true)
+            releaseVoucher = jest.fn().mockResolvedValue(undefined)
+            applyInstallment = jest.fn().mockResolvedValue(true)
+            log = jest.fn()
 
             module = await Test.createTestingModule({
                 providers: [
                     ReconcileTransactionWorker,
                     {
                         provide: SUPERJSON,
-                        useValue: superJson,
+                        useValue: {
+                            parse: (data: string) => JSON.parse(data),
+                        },
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -199,31 +156,51 @@ describe("ReconcileTransactionWorker",
                     },
                     {
                         provide: TransactionReconcileQueryService,
-                        useValue: transactionReconcileQueryService,
+                        useValue: {
+                            resolve,
+                        },
                     },
                     {
                         provide: TransactionActionService,
-                        useValue: transactionActionService,
+                        useValue: {
+                            updateTransactionStatusIfExpected: updateStatus,
+                        },
                     },
                     {
                         provide: EnqueueEnrollJobService,
-                        useValue: enqueueEnrollJobService,
+                        useValue: {
+                            enqueueForTransaction: enqueueEnroll,
+                        },
                     },
                     {
                         provide: EnqueueReconcileTransactionJobService,
-                        useValue: enqueueReconcileTransactionJobService,
+                        useValue: {
+                            enqueue: enqueueReconcile,
+                        },
                     },
                     {
                         provide: AiEntitlementService,
-                        useValue: aiEntitlementService,
+                        useValue: {
+                            grantTier,
+                        },
                     },
                     {
                         provide: MembershipService,
-                        useValue: membershipService,
+                        useValue: {
+                            grantMembership,
+                        },
                     },
                     {
-                        provide: WinstonService,
-                        useValue: winstonService,
+                        provide: VoucherService,
+                        useValue: {
+                            release: releaseVoucher,
+                        },
+                    },
+                    {
+                        provide: InstallmentPlanService,
+                        useValue: {
+                            applyPaymentForTransaction: applyInstallment,
+                        },
                     },
                     {
                         provide: EnqueueSendMailJobService,
@@ -231,412 +208,285 @@ describe("ReconcileTransactionWorker",
                         },
                     },
                     {
-                        provide: VoucherService,
-                        useValue: voucherService,
-                    },
-                    {
-                        provide: InstallmentPlanService,
-                        useValue: installmentPlanService,
+                        provide: WinstonService,
+                        useValue: {
+                            log,
+                        },
                     },
                 ],
             }).compile()
-
             worker = module.get(ReconcileTransactionWorker)
         })
 
-        afterEach(async () => {
-            await module.close()
-        })
+        afterEach(async () => module.close())
 
-        describe("gone or already finalized",
-            () => {
-                it("no-ops when the transaction cannot be found (row gone)",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce(null)
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(transactionReconcileQueryService.resolve).not.toHaveBeenCalled()
-                        expect(winstonService.log).not.toHaveBeenCalled()
-                    })
-
-                it("no-ops when the webhook already finalized the transaction (status no longer Pending)",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce(buildTransaction({
-                            status: TransactionStatus.Succeeded,
-                        }))
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(transactionReconcileQueryService.resolve).not.toHaveBeenCalled()
-                    })
+        it.each([
+            null,
+            transaction({
+                status: TransactionStatus.Succeeded,
+            }),
+            transaction({
+                status: TransactionStatus.Unpaid,
+            }),
+        ])("no-ops for a missing or terminal transaction",
+            async (row) => {
+                entityManager.findOne.mockResolvedValueOnce(row)
+                await worker.process(job())
+                expect(resolve).not.toHaveBeenCalled()
+                expect(enqueueReconcile).not.toHaveBeenCalled()
             })
 
-        describe("gateway status: paid -> finalize",
-            () => {
-                it("grants the AI tier and emails the buyer for a paid AiSubscriptionPurchase",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.AiSubscriptionPurchase,
-                            aiSubTier: AiSubTier.Pro,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
+        it("grants an AI tier and sends the activation email only for a new grant",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction({
+                    actionType: ActionType.AiSubscriptionPurchase,
+                    aiSubTier: AiSubTier.Pro,
+                }))
+                resolve.mockResolvedValue({
+                    state: "paid",
+                    providerStatus: "PAID",
+                })
+                await worker.process(job())
+                expect(grantTier).toHaveBeenCalledWith({
+                    userId: USER_ID,
+                    tier: AiSubTier.Pro,
+                    transactionId: TRANSACTION_ID,
+                })
+                expect(transactionalEmail.enqueueSubscriptionActiveEmail).toHaveBeenCalledTimes(1)
 
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(aiEntitlementService.grantTier).toHaveBeenCalledWith({
-                            userId: USER_ID,
-                            tier: AiSubTier.Pro,
-                            transactionId: TRANSACTION_ID,
-                        })
-                        expect(transactionalEmail.enqueueSubscriptionActiveEmail).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                userId: USER_ID,
-                                tier: AiSubTier.Pro,
-                            }),
-                        )
-                    })
-
-                it("does not email when grantTier reports no new grant (idempotent replay)",
-                    async () => {
-                        aiEntitlementService.grantTier.mockResolvedValueOnce(false)
-                        const transaction = buildTransaction({
-                            actionType: ActionType.AiSubscriptionPurchase,
-                            aiSubTier: AiSubTier.Pro,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(transactionalEmail.enqueueSubscriptionActiveEmail).not.toHaveBeenCalled()
-                    })
-
-                it("does nothing for a paid AiSubscriptionPurchase with no target tier (malformed row)",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.AiSubscriptionPurchase,
-                            aiSubTier: null,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                        expect(transactionalEmail.enqueueSubscriptionActiveEmail).not.toHaveBeenCalled()
-                    })
-
-                it("grants membership and emails the buyer for a paid MembershipPurchase",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.MembershipPurchase,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(membershipService.grantMembership).toHaveBeenCalledWith({
-                            userId: USER_ID,
-                            transactionId: TRANSACTION_ID,
-                        })
-                        expect(transactionalEmail.enqueueMembershipActiveEmail).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                userId: USER_ID,
-                            }),
-                        )
-                    })
-
-                it("does not email when grantMembership reports no new grant (idempotent replay)",
-                    async () => {
-                        membershipService.grantMembership.mockResolvedValueOnce(false)
-                        const transaction = buildTransaction({
-                            actionType: ActionType.MembershipPurchase,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(transactionalEmail.enqueueMembershipActiveEmail).not.toHaveBeenCalled()
-                    })
-
-                it("delegates to the enroll job service for a paid Enroll transaction",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.Enroll,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(enqueueEnrollJobService.enqueueForTransaction).toHaveBeenCalledWith({
-                            transaction,
-                        })
-                    })
-
-                it("applies the installment cycle payment when the plan id is present",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.InstallmentPayment,
-                            installmentPlanId: "plan-1",
-                            amount: 250000,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(installmentPlanService.applyPaymentForTransaction).toHaveBeenCalledWith({
-                            transactionId: TRANSACTION_ID,
-                            planId: "plan-1",
-                            paidAmountVnd: 250000,
-                        })
-                    })
-
-                it("does nothing for a paid InstallmentPayment with no plan id (malformed row)",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.InstallmentPayment,
-                            installmentPlanId: null,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(installmentPlanService.applyPaymentForTransaction).not.toHaveBeenCalled()
-                    })
-
-                it("no-ops for a paid transaction whose action type has no finalize handler",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.ResolveGithub,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
-                        expect(membershipService.grantMembership).not.toHaveBeenCalled()
-                        expect(enqueueEnrollJobService.enqueueForTransaction).not.toHaveBeenCalled()
-                        expect(installmentPlanService.applyPaymentForTransaction).not.toHaveBeenCalled()
-                    })
+                grantTier.mockResolvedValueOnce(false)
+                await worker.process(job())
+                expect(transactionalEmail.enqueueSubscriptionActiveEmail).toHaveBeenCalledTimes(1)
             })
 
-        describe("gateway status: unpaid -> mark unpaid",
-            () => {
-                it("marks the transaction unpaid, releases the voucher, and notifies the buyer",
-                    async () => {
-                        const transaction = buildTransaction()
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("unpaid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(transactionActionService.updateTransactionStatusIfExpected).toHaveBeenCalledWith({
-                            id: TRANSACTION_ID,
-                            status: TransactionStatus.Unpaid,
-                            expectedStatus: TransactionStatus.Pending,
-                        })
-                        expect(voucherService.release).toHaveBeenCalledWith({
-                            entityManager,
-                            transactionId: TRANSACTION_ID,
-                        })
-                        expect(transactionalEmail.enqueuePaymentFailedEmail).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                userId: USER_ID,
-                            }),
-                        )
-                    })
+        it("does not grant a malformed AI purchase without a tier",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction({
+                    actionType: ActionType.AiSubscriptionPurchase,
+                    aiSubTier: null,
+                }))
+                resolve.mockResolvedValue({
+                    state: "paid",
+                    providerStatus: "PAID",
+                })
+                await worker.process(job())
+                expect(grantTier).not.toHaveBeenCalled()
             })
 
-        describe("gateway status: unknown",
-            () => {
-                it("re-enqueues the next poll attempt while attempts remain",
-                    async () => {
-                        const transaction = buildTransaction()
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("unknown")
+        it("grants membership and sends activation email only for a new grant",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction({
+                    actionType: ActionType.MembershipPurchase,
+                }))
+                resolve.mockResolvedValue({
+                    state: "paid",
+                    providerStatus: "PAID",
+                })
+                await worker.process(job())
+                expect(grantMembership).toHaveBeenCalledWith({
+                    userId: USER_ID,
+                    transactionId: TRANSACTION_ID,
+                })
+                expect(transactionalEmail.enqueueMembershipActiveEmail).toHaveBeenCalledTimes(1)
 
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(enqueueReconcileTransactionJobService.enqueue).toHaveBeenCalledWith({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 2,
-                        })
-                        expect(transactionActionService.updateTransactionStatusIfExpected).not.toHaveBeenCalled()
-                    })
-
-                it("stops polling WITHOUT marking unpaid once a crypto transaction's attempts are exhausted",
-                    async () => {
-                        // crypto settles slowly and may clear after the poll budget -- never
-                        // mark it unpaid, or a late IPN could never grant (see worker docblock)
-                        const transaction = buildTransaction({
-                            paymentType: PaymentType.Crypto,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("unknown")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: maxAttempts,
-                        }))
-
-                        expect(transactionActionService.updateTransactionStatusIfExpected).not.toHaveBeenCalled()
-                        expect(enqueueReconcileTransactionJobService.enqueue).not.toHaveBeenCalled()
-                        expect(voucherService.release).not.toHaveBeenCalled()
-                    })
-
-                it("marks a non-crypto transaction unpaid once attempts are exhausted with no confirmation",
-                    async () => {
-                        const transaction = buildTransaction({
-                            paymentType: PaymentType.PayOS,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("unknown")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: maxAttempts,
-                        }))
-
-                        expect(transactionActionService.updateTransactionStatusIfExpected).toHaveBeenCalledWith({
-                            id: TRANSACTION_ID,
-                            status: TransactionStatus.Unpaid,
-                            expectedStatus: TransactionStatus.Pending,
-                        })
-                        expect(enqueueReconcileTransactionJobService.enqueue).not.toHaveBeenCalled()
-                    })
+                grantMembership.mockResolvedValueOnce(false)
+                await worker.process(job())
+                expect(transactionalEmail.enqueueMembershipActiveEmail).toHaveBeenCalledTimes(1)
             })
 
-        describe("observability trace",
-            () => {
-                it("logs the gateway status + chosen decision for every poll",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.Enroll,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-
-                        await worker.process(fakeBullJob({
-                            transactionId: TRANSACTION_ID,
-                            attempt: 1,
-                        }))
-
-                        expect(winstonService.log).toHaveBeenCalledWith(
-                            WinstonLog.TransactionReconcilePolled,
-                            {
-                                transactionId: TRANSACTION_ID,
-                                attempt: 1,
-                                maxAttempts,
-                                status: "paid",
-                                decision: "finalize",
-                            },
-                        )
-                    })
+        it("delegates paid enrollment to the enroll worker",
+            async () => {
+                const row = transaction()
+                entityManager.findOne.mockResolvedValue(row)
+                resolve.mockResolvedValue({
+                    state: "paid",
+                    providerStatus: "PAID",
+                })
+                await worker.process(job())
+                expect(enqueueEnroll).toHaveBeenCalledWith({
+                    transaction: row,
+                })
             })
 
-        describe("error / exception path",
-            () => {
-                it("propagates the error when the gateway status lookup itself fails",
-                    async () => {
-                        const transaction = buildTransaction()
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        const gatewayError = new Error("gateway timed out")
-                        transactionReconcileQueryService.resolve.mockRejectedValueOnce(gatewayError)
+        it("applies a paid installment only when a plan id exists",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction({
+                    actionType: ActionType.InstallmentPayment,
+                    installmentPlanId: "plan-1",
+                    amount: 250_000,
+                }))
+                resolve.mockResolvedValue({
+                    state: "paid",
+                    providerStatus: "PAID",
+                })
+                await worker.process(job())
+                expect(applyInstallment).toHaveBeenCalledWith({
+                    transactionId: TRANSACTION_ID,
+                    planId: "plan-1",
+                    paidAmountVnd: 250_000,
+                })
 
-                        await expect(
-                            worker.process(fakeBullJob({
-                                transactionId: TRANSACTION_ID,
-                                attempt: 1,
-                            })),
-                        ).rejects.toThrow("gateway timed out")
+                applyInstallment.mockClear()
+                entityManager.findOne.mockResolvedValue(transaction({
+                    actionType: ActionType.InstallmentPayment,
+                    installmentPlanId: null,
+                }))
+                await worker.process(job())
+                expect(applyInstallment).not.toHaveBeenCalled()
+            })
 
-                        // the decision/log step never ran -- nothing was decided yet
-                        expect(winstonService.log).not.toHaveBeenCalled()
-                        expect(transactionActionService.updateTransactionStatusIfExpected).not.toHaveBeenCalled()
-                    })
+        it("no-ops for a paid non-payment action",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction({
+                    actionType: ActionType.ProcessVideo,
+                }))
+                resolve.mockResolvedValue({
+                    state: "paid",
+                    providerStatus: "PAID",
+                })
+                await worker.process(job())
+                expect(enqueueEnroll).not.toHaveBeenCalled()
+                expect(grantTier).not.toHaveBeenCalled()
+            })
 
-                it("propagates the error and skips the voucher release + email when the unpaid status write fails",
-                    async () => {
-                        const transaction = buildTransaction()
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("unpaid")
-                        const dbError = new Error("connection terminated unexpectedly")
-                        transactionActionService.updateTransactionStatusIfExpected.mockRejectedValueOnce(dbError)
+        it("keeps an underpayment pending and moves it to slow retry",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction({
+                    amount: 100_000,
+                }))
+                resolve.mockResolvedValue({
+                    state: "paid",
+                    providerStatus: "PAID",
+                    reportedAmount: 90_000,
+                })
+                await worker.process(job(maxAttempts))
+                expect(enqueueEnroll).not.toHaveBeenCalled()
+                expect(enqueueReconcile).toHaveBeenCalledWith({
+                    transactionId: TRANSACTION_ID,
+                    attempt: maxAttempts,
+                    lane: "slow",
+                    delayMs: slowDelayMs,
+                })
+            })
 
-                        await expect(
-                            worker.process(fakeBullJob({
-                                transactionId: TRANSACTION_ID,
-                                attempt: 1,
-                            })),
-                        ).rejects.toThrow("connection terminated unexpectedly")
+        it("writes terminal-unpaid and runs failure side effects only when its claim wins",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction())
+                resolve.mockResolvedValue({
+                    state: "terminal-unpaid",
+                    providerStatus: "EXPIRED",
+                })
+                await worker.process(job())
+                expect(updateStatus).toHaveBeenCalledWith({
+                    id: TRANSACTION_ID,
+                    status: TransactionStatus.Unpaid,
+                    expectedStatus: TransactionStatus.Pending,
+                })
+                expect(releaseVoucher).toHaveBeenCalledTimes(1)
+                expect(transactionalEmail.enqueuePaymentFailedEmail).toHaveBeenCalledTimes(1)
 
-                        expect(voucherService.release).not.toHaveBeenCalled()
-                        expect(transactionalEmail.enqueuePaymentFailedEmail).not.toHaveBeenCalled()
-                    })
+                updateStatus.mockResolvedValueOnce(false)
+                releaseVoucher.mockClear()
+                jest.mocked(transactionalEmail.enqueuePaymentFailedEmail).mockClear()
+                await worker.process(job())
+                expect(releaseVoucher).not.toHaveBeenCalled()
+                expect(transactionalEmail.enqueuePaymentFailedEmail).not.toHaveBeenCalled()
+            })
 
-                it("propagates the error from finalize when enqueuing the enroll job fails",
-                    async () => {
-                        const transaction = buildTransaction({
-                            actionType: ActionType.Enroll,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(transaction)
-                        transactionReconcileQueryService.resolve.mockResolvedValueOnce("paid")
-                        const enrollError = new Error("broker unavailable")
-                        enqueueEnrollJobService.enqueueForTransaction.mockRejectedValueOnce(enrollError)
+        it("propagates a terminal status write failure without side effects",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction())
+                resolve.mockResolvedValue({
+                    state: "terminal-unpaid",
+                    providerStatus: "EXPIRED",
+                })
+                updateStatus.mockRejectedValueOnce(new Error("db down"))
+                await expect(worker.process(job())).rejects.toThrow("db down")
+                expect(releaseVoucher).not.toHaveBeenCalled()
+            })
 
-                        await expect(
-                            worker.process(fakeBullJob({
-                                transactionId: TRANSACTION_ID,
-                                attempt: 1,
-                            })),
-                        ).rejects.toThrow("broker unavailable")
-                    })
+        it.each([
+            [
+                {
+                    state: "pending",
+                    providerStatus: "PENDING",
+                },
+                1,
+            ],
+            [
+                {
+                    state: "unavailable",
+                    reason: "provider-error",
+                },
+                2,
+            ],
+        ])("fast-retries unresolved provider result %#",
+            async (result, attempt) => {
+                entityManager.findOne.mockResolvedValue(transaction())
+                resolve.mockResolvedValue(result)
+                await worker.process(job(attempt))
+                expect(enqueueReconcile).toHaveBeenCalledWith({
+                    transactionId: TRANSACTION_ID,
+                    attempt: attempt + 1,
+                    lane: "fast",
+                })
+                expect(updateStatus).not.toHaveBeenCalled()
+            })
+
+        it.each([
+            {
+                state: "pending",
+                providerStatus: "PENDING",
+            },
+            {
+                state: "unavailable",
+                reason: "invalid-response",
+            },
+        ])("slow-retries an unresolved result after the fast budget",
+            async (result) => {
+                entityManager.findOne.mockResolvedValue(transaction())
+                resolve.mockResolvedValue(result)
+                await worker.process(job(maxAttempts))
+                expect(enqueueReconcile).toHaveBeenCalledWith({
+                    transactionId: TRANSACTION_ID,
+                    attempt: maxAttempts,
+                    lane: "slow",
+                    delayMs: slowDelayMs,
+                })
+                expect(updateStatus).not.toHaveBeenCalled()
+            })
+
+        it("propagates provider and grant failures",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction())
+                resolve.mockRejectedValueOnce(new Error("adapter bug"))
+                await expect(worker.process(job())).rejects.toThrow("adapter bug")
+
+                resolve.mockResolvedValueOnce({
+                    state: "paid",
+                    providerStatus: "PAID",
+                })
+                enqueueEnroll.mockRejectedValueOnce(new Error("enroll queue down"))
+                await expect(worker.process(job())).rejects.toThrow("enroll queue down")
+            })
+
+        it("logs normalized state and decision without provider payload",
+            async () => {
+                entityManager.findOne.mockResolvedValue(transaction())
+                resolve.mockResolvedValue({
+                    state: "paid",
+                    providerStatus: "PAID",
+                })
+                await worker.process(job())
+                expect(log).toHaveBeenCalledWith(
+                    WinstonLog.TransactionReconcilePolled,
+                    {
+                        transactionId: TRANSACTION_ID,
+                        attempt: 1,
+                        maxAttempts,
+                        status: "paid",
+                        decision: "finalize",
+                    },
+                )
             })
     })

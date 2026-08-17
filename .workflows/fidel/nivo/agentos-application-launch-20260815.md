@@ -147,3 +147,77 @@ Session status: `open`
 |---|---|
 | Populated conversation visual/realtime proof | Deliver one real test channel message to this exact workspace, then observe the card and matching `agent.replied` refetch. |
 | User acceptance | User confirms the new tab and n8n explanation are satisfactory. |
+
+## feedback
+
+Session id: `nivo-agentos-application-launch-20260815`
+Session status: `open`
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | nivo |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | nivo / @nivo/app |
+| Repo / branch | Frontend D:\Repositories\nivo-fe @ main; Backend D:\Repositories\nivo-backend @ main |
+| Purpose | Diagnose why the live workspace cannot open the n8n editor. |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\fidel\nivo\agentos-application-launch-20260815.md |
+| Language | vi |
+| Phase | feedback |
+| Touching | Read-only live runtime, chart, ingress, backend capability projection and frontend state inspection. |
+| Session id | nivo-agentos-application-launch-20260815 |
+| Session status | open |
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| Classification | New capability prerequisite, not a bounded FE defect. |
+| Runtime health | Workspace n8n container is Ready with zero restarts; pod-local `GET /healthz` returns HTTP 200 and `{\"status\":\"ok\"}`. |
+| Access boundary | Workspace Ingress routes only to the controlplane service on port 3000. No public route targets the internal n8n service on port 5678. |
+| Product gate | Backend deliberately emits `accessMode=UNAVAILABLE` and `reason=SECURITY_UPGRADE_REQUIRED`; focused backend specs freeze this fail-closed behavior and FE maps it to customer copy. |
+| Security reason | Chart pins n8n `1.64.3`. The approved workspace-control-center review rejected editor exposure on this version and routed upgrade plus measured passwordless launch to a separate workflow. |
+| Interaction consequence | The disabled n8n action accurately represents the backend capability. Enabling only the button or a Traefik route would bypass the owner/session boundary and expose an unsafe editor surface. |
+| Visual job | No visual correction is warranted until backend returns an approved launch capability; the present unavailable state prevents a misleading or unsafe CTA. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| `.workflows/fidel/nivo/agentos-application-launch-20260815.md` | Recorded the live n8n health, routing and security-gate diagnosis. |
+| Production source | None; diagnosis did not authorize the separate n8n upgrade capability. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None | The next implementation must begin in its own backend feature Plan when requested. |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| n8n is healthy but intentionally unreachable from customer browsers. | Adding a raw Service/Ingress would not provide Nivo ownership, short-lived session, logout or revocation semantics. |
+| The pinned n8n version must not be placed behind a newly public editor route. | Upgrade, data migration/rollback proof and auth-adapter contract tests must precede launch enablement. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| Enable the current disabled FE button | Keep fail-closed capability projection | FE cannot safely manufacture a backend launch capability. |
+| Route Traefik directly to n8n port 5678 | Route through a reviewed controlplane access adapter after upgrade | Direct routing bypasses workspace authorization and requires raw n8n authentication. |
+| Put n8n password or cookie in a URL | One-time launch exchange plus HttpOnly server-managed session | URL secrets leak through history, logs, referrers and screenshots. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| Secure n8n editor launch | Separate chart-aware backend feature Plan -> Review -> Apply: backup/migrate, upgrade n8n, measure its auth/base-path contract, add controlplane proxy and short-lived launch session, then expose the FE action. |
+| Live launch proof | Authenticated Nivo click -> one-time redemption -> usable n8n editor -> logout/revoke/replay refusal, with Network, Console, backend and K8s evidence. |

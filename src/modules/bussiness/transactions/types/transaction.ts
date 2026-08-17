@@ -37,9 +37,25 @@ export interface UpdateTransactionStatusResult {
 }
 
 /**
- * Outcome of polling a payment gateway for a pending transaction:
- * - `paid` -- gateway confirms payment -> finalize (enroll / grant tier).
- * - `unpaid` -- gateway confirms a terminal non-paid state (cancelled/expired/voided).
- * - `unknown` -- still pending or undeterminable -> keep polling until attempts run out.
+ * Provider-authoritative outcome for a pending transaction. `pending` means
+ * the provider answered and the payment is still open; `unavailable` means no
+ * trustworthy answer was obtained and must never be converted into `Unpaid`.
  */
-export type TransactionReconcileStatus = "paid" | "unpaid" | "unknown"
+export type TransactionReconcileResult =
+    | {
+        state: "paid"
+        providerStatus: string
+        reportedAmount?: number
+    }
+    | {
+        state: "terminal-unpaid"
+        providerStatus: string
+    }
+    | {
+        state: "pending"
+        providerStatus: string
+    }
+    | {
+        state: "unavailable"
+        reason: "missing-provider-id" | "unsupported-provider" | "provider-error" | "invalid-response"
+    }

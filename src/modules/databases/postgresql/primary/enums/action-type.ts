@@ -82,8 +82,8 @@ export enum ActionType {
      */
     JudgeCodingSubmission = "judgeCodingSubmission",
     /**
-     * Poll a pending payment transaction's gateway status (delayed, repeated) and
-     * finalize it as succeeded on payment, or mark it unpaid once attempts are exhausted.
+     * Poll a pending payment transaction's gateway status and finalize only from
+     * provider-authoritative paid or terminal-unpaid evidence.
      */
     ReconcileTransaction = "reconcileTransaction",
     /**
@@ -156,7 +156,7 @@ registerEnumType(
                 description: "Judge a coding submission against testcases via Judge0.",
             },
             [ActionType.ReconcileTransaction]: {
-                description: "Poll a pending transaction's gateway status; finalize on payment or mark unpaid when exhausted.",
+                description: "Poll a pending transaction's provider-authoritative payment status.",
             },
             [ActionType.MembershipPurchase]: {
                 description: "Purchase a community membership (grants/extends membership on payment success).",

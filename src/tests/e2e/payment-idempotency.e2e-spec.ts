@@ -1,4 +1,6 @@
-import request from "supertest"
+import {
+    Test,
+} from "@nestjs/testing"
 import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
@@ -6,8 +8,11 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    AiSubscriptionEntity,
-} from "@modules/databases/postgresql/primary/entities/ai-subscription.entity"
+    TransactionActionService,
+} from "@modules/bussiness/transactions/atomic/transaction-action.service"
+import {
+    PrimaryPostgreSQLModule,
+} from "@modules/databases/postgresql/primary/primary.module"
 import {
     TransactionEntity,
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
@@ -18,12 +23,6 @@ import {
     ActionType,
 } from "@modules/databases/postgresql/primary/enums/action-type"
 import {
-    AiSubStatus,
-} from "@modules/databases/postgresql/primary/enums/ai-sub-status"
-import {
-    AiSubTier,
-} from "@modules/databases/postgresql/primary/enums/ai-sub-tier"
-import {
     PaymentType,
 } from "@modules/databases/postgresql/primary/enums/payment-type"
 import {
@@ -32,151 +31,122 @@ import {
 import {
     TransactionStatus,
 } from "@modules/databases/postgresql/primary/enums/transaction-status"
-import {
-    createE2eApp,
-} from "@tests/helpers/create-e2e-app"
-import type {
-    E2eApp,
-} from "@tests/helpers/types/e2e-app"
 
 const POSTGRESQL_PRIMARY = "primary"
-const WEBHOOK_URL = "/v1/sepay/webhook"
 
 /**
- * The provider calls twice and nothing doubles.
- *
- * This uses the real HTTP controller, command bus, webhook handler, atomic
- * transaction claim, and AI entitlement write. Only the provider client is
- * stubbed. A duplicate known invoice must receive a success response so SePay
- * stops retrying, while an unknown invoice remains rejected.
+ * The webhook wake-up, delayed poll and restart sweep can all race the same
+ * transaction. Their shared settlement gate is the guarded Pending claim;
+ * this database integration proves only one contender can own side effects.
  */
-describe("the provider calls twice and nothing doubles",
+describe("payment settlement claim idempotency (e2e)",
     () => {
-        const INVOICE = "payment-idempotency-flow"
-
-        let e2e: E2eApp
         let entityManager: EntityManager
-        let transactionId: string
-        let learnerId: string
-        let subscriptionId: string
-        let firstPeriodEnd: Date | null
+        let transactionActionService: TransactionActionService
+        let close: () => Promise<void>
 
         beforeAll(async () => {
-            e2e = await createE2eApp()
-            entityManager = e2e.app.get<EntityManager>(
+            const moduleRef = await Test.createTestingModule({
+                imports: [
+                    PrimaryPostgreSQLModule.register({
+                        isGlobal: true,
+                        withHydration: false,
+                        withResolvers: false,
+                    }),
+                ],
+                providers: [
+                    TransactionActionService,
+                ],
+            }).compile()
+            entityManager = moduleRef.get<EntityManager>(
                 getEntityManagerToken(POSTGRESQL_PRIMARY),
             )
-            await entityManager.query(
-                "TRUNCATE TABLE \"ai_subscriptions\", \"transactions\", \"users\" RESTART IDENTITY CASCADE",
-            )
-
-            const learner = await entityManager.save(
-                entityManager.create(UserEntity,
-                    {
-                        keycloakId: "kc-payment-idempotency-flow",
-                    }),
-            )
-            learnerId = learner.id
-            const transaction = await entityManager.save(
-                entityManager.create(TransactionEntity,
-                    {
-                        user: learner,
-                        course: null,
-                        referenceId: INVOICE,
-                        providerPaymentId: null,
-                        amount: 99_000,
-                        discountPercent: 0,
-                        voucherCode: null,
-                        pricingPhase: PricingPhase.Regular,
-                        checkoutUrl: "https://sepay.test/checkout",
-                        status: TransactionStatus.Pending,
-                        paymentType: PaymentType.Sepay,
-                        actionType: ActionType.AiSubscriptionPurchase,
-                        aiSubTier: AiSubTier.Plus,
-                        installmentPlanId: null,
-                        installmentMonths: null,
-                        installmentMarkupPercent: null,
-                        installmentTotalVnd: null,
-                        refundReference: null,
-                        refundReason: null,
-                        refundedAt: null,
-                    }),
-            )
-            transactionId = transaction.id
-            e2e.sepayClient.order.retrieve.mockResolvedValue({
-                data: {
-                    status: "PAID",
-                    order_amount: transaction.amount,
-                },
-            })
+            transactionActionService = moduleRef.get(TransactionActionService)
+            close = async () => moduleRef.close().catch(() => undefined)
         })
 
         afterAll(async () => {
-            await e2e?.app.close().catch(() => undefined)
+            await close?.()
         })
 
-        it("settles the first webhook and grants one entitlement",
-            async () => {
-                await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send({
-                        order_invoice_number: INVOICE,
-                    })
-                    .expect(201)
+        afterEach(async () => {
+            await entityManager.query(
+                "TRUNCATE TABLE \"transactions\", \"users\" RESTART IDENTITY CASCADE",
+            )
+        })
 
-                const transaction = await entityManager.findOneOrFail(TransactionEntity,
-                    {
-                        where: {
-                            id: transactionId,
-                        },
+        it("lets exactly one of webhook, delayed poll and boot sweep settle",
+            async () => {
+                const user = await entityManager.save(
+                    entityManager.create(UserEntity,
+                        {
+                            keycloakId: "kc-three-way-payment-race",
+                        }),
+                )
+                const transaction = await entityManager.save(
+                    entityManager.create(TransactionEntity,
+                        {
+                            user,
+                            referenceId: "three-way-payment-race",
+                            amount: 10_000,
+                            pricingPhase: PricingPhase.Regular,
+                            checkoutUrl: "https://gateway.test/pending",
+                            status: TransactionStatus.Pending,
+                            paymentType: PaymentType.PayOS,
+                            actionType: ActionType.AiSubscriptionPurchase,
+                        }),
+                )
+
+                const claim = async (): Promise<boolean> => transactionActionService
+                    .updateTransactionStatusIfExpected({
+                        id: transaction.id,
+                        expectedStatus: TransactionStatus.Pending,
+                        status: TransactionStatus.Succeeded,
                     })
-                expect(transaction.status).toBe(TransactionStatus.Succeeded)
-                const subscriptions = await entityManager.find(AiSubscriptionEntity,
+                const claims = await Promise.all([
+                    claim(),
+                    claim(),
+                    claim(),
+                ])
+
+                expect(claims.filter(Boolean)).toHaveLength(1)
+                const settled = await entityManager.findOneByOrFail(
+                    TransactionEntity,
                     {
-                        where: {
-                            user: {
-                                id: learnerId,
-                            },
-                        },
-                    })
-                expect(subscriptions).toHaveLength(1)
-                expect(subscriptions[0].tier).toBe(AiSubTier.Plus)
-                expect(subscriptions[0].status).toBe(AiSubStatus.Active)
-                subscriptionId = subscriptions[0].id
-                firstPeriodEnd = subscriptions[0].currentPeriodEnd
+                        id: transaction.id,
+                    },
+                )
+                expect(settled.status).toBe(TransactionStatus.Succeeded)
             })
 
-        it("acknowledges the duplicate webhook without extending or duplicating the entitlement",
+        it("does not let replay reopen a terminal transaction",
             async () => {
-                await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send({
-                        order_invoice_number: INVOICE,
-                    })
-                    .expect(201)
+                const user = await entityManager.save(
+                    entityManager.create(UserEntity,
+                        {
+                            keycloakId: "kc-terminal-payment-replay",
+                        }),
+                )
+                const transaction = await entityManager.save(
+                    entityManager.create(TransactionEntity,
+                        {
+                            user,
+                            referenceId: "terminal-payment-replay",
+                            amount: 10_000,
+                            pricingPhase: PricingPhase.Regular,
+                            checkoutUrl: "https://gateway.test/paid",
+                            status: TransactionStatus.Succeeded,
+                            paymentType: PaymentType.Sepay,
+                            actionType: ActionType.AiSubscriptionPurchase,
+                        }),
+                )
 
-                const subscriptions = await entityManager.find(AiSubscriptionEntity,
-                    {
-                        where: {
-                            user: {
-                                id: learnerId,
-                            },
-                        },
+                const won = await transactionActionService
+                    .updateTransactionStatusIfExpected({
+                        id: transaction.id,
+                        expectedStatus: TransactionStatus.Pending,
+                        status: TransactionStatus.Succeeded,
                     })
-                expect(subscriptions).toHaveLength(1)
-                expect(subscriptions[0].id).toBe(subscriptionId)
-                expect(subscriptions[0].currentPeriodEnd).toEqual(firstPeriodEnd)
-                expect(e2e.sepayClient.order.retrieve).toHaveBeenCalledTimes(1)
-            })
-
-        it("still rejects an unknown invoice without creating another entitlement",
-            async () => {
-                const response = await request(e2e.app.getHttpServer())
-                    .post(WEBHOOK_URL)
-                    .send({
-                        order_invoice_number: "unknown-payment-reference",
-                    })
-                expect(response.status).toBeGreaterThanOrEqual(400)
-                expect(await entityManager.count(AiSubscriptionEntity)).toBe(1)
+                expect(won).toBe(false)
             })
     })

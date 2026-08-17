@@ -57,6 +57,7 @@ export class ReconcileTransactionBootSweepService implements OnApplicationBootst
         const {
             delayMs,
             maxAttempts,
+            slowDelayMs,
         } = envConfig().services.api.transaction.reconcile
         const now = this.dayjsService.now()
         // page through pending transactions (id + createdAt only) so RAM stays flat
@@ -101,11 +102,20 @@ export class ReconcileTransactionBootSweepService implements OnApplicationBootst
                     Math.max(1,
                         Math.floor(elapsedMs / delayMs)),
                 )
+                const lane = elapsedMs >= delayMs * maxAttempts
+                    ? "slow"
+                    : "fast"
                 // poll immediately (delayMs: 0) rather than waiting another full interval
                 await this.enqueueReconcileTransactionJobService.enqueue({
                     transactionId: transaction.id,
                     attempt,
                     delayMs: 0,
+                    lane,
+                    deduplication: {
+                        id: `reconcile-boot:${transaction.id}`,
+                        ttlMs: Math.min(slowDelayMs,
+                            30_000),
+                    },
                 })
                 count += 1
             }

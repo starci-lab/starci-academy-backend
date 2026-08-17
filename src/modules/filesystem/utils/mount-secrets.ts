@@ -245,6 +245,20 @@ export const getSepayApiKey = (): string => {
     return envConfig().secrets.sepayApiKey
 }
 
+/** Get the dedicated inbound SePay Payment Gateway IPN secret. */
+export const getSepayIpnSecret = (): string => {
+    const path = envConfig().mountPath.files.sepayIpnSecret
+    if (!existsSync(path)) {
+        return ""
+    }
+    try {
+        return readFileSync(path,
+            "utf8").trim()
+    } catch {
+        return ""
+    }
+}
+
 /**
  * Get the Judge0 `X-Auth-Token`.
  *

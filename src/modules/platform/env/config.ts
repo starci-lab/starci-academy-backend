@@ -343,7 +343,12 @@ export const envConfig = () => ({
                         key: "API_TRANSACTION_RECONCILE_DELAY_MS",
                         defaultValue: "1m",
                     }),
-                    /** Max number of polls before the transaction is marked unpaid. */
+                    /** Slower delay used after the fast polling budget is exhausted. */
+                    slowDelayMs: parseEnvMs({
+                        key: "API_TRANSACTION_RECONCILE_SLOW_DELAY_MS",
+                        defaultValue: "15m",
+                    }),
+                    /** Max number of fast polls before reconciliation moves to the slow lane. */
                     maxAttempts: parseEnvInt({
                         key: "API_TRANSACTION_RECONCILE_MAX_ATTEMPTS",
                         defaultValue: 5,
@@ -1124,6 +1129,18 @@ export const envConfig = () => ({
                     ".mount",
                     "config",
                     "seed.yaml"),
+            }),
+        },
+        /** Optional file-backed inbound SePay Payment Gateway IPN secret. */
+        files: {
+            sepayIpnSecret: parseEnvString({
+                key: "SEPAY_IPN_SECRET_FILE",
+                defaultValue: join(process.cwd(),
+                    ".stacks",
+                    "dev",
+                    "runtime",
+                    "files",
+                    "sepay-ipn-secret.key"),
             }),
         },
         /**

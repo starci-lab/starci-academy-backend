@@ -1,6 +1,8 @@
 import {
     Body,
     Controller,
+    HttpCode,
+    HttpStatus,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
@@ -51,13 +53,14 @@ export class PayosWebhookController {
     })
     @ApiResponse(
         {
-            status: 201,
-            description: "Webhook verified and snapshot stored.",
+            status: 200,
+            description: "Webhook verified and acknowledged.",
         },
     )
     @Post(
         httpConfig().payos().webhook().path,
     )
+    @HttpCode(HttpStatus.OK)
     async webhook(
         @Body()
             body: PayosWebhookRequest,
