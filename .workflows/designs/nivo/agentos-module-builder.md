@@ -707,3 +707,93 @@ Tracked diff: `7bc2ff4..019947b`
 | Root canon mirror gate | Chạy `starci-fe-lint-sync-plan` → Review → Apply cho `D:\Repositories\nivo-fe`. |
 | Channel/shared knowledge setup, upgrade, retry và uninstall UX | Backend Feature Plan/Review/Apply tương ứng, rồi FE Design continuation. |
 | Repair stale Apply skill reference paths | Chạy `starci-fe-upgrade-plan` theo warning đã ghi. |
+
+## apply r1.1 — current-owner FE regression
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | nivo |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | nivo |
+| Repo / branch | Frontend D:\Repositories\nivo-fe @ `main` (`019947b`); Backend D:\Repositories\nivo-backend @ `main` (`257ca75`) |
+| Purpose | Chạy lại luồng FE Module Center bằng session owner hiện tại và xác định terminal status có đi hết hay không. |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\designs\nivo\agentos-module-builder.md |
+| Language | vi |
+| Phase | apply |
+| Touching | Chỉ workflow này; không sửa FE/BE, không xóa installation và không đổi cluster. |
+| Context receipt | v1 |
+| Workspace context | `.workspace/nivo/fe/config.json` — refreshed and read; backend path retained from approved workflow. |
+| Internal context | `.claude/common/config/{INDEX,workspace,frontend}.md`, `.claude/contexts/INDEX.md`, `.claude/skill-shape.md` và browser local-web gate — read complete. |
+| External context | Live Nivo FE `:3066`, workspace/detail GraphQL-backed render, fresh browser Console và Tino kubeconfig cluster inventory. |
+| Context conflicts | Previous E2E PASS belongs to workspace `d44a8fed-6e31-4634-9dae-44dd00165f2d`; current authenticated owner can access only workspace `c3fa9911-f693-4132-8fdb-2ad2386278ed`. Hai kết quả không được nhập làm một. |
+| Context missing | Supported retry/recovery action for two already-reserved installations on a workspace with no tenant runtime. |
+
+Continuation of applied revision: `nivo-agentos-module-center-fe-r1`.
+
+### LIVE FLOW PROOF
+
+| Field | Evidence |
+|---|---|
+| Flow | Authenticated Nivo FE → AgentOS workspace → Solutions → Discover/Installed → installation detail → reload/fresh tab → cluster correlation. |
+| Persona | Current authenticated workspace owner; no credential, cookie or browser storage was inspected. |
+| Workspace | `c3fa9911-f693-4132-8fdb-2ad2386278ed` (`Agent workspace 1d967c`). |
+| Catalog | Discover renders Chatbot đa kênh and Sales Copilot from the live API; both install buttons are disabled as `Installed`. |
+| Fleet | Installed renders Sales Copilot `63cc873f-a2db-4505-a399-0c4eb261a4a1` and Chatbot `d2845ca8-89b0-4162-b942-ff1e41d4a5e1`, both version `1.1.0` and status `Provisioning`. |
+| Detail | Sales detail returns persisted module/version/status with no failure code, but generated agents, channel accounts and shared knowledge are all `None`; knowledge versions are empty. |
+| Persistence | A fresh browser tab reloads the exact installation detail and still reads `provisioning`; this is canonical backend state, not stale local component state. |
+| Console | Fresh detail tab has zero warning/error entries. An older authentication hydration warning remains historical and did not reproduce in the fresh module tab. |
+| Kubernetes | Tino cluster has three Ready nodes. Only workspace namespace `nivo-d44a8fed-6e31-4634-9dae-44dd00165f2d` has an AgentOS workload; no namespace/pod exists for `c3fa9911-f693-4132-8fdb-2ad2386278ed`. |
+| Ownership | Directly opening the healthy `d44a8fed-...` workspace under the current session returns “could not be opened or is not owned”; no account switch was performed. |
+| Verdict | FE catalog/list/detail and persistence PASS. Current-owner add-module E2E FAILS to reach Ready because its workspace has no tenant AgentOS runtime to poll and acknowledge reconcile jobs. |
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| FE Module Center | Live catalog, installed fleet and detail route render correctly for the current owner. |
+| Terminal lifecycle | Both current-owner modules remain durably `Provisioning`; no false Ready state is shown. |
+| Root boundary | The observed blocker is missing workspace runtime/recovery, not FE rendering or browser Console failure. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| `D:\Repositories\starci-academy-backend\.workflows\designs\nivo\agentos-module-builder.md` | modified — append current-owner FE regression evidence. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None for this read-only regression | Provision/reset/retry work must enter its owning runtime or backend capability; no destructive fixture reset was performed. |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| Both module keys are already uniquely reserved for workspace `c3fa9911-...`. | The UI correctly disables another install; a fresh click-through test requires supported retry/recovery or an explicitly approved fixture reset. |
+| Workspace `c3fa9911-...` has no tenant namespace/pod on Tino. | Its controlplane cannot poll `RECONCILE_AGENTOS_MODULE`, so Saga cannot reach Ready. |
+| Healthy runtime `d44a8fed-...` belongs to another account. | Reusing its earlier PASS as proof for the current owner would violate ownership evidence. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| Delete the two current installation rows to expose Install again | Preserve rows and report the missing recovery path | Deletion is destructive, was not requested explicitly, and would hide the real production failure mode. |
+| Switch accounts using stored credentials | Keep the current authenticated owner session | No action-time authorization was given to transmit test credentials in this browser run. |
+| Claim PASS because cards and detail render | Split FE render PASS from terminal E2E FAIL | The requested E2E includes provision completion, not only accepted/persisted UI state. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| Restore/provision AgentOS runtime for workspace `c3fa9911-f693-4132-8fdb-2ad2386278ed` | Run the approved workspace provision/reconcile operation and prove its tenant pod/controlplane registration. |
+| Recover the two existing module installations | Add/use an idempotent retry or late-success recovery operation, then observe Saga → Kafka → Socket.IO → Ready from this FE session. |
+| Fresh Install-button click proof | After supported recovery/reset makes one package actionable, click Install in FE and record UI, Network, Console, Terminal and terminal snapshot. |
