@@ -356,3 +356,94 @@ Implementation commit: `257ca75f` (`feat: use LangChain for Academy RAG retrieva
 | Credentialed Academy RAG smoke against the configured Cloud document lane and Local query lane | Supply runtime credentials/config after code review; run `reindexRag` and `askTutor` without recording secret values. |
 | Shared dev Qdrant version alignment | Separate bounded ops/audit revision. |
 | Existing full-suite failures | Separate backend audit plan for cache take atomicity, K8s watcher terminal polling and payment/affiliate E2E. |
+
+## apply r1.1 — credentialed live smoke readiness
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | nivo |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | `expert-academy-api` |
+| Database | Expert Academy PostgreSQL + shared dev Qdrant. |
+| Repo / branch | D:\Repositories\nivo-backend @ `main` (`257ca75f`) |
+| Purpose | Attempt the owed credentialed Cloud-document/Local-query live smoke without weakening lane ownership. |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\feature\nivo\academy-langchain-rag.md |
+| Language | vi |
+| Phase | apply |
+| Touching | Runtime inspection, temporary managed secret materialization and this append-only workflow; no product source. |
+| Context receipt | v1 |
+| Workspace context | `.workspace/nivo/be/config.json` refreshed to live backend HEAD with `starci-setup-workspace`. |
+| Internal context | Backend Feature Approve and workspace setup gates — read complete. |
+| External context | Listening FE/core/Academy processes, Academy readiness endpoint, live GraphQL introspection, Docker services and environment-key presence only. |
+| Context conflicts | Shared OpenRouter pool exists, but approved ownership requires an Academy instance key; the shared pool was not substituted. |
+| Context missing | Academy instance identity/key and Local embedding endpoint credentials. |
+
+Continuation of approved revision: `nivo-academy-langchain-rag-r1`.
+
+### LIVE FLOW PROOF
+
+| Field | Evidence |
+|---|---|
+| Flow | Inspect running Academy API → verify GraphQL doors → verify readiness → resolve provider configuration → run credentialed `reindexRag` and `askTutor`. |
+| Persona | Runtime operator preparing an Academy tenant; no browser credential, token or cookie was inspected. |
+| Steps | Confirmed FE `:3066`, core BE `:3067`, Academy API `:3069` and Qdrant `:6400`; introspected `askTutor` and `reindexRag`; called readiness; materialized managed dev secrets only long enough to check key presence; cleaned them immediately. |
+| UI | Login page is reachable at `http://localhost:3066/en/authentication`; no authenticated Academy session was available, so no UI action was claimed. |
+| Network | Academy GraphQL schema is reachable. `/health/ready` returns `503` because `rag_collection_identity` has no `EXPERT_INSTANCE_ID`. |
+| Console | No browser storage/cookies inspected and no secret value printed. |
+| Terminal | `npm run dev:env` materialized 5 managed files; `npm run dev:env:clean` removed all 5 and the managed `.env.local` block. Presence check found the shared OpenRouter pool only; the approved per-instance and Local-lane settings are absent. |
+| Verdict | OWED — runtime is up and the feature doors exist, but a valid credentialed smoke cannot start until the exact Academy and Local embedding configuration is installed. |
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| Runtime availability | FE, core BE, Academy API and Qdrant are listening. |
+| Feature availability | Live Academy schema exposes `reindexRag` and `askTutor`. |
+| Secret hygiene | No secret value was logged or recorded; temporary plaintext files were removed. |
+| Ownership enforcement | Shared OpenRouter pool was deliberately rejected as a replacement for `INSTANCE_OPENROUTER_API_KEY`. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| `D:\Repositories\starci-academy-backend\.workspace\nivo\be\config.json` | refreshed ignored local routing metadata to backend commit `257ca75f`. |
+| `D:\Repositories\starci-academy-backend\.workflows\feature\nivo\academy-langchain-rag.md` | appended the credentialed live-smoke attempt and exact remaining configuration. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None for code | r1 product implementation is already approved and committed. Installing new runtime secrets remains an operator action. |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| `EXPERT_INSTANCE_ID` is absent. | Readiness cannot derive the tenant-specific Qdrant collection. |
+| `INSTANCE_OPENROUTER_API_KEY` is absent. | Cloud document embedding cannot run under the Academy tenant's own provider identity. |
+| `SELF_HOSTED_EMBEDDING_URL`, token, model and dimension are absent. | Local query embedding cannot run; fixed lane ownership forbids Cloud fallback. |
+| Shared dev Qdrant remains `qdrant/qdrant:v1.10.1`. | A separate approved ops revision is still required for version alignment. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| Use `OPENROUTER_API_KEYS_FILE` as the Academy instance key | Wait for `INSTANCE_OPENROUTER_API_KEY` | The approved architecture assigns document cost and ownership to the Academy instance, not the platform pool. |
+| Claim live PASS from deterministic E2E | Keep E2E PASS and live smoke OWED separately | Deterministic provider doubles do not prove real provider credentials or runtime routing. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| Academy instance identity | Set a dev `EXPERT_INSTANCE_ID` before starting `expert-academy-api`. |
+| Cloud document lane | Install `INSTANCE_OPENROUTER_API_KEY` through managed runtime secret delivery. |
+| Local query lane | Install `SELF_HOSTED_EMBEDDING_URL`, `SELF_HOSTED_EMBEDDING_TOKEN`, `SELF_HOSTED_EMBEDDING_MODEL` and `SELF_HOSTED_EMBEDDING_DIMENSION`; expected Qwen3 dimension is `4096` unless the deployed model differs. |
+| Credentialed proof | Restart Academy API, obtain an authenticated admin/member session, run `reindexRag` then `askTutor`, and record Network, Console and Terminal evidence without secret values. |
