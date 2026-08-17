@@ -587,3 +587,92 @@ Approval evidence: User replied `Duyệt nivo-agentos-solution-modules-r2` on 20
 | Full browser proof: login, install both modules, observe Socket.IO, open resulting management UI | FE Apply with test account and live core/controlplane/workspace runtime. |
 | Optional paid model-quality evaluation | Separate bounded harness using supplied provider credentials and curated module cases. |
 | Two unrelated full-suite failures | `$starci-be-audit-plan` → Review → Apply for the watcher and cache race tests. |
+
+## apply continuation — nivo-agentos-solution-modules-r2-live-ui
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | `D:\Repositories\nivo-backend` |
+| Source | `D:\Repositories\starci-academy-backend` |
+| Frontend | `D:\Repositories\nivo-fe` |
+| Backend | `D:\Repositories\nivo-backend` |
+| Approved revision | `nivo-agentos-solution-modules-r2` |
+| Backend implementation | `8ae521ee225d5ec90abd4a1c41d11e14da445239` |
+| FE implementation | `019947b` |
+| Persona | `tester@nivo.local` |
+| Workspace | `d44a8fed-6e31-4634-9dae-44dd00165f2d` |
+| Runtime | Tino k3s namespace `nivo-d44a8fed-6e31-4634-9dae-44dd00165f2d` |
+
+### LIVE FLOW PROOF
+
+| Field | Evidence |
+|---|---|
+| Flow | Nivo UI install → GraphQL mutation → BullMQ Saga → signed controlplane pull/result → primary installation `ready` → outbox publish → Kafka consumer inbox relay → Socket.IO refresh → persisted detail page. |
+| Persona | Logged in through the visible Nivo authentication form as the workspace owner test persona; the preceding Google session was rejected by the ownership check as expected. |
+| Fixture reset | Deleted exactly two never-ready dev installation rows, `6f16ffb6-e85f-4783-8eaa-e1aa7a365928` and `9dd01cfe-87f8-403e-b6f6-3ab574a645c1`, after verifying both belonged to this workspace. Historical Saga and runtime-job rows were retained. |
+| Chatbot UI | Clicked `Install solution` for `multichannel-chatbot`; installation `1cf175d6-b072-46dc-a548-545d017543d7` changed from `Provisioning` to `Ready` without a page reload. Detail rendered two generated agents, `nivo-common-1 · 1.0.0`, no failure code. |
+| Sales UI | Clicked `Install solution` for `sales-copilot`; installation `e35407d4-a43a-4ddb-b6ab-ddb0d23cb642` changed from `Provisioning` to `Ready` after about two seconds. Detail rendered two generated agents, `nivo-common-1 · 1.0.0`, no failure code. |
+| Persistence | Reloaded the workspace, reopened `Solutions → Installed`; both modules remained `Ready`. |
+| Saga | Sagas `5281592e-41b7-4af3-b445-a326bf11c77e` and `9118e25c-d2d2-41d9-af07-1928566f4f58` are `completed`, `ever_ready=true`, cursor `6`; all 12 forward steps are `completed` with no `last_error`. |
+| Runtime job | Installations reference runtime jobs `7ef48936-44e5-44f1-8252-f3744f441d0e` and `79d82ac1-5420-450e-b5b2-4fd5c781fb91`; both have non-null applied digests and no failure code. |
+| Kafka / Socket.IO | Each Saga produced sequences 1–9. All 18 outbox rows are published with no error; all 18 inbox rows are consumed and relayed. The visible UI transition to `Ready` occurred before reload, then GraphQL snapshot preserved it after reload. |
+| Kubernetes | AgentOS is `4/4 Running`; PostgreSQL, Qdrant, MinIO and the bounded embedding proof service are Running. |
+| Network | Both install mutations returned accepted states; subsequent list/detail reads returned the exact installation IDs and `ready` status. Core terminal recorded both module queue jobs. No failed browser request surfaced in the tested module path. |
+| Console | Browser warn/error log was empty after both installs and detail navigation. |
+| Terminal | FE served every tested route with HTTP 200. Core enqueued both module jobs. Controlplane remained registered and accepted the runtime jobs. |
+| Verdict | PASS for the real Chatbot and Sales install/Saga/Kafka/Socket/UI path on the dev Tino cluster. Production-image and embedding wiring debts below remain open and are not represented as completed source fixes. |
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| Module Center | Both first-party solution packages can now be installed by the workspace owner and managed from Nivo. |
+| Realtime | The installed list reflects terminal Saga status without manual reload. |
+| Ownership | A different authenticated Google account cannot open the test workspace; the owner persona can. |
+| Runtime evidence | The same desired/applied digest path produced generated agents and scoped common/private knowledge records for both packages. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| Primary dev database | Removed exactly two stale, never-ready installation fixtures; created two new successful installation records through the product UI. The deleted primary rows are not recoverable, while their historical Saga/runtime evidence remains. |
+| Tino dev namespace | Uses proof controlplane image `ghcr.io/starci-lab/nivo-agentos-controlplane:8ae521e-live3` and temporary `embedding-proof` Deployment/Service so the approved runtime path can be exercised. |
+| `D:\Repositories\starci-academy-backend\.workflows\feature\nivo\agentos-solution-modules.md` | Appended real browser, Saga, outbox/inbox, terminal and cluster evidence. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None | The approved live test is complete. Permanent runtime repairs must enter a new reviewed revision rather than expanding r2 silently. |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| `apps/agentos-controlplane/Dockerfile` at `8ae521e` does not copy `src/modules/bussiness/agentos-solution-modules`. | A normal source image build omits the approved module runtime. The live proof used an equivalent temporary build recipe; Dockerfile repair is still required. |
+| `apps/agentos-controlplane/src/pod-runtime/transport.ts` truncates every successful HTTP body to 400 characters before `JSON.parse`. | Real runtime-job payloads fail parsing. The live proof image removes that truncation; committed source still needs a reviewed fix and regression spec. |
+| The Helm chart does not wire `SELF_HOSTED_EMBEDDING_*`, and the reconciler does not ensure the Qdrant collection before writing. | The namespace currently depends on a deterministic 8-dimension `embedding-proof` service and a pre-created `knowledge` collection. This proves plumbing, not production embedding quality. |
+| A prior terminally compensated module Saga has no supported late-success recovery path, and generic retry queue routing omits the module queue. | The two stale dev fixtures had to be replaced by fresh UI installs. A reviewed recovery operation is required before production. |
+| Helm post-install CLI logged `n8n api key push refused: HTTP 401`. | Module installation passed because this path does not require n8n, but n8n one-click access remains unhealthy. |
+| Workspace control-center reads logged `PodOpenclawClient` `TypeError` while probing the configured public OpenClaw `/health` URL. | The in-cluster AgentOS workload is healthy and module reconcile passed; public OpenClaw DNS/route health remains a separate launch-bridge debt. |
+| Kafka consumer logged transient group rebalance warnings. | Both terminal events were nevertheless published, consumed and relayed exactly once by inbox identity; monitor consumer stability before production load. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| Marking temporary image/env patches as committed production fixes | Record them as live-proof scaffolding and open a reviewed follow-up boundary | The approved r2 file tree did not include the Dockerfile, transport or Helm embedding wiring. |
+| Rewriting compensated Saga history to look successful | Delete only the two failed dev installation fixtures and install fresh through the UI | Preserves audit history and proves the real customer path. |
+| Claiming embedding quality PASS | Claim deterministic transport/reconciliation PASS only | The proof service returns deterministic vectors and is not a production embedding model. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| Permanent controlplane Dockerfile, response parser and Helm embedding wiring | New `$starci-be-feature-plan` or audit revision with exact Docker/chart/transport boundary, then Review/Apply. |
+| Terminal compensated-Saga recovery and correct module retry routing | New backend feature revision with idempotent late-success/retry E2E. |
+| Production embedding quality and Qdrant lifecycle | Configure a production embedding provider, ensure collection creation/migration and run curated retrieval cases. |
+| n8n API-key push HTTP 401 | Repair the n8n adapter and rerun one-click launch proof. |
+| Public OpenClaw `/health` route | Finish the approved FE+BE launch bridge/DNS route and rerun the control-center probe. |
