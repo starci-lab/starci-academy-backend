@@ -387,6 +387,8 @@
 
 ## review — nivo-agentos-module-center-fe-r1
 
+Approved revision: `nivo-agentos-module-center-fe-r1`
+
 ### CONTEXT
 
 | Field | Value |
@@ -490,6 +492,15 @@
 | `ProvisioningEvent` | event union | ADD | workspace/runtime/deployment/order | thêm module-installation event với step/reason | Hook consumers | Existing workspace narrowing vẫn compile; new consumers narrow exact kind. |
 | `console.ts` | four module API functions/types | ADD | N/A | catalog, list, detail, install typed results | Module center/detail connected owners | Mỗi document giữ đúng một root field theo transport invariant. |
 | `ChoiceTabsProps` | `variant` | KEEP | optional primary/secondary | same | Existing workspace call now supplies `primary`; center uses default secondary | Không sửa UI package API. |
+| AgentOS module detail route | route params | KEEP | N/A | `workspaceId` + `installationId` | Next route → connected page | Route chỉ chuyển exact identities; không mở public component props. |
+| `AgentOSWorkspacePage` connected | public props | KEEP | `workspaceId` | same | Existing workspace route | Connected owner vẫn chỉ nhận workspace identity. |
+| `_AgentOSWorkspacePage` pure | public props | KEEP | closed view props | same shape; union có `solutions` | Connected workspace page | Không truyền API functions hoặc raw Result vào pure twin. |
+| `AgentOSSolutionModulePage` connected | public props | ADD | N/A | `workspaceId` + `installationId` | Module detail route | Exact owner identities; query và realtime ở connected twin. |
+| `_AgentOSSolutionModulePage` pure | public props | ADD | N/A | closed state/data/labels | Connected module page | Pure twin không import transport/session. |
+| `AgentOSSolutionModuleCenter` connected | public props | ADD | N/A | `workspaceId` | Pure workspace page | Block chỉ nhận exact owner scope. |
+| `_AgentOSSolutionModuleCenter` pure | public props | ADD | N/A | closed state/mode/cards/actions | Connected module center | Pure twin không nhận raw API result. |
+| `AgentOSSolutionModuleSummary` | public props | ADD | N/A | installation + resolved labels | Pure module detail page | Chỉ nhận package/lifecycle read fields. |
+| `AgentOSSolutionModuleBindings` | public props | ADD | N/A | installation + resolved labels | Pure module detail page | Chỉ nhận agent/channel/knowledge read fields. |
 
 ### SUPPORTING PRODUCTION BOUNDARY
 
@@ -573,3 +584,126 @@
 | Production implementation và browser live proof | `$starci-fe-design-apply` sau approval. |
 | Channel/shared knowledge setup, upgrade, retry, uninstall UX | Backend Feature Plan/Review/Apply tương ứng, rồi FE Design continuation. |
 | Repair stale skill reference paths | `$starci-fe-upgrade-plan` dựa trên warning này. |
+
+## apply r1
+
+Applied revision: `nivo-agentos-module-center-fe-r1`
+
+Baseline commit: `7bc2ff4`
+
+Tracked diff: `7bc2ff4..019947b`
+
+### CONTEXT
+
+| Field | Value |
+|---|---|
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | Explicit targets |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | nivo |
+| Repo / branch | Source D:\Repositories\starci-academy-backend @ mtp; Frontend D:\Repositories\nivo-fe @ main; Backend D:\Repositories\nivo-backend @ main |
+| Purpose | Apply module catalog, install fleet, detail route và exact module Saga realtime target đã được duyệt. |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\designs\nivo\agentos-module-builder.md |
+| Language | vi |
+| Frontend baseline | `7bc2ff4` (`feat: add academy control center`) |
+| Frontend implementation | `019947b` (`feat: add AgentOS solution module center`) |
+| Backend capability | `8ae521e` (`feat: add AgentOS solution module provisioning`) |
+| Phase | apply |
+| Touching | D:\Repositories\nivo-fe approved 13-path boundary; D:\Repositories\starci-academy-backend\.workflows\designs\nivo\agentos-module-builder.md |
+
+### OUTPUTS
+
+| Concept | Result |
+|---|---|
+| Workspace destination | Thêm tab cấp chính `Giải pháp` trong AgentOS workspace, tách khỏi `Applications`. |
+| Module catalog | Render hai package backend thật: Chatbot đa kênh và Sales Copilot; package đã cài bị khóa đúng trạng thái. |
+| Installation fleet | Thêm mode `Đã cài`, lifecycle badge, version và link chi tiết theo đúng installation identity. |
+| Installation detail | Thêm route động và hai block độc lập cho package/lifecycle cùng agents/channels/knowledge bindings. |
+| Realtime | Mở rộng target/event bằng exact `module-installation`; chỉ nhận generic `provisioning.saga.status` đúng resource id rồi refetch snapshot canonical. |
+| Runtime correction | Trì hoãn cây HeroUI tabs đến client mount; hydration mismatch tìm thấy trong browser proof không còn tái hiện. |
+
+### CHANGES
+
+| Tree | Details |
+|---|---|
+| `D:\Repositories\nivo-fe\apps\app\src\modules\api\console.ts` | Thêm closed wire types và bốn GraphQL operations catalog/list/detail/install. |
+| `D:\Repositories\nivo-fe\apps\app\src\modules\realtime\provisioning.ts` | Thêm exact module installation target/event mapping. |
+| `D:\Repositories\nivo-fe\apps\app\src\components\pages\AgentOSWorkspacePage` | Thêm primary Solutions section và client-mount hydration guard. |
+| `D:\Repositories\nivo-fe\apps\app\src\components\blocks\agentos\AgentOSSolutionModuleCenter` | Thêm connected/pure module catalog, installed fleet và install action. |
+| `D:\Repositories\nivo-fe\apps\app\src\app\[locale]\(console)\agentos\workspaces\[workspaceId]\modules\[installationId]\page.tsx` | Thêm route owner cho installation detail. |
+| `D:\Repositories\nivo-fe\apps\app\src\components\pages\AgentOSSolutionModulePage` | Thêm connected/pure detail page với exact realtime subscription. |
+| `D:\Repositories\nivo-fe\apps\app\src\components\blocks\agentos\AgentOSSolutionModuleSummary` | Thêm block package/lifecycle facts. |
+| `D:\Repositories\nivo-fe\apps\app\src\components\blocks\agentos\AgentOSSolutionModuleBindings` | Thêm block generated agents, channels và knowledge facts. |
+| `D:\Repositories\nivo-fe\apps\app\src\messages\{en,vi}.json` | Thêm copy song ngữ cho tab, catalog, fleet và detail. |
+
+### PROOF
+
+| Gate | Result |
+|---|---|
+| Typecheck | PASS — `npm run typecheck`, 4/4 packages. |
+| Product lint | PASS — `npx turbo run lint`, 4/4 packages, zero error. |
+| Production build | PASS — `npm run build`, 3/3 tasks; route `/[locale]/agentos/workspaces/[workspaceId]/modules/[installationId]` được emit. |
+| Backend lint | PASS — `npm run lint:check` exit 0, zero error; 1792 warning cũ ngoài FE boundary. |
+| Diff integrity | PASS — staged `git diff --check`; commit đúng 13 approved paths, 660 insertions và 11 deletions. |
+| Component boundary | PASS — không sửa `packages/ui`; mọi ADD/MODIFY khớp `COMPONENT DELTA`, `PROPS DELTA` và supporting boundary đã duyệt. |
+
+### CROSS-REPOSITORY LINT PROOF
+
+| Repository | Command | Result |
+|---|---|---|
+| Frontend | `npx turbo run lint` | PASS — App/UI/Expert/Landing đều thành công. |
+| Backend | `npm run lint:check` | PASS — zero error; warning debt đã tồn tại trước feature. |
+| Canon mirror | Root `npm run lint` preflight | OWED — local plugin mirror lệch trust-tree ngoài approved boundary; không chạy `--write` trong feature Apply. |
+
+### LIVE FLOW PROOF
+
+| Field | Evidence |
+|---|---|
+| Flow | Sign in → AgentOS workspace → Giải pháp → cài Chatbot đa kênh → cài Sales Copilot → Đã cài → mở detail. |
+| Persona | Local Nivo tester owner; credential omitted. |
+| Fixture repair | Historical workspace là `agent_os` nhưng `instances.app_id` NULL. Apply backfill đúng một instance sang registry key `agentos`; không xóa hoặc sửa workspace khác. |
+| Steps | Đăng nhập UI thật; mở workspace `d44a8fed-6e31-4634-9dae-44dd00165f2d`; cài lần lượt hai module; mở cả catalog, fleet và detail; reload bằng tab browser mới; kiểm 390×844 rồi reset viewport. |
+| UI | Catalog trả đúng hai solution; mutation chuyển sang `Đã cài`; cả hai installation hiện `Provisioning`; detail hiển thị version, generated agents, empty channel/shared knowledge và common/private knowledge version. Mobile stack không overflow. |
+| Network | Hai GraphQL install requests trả application envelope thành công, thể hiện bằng hai installation id và durable rows. Catalog/list/detail refetch đều trả data thật. Browser control không expose DevTools Network status trực tiếp nên không ghi mã HTTP suy đoán. |
+| Saga | Cả hai Saga hoàn thành `reserve-installation`, `pin-manifest`, `compose-desired-state`, `queue-runtime-reconcile`; mỗi installation có một `RECONCILE_AGENTOS_MODULE` job queued và đang chờ pod-side callback. |
+| Socket.IO | FE subscribe exact module installation id và giữ snapshot canonical qua reload. Không có terminal event Ready vì cluster hiện không có tenant AgentOS pod để poll runtime job; không giả lập callback. |
+| Console | Run đầu phát hiện HeroUI hydration mismatch. Sau sửa, fresh browser tab đi qua workspace → Solutions → Installed → detail với zero warning/error mới. |
+| Terminal | FE trả 200 cho workspace/detail routes. BE bật AgentOS worker, enqueue cả hai BullMQ jobs và khởi động thành công; Qdrant compatibility, data mount và embedding warning là runtime debt cũ. Tino cluster có 3 node Ready nhưng chỉ còn system pods, không có tenant pod. |
+| Verdict | FE/UI/API/Saga enqueue PASS. End-to-end `queued → Ready` và Socket Ready event OWED vì tenant AgentOS pod đã bị dọn khỏi cluster. |
+| Evidence | Browser để tại module detail; FE `3066`, BE `3067`; implementation commit `019947b`. |
+
+### NEED APPROVALS
+
+| Question | Options |
+|---|---|
+| None | None |
+
+### WARNINGS
+
+| Warning | Impact |
+|---|---|
+| Tino cluster hiện chỉ có system pods, không có AgentOS tenant pod cho historical workspace. | Pod runtime job không thể được poll/ack; installation giữ đúng trạng thái `Provisioning`. |
+| Root FE lint preflight thấy canonical plugin mirror drift. | Cần FE lint-sync lifecycle riêng; product workspace lint hiện xanh. |
+| Apply skill còn trỏ tới hai creativity reference đã bị trust-tree migration xóa. | Cần FE upgrade lifecycle sửa skill path; không ảnh hưởng source implementation đã proof. |
+
+### REJECTED
+
+| Rejected | Instead | Why |
+|---|---|---|
+| Giả callback pod để ép installation thành Ready | Giữ queued state và ghi OWED | Live proof không được biến fixture thành bằng chứng runtime giả. |
+| Thêm bind/upgrade/uninstall/retry controls | Detail read-only theo contract backend hiện có | Backend r2 chưa sở hữu các mutations này. |
+| Sửa `ChoiceTabs` package ngoài boundary | Client-mount guard ở approved workspace page | Giữ nguyên UI package và exact production boundary. |
+
+### OWED
+
+| Owed | Cleared by |
+|---|---|
+| Runtime reconcile và Socket.IO Ready cho hai installation | Provision/restore một AgentOS tenant pod có registration key, để pod poll hai `RECONCILE_AGENTOS_MODULE` jobs; rerun UI reload/reconnect proof. |
+| Root canon mirror gate | Chạy `starci-fe-lint-sync-plan` → Review → Apply cho `D:\Repositories\nivo-fe`. |
+| Channel/shared knowledge setup, upgrade, retry và uninstall UX | Backend Feature Plan/Review/Apply tương ứng, rồi FE Design continuation. |
+| Repair stale Apply skill reference paths | Chạy `starci-fe-upgrade-plan` theo warning đã ghi. |
