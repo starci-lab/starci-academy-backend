@@ -93,6 +93,11 @@ claude-legacy/
 # nhiều source), nên nó tự quản version của nó. Cây canon cũ nằm ở claude-legacy/claude-2026-07-31/,
 # vẫn còn đủ trong lịch sử git tới commit ecad51e12.
 .claude/
+.workspace/
+
+# Source-local project worktrees. Each project owns `.worktrees/<project>/registries`, `sessions`
+# and `cache`; the registry is versioned by its dedicated linked-worktree branch.
+/.worktrees/
 
 # cloudflare tunnel token (never commit)
 .secrets/
