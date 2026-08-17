@@ -276,7 +276,7 @@
 
 | Preview | URL | HTML | SHA-256 | Status |
 |---|---|---|---|---|
-| AgentOS module solutions r2 | Pending serve | `D:\Repositories\starci-academy-backend\.workflows\.previews\designs\nivo\agentos-module-builder\r2\index.html` | Pending | Chờ serve và browser QA. |
+| AgentOS module solutions r2 | `http://127.0.0.1:8083/` | `D:\Repositories\starci-academy-backend\.workflows\.previews\designs\nivo\agentos-module-builder\r2\index.html` | `C5282B861CBD6488566391C670BA771D6E26F8EF6A0977A4C1BECFB78A0AA25F` | Đã serve và browser QA. |
 
 | Direction | Tab | Status |
 |---|---|---|
@@ -391,20 +391,20 @@
 
 | Field | Value |
 |---|---|
-| Workdir | `D:\Repositories\starci-academy-backend` |
-| Source | `D:\Repositories\starci-academy-backend` |
-| Project | `Explicit targets` |
-| Frontend | `D:\Repositories\nivo-fe` |
-| Backend | `D:\Repositories\nivo-backend` |
-| Trust | `D:\Repositories\starci-academy-backend\.claude` |
-| Skills | `D:\Repositories\starci-academy-backend\.claude\skills` |
-| App | `nivo` |
-| Repo / branch | `D:\Repositories\nivo-fe` / `main` |
+| Workdir | D:\Repositories\starci-academy-backend |
+| Source | D:\Repositories\starci-academy-backend |
+| Project | Explicit targets |
+| Frontend | D:\Repositories\nivo-fe |
+| Backend | D:\Repositories\nivo-backend |
+| Trust | D:\Repositories\starci-academy-backend\.claude |
+| Skills | D:\Repositories\starci-academy-backend\.claude\skills |
+| App | nivo |
+| Repo / branch | D:\Repositories\nivo-fe / main |
 | Purpose | Khóa FE tree tiêu thụ bốn AgentOS solution-module GraphQL operations và render tiến trình theo exact installation id. |
-| Workflow root | `D:\Repositories\starci-academy-backend\.workflows` |
-| Workflow | `D:\Repositories\starci-academy-backend\.workflows\designs\nivo\agentos-module-builder.md` |
-| Language | `vi` |
-| Phase | `review` |
+| Workflow root | D:\Repositories\starci-academy-backend\.workflows |
+| Workflow | D:\Repositories\starci-academy-backend\.workflows\designs\nivo\agentos-module-builder.md |
+| Language | vi |
+| Phase | review |
 | Touching | Chỉ workflow này; Review không viết production source. |
 
 ### CONTRACT EVIDENCE
