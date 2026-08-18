@@ -14,7 +14,12 @@ on:
   workflow_dispatch:
 
 jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
   deploy:
+    needs: verify
     runs-on: self-hosted
     environment: core-vps
 
@@ -136,4 +141,4 @@ jobs:
           GITHUB_CLIENT_ID: ${{ vars._GITHUB_CLIENT_ID }}
         run: |
           docker compose -f apps/core/vps-compose.yaml down || true
-          docker compose -f apps/core/vps-compose.yaml up --build -d 
+          docker compose -f apps/core/vps-compose.yaml up --build -d

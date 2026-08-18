@@ -30,7 +30,7 @@
         "test:int": "jest --selectProjects integration --runInBand --passWithNoTests",
         "test:watch": "jest --selectProjects unit --watch",
         "test:cov": "jest --selectProjects unit --coverage",
-        "test:ci": "jest --selectProjects unit --ci --passWithNoTests",
+        "test:ci": "jest --selectProjects unit --ci --coverage --coverageReporters=lcov --coverageReporters=text-summary --passWithNoTests",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "node -r ts-node/register/transpile-only src/tests/helpers/e2e-runner.ts",
         "harness": "jest --config ./src/tests/harness/jest-harness.json --runInBand",

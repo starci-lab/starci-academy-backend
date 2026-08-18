@@ -1,0 +1,10 @@
+coverage:
+  status:
+    project:
+      default:
+        informational: false
+    patch:
+      default:
+        informational: false
+
+comment: false
