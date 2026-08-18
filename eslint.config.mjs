@@ -1,8 +1,7 @@
-// >>> sync-be-lint.mjs -- canon rule wiring, do not edit by hand >>>
 /*
- * The rules are authored in the trust tree and MIRRORED here by sync-be-lint.mjs. Do not edit
- * anything under plugins/eslint-canon/ and do not add a rule to it: the next run overwrites the
- * folder, and a rule that exists only here is a second answer to a question canon already answers.
+ * The rules are authored in the trust tree and published as @starci/eslint-canon-be. Do not add a
+ * rule here: a rule with no law in the tree is unaccountable, and a copy that lives in this
+ * repository enforces whatever the law was on the day it was copied.
  *
  * What this repository does own is the config below - which globs the rules apply to, and which of
  * them are switched on today. Register the plugin under the name canon publishes:
@@ -12,8 +11,7 @@
  */
 import starciBeCanon, {
     recommended as starciBeCanonRecommended,
-} from "./plugins/eslint-canon/index.mjs"
-// <<< sync-be-lint.mjs -- canon rule wiring <<<
+} from "@starci/eslint-canon-be"
 
 
 import js from "@eslint/js"
