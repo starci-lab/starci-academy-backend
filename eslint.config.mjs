@@ -119,15 +119,9 @@ export default defineConfig([
         // without the front end actually returning.
         files: ["src/**/*.ts", "apps/**/*.ts"],
         plugins: {
-            // One namespace, two sources, and the order is the transition: canon first, the local
-            // plugin last, so while both exist the repository's own copy still decides every name
-            // they share and canon supplies only the rules there is no local copy of. Flipping the
-            // order is the adoption step, and it is a decision with findings attached — canon's
-            // `no-inline-param-type` and `no-framework-logger` are stricter than the copies here.
-            //
-            // `plugins/eslint-canon/` is written by <trust-root>/scripts/sync-be-lint.mjs and is
-            // never edited in place. Run that script to see drift; a rule added only to the mirror
-            // is erased by the next run.
+            // Canon owns every published rule. The local plugin contributes only the seven
+            // repository-specific rules that canon does not publish, so this merge has no
+            // overlapping names and cannot replace the shared machine with a private copy.
             "starci-be": {
                 meta: {
                     name: "eslint-plugin-starci-be",
