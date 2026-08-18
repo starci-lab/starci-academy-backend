@@ -120,9 +120,10 @@ const resolveCommand = (command) => {
  * the tail of a value repeat its head.
  *
  * @param kind - "user" | "password" | "token".
+ * @param requireSpecial - whether the consumer requires a punctuation character.
  * @returns the minted value; the caller must not log it.
  */
-const generate = (kind) => {
+const generate = (kind, requireSpecial = false) => {
     // Built from code points rather than written out: a 62-character literal of
     // mixed-case letters and digits is precisely the shape the pre-commit secret
     // scanner looks for, and a generator's alphabet should not need an override
@@ -151,7 +152,8 @@ const generate = (kind) => {
     }
     // A username has to be a legal SQL identifier and a legal MinIO root user,
     // so it must not start with a digit.
-    return kind === "user" ? `u${out.slice(1)}` : out
+    if (kind === "user") return `u${out.slice(1)}`
+    return requireSpecial ? `${out.slice(0, -1)}!` : out
 }
 
 /**
@@ -246,7 +248,7 @@ const main = () => {
             kept.push(credential.file)
             continue
         }
-        const value = generate(credential.kind)
+        const value = generate(credential.kind, credential.requireSpecial)
         writeEncrypted(sops, plainPath, `${value}\n`, "binary")
         mintedValues.set(credential.file, value)
         minted.push(credential)

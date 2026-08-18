@@ -1,5 +1,15 @@
 # StarCi Academy — Backend Curriculum
 
+[![Codecov](https://codecov.io/gh/starci-lab/starci-academy-backend/graph/badge.svg)](https://app.codecov.io/gh/starci-lab/starci-academy-backend)
+[![SonarQube Quality Gate](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=alert_status)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
+[![SonarQube Coverage](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=coverage)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
+[![SonarQube Bugs](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=bugs)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
+[![SonarQube Vulnerabilities](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=vulnerabilities)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
+[![SonarQube Code Smells](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=code_smells)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
+[![SonarQube Maintainability](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=sqale_rating)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
+[![SonarQube Reliability](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=reliability_rating)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
+[![SonarQube Security](https://sonar.starci.org/api/project_badges/measure?project=starci-academy-backend&metric=security_rating)](https://sonar.starci.org/dashboard?id=starci-academy-backend)
+
 Mono-repo quản lý toàn bộ nội dung khoá học **Fullstack Mastery** và **System Design Mastery** của [StarCi Academy](https://github.com/StarCi-Academy).
 
 ---

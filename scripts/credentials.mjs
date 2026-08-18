@@ -35,9 +35,8 @@
  * Infra credentials this repo mints for itself.
  *
  * Every row is a datastore password or a service token that exists only because
- * we chose it. There are eleven, matching the ten services in the dev compose
- * stack (kafka, cadvisor and prometheus authenticate nothing) plus the app's own
- * CSRF secret.
+ * we chose it. The table covers the original local stack, the app's own CSRF
+ * secret, and the dedicated SonarQube database/bootstrap credentials.
  *
  * Fields
  *   file        basename under .stacks/<stack>/runtime/files/ -- `.enc` is the
@@ -48,6 +47,8 @@
  *               container needs the value
  *   kind        "user" | "password" | "token" -- only changes the length and the
  *               leading character, never the alphabet
+ *   requireSpecial appends a compose-safe special character for services whose
+ *               password policy requires one
  *   aliases     extra env keys that must receive the SAME value (see the redis
  *               lanes below)
  *
@@ -158,6 +159,40 @@ export const CREDENTIALS = [
         env: "CSRF_SECRET",
         composeVar: null,
         kind: "token",
+    },
+    {
+        /** Dedicated PostgreSQL password for the local SonarQube database. */
+        file: "sonarqube-db-password.txt",
+        env: null,
+        composeVar: "SONARQUBE_DB_PASSWORD",
+        kind: "password",
+    },
+    {
+        /**
+         * Replaces SonarQube's default admin password before the public tunnel
+         * is allowed to start. The bootstrap service receives the decrypted
+         * file read-only; the value is never rendered into compose's env file.
+         */
+        file: "sonarqube-admin-password.txt",
+        env: null,
+        composeVar: null,
+        composeMount: true,
+        kind: "password",
+        requireSpecial: true,
+    },
+]
+
+/**
+ * Runtime credentials issued by an external control plane. They are required
+ * by compose but are never minted by `secret:gen`.
+ */
+export const SERVICE_CREDENTIALS = [
+    {
+        file: "cloudflare-starci-local-services-tunnel-token.key",
+        env: null,
+        composeVar: null,
+        composeMount: true,
+        composeProfiles: ["public"],
     },
 ]
 

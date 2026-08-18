@@ -16,7 +16,8 @@
         "natsMonitor": 8223,
         "keycloak": 8081,
         "cadvisor": 8082,
-        "prometheus": 9091
+        "prometheus": 9091,
+        "sonarqube": 9011
     },
     "basePorts": {
         "core": 3000,
@@ -32,7 +33,8 @@
         "natsMonitor": 8222,
         "keycloak": 8080,
         "cadvisor": 8081,
-        "prometheus": 9090
+        "prometheus": 9090,
+        "sonarqube": 9010
     },
     "secrets": {
         "masterKey": "~/.starci/master.identity",

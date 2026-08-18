@@ -1,0 +1,18 @@
+# The Cloudflare control plane and API credential live at Source scope. This
+# stack owns only the connector process and its issued run token.
+services:
+  cloudflared-sonarqube:
+    image: cloudflare/cloudflared:2026.8.2
+    container_name: ${STARCI_CONTAINER_PREFIX:-starci-}cloudflared-sonarqube
+    profiles: [public]
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN_FILE: /run/secrets/cloudflare-tunnel-token
+    volumes:
+      - ../../runtime/files/cloudflare-starci-local-services-tunnel-token.key:/run/secrets/cloudflare-tunnel-token:ro
+    depends_on:
+      sonarqube:
+        condition: service_healthy
+      sonarqube-bootstrap:
+        condition: service_completed_successfully
+    restart: unless-stopped

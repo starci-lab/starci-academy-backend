@@ -9,6 +9,7 @@
         "build": "nest build core",
         "sync": "node scripts/sync.mjs",
         "compose": "node scripts/compose.mjs",
+        "compose:starci": "node scripts/starci-compose.mjs",
         "secret:gen": "node scripts/secrets-gen.mjs",
         "secret:set": "node scripts/stack-secret.mjs set",
         "secret:list": "node scripts/stack-secret.mjs list",
