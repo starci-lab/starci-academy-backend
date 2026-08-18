@@ -26,6 +26,12 @@ import {
  */
 export const MOCK_INTERVIEW_SESSION_DURATION_MS = 60 * 60 * 1000
 
+/** One authored programming-language variant of a seed question's GIVEN code. */
+export interface MockInterviewSeedQuestionGivenCode {
+    lang: string
+    code: string
+}
+
 /**
  * One drawn question SEED for a `mode="qna"` session -- one
  * `flashcard_cards.id` PLUS the cognitive frame ({@link import("../enums/mock-interview-kind").MockInterviewKind})
@@ -51,7 +57,7 @@ export interface MockInterviewSeedQuestion {
      * resume exactly as it was first delivered. Empty array for every other
      * kind/source.
      */
-    givenCodes: Array<{ lang: string, code: string }>
+    givenCodes: Array<MockInterviewSeedQuestionGivenCode>
 }
 
 /**

@@ -18,9 +18,11 @@ import {
 
 @Injectable()
 /**
- * Guard that grants access only when admin API key matches mounted secret.
+ * Service-token guard: grants access only when the caller presents the
+ * `x-admin-api-key` header and it matches the mounted secret. The subject
+ * here is a bearer of a shared secret, not a product user session.
  */
-export class AdminAccessGuard implements CanActivate {
+export class AdminServiceTokenGuard implements CanActivate {
     constructor(
         private readonly mountStorageService: MountStorageService,
     ) { }

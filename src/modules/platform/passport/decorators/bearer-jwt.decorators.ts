@@ -8,6 +8,9 @@ import {
 import type {
     Request,
 } from "express"
+import type {
+    GraphQLContextParams,
+} from "../types/graphql-context"
 
 /**
  * Reads `Authorization: Bearer <jwt>` on the HTTP request (REST or GraphQL).
@@ -34,9 +37,7 @@ function resolveRequest(
     context: ExecutionContext,
 ): Request {
     if (context.getType<string>() === "graphql") {
-        const gql = GqlExecutionContext.create(context).getContext<{
-            req: Request
-        }>()
+        const gql = GqlExecutionContext.create(context).getContext<GraphQLContextParams>()
         return gql.req
     }
     return context.switchToHttp().getRequest<Request>()

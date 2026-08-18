@@ -60,7 +60,7 @@ import {
     RenderCvBlocksCommand,
 } from "./render-cv-blocks.command"
 import {
-    RenderCvBlocksResult,
+    RenderCvBlocksResponseData,
 } from "./graphql-types/response"
 import {
     CvExportFormat,
@@ -89,8 +89,8 @@ const TECTONIC_MAX_BUFFER = 16 * 1024 * 1024
  * User-supplied LaTeX is compiled `--untrusted` (no shell-escape / `\write18`).
  */
 export class RenderCvBlocksHandler
-    extends ICQRSHandler<RenderCvBlocksCommand, RenderCvBlocksResult>
-    implements ICommandHandler<RenderCvBlocksCommand, RenderCvBlocksResult> {
+    extends ICQRSHandler<RenderCvBlocksCommand, RenderCvBlocksResponseData>
+    implements ICommandHandler<RenderCvBlocksCommand, RenderCvBlocksResponseData> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -102,7 +102,7 @@ export class RenderCvBlocksHandler
 
     protected override async process(
         command: RenderCvBlocksCommand,
-    ): Promise<RenderCvBlocksResult> {
+    ): Promise<RenderCvBlocksResponseData> {
         const {
             request: {
                 id,

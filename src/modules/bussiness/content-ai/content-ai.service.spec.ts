@@ -29,6 +29,9 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
+    ContentAiSessionTitleTooLongException,
+} from "@modules/platform/exceptions/errors/courses/content-ai-session-title-too-long"
+import {
     ContentNotFoundException,
 } from "@modules/platform/exceptions/errors/courses/content-not-found"
 import {
@@ -83,9 +86,11 @@ describe("ContentAiService",
         }
         let s3NameResolverService: {
             content: jest.Mock
+            repo: jest.Mock
         }
         let userService: {
             checkEnrollment: jest.Mock
+            getUserByKeycloakId: jest.Mock
         }
         let contentRagRetrievalService: {
             retrieveContentExcerpt: jest.Mock
@@ -126,11 +131,15 @@ describe("ContentAiService",
                 json: jest.fn().mockResolvedValue(makeContent(smallBody)),
             }
             s3NameResolverService = {
-                content: jest.fn(() => `contents/${contentId}/en.json`),
+                content: jest.fn((id: string,
+                    locale: string) => `contents/${id}/${locale}.json`),
+                repo: jest.fn((repoName: string,
+                    dir: string) => `repo/${repoName}/${dir}.json`),
             }
             // default: not premium -> entitlement never consulted; program per-test
             userService = {
                 checkEnrollment: jest.fn().mockResolvedValue(false),
+                getUserByKeycloakId: jest.fn().mockResolvedValue(null),
             }
             contentRagRetrievalService = {
                 retrieveContentExcerpt: jest.fn().mockResolvedValue({
@@ -911,6 +920,1646 @@ describe("ContentAiService",
                         expect(system.content).toContain("general, sharp programming tutor")
                         const last = messages[messages.length - 1] as HumanMessage
                         expect(last.content).toBe("How do I reverse a linked list?")
+                    })
+
+                it("CHALLENGE · enrolled → grounds on the challenge's own material",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "challenge-1",
+                            content: {
+                                id: contentId,
+                                module: {
+                                    id: "module-1",
+                                    course: {
+                                        id: "course-9",
+                                    },
+                                },
+                            },
+                        })
+                        userService.checkEnrollment.mockResolvedValue(true)
+                        contentRagRetrievalService.retrieveContentExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "CHALLENGE-BRIEF-CHUNK",
+                            })
+                        contentRagRetrievalService.retrieveCourseExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "COURSE-BASE-CHUNK",
+                            })
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            challengeId: "challenge-1",
+                            question: "What does this challenge want?",
+                            locale: Locale.En,
+                        })
+
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .toHaveBeenCalledWith({
+                                contentId: "challenge-1",
+                                query: "What does this challenge want?",
+                            })
+                        const system = (messages[0] as SystemMessage).content as string
+                        expect(system).toContain("CHALLENGE-BRIEF-CHUNK")
+                        // the course-wide BASE layers UNDER the challenge's own material
+                        expect(system).toContain("COURSE-BASE-CHUNK")
+                        expect(system.indexOf("COURSE-BASE-CHUNK"))
+                            .toBeLessThan(system.indexOf("CHALLENGE-BRIEF-CHUNK"))
+                    })
+
+                it("QUIZ · enrolled → grounds on the deck's own question/answer material",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "deck-1",
+                            course: {
+                                id: "course-9",
+                            },
+                        })
+                        userService.checkEnrollment.mockResolvedValue(true)
+                        contentRagRetrievalService.retrieveContentExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "QUIZ-QA-CHUNK",
+                            })
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            quizId: "deck-1",
+                            question: "Why is A correct?",
+                            locale: Locale.En,
+                        })
+
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .toHaveBeenCalledWith({
+                                contentId: "deck-1",
+                                query: "Why is A correct?",
+                            })
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("QUIZ-QA-CHUNK")
+                    })
+
+                it("TASK · unknown owning course → refuses without ever asking about enrollment",
+                    async () => {
+                        // the task row (or its milestone->course join) does not resolve
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            taskId: "ghost-task",
+                            question: "What is this?",
+                            locale: Locale.En,
+                        })
+
+                        expect(userService.checkEnrollment).not.toHaveBeenCalled()
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .not.toHaveBeenCalled()
+                        // ...and with no course there is no BASE layer either
+                        expect((messages[0] as SystemMessage).content)
+                            .not.toContain("=== COURSE KNOWLEDGE (retrieved) ===")
+                    })
+
+                it("CHALLENGE · unknown owning course → refuses without an enrollment check",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        await service.prepareMessages({
+                            userId,
+                            challengeId: "ghost-challenge",
+                            question: "What is this?",
+                            locale: Locale.En,
+                        })
+
+                        expect(userService.checkEnrollment).not.toHaveBeenCalled()
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .not.toHaveBeenCalled()
+                    })
+
+                it("QUIZ · unknown owning course → refuses without an enrollment check",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        await service.prepareMessages({
+                            userId,
+                            quizId: "ghost-deck",
+                            question: "What is this?",
+                            locale: Locale.En,
+                        })
+
+                        expect(userService.checkEnrollment).not.toHaveBeenCalled()
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .not.toHaveBeenCalled()
+                    })
+
+                it("CONTENT · premium flag falls back to the MinIO snapshot when the DB row is gone",
+                    async () => {
+                        s3ReadService.json.mockResolvedValueOnce(makeContent(smallBody,
+                            true))
+                        // no live row -> the snapshot's own isPremium decides, and with
+                        // no owning course the viewer can never be entitled
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        await expect(
+                            service.prepareMessages(baseParams),
+                        ).rejects.toBeInstanceOf(PremiumContentAiAccessDeniedException)
+                        expect(userService.checkEnrollment).not.toHaveBeenCalled()
+                    })
+
+                it("CONTENT · unknown owning course → no BASE layer and no enrollment check",
+                    async () => {
+                        // a non-premium lesson whose module/course join does not resolve
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: contentId,
+                            isPremium: false,
+                            module: null,
+                        })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        expect(userService.checkEnrollment).not.toHaveBeenCalled()
+                        expect(contentRagRetrievalService.retrieveCourseExcerpt)
+                            .not.toHaveBeenCalled()
+                        const system = (messages[0] as SystemMessage).content as string
+                        expect(system).not.toContain("=== COURSE KNOWLEDGE (retrieved) ===")
+                        expect(system).toContain(smallBody)
+                    })
+
+                it("pins the reply language to Vietnamese for a vi request",
+                    async () => {
+                        const { messages } = await service.prepareMessages({
+                            ...baseParams,
+                            locale: Locale.Vi,
+                        })
+
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("Reply in Vietnamese")
+                        expect(s3NameResolverService.content)
+                            .toHaveBeenCalledWith(contentId,
+                                Locale.Vi)
+                    })
+            })
+
+        // ── HISTORY WINDOW -- the rolling TOKEN budget, not a flat turn count ─────
+        describe("rolling history budget",
+            () => {
+                it("drops the oldest turns once the char budget is spent, keeping the newest",
+                    async () => {
+                        // budget = 24000 - prompt - question - 3000 reserve; two 11k
+                        // turns already overrun it, so only the newest survives
+                        const history = [
+                            {
+                                role: "user",
+                                content: `old-${"o".repeat(20_000)}`,
+                            },
+                            {
+                                role: "assistant",
+                                content: `mid-${"m".repeat(20_000)}`,
+                            },
+                            {
+                                role: "user",
+                                content: "newest-turn",
+                            },
+                        ]
+
+                        const { messages } = await service.prepareMessages({
+                            ...baseParams,
+                            history,
+                        })
+
+                        // system + 1 replayed turn + question
+                        expect(messages).toHaveLength(3)
+                        expect((messages[1] as HumanMessage).content).toBe("newest-turn")
+                    })
+
+                it("replays nothing when the grounding alone consumes the whole input budget",
+                    async () => {
+                        // a lesson body far past the 24k input budget leaves zero room
+                        s3ReadService.json.mockResolvedValueOnce(
+                            makeContent("z".repeat(30_000)),
+                        )
+                        contentRagRetrievalService.retrieveContentExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "y".repeat(30_000),
+                            })
+
+                        const { messages } = await service.prepareMessages({
+                            ...baseParams,
+                            history: [
+                                {
+                                    role: "user",
+                                    content: "any prior turn",
+                                },
+                            ],
+                        })
+
+                        expect(messages).toHaveLength(2)
+                        expect(messages[1]).toBeInstanceOf(HumanMessage)
+                    })
+            })
+
+        // ── FULL-SOURCE GROUNDING -- the sandbox lesson code path ────────────────
+        describe("sandbox lesson code grounding",
+            () => {
+                /** A sandbox content snapshot pointing at a repo file map in MinIO. */
+                const sandboxContent = (
+                    body: string,
+                    overrides: Record<string, unknown> = {
+                    },
+                ) => ({
+                    id: contentId,
+                    isPremium: false,
+                    body,
+                    bodies: [],
+                    isSandbox: true,
+                    githubBaseUrl: "https://github.com/org/demo-repo",
+                    githubDir: "frontend",
+                    ...overrides,
+                })
+
+                /** Route the single S3 mock by key: lesson snapshot vs repo file map. */
+                const s3Returns = (
+                    content: unknown,
+                    files: unknown,
+                ) => {
+                    s3ReadService.json.mockImplementation(async (
+                        args: {
+                            key: string
+                        },
+                    ) => args.key.startsWith("repo/")
+                        ? files
+                        : content)
+                }
+
+                it("stuffs the whole body AND every repo file when the lesson fits",
+                    async () => {
+                        s3Returns(sandboxContent(smallBody),
+                            {
+                                "/src/App.tsx": {
+                                    code: "export const App = () => null",
+                                },
+                                "/src/util.ts": {
+                                    code: "export const sum = (a, b) => a + b",
+                                },
+                            })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        expect(s3NameResolverService.repo)
+                            .toHaveBeenCalledWith("demo-repo",
+                                "frontend")
+                        const system = (messages[0] as SystemMessage).content as string
+                        expect(system).toContain("=== LESSON CODE (full source) ===")
+                        expect(system).toContain("// /src/App.tsx")
+                        expect(system).toContain("export const sum = (a, b) => a + b")
+                        expect(system).toContain(smallBody)
+                        // the whole lesson fit -> no retrieval round-trip
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .not.toHaveBeenCalled()
+                    })
+
+                it("skips lockfiles, minified artifacts, sourcemaps, vendored and empty files",
+                    async () => {
+                        s3Returns(sandboxContent(smallBody),
+                            {
+                                "package-lock.json": {
+                                    code: "LOCKFILE-NOISE",
+                                },
+                                "yarn.lock": {
+                                    code: "YARN-NOISE",
+                                },
+                                "dist/app.min.js": {
+                                    code: "MINIFIED-NOISE",
+                                },
+                                "dist/app.js.map": {
+                                    code: "SOURCEMAP-NOISE",
+                                },
+                                "node_modules/left-pad/index.js": {
+                                    code: "VENDORED-NOISE",
+                                },
+                                "/src/blank.ts": {
+                                    code: "   \n",
+                                },
+                                "/src/missing.ts": {
+                                },
+                                "/src/App.tsx": {
+                                    code: "REAL-SOURCE",
+                                },
+                            })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        const system = (messages[0] as SystemMessage).content as string
+                        expect(system).toContain("REAL-SOURCE")
+                        for (const noise of [
+                            "LOCKFILE-NOISE",
+                            "YARN-NOISE",
+                            "MINIFIED-NOISE",
+                            "SOURCEMAP-NOISE",
+                            "VENDORED-NOISE",
+                        ]) {
+                            expect(system).not.toContain(noise)
+                        }
+                        expect(system).not.toContain("/src/blank.ts")
+                        expect(system).not.toContain("/src/missing.ts")
+                    })
+
+                it("RAG-retrieves instead of stuffing once body + code outgrow the context window",
+                    async () => {
+                        s3Returns(sandboxContent(smallBody),
+                            {
+                                "/src/huge.ts": {
+                                    code: "q".repeat(30_000),
+                                },
+                            })
+                        contentRagRetrievalService.retrieveContentExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "RELEVANT-CODE-CHUNK",
+                            })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .toHaveBeenCalledWith({
+                                contentId,
+                                query: baseParams.question,
+                            })
+                        const system = (messages[0] as SystemMessage).content as string
+                        expect(system).toContain("RELEVANT-CODE-CHUNK")
+                        expect(system).not.toContain("q".repeat(30_000))
+                    })
+
+                it("truncates the stuffed lesson to the budget when retrieval also misses",
+                    async () => {
+                        s3Returns(sandboxContent(smallBody),
+                            {
+                                "/src/huge.ts": {
+                                    code: "q".repeat(30_000),
+                                },
+                            })
+                        contentRagRetrievalService.retrieveContentExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "   ",
+                            })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        const system = (messages[0] as SystemMessage).content as string
+                        // never degrades below body-only: the head of the stuffed lesson
+                        // survives, capped at the 24k budget
+                        expect(system).toContain(smallBody)
+                        expect(system).toContain("=== LESSON CODE (full source) ===")
+                        expect(system).not.toContain("q".repeat(30_000))
+                    })
+
+                it("degrades to body-only when the repo file map is missing from MinIO",
+                    async () => {
+                        s3Returns(sandboxContent(smallBody),
+                            null)
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        const system = (messages[0] as SystemMessage).content as string
+                        expect(system).toContain(smallBody)
+                        expect(system).not.toContain("=== LESSON CODE (full source) ===")
+                    })
+
+                it("degrades to body-only when the repo read throws",
+                    async () => {
+                        s3ReadService.json.mockImplementation(async (
+                            args: {
+                                key: string
+                            },
+                        ) => {
+                            if (args.key.startsWith("repo/")) {
+                                throw new Error("MinIO unavailable")
+                            }
+                            return sandboxContent(smallBody)
+                        })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        expect((messages[0] as SystemMessage).content).toContain(smallBody)
+                    })
+
+                it("never reads a repo for a lesson missing its base URL or directory",
+                    async () => {
+                        s3Returns(sandboxContent(smallBody,
+                            {
+                                githubBaseUrl: null,
+                            }),
+                        {
+                        })
+
+                        await service.prepareMessages(baseParams)
+                        expect(s3NameResolverService.repo).not.toHaveBeenCalled()
+
+                        s3Returns(sandboxContent(smallBody,
+                            {
+                                githubDir: null,
+                            }),
+                        {
+                        })
+
+                        await service.prepareMessages(baseParams)
+                        expect(s3NameResolverService.repo).not.toHaveBeenCalled()
+                    })
+
+                it("never reads a repo when the base URL has no trailing repo segment",
+                    async () => {
+                        s3Returns(sandboxContent(smallBody,
+                            {
+                                githubBaseUrl: "https://github.com/org/",
+                            }),
+                        {
+                        })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        expect(s3NameResolverService.repo).not.toHaveBeenCalled()
+                        expect((messages[0] as SystemMessage).content).toContain(smallBody)
+                    })
+            })
+
+        // ── V2 BODY RESOLUTION -- snapshot content keeps `body` empty ────────────
+        describe("lesson body resolution",
+            () => {
+                it("prefers the locale translation of the first non-empty V2 bucket",
+                    async () => {
+                        s3ReadService.json.mockResolvedValueOnce({
+                            id: contentId,
+                            isPremium: false,
+                            body: "",
+                            bodies: [
+                                {
+                                    body: "bucket default markdown",
+                                    translations: [
+                                        {
+                                            locale: Locale.Vi,
+                                            body: "ban dich tieng viet",
+                                        },
+                                    ],
+                                },
+                            ],
+                        })
+
+                        const { messages } = await service.prepareMessages({
+                            ...baseParams,
+                            locale: Locale.Vi,
+                        })
+
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("ban dich tieng viet")
+                    })
+
+                it("falls back to the bucket's own markdown when the locale has no translation",
+                    async () => {
+                        s3ReadService.json.mockResolvedValueOnce({
+                            id: contentId,
+                            isPremium: false,
+                            body: "  ",
+                            bodies: [
+                                {
+                                    body: "bucket default markdown",
+                                },
+                            ],
+                        })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("bucket default markdown")
+                    })
+
+                it("walks past an empty bucket to the first one carrying markdown",
+                    async () => {
+                        s3ReadService.json.mockResolvedValueOnce({
+                            id: contentId,
+                            isPremium: false,
+                            body: "",
+                            bodies: [
+                                {
+                                    body: "   ",
+                                    translations: [],
+                                },
+                                {
+                                    body: "second bucket markdown",
+                                },
+                            ],
+                        })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("second bucket markdown")
+                    })
+
+                it("grounds on nothing (rather than throwing) when the snapshot has no body at all",
+                    async () => {
+                        s3ReadService.json.mockResolvedValueOnce({
+                            id: contentId,
+                            isPremium: false,
+                            body: "",
+                        })
+
+                        const { messages } = await service.prepareMessages(baseParams)
+
+                        // the lesson section is still rendered, just empty
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("=== LESSON CONTENT ===")
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .not.toHaveBeenCalled()
+                    })
+            })
+
+        describe("resolveUserIdByKeycloakId",
+            () => {
+                it("resolves the real user id behind a Keycloak subject",
+                    async () => {
+                        userService.getUserByKeycloakId.mockResolvedValueOnce({
+                            id: "user-uuid",
+                        })
+
+                        await expect(service.resolveUserIdByKeycloakId("kc-sub"))
+                            .resolves.toBe("user-uuid")
+                        expect(userService.getUserByKeycloakId)
+                            .toHaveBeenCalledWith("kc-sub")
+                    })
+
+                it("returns null when no user matches the subject",
+                    async () => {
+                        userService.getUserByKeycloakId.mockResolvedValueOnce(null)
+
+                        await expect(service.resolveUserIdByKeycloakId("kc-ghost"))
+                            .resolves.toBeNull()
+                    })
+            })
+
+        // ── SESSION CREATION -- scope derivation + per-scope anchoring ───────────
+        describe("createSession scope derivation and anchoring",
+            () => {
+                const enrollmentId = "enr-1"
+
+                it("derives every scope from the anchor priority when none is pinned",
+                    async () => {
+                        // no anchor at all -> the app-wide global chat
+                        const id = await service.createSession({
+                            userId,
+                        })
+
+                        expect(id).not.toBeNull()
+                        expect(entityManager.create.mock.calls[0][1]).toMatchObject({
+                            scope: "global",
+                            userId,
+                        })
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("derives the CONTENT scope from a content anchor",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: enrollmentId,
+                            },
+                        ])
+
+                        await service.createSession({
+                            userId,
+                            contentId,
+                        })
+
+                        expect(entityManager.create.mock.calls[0][1]).toMatchObject({
+                            scope: "content",
+                            enrollmentId,
+                            originContentId: contentId,
+                        })
+                    })
+
+                it("derives the CHALLENGE scope and anchors on origin_challenge_id",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "challenge-1",
+                            content: {
+                                module: {
+                                    course: {
+                                        id: "course-9",
+                                    },
+                                },
+                            },
+                        })
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: enrollmentId,
+                            },
+                        ])
+
+                        await service.createSession({
+                            userId,
+                            challengeId: "challenge-1",
+                        })
+
+                        expect(entityManager.create.mock.calls[0][1]).toMatchObject({
+                            scope: "challenge",
+                            enrollmentId,
+                            originChallengeId: "challenge-1",
+                        })
+                    })
+
+                it("derives the QUIZ scope and anchors on origin_quiz_id",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "deck-1",
+                            course: {
+                                id: "course-9",
+                            },
+                        })
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: enrollmentId,
+                            },
+                        ])
+
+                        await service.createSession({
+                            userId,
+                            quizId: "deck-1",
+                        })
+
+                        expect(entityManager.create.mock.calls[0][1]).toMatchObject({
+                            scope: "quiz",
+                            enrollmentId,
+                            originQuizId: "deck-1",
+                        })
+                    })
+
+                it("derives the COURSE scope and anchors on the enrollment alone",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: enrollmentId,
+                            },
+                        ])
+
+                        await service.createSession({
+                            userId,
+                            courseId: "course-9",
+                        })
+
+                        const created = entityManager.create.mock.calls[0][1]
+                        expect(created).toMatchObject({
+                            scope: "course",
+                            enrollmentId,
+                        })
+                        expect(created.originContentId).toBeUndefined()
+                    })
+
+                it("derives the FOUNDATION scope from a foundation anchor",
+                    async () => {
+                        await service.createSession({
+                            userId,
+                            foundationId: "foundation-1",
+                        })
+
+                        expect(entityManager.create.mock.calls[0][1]).toMatchObject({
+                            scope: "foundation",
+                            originFoundationId: "foundation-1",
+                        })
+                    })
+
+                // one case row per scope: the row is the argument list, so a scope is a
+                // single-element tuple -- a second element would be an argument the case
+                // never receives.
+                it.each([
+                    [
+                        "content",
+                    ],
+                    [
+                        "challenge",
+                    ],
+                    [
+                        "quiz",
+                    ],
+                    [
+                        "task",
+                    ],
+                    [
+                        "course",
+                    ],
+                    [
+                        "foundation",
+                    ],
+                ] as const)("refuses to create a %s session with no anchor id",
+                    async (scope) => {
+                        const id = await service.createSession({
+                            userId,
+                            scope,
+                        })
+
+                        expect(id).toBeNull()
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
+                it("derives the TASK scope and anchors on origin_task_id",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "task-1",
+                            milestone: {
+                                course: {
+                                    id: "course-9",
+                                },
+                            },
+                        })
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: enrollmentId,
+                            },
+                        ])
+
+                        await service.createSession({
+                            userId,
+                            taskId: "task-1",
+                        })
+
+                        expect(entityManager.create.mock.calls[0][1]).toMatchObject({
+                            scope: "task",
+                            enrollmentId,
+                            originTaskId: "task-1",
+                        })
+                    })
+
+                it("refuses a TASK session whose owning course cannot be resolved",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        await expect(service.createSession({
+                            userId,
+                            taskId: "ghost",
+                        })).resolves.toBeNull()
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("refuses a CONTENT session when the learner has no enrollment row",
+                    async () => {
+                        // resolveEnrollmentId: content row resolves, enrollment does not
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        const id = await service.createSession({
+                            userId,
+                            contentId,
+                        })
+
+                        expect(id).toBeNull()
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
+                it("refuses a CONTENT session when the content has no owning course",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: contentId,
+                            module: null,
+                        })
+
+                        const id = await service.createSession({
+                            userId,
+                            contentId,
+                        })
+
+                        expect(id).toBeNull()
+                        // bailed before ever querying for an enrollment
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("refuses a CHALLENGE session whose owning course cannot be resolved",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        await expect(service.createSession({
+                            userId,
+                            challengeId: "ghost",
+                        })).resolves.toBeNull()
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("refuses a QUIZ session whose owning course cannot be resolved",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        await expect(service.createSession({
+                            userId,
+                            quizId: "ghost",
+                        })).resolves.toBeNull()
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+            })
+
+        // ── SCOPED LISTING -- owner/anchor predicates + paging + search ──────────
+        describe("scoped listing predicates",
+            () => {
+                const enrollmentId = "enr-1"
+
+                it("clamps an oversized page request and a negative offset",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        await service.sessions({
+                            userId,
+                            scope: "global",
+                            limit: 999,
+                            offset: -5,
+                        })
+
+                        const params = entityManager.query.mock.calls[0][1]
+                        // ...owner, scope, includeArchived, LIMIT, OFFSET
+                        expect(params[params.length - 2]).toBe(50)
+                        expect(params[params.length - 1]).toBe(0)
+                    })
+
+                it("raises a zero page size to one and defaults an omitted page size to twenty",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+                        await service.sessions({
+                            userId,
+                            scope: "global",
+                            limit: 0,
+                        })
+                        expect(entityManager.query.mock.calls[0][1].at(-2)).toBe(1)
+
+                        entityManager.query.mockResolvedValueOnce([])
+                        await service.sessions({
+                            userId,
+                            scope: "global",
+                        })
+                        expect(entityManager.query.mock.calls[1][1].at(-2)).toBe(20)
+                    })
+
+                it("GLOBAL → keys off the raw user with no anchor column at all",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: "s-1",
+                                title: "Chung",
+                                updatedAt: new Date("2026-08-19T00:00:00.000Z"),
+                                messageCount: 4,
+                                snippet: null,
+                            },
+                        ])
+
+                        const list = await service.sessions({
+                            userId,
+                            scope: "global",
+                        })
+
+                        const [
+                            sql,
+                            params,
+                        ] = entityManager.query.mock.calls[0]
+                        expect(sql).toContain("s.user_id = $1")
+                        expect(sql).not.toContain("origin_")
+                        expect(params.slice(0,
+                            2)).toEqual([
+                            userId,
+                            "global",
+                        ])
+                        expect(list).toEqual([
+                            {
+                                id: "s-1",
+                                title: "Chung",
+                                updatedAt: new Date("2026-08-19T00:00:00.000Z"),
+                                messageCount: 4,
+                                scope: "global",
+                                originContentId: null,
+                                originContentTitle: null,
+                                snippet: null,
+                            },
+                        ])
+                    })
+
+                it("CHALLENGE → keys off (enrollment, scope, origin_challenge_id)",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "challenge-1",
+                            content: {
+                                module: {
+                                    course: {
+                                        id: "course-9",
+                                    },
+                                },
+                            },
+                        })
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
+                            .mockResolvedValueOnce([])
+
+                        await service.sessions({
+                            userId,
+                            challengeId: "challenge-1",
+                        })
+
+                        const [
+                            sql,
+                            params,
+                        ] = entityManager.query.mock.calls[1]
+                        expect(sql).toContain("s.origin_challenge_id = $3")
+                        expect(params.slice(0,
+                            3)).toEqual([
+                            enrollmentId,
+                            "challenge",
+                            "challenge-1",
+                        ])
+                    })
+
+                it("QUIZ → keys off (enrollment, scope, origin_quiz_id)",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "deck-1",
+                            course: {
+                                id: "course-9",
+                            },
+                        })
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
+                            .mockResolvedValueOnce([])
+
+                        await service.sessions({
+                            userId,
+                            quizId: "deck-1",
+                        })
+
+                        const [
+                            sql,
+                            params,
+                        ] = entityManager.query.mock.calls[1]
+                        expect(sql).toContain("s.origin_quiz_id = $3")
+                        expect(params[2]).toBe("deck-1")
+                    })
+
+                it("narrows a scoped list by title/message text and reuses the pattern for the snippet",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: "s-1",
+                                title: null,
+                                updatedAt: new Date(),
+                                messageCount: 2,
+                                snippet: "matched message",
+                            },
+                        ])
+
+                        const list = await service.sessions({
+                            userId,
+                            scope: "global",
+                            search: "  kafka  ",
+                        })
+
+                        const [
+                            sql,
+                            params,
+                        ] = entityManager.query.mock.calls[0]
+                        expect(sql).toContain("s.title ILIKE $3")
+                        expect(sql).toContain("m3.message ILIKE $3")
+                        expect(params[2]).toBe("%kafka%")
+                        expect(list[0].snippet).toBe("matched message")
+                    })
+
+                it("hides archived rows on a plain list and includes them on request",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+                        await service.sessions({
+                            userId,
+                            scope: "global",
+                        })
+                        const plain = entityManager.query.mock.calls[0]
+                        expect(plain[0]).toContain("OR s.archived_at IS NULL")
+                        expect(plain[1][2]).toBe(false)
+
+                        entityManager.query.mockResolvedValueOnce([])
+                        await service.sessions({
+                            userId,
+                            scope: "global",
+                            includeArchived: true,
+                        })
+                        expect(entityManager.query.mock.calls[1][1][2]).toBe(true)
+                    })
+
+                it.each([
+                    [
+                        "task",
+                    ],
+                    [
+                        "challenge",
+                    ],
+                    [
+                        "quiz",
+                    ],
+                    [
+                        "course",
+                    ],
+                    [
+                        "foundation",
+                    ],
+                ] as const)("returns an empty %s list when its anchor id is missing",
+                    async (scope) => {
+                        const list = await service.sessions({
+                            userId,
+                            scope,
+                        })
+
+                        expect(list).toEqual([])
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("derives the listing scope from each anchor, falling through to the global chat",
+                    async () => {
+                        // TASK anchor -> task list (course + enrollment resolve first)
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "task-1",
+                            milestone: {
+                                course: {
+                                    id: "course-9",
+                                },
+                            },
+                        })
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
+                            .mockResolvedValueOnce([])
+                        await service.sessions({
+                            userId,
+                            taskId: "task-1",
+                        })
+                        expect(entityManager.query.mock.calls[1][1][1]).toBe("task")
+
+                        // FOUNDATION anchor -> user-owned foundation list
+                        entityManager.query.mockResolvedValueOnce([])
+                        await service.sessions({
+                            userId,
+                            foundationId: "foundation-1",
+                        })
+                        expect(entityManager.query.mock.calls[2][1][1]).toBe("foundation")
+
+                        // COURSE anchor -> enrollment-owned course list
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                id: enrollmentId,
+                            },
+                        ])
+                            .mockResolvedValueOnce([])
+                        await service.sessions({
+                            userId,
+                            courseId: "course-9",
+                        })
+                        expect(entityManager.query.mock.calls[4][1][1]).toBe("course")
+
+                        // no anchor at all -> the app-wide global list
+                        entityManager.query.mockResolvedValueOnce([])
+                        await service.sessions({
+                            userId,
+                        })
+                        expect(entityManager.query.mock.calls[5][1][1]).toBe("global")
+                    })
+
+                it("returns an empty TASK list when the owning course cannot be resolved",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        const list = await service.sessions({
+                            userId,
+                            scope: "task",
+                            taskId: "ghost",
+                        })
+
+                        expect(list).toEqual([])
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("returns an empty CHALLENGE list when the owning course cannot be resolved",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        const list = await service.sessions({
+                            userId,
+                            scope: "challenge",
+                            challengeId: "ghost",
+                        })
+
+                        expect(list).toEqual([])
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("returns an empty QUIZ list when the owning course cannot be resolved",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        const list = await service.sessions({
+                            userId,
+                            scope: "quiz",
+                            quizId: "ghost",
+                        })
+
+                        expect(list).toEqual([])
+                    })
+            })
+
+        // ── CONTENT-SCOPE LISTING + SEARCH ───────────────────────────────────────
+        describe("content-scope listing and search",
+            () => {
+                const enrollmentId = "enr-1"
+
+                it("returns an empty list when no content anchor is supplied",
+                    async () => {
+                        const list = await service.sessions({
+                            userId,
+                            scope: "content",
+                        })
+
+                        expect(list).toEqual([])
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("lists this content's conversations keyed on (enrollment, origin_content_id)",
+                    async () => {
+                        const updatedAt = new Date("2026-08-19T00:00:00.000Z")
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
+                            .mockResolvedValueOnce([
+                                {
+                                    id: "s-1",
+                                    title: "Indexes",
+                                    updatedAt,
+                                    messageCount: 6,
+                                },
+                            ])
+
+                        const list = await service.sessions({
+                            userId,
+                            contentId,
+                            includeArchived: true,
+                        })
+
+                        const [
+                            sql,
+                            params,
+                        ] = entityManager.query.mock.calls[1]
+                        expect(sql).toContain("s.enrollment_id = $1 AND s.origin_content_id = $2")
+                        expect(params).toEqual([
+                            enrollmentId,
+                            contentId,
+                            20,
+                            0,
+                            true,
+                        ])
+                        expect(list).toEqual([
+                            {
+                                id: "s-1",
+                                title: "Indexes",
+                                updatedAt,
+                                messageCount: 6,
+                                scope: "content",
+                                originContentId: contentId,
+                                originContentTitle: null,
+                                snippet: null,
+                            },
+                        ])
+                    })
+
+                it("returns an empty list when the learner has no enrollment for the content",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        const list = await service.sessions({
+                            userId,
+                            contentId,
+                        })
+
+                        expect(list).toEqual([])
+                        // bailed before the list query
+                        expect(entityManager.query).toHaveBeenCalledTimes(1)
+                    })
+
+                it("searches ACROSS the course (including archived rows) when a query is given",
+                    async () => {
+                        const updatedAt = new Date("2026-08-19T00:00:00.000Z")
+                        entityManager.query
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
+                            .mockResolvedValueOnce([
+                                {
+                                    id: "s-9",
+                                    title: null,
+                                    updatedAt,
+                                    messageCount: 3,
+                                    originContentId: "other-content",
+                                    originContentTitle: "Nginx basics",
+                                    snippet: "about nginx",
+                                },
+                            ])
+
+                        const list = await service.sessions({
+                            userId,
+                            contentId,
+                            search: "  nginx ",
+                        })
+
+                        const [
+                            sql,
+                            params,
+                        ] = entityManager.query.mock.calls[1]
+                        // search deliberately carries NO archived_at filter
+                        expect(sql).not.toContain("archived_at")
+                        expect(params).toEqual([
+                            enrollmentId,
+                            "%nginx%",
+                            20,
+                            0,
+                        ])
+                        expect(list[0]).toMatchObject({
+                            scope: "content",
+                            originContentId: "other-content",
+                            originContentTitle: "Nginx basics",
+                            snippet: "about nginx",
+                        })
+                    })
+
+                it("returns nothing from a search when the learner has no enrollment",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        const list = await service.sessions({
+                            userId,
+                            contentId,
+                            search: "nginx",
+                        })
+
+                        expect(list).toEqual([])
+                        expect(entityManager.query).toHaveBeenCalledTimes(1)
+                    })
+            })
+
+        // ── OWNERSHIP-GUARDED SESSION WRITES ─────────────────────────────────────
+        describe("ownership-guarded session operations",
+            () => {
+                const sessionId = "session-1"
+
+                /** Program `resolveOwnedSession` to answer "owned by this learner". */
+                const owned = () => entityManager.query.mockResolvedValueOnce([
+                    {
+                        enrollmentId: "enr-1",
+                        userId: null,
+                    },
+                ])
+
+                /** Program `resolveOwnedSession` to answer "not yours". */
+                const notOwned = () => entityManager.query.mockResolvedValueOnce([])
+
+                describe("loadSessionMessages",
+                    () => {
+                        it("rebuilds the thread oldest-first for a session the learner owns",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([
+                                    {
+                                        role: "user",
+                                        message: "q1",
+                                    },
+                                    {
+                                        role: "assistant",
+                                        message: "a1",
+                                    },
+                                ])
+
+                                await expect(service.loadSessionMessages({
+                                    userId,
+                                    sessionId,
+                                })).resolves.toEqual([
+                                    {
+                                        role: "user",
+                                        content: "q1",
+                                    },
+                                    {
+                                        role: "assistant",
+                                        content: "a1",
+                                    },
+                                ])
+                                expect(entityManager.query.mock.calls[1][0])
+                                    .toContain("ORDER BY created_at ASC")
+                            })
+
+                        it("returns nothing for a session the learner does not own",
+                            async () => {
+                                notOwned()
+
+                                await expect(service.loadSessionMessages({
+                                    userId,
+                                    sessionId,
+                                })).resolves.toEqual([])
+                                expect(entityManager.query).toHaveBeenCalledTimes(1)
+                            })
+                    })
+
+                describe("saveTurn",
+                    () => {
+                        let insert: jest.Mock
+                        beforeEach(() => {
+                            insert = jest.fn().mockResolvedValue({
+                            })
+                            ;(entityManager as unknown as { insert: jest.Mock }).insert = insert
+                        })
+
+                        it("records the grounding content on a content-scope turn and auto-titles the session",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.saveTurn({
+                                    userId,
+                                    sessionId,
+                                    contentId,
+                                    question: "  What is an index?  ",
+                                    answer: "  It speeds up lookups.  ",
+                                })
+
+                                const rows = insert.mock.calls[0][1] as Array<Record<string, unknown>>
+                                expect(rows[0]).toMatchObject({
+                                    sessionId,
+                                    enrollmentId: "enr-1",
+                                    contentId,
+                                    role: "user",
+                                    message: "  What is an index?  ",
+                                })
+                                // the answer is trimmed before it is stored
+                                expect(rows[1].message).toBe("It speeds up lookups.")
+                                const [
+                                    sql,
+                                    params,
+                                ] = entityManager.query.mock.calls[1]
+                                expect(sql).toContain("COALESCE(title, $2)")
+                                expect(params).toEqual([
+                                    sessionId,
+                                    "What is an index?",
+                                    userId,
+                                ])
+                            })
+
+                        it("truncates a very long first question when auto-titling",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.saveTurn({
+                                    userId,
+                                    sessionId,
+                                    question: "w".repeat(300),
+                                    answer: "a",
+                                })
+
+                                expect(entityManager.query.mock.calls[1][1][1])
+                                    .toHaveLength(120)
+                            })
+
+                        it("is a no-op for a blank question",
+                            async () => {
+                                await service.saveTurn({
+                                    userId,
+                                    sessionId,
+                                    question: "   ",
+                                    answer: "an answer",
+                                })
+
+                                expect(insert).not.toHaveBeenCalled()
+                                expect(entityManager.query).not.toHaveBeenCalled()
+                            })
+
+                        it("is a no-op for a blank answer",
+                            async () => {
+                                await service.saveTurn({
+                                    userId,
+                                    sessionId,
+                                    question: "a question",
+                                    answer: "  \n ",
+                                })
+
+                                expect(insert).not.toHaveBeenCalled()
+                                expect(entityManager.query).not.toHaveBeenCalled()
+                            })
+                    })
+
+                describe("deleteSession",
+                    () => {
+                        it("carries the owner predicate in the DELETE itself",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.deleteSession({
+                                    userId,
+                                    sessionId,
+                                })
+
+                                const [
+                                    sql,
+                                    params,
+                                ] = entityManager.query.mock.calls[1]
+                                expect(sql).toContain("DELETE FROM content_ai_sessions")
+                                expect(sql).toContain("e.user_id = $2")
+                                expect(params).toEqual([
+                                    sessionId,
+                                    userId,
+                                ])
+                            })
+
+                        it("does not delete a session the learner does not own",
+                            async () => {
+                                notOwned()
+
+                                await service.deleteSession({
+                                    userId,
+                                    sessionId,
+                                })
+
+                                expect(entityManager.query).toHaveBeenCalledTimes(1)
+                            })
+                    })
+
+                describe("renameContentAiSession",
+                    () => {
+                        it("overwrites the title outright for an owned session",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.renameContentAiSession({
+                                    userId,
+                                    sessionId,
+                                    title: "  Indexing deep dive  ",
+                                })
+
+                                const [
+                                    sql,
+                                    params,
+                                ] = entityManager.query.mock.calls[1]
+                                expect(sql).toContain("SET title = $2")
+                                expect(sql).not.toContain("COALESCE")
+                                expect(params).toEqual([
+                                    sessionId,
+                                    "Indexing deep dive",
+                                    userId,
+                                ])
+                            })
+
+                        it("resets a blank title to NULL so auto-titling resumes",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.renameContentAiSession({
+                                    userId,
+                                    sessionId,
+                                    title: "   ",
+                                })
+
+                                expect(entityManager.query.mock.calls[1][1][1]).toBeNull()
+                            })
+
+                        it("rejects a title past the column limit before touching the database",
+                            async () => {
+                                const error = await service.renameContentAiSession({
+                                    userId,
+                                    sessionId,
+                                    title: "t".repeat(201),
+                                }).catch((thrown: unknown) => thrown)
+
+                                expect(error)
+                                    .toBeInstanceOf(ContentAiSessionTitleTooLongException)
+                                expect((error as ContentAiSessionTitleTooLongException).metadata)
+                                    .toMatchObject({
+                                        length: 201,
+                                        max: 200,
+                                    })
+                                expect(entityManager.query).not.toHaveBeenCalled()
+                            })
+
+                        it("accepts a title exactly at the column limit (boundary)",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.renameContentAiSession({
+                                    userId,
+                                    sessionId,
+                                    title: "t".repeat(200),
+                                })
+
+                                expect(entityManager.query.mock.calls[1][1][1])
+                                    .toHaveLength(200)
+                            })
+
+                        it("does not rename a session the learner does not own",
+                            async () => {
+                                notOwned()
+
+                                await service.renameContentAiSession({
+                                    userId,
+                                    sessionId,
+                                    title: "Nope",
+                                })
+
+                                expect(entityManager.query).toHaveBeenCalledTimes(1)
+                            })
+                    })
+
+                describe("setContentAiSessionArchived",
+                    () => {
+                        it("stamps archived_at when archiving",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.setContentAiSessionArchived({
+                                    userId,
+                                    sessionId,
+                                    archived: true,
+                                })
+
+                                expect(entityManager.query.mock.calls[1][0])
+                                    .toContain("SET archived_at = now()")
+                            })
+
+                        it("clears archived_at when unarchiving",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.setContentAiSessionArchived({
+                                    userId,
+                                    sessionId,
+                                    archived: false,
+                                })
+
+                                expect(entityManager.query.mock.calls[1][0])
+                                    .toContain("SET archived_at = NULL")
+                            })
+
+                        it("does not archive a session the learner does not own",
+                            async () => {
+                                notOwned()
+
+                                await service.setContentAiSessionArchived({
+                                    userId,
+                                    sessionId,
+                                    archived: true,
+                                })
+
+                                expect(entityManager.query).toHaveBeenCalledTimes(1)
+                            })
+                    })
+
+                describe("touchSession",
+                    () => {
+                        it("bumps recency for an owned session",
+                            async () => {
+                                owned()
+                                entityManager.query.mockResolvedValueOnce([])
+
+                                await service.touchSession({
+                                    userId,
+                                    sessionId,
+                                })
+
+                                const [
+                                    sql,
+                                    params,
+                                ] = entityManager.query.mock.calls[1]
+                                expect(sql).toContain("SET updated_at = now()")
+                                expect(params).toEqual([
+                                    sessionId,
+                                    userId,
+                                ])
+                            })
+
+                        it("does not bump a session the learner does not own",
+                            async () => {
+                                notOwned()
+
+                                await service.touchSession({
+                                    userId,
+                                    sessionId,
+                                })
+
+                                expect(entityManager.query).toHaveBeenCalledTimes(1)
+                            })
                     })
             })
     })

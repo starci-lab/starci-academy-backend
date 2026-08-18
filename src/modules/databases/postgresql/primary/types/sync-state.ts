@@ -18,3 +18,9 @@ export interface SyncStateSyncInput extends SyncStateKey {
     /** Timestamp of the most recent change on the upstream source. */
     sourceUpdatedAt: Date
 }
+
+/** Params for {@link SyncStateService.markFailed} -- the sync input plus the error that caused the failure. */
+export interface MarkSyncFailedParams extends SyncStateSyncInput {
+    /** The error thrown by the sync attempt (shape not controlled by us). */
+    error: unknown
+}

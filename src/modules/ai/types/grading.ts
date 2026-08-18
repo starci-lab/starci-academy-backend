@@ -5,10 +5,10 @@ import type {
 /**
  * Caller input when enqueueing or persisting a grading model pick.
  */
-export interface GradingLaneRequest {
+export interface GradingLaneParams {
     /** Concrete model name (GraphQL `selectedModel` / job `gradingModel`); absent -> balancer picks. */
     model?: string
-    /** Provider for {@link GradingLaneRequest.model}. */
+    /** Provider for {@link GradingLaneParams.model}. */
     provider?: ModelProvider
 }
 

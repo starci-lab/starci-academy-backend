@@ -72,6 +72,12 @@ const RECURRING_GAP_MIN_COUNT = 2
 /** How many of the most-frequent recurring gaps to surface. */
 const RECURRING_GAPS_TOP_N = 5
 
+/** One scanned attempt's createdAt + matchedContentId, kept as a deep-link candidate for its breakdown key. */
+interface WeakMatchCandidate {
+    createdAt: Date
+    matchedContentId: string | null
+}
+
 /** Accumulator for one breakdown key (phase or kind) while scanning attempts. */
 interface BreakdownAccumulator {
     scoreSum: number
@@ -79,7 +85,7 @@ interface BreakdownAccumulator {
     weakCount: number
     attemptCount: number
     /** Attempt createdAt + matchedContentId candidates, newest-scanned-first, for resolving the weakest entry's deep-link without a second pass. */
-    weakMatches: Array<{ createdAt: Date, matchedContentId: string | null }>
+    weakMatches: Array<WeakMatchCandidate>
 }
 
 /** Accumulator for one normalized recurring-gap key while scanning attempts. */

@@ -24,7 +24,7 @@ import {
     ForgotPasswordVerifyOtpCommand,
 } from "./forgot-password-verify-otp.command"
 import type {
-    ForgotPasswordVerifyOtpCommandResult,
+    ForgotPasswordVerifyOtpResponse,
 } from "./graphql-types/response"
 import {
     KeycloakJwtInvalidPayloadException,
@@ -70,8 +70,8 @@ import type {
  * so a hijacked mailbox cannot reset silently.
  */
 export class ForgotPasswordVerifyOtpHandler
-    extends ICQRSHandler<ForgotPasswordVerifyOtpCommand, ForgotPasswordVerifyOtpCommandResult>
-    implements ICommandHandler<ForgotPasswordVerifyOtpCommand, ForgotPasswordVerifyOtpCommandResult>
+    extends ICQRSHandler<ForgotPasswordVerifyOtpCommand, ForgotPasswordVerifyOtpResponse>
+    implements ICommandHandler<ForgotPasswordVerifyOtpCommand, ForgotPasswordVerifyOtpResponse>
 {
     constructor(
         private readonly jwtService: JwtService,
@@ -87,7 +87,7 @@ export class ForgotPasswordVerifyOtpHandler
 
     protected override async process(
         command: ForgotPasswordVerifyOtpCommand,
-    ): Promise<ForgotPasswordVerifyOtpCommandResult> {
+    ): Promise<ForgotPasswordVerifyOtpResponse> {
         const {
             request: {
                 challengeId,

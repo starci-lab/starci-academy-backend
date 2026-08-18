@@ -15,6 +15,7 @@ import {
     OidcStateExpiredException,
 } from "@modules/platform/exceptions/errors/keycloak/oidc-state-expired"
 import type {
+    KeycloakOidcPkceCacheEntry,
     KeycloakOidcPkceCacheResult,
 } from "@modules/integrations/cache/types/cache-results/keycloak-oidc-pkce"
 import {
@@ -141,7 +142,7 @@ export class KeycloakOidcRedirectService {
         state: string,
     ): Promise<KeycloakOidcPkceCacheResult> {
         const cached = await this.oauthStateService.consume<
-            KeycloakOidcPkceCacheResult & { provider: KeycloakIdentityProvider }
+            KeycloakOidcPkceCacheEntry
         >({
             purpose: OAuthStatePurpose.KeycloakBroker,
             state,

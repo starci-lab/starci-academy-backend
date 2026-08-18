@@ -19,3 +19,8 @@ export interface BloomFilterState extends BloomFilterOptions {
      */
     bytes: Uint8Array
 }
+
+/** JSON-friendly export of a {@link BloomFilterState} -- the raw bitset base64-encoded. */
+export interface BloomFilterJson extends BloomFilterOptions {
+    bytesBase64: string
+}

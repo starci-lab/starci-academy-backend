@@ -38,14 +38,13 @@ import {
 import {
     SessionService,
 } from "@modules/platform/session/session.service"
-import type {
-    Request,
-    Response,
-} from "express"
 import {
     MySessionsResponse,
     MySessionsResponseData,
 } from "./graphql-types/response"
+import type {
+    GraphQLContextParams,
+} from "../../../shared/types/graphql-context"
 
 @Resolver()
 /**
@@ -77,10 +76,7 @@ export class MySessionsResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
         @Context()
-            ctx: {
-                req: Request,
-                res: Response,
-            },
+            ctx: GraphQLContextParams,
     ): Promise<MySessionsResponseData> {
         // read the requesting device's session id so the result can flag "this device"
         const currentSessionId = this.cookieService.getCookie(

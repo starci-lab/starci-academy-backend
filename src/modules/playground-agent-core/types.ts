@@ -27,6 +27,13 @@ export interface DeviceInfo {
     vramTotalMb?: number
 }
 
+/** Best-effort NVIDIA GPU name + VRAM read via `nvidia-smi` -- empty fields when absent/unreadable. */
+export interface NvidiaVramInfo {
+    vramFreeMb?: number
+    vramTotalMb?: number
+    gpu?: string
+}
+
 /** The gateway's ack payload for a successful `agent:pair`. */
 export interface PairAck {
     sessionId?: string
@@ -44,11 +51,17 @@ export interface ServiceCommand {
     args: Array<string>
 }
 
+/** A single file to write as part of installing a service (destination path + contents). */
+export interface ServiceManifest {
+    path: string
+    content: string
+}
+
 /** Everything needed to install/uninstall a service, as PURE DATA (printable + unit-testable). */
 export interface ServiceDefinition {
     platform: NodeJS.Platform
     label: string
-    manifest: { path: string, content: string }
+    manifest: ServiceManifest
     installCommands: Array<ServiceCommand>
     uninstallCommands: Array<ServiceCommand>
     removeOnUninstall: Array<string>

@@ -1,3 +1,13 @@
+/**
+ * Apollo's `extensions.http` convention (see
+ * https://www.apollographql.com/docs/apollo-server/data/errors#setting-http-status-code) --
+ * the shape `formatError` stamps onto an error and `httpStatusFromExceptionsPlugin`
+ * reads back to set the real transport status.
+ */
+export interface ApolloHttpExtension {
+    status?: number
+}
+
 /** Plain interface for abstract GraphQL response with optional data. */
 export interface IAbstractGraphQLResponse<T = undefined> {
     success: boolean

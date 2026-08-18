@@ -6,12 +6,16 @@ import {
 } from "@nestjs/typeorm"
 import dayjs from "dayjs"
 import {
+    In,
+    IsNull,
+} from "typeorm"
+import {
     InstallmentPlanStatus,
 } from "@modules/databases/postgresql/primary/enums/installment-plan-status"
 import {
     InstallmentPlanType,
 } from "@modules/databases/postgresql/primary/enums/installment-plan-type"
-import type {
+import {
     InstallmentPlanEntity,
 } from "@modules/databases/postgresql/primary/entities/installment-plan.entity"
 import {
@@ -134,10 +138,60 @@ describe("InstallmentPlanEnforcementCronService",
 
                 await service.enforceOverduePlans()
 
+                // one optimistic-concurrency claim per plan, processed in order --
+                // read back what state each stage actually attempted to write,
+                // not just that `update` was invoked
+                const [
+                    dueCall,
+                    warningCall,
+                    defaultedCall,
+                ] = entityManager.update.mock.calls
+
+                expect(dueCall[0]).toBe(InstallmentPlanEntity)
+                expect(dueCall[1]).toEqual({
+                    id: "plan-0",
+                    dueRemindedAt: IsNull(),
+                    status: In([
+                        InstallmentPlanStatus.Active,
+                        InstallmentPlanStatus.Overdue,
+                    ]),
+                })
+                expect(dueCall[2]).toEqual({
+                    status: InstallmentPlanStatus.Overdue,
+                    dueRemindedAt: NOW,
+                })
+
+                expect(warningCall[1]).toEqual({
+                    id: "plan-7",
+                    secondRemindedAt: IsNull(),
+                    status: In([
+                        InstallmentPlanStatus.Active,
+                        InstallmentPlanStatus.Overdue,
+                    ]),
+                })
+                expect(warningCall[2]).toEqual({
+                    status: InstallmentPlanStatus.Overdue,
+                    secondRemindedAt: NOW,
+                })
+
+                expect(defaultedCall[1]).toEqual({
+                    id: "plan-14",
+                    status: In([
+                        InstallmentPlanStatus.Active,
+                        InstallmentPlanStatus.Overdue,
+                    ]),
+                })
+                expect(defaultedCall[2]).toEqual({
+                    status: InstallmentPlanStatus.Defaulted,
+                })
+
+                // each stage fires its own consequence exactly once, and only its own
                 expect(mockDueEmail).toHaveBeenCalledTimes(1)
                 expect(mockWarningEmail).toHaveBeenCalledTimes(1)
                 expect(mockDefaultedEmail).toHaveBeenCalledTimes(1)
-                expect(installmentPlanService.lockGatedEnrollments).toHaveBeenCalledTimes(1)
+                expect(installmentPlanService.lockGatedEnrollments).toHaveBeenCalledWith(
+                    planAt(14),
+                )
             })
 
         it("does not emit a duplicate consequence when another replica won the claim",
@@ -149,6 +203,25 @@ describe("InstallmentPlanEnforcementCronService",
 
                 await service.enforceOverduePlans()
 
+                // the claim attempted was still the correct one -- proves this
+                // replica read the right state before losing the race, not just
+                // that `update` was called with SOMETHING
+                const [call] = entityManager.update.mock.calls
+                expect(call[1]).toEqual({
+                    id: "plan-0",
+                    dueRemindedAt: IsNull(),
+                    status: In([
+                        InstallmentPlanStatus.Active,
+                        InstallmentPlanStatus.Overdue,
+                    ]),
+                })
+                expect(call[2]).toEqual({
+                    status: InstallmentPlanStatus.Overdue,
+                    dueRemindedAt: NOW,
+                })
+
+                // losing the claim (affected: 0) must suppress every downstream
+                // consequence for this plan
                 expect(mockDueEmail).not.toHaveBeenCalled()
                 expect(mockWarningEmail).not.toHaveBeenCalled()
                 expect(mockDefaultedEmail).not.toHaveBeenCalled()

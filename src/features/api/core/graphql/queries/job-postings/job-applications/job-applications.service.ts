@@ -12,7 +12,7 @@ import type {
 } from "../../../../types/execute"
 import {
     JobApplicationsQuery,
-    type JobApplicationsRequest,
+    type JobApplicationsParams,
 } from "./job-applications.query"
 
 @Injectable()
@@ -22,7 +22,7 @@ export class JobApplicationsService {
         private readonly queryBus: QueryBus,
     ) {}
 
-    async execute(params: ExecuteParams<JobApplicationsRequest>): Promise<Array<JobApplicationEntity>> {
+    async execute(params: ExecuteParams<JobApplicationsParams>): Promise<Array<JobApplicationEntity>> {
         return this.queryBus.execute(new JobApplicationsQuery(params))
     }
 }

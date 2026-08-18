@@ -21,7 +21,7 @@ import {
  * open/download immediately, the persisted MinIO object key, and which format
  * was produced.
  */
-export class RenderCvBlocksResult {
+export class RenderCvBlocksResponseData {
     @Field(
         () => String,
         {
@@ -53,14 +53,14 @@ export class RenderCvBlocksResult {
 /** GraphQL envelope with a fresh presigned GET + object key so the export can be downloaded without proxying bytes through GraphQL. */
 export class RenderCvBlocksResponse
     extends AbstractGraphQLResponse
-    implements IAbstractGraphQLResponse<RenderCvBlocksResult | null>
+    implements IAbstractGraphQLResponse<RenderCvBlocksResponseData | null>
 {
     @Field(
-        () => RenderCvBlocksResult,
+        () => RenderCvBlocksResponseData,
         {
             nullable: true,
             description: "The exported file (presigned URL + object key + format).",
         },
     )
-        data: RenderCvBlocksResult | null
+        data: RenderCvBlocksResponseData | null
 }

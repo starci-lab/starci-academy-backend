@@ -3,7 +3,7 @@ import type {
 } from "express"
 
 /** GraphQL execution context shape exposing the underlying express request. */
-export interface GraphQLContextRequest {
+export interface GraphQLContextParams {
     /** The express request carried on the GraphQL context. */
     req: Request
 }

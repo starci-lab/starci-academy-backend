@@ -20,7 +20,7 @@ const OLLAMA = "http://localhost:11434"
 const CHAT_MODEL = "qwen2.5-coder:7b"
 const EMBED_MODEL = "nomic-embed-text"
 const QDRANT = "http://localhost:6333"
-const QDRANT_KEY = "Cuong123_A"
+const QDRANT_KEY = process.env.QDRANT_API_KEY ?? ""
 const COLLECTION = "content_rag"
 // SQL vs NoSQL lesson (Fullstack) — the grounding source for the answer probes.
 const LESSON_ID = "ed307eea-b7b0-58c1-8cbf-8ec404f0cb25"

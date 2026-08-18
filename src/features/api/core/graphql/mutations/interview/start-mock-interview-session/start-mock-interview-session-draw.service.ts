@@ -83,6 +83,21 @@ interface MockInterviewPromptCandidate {
 }
 
 /**
+ * One candidate seed card in the qna draw pool, normalized to a common shape
+ * regardless of source -- `kind`/`givenCodes` are only present when the card
+ * came from the interview bank (flashcard-sourced seeds derive their kind
+ * instead, and never carry given code).
+ */
+interface MockInterviewSeedCard {
+    id: string
+    question: string
+    level: FlashcardLevel
+    moduleId: string | null
+    kind?: string
+    givenCodes?: Array<MockInterviewGivenCodeVariant>
+}
+
+/**
  * Server-side seniority level literal the client may request. Any other
  * string collapses to {@link MockInterviewLevel.Middle} for pool selection --
  * the level is still echoed back on the persisted session/response as-is.
@@ -91,6 +106,92 @@ enum MockInterviewLevel {
     Junior = "junior",
     Middle = "middle",
     Senior = "senior",
+}
+
+/** Params for {@link MockInterviewSessionDrawService.drawDesign}. */
+interface DrawMockInterviewDesignParams {
+    courseId: string
+    enrollment: EnrollmentEntity
+    level: MockInterviewLevel
+    locale: Locale
+    countsToReadiness: boolean
+    name?: string
+}
+
+/** Params for {@link MockInterviewSessionDrawService.drawQna}. */
+interface DrawMockInterviewQnaParams {
+    courseId: string
+    enrollment: EnrollmentEntity
+    level: MockInterviewLevel
+    lang?: string
+    langs?: Array<string>
+    locale: Locale
+    questionCount?: number
+    kinds?: Array<string>
+    countsToReadiness: boolean
+    name?: string
+}
+
+/** Params for {@link MockInterviewSessionDrawService.listReachedModuleIds}. */
+interface ListReachedModuleIdsParams {
+    courseId: string
+    enrollmentId: string
+}
+
+/** Params for {@link MockInterviewSessionDrawService.listCourseFlashcardCards}. */
+interface ListCourseFlashcardCardsParams {
+    courseId: string
+    locale: Locale
+}
+
+/** Params for {@link MockInterviewSessionDrawService.listCourseInterviewQuestions}. */
+interface ListCourseInterviewQuestionsParams {
+    courseId: string
+    /**
+     * The candidate's selected implementation-track languages. A question authored
+     * across the 4 tracks (`langs` bodies) is served in a RANDOM member of
+     * (this ∩ its authored tracks); a track-authored question whose tracks
+     * DON'T intersect this set is DROPPED (excluded from the returned pool, so
+     * a different question gets drawn instead of rendering a language the
+     * candidate didn't pick). A non-track question (single `givenCode`/`givenLang`
+     * like `dockerfile`, or a no-code question) ignores this -- its language is
+     * fixed by the question itself, so it is always eligible.
+     */
+    langs: Array<string>
+}
+
+/** Params for {@link MockInterviewSessionDrawService.listReachedCapstonePrompts}. */
+interface ListReachedCapstonePromptsParams {
+    courseId: string
+    enrollmentId: string
+    difficultyPool: ReadonlyArray<ChallengeDifficulty>
+}
+
+/** Params for {@link MockInterviewSessionDrawService.listClassicPrompts}. */
+interface ListClassicPromptsParams {
+    difficultyPool: ReadonlyArray<ChallengeDifficulty> | undefined
+    locale: Locale
+}
+
+/** Params for {@link MockInterviewSessionDrawService.buildQnaPool}. */
+interface BuildQnaPoolParams<Type> {
+    tiers: ReadonlyArray<Array<Type>>
+    minSize: number
+}
+
+/** Params for {@link MockInterviewSessionDrawService.persistSession}. */
+interface PersistMockInterviewSessionParams {
+    enrollment: EnrollmentEntity
+    level: MockInterviewLevel
+    lang?: string | null
+    mode: MockInterviewMode
+    promptId: string
+    promptTitle: string
+    difficulty: ChallengeDifficulty
+    source: string
+    seedQuestions: Array<DrawMockInterviewSeedTopic> | null
+    countsToReadiness: boolean
+    name?: string
 }
 
 /**
@@ -395,14 +496,7 @@ export class MockInterviewSessionDrawService {
      * @returns the drawn (and persisted) design-mode session result.
      */
     private async drawDesign(
-        params: {
-            courseId: string
-            enrollment: EnrollmentEntity
-            level: MockInterviewLevel
-            locale: Locale
-            countsToReadiness: boolean
-            name?: string
-        },
+        params: DrawMockInterviewDesignParams,
     ): Promise<DrawMockInterviewSessionResult> {
         const {
             courseId,
@@ -477,18 +571,7 @@ export class MockInterviewSessionDrawService {
      * @returns the drawn (and persisted) qna-mode session result.
      */
     private async drawQna(
-        params: {
-            courseId: string
-            enrollment: EnrollmentEntity
-            level: MockInterviewLevel
-            lang?: string
-            langs?: Array<string>
-            locale: Locale
-            questionCount?: number
-            kinds?: Array<string>
-            countsToReadiness: boolean
-            name?: string
-        },
+        params: DrawMockInterviewQnaParams,
     ): Promise<DrawMockInterviewSessionResult> {
         const {
             courseId,
@@ -525,7 +608,7 @@ export class MockInterviewSessionDrawService {
             langs: resolvedLangs,
         })
         const useBank = bankCards.length > 0
-        const allCards: Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind?: string, givenCodes?: Array<MockInterviewGivenCodeVariant> }> = useBank
+        const allCards: Array<MockInterviewSeedCard> = useBank
             ? bankCards
             : await this.listCourseFlashcardCards({
                 courseId,
@@ -703,10 +786,7 @@ export class MockInterviewSessionDrawService {
      * @returns the set of reached module ids, in no particular order.
      */
     private async listReachedModuleIds(
-        params: {
-            courseId: string
-            enrollmentId: string
-        },
+        params: ListReachedModuleIdsParams,
     ): Promise<Set<string>> {
         const {
             courseId,
@@ -791,11 +871,8 @@ export class MockInterviewSessionDrawService {
      *   which is correct for every current deck (one deck per module today)).
      */
     private async listCourseFlashcardCards(
-        params: {
-            courseId: string
-            locale: Locale
-        },
-    ): Promise<Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null }>> {
+        params: ListCourseFlashcardCardsParams,
+    ): Promise<Array<MockInterviewSeedCard>> {
         const {
             courseId,
             locale,
@@ -934,21 +1011,8 @@ export class MockInterviewSessionDrawService {
      * flashcard-seed (non-breaking for un-authored courses).
      */
     private async listCourseInterviewQuestions(
-        params: {
-            courseId: string
-            /**
-             * The candidate's selected implementation-track languages. A question authored
-             * across the 4 tracks (`langs` bodies) is served in a RANDOM member of
-             * (this ∩ its authored tracks); a track-authored question whose tracks
-             * DON'T intersect this set is DROPPED (excluded from the returned pool, so
-             * a different question gets drawn instead of rendering a language the
-             * candidate didn't pick). A non-track question (single `givenCode`/`givenLang`
-             * like `dockerfile`, or a no-code question) ignores this -- its language is
-             * fixed by the question itself, so it is always eligible.
-             */
-            langs: Array<string>
-        },
-    ): Promise<Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind: string, givenCodes: Array<MockInterviewGivenCodeVariant> }>> {
+        params: ListCourseInterviewQuestionsParams,
+    ): Promise<Array<MockInterviewSeedCard>> {
         const questions = await this.entityManager.find(MockInterviewEntity,
             {
                 where: {
@@ -1106,10 +1170,7 @@ export class MockInterviewSessionDrawService {
      * @returns the merged, deduped pool -- at least `minSize` long when enough distinct candidates exist across every tier combined.
      */
     private buildQnaPool<Type extends { id: string }>(
-        params: {
-            tiers: ReadonlyArray<Array<Type>>
-            minSize: number
-        },
+        params: BuildQnaPoolParams<Type>,
     ): Array<Type> {
         const { tiers, minSize } = params
         const merged = new Map<string, Type>()
@@ -1167,11 +1228,7 @@ export class MockInterviewSessionDrawService {
      * @returns the reached capstone prompts, in curriculum (sortIndex) order.
      */
     private async listReachedCapstonePrompts(
-        params: {
-            courseId: string
-            enrollmentId: string
-            difficultyPool: ReadonlyArray<ChallengeDifficulty>
-        },
+        params: ListReachedCapstonePromptsParams,
     ): Promise<Array<MockInterviewPromptCandidate>> {
         const {
             courseId,
@@ -1239,10 +1296,7 @@ export class MockInterviewSessionDrawService {
      * @returns the matching classic prompts.
      */
     private listClassicPrompts(
-        params: {
-            difficultyPool: ReadonlyArray<ChallengeDifficulty> | undefined
-            locale: Locale
-        },
+        params: ListClassicPromptsParams,
     ): Array<MockInterviewPromptCandidate> {
         const {
             difficultyPool,
@@ -1279,19 +1333,7 @@ export class MockInterviewSessionDrawService {
      * @returns the saved {@link MockInterviewSessionEntity} row.
      */
     private async persistSession(
-        params: {
-            enrollment: EnrollmentEntity
-            level: MockInterviewLevel
-            lang?: string | null
-            mode: MockInterviewMode
-            promptId: string
-            promptTitle: string
-            difficulty: ChallengeDifficulty
-            source: string
-            seedQuestions: Array<{ cardId: string, kind: string, title: string, givenCodes: Array<MockInterviewGivenCodeVariant> }> | null
-            countsToReadiness: boolean
-            name?: string
-        },
+        params: PersistMockInterviewSessionParams,
     ): Promise<MockInterviewSessionEntity> {
         const {
             enrollment,

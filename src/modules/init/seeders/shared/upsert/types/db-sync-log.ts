@@ -8,6 +8,29 @@ export interface DbSyncLogDisplayFields {
     isLegacy?: boolean
 }
 
+/** Parent course stub from parser (may include `displayId`). */
+export interface DbSyncLogCourseStub {
+    displayId?: string
+}
+
+/** Parent module stub. */
+export interface DbSyncLogModuleStub {
+    displayId?: string
+    course?: DbSyncLogCourseStub
+}
+
+/** Parent content stub (challenges). */
+export interface DbSyncLogContentStub {
+    displayId?: string
+    module?: DbSyncLogModuleStub
+}
+
+/** Parent milestone stub (tasks). */
+export interface DbSyncLogMilestoneStub {
+    orderIndex?: number
+    course?: DbSyncLogCourseStub
+}
+
 /** Partial entity shape used to derive DB sync log display fields. */
 export interface DbSyncLogEntityShape {
     /** Row display id when the table has a `display_id` column. */
@@ -17,31 +40,11 @@ export interface DbSyncLogEntityShape {
     /** SCHEMA V2 marker; null means legacy for content/challenge. */
     verified?: Date | null
     /** Parent course stub from parser (may include `displayId`). */
-    course?: {
-        displayId?: string
-    }
+    course?: DbSyncLogCourseStub
     /** Parent module stub. */
-    module?: {
-        displayId?: string
-        course?: {
-            displayId?: string
-        }
-    }
+    module?: DbSyncLogModuleStub
     /** Parent content stub (challenges). */
-    content?: {
-        displayId?: string
-        module?: {
-            displayId?: string
-            course?: {
-                displayId?: string
-            }
-        }
-    }
+    content?: DbSyncLogContentStub
     /** Parent milestone stub (tasks). */
-    milestone?: {
-        orderIndex?: number
-        course?: {
-            displayId?: string
-        }
-    }
+    milestone?: DbSyncLogMilestoneStub
 }

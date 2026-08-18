@@ -14,7 +14,7 @@ import {
     SignUpVerifyOtpInput,
 } from "./graphql-types/request"
 import {
-    SignUpVerifyOtpCommandResult,
+    SignUpVerifyOtpResult,
 } from "./graphql-types/response"
 
 @Injectable()
@@ -26,7 +26,7 @@ export class SignUpVerifyOtpService {
 
     async execute(
         params: ExecuteParams<SignUpVerifyOtpInput>,
-    ): Promise<SignUpVerifyOtpCommandResult> {
+    ): Promise<SignUpVerifyOtpResult> {
         return this.commandBus.execute(
             new SignUpVerifyOtpCommand(params),
         )

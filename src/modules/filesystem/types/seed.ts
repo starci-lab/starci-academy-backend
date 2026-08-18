@@ -211,17 +211,20 @@ export type InitSyncDomainValue = boolean | {
     elasticsearch?: boolean
 }
 
+/** `sync.sinks`: the hard master per sink -- a `false` sink zeros that sink across every course/domain. */
+export interface InitSyncSinksBlock {
+    cdn?: boolean
+    elasticsearch?: boolean
+    repo?: boolean
+}
+
 /** Phase 2 input -- PostgreSQL -> CDN/ES/repo. Omit, or `enabled: false`, to skip syncing. */
 export interface InitSyncBlock {
     enabled?: boolean
     /** DROP + re-create these ES indices before syncing (auto-forces their ES sync to full). */
     reindex?: ReindexScope
     /** Hard master per sink -- a `false` sink zeros that sink across every course/domain. */
-    sinks?: {
-        cdn?: boolean
-        elasticsearch?: boolean
-        repo?: boolean
-    }
+    sinks?: InitSyncSinksBlock
     courses?: Record<string, InitSyncCourseValue>
     foundations?: InitSyncDomainValue
     codingProblems?: InitSyncDomainValue

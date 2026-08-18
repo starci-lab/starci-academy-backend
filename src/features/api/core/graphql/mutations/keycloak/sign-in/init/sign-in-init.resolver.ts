@@ -34,10 +34,6 @@ import {
 import {
     CaptchaGuard,
 } from "@modules/integrations/captcha/guards/captcha.guard"
-import type {
-    Request,
-    Response,
-} from "express"
 import {
     CookieService,
 } from "@modules/platform/cookie/cookie.service"
@@ -50,6 +46,9 @@ import {
 import {
     SessionService,
 } from "@modules/platform/session/session.service"
+import type {
+    GraphQLContextParams,
+} from "../../../../shared/types/graphql-context"
 
 @Resolver()
 /**
@@ -92,10 +91,7 @@ export class SignInInitResolver {
         )
             request: SignInInitRequest,
         @Context()
-            ctx: {
-                req: Request
-                res: Response
-            },
+            ctx: GraphQLContextParams,
     ): Promise<SignInInitData> {
         const result = await this.signInInitService.execute({
             request,

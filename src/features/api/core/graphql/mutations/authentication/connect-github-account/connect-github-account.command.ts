@@ -9,7 +9,7 @@ import {
  * Handler input for connectGithubAccount -- typed here (not ExecuteParams)
  * because the mutation takes a named `input` arg rather than `request`.
  */
-export interface ConnectGithubAccountCommandParams {
+export interface ConnectGithubAccountParams {
     user: UserEntity
     input: ConnectGithubAccountInput
 }
@@ -20,6 +20,6 @@ export interface ConnectGithubAccountCommandParams {
  */
 export class ConnectGithubAccountCommand {
     constructor(
-        readonly params: ConnectGithubAccountCommandParams,
+        readonly params: ConnectGithubAccountParams,
     ) {}
 }

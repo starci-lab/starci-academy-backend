@@ -11,7 +11,7 @@ import type {
     ForgotPasswordVerifyOtpRequest,
 } from "./graphql-types/request"
 import type {
-    ForgotPasswordVerifyOtpCommandResult,
+    ForgotPasswordVerifyOtpResponse,
 } from "./graphql-types/response"
 import {
     ExecuteParams,
@@ -26,7 +26,7 @@ export class ForgotPasswordVerifyOtpService {
 
     async execute(
         params: ExecuteParams<ForgotPasswordVerifyOtpRequest>,
-    ): Promise<ForgotPasswordVerifyOtpCommandResult> {
+    ): Promise<ForgotPasswordVerifyOtpResponse> {
         return this.commandBus.execute(
             new ForgotPasswordVerifyOtpCommand(params),
         )

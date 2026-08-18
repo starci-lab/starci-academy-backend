@@ -42,6 +42,9 @@ import {
 import {
     CSRF_HEADER_NAME
 } from "../constants"
+import type {
+    GraphQLOptionalContextParams,
+} from "../types/graphql-context"
 
 @Injectable()
 /**
@@ -70,7 +73,7 @@ export class CsrfGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         // pull the underlying express request out of the GraphQL context
         const request = GqlExecutionContext.create(context)
-            .getContext<{ req?: Request }>().req
+            .getContext<GraphQLOptionalContextParams>().req
         // without an HTTP request there is nothing to validate -- fail closed
         if (!request) {
             throw new CsrfMissingHttpRequestException({

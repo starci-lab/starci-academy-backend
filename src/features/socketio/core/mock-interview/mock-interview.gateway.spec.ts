@@ -5,6 +5,9 @@ import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
+    SubscriptionEvent,
+} from "../enums/subscription-event"
+import {
     MockInterviewGateway,
 } from "./mock-interview.gateway"
 
@@ -60,13 +63,15 @@ describe("MockInterviewGateway streaming policy",
                     } as never,
                 )
 
+                const client = {
+                    id: "socket-1",
+                    data: {
+                        userId: "kc-user-1",
+                    },
+                }
+
                 await gateway.handleAskMockInterviewTurn(
-                    {
-                        id: "socket-1",
-                        data: {
-                            userId: "kc-user-1",
-                        },
-                    } as never,
+                    client as never,
                     {
                         locale: "en",
                         data: {
@@ -83,15 +88,25 @@ describe("MockInterviewGateway streaming policy",
                     } as never,
                 )
 
+                // exactly one socket message went out -- the buffered interviewer
+                // turn the provider streamed is never flushed on a failed charge
                 expect(wsResponseService.success).toHaveBeenCalledTimes(1)
-                expect(wsResponseService.success).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        data: expect.objectContaining({
-                            delta: "",
-                            done: true,
-                            error: chargeError.message,
-                        }),
-                    }),
-                )
+                // read back the ACTUAL emitted socket message and assert its
+                // full payload, not a partial `toHaveBeenCalledWith` match --
+                // proves the charge failure surfaces as a terminal error chunk
+                // to the right client, on the right event, rather than the
+                // buffered interviewer turn
+                const [[emitted]] = wsResponseService.success.mock.calls
+                expect(emitted).toEqual({
+                    message: "mock interview chunk",
+                    eventName: SubscriptionEvent.MockInterviewChunk,
+                    client,
+                    data: {
+                        streamId: "stream-1",
+                        delta: "",
+                        done: true,
+                        error: chargeError.message,
+                    },
+                })
             })
     })

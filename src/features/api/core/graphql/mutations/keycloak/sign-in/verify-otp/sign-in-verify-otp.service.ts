@@ -11,7 +11,7 @@ import type {
     SignInVerifyOtpRequest,
 } from "./graphql-types/request"
 import type {
-    SignInVerifyOtpCommandResult,
+    SignInVerifyOtpResult,
 } from "./graphql-types/response"
 import {
     ExecuteParams,
@@ -26,7 +26,7 @@ export class SignInVerifyOtpService {
 
     async execute(
         params: ExecuteParams<SignInVerifyOtpRequest>,
-    ): Promise<SignInVerifyOtpCommandResult> {
+    ): Promise<SignInVerifyOtpResult> {
         return this.commandBus.execute(
             new SignInVerifyOtpCommand(params),
         )

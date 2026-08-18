@@ -18,7 +18,7 @@ import {
     SignInVerifyOtpCommand,
 } from "./sign-in-verify-otp.command"
 import type {
-    SignInVerifyOtpCommandResult,
+    SignInVerifyOtpResult,
 } from "./graphql-types/response"
 import {
     ChallengeTokensNotFoundException,
@@ -61,8 +61,8 @@ import type {
  * attachment stays in the resolver because CQRS must not touch HTTP.
  */
 export class SignInVerifyOtpHandler
-    extends ICQRSHandler<SignInVerifyOtpCommand, SignInVerifyOtpCommandResult>
-    implements ICommandHandler<SignInVerifyOtpCommand, SignInVerifyOtpCommandResult>
+    extends ICQRSHandler<SignInVerifyOtpCommand, SignInVerifyOtpResult>
+    implements ICommandHandler<SignInVerifyOtpCommand, SignInVerifyOtpResult>
 {
     constructor(
         private readonly jwtService: JwtService,
@@ -81,7 +81,7 @@ export class SignInVerifyOtpHandler
      */
     protected override async process(
         command: SignInVerifyOtpCommand,
-    ): Promise<SignInVerifyOtpCommandResult> {
+    ): Promise<SignInVerifyOtpResult> {
         const {
             request: {
                 challengeId,

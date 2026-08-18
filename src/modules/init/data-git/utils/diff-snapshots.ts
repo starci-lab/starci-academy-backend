@@ -20,7 +20,7 @@ import {
  *
  * @param root - Absolute snapshot root to walk
  * @param dir - Relative sub-path being walked (empty at the top level)
- * @param out - Accumulator mutated in place (`relativePath -> sha1`)
+ * @param out - Accumulator mutated in place (`relativePath -> sha256`)
  */
 const indexFiles = async (
     root: string,
@@ -49,8 +49,14 @@ const indexFiles = async (
         }
         const bytes = await readFile(join(root,
             relative))
+        // sha256, not sha1: this digest is what decides whether a file's bytes
+        // changed and therefore whether it gets re-seeded, and a digest an
+        // author could collide is a change that never gets applied. Nothing
+        // persists these values -- both indexes are built fresh inside one
+        // `diffSnapshots` call and compared against each other -- so the
+        // stronger algorithm costs nothing here.
         out.set(relative,
-            createHash("sha1").update(bytes).digest("hex"))
+            createHash("sha256").update(bytes).digest("hex"))
     }
 }
 

@@ -22,3 +22,12 @@ export interface KeycloakAuthGuardRequest {
      */
     keycloakToken?: KeycloakTokenIntrospectResponse
 }
+
+/**
+ * GraphQL execution context shape exposing the Keycloak-augmented request
+ * (Apollo's NestJS driver places it on `req`; absent for transports that
+ * carry no request, e.g. subscriptions).
+ */
+export interface KeycloakGraphQLContext {
+    req?: KeycloakAuthGuardRequest
+}

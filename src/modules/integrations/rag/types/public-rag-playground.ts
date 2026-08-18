@@ -2,6 +2,9 @@ import type {
     BaseMessage,
 } from "@langchain/core/messages"
 import type {
+    Document,
+} from "@langchain/core/documents"
+import type {
     RagPlaygroundSourceKind,
 } from "@modules/databases/postgresql/primary/enums/rag-playground-source-kind"
 
@@ -25,6 +28,13 @@ export interface IndexRagPlaygroundParams {
      * backward compatibility with any in-flight client that doesn't send it yet.
      */
     sampleId?: string | null
+}
+
+/** Result of resolving one source's LangChain documents + display label. */
+export interface ResolveRagPlaygroundDocumentsResult {
+    documents: Array<Document>
+    sourceLabel: string
+    sampleId?: string
 }
 
 /** One curated, self-contained code sample offered by the RAG Playground's built-in catalog. */

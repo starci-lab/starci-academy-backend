@@ -18,7 +18,7 @@ import {
     InvalidAdminApiKeyException,
 } from "@modules/platform/exceptions/errors/guards/invalid-admin-api-key"
 import {
-    AdminAccessGuard,
+    AdminServiceTokenGuard,
 } from "./admin-access.guard"
 import {
     GraphQLMustEnrolledGuard,
@@ -35,7 +35,7 @@ const ADMIN_API_KEY = "admin-secret-key"
 
 /**
  * Build a REST {@link ExecutionContext} exposing `switchToHttp().getRequest()`
- * -- the only surface {@link AdminAccessGuard} reads.
+ * -- the only surface {@link AdminServiceTokenGuard} reads.
  */
 const buildHttpContext = (
     request: Record<string, unknown>,
@@ -67,10 +67,10 @@ const buildGqlContext = (
     getType: () => "graphql",
 }) as unknown as ExecutionContext
 
-describe("AdminAccessGuard",
+describe("AdminServiceTokenGuard",
     () => {
         let module: TestingModule
-        let guard: AdminAccessGuard
+        let guard: AdminServiceTokenGuard
         let mountStorageService: Pick<MountStorageService, "adminApiKey">
 
         beforeEach(async () => {
@@ -83,7 +83,7 @@ describe("AdminAccessGuard",
 
             module = await Test.createTestingModule({
                 providers: [
-                    AdminAccessGuard,
+                    AdminServiceTokenGuard,
                     {
                         provide: MountStorageService,
                         useValue: mountStorageService,
@@ -91,7 +91,7 @@ describe("AdminAccessGuard",
                 ],
             }).compile()
 
-            guard = module.get<AdminAccessGuard>(AdminAccessGuard)
+            guard = module.get<AdminServiceTokenGuard>(AdminServiceTokenGuard)
         })
 
         afterEach(async () => {

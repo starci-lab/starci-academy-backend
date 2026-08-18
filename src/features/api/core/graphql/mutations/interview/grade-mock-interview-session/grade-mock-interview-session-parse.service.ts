@@ -26,14 +26,17 @@ export interface MockInterviewCoveredCheckpointItem {
     covered: Array<number>
 }
 
+/** The provider-reported fields {@link ParsedMockInterviewGrade} adds on top of the persisted result shape. */
+export interface ParsedMockInterviewGradeExtras {
+    questionFeedback: Array<MockInterviewQuestionFeedbackItem>
+    coveredCheckpoints: Array<MockInterviewCoveredCheckpointItem>
+}
+
 /** Provider-backed fields before business-owned RAG links and question reviews are attached. */
 export type ParsedMockInterviewGrade = Omit<
 MockInterviewGradeSessionResult,
 "matchedContentIds" | "questionReviews"
-> & {
-    questionFeedback: Array<MockInterviewQuestionFeedbackItem>
-    coveredCheckpoints: Array<MockInterviewCoveredCheckpointItem>
-}
+> & ParsedMockInterviewGradeExtras
 
 const MIN_SCORE = 0
 const MAX_SCORE = 100

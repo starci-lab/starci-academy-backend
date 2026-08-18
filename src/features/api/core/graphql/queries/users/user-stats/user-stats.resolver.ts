@@ -6,9 +6,6 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import type {
-    Request,
-} from "express"
-import type {
     EntityManager,
 } from "typeorm"
 import {
@@ -23,6 +20,9 @@ import {
 import {
     UserStatsProjectionService,
 } from "@modules/bussiness/projections/user-stats/user-stats-projection.service"
+import type {
+    KeycloakGraphQLContext,
+} from "@modules/integrations/keycloak/types/guard"
 
 @Resolver(() => UserEntity)
 /**
@@ -95,9 +95,7 @@ export class UserStatsResolver {
         @Parent()
             user: UserEntity,
         @Context()
-            context: {
-                req?: Request & { user?: UserEntity }
-            },
+            context: KeycloakGraphQLContext,
     ): Promise<boolean> {
         // viewer is set by the (optional) auth guard on the parent query
         const viewer = context.req?.user

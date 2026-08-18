@@ -41,7 +41,7 @@ export class SignInInitData {
 }
 
 /** Internal sign-in init result; impossible mixed challenge/session states do not compile. */
-export type SignInInitCommandResult =
+export type SignInInitResponse =
     | {
         kind: "challenge"
         data: Required<Pick<SignInInitData, "challengeId" | "expiresInSeconds">>

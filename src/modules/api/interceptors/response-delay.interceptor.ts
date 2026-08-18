@@ -14,6 +14,9 @@ import {
 import {
     delay,
 } from "rxjs/operators"
+import type {
+    GraphQLResolveInfo,
+} from "graphql"
 import {
     envConfig,
 } from "@modules/platform/env/config"
@@ -42,7 +45,7 @@ export class ResponseDelayInterceptor implements NestInterceptor {
         // GraphQL: skip nested field resolvers so the latency isn't stacked per resolver;
         // only the root operation (no parent in the resolve path) carries the delay.
         if (context.getType<GqlContextType>() === "graphql") {
-            const info = GqlExecutionContext.create(context).getInfo<{ path?: { prev?: unknown } }>()
+            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>()
             if (info?.path?.prev) {
                 return next.handle()
             }

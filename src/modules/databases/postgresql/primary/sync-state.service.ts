@@ -14,6 +14,7 @@ import {
     SyncStateStatus,
 } from "./enums/sync-state"
 import type {
+    MarkSyncFailedParams,
     SyncStateKey,
     SyncStateSyncInput,
 } from "./types/sync-state"
@@ -113,7 +114,7 @@ export class SyncStateService {
 
     /** Mark a failed sync attempt and schedule retry with bounded exponential backoff. */
     async markFailed(
-        input: SyncStateSyncInput & { error: unknown },
+        input: MarkSyncFailedParams,
     ) {
         const state = await this.findOne(input)
         const retryCount = (state?.retryCount ?? 0) + 1

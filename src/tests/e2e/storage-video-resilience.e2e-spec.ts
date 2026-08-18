@@ -58,7 +58,7 @@ import {
     JobActionService,
 } from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
-    AdminAccessGuard,
+    AdminServiceTokenGuard,
 } from "@modules/bussiness/guards/admin-access.guard"
 import {
     MountStorageService,
@@ -285,7 +285,7 @@ describe("an uploaded video survives worker retry and reaches durable storage",
                 providers: [
                     ProcessVideoService,
                     ProcessVideoHandler,
-                    AdminAccessGuard,
+                    AdminServiceTokenGuard,
                     JobActionService,
                     EventEmitterService,
                     VideoEncoderWorker,

@@ -14,7 +14,7 @@ import {
     MarkAsReadedRequest,
 } from "./graphql-types/request"
 import {
-    MarkAsReadedResponse,
+    MarkAsReadedResponse as MarkAsReadedResult,
 } from "./graphql-types/response"
 
 @Injectable()
@@ -26,7 +26,7 @@ export class MarkAsReadedService {
 
     async execute(
         params: ExecuteParams<MarkAsReadedRequest>,
-    ): Promise<MarkAsReadedResponse> {
+    ): Promise<MarkAsReadedResult> {
         return this.commandBus.execute(
             new MarkAsReadedCommand(params),
         )

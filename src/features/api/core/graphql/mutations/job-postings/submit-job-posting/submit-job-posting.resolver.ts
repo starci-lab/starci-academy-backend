@@ -1,4 +1,7 @@
 import {
+    randomBytes,
+} from "crypto"
+import {
     Args,
     Mutation,
     Resolver,
@@ -342,10 +345,15 @@ export class SubmitJobPostingResolver {
         // collided (rare) -- append a short random hex suffix, retrying a
         // bounded number of times rather than looping forever
         for (let attempt = 0; attempt < MAX_SLUG_ATTEMPTS; attempt++) {
-            const suffix = Math.random()
-                .toString(16)
-                .slice(2,
-                    2 + SLUG_SUFFIX_LENGTH)
+            // CSPRNG, not `Math.random`: the suffix is what makes the public
+            // `displayId` of a colliding listing unguessable, and it is also the
+            // only entropy in that identifier. `randomBytes` additionally yields
+            // a FULL-length suffix every time -- `Math.random().toString(16)`
+            // silently returns a shorter one when the fraction is short.
+            const suffix = randomBytes(Math.ceil(SLUG_SUFFIX_LENGTH / 2))
+                .toString("hex")
+                .slice(0,
+                    SLUG_SUFFIX_LENGTH)
             const candidate = `${base}-${suffix}`
             const collision = await entityManager.findOneBy(
                 entity,

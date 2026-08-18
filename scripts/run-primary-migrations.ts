@@ -6,7 +6,7 @@ async function main(): Promise<void> {
     const host = process.env.POSTGRESQL_PRIMARY_HOST ?? "localhost"
     const port = Number(process.env.POSTGRESQL_PRIMARY_PORT ?? 5432)
     const username = process.env.POSTGRESQL_PRIMARY_USERNAME ?? "postgres"
-    const password = process.env.POSTGRESQL_PRIMARY_PASSWORD ?? "Cuong123_A"
+    const password = process.env.POSTGRESQL_PRIMARY_PASSWORD ?? ""
     const database = process.env.POSTGRESQL_PRIMARY_DATABASE ?? "starci-academy"
 
     const dataSource = new DataSource({

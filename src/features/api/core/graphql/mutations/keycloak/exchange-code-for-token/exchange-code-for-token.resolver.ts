@@ -7,10 +7,6 @@ import {
 import {
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    Request,
-    Response,
-} from "express"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -46,6 +42,9 @@ import {
 import {
     SessionService,
 } from "@modules/platform/session/session.service"
+import type {
+    GraphQLContextParams,
+} from "../../../shared/types/graphql-context"
 
 @Resolver()
 /**
@@ -77,10 +76,7 @@ export class ExchangeCodeForTokenResolver {
         @Args("request")
             request: ExchangeCodeForTokenRequest,
         @Context()
-            ctx: {
-                req: Request
-                res: Response
-            },
+            ctx: GraphQLContextParams,
     ): Promise<ExchangeCodeForTokenData> {
         const {
             data,

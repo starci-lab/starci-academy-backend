@@ -5,7 +5,7 @@ import {
 
 /**
  * Base response shape for all REST API endpoints.
- * Use this abstract or IAbstractRestResponse for consistent success/error payloads.
+ * Use this abstract or IAbstractRestResult for consistent success/error payloads.
  *
  * @example
  * class CreateUserResponse extends AbstractRestResponse<User> {

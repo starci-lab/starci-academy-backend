@@ -51,7 +51,7 @@ import {
 // ─────────────────────────────────────────── config (local dev infra) ──
 
 const QDRANT_URL = process.env.QDRANT_URL ?? "http://localhost:6333"
-const QDRANT_API_KEY = process.env.QDRANT_API_KEY ?? "Cuong123_A"
+const QDRANT_API_KEY = process.env.QDRANT_API_KEY ?? ""
 const COLLECTION = process.env.CONTENT_RAG_COLLECTION ?? "content_rag"
 const OLLAMA_URL = (process.env.AI_LOCAL_BASE_URL ?? "http://localhost:11434").replace(/\/v1$/, "")
 const EMBED_MODEL = process.env.CONTENT_RAG_EMBED_MODEL ?? "nomic-embed-text"
@@ -60,7 +60,7 @@ const PG = {
     host: process.env.POSTGRESQL_PRIMARY_HOST ?? "localhost",
     port: Number(process.env.POSTGRESQL_PRIMARY_PORT ?? 5433),
     user: process.env.POSTGRESQL_PRIMARY_USERNAME ?? "postgres",
-    password: process.env.POSTGRESQL_PRIMARY_PASSWORD ?? "Cuong123_A",
+    password: process.env.POSTGRESQL_PRIMARY_PASSWORD ?? "",
     database: process.env.POSTGRESQL_PRIMARY_DATABASE ?? "starci-academy",
 }
 

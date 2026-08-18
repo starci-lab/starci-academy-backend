@@ -5,6 +5,9 @@ import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
 import {
+    SubscriptionEvent,
+} from "../enums/subscription-event"
+import {
     ContentAiGateway,
 } from "./content-ai.gateway"
 
@@ -51,14 +54,15 @@ describe("ContentAiGateway streaming policy",
                         log: jest.fn(),
                     } as never,
                 )
+                const client = {
+                    id: "socket-1",
+                    data: {
+                        userId: "kc-user-1",
+                    },
+                }
 
                 await gateway.handleAskContentAi(
-                    {
-                        id: "socket-1",
-                        data: {
-                            userId: "kc-user-1",
-                        },
-                    } as never,
+                    client as never,
                     {
                         locale: "en",
                         data: {
@@ -69,16 +73,27 @@ describe("ContentAiGateway streaming policy",
                     } as never,
                 )
 
+                // the turn must never be persisted once the charge fails
                 expect(contentAiService.saveTurn).not.toHaveBeenCalled()
+                // exactly one socket message went out -- the buffered answer
+                // delta the provider streamed is never flushed on a failed charge
                 expect(wsResponseService.success).toHaveBeenCalledTimes(1)
-                expect(wsResponseService.success).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        data: expect.objectContaining({
-                            delta: "",
-                            done: true,
-                            error: chargeError.message,
-                        }),
-                    }),
-                )
+                // read back the ACTUAL emitted socket message (not a partial
+                // `toHaveBeenCalledWith` match) and assert its full payload --
+                // the client that receives it, the event name, and the chunk
+                // content, proving the charge failure surfaces as a terminal
+                // error chunk rather than the buffered answer
+                const [[emitted]] = wsResponseService.success.mock.calls
+                expect(emitted).toEqual({
+                    message: "content ai chunk",
+                    eventName: SubscriptionEvent.ContentAiChunk,
+                    client,
+                    data: {
+                        streamId: "stream-1",
+                        delta: "",
+                        done: true,
+                        error: chargeError.message,
+                    },
+                })
             })
     })

@@ -31,18 +31,19 @@ import type {
     FlashcardDeckRetentionData,
     FlashcardDeckStatData,
     FlashcardDifficultyMixData,
+    FlashcardDueAndMasteryComputeResult,
     FlashcardDueForecastPointData,
     FlashcardForgetSoonData,
     FlashcardLeechCardData,
     FlashcardLeechFocusCardData,
-    FlashcardMasteryBreakdownData,
     FlashcardMaturityLadderData,
+    FlashcardQuizComputeResult,
     FlashcardQuizHardCardData,
     FlashcardQuizTagStatData,
-    FlashcardQuizTrendPointData,
     FlashcardQuizWeakTagLinkData,
     FlashcardRetentionTrendPointData,
     FlashcardReviewDeckStatData,
+    FlashcardReviewOutcomeComputeResult,
     FlashcardWeakReviewTagData,
     FlashcardWeakTagData,
     RecomputeUserFlashcardCourseStatsParams,
@@ -439,16 +440,7 @@ export class UserFlashcardCourseStatsProjectionService {
     private async computeQuiz(
         manager: EntityManager,
         enrollmentId: string,
-    ): Promise<{
-        quizTrend: Array<FlashcardQuizTrendPointData>
-        quizByTag: Array<FlashcardQuizTagStatData>
-        quizByDeck: Array<FlashcardDeckStatData>
-        weakTagLinks: Array<FlashcardQuizWeakTagLinkData>
-        quizHardCards: Array<FlashcardQuizHardCardData>
-        completedSessionCount: number
-        difficultyMix: FlashcardDifficultyMixData
-        conceptCoverage: FlashcardConceptCoverageData | null
-    }> {
+    ): Promise<FlashcardQuizComputeResult> {
         const sessions = await manager.find(
             FlashcardQuizSessionEntity,
             {
@@ -949,13 +941,7 @@ export class UserFlashcardCourseStatsProjectionService {
     private async computeDueAndMastery(
         manager: EntityManager,
         enrollmentId: string,
-    ): Promise<{
-        dueToday: number
-        dueForecast: Array<FlashcardDueForecastPointData>
-        masteryBreakdown: FlashcardMasteryBreakdownData
-        maturityLadder: FlashcardMaturityLadderData
-        forgetSoon: FlashcardForgetSoonData
-    }> {
+    ): Promise<FlashcardDueAndMasteryComputeResult> {
         // 1. cards due right now
         const [dueTodayRow] = await manager.query<Array<DueTodayRow>>(
             `SELECT COUNT(*)::text AS count
@@ -1099,19 +1085,7 @@ export class UserFlashcardCourseStatsProjectionService {
     private async computeReviewOutcome(
         manager: EntityManager,
         enrollmentId: string,
-    ): Promise<{
-        leechCards: Array<FlashcardLeechCardData>
-        leechFocus: Array<FlashcardLeechFocusCardData>
-        weakReviewTag: FlashcardWeakReviewTagData | null
-        weakTags: Array<FlashcardWeakTagData>
-        matureRetention: number
-        youngRetention: number
-        reviewedTotal: number
-        courseRetention: number
-        bestReviewHour: FlashcardBestReviewHourData | null
-        deckRetention: Array<FlashcardDeckRetentionData>
-        retentionTrend: Array<FlashcardRetentionTrendPointData>
-    }> {
+    ): Promise<FlashcardReviewOutcomeComputeResult> {
         // Shared scope: this enrollment's own user's events on THIS course's cards.
         // `enrollments en` resolves both the user (event owner) and the course
         // (deck filter) from the single enrollment id, so every query below joins

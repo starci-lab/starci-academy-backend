@@ -16,6 +16,7 @@ import {
 import type {
     FlashcardDailyActivityPoint,
     FlashcardGradeDistribution,
+    FlashcardStreaks,
     PersistedUserFlashcardStatsValue,
     RecomputeUserFlashcardStatsParams,
     ReviewHistoryRow,
@@ -318,7 +319,7 @@ export class UserFlashcardStatsProjectionService {
     private computeStreaks(
         epochDaysAsc: Array<number>,
         todayEpoch: number,
-    ): { currentStreak: number, longestStreak: number } {
+    ): FlashcardStreaks {
         if (epochDaysAsc.length === 0) {
             return {
                 currentStreak: 0,

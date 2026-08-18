@@ -59,6 +59,7 @@ import {
     AiAutoQuotaConfigService,
 } from "@modules/filesystem/ai-auto-quota-config.service"
 import type {
+    AiCreditAllowance,
     AiEntitlement,
     AiQuotaSnapshot,
     AiSettings,
@@ -760,7 +761,7 @@ export class AiEntitlementService {
      */
     private creditAllowance(
         tier: AiSubTier | null,
-    ): { limit5h: number, limitWeek: number } {
+    ): AiCreditAllowance {
         const tierConfig = tier ? this.findTierConfig(tier) : null
         // paid tier overrides the free base
         if (tierConfig) {

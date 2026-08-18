@@ -6,10 +6,10 @@ import {
 } from "@nestjs/cqrs"
 import {
     RefreshTokenCommand,
-    type RefreshTokenCommandParams,
+    type RefreshTokenParams,
 } from "./refresh-token.command"
 import type {
-    RefreshTokenCommandResult,
+    RefreshTokenResult,
 } from "./graphql-types/response"
 
 @Injectable()
@@ -20,8 +20,8 @@ export class RefreshTokenService {
     ) {}
 
     async execute(
-        params: RefreshTokenCommandParams,
-    ): Promise<RefreshTokenCommandResult> {
+        params: RefreshTokenParams,
+    ): Promise<RefreshTokenResult> {
         return this.commandBus.execute(
             new RefreshTokenCommand(params),
         )

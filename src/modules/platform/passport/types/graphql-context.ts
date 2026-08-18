@@ -9,7 +9,7 @@ import type {
  * HTTP context so the same `Authorization` header logic works for both
  * transports.
  */
-export interface GraphQLContextRequest {
+export interface GraphQLContextParams {
     /** The underlying Express request carrying headers (e.g. `Authorization`). */
     req: Request
 }

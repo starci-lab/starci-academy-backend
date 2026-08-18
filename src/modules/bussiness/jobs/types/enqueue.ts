@@ -249,6 +249,14 @@ export interface EnqueueJudgeCodingSubmissionJobParams {
     jobId?: string
 }
 
+/** Short-lived BullMQ deduplication key for a reconcile-transaction poll (webhook bursts). */
+export interface EnqueueReconcileTransactionJobDeduplication {
+    /** Stable provider + transaction key. */
+    id: string
+    /** Deduplication lifetime in milliseconds. */
+    ttlMs: number
+}
+
 /** Params for enqueuing a delayed reconcile-transaction poll. */
 export interface EnqueueReconcileTransactionJobParams {
     /** `transactions.id` of the pending transaction to poll. */
@@ -260,10 +268,5 @@ export interface EnqueueReconcileTransactionJobParams {
     /** Fast checkout polling or slow long-running recovery cadence. */
     lane?: ReconcileTransactionLane
     /** Optional short-lived BullMQ deduplication for webhook bursts. */
-    deduplication?: {
-        /** Stable provider + transaction key. */
-        id: string
-        /** Deduplication lifetime in milliseconds. */
-        ttlMs: number
-    }
+    deduplication?: EnqueueReconcileTransactionJobDeduplication
 }

@@ -60,6 +60,7 @@ import type {
     RagPlaygroundSampleEntry,
     RagPlaygroundSampleSummary,
     RagPlaygroundSourceChunk,
+    ResolveRagPlaygroundDocumentsResult,
     RetrieveRagPlaygroundContextParams,
     RetrieveRagPlaygroundContextResult,
 } from "./types/public-rag-playground"
@@ -450,7 +451,7 @@ export class PublicRagPlaygroundService {
             githubUrl,
             sampleId,
         }: IndexRagPlaygroundParams,
-    ): Promise<{ documents: Array<Document>; sourceLabel: string; sampleId?: string }> {
+    ): Promise<ResolveRagPlaygroundDocumentsResult> {
         switch (kind) {
         case RagPlaygroundSourceKind.Sample: {
             const sample = this.findSample(sampleId)

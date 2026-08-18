@@ -80,6 +80,18 @@ interface GithubTreeEntry {
     size?: number
 }
 
+/** Subset of GitHub's `GET /repos/{owner}/{repo}` response we rely on. */
+interface GithubRepoInfoResponse {
+    default_branch: string
+    private: boolean
+    size: number
+}
+
+/** GitHub's `GET /repos/{owner}/{repo}/git/trees/{sha}` response. */
+interface GithubRepoTreeResponse {
+    tree: Array<GithubTreeEntry>
+}
+
 @Injectable()
 /**
  * Imports a PUBLIC GitHub repository into LangChain {@link Document}s for the
@@ -110,7 +122,7 @@ export class GithubRepoImportService {
         const [, owner,
             repo] = match
 
-        const repoInfo = await this.fetchJson<{ default_branch: string; private: boolean; size: number }>(
+        const repoInfo = await this.fetchJson<GithubRepoInfoResponse>(
             `https://api.github.com/repos/${owner}/${repo}`,
         )
         if (!repoInfo || repoInfo.private) {
@@ -119,7 +131,7 @@ export class GithubRepoImportService {
             })
         }
 
-        const tree = await this.fetchJson<{ tree: Array<GithubTreeEntry> }>(
+        const tree = await this.fetchJson<GithubRepoTreeResponse>(
             `https://api.github.com/repos/${owner}/${repo}/git/trees/${repoInfo.default_branch}?recursive=1`,
         )
         const candidates = (tree?.tree ?? []).filter((entry) => this.isImportable(entry))

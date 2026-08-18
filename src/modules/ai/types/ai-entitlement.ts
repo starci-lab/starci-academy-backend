@@ -24,6 +24,14 @@ export interface AiEntitlement {
     creditRemainingWeek: number
 }
 
+/** The per-window credit allowance for {@link AiEntitlementService.creditAllowance}. */
+export interface AiCreditAllowance {
+    /** Credit allowance in the 5h window (tier overrides free base). */
+    limit5h: number
+    /** Credit allowance in the weekly window (tier overrides free base). */
+    limitWeek: number
+}
+
 /** Unified platform credit quota for one user, per window. */
 export interface AiCreditQuota {
     /** Credit allowance in the 5h window (tier overrides free base). */

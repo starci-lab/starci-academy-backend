@@ -16,7 +16,7 @@ import {
     RestTransformInterceptor,
 } from "@modules/api/rest/interceptors/rest-transform.interceptor"
 import {
-    AdminAccessGuard,
+    AdminServiceTokenGuard,
 } from "@modules/bussiness/guards/admin-access.guard"
 import {
     httpConfig,
@@ -49,7 +49,7 @@ export class ProcessVideoController {
     @UseInterceptors(
         RestTransformInterceptor,
     )
-    @UseGuards(AdminAccessGuard)
+    @UseGuards(AdminServiceTokenGuard)
     @ApiHeader({
         name: "x-admin-api-key",
         description: "Admin API key for authentication.",

@@ -103,13 +103,26 @@ describe("GenerateCvGatherStepService",
 
                 await service.process(context())
 
-                expect(jobAction.saveExecutionResult).toHaveBeenCalledWith(expect.objectContaining({
-                    key: "gather",
-                    executionResult: expect.objectContaining({
-                        selectedEvidence,
-                        sourceCvText: null,
-                    }),
-                }))
+                // read back the exact blob this step handed the persistence
+                // collaborator -- a captured value, asserted with `toEqual`,
+                // rather than a partial `toHaveBeenCalledWith` match
+                const [[saved]] = jobAction.saveExecutionResult.mock.calls
+                expect(saved.key).toBe("gather")
+                expect(saved.executionResult).toEqual({
+                    profile: {
+                        displayName: "Jane",
+                        bio: null,
+                        roleTitle: "Engineer",
+                        location: "HCM",
+                        linkedinUrl: null,
+                        websiteUrl: null,
+                        githubUsername: "jane",
+                        workMode: "remote",
+                        openToWork: true,
+                    },
+                    selectedEvidence,
+                    sourceCvText: null,
+                })
                 expect(entityManager.findOne).not.toHaveBeenCalled()
                 expect(entityManager.query).not.toHaveBeenCalled()
                 expect(s3.buffer).not.toHaveBeenCalled()
@@ -120,14 +133,11 @@ describe("GenerateCvGatherStepService",
                 const { jobAction, service } = makeService()
 
                 await service.process(context({
-                    selectedEvidence: [] 
+                    selectedEvidence: []
                 }))
 
-                expect(jobAction.saveExecutionResult).toHaveBeenCalledWith(expect.objectContaining({
-                    executionResult: expect.objectContaining({
-                        selectedEvidence: [] 
-                    }),
-                }))
+                const [[saved]] = jobAction.saveExecutionResult.mock.calls
+                expect(saved.executionResult.selectedEvidence).toEqual([])
             })
 
         it("serializes a generated source CV in revise mode",
@@ -136,7 +146,7 @@ describe("GenerateCvGatherStepService",
                 entityManager.findOne.mockResolvedValueOnce({
                     source: CvSource.Generated,
                     structuredData: {
-                        headline: "Existing CV" 
+                        headline: "Existing CV"
                     },
                 })
 
@@ -145,11 +155,17 @@ describe("GenerateCvGatherStepService",
                     sourceCvSubmissionId: "source-cv",
                 }))
 
-                expect(jobAction.saveExecutionResult).toHaveBeenCalledWith(expect.objectContaining({
-                    executionResult: expect.objectContaining({
-                        sourceCvText: expect.stringContaining("Existing CV"),
-                    }),
-                }))
+                const [[saved]] = jobAction.saveExecutionResult.mock.calls
+                // exact serialization, not a substring -- catches a formatting
+                // regression (e.g. dropped `null, 2` indentation) the old
+                // `stringContaining` check could never see
+                expect(saved.executionResult.sourceCvText).toBe(JSON.stringify(
+                    {
+                        headline: "Existing CV"
+                    },
+                    null,
+                    2,
+                ))
             })
 
         it("extracts an uploaded source CV in revise mode",
@@ -167,10 +183,7 @@ describe("GenerateCvGatherStepService",
                     sourceCvSubmissionId: "source-cv",
                 }))
 
-                expect(jobAction.saveExecutionResult).toHaveBeenCalledWith(expect.objectContaining({
-                    executionResult: expect.objectContaining({
-                        sourceCvText: "Original experience" 
-                    }),
-                }))
+                const [[saved]] = jobAction.saveExecutionResult.mock.calls
+                expect(saved.executionResult.sourceCvText).toBe("Original experience")
             })
     })

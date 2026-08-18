@@ -27,7 +27,7 @@ import {
     ExchangeCodeForTokenCommand,
 } from "./exchange-code-for-token.command"
 import type {
-    ExchangeCodeForTokenCommandResult,
+    ExchangeCodeForTokenResult,
 } from "./graphql-types/response"
 import type {
     EntityManager,
@@ -59,8 +59,8 @@ import {
  * the GraphQL payload so the resolver can lock it in an httpOnly cookie.
  */
 export class ExchangeCodeForTokenHandler
-    extends ICQRSHandler<ExchangeCodeForTokenCommand, ExchangeCodeForTokenCommandResult>
-    implements ICommandHandler<ExchangeCodeForTokenCommand, ExchangeCodeForTokenCommandResult>
+    extends ICQRSHandler<ExchangeCodeForTokenCommand, ExchangeCodeForTokenResult>
+    implements ICommandHandler<ExchangeCodeForTokenCommand, ExchangeCodeForTokenResult>
 {
     constructor(
         private readonly keycloakTokenService: KeycloakTokenService,
@@ -75,7 +75,7 @@ export class ExchangeCodeForTokenHandler
 
     protected override async process(
         command: ExchangeCodeForTokenCommand,
-    ): Promise<ExchangeCodeForTokenCommandResult> {
+    ): Promise<ExchangeCodeForTokenResult> {
         const {
             code,
             provider,

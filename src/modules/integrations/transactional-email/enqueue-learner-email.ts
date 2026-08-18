@@ -12,6 +12,7 @@ import type {
 } from "typeorm"
 import {
     pickLocale,
+    type LocaleVariants,
 } from "./pick-locale"
 
 /** Params for {@link enqueueLearnerEmail}. */
@@ -25,10 +26,7 @@ export interface EnqueueLearnerEmailParams {
     /** Pug template name (without `.pug`). */
     template: string
     /** Localized subject line. */
-    subject: {
-        vi: string
-        en: string
-    }
+    subject: LocaleVariants<string>
     /** Base URL of the learner web app (exposed to the template as `dashboardUrl`). */
     webBaseUrl: string
     /** Recipient locale for subject + body copy (defaults to English). */

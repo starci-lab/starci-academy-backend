@@ -34,14 +34,17 @@ export interface BuildAutocompleteGlobalSearchPayloadParams {
     locale: Locale
 }
 
+/** The socket payload's `data` field, built from the caller's request. */
+export interface AutocompleteGlobalSearchPayloadData {
+    query: string
+    entities: Array<SearchableEntity>
+    size?: number
+}
+
 /** Result of building a Socket.IO payload for global search. */
 export interface BuildAutocompleteGlobalSearchPayloadResult {
     locale: Locale
-    data: {
-        query: string
-        entities: Array<SearchableEntity>
-        size?: number
-    }
+    data: AutocompleteGlobalSearchPayloadData
 }
 
 /** Params for executing the global search autocomplete query. */

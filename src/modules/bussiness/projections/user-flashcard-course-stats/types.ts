@@ -321,6 +321,41 @@ export interface UserFlashcardCourseStatsResult {
     retentionTrend: Array<FlashcardRetentionTrendPointData>
 }
 
+/** The quick-quiz side of {@link UserFlashcardCourseStatsResult} -- trend/byTag/byDeck. */
+export type FlashcardQuizComputeResult = Pick<
+    UserFlashcardCourseStatsResult,
+    | "quizTrend"
+    | "quizByTag"
+    | "quizByDeck"
+    | "weakTagLinks"
+    | "quizHardCards"
+    | "completedSessionCount"
+    | "difficultyMix"
+    | "conceptCoverage"
+>
+
+/** The due/mastery side of {@link UserFlashcardCourseStatsResult}. */
+export type FlashcardDueAndMasteryComputeResult = Pick<
+    UserFlashcardCourseStatsResult,
+    "dueToday" | "dueForecast" | "masteryBreakdown" | "maturityLadder" | "forgetSoon"
+>
+
+/** The review-outcome side of {@link UserFlashcardCourseStatsResult}. */
+export type FlashcardReviewOutcomeComputeResult = Pick<
+    UserFlashcardCourseStatsResult,
+    | "leechCards"
+    | "leechFocus"
+    | "weakReviewTag"
+    | "weakTags"
+    | "matureRetention"
+    | "youngRetention"
+    | "reviewedTotal"
+    | "courseRetention"
+    | "bestReviewHour"
+    | "deckRetention"
+    | "retentionTrend"
+>
+
 /**
  * CDC row from either `flashcard_quiz_sessions` or `flashcard_review_sessions`
  * -- both carry `enrollment_id` directly, no join needed to derive the

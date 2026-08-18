@@ -1,4 +1,9 @@
 import Handlebars from "handlebars"
+import type {
+    ComposedEducation,
+    ComposedExperience,
+    ComposedSkillGroup,
+} from "../types/execute"
 
 /**
  * Escape every LaTeX special character in a piece of USER-SUPPLIED text so the
@@ -117,22 +122,9 @@ export interface CvLatexTemplateContext {
     github: string
     location: string
     summary: string
-    skillGroups: Array<{
-        category: string
-        items: Array<string>
-    }>
-    experiences: Array<{
-        title: string
-        org: string
-        location: string
-        dateRange: string
-        bullets: Array<string>
-    }>
-    education: Array<{
-        school: string
-        degree: string
-        dateRange: string
-    }>
+    skillGroups: Array<ComposedSkillGroup>
+    experiences: Array<ComposedExperience>
+    education: Array<ComposedEducation>
 }
 
 /**

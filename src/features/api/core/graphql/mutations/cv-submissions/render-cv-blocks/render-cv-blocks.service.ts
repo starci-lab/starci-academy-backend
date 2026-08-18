@@ -14,7 +14,7 @@ import {
     RenderCvBlocksRequest,
 } from "./graphql-types/request"
 import {
-    RenderCvBlocksResult,
+    RenderCvBlocksResponseData,
 } from "./graphql-types/response"
 
 @Injectable()
@@ -26,7 +26,7 @@ export class RenderCvBlocksService {
 
     async execute(
         params: ExecuteParams<RenderCvBlocksRequest>,
-    ): Promise<RenderCvBlocksResult> {
+    ): Promise<RenderCvBlocksResponseData> {
         return this.commandBus.execute(
             new RenderCvBlocksCommand(params),
         )

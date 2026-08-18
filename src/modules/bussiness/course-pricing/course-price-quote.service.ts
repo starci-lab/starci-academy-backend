@@ -42,6 +42,7 @@ import {
     CoursePriceQuoteIntent,
     type CoursePriceQuoteLine,
     type CoursePriceQuoteResult,
+    type PriceCourseLineParams,
     type QuoteCoursePricesParams,
 } from "./types"
 
@@ -184,11 +185,7 @@ export class CoursePriceQuoteService {
     }
 
     private async priceLine(
-        input: Pick<CoursePriceQuoteLine,
-        "course" | "loyaltyDiscountPercent" | "bundleDiscountPercent" |
-        "displayDiscountPercent" | "discountReason" | "enrolledCount"> & {
-            intent: CoursePriceQuoteIntent
-        },
+        input: PriceCourseLineParams,
     ): Promise<CoursePriceQuoteLine> {
         const { intent, ...lineInput } = input
         const isDiscovery = intent === CoursePriceQuoteIntent.Discovery

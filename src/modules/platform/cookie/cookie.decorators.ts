@@ -9,8 +9,11 @@ import type {
     Request,
 } from "express"
 import {
-    CookieName 
+    CookieName
 } from "./enums"
+import type {
+    GraphQLContextParams,
+} from "./types/graphql-context"
 
 /**
  * Inject the cookie from the request.
@@ -20,9 +23,7 @@ import {
  */
 export const GraphQLCookie = createParamDecorator(
     (data: CookieName, context: ExecutionContext) => {
-        const gql = GqlExecutionContext.create(context).getContext<{
-            req: Request
-        }>()
+        const gql = GqlExecutionContext.create(context).getContext<GraphQLContextParams>()
         const request = gql.req
         return request.cookies?.[data.toString()]
     },

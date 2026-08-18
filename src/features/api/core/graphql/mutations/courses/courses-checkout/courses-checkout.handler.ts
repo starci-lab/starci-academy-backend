@@ -1,4 +1,7 @@
 import {
+    randomInt,
+} from "crypto"
+import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
 import {
@@ -540,9 +543,9 @@ export class CoursesCheckoutHandler
      * @returns A unique-per-request integer order code.
      */
     private generateOrderCode(): number {
-        // millisecond timestamp + random suffix keeps codes unique per request
-        return Date.now() * 1000 + Math.floor(
-            Math.random() * 1000,
-        )
+        // millisecond timestamp keeps codes ordered; the suffix comes from the
+        // CSPRNG because this code IS the payment reference the gateway and the
+        // webhook look the transaction up by -- a Math.random suffix is guessable.
+        return Date.now() * 1000 + randomInt(1000)
     }
 }

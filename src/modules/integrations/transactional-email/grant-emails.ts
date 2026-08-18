@@ -25,13 +25,19 @@ export interface GrantEmailParams {
     locale?: Locale | null
 }
 
+/** Params for {@link enqueueSubscriptionActiveEmail}. */
+export interface SubscriptionActiveEmailParams extends GrantEmailParams {
+    /** The newly-active tier, when known (display only). */
+    tier?: string | null
+}
+
 /**
  * Email the buyer that their paid AI tier is now active. Best-effort -- call
  * ONLY when {@link AiEntitlementService.grantTier} returned `true` (a new grant),
  * so payment-webhook retries / reconcile polls never re-notify.
  */
 export const enqueueSubscriptionActiveEmail = async (
-    params: GrantEmailParams & { tier?: string | null },
+    params: SubscriptionActiveEmailParams,
 ): Promise<void> => {
     await enqueueLearnerEmail({
         entityManager: params.entityManager,
@@ -92,13 +98,19 @@ export const enqueuePaymentFailedEmail = async (
     })
 }
 
+/** Params for {@link enqueueInstallmentDueEmail}. */
+export interface InstallmentDueEmailParams extends GrantEmailParams {
+    /** The minimum amount due, shown in the reminder copy. */
+    minPaymentVnd: number
+}
+
 /**
  * Day-0 "your installment cycle is due" reminder. Best-effort -- fired once per
  * cycle by {@link import("@modules/bussiness").InstallmentPlanEnforcementCronService}
  * (idempotent via `InstallmentPlanEntity.dueRemindedAt`).
  */
 export const enqueueInstallmentDueEmail = async (
-    params: GrantEmailParams & { minPaymentVnd: number },
+    params: InstallmentDueEmailParams,
 ): Promise<void> => {
     await enqueueLearnerEmail({
         entityManager: params.entityManager,
@@ -117,13 +129,21 @@ export const enqueueInstallmentDueEmail = async (
     })
 }
 
+/** Params for {@link enqueueInstallmentFinalWarningEmail}. */
+export interface InstallmentFinalWarningEmailParams extends GrantEmailParams {
+    /** The minimum amount due, shown in the reminder copy. */
+    minPaymentVnd: number
+    /** Days remaining before course access locks, shown in the reminder copy. */
+    daysUntilLockout: number
+}
+
 /**
  * Second (final-warning) reminder, sent `secondReminderAfterDays` past due --
  * "pay now or your course access gets locked in N days". Best-effort, fired
  * once per cycle (idempotent via `InstallmentPlanEntity.secondRemindedAt`).
  */
 export const enqueueInstallmentFinalWarningEmail = async (
-    params: GrantEmailParams & { minPaymentVnd: number, daysUntilLockout: number },
+    params: InstallmentFinalWarningEmailParams,
 ): Promise<void> => {
     await enqueueLearnerEmail({
         entityManager: params.entityManager,
@@ -143,12 +163,18 @@ export const enqueueInstallmentFinalWarningEmail = async (
     })
 }
 
+/** Params for {@link enqueueInstallmentDefaultedEmail}. */
+export interface InstallmentDefaultedEmailParams extends GrantEmailParams {
+    /** The minimum amount that was due, shown in the notice copy. */
+    minPaymentVnd: number
+}
+
 /**
  * The plan just defaulted -- course access has been locked. Best-effort, fired
  * exactly once at the moment the enforcement cron flips the plan to `Defaulted`.
  */
 export const enqueueInstallmentDefaultedEmail = async (
-    params: GrantEmailParams & { minPaymentVnd: number },
+    params: InstallmentDefaultedEmailParams,
 ): Promise<void> => {
     await enqueueLearnerEmail({
         entityManager: params.entityManager,

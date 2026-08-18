@@ -103,6 +103,14 @@ export interface EnqueueGenerateCvJobParams {
     selectedEvidence: CvEvidenceSnapshot
 }
 
+/** Result of {@link EnqueueGenerateCvJobService.enqueue}. */
+export interface EnqueueGenerateCvJobResult {
+    /** The created `cv_generations` row (status `Pending`). */
+    cvGeneration: UserCvGenerationEntity
+    /** The tracked `jobs.id`, used to subscribe to realtime progress over the `job_notifications` socket. */
+    jobId: string
+}
+
 @Injectable()
 /**
  * Enqueues a CV generation job. CREATES the `Pending` {@link UserCvGenerationEntity}
@@ -147,7 +155,7 @@ export class EnqueueGenerateCvJobService {
             targetLevel,
             selectedEvidence,
         }: EnqueueGenerateCvJobParams,
-    ): Promise<{ cvGeneration: UserCvGenerationEntity, jobId: string }> {
+    ): Promise<EnqueueGenerateCvJobResult> {
         const jobId = uuidv4()
         const committed = await this.entityManager.transaction(async (manager) => {
             const cvGeneration = await manager.save(

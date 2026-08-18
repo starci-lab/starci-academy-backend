@@ -6,7 +6,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     GenerateAvatarPresignUrlCommand,
-    GenerateAvatarPresignUrlCommandParams,
+    GenerateAvatarPresignUrlParams,
 } from "./generate-avatar-presign-url.command"
 import {
     GenerateAvatarPresignUrlResponseData,
@@ -24,11 +24,11 @@ export class GenerateAvatarPresignUrlService {
     /**
      * Dispatch the generate-presign-url command.
      *
-     * @param params - {@link GenerateAvatarPresignUrlCommandParams}
+     * @param params - {@link GenerateAvatarPresignUrlParams}
      * @returns the presigned URL + object key.
      */
     async execute(
-        params: GenerateAvatarPresignUrlCommandParams,
+        params: GenerateAvatarPresignUrlParams,
     ): Promise<GenerateAvatarPresignUrlResponseData> {
         return this.commandBus.execute(
             new GenerateAvatarPresignUrlCommand(params),

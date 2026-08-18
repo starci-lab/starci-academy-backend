@@ -259,6 +259,14 @@ export class ChallengeProgressService {
                 // Latest attempt = the one with the highest attempt number.
                 const latestAttempt = attempts.reduce(
                     (latest, attempt) => (attempt.attemptNumber > latest.attemptNumber ? attempt : latest),
+                    // Seeded with the first attempt rather than relying on the
+                    // no-initial-value overload, which THROWS on an empty array.
+                    // The `attempts.length === 0` guard above makes that
+                    // unreachable today, but the guard and the reduce are free to
+                    // drift apart; seeding makes the call safe on its own terms
+                    // and picks the same element (the seed is compared against
+                    // itself on the first step, which never swaps).
+                    attempts[0],
                 )
                 const latestScore = latestAttempt.score ?? 0
                 // Earned points for this submission, capped at its own max score.

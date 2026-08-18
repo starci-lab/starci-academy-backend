@@ -6,7 +6,7 @@ import type {
  * Internal command result: GraphQL data plus the refresh token kept off the
  * schema so the resolver can lock it in an httpOnly cookie.
  */
-export interface ForgotPasswordVerifyOtpCommandResult {
+export interface ForgotPasswordVerifyOtpResponse {
     data: SignInVerifyOtpData
     refreshToken: string
 }

@@ -18,7 +18,7 @@ import {
     MockInterviewVerdict,
     type BuildMockInterviewGradePromptParams,
     type BuildMockInterviewGradePromptResult,
-    type MockInterviewSeedGrounding,
+    type BuildMockInterviewQuestionBlockParams,
     type MockInterviewTurnRecord,
 } from "./types/mock-interview-grade"
 
@@ -542,11 +542,7 @@ export class MockInterviewGradePromptService {
      * @returns The question's block text, ready to join into the human message.
      */
     private buildQuestionBlock(
-        params: {
-            index: number
-            questionTurns: Array<MockInterviewTurnRecord>
-            grounding: MockInterviewSeedGrounding | undefined
-        },
+        params: BuildMockInterviewQuestionBlockParams,
     ): string {
         const {
             index,

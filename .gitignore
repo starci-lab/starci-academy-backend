@@ -161,3 +161,9 @@ scratch/
 .env.override
 .env.override.generated
 .env.override.bak
+
+# sonar-scanner working directory: generated analysis evidence, not product source
+.scannerwork/
+
+# lint report debris
+eslint_out*.json

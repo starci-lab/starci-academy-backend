@@ -49,6 +49,13 @@ interface DigestCountRow {
     notificationIds: Array<string>
 }
 
+/** One recipient's folded activity summary across every notification type in the window. */
+interface SocialDigestUserSummary {
+    total: number
+    byType: Map<NotificationType, number>
+    notificationIds: Array<string>
+}
+
 /** Window the digest looks back over (last 24 hours). */
 const DIGEST_WINDOW_MS = 24 * 60 * 60 * 1000
 
@@ -125,11 +132,7 @@ export class SocialDigestCronService {
                     .getRawMany<DigestCountRow>()
 
                 // fold the (user, type) rows into one summary per user
-                const perUser = new Map<string, {
-                    total: number
-                    byType: Map<NotificationType, number>
-                    notificationIds: Array<string>
-                }>()
+                const perUser = new Map<string, SocialDigestUserSummary>()
                 for (const row of rows) {
                     const count = Number.parseInt(row.count,
                         10)

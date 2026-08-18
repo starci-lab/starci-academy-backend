@@ -6,7 +6,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     VerifyAvatarPresignUrlCommand,
-    VerifyAvatarPresignUrlCommandParams,
+    VerifyAvatarPresignUrlParams,
 } from "./verify-avatar-presign-url.command"
 import {
     VerifyAvatarPresignUrlResponseData,
@@ -24,11 +24,11 @@ export class VerifyAvatarPresignUrlService {
     /**
      * Dispatch the verify-presign-url command.
      *
-     * @param params - {@link VerifyAvatarPresignUrlCommandParams}
+     * @param params - {@link VerifyAvatarPresignUrlParams}
      * @returns whether the object existed + the persisted public URL.
      */
     async execute(
-        params: VerifyAvatarPresignUrlCommandParams,
+        params: VerifyAvatarPresignUrlParams,
     ): Promise<VerifyAvatarPresignUrlResponseData> {
         return this.commandBus.execute(
             new VerifyAvatarPresignUrlCommand(params),

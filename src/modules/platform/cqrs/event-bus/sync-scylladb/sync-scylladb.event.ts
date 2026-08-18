@@ -4,15 +4,18 @@
  */
 export type SyncScyllaDBEntityType = "course" | "challenge" | "content"
 
+/** The entity to hydrate immediately into ScyllaDB. */
+export interface SyncScyllaDBEventPayload {
+    entityType: SyncScyllaDBEntityType
+    id: string
+}
+
 /**
  * Event emitted when a write-flow wants to sync one entity immediately to ScyllaDB.
  */
 export class SyncScyllaDBEvent {
     constructor(
-        readonly payload: {
-            entityType: SyncScyllaDBEntityType
-            id: string
-        },
+        readonly payload: SyncScyllaDBEventPayload,
     ) {
     }
 }

@@ -6,7 +6,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     GenerateSubmitCvPresignUrlCommand,
-    GenerateSubmitCvPresignUrlCommandParams,
+    GenerateSubmitCvPresignUrlParams,
 } from "./generate-submit-cv-presign-url.command"
 import {
     GenerateSubmitCvPresignUrlResponseData,
@@ -20,7 +20,7 @@ export class GenerateSubmitCvPresignUrlService {
     ) {}
 
     async execute(
-        params: GenerateSubmitCvPresignUrlCommandParams,
+        params: GenerateSubmitCvPresignUrlParams,
     ): Promise<GenerateSubmitCvPresignUrlResponseData> {
         return this.commandBus.execute(
             new GenerateSubmitCvPresignUrlCommand(params),

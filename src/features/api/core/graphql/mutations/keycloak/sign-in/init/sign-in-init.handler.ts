@@ -15,7 +15,7 @@ import {
     SignInInitCommand,
 } from "./sign-in-init.command"
 import type {
-    SignInInitCommandResult,
+    SignInInitResponse,
 } from "./graphql-types/response"
 import {
     OtpChallengeService,
@@ -73,8 +73,8 @@ import {
  * mails the code -- login is incomplete until verify consumes that challenge.
  */
 export class SignInInitHandler
-    extends ICQRSHandler<SignInInitCommand, SignInInitCommandResult>
-    implements ICommandHandler<SignInInitCommand, SignInInitCommandResult>
+    extends ICQRSHandler<SignInInitCommand, SignInInitResponse>
+    implements ICommandHandler<SignInInitCommand, SignInInitResponse>
 {
     constructor(
         private readonly jwtService: JwtService,
@@ -97,7 +97,7 @@ export class SignInInitHandler
      */
     protected override async process(
         command: SignInInitCommand,
-    ): Promise<SignInInitCommandResult> {
+    ): Promise<SignInInitResponse> {
         const {
             request: {
                 email,

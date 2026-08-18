@@ -46,7 +46,7 @@ export class SignInVerifyOtpResponse
 /**
  * Result of the verifyChallenge command.
  */
-export interface SignInVerifyOtpCommandResult {
+export interface SignInVerifyOtpResult {
     /**
      * The data returned from the command.
      */

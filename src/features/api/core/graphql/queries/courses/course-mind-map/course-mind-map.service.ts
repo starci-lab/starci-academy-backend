@@ -15,6 +15,7 @@ import {
 } from "@modules/databases/postgresql/primary/primary.decorators"
 import type {
     CourseMindMapNode,
+    CourseMindMapText,
     CourseMindMapTree,
 } from "@modules/databases/postgresql/primary/entities/course.entity"
 import type {
@@ -149,7 +150,7 @@ export class CourseMindMapService {
         locale: LocaleType,
     ): CourseMindMapResponseData {
         /** Pick the bilingual text for the active locale (falls back to the other side). */
-        const text = (value: { en: string; vi: string }) =>
+        const text = (value: CourseMindMapText) =>
             (locale === "vi" ? (value.vi || value.en) : (value.en || value.vi))
 
         // ---- lay out the tree: depth -> column, leaves stacked, parents centered ----

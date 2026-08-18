@@ -20,10 +20,6 @@ import {
 import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
-import type {
-    Request,
-    Response,
-} from "express"
 import {
     GraphQLCookie,
 } from "@modules/platform/cookie/cookie.decorators"
@@ -48,6 +44,9 @@ import {
 import {
     envConfig,
 } from "@modules/platform/env/config"
+import type {
+    GraphQLContextParams,
+} from "../../../shared/types/graphql-context"
 
 @Resolver()
 /**
@@ -79,10 +78,7 @@ export class SignOutResolver {
         @GraphQLCookie(CookieName.KeycloakRefreshToken)
             refreshToken: string,
         @Context()
-            ctx: {
-                req: Request
-                res: Response
-            },
+            ctx: GraphQLContextParams,
     ): Promise<undefined> {
         await this.signOutService.execute({
             request: {

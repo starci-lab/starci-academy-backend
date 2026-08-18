@@ -62,8 +62,10 @@ import type {
 import type {
     AnthropicApiKey,
     BuildProbeRequestParams,
+    BuildProbeRequestResult,
     GeminiApiKey,
     InvokeWithCacheParams,
+    InvokeWithCacheResult,
     LocalApiKey,
     OpenAiApiKey,
     OpenRouterApiKey,
@@ -452,10 +454,7 @@ export class UseApiService {
         key,
         model,
         action,
-    }: InvokeWithCacheParams<TResult>): Promise<
-        | { ok: true, result: TResult }
-        | { ok: false, error: Error, kind: AiErrorKind }
-    > {
+    }: InvokeWithCacheParams<TResult>): Promise<InvokeWithCacheResult<TResult>> {
         try {
             const context = this.buildContext(
                 provider,
@@ -743,7 +742,7 @@ export class UseApiService {
             model,
             apiKey,
         }: BuildProbeRequestParams,
-    ): { url: string, headers: Record<string, string>, body: unknown } {
+    ): BuildProbeRequestResult {
         // shared OpenAI-style chat body -- reused by every OpenAI-compatible gateway.
         // `tokens` defaults to 1 (cheapest possible probe) but REASONING-family
         // models (gpt-5.x native + OpenRouter reasoning routes) burn part of that

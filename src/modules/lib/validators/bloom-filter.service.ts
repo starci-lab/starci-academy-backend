@@ -5,6 +5,7 @@ import {
     createHash,
 } from "crypto"
 import type {
+    BloomFilterJson,
     BloomFilterOptions,
     BloomFilterState,
 } from "./types/bloom-filter"
@@ -91,11 +92,7 @@ export class BloomFilterService {
     /** Export filter to JSON-friendly object. */
     toJSON(
         state: BloomFilterState,
-    ): {
-        sizeBits: number
-        hashes: number
-        bytesBase64: string
-    } {
+    ): BloomFilterJson {
         return {
             sizeBits: state.sizeBits,
             hashes: state.hashes,
@@ -105,11 +102,7 @@ export class BloomFilterService {
 
     /** Restore filter from JSON-friendly object. */
     fromJSON(
-        json: {
-            sizeBits: number
-            hashes: number
-            bytesBase64: string
-        },
+        json: BloomFilterJson,
     ): BloomFilterState {
         const bytes = Uint8Array.from(
             Buffer.from(json.bytesBase64,

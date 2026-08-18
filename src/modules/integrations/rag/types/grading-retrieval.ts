@@ -5,8 +5,8 @@ import type {
     EmbeddingsInterface,
 } from "@langchain/core/embeddings"
 import type {
-    ModelProvider,
-} from "@modules/databases/postgresql/primary/enums/model-provider"
+    GetEmbeddingModelParams,
+} from "@modules/integrations/langchain/types/model"
 
 /** One yes/no criterion whose prose steers retrieval toward the evidence that satisfies it. */
 export interface GradingRetrievalCriterion {
@@ -33,12 +33,7 @@ export interface RetrieveGradingExcerptParams {
     /** Chunk overlap for the recursive splitter. */
     chunkOverlap: number
     /** The exact embedding `{ model, provider }` to vectorize chunks + queries (kept fixed so dims match). */
-    embedding: {
-        /** Embedding model name. */
-        model: string
-        /** Embedding provider. */
-        provider: ModelProvider
-    }
+    embedding: GetEmbeddingModelParams
     /** Hard ceiling on the assembled excerpt length (characters). */
     maxChars: number
     /** Job id, for log correlation. */

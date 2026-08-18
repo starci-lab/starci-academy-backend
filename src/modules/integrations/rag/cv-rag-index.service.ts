@@ -49,13 +49,25 @@ const CV_RAG_CHUNK_OVERLAP = 200
 /** Chunks per embed+upsert round -- bounds each round so a corpus growth spike still gives progress heartbeats (mirrors {@link ContentRagIndexService}). */
 const CV_RAG_EMBED_BATCH_SIZE = 200
 
+/** One top-level folder under `.mount/data/cv/`, and the `kind` every entry found under it is tagged with. */
+interface CvRagSourceDir {
+    relativePath: string
+    kind: CvRagKind
+}
+
+/** One corpus entry to index -- its diff/delete key (mount-relative path) plus its `kind`. */
+interface CvRagEntry {
+    entryId: string
+    kind: CvRagKind
+}
+
 /**
  * One top-level folder under `.mount/data/cv/` scanned by {@link CvRagIndexService.build},
  * mapped to the `kind` payload filter {@link CvRagRetrievalService.retrieveCvContext} scopes on.
  * `refs/` (the teacher's cleaned real-world CVs) are tagged `sample` -- same retrieval role as
  * the authored samples (exemplar phrasing), `CvRagKind` has no separate `ref` bucket.
  */
-const CV_RAG_SOURCE_DIRS: Array<{ relativePath: string, kind: CvRagKind }> = [
+const CV_RAG_SOURCE_DIRS: Array<CvRagSourceDir> = [
     {
         relativePath: "",
         kind: "rubric",
@@ -266,8 +278,8 @@ export class CvRagIndexService {
      * (its mount-relative path, e.g. `catalogs/01-skills`) used as the
      * diff/delete key.
      */
-    private async enumerateEntries(): Promise<Array<{ entryId: string, kind: CvRagKind }>> {
-        const entries: Array<{ entryId: string, kind: CvRagKind }> = []
+    private async enumerateEntries(): Promise<Array<CvRagEntry>> {
+        const entries: Array<CvRagEntry> = []
         for (const dir of CV_RAG_SOURCE_DIRS) {
             const paths = await this.pathResolverService.filePaths("cv",
                 dir.relativePath)
@@ -289,7 +301,7 @@ export class CvRagIndexService {
      * @returns The entry's per-locale documents (empty when `en.md` is missing).
      */
     private async collectEntryDocs(
-        entry: { entryId: string, kind: CvRagKind },
+        entry: CvRagEntry,
     ): Promise<Array<Document>> {
         const docs: Array<Document> = []
         for (const [

@@ -39,6 +39,9 @@ export interface VoucherPreview {
     value: number
 }
 
+/** The discount fields of a {@link VoucherPreview} needed to apply it to a price. */
+export type VoucherDiscount = Pick<VoucherPreview, "discountType" | "value">
+
 /** Params shared by {@link VoucherService.previewDiscount} and {@link VoucherService.reserve}. */
 export interface ResolveVoucherParams {
     /** The redeemer who must own the code. */
@@ -366,10 +369,7 @@ export class VoucherService {
      */
     applyToAmount(
         amount: number,
-        discount: {
-            discountType: VoucherDiscountType
-            value: number
-        },
+        discount: VoucherDiscount,
     ): number {
         if (discount.discountType === VoucherDiscountType.Percent) {
             return Math.max(

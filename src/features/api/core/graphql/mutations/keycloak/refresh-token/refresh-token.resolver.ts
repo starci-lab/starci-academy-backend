@@ -40,12 +40,12 @@ import {
 import {
     CsrfGuard,
 } from "@modules/platform/csrf/guards/csrf.guard"
-import type {
-    Response,
-} from "express"
 import {
     BearerJwt,
 } from "@modules/platform/passport/decorators/bearer-jwt.decorators"
+import type {
+    GraphQLContextParams,
+} from "../../../shared/types/graphql-context"
 
 @Resolver()
 /**
@@ -81,10 +81,7 @@ export class RefreshTokenResolver {
         @BearerJwt()
             accessToken: string | undefined,
         @Context()
-            ctx: {
-                req: Request
-                res: Response
-            },
+            ctx: GraphQLContextParams,
     ): Promise<RefreshTokenData> {
         const {
             data,

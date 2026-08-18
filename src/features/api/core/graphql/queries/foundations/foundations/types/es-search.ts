@@ -29,12 +29,15 @@ export interface MockedEsClient {
     search: jest.Mock
 }
 
+/** The `client` field mixed onto the jest-mocked `ElasticsearchService`. */
+export interface MockedElasticsearchServiceClientField {
+    /** Minimal mocked Elasticsearch client. */
+    client: MockedEsClient
+}
+
 /**
  * Mocked `ElasticsearchService` shape used as the test provider value: the real
  * `indicateName` method (jest-mocked) plus a minimal `client` exposing `search`.
  */
 export type MockedElasticsearchService =
-    jest.Mocked<Pick<ElasticsearchService, "indicateName">> & {
-        /** Minimal mocked Elasticsearch client. */
-        client: MockedEsClient
-    }
+    jest.Mocked<Pick<ElasticsearchService, "indicateName">> & MockedElasticsearchServiceClientField

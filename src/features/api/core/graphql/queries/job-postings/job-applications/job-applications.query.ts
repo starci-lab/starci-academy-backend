@@ -3,13 +3,13 @@ import type {
 } from "../../../../types/execute"
 
 /** Identity of the posting whose internal applications are requested. */
-export interface JobApplicationsRequest {
+export interface JobApplicationsParams {
     jobPostingId: string
 }
 
 /** CQRS query for applications visible to a posting owner. */
 export class JobApplicationsQuery {
     constructor(
-        readonly params: ExecuteParams<JobApplicationsRequest>,
+        readonly params: ExecuteParams<JobApplicationsParams>,
     ) {}
 }

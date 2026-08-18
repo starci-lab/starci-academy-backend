@@ -72,6 +72,9 @@ export interface UserFlashcardStatsResult {
     gradeDistribution: FlashcardGradeDistribution
 }
 
+/** The current + longest consecutive-day streak lengths, computed from review history. */
+export type FlashcardStreaks = Pick<UserFlashcardStatsResult, "currentStreak" | "longestStreak">
+
 /**
  * The FULL persisted projection `value` -- the read stats above PLUS a bounded
  * per-VN-day count map (`YYYY-MM-DD` -> cards graded that day) that powers the

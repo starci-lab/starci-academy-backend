@@ -7,6 +7,11 @@ export interface KeycloakJwtHeader {
     kid: string
 }
 
+/** A Keycloak realm/resource access claim entry: the role names granted at that scope. */
+export interface KeycloakRoleClaim {
+    roles?: Array<string>
+}
+
 /**
  * Standard access-token claims from Keycloak (realm / client scopes may add more).
  */
@@ -29,12 +34,8 @@ export interface KeycloakJwtPayload {
     preferred_username?: string
     given_name?: string
     family_name?: string
-    realm_access?: {
-        roles?: Array<string>
-    }
-    resource_access?: Record<string, {
-        roles?: Array<string> 
-    }>
+    realm_access?: KeycloakRoleClaim
+    resource_access?: Record<string, KeycloakRoleClaim>
     [key: string]: unknown
 }
 

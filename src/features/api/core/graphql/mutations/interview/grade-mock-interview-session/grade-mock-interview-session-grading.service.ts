@@ -69,7 +69,6 @@ import {
 } from "./grade-mock-interview-session-prompt.service"
 import {
     GradeMockInterviewSessionParseService,
-    type MockInterviewQuestionFeedbackItem,
 } from "./grade-mock-interview-session-parse.service"
 import {
     parseFlashcardAnswerKeywords,
@@ -78,12 +77,15 @@ import {
     withMockInterviewGradeAdvisoryLock,
 } from "./mock-interview-grade-advisory-lock"
 import {
+    type BuildMockInterviewQuestionReviewsParams,
     type GradeMockInterviewSessionParams,
     type MockInterviewGradeSessionResult,
-    type MockInterviewPhaseScore,
     type MockInterviewQuestionReview,
     type MockInterviewSeedGrounding,
     type MockInterviewTurnRecord,
+    type PersistMockInterviewAttemptParams,
+    type ResolveTrustedPromptIdentityParams,
+    type ResolveTrustedPromptIdentityResult,
 } from "./types/mock-interview-grade"
 
 /** Ceiling applied when an answer missed a checkpoint marked `critical`. */
@@ -468,24 +470,8 @@ export class MockInterviewGradingService {
      * @returns the trusted (or client-fallback) prompt/mode identity, including whether it should feed job-readiness.
      */
     private async resolveTrustedPromptIdentity(
-        params: {
-            userId: string
-            courseId: string
-            sessionId: string
-            clientPromptId: string
-            clientPromptTitle: string
-            clientLevel: string | null
-        },
-    ): Promise<{
-        promptId: string
-        promptTitle: string
-        level: string | null
-        mode: MockInterviewMode
-        seedQuestions: Array<MockInterviewSeedQuestion>
-        lang: string | null
-        countsToReadiness: boolean
-        name: string | null
-    }> {
+        params: ResolveTrustedPromptIdentityParams,
+    ): Promise<ResolveTrustedPromptIdentityResult> {
         const {
             userId,
             courseId,
@@ -749,18 +735,7 @@ export class MockInterviewGradingService {
      * @param params - Identity of the session + its already-normalized grade result.
      */
     private async persistAttempt(
-        params: {
-            userId: string
-            courseId: string
-            promptId: string
-            promptTitle: string
-            level: string | null
-            mode: MockInterviewMode
-            sessionId: string
-            result: MockInterviewGradeSessionResult
-            countsToReadiness: boolean
-            name: string | null
-        },
+        params: PersistMockInterviewAttemptParams,
     ): Promise<void> {
         const {
             userId,
@@ -879,13 +854,7 @@ export class MockInterviewGradingService {
      * @returns One {@link MockInterviewQuestionReview} per question, in order.
      */
     private buildQuestionReviews(
-        params: {
-            turns: Array<MockInterviewTurnRecord>
-            seedGroundings: Array<MockInterviewSeedGrounding>
-            phaseScores: Array<MockInterviewPhaseScore>
-            questionFeedback: Array<MockInterviewQuestionFeedbackItem>
-            matchedContentIds: Array<string>
-        },
+        params: BuildMockInterviewQuestionReviewsParams,
     ): Array<MockInterviewQuestionReview> {
         const {
             turns, seedGroundings, phaseScores, questionFeedback, matchedContentIds,

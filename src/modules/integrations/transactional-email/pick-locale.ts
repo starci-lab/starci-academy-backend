@@ -2,6 +2,12 @@ import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 
+/** A Vietnamese/English pair of the same value, to be resolved by recipient locale. */
+export interface LocaleVariants<T> {
+    vi: T
+    en: T
+}
+
 /**
  * Pick the Vietnamese or English variant of a value by locale.
  *
@@ -15,8 +21,5 @@ import {
  */
 export const pickLocale = <T>(
     locale: Locale | undefined | null,
-    variants: {
-        vi: T
-        en: T
-    },
+    variants: LocaleVariants<T>,
 ): T => (locale === Locale.Vi ? variants.vi : variants.en)

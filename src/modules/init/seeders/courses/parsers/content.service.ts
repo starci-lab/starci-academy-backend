@@ -243,9 +243,20 @@ export class ContentParserService {
                 `${e2eRoot}/${lang}`,
             )
             // Keep only flow proof markdown; ignore summary.md / other artifacts.
+            // ORDER BY THE FLOW NUMBER, NOT BY THE NAME. `flow-<N>-<slug>-<status>.md`
+            // carries its order in `<N>`, and a bare `.sort()` compares the names as
+            // text -- so a lesson with ten or more flows lists `flow-10-...` between
+            // `flow-1-...` and `flow-2-...`, and the FE renders the audit trail out of
+            // sequence. Ties (and any name that does not parse) fall back to the name
+            // so the result is still deterministic.
+            const flowIndexOf = (file: string): number => {
+                const match = /^flow-(\d+)-/u.exec(file)
+                return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER
+            }
             const flowFiles = files
                 .filter((file) => /^flow-.*\.md$/u.test(file))
-                .sort()
+                .sort((left,
+                    right) => flowIndexOf(left) - flowIndexOf(right) || left.localeCompare(right))
             for (const file of flowFiles) {
                 let markdown = ""
                 try {

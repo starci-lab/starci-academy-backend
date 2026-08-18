@@ -6,7 +6,7 @@ import {
 } from "./graphql-types/request"
 
 /** Params carried by {@link GenerateAvatarPresignUrlCommand}. */
-export interface GenerateAvatarPresignUrlCommandParams {
+export interface GenerateAvatarPresignUrlParams {
     /** The authenticated user the avatar will belong to. */
     user: UserEntity
     /** The mutation request (intended content type). */
@@ -16,6 +16,6 @@ export interface GenerateAvatarPresignUrlCommandParams {
 /** Command: mint a presigned avatar-upload URL for the user. */
 export class GenerateAvatarPresignUrlCommand {
     constructor(
-        readonly params: GenerateAvatarPresignUrlCommandParams,
+        readonly params: GenerateAvatarPresignUrlParams,
     ) {}
 }

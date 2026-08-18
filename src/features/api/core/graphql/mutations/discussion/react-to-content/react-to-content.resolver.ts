@@ -8,9 +8,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    Request,
-} from "express"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -48,6 +45,9 @@ import {
 import {
     ReactToContentService,
 } from "./react-to-content.service"
+import type {
+    GraphQLEnrollmentContextParams,
+} from "../../../shared/types/graphql-enrollment-context"
 
 @Resolver()
 /** GraphQL resolver for the `reactToContent` mutation. */
@@ -82,9 +82,7 @@ export class ReactToContentResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
         @Context()
-            context: {
-                req: Request & { enrollmentId?: string }
-            },
+            context: GraphQLEnrollmentContextParams,
     ): Promise<ReactionSummaryObject> {
         return this.reactToContentService.execute({
             request,

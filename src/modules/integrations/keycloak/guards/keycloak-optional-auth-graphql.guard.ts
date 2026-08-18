@@ -30,7 +30,7 @@ import {
     CookieName,
 } from "@modules/platform/cookie/enums"
 import type {
-    KeycloakAuthGuardRequest,
+    KeycloakGraphQLContext,
 } from "../types/guard"
 
 @Injectable()
@@ -53,9 +53,7 @@ export class KeycloakOptionalAuthGraphQLGuard {
         context: ExecutionContext,
     ): Promise<boolean> {
         const gqlContext = GqlExecutionContext.create(context)
-            .getContext<{
-                req?: KeycloakAuthGuardRequest
-            }>()
+            .getContext<KeycloakGraphQLContext>()
         const request = gqlContext.req
         if (!request) {
             throw new GraphQLContextMissingRequestException({

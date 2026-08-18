@@ -27,6 +27,9 @@ import {
     ExecaService,
 } from "@modules/integrations/execa/execa.service"
 import {
+    envConfig,
+} from "@modules/platform/env/config"
+import {
     v4
 } from "uuid"
 import type {
@@ -60,7 +63,13 @@ export class PgSyncCommand extends CommandRunner {
     @Option({
         flags: "-s, --source-url <source-url>",
         description: "The URL of the PostgreSQL database",
-        defaultValue: "postgres://postgres:Cuong123_A@localhost:5432/postgres",
+        // NO CREDENTIAL LITERAL HERE. A Postgres URL carries its password
+        // inline, so the default is supplied by the environment
+        // (`PG_SYNC_SOURCE_URL`, or its `_FILE` pointer) and is empty when that
+        // is unset -- an unconfigured run then stops at the guard in `run()`
+        // instead of silently pointing a dump at whatever host a checked-in
+        // connection string happened to name.
+        defaultValue: envConfig().cli.pgSync.sourceUrl,
         required: true,
     })
     parseSourceUrl(
@@ -77,7 +86,9 @@ export class PgSyncCommand extends CommandRunner {
     @Option({
         flags: "-d, --destination-url <destination-url>",
         description: "The URL of the destination PostgreSQL database",
-        defaultValue: "postgres://postgres:Cuong123_A@localhost:5432/postgres",
+        // Same rule as `--source-url`: the default is environment-supplied
+        // (`PG_SYNC_DESTINATION_URL`), never a literal credential.
+        defaultValue: envConfig().cli.pgSync.destinationUrl,
         required: true,
     })
     parseDestinationUrl(

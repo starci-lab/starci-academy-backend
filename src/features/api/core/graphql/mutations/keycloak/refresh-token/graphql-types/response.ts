@@ -22,7 +22,7 @@ export class RefreshTokenData {
 }
 
 /** Result of the refreshToken command. */
-export interface RefreshTokenCommandResult {
+export interface RefreshTokenResult {
     /**
      * The data returned from the command.
      */

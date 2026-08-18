@@ -18,6 +18,9 @@ import {
 import {
     CAPTCHA_HEADER_NAME,
 } from "../constants"
+import type {
+    GraphQLContextParams,
+} from "../types/graphql-context"
 
 @Injectable()
 /**
@@ -70,7 +73,7 @@ export class CaptchaGuard implements CanActivate {
     private resolveRequest(context: ExecutionContext): Request {
         // GraphQL keeps the request on the gql context's `req`
         if (context.getType<string>() === "graphql") {
-            return GqlExecutionContext.create(context).getContext<{ req: Request }>().req
+            return GqlExecutionContext.create(context).getContext<GraphQLContextParams>().req
         }
         // REST exposes it directly on the HTTP host
         return context.switchToHttp().getRequest<Request>()

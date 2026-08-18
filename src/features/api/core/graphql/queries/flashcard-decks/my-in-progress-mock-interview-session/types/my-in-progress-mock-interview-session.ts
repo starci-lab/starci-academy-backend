@@ -1,3 +1,11 @@
+/** One authored programming-language variant of a resumed seed question's GIVEN code. */
+export interface MyInProgressMockInterviewGivenCodeVariant {
+    /** Programming language this variant is written in (e.g. "typescript"). */
+    lang: string
+    /** The given code itself, in {@link lang}. */
+    code: string
+}
+
 /** One drawn flashcard-card seed question, read back for a resumable session. */
 export interface MyInProgressMockInterviewSeedQuestion {
     /** The seed `flashcard_cards.id` (or `mock_interviews.id` for a bank-sourced draw). */
@@ -7,7 +15,7 @@ export interface MyInProgressMockInterviewSeedQuestion {
     /** Short title/snippet identifying the seed topic. */
     title: string
     /** GIVEN code the candidate should fix/read (debug/review/optimize questions only), one entry per authored language, so resuming re-seeds the SAME code into the workspace. Empty otherwise. */
-    givenCodes: Array<{ lang: string, code: string }>
+    givenCodes: Array<MyInProgressMockInterviewGivenCodeVariant>
 }
 
 /** One synced transcript turn, read back for a resumable session. */

@@ -17,7 +17,7 @@
 import { createHash } from "node:crypto"
 
 const QDRANT = process.env.QDRANT_URL ?? "http://localhost:6333"
-const API_KEY = process.env.QDRANT_API_KEY ?? "Cuong123_A"
+const API_KEY = process.env.QDRANT_API_KEY ?? ""
 const COLLECTION = process.env.CONTENT_RAG_COLLECTION ?? "content_rag"
 const APPLY = process.argv.includes("--apply")
 const SCROLL_PAGE = 1000

@@ -24,6 +24,7 @@ import type {
     CreateActionChallengeParams,
     CreateActionChallengeResult,
     OtpActionPayloadRecord,
+    OtpBaseRecord,
     RefreshActionChallengeOtpResult,
     VerifyActionChallengeResult,
     VerifyLoginChallengeParams,
@@ -107,11 +108,7 @@ return {"refreshed", tostring(record["email"])}
         challengeId: string,
         email: string,
         otp: string,
-    ): {
-        email: string
-        otpHash: string
-        attempts: number
-    } {
+    ): OtpBaseRecord {
         return {
             email,
             otpHash: this.hashOtp(

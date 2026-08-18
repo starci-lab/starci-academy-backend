@@ -6,7 +6,7 @@ import type {
  * Cookie + optional bearer inputs for refresh. The refresh token is not on the
  * GraphQL input -- it arrives from the httpOnly cookie so XSS cannot steal it.
  */
-export interface RefreshTokenCommandParams {
+export interface RefreshTokenParams {
     refreshToken: string
     /**
      * Current access token (JWT); used with {@link minValiditySeconds} only.
@@ -21,7 +21,7 @@ export interface RefreshTokenCommandParams {
 /** CQRS envelope for refresh so coalescing/rotation stays off the resolver. */
 export class RefreshTokenCommand {
     constructor(
-        readonly params: RefreshTokenCommandParams,
+        readonly params: RefreshTokenParams,
     ) {}
 }
 

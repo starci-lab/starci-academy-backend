@@ -8,7 +8,7 @@ import type {
     ExchangeCodeForTokenRequest,
 } from "./graphql-types/request"
 import type {
-    ExchangeCodeForTokenCommandResult,
+    ExchangeCodeForTokenResult,
 } from "./graphql-types/response"
 import {
     ExchangeCodeForTokenCommand,
@@ -23,7 +23,7 @@ export class ExchangeCodeForTokenService {
 
     async execute(
         request: ExchangeCodeForTokenRequest,
-    ): Promise<ExchangeCodeForTokenCommandResult> {
+    ): Promise<ExchangeCodeForTokenResult> {
         const result = await this.commandBus.execute(
             new ExchangeCodeForTokenCommand({
                 request,

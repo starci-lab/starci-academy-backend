@@ -14,6 +14,9 @@ import {
 import type {
     ClientContext,
 } from "../types"
+import type {
+    GraphQLContextParams,
+} from "../types/graphql-context"
 
 /**
  * Resolves the underlying express request from either a GraphQL or REST
@@ -25,7 +28,7 @@ import type {
 function resolveRequest(context: ExecutionContext): Request {
     // GraphQL stores the request on the gql context's `req`
     if (context.getType<string>() === "graphql") {
-        return GqlExecutionContext.create(context).getContext<{ req: Request }>().req
+        return GqlExecutionContext.create(context).getContext<GraphQLContextParams>().req
     }
     // REST exposes it directly on the HTTP argument host
     return context.switchToHttp().getRequest<Request>()

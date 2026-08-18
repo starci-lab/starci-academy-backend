@@ -18,7 +18,7 @@ interface ProjectEvaluationPromptBaseInput {
     sourceExcerpt: string
 }
 
-interface ProjectEvaluationV2PromptInput extends ProjectEvaluationPromptBaseInput {
+interface ProjectEvaluationResolvedCriteriaPromptInput extends ProjectEvaluationPromptBaseInput {
     kind: "v2"
     criteria: Array<ResolvedChallengeCriterion>
     gradeMaxScore: number
@@ -29,9 +29,9 @@ interface ProjectEvaluationLegacyPromptInput extends ProjectEvaluationPromptBase
     criteria: Array<Pick<MilestoneTaskCriteriaEntity, "id" | "orderIndex" | "promptText" | "score" | "text">>
 }
 
-/** Discriminated input for the V2 and legacy milestone prompt contracts. */
+/** Discriminated input for the resolved-criteria (yes/no, language-resolved) and legacy milestone prompt contracts. */
 export type ProjectEvaluationPromptInput =
-    | ProjectEvaluationV2PromptInput
+    | ProjectEvaluationResolvedCriteriaPromptInput
     | ProjectEvaluationLegacyPromptInput
 
 /** Ordered role content consumed by both production invocation and the live harness. */
@@ -46,7 +46,7 @@ export class ProjectEvaluationPromptService {
     /** Build the production milestone grading prompt. */
     build(input: ProjectEvaluationPromptInput): ProjectEvaluationPrompt {
         const systemText = input.kind === "v2"
-            ? this.buildV2SystemText(input)
+            ? this.buildResolvedCriteriaSystemText(input)
             : this.buildLegacySystemText(input)
         const humanText = [
             "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
@@ -59,7 +59,7 @@ export class ProjectEvaluationPromptService {
         }
     }
 
-    private buildV2SystemText(input: ProjectEvaluationV2PromptInput): string {
+    private buildResolvedCriteriaSystemText(input: ProjectEvaluationResolvedCriteriaPromptInput): string {
         const criteriaPromptSections = renderCriteriaPromptSections(input.criteria)
         return [
             `You are a strict, experienced code reviewer grading a learner's personal project for task: "${input.taskTitle}".`,

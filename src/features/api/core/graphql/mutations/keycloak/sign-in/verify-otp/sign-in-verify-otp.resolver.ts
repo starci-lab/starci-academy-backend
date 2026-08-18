@@ -20,10 +20,6 @@ import {
 import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
-import type {
-    Response,
-    Request,
-} from "express"
 import {
     CookieService,
 } from "@modules/platform/cookie/cookie.service"
@@ -46,6 +42,9 @@ import {
 import {
     SignInVerifyOtpService,
 } from "./sign-in-verify-otp.service"
+import type {
+    GraphQLContextParams,
+} from "../../../../shared/types/graphql-context"
 
 @Resolver()
 /**
@@ -82,10 +81,7 @@ export class SignInVerifyOtpResolver {
         )
             request: SignInVerifyOtpRequest,
         @Context()
-            ctx: {
-                req: Request,
-                res: Response,
-            },
+            ctx: GraphQLContextParams,
     ): Promise<SignInVerifyOtpData> {
         const result = await this.signInVerifyOtpService.execute({
             request,

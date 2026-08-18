@@ -77,6 +77,14 @@ export interface EnqueueScoreUploadedCvJobParams {
     ai?: AiJobSelection
 }
 
+/** Result of {@link EnqueueScoreUploadedCvJobService.enqueue}. */
+export interface EnqueueScoreUploadedCvJobResult {
+    /** The created `cv_generations` row (status `Pending`). */
+    cvGeneration: UserCvGenerationEntity
+    /** The tracked `jobs.id`, used to subscribe to realtime progress over the `job_notifications` socket. */
+    jobId: string
+}
+
 @Injectable()
 /**
  * Enqueues a single-step UPLOAD-scoring job (WF-07). Mirrors
@@ -116,7 +124,7 @@ export class EnqueueScoreUploadedCvJobService {
             targetRole,
             ai,
         }: EnqueueScoreUploadedCvJobParams,
-    ): Promise<{ cvGeneration: UserCvGenerationEntity, jobId: string }> {
+    ): Promise<EnqueueScoreUploadedCvJobResult> {
         const jobId = uuidv4()
         const committed = await this.entityManager.transaction(async (manager) => {
             const cvGeneration = await manager.save(

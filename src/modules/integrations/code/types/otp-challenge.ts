@@ -12,6 +12,9 @@ export interface OtpActionPayloadRecord<TPayload = unknown> {
     payload: TPayload
 }
 
+/** The email/otpHash/attempts fields shared by every OTP challenge record, before a payload is attached. */
+export type OtpBaseRecord = Omit<OtpActionPayloadRecord, "payload">
+
 /** Params for creating an OTP-gated action challenge. */
 export interface CreateActionChallengeParams<TPayload = unknown> {
     /** Email of the user. */

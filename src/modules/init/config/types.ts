@@ -1,3 +1,8 @@
+import type {
+    SeedScopeIndexes,
+    SeedSynchronizersConfig,
+} from "@modules/filesystem/types/seed"
+
 /**
  * Where a reindexed ES index forces a full ES resync (so a dropped index never
  * stays empty). Each value is a sync knob the parser flips to "full":
@@ -25,4 +30,25 @@ export interface IndexMeta {
     entity: string
     /** The sync knob to force to full when this index is reindexed. */
     resync: ResyncTarget
+}
+
+/** Which sync sinks the `sinks:` master switch has left enabled (defaults to all on). */
+export interface SyncSinkEnabled {
+    cdn: boolean
+    elasticsearch: boolean
+    repo: boolean
+}
+
+/** The standalone-domain fields of {@link SeedSynchronizersConfig}, gated as a group by reindex resync. */
+export type SyncDomains = Pick<
+    SeedSynchronizersConfig,
+    "cv" | "foundations" | "headhunting" | "flashcards" | "codingProblems"
+>
+
+/** One `seed.courses` entry, collapsed to its resolved per-track scopes. */
+export interface NormalizedSeedCourse {
+    modules: SeedScopeIndexes
+    milestones: SeedScopeIndexes
+    flashcards: boolean
+    interview: boolean
 }

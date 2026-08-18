@@ -83,6 +83,10 @@ const config: Config = {
     /** Coverage collected from source + apps when `--coverage` is passed. */
     collectCoverageFrom: [
         "**/*.(t|j)s",
+        // apps/tools/dashboard has no source tree in this repo — only a checked-in,
+        // content-hashed Vite build (`dist/assets/index-<hash>.js`). It is generated
+        // evidence, not authored code, and there is no hand-written counterpart to test.
+        "!apps/tools/dashboard/dist/**",
     ],
     coverageDirectory: "./coverage",
 }

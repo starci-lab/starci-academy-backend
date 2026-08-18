@@ -49,6 +49,19 @@ export interface CoursePriceQuoteLine {
     nextPhasePriceUsd: number | null
 }
 
+/** Params for {@link CoursePriceQuoteService.priceLine} -- the pre-discount line fields plus the pricing intent. */
+export type PriceCourseLineParams = Pick<
+    CoursePriceQuoteLine,
+    | "course"
+    | "loyaltyDiscountPercent"
+    | "bundleDiscountPercent"
+    | "displayDiscountPercent"
+    | "discountReason"
+    | "enrolledCount"
+> & {
+    intent: CoursePriceQuoteIntent
+}
+
 /** Canonical quote result consumed by reads and checkout mutations. */
 export interface CoursePriceQuoteResult {
     lines: Array<CoursePriceQuoteLine>

@@ -13,6 +13,9 @@ import {
 import type {
     ParsedCodingProblem,
 } from "../types"
+import type {
+    EsLegacyBooleanBody,
+} from "@modules/integrations/elasticsearch/types/client"
 
 @Injectable()
 /**
@@ -74,7 +77,7 @@ export class CodingProblemHintIndexService {
         })
         const exists = typeof existsResult === "boolean"
             ? existsResult
-            : (existsResult as { body: boolean }).body
+            : (existsResult as EsLegacyBooleanBody).body
         if (exists) {
             return
         }

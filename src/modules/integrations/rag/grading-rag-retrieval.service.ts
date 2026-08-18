@@ -31,6 +31,9 @@ import type {
     RetrieveGradingSourceResult,
     RetrieveWithVectorStoreParams,
 } from "./types/grading-retrieval"
+import type {
+    AssembleWithinBudgetResult,
+} from "./types/assemble"
 
 /** Default per-criterion retrieval depth -- each criterion pulls its own top matches. */
 const DEFAULT_PER_CRITERION_TOP_K = 6
@@ -330,11 +333,7 @@ export class GradingRetrievalService {
     private assembleWithinBudget(
         chunks: Array<Document>,
         maxChars: number,
-    ): {
-        excerpt: string
-        truncated: boolean
-        count: number
-    } {
+    ): AssembleWithinBudgetResult {
         const separator = "\n\n"
         const parts: Array<string> = []
         let used = 0

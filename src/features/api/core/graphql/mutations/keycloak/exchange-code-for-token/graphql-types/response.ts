@@ -24,7 +24,7 @@ export class ExchangeCodeForTokenData {
 /**
  * Result of the exchangeCodeForToken command.
  */
-export interface ExchangeCodeForTokenCommandResult {
+export interface ExchangeCodeForTokenResult {
     /**
      * The data returned from the command.
      */

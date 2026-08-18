@@ -18,10 +18,13 @@ import {
 import {
     InvalidAdminApiKeyException,
 } from "@modules/platform/exceptions/errors/guards/invalid-admin-api-key"
+import type {
+    GraphQLHeaderOnlyContext,
+} from "./types/graphql-context"
 
 @Injectable()
 /**
- * GraphQL counterpart of {@link AdminAccessGuard} -- grants access only when the
+ * GraphQL counterpart of {@link AdminServiceTokenGuard} -- grants access only when the
  * `x-admin-api-key` header matches the mounted admin secret.
  *
  * GraphQL resolvers have no HTTP request on `switchToHttp()`; the request lives
@@ -51,9 +54,8 @@ export class GraphQLAdminAccessGuard implements CanActivate {
      * Validate the `x-admin-api-key` header on the GraphQL request context.
      */
     canActivate(context: ExecutionContext): boolean {
-        const gqlContext = GqlExecutionContext.create(context).getContext<{
-            req?: { headers?: Record<string, string | Array<string> | undefined> }
-        }>()
+        const gqlContext = GqlExecutionContext.create(context)
+            .getContext<GraphQLHeaderOnlyContext>()
         const headerValue = gqlContext.req?.headers?.["x-admin-api-key"]
         const apiKey = Array.isArray(headerValue)
             ? headerValue[0]

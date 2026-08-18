@@ -54,7 +54,10 @@ import type {
 } from "@modules/filesystem/types/seed"
 import type {
     IndexMeta,
+    NormalizedSeedCourse,
     ResyncTarget,
+    SyncDomains,
+    SyncSinkEnabled,
 } from "./types"
 
 /**
@@ -201,12 +204,7 @@ export class InitConfigParserService {
     }
 
     /** Collapse one `seed.courses` entry (shorthand or object) into its resolved tracks. */
-    private normalizeSeedCourse(value: InitSeedCourseValue): {
-        modules: SeedScopeIndexes
-        milestones: SeedScopeIndexes
-        flashcards: boolean
-        interview: boolean
-    } {
+    private normalizeSeedCourse(value: InitSeedCourseValue): NormalizedSeedCourse {
         // shorthand (scope string / index array) -> modules only; other tracks off
         if (!this.isPlainObject(value)) {
             return {
@@ -290,7 +288,7 @@ export class InitConfigParserService {
     /** Collapse one `sync.courses` entry (shorthand or per-track object) into both tracks. */
     private normalizeSyncCourse(
         value: InitSyncCourseValue,
-        sinkEnabled: { cdn: boolean; elasticsearch: boolean; repo: boolean },
+        sinkEnabled: SyncSinkEnabled,
     ): SeedSyncCourseTrack {
         // shorthand -> same scope on every sink of BOTH tracks
         if (!this.isPlainObject(value)) {
@@ -316,7 +314,7 @@ export class InitConfigParserService {
     /** Resolve one track value (per-sink object or shorthand) -> a gated per-sink sink scope. */
     private normalizeTrack(
         value: InitSyncTrackValue | undefined,
-        sinkEnabled: { cdn: boolean; elasticsearch: boolean; repo: boolean },
+        sinkEnabled: SyncSinkEnabled,
     ): SeedSyncCourseSink {
         if (value === undefined) {
             return offSink()
@@ -354,7 +352,7 @@ export class InitConfigParserService {
     /** Zero each disabled sink so the master `sinks:` switch wins over per-track scopes. */
     private gateSinks(
         sink: SeedSyncCourseSink,
-        sinkEnabled: { cdn: boolean; elasticsearch: boolean; repo: boolean },
+        sinkEnabled: SyncSinkEnabled,
     ): SeedSyncCourseSink {
         return {
             cdn: sinkEnabled.cdn ? sink.cdn : [],
@@ -366,7 +364,7 @@ export class InitConfigParserService {
     /** Resolve one `sync.<domain>` entry (bool or per-sink object), gated by `sinks:`. */
     private normalizeDomain(
         value: InitSyncDomainValue | undefined,
-        sinkEnabled: { cdn: boolean; elasticsearch: boolean; repo: boolean },
+        sinkEnabled: SyncSinkEnabled,
     ): SeedSyncDomainSink {
         const cdn = typeof value === "object"
             ? value.cdn === true
@@ -403,13 +401,7 @@ export class InitConfigParserService {
     private applyReindexResync(
         reindexEntities: Array<string>,
         courses: Record<string, SeedSyncCourseTrack>,
-        domains: {
-            foundations: SeedSyncDomainSink
-            headhunting: SeedSyncDomainSink
-            flashcards: SeedSyncDomainSink
-            codingProblems: SeedSyncDomainSink
-            cv: SeedSyncDomainSink
-        },
+        domains: SyncDomains,
         courseDisplayIds: Array<string>,
     ): void {
         const targets = new Set<ResyncTarget>()

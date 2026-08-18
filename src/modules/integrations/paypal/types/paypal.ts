@@ -83,3 +83,21 @@ export interface PaypalOrderDetail {
     /** Our reference id echoed back via `purchase_units[].custom_id`. */
     referenceId?: string
 }
+
+/** One entry of a PayPal error body's `details[]` array. */
+export interface PaypalErrorDetail {
+    /** PayPal issue code (e.g. `ORDER_ALREADY_CAPTURED`). */
+    issue?: string
+}
+
+/** Shape of a PayPal API error response body, as returned on a failed request. */
+export interface PaypalErrorResponseBody {
+    details?: Array<PaypalErrorDetail>
+}
+
+/** Minimal shape we read off a thrown axios error carrying a PayPal error body. */
+export interface PaypalAxiosErrorLike {
+    response?: {
+        data?: PaypalErrorResponseBody
+    }
+}

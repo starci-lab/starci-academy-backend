@@ -8,9 +8,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    Request,
-} from "express"
 import {
     GraphQLLocale,
 } from "@modules/api/apollo/server/decorators/locale.decorators"
@@ -49,6 +46,9 @@ import {
 import {
     SubmitChallengeSubmissionService,
 } from "./submit-challenge-submission.service"
+import type {
+    GraphQLEnrollmentContextParams,
+} from "../../../shared/types/graphql-enrollment-context"
 
 @Resolver()
 /**
@@ -92,9 +92,7 @@ export class SubmitChallengeSubmissionResolver {
         @GraphQLLocale()
             locale: Locale,
         @Context()
-            context: {
-                req: Request & { enrollmentId?: string }
-            },
+            context: GraphQLEnrollmentContextParams,
     ): Promise<SubmitChallengeSubmissionResponseData> {
         return this.submitChallengeSubmissionService.execute(
             {

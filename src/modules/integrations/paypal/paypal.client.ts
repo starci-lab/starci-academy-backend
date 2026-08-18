@@ -20,6 +20,7 @@ import type {
     CapturePaypalOrderResult,
     CreatePaypalOrderParams,
     CreatePaypalOrderResult,
+    PaypalAxiosErrorLike,
     PaypalLink,
     PaypalOrderDetail,
     PaypalPurchaseUnit,
@@ -198,15 +199,7 @@ export class PaypalClient {
     private extractPaypalIssue(
         error: unknown,
     ): string | undefined {
-        const data = (error as {
-            response?: {
-                data?: {
-                    details?: Array<{
-                        issue?: string
-                    }>
-                }
-            }
-        })?.response?.data
+        const data = (error as PaypalAxiosErrorLike)?.response?.data
         return data?.details?.[0]?.issue
     }
 

@@ -26,6 +26,9 @@ import type {
 import {
     AbstractException,
 } from "@modules/platform/exceptions/errors/abstract"
+import type {
+    ApolloHttpExtension,
+} from "../types/graphql-response"
 
 /**
  * Reads the `extensions.http.status` Apollo convention (set by `formatError`
@@ -50,7 +53,7 @@ const httpStatusFromExceptionsPlugin: ApolloServerPlugin = {
                 }
                 const statuses = errors
                     .map((error) => {
-                        const http = error.extensions?.http as { status?: number } | undefined
+                        const http = error.extensions?.http as ApolloHttpExtension | undefined
                         return http?.status
                     })
                     .filter((status): status is number => typeof status === "number")
@@ -138,7 +141,7 @@ export class MonolithicApolloServerModule extends ConfigurableModuleClass {
                                 ...formattedError.extensions,
                                 http: {
                                     status: 500,
-                                    ...(formattedError.extensions?.http as { status?: number } | undefined),
+                                    ...(formattedError.extensions?.http as ApolloHttpExtension | undefined),
                                 },
                             },
                         }

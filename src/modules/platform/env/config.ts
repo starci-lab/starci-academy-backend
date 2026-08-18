@@ -922,7 +922,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvSecret({
                 key: "REDIS_BULLMQ_PASSWORD",
-                defaultValue: "Cuong123_A",
+                defaultValue: "REPLACE_ME",
             }),
             useCluster: parseEnvBoolean({
                 key: "REDIS_BULLMQ_USE_CLUSTER",
@@ -941,7 +941,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvSecret({
                 key: "REDIS_THROTTLER_PASSWORD",
-                defaultValue: "Cuong123_A",
+                defaultValue: "REPLACE_ME",
             }),
             useCluster: parseEnvBoolean({
                 key: "REDIS_THROTTLER_USE_CLUSTER",
@@ -960,7 +960,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvSecret({
                 key: "REDIS_ADAPTER_PASSWORD",
-                defaultValue: "Cuong123_A",
+                defaultValue: "REPLACE_ME",
             }),
             useCluster: parseEnvBoolean({
                 key: "REDIS_ADAPTER_USE_CLUSTER",
@@ -979,7 +979,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvSecret({
                 key: "REDIS_CACHE_PASSWORD",
-                defaultValue: "Cuong123_A",
+                defaultValue: "REPLACE_ME",
             }),
             useCluster: parseEnvBoolean({
                 key: "REDIS_CACHE_USE_CLUSTER",
@@ -1466,7 +1466,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvSecret({
                 key: "SCYLLADB_PASSWORD",
-                defaultValue: "Cuong123_A",
+                defaultValue: "REPLACE_ME",
             }),
         },
         /** Qdrant configuration. */
@@ -1477,7 +1477,7 @@ export const envConfig = () => ({
             }),
             apiKey: parseEnvSecret({
                 key: "QDRANT_API_KEY",
-                defaultValue: "Cuong123_A",
+                defaultValue: "REPLACE_ME",
             }),
             /**
              * Per-request HTTP timeout (ms) for the Qdrant REST client. The
@@ -1510,7 +1510,7 @@ export const envConfig = () => ({
                 }),
                 password: parseEnvSecret({
                     key: "POSTGRESQL_PRIMARY_PASSWORD",
-                    defaultValue: "Cuong123_A",
+                    defaultValue: "REPLACE_ME",
                 }),
                 database: parseEnvString({
                     key: "POSTGRESQL_PRIMARY_DATABASE",
@@ -1542,7 +1542,7 @@ export const envConfig = () => ({
                 }),
                 password: parseEnvSecret({
                     key: "POSTGRESQL_KEYCLOAK_PASSWORD",
-                    defaultValue: "Cuong123_A",
+                    defaultValue: "REPLACE_ME",
                 }),
                 database: parseEnvString({
                     key: "POSTGRESQL_KEYCLOAK_DATABASE",
@@ -1564,6 +1564,29 @@ export const envConfig = () => ({
             key: "STARCI_PLAYGROUND_SERVER",
             defaultValue: "",
         }),
+    },
+    /** CLI configuration. */
+    cli: {
+        /**
+         * `pg-sync` connection strings. THESE ARE CREDENTIALS -- a Postgres URL
+         * carries the password inline -- so they are read as secrets (the
+         * `<KEY>_FILE` pointer works on them) and default to empty rather than to
+         * a literal. An empty default leaves the command with no connection
+         * string, which its `required` option flag and its own guard both refuse,
+         * instead of quietly pointing a dump or a restore at a host nobody chose.
+         */
+        pgSync: {
+            /** Source database the dump is taken from. */
+            sourceUrl: parseEnvSecret({
+                key: "PG_SYNC_SOURCE_URL",
+                defaultValue: "",
+            }),
+            /** Destination database the dump is restored into. */
+            destinationUrl: parseEnvSecret({
+                key: "PG_SYNC_DESTINATION_URL",
+                defaultValue: "",
+            }),
+        },
     },
     /** Backup configuration. */
     backup: {

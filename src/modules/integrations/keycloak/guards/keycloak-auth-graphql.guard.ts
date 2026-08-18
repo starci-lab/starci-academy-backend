@@ -28,6 +28,7 @@ import {
 } from "./abstract"
 import type {
     KeycloakAuthGuardRequest,
+    KeycloakGraphQLContext,
 } from "../types/guard"
 
 @Injectable()
@@ -54,9 +55,8 @@ export class KeycloakAuthGraphQLGuard extends AbstractKeycloakAuthGuard {
      * @inheritdoc
      */
     protected getRequest(context: ExecutionContext): KeycloakAuthGuardRequest {
-        const gqlContext = GqlExecutionContext.create(context).getContext<{
-            req?: KeycloakAuthGuardRequest 
-        }>()
+        const gqlContext = GqlExecutionContext.create(context)
+            .getContext<KeycloakGraphQLContext>()
         if (!gqlContext.req) {
             throw new GraphQLContextMissingRequestException({
             })

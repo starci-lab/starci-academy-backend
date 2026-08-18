@@ -6,7 +6,8 @@ import {
     CommandProbeService 
 } from "./command-probe.service"
 import type {
-    DeviceInfo 
+    DeviceInfo,
+    NvidiaVramInfo,
 } from "./types"
 
 @Injectable()
@@ -55,7 +56,7 @@ export class DeviceService {
     }
 
     /** NVIDIA-only VRAM + name via nvidia-smi. Returns {} if nvidia-smi is absent/fails. */
-    private async detectNvidiaVram(): Promise<{ vramFreeMb?: number, vramTotalMb?: number, gpu?: string }> {
+    private async detectNvidiaVram(): Promise<NvidiaVramInfo> {
         try {
             const out = await this.probe.run("nvidia-smi",
                 ["--query-gpu=memory.free,memory.total,name",

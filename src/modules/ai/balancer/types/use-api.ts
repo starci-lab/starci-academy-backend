@@ -7,6 +7,9 @@ import type {
 import type {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
+import type {
+    AiErrorKind,
+} from "../enums/ai-error-kind"
 
 /**
  * Internal symbol used to brand API-key string types -- never exported, never
@@ -226,6 +229,14 @@ export interface InvokeWithCacheParams<TResult> {
     action: UseApiAction<TResult>
 }
 
+/**
+ * Result of {@link UseApiService.invokeWithCache} -- either the action's own
+ * result, or the classified failure that caused it to fail.
+ */
+export type InvokeWithCacheResult<TResult> =
+    | { ok: true, result: TResult }
+    | { ok: false, error: Error, kind: AiErrorKind }
+
 /** Params for {@link UseApiService.buildProbeRequest}. */
 export interface BuildProbeRequestParams {
     /** Provider that serves {@link model}. */
@@ -234,4 +245,14 @@ export interface BuildProbeRequestParams {
     model: string
     /** API key to authenticate the probe request with. */
     apiKey: string
+}
+
+/**
+ * Result of {@link UseApiService.buildProbeRequest} -- a raw HTTP request ready
+ * for `fetch`.
+ */
+export interface BuildProbeRequestResult {
+    url: string
+    headers: Record<string, string>
+    body: unknown
 }

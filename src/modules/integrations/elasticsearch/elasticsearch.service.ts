@@ -43,6 +43,9 @@ import type {
     IndexMappingDrift,
 } from "./utils/mapping-drift"
 import type {
+    EsLegacyBooleanBody,
+} from "./types/client"
+import type {
     CreateIndexParams,
     DetectMappingDriftParams,
 } from "./types/ensure-index"
@@ -251,11 +254,7 @@ export class ElasticsearchService implements OnModuleInit {
         })
         return typeof existsResult === "boolean"
             ? existsResult
-            : (
-                existsResult as {
-                    body: boolean;
-                }
-            ).body
+            : (existsResult as EsLegacyBooleanBody).body
     }
 
     /**

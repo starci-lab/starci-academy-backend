@@ -1,4 +1,7 @@
 import {
+    randomInt,
+} from "crypto"
+import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
 import {
@@ -448,8 +451,9 @@ export class PurchaseMembershipHandler
      * Generate a provider order code (also stored as the transaction reference).
      */
     private generateOrderCode(): number {
-        return Date.now() * 1000 + Math.floor(
-            Math.random() * 1000,
-        )
+        // millisecond timestamp keeps codes ordered; the suffix comes from the
+        // CSPRNG because this code IS the payment reference the gateway and the
+        // webhook look the transaction up by -- a Math.random suffix is guessable.
+        return Date.now() * 1000 + randomInt(1000)
     }
 }

@@ -69,6 +69,14 @@ describe("PublicRagPlaygroundCleanupService",
 
                 await service.handleIdleCleanup()
 
+                // the claim attempted was still the right row -- proves this
+                // replica targeted the correct session before losing the race,
+                // not just that `delete` was called with SOMETHING
+                const [call] = entityManager.delete.mock.calls
+                expect(call[1]).toEqual({
+                    id: "session-row",
+                })
+                // losing the DB claim must suppress the external side effect
                 expect(deleteCollection).not.toHaveBeenCalled()
             })
 
@@ -86,6 +94,9 @@ describe("PublicRagPlaygroundCleanupService",
 
                 await service.handleIdleCleanup()
 
-                expect(deleteCollection).toHaveBeenCalledWith("playground-session-public")
+                // read back the ACTUAL collection name handed to Qdrant, rather
+                // than asserting only that the call happened
+                const [[collectionName]] = deleteCollection.mock.calls
+                expect(collectionName).toBe("playground-session-public")
             })
     })

@@ -21,6 +21,8 @@ import type {
 } from "./types/key-state"
 import type {
     ProviderKeyFile,
+    ReloadProviderParams,
+    TaggedApiKey,
 } from "./types/key-store"
 import {
     AiModelCatalogService,
@@ -123,7 +125,7 @@ export class KeyStoreService {
      *
      * @param params - provider + the model `keysFilePath`s to load for it
      */
-    private reloadProvider(params: { provider: ModelProvider, paths: Array<string> }): void {
+    private reloadProvider(params: ReloadProviderParams): void {
         const {
             provider,
             paths,
@@ -131,7 +133,7 @@ export class KeyStoreService {
 
         // read every declared key file, tag each key with the file it came from,
         // de-duplicate (the same key may appear in two models' files)
-        const tagged: Array<{ value: string, keysFilePath: string }> = []
+        const tagged: Array<TaggedApiKey> = []
         const seen = new Set<string>()
         for (const path of paths) {
             for (const value of this.mountFilesystemService.readKeysFile(path)) {

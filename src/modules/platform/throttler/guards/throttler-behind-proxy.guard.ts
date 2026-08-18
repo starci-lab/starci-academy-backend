@@ -10,7 +10,7 @@ import {
 } from "@nestjs/graphql"
 import type {
     GraphQLRequestResponseContext,
-    ThrottlerTrackedRequest,
+    ThrottlerTrackedParams,
 } from "../types/request-response"
 
 @Injectable()
@@ -31,7 +31,7 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
      * @param req - The incoming request record.
      * @returns The client IP used as the throttle key.
      */
-    protected async getTracker(req: ThrottlerTrackedRequest): Promise<string> {
+    protected async getTracker(req: ThrottlerTrackedParams): Promise<string> {
         // prefer the first proxied IP, else fall back to the socket address
         return req.ips?.length ? req.ips[0] : (req.ip ?? "")
     }

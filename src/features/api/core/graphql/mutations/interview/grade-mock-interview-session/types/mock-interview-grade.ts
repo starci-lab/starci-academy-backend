@@ -13,6 +13,12 @@ import type {
 import type {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
+import type {
+    MockInterviewSeedQuestion,
+} from "@modules/databases/postgresql/primary/entities/mock-interview-session.entity"
+import type {
+    MockInterviewQuestionFeedbackItem,
+} from "../grade-mock-interview-session-parse.service"
 
 /**
  * Coarse pass/borderline/fail band assigned to a graded mock-interview
@@ -113,6 +119,18 @@ export interface MockInterviewQuestionReview {
     matchedContentId: string | null
 }
 
+/** One authored coverage checkpoint inside {@link MockInterviewSeedGrounding.checkpoints}. */
+export interface MockInterviewSeedGroundingCheckpoint {
+    /** The checkpoint statement. */
+    text: string
+    /** technical | problemSolving | communication | testing. */
+    dimension: string | null
+    /** Missing this should sink the answer rather than cost partial credit. */
+    critical: boolean
+    /** Points this checkpoint is worth; a question's bands sum to 100. */
+    scoreBand: number
+}
+
 /**
  * One seed flashcard's grading ground-truth, index-aligned with the
  * transcript's `questionIndex` -- carries the QUESTION'S OWN randomly-assigned
@@ -145,16 +163,7 @@ export interface MockInterviewSeedGrounding {
      * so the same answer always earns the same score and the total is explainable
      * ("missing checkpoint 2 cost 16"). Absent for questions still on `rubric` alone.
      */
-    checkpoints?: Array<{
-        /** The checkpoint statement. */
-        text: string
-        /** technical | problemSolving | communication | testing. */
-        dimension: string | null
-        /** Missing this should sink the answer rather than cost partial credit. */
-        critical: boolean
-        /** Points this checkpoint is worth; a question's bands sum to 100. */
-        scoreBand: number
-    }>
+    checkpoints?: Array<MockInterviewSeedGroundingCheckpoint>
     /**
      * The GIVEN (possibly buggy) code the candidate was asked to FIX/read
      * (interview-bank `debug`/`review`/`optimize`) -- the baseline the grader
@@ -165,6 +174,80 @@ export interface MockInterviewSeedGrounding {
     givenCode?: string | null
     /** Language of {@link givenCode} (e.g. "typescript"). Null when no given code. */
     givenLang?: string | null
+}
+
+/** Params for {@link MockInterviewGradingService.resolveTrustedPromptIdentity}. */
+export interface ResolveTrustedPromptIdentityParams {
+    /** Id of the user whose enrollment scopes the trusted session lookup. */
+    userId: string
+    /** Course the session belongs to. */
+    courseId: string
+    /** Client-sent id of the session being graded. */
+    sessionId: string
+    /** Client-sent prompt id -- used as the fallback when no session row is found. */
+    clientPromptId: string
+    /** Client-sent prompt title -- used as the fallback when no session row is found. */
+    clientPromptTitle: string
+    /** Client-sent seniority level -- used as the fallback when no session row is found. */
+    clientLevel: string | null
+}
+
+/** Result of {@link MockInterviewGradingService.resolveTrustedPromptIdentity}. */
+export interface ResolveTrustedPromptIdentityResult {
+    /** Trusted (or client-fallback) prompt id. */
+    promptId: string
+    /** Trusted (or client-fallback) prompt title. */
+    promptTitle: string
+    /** Trusted (or client-fallback) seniority level, or null. */
+    level: string | null
+    /** The server-drawn mode -- NEVER accepted from the client. */
+    mode: MockInterviewMode
+    /** The session's persisted seed questions, empty when no session row was found. */
+    seedQuestions: Array<MockInterviewSeedQuestion>
+    /** The session's locale, or null when unknown/no session row was found. */
+    lang: string | null
+    /** Whether this session should feed job-readiness. */
+    countsToReadiness: boolean
+    /** The session's user-chosen display name, or null. */
+    name: string | null
+}
+
+/** Params for {@link MockInterviewGradingService.buildQuestionReviews}. */
+export interface BuildMockInterviewQuestionReviewsParams {
+    /** The full recorded transcript, one entry per conversational turn. */
+    turns: Array<MockInterviewTurnRecord>
+    /** The session's seed groundings, index-aligned with the transcript's `questionIndex`. */
+    seedGroundings: Array<MockInterviewSeedGrounding>
+    /** The model's normalized per-phase score breakdown. */
+    phaseScores: Array<MockInterviewPhaseScore>
+    /** The model's raw per-question feedback, as normalized by {@link GradeMockInterviewSessionParseService}. */
+    questionFeedback: Array<MockInterviewQuestionFeedbackItem>
+    /** Session-wide RAG-matched content ids, attached to every question that resolves a grounding. */
+    matchedContentIds: Array<string>
+}
+
+/** Params for {@link MockInterviewGradingService.persistAttempt}. */
+export interface PersistMockInterviewAttemptParams {
+    /** Id of the user who owns the persisted attempt. */
+    userId: string
+    /** Course the session belongs to. */
+    courseId: string
+    /** The prompt the learner worked through. */
+    promptId: string
+    /** Snapshot of the prompt's title, persisted alongside the attempt for history display. */
+    promptTitle: string
+    /** Seniority level the session was graded against, or null. */
+    level: string | null
+    /** The top-level flow the session ran in. */
+    mode: MockInterviewMode
+    /** Client-generated id grouping this attempt into its interview run. */
+    sessionId: string
+    /** The already-normalized grade result to persist. */
+    result: MockInterviewGradeSessionResult
+    /** Whether this session should feed job-readiness. */
+    countsToReadiness: boolean
+    /** The session's user-chosen display name, copied verbatim onto the attempt row. */
+    name: string | null
 }
 
 /** Params for {@link MockInterviewGradingService.grade}. */
@@ -261,4 +344,14 @@ export interface BuildMockInterviewGradePromptParams {
 export interface BuildMockInterviewGradePromptResult {
     /** Ordered system + human chat messages ready for {@link AiInvokeService.run}. */
     messages: Array<BaseMessage>
+}
+
+/** Params for {@link MockInterviewGradePromptService.buildQuestionBlock}. */
+export interface BuildMockInterviewQuestionBlockParams {
+    /** 0-based index of this question within the session. */
+    index: number
+    /** This question's transcript turns (interviewer + candidate), in order. */
+    questionTurns: Array<MockInterviewTurnRecord>
+    /** This question's seed grounding, or undefined when the seed card was deleted after the draw. */
+    grounding: MockInterviewSeedGrounding | undefined
 }

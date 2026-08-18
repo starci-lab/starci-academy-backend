@@ -21,7 +21,7 @@ import {
     RefreshTokenCoalescerService,
 } from "./refresh-token-coalescer.service"
 import type {
-    RefreshTokenCommandResult,
+    RefreshTokenResult,
 } from "./graphql-types/response"
 
 @CommandHandler(RefreshTokenCommand)
@@ -31,8 +31,8 @@ import type {
  * Keycloak rotation cannot invalidate parallel tab refreshes.
  */
 export class RefreshTokenHandler
-    extends ICQRSHandler<RefreshTokenCommand, RefreshTokenCommandResult>
-    implements ICommandHandler<RefreshTokenCommand, RefreshTokenCommandResult>
+    extends ICQRSHandler<RefreshTokenCommand, RefreshTokenResult>
+    implements ICommandHandler<RefreshTokenCommand, RefreshTokenResult>
 {
     constructor(
         private readonly refreshTokenCoalescerService: RefreshTokenCoalescerService,
@@ -43,7 +43,7 @@ export class RefreshTokenHandler
 
     protected override async process(
         command: RefreshTokenCommand,
-    ): Promise<RefreshTokenCommandResult> {
+    ): Promise<RefreshTokenResult> {
         const {
             refreshToken,
             accessToken,

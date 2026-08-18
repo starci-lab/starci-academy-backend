@@ -1,7 +1,7 @@
 import type Decimal from "decimal.js"
 
 /** Params for performance24h: list of bot IDs. */
-export interface Performance24HRequest {
+export interface Performance24HParams {
     botIds: Array<string>
 }
 
@@ -29,4 +29,4 @@ export interface Performance24HResponseData {
 }
 
 /** Result of performance24h: array of per-bot performance. */
-export type Performance24HResponse = Array<Performance24HResponseData>
+export type Performance24HResult = Array<Performance24HResponseData>

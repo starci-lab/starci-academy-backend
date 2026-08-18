@@ -27,7 +27,7 @@ import {
     SignUpVerifyOtpCommand,
 } from "./sign-up-verify-otp.command"
 import type {
-    SignUpVerifyOtpCommandResult,
+    SignUpVerifyOtpResult,
 } from "./graphql-types/response"
 import {
     KeycloakJwtInvalidPayloadException,
@@ -73,8 +73,8 @@ import {
  * tokens. Cookie attachment stays in the resolver (HTTP side-effect).
  */
 export class SignUpVerifyOtpHandler
-    extends ICQRSHandler<SignUpVerifyOtpCommand, SignUpVerifyOtpCommandResult>
-    implements ICommandHandler<SignUpVerifyOtpCommand, SignUpVerifyOtpCommandResult>
+    extends ICQRSHandler<SignUpVerifyOtpCommand, SignUpVerifyOtpResult>
+    implements ICommandHandler<SignUpVerifyOtpCommand, SignUpVerifyOtpResult>
 {
     constructor(
         private readonly jwtService: JwtService,
@@ -96,7 +96,7 @@ export class SignUpVerifyOtpHandler
      */
     protected override async process(
         command: SignUpVerifyOtpCommand,
-    ): Promise<SignUpVerifyOtpCommandResult> {
+    ): Promise<SignUpVerifyOtpResult> {
         const {
             request: {
                 challengeId,
