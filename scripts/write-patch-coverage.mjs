@@ -1,6 +1,7 @@
 import {execFileSync} from "node:child_process"
 import {existsSync, readFileSync, writeFileSync} from "node:fs"
 import {relative, resolve} from "node:path"
+import {fileURLToPath} from "node:url"
 
 const normalize = (file, cwd) => relative(cwd, file).replaceAll("\\", "/")
 const production = (file) => /^(?:apps|src)\/.+\.(?:ts|tsx|js|jsx)$/.test(file)
@@ -36,7 +37,7 @@ export const buildPatchSummary = (report, changedFiles, cwd = process.cwd()) => 
     }}
 }
 
-if (import.meta.url === `file://${process.argv[1]?.replaceAll("\\", "/")}`) {
+if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
     const reportPath = "coverage/coverage-final.json"
     if (!existsSync(reportPath)) throw new Error(`Coverage report is missing: ${reportPath}`)
     const report = JSON.parse(readFileSync(reportPath, "utf8"))
