@@ -25,7 +25,7 @@ test("fails when a changed production file is absent", () => {
 })
 
 test("marks zero changed production files not applicable", () => {
-    assert.deepEqual(buildPatchSummary({}, ["README.md"], "C:/repo"), {
+    assert.deepEqual(buildPatchSummary({}, ["README.md", "src/example.spec.ts"], "C:/repo"), {
         notApplicable: true,
         reason: "no changed production files",
     })
