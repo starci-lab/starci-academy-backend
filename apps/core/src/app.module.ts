@@ -2,9 +2,7 @@ import {
     EnvModule,
 } from "@modules/platform/env/env.module"
 import {
-    Module
-} from "@nestjs/common"
-import {
+    Module,
     ValidationPipe
 } from "@nestjs/common"
 import {

@@ -52,10 +52,8 @@ export class K8sAgentService extends BaseAgentService {
 
     protected onPaired(): void {
         this.report()
-        if (!this.resourceTimer) {
-            this.resourceTimer = setInterval(() => this.report(),
-                RESOURCE_INTERVAL_MS)
-        }
+        this.resourceTimer ??= setInterval(() => this.report(),
+            RESOURCE_INTERVAL_MS)
     }
 
     protected afterCommand(): void {

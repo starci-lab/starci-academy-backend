@@ -10,14 +10,14 @@ ARG NODE_VERSION=25.2.1
 
 ################################################################################
 # Use node image for base image for all stages.
-FROM node:${NODE_VERSION}-alpine as base
+FROM node:${NODE_VERSION}-alpine AS base
 
 # Set working directory for all build stages.
 WORKDIR /usr/src/app
 
 ################################################################################
 # Create a stage for installing production dependecies.
-FROM base as deps
+FROM base AS deps
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
@@ -30,7 +30,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 ################################################################################
 # Create a stage for building the application.
-FROM deps as build
+FROM deps AS build
 
 # Download additional development dependencies before building, as some projects require
 # "devDependencies" to be installed to build. If you don't need this, remove this step.
@@ -47,28 +47,23 @@ RUN npx nest build cli
 ################################################################################
 # Create a new stage to run the application with minimal runtime dependencies
 # where the necessary files are copied from the build stage.
-FROM base as final
+FROM base AS final
 
-# Download and install MongoDB Database Tools
+# Download and install MongoDB Database Tools, pg_dump/pg_restore, 7z, and
+# the backup encryption/compression tools in one layer.
 RUN apk add --no-cache \
     --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
     mongodb-tools \
- && chmod +x /usr/bin/mongo* || true
-
-# Download pg_dump and pg_restore
-RUN apk add --no-cache postgresql17-client
-# Download 7z
-RUN apk update && apk add --no-cache p7zip
-
-# Tools for backup encryption/compression
-RUN apk add --no-cache openssl gzip
+ && chmod +x /usr/bin/mongo* || true \
+ && apk add --no-cache postgresql17-client \
+ && apk update && apk add --no-cache p7zip \
+ && apk add --no-cache openssl gzip
 
 # Set the path to the MongoDB Database Tools
 ENV PATH="/usr/bin:/usr/local/bin:${PATH}"
 
 # Verify installation
-RUN mongodump --version
-RUN 7z
+RUN mongodump --version && 7z
 
 # Use production node environment by default.
 ENV NODE_ENV production

@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-const path = require("path")
+const path = require("node:path")
 
 // Prevent bundling node_modules; they will be resolved at runtime
 const nodeExternals = require("webpack-node-externals")
@@ -58,7 +58,7 @@ const basePackage = {
     }
 }
 
-module.exports = (options) => ({
+const buildWebpackConfig = (options) => ({
     // spread the Nest-CLI defaults (ts-loader + @modules/* resolution) before overriding.
     ...options,
 
@@ -122,3 +122,5 @@ module.exports = (options) => ({
         ),
     ],
 })
+
+module.exports = buildWebpackConfig

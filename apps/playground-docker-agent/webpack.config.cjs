@@ -11,7 +11,7 @@
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-const path = require("path")
+const path = require("node:path")
 const webpack = require("webpack")
 const nodeExternals = require("webpack-node-externals")
 const GeneratePackageJsonPlugin = require("generate-package-json-webpack-plugin")
@@ -46,7 +46,7 @@ const basePackage = {
     },
 }
 
-module.exports = (options) => ({
+const buildWebpackConfig = (options) => ({
     ...options,
     entry: "./apps/playground-docker-agent/src/main.ts",
     output: {
@@ -76,3 +76,5 @@ module.exports = (options) => ({
         ),
     ],
 })
+
+module.exports = buildWebpackConfig

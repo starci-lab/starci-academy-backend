@@ -19,3 +19,9 @@ export interface RagSource {
     snippet: string
     score: number
 }
+
+/** Params for a `ragAsk` socket event -- both fields optional, validated at the call site. */
+export interface RagAskParams {
+    runId?: string
+    question?: string
+}

@@ -10,6 +10,10 @@ import {
 import {
     AppModule
 } from "./app.module"
+import type {
+    PnaPreflightRequestParams,
+    PnaPreflightResponseParams,
+} from "./mock-types"
 
 /**
  * Bootstraps the standalone mock-sandbox service.
@@ -28,8 +32,8 @@ const bootstrap = async () => {
     // preflight by echoing the allow header before the CORS middleware runs.
     app.use(
         (
-            request: { headers: Record<string, string | undefined> },
-            response: { setHeader: (name: string, value: string) => void },
+            request: PnaPreflightRequestParams,
+            response: PnaPreflightResponseParams,
             next: () => void,
         ) => {
             // Chrome sends this header on the PNA preflight; grant the loopback access

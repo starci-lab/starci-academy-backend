@@ -81,7 +81,11 @@ jobs:
           # cgroup v2 can't run isolate, so prod points at the cgroup-v1 VPS instance.
           JUDGE0_BASE_URL: ${{ vars.JUDGE0_BASE_URL }}
 
-          # Filesystem context (.contexts) root → mounted volume so the git-init checkout + marker survive redeploys.
+          # Filesystem context root -- vps-compose.yaml defaults this to the dedicated
+          # .datasources bind (see its CONTEXT_1_URL/volumes) so the git-init snapshot
+          # store + manifest.json survive redeploys. Renamed from ".contexts" when the
+          # versioned snapshot store landed (commit 243ddde7); only override this repo
+          # Variable if the VPS host path was deliberately repointed.
           CONTEXT_1_URL: ${{ vars.CONTEXT_1_URL }}
 
           # Init seed/sync scope is configured in .mount/config/seed.yaml (not env).

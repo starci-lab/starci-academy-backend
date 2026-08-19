@@ -21,7 +21,7 @@ import {
     RagService 
 } from "./rag.service"
 import type {
-    IndexSource 
+    IndexSource, RagAskParams
 } from "./rag-types"
 
 @Injectable()
@@ -65,7 +65,7 @@ export class RagAgentService extends BaseAgentService {
             })
 
         this.socket.on(EVENT.ragAsk,
-            (payload: { runId?: string, question?: string }) => {
+            (payload: RagAskParams) => {
                 const runId = payload?.runId
                 const question = payload?.question
                 if (!runId || !question) {
@@ -98,10 +98,8 @@ export class RagAgentService extends BaseAgentService {
 
     protected onPaired(): void {
         this.pollOllama()
-        if (!this.ollamaTimer) {
-            this.ollamaTimer = setInterval(() => this.pollOllama(),
-                OLLAMA_STATUS_INTERVAL_MS)
-        }
+        this.ollamaTimer ??= setInterval(() => this.pollOllama(),
+            OLLAMA_STATUS_INTERVAL_MS)
     }
 
     protected onShutdown(): void {

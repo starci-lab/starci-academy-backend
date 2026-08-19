@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-const path = require("path")
+const path = require("node:path")
 
 // Load .env.override so DISABLE_FORK_TS_CHECKER is visible during webpack.
 require("dotenv").config({ path: path.join(__dirname, "../../.env.override") })
@@ -35,7 +35,7 @@ const basePackage = {
     },
 }
 
-module.exports = (options) => ({
+const buildWebpackConfig = (options) => ({
     ...options,
     entry: "./apps/mock/src/main.ts",
     output: {
@@ -64,3 +64,5 @@ module.exports = (options) => ({
         ),
     ],
 })
+
+module.exports = buildWebpackConfig
