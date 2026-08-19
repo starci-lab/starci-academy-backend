@@ -109,7 +109,7 @@ export class ChallengeEvaluationPromptService {
             "## JSON Formatting",
             "- Output STRICT JSON only — no markdown fences, no comments, no trailing commas.",
             "- Use double quotes for all keys and string values.",
-            "- Escape newlines as \\\\n and double quotes as \\\\\" inside string values.",
+            String.raw`- Escape newlines as \\n and double quotes as \\" inside string values.`,
             "",
             "## Grading Philosophy",
             ...(isCode

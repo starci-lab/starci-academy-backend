@@ -126,6 +126,21 @@ interface PlanRow {
     planType: InstallmentPlanType
 }
 
+/** Rows `programLookups` feeds back for the plan and pending-transaction lookups. */
+interface ProgramLookupsRows {
+    plan?: PlanRow | null
+    pending?: Record<string, unknown> | null
+}
+
+/** Overrides the `command` helper accepts to steer one field of the built request. */
+interface PayNextInstallmentRequestOverrides {
+    planId?: string
+    paymentType?: PaymentType
+    returnUrl?: string
+    cancelUrl?: string
+    amountVnd?: number
+}
+
 /** Builds a payable fixed plan owned by {@link OWNER_ID}. */
 const planRow = (
     overrides: Partial<PlanRow> = {
@@ -156,10 +171,7 @@ describe("PayNextInstallmentHandler",
 
         /** Programs the two lookups the handler makes, by entity. */
         const programLookups = (
-            rows: {
-                plan?: PlanRow | null
-                pending?: Record<string, unknown> | null
-            },
+            rows: ProgramLookupsRows,
         ) => {
             entityManager.findOne.mockImplementation(async (entity: unknown) => {
                 if (entity === InstallmentPlanEntity) {
@@ -174,13 +186,7 @@ describe("PayNextInstallmentHandler",
 
         /** Builds the command for one pay-next-installment request. */
         const command = (
-            request: {
-                planId?: string
-                paymentType?: PaymentType
-                returnUrl?: string
-                cancelUrl?: string
-                amountVnd?: number
-            } = {
+            request: PayNextInstallmentRequestOverrides = {
             },
             user: UserEntity | undefined = fakeUser(OWNER_ID),
         ) => new PayNextInstallmentCommand({

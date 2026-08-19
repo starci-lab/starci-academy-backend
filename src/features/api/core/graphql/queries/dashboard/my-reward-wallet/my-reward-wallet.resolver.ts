@@ -36,8 +36,6 @@ import {
 } from "@modules/bussiness/rewards/rewards.service"
 import {
     MyRewardWalletData,
-} from "./graphql-types/response"
-import {
     MyRewardWalletResponse,
 } from "./graphql-types/response"
 

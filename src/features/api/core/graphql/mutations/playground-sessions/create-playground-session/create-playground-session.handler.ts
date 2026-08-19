@@ -13,7 +13,7 @@ import {
 } from "typeorm"
 import {
     randomUUID,
-} from "crypto"
+} from "node:crypto"
 import {
     PlaygroundSessionEntity,
 } from "@modules/databases/postgresql/primary/entities/playground-session.entity"

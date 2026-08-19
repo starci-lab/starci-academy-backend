@@ -88,6 +88,12 @@ interface RetryServiceRetryParams {
     action: () => Promise<unknown>
 }
 
+/** Rows `programLookups` feeds back for the course and pending-transaction lookups. */
+interface ProgramLookupsRows {
+    course?: Record<string, unknown> | null
+    pending?: Record<string, unknown> | null
+}
+
 /**
  * Build a minimal user stand-in carrying only the id the service reads.
  *
@@ -135,10 +141,7 @@ describe("CourseEnrollPayOsService",
 
         /** Programs the course + pending-transaction lookups, by entity. */
         const programLookups = (
-            rows: {
-                course?: Record<string, unknown> | null
-                pending?: Record<string, unknown> | null
-            },
+            rows: ProgramLookupsRows,
         ) => {
             entityManager.findOne.mockImplementation(async (entity: unknown) => {
                 if (entity === CourseEntity) {

@@ -74,6 +74,9 @@ import SuperJSON from "superjson"
 import type {
     EntityManager,
 } from "typeorm"
+import {
+    decideReconcileAction,
+} from "./decide-reconcile-action"
 
 @Worker(
     bullData[BullQueueName.ReconcileTransaction].name,
@@ -136,7 +139,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
             },
         )
         // gone or already finalized by the webhook -> nothing to do (idempotent)
-        if (!transaction || transaction.status !== TransactionStatus.Pending) {
+        if (transaction?.status !== TransactionStatus.Pending) {
             return
         }
         // ask the gateway whether it was paid
@@ -145,19 +148,13 @@ export class ReconcileTransactionWorker extends WorkerHost {
             maxAttempts,
             slowDelayMs,
         } = envConfig().services.api.transaction.reconcile
-        const exhausted = attempt >= maxAttempts
-        const underpaid = result.state === "paid"
-            && result.reportedAmount !== undefined
-            && result.reportedAmount < transaction.amount
-        const decision = result.state === "paid" && !underpaid
-            ? "finalize"
-            : result.state === "terminal-unpaid"
-                ? "unpaid"
-                : lane === "fast" && !exhausted
-                    ? "fast-retry"
-                    : underpaid
-                        ? "slow-underpaid"
-                        : "slow-retry"
+        const decision = decideReconcileAction({
+            result,
+            expectedAmountVnd: transaction.amount,
+            attempt,
+            maxAttempts,
+            lane,
+        })
         // observable trace of every poll (gateway status + chosen action)
         this.winstonService.log(
             WinstonLog.TransactionReconcilePolled,

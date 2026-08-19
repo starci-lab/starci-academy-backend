@@ -19,7 +19,7 @@ import type {
 } from "express"
 import {
     createHash,
-} from "crypto"
+} from "node:crypto"
 import {
     FileStoreService,
 } from "../../file-store/file-store.service"

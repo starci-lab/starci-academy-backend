@@ -55,6 +55,9 @@ import type {
     CoursePriceQuoteResult,
 } from "@modules/bussiness/course-pricing/types"
 import type {
+    InstallmentOption,
+} from "@modules/bussiness/installment-plan/types"
+import type {
     ExecuteParams,
 } from "../../../../types/execute"
 import type {
@@ -88,17 +91,21 @@ const fakeUser = (
     id,
 }) as unknown as UserEntity
 
+/** Overrides `quoteResult` accepts to steer one field of the built quote. */
+interface QuoteResultOverrides {
+    displayDiscountPercent?: number
+    selectedInstallment?: InstallmentOption | null
+}
+
+/** Rows `programLookups` feeds back for the course and pending-transaction lookups. */
+interface ProgramLookupsRows {
+    course?: Record<string, unknown> | null
+    pending?: Record<string, unknown> | null
+}
+
 /** Builds a one-line checkout quote, optionally with a selected installment plan. */
 const quoteResult = (
-    overrides: {
-        displayDiscountPercent?: number
-        selectedInstallment?: {
-            months: number
-            markupPercent: number
-            monthlyAmountVnd: number
-            totalAmountVnd: number
-        } | null
-    } = {
+    overrides: QuoteResultOverrides = {
     },
 ): CoursePriceQuoteResult => ({
     lines: [{
@@ -127,10 +134,7 @@ describe("CourseEnrollSepayService",
 
         /** Programs the course + pending-transaction lookups, by entity. */
         const programLookups = (
-            rows: {
-                course?: Record<string, unknown> | null
-                pending?: Record<string, unknown> | null
-            },
+            rows: ProgramLookupsRows,
         ) => {
             entityManager.findOne.mockImplementation(async (entity: unknown) => {
                 if (entity === CourseEntity) {

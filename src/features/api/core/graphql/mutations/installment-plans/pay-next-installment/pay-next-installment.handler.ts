@@ -1,6 +1,6 @@
 import {
     randomInt,
-} from "crypto"
+} from "node:crypto"
 import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
@@ -174,7 +174,7 @@ export class PayNextInstallmentHandler
         )
         // collapse "doesn't exist" and "belongs to someone else" into one error
         // so ownership is never leaked to the caller
-        if (!plan || plan.userId !== user.id) {
+        if (plan?.userId !== user.id) {
             throw new InstallmentPlanNotFoundException({
                 planId,
                 userId: user.id,

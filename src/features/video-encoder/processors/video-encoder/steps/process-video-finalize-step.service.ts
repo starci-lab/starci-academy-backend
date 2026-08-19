@@ -25,13 +25,13 @@ import {
 } from "@modules/platform/winston/winston.service"
 import {
     join,
-} from "path"
+} from "node:path"
 import {
     tmpdir,
-} from "os"
+} from "node:os"
 import {
     promises as fsPromise,
-} from "fs"
+} from "node:fs"
 
 @Injectable()
 /**
@@ -86,7 +86,7 @@ export class ProcessVideoFinalizeStepService extends AbstractStepService<Filenam
 
         // Execute query at end
         const { queryAtEnd } = callbackQueries
-        if (queryAtEnd && queryAtEnd.length === 2) {
+        if (queryAtEnd?.length === 2) {
             await this.entityManager.query(queryAtEnd[0],
                 queryAtEnd[1])
         }

@@ -1,13 +1,3 @@
-// ============================================================================
-// WIRING TODO (final wire step): register this module in
-// `src/features/api/processors/processors.module.ts` alongside the other AI
-// processors:  `GenerateCvModule.register({ isGlobal: true })`.
-// The worker + steps are declared as providers below; RagModule /
-// LangchainModule / S3Module / Qdrant / etc. are globally registered at app
-// root, so no imports are needed here (CvRagRetrievalService is injected from
-// the global RagModule -- see the enqueue/compose TODOs).
-// ============================================================================
-
 import {
     Module,
 } from "@nestjs/common"

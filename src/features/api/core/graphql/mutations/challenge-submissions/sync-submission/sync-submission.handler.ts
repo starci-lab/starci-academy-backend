@@ -33,7 +33,8 @@ import {
     SyncSubmissionCommand,
 } from "./sync-submission.command"
 import type {
-    SyncSubmissionResult,
+    ApplySelectedGradingLaneParams,
+    ResolveOrCreateUserChallengeSubmissionParams,
     UpsertSubmissionParams,
 } from "./types/sync-submission"
 import {
@@ -50,8 +51,8 @@ import {
 @Injectable()
 /** Handler for `SyncSubmissionCommand`. */
 export class SyncSubmissionHandler
-    extends ICQRSHandler<SyncSubmissionCommand, SyncSubmissionResult>
-    implements ICommandHandler<SyncSubmissionCommand, SyncSubmissionResult> {
+    extends ICQRSHandler<SyncSubmissionCommand, void>
+    implements ICommandHandler<SyncSubmissionCommand, void> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -66,7 +67,7 @@ export class SyncSubmissionHandler
     /** Process the command. */
     protected override async process(
         command: SyncSubmissionCommand,
-    ): Promise<SyncSubmissionResult> {
+    ): Promise<void> {
         const {
             request,
             user,
@@ -156,7 +157,50 @@ export class SyncSubmissionHandler
             })
         }
 
-        let userChallengeSubmission = await entityManager.findOne(
+        const userChallengeSubmission = await this.resolveOrCreateUserChallengeSubmission(
+            {
+                entityManager,
+                user,
+                challengeSubmissionId,
+                hasUrl,
+                url,
+                enrollment,
+            },
+        )
+        // backfill enrollment on a pre-existing row that predates the re-key
+        if (enrollment && !userChallengeSubmission.enrollmentId) {
+            userChallengeSubmission.enrollment = enrollment
+        }
+        // persist the grading model pick when provided
+        await this.applySelectedGradingLane(userChallengeSubmission,
+            {
+                userId: user.id,
+                selectedModel,
+                selectedModelProvider,
+            })
+        await entityManager.save(
+            UserChallengeSubmissionEntity,
+            userChallengeSubmission,
+        )
+    }
+
+    /**
+     * Resolve the existing user challenge submission row (patching its URL when a
+     * new one was sent), or create one when this is the first sync for this user
+     * x submission pair.
+     * @param params - The entity manager, user/challenge anchors, URL state, and enrollment.
+     */
+    private async resolveOrCreateUserChallengeSubmission(
+        {
+            entityManager,
+            user,
+            challengeSubmissionId,
+            hasUrl,
+            url,
+            enrollment,
+        }: ResolveOrCreateUserChallengeSubmissionParams,
+    ): Promise<UserChallengeSubmissionEntity> {
+        const existing = await entityManager.findOne(
             UserChallengeSubmissionEntity,
             {
                 where: {
@@ -169,57 +213,63 @@ export class SyncSubmissionHandler
                 },
             },
         )
-        if (userChallengeSubmission) {
+        if (existing) {
             if (hasUrl) {
-                userChallengeSubmission.submissionUrl = url as string
+                existing.submissionUrl = url as string
             }
-        } else {
-            userChallengeSubmission = entityManager.create(
-                UserChallengeSubmissionEntity,
-                {
-                    user: {
-                        id: user.id,
-                    },
-                    submission: {
-                        id: challengeSubmissionId,
-                    },
-                    // empty until the user pastes a link on a selection-only sync
-                    submissionUrl: hasUrl ? (url as string) : "",
-                    processed: false,
-                    ...(enrollment
-                        ? {
-                            enrollment,
-                        }
-                        : {
-                        }),
-                },
-            )
+            return existing
         }
-        // backfill enrollment on a pre-existing row that predates the re-key
-        if (enrollment && !userChallengeSubmission.enrollmentId) {
-            userChallengeSubmission.enrollment = enrollment
-        }
-        // persist the grading model pick when provided
-        const hasLaneSelection = selectedModel !== undefined
-            || selectedModelProvider !== undefined
-        if (hasLaneSelection) {
-            const validatedLane = await this.gradingLaneValidationService.validate({
-                userId: user.id,
-                model: selectedModel,
-                provider: selectedModelProvider,
-            })
-            if (selectedModel !== undefined) {
-                userChallengeSubmission.selectedModel = validatedLane.gradingModel
-                    ?? null
-            }
-            if (selectedModelProvider !== undefined) {
-                userChallengeSubmission.selectedModelProvider = validatedLane.gradingProvider
-                    ?? null
-            }
-        }
-        await entityManager.save(
+        return entityManager.create(
             UserChallengeSubmissionEntity,
-            userChallengeSubmission,
+            {
+                user: {
+                    id: user.id,
+                },
+                submission: {
+                    id: challengeSubmissionId,
+                },
+                // empty until the user pastes a link on a selection-only sync
+                submissionUrl: hasUrl ? (url as string) : "",
+                processed: false,
+                ...(enrollment
+                    ? {
+                        enrollment,
+                    }
+                    : {
+                    }),
+            },
         )
+    }
+
+    /**
+     * Validate and persist the caller's grading model/provider selection, when
+     * provided (a sync with neither field set is a no-op here).
+     * @param userChallengeSubmission - The row to patch.
+     * @param params - The user plus the client-sent picks (each possibly `undefined`).
+     */
+    private async applySelectedGradingLane(
+        userChallengeSubmission: UserChallengeSubmissionEntity,
+        {
+            userId,
+            selectedModel,
+            selectedModelProvider,
+        }: ApplySelectedGradingLaneParams,
+    ): Promise<void> {
+        if (selectedModel === undefined && selectedModelProvider === undefined) {
+            return
+        }
+        const validatedLane = await this.gradingLaneValidationService.validate({
+            userId,
+            model: selectedModel,
+            provider: selectedModelProvider,
+        })
+        if (selectedModel !== undefined) {
+            userChallengeSubmission.selectedModel = validatedLane.gradingModel
+                ?? null
+        }
+        if (selectedModelProvider !== undefined) {
+            userChallengeSubmission.selectedModelProvider = validatedLane.gradingProvider
+                ?? null
+        }
     }
 }

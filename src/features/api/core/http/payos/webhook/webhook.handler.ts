@@ -91,7 +91,7 @@ export class PayosWebhookHandler
                 },
             },
         )
-        if (!transaction || transaction.status !== TransactionStatus.Pending) {
+        if (transaction?.status !== TransactionStatus.Pending) {
             return
         }
 

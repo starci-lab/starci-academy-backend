@@ -330,8 +330,15 @@ export class MockInterviewTurnService {
         // fenced code block / mermaid diagram folded in) -- deliver it VERBATIM,
         // never reframe. flashcard-fallback seeds are short topic labels -> frame
         // a {kind}-shaped question about them (the original behavior below).
+        // `^` with the `m` flag is a true per-line anchor (checked only at string-start
+        // and right after each `\n`), unlike the hand-rolled `(?:^|\n)` which an
+        // unanchored search would retry at every character position -- super-linear
+        // on pathological input. Same semantics: start-of-string or start-of-line.
+        // `[ \t]*` (not `\s*`) keeps the leading run inside one line -- `\s` also
+        // matches `\n`, so `^\s*` would let the run span many blank lines while `^`
+        // re-anchors at every one of them, which is quadratic on long blank-line runs.
         const isAuthoredPrompt = seedTopic.length > 160
-            || /```|(?:^|\n)\s*(?:graph|flowchart|sequenceDiagram|erDiagram|classDiagram)\b/.test(seedTopic)
+            || /```|^[ \t]*(?:graph|flowchart|sequenceDiagram|erDiagram|classDiagram)\b/m.test(seedTopic)
 
         const framedSystemText = [
             `You are a senior technical interviewer running a live mock interview, question ${displayIndex}`
@@ -412,16 +419,21 @@ export class MockInterviewTurnService {
             ? deliverSystemText
             : framedSystemText
 
+        let instructionLine: string
+        if (isAuthoredPrompt && isOpeningAskOfSeed) {
+            instructionLine = "Deliver the question to the candidate now."
+        } else if (isOpeningAskOfSeed) {
+            instructionLine = "Ask your opening question about the seed topic now."
+        } else {
+            instructionLine = "Ask your next follow-up question now."
+        }
+
         const humanText = [
             "Transcript so far (for this question only):",
             "",
             this.transcriptLines(history),
             "",
-            isAuthoredPrompt && isOpeningAskOfSeed
-                ? "Deliver the question to the candidate now."
-                : isOpeningAskOfSeed
-                    ? "Ask your opening question about the seed topic now."
-                    : "Ask your next follow-up question now.",
+            instructionLine,
         ].join("\n")
 
         return {

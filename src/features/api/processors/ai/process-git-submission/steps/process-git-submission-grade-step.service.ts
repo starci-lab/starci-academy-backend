@@ -5,12 +5,8 @@ import {
     JobActionService,
 } from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
-    AbstractStepService,
     JobExtendedContext,
 } from "@modules/bussiness/jobs/types/context"
-import {
-    EnrollmentEntity,
-} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     AiCeilSurface,
 } from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
@@ -20,9 +16,6 @@ import {
 import {
     AiModelTask,
 } from "@modules/databases/postgresql/primary/enums/ai-model-task"
-import {
-    Locale,
-} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
@@ -35,9 +28,6 @@ import {
 import {
     type EntityManager,
 } from "typeorm"
-import {
-    WinstonLog,
-} from "@modules/platform/winston/enums/winston-log"
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
@@ -78,8 +68,17 @@ import {
     collectSubmissionCriteria,
 } from "../../shared/challenge-submission/utils/collect-submission-criteria"
 import {
+    resolveTargetLanguage,
+} from "../../shared/challenge-submission/utils/resolve-target-language"
+import {
+    resolveGithubAccessToken,
+} from "../../shared/challenge-submission/utils/resolve-github-access-token"
+import {
     GradingRetrievalService,
 } from "@modules/integrations/rag/grading-rag-retrieval.service"
+import {
+    AbstractSubmissionGradeStepService,
+} from "../../shared/challenge-submission/abstract-submission-grade-step.service"
 
 @Injectable()
 /**
@@ -88,16 +87,21 @@ import {
  * relational requirements. Outputs the same evaluation template shape so the legacy complete step
  * and parse service can be reused. Uses the same `stepName` ("grade") as V1 so the complete step
  * reads the result transparently.
+ *
+ * `process` + persisting the result are shared verbatim with the Google-Docs grade step -- see
+ * {@link AbstractSubmissionGradeStepService}. This class only owns HOW the evaluation is produced:
+ * cloning the submitted repo and grading it at the code-grading AI floor.
  */
-export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
+export class ProcessGitSubmissionGradeStepService extends AbstractSubmissionGradeStepService<
     ProcessGitSubmissionPayload,
-    ExtendedProcessGitSubmissionContext
+    ExtendedProcessGitSubmissionContext,
+    ProcessGitSubmissionGradeStepExecuteResult
 > {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly jobActionService: JobActionService,
-        private readonly winstonService: WinstonService,
+            entityManager: EntityManager,
+            jobActionService: JobActionService,
+            winstonService: WinstonService,
         private readonly mountStorageService: MountStorageService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
@@ -106,73 +110,17 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         private readonly gradingRetrievalService: GradingRetrievalService,
         private readonly encryptionService: EncryptionService,
     ) {
-        super()
-    }
-
-    /**
-     * Resolve the GitHub access token to clone the submission repo with: the learner's
-     * own (decrypted) per-enrollment token when they stored one for a PRIVATE repo,
-     * otherwise the org token. A token that fails to decrypt falls back to the org token
-     * rather than aborting the grade. Shared with personal-project grading -- one token
-     * per enrollment covers both the challenge repo and the capstone repo.
-     */
-    private async resolveGithubAccessToken(enrollmentId: string): Promise<string> {
-        const enrollment = await this.entityManager.findOne(
-            EnrollmentEntity,
-            {
-                where: {
-                    id: enrollmentId,
-                },
-                select: {
-                    id: true,
-                    personalProjectGithubTokenEncrypted: true,
-                },
-            },
+        super(
+            entityManager,
+            jobActionService,
+            winstonService,
         )
-        const encrypted = enrollment?.personalProjectGithubTokenEncrypted
-        if (!encrypted) {
-            return this.mountStorageService.githubAccessToken
-        }
-        try {
-            return this.encryptionService.decrypt({
-                payload: JSON.parse(encrypted),
-            })
-        } catch {
-            return this.mountStorageService.githubAccessToken
-        }
-    }
-
-    stepIndex = 0
-    stepName = "grade"
-
-    /**
-     * Process the grade step.
-     */
-    async process(
-        context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
-        >,
-    ): Promise<void> {
-        try {
-            const executionResult = await this.execute(context)
-            await this.finalize(executionResult,
-                context)
-        } catch (error) {
-            await this.jobActionService.failJob(
-                {
-                    job: context.job,
-                    error: error.message,
-                },
-            )
-            throw error
-        }
     }
 
     /**
      * Execute the grade step: load repo -> similarity search on criteria -> LLM grades each criterion.
      */
-    private async execute(
+    protected async execute(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext
@@ -181,12 +129,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const { payload } = context
         const branch = payload.branch ?? "main"
 
-        const locale = payload.locale ?? Locale.En
-        const localeLanguageMap: Record<string, string> = {
-            en: "English",
-            vi: "Vietnamese (Tiếng Việt)",
-        }
-        const targetLanguage = localeLanguageMap[locale] ?? "English"
+        const targetLanguage = resolveTargetLanguage(payload.locale)
 
         const challenge = context.extended?.challenge
         const challengeTitle = (challenge?.title ?? "").trim()
@@ -199,7 +142,12 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const repoUrl = context.extended?.userChallengeSubmission.submissionUrl ?? ""
         // private student repos need the learner's own token (org token can't read a
         // user's private repo); falls back to the org token for public/org repos
-        const accessToken = await this.resolveGithubAccessToken(payload.enrollmentId)
+        const accessToken = await resolveGithubAccessToken({
+            entityManager: this.entityManager,
+            encryptionService: this.encryptionService,
+            fallbackAccessToken: this.mountStorageService.githubAccessToken,
+            enrollmentId: payload.enrollmentId,
+        })
 
         /** Load GitHub repo */
         const gitLoader = new GithubRepoLoader(
@@ -260,18 +208,10 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         })
 
         /** Resolve + debit the submitter's AI quota once for this grading job. */
-        const enrollment = await this.entityManager.findOneOrFail(
-            EnrollmentEntity,
-            {
-                where: {
-                    id: payload.enrollmentId,
-                },
-            },
+        const enrollment = await this.resolveQuotaCheckedEnrollment(
+            payload.enrollmentId,
+            this.aiEntitlementService,
         )
-        // block on the unified credit pool before spending on the grading run
-        await this.aiEntitlementService.assertNotOverQuota({
-            userId: enrollment.userId,
-        })
         // ONE shared entry: CODE grading (githubUrl submission) floors at Balanced
         // -- NOT by difficulty. Eval evidence: Free/Economy models grade code too
         // shallowly (miss subtle API-contract defects); text grading (googleDocs /
@@ -289,33 +229,17 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             cacheSessionId: challenge?.id,
         })
 
-        // Charge for the LLM usage NOW (idempotently), BEFORE parsing -- a parse failure must not
-        // leak free usage. The `creditCharged` marker keeps a stalled re-run from double-charging,
-        // and the complete step skips its own debit when this marker is present.
-        const alreadyCharged = await this.jobActionService.loadExecutionResult<boolean>({
+        await this.chargeGradingCreditOnce({
             job: context.job,
-            key: "creditCharged",
+            aiEntitlementService: this.aiEntitlementService,
+            userId: enrollment.userId,
+            cost,
+            model,
+            provider,
+            promptTokens,
+            completionTokens,
+            attempts,
         })
-        if (!alreadyCharged) {
-            await this.aiEntitlementService.consume({
-                userId: enrollment.userId,
-                // charge by the model that actually served (from run)
-                cost,
-                surface: AiCeilSurface.Grading,
-                task: AiModelTask.ChallengeGrading,
-                model,
-                provider,
-                recommendation: null,
-                promptTokens,
-                completionTokens,
-                attempts,
-            })
-            await this.jobActionService.saveExecutionResult({
-                job: context.job,
-                key: "creditCharged",
-                executionResult: true,
-            })
-        }
 
         const parsed = this.challengeEvaluationParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
@@ -332,51 +256,5 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 cachedTokens,
             },
         }
-    }
-
-    /**
-     * Finalize the grade step: persist the execution result for the complete step.
-     */
-    private async finalize(
-        executionResult: ProcessGitSubmissionGradeStepExecuteResult,
-        context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
-        >,
-    ): Promise<void> {
-        const {
-            job,
-            payload,
-            queueName,
-        } = context
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                await this.jobActionService.increaseJob(
-                    {
-                        job,
-                        entityManager,
-                    }
-                )
-                await this.jobActionService.saveExecutionResult(
-                    {
-                        job,
-                        key: this.stepName,
-                        executionResult,
-                        entityManager,
-                    }
-                )
-            }
-        )
-        this.winstonService.log(
-            WinstonLog.ProcessGitSubmissionStepExecuted,
-            {
-                jobId: job.id ?? "",
-                queueName,
-                step: this.stepName,
-                stepIndex: this.stepIndex,
-                payload,
-                success: true,
-            },
-        )
     }
 }

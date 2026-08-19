@@ -42,13 +42,13 @@ const CATEGORY_LABEL: Record<string, string> = {
 /** Escape a user-supplied string before interpolating it into the HTML body. */
 const escapeHtml = (value: string): string =>
     value
-        .replace(/&/g,
+        .replaceAll("&",
             "&amp;")
-        .replace(/</g,
+        .replaceAll("<",
             "&lt;")
-        .replace(/>/g,
+        .replaceAll(">",
             "&gt;")
-        .replace(/"/g,
+        .replaceAll("\"",
             "&quot;")
 
 @Resolver()

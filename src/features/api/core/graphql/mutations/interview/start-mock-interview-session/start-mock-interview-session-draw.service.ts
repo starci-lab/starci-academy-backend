@@ -1,4 +1,7 @@
 import {
+    randomInt,
+} from "node:crypto"
+import {
     Injectable,
 } from "@nestjs/common"
 import {
@@ -242,9 +245,9 @@ const QNA_SEED_COUNT = 5
  * question count control may request -- an unrecognized/omitted value falls back to
  * {@link QNA_SEED_COUNT}.
  */
-const ALLOWED_QNA_QUESTION_COUNTS: ReadonlyArray<number> = [3,
+const ALLOWED_QNA_QUESTION_COUNTS: ReadonlySet<number> = new Set([3,
     5,
-    10]
+    10])
 
 /** Max characters of a flashcard question kept as the seed topic's FE-facing preview title. */
 const SEED_TITLE_MAX_CHARS = 120
@@ -361,7 +364,7 @@ export class MockInterviewSessionDrawService {
         if (value === undefined) {
             return QNA_SEED_COUNT
         }
-        return ALLOWED_QNA_QUESTION_COUNTS.includes(value)
+        return ALLOWED_QNA_QUESTION_COUNTS.has(value)
             ? value
             : QNA_SEED_COUNT
     }
@@ -477,13 +480,22 @@ export class MockInterviewSessionDrawService {
      * 4-track code question its ONE served language from the intersection of the
      * candidate's selected languages and the question's authored tracks.
      *
+     * Uses `node:crypto`'s CSPRNG (not `Math.random`) -- which language a code
+     * question is served in is itself part of the graded mock-interview score
+     * (`mock_interview_attempts.overall_score`), which feeds the rolling
+     * job-readiness interview average ({@link import("@modules/api/core/graphql/queries/users/job-readiness/job-readiness.service").JobReadinessService})
+     * and the recruiter-facing talent ranking
+     * ({@link import("@modules/api/core/graphql/queries/users/talent-candidates/talent-candidates.service").TalentCandidatesService}) --
+     * a predictable draw would let a candidate pre-select the exact prepared
+     * language/prompt for a real scored outcome instead of drawing it blind.
+     *
      * @param items - The candidate list (caller guarantees non-empty).
      * @returns One randomly chosen element.
      */
     private pickRandomFrom<Type>(
         items: Array<Type>,
     ): Type {
-        return items[Math.floor(Math.random() * items.length)]
+        return items[randomInt(items.length)]
     }
 
     /**
@@ -518,14 +530,17 @@ export class MockInterviewSessionDrawService {
             locale,
         })
 
-        const pool = reachedCapstonePrompts.length > 0
-            ? reachedCapstonePrompts
-            : classicPrompts.length > 0
-                ? classicPrompts
-                : this.listClassicPrompts({
-                    difficultyPool: undefined,
-                    locale,
-                })
+        let pool: Array<MockInterviewPromptCandidate>
+        if (reachedCapstonePrompts.length > 0) {
+            pool = reachedCapstonePrompts
+        } else if (classicPrompts.length > 0) {
+            pool = classicPrompts
+        } else {
+            pool = this.listClassicPrompts({
+                difficultyPool: undefined,
+                locale,
+            })
+        }
 
         const drawn = this.pickRandom(pool)
 
@@ -764,9 +779,13 @@ export class MockInterviewSessionDrawService {
         // simple, fast, dependency-free string hash (djb2 variant) -- only needs
         // to spread inputs roughly evenly across the allowed kinds, not
         // cryptographic strength
+        // `| 0` here is NOT a `Math.trunc` stand-in -- it deliberately wraps the
+        // running hash to a 32-bit signed int on every step (the classic djb2
+        // overflow-mixing behavior). `Math.trunc` would let `hash` grow as an
+        // unbounded double instead, wrecking the distribution.
         let hash = 5381
         for (let charIndex = 0; charIndex < input.length; charIndex += 1) {
-            hash = (hash * 33 + input.charCodeAt(charIndex)) | 0
+            hash = (hash * 33 + (input.codePointAt(charIndex) ?? 0)) | 0
         }
         const bucket = Math.abs(hash) % allowedKinds.length
         return allowedKinds[bucket]
@@ -865,10 +884,10 @@ export class MockInterviewSessionDrawService {
      *
      * @param params - Course to scope decks to, and locale to localize into.
      * @returns a flat array of every card in the course, each carrying its
-     *   owning `moduleId` (resolved from the card's deck's linked modules --
-     *   TODO: a deck can reference multiple modules; this takes the FIRST
-     *   linked module as the card's module for the reached-module filter,
-     *   which is correct for every current deck (one deck per module today)).
+     *   owning `moduleId` -- resolved per deck via {@link resolveDeckModuleIdViaRag}
+     *   (the deck->module relation was removed; this is the single best-matching
+     *   module, not a pick-first-of-many, so there is no multi-module ambiguity
+     *   to resolve here).
      */
     private async listCourseFlashcardCards(
         params: ListCourseFlashcardCardsParams,
@@ -1190,6 +1209,14 @@ export class MockInterviewSessionDrawService {
      * Pick up to `count` candidates uniformly at random WITHOUT repeats from a
      * pool (fewer than `count` available -> returns every candidate, shuffled).
      *
+     * Uses a `node:crypto`-backed Fisher-Yates (not `Math.random`) -- the drawn
+     * seed questions are what the candidate is graded against
+     * (`mock_interview_attempts.overall_score`), which rolls into the
+     * job-readiness interview average and the recruiter-facing talent ranking
+     * (see {@link pickRandomFrom}'s doc for the full downstream chain). A
+     * predictable shuffle would let a candidate anticipate (and prep answers
+     * for) the exact question set instead of drawing it blind.
+     *
      * @param pool - The candidate pool (may contain fewer than `count` items).
      * @param count - How many to draw.
      * @returns the drawn candidates, shuffled, capped at `count`.
@@ -1201,7 +1228,7 @@ export class MockInterviewSessionDrawService {
         // Fisher-Yates shuffle a shallow copy, then take the first `count`
         const shuffled = [...pool]
         for (let index = shuffled.length - 1; index > 0; index -= 1) {
-            const swapIndex = Math.floor(Math.random() * (index + 1))
+            const swapIndex = randomInt(index + 1)
             const temp = shuffled[index]
             shuffled[index] = shuffled[swapIndex]
             shuffled[swapIndex] = temp
@@ -1315,13 +1342,20 @@ export class MockInterviewSessionDrawService {
     /**
      * Pick one candidate uniformly at random from a non-empty pool.
      *
+     * Uses `node:crypto`'s CSPRNG (not `Math.random`) -- the drawn capstone/
+     * classic prompt is what the "design" session is graded against (see
+     * {@link pickRandomFrom}'s doc for the full downstream chain into
+     * job-readiness + the recruiter-facing talent ranking). A predictable draw
+     * would let a candidate pre-select a prompt they already rehearsed instead
+     * of drawing one blind.
+     *
      * @param pool - The candidate pool (guaranteed non-empty by the caller -- classics always supply at least one).
      * @returns the drawn candidate.
      */
     private pickRandom(
         pool: Array<MockInterviewPromptCandidate>,
     ): MockInterviewPromptCandidate {
-        const index = Math.floor(Math.random() * pool.length)
+        const index = randomInt(pool.length)
         return pool[index]
     }
 

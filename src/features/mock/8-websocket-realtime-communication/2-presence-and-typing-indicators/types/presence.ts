@@ -1,3 +1,9 @@
+/** Response body for `GET presence/:room`. */
+export interface PresenceSnapshotResponse {
+    /** Current distinct user ids present in the room. */
+    members: Array<string>
+}
+
 /** Ack returned to a client that emits `join`. */
 export interface JoinAck {
     /** Always true once the join is recorded. */

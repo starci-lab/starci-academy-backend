@@ -31,13 +31,13 @@ import {
 } from "@modules/integrations/ffmpeg/ffmpeg.service"
 import {
     join,
-} from "path"
+} from "node:path"
 import {
     tmpdir,
-} from "os"
+} from "node:os"
 import {
     promises as fsPromise,
-} from "fs"
+} from "node:fs"
 
 @Injectable()
 /**

@@ -2,6 +2,7 @@ import {
     ConnectedSocket,
     MessageBody,
     SubscribeMessage,
+    WebSocketServer,
 } from "@nestjs/websockets"
 import {
     JobNotificationsWebSocketGateway,
@@ -37,11 +38,8 @@ import {
     EventEmitterService,
 } from "@modules/platform/event/event-emitter.service"
 import {
-    OnModuleInit 
+    OnModuleInit
 } from "@nestjs/common"
-import {
-    WebSocketServer 
-} from "@nestjs/websockets"
 import type {
     Namespace,
 } from "socket.io"

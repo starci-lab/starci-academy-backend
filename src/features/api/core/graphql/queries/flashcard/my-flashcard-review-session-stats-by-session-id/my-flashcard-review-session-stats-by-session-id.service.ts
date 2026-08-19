@@ -171,7 +171,7 @@ export class MyFlashcardReviewSessionStatsBySessionIdService {
             ? Math.max(
                 0,
                 Math.round(
-                    (events[events.length - 1].reviewedAt.getTime()
+                    (events.at(-1)!.reviewedAt.getTime()
                         - events[0].reviewedAt.getTime()) / 1000,
                 ),
             )

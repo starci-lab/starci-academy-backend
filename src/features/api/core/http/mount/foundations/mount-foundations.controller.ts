@@ -53,10 +53,10 @@ export class MountFoundationsController {
 
             res.type(this.resolveContentType(absolutePath))
             res.send(buffer)
-        } catch (caught) {
+        } catch (error_) {
             throw new MountFoundationsFileNotFoundException({
                 relativePath,
-                originalError: caught instanceof Error ? caught : new Error(String(caught)),
+                originalError: error_ instanceof Error ? error_ : new Error(String(error_)),
             })
         }
     }

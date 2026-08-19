@@ -22,8 +22,12 @@ export const parseFlashcardAnswerKeywords = (
     }
     // ":::chip" opens the block, the next bare ":::" closes it -- non-greedy so
     // a later unrelated ":::" block (e.g. another ":::muted" section) never
-    // gets swallowed into the match
-    const match = /:::chip\s*\n([\s\S]*?):::/.exec(answer)
+    // gets swallowed into the match. `[ \t]*\n` (not `\s*\n`) before the capture:
+    // `\s` overlaps `\n`, so `\s*` immediately followed by an explicit `\n` is
+    // ambiguous about which of them consumes a given newline -- super-linear on
+    // pathological input. Any extra blank lines just become leading content in
+    // the capture instead, which the caller's per-line trim/filter already discards.
+    const match = /:::chip[ \t]*\n([\s\S]*?):::/.exec(answer)
     if (!match) {
         return []
     }

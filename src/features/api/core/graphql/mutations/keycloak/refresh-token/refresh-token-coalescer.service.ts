@@ -7,7 +7,7 @@ import {
 import {
     createHash,
     randomUUID,
-} from "crypto"
+} from "node:crypto"
 import {
     IoRedisInstanceKey,
 } from "@modules/lib/native/ioredis/enums/instance-key"

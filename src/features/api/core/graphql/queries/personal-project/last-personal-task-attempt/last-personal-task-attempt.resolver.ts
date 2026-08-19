@@ -30,9 +30,6 @@ import {
 import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
-import type {
-    KeycloakAuthGuardRequest,
-} from "@modules/integrations/keycloak/types/guard"
 import {
     LastPersonalTaskAttemptRequest,
 } from "./graphql-types/request"
@@ -43,6 +40,9 @@ import {
 import {
     LastPersonalTaskAttemptService,
 } from "./last-personal-task-attempt.service"
+import type {
+    GraphQLKeycloakContextParams,
+} from "../../../shared/types/graphql-context"
 
 @Resolver()
 /**
@@ -72,9 +72,7 @@ export class LastPersonalTaskAttemptResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
         @Context()
-            context: {
-                req: KeycloakAuthGuardRequest
-            },
+            context: GraphQLKeycloakContextParams,
         @Args(
             "request",
             {

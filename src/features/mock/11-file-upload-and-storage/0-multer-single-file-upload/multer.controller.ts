@@ -13,7 +13,7 @@ import {
 } from "@nestjs/swagger"
 import {
     randomUUID,
-} from "crypto"
+} from "node:crypto"
 import {
     MockFileRequiredException,
     MockFileTooLargeException,

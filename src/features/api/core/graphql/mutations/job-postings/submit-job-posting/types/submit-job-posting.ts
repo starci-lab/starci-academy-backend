@@ -10,7 +10,7 @@ export interface ValidateCompanySelectionParams {
     /** Id of an existing company, if the caller chose that path. */
     companyId?: string
     /** Inline new-company payload, if the caller chose that path. */
-    newCompany?: SubmitJobPostingRequest["newCompany"]
+    newCompany: SubmitJobPostingRequest["newCompany"]
 }
 
 /** Params for {@link import("../submit-job-posting.resolver").SubmitJobPostingResolver.validateApplyMethod}. */

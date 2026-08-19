@@ -10,6 +10,9 @@ import {
 import {
     PresenceStoreService,
 } from "./presence-store.service"
+import type {
+    PresenceSnapshotResponse,
+} from "./types/presence"
 
 @ApiTags("mock")
 @UseInterceptors(MockDelayInterceptor)
@@ -33,7 +36,7 @@ export class PresenceController {
     @Get("presence/:room")
     getPresence(
         @Param("room") room: string,
-    ): { members: Array<string> } {
+    ): PresenceSnapshotResponse {
         // read the live roster straight from the in-memory presence store
         return {
             members: this.store.members(room) 

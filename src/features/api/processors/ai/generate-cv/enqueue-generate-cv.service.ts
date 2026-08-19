@@ -1,12 +1,7 @@
 // ============================================================================
-// WIRING TODO (final wire step):
-//   1. After `BullQueueName.GenerateCv` + its `bullData` entry are added (see
-//      generate-cv.worker.ts TODO), change the `@InjectQueue("generate-cv")`
-//      below to `@InjectQueue(bullData[BullQueueName.GenerateCv].name)` and
-//      import `bullData, BullQueueName` from "@modules/bullmq".
-//   2. This service is a provider of `GenerateCvModule` and is EXPORTED there,
-//      so the GraphQL CV-generation mutation module can inject it after
-//      importing the (globally-registered) `GenerateCvModule`.
+//   This service is a provider of `GenerateCvModule` and is EXPORTED there,
+//   so the GraphQL CV-generation mutation module can inject it after
+//   importing the (globally-registered) `GenerateCvModule`.
 //   PUBLIC ENTRYPOINT for the GraphQL mutation agent:
 //     class  EnqueueGenerateCvJobService
 //     method async enqueue(params: EnqueueGenerateCvJobParams): Promise<UserCvGenerationEntity>
@@ -21,6 +16,12 @@ import {
 import {
     InjectQueue,
 } from "@nestjs/bullmq"
+import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
 import {
     v4 as uuidv4,
 } from "uuid"
@@ -125,9 +126,7 @@ export class EnqueueGenerateCvJobService {
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-        // TODO(wire): swap the literal for
-        // `@InjectQueue(bullData[BullQueueName.GenerateCv].name)`.
-        @InjectQueue("generate-cv")
+        @InjectQueue(bullData[BullQueueName.GenerateCv].name)
         private readonly generateCvQueue: Queue<string>,
     ) {}
 

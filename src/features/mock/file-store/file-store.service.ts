@@ -6,7 +6,7 @@ import {
 import {
     randomUUID,
     createHash,
-} from "crypto"
+} from "node:crypto"
 import {
     MockFileTooLargeException,
     MockInvalidUploadRequestException,

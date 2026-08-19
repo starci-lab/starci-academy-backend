@@ -2,45 +2,11 @@ import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
 import {
-    EnqueueEnrollJobService,
-} from "@modules/bussiness/jobs/enqueue/enroll.service"
-import {
-    EnqueueSendMailJobService,
-} from "@modules/bussiness/jobs/enqueue/send-mail.service"
-import {
-    NotificationService,
-} from "@modules/bussiness/notification/notification.service"
-import {
-    enqueueMembershipActiveEmail,
-    enqueueSubscriptionActiveEmail,
-} from "@modules/integrations/transactional-email/grant-emails"
-import {
     TransactionEntity,
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
-    ActionType,
-} from "@modules/databases/postgresql/primary/enums/action-type"
-import {
-    NotificationType,
-} from "@modules/databases/postgresql/primary/enums/notification-type"
-import {
-    TransactionStatus,
-} from "@modules/databases/postgresql/primary/enums/transaction-status"
-import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases/postgresql/primary/primary.decorators"
-import {
-    AiEntitlementService,
-} from "@modules/ai/ai-entitlement.service"
-import {
-    MembershipService,
-} from "@modules/membership/membership.service"
-import {
-    envConfig,
-} from "@modules/platform/env/config"
-import {
-    AiSubscriptionTierNotAvailableException,
-} from "@modules/platform/exceptions/errors/ai/ai-subscription-tier-not-available"
+    TransactionGrantService,
+} from "@modules/bussiness/transactions/atomic/transaction-grant.service"
 import {
     InvalidPaypalWebhookSignatureException,
 } from "@modules/platform/exceptions/errors/payment/invalid-paypal-webhook-signature"
@@ -48,20 +14,8 @@ import {
     PaypalCaptureNotConfirmedException,
 } from "@modules/platform/exceptions/errors/payment/paypal-capture-not-confirmed"
 import {
-    UnsupportedTransactionActionException,
-} from "@modules/platform/exceptions/errors/payment/unsupported-transaction-action"
-import {
-    TransactionCourseNotFoundException,
-} from "@modules/platform/exceptions/errors/transaction/transaction-course-not-found"
-import {
-    TransactionExpiredException,
-} from "@modules/platform/exceptions/errors/transaction/transaction-expired"
-import {
     TransactionNotFoundException,
 } from "@modules/platform/exceptions/errors/transaction/transaction-not-found"
-import {
-    DayjsService,
-} from "@modules/lib/mixin/dayjs.service"
 import {
     PaypalClient,
 } from "@modules/integrations/paypal/paypal.client"
@@ -84,9 +38,6 @@ import {
     CommandHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     PaypalWebhookCommand,
 } from "./webhook.command"
@@ -102,14 +53,7 @@ export class PaypalWebhookHandler
     implements ICommandHandler<PaypalWebhookCommand, void> {
     constructor(
         private readonly paypalClient: PaypalClient,
-        private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
-        private readonly aiEntitlementService: AiEntitlementService,
-        private readonly membershipService: MembershipService,
-        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
-        private readonly notificationService: NotificationService,
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly dayjsService: DayjsService,
+        private readonly transactionGrantService: TransactionGrantService,
         private readonly winstonService: WinstonService,
     ) {
         super()
@@ -118,6 +62,24 @@ export class PaypalWebhookHandler
     protected override async process(
         command: PaypalWebhookCommand,
     ): Promise<void> {
+        const transaction = await this.resolvePayableTransaction(command)
+        if (!transaction) {
+            // an ignorable event (unrelated event type) -- already logged
+            return
+        }
+        await this.transactionGrantService.grantForTransaction(transaction)
+    }
+
+    /**
+     * Verify the webhook signature, decide whether the event is one worth granting
+     * (ignoring unrelated event types), capture the order when needed, and resolve
+     * it to the matching, unexpired, still-pending transaction.
+     * @param command - The webhook command carrying the body and signature headers.
+     * @returns The transaction to grant, or `null` when the event should be silently ignored.
+     */
+    private async resolvePayableTransaction(
+        command: PaypalWebhookCommand,
+    ): Promise<TransactionEntity | null> {
         // destructure the body + signature headers from the command
         const {
             body,
@@ -147,10 +109,7 @@ export class PaypalWebhookHandler
 
         // two events matter: APPROVED (buyer agreed, funds NOT yet taken) and
         // CAPTURE.COMPLETED (funds already taken). Anything else is ignored.
-        const isApproved = body.event_type === "CHECKOUT.ORDER.APPROVED"
-        const isCaptured = body.event_type === "PAYMENT.CAPTURE.COMPLETED"
-        if (!isApproved && !isCaptured) {
-            // ignore unrelated event types
+        if (!this.isRelevantPaypalEvent(body.event_type)) {
             this.winstonService.log(
                 WinstonLog.PaymentWebhookIgnored,
                 {
@@ -161,31 +120,14 @@ export class PaypalWebhookHandler
                     },
                 },
             )
-            return
+            return null
         }
 
         // with intent=CAPTURE, approval alone moves NO money -- capture the funds
         // before granting anything. Idempotent: an already-captured order returns
         // captured=true. If the capture does not complete, we do NOT grant.
-        if (isApproved) {
-            const orderId = typeof body.resource?.id === "string"
-                ? body.resource.id
-                : undefined
-            if (!orderId) {
-                throw new TransactionNotFoundException({
-                    referenceId: "missing PayPal order id",
-                })
-            }
-            const capture = await this.paypalClient.captureOrder({
-                orderId,
-            })
-            if (!capture.captured) {
-                // funds were not taken -> reject so nothing is granted for free
-                throw new PaypalCaptureNotConfirmedException({
-                    orderId,
-                    status: capture.status,
-                })
-            }
+        if (body.event_type === "CHECKOUT.ORDER.APPROVED") {
+            await this.captureApprovedOrder(body.resource)
         }
 
         // resolve our reference id: prefer custom_id on the resource, else look up the order
@@ -197,116 +139,40 @@ export class PaypalWebhookHandler
             })
         }
 
-        // locate the matching pending transaction
-        const transaction = await this.entityManager.findOne(
-            TransactionEntity,
-            {
-                where: {
-                    referenceId,
-                    status: TransactionStatus.Pending,
-                },
-            },
-        )
-        if (!transaction) {
+        // resolve + expiry-check the pending transaction (shared across every
+        // gateway webhook once its own event verification has resolved a referenceId)
+        return this.transactionGrantService.resolvePendingTransaction(referenceId)
+    }
+
+    /** Whether a PayPal event type is one this webhook grants for -- everything else is ignored. */
+    private isRelevantPaypalEvent(eventType: string | undefined): boolean {
+        return eventType === "CHECKOUT.ORDER.APPROVED" || eventType === "PAYMENT.CAPTURE.COMPLETED"
+    }
+
+    /**
+     * Capture an approved order's funds before anything is granted. Idempotent: an
+     * already-captured order returns `captured: true`.
+     * @param resource - The webhook event's `resource` payload.
+     */
+    private async captureApprovedOrder(
+        resource: Record<string, unknown> | undefined,
+    ): Promise<void> {
+        const orderId = typeof resource?.id === "string"
+            ? resource.id
+            : undefined
+        if (!orderId) {
             throw new TransactionNotFoundException({
-                referenceId,
+                referenceId: "missing PayPal order id",
             })
         }
-
-        // reject stale callbacks that arrive after the reuse/expiry window
-        const timeSinceCreationMs = this.dayjsService.now().diff(
-            this.dayjsService.from(transaction.createdAt),
-            "milliseconds",
-        )
-        if (timeSinceCreationMs > envConfig().services.api.transaction.timeSinceCreationMs) {
-            throw new TransactionExpiredException({
-                id: transaction.id,
-            })
-        }
-
-        // grant by action type (mirrors the PayOS/Sepay webhook grant logic)
-        switch (transaction.actionType) {
-        // AI subscription purchase: grant the tier directly (no worker needed)
-        case ActionType.AiSubscriptionPurchase: {
-            if (!transaction.aiSubTier) {
-                throw new AiSubscriptionTierNotAvailableException({
-                    tier: "unknown",
-                })
-            }
-            const subscriptionGranted = await this.aiEntitlementService.grantTier({
-                userId: transaction.userId,
-                tier: transaction.aiSubTier,
-                transactionId: transaction.id,
-            })
-            if (subscriptionGranted) {
-                await enqueueSubscriptionActiveEmail({
-                    entityManager: this.entityManager,
-                    enqueueSendMailJobService: this.enqueueSendMailJobService,
-                    userId: transaction.userId,
-                    tier: transaction.aiSubTier,
-                    webBaseUrl: envConfig().web.baseUrl,
-                })
-                try {
-                    await this.notificationService.createNotification({
-                        userId: transaction.userId,
-                        type: NotificationType.SubscriptionGranted,
-                        title: {
-                            key: "notification.subscriptionGranted.title",
-                            params: {
-                                tier: transaction.aiSubTier,
-                            },
-                        },
-                    })
-                } catch (error) {
-                    // best-effort: a notification failure must never fail a webhook
-                    // that already granted a paid tier
-                    this.winstonService.log(
-                        WinstonLog.NotificationCreateFailed,
-                        {
-                            jobId: transaction.id,
-                            step: "notification.create",
-                            error: error instanceof Error ? error.message : String(error),
-                        },
-                    )
-                }
-            }
-            return
-        }
-        // course enrollment: hand off to the enroll worker
-        case ActionType.MembershipPurchase: {
-            const membershipGranted = await this.membershipService.grantMembership({
-                userId: transaction.userId,
-                transactionId: transaction.id,
-            })
-            if (membershipGranted) {
-                await enqueueMembershipActiveEmail({
-                    entityManager: this.entityManager,
-                    enqueueSendMailJobService: this.enqueueSendMailJobService,
-                    userId: transaction.userId,
-                    webBaseUrl: envConfig().web.baseUrl,
-                })
-            }
-            return
-        }
-        case ActionType.Enroll: {
-            // fan the paid order out to one enroll job per course (single- or
-            // multi-course). a malformed Enroll transaction (no items, no course)
-            // is surfaced as course-not-found so the gateway re-delivers.
-            const {
-                enqueuedCount,
-            } = await this.enqueueEnrollJobService.enqueueForTransaction({
-                transaction,
-            })
-            if (enqueuedCount === 0) {
-                throw new TransactionCourseNotFoundException({
-                    id: transaction.id,
-                })
-            }
-            return
-        }
-        default:
-            throw new UnsupportedTransactionActionException({
-                actionType: String(transaction.actionType),
+        const capture = await this.paypalClient.captureOrder({
+            orderId,
+        })
+        if (!capture.captured) {
+            // funds were not taken -> reject so nothing is granted for free
+            throw new PaypalCaptureNotConfirmedException({
+                orderId,
+                status: capture.status,
             })
         }
     }

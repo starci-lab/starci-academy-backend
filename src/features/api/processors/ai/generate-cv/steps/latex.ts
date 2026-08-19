@@ -1,4 +1,7 @@
 import Handlebars from "handlebars"
+import {
+    isStringifiablePrimitive,
+} from "@modules/lib/common/utils/stringify-primitive"
 import type {
     ComposedEducation,
     ComposedExperience,
@@ -24,27 +27,27 @@ export const escapeLatex = (text: string | null | undefined): string => {
     }
     return String(text)
         // backslash first -- it is the escape char; map to \textbackslash{}
-        .replace(/\\/g,
-            "\\textbackslash{}")
-        .replace(/&/g,
-            "\\&")
-        .replace(/%/g,
-            "\\%")
-        .replace(/\$/g,
-            "\\$")
-        .replace(/#/g,
-            "\\#")
-        .replace(/_/g,
-            "\\_")
-        .replace(/\{/g,
-            "\\{")
-        .replace(/\}/g,
-            "\\}")
+        .replaceAll("\\",
+            String.raw`\textbackslash{}`)
+        .replaceAll("&",
+            String.raw`\&`)
+        .replaceAll("%",
+            String.raw`\%`)
+        .replaceAll("$",
+            String.raw`\$`)
+        .replaceAll("#",
+            String.raw`\#`)
+        .replaceAll("_",
+            String.raw`\_`)
+        .replaceAll("{",
+            String.raw`\{`)
+        .replaceAll("}",
+            String.raw`\}`)
         // tilde + caret need a trailing {} so they don't act as accents
-        .replace(/~/g,
-            "\\textasciitilde{}")
-        .replace(/\^/g,
-            "\\textasciicircum{}")
+        .replaceAll("~",
+            String.raw`\textasciitilde{}`)
+        .replaceAll("^",
+            String.raw`\textasciicircum{}`)
 }
 
 /**
@@ -58,7 +61,11 @@ if (!Handlebars.helpers[TEX_HELPER]) {
     Handlebars.registerHelper(
         TEX_HELPER,
         (value: unknown) => new Handlebars.SafeString(
-            escapeLatex(value == null ? "" : String(value)),
+            escapeLatex(
+                isStringifiablePrimitive(value) && value !== undefined
+                    ? String(value)
+                    : "",
+            ),
         ),
     )
 }

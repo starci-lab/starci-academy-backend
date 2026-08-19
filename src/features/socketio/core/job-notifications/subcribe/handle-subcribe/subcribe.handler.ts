@@ -11,9 +11,6 @@ import {
 import {
     SubcribeJobNotificationQuery,
 } from "./subcribe.query"
-import type {
-    SubcribeJobNotificationSocketIoMessage,
-} from "./types/message"
 import {
     JobRoomService,
 } from "@modules/integrations/bullmq/rooms/job.service"
@@ -42,8 +39,8 @@ import {
  * leaking its status), then joins the caller's socket to that job's room.
  */
 export class SubcribeJobNotificationHandler
-    extends ICQRSHandler<SubcribeJobNotificationQuery, SubcribeJobNotificationSocketIoMessage>
-    implements IQueryHandler<SubcribeJobNotificationQuery, SubcribeJobNotificationSocketIoMessage> {
+    extends ICQRSHandler<SubcribeJobNotificationQuery, undefined>
+    implements IQueryHandler<SubcribeJobNotificationQuery, undefined> {
     constructor(
         private readonly jobRoomService: JobRoomService,
         private readonly wsResponseService: WsResponseService,
@@ -55,7 +52,7 @@ export class SubcribeJobNotificationHandler
     /** Process the query. */
     protected override async process(
         query: SubcribeJobNotificationQuery,
-    ): Promise<SubcribeJobNotificationSocketIoMessage> {
+    ): Promise<undefined> {
         const { payload, client } = query.params
         // load the job scoped to the requesting user FIRST -- a job owned by
         // someone else (or a system job with no owner) surfaces as

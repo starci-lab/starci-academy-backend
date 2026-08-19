@@ -163,13 +163,16 @@ describe("ReviewMilestoneTaskCompleteStepService",
             id: "umt-1",
         }
 
+        /** Overrides `makeContext` accepts to steer one field of the built job context. */
+        interface MakeContextOverrides {
+            /** `null` models a job row that never got an id. */
+            jobId?: string | null
+            locale?: Locale
+        }
+
         /** Build the job context the step reads. */
         const makeContext = (
-            overrides: {
-                /** `null` models a job row that never got an id. */
-                jobId?: string | null
-                locale?: Locale
-            } = {
+            overrides: MakeContextOverrides = {
             },
         ) => ({
             job: {

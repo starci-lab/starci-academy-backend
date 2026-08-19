@@ -78,6 +78,10 @@ import {
 import type {
     ExtendedJudgeCodingSubmissionContext,
 } from "./types/extended"
+import type {
+    NotifySubmissionGradedFailureParams,
+    PersistTerminalFailureVerdictParams,
+} from "./types/failure"
 
 @Worker(
     bullData[BullQueueName.JudgeCodingSubmission].name,
@@ -229,61 +233,18 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
             // Persist the terminal verdict BEFORE emitting the failed status, so the
             // client (which refetches the submission when it sees a terminal job
             // status over Socket.IO) always reads the final verdict -- never a stale
-            // "pending". A judging wall-clock timeout (>10s) is reported as Time
-            // Limit Exceeded ("cook"); any other infra failure is an Internal Error.
-            if (submission && submission.verdict === CodingVerdict.Pending) {
-                submission.verdict = error instanceof Judge0TimedOutException
-                    ? CodingVerdict.TimeLimitExceeded
-                    : CodingVerdict.InternalError
-                await this.entityManager.save(CodingSubmissionEntity,
-                    submission)
-                // this IS a genuine terminal, user-facing result (the judge step never
-                // ran far enough to send its own notification) -- tell the solver their
-                // submission errored out. Best-effort: must never fail the outer catch.
-                try {
-                    const problem = await this.entityManager.findOne(
-                        CodingProblemEntity,
-                        {
-                            where: {
-                                id: submission.codingProblemId,
-                            },
-                            select: {
-                                id: true,
-                                title: true,
-                            },
-                        },
-                    )
-                    await this.notificationService.createNotification({
-                        userId: submission.userId,
-                        type: NotificationType.CodingGraded,
-                        title: {
-                            key: "notification.codingGraded.title",
-                            params: {
-                                title: problem?.title ?? "",
-                                verdictLabel:
-                                    JudgeCodingSubmissionWorker.VERDICT_LABELS[submission.verdict]
-                                        ?? submission.verdict,
-                            },
-                        },
-                        target: {
-                            entityName: CodingSubmissionEntity.name,
-                            id: submission.id,
-                            label: problem?.title ?? "",
-                        },
-                    })
-                } catch (notificationError) {
-                    this.winstonService.log(
-                        WinstonLog.NotificationCreateFailed,
-                        {
-                            jobId: job?.id ?? "",
-                            queueName: bullmqJob.queueName,
-                            step: "judge",
-                            error: notificationError instanceof Error
-                                ? notificationError.message
-                                : String(notificationError),
-                        },
-                    )
-                }
+            // "pending".
+            if (submission?.verdict === CodingVerdict.Pending) {
+                await this.persistTerminalFailureVerdict({
+                    submission,
+                    error,
+                    bullmqJob,
+                })
+                await this.notifySubmissionGradedFailure({
+                    submission,
+                    bullmqJob,
+                    job,
+                })
             }
             // now mark the job failed -> emits the failed Socket.IO status update
             if (job) {
@@ -304,6 +265,84 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                 },
             )
             throw error
+        }
+    }
+
+    /**
+     * Classify a judging failure into its terminal verdict and persist it. A judging
+     * wall-clock timeout (>10s) is reported as Time Limit Exceeded ("cook"); any other
+     * infra failure is an Internal Error.
+     * @param params - The (still-`Pending`) submission, the failing error, and the raw job.
+     */
+    private async persistTerminalFailureVerdict(
+        {
+            submission,
+            error,
+        }: PersistTerminalFailureVerdictParams,
+    ): Promise<void> {
+        submission.verdict = error instanceof Judge0TimedOutException
+            ? CodingVerdict.TimeLimitExceeded
+            : CodingVerdict.InternalError
+        await this.entityManager.save(CodingSubmissionEntity,
+            submission)
+    }
+
+    /**
+     * Tell the solver their submission errored out -- this IS a genuine terminal,
+     * user-facing result (the judge step never ran far enough to send its own
+     * notification). Best-effort: must never fail the outer catch.
+     * @param params - The submission (already stamped with its terminal verdict), the raw job, and the tracked job row.
+     */
+    private async notifySubmissionGradedFailure(
+        {
+            submission,
+            bullmqJob,
+            job,
+        }: NotifySubmissionGradedFailureParams,
+    ): Promise<void> {
+        try {
+            const problem = await this.entityManager.findOne(
+                CodingProblemEntity,
+                {
+                    where: {
+                        id: submission.codingProblemId,
+                    },
+                    select: {
+                        id: true,
+                        title: true,
+                    },
+                },
+            )
+            await this.notificationService.createNotification({
+                userId: submission.userId,
+                type: NotificationType.CodingGraded,
+                title: {
+                    key: "notification.codingGraded.title",
+                    params: {
+                        title: problem?.title ?? "",
+                        verdictLabel:
+                            JudgeCodingSubmissionWorker.VERDICT_LABELS[submission.verdict]
+                                ?? submission.verdict,
+                    },
+                },
+                target: {
+                    entityName: CodingSubmissionEntity.name,
+                    id: submission.id,
+                    label: problem?.title ?? "",
+                },
+            })
+        } catch (notificationError) {
+            this.winstonService.log(
+                WinstonLog.NotificationCreateFailed,
+                {
+                    jobId: job?.id ?? "",
+                    queueName: bullmqJob.queueName,
+                    step: "judge",
+                    error: notificationError instanceof Error
+                        ? notificationError.message
+                        : String(notificationError),
+                },
+            )
         }
     }
 }

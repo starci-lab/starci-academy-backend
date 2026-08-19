@@ -84,6 +84,7 @@ import {
     SubmitChallengeSubmissionCommand,
 } from "./submit-challenge-submission.command"
 import type {
+    ApplySelectedGradingPreferencesParams,
     SubmitChallengeSubmissionResult,
 } from "./types/submit-challenge-submission"
 
@@ -371,26 +372,13 @@ export class SubmitChallengeSubmissionHandler
          * picker pre-fills on reopen. Only overwrite fields the client sent
          * (undefined = leave the previous choice untouched).
          */
-        if (
-            selectedModel !== undefined
-            || selectedModelProvider !== undefined
-            || lang !== undefined
-        ) {
-            if (selectedModel !== undefined) {
-                userChallengeSubmission.selectedModel = validatedLane.gradingModel ?? null
-            }
-            if (selectedModelProvider !== undefined) {
-                userChallengeSubmission.selectedModelProvider = validatedLane.gradingProvider ?? null
-            }
-            // persist the chosen programming language so the V2 tabs reopen on it
-            if (lang !== undefined) {
-                userChallengeSubmission.selectedLang = lang
-            }
-            await this.entityManager.save(
-                UserChallengeSubmissionEntity,
-                userChallengeSubmission,
-            )
-        }
+        await this.applySelectedGradingPreferences(userChallengeSubmission,
+            {
+                selectedModel,
+                selectedModelProvider,
+                lang,
+                validatedLane,
+            })
         /** Quota gate (replaces the old fixed 3h cooldown): block when the pool is exhausted. */
         await this.assertGradingQuota(user.id)
         /** Submission URL. */
@@ -436,5 +424,40 @@ export class SubmitChallengeSubmissionHandler
         return {
             jobId: job.id,
         }
+    }
+
+    /**
+     * Persist the caller's grading model/provider/lang selection on the submission row
+     * so the picker pre-fills on reopen. Only overwrites fields the client actually sent
+     * (`undefined` = leave the previous choice untouched); a no-op write is skipped entirely.
+     * @param userChallengeSubmission - The row to patch and save.
+     * @param params - The client-sent picks (each possibly `undefined`) and the validated lane.
+     */
+    private async applySelectedGradingPreferences(
+        userChallengeSubmission: UserChallengeSubmissionEntity,
+        {
+            selectedModel,
+            selectedModelProvider,
+            lang,
+            validatedLane,
+        }: ApplySelectedGradingPreferencesParams,
+    ): Promise<void> {
+        if (selectedModel === undefined && selectedModelProvider === undefined && lang === undefined) {
+            return
+        }
+        if (selectedModel !== undefined) {
+            userChallengeSubmission.selectedModel = validatedLane.gradingModel ?? null
+        }
+        if (selectedModelProvider !== undefined) {
+            userChallengeSubmission.selectedModelProvider = validatedLane.gradingProvider ?? null
+        }
+        // persist the chosen programming language so the V2 tabs reopen on it
+        if (lang !== undefined) {
+            userChallengeSubmission.selectedLang = lang
+        }
+        await this.entityManager.save(
+            UserChallengeSubmissionEntity,
+            userChallengeSubmission,
+        )
     }
 }

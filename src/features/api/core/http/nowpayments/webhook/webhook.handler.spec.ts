@@ -54,6 +54,9 @@ import {
     NowPaymentsClient,
 } from "@modules/integrations/nowpayments/nowpayments.client"
 import {
+    TransactionGrantService,
+} from "@modules/bussiness/transactions/atomic/transaction-grant.service"
+import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import type {
@@ -163,6 +166,10 @@ describe("NowPaymentsWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     NowPaymentsWebhookHandler,
+                    // the real post-verification grant service, backed by the
+                    // same lower-level mocks below -- exercises the actual
+                    // wiring instead of re-mocking the grant logic per-gateway
+                    TransactionGrantService,
                     // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {

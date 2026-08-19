@@ -6,6 +6,7 @@ import {
     Equal,
     IsNull,
     Or,
+    type FindOperator,
 } from "typeorm"
 import {
     MockInterviewAttemptEntity,
@@ -80,6 +81,7 @@ export class MyMockInterviewAttemptsService {
         // "design" also matches a null-mode legacy attempt (predates the "mode
         // split" -- the only mode that could have existed then) via Or(IsNull()),
         // since a plain `mode: "design"` equality would silently exclude it.
+        const modeFilter = this.resolveModeFilter(mode)
         const [
             attempts,
             totalCount,
@@ -95,17 +97,10 @@ export class MyMockInterviewAttemptsService {
                             id: courseId,
                         },
                     },
-                    ...(mode === "design"
-                        ? {
-                            mode: Or(Equal("design"),
-                                IsNull()) 
-                        }
-                        : mode
-                            ? {
-                                mode: Equal(mode) 
-                            }
-                            : {
-                            }),
+                    ...(modeFilter ? {
+                        mode: modeFilter,
+                    } : {
+                    }),
                 },
                 // newest session first -- matches the scorecard's "recent attempts" framing
                 order: {
@@ -180,5 +175,23 @@ export class MyMockInterviewAttemptsService {
                 name: attempt.name,
             })),
         }
+    }
+
+    /**
+     * Resolves the `mode` where-clause for one query. Filtering to "design"
+     * also matches a null-mode legacy attempt (predates the "mode split" --
+     * the only mode that could have existed then), mirroring how every other
+     * reader treats a null mode. No filter is applied when the caller didn't
+     * ask for one.
+     */
+    private resolveModeFilter(mode?: string): FindOperator<string> | undefined {
+        if (mode === "design") {
+            return Or(Equal("design"),
+                IsNull())
+        }
+        if (mode) {
+            return Equal(mode)
+        }
+        return undefined
     }
 }

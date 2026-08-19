@@ -1,6 +1,6 @@
 import {
     randomInt,
-} from "crypto"
+} from "node:crypto"
 import {
     CourseEntity,
 } from "@modules/databases/postgresql/primary/entities/course.entity"

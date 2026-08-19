@@ -83,7 +83,7 @@ export class ProcessVideoHandler
         // Extract a filename from the URL for the worker
         const urlObj = new URL(url)
         const pathParts = urlObj.pathname.split("/")
-        const filename = pathParts[pathParts.length - 1] || "video.mp4"
+        const filename = pathParts.at(-1) || "video.mp4"
 
         // Generate a unique asset ID
         const assetId = uuidv4()

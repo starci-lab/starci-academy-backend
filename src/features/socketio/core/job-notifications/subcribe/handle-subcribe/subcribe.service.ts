@@ -11,9 +11,6 @@ import {
     SubcribeJobNotificationQuery,
 } from "./subcribe.query"
 import type {
-    SubcribeJobNotificationSocketIoMessage,
-} from "./types/message"
-import type {
     SubcribeJobNotificationSocketIoPayload,
 } from "./types/payload"
 
@@ -27,7 +24,7 @@ export class SubcribeJobNotificationService {
     /** Subscribe to job notifications. */
     async execute(
         params: ExecuteParams<SubcribeJobNotificationSocketIoPayload>,
-    ): Promise<SubcribeJobNotificationSocketIoMessage> {
+    ): Promise<undefined> {
         return this.queryBus.execute(
             new SubcribeJobNotificationQuery(params),
         )

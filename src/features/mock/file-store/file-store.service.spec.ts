@@ -449,7 +449,7 @@ describe("FileStoreService",
                         // the younger generation survived the same sweep
                         expect(service.getObject("uploads/new").filename).toBe("new.txt")
                         expect(service.getChunkStatus(newSession).sessionId).toBe(newSession)
-                        expect(service.getTusUpload(newTus).length).toBe(4)
+                        expect(service.getTusUpload(newTus)).toHaveLength(4)
                     })
 
                 it("keeps an actively-read entry alive by bumping its idle clock",

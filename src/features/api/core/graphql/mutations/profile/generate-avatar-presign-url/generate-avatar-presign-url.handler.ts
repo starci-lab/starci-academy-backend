@@ -19,7 +19,7 @@ import {
 } from "@nestjs/cqrs"
 import {
     randomUUID,
-} from "crypto"
+} from "node:crypto"
 import {
     GenerateAvatarPresignUrlCommand,
 } from "./generate-avatar-presign-url.command"

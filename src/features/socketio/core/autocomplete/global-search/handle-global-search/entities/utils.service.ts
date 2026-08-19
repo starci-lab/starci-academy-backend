@@ -23,9 +23,13 @@ export class GlobalSearchEntityUtilsService {
             // highlight tags can split markdown tokens (e.g. **<em>ack</em>**)
             .replace(/(\*\*|__|~~|`{1,3})/g,
                 "")
-            .replace(/\*+(\s*<em>.*?<\/em>\s*)\*+/gi,
+            // `(?<!\*)` / `(?<!_)` keep the unanchored `\*+`/`_+` from being retried
+            // at every position inside a run of markers (super-linear on pathological
+            // input otherwise -- same class of fix as the trailing `$`-anchored ones
+            // elsewhere in this pass, just applied to the leading marker run here).
+            .replace(/(?<!\*)\*+(\s*<em>.*?<\/em>\s*)\*+/gi,
                 "$1")
-            .replace(/_+(\s*<em>.*?<\/em>\s*)_+/gi,
+            .replace(/(?<!_)_+(\s*<em>.*?<\/em>\s*)_+/gi,
                 "$1")
             .replace(/\\([\\`*_{}[\]()#+\-.!|>~])/g,
                 "$1")

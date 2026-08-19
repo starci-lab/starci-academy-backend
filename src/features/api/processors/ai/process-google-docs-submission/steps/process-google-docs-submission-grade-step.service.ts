@@ -5,12 +5,8 @@ import {
     JobActionService,
 } from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
-    AbstractStepService,
     JobExtendedContext,
 } from "@modules/bussiness/jobs/types/context"
-import {
-    EnrollmentEntity,
-} from "@modules/databases/postgresql/primary/entities/enrollment.entity"
 import {
     AiCeilSurface,
 } from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
@@ -20,9 +16,6 @@ import {
 import {
     AiModelTask,
 } from "@modules/databases/postgresql/primary/enums/ai-model-task"
-import {
-    Locale,
-} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
@@ -35,9 +28,6 @@ import {
 import {
     type EntityManager,
 } from "typeorm"
-import {
-    WinstonLog,
-} from "@modules/platform/winston/enums/winston-log"
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
@@ -75,8 +65,14 @@ import {
     collectSubmissionCriteria,
 } from "../../shared/challenge-submission/utils/collect-submission-criteria"
 import {
+    resolveTargetLanguage,
+} from "../../shared/challenge-submission/utils/resolve-target-language"
+import {
     GradingRetrievalService,
 } from "@modules/integrations/rag/grading-rag-retrieval.service"
+import {
+    AbstractSubmissionGradeStepService,
+} from "../../shared/challenge-submission/abstract-submission-grade-step.service"
 
 @Injectable()
 /**
@@ -84,16 +80,21 @@ import {
  * step but grades the document against the challenge's outcome + approach (per-language) yes/no
  * criteria. Outputs the same evaluation template shape so the legacy complete step + parse service
  * can be reused. Uses the same `stepName` ("grade") as V1.
+ *
+ * `process` + persisting the result are shared verbatim with the git-submission grade step -- see
+ * {@link AbstractSubmissionGradeStepService}. This class only owns HOW the evaluation is produced:
+ * fetching the submitted Google Doc and grading it at the text-grading AI floor.
  */
-export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepService<
+export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractSubmissionGradeStepService<
     ProcessGoogleDocsSubmissionPayload,
-    ExtendedProcessGoogleDocsSubmissionContext
+    ExtendedProcessGoogleDocsSubmissionContext,
+    ProcessGoogleDocsSubmissionGradeStepExecuteResult
 > {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly jobActionService: JobActionService,
-        private readonly winstonService: WinstonService,
+            entityManager: EntityManager,
+            jobActionService: JobActionService,
+            winstonService: WinstonService,
         private readonly mountStorageService: MountStorageService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
@@ -102,40 +103,17 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         private readonly challengeEvaluationPromptService: ChallengeEvaluationPromptService,
         private readonly gradingRetrievalService: GradingRetrievalService,
     ) {
-        super()
-    }
-
-    stepIndex = 0
-    stepName = "grade"
-
-    /**
-     * Process the grade step.
-     */
-    async process(
-        context: JobExtendedContext<
-            ProcessGoogleDocsSubmissionPayload,
-            ExtendedProcessGoogleDocsSubmissionContext
-        >,
-    ): Promise<void> {
-        try {
-            const executionResult = await this.execute(context)
-            await this.finalize(executionResult,
-                context)
-        } catch (error) {
-            await this.jobActionService.failJob(
-                {
-                    job: context.job,
-                    error: error.message,
-                },
-            )
-            throw error
-        }
+        super(
+            entityManager,
+            jobActionService,
+            winstonService,
+        )
     }
 
     /**
      * Execute the grade step: fetch doc text -> similarity search on criteria -> LLM grades each criterion.
      */
-    private async execute(
+    protected async execute(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
             ExtendedProcessGoogleDocsSubmissionContext
@@ -143,12 +121,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
     ): Promise<ProcessGoogleDocsSubmissionGradeStepExecuteResult> {
         const { payload } = context
 
-        const locale = payload.locale ?? Locale.En
-        const localeLanguageMap: Record<string, string> = {
-            en: "English",
-            vi: "Vietnamese (Tiếng Việt)",
-        }
-        const targetLanguage = localeLanguageMap[locale] ?? "English"
+        const targetLanguage = resolveTargetLanguage(payload.locale)
 
         const challenge = context.extended?.challenge
         const challengeTitle = (challenge?.title ?? "").trim()
@@ -209,18 +182,10 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         })
 
         /** Resolve + debit the submitter's AI quota once for this grading job. */
-        const enrollment = await this.entityManager.findOneOrFail(
-            EnrollmentEntity,
-            {
-                where: {
-                    id: payload.enrollmentId,
-                },
-            },
+        const enrollment = await this.resolveQuotaCheckedEnrollment(
+            payload.enrollmentId,
+            this.aiEntitlementService,
         )
-        // block on the unified credit pool before spending on the grading run
-        await this.aiEntitlementService.assertNotOverQuota({
-            userId: enrollment.userId,
-        })
         // ONE shared entry: TEXT grading (googleDocs submission = design-doc / write-up)
         // floors at Economy -- eval showed Economy models grade text/reading tasks
         // correctly (right score ordering, no length bias). Only CODE grading
@@ -237,33 +202,17 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             cacheSessionId: challenge?.id,
         })
 
-        // Charge for the LLM usage NOW (idempotently), BEFORE parsing -- a parse failure must not
-        // leak free usage. The `creditCharged` marker keeps a stalled re-run from double-charging,
-        // and the complete step skips its own debit when this marker is present.
-        const alreadyCharged = await this.jobActionService.loadExecutionResult<boolean>({
+        await this.chargeGradingCreditOnce({
             job: context.job,
-            key: "creditCharged",
+            aiEntitlementService: this.aiEntitlementService,
+            userId: enrollment.userId,
+            cost,
+            model,
+            provider,
+            promptTokens,
+            completionTokens,
+            attempts,
         })
-        if (!alreadyCharged) {
-            await this.aiEntitlementService.consume({
-                userId: enrollment.userId,
-                // charge by the model that actually served (from run)
-                cost,
-                surface: AiCeilSurface.Grading,
-                task: AiModelTask.ChallengeGrading,
-                model,
-                provider,
-                recommendation: null,
-                promptTokens,
-                completionTokens,
-                attempts,
-            })
-            await this.jobActionService.saveExecutionResult({
-                job: context.job,
-                key: "creditCharged",
-                executionResult: true,
-            })
-        }
 
         const parsed = this.challengeEvaluationParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
@@ -280,51 +229,5 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 cachedTokens,
             },
         }
-    }
-
-    /**
-     * Finalize the grade step: persist the execution result for the complete step.
-     */
-    private async finalize(
-        executionResult: ProcessGoogleDocsSubmissionGradeStepExecuteResult,
-        context: JobExtendedContext<
-            ProcessGoogleDocsSubmissionPayload,
-            ExtendedProcessGoogleDocsSubmissionContext
-        >,
-    ): Promise<void> {
-        const {
-            job,
-            payload,
-            queueName,
-        } = context
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                await this.jobActionService.increaseJob(
-                    {
-                        job,
-                        entityManager,
-                    }
-                )
-                await this.jobActionService.saveExecutionResult(
-                    {
-                        job,
-                        key: this.stepName,
-                        executionResult,
-                        entityManager,
-                    }
-                )
-            }
-        )
-        this.winstonService.log(
-            WinstonLog.ProcessGitSubmissionStepExecuted,
-            {
-                jobId: job.id ?? "",
-                queueName,
-                step: this.stepName,
-                stepIndex: this.stepIndex,
-                payload,
-                success: true,
-            },
-        )
     }
 }

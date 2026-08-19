@@ -42,7 +42,7 @@ import {
 import type {
     ResolvedFileResult,
 } from "@modules/init/seeders/shared/path/types"
-import path from "path"
+import path from "node:path"
 import type {
     PlaygroundSeedTestRowCounts,
 } from "./types/playground-seed-test"

@@ -1,3 +1,8 @@
+// default import (not `* as`) -- a namespace import copies each export as a
+// non-configurable getter under `esModuleInterop`, which `jest.spyOn` cannot
+// redefine ("Cannot redefine property"); the default import's synthetic
+// wrapper instead holds a live reference to the real (spy-able) module object.
+import crypto from "node:crypto"
 import {
     FindOperator,
 } from "typeorm"
@@ -293,6 +298,12 @@ interface DeckRow {
     cards?: Array<{ id: string, question: string, level: FlashcardLevel | null }>
 }
 
+/** Capstone progress the personal-project service reports, trimmed to the fields the draw reads. */
+interface DrawFixtureProgress {
+    completionTasks: Array<{ id: string, completed: boolean, numAttempts: number }>
+    currentTask: { id: string } | null
+}
+
 /** Everything the draw service's collaborators resolve to for one test. */
 interface DrawFixture {
     /** `modules` rows, in sort order. */
@@ -312,10 +323,7 @@ interface DrawFixture {
     /** Hits the deck-to-module RAG search returns. */
     ragHits: Array<{ contentId: string, kind: string }>
     /** Capstone progress the personal-project service reports. */
-    progress: {
-        completionTasks: Array<{ id: string, completed: boolean, numAttempts: number }>
-        currentTask: { id: string } | null
-    }
+    progress: DrawFixtureProgress
 }
 
 /** Builds a draw service whose every collaborator is programmed from one fixture. */
@@ -439,10 +447,10 @@ const bankRow = (
 describe("MockInterviewSessionDrawService — design mode draw",
     () => {
         beforeEach(() => {
-            // pickRandom/pickRandomMany both consume Math.random; pin it so the drawn
-            // element is the one the test names rather than a coin flip
-            jest.spyOn(Math,
-                "random").mockReturnValue(0)
+            // pickRandom/pickRandomMany both consume crypto.randomInt; pin it so the
+            // drawn element is the one the test names rather than a coin flip
+            jest.spyOn(crypto,
+                "randomInt").mockImplementation(() => 0)
         })
 
         afterEach(() => {
@@ -771,8 +779,8 @@ describe("MockInterviewSessionDrawService — design mode draw",
 describe("MockInterviewSessionDrawService — qna mode draw",
     () => {
         beforeEach(() => {
-            jest.spyOn(Math,
-                "random").mockReturnValue(0)
+            jest.spyOn(crypto,
+                "randomInt").mockImplementation(() => 0)
         })
 
         afterEach(() => {
@@ -1070,7 +1078,7 @@ describe("MockInterviewSessionDrawService — qna mode draw",
                         "go"],
                 }))
 
-                // sorted by sortIndex, then Math.random pinned to 0 picks the first
+                // sorted by sortIndex, then crypto.randomInt pinned to 0 picks the first
                 expect(result.seedTopics[0]).toMatchObject({
                     title: "go prompt",
                     givenCodes: [{
@@ -1082,8 +1090,10 @@ describe("MockInterviewSessionDrawService — qna mode draw",
 
         it("picks a different authored body when the random draw lands at the other end",
             async () => {
-                jest.spyOn(Math,
-                    "random").mockReturnValue(0.99)
+                // 2 eligible bodies (go, java) sorted by sortIndex -- index 1 is the
+                // last one (java)
+                jest.spyOn(crypto,
+                    "randomInt").mockImplementation(() => 1)
                 const harness = makeDrawHarness({
                     technical: [bankRow({
                         id: "q-track",
@@ -1173,9 +1183,10 @@ describe("MockInterviewSessionDrawService — qna mode draw",
 
         it("rejects a course with neither a bank nor flashcards instead of persisting an empty session",
             async () => {
-                // hand Math.random back before provoking a throw: jest source-maps the
-                // rejection's stack with a randomized-pivot quicksort, which degenerates
-                // into unbounded recursion while every "random" pivot is pinned to 0
+                // hand the pinned crypto.randomInt spy back before provoking a throw:
+                // jest source-maps the rejection's stack with a randomized-pivot
+                // quicksort, which degenerates into unbounded recursion if some global
+                // "random" source were left pinned to a single value
                 jest.restoreAllMocks()
                 const harness = makeDrawHarness({
                     technical: [],
@@ -1232,8 +1243,8 @@ describe("MockInterviewSessionDrawService — qna mode draw",
 describe("MockInterviewSessionDrawService — qna pool widening",
     () => {
         beforeEach(() => {
-            jest.spyOn(Math,
-                "random").mockReturnValue(0)
+            jest.spyOn(crypto,
+                "randomInt").mockImplementation(() => 0)
         })
 
         afterEach(() => {
@@ -1402,8 +1413,8 @@ describe("MockInterviewSessionDrawService — qna pool widening",
 describe("MockInterviewSessionDrawService — reached module resolution",
     () => {
         beforeEach(() => {
-            jest.spyOn(Math,
-                "random").mockReturnValue(0)
+            jest.spyOn(crypto,
+                "randomInt").mockImplementation(() => 0)
         })
 
         afterEach(() => {
@@ -1552,8 +1563,8 @@ describe("MockInterviewSessionDrawService — reached module resolution",
 describe("MockInterviewSessionDrawService — flashcard seed fallback",
     () => {
         beforeEach(() => {
-            jest.spyOn(Math,
-                "random").mockReturnValue(0)
+            jest.spyOn(crypto,
+                "randomInt").mockImplementation(() => 0)
         })
 
         afterEach(() => {
@@ -1918,8 +1929,8 @@ describe("MockInterviewSessionDrawService — flashcard seed fallback",
 describe("MockInterviewSessionDrawService — behavioral bookends",
     () => {
         beforeEach(() => {
-            jest.spyOn(Math,
-                "random").mockReturnValue(0)
+            jest.spyOn(crypto,
+                "randomInt").mockImplementation(() => 0)
         })
 
         afterEach(() => {

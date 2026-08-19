@@ -2,6 +2,9 @@ import type {
     ReviewPersonalProjectTaskPayload,
 } from "@modules/integrations/bullmq/types/payloads/review-personal-project-task"
 import type {
+    LoadGithubDocumentsParams,
+    ResolveGradingCriteriaParams,
+    ResolvedGradingCriteria,
     ReviewMilestoneTaskGradeResult,
 } from "../types/grade"
 import {
@@ -29,9 +32,6 @@ import {
 import {
     AiModelTask,
 } from "@modules/databases/postgresql/primary/enums/ai-model-task"
-import {
-    Locale,
-} from "@modules/databases/postgresql/primary/enums/locale"
 import {
     ModelProvider,
 } from "@modules/databases/postgresql/primary/enums/model-provider"
@@ -102,6 +102,12 @@ import {
 import {
     collectMilestoneTaskCriteria,
 } from "../../shared/milestone-task/utils/collect-task-criteria"
+import {
+    resolveTargetLanguage,
+} from "../../shared/challenge-submission/utils/resolve-target-language"
+import {
+    resolveGithubAccessToken,
+} from "../../shared/challenge-submission/utils/resolve-github-access-token"
 
 @Injectable()
 /**
@@ -130,118 +136,24 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
     }
 
     /**
-     * Resolve the GitHub access token to clone with: the learner's own (decrypted) token when they
-     * stored one for a PRIVATE repo, otherwise the org token. A token that fails to decrypt falls
-     * back to the org token rather than aborting the grade.
+     * Load the submission's GitHub repo and map loader failures to the specific domain
+     * exception the caller should surface (not-found / access-denied / generic load failure).
+     * @param params - Repo location and the enrollment whose token should authenticate the clone.
+     * @returns The repo's documents, converted to LangChain documents. Never empty.
      */
-    private async resolveGithubAccessToken(enrollmentId: string): Promise<string> {
-        const enrollment = await this.entityManager.findOne(
-            EnrollmentEntity,
-            {
-                where: {
-                    id: enrollmentId,
-                },
-                select: {
-                    id: true,
-                    personalProjectGithubTokenEncrypted: true,
-                },
-            },
-        )
-        const encrypted = enrollment?.personalProjectGithubTokenEncrypted
-        if (!encrypted) {
-            return this.mountStorageService.githubAccessToken
-        }
-        try {
-            return this.encryptionService.decrypt({
-                payload: JSON.parse(encrypted),
-            })
-        } catch {
-            return this.mountStorageService.githubAccessToken
-        }
-    }
-
-    stepIndex = 0
-    stepName = "review-milestone-task-grade"
-
-    /** Process the step. */
-    async process(
-        context: JobExtendedContext<ReviewPersonalProjectTaskPayload, EmptyObject>,
-    ): Promise<void> {
-        try {
-            const executionResult = await this.execute(
-                context,
-            )
-            await this.finalize(
-                executionResult,
-                context,
-            )
-        } catch (error) {
-            await this.jobActionService.failJob(
-                {
-                    job: context.job,
-                    error: error.message,
-                    emitChangeEvent: true,
-                },
-            )
-            throw error
-        }
-    }
-
-    /**
-     * Execute the step.
-     * @param context - Context of the step.
-     * @returns A promise that resolves when the step is executed.
-     */
-    private async execute(
-        context: JobExtendedContext<ReviewPersonalProjectTaskPayload, EmptyObject>,
-    ): Promise<ReviewMilestoneTaskGradeResult> {
-        const { payload } = context
-        const branch = payload.branch ?? "main"
-
-        /** Map locale code to full language name for the LLM prompt. */
-        const locale = payload.locale ?? Locale.En
-        const localeLanguageMap: Record<string, string> = {
-            en: "English",
-            vi: "Vietnamese (Tiếng Việt)",
-        }
-        const targetLanguage = localeLanguageMap[locale] ?? "English"
-
-        /** Load the milestone task with its criteria */
-        const milestoneTask = await this.entityManager.findOneOrFail(
-            MilestoneTaskEntity,
-            {
-                where: {
-                    id: payload.taskId
-                },
-                relations: {
-                    criterias: {
-                        translations: true,
-                    },
-                    outcomeCriteria: {
-                        langs: true,
-                    },
-                    approachCriteria: {
-                        langs: true,
-                    },
-                },
-            },
-        )
-        const criteria = milestoneTask.criterias ?? []
-
-        /**
-         * SCHEMA V2 tasks (non-null `verified`) grade against the per-language outcome/approach
-         * yes/no criteria (jsonb) resolved to the learner's chosen language; legacy tasks keep the
-         * old `criterias` (text/promptText/score) path.
-         */
-        const isV2Task = Boolean(milestoneTask.verified)
-        const v2Criteria = isV2Task
-            ? collectMilestoneTaskCriteria(milestoneTask,
-                payload.lang)
-            : []
-
-        /** Load GitHub repo -- auth with the learner's own token for a private repo, else the org token. */
-        const repoUrl = payload.githubUrl
-        const githubAccessToken = await this.resolveGithubAccessToken(payload.enrollmentId)
+    private async loadGithubDocuments(
+        {
+            repoUrl,
+            branch,
+            enrollmentId,
+        }: LoadGithubDocumentsParams,
+    ): Promise<Array<Document>> {
+        const githubAccessToken = await resolveGithubAccessToken({
+            entityManager: this.entityManager,
+            encryptionService: this.encryptionService,
+            fallbackAccessToken: this.mountStorageService.githubAccessToken,
+            enrollmentId,
+        })
         const gitLoader = new GithubRepoLoader(
             repoUrl,
             {
@@ -287,7 +199,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 branch,
             })
         }
-        const docs = loadedDocs.map(
+        return loadedDocs.map(
             (doc) =>
                 new Document({
                     pageContent: doc.pageContent,
@@ -295,7 +207,26 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                     id: doc.id,
                 }),
         )
+    }
 
+    /**
+     * Decide which criteria set grades this task: SCHEMA V2 tasks use the per-language
+     * outcome/approach yes/no criteria; legacy tasks use the text/promptText/score criteria.
+     * @param params - The task, its legacy criteria, and the learner's chosen language.
+     * @returns The resolved criteria, their retrieval queries, and the max score.
+     */
+    private resolveGradingCriteria(
+        {
+            milestoneTask,
+            criteria,
+            lang,
+        }: ResolveGradingCriteriaParams,
+    ): ResolvedGradingCriteria {
+        const isV2Task = Boolean(milestoneTask.verified)
+        const v2Criteria = isV2Task
+            ? collectMilestoneTaskCriteria(milestoneTask,
+                lang)
+            : []
         /** Map criteria -> retrieval queries (V2 yes/no body, else legacy text + prompt). */
         const retrievalCriteria = isV2Task
             ? v2Criteria.map((criterion) => ({
@@ -307,6 +238,106 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 .map((criterion) => ({
                     body: `${criterion.text}\n${criterion.promptText}`
                 }))
+        /** V2 max total = sum of explicit criterion scores (e.g. 100); legacy = task.maxScore. */
+        const gradeMaxScore = isV2Task
+            ? v2Criteria.reduce((sum, criterion) => sum + criterion.score,
+                0)
+            : milestoneTask.maxScore
+        return {
+            isV2Task,
+            v2Criteria,
+            retrievalCriteria,
+            gradeMaxScore,
+        }
+    }
+
+    stepIndex = 0
+    stepName = "review-milestone-task-grade"
+
+    /** Process the step. */
+    async process(
+        context: JobExtendedContext<ReviewPersonalProjectTaskPayload, EmptyObject>,
+    ): Promise<void> {
+        try {
+            const executionResult = await this.execute(
+                context,
+            )
+            await this.finalize(
+                executionResult,
+                context,
+            )
+        } catch (error) {
+            await this.jobActionService.failJob(
+                {
+                    job: context.job,
+                    error: error.message,
+                    emitChangeEvent: true,
+                },
+            )
+            throw error
+        }
+    }
+
+    /**
+     * Execute the step.
+     * @param context - Context of the step.
+     * @returns A promise that resolves when the step is executed.
+     */
+    private async execute(
+        context: JobExtendedContext<ReviewPersonalProjectTaskPayload, EmptyObject>,
+    ): Promise<ReviewMilestoneTaskGradeResult> {
+        const { payload } = context
+        const branch = payload.branch ?? "main"
+
+        /** Map locale code to full language name for the LLM prompt. */
+        const targetLanguage = resolveTargetLanguage(payload.locale)
+
+        /** Load the milestone task with its criteria */
+        const milestoneTask = await this.entityManager.findOneOrFail(
+            MilestoneTaskEntity,
+            {
+                where: {
+                    id: payload.taskId
+                },
+                relations: {
+                    criterias: {
+                        translations: true,
+                    },
+                    outcomeCriteria: {
+                        langs: true,
+                    },
+                    approachCriteria: {
+                        langs: true,
+                    },
+                },
+            },
+        )
+        const criteria = milestoneTask.criterias ?? []
+
+        /**
+         * SCHEMA V2 tasks (non-null `verified`) grade against the per-language outcome/approach
+         * yes/no criteria (jsonb) resolved to the learner's chosen language; legacy tasks keep the
+         * old `criterias` (text/promptText/score) path.
+         */
+        const {
+            isV2Task,
+            v2Criteria,
+            retrievalCriteria,
+            gradeMaxScore,
+        } = this.resolveGradingCriteria({
+            milestoneTask,
+            criteria,
+            lang: payload.lang,
+        })
+
+        /** Load GitHub repo -- auth with the learner's own token for a private repo, else the org token. */
+        const repoUrl = payload.githubUrl
+        const docs = await this.loadGithubDocuments({
+            repoUrl,
+            branch,
+            enrollmentId: payload.enrollmentId,
+        })
+
         /** ONE high-level RAG call owns chunk -> embed -> retrieve; the worker only gathers
             the source docs + criteria. The run namespace includes the fencing token so a
             stalled re-dispatch can never corrupt the live owner's vectors mid-search. */
@@ -328,12 +359,6 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             },
         )
         const taskTitle = milestoneTask.title ?? "milestone task"
-
-        /** V2 max total = sum of explicit criterion scores (e.g. 100); legacy = task.maxScore. */
-        const gradeMaxScore = isV2Task
-            ? v2Criteria.reduce((sum, criterion) => sum + criterion.score,
-                0)
-            : milestoneTask.maxScore
 
         /** Delegate prompt formatting while retaining RAG, quota, invocation and parsing here. */
         const {

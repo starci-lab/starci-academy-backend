@@ -36,8 +36,6 @@ import {
 } from "@modules/platform/routing/utils/global-id"
 import {
     MyLeagueData,
-} from "./graphql-types/response"
-import {
     MyLeagueResponse,
 } from "./graphql-types/response"
 

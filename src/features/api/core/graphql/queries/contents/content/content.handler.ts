@@ -230,10 +230,7 @@ export class ContentHandler
         // Set the window TTL only on the first hit so the window is FIXED (resets
         // every `CONTENT_ACCESS_WINDOW_SECONDS`), not sliding -- a steady human reader
         // never accrues past the window. Guard against a stuck key with no TTL.
-        if (count === 1) {
-            await this.redis.expire(key,
-                CONTENT_ACCESS_WINDOW_SECONDS)
-        } else if (await this.redis.ttl(key) < 0) {
+        if (count === 1 || await this.redis.ttl(key) < 0) {
             await this.redis.expire(key,
                 CONTENT_ACCESS_WINDOW_SECONDS)
         }

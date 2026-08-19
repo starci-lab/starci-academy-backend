@@ -2,63 +2,17 @@ import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
 import {
-    EnqueueEnrollJobService,
-} from "@modules/bussiness/jobs/enqueue/enroll.service"
-import {
-    EnqueueSendMailJobService,
-} from "@modules/bussiness/jobs/enqueue/send-mail.service"
-import {
-    NotificationService,
-} from "@modules/bussiness/notification/notification.service"
-import {
-    enqueueMembershipActiveEmail,
-    enqueueSubscriptionActiveEmail,
-} from "@modules/integrations/transactional-email/grant-emails"
-import {
     TransactionEntity,
 } from "@modules/databases/postgresql/primary/entities/transaction.entity"
 import {
-    ActionType,
-} from "@modules/databases/postgresql/primary/enums/action-type"
-import {
-    NotificationType,
-} from "@modules/databases/postgresql/primary/enums/notification-type"
-import {
-    TransactionStatus,
-} from "@modules/databases/postgresql/primary/enums/transaction-status"
-import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases/postgresql/primary/primary.decorators"
-import {
-    AiEntitlementService,
-} from "@modules/ai/ai-entitlement.service"
-import {
-    MembershipService,
-} from "@modules/membership/membership.service"
-import {
-    envConfig,
-} from "@modules/platform/env/config"
-import {
-    AiSubscriptionTierNotAvailableException,
-} from "@modules/platform/exceptions/errors/ai/ai-subscription-tier-not-available"
+    TransactionGrantService,
+} from "@modules/bussiness/transactions/atomic/transaction-grant.service"
 import {
     InvalidNowpaymentsWebhookSignatureException,
 } from "@modules/platform/exceptions/errors/payment/invalid-nowpayments-webhook-signature"
 import {
-    UnsupportedTransactionActionException,
-} from "@modules/platform/exceptions/errors/payment/unsupported-transaction-action"
-import {
-    TransactionCourseNotFoundException,
-} from "@modules/platform/exceptions/errors/transaction/transaction-course-not-found"
-import {
-    TransactionExpiredException,
-} from "@modules/platform/exceptions/errors/transaction/transaction-expired"
-import {
     TransactionNotFoundException,
 } from "@modules/platform/exceptions/errors/transaction/transaction-not-found"
-import {
-    DayjsService,
-} from "@modules/lib/mixin/dayjs.service"
 import {
     NowPaymentsClient,
 } from "@modules/integrations/nowpayments/nowpayments.client"
@@ -78,9 +32,6 @@ import {
     CommandHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     NowPaymentsWebhookCommand,
 } from "./webhook.command"
@@ -96,14 +47,7 @@ export class NowPaymentsWebhookHandler
     implements ICommandHandler<NowPaymentsWebhookCommand, void> {
     constructor(
         private readonly nowPaymentsClient: NowPaymentsClient,
-        private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
-        private readonly aiEntitlementService: AiEntitlementService,
-        private readonly membershipService: MembershipService,
-        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
-        private readonly notificationService: NotificationService,
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly dayjsService: DayjsService,
+        private readonly transactionGrantService: TransactionGrantService,
         private readonly winstonService: WinstonService,
     ) {
         super()
@@ -112,6 +56,24 @@ export class NowPaymentsWebhookHandler
     protected override async process(
         command: NowPaymentsWebhookCommand,
     ): Promise<void> {
+        const transaction = await this.resolvePayableTransaction(command)
+        if (!transaction) {
+            // an ignorable event (intermediate status / underpaid order) -- already logged
+            return
+        }
+        await this.transactionGrantService.grantForTransaction(transaction)
+    }
+
+    /**
+     * Verify the IPN signature, decide whether the event is a payable event worth
+     * granting (ignoring intermediate statuses and underpaid orders), and resolve
+     * it to the matching, unexpired, still-pending transaction.
+     * @param command - The webhook command carrying the raw body and signature header.
+     * @returns The transaction to grant, or `null` when the event should be silently ignored.
+     */
+    private async resolvePayableTransaction(
+        command: NowPaymentsWebhookCommand,
+    ): Promise<TransactionEntity | null> {
         // destructure the IPN body + signature header
         const {
             body,
@@ -130,11 +92,7 @@ export class NowPaymentsWebhookHandler
             })
         }
 
-        // only a finished/confirmed payment counts as paid
-        if (
-            body.payment_status !== "finished"
-            && body.payment_status !== "confirmed"
-        ) {
+        if (this.isIntermediatePaymentStatus(body.payment_status)) {
             // ignore intermediate statuses (waiting / confirming / partially_paid)
             this.winstonService.log(
                 WinstonLog.PaymentWebhookIgnored,
@@ -147,19 +105,15 @@ export class NowPaymentsWebhookHandler
                     },
                 },
             )
-            return
+            return null
         }
 
         // underpayment guard: crypto can settle "finished" while the buyer sent
         // less than quoted -- require the received amount to cover the expected one
         const payAmount = Number(body.pay_amount)
         const actuallyPaid = Number(body.actually_paid)
-        if (
-            Number.isFinite(payAmount)
-            && payAmount > 0
-            && Number.isFinite(actuallyPaid)
-            && actuallyPaid < payAmount
-        ) {
+        if (this.isUnderpaidOrder(payAmount,
+            actuallyPaid)) {
             this.winstonService.log(
                 WinstonLog.PaymentWebhookIgnored,
                 {
@@ -172,7 +126,7 @@ export class NowPaymentsWebhookHandler
                     },
                 },
             )
-            return
+            return null
         }
 
         // order_id carries our transaction reference id
@@ -184,117 +138,24 @@ export class NowPaymentsWebhookHandler
             })
         }
 
-        // locate the matching pending transaction
-        const transaction = await this.entityManager.findOne(
-            TransactionEntity,
-            {
-                where: {
-                    referenceId,
-                    status: TransactionStatus.Pending,
-                },
-            },
-        )
-        if (!transaction) {
-            throw new TransactionNotFoundException({
-                referenceId,
-            })
-        }
+        // resolve + expiry-check the pending transaction (shared across every
+        // gateway webhook once its own event verification has resolved a referenceId)
+        return this.transactionGrantService.resolvePendingTransaction(referenceId)
+    }
 
-        // reject stale callbacks that arrive after the reuse/expiry window
-        const timeSinceCreationMs = this.dayjsService.now().diff(
-            this.dayjsService.from(transaction.createdAt),
-            "milliseconds",
-        )
-        if (timeSinceCreationMs > envConfig().services.api.transaction.timeSinceCreationMs) {
-            throw new TransactionExpiredException({
-                id: transaction.id,
-            })
-        }
+    /** Whether a NOWPayments status is a non-terminal in-flight state, not yet "paid". */
+    private isIntermediatePaymentStatus(paymentStatus: unknown): boolean {
+        return paymentStatus !== "finished" && paymentStatus !== "confirmed"
+    }
 
-        // grant by action type (mirrors the PayOS/Sepay webhook grant logic)
-        switch (transaction.actionType) {
-        // AI subscription purchase: grant the tier directly (no worker needed)
-        case ActionType.AiSubscriptionPurchase: {
-            if (!transaction.aiSubTier) {
-                throw new AiSubscriptionTierNotAvailableException({
-                    tier: "unknown",
-                })
-            }
-            const subscriptionGranted = await this.aiEntitlementService.grantTier({
-                userId: transaction.userId,
-                tier: transaction.aiSubTier,
-                transactionId: transaction.id,
-            })
-            if (subscriptionGranted) {
-                await enqueueSubscriptionActiveEmail({
-                    entityManager: this.entityManager,
-                    enqueueSendMailJobService: this.enqueueSendMailJobService,
-                    userId: transaction.userId,
-                    tier: transaction.aiSubTier,
-                    webBaseUrl: envConfig().web.baseUrl,
-                })
-                try {
-                    await this.notificationService.createNotification({
-                        userId: transaction.userId,
-                        type: NotificationType.SubscriptionGranted,
-                        title: {
-                            key: "notification.subscriptionGranted.title",
-                            params: {
-                                tier: transaction.aiSubTier,
-                            },
-                        },
-                    })
-                } catch (error) {
-                    // best-effort: a notification failure must never fail a webhook
-                    // that already granted a paid tier
-                    this.winstonService.log(
-                        WinstonLog.NotificationCreateFailed,
-                        {
-                            jobId: transaction.id,
-                            step: "notification.create",
-                            error: error instanceof Error ? error.message : String(error),
-                        },
-                    )
-                }
-            }
-            return
-        }
-        // course enrollment: hand off to the enroll worker
-        case ActionType.MembershipPurchase: {
-            const membershipGranted = await this.membershipService.grantMembership({
-                userId: transaction.userId,
-                transactionId: transaction.id,
-            })
-            if (membershipGranted) {
-                await enqueueMembershipActiveEmail({
-                    entityManager: this.entityManager,
-                    enqueueSendMailJobService: this.enqueueSendMailJobService,
-                    userId: transaction.userId,
-                    webBaseUrl: envConfig().web.baseUrl,
-                })
-            }
-            return
-        }
-        case ActionType.Enroll: {
-            // fan the paid order out to one enroll job per course (single- or
-            // multi-course). a malformed Enroll transaction (no items, no course)
-            // is surfaced as course-not-found so the gateway re-delivers.
-            const {
-                enqueuedCount,
-            } = await this.enqueueEnrollJobService.enqueueForTransaction({
-                transaction,
-            })
-            if (enqueuedCount === 0) {
-                throw new TransactionCourseNotFoundException({
-                    id: transaction.id,
-                })
-            }
-            return
-        }
-        default:
-            throw new UnsupportedTransactionActionException({
-                actionType: String(transaction.actionType),
-            })
-        }
+    /**
+     * Whether the buyer sent less than the quoted crypto amount -- NOWPayments can
+     * still settle the payment as "finished"/"confirmed" while underpaid.
+     */
+    private isUnderpaidOrder(payAmount: number, actuallyPaid: number): boolean {
+        return Number.isFinite(payAmount)
+            && payAmount > 0
+            && Number.isFinite(actuallyPaid)
+            && actuallyPaid < payAmount
     }
 }

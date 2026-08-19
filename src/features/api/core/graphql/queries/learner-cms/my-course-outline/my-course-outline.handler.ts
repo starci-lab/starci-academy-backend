@@ -585,6 +585,23 @@ export class MyCourseOutlineHandler
         modules: Array<MyCourseOutlineModule>,
     ): MyCourseOutlineCurrentTask | null {
         // first preference: keep reading -- the first unread lesson in outline order
+        const unreadLesson = this.findFirstUnreadLesson(modules)
+        if (unreadLesson) {
+            return unreadLesson
+        }
+        // second preference: all lessons read -> the first uncompleted challenge
+        const uncompletedChallenge = this.findFirstUncompletedChallenge(modules)
+        if (uncompletedChallenge) {
+            return uncompletedChallenge
+        }
+        // all content complete
+        return null
+    }
+
+    /** The first unread lesson in outline order, or `null` when every lesson is read. */
+    private findFirstUnreadLesson(
+        modules: Array<MyCourseOutlineModule>,
+    ): MyCourseOutlineCurrentTask | null {
         for (const module of modules) {
             for (const lesson of module.lessons) {
                 if (!lesson.isRead) {
@@ -596,8 +613,13 @@ export class MyCourseOutlineHandler
                 }
             }
         }
+        return null
+    }
 
-        // second preference: all lessons read -> the first uncompleted challenge
+    /** The first uncompleted challenge in outline order, or `null` when every challenge is completed. */
+    private findFirstUncompletedChallenge(
+        modules: Array<MyCourseOutlineModule>,
+    ): MyCourseOutlineCurrentTask | null {
         for (const module of modules) {
             for (const lesson of module.lessons) {
                 for (const challenge of lesson.challenges) {
@@ -611,8 +633,6 @@ export class MyCourseOutlineHandler
                 }
             }
         }
-
-        // all content complete
         return null
     }
 }

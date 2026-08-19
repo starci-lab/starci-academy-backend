@@ -61,7 +61,7 @@ export class AuthStoreService {
         // look up the stored record for this username
         const record = this.users.get(username)
         // reject unknown users or password mismatches
-        if (!record || record.password !== password) return null
+        if (record?.password !== password) return null
         // credentials are valid -- return the claims for token signing
         return {
             sub: record.sub, username 

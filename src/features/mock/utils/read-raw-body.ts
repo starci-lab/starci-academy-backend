@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import type {
     IncomingMessage,
-} from "http"
+} from "node:http"
 
 /**
  * Reads an inbound request body into a single Buffer.

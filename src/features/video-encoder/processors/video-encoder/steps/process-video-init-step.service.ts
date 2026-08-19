@@ -40,13 +40,13 @@ import {
 } from "@modules/platform/env/config"
 import {
     promises as fsPromise,
-} from "fs"
+} from "node:fs"
 import {
     join,
-} from "path"
+} from "node:path"
 import {
     tmpdir,
-} from "os"
+} from "node:os"
 
 @Injectable()
 /**
@@ -124,7 +124,7 @@ export class ProcessVideoInitStepService extends AbstractStepService<FilenamePro
 
         // Execute query at start
         const { queryAtStart } = callbackQueries
-        if (queryAtStart && queryAtStart.length === 2) {
+        if (queryAtStart?.length === 2) {
             await this.entityManager.query(queryAtStart[0],
                 queryAtStart[1])
         }

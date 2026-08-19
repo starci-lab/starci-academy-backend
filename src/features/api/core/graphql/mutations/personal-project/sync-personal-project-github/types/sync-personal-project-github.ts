@@ -15,9 +15,6 @@ import type {
 export type SyncPersonalProjectGithubParams =
     ExecuteParams<SyncPersonalProjectGithubRequest>
 
-/** Result of `SyncPersonalProjectGithubService.execute`. */
-export type SyncPersonalProjectGithubResult = void
-
 /** Params for upserting personal project GitHub fields on enrollment. */
 export interface UpsertPersonalProjectGithubParams {
     /** Transaction-scoped entity manager. */
@@ -28,4 +25,22 @@ export interface UpsertPersonalProjectGithubParams {
     courseId: string
     /** Request payload (at least one of URL / branch must be provided; branch-only requires a stored URL). */
     request: SyncPersonalProjectGithubRequest
+}
+
+/** Trimmed/normalized intent derived from one sync request's raw fields. */
+export interface GithubSyncIntent {
+    /** Trimmed GitHub URL, or `""` when not sent / not a string. */
+    urlTrimmed: string
+    /** Whether a non-empty URL was actually sent. */
+    hasUrl: boolean
+    /** Whether the client sent a `branch` field at all (vs. omitted). */
+    branchProvided: boolean
+    /** Trimmed branch name, or `""` when not provided. */
+    branchTrimmed: string
+    /** Trimmed GitHub token, or `""` when not sent / not a string. */
+    tokenTrimmed: string
+    /** Whether a non-empty token was actually sent. */
+    hasToken: boolean
+    /** Whether the client asked to clear the stored token. */
+    shouldClearToken: boolean
 }

@@ -9,7 +9,6 @@ import {
 } from "./sync-personal-project-github.command"
 import type {
     SyncPersonalProjectGithubParams,
-    SyncPersonalProjectGithubResult,
 } from "./types/sync-personal-project-github"
 
 @Injectable()
@@ -23,7 +22,7 @@ export class SyncPersonalProjectGithubService {
 
     async execute(
         params: SyncPersonalProjectGithubParams,
-    ): Promise<SyncPersonalProjectGithubResult> {
+    ): Promise<void> {
         return this.commandBus.execute(
             new SyncPersonalProjectGithubCommand(params),
         )

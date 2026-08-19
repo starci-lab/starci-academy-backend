@@ -5,6 +5,7 @@ import {
     UseInterceptors,
 } from "@nestjs/common"
 import {
+    ApiOperation,
     ApiResponse,
 } from "@nestjs/swagger"
 import {
@@ -20,9 +21,6 @@ import {
 import {
     httpConfig,
 } from "../../../http"
-import {
-    ApiOperation 
-} from "@nestjs/swagger"
 @Controller(
     {
         path: httpConfig().keycloak().github().tags,

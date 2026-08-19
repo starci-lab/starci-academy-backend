@@ -92,7 +92,7 @@ export class SyncMockInterviewSessionTurnsHandler
         // startMockInterviewSession draw) -- a late/stale sync must silently
         // no-op rather than throw, so a background periodic sync never
         // surfaces an error toast mid-interview.
-        if (!session || session.status !== "in_progress") {
+        if (session?.status !== "in_progress") {
             return {
                 success: false,
             }

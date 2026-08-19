@@ -179,7 +179,7 @@ export class CourseMindMapService {
                 const childYs = children.map((child) => walk(child,
                     depth + 1,
                     nodeId))
-                y = (childYs[0] + childYs[childYs.length - 1]) / 2
+                y = (childYs[0] + childYs.at(-1)!) / 2
             }
             nodes.push({
                 id: nodeId,
@@ -220,7 +220,7 @@ export class CourseMindMapService {
             position: {
                 x: 0,
                 y: branchYs.length > 0
-                    ? (branchYs[0] + branchYs[branchYs.length - 1]) / 2
+                    ? (branchYs[0] + branchYs.at(-1)!) / 2
                     : 0,
             },
             data: {

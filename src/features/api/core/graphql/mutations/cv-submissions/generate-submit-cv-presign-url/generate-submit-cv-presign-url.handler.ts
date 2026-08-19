@@ -14,7 +14,7 @@ import {
     CommandHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
-import path from "path"
+import path from "node:path"
 import {
     GenerateSubmitCvPresignUrlCommand,
 } from "./generate-submit-cv-presign-url.command"

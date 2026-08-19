@@ -2,6 +2,12 @@ import type {
     GenerateCvPayload,
 } from "@modules/integrations/bullmq/types/payloads/generate-cv"
 import {
+    bullData,
+} from "@modules/integrations/bullmq/constants/queue"
+import {
+    BullQueueName,
+} from "@modules/integrations/bullmq/enums/queue-name"
+import {
     JobActionService,
 } from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
@@ -58,14 +64,8 @@ import {
     StepNotFoundException,
 } from "@modules/platform/exceptions/errors/job/not-found"
 
-// TODO(wire): replace the queue-name literal below with
-// `bullData[BullQueueName.GenerateCv].name` once `BullQueueName.GenerateCv` +
-// its bullData entry are added (steps 1 & 2 above). Using the literal
-// "generate-cv" keeps this file compiling without touching the shared enum.
-const GENERATE_CV_QUEUE_NAME = "generate-cv"
-
 @Worker(
-    GENERATE_CV_QUEUE_NAME,
+    bullData[BullQueueName.GenerateCv].name,
     {
         concurrency: envConfig().bullmq.aiConcurrency,
         lockDuration: envConfig().bullmq.lockDuration,

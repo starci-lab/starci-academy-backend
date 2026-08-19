@@ -74,7 +74,7 @@ const BLOCK_TYPES = [
 const BLOCK_FIELD_SCHEMA: Record<(typeof BLOCK_TYPES)[number], string> = {
     personal: "ONE item; fields: { name, role, email, phone, location, birthDate, linkedinUrl, githubUsername }",
     summary: "ONE item; fields: { text }",
-    experience: "one item PER job; fields: { company, role, startDate, endDate, bullets } — bullets: one achievement per line joined by \\n",
+    experience: String.raw`one item PER job; fields: { company, role, startDate, endDate, bullets } — bullets: one achievement per line joined by \n`,
     education: "one item PER school; fields: { school, degree, startDate, endDate }",
     skills: "one item PER skill; fields: { name }",
     project: "one item PER project; fields: { title, description }",

@@ -52,6 +52,9 @@ import {
     NowPaymentsClient,
 } from "@modules/integrations/nowpayments/nowpayments.client"
 import {
+    CheckoutGatewayService,
+} from "@modules/bussiness/transactions/atomic/checkout-gateway.service"
+import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import type {
@@ -147,6 +150,9 @@ describe("PurchaseAiSubscriptionHandler",
             module = await Test.createTestingModule({
                 providers: [
                     PurchaseAiSubscriptionHandler,
+                    // real collaborator -- exercises the actual lock/scan/dispatch
+                    // shared with PurchaseMembershipHandler, wired to the mocks below
+                    CheckoutGatewayService,
                     // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {

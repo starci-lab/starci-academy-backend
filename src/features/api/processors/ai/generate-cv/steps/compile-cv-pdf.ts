@@ -3,11 +3,11 @@ import {
     readFile,
     rm,
     writeFile,
-} from "fs/promises"
+} from "node:fs/promises"
 import {
     tmpdir,
-} from "os"
-import path from "path"
+} from "node:os"
+import path from "node:path"
 
 /** Params for {@link compileCvPdf}. */
 export interface CompileCvPdfParams {

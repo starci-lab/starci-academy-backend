@@ -190,7 +190,7 @@ export class MyUpcomingLivestreamsResolver {
 
         // soonest first, then keep only the earliest `take`
         return upcoming
-            .sort((prev, next) => prev.nextStartAt.getTime() - next.nextStartAt.getTime())
+            .toSorted((prev, next) => prev.nextStartAt.getTime() - next.nextStartAt.getTime())
             .slice(0,
                 take)
     }

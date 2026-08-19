@@ -54,6 +54,9 @@ import {
     PaypalClient,
 } from "@modules/integrations/paypal/paypal.client"
 import {
+    TransactionGrantService,
+} from "@modules/bussiness/transactions/atomic/transaction-grant.service"
+import {
     makeEntityManagerMock,
 } from "@tests/mocks/entity-manager.mock"
 import type {
@@ -159,6 +162,10 @@ describe("PaypalWebhookHandler",
             module = await Test.createTestingModule({
                 providers: [
                     PaypalWebhookHandler,
+                    // the real post-verification grant service, backed by the
+                    // same lower-level mocks below -- exercises the actual
+                    // wiring instead of re-mocking the grant logic per-gateway
+                    TransactionGrantService,
                     // DayjsService is a pure dayjs wrapper (no I/O) -> use the real one
                     DayjsService,
                     {

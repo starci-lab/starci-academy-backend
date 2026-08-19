@@ -44,8 +44,8 @@ export class InfiniteController {
     ): MockUsersPage {
         // parse cursor/limit from the query, defaulting to the first page of 10
         return this.store.getUsersPage({
-            moduleId: this.moduleId, lessonId: this.lessonId, sessionId, cursor: parseInt(cursorStr ?? "0",
-                10), limit: parseInt(limitStr ?? "10",
+            moduleId: this.moduleId, lessonId: this.lessonId, sessionId, cursor: Number.parseInt(cursorStr ?? "0",
+                10), limit: Number.parseInt(limitStr ?? "10",
                 10),
         })
     }

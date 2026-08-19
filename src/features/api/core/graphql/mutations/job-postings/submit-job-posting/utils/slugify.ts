@@ -21,7 +21,12 @@ export const slugify = (title: string): string => {
         // collapse any run of non-alphanumeric characters into one hyphen
         .replace(/[^a-z0-9]+/g,
             "-")
-        // trim stray leading/trailing hyphens left by the collapse above
-        .replace(/^-+|-+$/g,
+        // trim stray leading/trailing hyphens left by the collapse above.
+        // `(?<!-)` on the trailing branch stops the unanchored `-+$` from
+        // being retried at every position inside a run of hyphens (each
+        // retry is redundant -- the run's first position already explores
+        // every backtrack length), which is what made the plain `-+$` form
+        // super-linear on pathological input.
+        .replace(/^-+|(?<!-)-+$/g,
             "")
 }

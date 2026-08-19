@@ -113,6 +113,11 @@ import {
 import {
     ReviewMilestoneTaskCreditService,
 } from "../review-milestone-task-credit.service"
+import type {
+    GrantMilestonePassRewardParams,
+    NotifyMilestoneCompletionParams,
+    PersistMilestoneCompletionParams,
+} from "../types/complete"
 
 /** Postgres unique-violation SQLSTATE -- a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
@@ -168,16 +173,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 key: this.gradeStepService.stepName,
             },
         )
-        if (!grade) {
-            throw new MissingOrInvalidGradeExecutionResultException({
-                grade,
-            })
-        }
-        if (typeof grade.evaluation !== "object" || typeof grade.passed !== "boolean") {
-            throw new MissingOrInvalidGradeExecutionResultException({
-                grade,
-            })
-        }
+        this.assertValidGrade(grade)
 
         const creditCost = grade.aiUsage?.model
             ? await this.aiModelCatalogService.creditForRun({
@@ -191,226 +187,19 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
 
         let createdNewAttempt = false
         try {
-            await this.entityManager.transaction(
-                async (entityManager) => {
-                    // idempotency: one attempt per review job (atomic with the step advance below)
-                    const existing = await entityManager.findOne(
-                        UserMilestoneTaskAttemptEntity,
-                        {
-                            where: {
-                                idempotencyKey: job.id,
-                            },
-                            select: {
-                                id: true,
-                            },
-                        },
-                    )
-                    if (existing) {
-                        return
-                    }
-                    /** Find or create the user milestone task. */
-                    let userMilestoneTask = await entityManager.findOne(
-                        UserMilestoneTaskEntity,
-                        {
-                            where: {
-                                enrollment: {
-                                    id: payload.enrollmentId,
-                                },
-                                milestoneTask: {
-                                    id: payload.taskId,
-                                },
-                            },
-                        },
-                    )
-                    if (!userMilestoneTask) {
-                        userMilestoneTask = entityManager.create(
-                            UserMilestoneTaskEntity,
-                            {
-                                enrollment: {
-                                    id: payload.enrollmentId,
-                                },
-                                milestoneTask: {
-                                    id: payload.taskId,
-                                },
-                            },
-                        )
-                        await entityManager.save(userMilestoneTask)
-                    }
-                    /** Sequence number for this attempt. */
-                    const numAttempts = await entityManager.count(
-                        UserMilestoneTaskAttemptEntity,
-                        {
-                            where: {
-                                userMilestoneTask: {
-                                    id: userMilestoneTask.id,
-                                },
-                            },
-                        },
-                    )
-                    /** Flatten the grade detail feedbacks into attempt feedback rows. */
-                    const feedbackRaws = grade.evaluation.details.map(
-                        (detail) => {
-                            return detail.feedbacks.map((feedback) => {
-                                return {
-                                    message: feedback.message,
-                                    severity: feedback.severity,
-                                    location: feedback.location,
-                                    suggestion: feedback.suggestion,
-                                }
-                            })
-                        }).flat()
-                    const feedbacks = feedbackRaws.map(
-                        (feedback, index) => {
-                            return {
-                                ...feedback,
-                                orderIndex: index,
-                                defaultLocale: payload.locale ?? Locale.En,
-                            }
-                        }
-                    )
-                    /** Persist the attempt, keyed by the job id for idempotency. */
-                    await entityManager.save(
-                        UserMilestoneTaskAttemptEntity,
-                        {
-                            idempotencyKey: job.id,
-                            userMilestoneTask: {
-                                id: userMilestoneTask.id,
-                            },
-                            processedAt: this.dayjsService.now().toDate(),
-                            score: grade.evaluation.score,
-                            shortFeedback: grade.evaluation.shortFeedback,
-                            passed: grade.passed,
-                            attemptNumber: numAttempts + 1,
-                            // Record WHICH AI model actually graded this attempt (Auto is
-                            // load-balanced) so the task feedback page can attribute it.
-                            servedModel: grade.aiUsage?.model ?? null,
-                            servedProvider: grade.aiUsage?.provider ?? null,
-                            promptTokens: grade.aiUsage?.promptTokens ?? null,
-                            completionTokens: grade.aiUsage?.completionTokens ?? null,
-                            feedbacks,
-                            defaultLocale: payload.locale ?? Locale.En,
-                        }
-                    )
-                    createdNewAttempt = true
-                    /**
-                     * Debit AFTER the attempt write to preserve the natural domain order, but
-                     * on this SAME transaction. If debit throws, the attempt and every reward
-                     * below roll back; a BullMQ retry sees no attempt and can safely try once.
-                     */
-                    const chargedEnrollment = await entityManager.findOneOrFail(
-                        EnrollmentEntity,
-                        {
-                            where: {
-                                id: payload.enrollmentId,
-                            },
-                        },
-                    )
-                    await this.creditService.consume(
-                        entityManager,
-                        {
-                            userId: chargedEnrollment.userId,
-                            cost: creditCost,
-                            surface: AiCeilSurface.Grading,
-                            task: AiModelTask.TaskGrading,
-                            model: grade.aiUsage?.model ?? null,
-                            provider: grade.aiUsage?.provider ?? null,
-                            recommendation: null,
-                            promptTokens: grade.aiUsage?.promptTokens ?? null,
-                            completionTokens: grade.aiUsage?.completionTokens ?? null,
-                            attempts: grade.aiUsage?.attempts ?? null,
-                        },
-                    )
-                    /**
-                     * Grant XP + reward points once when the task is passed. refId is the
-                     * user-milestone-task id, so re-passing the same task never re-credits
-                     * (mirrors the leaderboard's DISTINCT-task x10 count).
-                     */
-                    if (grade.passed) {
-                        const enrollment = await entityManager.findOne(
-                            EnrollmentEntity,
-                            {
-                                where: {
-                                    id: payload.enrollmentId,
-                                },
-                                // NOTE: `userId`/`courseId` are @RelationId virtual props
-                                // (not real columns) -- they CANNOT appear in `select`.
-                                // Load the full row so @RelationId populates them.
-                            },
-                        )
-                        if (enrollment) {
-                            await writeXpHistory({
-                                entityManager,
-                                userId: enrollment.userId,
-                                courseId: enrollment.courseId,
-                                source: XpSource.Milestone,
-                                amount: MILESTONE_PASS_XP,
-                                points: FLAT_POINTS.milestonePassed,
-                                refId: userMilestoneTask.id,
-                            })
-                            // home-feed activity for the pass (idempotent per user-milestone-task)
-                            const milestoneTask = await entityManager.findOne(
-                                MilestoneTaskEntity,
-                                {
-                                    where: {
-                                        id: payload.taskId,
-                                    },
-                                    select: {
-                                        id: true,
-                                        title: true,
-                                    },
-                                },
-                            )
-                            if (milestoneTask) {
-                                await writeActivity({
-                                    entityManager,
-                                    userId: enrollment.userId,
-                                    type: ActivityType.MilestonePassed,
-                                    idempotencyKey: userMilestoneTask.id,
-                                    metadata: {
-                                        target: {
-                                            entityName: MilestoneTaskEntity.name,
-                                            id: milestoneTask.id,
-                                            label: milestoneTask.title,
-                                        },
-                                    },
-                                })
-                            }
-                            // refresh the progress projection in the SAME tx
-                            await this.progressProjectionService.recompute({
-                                userId: enrollment.userId,
-                                courseId: enrollment.courseId,
-                                entityManager,
-                            })
-                        }
-                    }
-                    /** Advance the step + persist the result ATOMICALLY with the side effects. */
-                    await this.jobActionService.increaseJob(
-                        {
-                            job,
-                            entityManager,
-                            // fence: advance only if this worker still owns the job (zombie writes rejected)
-                            expectedFencingToken: job.fencingToken,
-                        }
-                    )
-                    await this.jobActionService.saveExecutionResult(
-                        {
-                            job,
-                            key: this.stepName,
-                            executionResult: {
-                            },
-                            entityManager,
-                        }
-                    )
-                }
+            createdNewAttempt = await this.entityManager.transaction(
+                (entityManager) => this.persistCompletionAtomically({
+                    entityManager,
+                    job,
+                    payload,
+                    grade,
+                    creditCost,
+                }),
             )
         } catch (error) {
-            // a concurrent duplicate lost the unique race -> already reviewed; treat as idempotent.
-            if (error instanceof QueryFailedError
-                && (error.driverError as { code?: string } | undefined)?.code === PG_UNIQUE_VIOLATION) {
-                return
-            }
-            // a newer worker fenced this one out -- its tx rolled back; the new owner finishes the job.
-            if (error instanceof JobFencedOutException) {
+            if (this.isIdempotentCompletionRace(error)) {
+                // a concurrent duplicate lost the unique race, or a newer worker fenced this
+                // one out -- either way the job is already/being finished by someone else.
                 return
             }
             throw error
@@ -438,86 +227,381 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
 
         // Notify the learner -- only on the run that created the attempt (idempotent).
         if (createdNewAttempt) {
-            const enrollment = await this.entityManager.findOne(
-                EnrollmentEntity,
-                {
-                    where: {
+            await this.notifyLearnerOfCompletion({
+                payload,
+                job,
+                queueName,
+                grade,
+            })
+        }
+    }
+
+    /**
+     * Decide whether `grade` is a usable execution result and throw the domain exception
+     * when it is not.
+     * @param grade - The step-1 execution result loaded for this job, if any.
+     */
+    private assertValidGrade(
+        grade: ReviewMilestoneTaskGradeResult | null,
+    ): asserts grade is ReviewMilestoneTaskGradeResult {
+        if (!grade || typeof grade.evaluation !== "object" || typeof grade.passed !== "boolean") {
+            throw new MissingOrInvalidGradeExecutionResultException({
+                grade,
+            })
+        }
+    }
+
+    /**
+     * Decide whether a transaction failure means the completion already happened elsewhere
+     * (a concurrent duplicate lost the unique race, or a newer worker fenced this one out and
+     * rolled the transaction back) and can therefore be treated as an idempotent no-op.
+     * @param error - The error the completion transaction threw.
+     */
+    private isIdempotentCompletionRace(error: unknown): boolean {
+        if (error instanceof QueryFailedError
+            && (error.driverError as { code?: string } | undefined)?.code === PG_UNIQUE_VIOLATION) {
+            return true
+        }
+        return error instanceof JobFencedOutException
+    }
+
+    /**
+     * ATOMICALLY persist the graded attempt, debit AI credit, grant the pass reward, and
+     * advance the step -- all on the caller's transactional entity manager.
+     * @param params - The transaction manager plus everything needed to write the completion.
+     * @returns Whether this run created a new attempt (false when idempotency found one already).
+     */
+    private async persistCompletionAtomically(
+        {
+            entityManager,
+            job,
+            payload,
+            grade,
+            creditCost,
+        }: PersistMilestoneCompletionParams,
+    ): Promise<boolean> {
+        // idempotency: one attempt per review job (atomic with the step advance below)
+        const existing = await entityManager.findOne(
+            UserMilestoneTaskAttemptEntity,
+            {
+                where: {
+                    idempotencyKey: job.id,
+                },
+                select: {
+                    id: true,
+                },
+            },
+        )
+        if (existing) {
+            return false
+        }
+        /** Find or create the user milestone task. */
+        let userMilestoneTask = await entityManager.findOne(
+            UserMilestoneTaskEntity,
+            {
+                where: {
+                    enrollment: {
                         id: payload.enrollmentId,
                     },
-                    // NOTE: `userId` is a @RelationId virtual prop (not a real
-                    // column) -- it CANNOT appear in `select`. Load the full row
-                    // so @RelationId populates it.
+                    milestoneTask: {
+                        id: payload.taskId,
+                    },
+                },
+            },
+        )
+        if (!userMilestoneTask) {
+            userMilestoneTask = entityManager.create(
+                UserMilestoneTaskEntity,
+                {
+                    enrollment: {
+                        id: payload.enrollmentId,
+                    },
+                    milestoneTask: {
+                        id: payload.taskId,
+                    },
                 },
             )
-            if (enrollment) {
-                // this section runs OUTSIDE the grading transaction (gated only by
-                // createdNewAttempt), so re-fetch the milestone task here rather
-                // than relying on the tx-scoped lookup inside the `grade.passed` branch above
-                const milestoneTask = await this.entityManager.findOne(
-                    MilestoneTaskEntity,
-                    {
-                        where: {
-                            id: payload.taskId,
-                        },
-                        select: {
-                            id: true,
-                            title: true,
-                        },
+            await entityManager.save(userMilestoneTask)
+        }
+        /** Sequence number for this attempt. */
+        const numAttempts = await entityManager.count(
+            UserMilestoneTaskAttemptEntity,
+            {
+                where: {
+                    userMilestoneTask: {
+                        id: userMilestoneTask.id,
                     },
-                )
-                await enqueueLearnerEmail({
-                    entityManager: this.entityManager,
-                    enqueueSendMailJobService: this.enqueueSendMailJobService,
-                    userId: enrollment.userId,
-                    template: "milestone-result",
-                    locale: payload.locale,
-                    webBaseUrl: envConfig().web.baseUrl,
-                    subject: {
-                        vi: "Task dự án cá nhân của bạn đã được chấm", // vn-ok: vi-locale string emitted to clients
-                        en: "Your personal-project task was reviewed",
-                    },
-                    extraContext: {
-                        score: grade.evaluation.score,
-                        passed: grade.passed,
-                        feedback: grade.evaluation.shortFeedback ?? "",
-                    },
+                },
+            },
+        )
+        /** Flatten the grade detail feedbacks into attempt feedback rows. */
+        const feedbackRaws = grade.evaluation.details.flatMap(
+            (detail) => {
+                return detail.feedbacks.map((feedback) => {
+                    return {
+                        message: feedback.message,
+                        severity: feedback.severity,
+                        location: feedback.location,
+                        suggestion: feedback.suggestion,
+                    }
                 })
-                // a failed notification write must never crash grading -- the
-                // attempt + email already landed; just log and move on
-                try {
-                    await this.notificationService.createNotification({
-                        userId: enrollment.userId,
-                        type: NotificationType.MilestoneGraded,
-                        title: {
-                            key: "notification.milestoneGraded.title",
-                            params: {
-                                title: milestoneTask?.title ?? "",
-                                result: grade.passed ? "passed" : "failed",
-                            },
-                        },
-                        target: milestoneTask
-                            ? {
-                                entityName: MilestoneTaskEntity.name,
-                                id: milestoneTask.id,
-                                label: milestoneTask.title,
-                            }
-                            : undefined,
-                    })
-                } catch (error) {
-                    this.winstonService.log(
-                        WinstonLog.ProcessStepExecuted,
-                        {
-                            jobId: job.id ?? "",
-                            queueName,
-                            step: this.stepName,
-                            stepIndex: this.stepIndex,
-                            payload,
-                            success: false,
-                            error: error instanceof Error ? error.message : String(error),
-                        },
-                    )
+            })
+        const feedbacks = feedbackRaws.map(
+            (feedback, index) => {
+                return {
+                    ...feedback,
+                    orderIndex: index,
+                    defaultLocale: payload.locale ?? Locale.En,
                 }
             }
+        )
+        /** Persist the attempt, keyed by the job id for idempotency. */
+        await entityManager.save(
+            UserMilestoneTaskAttemptEntity,
+            {
+                idempotencyKey: job.id,
+                userMilestoneTask: {
+                    id: userMilestoneTask.id,
+                },
+                processedAt: this.dayjsService.now().toDate(),
+                score: grade.evaluation.score,
+                shortFeedback: grade.evaluation.shortFeedback,
+                passed: grade.passed,
+                attemptNumber: numAttempts + 1,
+                // Record WHICH AI model actually graded this attempt (Auto is
+                // load-balanced) so the task feedback page can attribute it.
+                servedModel: grade.aiUsage?.model ?? null,
+                servedProvider: grade.aiUsage?.provider ?? null,
+                promptTokens: grade.aiUsage?.promptTokens ?? null,
+                completionTokens: grade.aiUsage?.completionTokens ?? null,
+                feedbacks,
+                defaultLocale: payload.locale ?? Locale.En,
+            }
+        )
+        /**
+         * Debit AFTER the attempt write to preserve the natural domain order, but
+         * on this SAME transaction. If debit throws, the attempt and every reward
+         * below roll back; a BullMQ retry sees no attempt and can safely try once.
+         */
+        const chargedEnrollment = await entityManager.findOneOrFail(
+            EnrollmentEntity,
+            {
+                where: {
+                    id: payload.enrollmentId,
+                },
+            },
+        )
+        await this.creditService.consume(
+            entityManager,
+            {
+                userId: chargedEnrollment.userId,
+                cost: creditCost,
+                surface: AiCeilSurface.Grading,
+                task: AiModelTask.TaskGrading,
+                model: grade.aiUsage?.model ?? null,
+                provider: grade.aiUsage?.provider ?? null,
+                recommendation: null,
+                promptTokens: grade.aiUsage?.promptTokens ?? null,
+                completionTokens: grade.aiUsage?.completionTokens ?? null,
+                attempts: grade.aiUsage?.attempts ?? null,
+            },
+        )
+        /**
+         * Grant XP + reward points once when the task is passed. refId is the
+         * user-milestone-task id, so re-passing the same task never re-credits
+         * (mirrors the leaderboard's DISTINCT-task x10 count).
+         */
+        if (grade.passed) {
+            await this.grantMilestonePassReward({
+                entityManager,
+                payload,
+                userMilestoneTaskId: userMilestoneTask.id,
+            })
+        }
+        /** Advance the step + persist the result ATOMICALLY with the side effects. */
+        await this.jobActionService.increaseJob(
+            {
+                job,
+                entityManager,
+                // fence: advance only if this worker still owns the job (zombie writes rejected)
+                expectedFencingToken: job.fencingToken,
+            }
+        )
+        await this.jobActionService.saveExecutionResult(
+            {
+                job,
+                key: this.stepName,
+                executionResult: {
+                },
+                entityManager,
+            }
+        )
+        return true
+    }
+
+    /**
+     * Grant the once-per-task XP/points reward, write the home-feed activity, and refresh the
+     * progress projection -- all on the caller's transaction. No-op when the enrollment is gone.
+     * @param params - The transaction manager, payload, and the user-milestone-task being rewarded.
+     */
+    private async grantMilestonePassReward(
+        {
+            entityManager,
+            payload,
+            userMilestoneTaskId,
+        }: GrantMilestonePassRewardParams,
+    ): Promise<void> {
+        const enrollment = await entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: {
+                    id: payload.enrollmentId,
+                },
+                // NOTE: `userId`/`courseId` are @RelationId virtual props
+                // (not real columns) -- they CANNOT appear in `select`.
+                // Load the full row so @RelationId populates them.
+            },
+        )
+        if (!enrollment) {
+            return
+        }
+        await writeXpHistory({
+            entityManager,
+            userId: enrollment.userId,
+            courseId: enrollment.courseId,
+            source: XpSource.Milestone,
+            amount: MILESTONE_PASS_XP,
+            points: FLAT_POINTS.milestonePassed,
+            refId: userMilestoneTaskId,
+        })
+        // home-feed activity for the pass (idempotent per user-milestone-task)
+        const milestoneTask = await entityManager.findOne(
+            MilestoneTaskEntity,
+            {
+                where: {
+                    id: payload.taskId,
+                },
+                select: {
+                    id: true,
+                    title: true,
+                },
+            },
+        )
+        if (milestoneTask) {
+            await writeActivity({
+                entityManager,
+                userId: enrollment.userId,
+                type: ActivityType.MilestonePassed,
+                idempotencyKey: userMilestoneTaskId,
+                metadata: {
+                    target: {
+                        entityName: MilestoneTaskEntity.name,
+                        id: milestoneTask.id,
+                        label: milestoneTask.title,
+                    },
+                },
+            })
+        }
+        // refresh the progress projection in the SAME tx
+        await this.progressProjectionService.recompute({
+            userId: enrollment.userId,
+            courseId: enrollment.courseId,
+            entityManager,
+        })
+    }
+
+    /**
+     * Send the graded-result email and in-app notification for a newly created attempt.
+     * Runs OUTSIDE the grading transaction, so it re-fetches the milestone task rather than
+     * relying on the tx-scoped lookup in {@link grantMilestonePassReward}. A failed
+     * notification write must never fail the step -- the attempt + email already landed.
+     * @param params - The payload, job (for log correlation), and validated grade.
+     */
+    private async notifyLearnerOfCompletion(
+        {
+            payload,
+            job,
+            queueName,
+            grade,
+        }: NotifyMilestoneCompletionParams,
+    ): Promise<void> {
+        const enrollment = await this.entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: {
+                    id: payload.enrollmentId,
+                },
+                // NOTE: `userId` is a @RelationId virtual prop (not a real
+                // column) -- it CANNOT appear in `select`. Load the full row
+                // so @RelationId populates it.
+            },
+        )
+        if (!enrollment) {
+            return
+        }
+        const milestoneTask = await this.entityManager.findOne(
+            MilestoneTaskEntity,
+            {
+                where: {
+                    id: payload.taskId,
+                },
+                select: {
+                    id: true,
+                    title: true,
+                },
+            },
+        )
+        await enqueueLearnerEmail({
+            entityManager: this.entityManager,
+            enqueueSendMailJobService: this.enqueueSendMailJobService,
+            userId: enrollment.userId,
+            template: "milestone-result",
+            locale: payload.locale,
+            webBaseUrl: envConfig().web.baseUrl,
+            subject: {
+                vi: "Task dự án cá nhân của bạn đã được chấm", // vn-ok: vi-locale string emitted to clients
+                en: "Your personal-project task was reviewed",
+            },
+            extraContext: {
+                score: grade.evaluation.score,
+                passed: grade.passed,
+                feedback: grade.evaluation.shortFeedback ?? "",
+            },
+        })
+        // a failed notification write must never crash grading -- the
+        // attempt + email already landed; just log and move on
+        try {
+            await this.notificationService.createNotification({
+                userId: enrollment.userId,
+                type: NotificationType.MilestoneGraded,
+                title: {
+                    key: "notification.milestoneGraded.title",
+                    params: {
+                        title: milestoneTask?.title ?? "",
+                        result: grade.passed ? "passed" : "failed",
+                    },
+                },
+                target: milestoneTask
+                    ? {
+                        entityName: MilestoneTaskEntity.name,
+                        id: milestoneTask.id,
+                        label: milestoneTask.title,
+                    }
+                    : undefined,
+            })
+        } catch (error) {
+            this.winstonService.log(
+                WinstonLog.ProcessStepExecuted,
+                {
+                    jobId: job.id ?? "",
+                    queueName,
+                    step: this.stepName,
+                    stepIndex: this.stepIndex,
+                    payload,
+                    success: false,
+                    error: error instanceof Error ? error.message : String(error),
+                },
+            )
         }
     }
 }

@@ -32,13 +32,13 @@ import {
 import {
     join,
     relative,
-} from "path"
+} from "node:path"
 import {
     tmpdir,
-} from "os"
+} from "node:os"
 import {
     promises as fsPromise,
-} from "fs"
+} from "node:fs"
 
 @Injectable()
 /**
@@ -103,7 +103,7 @@ export class ProcessVideoUploadStepService extends AbstractStepService<FilenameP
         const dashFiles = allFiles.filter((f) => {
             const name = f.toLowerCase()
             const relativePath = relative(taskDir,
-                f).replace(/\\/g,
+                f).replaceAll("\\",
                 "/")
             return relativePath !== filename && (
                 name.endsWith(".mpd") ||
@@ -120,7 +120,7 @@ export class ProcessVideoUploadStepService extends AbstractStepService<FilenameP
 
         for (const filePath of dashFiles) {
             const relPath = relative(taskDir,
-                filePath).replace(/\\/g,
+                filePath).replaceAll("\\",
                 "/")
             const s3Key = `${s3BasePath}/${relPath}`
             const fileBuffer = await fsPromise.readFile(filePath)

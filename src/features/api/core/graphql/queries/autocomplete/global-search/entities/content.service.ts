@@ -13,16 +13,15 @@ import type {
 import {
     ContentEntity,
 } from "@modules/databases/postgresql/primary/entities/content.entity"
+import {
+    buildShortSnippet,
+} from "../shared/simple-title-description-search"
 
 @Injectable()
 /**
  * Service for performing global search on content.
  */
 export class ContentGlobalSearchService {
-    /**
-     * The number of words to include in the snippet.
-     */
-    private readonly snippetWindowWords = 4
     /**
      * Constructor.
      * @param elasticsearch - The Elasticsearch service.
@@ -107,40 +106,14 @@ export class ContentGlobalSearchService {
                 ...(hit.highlight?.title ?? []),
                 ...(hit.highlight?.description ?? []),
                 ...(hit.highlight?.body ?? []),
-            ].filter(Boolean).map((text) => this.buildShortSnippet(text as string))
+            ].filter(Boolean).map((text) => buildShortSnippet(text as string))
             return {
                 id: (source?.id as string | undefined) ?? hit._id ?? "",
                 displayId: (source?.displayId as string | undefined) ?? "",
                 title: (source?.title as string | undefined) ?? "",
                 texts: texts.length ? texts.slice(0,
-                    3) : [this.buildShortSnippet((source?.description as string | undefined) ?? (source?.body as string | undefined) ?? (source?.title as string | undefined) ?? "")],
+                    3) : [buildShortSnippet((source?.description as string | undefined) ?? (source?.body as string | undefined) ?? (source?.title as string | undefined) ?? "")],
             }
         })
-    }
-
-    /**
-     * Builds a short snippet from a text.
-     * @param text - The text.
-     * @returns The short snippet.
-     */
-    private buildShortSnippet(text: string): string {
-        const normalized = (text ?? "").replace(
-            /\s+/g,
-            " ",
-        ).trim()
-        if (!normalized) return "..."
-        const words = normalized.split(" ")
-        const emphasizedWordIndex = words.findIndex((word) => /<em>.*<\/em>/i.test(word))
-        const focusIndex = emphasizedWordIndex >= 0 ? emphasizedWordIndex : Math.floor(words.length / 2)
-        const start = Math.max(
-            0,
-            focusIndex - this.snippetWindowWords,
-        )
-        const end = Math.min(
-            words.length,
-            focusIndex + this.snippetWindowWords + 1,
-        )
-        return `... ${words.slice(start,
-            end).join(" ").trim()} ...`
     }
 }

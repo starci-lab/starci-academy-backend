@@ -1,6 +1,6 @@
 import {
     randomInt,
-} from "crypto"
+} from "node:crypto"
 import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
@@ -201,7 +201,7 @@ export class CoursesCheckoutHandler
         const installment = priced.selectedInstallment
         const chargedVnd = installment ? installment.monthlyAmountVnd : priced.totalChargedVnd
 
-        const requestedCourseIds = priced.lines.map((line) => line.course.id).sort()
+        const requestedCourseIds = priced.lines.map((line) => line.course.id).sort((left, right) => left.localeCompare(right))
         const committed = await this.entityManager.transaction(async (manager) => {
             // The lock is deliberately held across the provider call. Without it, two
             // concurrent clicks can both observe "no pending order" and create two
@@ -244,7 +244,7 @@ export class CoursesCheckoutHandler
                             course: true
                         },
                     })
-                const candidateCourseIds = items.map((item) => item.course.id).sort()
+                const candidateCourseIds = items.map((item) => item.course.id).sort((left, right) => left.localeCompare(right))
                 if (candidateCourseIds.join(",") !== requestedCourseIds.join(",")) {
                     continue
                 }

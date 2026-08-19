@@ -109,6 +109,12 @@ interface RetryServiceRetryParams {
     action: () => Promise<unknown>
 }
 
+/** Rows `programLookups` feeds back for the course and pending-transaction lookups. */
+interface ProgramLookupsRows {
+    course?: Record<string, unknown> | null
+    pending?: Record<string, unknown> | null
+}
+
 /** The three provider clients, all registered so any of the three services can resolve. */
 interface GatewayClients {
     /** Stripe SDK stand-in exposing hosted Checkout Session creation. */
@@ -250,10 +256,7 @@ describe.each(GATEWAYS)("CourseEnroll$label international gateway",
 
         /** Programs the course + pending-transaction lookups, by entity. */
         const programLookups = (
-            rows: {
-                course?: Record<string, unknown> | null
-                pending?: Record<string, unknown> | null
-            } = {
+            rows: ProgramLookupsRows = {
             },
         ) => {
             entityManager.findOne.mockImplementation(async (entity: unknown) => {

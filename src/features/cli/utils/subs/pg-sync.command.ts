@@ -15,11 +15,11 @@ import {
 } from "@modules/platform/winston/winston.service"
 import {
     mkdtemp,
-} from "fs/promises"
+} from "node:fs/promises"
 import {
     tmpdir,
-} from "os"
-import path from "path"
+} from "node:os"
+import path from "node:path"
 import {
     AsyncService,
 } from "@modules/lib/mixin/async.service"

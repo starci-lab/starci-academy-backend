@@ -105,15 +105,18 @@ describe("JudgeCodingSubmissionJudgeStepService",
         let notificationService: { createNotification: jest.Mock }
         let service: JudgeCodingSubmissionJudgeStepService
 
+        /** Overrides `makeContext` accepts to steer one field of the built job context. */
+        interface MakeContextOverrides {
+            language?: string
+            priorVerdict?: CodingVerdict
+            testcases?: Array<TestcaseSeed>
+            /** `null` models a job row that never got an id. */
+            jobId?: string | null
+        }
+
         /** Build the extended job context the step reads. */
         const makeContext = (
-            overrides: {
-                language?: string
-                priorVerdict?: CodingVerdict
-                testcases?: Array<TestcaseSeed>
-                /** `null` models a job row that never got an id. */
-                jobId?: string | null
-            } = {
+            overrides: MakeContextOverrides = {
             },
         ) => {
             const submission = {

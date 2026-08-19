@@ -13,11 +13,11 @@ import {
 import {
     mkdtemp, 
     rm 
-} from "fs/promises"
-import path from "path"
+} from "node:fs/promises"
+import path from "node:path"
 import {
     tmpdir 
-} from "os"
+} from "node:os"
 import {
     WinstonLog,
 } from "@modules/platform/winston/enums/winston-log"
@@ -32,7 +32,7 @@ import {
 } from "@modules/integrations/execa/execa.service"
 import {
     createReadStream
-} from "fs"
+} from "node:fs"
 import type {
     PgBackupParams,
 } from "./types/pg-backup"

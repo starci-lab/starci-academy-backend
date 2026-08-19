@@ -196,7 +196,7 @@ export class TalentCandidatesService {
         // blend; break exact depth ties by the stronger StarCi verification tier
         // (capstone-verified above self-reported). Then paginate the sorted list.
         return candidates
-            .sort((prev, next) => this.sortByDepthThenVerification(prev,
+            .toSorted((prev, next) => this.sortByDepthThenVerification(prev,
                 next))
             .slice(offset,
                 offset + limit)

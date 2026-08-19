@@ -52,7 +52,7 @@ export const nextWeeklyOccurrence = ({
         hours,
         minutes,
         seconds = 0,
-    ] = time.split(":").map((part) => Number(part))
+    ] = time.split(":").map(Number)
 
     // start from the reference day at the slot's wall-clock time
     const candidate = new Date(from)

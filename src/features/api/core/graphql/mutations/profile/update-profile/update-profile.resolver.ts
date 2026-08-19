@@ -84,86 +84,12 @@ export class UpdateProfileResolver {
             user: UserEntity,
     ): Promise<UserEntity> {
         // collect only the columns the client actually sent -- `undefined` means
-        // "leave as-is", so we must not include those keys in the update payload
+        // "leave as-is", so we must not include those keys in the update payload.
+        // Split by domain so each group stays a small, independently-readable patch.
         const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "profileLocked" | "openToWork" | "emailDigestEnabled" | "featuredAchievementSlug" | "roleTitle" | "location" | "workMode" | "linkedinUrl" | "websiteUrl" | "accentColor" | "backgroundEffect">> = {
-        }
-
-        // display name: trim whitespace; an explicit null clears it
-        if (request.displayName !== undefined) {
-            patch.displayName = request.displayName === null
-                ? null
-                : request.displayName.trim()
-        }
-
-        // bio: same partial-update + trim semantics as display name
-        if (request.bio !== undefined) {
-            patch.bio = request.bio === null
-                ? null
-                : request.bio.trim()
-        }
-
-        // avatar: already a validated URL (or null to clear); store verbatim
-        if (request.avatar !== undefined) {
-            patch.avatar = request.avatar
-        }
-
-        // profile lock toggle: write only when the client sent it
-        if (request.profileLocked !== undefined) {
-            patch.profileLocked = request.profileLocked
-        }
-
-        // open-to-work toggle: write only when the client sent it
-        if (request.openToWork !== undefined) {
-            patch.openToWork = request.openToWork
-        }
-
-        // daily-digest email opt-in/out: write only when the client sent it
-        if (request.emailDigestEnabled !== undefined) {
-            patch.emailDigestEnabled = request.emailDigestEnabled
-        }
-
-        // featured mascot: an explicit null clears the pin
-        if (request.featuredAchievementSlug !== undefined) {
-            patch.featuredAchievementSlug = request.featuredAchievementSlug
-        }
-
-        // role title: trim; an explicit null clears it
-        if (request.roleTitle !== undefined) {
-            patch.roleTitle = request.roleTitle === null
-                ? null
-                : request.roleTitle.trim()
-        }
-
-        // location: trim; an explicit null clears it
-        if (request.location !== undefined) {
-            patch.location = request.location === null
-                ? null
-                : request.location.trim()
-        }
-
-        // preferred work mode: write only when the client sent it (null clears)
-        if (request.workMode !== undefined) {
-            patch.workMode = request.workMode
-        }
-
-        // linkedin URL: already validated (or null to clear); store verbatim
-        if (request.linkedinUrl !== undefined) {
-            patch.linkedinUrl = request.linkedinUrl
-        }
-
-        // website URL: already validated (or null to clear); store verbatim
-        if (request.websiteUrl !== undefined) {
-            patch.websiteUrl = request.websiteUrl
-        }
-
-        // accent color: already hex-validated (or null to reset to the default brand accent)
-        if (request.accentColor !== undefined) {
-            patch.accentColor = request.accentColor
-        }
-
-        // ambient background effect: write only when the client sent it
-        if (request.backgroundEffect !== undefined) {
-            patch.backgroundEffect = request.backgroundEffect
+            ...this.buildIdentityPatch(request),
+            ...this.buildPreferencePatch(request),
+            ...this.buildBrandingPatch(request),
         }
 
         // persist only when there is at least one field to change, otherwise skip
@@ -194,5 +120,96 @@ export class UpdateProfileResolver {
         )
 
         return updated
+    }
+
+    /** Identity/bio fields: display name, bio, avatar, role title, location. */
+    private buildIdentityPatch(
+        request: UpdateProfileRequest,
+    ): Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "roleTitle" | "location">> {
+        const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "roleTitle" | "location">> = {
+        }
+        // display name: trim whitespace; an explicit null clears it
+        if (request.displayName !== undefined) {
+            patch.displayName = request.displayName === null
+                ? null
+                : request.displayName.trim()
+        }
+        // bio: same partial-update + trim semantics as display name
+        if (request.bio !== undefined) {
+            patch.bio = request.bio === null
+                ? null
+                : request.bio.trim()
+        }
+        // avatar: already a validated URL (or null to clear); store verbatim
+        if (request.avatar !== undefined) {
+            patch.avatar = request.avatar
+        }
+        // role title: trim; an explicit null clears it
+        if (request.roleTitle !== undefined) {
+            patch.roleTitle = request.roleTitle === null
+                ? null
+                : request.roleTitle.trim()
+        }
+        // location: trim; an explicit null clears it
+        if (request.location !== undefined) {
+            patch.location = request.location === null
+                ? null
+                : request.location.trim()
+        }
+        return patch
+    }
+
+    /** Preference/visibility toggle fields: lock, open-to-work, digest, mascot, work mode. */
+    private buildPreferencePatch(
+        request: UpdateProfileRequest,
+    ): Partial<Pick<UserEntity, "profileLocked" | "openToWork" | "emailDigestEnabled" | "featuredAchievementSlug" | "workMode">> {
+        const patch: Partial<Pick<UserEntity, "profileLocked" | "openToWork" | "emailDigestEnabled" | "featuredAchievementSlug" | "workMode">> = {
+        }
+        // profile lock toggle: write only when the client sent it
+        if (request.profileLocked !== undefined) {
+            patch.profileLocked = request.profileLocked
+        }
+        // open-to-work toggle: write only when the client sent it
+        if (request.openToWork !== undefined) {
+            patch.openToWork = request.openToWork
+        }
+        // daily-digest email opt-in/out: write only when the client sent it
+        if (request.emailDigestEnabled !== undefined) {
+            patch.emailDigestEnabled = request.emailDigestEnabled
+        }
+        // featured mascot: an explicit null clears the pin
+        if (request.featuredAchievementSlug !== undefined) {
+            patch.featuredAchievementSlug = request.featuredAchievementSlug
+        }
+        // preferred work mode: write only when the client sent it (null clears)
+        if (request.workMode !== undefined) {
+            patch.workMode = request.workMode
+        }
+        return patch
+    }
+
+    /** Contact/branding fields: LinkedIn, website, accent color, background effect. */
+    private buildBrandingPatch(
+        request: UpdateProfileRequest,
+    ): Partial<Pick<UserEntity, "linkedinUrl" | "websiteUrl" | "accentColor" | "backgroundEffect">> {
+        const patch: Partial<Pick<UserEntity, "linkedinUrl" | "websiteUrl" | "accentColor" | "backgroundEffect">> = {
+        }
+        // linkedin URL: already validated (or null to clear); store verbatim
+        if (request.linkedinUrl !== undefined) {
+            patch.linkedinUrl = request.linkedinUrl
+        }
+        // website URL: already validated (or null to clear); store verbatim
+        if (request.websiteUrl !== undefined) {
+            patch.websiteUrl = request.websiteUrl
+        }
+        // accent color: already hex-validated (or null to reset to the default brand accent)
+        if (request.accentColor !== undefined) {
+            patch.accentColor = request.accentColor
+        }
+        // ambient background effect: write only when the client sent it
+        if (request.backgroundEffect !== undefined) {
+            patch.backgroundEffect = request.backgroundEffect
+        }
+        return patch
     }
 }

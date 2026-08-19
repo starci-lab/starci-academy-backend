@@ -14,6 +14,10 @@ import {
     FlashcardDeckEntity,
 } from "@modules/databases/postgresql/primary/entities/flashcard-deck.entity"
 
+import {
+    buildShortSnippet,
+} from "../shared/simple-title-description-search"
+
 @Injectable()
 /**
  * Service for performing global search on flashcard decks.
@@ -24,9 +28,6 @@ import {
  * `title`/`description` instead of the n-gram fields used by course search.
  */
 export class FlashcardDeckGlobalSearchService {
-    /** The number of words to include around the match in a snippet. */
-    private readonly snippetWindowWords = 4
-
     constructor(
         private readonly elasticsearch: ElasticsearchService,
     ) {}
@@ -109,7 +110,7 @@ export class FlashcardDeckGlobalSearchService {
             const texts = [
                 ...(hit.highlight?.title ?? []),
                 ...(hit.highlight?.description ?? []),
-            ].filter(Boolean).map((text) => this.buildShortSnippet(text as string))
+            ].filter(Boolean).map((text) => buildShortSnippet(text as string))
             return {
                 id: (source?.id as string | undefined) ?? hit._id ?? "",
                 displayId: (source?.displayId as string | undefined) ?? "",
@@ -119,40 +120,12 @@ export class FlashcardDeckGlobalSearchService {
                         0,
                         3,
                     )
-                    : [this.buildShortSnippet(
+                    : [buildShortSnippet(
                         (source?.description as string | undefined)
                         ?? (source?.title as string | undefined)
                         ?? "",
                     )],
             }
         })
-    }
-
-    /**
-     * Builds a short, match-centered snippet from a (possibly highlighted) text.
-     * @param text - The raw or highlighted text.
-     * @returns A trimmed snippet windowed around the emphasized word.
-     */
-    private buildShortSnippet(text: string): string {
-        const normalized = (text ?? "").replace(
-            /\s+/g,
-            " ",
-        ).trim()
-        if (!normalized) {
-            return "..."
-        }
-        const words = normalized.split(" ")
-        const emphasizedWordIndex = words.findIndex((word) => /<em>.*<\/em>/i.test(word))
-        const focusIndex = emphasizedWordIndex >= 0 ? emphasizedWordIndex : Math.floor(words.length / 2)
-        const start = Math.max(
-            0,
-            focusIndex - this.snippetWindowWords,
-        )
-        const end = Math.min(
-            words.length,
-            focusIndex + this.snippetWindowWords + 1,
-        )
-        return `... ${words.slice(start,
-            end).join(" ").trim()} ...`
     }
 }

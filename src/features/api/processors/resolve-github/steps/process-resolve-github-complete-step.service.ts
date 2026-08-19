@@ -30,11 +30,11 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    WinstonLog,
-} from "@modules/platform/winston/enums/winston-log"
-import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
+import {
+    finalizeStep,
+} from "../../shared/finalize-step"
 
 @Injectable()
 /**
@@ -60,72 +60,23 @@ export class ProcessResolveGithubCompleteStepService extends AbstractStepService
     async process(
         context: JobExtendedContext<EnqueueResolveGithubPayload, EmptyObject>,
     ): Promise<void> {
-        const executionResult = await this.execute()
-        await this.finalize(
+        const executionResult: EmptyObject = {
+        }
+        await finalizeStep({
+            entityManager: this.entityManager,
+            jobActionService: this.jobActionService,
+            winstonService: this.winstonService,
+            stepName: this.stepName,
+            stepIndex: this.stepIndex,
             executionResult,
             context,
-        )
-    }
-
-    /**
-     * Execute the step.
-     * @returns The execution result.
-     */
-    private async execute(): Promise<EmptyObject> {
-        return {
-        }
-    }
-
-    /**
-     * Finalize the step.
-     * @param executionResult - The execution result.
-     * @param context - The job context.
-     * @returns The void.
-     */
-    private async finalize(
-        executionResult: EmptyObject,
-        context: JobExtendedContext<EnqueueResolveGithubPayload, EmptyObject>,
-    ): Promise<void> {
-        const {
-            job,
-            payload,
-            queueName,
-        } = context
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                await this.jobActionService.increaseJob(
-                    {
-                        job,
-                        entityManager,
-                    },
-                )
-                await this.jobActionService.saveExecutionResult(
-                    {
-                        job,
-                        key: this.stepName,
-                        executionResult,
-                        entityManager,
-                    },
-                )
-            },
-        )
-        this.winstonService.log(
-            WinstonLog.ProcessStepExecuted,
-            {
-                jobId: job.id ?? "",
-                queueName,
-                step: this.stepName,
-                stepIndex: this.stepIndex,
-                payload,
-                success: true,
-            },
-        )
+        })
 
         // GitHub org/team membership resolved -> the learner now has repo access.
         await enqueueLearnerEmail({
             entityManager: this.entityManager,
             enqueueSendMailJobService: this.enqueueSendMailJobService,
-            userId: payload.userId,
+            userId: context.payload.userId,
             template: "repo-access-granted",
             webBaseUrl: envConfig().web.baseUrl,
             subject: {
@@ -133,9 +84,8 @@ export class ProcessResolveGithubCompleteStepService extends AbstractStepService
                 en: "Your repository access is ready",
             },
             extraContext: {
-                githubUsername: payload.githubUsername,
+                githubUsername: context.payload.githubUsername,
             },
         })
     }
 }
-

@@ -435,13 +435,15 @@ export class MockInterviewGradingService {
             matchedContentIds: this.gradeMockInterviewSessionParseService.normalizeStringArray(attempt.matchedContentIds),
             questionReviews: attempt.questionReviews.map((review) => ({
                 questionIndex: Number(review.questionIndex),
-                kind: String(review.kind ?? ""),
-                question: String(review.question ?? ""),
-                candidateAnswer: String(review.candidateAnswer ?? ""),
+                kind: typeof review.kind === "string" ? review.kind : "",
+                question: typeof review.question === "string" ? review.question : "",
+                candidateAnswer: typeof review.candidateAnswer === "string"
+                    ? review.candidateAnswer
+                    : "",
                 modelAnswer: typeof review.modelAnswer === "string"
                     ? review.modelAnswer
                     : null,
-                feedback: String(review.feedback ?? ""),
+                feedback: typeof review.feedback === "string" ? review.feedback : "",
                 score: Number(review.score),
                 max: Number(review.max),
                 matchedContentId: typeof review.matchedContentId === "string"

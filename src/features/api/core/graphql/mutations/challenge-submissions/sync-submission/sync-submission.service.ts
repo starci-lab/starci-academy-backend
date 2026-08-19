@@ -9,7 +9,6 @@ import {
 } from "./sync-submission.command"
 import type {
     SyncSubmissionParams,
-    SyncSubmissionResult,
 } from "./types/sync-submission"
 
 @Injectable()
@@ -24,7 +23,7 @@ export class SyncSubmissionService {
 
     async execute(
         params: SyncSubmissionParams,
-    ): Promise<SyncSubmissionResult> {
+    ): Promise<void> {
         return this.commandBus.execute(
             new SyncSubmissionCommand(params),
         )

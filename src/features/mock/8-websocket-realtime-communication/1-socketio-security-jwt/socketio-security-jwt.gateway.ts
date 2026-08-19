@@ -13,6 +13,7 @@ import {
 } from "./dtos/chat"
 import type {
     JwtUser,
+    RoomJoinedAck,
     SecureChatBroadcast,
 } from "./types/auth"
 
@@ -76,7 +77,7 @@ export class SocketioSecurityJwtGateway implements OnGatewayInit {
     handleJoinRoom(
         @ConnectedSocket() client: Socket,
         @MessageBody() body: JoinRoomDto,
-    ): { event: string; data: { room: string; message: string } } {
+    ): RoomJoinedAck {
         // add this socket to the room so it receives that room's broadcasts
         void client.join(body.room)
         // acknowledge the join back to the caller

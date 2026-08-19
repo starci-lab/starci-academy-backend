@@ -321,6 +321,13 @@ interface GroundingBankRow {
     checklists?: Array<GroundingChecklistRow>
 }
 
+/** What course RAG retrieval reports for a design-mode grade. */
+interface GradeFixtureRagExcerpt {
+    excerpt: string
+    retrievedChunks: number
+    matchedContentIds: Array<string>
+}
+
 /** Everything the grading service's collaborators resolve to for one test. */
 interface GradeFixture {
     /** The already-persisted attempt replayed by a repeat request, or null. */
@@ -334,7 +341,7 @@ interface GradeFixture {
     /** Raw model output the AI lane returns. */
     modelText: string
     /** What course RAG retrieval reports for a design-mode grade. */
-    excerpt: { excerpt: string, retrievedChunks: number, matchedContentIds: Array<string> }
+    excerpt: GradeFixtureRagExcerpt
 }
 
 /** The default provider scorecard: one scored question, one attribute, one feedback line. */
@@ -1681,15 +1688,18 @@ describe("MockInterviewGradingService — question reviews",
                 }])
             })
 
+        /** Inputs `buildReviews` forwards to the private review builder it reaches into. */
+        interface BuildReviewsParams {
+            turns: Array<MockInterviewTurnRecord>
+            seedGroundings: Array<MockInterviewSeedGrounding>
+            phaseScores: Array<MockInterviewPhaseScore>
+            questionFeedback: Array<{ index: number, feedback: string }>
+            matchedContentIds: Array<string>
+        }
+
         /** Reaches the private review builder for the combinations a full grade cannot stage. */
         const buildReviews = (
-            params: {
-                turns: Array<MockInterviewTurnRecord>
-                seedGroundings: Array<MockInterviewSeedGrounding>
-                phaseScores: Array<MockInterviewPhaseScore>
-                questionFeedback: Array<{ index: number, feedback: string }>
-                matchedContentIds: Array<string>
-            },
+            params: BuildReviewsParams,
         ): Array<MockInterviewQuestionReview> => {
             const harness = makeGradingHarness()
             return (harness.service as unknown as {

@@ -63,7 +63,6 @@ export class MinioWebhookHandler
                         },
                     },
                 )
-                continue
             }
         }
     }

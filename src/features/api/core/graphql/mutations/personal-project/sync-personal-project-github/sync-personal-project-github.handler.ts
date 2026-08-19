@@ -36,9 +36,12 @@ import {
     SyncPersonalProjectGithubCommand,
 } from "./sync-personal-project-github.command"
 import type {
-    SyncPersonalProjectGithubResult,
+    GithubSyncIntent,
     UpsertPersonalProjectGithubParams,
 } from "./types/sync-personal-project-github"
+import type {
+    SyncPersonalProjectGithubRequest,
+} from "./graphql-types/request"
 import {
     UrlValidatorService,
 } from "@modules/lib/validators/url.service"
@@ -53,8 +56,8 @@ const BRANCH_MAX = 255
 @Injectable()
 /** Handler for `SyncPersonalProjectGithubCommand`. */
 export class SyncPersonalProjectGithubHandler
-    extends ICQRSHandler<SyncPersonalProjectGithubCommand, SyncPersonalProjectGithubResult>
-    implements ICommandHandler<SyncPersonalProjectGithubCommand, SyncPersonalProjectGithubResult> {
+    extends ICQRSHandler<SyncPersonalProjectGithubCommand, void>
+    implements ICommandHandler<SyncPersonalProjectGithubCommand, void> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -67,7 +70,7 @@ export class SyncPersonalProjectGithubHandler
     /** Process the command. */
     protected override async process(
         command: SyncPersonalProjectGithubCommand,
-    ): Promise<SyncPersonalProjectGithubResult> {
+    ): Promise<void> {
         const {
             request,
             user,
@@ -98,12 +101,6 @@ export class SyncPersonalProjectGithubHandler
             request,
         }: UpsertPersonalProjectGithubParams,
     ): Promise<void> {
-        const {
-            githubUrl,
-            branch,
-            githubToken,
-            clearGithubToken,
-        } = request
         const enrollment = await entityManager.findOneOrFail(
             EnrollmentEntity,
             {
@@ -118,58 +115,33 @@ export class SyncPersonalProjectGithubHandler
             },
         )
 
-        const urlTrimmed = typeof githubUrl === "string" ? githubUrl.trim() : ""
-        const hasUrl = urlTrimmed.length > 0
-        const branchProvided = branch !== undefined && branch !== null
-        const branchTrimmed = branchProvided ? String(branch).trim() : ""
-        const tokenTrimmed = typeof githubToken === "string" ? githubToken.trim() : ""
-        const hasToken = tokenTrimmed.length > 0
-        const shouldClearToken = clearGithubToken === true
+        const intent = this.resolveGithubSyncIntent(request)
 
-        if (!hasUrl && !branchProvided && !hasToken && !shouldClearToken) {
+        if (!intent.hasUrl && !intent.branchProvided && !intent.hasToken && !intent.shouldClearToken) {
             throw new PersonalProjectGithubSyncInputMissingException({
             })
         }
 
         const storedUrlTrimmed = enrollment.personalProjectGithubUrl?.trim() ?? ""
-        if (!hasUrl && branchProvided && storedUrlTrimmed.length === 0) {
+        if (!intent.hasUrl && intent.branchProvided && storedUrlTrimmed.length === 0) {
             throw new PersonalProjectGithubUrlMissingException({
             })
         }
 
         let didUpdate = false
-        if (hasUrl) {
-            await this.urlValidatorService.isParsable(urlTrimmed)
-            enrollment.personalProjectGithubUrl = urlTrimmed
+        if (intent.hasUrl) {
+            await this.urlValidatorService.isParsable(intent.urlTrimmed)
+            enrollment.personalProjectGithubUrl = intent.urlTrimmed
             didUpdate = true
         }
-        if (branchProvided) {
-            if (branchTrimmed.length > BRANCH_MAX) {
-                throw new PersonalProjectBranchTooLongException({
-                    max: BRANCH_MAX,
-                })
-            }
-            if (branchTrimmed.length > 0 && !BRANCH_PATTERN.test(branchTrimmed)) {
-                throw new PersonalProjectInvalidBranchNameException({
-                })
-            }
-            enrollment.personalProjectGithubBranch = branchTrimmed.length > 0
-                ? branchTrimmed
-                : null
+        if (this.applyBranchUpdate(enrollment,
+            intent)) {
             didUpdate = true
         }
         // token: clearing wins over setting. Encrypt at rest (AES-256-GCM); the plaintext is
         // never returned again -- only the masked last4 is exposed (mirrors BYOK key storage).
-        if (shouldClearToken) {
-            enrollment.personalProjectGithubTokenEncrypted = null
-            enrollment.personalProjectGithubTokenLast4 = null
-            didUpdate = true
-        } else if (hasToken) {
-            const payload = this.encryptionService.encrypt({
-                plainText: tokenTrimmed,
-            })
-            enrollment.personalProjectGithubTokenEncrypted = JSON.stringify(payload)
-            enrollment.personalProjectGithubTokenLast4 = tokenTrimmed.slice(-4)
+        if (this.applyTokenUpdate(enrollment,
+            intent)) {
             didUpdate = true
         }
         if (!didUpdate) {
@@ -181,5 +153,86 @@ export class SyncPersonalProjectGithubHandler
             enrollment,
         )
     }
+
+    /** Normalize a sync request's raw fields into trimmed, presence-checked intent. */
+    private resolveGithubSyncIntent(
+        request: SyncPersonalProjectGithubRequest,
+    ): GithubSyncIntent {
+        const {
+            githubUrl,
+            branch,
+            githubToken,
+            clearGithubToken,
+        } = request
+        const urlTrimmed = typeof githubUrl === "string" ? githubUrl.trim() : ""
+        const branchProvided = branch !== undefined && branch !== null
+        const tokenTrimmed = typeof githubToken === "string" ? githubToken.trim() : ""
+        return {
+            urlTrimmed,
+            hasUrl: urlTrimmed.length > 0,
+            branchProvided,
+            branchTrimmed: branchProvided ? String(branch).trim() : "",
+            tokenTrimmed,
+            hasToken: tokenTrimmed.length > 0,
+            shouldClearToken: clearGithubToken === true,
+        }
+    }
+
+    /**
+     * Validate + apply the branch update, when one was provided.
+     * @returns Whether the branch field was updated.
+     */
+    private applyBranchUpdate(
+        enrollment: EnrollmentEntity,
+        {
+            branchProvided,
+            branchTrimmed,
+        }: GithubSyncIntent,
+    ): boolean {
+        if (!branchProvided) {
+            return false
+        }
+        if (branchTrimmed.length > BRANCH_MAX) {
+            throw new PersonalProjectBranchTooLongException({
+                max: BRANCH_MAX,
+            })
+        }
+        if (branchTrimmed.length > 0 && !BRANCH_PATTERN.test(branchTrimmed)) {
+            throw new PersonalProjectInvalidBranchNameException({
+            })
+        }
+        enrollment.personalProjectGithubBranch = branchTrimmed.length > 0
+            ? branchTrimmed
+            : null
+        return true
+    }
+
+    /**
+     * Apply the token update: clearing wins over setting.
+     * @returns Whether the token fields were updated.
+     */
+    private applyTokenUpdate(
+        enrollment: EnrollmentEntity,
+        {
+            shouldClearToken,
+            hasToken,
+            tokenTrimmed,
+        }: GithubSyncIntent,
+    ): boolean {
+        if (shouldClearToken) {
+            enrollment.personalProjectGithubTokenEncrypted = null
+            enrollment.personalProjectGithubTokenLast4 = null
+            return true
+        }
+        if (!hasToken) {
+            return false
+        }
+        const payload = this.encryptionService.encrypt({
+            plainText: tokenTrimmed,
+        })
+        enrollment.personalProjectGithubTokenEncrypted = JSON.stringify(payload)
+        enrollment.personalProjectGithubTokenLast4 = tokenTrimmed.slice(-4)
+        return true
+    }
 }
-
+

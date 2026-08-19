@@ -211,7 +211,7 @@ export class GradeMockInterviewSessionParseService {
                 index: this.normalizeIndex(item.index),
                 covered: Array.isArray(item.covered)
                     ? item.covered
-                        .map((entry) => Number(entry))
+                        .map(Number)
                         .filter((entry) => Number.isFinite(entry) && entry >= 0)
                         .map((entry) => Math.trunc(entry))
                     : [],

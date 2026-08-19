@@ -19,6 +19,7 @@ import {
     type BuildMockInterviewGradePromptParams,
     type BuildMockInterviewGradePromptResult,
     type BuildMockInterviewQuestionBlockParams,
+    type MockInterviewSeedGrounding,
     type MockInterviewTurnRecord,
 } from "./types/mock-interview-grade"
 
@@ -62,6 +63,17 @@ const WORKSPACE_ARTIFACTS_GUIDANCE = [
     "- \"[Notes]\" — free-form scratch notes (e.g. capacity estimation, an API sketch).",
     "A session with NO artifacts (voice-only) is completely normal and must NOT be penalized for their",
     "absence — grade only what the transcript actually contains.",
+].join("\n")
+
+/**
+ * The speech-to-text caveat -- identical wording for both the design flow and the qna flow so the
+ * grader ignores transcription noise the same way regardless of mode.
+ */
+const SPEECH_TO_TEXT_CAVEAT = [
+    "## Speech-to-text caveat",
+    "The candidate's spoken turns were captured by speech-to-text. IGNORE spelling, casing, punctuation, and",
+    "mis-recognized technical terms (e.g. \"sequel\" for \"SQL\", \"cash\" for \"cache\"). Grade the SUBSTANCE of",
+    "what they meant, not transcription noise.",
 ].join("\n")
 
 /**
@@ -225,10 +237,7 @@ export class MockInterviewGradePromptService {
             "You are a senior technical interviewer producing the FINAL scorecard for a candidate who just",
             `completed a full mock interview about "${promptTitle}", grounded in what this course actually teaches.`,
             "",
-            "## Speech-to-text caveat",
-            "The candidate's spoken turns were captured by speech-to-text. IGNORE spelling, casing, punctuation, and",
-            "mis-recognized technical terms (e.g. \"sequel\" for \"SQL\", \"cash\" for \"cache\"). Grade the SUBSTANCE of",
-            "what they meant, not transcription noise.",
+            SPEECH_TO_TEXT_CAVEAT,
             "",
             WORKSPACE_ARTIFACTS_GUIDANCE.replace(
                 "A session with NO artifacts",
@@ -277,15 +286,7 @@ export class MockInterviewGradePromptService {
             "JSON keys stay in English; phase keys stay one of the 5 lowercase English literals above; verdict",
             "stays one of the lowercase English literals above.",
             "",
-            "## Output format",
-            "Respond with a SINGLE JSON object matching this shape exactly (replace the placeholder values):",
-            "",
-            exampleJson,
-            "",
-            "## JSON formatting",
-            "- Output STRICT JSON only — no markdown fences, no prose, no comments, no trailing commas.",
-            "- Use double quotes for all keys and string values.",
-            "- Use null (not the string \"null\") for an absent followUpQuestion.",
+            ...this.buildOutputFormatSection(exampleJson),
         ].join("\n")
 
         const humanText = [
@@ -452,10 +453,7 @@ export class MockInterviewGradePromptService {
             "question's block, not a single rubric for the whole session. Score EACH question separately; do not",
             "average them yourself (the client computes any composite it needs from your per-question breakdown).",
             "",
-            "## Speech-to-text caveat",
-            "The candidate's spoken turns were captured by speech-to-text. IGNORE spelling, casing, punctuation, and",
-            "mis-recognized technical terms (e.g. \"sequel\" for \"SQL\", \"cash\" for \"cache\"). Grade the SUBSTANCE of",
-            "what they meant, not transcription noise.",
+            SPEECH_TO_TEXT_CAVEAT,
             "",
             WORKSPACE_ARTIFACTS_GUIDANCE,
             "",
@@ -503,15 +501,7 @@ export class MockInterviewGradePromptService {
             "JSON keys stay in English; `phaseScores[].phase` stays the literal per-question labels above", // vn-ok: prompt instructs model to keep Vietnamese phase labels
             "regardless of feedback language; verdict stays one of the lowercase English literals above.",
             "",
-            "## Output format",
-            "Respond with a SINGLE JSON object matching this shape exactly (replace the placeholder values):",
-            "",
-            exampleJson,
-            "",
-            "## JSON formatting",
-            "- Output STRICT JSON only — no markdown fences, no prose, no comments, no trailing commas.",
-            "- Use double quotes for all keys and string values.",
-            "- Use null (not the string \"null\") for an absent followUpQuestion.",
+            ...this.buildOutputFormatSection(exampleJson),
         ].join("\n")
 
         const humanText = [
@@ -549,44 +539,8 @@ export class MockInterviewGradePromptService {
             questionTurns,
             grounding,
         } = params
-        const kind = grounding
-            ? (Object.values(MockInterviewKind).find((candidate) => candidate === grounding.kind) ?? MockInterviewKind.Theory)
-            : MockInterviewKind.Theory
-        // An interview-bank question carries an AUTHORED answer and/or rubric --
-        // grade the candidate by comparing to THAT reference, for EVERY kind (not
-        // just theory). Legacy flashcard seeds only ship a reference for theory.
-        const hasReference = Boolean(grounding) && (Boolean(grounding?.answer) || (grounding?.rubric?.length ?? 0) > 0)
-
-        const referenceLines = hasReference && grounding
-            ? [
-                `Reference (question): ${grounding.question}`,
-                grounding.answer
-                    ? `Reference (model answer — GRADE BY COMPARING the candidate's answer against this): ${grounding.answer}`
-                    : null,
-                // Authored checkpoints replace the flat rubric line when the question has
-                // them: each is numbered so the model can report WHICH ones the candidate
-                // covered, and the score is then summed from those bands in code rather
-                // than picked by the model.
-                grounding.checkpoints && grounding.checkpoints.length > 0
-                    ? `Reference (scoring CHECKPOINTS — the primary grading anchor; report which ones the candidate COVERED via "coveredCheckpoints"): ${grounding.checkpoints
-                        .map((checkpoint, order) => `(${order}) [${checkpoint.dimension ?? "technical"}${checkpoint.critical ? ", MUST-HIT" : ""}, ${checkpoint.scoreBand} pts] ${checkpoint.text}`)
-                        .join(" ")}`
-                    : grounding.rubric && grounding.rubric.length > 0
-                        ? `Reference (scoring reasoning points — each one covered earns credit; this is the primary grading anchor): ${grounding.rubric.map((point, order) => `(${order + 1}) ${point}`).join(" ")}`
-                        : null,
-                // the GIVEN (buggy) code the candidate was asked to FIX -- the grader
-                // compares the candidate's own "[Code lang=...]" workspace artifact
-                // against THIS baseline, so the FIX itself is scored (did they change
-                // the right line?), not just whether the final code looks plausible.
-                grounding.givenCode
-                    ? `Reference (the GIVEN code — may contain a bug; grade the candidate's FIX by COMPARING the "[Code lang=...]" artifact they submitted against this baseline, checking whether they changed the right thing):\n\`\`\`${grounding.givenLang ?? ""}\n${grounding.givenCode}\n\`\`\``
-                    : null,
-                grounding.keywords.length > 0
-                    ? `Reference (keywords worth covering): ${grounding.keywords.join(", ")}`
-                    : null,
-            ].filter((line): line is string => line !== null)
-            : []
-
+        const kind = this.resolveQuestionKind(grounding)
+        const referenceLines = this.buildReferenceLines(grounding)
         const transcriptLines = questionTurns
             .map((turn) => `${turn.role}: ${turn.content}`)
             .join("\n") || "(no turns recorded for this question)"
@@ -598,6 +552,96 @@ export class MockInterviewGradePromptService {
             "Transcript for this question:",
             transcriptLines,
         ].join("\n")
+    }
+
+    /** Resolve a question's cognitive-frame kind, defaulting to `theory` for a missing/unknown grounding. */
+    private resolveQuestionKind(
+        grounding: MockInterviewSeedGrounding | undefined,
+    ): MockInterviewKind {
+        if (!grounding) {
+            return MockInterviewKind.Theory
+        }
+        return Object.values(MockInterviewKind).find((candidate) => candidate === grounding.kind)
+            ?? MockInterviewKind.Theory
+    }
+
+    /**
+     * Decide whether a question's grounding carries an authored reference (answer
+     * and/or rubric) worth grading against. An interview-bank question carries an
+     * AUTHORED answer and/or rubric -- grade the candidate by comparing to THAT
+     * reference, for EVERY kind (not just theory). Legacy flashcard seeds only
+     * ship a reference for theory.
+     */
+    private hasSeedReference(
+        grounding: MockInterviewSeedGrounding | undefined,
+    ): boolean {
+        if (!grounding) {
+            return false
+        }
+        return Boolean(grounding.answer) || (grounding.rubric?.length ?? 0) > 0
+    }
+
+    /**
+     * Build the reference lines for one question's grounding, when it has an
+     * authored reference worth grading against. Empty when the grounding is
+     * missing or has no reference at all.
+     */
+    private buildReferenceLines(
+        grounding: MockInterviewSeedGrounding | undefined,
+    ): Array<string> {
+        if (!grounding || !this.hasSeedReference(grounding)) {
+            return []
+        }
+        return [
+            `Reference (question): ${grounding.question}`,
+            grounding.answer
+                ? `Reference (model answer — GRADE BY COMPARING the candidate's answer against this): ${grounding.answer}`
+                : null,
+            // Authored checkpoints replace the flat rubric line when the question has
+            // them: each is numbered so the model can report WHICH ones the candidate
+            // covered, and the score is then summed from those bands in code rather
+            // than picked by the model.
+            this.resolveCheckpointsOrRubricLine(grounding),
+            // the GIVEN (buggy) code the candidate was asked to FIX -- the grader
+            // compares the candidate's own "[Code lang=...]" workspace artifact
+            // against THIS baseline, so the FIX itself is scored (did they change
+            // the right line?), not just whether the final code looks plausible.
+            grounding.givenCode
+                ? `Reference (the GIVEN code — may contain a bug; grade the candidate's FIX by COMPARING the "[Code lang=...]" artifact they submitted against this baseline, checking whether they changed the right thing):\n\`\`\`${grounding.givenLang ?? ""}\n${grounding.givenCode}\n\`\`\``
+                : null,
+            grounding.keywords.length > 0
+                ? `Reference (keywords worth covering): ${grounding.keywords.join(", ")}`
+                : null,
+        ].filter((line): line is string => line !== null)
+    }
+
+    /**
+     * Picks the checkpoints-or-rubric reference line for one question:
+     * authored checkpoints are the primary grading anchor when present, the
+     * flat rubric is the fallback, and no line is emitted when neither exists.
+     *
+     * @param grounding - The question's seed grounding.
+     * @returns The reference line, or `null` when there's nothing to report.
+     */
+    private resolveCheckpointsOrRubricLine(
+        grounding: MockInterviewSeedGrounding,
+    ): string | null {
+        if (grounding.checkpoints && grounding.checkpoints.length > 0) {
+            const checkpointLines = grounding.checkpoints
+                .map((checkpoint, order) => {
+                    const criticalTag = checkpoint.critical ? ", MUST-HIT" : ""
+                    return `(${order}) [${checkpoint.dimension ?? "technical"}${criticalTag}, ${checkpoint.scoreBand} pts] ${checkpoint.text}`
+                })
+                .join(" ")
+            return `Reference (scoring CHECKPOINTS — the primary grading anchor; report which ones the candidate COVERED via "coveredCheckpoints"): ${checkpointLines}`
+        }
+        if (grounding.rubric && grounding.rubric.length > 0) {
+            const rubricLines = grounding.rubric
+                .map((point, order) => `(${order + 1}) ${point}`)
+                .join(" ")
+            return `Reference (scoring reasoning points — each one covered earns credit; this is the primary grading anchor): ${rubricLines}`
+        }
+        return null
     }
 
     /**
@@ -673,5 +717,28 @@ export class MockInterviewGradePromptService {
         return courseExcerpt.trim()
             ? courseExcerpt
             : "(No course material was retrieved for this session — grade against sound general practice for the subject.)"
+    }
+
+    /**
+     * Build the trailing "## Output format" + "## JSON formatting" section, shared verbatim
+     * between {@link buildDesign} and {@link buildQna} -- only the pinned example JSON differs.
+     *
+     * @param exampleJson - The mode's literal example object, pre-stringified.
+     * @returns The section's lines, ready to spread into the system message.
+     */
+    private buildOutputFormatSection(
+        exampleJson: string,
+    ): Array<string> {
+        return [
+            "## Output format",
+            "Respond with a SINGLE JSON object matching this shape exactly (replace the placeholder values):",
+            "",
+            exampleJson,
+            "",
+            "## JSON formatting",
+            "- Output STRICT JSON only — no markdown fences, no prose, no comments, no trailing commas.",
+            "- Use double quotes for all keys and string values.",
+            "- Use null (not the string \"null\") for an absent followUpQuestion.",
+        ]
     }
 }

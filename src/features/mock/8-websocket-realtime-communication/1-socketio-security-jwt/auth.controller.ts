@@ -20,6 +20,7 @@ import {
     CredentialsDto,
 } from "./dtos/credentials"
 import type {
+    AuthAccessTokenResponse,
     JwtUser,
 } from "./types/auth"
 
@@ -49,7 +50,7 @@ export class AuthController {
     @HttpCode(201)
     register(
         @Body() body: CredentialsDto,
-    ): { access_token: string } {
+    ): AuthAccessTokenResponse {
         // upsert the user and get back the claims to sign
         const user = this.store.register(body.username,
             body.password)
@@ -69,7 +70,7 @@ export class AuthController {
     @HttpCode(200)
     login(
         @Body() body: CredentialsDto,
-    ): { access_token: string } {
+    ): AuthAccessTokenResponse {
         // verify the supplied credentials against the in-memory store
         const user = this.store.verify(body.username,
             body.password)

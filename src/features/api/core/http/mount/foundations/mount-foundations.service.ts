@@ -10,10 +10,10 @@ import {
 import {
     MountFoundationsFileNotFoundException,
 } from "@modules/platform/exceptions/errors/mount/foundations-file-not-found"
-import fs from "fs/promises"
+import fs from "node:fs/promises"
 import {
     join,
-} from "path"
+} from "node:path"
 import type {
     ReadFoundationsFileResult,
 } from "./types/mount-foundations"
