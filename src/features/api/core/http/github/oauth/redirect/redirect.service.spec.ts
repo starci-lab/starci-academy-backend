@@ -8,15 +8,16 @@ describe("GithubOauthRedirectCommandService",
             async () => {
                 const commandBus = {
                     execute: jest.fn().mockResolvedValue({
-                        authorizationUrl: "https://github.test/oauth" 
+                        url: "https://github.test/oauth" 
                     }) 
                 }
                 const service = new GithubOauthRedirectCommandService(commandBus as never)
                 const params = {
+                    refreshToken: "refresh-token",
                     redirectUri: "https://app.test/callback" 
                 }
                 await expect(service.execute(params)).resolves.toEqual({
-                    authorizationUrl: "https://github.test/oauth" 
+                    url: "https://github.test/oauth" 
                 })
                 expect(commandBus.execute).toHaveBeenCalledWith(expect.objectContaining({
                     params 

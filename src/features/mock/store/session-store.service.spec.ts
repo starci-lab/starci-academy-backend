@@ -116,10 +116,10 @@ describe("SessionStoreService",
                     customer: "Acme",
                     items: [
                         {
-                            quantity: 2, unitPrice: 12.5
+                            description: "first", quantity: 2, unitPrice: 12.5
                         },
                         {
-                            quantity: 1, unitPrice: 5
+                            description: "second", quantity: 1, unitPrice: 5
                         },
                     ],
                 })).toEqual({
@@ -148,7 +148,10 @@ describe("SessionStoreService",
                 expect(store["cleanupHandle"]).not.toBeNull()
                 store.getUsers(scope)
                 const sessions = store["sessions"]
-                sessions.get(`${scope.moduleId}/${scope.lessonId}/${scope.sessionId}`).lastAccessedAt = Date.now() - (31 * 60 * 1000)
+                const staleSession = sessions.get(`${scope.moduleId}/${scope.lessonId}/${scope.sessionId}`)
+                expect(staleSession).toBeDefined()
+                if (staleSession === undefined) throw new Error("expected seeded session")
+                staleSession.lastAccessedAt = Date.now() - (31 * 60 * 1000)
                 jest.advanceTimersByTime(5 * 60 * 1000)
                 expect(store.getUsers(scope)).toHaveLength(3)
                 store.onModuleDestroy()
