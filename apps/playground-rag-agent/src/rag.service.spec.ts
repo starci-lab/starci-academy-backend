@@ -31,7 +31,7 @@ describe("RagService",
             async () => {
                 const service = new RagService()
                 await expect(service.index({
-                    code: "", fileName: "empty.ts" 
+                    kind: "paste", code: "", fileName: "empty.ts" 
                 })).resolves.toMatchObject({
                     chunkCount: 0, sourceLabel: "empty.ts (on-device indexing needs inline code for now)" 
                 })
@@ -43,7 +43,7 @@ describe("RagService",
                     status: 200 
                 }))
                 await expect(service.index({
-                    code: "const value = 1", fileName: "sample.ts" 
+                    kind: "paste", code: "const value = 1", fileName: "sample.ts" 
                 })).resolves.toMatchObject({
                     chunkCount: 1, sourceLabel: "sample.ts" 
                 })
@@ -61,7 +61,7 @@ describe("RagService",
                 },
                 (_, index) => `const line${index} = ${index}`).join("\n")
                 await expect(service.index({
-                    code: longCode, fileName: "partial.ts" 
+                    kind: "paste", code: longCode, fileName: "partial.ts" 
                 })).resolves.toMatchObject({
                     chunkCount: 1, sourceLabel: "partial.ts" 
                 })
@@ -99,7 +99,7 @@ describe("RagService",
                 })
                 const service = new RagService()
                 await service.index({
-                    code: "const grounded = true", fileName: "grounded.ts" 
+                    kind: "paste", code: "const grounded = true", fileName: "grounded.ts" 
                 })
                 const chunks: Array<string> = []
                 await expect(service.ask("What is grounded?",
