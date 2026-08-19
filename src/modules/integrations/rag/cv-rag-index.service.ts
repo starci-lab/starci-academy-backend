@@ -1,7 +1,4 @@
 import {
-    createHash,
-} from "node:crypto"
-import {
     Injectable,
 } from "@nestjs/common"
 import {
@@ -40,6 +37,14 @@ import {
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
+import {
+    asStoredChangeFingerprint,
+    CHANGE_FINGERPRINT_METADATA_KEY,
+    computeChangeFingerprint,
+} from "./change-fingerprint"
+import type {
+    ChangeFingerprint,
+} from "./change-fingerprint"
 import {
     CV_RAG_COLLECTION,
     CvRagKind,
@@ -123,11 +128,14 @@ interface CvRagScanResult {
  * `kind` payload {@link CvRagRetrievalService} filters retrieval by.
  *
  * DIFF-AWARE: identical strategy to {@link ContentRagIndexService} -- loads
- * the `{entryId -> sourceHash}` pairs already sitting in the collection's
- * payloads, skips unchanged entries, re-embeds changed/new ones, and drops
- * points for entries no longer enumerated (renamed/deleted corpus files). A
- * first run (empty/missing collection) falls out of the same diff as
- * "everything is new".
+ * the `{entryId -> ChangeFingerprint}` pairs already sitting in the
+ * collection's payloads (persisted under the `sourceHash` payload key -- see
+ * {@link CHANGE_FINGERPRINT_METADATA_KEY}), skips unchanged entries,
+ * re-embeds changed/new ones, and drops points for entries no longer
+ * enumerated (renamed/deleted corpus files). A first run (empty/missing
+ * collection) falls out of the same diff as "everything is new". The
+ * fingerprint is change-detection only, not an authenticity check -- see
+ * {@link ChangeFingerprint}.
  */
 export class CvRagIndexService {
     constructor(
@@ -249,11 +257,12 @@ export class CvRagIndexService {
      * for ONE entry must NOT abort the whole index build -- log it + skip to
      * the next one (mirrors {@link ContentRagIndexService}'s swallow policy).
      * @param entries - Every enumerated corpus entry to scan.
-     * @param existingHashes - The `{entryId -> sourceHash}` diff baseline.
+     * @param existingHashes - The `{entryId -> ChangeFingerprint}` diff baseline
+     * (change-detection only -- see {@link ChangeFingerprint}).
      */
     private async scanCvRagEntries(
         entries: Array<CvRagEntry>,
-        existingHashes: Map<string, string>,
+        existingHashes: Map<string, ChangeFingerprint>,
     ): Promise<CvRagScanResult> {
         const docs: Array<Document> = []
         const dirtyEntryIds: Array<string> = []
@@ -264,13 +273,13 @@ export class CvRagIndexService {
                 if (entryDocs.length === 0) {
                     continue
                 }
-                const sourceHash = this.hashDocs(entryDocs)
-                if (existingHashes.get(entry.entryId) === sourceHash) {
+                const changeFingerprint = computeChangeFingerprint(entryDocs)
+                if (existingHashes.get(entry.entryId) === changeFingerprint) {
                     unchangedCount += 1
                     continue
                 }
                 for (const doc of entryDocs) {
-                    doc.metadata.sourceHash = sourceHash
+                    doc.metadata[CHANGE_FINGERPRINT_METADATA_KEY] = changeFingerprint
                 }
                 dirtyEntryIds.push(entry.entryId)
                 docs.push(...entryDocs)
@@ -402,14 +411,16 @@ export class CvRagIndexService {
     }
 
     /**
-     * Bulk-load the `{entryId -> sourceHash}` pairs already indexed in the
-     * `cv_rag` collection, from payload alone (no vectors).
+     * Bulk-load the `{entryId -> ChangeFingerprint}` pairs already indexed in
+     * the `cv_rag` collection, from payload alone (no vectors).
      *
-     * @returns Map of `entryId` to the `sourceHash` recorded when it was last
-     * indexed. Empty when the collection does not exist yet (first build).
+     * @returns Map of `entryId` to the {@link ChangeFingerprint} recorded when
+     * it was last indexed (change-detection baseline only -- see
+     * {@link ChangeFingerprint}). Empty when the collection does not exist yet
+     * (first build).
      */
-    private async loadExistingHashes(): Promise<Map<string, string>> {
-        const hashes = new Map<string, string>()
+    private async loadExistingHashes(): Promise<Map<string, ChangeFingerprint>> {
+        const hashes = new Map<string, ChangeFingerprint>()
         let offset: string | number | undefined
         for (; ;) {
             let page
@@ -433,10 +444,10 @@ export class CvRagIndexService {
             for (const point of page.points) {
                 const metadata = point.payload?.metadata as { entryId?: unknown, sourceHash?: unknown } | undefined
                 const entryId = metadata?.entryId
-                const sourceHash = metadata?.sourceHash
-                if (typeof entryId === "string" && typeof sourceHash === "string" && !hashes.has(entryId)) {
+                const changeFingerprint = asStoredChangeFingerprint(metadata?.[CHANGE_FINGERPRINT_METADATA_KEY])
+                if (typeof entryId === "string" && changeFingerprint !== undefined && !hashes.has(entryId)) {
                     hashes.set(entryId,
-                        sourceHash)
+                        changeFingerprint)
                 }
             }
             if (page.next_page_offset === null || page.next_page_offset === undefined) {
@@ -478,22 +489,4 @@ export class CvRagIndexService {
         }
     }
 
-    /**
-     * Content-hash an entry's freshly-collected documents (before chunking)
-     * so it can be compared against the marker recorded when it was last
-     * indexed. sha1 over the concatenated page contents.
-     *
-     * @param docs - The entry's per-locale documents (unsplit).
-     * @returns A sha1 hex digest of the entry's current source text.
-     */
-    private hashDocs(
-        docs: Array<Document>,
-    ): string {
-        const hash = createHash("sha1")
-        for (const doc of docs) {
-            hash.update(doc.pageContent)
-            hash.update(" ")
-        }
-        return hash.digest("hex")
-    }
 }

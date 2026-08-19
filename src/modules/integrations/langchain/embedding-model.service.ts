@@ -36,7 +36,7 @@ import {
 } from "@langchain/google-genai"
 import {
     OllamaEmbeddings,
-} from "@langchain/community/embeddings/ollama"
+} from "@langchain/ollama"
 import {
     UnsupportedEmbeddingProviderException,
 } from "@modules/platform/exceptions/errors/ai/unsupported-embedding-provider"

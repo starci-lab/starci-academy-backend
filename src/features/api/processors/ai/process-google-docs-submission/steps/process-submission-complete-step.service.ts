@@ -5,12 +5,6 @@ import {
     JobActionService,
 } from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
-    EnqueueSendMailJobService,
-} from "@modules/bussiness/jobs/enqueue/send-mail.service"
-import {
-    NotificationService,
-} from "@modules/bussiness/notification/notification.service"
-import {
     ChallengeProgressService,
 } from "@modules/bussiness/progress/challenge.service"
 import {
@@ -19,12 +13,6 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
-import {
-    AiEntitlementService,
-} from "@modules/ai/ai-entitlement.service"
-import {
-    AiModelCatalogService,
-} from "@modules/ai/balancer/ai-model-catalog.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -49,6 +37,12 @@ import type {
 import {
     AbstractSubmissionCompleteStepService,
 } from "../../shared/challenge-submission/abstract-submission-complete-step.service"
+import {
+    SubmissionCompletionNotifierService,
+} from "../../shared/challenge-submission/submission-completion-notifier.service"
+import {
+    LegacyCreditChargeService,
+} from "../../shared/challenge-submission/legacy-credit-charge.service"
 
 @Injectable()
 /**
@@ -72,12 +66,10 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractSubm
             winstonService: WinstonService,
             eventEmitterService: EventEmitterService,
             dayjsService: DayjsService,
-            aiEntitlementService: AiEntitlementService,
-            aiModelCatalogService: AiModelCatalogService,
             progressProjectionService: ProgressProjectionService,
             challengeProgressService: ChallengeProgressService,
-            enqueueSendMailJobService: EnqueueSendMailJobService,
-            notificationService: NotificationService,
+            submissionCompletionNotifierService: SubmissionCompletionNotifierService,
+            legacyCreditChargeService: LegacyCreditChargeService,
     ) {
         super(
             entityManager,
@@ -85,12 +77,10 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractSubm
             winstonService,
             eventEmitterService,
             dayjsService,
-            aiEntitlementService,
-            aiModelCatalogService,
             progressProjectionService,
             challengeProgressService,
-            enqueueSendMailJobService,
-            notificationService,
+            submissionCompletionNotifierService,
+            legacyCreditChargeService,
         )
     }
 }

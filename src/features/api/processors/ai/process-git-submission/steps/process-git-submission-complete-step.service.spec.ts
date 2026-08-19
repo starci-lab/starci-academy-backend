@@ -18,6 +18,12 @@ import {
     MissingOrInvalidGradeExecutionResultException,
 } from "@modules/platform/exceptions/errors/ai/missing-or-invalid-grade-execution-result"
 import {
+    SubmissionCompletionNotifierService,
+} from "../../shared/challenge-submission/submission-completion-notifier.service"
+import {
+    LegacyCreditChargeService,
+} from "../../shared/challenge-submission/legacy-credit-charge.service"
+import {
     ProcessGitSubmissionCompleteStepService,
 } from "./process-git-submission-complete-step.service"
 
@@ -90,6 +96,25 @@ describe("ProcessGitSubmissionCompleteStepService",
             eventEmitterService = {
                 emit: jest.fn(),
             }
+            const legacyCreditChargeService = new LegacyCreditChargeService(
+                jobActionService as never,
+                aiEntitlementService as never,
+                {
+                    creditForRun: jest.fn().mockResolvedValue(0),
+                } as never,
+            )
+            const submissionCompletionNotifierService = new SubmissionCompletionNotifierService(
+                entityManager as never,
+                {
+                    enqueue: jest.fn(),
+                } as never,
+                {
+                    createNotification: jest.fn(),
+                } as never,
+                {
+                    log: jest.fn(),
+                } as never,
+            )
             service = new ProcessGitSubmissionCompleteStepService(
                 entityManager as never,
                 jobActionService as never,
@@ -98,22 +123,14 @@ describe("ProcessGitSubmissionCompleteStepService",
                 } as never,
                 eventEmitterService as never,
                 new DayjsService(),
-                aiEntitlementService as never,
-                {
-                    creditForRun: jest.fn().mockResolvedValue(0),
-                } as never,
                 {
                     recompute: jest.fn(),
                 } as never,
                 {
                     invalidateProgress: jest.fn(),
                 } as never,
-                {
-                    enqueue: jest.fn(),
-                } as never,
-                {
-                    createNotification: jest.fn(),
-                } as never,
+                submissionCompletionNotifierService,
+                legacyCreditChargeService,
             )
         })
 

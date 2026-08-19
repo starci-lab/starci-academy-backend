@@ -22,8 +22,14 @@ import {
 import {
     ChallengeEvaluationPromptService,
 } from "../shared/challenge-evaluation/challenge-evaluation-prompt.service"
+import {
+    ChallengeSubmissionCompletionModule,
+} from "../shared/challenge-submission/challenge-submission-completion.module"
 
 @Module({
+    imports: [
+        ChallengeSubmissionCompletionModule,
+    ],
     providers: [
         ProcessGitSubmissionWorker,
         ProcessGitSubmissionStepMappingService,

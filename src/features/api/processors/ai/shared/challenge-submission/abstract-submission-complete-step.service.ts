@@ -5,12 +5,6 @@ import {
     JobActionService,
 } from "@modules/bussiness/jobs/atomic/job-action.service"
 import {
-    EnqueueSendMailJobService,
-} from "@modules/bussiness/jobs/enqueue/send-mail.service"
-import {
-    NotificationService,
-} from "@modules/bussiness/notification/notification.service"
-import {
     ChallengeProgressService,
 } from "@modules/bussiness/progress/challenge.service"
 import {
@@ -36,35 +30,14 @@ import {
     ActivityType,
 } from "@modules/databases/postgresql/primary/enums/activity-type"
 import {
-    AiCeilSurface,
-} from "@modules/databases/postgresql/primary/enums/ai-ceil-surface"
-import {
-    AiModelTask,
-} from "@modules/databases/postgresql/primary/enums/ai-model-task"
-import {
     Locale,
 } from "@modules/databases/postgresql/primary/enums/locale"
 import {
-    NotificationType,
-} from "@modules/databases/postgresql/primary/enums/notification-type"
-import {
     XpSource,
 } from "@modules/databases/postgresql/primary/enums/xp-source"
-import {
-    AiEntitlementService,
-} from "@modules/ai/ai-entitlement.service"
-import {
-    AiModelCatalogService,
-} from "@modules/ai/balancer/ai-model-catalog.service"
-import {
-    DEFAULT_MODEL_CREDIT,
-} from "@modules/ai/constants/credit-cost"
 import type {
     GradingStepAiUsage,
 } from "@modules/ai/types/grading"
-import {
-    envConfig,
-} from "@modules/platform/env/config"
 import {
     QueryFailedError,
 } from "typeorm"
@@ -90,9 +63,6 @@ import {
     JobFencedOutException,
 } from "@modules/platform/exceptions/errors/job/not-found"
 import {
-    SubmissionOwnerMissingException,
-} from "@modules/platform/exceptions/errors/submission-review/submission-owner-missing"
-import {
     DayjsService,
 } from "@modules/lib/mixin/dayjs.service"
 import type {
@@ -105,15 +75,19 @@ import {
     writeXpHistory,
 } from "../xp/write-xp-history"
 import {
-    enqueueSubmissionResultEmail,
-} from "@modules/integrations/transactional-email/submission-result-email"
-import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases/postgresql/primary/primary.decorators"
+import {
+    SubmissionCompletionNotifierService,
+} from "./submission-completion-notifier.service"
+import {
+    LegacyCreditChargeService,
+} from "./legacy-credit-charge.service"
+import {
+    resolveChargedUserId,
+} from "./utils/resolve-charged-user-id"
 import type {
-    ChargeLegacyCreditIfNeededParams,
     GrantChallengePassRewardParams,
-    NotifySubmissionCompletionParams,
     PersistSubmissionCompletionParams,
     PersistSubmissionCompletionResult,
 } from "./types/complete"
@@ -183,12 +157,10 @@ export abstract class AbstractSubmissionCompleteStepService<
         protected readonly winstonService: WinstonService,
         protected readonly eventEmitterService: EventEmitterService,
         protected readonly dayjsService: DayjsService,
-        protected readonly aiEntitlementService: AiEntitlementService,
-        protected readonly aiModelCatalogService: AiModelCatalogService,
         protected readonly progressProjectionService: ProgressProjectionService,
         protected readonly challengeProgressService: ChallengeProgressService,
-        protected readonly enqueueSendMailJobService: EnqueueSendMailJobService,
-        protected readonly notificationService: NotificationService,
+        protected readonly submissionCompletionNotifierService: SubmissionCompletionNotifierService,
+        protected readonly legacyCreditChargeService: LegacyCreditChargeService,
     ) {
         super()
     }
@@ -239,7 +211,7 @@ export abstract class AbstractSubmissionCompleteStepService<
             throw error
         }
 
-        await this.chargeLegacyCreditIfNeeded({
+        await this.legacyCreditChargeService.chargeLegacyCreditIfNeeded({
             job,
             grade,
             createdNewAttempt,
@@ -273,7 +245,7 @@ export abstract class AbstractSubmissionCompleteStepService<
         // Notify the learner of their graded result -- only on the run that
         // actually created the attempt (idempotent: retries/duplicates skip it).
         if (createdNewAttempt) {
-            await this.notifyLearnerOfCompletion({
+            await this.submissionCompletionNotifierService.notifyLearnerOfCompletion({
                 payload,
                 job,
                 queueName,
@@ -407,7 +379,7 @@ export abstract class AbstractSubmissionCompleteStepService<
          * `AiEntitlementService.consume` every other grading surface uses --
          * see the V2 grade-step, which is the common path and already
          * charged before this step ran). */
-        const chargedUserId = await this.resolveChargedUserId(
+        const chargedUserId = await resolveChargedUserId(
             entityManager,
             payload,
         )
@@ -518,157 +490,4 @@ export abstract class AbstractSubmissionCompleteStepService<
         })
     }
 
-    /**
-     * Debit + record credit history AFTER commit, only for the legacy V1 grade path that
-     * does not charge up-front (the V2 grade step already debited + recorded history at
-     * invoke time -- marker set), and only when this run created the attempt.
-     * @param params - The job (to check the charge marker), grade, and completion outcome.
-     */
-    private async chargeLegacyCreditIfNeeded(
-        {
-            job,
-            grade,
-            createdNewAttempt,
-            chargedUserId,
-        }: ChargeLegacyCreditIfNeededParams<TGrade>,
-    ): Promise<void> {
-        const alreadyCharged = await this.jobActionService.loadExecutionResult<boolean>({
-            job,
-            key: "creditCharged",
-        })
-        if (!createdNewAttempt || !chargedUserId || alreadyCharged) {
-            return
-        }
-        await this.aiEntitlementService.consume({
-            userId: chargedUserId,
-            // charge by the model that actually served (catalog credit)
-            cost: grade.aiUsage?.model
-                ? await this.aiModelCatalogService.creditForRun({
-                    name: grade.aiUsage.model,
-                    promptTokens: grade.aiUsage.promptTokens,
-                    completionTokens: grade.aiUsage.completionTokens,
-                    cachedTokens: grade.aiUsage.cachedTokens,
-                    fallback: DEFAULT_MODEL_CREDIT,
-                })
-                : 0,
-            surface: AiCeilSurface.Grading,
-            task: AiModelTask.ChallengeGrading,
-            model: grade.aiUsage?.model ?? null,
-            provider: grade.aiUsage?.provider ?? null,
-            recommendation: null,
-            promptTokens: grade.aiUsage?.promptTokens ?? null,
-            completionTokens: grade.aiUsage?.completionTokens ?? null,
-            attempts: grade.aiUsage?.attempts ?? null,
-        })
-    }
-
-    /**
-     * Send the graded-result email and in-app notification for a newly created attempt.
-     * Best-effort: the email helper never throws, and the in-app notification failure is
-     * caught + logged -- neither can fail the already-committed grading job.
-     * @param params - The payload, job (for log correlation), and validated grade.
-     */
-    private async notifyLearnerOfCompletion(
-        {
-            payload,
-            job,
-            queueName,
-            grade,
-        }: NotifySubmissionCompletionParams<TPayload, TGrade>,
-    ): Promise<void> {
-        await enqueueSubmissionResultEmail({
-            entityManager: this.entityManager,
-            enqueueSendMailJobService: this.enqueueSendMailJobService,
-            userChallengeSubmissionId: payload.userChallengeSubmissionId,
-            score: grade.evaluation.score,
-            feedback: grade.evaluation.shortFeedback,
-            webBaseUrl: envConfig().web.baseUrl,
-            locale: payload.locale,
-        })
-        // Best-effort in-app notification -- a failure here can never fail the
-        // already-committed grading job (mirrors the email best-effort above).
-        try {
-            const userChallengeSubmission = await this.entityManager.findOne(
-                UserChallengeSubmissionEntity,
-                {
-                    where: {
-                        id: payload.userChallengeSubmissionId,
-                    },
-                    relations: {
-                        submission: {
-                            challenge: true,
-                        },
-                    },
-                },
-            )
-            const challenge = userChallengeSubmission?.submission?.challenge
-            const notifiedUserId = await this.resolveChargedUserId(
-                this.entityManager,
-                payload,
-            )
-            await this.notificationService.createNotification({
-                userId: notifiedUserId,
-                type: NotificationType.ChallengeGraded,
-                title: {
-                    key: "notification.challengeGraded.title",
-                    params: {
-                        title: challenge?.title ?? "",
-                        result: grade.passed ? "passed" : "failed",
-                    },
-                },
-                target: challenge
-                    ? {
-                        entityName: ChallengeEntity.name,
-                        id: challenge.id,
-                        label: challenge.title,
-                    }
-                    : undefined,
-            })
-        } catch (error) {
-            this.winstonService.log(
-                WinstonLog.ProcessGitSubmissionStepExecuted,
-                {
-                    jobId: job.id ?? "",
-                    queueName,
-                    step: this.stepName,
-                    stepIndex: this.stepIndex,
-                    payload,
-                    success: false,
-                    error: error instanceof Error ? error.message : String(error),
-                },
-            )
-        }
-    }
-
-    /**
-     * Resolve who is being charged from the user challenge submission -- the
-     * actual debit + history row are written by {@link AiEntitlementService.consume}
-     * (either at grade-step time, the common V2 path, or by this step's own
-     * after-commit fallback for the legacy V1 path -- see {@link process}).
-     * @param entityManager - Transaction manager.
-     * @param payload - Job payload carrying the submission id.
-     * @returns The id of the user to charge.
-     */
-    private async resolveChargedUserId(
-        entityManager: EntityManager,
-        payload: TPayload,
-    ): Promise<string> {
-        const userChallengeSubmission = await entityManager.findOneOrFail(
-            UserChallengeSubmissionEntity,
-            {
-                where: {
-                    id: payload.userChallengeSubmissionId,
-                },
-            },
-        )
-        // user_id is nullable after the enrollment-centric migration; an AI-graded
-        // submission always has an owner -- guard so the credit-usage write stays typed.
-        const submissionUserId = userChallengeSubmission.userId
-        if (!submissionUserId) {
-            throw new SubmissionOwnerMissingException({
-                userChallengeSubmissionId: payload.userChallengeSubmissionId,
-            })
-        }
-        return submissionUserId
-    }
 }

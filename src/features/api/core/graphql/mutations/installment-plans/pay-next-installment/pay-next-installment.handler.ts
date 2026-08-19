@@ -1,7 +1,4 @@
 import {
-    randomInt,
-} from "node:crypto"
-import {
     ICQRSHandler,
 } from "@modules/platform/cqrs/icqrs-handler"
 import {
@@ -100,6 +97,9 @@ import type {
     ResolveInstallmentCheckoutParams,
     ResolveInstallmentCheckoutResult,
 } from "./types/checkout"
+import {
+    generateOrderCode,
+} from "@modules/bussiness/transactions/utils/order-code"
 
 /** Label used in provider descriptions. */
 const INSTALLMENT_PAYMENT_LABEL = "installment-payment"
@@ -389,9 +389,6 @@ export class PayNextInstallmentHandler
      * @returns A unique-per-request integer order code.
      */
     private generateOrderCode(): number {
-        // millisecond timestamp keeps codes ordered; the suffix comes from the
-        // CSPRNG because this code IS the payment reference the gateway and the
-        // webhook look the transaction up by -- a Math.random suffix is guessable.
-        return Date.now() * 1000 + randomInt(1000)
+        return generateOrderCode()
     }
 }

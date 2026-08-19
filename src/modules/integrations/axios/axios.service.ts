@@ -2,16 +2,18 @@ import {
     envConfig,
 } from "@modules/platform/env/config"
 import {
-    Injectable 
+    Injectable
 } from "@nestjs/common"
 import axios, {
     AxiosInstance,
 } from "axios"
 import axiosRetry from "axios-retry"
-import Decimal from "decimal.js"
 import {
     AxiosCreateParams,
 } from "./types/axios"
+import {
+    computeRetryDelayWithJitter,
+} from "./utils/compute-retry-delay"
 
 @Injectable()
 /**
@@ -72,15 +74,14 @@ export class AxiosService {
             {
                 // set max retry attempts from config
                 retries: maxRetries,
-                // calculate delay with exponential backoff and jitter
-                retryDelay: (retryCount) => {
-                    // calculate exponential base delay (2^retryCount * baseDelay)
-                    const baseDelay = new Decimal(2).pow(new Decimal(retryCount)).mul(envConfig().axios.retry.delay)
-                    // add random jitter to prevent thundering herd
-                    const jitter = new Decimal(Math.random()).mul(envConfig().axios.retry.delay)
-                    // return total delay in milliseconds
-                    return baseDelay.add(jitter).toNumber()
-                },
+                // calculate delay with exponential backoff and jitter -- see
+                // computeRetryDelayWithJitter for the formula and why it is
+                // a standalone, unit-tested function rather than inlined here
+                retryDelay: (retryCount) => computeRetryDelayWithJitter({
+                    retryCount,
+                    baseDelayMs: envConfig().axios.retry.delay,
+                    jitterMaxMs: envConfig().axios.retry.delay,
+                }),
                 // determine if request should be retried
                 retryCondition: (error) => {
                     // retry on network errors or idempotent request errors

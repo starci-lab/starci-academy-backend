@@ -62,7 +62,7 @@ jest.mock("@langchain/google-genai",
             this.embedQuery = mockGeminiEmbedQuery
         }),
     }))
-jest.mock("@langchain/community/embeddings/ollama",
+jest.mock("@langchain/ollama",
     () => ({
         OllamaEmbeddings: jest.fn(function (
             this: Record<string, unknown>,

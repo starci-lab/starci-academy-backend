@@ -59,6 +59,12 @@ import {
     writeXpHistory,
 } from "../../shared/xp/write-xp-history"
 import {
+    SubmissionCompletionNotifierService,
+} from "../../shared/challenge-submission/submission-completion-notifier.service"
+import {
+    LegacyCreditChargeService,
+} from "../../shared/challenge-submission/legacy-credit-charge.service"
+import {
     ProcessGoogleDocsSubmissionCompleteStepService,
 } from "./process-submission-complete-step.service"
 
@@ -267,6 +273,17 @@ describe("ProcessGoogleDocsSubmissionCompleteStepService",
                 createNotification: jest.fn(),
             }
             programHappyReads()
+            const legacyCreditChargeService = new LegacyCreditChargeService(
+                jobActionService as never,
+                aiEntitlementService as never,
+                aiModelCatalogService as never,
+            )
+            const submissionCompletionNotifierService = new SubmissionCompletionNotifierService(
+                entityManager as never,
+                enqueueSendMailJobService as never,
+                notificationService as never,
+                winstonService as never,
+            )
             service = new ProcessGoogleDocsSubmissionCompleteStepService(
                 entityManager as never,
                 jobActionService as never,
@@ -277,12 +294,10 @@ describe("ProcessGoogleDocsSubmissionCompleteStepService",
                         toDate: () => PROCESSED_AT,
                     }),
                 } as never,
-                aiEntitlementService as never,
-                aiModelCatalogService as never,
                 progressProjectionService as never,
                 challengeProgressService as never,
-                enqueueSendMailJobService as never,
-                notificationService as never,
+                submissionCompletionNotifierService,
+                legacyCreditChargeService,
             )
         })
 

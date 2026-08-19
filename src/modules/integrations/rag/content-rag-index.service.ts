@@ -1,7 +1,4 @@
 import {
-    createHash,
-} from "node:crypto"
-import {
     Injectable,
 } from "@nestjs/common"
 import type {
@@ -73,6 +70,14 @@ import {
 import {
     WinstonService,
 } from "@modules/platform/winston/winston.service"
+import {
+    asStoredChangeFingerprint,
+    CHANGE_FINGERPRINT_METADATA_KEY,
+    computeChangeFingerprint,
+} from "./change-fingerprint"
+import type {
+    ChangeFingerprint,
+} from "./change-fingerprint"
 import {
     extToLang,
 } from "./utils"
@@ -189,16 +194,19 @@ interface LogContentRagCompletedParams {
  * flashcard/milestone all share the same UUID id-space) -- so content-AI chat
  * can filter by a single lesson's `contentId`, `CourseRagRetrievalService.
  * searchCourse` can filter by `courseId` across every kind, and this service
- * can tell whether a row's source changed since it was last indexed.
+ * can tell whether a row's source changed since it was last indexed. The
+ * `sourceHash` payload field (see {@link CHANGE_FINGERPRINT_METADATA_KEY}) is
+ * a {@link ChangeFingerprint} -- change-detection only, never an authenticity
+ * check; see that type's doc block before reusing it for anything else.
  *
  * DIFF-AWARE: like the ES/CDN sync, this never blindly rebuilds. Every run
- * bulk-loads the `{contentId -> sourceHash}` pairs already sitting in the
- * collection's payloads (one cheap no-vector scroll), then per content:
- * unchanged hash -> skip entirely (no re-embedding); changed/new -> delete its
- * stale points + re-embed; content no longer enumerated (deleted/renamed) ->
- * delete its stale points. A first run (empty/missing collection) naturally
- * falls out of the same diff as "everything is new" -- no separate full-rebuild
- * flag needed.
+ * bulk-loads the `{contentId -> ChangeFingerprint}` pairs already sitting in
+ * the collection's payloads (one cheap no-vector scroll), then per content:
+ * unchanged fingerprint -> skip entirely (no re-embedding); changed/new ->
+ * delete its stale points + re-embed; content no longer enumerated
+ * (deleted/renamed) -> delete its stale points. A first run (empty/missing
+ * collection) naturally falls out of the same diff as "everything is new" --
+ * no separate full-rebuild flag needed.
  */
 export class ContentRagIndexService {
     constructor(
@@ -245,9 +253,10 @@ export class ContentRagIndexService {
         // mechanics that used to only ever see `ContentEntity` rows).
         const items = this.buildRagIndexItems(corpus)
 
-        // diff baseline: {contentId -> sourceHash} already sitting in the
-        // collection's payloads (empty on a first/missing-collection run, which
-        // then falls out of the scan below as "everything is new" for free)
+        // diff baseline: {contentId -> ChangeFingerprint} already sitting in
+        // the collection's payloads (empty on a first/missing-collection run,
+        // which then falls out of the scan below as "everything is new" for
+        // free)
         const existingHashes = await this.loadExistingHashes(collectionName)
         const currentContentIds = new Set(items.map((item) => item.id))
 
@@ -505,11 +514,12 @@ export class ContentRagIndexService {
      * to the next one (mirrors the non-fatal swallow policy of the asset-mirror
      * + init phases).
      * @param items - Every enumerated row (any of the 4 kinds) to scan.
-     * @param existingHashes - The `{contentId -> sourceHash}` diff baseline.
+     * @param existingHashes - The `{contentId -> ChangeFingerprint}` diff
+     * baseline (change-detection only -- see {@link ChangeFingerprint}).
      */
     private async scanRagIndexItems(
         items: Array<RagIndexItem>,
-        existingHashes: Map<string, string>,
+        existingHashes: Map<string, ChangeFingerprint>,
     ): Promise<RagIndexScanResult> {
         const docs: Array<Document> = []
         const dirtyContentIds: Array<string> = []
@@ -553,33 +563,35 @@ export class ContentRagIndexService {
 
     /**
      * Decide what a single {@link RagIndexItem} means for this scan: empty
-     * (nothing to index), unchanged (hash matches the baseline), changed (new
-     * or edited -- carries the hashed docs + whether it already had points in
-     * the collection), or errored (per-item isolation: a MinIO read / parse
-     * failure for ONE row must NOT abort the whole index build -- log it and
-     * let the caller skip to the next one).
+     * (nothing to index), unchanged (fingerprint matches the baseline),
+     * changed (new or edited -- carries the fingerprinted docs + whether it
+     * already had points in the collection), or errored (per-item isolation:
+     * a MinIO read / parse failure for ONE row must NOT abort the whole index
+     * build -- log it and let the caller skip to the next one).
      */
     private async diffRagIndexItem(
         item: RagIndexItem,
-        existingHashes: Map<string, string>,
+        existingHashes: Map<string, ChangeFingerprint>,
     ): Promise<RagIndexItemScanOutcome> {
         try {
             const itemDocs = await item.collect()
             if (itemDocs.length === 0) {
                 return {
-                    kind: "empty" 
+                    kind: "empty"
                 }
             }
-            // content-hash the RAW (unsplit) source text -- cheaper than
-            // chunking/embedding just to find out nothing changed
-            const sourceHash = this.hashDocs(itemDocs)
-            if (existingHashes.get(item.id) === sourceHash) {
+            // content-fingerprint the RAW (unsplit) source text -- cheaper
+            // than chunking/embedding just to find out nothing changed. This
+            // is change-detection only, never an authenticity check -- see
+            // {@link ChangeFingerprint}.
+            const changeFingerprint = computeChangeFingerprint(itemDocs)
+            if (existingHashes.get(item.id) === changeFingerprint) {
                 return {
-                    kind: "unchanged" 
+                    kind: "unchanged"
                 }
             }
             for (const doc of itemDocs) {
-                doc.metadata.sourceHash = sourceHash
+                doc.metadata[CHANGE_FINGERPRINT_METADATA_KEY] = changeFingerprint
             }
             return {
                 kind: "changed",
@@ -1145,18 +1157,21 @@ export class ContentRagIndexService {
     }
 
     /**
-     * Bulk-load the `{contentId -> sourceHash}` pairs already indexed in the
-     * collection, from payload alone (no vectors) -- the whole diff baseline in a
-     * handful of paginated scroll calls instead of one lookup per content.
+     * Bulk-load the `{contentId -> ChangeFingerprint}` pairs already indexed
+     * in the collection, from payload alone (no vectors) -- the whole diff
+     * baseline in a handful of paginated scroll calls instead of one lookup
+     * per content.
      *
      * @param collectionName - The collection to read markers from.
-     * @returns Map of `contentId` to the `sourceHash` recorded when it was last
-     * indexed. Empty when the collection does not exist yet (first build).
+     * @returns Map of `contentId` to the {@link ChangeFingerprint} recorded
+     * when it was last indexed (change-detection baseline only -- see
+     * {@link ChangeFingerprint}). Empty when the collection does not exist
+     * yet (first build).
      */
     private async loadExistingHashes(
         collectionName: string,
-    ): Promise<Map<string, string>> {
-        const hashes = new Map<string, string>()
+    ): Promise<Map<string, ChangeFingerprint>> {
+        const hashes = new Map<string, ChangeFingerprint>()
         let offset: string | number | undefined
         for (; ;) {
             let page
@@ -1183,10 +1198,10 @@ export class ContentRagIndexService {
             for (const point of page.points) {
                 const metadata = point.payload?.metadata as { contentId?: unknown, sourceHash?: unknown } | undefined
                 const contentId = metadata?.contentId
-                const sourceHash = metadata?.sourceHash
-                if (typeof contentId === "string" && typeof sourceHash === "string" && !hashes.has(contentId)) {
+                const changeFingerprint = asStoredChangeFingerprint(metadata?.[CHANGE_FINGERPRINT_METADATA_KEY])
+                if (typeof contentId === "string" && changeFingerprint !== undefined && !hashes.has(contentId)) {
                     hashes.set(contentId,
-                        sourceHash)
+                        changeFingerprint)
                 }
             }
             if (page.next_page_offset === null || page.next_page_offset === undefined) {
@@ -1269,26 +1284,5 @@ export class ContentRagIndexService {
         } catch {
             // collection may not exist yet, or nothing to delete for this content -- fine
         }
-    }
-
-    /**
-     * Content-hash a content's freshly-collected documents (body + code, before
-     * chunking) so it can be compared against the marker recorded when it was
-     * last indexed. sha1 over the concatenated page contents -- order-stable
-     * because {@link collectBodyDocs}/{@link collectCodeDocs} always push in the
-     * same order (vi body, en body, then code files in MinIO map order).
-     *
-     * @param docs - The content's body + code documents (unsplit).
-     * @returns A sha1 hex digest of the content's current source text.
-     */
-    private hashDocs(
-        docs: Array<Document>,
-    ): string {
-        const hash = createHash("sha1")
-        for (const doc of docs) {
-            hash.update(doc.pageContent)
-            hash.update(" ")
-        }
-        return hash.digest("hex")
     }
 }

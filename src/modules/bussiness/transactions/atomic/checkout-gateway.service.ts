@@ -1,7 +1,4 @@
 import {
-    randomInt,
-} from "node:crypto"
-import {
     Injectable,
 } from "@nestjs/common"
 import {
@@ -58,6 +55,9 @@ import type {
     ResolveCheckoutParams,
     ResolveCheckoutResult,
 } from "../types/checkout-gateway"
+import {
+    generateOrderCode,
+} from "../utils/order-code"
 
 @Injectable()
 /**
@@ -333,9 +333,6 @@ export class CheckoutGatewayService {
      * Generate a provider order code (also stored as the transaction reference).
      */
     generateOrderCode(): number {
-        // millisecond timestamp keeps codes ordered; the suffix comes from the
-        // CSPRNG because this code IS the payment reference the gateway and the
-        // webhook look the transaction up by -- a Math.random suffix is guessable.
-        return Date.now() * 1000 + randomInt(1000)
+        return generateOrderCode()
     }
 }
