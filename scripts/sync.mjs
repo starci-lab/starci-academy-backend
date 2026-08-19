@@ -504,8 +504,8 @@ const readMetadata = () => {
     if (!existsSync(PATHS.metadata)) {
         fail("metadata.json is missing at the repo root.",
             [`expected: ${PATHS.metadata}`,
-                "It declares \"portOffset\" and the resolved \"ports\" map that every",
-                "other file (compose fragments, the env bridge) derives from.",
+                "It declares service identities and the resolved \"ports\" projection that",
+                "other files (compose fragments, the env bridge) consume.",
                 "Restore it from git."])
     }
     let metadata
@@ -519,27 +519,15 @@ const readMetadata = () => {
     }
     const ports = metadata.ports ?? {
     }
-    const basePorts = metadata.basePorts ?? {
-    }
-    const offset = metadata.portOffset
-
     const missing = REQUIRED_PORTS.filter((name) => typeof ports[name] !== "number")
     if (missing.length > 0) {
         fail("metadata.json is missing required ports.",
             [`missing: ${missing.join(", ")}`,
-                "Add them under \"ports\" as basePort + portOffset."])
+                "Add their Source-resolved values under \"ports\" and declare them in \"portServices\"."])
     }
-    if (typeof offset === "number") {
-        for (const [name, port] of Object.entries(ports)) {
-            const base = basePorts[name]
-            if (typeof base === "number" && base + offset !== port) {
-                warn(`ports.${name} (${port}) != basePorts.${name} + portOffset (${base + offset})`)
-            }
-        }
-    }
-    ok(`project "${metadata.project ?? "unknown"}", portOffset ${offset ?? "n/a"}, ${Object.keys(ports).length} ports`)
+    ok(`project "${metadata.project ?? "unknown"}", ${Object.keys(ports).length} resolved ports`)
     return {
-        metadata, ports, offset
+        metadata, ports
     }
 }
 
@@ -1127,7 +1115,7 @@ const writeEnvBridge = (
         "#",
         "# Every edit here is overwritten by the next `npm run sync`. Change the source",
         "# instead:",
-        "#   ports        -> metadata.json  (host port = basePort + portOffset)",
+        "#   ports        -> metadata.json  (resolved from Source-owned allocation)",
         "#   credentials  -> .stacks/dev/runtime/**  (sops, then `npm run sync`)",
         "#",
         "# Why this file exists: src/modules/platform/env/config.ts defaults to STANDARD",
@@ -1559,17 +1547,16 @@ const crossCheckKeysDoc = (emitted) => {
  * Prints the resolved ports and the commands to run next. Infra is deliberately
  * NOT started here -- `npm run compose` owns that.
  * @param ports - resolved port map.
- * @param offset - metadata.json portOffset, for the human reading this.
  * @param target - `{ path, mode }` the env bridge was written to.
  */
-const printSummary = (ports, offset, target) => {
+const printSummary = (ports, target) => {
     step("summary")
     const width = Math.max(...Object.keys(ports).map((name) => name.length))
     for (const [name, port] of Object.entries(ports)) {
         info(`${name.padEnd(width)}  ${port}`)
     }
     console.log(`\n    ${green("core")}  http://localhost:${ports.core}`)
-    console.log(`    ${dim(`host port = base port + ${offset ?? "portOffset"} (metadata.json)`)}`)
+    console.log(`    ${dim("resolved ports: metadata.json; allocation: Source .workspace/ports.json")}`)
     console.log(`\n    ${cyan("next:")}`)
     console.log("      npm ci")
     console.log("      npm run compose")
@@ -1643,7 +1630,7 @@ const main = async () => {
         console.log(cyan("starci-academy-backend :: sync"))
     }
     const {
-        ports, offset
+        ports
     } = readMetadata()
     const masterKeyPath = locateMasterKey()
     ensureTools()
@@ -1675,7 +1662,6 @@ const main = async () => {
     crossCheckKeysDoc(emitted)
     if (!QUIET) {
         printSummary(ports,
-            offset,
             target)
     }
 }

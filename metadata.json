@@ -1,8 +1,8 @@
 {
     "project": "starci-academy-backend",
-    "description": "StarCi Academy backend — port offset registry + stack metadata. Host port = basePorts.<name> + portOffset. StarCi uses offset 1; sibling projects use their own offsets. This file is the only source of truth for ports: compose fragments interpolate them and scripts/sync.mjs writes them into the generated env bridge. NOTE: this is not .mount/config/metadata.json, which is i18n content read by the app.",
-    "portOffset": 1,
+    "description": "StarCi Academy backend — service port declarations, resolved runtime projection, stack metadata, and the declaration site for git-mounted operational data repositories. Source offsets and application slots live only in .workspace/ports.json; secrets live under .stacks/, sops-encrypted. NOTE: this is not .mount/config/metadata.json, which is i18n content read by the app.",
     "ports": {
+        "web": 3000,
         "core": 3001,
         "postgres": 5433,
         "redis": 6380,
@@ -19,22 +19,23 @@
         "prometheus": 9091,
         "sonarqube": 9011
     },
-    "basePorts": {
-        "core": 3000,
-        "postgres": 5432,
-        "redis": 6379,
-        "elasticsearch": 9200,
-        "qdrant": 6333,
-        "qdrantGrpc": 6334,
-        "kafka": 9092,
-        "minio": 9000,
-        "minioConsole": 9001,
-        "nats": 4222,
-        "natsMonitor": 8222,
-        "keycloak": 8080,
-        "cadvisor": 8081,
-        "prometheus": 9090,
-        "sonarqube": 9010
+    "portServices": {
+        "web": {"scope": "application", "application": "main", "basePort": 2999},
+        "core": {"scope": "application", "application": "main", "basePort": 3000},
+        "postgres": {"scope": "shared", "basePort": 5432},
+        "redis": {"scope": "shared", "basePort": 6379},
+        "elasticsearch": {"scope": "shared", "basePort": 9200},
+        "qdrant": {"scope": "shared", "basePort": 6333},
+        "qdrantGrpc": {"scope": "shared", "basePort": 6334},
+        "kafka": {"scope": "shared", "basePort": 9092},
+        "minio": {"scope": "shared", "basePort": 9000},
+        "minioConsole": {"scope": "shared", "basePort": 9001},
+        "nats": {"scope": "shared", "basePort": 4222},
+        "natsMonitor": {"scope": "shared", "basePort": 8222},
+        "keycloak": {"scope": "shared", "basePort": 8080},
+        "cadvisor": {"scope": "shared", "basePort": 8081},
+        "prometheus": {"scope": "shared", "basePort": 9090},
+        "sonarqube": {"scope": "shared", "basePort": 9010}
     },
     "secrets": {
         "masterKey": "~/.starci/master.identity",
