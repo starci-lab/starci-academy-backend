@@ -59,25 +59,25 @@ shared      = base port + family offset
 application = base port + family offset + application slot * slotStep
 ```
 
-Dự án này dùng family `starci-academy` offset `+1`, application `main` slot `0`. Projection hiện tại:
+Dự án này dùng family `starci-academy` offset `+0`, application `main` slot `0`. Projection hiện tại:
 
 | Service | Base | Host | Ghi chú |
 |---|---|---|---|
-| web (Next app) | 2999 | **3000** | application `main`, slot `0` |
-| core (Nest app) | 3000 | **3001** | application `main`, slot `0` |
-| postgres | 5432 | 5433 | shared |
-| redis | 6379 | 6380 | shared |
-| elasticsearch | 9200 | 9201 | shared |
-| qdrant | 6333 | 6334 | shared REST |
-| qdrant gRPC | 6334 | 6335 | shared |
-| kafka | 9092 | 9093 | shared |
-| minio | 9000 | 9001 | shared S3 API |
-| minio console | 9001 | 9002 | shared UI |
-| nats | 4222 | 4223 | shared |
-| nats monitor | 8222 | 8223 | shared |
-| keycloak | 8080 | 8081 | shared |
-| cadvisor | 8081 | 8082 | shared |
-| prometheus | 9090 | 9091 | shared |
+| web (Next app) | 3000 | **3000** | application `main`, slot `0` |
+| core (Nest app) | 3001 | **3001** | application `main`, slot `0` |
+| postgres | 5432 | 5432 | shared |
+| redis | 6379 | 6379 | shared |
+| elasticsearch | 9200 | 9200 | shared |
+| qdrant | 6333 | 6333 | shared REST |
+| qdrant gRPC | 6334 | 6334 | shared |
+| kafka | 9092 | 9092 | shared |
+| minio | 9000 | 9000 | shared S3 API |
+| minio console | 9001 | 9001 | shared UI |
+| nats | 4222 | 4222 | shared |
+| nats monitor | 8222 | 8222 | shared |
+| keycloak | 8080 | 8080 | shared |
+| cadvisor | 8081 | 8081 | shared |
+| prometheus | 9090 | 9090 | shared |
 
 ⚠️ **Bảng trên là projection cho dễ đọc.** Đổi allocation thì sửa Source `.workspace/ports.json`,
 refresh `metadata.json`, rồi chạy checker; không đưa `portOffset` hoặc application slot trở lại product.
